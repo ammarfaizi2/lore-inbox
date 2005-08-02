@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVHBNJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVHBNL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVHBNJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 09:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVHBNJv
+	id S261518AbVHBNL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 09:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVHBNL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 09:09:51 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:3257 "EHLO placid.alcove-fr")
-	by vger.kernel.org with ESMTP id S261508AbVHBNJu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 09:09:50 -0400
-Subject: Re: powerbook power-off and 2.6.13-rc[3,4]
-From: Stelian Pop <stelian@popies.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Johannes Berg <johannes@sipsolutions.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>,
-       debian-powerpc@lists.debian.org
-In-Reply-To: <20050802125445.GA32322@atrey.karlin.mff.cuni.cz>
-References: <1122904460.6491.41.camel@localhost.localdomain>
-	 <1122905228.6881.9.camel@localhost>
-	 <1122907136.31350.45.camel@localhost.localdomain>
-	 <20050802111754.GC1390@elf.ucw.cz> <42EF5B4E.6090101@sipsolutions.net>
-	 <1122982951.4652.14.camel@localhost.localdomain>
-	 <1122985793.4648.4.camel@localhost.localdomain>
-	 <20050802125445.GA32322@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 02 Aug 2005 15:09:16 +0200
-Message-Id: <1122988156.6087.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8bit
+	Tue, 2 Aug 2005 09:11:27 -0400
+Received: from pop-canoe.atl.sa.earthlink.net ([207.69.195.66]:40911 "EHLO
+	pop-canoe.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S261509AbVHBNKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 09:10:46 -0400
+Message-ID: <42EF70BD.7070804@earthlink.net>
+Date: Tue, 02 Aug 2005 09:10:21 -0400
+From: Stephen Clark <stephen.clark@earthlink.net>
+Reply-To: sclark46@earthlink.net
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bruce <bruce@andrew.cmu.edu>
+CC: "Theodore Ts'o" <tytso@mit.edu>, David Weinehall <tao@acc.umu.se>,
+       Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>,
+       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+References: <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz> <1122852234.13000.27.camel@mindpipe> <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu> <20050801204245.GC17258@thunk.org> <42EEFB9B.10508@andrew.cmu.edu>
+In-Reply-To: <42EEFB9B.10508@andrew.cmu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 02 août 2005 à 14:54 +0200, Pavel Machek a écrit :
-> Hi!
-> 
-> > > > Pavel Machek wrote:
-> > > > 
-> > > > >Can you try without USB?
-> > > > >
-> > > > Not really. The keyboard is USB, and there's no PS/2 connector. I guess 
-> > > > I maybe could do it via a timer, unload the modules and then have it 
-> > > > shut down afterwards...
-> > > 
-> > > I'll build a kernel without USB and drive the laptop over the net and
-> > > see what happens.
-> > 
-> > Without CONFIG_USB the poweroff still hangs, and this time the panel
-> > goes completly white with dark spots appearing all over it (kinda scary
-> > btw). A 5 seconds press on the power button force it to power off.
-> 
-> Yep, looks like screen burning, right?
+James Bruce wrote:
 
-Exactly.
+>Theodore Ts'o wrote:
+> > On Mon, Aug 01, 2005 at 12:18:18PM -0400, James Bruce wrote:
+> >>The tradeoff is a realistic 4.4% power savings vs a 300% increase in
+> >>the minimum sleep period.  A user will see zero power savings if they
+> >>have a USB mouse (probably 99% of desktops).  On top of that, we can
+>                                     ^^^^^^^^
+>
+> > Most laptops (including mine, a Thinkpad T40) use a PS/2 mouse.  So in
+> > the places where power consumption savins matters most, it's usually
+> > quite possible to function without needing any USB devices.  The 90%
+> > figure isn't at all right; in fact, it may be that over 90% of the
+> > laptops still use PS/2 mice and keyboards.
+>
+>Yes, laptops are mostly PS/2, which is why I only claimed a statistic 
+>for desktops.  Desktops pretty much all use USB mice now.  If 250Hz were 
+>only being sold as an option for laptops, we could leave it at that, yet 
+>its being pushed as a default that's "good for everyone".  For desktops 
+>this is not currently true at all.  By the time USB is fixed to do power 
+>saving, we'll probably have a working tick-skipping patch which makes 
+>the whole HZ argument moot.
+>
+>  - Jim Bruce
+>
+>  
+>
+Maybe new desktop systems - but what about the tens of millions of old 
+systems that don't.
 
->  So it is different kind of hang
-> => USB has some problem but there's another one, too?
-
-Seems that this is the case, yes.
-
-> > This is on a 2.6.13-rc4, and I'm attaching the .config in case it
-> > matters.
-> 
-> Could you try inserting printks to see where it hangs? Aha, with
-> display turned off that is not going to be funny.
-
-Unfortunately I won't have time to debug this right now (I leave on
-vacation tomorrow), so somebody else will have to do it (and no, it is
-not going to be funny to do this without display, serial port, buzzer
-etc)
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
-
+Steve

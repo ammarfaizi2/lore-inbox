@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVHBXGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVHBXIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbVHBXGn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 19:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVHBXGn
+	id S261927AbVHBXIL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 19:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVHBXIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 19:06:43 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:46887 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261909AbVHBXGk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 19:06:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=SlJgTE3ew3VAtRkxEcW0fOBd9Pvv6BwPyf0kM++ldnxOf7tDcNpqCQUDOk5gBxmaTUs5iDa5hl5ykNimzADIb0AJnNJK1rRvIEciU8Wox5K3wfSA5SANRhznJNB5NuDWHuFGKVvj1RksPCkXC28z7JYKHJzJHW4TcKYaa0GU8RE=
-Message-ID: <a728f9f90508021606e3cf975@mail.gmail.com>
-Date: Tue, 2 Aug 2005 19:06:34 -0400
-From: Alex Deucher <alexdeucher@gmail.com>
-Reply-To: Alex Deucher <alexdeucher@gmail.com>
-To: sparclinux@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: strange issues with JFS on sparc64
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>, ag@m-cam.com
+	Tue, 2 Aug 2005 19:08:11 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7943 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261927AbVHBXHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 19:07:52 -0400
+Date: Wed, 3 Aug 2005 01:07:51 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] util-linux 2.13-pre1
+Message-ID: <20050802230751.GB4029@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 7 TB JFS volume on a sparc64 box (sun enterprise 220R)
-running 2.6.12.2 on debian sparc.   When copying large numbers of
-files, files start to dissappear, but they are not actually gone they
-just stop showing up.  when you delete enough files from the
-directory, all of a sudden all of the remaining files show up.  If I
-try and run an fsck on the volume I get a bus error.  It seems to be
-an issue with JFS on sparc64 as I have the same setup on AMD64 with no
-problems.  I talked to some of the IBM engineers and it seems like it
-may be an alignment problem on SPARC64.  I was hoping someone with
-more experience with SPARC hardware may have some input that could
-help us solve the problem.
-The full thread is here:
-http://sourceforge.net/mailarchive/forum.php?thread_id=7852301&forum_id=43911
+util-linux 2.13-pre1 is available at
+  ftp://ftp.kernel.org/pub/linux/utils/util-linux/testing/util-linux-2.13-pre1.tar.gz
 
-Any insight is much appreciated.
+Changes:
+* use GNU autoconf/automake/libtool for building
+* added schedutils
+* removed support for curses implementations other than ncurses
+* removed programs: arch, passwd, rescuept, setfdprm
+* removed mkminix-0.1/
+* misc fixes and documentation updates
+* new translation: vi
+* updated translations: ca, de, fi, fr, it, nl, ru, tr
 
-Thanks,
 
-Alex
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

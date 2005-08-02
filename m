@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVHBPfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVHBPiC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVHBPfE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 11:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVHBPfD
+	id S261573AbVHBPiC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 11:38:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVHBPiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 11:35:03 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:50859 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261566AbVHBPfC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 11:35:02 -0400
-Date: Tue, 2 Aug 2005 17:34:25 +0200 (MEST)
-Message-Id: <200508021534.j72FYPmX014377@alkaid.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org, ink@jurassic.park.msu.ru
-Subject: Re: 2.6.14-rc4: dma_timer_expiry [was 2.6.13-rc2 hangs at boot]
-Cc: gregkh@suse.de, jonsmirl@gmail.com, linux-kernel@vger.kernel.org,
-       teanropo@cc.jyu.fi
+	Tue, 2 Aug 2005 11:38:02 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:11144 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261572AbVHBPho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 11:37:44 -0400
+Subject: 2.6.13-rc3 -> sluggish PS2 keyboard (was Re: [patch] Real-Time
+	Preemption, -RT-2.6.13-rc4-V0.7.52-01)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Ingo Molnar <mingo@elte.hu>, Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <1122992426.1590.11.camel@localhost.localdomain>
+References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins>
+	 <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe>
+	 <20050731063852.GA611@elte.hu>  <1122871521.15825.13.camel@mindpipe>
+	 <1122991018.1590.2.camel@localhost.localdomain>
+	 <1122991531.5490.27.camel@mindpipe>
+	 <1122992426.1590.11.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 02 Aug 2005 11:37:41 -0400
+Message-Id: <1122997061.11253.3.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Aug 2005 11:22:45 +0400, Ivan Kokshaysky wrote:
-> On Fri, Jul 29, 2005 at 02:39:21AM -0700, Andrew Morton wrote:
-> > Tero Roponen <teanropo@cc.jyu.fi> wrote:
-> > > My original report is here: http://lkml.org/lkml/2005/7/6/174
+On Tue, 2005-08-02 at 10:20 -0400, Steven Rostedt wrote:
+> On Tue, 2005-08-02 at 10:05 -0400, Lee Revell wrote:
+> > On Tue, 2005-08-02 at 09:56 -0400, Steven Rostedt wrote:
+> > > On Mon, 2005-08-01 at 00:45 -0400, Lee Revell wrote:
+> > > > On Sun, 2005-07-31 at 08:38 +0200, Ingo Molnar wrote:
+> > > > > ok - i've uploaded the -52-04 patch, does that fix it for you?
+> > > > 
+> > > > Has anyone found their PS2 keyboard rather sluggish with this kernel?
+> > > > I'm not sure whether it's an -RT problem, I'll have to try rc4.
+> > > 
+> > > I've just noticed this now. While I have lots of ssh sessions running,
+> > > my keyboard does get really sluggish. This hasn't happened before. I'm
+> > > currently running 2.6.13-rc3 with no RT.  So this may definitely be a
+> > > mainline issue.
 > > 
-> > I see.  Ivan, do we know what's going on here?
+> > I'm on a slower machine, and I seem to get this behavior regardless of
+> > load.  Probably just running X+Gnome on this box is enough.
+> > 
+> Also, I don't know if this is a kernel issue or a debian issue since I
+> updated my kernel at the same time I did a debian upgrade, and I'm using
+> debian unstable. Since debian unstable is going through some major
+> changes, this could be caused by that.  I may be able to try some other
+> machines to see if they are affected, but that might take some time
+> before I can get to it.
 > 
-> Sort of. The 4K cardbus windows are working fine for non-x86
-> architectures where all IO resources are usually well known
-> and added to the resource tree properly.
-> However, on x86 there are sometimes "hidden" system IO port
-> ranges that aren't reported by BIOS, so the large (4K) cardbus
-> windows overlap these ranges.
-> 
-> Actually I don't like reducing CARDBUS_IO_SIZE to 256 bytes, because
-> we lose an ability to handle cards with built-in p2p bridges (which
-> require 4K for IO), plus it won't fix Sony VAIO problem.
-> 
-> Tero and Mikael, can you try this one-liner instead?
-> 
-> Ivan.
-> 
-> --- 2.6.13-rc4/include/asm-i386/pci.h	Sun Jul 31 14:32:09 2005
-> +++ linux/include/asm-i386/pci.h	Mon Aug  1 08:29:18 2005
-> @@ -18,7 +18,7 @@ extern unsigned int pcibios_assign_all_b
->  #define pcibios_scan_all_fns(a, b)	0
->  
->  extern unsigned long pci_mem_start;
-> -#define PCIBIOS_MIN_IO		0x1000
-> +#define PCIBIOS_MIN_IO		0x2000
->  #define PCIBIOS_MIN_MEM		(pci_mem_start)
->  
->  #define PCIBIOS_MIN_CARDBUS_IO	0x4000
 
-No joy. 2.6.13-rc5 vanilla + this patch still hangs my laptop
-during boot. So far only the CARDBUS_IO_SIZE reduction patch
-avoids the hang during boot regression 2.6.13-rc2 introduced.
+Same here (s/debian/ubuntu/) but I have the exact same problem at the
+console, I don't think it could be an X issue unless X was able to wedge
+the keyboard controller.
 
-I can send lspci & /proc/ioports if you think that might help.
+It feels like typing over a slow modem link, I can get about one word
+ahead of the cursor (X or console, regardless of load) but the delay
+seems to be constant.
 
-/Mikael
+Lee
+

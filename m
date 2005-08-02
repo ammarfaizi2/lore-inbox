@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVHBOYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVHBObs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbVHBOYa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 10:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVHBOXM
+	id S261579AbVHBObs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 10:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVHBO3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 10:23:12 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:13779 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261549AbVHBOUx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 10:20:53 -0400
-Date: Tue, 2 Aug 2005 16:20:49 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-Message-ID: <20050802142049.GV12868@marowsky-bree.de>
-References: <20050731211020.GB27433@elf.ucw.cz> <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz> <1122852234.13000.27.camel@mindpipe> <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu> <20050801204245.GC17258@thunk.org> <42EEFB9B.10508@andrew.cmu.edu> <42EF70BD.7070804@earthlink.net> <1122991380.5490.24.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Aug 2005 10:29:11 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:26276 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S261546AbVHBO1a convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 10:27:30 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: powerbook power-off and 2.6.13-rc[3,4]
+Date: Tue, 2 Aug 2005 16:32:44 +0200
+User-Agent: KMail/1.8.1
+Cc: Stelian Pop <stelian@popies.net>,
+       Johannes Berg <johannes@sipsolutions.net>,
+       "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>,
+       debian-powerpc@lists.debian.org
+References: <1122904460.6491.41.camel@localhost.localdomain> <1122905228.6881.9.camel@localhost> <1122907136.31350.45.camel@localhost.localdomain>
+In-Reply-To: <1122907136.31350.45.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1122991380.5490.24.camel@mindpipe>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+Message-Id: <200508021632.45344.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-08-02T10:02:59, Lee Revell <rlrevell@joe-job.com> wrote:
+On Monday, 1 of August 2005 16:38, Stelian Pop wrote:
+> Le lundi 01 août 2005 à 16:07 +0200, Johannes Berg a écrit :
+> > On Mon, 2005-08-01 at 15:54 +0200, Antonio-M. Corbi Bellot wrote:
+> > 
+> > > Has anyone observed this behaviour (O.S. halt ok but _no_ power-off at
+> > > the end) with these new '-rc' kernels?
+> > 
+> > Yes. I haven't looked for the cause yet though.
 
-> > Maybe new desktop systems - but what about the tens of millions of old
-> > systems that don't.
-> Does anyone really give a shit about saving power on the desktop anyway?
-> This is basically a laptop issue.
+I have observed this too, but only on an SMP (dual-core) machine,
+using 2.6.13-rc4 or 2.6.13-rc4-mm1.
 
-Desktops? Screw desktops. (Unless of course you're one of those
-environmental friendly guys, but then you probably are simply too cheap
-to buy a SUV too!)
+If the USB controller drivers (ohci_hcd, ehci_hcd) are not loaded, the
+machine is powered off normally.  Otherwise, it is not.
 
-But rather think "data center".
-
-Those guys want maximum cycles per watt. One way of getting there is
-using less watts when we don't use all cycles. This bring down power
-consumption, which directly brings down heat production, which brings
-down A/C needs.
-
-Everyone wants to save power.
-
+Greets,
+Rafael
+ 
 
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

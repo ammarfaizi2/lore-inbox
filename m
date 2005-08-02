@@ -1,114 +1,392 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVHBM3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVHBMeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVHBM3K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 08:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVHBM1N
+	id S261492AbVHBMeS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 08:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVHBMeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 08:27:13 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:26556 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261477AbVHBMZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 08:25:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=e204JyaiHUAZdpL1FKBOykA67IaXFcyb3PW4AZ2IhkqIEQFp9Qmk69Cb5KThDWqIOFAwK4+pKV2x7Pzsay6IHjvCenHGQyPZkqBITNFbTquDcEDxIuf6rysZTTAzHGctj5GZIaFm3lDOKiqxLKjk4EQky0Euwztc8GQn3uQcO98=  ;
-Message-ID: <42EF6628.4070102@yahoo.com.au>
-Date: Tue, 02 Aug 2005 22:25:12 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jack Steiner <steiner@sgi.com>
-Subject: [patch 2/2] sched: reduce locking in periodic balancing
-References: <42EF65A9.1060408@yahoo.com.au> <42EF65FF.2000102@yahoo.com.au>
-In-Reply-To: <42EF65FF.2000102@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------090908010103070105090008"
+	Tue, 2 Aug 2005 08:34:07 -0400
+Received: from gw.alcove.fr ([81.80.245.157]:28607 "EHLO smtp.fr.alcove.com")
+	by vger.kernel.org with ESMTP id S261492AbVHBMcn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 08:32:43 -0400
+Subject: Re: powerbook power-off and 2.6.13-rc[3,4]
+From: Stelian Pop <stelian@popies.net>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>,
+       debian-powerpc@lists.debian.org
+In-Reply-To: <1122982951.4652.14.camel@localhost.localdomain>
+References: <1122904460.6491.41.camel@localhost.localdomain>
+	 <1122905228.6881.9.camel@localhost>
+	 <1122907136.31350.45.camel@localhost.localdomain>
+	 <20050802111754.GC1390@elf.ucw.cz>  <42EF5B4E.6090101@sipsolutions.net>
+	 <1122982951.4652.14.camel@localhost.localdomain>
+Content-Type: multipart/mixed; boundary="=-fVxz7Oa6lNTkWwYllz18"
+Date: Tue, 02 Aug 2005 14:29:52 +0200
+Message-Id: <1122985793.4648.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090908010103070105090008
-Content-Type: text/plain; charset=us-ascii; format=flowed
+
+--=-fVxz7Oa6lNTkWwYllz18
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Le mardi 02 ao=C3=BBt 2005 =C3=A0 13:43 +0200, Stelian Pop a =C3=A9crit :
+
+> > Pavel Machek wrote:
+> >=20
+> > >Can you try without USB?
+> > >
+> > Not really. The keyboard is USB, and there's no PS/2 connector. I guess=
+=20
+> > I maybe could do it via a timer, unload the modules and then have it=20
+> > shut down afterwards...
+>=20
+> I'll build a kernel without USB and drive the laptop over the net and
+> see what happens.
+
+Without CONFIG_USB the poweroff still hangs, and this time the panel
+goes completly white with dark spots appearing all over it (kinda scary
+btw). A 5 seconds press on the power button force it to power off.
+
+This is on a 2.6.13-rc4, and I'm attaching the .config in case it
+matters.
+
+Stelian.
+--=20
+Stelian Pop <stelian@popies.net>
+
+--=-fVxz7Oa6lNTkWwYllz18
+Content-Disposition: attachment; filename=config-2.6.12-rc4
+Content-Type: text/plain; name=config-2.6.12-rc4; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-2/2
+CONFIG_MMU=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PPC=y
+CONFIG_PPC32=y
+CONFIG_GENERIC_NVRAM=y
+CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_KALLSYMS=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_MODULE_SRCVERSION_ALL=y
+CONFIG_KMOD=y
+CONFIG_6xx=y
+CONFIG_PPC_FPU=y
+CONFIG_ALTIVEC=y
+CONFIG_TAU=y
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_TABLE=y
+CONFIG_CPU_FREQ_STAT=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+CONFIG_CPU_FREQ_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_ONDEMAND=y
+CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
+CONFIG_CPU_FREQ_PMAC=y
+CONFIG_PM=y
+CONFIG_PPC_STD_MMU=y
+CONFIG_PPC_MULTIPLATFORM=y
+CONFIG_PPC_CHRP=y
+CONFIG_PPC_PMAC=y
+CONFIG_PPC_PREP=y
+CONFIG_PPC_OF=y
+CONFIG_PPCBUG_NVRAM=y
+CONFIG_HIGHMEM=y
+CONFIG_HZ_250=y
+CONFIG_HZ=250
+CONFIG_PREEMPT_NONE=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_BINFMT_ELF=y
+CONFIG_PROC_DEVICETREE=y
+CONFIG_PREP_RESIDUAL=y
+CONFIG_PROC_PREPRESIDUAL=y
+CONFIG_CMDLINE_BOOL=y
+CONFIG_CMDLINE="console=ttyS0,9600 console=tty0 root=/dev/sda2"
+CONFIG_SOFTWARE_SUSPEND=y
+CONFIG_PM_STD_PARTITION=""
+CONFIG_SECCOMP=y
+CONFIG_ISA_DMA_API=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_PCI=y
+CONFIG_PCI_DOMAINS=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCCARD=y
+CONFIG_PCMCIA=y
+CONFIG_PCMCIA_LOAD_CIS=y
+CONFIG_PCMCIA_IOCTL=y
+CONFIG_CARDBUS=y
+CONFIG_YENTA=y
+CONFIG_PCCARD_NONSTATIC=y
+CONFIG_HIGHMEM_START=0xfe000000
+CONFIG_LOWMEM_SIZE=0x30000000
+CONFIG_KERNEL_START=0xc0000000
+CONFIG_TASK_SIZE=0x80000000
+CONFIG_BOOT_LOAD=0x00800000
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_TCP_CONG_BIC=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IRC=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_MATCH_ADDRTYPE=y
+CONFIG_IP_NF_MATCH_REALM=y
+CONFIG_IP_NF_MATCH_SCTP=y
+CONFIG_IP_NF_MATCH_COMMENT=y
+CONFIG_IP_NF_MATCH_HASHLIMIT=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_IRC=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_BT=y
+CONFIG_BT_L2CAP=y
+CONFIG_BT_RFCOMM=y
+CONFIG_BT_RFCOMM_TTY=y
+CONFIG_BT_HIDP=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=8192
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_CDROM_PKTCDVD=m
+CONFIG_CDROM_PKTCDVD_BUFFERS=8
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDE_PMAC=y
+CONFIG_BLK_DEV_IDE_PMAC_ATA100FIRST=y
+CONFIG_BLK_DEV_IDEDMA_PMAC=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_FC_ATTRS=y
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_IEEE1394=y
+CONFIG_IEEE1394_OUI_DB=y
+CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
+CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
+CONFIG_IEEE1394_OHCI1394=m
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_SBP2=y
+CONFIG_IEEE1394_SBP2_PHYS_DMA=y
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=m
+CONFIG_IEEE1394_CMP=m
+CONFIG_IEEE1394_AMDTP=m
+CONFIG_ADB=y
+CONFIG_ADB_PMU=y
+CONFIG_PMAC_APM_EMU=y
+CONFIG_PMAC_BACKLIGHT=y
+CONFIG_INPUT_ADBHID=y
+CONFIG_MAC_EMUMOUSEBTN=y
+CONFIG_THERM_ADT746X=y
+CONFIG_NETDEVICES=y
+CONFIG_TUN=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_SUNGEM=y
+CONFIG_NET_RADIO=y
+CONFIG_NET_WIRELESS=y
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_NETCONSOLE=m
+CONFIG_NETPOLL=y
+CONFIG_NET_POLL_CONTROLLER=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=m
+CONFIG_SERIAL_8250_CS=m
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_NVRAM=y
+CONFIG_GEN_RTC=y
+CONFIG_GEN_RTC_X=y
+CONFIG_AGP=y
+CONFIG_AGP_UNINORTH=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_ALGOBIT=y
+CONFIG_I2C_KEYWEST=y
+CONFIG_HWMON=y
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+CONFIG_FB_SOFT_CURSOR=y
+CONFIG_FB_MACMODES=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_TILEBLITTING=y
+CONFIG_FB_OF=y
+CONFIG_FB_RADEON=y
+CONFIG_FB_RADEON_I2C=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_TIMER=y
+CONFIG_SND_PCM=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_POWERMAC=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_MINIX_FS=m
+CONFIG_INOTIFY=y
+CONFIG_DNOTIFY=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_UDF_FS=m
+CONFIG_UDF_NLS=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_TMPFS_XATTR=y
+CONFIG_TMPFS_SECURITY=y
+CONFIG_RAMFS=y
+CONFIG_HFS_FS=m
+CONFIG_HFSPLUS_FS=y
+CONFIG_CRAMFS=y
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=m
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_UTF8=y
+CONFIG_CRC_CCITT=m
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_BOOTX_TEXT=y
 
--- 
-SUSE Labs, Novell Inc.
+--=-fVxz7Oa6lNTkWwYllz18--
 
-
---------------090908010103070105090008
-Content-Type: text/plain;
- name="sched-less-locking.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sched-less-locking.patch"
-
-During periodic load balancing, don't hold this runqueue's lock while
-scanning remote runqueues, which can take a non trivial amount of time
-especially on very large systems.
-
-Holding the runqueue lock will only help to stabalise ->nr_running,
-however this isn't doesn't do much to help because tasks being woken
-will simply get held up on the runqueue lock, so ->nr_running would
-not provide a really accurate picture of runqueue load in that case
-anyway.
-
-What's more, ->nr_running (and possibly the cpu_load averages) of
-remote runqueues won't be stable anyway, so load balancing is always
-an inexact operation.
-
-Signed-off-by: Nick Piggin <npiggin@suse.de>
-
-
-Index: linux-2.6/kernel/sched.c
-===================================================================
---- linux-2.6.orig/kernel/sched.c	2005-08-02 21:35:38.000000000 +1000
-+++ linux-2.6/kernel/sched.c	2005-08-02 21:35:38.000000000 +1000
-@@ -2051,7 +2051,6 @@ static int load_balance(int this_cpu, ru
- 	int nr_moved, all_pinned = 0;
- 	int active_balance = 0;
- 
--	spin_lock(&this_rq->lock);
- 	schedstat_inc(sd, lb_cnt[idle]);
- 
- 	group = find_busiest_group(sd, this_cpu, &imbalance, idle);
-@@ -2078,18 +2077,16 @@ static int load_balance(int this_cpu, ru
- 		 * still unbalanced. nr_moved simply stays zero, so it is
- 		 * correctly treated as an imbalance.
- 		 */
--		double_lock_balance(this_rq, busiest);
-+		double_rq_lock(this_rq, busiest);
- 		nr_moved = move_tasks(this_rq, this_cpu, busiest,
- 					imbalance, sd, idle, &all_pinned);
--		spin_unlock(&busiest->lock);
-+		double_rq_unlock(this_rq, busiest);
- 
- 		/* All tasks on this runqueue were pinned by CPU affinity */
- 		if (unlikely(all_pinned))
- 			goto out_balanced;
- 	}
- 
--	spin_unlock(&this_rq->lock);
--
- 	if (!nr_moved) {
- 		schedstat_inc(sd, lb_failed[idle]);
- 		sd->nr_balance_failed++;
-@@ -2132,8 +2129,6 @@ static int load_balance(int this_cpu, ru
- 	return nr_moved;
- 
- out_balanced:
--	spin_unlock(&this_rq->lock);
--
- 	schedstat_inc(sd, lb_balanced[idle]);
- 
- 	sd->nr_balance_failed = 0;
-
---------------090908010103070105090008--
-Send instant messages to your online friends http://au.messenger.yahoo.com 

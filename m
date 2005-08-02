@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVHBQut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVHBQ4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVHBQut (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 12:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVHBQut
+	id S261592AbVHBQ4S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 12:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVHBQ4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 12:50:49 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:7149 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S261643AbVHBQur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 12:50:47 -0400
-Date: Tue, 2 Aug 2005 20:50:23 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Manuel Lauss <mano@roarinelk.homelinux.net>,
-       Stelian Pop <stelian@popies.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Erik Waling <erikw@acc.umu.se>
-Subject: Re: 2.6.13-rc3-mm3
-Message-ID: <20050802205023.B16660@jurassic.park.msu.ru>
-References: <42EC9410.8080107@roarinelk.homelinux.net> <Pine.LNX.4.58.0507311054320.29650@g5.osdl.org> <Pine.LNX.4.58.0507311125360.29650@g5.osdl.org> <1122846072.17880.43.camel@deep-space-9.dsnet> <Pine.LNX.4.58.0507311557020.14342@g5.osdl.org> <1122907067.31357.43.camel@localhost.localdomain> <1122976168.4656.3.camel@localhost.localdomain> <20050802103226.GA5501@roarinelk.homelinux.net> <20050802154022.A15794@jurassic.park.msu.ru> <Pine.LNX.4.58.0508020845520.3341@g5.osdl.org>
+	Tue, 2 Aug 2005 12:56:18 -0400
+Received: from firewall.kernelslacker.org ([68.162.252.20]:64398 "EHLO
+	nwo.kernelslacker.org") by vger.kernel.org with ESMTP
+	id S261592AbVHBQ4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 12:56:17 -0400
+Date: Tue, 2 Aug 2005 12:56:12 -0400
+From: Dave Jones <davej@redhat.com>
+To: "Michael D. Setzer II" <mikes@kuentos.guam.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel options for cd project with processor family
+Message-ID: <20050802165612.GB18410@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Michael D. Setzer II" <mikes@kuentos.guam.net>,
+	linux-kernel@vger.kernel.org
+References: <42EFDC63.31465.58ED66@mikes.kuentos.guam.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.58.0508020845520.3341@g5.osdl.org>; from torvalds@osdl.org on Tue, Aug 02, 2005 at 08:48:21AM -0700
+In-Reply-To: <42EFDC63.31465.58ED66@mikes.kuentos.guam.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02, 2005 at 08:48:21AM -0700, Linus Torvalds wrote:
-> The problem with this is that it only papers over the bug. 
-> 
-> I don't mind trying to allocate at higher addresses per se: we used to
-> have the starting point be 0x4000 at some point, and that part is fine.  
-> The problem is that this also screws us if somebody has a PCI bridge with
-> an IO window that is at a lower address than 0x2000 - now the PCI layer 
-> will refuse to try to allocate within it, and you'll replace one bug by 
-> another.
+On Tue, Aug 02, 2005 at 08:49:39PM +1000, Michael D. Setzer II wrote:
+ > I'm working on the ghost for linux project, which uses various 
+ > kernels. The older version 0.14 version had two kernels that support 
+ > some configurations. I've added a number of additional builds 
+ > adding extra features, but left earlier version in case the later 
+ > additions didn't work with hardware. The bzImage6 is the latest and 
+ > it works with most hardware, but I found it didn't work on a K6, since 
+ > it was build with the Pentium Pro Family. I was able to build one with 
+ > the K6 family, and it worked. I had used one of the original kernels 
+ > with a K6 before, but this one had a network card that wasn't 
+ > supported by it. 
+ > 
+ > I've built a test set of kernels with the same configuration as the 
+ > bzImage6, but changed the Processor family. Below is a list of the 
+ > build. I'm interested in which ones would make a difference. I would 
+ > think that the 386 version would probable work on all hardware, but 
+ > at what cost in performance for creating and restoring the disk 
+ > images. G4L uses basically dd, gzip, lzop, bzop, ncftpget, and 
+ > ncftpput. With all these images, the g4l iso image is 50MB. 
 
-Right, and this hurts the cardbus as well...
-But it should be pretty easy to learn the PCI layer to allocate above
-PCIBIOS_MIN_IO _only_ when we allocate on the root bus.
-Something like this (completely untested)?
+Your workload is going to be almost entirely IO bound, with
+the only CPU intensive parts being 99% in userspace. So any
+performance gains by tuning the kernel for a specific CPU are
+likely to be unnoticable.  I'd go with a single image supporting
+the lowest hardware you intend to support.
 
-Ivan.
+CPU tuned variants of gzip/bzip may be more noticable however.
 
---- linux/drivers/pci/setup-res.c.orig	Fri Jun 17 23:48:29 2005
-+++ linux/drivers/pci/setup-res.c	Tue Aug  2 20:44:59 2005
-@@ -113,11 +113,12 @@ int pci_assign_resource(struct pci_dev *
- {
- 	struct pci_bus *bus = dev->bus;
- 	struct resource *res = dev->resource + resno;
--	unsigned long size, min, align;
-+	unsigned long size, min, align, min_io;
- 	int ret;
- 
-+	min_io = (bus->self && !bus->self->transparent) ? 0 : PCIBIOS_MIN_IO;
- 	size = res->end - res->start + 1;
--	min = (res->flags & IORESOURCE_IO) ? PCIBIOS_MIN_IO : PCIBIOS_MIN_MEM;
-+	min = (res->flags & IORESOURCE_IO) ? min_io : PCIBIOS_MIN_MEM;
- 	/* The bridge resources are special, as their
- 	   size != alignment. Sizing routines return
- 	   required alignment in the "start" field. */
+		Dave
+

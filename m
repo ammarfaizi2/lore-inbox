@@ -1,28 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVHBGKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVHBGM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbVHBGKY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 02:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVHBGKX
+	id S261381AbVHBGM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 02:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVHBGKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 02:10:23 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:49549 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S261387AbVHBGKG (ORCPT
+	Tue, 2 Aug 2005 02:10:31 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:49293 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S261386AbVHBGKG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 2 Aug 2005 02:10:06 -0400
-Date: Tue, 2 Aug 2005 16:20:00 +0900
+Date: Tue, 2 Aug 2005 16:16:51 +0900
 From: Horms <horms@verge.net.au>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Michael Krufky <mkrufky@m1k.net>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       Chris Wright <chrisw@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: [Patch] v4l cx88 hue offset fix
-Message-ID: <20050802071959.GB22793@verge.net.au>
+Cc: John Stultz <johnstul@us.ibm.com>, Tom Rini <trini@kernel.crashing.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: [Patch] ppc32: stop misusing ntps time_offset value
+Message-ID: <20050802071648.GA22793@verge.net.au>
 Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Michael Krufky <mkrufky@m1k.net>,
-	Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-	Chris Wright <chrisw@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-	debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+	John Stultz <johnstul@us.ibm.com>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+	Greg Kroah-Hartman <gregkh@suse.de>, debian-kernel@lists.debian.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -31,41 +34,77 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, 
+Hi Marcelo,
 
-Another fix from 2.6.12.3 that seems approprite for 2.4.
-Should apply cleanly to your tree.
+is this appropriate for 2.4? It seems to apply cleanly to 
+your current git tree.
 
 Signed-off-by: Horms <horms@verge.net.au>
 
-From: Michael Krufky <mkrufky@m1k.net>
-Date: Thu, 30 Jun 2005 20:06:41 +0000 (-0400)
-Subject: [PATCH] v4l cx88 hue offset fix
+From: john stultz <johnstul@us.ibm.com>
+Date: Fri, 1 Jul 2005 05:08:54 +0000 (+1000)
+Subject: [PATCH] ppc32: stop misusing ntps time_offset value
 X-Git-Tag: v2.6.12.3
-X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/gregkh/linux-2.6.12.y.git;a=commitdiff;h=aebaaf4060dd0db163694da8e4ab7ba86add57b9
+X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/gregkh/linux-2.6.12.y.git;a=commitdiff;h=8f399a7448e0b58eae969426f61b7e81d55d2639
 
-  [PATCH] v4l cx88 hue offset fix
+  [PATCH] ppc32: stop misusing ntps time_offset value
   
-  Changed hue offset to 128 to correct behavior in cx88 cards.  Previously,
-  setting 0% or 100% hue was required to avoid blue/green people on screen.
-  Now, 50% Hue means no offset, just like bt878 stuff.
+  As part of my timeofday rework, I've been looking at the NTP code and I
+  noticed that the PPC architecture is apparently misusing the NTP's
+  time_offset (it is a terrible name!) value as some form of timezone offset.
   
-  Signed-off-by: Michael Krufky <mkrufky@m1k.net>
-  Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+  This could cause problems when time_offset changed by the NTP code.  This
+  patch changes the PPC code so it uses a more clear local variable:
+  timezone_offset.
+  
+  Signed-off-by: John Stultz <johnstul@us.ibm.com>
+  Acked-by: Tom Rini <trini@kernel.crashing.org>
+  Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+  Signed-off-by: Andrew Morton <akpm@osdl.org>
   Signed-off-by: Chris Wright <chrisw@osdl.org>
   Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
+Backported to Debian's 2.6.8 by dann frazier <dannf@debian.org>
+Backported to Debian's 2.4.27 by Horms <horms@debian.org>
 
-Backported to Debian's kernel-source-2.6.8 by dann frazier <dannf@debian.org>
-
---- a/drivers/media/video/cx88/cx88-video.c
-+++ b/drivers/media/video/cx88/cx88-video.c
-@@ -261,7 +261,7 @@ static struct cx88_ctrl cx8800_ctls[] = 
- 			.default_value = 0,
- 			.type          = V4L2_CTRL_TYPE_INTEGER,
- 		},
--		.off                   = 0,
-+		.off                   = 128,
- 		.reg                   = MO_HUE,
- 		.mask                  = 0x00ff,
- 		.shift                 = 0,
+--- a/arch/ppc/kernel/time.c	2003-08-25 20:44:40.000000000 +0900
++++ b/arch/ppc/kernel/time.c	2005-08-02 15:37:12.000000000 +0900
+@@ -84,7 +84,7 @@
+ 
+ extern unsigned long wall_jiffies;
+ 
+-static long time_offset;
++static long timezone_offset;
+ 
+ spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
+ 
+@@ -187,7 +187,7 @@
+ 		     xtime.tv_sec - last_rtc_update >= 659 &&
+ 		     abs(xtime.tv_usec - (1000000-1000000/HZ)) < 500000/HZ &&
+ 		     jiffies - wall_jiffies == 1) {
+-		  	if (ppc_md.set_rtc_time(xtime.tv_sec+1 + time_offset) == 0)
++		  	if (ppc_md.set_rtc_time(xtime.tv_sec+1 + timezone_offset) == 0)
+ 				last_rtc_update = xtime.tv_sec+1;
+ 			else
+ 				/* Try again one minute later */
+@@ -297,7 +297,7 @@
+ 	unsigned old_stamp, stamp, elapsed;
+ 
+         if (ppc_md.time_init != NULL)
+-                time_offset = ppc_md.time_init();
++                timezone_offset = ppc_md.time_init();
+ 
+ 	if (__USE_RTC()) {
+ 		/* 601 processor: dec counts down by 128 every 128ns */
+@@ -344,9 +344,9 @@
+ 	/* If platform provided a timezone (pmac), we correct the time
+ 	 * using do_sys_settimeofday() which in turn calls warp_clock()
+ 	 */
+-        if (time_offset) {
++        if (timezone_offset) {
+         	struct timezone tz;
+-        	tz.tz_minuteswest = -time_offset / 60;
++        	tz.tz_minuteswest = -timezone_offset / 60;
+         	tz.tz_dsttime = 0;
+         	do_sys_settimeofday(NULL, &tz);
+         }

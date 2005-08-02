@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVHBR0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVHBRd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVHBR0N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 13:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVHBR0N
+	id S261668AbVHBRd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 13:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVHBRd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 13:26:13 -0400
-Received: from silver.veritas.com ([143.127.12.111]:33953 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S261657AbVHBR0M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 13:26:12 -0400
-Date: Tue, 2 Aug 2005 18:27:59 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Robin Holt <holt@sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
-In-Reply-To: <Pine.LNX.4.58.0508020942360.3341@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0508021821310.5659@goblin.wat.veritas.com>
-References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
- <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
- <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
- <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org> <Pine.LNX.4.58.0508020942360.3341@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Aug 2005 17:26:12.0197 (UTC) FILETIME=[47446150:01C59787]
+	Tue, 2 Aug 2005 13:33:26 -0400
+Received: from mail.kroah.org ([69.55.234.183]:22687 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261668AbVHBRdZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 13:33:25 -0400
+Date: Tue, 2 Aug 2005 10:33:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Keith Owens <kaos@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc4 use after free in class_device_attr_show
+Message-ID: <20050802173302.GB1799@kroah.com>
+References: <20050801120321.230349c5.akpm@osdl.org> <26771.1122951950@ocs3.ocs.com.au> <20050802080422.GA32556@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050802080422.GA32556@in.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Aug 2005, Linus Torvalds wrote:
+On Tue, Aug 02, 2005 at 01:34:22PM +0530, Maneesh Soni wrote:
+> Looks like the attribute structure is allocated dynamically and
+> is freed before the sysfs_release() is called?
 > 
-> Since we will have dropped the page table lock when calling
-> handle_mm_fault() (which will just re-get the lock and then drop it 
-> again) _and_ since we don't actually mark the page dirty if it was 
-> writable, it's entirely possible that the VM scanner comes in and just 
-> drops the page from the page tables.
+> Basically it could be like this..
 > 
-> Now, that doesn't sound so bad, but what we have then is a page that is
-> marked dirty in the "struct page", but hasn't been actually dirtied yet.  
-> It could get written out and marked clean (can anybody say "preemptible
-> kernel"?) before we ever actually do the write to the page.
+> file (/sys/class/vc/vcs16/dev) is still open and the corresponding
+> attribute structure is already gone. open files will the keep the
+> corresponding dentry and in-turn sysfs_dirent alive.
 > 
-> The thing is, we should always set the dirty bit either atomically with
-> the access (normal "CPU sets the dirty bit on write") _or_ we should set
-> it after the write (having kept a reference to the page).
+> sysfs_open_file() does call kobject_get() and it expects the
+> kobject to be around while the sysfs files for kobject's corresponding
+> attributes are open.
 > 
-> Or does anybody see anything that protects us here?
-> 
-> Now, I don't think we can fix that race (which is probably pretty much 
-> impossible to hit in practice) in the 2.6.13 timeframe.
+> Greg, could there be cases where the kobject is alive but
+> attributes are freed? In those cases we will need some
+> way to keep attrbiutes alive while kobject is around.
 
-I believe this particular race has been recognized since day one of
-get_user_pages, and we've always demanded that the caller must do a
-SetPageDirty (I should probably say set_page_dirty) before freeing
-the pages held for writing.
+Well, we need to remove the attributes before we free the kobject,
+right?  It looks like we are racing here, I'll dig into this and see if
+I can find anything...
 
-Which is why I was a bit puzzled to see that prior set_page_dirty
-in __follow_page, which Andrew identified as for s390.
+thanks,
 
-> Maybe I'll have to just accept the horrid "VM_FAULT_RACE" patch. I don't
-> much like it, but.. 
-
-I've not yet reached a conclusion on that,
-need to think more about doing mkclean in copy_one_pte.
-
-Hugh
+greg k-h

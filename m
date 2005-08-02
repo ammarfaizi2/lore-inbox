@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVHBRd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVHBRe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVHBRd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 13:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVHBRd0
+	id S261681AbVHBRe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 13:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVHBRe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 13:33:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:22687 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261668AbVHBRdZ (ORCPT
+	Tue, 2 Aug 2005 13:34:27 -0400
+Received: from mail.kroah.org ([69.55.234.183]:46751 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261681AbVHBReP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 13:33:25 -0400
-Date: Tue, 2 Aug 2005 10:33:02 -0700
+	Tue, 2 Aug 2005 13:34:15 -0400
+Date: Tue, 2 Aug 2005 10:31:46 -0700
 From: Greg KH <greg@kroah.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Keith Owens <kaos@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4 use after free in class_device_attr_show
-Message-ID: <20050802173302.GB1799@kroah.com>
-References: <20050801120321.230349c5.akpm@osdl.org> <26771.1122951950@ocs3.ocs.com.au> <20050802080422.GA32556@in.ibm.com>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       "David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
+       matthew@wil.cx, grundler@parisc-linux.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ambx1@neo.rr.com
+Subject: Re: [patch 2.6.13-rc3] pci: restore BAR values after D3hot->D0 for devices that need it
+Message-ID: <20050802173146.GA1799@kroah.com>
+References: <20050707.233530.85417983.davem@davemloft.net> <20050708110358.A8491@jurassic.park.msu.ru> <20050708.003333.28789082.davem@davemloft.net> <20050708122043.A8779@jurassic.park.msu.ru> <20050708183452.GB13445@tuxdriver.com> <20050726234934.GA6584@kroah.com> <20050727013601.GA13958@tuxdriver.com> <20050727141202.GA22686@tuxdriver.com> <20050727141942.GB22686@tuxdriver.com> <20050731193653.GA4501@linux-mips.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050802080422.GA32556@in.ibm.com>
+In-Reply-To: <20050731193653.GA4501@linux-mips.org>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02, 2005 at 01:34:22PM +0530, Maneesh Soni wrote:
-> Looks like the attribute structure is allocated dynamically and
-> is freed before the sysfs_release() is called?
+On Sun, Jul 31, 2005 at 08:36:53PM +0100, Ralf Baechle wrote:
+> On Wed, Jul 27, 2005 at 10:19:44AM -0400, John W. Linville wrote:
 > 
-> Basically it could be like this..
+> > Some PCI devices (e.g. 3c905B, 3c556B) lose all configuration
+> > (including BARs) when transitioning from D3hot->D0.  This leaves such
+> > a device in an inaccessible state.  The patch below causes the BARs
+> > to be restored when enabling such a device, so that its driver will
+> > be able to access it.
+> > 
+> > The patch also adds pci_restore_bars as a new global symbol, and adds a
+> > correpsonding EXPORT_SYMBOL_GPL for that.
+> > 
+> > Signed-off-by: John W. Linville <linville@tuxdriver.com>
+> > ---
+> > Some firmware (e.g. Thinkpad T21) leaves devices in D3hot after a
+> > (re)boot.  Most drivers call pci_enable_device very early, so devices
+> > left in D3hot that lose configuration during the D3hot->D0 transition
+> > will be inaccessible to their drivers.
 > 
-> file (/sys/class/vc/vcs16/dev) is still open and the corresponding
-> attribute structure is already gone. open files will the keep the
-> corresponding dentry and in-turn sysfs_dirent alive.
-> 
-> sysfs_open_file() does call kobject_get() and it expects the
-> kobject to be around while the sysfs files for kobject's corresponding
-> attributes are open.
-> 
-> Greg, could there be cases where the kobject is alive but
-> attributes are freed? In those cases we will need some
-> way to keep attrbiutes alive while kobject is around.
+> Tested with the 3com 3c556B Hurricane mini-PCI card in the IBM A21P.  Without
+> this patch the 3c59x driver has not been able to read the MAC address of
+> the card's EEPROM with ACPI enabled, now it works with and without ACPI
+> support.  This patch should settle at least some of the issues in
+> http://bugzilla.kernel.org/show_bug.cgi?id=1188.
 
-Well, we need to remove the attributes before we free the kobject,
-right?  It looks like we are racing here, I'll dig into this and see if
-I can find anything...
-
-thanks,
+Thanks for testing.  I'm still going to hold off sending this in for
+2.6.13 and wait for 2.6.14, unless people really think it should go in
+now.
 
 greg k-h

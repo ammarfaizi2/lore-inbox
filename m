@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVHBStK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVHBSyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbVHBStK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 14:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVHBStK
+	id S261701AbVHBSyo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 14:54:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVHBSyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 14:49:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61601 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261707AbVHBSsz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 14:48:55 -0400
-Date: Tue, 2 Aug 2005 11:47:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Robin Holt <holt@sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
-In-Reply-To: <Pine.LNX.4.61.0508021809530.5659@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.58.0508021127120.3341@g5.osdl.org>
-References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
- <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
- <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
- <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org>
- <Pine.LNX.4.61.0508021809530.5659@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Aug 2005 14:54:44 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:37025 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261701AbVHBSyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 14:54:43 -0400
+Subject: Re: Testing RC kernels
+From: Lee Revell <rlrevell@joe-job.com>
+To: Sean Bruno <sean.bruno@dsl-only.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1123007814.24010.45.camel@jy.metro1.com>
+References: <1123007589.24010.41.camel@jy.metro1.com>
+	 <1123007777.12562.11.camel@mindpipe>
+	 <1123007814.24010.45.camel@jy.metro1.com>
+Content-Type: text/plain
+Date: Tue, 02 Aug 2005 14:54:41 -0400
+Message-Id: <1123008881.12562.16.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 2 Aug 2005, Hugh Dickins wrote:
+On Tue, 2005-08-02 at 11:36 -0700, Sean Bruno wrote:
+> On Tue, 2005-08-02 at 14:36 -0400, Lee Revell wrote:
+> > On Tue, 2005-08-02 at 11:33 -0700, Sean Bruno wrote:
+> > > <noob question>
+> > > 
+> > > I have been trying to test the 2.6.13 and can't quite get the patches
+> > > applied cleanly.
+> > > 
+> > > What kernel version (full kernel source tar ball) should I be using to
+> > > apply the patches(rc5) with?  Is it 2.6.12.3?
+> > 
+> > No, 2.6.12.
+> > 
+> > Lee
+> > 
 > 
-> It might not be so bad.  It's going to access the struct page anyway.
-> And clearing dirty from parent and child at fork time could save two
-> set_page_dirtys at exit time.  But I'm not sure that we could batch the
-> the dirty bit clearing into one TLB flush like we do the write protection.
+> Ah!  Thanks.
 
-Yes, good point. If the thing is still marked dirty in the TLB, some other 
-thread might be writing to the page after we've cleared dirty but before 
-we've flushed the TLB - causing the new dirty bit to be lost. I think.
+Thanks for testing the RCs, we need more users to do that.
 
-		Linus
+If any of your hardware stops working, make sure to report it, don't
+assume that it will fix itself!  Assume you're the first to notice the
+bug.
+
+Lee
+
 

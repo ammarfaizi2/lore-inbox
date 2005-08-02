@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVHBVzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVHBV5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbVHBVzU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 17:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVHBVxK
+	id S261889AbVHBV5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 17:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVHBV5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 17:53:10 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:46228 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261874AbVHBVvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 17:51:11 -0400
-Date: Tue, 2 Aug 2005 22:51:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Bruce Allan <bwa@us.ibm.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-nfs <nfs@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sunrpc: cache_register can use wrong module reference
-Message-ID: <20050802215100.GA19079@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bruce Allan <bwa@us.ibm.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Neil Brown <neilb@cse.unsw.edu.au>,
-	linux-nfs <nfs@lists.sourceforge.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1123018176.3954.118.camel@w-bwa3.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123018176.3954.118.camel@w-bwa3.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 2 Aug 2005 17:57:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40152 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261889AbVHBV5h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 17:57:37 -0400
+Date: Tue, 2 Aug 2005 14:57:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Greg KH <greg@kroah.com>, Manuel Lauss <mano@roarinelk.homelinux.net>,
+       Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Erik Waling <erikw@acc.umu.se>
+Subject: Re: 2.6.13-rc3-mm3
+In-Reply-To: <20050803014757.B18001@jurassic.park.msu.ru>
+Message-ID: <Pine.LNX.4.58.0508021456070.3341@g5.osdl.org>
+References: <Pine.LNX.4.58.0507311557020.14342@g5.osdl.org>
+ <1122907067.31357.43.camel@localhost.localdomain> <1122976168.4656.3.camel@localhost.localdomain>
+ <20050802103226.GA5501@roarinelk.homelinux.net> <20050802154022.A15794@jurassic.park.msu.ru>
+ <Pine.LNX.4.58.0508020845520.3341@g5.osdl.org> <20050802205023.B16660@jurassic.park.msu.ru>
+ <Pine.LNX.4.58.0508021002300.3341@g5.osdl.org> <20050803011337.A18001@jurassic.park.msu.ru>
+ <20050802212143.GA8738@kroah.com> <20050803014757.B18001@jurassic.park.msu.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02, 2005 at 02:29:36PM -0700, Bruce Allan wrote:
-> [resending to Neil, Trond and linux-nfs list; initial copy to lkml]
+
+
+On Wed, 3 Aug 2005, Ivan Kokshaysky wrote:
+>
+> On Tue, Aug 02, 2005 at 02:21:44PM -0700, Greg KH wrote:
+> > Nice, care to make up a single patch with these two changes in it?
 > 
-> When registering an RPC cache, cache_register() always sets the owner as
-> the sunrpc module.  However, there are RPC caches owned by other modules. 
-> With the incorrect owner setting, the real owning module can be removed
-> potentially with an open reference to the cache from userspace.
-> 
-> For example, if one were to stop the nfs server and unmount the nfsd
-> filesystem, the nfsd module could be removed eventhough rpc.idmapd had
-> references to the idtoname and nametoid caches (i.e.
-> /proc/net/rpc/nfs4.<cachename>/channel is still open).  This resulted in
-> a system panic on one of our machines when attempting to restart the nfs
-> services after reloading the nfsd module.
-> 
-> The following patch fixes this by passing the address of the owning
-> struct module to cache_register().  In addition, printk's were added to
-> functions calling cache_unregister() to dump an error message on
-> failure.
-> 
-> Signed-off-by: Bruce Allan <bwa@us.ibm.com>
+> Yep, I'll do it shortly, plus some minor additions as separate
+> patches.
 
-Please put a
+Actually, since everybody seems to like the "ignore 'min' if we have a
+known bus resource" patch, and it was already in my tree, I just committed
+it.
 
-	struct module	*owner;
+But you don't need to split up any patches you've already prepared: I can 
+easily just edit away the part I already committed.
 
-field into struct cache_detail instead, that's how it works for other
-methods tables like that.
-
-And while we're at it, cache_detail is an awfully generic name for a sunrpc
-data structure.
-
+		Linus

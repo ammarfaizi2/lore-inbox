@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVHBLqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVHBLxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVHBLqv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 07:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVHBLqv
+	id S261435AbVHBLxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 07:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVHBLxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 07:46:51 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:61374 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S261495AbVHBLqu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 07:46:50 -0400
-Subject: Re: powerbook power-off and 2.6.13-rc[3,4]
-From: Stelian Pop <stelian@popies.net>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>,
-       debian-powerpc@lists.debian.org
-In-Reply-To: <42EF5B4E.6090101@sipsolutions.net>
-References: <1122904460.6491.41.camel@localhost.localdomain>
-	 <1122905228.6881.9.camel@localhost>
-	 <1122907136.31350.45.camel@localhost.localdomain>
-	 <20050802111754.GC1390@elf.ucw.cz>  <42EF5B4E.6090101@sipsolutions.net>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 02 Aug 2005 13:42:31 +0200
-Message-Id: <1122982951.4652.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8BIT
+	Tue, 2 Aug 2005 07:53:34 -0400
+Received: from ozlabs.org ([203.10.76.45]:4533 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261435AbVHBLxd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 07:53:33 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17135.24136.268138.511779@cargo.ozlabs.ibm.com>
+Date: Tue, 2 Aug 2005 21:51:36 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: torvalds@osdl.org, Dominik Brodowski <linux@dominikbrodowski.net>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Obvious bugfix for yenta resource allocation
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 02 août 2005 à 13:38 +0200, Johannes Berg a écrit :
-> Pavel Machek wrote:
-> 
-> >Can you try without USB?
-> >
-> Not really. The keyboard is USB, and there's no PS/2 connector. I guess 
-> I maybe could do it via a timer, unload the modules and then have it 
-> shut down afterwards...
+Recent changes (well, dating from 12 July) have broken cardbus on my
+powerbook: I get 3 messages saying "no resource of type xxx available,
+trying to continue", and if I plug in my wireless card, it complains
+that there are no resources allocated to the card.  This all worked in
+2.6.12.
 
-I'll build a kernel without USB and drive the laptop over the net and
-see what happens.
+Looking at the code in yenta_socket.c, function yenta_allocate_res,
+it's obvious what is wrong: if we get to line 639 (i.e. there wasn't a
+usable preassigned resource), we will always flow through to line 668,
+which is the printk that I was seeing, even if a resource was
+successfully allocated.  It looks to me as though there should be a
+return statement after the two config_writel's in each of the 3
+branches of the if statements, so that the function returns after
+successfully setting up the resource.
 
-> > With USB but without experimental
-> >CONFIG_USB_SUSPEND?
-> >  
-> >
-> I don't have USB_SUSPEND enabled, IIRC (don't have the PB with me, but 
-> I'm pretty sure I checked this yesterday. If you don't hear back, assume 
-> it wasn't enabled)
+The patch below adds these return statements, and with this patch,
+cardbus works on my powerbook once again.
 
-I don't have USB_SUSPEND enabled.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
-
+Signed-off-by: Paul Mackerras <paulus@samba.org>
+---
+diff -urN linux-2.6/drivers/pcmcia/yenta_socket.c pmac-2.6/drivers/pcmcia/yenta_socket.c
+--- linux-2.6/drivers/pcmcia/yenta_socket.c	2005-07-31 17:38:35.000000000 +1000
++++ pmac-2.6/drivers/pcmcia/yenta_socket.c	2005-08-02 21:32:53.000000000 +1000
+@@ -642,6 +642,7 @@
+ 		    (yenta_search_res(socket, res, BRIDGE_IO_MIN))) {
+ 			config_writel(socket, addr_start, res->start);
+ 			config_writel(socket, addr_end, res->end);
++			return;
+ 		}
+ 	} else {
+ 		if (type & IORESOURCE_PREFETCH) {
+@@ -650,6 +651,7 @@
+ 			    (yenta_search_res(socket, res, BRIDGE_MEM_MIN))) {
+ 				config_writel(socket, addr_start, res->start);
+ 				config_writel(socket, addr_end, res->end);
++				return;
+ 			}
+ 			/* Approximating prefetchable by non-prefetchable */
+ 			res->flags = IORESOURCE_MEM;
+@@ -659,6 +661,7 @@
+ 		    (yenta_search_res(socket, res, BRIDGE_MEM_MIN))) {
+ 			config_writel(socket, addr_start, res->start);
+ 			config_writel(socket, addr_end, res->end);
++			return;
+ 		}
+ 	}
+ 

@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVHBQoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVHBQut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbVHBQoV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 12:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVHBQoV
+	id S261643AbVHBQut (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 12:50:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVHBQut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 12:44:21 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:17076 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261639AbVHBQoU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 12:44:20 -0400
-In-Reply-To: <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+	Tue, 2 Aug 2005 12:50:49 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:7149 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S261643AbVHBQur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 12:50:47 -0400
+Date: Tue, 2 Aug 2005 20:50:23 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
-       Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Roland McGrath <roland@redhat.com>
-X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
-Message-ID: <OFD58BB32F.D2A5CB19-ON42257051.005B9FC2-42257051.005BF25A@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Tue, 2 Aug 2005 18:44:18 +0200
-X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 02/08/2005 18:44:17
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Cc: Manuel Lauss <mano@roarinelk.homelinux.net>,
+       Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Erik Waling <erikw@acc.umu.se>
+Subject: Re: 2.6.13-rc3-mm3
+Message-ID: <20050802205023.B16660@jurassic.park.msu.ru>
+References: <42EC9410.8080107@roarinelk.homelinux.net> <Pine.LNX.4.58.0507311054320.29650@g5.osdl.org> <Pine.LNX.4.58.0507311125360.29650@g5.osdl.org> <1122846072.17880.43.camel@deep-space-9.dsnet> <Pine.LNX.4.58.0507311557020.14342@g5.osdl.org> <1122907067.31357.43.camel@localhost.localdomain> <1122976168.4656.3.camel@localhost.localdomain> <20050802103226.GA5501@roarinelk.homelinux.net> <20050802154022.A15794@jurassic.park.msu.ru> <Pine.LNX.4.58.0508020845520.3341@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.58.0508020845520.3341@g5.osdl.org>; from torvalds@osdl.org on Tue, Aug 02, 2005 at 08:48:21AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote on 08/02/2005 05:30:37 PM:
+On Tue, Aug 02, 2005 at 08:48:21AM -0700, Linus Torvalds wrote:
+> The problem with this is that it only papers over the bug. 
+> 
+> I don't mind trying to allocate at higher addresses per se: we used to
+> have the starting point be 0x4000 at some point, and that part is fine.  
+> The problem is that this also screws us if somebody has a PCI bridge with
+> an IO window that is at a lower address than 0x2000 - now the PCI layer 
+> will refuse to try to allocate within it, and you'll replace one bug by 
+> another.
 
-> > With the additional !pte_write(pte) check (and if I haven't overlooked
-> > something which is not unlikely) s390 should work fine even without the
-> > software-dirty bit hack.
->
-> No it won't. It will just loop forever in a tight loop if somebody tries
-> to put a breakpoint on a read-only location.
+Right, and this hurts the cardbus as well...
+But it should be pretty easy to learn the PCI layer to allocate above
+PCIBIOS_MIN_IO _only_ when we allocate on the root bus.
+Something like this (completely untested)?
 
-Yes, I have realized that as well nowe after staring at the code a little
-bit longer. That maybe_mkwrite is really tricky.
+Ivan.
 
-> On the other hand, this being s390, maybe nobody cares?
-
-Some will care. At least I do. I've tested the latest git with gdb and
-it will indeed loop forever if I try to write to a read-only vma.
-
-blue skies,
-   Martin
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
+--- linux/drivers/pci/setup-res.c.orig	Fri Jun 17 23:48:29 2005
++++ linux/drivers/pci/setup-res.c	Tue Aug  2 20:44:59 2005
+@@ -113,11 +113,12 @@ int pci_assign_resource(struct pci_dev *
+ {
+ 	struct pci_bus *bus = dev->bus;
+ 	struct resource *res = dev->resource + resno;
+-	unsigned long size, min, align;
++	unsigned long size, min, align, min_io;
+ 	int ret;
+ 
++	min_io = (bus->self && !bus->self->transparent) ? 0 : PCIBIOS_MIN_IO;
+ 	size = res->end - res->start + 1;
+-	min = (res->flags & IORESOURCE_IO) ? PCIBIOS_MIN_IO : PCIBIOS_MIN_MEM;
++	min = (res->flags & IORESOURCE_IO) ? min_io : PCIBIOS_MIN_MEM;
+ 	/* The bridge resources are special, as their
+ 	   size != alignment. Sizing routines return
+ 	   required alignment in the "start" field. */

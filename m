@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVHBQ0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVHBQdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbVHBQ0M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 12:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVHBQZz
+	id S261588AbVHBQdx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 12:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVHBQdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 12:25:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25831 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261588AbVHBQZj (ORCPT
+	Tue, 2 Aug 2005 12:33:53 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:61573 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261588AbVHBQdw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 12:25:39 -0400
-Date: Tue, 2 Aug 2005 09:25:14 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Robin Holt <holt@sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
-In-Reply-To: <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org>
-References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
- <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
- <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Aug 2005 12:33:52 -0400
+Date: Tue, 2 Aug 2005 18:35:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       linux-ide@vger.kernel.org,
+       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
+Subject: Re: ahci, SActive flag, and the HD activity LED
+Message-ID: <20050802163519.GB3710@suse.de>
+References: <42EF93F8.8050601@fujitsu-siemens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42EF93F8.8050601@fujitsu-siemens.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 2 Aug 2005, Hugh Dickins wrote:
+On Tue, Aug 02 2005, Martin Wilck wrote:
+> Hello Jeff, hello Jens, hello everybody,
 > 
-> But have I just realized a non-s390 problem with your pte_dirty
-> technique?  The ptep_set_wrprotect in fork's copy_one_pte.
+> I am referring to the debate about whether or not setting the SActive 
+> bit for non-NCQ ATA commands (e.g. http://lkml.org/lkml/2005/5/26/142).
 > 
-> That's specifically write-protecting the pte to force COW, but leaving
-> the dirty bit: so now get_user_pages will skip COW-ing it (in all write
-> cases, not just the peculiar ptrace force one).
+> In our machines, this behavior of the Linux AHCI driver causes the HD 
+> activity LED to stay on all the time. If I apply the attached trivial 
+> patch (this is for the RedHat EL4.0-U1 kernel), the LED behaves nicely.
+> 
+> Jeff has stated in the above thread that "SActive is intentionally used 
+> for non-NCQ devices". However I find clear indication in the specs that 
+> the SActive flag should be set if and only if tagged queuing is being 
+> used, and only for a specified subset of commands that support queuing 
+> (http://www.t13.org/docs2005/D1699r1e-ATA8-ACS.pdf, secs. 4.19 and 
+> 4.20). The current mainline driver doesn't use queuing.
+> 
+> If I am reading the specs correctly, that'd mean the ahci driver is 
+> wrong in setting the SActive bit. Could you please comment? Jeff, in 
+> particular, could you please give more detail why you say this flag is 
+> "intentionally used"?
 
-Damn, you're right. We could obviously move the dirty bit from the page
-tables to the "struct page" in fork() (that may have other advantages:  
-we're scanning the dang thing anyway, after all) to avoid that special
-case, but yes, that's nasty.
+I completely agree, that was my reading of the spec as well and hence my
+original posts about this in the NCQ thread.
 
-One of the reasons I _liked_ the pte_dirty() test is that there's the
-reverse case: a mapping that used to be writable, and got dirtied (and
-COW'ed as necessary), and then was mprotected back, and the new test would
-happily write to it _without_ having to do any extra work. Which in that
-case is correct.
+-- 
+Jens Axboe
 
-But yeah, fork() does something special.
-
-In fact, that brings up another race altogether: a thread that does a
-fork() at the same time as get_user_pages() will have the exact same
-issues. Even with the old code. Simply because we test the permissions on
-the page long before we actually do the real access (ie it may be dirty
-and writable when we get it, but by the time the write happens, it might
-have become COW-shared).
-
-Now, that's probably not worth worrying about, but it's kind of 
-interesting.
-
-		Linus

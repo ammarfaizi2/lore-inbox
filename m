@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVHBO71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVHBPD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVHBO71 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 10:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVHBO71
+	id S261558AbVHBPD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 11:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVHBPD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 10:59:27 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:387 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261565AbVHBO6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 10:58:24 -0400
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-From: Lee Revell <rlrevell@joe-job.com>
-To: Tomasz Torcz <zdzichu@irc.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050802091313.GB6724@irc.pl>
-References: <1122746718.14769.4.camel@mindpipe>
-	 <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe>
-	 <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu>
-	 <20050731211020.GB27433@elf.ucw.cz> <42ED4CCF.6020803@andrew.cmu.edu>
-	 <20050731224752.GC27580@elf.ucw.cz> <1122852234.13000.27.camel@mindpipe>
-	 <dckikj$e8$1@sea.gmane.org>  <20050802091313.GB6724@irc.pl>
+	Tue, 2 Aug 2005 11:03:26 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:50353 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261558AbVHBPDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 11:03:24 -0400
+Subject: Re: [PATCH 00/14] GFS
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: David Teigland <teigland@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+In-Reply-To: <Pine.LNX.4.61.0508021655580.4138@yvahk01.tjqt.qr>
+References: <20050802071828.GA11217@redhat.com>
+	 <1122968724.3247.22.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0508021655580.4138@yvahk01.tjqt.qr>
 Content-Type: text/plain
-Date: Tue, 02 Aug 2005 10:58:21 -0400
-Message-Id: <1122994702.5490.54.camel@mindpipe>
+Date: Tue, 02 Aug 2005 17:02:52 +0200
+Message-Id: <1122994972.3247.31.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-02 at 11:13 +0200, Tomasz Torcz wrote:
-> On Mon, Aug 01, 2005 at 08:19:42AM +0200, Stefan Seyfried wrote:
-> > Lee Revell wrote:
-> > > On Mon, 2005-08-01 at 00:47 +0200, Pavel Machek wrote:
-> > >> I'm pretty sure at least one distro will go with HZ<300 real soon now
-> > >> ;-).
-> > >> 
-> > > 
-> > > Any idea what their official recommendation for people running apps that
-> > > require the 1ms sleep resolution is?  Something along the lines of "Get
-> > > bent"?
-> > 
-> > MPlayer is using /dev/rtc and was running smooth for me since the good
-> > old 2.4 days.
+On Tue, 2005-08-02 at 16:57 +0200, Jan Engelhardt wrote:
+> >* Why use your own journalling layer and not say ... jbd ?
 > 
->  VMware also uses /dev/rtc. So is NTP, which is needed when time drifts.
-> But they can't use /dev/rtc simultanously, as it's single-open device.
-> So running ntpd denies vmware and mplayer access to RTC. Bummer.
-> 
+> Why does reiser use its own journalling layer and not say ... jbd ?
 
-You could work around this to some extent by using the ALSA timer API
-with the RTC timer.  I think this allows multiple open by setting the
-RTC to tick based on the lowest common denominator.  It won't help
-vmware and NTP though.
+because reiser got merged before jbd. Next question.
 
-Lee
+Now the question for GFS is still a valid one; there might be reasons to
+not use it (which is fair enough) but if there's no real reason then
+using jdb sounds a lot better given it's maturity (and it is used by 2
+filesystems in -mm already).
+
+
 

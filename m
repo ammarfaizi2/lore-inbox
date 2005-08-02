@@ -1,118 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVHBRTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVHBRVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbVHBRTF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 13:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVHBRTE
+	id S261688AbVHBRVs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 13:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVHBRVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 13:19:04 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:39322 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S261683AbVHBRS3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 13:18:29 -0400
-Message-ID: <42EFAAD4.2090506@cs.wisc.edu>
-Date: Tue, 02 Aug 2005 12:18:12 -0500
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Tue, 2 Aug 2005 13:21:38 -0400
+Received: from silver.veritas.com ([143.127.12.111]:38304 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S261684AbVHBRTZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 13:19:25 -0400
+Date: Tue, 2 Aug 2005 18:21:09 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Robin Holt <holt@sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org>
+Message-ID: <Pine.LNX.4.61.0508021809530.5659@goblin.wat.veritas.com>
+References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
+ <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
+ <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
+ <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org>
 MIME-Version: 1.0
-To: Dmitry Yusupov <dmitry_yus@yahoo.com>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       "David S. Miller" <davem@davemloft.net>, itn780@yahoo.com,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@lst.de>
-Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance	Initiator
-References: <429E15CD.2090202@yahoo.com> <1122744762.5055.10.camel@mulgrave>	 <20050730.125312.78734701.davem@davemloft.net>	 <1122755000.5055.31.camel@mulgrave> <1122758728.13559.4.camel@mylaptop>
-In-Reply-To: <1122758728.13559.4.camel@mylaptop>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 02 Aug 2005 17:19:22.0557 (UTC) FILETIME=[531A46D0:01C59786]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Yusupov wrote:
-> On Sat, 2005-07-30 at 15:23 -0500, James Bottomley wrote:
+On Tue, 2 Aug 2005, Linus Torvalds wrote:
+> On Tue, 2 Aug 2005, Hugh Dickins wrote:
+> > 
+> > But have I just realized a non-s390 problem with your pte_dirty
+> > technique?  The ptep_set_wrprotect in fork's copy_one_pte.
+> > 
+> > That's specifically write-protecting the pte to force COW, but leaving
+> > the dirty bit: so now get_user_pages will skip COW-ing it (in all write
+> > cases, not just the peculiar ptrace force one).
 > 
->>On Sat, 2005-07-30 at 12:53 -0700, David S. Miller wrote:
->>
->>>From: James Bottomley <James.Bottomley@SteelEye.com>
->>>Date: Sat, 30 Jul 2005 12:32:42 -0500
->>>
->>>
->>>>FIB has taken your netlink number, so I changed it to 32
->>>
->>>MAX_LINKS is 32, so there is no way this reassignment would
->>>work.
->>
->>Actually, I saw this and increased MAX_LINKS as well.  I was going to
->>query all of this on the net-dev mailing list if we'd managed to get the
->>code compileable.
->>
->>
->>>You have to pick something in the range 0 --> 32, and as is
->>>no surprise, there are no numbers available :-)
->>>
->>>Since ethertap has been deleted, 16-->31 could be made allocatable
->>>once more, but I simply do not want to do that and have the flood
->>>gates open up for folks allocating random netlink numbers.
->>>
->>>Instead, we need to take one of those netlink numbers, and turn
->>>it into a multiplexable layer that can support an arbitrary
->>>number of sub-netlink types.  Said protocol would need some
->>>shim header that just says the "sub-netlink" protocol number,
->>>something as simple as just a "u32", this gets pulled off the
->>>front of the netlink packet and then it's passed on down to the
->>>real protocol.
->>
->>I'll let the iSCSI people try this ...
->>
->>Alternatively, if they don't fancy it, I think the kobject_uevent
->>mechanism (which already has a netlink number) looks like it might be
->>amenable for use for most of the things they want to do.
+> Damn, you're right. We could obviously move the dirty bit from the page
+> tables to the "struct page" in fork() (that may have other advantages:  
+> we're scanning the dang thing anyway, after all) to avoid that special
+> case, but yes, that's nasty.
+
+It might not be so bad.  It's going to access the struct page anyway.
+And clearing dirty from parent and child at fork time could save two
+set_page_dirtys at exit time.  But I'm not sure that we could batch the
+the dirty bit clearing into one TLB flush like we do the write protection.
+
+> In fact, that brings up another race altogether: a thread that does a
+> fork() at the same time as get_user_pages() will have the exact same
+> issues. Even with the old code. Simply because we test the permissions on
+> the page long before we actually do the real access (ie it may be dirty
+> and writable when we get it, but by the time the write happens, it might
+> have become COW-shared).
 > 
-> 
-> In fact, during design phase we've considered to use kobject_uevent() as
-> well but (if i recall correctly), it didn't fit for the simple reason
-> that if we want to have that much code in user-space, than we need to
-> have more control on netlink socket and need to pass binary data back
-> and forth.
-> 
+> Now, that's probably not worth worrying about, but it's kind of 
+> interesting.
 
-I have been trying to modify open-iscsi to use the exisitng
-kobject_uevent code similar to how we tried to do this with the old
-sfnet driver. Basically there are two problems. As Dimtry described
-above, open-iscsi pushes a lot of iSCSI command processing to userspace.
-And to accomplish this it must send at least this struct (or a one
-similar) to userspace to be processed.
+Not worth worrying about in this context: it's one aspect of the
+InfiniBand (RDMA) issue I was referring to, to be addressed another time.
 
-struct iscsi_hdr {
-        uint8_t         opcode;
-        uint8_t         flags;          /* Final bit */
-        uint8_t         rsvd2[2];
-        uint8_t         hlength;        /* AHSs total length */
-        uint8_t         dlength[3];     /* Data length */
-        uint8_t         lun[8];
-        __be32          itt;            /* Initiator Task Tag */
-        __be32          ttt;            /* Target Task Tag */
-        __be32          statsn;
-        __be32          exp_statsn;
-        uint8_t         other[16];
-};
+Or is it even possible?  We do require the caller of get_user_pages to
+down_read(&mm->mmap_sem), and fork parent has down_write(&mm->mmap_sem).
 
-There could also be data as part of the command too thought (like how a
-SCSI read or write command has the cdb part and the payload).
-
-For the iscsi_hdr we could encode the values of the fields into strings
-and send it back and forth between userspace and the kernel using sysfs
-to get the comamnd into the kernel and modifed kobject_uevent functions
-(kobject_uevent would need to be modified to be able to take this extra
-header info instead of just doing add, remove, etc that are predefined
-uevents). This starts to get ulgy though and when you consider that we
-still have some payload that also needs to go to userspace it gets uglier.
-
-Also for the sysfs value per file rule, breaking up the iSCSI command
-header into a file per field to pass commands into the kernel then using
-a binary sysfs file for the data part of the command, and then
-reassembling all this in the driver is not so nice. A major advantage
-open-iscsi has over sfnet was that it was simple to send all the session
-info for session creation and setup and iSCSI command info through a
-netlink message.
+Hugh

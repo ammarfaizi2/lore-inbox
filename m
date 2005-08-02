@@ -1,144 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVHBFdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVHBFgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVHBFdP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 01:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVHBFdP
+	id S261234AbVHBFgE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 01:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVHBFgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 01:33:15 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:16341 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261371AbVHBFdN (ORCPT
+	Tue, 2 Aug 2005 01:36:04 -0400
+Received: from ns2.osuosl.org ([140.211.166.131]:42631 "EHLO ns2.osuosl.org")
+	by vger.kernel.org with ESMTP id S261234AbVHBFgC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 01:33:13 -0400
-Date: Mon, 1 Aug 2005 22:33:04 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [PATCH] String conversions for memory policy
-Message-Id: <20050801223304.2a8871e8.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0508011713540.9824@graphe.net>
-References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
-	<20050729152049.4b172d78.pj@sgi.com>
-	<Pine.LNX.4.62.0507291746000.8663@graphe.net>
-	<20050729230026.1aa27e14.pj@sgi.com>
-	<Pine.LNX.4.62.0507301042420.26355@graphe.net>
-	<20050730181418.65caed1f.pj@sgi.com>
-	<Pine.LNX.4.62.0507301814540.31359@graphe.net>
-	<20050730190126.6bec9186.pj@sgi.com>
-	<Pine.LNX.4.62.0507301904420.31882@graphe.net>
-	<20050730191228.15b71533.pj@sgi.com>
-	<Pine.LNX.4.62.0508011147030.5541@graphe.net>
-	<20050801160351.71ee630a.pj@sgi.com>
-	<Pine.LNX.4.62.0508011618120.9351@graphe.net>
-	<20050801165947.36b5da96.pj@sgi.com>
-	<Pine.LNX.4.62.0508011713540.9824@graphe.net>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Aug 2005 01:36:02 -0400
+Message-ID: <42EF0624.2080503@engr.orst.edu>
+Date: Mon, 01 Aug 2005 22:35:32 -0700
+From: Michael Marineau <marineam@engr.orst.edu>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050728)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, tony@atomide.com, ck@vds.kolivas.org,
+       tuukka.tikkanen@elektrobit.com
+Subject: Re: [ck] [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
+References: <200508021443.55429.kernel@kolivas.org>
+In-Reply-To: <200508021443.55429.kernel@kolivas.org>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigFEE7AB69A78FE5A0273AA27B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph wrote:
-> New version without the magic numbers ...
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigFEE7AB69A78FE5A0273AA27B
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Good.
+Con Kolivas wrote:
+> My desktop pentium4 did not like the patch erroring with "bad gzip magic 
+> number" on boot for reasons that aren't obvious to me. This could be related 
+> to trying gcc 4.0.1 on that box whereas the laptop is on gcc 3.4.4 and is 
+> working fine.
+> 
 
-===
-
-How about replacing:
-
-  static const char *policy_types[] = { "default", "prefer", "bind", "interleave" };
-
-with:
-
-  static const char *policy_types[] = {
-	[MPOL_DEFAULT]    = "default",
-	[MPOL_PREFERRED]  = "prefer",
-	[MPOL_BIND]       = "bind",
-	[MPOL_INTERLEAVE] = "interleave"
-  };
-
-so that the mapping of the MPOL_* define constants to strings is
-explicit, not implicit.
-
-===
-
-Maybe I need more caffeine, but the following tests seem backwards:
-
-+	if (buffer + maxlen > p + l + 1)
-+		return -ENOSPC;
-
-and
-
-+		if (buffer + maxlen > p + 2)
-+			return -ENOSPC;
-
-===
-
-Can the following:
-
-+	int l;
-+	...
-+
-+	l = strlen(policy_types[mode]);
-+	if (buffer + maxlen > p + l + 1)
-+		return -ENOSPC;
-+	strcpy(p, policy_types[mode]);
-+	p += l;
-+
-+	if (!nodes_empty(nodes)) {
-+
-+		if (buffer + maxlen > p + 2)
-+			return -ENOSPC;
-+
-+		*p++ = '=';
-+	 	p += nodelist_scnprintf(p, buffer + maxlen - p, nodes);
-+	}
-
-be rewritten to:
-
-	char *bufend = buffer + maxlen;
-	...
-
-	p += scnprintf(p, bufend - p, "%s", policy_types[mode]);
-	if (!nodes_empty(nodes)) {
-		p += scnprintf(p, bufend - p, "=");
-		p += nodelist_scnprintf(p, bufend - p, nodes);
-	}
-	if (p >= bufend - 1)
-		return -ENOSPC;
-
-Less code, more consistent code for each buffer addition, fails with
-ENOSPC in the case that the nodelist only partially fits rather than
-truncating it without notice, and fixes any possible problem with the
-above tests being backwards - by removing the tests ;).
-
-This suggested replacement code does have one weakness, in that it
-cannot distinguish the case that the buffer was exactly the right
-size from the case it was too small, and errors with -ENOSPC in
-either case.  I don't think that this case is worth adding extra
-logic to distinguish, in this situation.
-
-===
-
-+	for(mode = 0; mode <= MPOL_MAX; mode++) {
-
-Space after 'for'
-
-===
-
-There should probably be comments that these routines must
-execute in the context of the task whose mempolicies are
-being displayed or modified.
-
-==
-
-There should probably be a doc style comment introducing
-the mpol_to_str() and str_to_mpol() routines, as described
-in Documentation/kernel-doc-nano-HOWTO.txt.
+Just writing to report that on my laptop with a pentium 4 m that it
+boots just fine. No idea what the change in power use is at the moment.
+Compiled using gcc 3.3.5.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Michael Marineau
+marineam@engr.orst.edu
+Oregon State University
+
+--------------enigFEE7AB69A78FE5A0273AA27B
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFC7wYpiP+LossGzjARAhQKAJ98lFUCS3Go15h4DmK4ubCYiwytlwCfYpsV
+aYzLK7zTuAolDvHFQMthzIU=
+=nk1Z
+-----END PGP SIGNATURE-----
+
+--------------enigFEE7AB69A78FE5A0273AA27B--

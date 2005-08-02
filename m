@@ -1,210 +1,286 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVHBVdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVHBVfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVHBVdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 17:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVHBVbI
+	id S261884AbVHBVfb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 17:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVHBVd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 17:31:08 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:15014 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261823AbVHBV3k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 17:29:40 -0400
-Subject: [PATCH] sunrpc: cache_register can use wrong module reference
-From: Bruce Allan <bwa@us.ibm.com>
-Reply-To: bwa@us.ibm.com
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-nfs <nfs@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: IBM, Corp.
-Message-Id: <1123018176.3954.118.camel@w-bwa3.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 02 Aug 2005 14:29:36 -0700
+	Tue, 2 Aug 2005 17:33:29 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:28203 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261838AbVHBVce (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 17:32:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=DrIqrSMvF2bijmRCH+x81myyO0lb8/aWL2nyfhfhGM2LLlqcpbrguBZszh1OthYLY2NMrS3zvisYdAu3NS8frZCHOWOlXlDL4k07BiIniNX84fcUkSlVg46SDyln5tnniyVYdIa/yOazZN1C0G6xOHOldC4DSa37/UFy6GpHSrI=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Documentation - how to apply patches for various trees
+Date: Tue, 2 Aug 2005 23:32:20 +0200
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508022332.21380.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[resending to Neil, Trond and linux-nfs list; initial copy to lkml]
+Hi, 
 
-When registering an RPC cache, cache_register() always sets the owner as
-the sunrpc module.  However, there are RPC caches owned by other modules. 
-With the incorrect owner setting, the real owning module can be removed
-potentially with an open reference to the cache from userspace.
+How to apply the -rc, -git, -mm and the 2.6.x.y (-stable) patches is a quite
+frequently asked question on LKML and elsewhere. 
+Since so many people seem to be confused by this I gathered it ought to be 
+properly documented once and for all so we  a) get more people testing those 
+trees  and  b) get asked this question less often.
+So, I sat down and wrote such a document.
 
-For example, if one were to stop the nfs server and unmount the nfsd
-filesystem, the nfsd module could be removed eventhough rpc.idmapd had
-references to the idtoname and nametoid caches (i.e.
-/proc/net/rpc/nfs4.<cachename>/channel is still open).  This resulted in
-a system panic on one of our machines when attempting to restart the nfs
-services after reloading the nfsd module.
+Below is a patch to add a new file "applying-patches.txt" to Documentation/
+This document describes each of the trees and gives examples on how to apply 
+the various patches.
 
-The following patch fixes this by passing the address of the owning
-struct module to cache_register().  In addition, printk's were added to
-functions calling cache_unregister() to dump an error message on
-failure.
+Looking forward to your feedback (and possible inclusion).
 
-Signed-off-by: Bruce Allan <bwa@us.ibm.com>
+I guess this document could also be placed somewhere on kernel.org and linked 
+to from the front page so that people downloading the various patches will 
+have this information available at their fingertips.
 
 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/fs/nfsd/export.c linux-2.6.13-rc5-rpc_cache_register/fs/nfsd/export.c
---- linux-2.6.13-rc5/fs/nfsd/export.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/fs/nfsd/export.c	2005-08-02 13:20:50.000000000 -0700
-@@ -26,6 +26,7 @@
- #include <linux/namei.h>
- #include <linux/mount.h>
- #include <linux/hash.h>
-+#include <linux/module.h>
- 
- #include <linux/sunrpc/svc.h>
- #include <linux/nfsd/nfsd.h>
-@@ -1161,9 +1162,8 @@ nfsd_export_init(void)
- {
- 	dprintk("nfsd: initializing export module.\n");
- 
--	cache_register(&svc_export_cache);
--	cache_register(&svc_expkey_cache);
--
-+	cache_register(&svc_export_cache, THIS_MODULE);
-+	cache_register(&svc_expkey_cache, THIS_MODULE);
- }
- 
- /*
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/fs/nfsd/nfs4idmap.c linux-2.6.13-rc5-rpc_cache_register/fs/nfsd/nfs4idmap.c
---- linux-2.6.13-rc5/fs/nfsd/nfs4idmap.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/fs/nfsd/nfs4idmap.c	2005-08-02 13:20:50.000000000 -0700
-@@ -397,15 +397,17 @@ static DefineSimpleCacheLookupMap(ent, n
- void
- nfsd_idmap_init(void)
- {
--	cache_register(&idtoname_cache);
--	cache_register(&nametoid_cache);
-+	cache_register(&idtoname_cache, THIS_MODULE);
-+	cache_register(&nametoid_cache, THIS_MODULE);
- }
- 
- void
- nfsd_idmap_shutdown(void)
- {
--	cache_unregister(&idtoname_cache);
--	cache_unregister(&nametoid_cache);
-+	if (cache_unregister(&idtoname_cache))
-+		printk(KERN_ERR "nfsd: failed to unregister idtoname cache\n");
-+	if (cache_unregister(&nametoid_cache))
-+		printk(KERN_ERR "nfsd: failed to unregister nametoid cache\n");
- }
- 
- /*
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/include/linux/sunrpc/cache.h linux-2.6.13-rc5-rpc_cache_register/include/linux/sunrpc/cache.h
---- linux-2.6.13-rc5/include/linux/sunrpc/cache.h	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/include/linux/sunrpc/cache.h	2005-08-02 13:20:50.000000000 -0700
-@@ -278,7 +278,7 @@ extern int cache_check(struct cache_deta
- extern void cache_flush(void);
- extern void cache_purge(struct cache_detail *detail);
- #define NEVER (0x7FFFFFFF)
--extern void cache_register(struct cache_detail *cd);
-+extern void cache_register(struct cache_detail *cd, struct module *owner);
- extern int cache_unregister(struct cache_detail *cd);
- 
- extern void qword_add(char **bpp, int *lp, char *str);
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/net/sunrpc/auth_gss/svcauth_gss.c linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/auth_gss/svcauth_gss.c
---- linux-2.6.13-rc5/net/sunrpc/auth_gss/svcauth_gss.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/auth_gss/svcauth_gss.c	2005-08-02 13:20:50.000000000 -0700
-@@ -1065,8 +1065,8 @@ gss_svc_init(void)
- {
- 	int rv = svc_auth_register(RPC_AUTH_GSS, &svcauthops_gss);
- 	if (rv == 0) {
--		cache_register(&rsc_cache);
--		cache_register(&rsi_cache);
-+		cache_register(&rsc_cache, THIS_MODULE);
-+		cache_register(&rsi_cache, THIS_MODULE);
- 	}
- 	return rv;
- }
-@@ -1074,7 +1074,9 @@ gss_svc_init(void)
- void
- gss_svc_shutdown(void)
- {
--	cache_unregister(&rsc_cache);
--	cache_unregister(&rsi_cache);
-+	if (cache_unregister(&rsc_cache))
-+		printk(KERN_ERR "sunrpc: failed to unregister rsc cache\n");
-+	if (cache_unregister(&rsi_cache))
-+		printk(KERN_ERR "sunrpc: failed to unregister rsi cache\n");
- 	svc_auth_unregister(RPC_AUTH_GSS);
- }
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/net/sunrpc/cache.c linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/cache.c
---- linux-2.6.13-rc5/net/sunrpc/cache.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/cache.c	2005-08-02 13:20:50.000000000 -0700
-@@ -172,12 +172,12 @@ static struct file_operations cache_flus
- static void do_cache_clean(void *data);
- static DECLARE_WORK(cache_cleaner, do_cache_clean, NULL);
- 
--void cache_register(struct cache_detail *cd)
-+void cache_register(struct cache_detail *cd, struct module *owner)
- {
- 	cd->proc_ent = proc_mkdir(cd->name, proc_net_rpc);
- 	if (cd->proc_ent) {
- 		struct proc_dir_entry *p;
--		cd->proc_ent->owner = THIS_MODULE;
-+		cd->proc_ent->owner = owner;
- 		cd->channel_ent = cd->content_ent = NULL;
- 		
-  		p = create_proc_entry("flush", S_IFREG|S_IRUSR|S_IWUSR,
-@@ -185,7 +185,7 @@ void cache_register(struct cache_detail 
- 		cd->flush_ent =  p;
-  		if (p) {
-  			p->proc_fops = &cache_flush_operations;
-- 			p->owner = THIS_MODULE;
-+ 			p->owner = owner;
-  			p->data = cd;
-  		}
-  
-@@ -195,7 +195,7 @@ void cache_register(struct cache_detail 
- 			cd->channel_ent = p;
- 			if (p) {
- 				p->proc_fops = &cache_file_operations;
--				p->owner = THIS_MODULE;
-+				p->owner = owner;
- 				p->data = cd;
- 			}
- 		}
-@@ -205,7 +205,7 @@ void cache_register(struct cache_detail 
- 			cd->content_ent = p;
-  			if (p) {
-  				p->proc_fops = &content_file_operations;
-- 				p->owner = THIS_MODULE;
-+ 				p->owner = owner;
-  				p->data = cd;
-  			}
-  		}
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/net/sunrpc/sunrpc_syms.c linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/sunrpc_syms.c
---- linux-2.6.13-rc5/net/sunrpc/sunrpc_syms.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/sunrpc_syms.c	2005-08-02 13:20:50.000000000 -0700
-@@ -165,8 +165,8 @@ init_sunrpc(void)
- #ifdef CONFIG_PROC_FS
- 	rpc_proc_init();
- #endif
--	cache_register(&auth_domain_cache);
--	cache_register(&ip_map_cache);
-+	cache_register(&auth_domain_cache, THIS_MODULE);
-+	cache_register(&ip_map_cache, THIS_MODULE);
- out:
- 	return err;
- }
-@@ -176,8 +176,10 @@ cleanup_sunrpc(void)
- {
- 	unregister_rpc_pipefs();
- 	rpc_destroy_mempool();
--	cache_unregister(&auth_domain_cache);
--	cache_unregister(&ip_map_cache);
-+	if (cache_unregister(&auth_domain_cache))
-+		printk(KERN_ERR "sunrpc: failed to unregister auth_domain cache\n");
-+	if (cache_unregister(&ip_map_cache))
-+		printk(KERN_ERR "sunrpc: failed to unregister ip_map cache\n");
- #ifdef RPC_DEBUG
- 	rpc_unregister_sysctl();
- #endif
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ Documentation/applying-patches.txt |  221 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 221 insertions(+)
+
+diff -uP linux-2.6.13-rc5-orig/Documentation/applying-patches.txt linux-2.6.13-rc5/Documentation/applying-patches.txt
+--- linux-2.6.13-rc5-orig/Documentation/applying-patches.txt	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.13-rc5/Documentation/applying-patches.txt	2005-08-02 23:17:13.000000000 +0200
+@@ -0,0 +1,221 @@
++
++	Applying Patches To The Linux Kernel
++	------------------------------------
++
++	(Written by Jesper Juhl, August 2005)
++
++
++A frequently asked question on the Linux Kernel Mailing List is how to apply
++a patch to the kernel or, more specifically, what base kernel a patch for
++one of the many trees/branches should be applied to. Hopefully this document
++will explain this to you.
++
++
++What is a patch?
++---
++ A patch is a small text document containing a delta of changes between two
++different versions of a source tree. Patches are created with the `diff'
++program.
++To correctly apply a patch you need to know what base it was generated from
++and what new version the patch will change the source tree into.
++
++
++How do I apply a patch?
++---
++ You apply a patch with the `patch' program. The patch program reads a diff
++(or patch) file and makes the changes to the source tree described in it.
++Patches for the Linux kernel are generated releative to the parent directory
++holding the kernel source dir. This means that paths to files inside the
++patch file contain the name of the kernel source dirs it was generated
++against - since this is unlikely to match the name of the kernel source dir
++on your local machine (but is often useful info to see what version an
++otherwise unlabeled patch was generated against) you should change into your
++kernel source directory and then strip the first element of the path from
++filenames in the patch file when applying it (the -p1 argument to `patch'
++does this). To revert a previously applied patch, use the -R argument to
++patch.
++
++
++Where can I download the patches?
++---
++The patches are available at http://kernel.org/
++Most recent patches are linked from the front page, but they also have
++specific homes.
++The 2.6.x.y (-stable) and 2.6.x patches live at
++ ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
++The -rc patches live at
++ ftp://ftp.kernel.org/pub/linux/kernel/v2.6/testing/
++The -git patches live at 
++ ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/
++The -mm kernels live at 
++ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/
++
++
++The 2.6.x kernels
++---
++ These are the base stable releases released by Linus. The highest numbered
++release is the most recent. If regressions or other serious flaws are found
++then a -stable fix patch will be released (see below) on to of this base.
++Once a new 2.6.x base kernel is released, a patch is made available that is
++a delta between the previous 2.6.x kernel and the new one.
++To apply a patch moving from 2.6.11 to 2.6.12 you'd do the following (note
++that such patches do *NOT* apply on top of 2.6.x.y kernels but on top of the
++base 2.6.x kernel - if you need to move from 2.6.x.y to 2.6.x+1 you need to
++first revert the 2.6.x.y patch).
++
++# moving from 2.6.11 to 2.6.12
++$ cd ~/linux-2.6.11			# change to kernel source dir
++$ patch -p1 < ../patch-2.6.12		# apply the 2.6.12 patch
++$ cd ..
++$ mv linux-2.6.11 linux-2.6.12		# rename source dir
++
++# moving from 2.6.11.1 to 2.6.12
++$ cd ~/linux-2.6.11.1			# change to kernel source dir
++$ patch -p1 -R < ../patch-2.6.11.1	# revert the 2.6.11.1 patch
++					# source dir is now 2.6.11
++$ patch -p1 < ../patch-2.6.12		# apply new 2.6.12 patch
++$ cd ..
++$ mv linux-2.6.11.1 inux-2.6.12		# rename source dir
++
++
++The 2.6.x.y kernels
++---
++ Kernels with 4 digit versions are -stable kernels. They contain small(ish)
++critical fixes for security problems or significant regressions discovered
++in a given 2.6.x kernel. This is the recommended branch for users who want
++the most recent stable kernel and are not interrested in helping test
++development/experimental versions. If no 2.6.x.y kernel is available, then
++the highest numbered 2.6.x kernel is the current stable kernel.
++These patches are not incremental, meaning that for example the 2.6.12.3
++patch does not apply on top of the 2.6.12.2 kernel source, but rather on top
++of the base 2.6.12 kernel source.
++So, in order to apply the 2.6.12.3 patch to your existing 2.6.12.2 kernel
++source you have to first back out the 2.6.12.2 patch (so you are left with a
++base 2.6.12 kernel source) and then apply the new 2.6.12.3 patch.
++Here's a small example
++
++$ cd ~/linux-2.6.12.2			# change into the kernel source dir
++$ patch -p1 -R < ../patch-2.6.12.2	# revert the 2.6.12.2 patch
++$ patch -p1 < ../patch-2.6.12.3		# apply the new 2.6.12.3 patch
++$ cd ..
++$ mv linux-2.6.12.2 linux-2.6.12.3	# rename the kernel source dir
++
++
++The -rc kernels
++---
++ These are ReleaseCandidate kernels. These are development kernels released
++by Linus whenever he deems the current git (the kernels source management
++tool) tree to be in a resonably sane state adequate for testing. These
++kernels are not stable and you should expect occasional breakage if you
++intend to run them. This is however the most stable of the main development
++branches and is also what will eventually turn into the next stable kernel,
++so it is important that it be tested by as many people as possible. 
++This is a good branch to run for people who want to help out testing
++development kernel but do not want to run some of the really experimental
++stuff (such people should see the sections about -git and -mm kernels below).
++The -rc patches are not incremental, they apply to a base 2.6.x kernel, just
++like the 2.6.x.y patches described above. The kernel version before the -rcN
++suffix denotes the version of the kernel that this -rc kernel will eventually
++turn into. So, 2.6.13-rc5 means that this is the fifth release candidate for
++the 2.6.13 kernel and the patch should be applied on top of the 2.6.12
++kernel source.
++Here are 3 examples of how to apply these patches
++
++# first an example of moving from 2.6.12 to 2.6.13-rc3
++$ cd ~/linux-2.6.12			# change into the 2.6.12 source dir
++$ patch -p1 < ../patch-2.6.13-rc3	# apply the 2.6.13-rc3 patch
++$ cd ..
++$ mv linux-2.6.12 linux-2.6.13-rc3	# rename the source dir 
++
++# now let's move from 2.6.13-rc3 to 2.6.13-rc5
++$ cd ~/linux-2.6.13-rc3			# change into the 2.6.13-rc3 dir
++$ patch -p1 -R < ../patch-2.6.13-rc3	# revert the 2.6.13-rc3 patch
++$ patch -p1 < ../patch-2.6.13-rc5	# apply the new 2.6.13-rc5 patch
++$ cd ..
++$ mv linux-2.6.13-rc3 linux-2.6.13-rc5	# rename the source dir
++
++# finally let's try and move from 2.6.12.3 to 2.6.13-rc5
++$ cd ~/linux-2.6.12.3			# change to the kernel source dir
++$ patch -p1 -R < ../patch-2.6.12.3	# revert the 2.6.12.3 patch
++$ patch -p1 < ../patch-2.6.13-rc5	# apply new 2.6.13-rc5 patch
++$ cd ..
++$ mv linux-2.6.12.3 linux-2.6.13-rc5	# rename the kernel source dir
++
++
++The -git kernels
++---
++ These are daily snapshots of Linus' kernel tree (managed in a git
++repository, hence the name).
++These patches are usually released daily and represent the current state of
++Linus' tree. They are more experimental than -rc kernels since they are
++generated automatically and have not been looked over and deemed worthy of
++-rc status yet. -git patches are not incremental and apply either to a base
++2.6.x kernel or a base 2.6.x-rc kernel - you can see which from their name,
++a patch named 2.6.12-git1 applies to the 2.6.12 kernel source and a patch
++named 2.6.13-rc3-git2 applies to the source of the 2.6.13-rc3 kernel.
++Here are some examples of how to apply these patches
++
++# moving from 2.6.12 to 2.6.12-git1
++$ cd ~/linux-2.6.12			# change to the kernel source dir
++$ patch -p1 < ../patch-2.6.12-git1	# apply the 2.6.12-git1 patch
++$ cd ..
++$ mv linux-2.6.12 linux-2.6.12-git1	# rename the kernel source dir
++
++# moving from 2.6.12-git1 to 2.6.13-rc2-git3
++$ cd ~/linux-2.6.12-git1		# change to the kernel source dir
++$ patch -p1 -R < ../patch-2.6.12-git1	# revert the 2.6.12-git1 patch
++					# we now have a 2.6.12 kernel
++$ patch -p1 < ../patch-2.6.13-rc2	# apply the 2.6.13-rc2 patch
++					# the kernel is now 2.6.13-rc2
++$ patch -p1 < ../patch-2.6.13-rc2-git3	# apply the 2.6.13-rc2-git3 patch
++					# the kernel is now 2.6.13-rc2-git3
++$ cd ..
++$ mv linux-2.6.12-git1 linux-2.6.13-rc2-git3	# rename source dir
++
++
++The -mm kernels
++---
++ These are experimental kernels released by Andrew Morton. The -mm tree
++serves as a sort of proving ground for new features and other experimental
++patches. Once a patch has proved its worth in -mm for a while Andrew pushes
++it on to Linus for inclusion in mainline. This branch is in constant flux
++and contains many experimental features, a lot of debugging patches not
++appropriate for mainline etc and is the most experimental of the branches
++described in this document. These kernels are not appropriate for use on
++systems that are supposed to be stable and they a more risky to run than any
++of the other branches (make sure you have up-to-date backups - that goes for
++any experimental kernel but even more so for -mm kernels). These kernels in
++addition to all the other experimental patches they contain usually also
++contain any changes in the mainline -git kernels available at the time of
++release.
++Testing of -mm kernels is greatly appreciated since the whole point of the
++tree is to weed out regressions, crashes, data corruption bugs, build
++breakage (and any other bug in general) before changes are merged into the
++more stable mainline Linus tree. But testers of -mm should be aware that
++breakage in this tree is more common than in any other tree.
++The -mm kernels are not released on a fixed schedule, but usually a few -mm
++kernels are released in between each -rc kernel (1 to 3 is common).
++The mm kernels apply to either a base 2.6.x kernel (when no -rc kernels have
++been released yet) or to a Linus -rc kernel.
++Here are some examples of applying the -mm patches
++
++# moving from 2.6.12 to 2.6.12-mm1
++$ cd ~/linux-2.6.12			# change to the 2.6.12 source dir
++$ patch -p1 < ../2.6.12-mm1		# apply the 2.6.12-mm1 patch
++$ cd ..
++$ mv linux-2.6.12 linux-2.6.12-mm1	# rename the source appropriately
++
++# moving from 2.6.12-mm1 to 2.6.13-rc3-mm3
++$ cd ~/linux-2.6.12-mm1
++$ patch -p1 -R < ../2.6.12-mm1		# revert the 2.6.12-mm1 patch
++					# we now have a 2.6.12 source
++$ patch -p1 < ../patch-2.6.13-rc3	# apply the 2.6.13-rc3 patch
++					# we now have a 2.6.13-rc3 source
++$ patch -p1 < ../2.6.13-rc3-mm3		# apply the 2.6.13-rc3-mm3 patch
++$ cd ..
++$ mv linux-2.6.12-mm1 linux-2.6.13-rc3-mm3	# rename the source dir
++
++
++This concludes this list of explanations of the various kernel trees and I
++hope you are now crystal clear on how to apply the various patches and help
++testing the kernel.
 
 

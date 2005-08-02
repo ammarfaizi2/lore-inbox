@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVHBOBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVHBOC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVHBOBX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 10:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVHBOBW
+	id S261531AbVHBOC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 10:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVHBOCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 10:01:22 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:59893 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261445AbVHBOBV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 10:01:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rJ3RTg2VZRYDuB7VTGKURLZM9Ic8WtBly9CdcmvX8JgNkwj4ibOzkeTKTkiUWLeeG75wYRlczSOh5MvXkWMs0ru/NPVwvcG+fMPiYzryih9SRjQCyKCwzyORjZgPmc2fzjCOGfFXF7+aNjrEreCpj4FoeNwaHTMODHNXIvovWOg=
-Message-ID: <3aa654a40508020701e605533@mail.gmail.com>
-Date: Tue, 2 Aug 2005 07:01:20 -0700
-From: Avuton Olrich <avuton@gmail.com>
-Reply-To: Avuton Olrich <avuton@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
-Cc: linux-kernel@vger.kernel.org, tony@atomide.com,
-       tuukka.tikkanen@elektrobit.com, ck@vds.kolivas.org
-In-Reply-To: <200508021443.55429.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200508021443.55429.kernel@kolivas.org>
+	Tue, 2 Aug 2005 10:02:36 -0400
+Received: from ds17.reliablehosting.com ([216.131.95.67]:7112 "EHLO
+	ds17.reliablehosting.com") by vger.kernel.org with ESMTP
+	id S261526AbVHBOBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 10:01:33 -0400
+Message-ID: <42EF7CB7.5090403@bluebottle.com>
+Date: Tue, 02 Aug 2005 18:01:27 +0400
+From: Gene Pavlovsky <heilong@bluebottle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050727
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RFE: console_blank_hook that calls userspace helper
+References: <1122891737.42edf7d9a402a@www.bluebottle.com> <20050802110418.GB1390@elf.ucw.cz>
+In-Reply-To: <20050802110418.GB1390@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/1/05, Con Kolivas <kernel@kolivas.org> wrote:
-> This is a code reordered version of the dynamic ticks patch from Tony Lindgen
-> and Tuukka Tikkanen - sorry about spamming your mail boxes with this, but
-> thanks for the code. There is significant renewed interest by the lkml
-> audience for such a feature which is why I'm butchering your code (sorry
-> again if you don't like me doing this). The only real difference between your
-> code and this patch is moving the #ifdef'd code out of code paths and putting
-> it into dyn-tick specific files.
+I can try to do this, but it will have to wait, I've got too much work now.
+Don't you think the userspace solution deserves a try?
 
-OK, I rolled my own patch, 2.6.13-rc4-ck1-reiser4+this patch and it
-appears to be running on my desktop Asus A7N8X very well:
+Pavel Machek wrote:
+> Hi!
+> 
+> 
+>>http://bugzilla.kernel.org/show_bug.cgi?id=4767:
+>>
+>>Bugzilla Bug 4767 	RFE: console_blank_hook that can call userspace
+>>program
+>>Submitter:   	heilong@bluebottle.com (Eugene Pavlovsky)
+>>
+>>I think it'd be very good to have a console_blank_hook handler that
+>>would call a
+>>userspace program/script/generate hotplug event whatever. Currently,
+>>the console
+>>can only be blanked using APM, so no options exist for people using
+>>ACPI. I've
+>>got a Radeon graphics chip on my laptop, and the LCD backlight can be
+>>controlled
+>>(on/off) using radeontool. If there was a userspace callback
+>>interface
+>>to
+>>console blanking, I would just make a callback script that calls
+>>"radeontool
+>>light off" on blank and "radeontool light on" on unblank - really
+>>easy. I think
+>>this userspace console_blank_hook handler is very simple to put into
+>>kernel, but
+>>I'm not a kernel developer myself, so wouldn't risk sending any
+>>patches (that
+>>call system("some_script")), because I probably won't make things as
+>>they should
+>>be in the kernel.
+> 
+> 
+> Radeonfb should blank console automatically, without userspace
+> helper. Send a patch to do that ;-).
+> 
+> 								Pavel
+> 
 
-I am running with Local APIC/IO-APIC/APIC Timer and forceapic. Time
-does not appear to be running slow, and I do not appear to have a slow
-boot.
-
-sbh@rocket ~ $ cat /sys/devices/system/timer/timer0/dyn_tick_state
-suitable:       1
-enabled:        1
-using APIC:     1
-
-[4294683.959000] dyn-tick: Maximum ticks to skip limited to 803
-[4294683.959000] dyn-tick: Timer using dynamic tick
-
-The nvidia driver also works, and the most unexpected thing is after a
-few hours of running it seems stable :)
-
-So, to repeat I'm only reporting sucess, I'm unsure of the power
-savings but this computer is on all day.
-
-Thanks,
-avuton
 -- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+The human knowledge belongs to the world

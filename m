@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVHBKca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVHBKoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVHBKca (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 06:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVHBKc3
+	id S261478AbVHBKoN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 06:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVHBKoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 06:32:29 -0400
-Received: from fnoeppeil48.netpark.at ([217.175.205.176]:53508 "EHLO
-	roarinelk.homelinux.net") by vger.kernel.org with ESMTP
-	id S261473AbVHBKc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 06:32:28 -0400
-Date: Tue, 2 Aug 2005 12:32:26 +0200
-From: Manuel Lauss <mano@roarinelk.homelinux.net>
-To: Stelian Pop <stelian@popies.net>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Greg KH <greg@kroah.com>,
-       Erik Waling <erikw@acc.umu.se>
-Subject: Re: 2.6.13-rc3-mm3
-Message-ID: <20050802103226.GA5501@roarinelk.homelinux.net>
-References: <20050728025840.0596b9cb.akpm@osdl.org> <42EC9410.8080107@roarinelk.homelinux.net> <Pine.LNX.4.58.0507311054320.29650@g5.osdl.org> <Pine.LNX.4.58.0507311125360.29650@g5.osdl.org> <1122846072.17880.43.camel@deep-space-9.dsnet> <Pine.LNX.4.58.0507311557020.14342@g5.osdl.org> <1122907067.31357.43.camel@localhost.localdomain> <1122976168.4656.3.camel@localhost.localdomain>
+	Tue, 2 Aug 2005 06:44:13 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:49235 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261478AbVHBKoK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 06:44:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:x-message-flag:x-operating-system:x-editor:x-disclaimer:user-agent;
+        b=P9+O+KAIRkmenu87zxrTXNklJ1lYehDTI1IL7SDu3e7fFrmLvVAjPvq+O81y9F8rBymJV4hdsLDpOWfzIGdpysMiT5kpQteTHZLhjWL5t5Ii6PLHVgMAq9rBW/sLDBbYEH3hRxsaY2/LgFaDdjPn34DRBrp8nEijxfVtTuoSr7c=
+Date: Tue, 2 Aug 2005 12:44:49 +0200
+From: Mattia Dongili <malattia@gmail.com>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Harald Welte <laforge@netfilter.org>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BUG: atomic counter underflow at ip_conntrack_event_cache_init+0x91/0xb0 (with patch)
+Message-ID: <20050802104449.GA3702@inferi.kami.home>
+Mail-Followup-To: Patrick McHardy <kaber@trash.net>,
+	Harald Welte <laforge@netfilter.org>,
+	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050801141327.GA3909@inferi.kami.home> <42EE3169.6070604@trash.net> <20050801160537.GA3850@inferi.kami.home> <42EE5721.1090509@trash.net> <42EEC2BB.3020105@trash.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1122976168.4656.3.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <42EEC2BB.3020105@trash.net>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.13-rc4-mm1-3 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02, 2005 at 11:49:28AM +0200, Stelian Pop wrote:
-> Le lundi 01 ao??t 2005 ?? 16:37 +0200, Stelian Pop a ??crit :
-> 
-> > > Also, it looks like sonypi really is pretty nasty to probe for, so it's 
-> > > not enough to just say "oh, it's a sony VAIO, let's reserve that region". 
-> > > Otherwise I'd just suggest adding a "dmi_check_system()" table to 
-> > > arch/i386/pci/i386.c, at the top of "pcibios_assign_resources()", and 
-> > > then you could just allocate things based on DMI information.
-> 
-> > Since every Vaio laptop out there seems indeed to use only the first IO
-> > port range in the list, we can de-nastyify the probe. And if we don't
-> > even bother to check for Type1 vs. Type2 devices and we reserve both,
-> > then it may be acceptable to do the above.
-> > 
-> > See the attached patch below which does just that. This has NOT been
-> > tested (only compile-tested), and moreover it has a high breakage
-> > probability in case some Vaios cannot live with the fixed ioport choice.
-> > 
-> > Note that this patch will conflict with the recent Eric's one (added in
-> > CC:), he may want to rediff his Type3 changes in case this patch gets
-> > in.
-> 
-> I had no feedback at all on the patch so I have no idea if this will go
-> in or not, but since Eric's patch was accepted into -mm I rediffed the
-> patch in order to ease the testing (in case someone is willing to test
-> it).
+On Tue, Aug 02, 2005 at 02:47:55AM +0200, Patrick McHardy wrote:
+> Patrick McHardy wrote:
+> > Mattia Dongili wrote:
+[...]
+> >>this doesn't fix it actually, see dmesg below:
 
-Does not work on -rc4-mm1. The IO-ports pre-reserved message appears,
-though. The 2 io-regions are still located under the "CardBus #03"
-device. Re-Applying
-"revert-gregkh-pci-pci-assign-unassigned-resources.patch" makes it
-work again.
+blame me... It seems I forgot a damn --dry-run while applying your
+first patch :P
+And in fact your first fix solves the BUG I was seeing.
+
+> > It looks like ip_ct_iterate_cleanup and ip_conntrack_event_cache_init
+> > race against each other with assigning pointers and grabbing/putting the
+> > refcounts if called from different contexts.
+> 
+> This should be a fist step towards fixing it. It's probably incomplete
+> (I'm too tired to check it now), but it should fix the problem you're
+> seeing. Could you give it a spin?
+
+building right now
+
+> BTW, ip_ct_iterate_cleanup can only be called from ipt_MASQUERADE when
+> a device goes down. It seems a bit odd that this is happending on boot,
+> is there anything special about your setup?
+
+yes, ifplugd. This morning I noticed that booting without networking a
+nd without loading ip_conntrack (no iptables rules) everything proceeded
+smoothly. So rebooting normally I noticed that the BUG was triggered as
+soon as ifplugd configured eth0 (with ip_conntrack already loaded).
+I'll try to narrow the thing more and let you know.
+
 
 -- 
- Manuel Lauss
+mattia
+:wq!

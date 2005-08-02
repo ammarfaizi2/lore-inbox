@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVHBKyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVHBLB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbVHBKyp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 06:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVHBKyp
+	id S261493AbVHBLB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 07:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVHBLB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 06:54:45 -0400
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:9901 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261483AbVHBKyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 06:54:44 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Tony Lindgren <tony@atomide.com>
-Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
-Date: Tue, 2 Aug 2005 20:54:21 +1000
-User-Agent: KMail/1.8.2
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       tuukka.tikkanen@elektrobit.com, ck@vds.kolivas.org
-References: <200508021443.55429.kernel@kolivas.org> <200508021739.20347.kernel@kolivas.org> <20050802081512.GI15903@atomide.com>
-In-Reply-To: <20050802081512.GI15903@atomide.com>
+	Tue, 2 Aug 2005 07:01:26 -0400
+Received: from ms-smtp-02-smtplb.rdc-nyc.rr.com ([24.29.109.6]:26779 "EHLO
+	ms-smtp-02.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S261493AbVHBLB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 07:01:26 -0400
+Message-Id: <200508021101.j72B1BGe014964@ms-smtp-02.rdc-nyc.rr.com>
+From: "The Post Office" <postmaster@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: Report
+Date: Tue, 2 Aug 2005 05:34:06 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508022054.22276.kernel@kolivas.org>
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0011_083F6B05.8A1F5683"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Virus-Scan-Result: Repaired 34256 W32.Mydoom.M@mm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Aug 2005 18:15, Tony Lindgren wrote:
-> * Con Kolivas <kernel@kolivas.org> [050802 00:36]:
-> > On Tue, 2 Aug 2005 05:17 pm, Tony Lindgren wrote:
-> > > But this you can verify by booting to single user mode and then running
-> > > pmstats 5, and if ticks is not below 25HZ, there's something in the
-> > > kernel polling.
-> >
-> > I'm removing modules and they don't seem to do anything so I'm not sure
-> > what else to try.
->
-> If you have 130HZ in single user mode, it's some kernel driver.
-> You could printk the the next timer, then grep for that in System.map:
 
-I kept pulling modules and eventually got to 27Hz so something was definitely 
-happening.
 
-I need to ask you why you think limiting the maximum Hz is a bad idea? On a 
-laptop, say we have set the powersave governor, we have already told the 
-kernel we are interested in maximising power saving at the expense of 
-performance. Would it not be appropriate for this to be linked in a way that 
-sets maximum Hz to some value that maximises power save (whatever that value 
-is) at that time?
+This is a multi-part message in MIME format.
 
-Cheers,
-Con
+------=_NextPart_000_0011_083F6B05.8A1F5683
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+ALERT!
+
+This e-mail, in its original form, contained one or more attached files that were infected with a virus, worm, or other type of security threat. This e-mail was sent from a Road Runner IP address. As part of our continuing initiative to stop the spread of malicious viruses, Road Runner scans all outbound e-mail attachments. If a virus, worm, or other security threat is found, Road Runner cleans or deletes the infected attachments as necessary, but continues to send the original message content to the recipient. Further information on this initiative can be found at http://help.rr.com/faqs/e_mgsp.html.
+Please be advised that Road Runner does not contact the original sender of the e-mail as part of the scanning process. Road Runner recommends that if the sender is known to you, you contact them directly and advise them of their issue. If you do not know the sender, we advise you to forward this message in its entirety (including full headers) to the Road Runner Abuse Department, at abuse@rr.com.
+
+
+
+
+------=_NextPart_000_0011_083F6B05.8A1F5683
+Content-Type: text/plain;
+	name="DELETED0.TXT"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="DELETED0.TXT"
+
+ZmlsZSBhdHRhY2htZW50OiBtZXNzYWdlLnppcA0KDQpUaGlzIGUtbWFpbCBpbiBpdHMgb3Jp
+Z2luYWwgZm9ybSBjb250YWluZWQgb25lIG9yIG1vcmUgYXR0YWNoZWQgZmlsZXMgdGhhdCB3
+ZXJlIGluZmVjdGVkIHdpdGggdGhlIFczMi5NeWRvb20uTUBtbSB2aXJ1cyBvciB3b3JtLiBU
+aGV5IGhhdmUgYmVlbiByZW1vdmVkLg0KRm9yIG1vcmUgaW5mb3JtYXRpb24gb24gUm9hZCBS
+dW5uZXIncyB2aXJ1cyBmaWx0ZXJpbmcgaW5pdGlhdGl2ZSwgdmlzaXQgb3VyIEhlbHAgJiBN
+ZW1iZXIgU2VydmljZXMgcGFnZXMgYXQgaHR0cDovL2hlbHAucnIuY29tLCBvciB0aGUgdmly
+dXMgZmlsdGVyaW5nIGluZm9ybWF0aW9uIHBhZ2UgZGlyZWN0bHkgYXQgaHR0cDovL2hlbHAu
+cnIuY29tL2ZhcXMvZV9tZ3NwLmh0bWwuIA0K
+------=_NextPart_000_0011_083F6B05.8A1F5683--
+
+

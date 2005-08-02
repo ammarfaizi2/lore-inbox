@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVHBBoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVHBC60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVHBBoR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 21:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVHBBoR
+	id S261340AbVHBC60 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 22:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVHBC60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 21:44:17 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:9662 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261356AbVHBBoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 21:44:15 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Sander <sander@humilis.net>
-Cc: "Dr. David Alan Gilbert" <dave@treblig.org>,
-       "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Mon, 1 Aug 2005 18:43:27 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: IO scheduling & filesystem v a few processes writing a lot
-In-Reply-To: <20050801144820.GC7686@favonius>
-Message-ID: <Pine.LNX.4.62.0508011838140.4098@qynat.qvtvafvgr.pbz>
-References: <20050731163933.GB7280@gallifrey> <20050731191607.GA7186@favonius>
- <20050801085426.GA12516@gallifrey> <20050801144820.GC7686@favonius>
+	Mon, 1 Aug 2005 22:58:26 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:25325 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S261340AbVHBC6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 22:58:25 -0400
+From: Grant Coady <lkml@dodo.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Report: 2.6.13-rc4-mm1: only 8 errors for 752 randconfig builds
+Date: Tue, 02 Aug 2005 12:58:12 +1000
+Organization: www.scatter.mine.nu
+Reply-To: lkml@dodo.com.au
+Message-ID: <71mte1lpe4fvbdpas6pa2023qdephibv2d@4ax.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Aug 2005, Sander wrote:
+Greetings,
 
-> Dr. David Alan Gilbert wrote (ao):
->> * Sander (sander@humilis.net) wrote:
->>> Dr. David Alan Gilbert wrote (ao):
->>>> I was using rsync, but the problem with rsync is that I have
->>>> a back up server then filled with lots and lots of small files
->>>> - I want larger files for spooling to tape.
->>>> (Other suggestions welcome)
->>>
->>> Can't you just tar the small files from the backupserver to tape? (or,
->>> what is the problem with that?).
->>
->> Lots of small files->slow; it is an LTO-2 tape drive that is spec'd
->> at 35MByte/s - it won't get that if I'm feeding it from something
->> seeking all over.
->
-> ic. Sorry if the question is stupid, but is it bad not to reach
-> 35MB/sec?
+Automating random config kernel build testing, for 2.6.13-rc4-mm1:
 
-with modern tape drives, when you fall out of streaming mode you are lucky 
-to get 1/10 of the rated drive performance (not to mention the extra wear 
-and tear on the tape and the drive)
+Done processing 752 random builds, from which:
+###   8 .configs produced errors
+###  11 .configs produced undefs
+###  52 .configs produced warnings
 
-the common thing is to do disk->disk->tape backups. use rsync to pull your 
-data from the remote machines to your server, then use tar on the server 
-to make the one image you want to put on the tape (frequently onto a 
-different drive), then record that image to tape.
+Abbreviated errors (first 2 lines/error):
 
-note that tar is not nessasarily the best format to use for this in the 
-face of tape errors (see backup software companies for details, several 
-years ago I read an interesting document from the bru backup folks that 
-went into details)
+grant@sempro:/opt/linux$ zcat result-report-error-abbrev.gz|cut -d: -f2-
+arch/i386/kernel/cpu/transmeta.c: In function `init_transmeta':
+arch/i386/kernel/cpu/transmeta.c:82: error: invalid lvalue in assignment
+arch/i386/mach-es7000/es7000.h:82: error: field `id' has incomplete type
+arch/i386/mach-es7000/es7000.h:88: error: field `Header' has incomplete type
+arch/i386/mach-es7000/es7000plat.c: In function `parse_unisys_oem':
+arch/i386/mach-es7000/es7000plat.c:154: error: `es7000_rename_gsi' undeclared (first use in this function)
+drivers/char/ipmi/ipmi_msghandler.c:1397: warning: `ipmb_file_read_proc' defined but not used
+drivers/char/ipmi/ipmi_msghandler.c:1406: warning: `version_file_read_proc' defined but not used
+drivers/char/speakup/speakup.c: In function `speakup_bits':
+drivers/char/speakup/speakup.c:1983: error: `pb_edit' undeclared (first use in this function)
+drivers/mtd/maps/nettel.c: In function `nettel_init':
+drivers/mtd/maps/nettel.c:419: error: `ROOT_DEV' undeclared (first use in this function)
+include/asm-i386/mach-default/mach_apic.h:25: error: syntax error before "bitmap"
+include/asm-i386/mach-default/mach_apic.h:26: warning: function declaration isn't a prototype
+include/asm-i386/mach-visws/do_timer.h: In function `do_timer_overflow':
+include/asm-i386/mach-visws/do_timer.h:32: error: `i8259A_lock' undeclared (first use in this function)
+ipc/shm.c:174: error: `shmem_set_policy' undeclared here (not in a function)
+ipc/shm.c:174: error: initializer element is not constant
+sound/core/memalloc.c: In function `snd_mem_exit':
+sound/core/memalloc.c:658: error: `snd_mem_proc' undeclared (first use in this function)
 
-David Lang
+Further info, full error results, configs producing errors, etc from 
+http://scatter.mine.nu/test/kernel/2.6.13-rc4-mm1/
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Warnings recorded are those not deprecated, not #warning.
+bzip2 tarballs of configs producing errors, undefs 22kB, warnings 86kB
+A significant data reduction from the 28MB raw build results :)
+
+Note: the report generator lists all faults for a particular source file, 
+explains why summary above for errors shows warnings in first 2 lines.
+
+Grant.
+

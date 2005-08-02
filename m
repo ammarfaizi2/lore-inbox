@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVHBOjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVHBOl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVHBOjY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 10:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVHBOHC
+	id S261552AbVHBOl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 10:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVHBOjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 10:07:02 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42926 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261534AbVHBOFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 10:05:52 -0400
-Date: Tue, 2 Aug 2005 16:05:43 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Gene Pavlovsky <heilong@bluebottle.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RFE: console_blank_hook that calls userspace helper
-Message-ID: <20050802140543.GA2465@atrey.karlin.mff.cuni.cz>
-References: <1122891737.42edf7d9a402a@www.bluebottle.com> <20050802110418.GB1390@elf.ucw.cz> <42EF7CB7.5090403@bluebottle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42EF7CB7.5090403@bluebottle.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 2 Aug 2005 10:39:31 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:64999 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261573AbVHBObp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 10:31:45 -0400
+Message-ID: <42EF83C8.3070003@pobox.com>
+Date: Tue, 02 Aug 2005 10:31:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC][PATCH] libata ATAPI alignment
+References: <20050729050654.GA10413@havoc.gtf.org> <20050802082719.GA22569@suse.de>
+In-Reply-To: <20050802082719.GA22569@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.2 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Jens Axboe wrote: > On Fri, Jul 29 2005, Jeff Garzik
+	wrote: >>diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c >>---
+	a/drivers/scsi/ahci.c >>+++ b/drivers/scsi/ahci.c >>@@ -44,7 +44,7 @@
+	>> >> enum { >> AHCI_PCI_BAR = 5, >>- AHCI_MAX_SG = 168, /* hardware
+	max is 64K */ >>+ AHCI_MAX_SG = 300, /* hardware max is 64K */ >>
+	AHCI_DMA_BOUNDARY = 0xffffffff, >> AHCI_USE_CLUSTERING = 0, >>
+	AHCI_CMD_SLOT_SZ = 32 * 32, > > > Reasoning? I agree, just wondering...
+	How big is the allocated area now? [...] 
+	Content analysis details:   (0.2 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.2 UPPERCASE_25_50        message body is 25-50% uppercase
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jens Axboe wrote:
+> On Fri, Jul 29 2005, Jeff Garzik wrote:
+>>diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
+>>--- a/drivers/scsi/ahci.c
+>>+++ b/drivers/scsi/ahci.c
+>>@@ -44,7 +44,7 @@
+>> 
+>> enum {
+>> 	AHCI_PCI_BAR		= 5,
+>>-	AHCI_MAX_SG		= 168, /* hardware max is 64K */
+>>+	AHCI_MAX_SG		= 300, /* hardware max is 64K */
+>> 	AHCI_DMA_BOUNDARY	= 0xffffffff,
+>> 	AHCI_USE_CLUSTERING	= 0,
+>> 	AHCI_CMD_SLOT_SZ	= 32 * 32,
+> 
+> 
+> Reasoning? I agree, just wondering... How big is the allocated area now?
 
-> I can try to do this, but it will have to wait, I've got too much work now.
-> Don't you think the userspace solution deserves a try?
+168 kept the entire allocated DMA area to 4K.
 
-Well, how do you unblank when something bad happens
-(oops,panic?). Blanking should really be done from kernel.
-								Pavel
+300 increases that to <I don't care>K.  ;-)
 
-> >>http://bugzilla.kernel.org/show_bug.cgi?id=4767:
-> >>
-> >>Bugzilla Bug 4767 	RFE: console_blank_hook that can call userspace
-> >>program
-> >>Submitter:   	heilong@bluebottle.com (Eugene Pavlovsky)
-> >>
-> >>I think it'd be very good to have a console_blank_hook handler that
-> >>would call a
-> >>userspace program/script/generate hotplug event whatever. Currently,
-> >>the console
-> >>can only be blanked using APM, so no options exist for people using
-> >>ACPI. I've
-> >>got a Radeon graphics chip on my laptop, and the LCD backlight can be
-> >>controlled
-> >>(on/off) using radeontool. If there was a userspace callback
-> >>interface
-> >>to
-> >>console blanking, I would just make a callback script that calls
-> >>"radeontool
-> >>light off" on blank and "radeontool light on" on unblank - really
-> >>easy. I think
-> >>this userspace console_blank_hook handler is very simple to put into
-> >>kernel, but
-> >>I'm not a kernel developer myself, so wouldn't risk sending any
-> >>patches (that
-> >>call system("some_script")), because I probably won't make things as
-> >>they should
-> >>be in the kernel.
-> > 
-> > 
-> > Radeonfb should blank console automatically, without userspace
-> > helper. Send a patch to do that ;-).
+	Jeff
 
 
--- 
-Boycott Kodak -- for their patent abuse against Java.

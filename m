@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVHBPs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVHBPu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbVHBPs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 11:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVHBPqc
+	id S261562AbVHBPu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 11:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVHBPsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 11:46:32 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:36233 "HELO
+	Tue, 2 Aug 2005 11:48:36 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:47241 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261575AbVHBPqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 11:46:24 -0400
+	id S261588AbVHBPrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 11:47:15 -0400
 Subject: Re: 2.6.13-rc3 -> sluggish PS2 keyboard (was Re: [patch] Real-Time
 	Preemption, -RT-2.6.13-rc4-V0.7.52-01)
 From: Lee Revell <rlrevell@joe-job.com>
@@ -24,8 +24,8 @@ References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins>
 	 <1122992426.1590.11.camel@localhost.localdomain>
 	 <1122997061.11253.3.camel@mindpipe>  <20050802154404.GA13101@ucw.cz>
 Content-Type: text/plain
-Date: Tue, 02 Aug 2005 11:46:18 -0400
-Message-Id: <1122997579.11253.12.camel@mindpipe>
+Date: Tue, 02 Aug 2005 11:47:13 -0400
+Message-Id: <1122997633.11253.14.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
@@ -37,12 +37,10 @@ On Tue, 2005-08-02 at 17:44 +0200, Vojtech Pavlik wrote:
 > keyboard controller is polled at 20Hz to compensate for lost interrupts,
 > which would make it work, but if no interrupts work, it would seem like
 > typing over a slow link.
-> 
 
-Bingo, no interrupts when I type.
+I am an idiot.  The keyboard was plugged into the mouse port.
 
-What could cause this?  I was switching machines so I unplugged this
-keyboard a few times since booting.
+I'm impressed this worked at all.
 
 Lee
 

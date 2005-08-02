@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVHBObs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVHBOgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVHBObs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 10:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVHBO3L
+	id S261582AbVHBOgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 10:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVHBOd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 10:29:11 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:26276 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S261546AbVHBO1a convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 10:27:30 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: powerbook power-off and 2.6.13-rc[3,4]
-Date: Tue, 2 Aug 2005 16:32:44 +0200
-User-Agent: KMail/1.8.1
-Cc: Stelian Pop <stelian@popies.net>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>,
-       debian-powerpc@lists.debian.org
-References: <1122904460.6491.41.camel@localhost.localdomain> <1122905228.6881.9.camel@localhost> <1122907136.31350.45.camel@localhost.localdomain>
-In-Reply-To: <1122907136.31350.45.camel@localhost.localdomain>
+	Tue, 2 Aug 2005 10:33:58 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:40072 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261546AbVHBOb7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 10:31:59 -0400
+Date: Tue, 2 Aug 2005 16:31:26 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Pavel Machek <pavel@ucw.cz>, James Bruce <bruce@andrew.cmu.edu>,
+       David Weinehall <tao@acc.umu.se>, Marc Ballarin <Ballarin.Marc@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+In-Reply-To: <1122991707.5490.32.camel@mindpipe>
+Message-ID: <Pine.LNX.4.61.0508021626340.3743@scrub.home>
+References: <20050730195116.GB9188@elf.ucw.cz>  <1122753864.14769.18.camel@mindpipe>
+ <20050730201049.GE2093@elf.ucw.cz>  <42ED32D3.9070208@andrew.cmu.edu>
+ <20050731211020.GB27433@elf.ucw.cz>  <42ED4CCF.6020803@andrew.cmu.edu>
+ <20050731224752.GC27580@elf.ucw.cz>  <1122852234.13000.27.camel@mindpipe> 
+ <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu> 
+ <20050802112304.GA1308@elf.ucw.cz> <1122991707.5490.32.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200508021632.45344.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 1 of August 2005 16:38, Stelian Pop wrote:
-> Le lundi 01 août 2005 à 16:07 +0200, Johannes Berg a écrit :
-> > On Mon, 2005-08-01 at 15:54 +0200, Antonio-M. Corbi Bellot wrote:
-> > 
-> > > Has anyone observed this behaviour (O.S. halt ok but _no_ power-off at
-> > > the end) with these new '-rc' kernels?
-> > 
-> > Yes. I haven't looked for the cause yet though.
+Hi,
 
-I have observed this too, but only on an SMP (dual-core) machine,
-using 2.6.13-rc4 or 2.6.13-rc4-mm1.
+On Tue, 2 Aug 2005, Lee Revell wrote:
 
-If the USB controller drivers (ohci_hcd, ehci_hcd) are not loaded, the
-machine is powered off normally.  Otherwise, it is not.
+> On Tue, 2005-08-02 at 13:23 +0200, Pavel Machek wrote:
+> > As I said, I do not care about default value. And you should not care,
+> > too, since distros are likely to pick their own defaults.
+> 
+> If the default value does not matter then the default should remain at
+> 1000 so as to not violate the principle of least surprise for people who
+> run "make oldconfig".  Why is this so hard for people to understand?
 
-Greets,
-Rafael
- 
+Because people who run "make oldconfig" are expected to have some clue 
+about how to read help texts. Please get some, thanks.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+bye, Roman
+

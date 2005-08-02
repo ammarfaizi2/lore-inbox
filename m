@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVHBGSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVHBGYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVHBGSG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 02:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVHBGSG
+	id S261394AbVHBGYd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 02:24:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVHBGYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 02:18:06 -0400
-Received: from outmx013.isp.belgacom.be ([195.238.3.64]:51352 "EHLO
-	outmx013.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S261389AbVHBGRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 02:17:45 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.13-rc5
-Date: Tue, 2 Aug 2005 08:17:36 +0200
-User-Agent: KMail/1.8.1
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 2 Aug 2005 02:24:33 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:35517 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261394AbVHBGYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 02:24:32 -0400
+Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com, ck@vds.kolivas.org
+In-Reply-To: <200508021556.50450.kernel@kolivas.org>
+References: <200508021443.55429.kernel@kolivas.org>
+	 <200508021549.48711.kernel@kolivas.org> <1122961928.5490.10.camel@mindpipe>
+	 <200508021556.50450.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Tue, 02 Aug 2005 02:24:29 -0400
+Message-Id: <1122963870.5490.17.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508020817.36565.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 August 2005 07:07, Linus Torvalds wrote:
-> Ok, one more in the series towards final 2.6.13.
->
-> This one is small enough that both shortlog and diffstat fit comfortably:
-> no big architecture updates or anything like that. Some input, x86-64 and
-> ppc updates, and various fairly small fixes in random places.
->
-> Some reverts back to 2.6.12 behaviour - you've seen the discussions, and
-> I'm sure we'll end up discussing things further for a long while still,
-> but the plan is to release 2.6.13 with known behaviour characteristics.
+On Tue, 2005-08-02 at 15:56 +1000, Con Kolivas wrote:
+> On Tue, 2 Aug 2005 03:52 pm, Lee Revell wrote:
+> > On Tue, 2005-08-02 at 15:49 +1000, Con Kolivas wrote:
+> > > As a crude data point of idle system running a full kde desktop
+> > > environment on
+> > > powersave with minimal backlight and just chatting on IRC I find it's
+> > > just
+> > > under 10% battery life difference.
+> >
+> > Have you tried the same test but without artsd, or with it configured to
+> > release the sound device after some reasonable time, like 1-2s?
+> 
+> I have it on release after 1 second already.
 
-Built & runs fine, built using GCC 4.0.0-2 (Debian Sid) on Pentium M.
+Is there any difference in power use between this, and not running artsd
+at all?
 
-Jan
+Lee
 
--- 
-  I marvel at the strength of human weakness.

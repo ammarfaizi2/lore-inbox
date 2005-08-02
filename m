@@ -1,110 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVHBGM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVHBGO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbVHBGM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 02:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVHBGKb
+	id S261386AbVHBGO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 02:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVHBGNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 02:10:31 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:49293 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S261386AbVHBGKG (ORCPT
+	Tue, 2 Aug 2005 02:13:05 -0400
+Received: from graphe.net ([209.204.138.32]:21383 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261386AbVHBGLw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 02:10:06 -0400
-Date: Tue, 2 Aug 2005 16:16:51 +0900
-From: Horms <horms@verge.net.au>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: John Stultz <johnstul@us.ibm.com>, Tom Rini <trini@kernel.crashing.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: [Patch] ppc32: stop misusing ntps time_offset value
-Message-ID: <20050802071648.GA22793@verge.net.au>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	John Stultz <johnstul@us.ibm.com>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-	Greg Kroah-Hartman <gregkh@suse.de>, debian-kernel@lists.debian.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Cluestick: seven
-User-Agent: Mutt/1.5.9i
+	Tue, 2 Aug 2005 02:11:52 -0400
+Date: Mon, 1 Aug 2005 23:11:49 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Paul Jackson <pj@sgi.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
+Subject: Re: [PATCH] String conversions for memory policy
+In-Reply-To: <20050801223304.2a8871e8.pj@sgi.com>
+Message-ID: <Pine.LNX.4.62.0508012311170.16052@graphe.net>
+References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
+ <20050729152049.4b172d78.pj@sgi.com> <Pine.LNX.4.62.0507291746000.8663@graphe.net>
+ <20050729230026.1aa27e14.pj@sgi.com> <Pine.LNX.4.62.0507301042420.26355@graphe.net>
+ <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net>
+ <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net>
+ <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net>
+ <20050801160351.71ee630a.pj@sgi.com> <Pine.LNX.4.62.0508011618120.9351@graphe.net>
+ <20050801165947.36b5da96.pj@sgi.com> <Pine.LNX.4.62.0508011713540.9824@graphe.net>
+ <20050801223304.2a8871e8.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Could you rework the patch to all of that? Seems that you have a clear 
+vision as to where to go.
 
-is this appropriate for 2.4? It seems to apply cleanly to 
-your current git tree.
+On Mon, 1 Aug 2005, Paul Jackson wrote:
 
-Signed-off-by: Horms <horms@verge.net.au>
-
-From: john stultz <johnstul@us.ibm.com>
-Date: Fri, 1 Jul 2005 05:08:54 +0000 (+1000)
-Subject: [PATCH] ppc32: stop misusing ntps time_offset value
-X-Git-Tag: v2.6.12.3
-X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/gregkh/linux-2.6.12.y.git;a=commitdiff;h=8f399a7448e0b58eae969426f61b7e81d55d2639
-
-  [PATCH] ppc32: stop misusing ntps time_offset value
-  
-  As part of my timeofday rework, I've been looking at the NTP code and I
-  noticed that the PPC architecture is apparently misusing the NTP's
-  time_offset (it is a terrible name!) value as some form of timezone offset.
-  
-  This could cause problems when time_offset changed by the NTP code.  This
-  patch changes the PPC code so it uses a more clear local variable:
-  timezone_offset.
-  
-  Signed-off-by: John Stultz <johnstul@us.ibm.com>
-  Acked-by: Tom Rini <trini@kernel.crashing.org>
-  Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-  Signed-off-by: Andrew Morton <akpm@osdl.org>
-  Signed-off-by: Chris Wright <chrisw@osdl.org>
-  Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
-Backported to Debian's 2.6.8 by dann frazier <dannf@debian.org>
-Backported to Debian's 2.4.27 by Horms <horms@debian.org>
-
---- a/arch/ppc/kernel/time.c	2003-08-25 20:44:40.000000000 +0900
-+++ b/arch/ppc/kernel/time.c	2005-08-02 15:37:12.000000000 +0900
-@@ -84,7 +84,7 @@
- 
- extern unsigned long wall_jiffies;
- 
--static long time_offset;
-+static long timezone_offset;
- 
- spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
- 
-@@ -187,7 +187,7 @@
- 		     xtime.tv_sec - last_rtc_update >= 659 &&
- 		     abs(xtime.tv_usec - (1000000-1000000/HZ)) < 500000/HZ &&
- 		     jiffies - wall_jiffies == 1) {
--		  	if (ppc_md.set_rtc_time(xtime.tv_sec+1 + time_offset) == 0)
-+		  	if (ppc_md.set_rtc_time(xtime.tv_sec+1 + timezone_offset) == 0)
- 				last_rtc_update = xtime.tv_sec+1;
- 			else
- 				/* Try again one minute later */
-@@ -297,7 +297,7 @@
- 	unsigned old_stamp, stamp, elapsed;
- 
-         if (ppc_md.time_init != NULL)
--                time_offset = ppc_md.time_init();
-+                timezone_offset = ppc_md.time_init();
- 
- 	if (__USE_RTC()) {
- 		/* 601 processor: dec counts down by 128 every 128ns */
-@@ -344,9 +344,9 @@
- 	/* If platform provided a timezone (pmac), we correct the time
- 	 * using do_sys_settimeofday() which in turn calls warp_clock()
- 	 */
--        if (time_offset) {
-+        if (timezone_offset) {
-         	struct timezone tz;
--        	tz.tz_minuteswest = -time_offset / 60;
-+        	tz.tz_minuteswest = -timezone_offset / 60;
-         	tz.tz_dsttime = 0;
-         	do_sys_settimeofday(NULL, &tz);
-         }
+> Christoph wrote:
+> > New version without the magic numbers ...
+> 
+> Good.
+> 
+> ===
+> 
+> How about replacing:
+> 
+>   static const char *policy_types[] = { "default", "prefer", "bind", "interleave" };
+> 
+> with:
+> 
+>   static const char *policy_types[] = {
+> 	[MPOL_DEFAULT]    = "default",
+> 	[MPOL_PREFERRED]  = "prefer",
+> 	[MPOL_BIND]       = "bind",
+> 	[MPOL_INTERLEAVE] = "interleave"
+>   };
+> 
+> so that the mapping of the MPOL_* define constants to strings is
+> explicit, not implicit.
+> 
+> ===
+> 
+> Maybe I need more caffeine, but the following tests seem backwards:
+> 
+> +	if (buffer + maxlen > p + l + 1)
+> +		return -ENOSPC;
+> 
+> and
+> 
+> +		if (buffer + maxlen > p + 2)
+> +			return -ENOSPC;
+> 
+> ===
+> 
+> Can the following:
+> 
+> +	int l;
+> +	...
+> +
+> +	l = strlen(policy_types[mode]);
+> +	if (buffer + maxlen > p + l + 1)
+> +		return -ENOSPC;
+> +	strcpy(p, policy_types[mode]);
+> +	p += l;
+> +
+> +	if (!nodes_empty(nodes)) {
+> +
+> +		if (buffer + maxlen > p + 2)
+> +			return -ENOSPC;
+> +
+> +		*p++ = '=';
+> +	 	p += nodelist_scnprintf(p, buffer + maxlen - p, nodes);
+> +	}
+> 
+> be rewritten to:
+> 
+> 	char *bufend = buffer + maxlen;
+> 	...
+> 
+> 	p += scnprintf(p, bufend - p, "%s", policy_types[mode]);
+> 	if (!nodes_empty(nodes)) {
+> 		p += scnprintf(p, bufend - p, "=");
+> 		p += nodelist_scnprintf(p, bufend - p, nodes);
+> 	}
+> 	if (p >= bufend - 1)
+> 		return -ENOSPC;
+> 
+> Less code, more consistent code for each buffer addition, fails with
+> ENOSPC in the case that the nodelist only partially fits rather than
+> truncating it without notice, and fixes any possible problem with the
+> above tests being backwards - by removing the tests ;).
+> 
+> This suggested replacement code does have one weakness, in that it
+> cannot distinguish the case that the buffer was exactly the right
+> size from the case it was too small, and errors with -ENOSPC in
+> either case.  I don't think that this case is worth adding extra
+> logic to distinguish, in this situation.
+> 
+> ===
+> 
+> +	for(mode = 0; mode <= MPOL_MAX; mode++) {
+> 
+> Space after 'for'
+> 
+> ===
+> 
+> There should probably be comments that these routines must
+> execute in the context of the task whose mempolicies are
+> being displayed or modified.
+> 
+> ==
+> 
+> There should probably be a doc style comment introducing
+> the mpol_to_str() and str_to_mpol() routines, as described
+> in Documentation/kernel-doc-nano-HOWTO.txt.
+> 
+> -- 
+>                   I won't rest till it's the best ...
+>                   Programmer, Linux Scalability
+>                   Paul Jackson <pj@sgi.com> 1.925.600.0401
+> 

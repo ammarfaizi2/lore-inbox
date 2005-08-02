@@ -1,58 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVHBQEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVHBQEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVHBQEK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 12:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVHBQCK
+	id S261594AbVHBQEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 12:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVHBQCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 12:02:10 -0400
-Received: from silver.veritas.com ([143.127.12.111]:41109 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S261646AbVHBQB1
+	Tue, 2 Aug 2005 12:02:15 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:9403 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S261489AbVHBQAX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 12:01:27 -0400
-Date: Tue, 2 Aug 2005 17:03:12 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Robin Holt <holt@sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
-In-Reply-To: <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
-References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
- <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
+	Tue, 2 Aug 2005 12:00:23 -0400
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: linux-kernel@vger.kernel.org
+Subject: How does umount -a interact with namespaces?
+Date: Tue, 2 Aug 2005 11:00:20 -0500
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Aug 2005 16:01:26.0275 (UTC) FILETIME=[6FD24530:01C5977B]
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508021100.20131.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Aug 2005, Linus Torvalds wrote:
-> 
-> On the other hand, this being s390, maybe nobody cares?
+Is there any way for to get a "global" view of all namespaces (even when 
+processes that fork request their own filesystem namespace) that init or 
+umount -a can use while shutting down the system?
 
-You have a cruel streak.
+I don't know how umount -a is suppose to be implemented here...
 
-But have I just realized a non-s390 problem with your pte_dirty
-technique?  The ptep_set_wrprotect in fork's copy_one_pte.
+Rob
 
-That's specifically write-protecting the pte to force COW, but
-leaving the dirty bit: so now get_user_pages will skip COW-ing it
-(in all write cases, not just the peculiar ptrace force one).
-
-We really do need to COW those in get_user_pages, don't we?
-And although we could handle it by clearing dirty and doing a
-set_page_dirty, it's a path we don't want to clutter further.
-
-(Yes, there's another issue of a fork occurring while the pages
-are already under get_user_pages, which is a significant issue for
-InfiniBand; but I see that as a separate kind of race, which we can
-reasonably disregard in this discussion - though it will need proper
-attention, perhaps through Michael Tsirkin's PROT_DONTCOPY patch.)
-
-The simple answer to Robin's pagetable update race is to say that
-anyone using ptrace should be prepared for a pt race ;)
-
-Hugh

@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVHBQdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVHBQjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbVHBQdx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 12:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVHBQdx
+	id S261654AbVHBQjH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 12:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVHBQjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 12:33:53 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:61573 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261588AbVHBQdw (ORCPT
+	Tue, 2 Aug 2005 12:39:07 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:48348 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261654AbVHBQjE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 12:33:52 -0400
-Date: Tue, 2 Aug 2005 18:35:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       linux-ide@vger.kernel.org,
-       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
-Subject: Re: ahci, SActive flag, and the HD activity LED
-Message-ID: <20050802163519.GB3710@suse.de>
-References: <42EF93F8.8050601@fujitsu-siemens.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42EF93F8.8050601@fujitsu-siemens.com>
+	Tue, 2 Aug 2005 12:39:04 -0400
+Date: Tue, 2 Aug 2005 18:39:01 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Michael D. Setzer II" <mikes@kuentos.guam.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel options for cd project with processor family
+In-Reply-To: <42F02850.4352.1818D8B@mikes.kuentos.guam.net>
+Message-ID: <Pine.LNX.4.61.0508021815110.6716@yvahk01.tjqt.qr>
+References: <42EFDC63.31465.58ED66@mikes.kuentos.guam.net>
+ <42F02850.4352.1818D8B@mikes.kuentos.guam.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02 2005, Martin Wilck wrote:
-> Hello Jeff, hello Jens, hello everybody,
-> 
-> I am referring to the debate about whether or not setting the SActive 
-> bit for non-NCQ ATA commands (e.g. http://lkml.org/lkml/2005/5/26/142).
-> 
-> In our machines, this behavior of the Linux AHCI driver causes the HD 
-> activity LED to stay on all the time. If I apply the attached trivial 
-> patch (this is for the RedHat EL4.0-U1 kernel), the LED behaves nicely.
-> 
-> Jeff has stated in the above thread that "SActive is intentionally used 
-> for non-NCQ devices". However I find clear indication in the specs that 
-> the SActive flag should be set if and only if tagged queuing is being 
-> used, and only for a specified subset of commands that support queuing 
-> (http://www.t13.org/docs2005/D1699r1e-ATA8-ACS.pdf, secs. 4.19 and 
-> 4.20). The current mainline driver doesn't use queuing.
-> 
-> If I am reading the specs correctly, that'd mean the ahci driver is 
-> wrong in setting the SActive bit. Could you please comment? Jeff, in 
-> particular, could you please give more detail why you say this flag is 
-> "intentionally used"?
+>> >I've built a test set of kernels with the same configuration as the 
+>> >bzImage6, but changed the Processor family. Below is a list of the 
+>> >build. I'm interested in which ones would make a difference. I would 
+>> >think that the 386 version would probable work on all hardware, but 
+>> >at what cost in performance for creating and restoring the disk 
+>> >images. G4L uses basically dd, gzip, lzop, bzop, ncftpget, and 
+>> >ncftpput. With all these images, the g4l iso image is 50MB. 
+>> 
+>> And now? Where's the question... :)
+>
+>I want to provide users of the G4L program with 
+>the best options for the users.
+>If having all the kernels is the only 
+>way to provide the best options, I will have to have the users 
+>download 50MB iso images. If I can get a good package with fewer 
+>kernels that would make the image smaller. 
+>So, to get a wide range of kernels to support various hardware, what 
+>would be the best. 
 
-I completely agree, that was my reading of the spec as well and hence my
-original posts about this in the NCQ thread.
+The standard 586. That's what most distro [have to] use.
 
+
+
+Jan Engelhardt
 -- 
-Jens Axboe
-

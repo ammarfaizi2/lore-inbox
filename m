@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVHCUDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVHCUIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbVHCUDk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 16:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbVHCUDk
+	id S262440AbVHCUIE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 16:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVHCUIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 16:03:40 -0400
-Received: from gate.crashing.org ([63.228.1.57]:53170 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262437AbVHCUDj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 16:03:39 -0400
-Subject: Re: Calling suspend() in halt/restart/shutdown -> not a good idea
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <D6591B2F-4E98-48A0-A3DD-71AAC564278E@mac.com>
-References: <1122908972.18835.153.camel@gaston>
-	 <20050801203728.2012f058.Ballarin.Marc@gmx.de>
-	 <1122926885.30257.4.camel@gaston> <20050802095401.GB1442@elf.ucw.cz>
-	 <1123069255.30257.27.camel@gaston>
-	 <D6591B2F-4E98-48A0-A3DD-71AAC564278E@mac.com>
-Content-Type: text/plain
-Date: Wed, 03 Aug 2005 21:59:14 +0200
-Message-Id: <1123099155.30257.43.camel@gaston>
+	Wed, 3 Aug 2005 16:08:04 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:13457 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262440AbVHCUHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 16:07:32 -0400
+Message-Id: <200508032007.j73K7E2o007651@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+       ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3 
+In-Reply-To: Your message of "Wed, 03 Aug 2005 14:54:40 CDT."
+             <42F12100.5020006@mnsu.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <200508031559.24704.kernel@kolivas.org>
+            <42F12100.5020006@mnsu.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: multipart/signed; boundary="==_Exmh_1123099634_3357P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 03 Aug 2005 16:07:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-03 at 12:53 -0400, Kyle Moffett wrote:
-> On Aug 3, 2005, at 07:40:54, Benjamin Herrenschmidt wrote:
-> >> I'd like to get rid of shutdown callback. Having two copies of code
-> >> (one in callback, one in suspend) is ugly.
-> >
-> > Well, it's obviously not a good time for this. First, suspend and
-> > shutdown don't necessarily do the same thing, then it just doesn't  
-> > work
-> > in practice. So either do it right completely or not at all, but  
-> > 2.6.13
-> > isn't the place for an half-assed hack that looks like a solution to
-> > you.
-> 
-> One possible way to proceed might be to add a new callback that takes a
-> pm_message_t: powerdown()  If it exists, it would be called in both the
-> suspend and shutdown paths, before the suspend() and shutdown() calls to
-> that driver are made.  As drivers are fixed to clean up and combine that
-> code, they could put the merged result into the powerdown() function,
-> and remove their suspend() and shutdown() functions.
+--==_Exmh_1123099634_3357P
+Content-Type: text/plain; charset=us-ascii
 
-We already have shutdown() for that.
+On Wed, 03 Aug 2005 14:54:40 CDT, Jeffrey Hundstad said:
 
-Ben.
+> BTW: how do you know what HZ your machine is running at?
 
+% zcat /proc/config.gz | grep -i hz
 
+might do what you thought you wanted.
+
+What rate you're *actually* running at is probably best done by taking the
+number of timer interrupts from /proc/interrupts and dividing by the
+uptime in /proc/uptime....
+
+--==_Exmh_1123099634_3357P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFC8SPycC3lWbTT17ARAsSDAJ9qytzokLQHjUQPhMaC1yLIgs7vQgCdHP7/
+cHfAikEOsAm6eMP1Nn1W+Zc=
+=9pVX
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1123099634_3357P--

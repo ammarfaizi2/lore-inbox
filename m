@@ -1,234 +1,361 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVHCSdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbVHCSgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbVHCSdU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 14:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVHCSdR
+	id S262424AbVHCSgA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 14:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVHCSfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 14:33:17 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:31483 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262404AbVHCSc5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 14:32:57 -0400
-Message-ID: <42F10DB8.4020601@mvista.com>
-Date: Wed, 03 Aug 2005 11:32:24 -0700
-From: Mark Bellon <mbellon@mvista.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
+	Wed, 3 Aug 2005 14:35:51 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:36841 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262416AbVHCSe5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 14:34:57 -0400
+Message-ID: <42F10E51.9000605@trash.net>
+Date: Wed, 03 Aug 2005 20:34:57 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] IDE disks show invalid geometries in /proc/ide/hd*/geometry
-References: <42EFE547.3010206@mvista.com>	 <Pine.LNX.4.10.10508030018390.21865-100000@master.linux-ide.org>	 <58cb370e05080310195c244f72@mail.gmail.com>	 <42F100C8.8040700@mvista.com> <58cb370e05080311056a9276c0@mail.gmail.com>
-In-Reply-To: <58cb370e05080311056a9276c0@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Mattia Dongili <malattia@gmail.com>
+CC: Harald Welte <laforge@netfilter.org>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: BUG: atomic counter underflow at ip_conntrack_event_cache_init+0x91/0xb0
+ (with patch)
+References: <20050801141327.GA3909@inferi.kami.home> <42EE3169.6070604@trash.net> <20050801160537.GA3850@inferi.kami.home> <42EE5721.1090509@trash.net> <42EEC2BB.3020105@trash.net> <20050802132922.GA3834@inferi.kami.home>
+In-Reply-To: <20050802132922.GA3834@inferi.kami.home>
+Content-Type: multipart/mixed;
+ boundary="------------040705080805000509030305"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
+This is a multi-part message in MIME format.
+--------------040705080805000509030305
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
->On 8/3/05, Mark Bellon <mbellon@mvista.com> wrote:
->  
->
->>Bartlomiej Zolnierkiewicz wrote:
->>
->>    
->>
->>>Hi,
->>>
->>>The topic was discussed to death on linux-kernel.
->>>
->>>Mark, you need to fix your applications and stop using /proc/ide/hd*/geometry
->>>or/and HDIO_GET_GEO ioctl (which BTW your patch also affects).
->>>
->>>
->>>      
->>>
->>Fixing the applications I can understand but the patch still seems
->>necessary, to me, so the
->>HDIO_GET_GEO returns "rational" values.
->>
->>I tested  HDIO_GET_GEO and it returns the same broken values as go into
->>/proc (no surprises) without my patch.
->>    
->>
->
->Please explain.
->  
->
-Let me explain more below. Thanks for the response as now I can 
-understand better the issue (which was what I was fishing for).
-
->  
->
->>If a drive is in LBA mode (28 or 48 bit) the existing code doesn't
->>always "fix up" the geometry properly for some value returns. It only
->>tries with 48 bit mode and it fails there for some values.  My patch
->>forces a complete geometry and appears (to me) to preserve the side
->>efefcts of the existing code.
->>
->>Am I missing something?
->>    
->>
->
->diff -Naur linux-2.6.13-rc3-git9-orig/drivers/ide/ide-disk.c
->linux-2.6.13-rc3-git9/drivers/ide/ide-disk.c
->--- linux-2.6.13-rc3-git9-orig/drivers/ide/ide-disk.c	2005-08-01
->13:48:21.000000000 -0700
->+++ linux-2.6.13-rc3-git9/drivers/ide/ide-disk.c	2005-08-02
->12:14:43.000000000 -0700
->@@ -884,10 +884,17 @@
->  	ide_add_setting(drive,	"max_failures",		SETTING_RW,					-1,			-1,			TYPE_INT,	0,	65535,				1,	1,	&drive->max_failures,		NULL);
-> }
+Mattia Dongili wrote:
+> On Tue, Aug 02, 2005 at 02:47:55AM +0200, Patrick McHardy wrote:
 > 
->+static uint32_t do_div64_32 (__u64 n, uint32_t d)
->+{
->+	do_div(n, d);
->+
->+	return n;
->+}
->+
-> static void idedisk_setup (ide_drive_t *drive)
-> {
-> 	struct hd_driveid *id = drive->id;
->-	unsigned long long capacity;
->+	__u64 capacity;
-> 	int barrier;
+>>This should be a fist step towards fixing it. It's probably incomplete
+>>(I'm too tired to check it now), but it should fix the problem you're
+>>seeing. Could you give it a spin?
 > 
-> 	idedisk_add_settings(drive);
->@@ -949,27 +956,32 @@
-> 	 */
-> 	capacity = idedisk_capacity (drive);
-> 	if (!drive->forced_geom) {
->+		uint32_t cylsz, cyl;
-> 
->-		if (idedisk_supports_lba48(drive->id)) {
->-			/* compatibility */
->-			drive->bios_sect = 63;
->-			drive->bios_head = 255;
->+		/*
->+		 * In LBA mode the geometry isn't used to talk to the drive
->+		 * so always create a "rational" geometry from the capacity.
->+		 */
->+		if (drive->select.b.lba) {
->
->why are you forcing drive->bios_sect and drive->bios_head values for LBA28 drives?
->  
->
-Any LBA 28 drive can return fixed geometry (regardless of size) just as 
-well as an LBA 48 drive can. I've got drives all over the place that do 
-just that. In any event there are machines which do not have have an 
-BIOS, like a PPC target, and the BIOS values can be "fixed up".
+> Done, also this patch fixes the uderflow problem.
 
-The ioctl returns the BIOS values and these are totally wrong on some 
-targets. Comments?
+Thanks. I've attached the final patch.
 
->+			drive->bios_sect = drive->sect = 63;
->+			drive->bios_head = drive->head = 255;
->
->changing drive->sect and drive->head is just wrong,
->these are values reported by the device - do not touch them
->  
->
-If drive->cyl, drive-head amd drive->sect are to be left alone in all 
-cases I have no problem.
 
->+
->+			cylsz = drive->bios_sect * drive->bios_head;
->+			cyl = do_div64_32(capacity, cylsz);
->
->division by zero now is possible (yes, 0/0/0 is possible)
->  
->
-Then the original code is prefered.
+--------------040705080805000509030305
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
 
->+
->+			/* "fake out" works up to ~500 GB */
->+			cyl = (cyl > 65535) ? 65535 : cyl;
->+			drive->bios_cyl = drive->cyl = cyl;
->
->drive->cyl shouldn't be changed
->  
->
-Same comment as above. Only change BIOS values.
+[NETFILTER]: Fix multiple problems with the conntrack event cache
 
-> 		}
-> 
-> 		if (drive->bios_sect && drive->bios_head) {
->-			unsigned int cap0 = capacity; /* truncate to 32 bits */
->-			unsigned int cylsz, cyl;
->+			cylsz = drive->bios_sect * drive->bios_head;
->+			cyl = do_div64_32(capacity, cylsz);
-> 
->-			if (cap0 != capacity)
->-				drive->bios_cyl = 65535;
->
->cap0 != capacity => set the max possible drive->bios_cyl,
->no need for adjusting it
->
->-			else {
->
->cap0 == capacity => no need for do_div(), only lower 32-bits are used,
->adjust drive->bios_cyl
->
->-				cylsz = drive->bios_sect * drive->bios_head;
->-				cyl = cap0 / cylsz;
->-				if (cyl > 65535)
->-					cyl = 65535;
->-				if (cyl > drive->bios_cyl)
->-					drive->bios_cyl = cyl;
->-			}
->+			if (cyl > 65535)
->+				cyl = 65535;
->+			if (cyl > drive->bios_cyl)
->+				drive->bios_cyl = cyl;
-> 		}
-> 	}
-> 	printk(KERN_INFO "%s: %llu sectors (%llu MB)",
->  
->
-I understand clearly now...
+refcnt underflow: the reference count is decremented when a conntrack
+entry is removed from the hash but it is not incremented when entering
+new entries.
 
-mark
+missing protection of process context against softirq context: all
+cache operations need to locally disable softirqs to avoid races.
+Additionally the event cache can't be initialized when a packet enteres
+the conntrack code but needs to be initialized whenever we cache an event
+and the stored conntrack entry doesn't match the current one.
 
->  
->
->>mark
->>
->>    
->>
->>>Bartlomiej
->>>
->>>On 8/3/05, Andre Hedrick <andre@linux-ide.org> wrote:
->>>
->>>
->>>      
->>>
->>>>Did you read ATA-1 through ATA-7 to understand all the variations?
->>>>
->>>>On Tue, 2 Aug 2005, Mark Bellon wrote:
->>>>
->>>>
->>>>
->>>>        
->>>>
->>>>>The ATA specification tells large disk drives to return C/H/S data of
->>>>>16383/16/63 regardless of their actual size (other variations on this
->>>>>return include 15 heads and/or 4092 cylinders). Unfortunately these CHS
->>>>>data confuse the existing IDE code and cause it to report invalid
->>>>>geometries in /proc when the disk runs in LBA mode.
->>>>>
->>>>>The invalid geometries can cause failures in the partitioning tools;
->>>>>partitioning may be impossible or illogical size limitations occur. This
->>>>>also leads to various forms of human confusion.
->>>>>
->>>>>I attach a patch that fixes this problem while strongly attempting to
->>>>>not break any existing side effects and await any comments.
->>>>>
->>>>>mark
->>>>>
->>>>>Signed-off-by: Mark Bellon <mbellon@mvista.com>
->>>>>          
->>>>>
+incorrect flushing of the event cache in ip_ct_iterate_cleanup: without
+real locking we can't flush the cache for different CPUs without incurring
+races. The cache for different CPUs can only be flushed when no packets
+are going through the code. ip_ct_iterate_cleanup doesn't need to drop
+all references, so flushing is moved to the cleanup path.
 
+Signed-off-by: Patrick McHardy <kaber@trash.net>
+
+---
+commit d20d18715b8425060334e879ebb4835202457b3e
+tree 3279243f59162c14f8ac145473e1c3f4c586b2fa
+parent df2e0392536ecdd6385f4319f746045fd6fae38f
+author Patrick McHardy <kaber@trash.net> Wed, 03 Aug 2005 20:33:25 +0200
+committer Patrick McHardy <kaber@trash.net> Wed, 03 Aug 2005 20:33:25 +0200
+
+ include/linux/netfilter_ipv4/ip_conntrack.h      |   29 +++---
+ include/linux/netfilter_ipv4/ip_conntrack_core.h |   14 +--
+ net/ipv4/netfilter/ip_conntrack_core.c           |  107 ++++++++--------------
+ net/ipv4/netfilter/ip_conntrack_standalone.c     |    3 -
+ 4 files changed, 58 insertions(+), 95 deletions(-)
+
+diff --git a/include/linux/netfilter_ipv4/ip_conntrack.h b/include/linux/netfilter_ipv4/ip_conntrack.h
+--- a/include/linux/netfilter_ipv4/ip_conntrack.h
++++ b/include/linux/netfilter_ipv4/ip_conntrack.h
+@@ -411,6 +411,7 @@ struct ip_conntrack_stat
+ 
+ #ifdef CONFIG_IP_NF_CONNTRACK_EVENTS
+ #include <linux/notifier.h>
++#include <linux/interrupt.h>
+ 
+ struct ip_conntrack_ecache {
+ 	struct ip_conntrack *ct;
+@@ -445,26 +446,24 @@ ip_conntrack_expect_unregister_notifier(
+ 	return notifier_chain_unregister(&ip_conntrack_expect_chain, nb);
+ }
+ 
++extern void ip_ct_deliver_cached_events(const struct ip_conntrack *ct);
++extern void __ip_ct_event_cache_init(struct ip_conntrack *ct);
++
+ static inline void 
+ ip_conntrack_event_cache(enum ip_conntrack_events event,
+ 			 const struct sk_buff *skb)
+ {
+-	struct ip_conntrack_ecache *ecache = 
+-					&__get_cpu_var(ip_conntrack_ecache);
+-
+-	if (unlikely((struct ip_conntrack *) skb->nfct != ecache->ct)) {
+-		if (net_ratelimit()) {
+-			printk(KERN_ERR "ctevent: skb->ct != ecache->ct !!!\n");
+-			dump_stack();
+-		}
+-	}
++	struct ip_conntrack *ct = (struct ip_conntrack *)skb->nfct;
++	struct ip_conntrack_ecache *ecache;
++	
++	local_bh_disable();
++	ecache = &__get_cpu_var(ip_conntrack_ecache);
++	if (ct != ecache->ct)
++		__ip_ct_event_cache_init(ct);
+ 	ecache->events |= event;
++	local_bh_enable();
+ }
+ 
+-extern void 
+-ip_conntrack_deliver_cached_events_for(const struct ip_conntrack *ct);
+-extern void ip_conntrack_event_cache_init(const struct sk_buff *skb);
+-
+ static inline void ip_conntrack_event(enum ip_conntrack_events event,
+ 				      struct ip_conntrack *ct)
+ {
+@@ -483,9 +482,7 @@ static inline void ip_conntrack_event_ca
+ 					    const struct sk_buff *skb) {}
+ static inline void ip_conntrack_event(enum ip_conntrack_events event, 
+ 				      struct ip_conntrack *ct) {}
+-static inline void ip_conntrack_deliver_cached_events_for(
+-						struct ip_conntrack *ct) {}
+-static inline void ip_conntrack_event_cache_init(const struct sk_buff *skb) {}
++static inline void ip_ct_deliver_cached_events(const struct ip_conntrack *ct) {}
+ static inline void 
+ ip_conntrack_expect_event(enum ip_conntrack_expect_events event, 
+ 			  struct ip_conntrack_expect *exp) {}
+diff --git a/include/linux/netfilter_ipv4/ip_conntrack_core.h b/include/linux/netfilter_ipv4/ip_conntrack_core.h
+--- a/include/linux/netfilter_ipv4/ip_conntrack_core.h
++++ b/include/linux/netfilter_ipv4/ip_conntrack_core.h
+@@ -44,18 +44,14 @@ static inline int ip_conntrack_confirm(s
+ 	struct ip_conntrack *ct = (struct ip_conntrack *)(*pskb)->nfct;
+ 	int ret = NF_ACCEPT;
+ 
+-	if (ct && !is_confirmed(ct))
+-		ret = __ip_conntrack_confirm(pskb);
+-	ip_conntrack_deliver_cached_events_for(ct);
+-
++	if (ct) {
++		if (!is_confirmed(ct))
++			ret = __ip_conntrack_confirm(pskb);
++		ip_ct_deliver_cached_events(ct);
++	}
+ 	return ret;
+ }
+ 
+-#ifdef CONFIG_IP_NF_CONNTRACK_EVENTS
+-struct ip_conntrack_ecache;
+-extern void __ip_ct_deliver_cached_events(struct ip_conntrack_ecache *ec);
+-#endif
+-
+ extern void __ip_ct_expect_unlink_destroy(struct ip_conntrack_expect *exp);
+ 
+ extern struct list_head *ip_conntrack_hash;
+diff --git a/net/ipv4/netfilter/ip_conntrack_core.c b/net/ipv4/netfilter/ip_conntrack_core.c
+--- a/net/ipv4/netfilter/ip_conntrack_core.c
++++ b/net/ipv4/netfilter/ip_conntrack_core.c
+@@ -85,73 +85,62 @@ struct notifier_block *ip_conntrack_expe
+ 
+ DEFINE_PER_CPU(struct ip_conntrack_ecache, ip_conntrack_ecache);
+ 
+-static inline void __deliver_cached_events(struct ip_conntrack_ecache *ecache)
++/* deliver cached events and clear cache entry - must be called with locally
++ * disabled softirqs */
++static inline void
++__ip_ct_deliver_cached_events(struct ip_conntrack_ecache *ecache)
+ {
++	DEBUGP("ecache: delivering events for %p\n", ecache->ct);
+ 	if (is_confirmed(ecache->ct) && !is_dying(ecache->ct) && ecache->events)
+ 		notifier_call_chain(&ip_conntrack_chain, ecache->events,
+ 				    ecache->ct);
+ 	ecache->events = 0;
+-}
+-
+-void __ip_ct_deliver_cached_events(struct ip_conntrack_ecache *ecache)
+-{
+-	__deliver_cached_events(ecache);
++	ip_conntrack_put(ecache->ct);
++	ecache->ct = NULL;
+ }
+ 
+ /* Deliver all cached events for a particular conntrack. This is called
+  * by code prior to async packet handling or freeing the skb */
+-void 
+-ip_conntrack_deliver_cached_events_for(const struct ip_conntrack *ct)
++void ip_ct_deliver_cached_events(const struct ip_conntrack *ct)
+ {
+-	struct ip_conntrack_ecache *ecache = 
+-					&__get_cpu_var(ip_conntrack_ecache);
+-
+-	if (!ct)
+-		return;
+-
+-	if (ecache->ct == ct) {
+-		DEBUGP("ecache: delivering event for %p\n", ct);
+-		__deliver_cached_events(ecache);
+-	} else {
+-		if (net_ratelimit())
+-			printk(KERN_WARNING "ecache: want to deliver for %p, "
+-				"but cache has %p\n", ct, ecache->ct);
+-	}
+-
+-	/* signalize that events have already been delivered */
+-	ecache->ct = NULL;
++	struct ip_conntrack_ecache *ecache;
++	
++	local_bh_disable();
++	ecache = &__get_cpu_var(ip_conntrack_ecache);
++	if (ecache->ct == ct)
++		__ip_ct_deliver_cached_events(ecache);
++	local_bh_enable();
+ }
+ 
+-/* Deliver cached events for old pending events, if current conntrack != old */
+-void ip_conntrack_event_cache_init(const struct sk_buff *skb)
++void __ip_ct_event_cache_init(struct ip_conntrack *ct)
+ {
+-	struct ip_conntrack *ct = (struct ip_conntrack *) skb->nfct;
+-	struct ip_conntrack_ecache *ecache = 
+-					&__get_cpu_var(ip_conntrack_ecache);
++	struct ip_conntrack_ecache *ecache;
+ 
+ 	/* take care of delivering potentially old events */
+-	if (ecache->ct != ct) {
+-		enum ip_conntrack_info ctinfo;
+-		/* we have to check, since at startup the cache is NULL */
+-		if (likely(ecache->ct)) {
+-			DEBUGP("ecache: entered for different conntrack: "
+-			       "ecache->ct=%p, skb->nfct=%p. delivering "
+-			       "events\n", ecache->ct, ct);
+-			__deliver_cached_events(ecache);
++	ecache = &__get_cpu_var(ip_conntrack_ecache);
++	BUG_ON(ecache->ct == ct);
++	if (ecache->ct)
++		__ip_ct_deliver_cached_events(ecache);
++	/* initialize for this conntrack/packet */
++	ecache->ct = ct;
++	nf_conntrack_get(&ct->ct_general);
++}
++
++/* flush the event cache - touches other CPU's data and must not be called while
++ * packets are still passing through the code */
++static void ip_ct_event_cache_flush(void)
++{
++	struct ip_conntrack_ecache *ecache;
++	int cpu;
++
++	for_each_cpu(cpu) {
++		ecache = &per_cpu(ip_conntrack_ecache, cpu);
++		if (ecache->ct)
+ 			ip_conntrack_put(ecache->ct);
+-		} else {
+-			DEBUGP("ecache: entered for conntrack %p, "
+-				"cache was clean before\n", ct);
+-		}
+-
+-		/* initialize for this conntrack/packet */
+-		ecache->ct = ip_conntrack_get(skb, &ctinfo);
+-		/* ecache->events cleared by __deliver_cached_devents() */
+-	} else {
+-		DEBUGP("ecache: re-entered for conntrack %p.\n", ct);
+ 	}
+ }
+-
++#else
++static inline void ip_ct_event_cache_flush(void) {}
+ #endif /* CONFIG_IP_NF_CONNTRACK_EVENTS */
+ 
+ DEFINE_PER_CPU(struct ip_conntrack_stat, ip_conntrack_stat);
+@@ -873,8 +862,6 @@ unsigned int ip_conntrack_in(unsigned in
+ 
+ 	IP_NF_ASSERT((*pskb)->nfct);
+ 
+-	ip_conntrack_event_cache_init(*pskb);
+-
+ 	ret = proto->packet(ct, *pskb, ctinfo);
+ 	if (ret < 0) {
+ 		/* Invalid: inverse of the return code tells
+@@ -1273,23 +1260,6 @@ ip_ct_iterate_cleanup(int (*iter)(struct
+ 
+ 		ip_conntrack_put(ct);
+ 	}
+-
+-#ifdef CONFIG_IP_NF_CONNTRACK_EVENTS
+-	{
+-		/* we need to deliver all cached events in order to drop
+-		 * the reference counts */
+-		int cpu;
+-		for_each_cpu(cpu) {
+-			struct ip_conntrack_ecache *ecache = 
+-					&per_cpu(ip_conntrack_ecache, cpu);
+-			if (ecache->ct) {
+-				__ip_ct_deliver_cached_events(ecache);
+-				ip_conntrack_put(ecache->ct);
+-				ecache->ct = NULL;
+-			}
+-		}
+-	}
+-#endif
+ }
+ 
+ /* Fast function for those who don't want to parse /proc (and I don't
+@@ -1376,6 +1346,7 @@ void ip_conntrack_flush()
+            delete... */
+ 	synchronize_net();
+ 
++	ip_ct_event_cache_flush();
+  i_see_dead_people:
+ 	ip_ct_iterate_cleanup(kill_all, NULL);
+ 	if (atomic_read(&ip_conntrack_count) != 0) {
+diff --git a/net/ipv4/netfilter/ip_conntrack_standalone.c b/net/ipv4/netfilter/ip_conntrack_standalone.c
+--- a/net/ipv4/netfilter/ip_conntrack_standalone.c
++++ b/net/ipv4/netfilter/ip_conntrack_standalone.c
+@@ -401,7 +401,6 @@ static unsigned int ip_confirm(unsigned 
+ 			       const struct net_device *out,
+ 			       int (*okfn)(struct sk_buff *))
+ {
+-	ip_conntrack_event_cache_init(*pskb);
+ 	/* We've seen it coming out the other side: confirm it */
+ 	return ip_conntrack_confirm(pskb);
+ }
+@@ -419,7 +418,6 @@ static unsigned int ip_conntrack_help(un
+ 	ct = ip_conntrack_get(*pskb, &ctinfo);
+ 	if (ct && ct->helper) {
+ 		unsigned int ret;
+-		ip_conntrack_event_cache_init(*pskb);
+ 		ret = ct->helper->help(pskb, ct, ctinfo);
+ 		if (ret != NF_ACCEPT)
+ 			return ret;
+@@ -978,6 +976,7 @@ EXPORT_SYMBOL_GPL(ip_conntrack_chain);
+ EXPORT_SYMBOL_GPL(ip_conntrack_expect_chain);
+ EXPORT_SYMBOL_GPL(ip_conntrack_register_notifier);
+ EXPORT_SYMBOL_GPL(ip_conntrack_unregister_notifier);
++EXPORT_SYMBOL_GPL(__ip_ct_event_cache_init);
+ EXPORT_PER_CPU_SYMBOL_GPL(ip_conntrack_ecache);
+ #endif
+ EXPORT_SYMBOL(ip_conntrack_protocol_register);
+
+--------------040705080805000509030305--

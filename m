@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVHCW7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVHCW7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVHCW7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 18:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVHCW5P
+	id S261620AbVHCW7R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 18:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVHCW5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 18:57:15 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:41127 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261624AbVHCW4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 18:56:54 -0400
-Message-ID: <42F14BAF.6020608@acm.org>
-Date: Wed, 03 Aug 2005 17:56:47 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
+	Wed, 3 Aug 2005 18:57:00 -0400
+Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:42162 "EHLO
+	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261622AbVHCW4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 18:56:46 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Jim MacBaine <jmacbaine@gmail.com>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+Date: Thu, 4 Aug 2005 08:52:10 +1000
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com
+References: <200508031559.24704.kernel@kolivas.org> <200508040716.24346.kernel@kolivas.org> <3afbacad050803152226016790@mail.gmail.com>
+In-Reply-To: <3afbacad050803152226016790@mail.gmail.com>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] IPMI driver update part 4, allow userland to include ipmi.h
-Content-Type: multipart/mixed;
- boundary="------------070709010700010102010304"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508040852.10224.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070709010700010102010304
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 4 Aug 2005 08:22 am, Jim MacBaine wrote:
+> On 8/3/05, Con Kolivas <kernel@kolivas.org> wrote:
+> > What happens when you disable it at runtime before suspending?
+> >
+> > echo 0 > /sys/devices/system/dyn_tick/dyn_tick0/enable
+>
+> This has no effect. The system stalls at exactly the same point. The
+> last lines on my screen are:
 
+Ok perhaps on the resume side instead. When trying to resume can you try 
+booting with 'dyntick=disable'. Note this isn't meant to be a long term fix 
+but once we figure out where the problem is we should be able to code around 
+it.
 
-
---------------070709010700010102010304
-Content-Type: unknown/unknown;
- name="ipmi_compiler_h_include.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipmi_compiler_h_include.patch"
-
-The IPMI driver include file needs to include compiler.h so it
-has definitions for __user and such.
-
-Signed-off-by: Corey Minyard <minyard@acm.org>
-
-Index: linux-2.6.13-rc5/include/linux/ipmi.h
-===================================================================
---- linux-2.6.13-rc5.orig/include/linux/ipmi.h
-+++ linux-2.6.13-rc5/include/linux/ipmi.h
-@@ -35,6 +35,7 @@
- #define __LINUX_IPMI_H
- 
- #include <linux/ipmi_msgdefs.h>
-+#include <linux/compiler.h>
- 
- /*
-  * This file describes an interface to an IPMI driver.  You have to
-
---------------070709010700010102010304--
+Cheers,
+Con

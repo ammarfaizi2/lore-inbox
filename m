@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVHCPbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVHCPlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbVHCPbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 11:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVHCPbZ
+	id S262251AbVHCPlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 11:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVHCPlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 11:31:25 -0400
-Received: from [217.16.192.235] ([217.16.192.235]:31210 "EHLO
-	mailgwy.ecovision.se") by vger.kernel.org with ESMTP
-	id S261950AbVHCPbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 11:31:24 -0400
-Message-ID: <42F0E347.2000406@ecovision.se>
-Date: Wed, 03 Aug 2005 17:31:19 +0200
-From: Henrik Holst <henrik.holst@ecovision.se>
-Organization: Ecovision AB
-User-Agent: Mozilla Thunderbird 1.0.5 (Windows/20050711)
-X-Accept-Language: en-us, en
+	Wed, 3 Aug 2005 11:41:16 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:17077 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S262251AbVHCPlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 11:41:15 -0400
+From: Grant Coady <lkml@dodo.com.au>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc5 randconfig kernel build errors
+Date: Thu, 04 Aug 2005 01:41:11 +1000
+Organization: www.scatter.mine.nu
+Reply-To: lkml@dodo.com.au
+Message-ID: <gmm1f1lnevmoo47vsgpeub6gajgqu8c4qq@4ax.com>
+References: <lrque1drc20ev6o6441mn918e753r7vmki@4ax.com> <1651f199ie23tv14qv8jnnc53m97qdk1uh@4ax.com> <20050803112050.GL4029@stusta.de>
+In-Reply-To: <20050803112050.GL4029@stusta.de>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, cipicip@yahoo.com
-Subject: Re: kernel 2.6 speed
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> In windows were performed about 300 millions cycles,
->> while in Linux about 10 millions. This test was run on
->> Fedora 4 and Suse 9.2 as Linux machines, and Windows
->> XP Pro with VS .Net 2003 on the MS side. My CPU is a
->> P4 @3GHz HT 800MHz bus.
+Hi Adrian,
+On Wed, 3 Aug 2005 13:20:50 +0200, Adrian Bunk <bunk@stusta.de> wrote:
 
-> Hi,
+>> 
+>> After 300 random builds, add one more error:
+>> drivers/acpi/osl.c:261: error: `AmlCode' undeclared (first use in this function)
+>> drivers/acpi/osl.c:61:10: empty file name in #include
+>
+>Please exclude builds with CONFIG_STANDALONE=n.
+Okay.
+>
+>And please don't send every new error you are finding to this list.
+Go tell the dimwits not trimming their posts to control themselves, 
+I'm generating minimal traffic with this project.  Certainly far 
+less traffic then that imbecile arguing for _his_ default setting.
 
-> This test gives you the price of the time function on each OS
-> since the 4 arithmetical operations are shorter to compute
-> (several cycles against tons of cycles). It appears that the time
-> function costs about 3 us on Linux against 0.1 us on Windows.
+>As I've already said generating the errors is the the easy part -
+>analyzing them is the real work.
 
-I know that this benchmark is totally flawed, but I couldn't refuse to 
-run it on my own and
-to my surprise my numbers where the reverse! Running 2.6.12 gave my 
-roughly 73 million
-"cycles" while WinXP only gave me 28 million "cycles".
+Starting somewhere, I'll settle :)  It is this feedback I need at 
+start -- sorts of things to exclude.  I'll not get any feedback 
+without reporting stuff to the list.
+>
+>It would be best if you would do this yourself and send specific bug 
+>reports (or even patches) for the problems you've find.
 
-This result made me further test the difference in time() in Linux and 
-WinXP and on my hw
-(Compaq Evo N800c Laptop) it turns out that the time() call takes 
-roughly 0.4 us in Linux vs
-1.0 us in WinXP.
+I looked at that AmlCode error source file and grepping for a match 
+failed for entire source tree, so did not understand it.  
+>
+>If you want to publish the errors you've found, send a pointer to a 
+>location where it is available _once_ and update the information there.
 
-Using the GetSystemTime() functions in WinXP yielded the same values as 
-time() did in Linux,
-so it seams like that atleast on my hw that the time() and 
-gettimeofday() functions are as fast
-or faster than in WinXP. The question is of course why my results differ 
-so much from Ciprians.
+Killfile me.  I'm posting far less noise to lkml per month than 
+your daily line count of repetitive, non-informational space 
+wasting dot_sig.
 
-/Henrik H
+Thanks,
+Grant.
+

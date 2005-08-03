@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVHCGiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVHCGl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbVHCGiB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 02:38:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVHCGiB
+	id S261462AbVHCGl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 02:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVHCGl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 02:38:01 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:14493 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262084AbVHCGh7 (ORCPT
+	Wed, 3 Aug 2005 02:41:57 -0400
+Received: from edu.joroinen.fi ([194.89.68.130]:16310 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id S261462AbVHCGl4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 02:37:59 -0400
-Date: Wed, 3 Aug 2005 08:37:19 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Hans Reiser <reiser@namesys.com>, Arjan van de Ven <arjan@infradead.org>,
-       David Teigland <teigland@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: [PATCH 00/14] GFS
-In-Reply-To: <4CBCB111-36B9-4F8C-9A3F-A9126ADE1CA2@mac.com>
-Message-ID: <Pine.LNX.4.61.0508030826000.2263@yvahk01.tjqt.qr>
-References: <20050802071828.GA11217@redhat.com> <1122968724.3247.22.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.61.0508021655580.4138@yvahk01.tjqt.qr>
- <1122994972.3247.31.camel@laptopd505.fenrus.org> <42F01712.2030105@namesys.com>
- <4CBCB111-36B9-4F8C-9A3F-A9126ADE1CA2@mac.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Aug 2005 02:41:56 -0400
+Date: Wed, 3 Aug 2005 09:41:55 +0300
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
+Subject: Re: ahci, SActive flag, and the HD activity LED
+Message-ID: <20050803064155.GH2106@edu.joroinen.fi>
+References: <42EF93F8.8050601@fujitsu-siemens.com> <20050802163519.GB3710@suse.de> <42F05359.7030006@fujitsu-siemens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42F05359.7030006@fujitsu-siemens.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->> > because reiser got merged before jbd. Next question.
->>
->> That is the wrong reason.  We use our own journaling layer for the
->> reason that Vivaldi used his own melody.
->> 
->> [...] He might want to look at how reiser4 does wandering
->> logs instead of using jbd..... but I would never claim that for sure
->> some other author should be expected to use it.....  and something like
->> changing one's journaling system is not something to do just before a
->> merge.....
+On Wed, Aug 03, 2005 at 07:17:13AM +0200, Martin Wilck wrote:
+> Jens Axboe wrote:
+> 
+> >>If I am reading the specs correctly, that'd mean the ahci driver is 
+> >>wrong in setting the SActive bit.
+> >
+> >I completely agree, that was my reading of the spec as well and hence my
+> >original posts about this in the NCQ thread.
+> 
+> Have you (or has anybody else) also seen the wrong behavior of the 
+> activity LED?
 >
-> Do you see my point here?  If every person who added new kernel code
-> just wrote their own thing without checking to see if it had already
-> been done before, then there would be a lot of poorly maintained code
-> in the kernel.  If a journalling layer already exists, _new_ journaled
-> filesystems should either (A) use the layer as is, or (B) fix the layer
-> so it has sufficient functionality for them to use, and submit patches.
 
-Maybe jbd 'sucks' for something 'cool' like reiser*, and modifying jbd to be 
-'eleet enough' for reiser* would overwhelm ext.
+I have a box with ICH6R and AHCI in use with Linux 2.6.11, using seagate NCQ
+sata drives. the HD activity LED is on all the time..
 
-Lastly, there is the 'political' thing, when a <your-favorite-jbd-fs>-only 
-specific change to jbd is rejected by all other jbd-using fs. (Basically the 
-situation thing that leads to software forks, in any area.)
-
-
-
-Jan Engelhardt
--- 
+- Pasi Kärkkäinen
+       
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.

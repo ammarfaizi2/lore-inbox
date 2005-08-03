@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVHCNMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVHCNSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbVHCNMK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 09:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVHCNMK
+	id S262283AbVHCNSC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 09:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVHCNSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 09:12:10 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:24039 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261970AbVHCNMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 09:12:07 -0400
-Subject: Re: Segfaults in mkdir under high load. Software or hardware?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: bert hubert <bert.hubert@netherlabs.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Jules Colding <colding@omesc.com>
-In-Reply-To: <20050803125752.GA2912@outpost.ds9a.nl>
-References: <1123071243.6758.18.camel@omc-2.omesc.com>
-	 <20050803125752.GA2912@outpost.ds9a.nl>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 03 Aug 2005 09:12:00 -0400
-Message-Id: <1123074720.1590.109.camel@localhost.localdomain>
+	Wed, 3 Aug 2005 09:18:02 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:28806 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262283AbVHCNSA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 09:18:00 -0400
+Date: Wed, 3 Aug 2005 15:17:59 +0200
+From: Andi Kleen <ak@suse.de>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64 : prefetchw() can fall back to prefetch() if !3DNOW
+Message-ID: <20050803131759.GT10895@wotan.suse.de>
+References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com> <86802c44050728092275e28a9a@mail.gmail.com> <42E91191.60603@cosmosbay.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42E91191.60603@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-03 at 14:57 +0200, bert hubert wrote:
-> I've seen errors like these happen, and they were kernel bugs.
+On Thu, Jul 28, 2005 at 07:10:41PM +0200, Eric Dumazet wrote:
+> [PATCH] x86_64 : prefetchw() can fall back to prefetch() if !3DNOW
 > 
-> > [    0.000000] Bootdata ok (command line is root=/dev/sda4 vga=0x31B video=vesafb:mtrr,ywrap)
-> > [    0.000000] Linux version 2.6.12-gentoo-r6 (root@omc-2) (gcc version 3.4.3 20041125 (Gentoo 3.4.3-r1, ssp-3.4.3-0, pie-8.7.7)) #6 SMP Mon Jul 25 13:50:58 CEST 2005
-> 
-> If you reproduce with an unpatched kernel and an unpatched compiler, you are
-> much more likely to get attention. Your problem might also just go away.
+> If the cpu lacks 3DNOW feature, we can use a normal prefetcht0 instruction 
+> instead of NOP5.
+> "prefetchw (%rxx)" and "prefetcht0 (%rxx)" have the same length, ranging 
+> from 3 to 5 bytes
+> depending on the register. So this patch even helps AMD64, shortening the 
+> length of the code.
 
-Or at least send this to the Gentoo folks, especially if the problem
-goes away.
+Looks good, thanks.
 
--- Steve
-
+-Andi
 

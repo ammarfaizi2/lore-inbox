@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbVHCPVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVHCPYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbVHCPVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 11:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVHCPVy
+	id S262319AbVHCPYk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 11:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVHCPYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 11:21:54 -0400
-Received: from ms-smtp-02-smtplb.ohiordc.rr.com ([65.24.5.136]:60358 "EHLO
-	ms-smtp-02-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S262310AbVHCPUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 11:20:36 -0400
-Date: Wed, 03 Aug 2005 11:20:29 -0400
-From: ambx1@neo.rr.com
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: James Bruce <bruce@andrew.cmu.edu>, David Weinehall <tao@acc.umu.se>,
-       Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>,
-       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-Message-id: <dbb91149e.1149edbb9@columbus.rr.com>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 2.04 (built Feb  8 2005)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+	Wed, 3 Aug 2005 11:24:34 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:29636 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262320AbVHCPY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 11:24:29 -0400
+Date: Wed, 3 Aug 2005 17:24:26 +0200
+To: linux-kernel@vger.kernel.org, pp@ee.oulu.fi
+Subject: b44 transmit timeout with kernel 2.6
+Message-ID: <20050803152426.GR30602@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Pekka, dear developers!
 
+Some time ago I reported problems with transmit timeouts with b44 and
+kernel 2.4 (http://lkml.org/lkml/2003/9/1/197 and followin discussion).
 
------ Original Message -----
-From: Theodore Ts'o <tytso@mit.edu>
-Date: Monday, August 1, 2005 4:42 pm
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+Now I have very similar problems with kernel 2.6:
+Aug  2 09:53:15 gandalf vmunix: b44: eth0: Link is up at 100 Mbps, full duplex.
+Aug  2 09:53:15 gandalf vmunix: b44: eth0: Flow control is off for TX and off for RX.
+Aug  2 09:53:15 gandalf ifplugd(eth0)[3291]: Link beat detected.
+Aug  2 09:53:20 gandalf dnsmasq[3005]: reading /var/run/dnsmasq/resolv.conf
+Aug  2 09:53:20 gandalf dnsmasq[3005]: using nameserver 193.205.4.2#53
+Aug  2 09:53:20 gandalf dnsmasq[3005]: using nameserver 193.205.4.11#53
+Aug  2 09:53:25 gandalf vmunix: NETDEV WATCHDOG: eth0: transmit timed out
+Aug  2 09:53:25 gandalf vmunix: b44: eth0: transmit timed out, resetting
+Aug  2 09:53:26 gandalf kernel: b44: eth0: Link is down.
+Aug  2 09:53:26 gandalf ifplugd(eth0)[3291]: Link beat lost.
+Aug  2 09:53:28 gandalf vmunix: b44: eth0: Link is up at 100 Mbps, full duplex.
+Aug  2 09:53:28 gandalf vmunix: b44: eth0: Flow control is off for TX and off for RX.
 
-> On Mon, Aug 01, 2005 at 12:18:18PM -0400, James Bruce wrote:
-> > 
-> > The tradeoff is a realistic 4.4% power savings vs a 300% increase 
-> in the 
-> > minimum sleep period.  A user will see zero power savings if they 
-> have a 
-> > USB mouse (probably 99% of desktops).  On top of that, we can 
-> throw in 
-> > Con's disturbing AV benchmark results (1).  As a result, some of 
-> us 
-> > don't think 250HZ is a great tradeoff to make 
-> _for_the_default_value_.
-> Most laptops (including mine, a Thinkpad T40) use a PS/2 mouse.  So in
-> the places where power consumption savins matters most, it's usually
-> quite possible to function without needing any USB devices.  The 90%
-> figure isn't at all right; in fact, it may be that over 90% of the
-> laptops still use PS/2 mice and keyboards.
-> 
->                                        	- Ted
+and wanted to ask what I can do to overcome this problems again.
 
-Also, my understanding was that when we properly support usb suspend,
-this won't be an issue anyway for much usb hardware.  I think it's
-possible to put some mice to sleep when there isn't any motion and
-then wakeup later.
+Currently I am running 2.6.13-rc4-mm1 on an acer travelmate 654LCi.
 
-4.4% savings may not be much, but these things do add up.  For a
-laptop's workload, I think this is worth it.
+Best wishes
 
-Thanks,
-Adam
+Norbert
 
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+`I am so amazingly cool you could keep a side of meat in
+me for a month. I am so hip I have difficulty seeing over
+my pelvis.'
+                 --- Zaphod being cool.
+                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy

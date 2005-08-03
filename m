@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVHCNSC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVHCNUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbVHCNSC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 09:18:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVHCNSC
+	id S262285AbVHCNUg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 09:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbVHCNUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 09:18:02 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:28806 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262283AbVHCNSA (ORCPT
+	Wed, 3 Aug 2005 09:20:36 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:42630 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262285AbVHCNU0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 09:18:00 -0400
-Date: Wed, 3 Aug 2005 15:17:59 +0200
+	Wed, 3 Aug 2005 09:20:26 -0400
+Date: Wed, 3 Aug 2005 15:20:25 +0200
 From: Andi Kleen <ak@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64 : prefetchw() can fall back to prefetch() if !3DNOW
-Message-ID: <20050803131759.GT10895@wotan.suse.de>
-References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com> <86802c44050728092275e28a9a@mail.gmail.com> <42E91191.60603@cosmosbay.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: pci cacheline size / latency oddness.
+Message-ID: <20050803132025.GU10895@wotan.suse.de>
+References: <20050801233517.GA23172@redhat.com> <1122943309.26405.7.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42E91191.60603@cosmosbay.com>
+In-Reply-To: <1122943309.26405.7.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 07:10:41PM +0200, Eric Dumazet wrote:
-> [PATCH] x86_64 : prefetchw() can fall back to prefetch() if !3DNOW
+On Mon, Aug 01, 2005 at 08:41:49PM -0400, Parag Warudkar wrote:
+> On Mon, 2005-08-01 at 19:35 -0400, Dave Jones wrote:
+> > This means we will do the wrong thing on AMD machines which have
+> > 64 byte cachelines.
 > 
-> If the cpu lacks 3DNOW feature, we can use a normal prefetcht0 instruction 
-> instead of NOP5.
-> "prefetchw (%rxx)" and "prefetcht0 (%rxx)" have the same length, ranging 
-> from 3 to 5 bytes
-> depending on the register. So this patch even helps AMD64, shortening the 
-> length of the code.
+> pcibios_init (in i386/pci/common.c, which is linked in by X86_64 PCI
+> code) seems to do this 
+>  
+> if (c->x86 >= 6 && c->x86_vendor == X86_VENDOR_AMD)
+>                 pci_cache_line_size = 64 >> 2;  /* K7 & K8 */
+> 
+> Is it correct to expect all AMD k7/8 machines to have 16 as cache line
+> size - I thought 64 was more appropriate?
 
-Looks good, thanks.
+iirc the pci cache line register takes a value shifted left by 2 bits.
+
+And yes all K7/K8 machines have 64byte cache lines.
+
+> On my Athlon64 laptop, all PCI devices end up having 0 latency. 
+
+That has nothing to do with the cache line size.
+
+> 
+> > x86-64 doesn't have an arch override for pci_cache_line_size
+> 
+> I am trying to fix it up - What's the right way to override it in x86_64
+> code?  Just initialize it to 64 may be?
+
+I don't think there is anything to fix.
 
 -Andi
-

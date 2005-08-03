@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVHCK6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVHCLAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbVHCK6z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 06:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbVHCK6y
+	id S262211AbVHCLAx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 07:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVHCLAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 06:58:54 -0400
-Received: from mx2.suse.de ([195.135.220.15]:30693 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262202AbVHCK6u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 06:58:50 -0400
-Date: Wed, 3 Aug 2005 12:58:47 +0200
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: pci cacheline size / latency oddness.
-Message-ID: <20050803105847.GQ10895@wotan.suse.de>
-References: <20050801233517.GA23172@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 Aug 2005 07:00:52 -0400
+Received: from outmx017.isp.belgacom.be ([195.238.2.116]:5545 "EHLO
+	outmx017.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S262211AbVHCK7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 06:59:12 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: Linux 2.6.13-rc5 - possible acpi regression?
+Date: Wed, 3 Aug 2005 12:59:16 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <200508020843.08030.lkml@kcore.org> <200508021250.39136.rjw@sisk.pl>
+In-Reply-To: <200508021250.39136.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050801233517.GA23172@redhat.com>
+Message-Id: <200508031259.17172.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 07:35:17PM -0400, Dave Jones wrote:
-> During boot of todays -git, I noticed this..
-> 
-> PCI: Setting latency timer of device 0000:00:1d.7 to 64
-> 
-> after boot, lspci shows..
-> 
-> 00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02) (prog-if 20 [EHCI])
-> Subsystem: Dell: Unknown device 0169
-> Flags: bus master, medium devsel, latency 0, IRQ 201
->                                           ^^						
-> 
-> It also complains about..
-> 
-> PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-> 
-> x86-64 doesn't have an arch override for pci_cache_line_size, so
-> it ends up at L1_CACHE_BYTES >> 2, which is 128 if you build
-> x86-64 kernels with CONFIG_GENERIC_CPU or CONFIG_MPSC
-> This means we will do the wrong thing on AMD machines which have
-> 64 byte cachelines.   I saw this problem however on an em64t box.
+On Tuesday 02 August 2005 12:50, Rafael J. Wysocki wrote:
+> Please try to ad the ec_polling parameter to the kernel command line and
+> retest.
 
-We should be running arch/i386/pci/common.c:pcibios_init
-As far as I can see that should do the right thing on x86-64 too.
+That helps a lot. Thanks, it's back to the 'old way'.
 
-> Would it make sense to shift >> once more if it fails, and retry
-> with a smaller size perhaps ?
-
-Not sure how much sense it makes to configure a PCI device
-to a smaller cache line size than true. Best probably to leave
-it alone in this case.
-
--Andi
+Jan
+-- 
+...Deep Hack Mode -- that mysterious and frightening state of
+consciousness where Mortal Users fear to tread.
+	-- Matt Welsh

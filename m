@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVHCLtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbVHCLvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262238AbVHCLtK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 07:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVHCLrJ
+	id S262250AbVHCLvc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 07:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVHCLtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 07:47:09 -0400
-Received: from gate.crashing.org ([63.228.1.57]:22446 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262235AbVHCLqn (ORCPT
+	Wed, 3 Aug 2005 07:49:13 -0400
+Received: from gate.crashing.org ([63.228.1.57]:25262 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262229AbVHCLrg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 07:46:43 -0400
-Subject: Re: revert yenta free_irq on suspend
+	Wed, 3 Aug 2005 07:47:36 -0400
+Subject: Re: Calling suspend() in halt/restart/shutdown -> not a good idea
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: abelay@novell.com, Len Brown <len.brown@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       Dave Airlie <airlied@gmail.com>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20050802105619.GA1390@elf.ucw.cz>
-References: <2e55d42e7427.2e74272e55d4@columbus.rr.com>
-	 <1122886189.18835.109.camel@gaston>  <20050802105619.GA1390@elf.ucw.cz>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050802144516.GC2465@atrey.karlin.mff.cuni.cz>
+References: <1122908972.18835.153.camel@gaston>
+	 <20050802095312.GA1442@elf.ucw.cz>
+	 <m1ack0xuzq.fsf@ebiederm.dsl.xmission.com>
+	 <20050802144516.GC2465@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain
-Date: Wed, 03 Aug 2005 13:42:12 +0200
-Message-Id: <1123069333.30257.31.camel@gaston>
+Date: Wed, 03 Aug 2005 13:43:27 +0200
+Message-Id: <1123069408.30257.35.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-02 at 12:56 +0200, Pavel Machek wrote:
+On Tue, 2005-08-02 at 16:45 +0200, Pavel Machek wrote:
 > Hi!
 > 
-> > > Also, as I said earlier, the better we support OSPM initiated power
-> > > management, the more likely APM will break.  This may be technically
-> > > unavoidable on some isolated boxes without quirks.  I agree with
-> > > Pavel that "do nothing" may make sense, but it seems some devices
-> > > may still need to be disabled by the OS.  As a real world example,
-> > > we currently can't turn off cardbus bridges because it breaks APM
-> > > on a couple of older laptops.
+> > >> Why are we calling driver suspend routines in these ? This is _not_
+> > >
+> > > Well, reason is that if you remove device_suspend() you'll get
+> > > emergency hard disk park during powerdown. As harddrives can survive
+> > > only limited number of emergency stops, that is not a good idea.
 > > 
-> > Won't freeing of IRQs cause problems with things like handhelds that
-> > actually rely on an interrupt to wake up ?
+> > Then the practical question is: do we suspend the disk by
+> > calling device_suspend() for every device.  Or do we modify
+> > the ->shutdown() method for the disk.
 > 
-> Well, you probably don't want to free IRQ that is used for wakeup; but
-> if driver is used for wakeup, it probably needs some special handling,
-> anyway (right?).
+> The additional data in pm_message_t are usefull, and sharing code
+> between suspend-to-ram and suspend-to-disk is usefull => option #1...
 
-Not necessarily something the driver itself knows about ... For example,
-some platforms do a hardware OR between PME and INTA ...
+No.
 
 Ben.
+
 

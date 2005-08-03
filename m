@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVHCE6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVHCFKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbVHCE6p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 00:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVHCE6o
+	id S262053AbVHCFKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 01:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVHCFKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 00:58:44 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:8151 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S262048AbVHCE6o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 00:58:44 -0400
-Message-ID: <42F04EB3.6040007@zytor.com>
-Date: Tue, 02 Aug 2005 21:57:23 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
+	Wed, 3 Aug 2005 01:10:25 -0400
+Received: from ozlabs.org ([203.10.76.45]:48772 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262053AbVHCFKX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 01:10:23 -0400
 MIME-Version: 1.0
-To: mkrufky@m1k.net
-CC: Bodo Eggert <7eggert@gmx.de>, Steven Rostedt <rostedt@goodmis.org>,
-       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>,
-       webmaster@kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Testing RC kernels [KORG]
-References: <Pine.LNX.4.58.0508030214150.7510@be1.lrz> <42F04632.5070109@zytor.com> <42F048B5.8030000@m1k.net>
-In-Reply-To: <42F048B5.8030000@m1k.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17136.20802.654471.934480@cargo.ozlabs.ibm.com>
+Date: Wed, 3 Aug 2005 15:08:18 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: torvalds@osdl.org, akpm@osdl.org
+CC: anton@samba.org, hbabu@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Xmon bug fix for soft-reset
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Krufky wrote:
-> 
-> Why not just have the scripts plug values into a database, and have the 
-> html/php be formatted like Bodo suggests, and reads content from database?
-> Very simple, less maintenance... Only requires 1 initial redesign, and 
-> easier maintainence of the scripts that you speak of.
-> 
+From: Haren Myneni <haren@us.ibm.com>
 
-The issue is to generate the values, not present them.
+For soft reset during system hang, got an error "CPU did not take 
+control" for some CPUs even though they responded to soft-reset (called 
+SystemReset, die and called debugger - xmon).   First these CPUs entered 
+into xmon by IPI callback and then got a soft-reset exception and 
+re-entered into xmon again. The first CPU which re-entered into xmon got 
+the output lock and made into xmon successfully without unlocking. 
+Hence, the next CPU(s) which re-entered into xmon try to acquire a lock  
+(get_output_lock). Therefore, we can not view state of those CPU(s).
 
-	-hpa
+[This is a simple, very low risk, obvious fix for an obvious bug, and
+should go into 2.6.13.  -- paulus]
+
+Signed-off-by: Haren Myneni <hbabu@us.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
+---
+--- linux-2.6.13-rc4-git4/arch/ppc64/xmon/xmon.c.orig	2005-08-01 22:31:09.000000000 -0700
++++ linux-2.6.13-rc4-git4/arch/ppc64/xmon/xmon.c	2005-08-01 22:33:16.000000000 -0700
+@@ -329,13 +329,16 @@ int xmon_core(struct pt_regs *regs, int 
+ 		printf("cpu 0x%x: Exception %lx %s in xmon, "
+ 		       "returning to main loop\n",
+ 		       cpu, regs->trap, getvecname(TRAP(regs)));
++		release_output_lock();
+ 		longjmp(xmon_fault_jmp[cpu], 1);
+ 	}
+ 
+ 	if (setjmp(recurse_jmp) != 0) {
+ 		if (!in_xmon || !xmon_gate) {
++			get_output_lock();
+ 			printf("xmon: WARNING: bad recursive fault "
+ 			       "on cpu 0x%x\n", cpu);
++			release_output_lock();
+ 			goto waiting;
+ 		}
+ 		secondary = !(xmon_taken && cpu == xmon_owner);

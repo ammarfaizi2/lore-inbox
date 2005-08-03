@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVHCGRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVHCGTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbVHCGRY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 02:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVHCGRY
+	id S262092AbVHCGTE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 02:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVHCGS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 02:17:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35247 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262077AbVHCGRU (ORCPT
+	Wed, 3 Aug 2005 02:18:59 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:43216 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262093AbVHCGSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 02:17:20 -0400
-Date: Wed, 3 Aug 2005 08:19:22 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       linux-ide@vger.kernel.org,
-       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
-Subject: Re: ahci, SActive flag, and the HD activity LED
-Message-ID: <20050803061917.GE3710@suse.de>
-References: <42EF93F8.8050601@fujitsu-siemens.com> <20050802163519.GB3710@suse.de> <42F05359.7030006@fujitsu-siemens.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42F05359.7030006@fujitsu-siemens.com>
+	Wed, 3 Aug 2005 02:18:53 -0400
+Date: Wed, 3 Aug 2005 08:18:42 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Johan Veenhuizen <veenhuizen@users.sourceforge.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12.3] Deny chmod in /proc/<pid>/
+In-Reply-To: <42efd43d.ijkrXtpGJUM7deW2%veenhuizen@users.sf.net>
+Message-ID: <Pine.LNX.4.61.0508030816150.2263@yvahk01.tjqt.qr>
+References: <42efd43d.ijkrXtpGJUM7deW2%veenhuizen@users.sf.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 03 2005, Martin Wilck wrote:
-> Jens Axboe wrote:
-> 
-> >>If I am reading the specs correctly, that'd mean the ahci driver is 
-> >>wrong in setting the SActive bit.
-> >
-> >I completely agree, that was my reading of the spec as well and hence my
-> >original posts about this in the NCQ thread.
-> 
-> Have you (or has anybody else) also seen the wrong behavior of the 
-> activity LED?
 
-No, but I have observed that SActive never gets cleared by the device
-for non-NCQ commands (which is probably which gets you the stuck LED on
-some systems?), which to me is another indication that we should not be
-setting the tag bits for those commands.
+>This patch tries to fix the strange behaviour in /proc/<pid>/,
+>where it is currently possible for the owner of a process to
+>temporarily chmod the entries.
 
+I am on 2.6.13-rc3-git5 and I do not see such behavior:
+
+08:16 spectre:/proc/21345 # chown 1337 smaps
+08:16 spectre:/proc/21345 # l -n smaps
+-r--r--r--  1 25121 0   0 Aug  3 08:16 smaps
+08:16 spectre:/proc/21345 #
+
+>The patch does also trigger an EPERM when someone tries
+>to chown/chgrp an entry (which is currently silently ignored).
+
+That's true. Though, chmod /proc/21345 correctly yielded EPERM.
+
+>Please send comments, corrections and suggestions.
+
+
+
+
+Jan Engelhardt
 -- 
-Jens Axboe
-

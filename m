@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVHCQTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVHCQVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbVHCQTa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 12:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVHCQTa
+	id S262336AbVHCQVM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 12:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVHCQVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 12:19:30 -0400
-Received: from graphe.net ([209.204.138.32]:57265 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262304AbVHCQT2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 12:19:28 -0400
-Date: Wed, 3 Aug 2005 09:19:25 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Paul Jackson <pj@sgi.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [PATCH] String conversions for memory policy
-In-Reply-To: <20050802224459.5f30d73e.pj@sgi.com>
-Message-ID: <Pine.LNX.4.62.0508030919050.16713@graphe.net>
-References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
- <20050729152049.4b172d78.pj@sgi.com> <Pine.LNX.4.62.0507291746000.8663@graphe.net>
- <20050729230026.1aa27e14.pj@sgi.com> <Pine.LNX.4.62.0507301042420.26355@graphe.net>
- <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net>
- <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net>
- <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net>
- <20050801160351.71ee630a.pj@sgi.com> <Pine.LNX.4.62.0508011618120.9351@graphe.net>
- <20050801165947.36b5da96.pj@sgi.com> <Pine.LNX.4.62.0508011713540.9824@graphe.net>
- <20050801223304.2a8871e8.pj@sgi.com> <Pine.LNX.4.62.0508012311170.16052@graphe.net>
- <20050802224459.5f30d73e.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Wed, 3 Aug 2005 12:21:12 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:10884 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262325AbVHCQVI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 12:21:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=hxH/NrP01LV3MyqxLxxEAIEjOZunkbfEnjvgp/YhWQBjwPIggPmATtAaKZ9ZKPSUuHtkVbqBHDZOvA0WqgGuttwwq9KsyGIfyCd+EoAJtY22CoGn/yJDii6ljo8jSEA/q/MNigySDWYvA++lHmkxF88vJki9aRPLnelUuxX1Hzk=
+Message-ID: <3faf05680508030921277d78a9@mail.gmail.com>
+Date: Wed, 3 Aug 2005 21:51:04 +0530
+From: vamsi krishna <vamsi.krishnak@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Forcing kernel to avoid vDSO mapping.
+Cc: roland@redhat.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Aug 2005, Paul Jackson wrote:
+Hello All,
 
-> Christoph wrote:
-> > Could you rework the patch to all of that?
-> 
-> Next week - I am on vacation at the moment.
+Sorry to interrupt you.
 
-I have done all the fixups necessary ..... Just the candy that you wanted 
-is missing.
+There seem to be some architecture specific problems using ptrace in
+the vDSO segment on IA32, ptrace and read fails from this segment with
+BAD ADDRESS.
 
+I was just wondering if there could be any why we can tell kernel not
+to map this vDSO for optimization of system call overhead.
+
+Your kind help and effort regarding this issue is greatly appreciated.
+
+Thanks a lot.
+
+Regards,
+Vamsi kundeti

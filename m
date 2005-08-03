@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVHCUAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVHCUDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVHCUAr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 16:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbVHCUAr
+	id S262437AbVHCUDk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 16:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbVHCUDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 16:00:47 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:50839 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S262433AbVHCUAo (ORCPT
+	Wed, 3 Aug 2005 16:03:40 -0400
+Received: from gate.crashing.org ([63.228.1.57]:53170 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262437AbVHCUDj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 16:00:44 -0400
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: [PATCH] VM: add vm.free_node_memory sysctl
-Date: Wed, 3 Aug 2005 14:59:22 -0500
-User-Agent: KMail/1.8
-cc: "Martin Hicks" <mort@sgi.com>, "Ingo Molnar" <mingo@elte.hu>,
-       "Linux MM" <linux-mm@kvack.org>, "Andrew Morton" <akpm@osdl.org>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <20050801113913.GA7000@elte.hu>
- <20050803142440.GQ26803@localhost>
- <20050803143855.GA10895@wotan.suse.de>
-In-Reply-To: <20050803143855.GA10895@wotan.suse.de>
-MIME-Version: 1.0
-Message-ID: <200508031459.22834.raybry@mpdtxmail.amd.com>
-X-WSS-ID: 6EEFFDC41UW7222803-01-01
-Content-Type: text/plain;
- charset=iso-8859-1
+	Wed, 3 Aug 2005 16:03:39 -0400
+Subject: Re: Calling suspend() in halt/restart/shutdown -> not a good idea
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Marc Ballarin <Ballarin.Marc@gmx.de>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <D6591B2F-4E98-48A0-A3DD-71AAC564278E@mac.com>
+References: <1122908972.18835.153.camel@gaston>
+	 <20050801203728.2012f058.Ballarin.Marc@gmx.de>
+	 <1122926885.30257.4.camel@gaston> <20050802095401.GB1442@elf.ucw.cz>
+	 <1123069255.30257.27.camel@gaston>
+	 <D6591B2F-4E98-48A0-A3DD-71AAC564278E@mac.com>
+Content-Type: text/plain
+Date: Wed, 03 Aug 2005 21:59:14 +0200
+Message-Id: <1123099155.30257.43.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 August 2005 09:38, Andi Kleen wrote:
-> On Wed, Aug 03, 2005 at 10:24:40AM -0400, Martin Hicks wrote:
-> > On Wed, Aug 03, 2005 at 04:15:29PM +0200, Andi Kleen wrote:
-> > > On Wed, Aug 03, 2005 at 09:56:46AM -0400, Martin Hicks wrote:
-> > > > Here's the promised sysctl to dump a node's pagecache.  Please
-> > > > review!
-> > > >
-> > > > This patch depends on the zone reclaim atomic ops cleanup:
-> > > > http://marc.theaimsgroup.com/?l=linux-mm&m=112307646306476&w=2
-> > >
-> > > Doesn't numactl --bind=node memhog nodesize-someslack do the same?
-> > >
-> > > It just might kick in the oom killer if someslack is too small
-> > > or someone has unfreeable data there. But then there should be
-> > > already an sysctl to turn that one off.
+On Wed, 2005-08-03 at 12:53 -0400, Kyle Moffett wrote:
+> On Aug 3, 2005, at 07:40:54, Benjamin Herrenschmidt wrote:
+> >> I'd like to get rid of shutdown callback. Having two copies of code
+> >> (one in callback, one in suspend) is ugly.
 > >
-Hmmm.... What happens if there are already mapped pages (e. g. mapped in the 
-sense that pages are mapped into an address space) on the node and you want 
-to allocate some more, but can't because the node is full of clean page cache 
-pages?   Then one would have to set the memhog argument to the right thing to 
-keep the existing mapped memory from being swapped out, right?  Is the data 
-to set that argument readily available to user space?  Martin's patch has the 
-advantage of targeting just the clean page cache pages.
+> > Well, it's obviously not a good time for this. First, suspend and
+> > shutdown don't necessarily do the same thing, then it just doesn't  
+> > work
+> > in practice. So either do it right completely or not at all, but  
+> > 2.6.13
+> > isn't the place for an half-assed hack that looks like a solution to
+> > you.
+> 
+> One possible way to proceed might be to add a new callback that takes a
+> pm_message_t: powerdown()  If it exists, it would be called in both the
+> suspend and shutdown paths, before the suspend() and shutdown() calls to
+> that driver are made.  As drivers are fixed to clean up and combine that
+> code, they could put the merged result into the powerdown() function,
+> and remove their suspend() and shutdown() functions.
 
-The way I see this, the problem is that clean page cache pages >>should<< be 
-easily available to be used to satisfy a request for mapped pages.   This 
-works correctly in non-NUMA Linux systems.  But in NUMA Linux systems, we 
-keep tripping over this problem all the time, particularly in the  HPC space, 
-and patches like Martin's come about as an attempt to solve this in the VMM.
-(We trip over this in the sense that we end up allocating off node storage 
-because the current node is full of page cache pages.)
+We already have shutdown() for that.
 
-The best answer we have at the present time is to run a memory hog program 
-that forces the clean page cache pages to be reclaimed by putting the node in 
-question under memory pressure, but this seems like an indirect way to solve 
-the problem at hand which is, really, to quickly release those page cache 
-pages and make them available for user programs to allocate.  So the most 
-direct way to fix this is to fix it in the VMM rather than depending on a 
-memory hog based work-around of some kind.   Perhaps we haven't gotten the 
-right set of patches together to do this, but my take is that is where the 
-fix belongs. 
+Ben.
 
-And, just for the record (  :-)  ), this is not just an Altix problem.  
-Opterons are NUMA systems too, and we encounter exactly this same problem in 
-the HPC space on 4-node systems.  
--- 
-Ray Bryant
-AMD Performance Labs                   Austin, Tx
-512-602-0038 (o)                 512-507-7807 (c)
 

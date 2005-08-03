@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVHCLl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVHCLmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbVHCLl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 07:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVHCLl0
+	id S262228AbVHCLmp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 07:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVHCLmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 07:41:26 -0400
-Received: from mailserv.aei.mpg.de ([194.94.224.6]:41927 "EHLO
-	mailserv.aei.mpg.de") by vger.kernel.org with ESMTP id S262071AbVHCLlY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 07:41:24 -0400
-Message-ID: <42F0AD60.3070201@freenet.de>
-Date: Wed, 03 Aug 2005 13:41:20 +0200
-From: Frank Loeffler <knarf.loeffler@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
-X-Accept-Language: de-de, de, en, en-us
-MIME-Version: 1.0
-To: mdew <some.nzguy@gmail.com>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net, Vojtech Pavlik <vojtech@suse.cz>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [linux-usb-devel] Re: Fw: ati-remote strangeness from 2.6.12
- onwards
-References: <20050730173253.693484a2.akpm@osdl.org>	 <1c1c8636050801220442d8351c@mail.gmail.com>	 <20050803055413.GB1399@elf.ucw.cz> <1c1c86360508030311486fc30a@mail.gmail.com>
-In-Reply-To: <1c1c86360508030311486fc30a@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 3 Aug 2005 07:42:44 -0400
+Received: from gate.crashing.org ([63.228.1.57]:14766 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262228AbVHCLmk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 07:42:40 -0400
+Subject: Re: Calling suspend() in halt/restart/shutdown -> not a good idea
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>, ebiederm@xmission.com
+In-Reply-To: <20050802095312.GA1442@elf.ucw.cz>
+References: <1122908972.18835.153.camel@gaston>
+	 <20050802095312.GA1442@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 03 Aug 2005 13:38:28 +0200
+Message-Id: <1123069109.30257.23.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 'mdew' (you do have a name, do you?),
+On Tue, 2005-08-02 at 11:53 +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > Why are we calling driver suspend routines in these ? This is _not_
+> 
+> Well, reason is that if you remove device_suspend() you'll get
+> emergency hard disk park during powerdown. As harddrives can survive
+> only limited number of emergency stops, that is not a good idea.
 
-mdew wrote:
-> mapped to "p". I found the TV Button, The DVD Button, the CH-/+ and
-> the OK Button all non-working, every other button produced the "p".
+No, that is bogus. We have shutdown() already for that and it used to be
+implemented at least by IDE.
 
-Could you please try 'showkey -s' from a console on all of those keys?
+You are just blindly "dropping" the device_suspend() call in there
+without thinking. There is a lot of differences between suspend and
+shutdown, you can't "just do that". In addition to the number of drivers
+with broken suspend of course, causing many boxes to not shutdown
+anymore (and not only PPCs)
 
-Pavel: I would think that 'more useful' is not really the same as 
-'correct'. If you find it useful to map this key to 'ENTER', so you 
-should remap it in userspace. It should not be KEY_ENTER in the kernel 
-for at least two reasons:
+Andrew, please back that off before 2.6.13. I'll try to send a patch if
+you want later today if I find some time with a kernel source at hand.
 
-- The key is labled 'ok' (and not enter). I assume the code KEY_OK is
-   made for exactly that kind of key and certain applications might
-   look for exactly this code.
-- You might want to differentiate between this key and the ENTER key
-   of your keyboard, at least I do. If the kernel is sending the same
-   code for both keys, this is not possible in userspace.
+Ben.
 
-Frank
 

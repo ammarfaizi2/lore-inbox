@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVHCJR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVHCJTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVHCJR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 05:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVHCJPZ
+	id S262175AbVHCJTy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 05:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVHCJSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 05:15:25 -0400
-Received: from mx5.mailserveren.com ([213.236.237.251]:2222 "EHLO
-	mx5.mailserveren.com") by vger.kernel.org with ESMTP
-	id S262174AbVHCJNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 05:13:45 -0400
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-From: Hans Kristian Rosbach <hans.kristian@isphuset.no>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, David Weinehall <tao@acc.umu.se>,
-       Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>,
-       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <42EEFB9B.10508@andrew.cmu.edu>
-References: <20050730195116.GB9188@elf.ucw.cz>
-	 <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>
-	 <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>
-	 <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz>
-	 <1122852234.13000.27.camel@mindpipe>
-	 <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu>
-	 <20050801204245.GC17258@thunk.org>  <42EEFB9B.10508@andrew.cmu.edu>
+	Wed, 3 Aug 2005 05:18:06 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:10987 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262175AbVHCJRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 05:17:32 -0400
+Subject: Re: [PATCH 00/14] GFS
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Teigland <teigland@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+In-Reply-To: <20050803035618.GB9812@redhat.com>
+References: <20050802071828.GA11217@redhat.com>
+	 <1122968724.3247.22.camel@laptopd505.fenrus.org>
+	 <20050803035618.GB9812@redhat.com>
 Content-Type: text/plain
-Organization: ISPHuset Nordic AS
-Date: Wed, 03 Aug 2005 11:19:50 +0200
-Message-Id: <1123060790.29553.7.camel@linux>
+Date: Wed, 03 Aug 2005 11:17:09 +0200
+Message-Id: <1123060630.3363.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-8) 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-02 at 00:50 -0400, James Bruce wrote:
-> Theodore Ts'o wrote:
->  > On Mon, Aug 01, 2005 at 12:18:18PM -0400, James Bruce wrote:
->  >>The tradeoff is a realistic 4.4% power savings vs a 300% increase in
->  >>the minimum sleep period.  A user will see zero power savings if they
->  >>have a USB mouse (probably 99% of desktops).  On top of that, we can
->                                      ^^^^^^^^
+On Wed, 2005-08-03 at 11:56 +0800, David Teigland wrote:
+> The point is you can define GFS2_ENDIAN_BIG to compile gfs to be BE
+> on-disk instead of LE which is another useful way to verify endian
+> correctness.
+
+that sounds wrong to be a compile option. If you really want to deal
+with dual disk endianness it really ought to be a runtime one (see jffs2
+for example).
+
+
+
+> > * Why use your own journalling layer and not say ... jbd ?
 > 
->  > Most laptops (including mine, a Thinkpad T40) use a PS/2 mouse.  So in
->  > the places where power consumption savins matters most, it's usually
->  > quite possible to function without needing any USB devices.  The 90%
->  > figure isn't at all right; in fact, it may be that over 90% of the
->  > laptops still use PS/2 mice and keyboards.
+> Here's an analysis of three approaches to cluster-fs journaling and their
+> pros/cons (including using jbd):  http://tinyurl.com/7sbqq
 > 
-> Yes, laptops are mostly PS/2, which is why I only claimed a statistic 
-> for desktops.  Desktops pretty much all use USB mice now.  If 250Hz were 
-> only being sold as an option for laptops, we could leave it at that, yet 
-> its being pushed as a default that's "good for everyone".  For desktops 
-> this is not currently true at all.  By the time USB is fixed to do power 
-> saving, we'll probably have a working tick-skipping patch which makes 
-> the whole HZ argument moot.
+> > * +	while (!kthread_should_stop()) {
+> > +		gfs2_scand_internal(sdp);
+> > +
+> > +		set_current_state(TASK_INTERRUPTIBLE);
+> > +		schedule_timeout(gfs2_tune_get(sdp, gt_scand_secs) * HZ);
+> > +	}
+> > 
+> > you probably really want to check for signals if you do interruptible sleeps
+> 
+> I don't know why we'd be interested in signals here.
 
-Most new laptops are moving away from PS/2 ports, for example my
-shining (literally) new Acer Ferrari 4005 only has USB2 ports for mice
-and keyboard inputs (unless in the optional pcie docking station maybe).
-So my suggestion would be to fix USB power management.
+well.. because if you don't your schedule_timeout becomes a nop when you
+get one, which makes your loop a busy waiting one.
 
-The mouse that comes with the ferrari 4005 is actually a bluetooth
-mouse, but for some reason it is the worst thing I've ever used.
 
-So, what I'm currently using is a usb -> ps/2 converter. I can't imagine
-this to be any good for power consumption at all.
-
-(OT:Bad mouse)
--It will overcharge battery so the whole mouse becomes HOT
--Occasionally it will stop working for ~5sec
--The optical sensor takes a while to focus on the pad when lifted and
- put down again.
-
-BTW: The laptop itself is _really_ good, just the mouse is a total
-     failure.
-
--HK
 

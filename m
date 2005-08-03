@@ -1,255 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVHCATl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVHCAl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbVHCATl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 20:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVHCATl
+	id S261948AbVHCAl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 20:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVHCAl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 20:19:41 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:20874 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261931AbVHCATk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 20:19:40 -0400
-Subject: Re: [PATCH] sunrpc: cache_register can use wrong module reference
-From: Bruce Allan <bwa@us.ibm.com>
-Reply-To: bwa@us.ibm.com
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-nfs <nfs@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050802215100.GA19079@infradead.org>
-References: <1123018176.3954.118.camel@w-bwa3.beaverton.ibm.com>
-	 <20050802215100.GA19079@infradead.org>
-Content-Type: text/plain
-Organization: IBM, Corp.
-Message-Id: <1123028374.3954.142.camel@w-bwa3.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 02 Aug 2005 17:19:35 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Aug 2005 20:41:27 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:14562 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261948AbVHCAl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 20:41:26 -0400
+Date: Wed, 3 Aug 2005 02:41:20 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Steven Rostedt <rostedt@goodmis.org>, Sean Bruno <sean.bruno@dsl-only.net>
+cc: Lee Revell <rlrevell@joe-job.com>, webmaster@kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Michael Krufky <mkrufky@m1k.net>
+Subject: Re: Testing RC kernels [KORG]
+Message-ID: <Pine.LNX.4.58.0508030214150.7510@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-02 at 14:51, Christoph Hellwig wrote:
-> On Tue, Aug 02, 2005 at 02:29:36PM -0700, Bruce Allan wrote:
-> > [resending to Neil, Trond and linux-nfs list; initial copy to lkml]
-> > 
-> > When registering an RPC cache, cache_register() always sets the owner as
-> > the sunrpc module.  However, there are RPC caches owned by other modules. 
-> > With the incorrect owner setting, the real owning module can be removed
-> > potentially with an open reference to the cache from userspace.
-> > 
-> > For example, if one were to stop the nfs server and unmount the nfsd
-> > filesystem, the nfsd module could be removed eventhough rpc.idmapd had
-> > references to the idtoname and nametoid caches (i.e.
-> > /proc/net/rpc/nfs4.<cachename>/channel is still open).  This resulted in
-> > a system panic on one of our machines when attempting to restart the nfs
-> > services after reloading the nfsd module.
-> > 
-> > The following patch fixes this by passing the address of the owning
-> > struct module to cache_register().  In addition, printk's were added to
-> > functions calling cache_unregister() to dump an error message on
-> > failure.
-> > 
-> > Signed-off-by: Bruce Allan <bwa@us.ibm.com>
-> 
-> Please put a
-> 
-> 	struct module	*owner;
-> 
-> field into struct cache_detail instead, that's how it works for other
-> methods tables like that.
-Yes, that is more appropriate.  Updated patch below...
-> 
-> And while we're at it, cache_detail is an awfully generic name for a sunrpc
-> data structure.
-Agreed, but would prefer to have this addressed in a different patch.
+Sean Bruno <sean.bruno@dsl-only.net> wrote:
+> On Tue, 2005-08-02 at 15:21 -0400, Steven Rostedt wrote:
 
-The following patch adds a 'struct module *owner' field in struct
-cache_detail.  The owner is further assigned to the struct
-proc_dir_entry in cache_register() so that the module cannot be unloaded
-while user-space daemons have an open reference on the associated file
-under /proc.
+>> I've been complaining about this for some time. Kernel.org really needs
+>> to show more information about the rc kernels and how to create them.
+>> We want more testers, but I wonder how many people go through the above
+>> steps and just give up when things don't work. Luckly Sean was nice
+>> enough to email the LKML and ask.
+>> 
+>> My main gripe is that there's no link to 2.6.12 which is what most of
+>> the other patches go against.
+>> 
+> I would be more than willing to whip up an html how-to(and maintain it).
+> Is there any interest in this?
 
-Signed-off-by: Bruce Allan <bwa@us.ibm.com>
+I hacked some changes to create vogon-compatibility. Maybe you like it.
+I'm not completely happy, but it's too late now.
 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/fs/nfsd/export.c linux-2.6.13-rc5-rpc_cache_register/fs/nfsd/export.c
---- linux-2.6.13-rc5/fs/nfsd/export.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/fs/nfsd/export.c	2005-08-02 16:14:53.000000000 -0700
-@@ -26,6 +26,7 @@
- #include <linux/namei.h>
- #include <linux/mount.h>
- #include <linux/hash.h>
-+#include <linux/module.h>
- 
- #include <linux/sunrpc/svc.h>
- #include <linux/nfsd/nfsd.h>
-@@ -221,6 +222,7 @@ static int expkey_show(struct seq_file *
- }
- 	
- struct cache_detail svc_expkey_cache = {
-+	.owner		= THIS_MODULE,
- 	.hash_size	= EXPKEY_HASHMAX,
- 	.hash_table	= expkey_table,
- 	.name		= "nfsd.fh",
-@@ -456,6 +458,7 @@ static int svc_export_show(struct seq_fi
- 	return 0;
- }
- struct cache_detail svc_export_cache = {
-+	.owner		= THIS_MODULE,
- 	.hash_size	= EXPORT_HASHMAX,
- 	.hash_table	= export_table,
- 	.name		= "nfsd.export",
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/fs/nfsd/nfs4idmap.c linux-2.6.13-rc5-rpc_cache_register/fs/nfsd/nfs4idmap.c
---- linux-2.6.13-rc5/fs/nfsd/nfs4idmap.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/fs/nfsd/nfs4idmap.c	2005-08-02 15:55:59.000000000 -0700
-@@ -187,6 +187,7 @@ static int         idtoname_parse(struct
- static struct ent *idtoname_lookup(struct ent *, int);
- 
- static struct cache_detail idtoname_cache = {
-+	.owner		= THIS_MODULE,
- 	.hash_size	= ENT_HASHMAX,
- 	.hash_table	= idtoname_table,
- 	.name		= "nfs4.idtoname",
-@@ -320,6 +321,7 @@ static struct ent *nametoid_lookup(struc
- static int         nametoid_parse(struct cache_detail *, char *, int);
- 
- static struct cache_detail nametoid_cache = {
-+	.owner		= THIS_MODULE,
- 	.hash_size	= ENT_HASHMAX,
- 	.hash_table	= nametoid_table,
- 	.name		= "nfs4.nametoid",
-@@ -404,8 +406,10 @@ nfsd_idmap_init(void)
- void
- nfsd_idmap_shutdown(void)
- {
--	cache_unregister(&idtoname_cache);
--	cache_unregister(&nametoid_cache);
-+	if (cache_unregister(&idtoname_cache))
-+		printk(KERN_ERR "nfsd: failed to unregister idtoname cache\n");
-+	if (cache_unregister(&nametoid_cache))
-+		printk(KERN_ERR "nfsd: failed to unregister nametoid cache\n");
- }
- 
- /*
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/include/linux/sunrpc/cache.h linux-2.6.13-rc5-rpc_cache_register/include/linux/sunrpc/cache.h
---- linux-2.6.13-rc5/include/linux/sunrpc/cache.h	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/include/linux/sunrpc/cache.h	2005-08-02 15:54:39.000000000 -0700
-@@ -60,6 +60,7 @@ struct cache_head {
- #define	CACHE_NEW_EXPIRY 120	/* keep new things pending confirmation for 120 seconds */
- 
- struct cache_detail {
-+	struct module *		owner;
- 	int			hash_size;
- 	struct cache_head **	hash_table;
- 	rwlock_t		hash_lock;
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/net/sunrpc/auth_gss/svcauth_gss.c linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/auth_gss/svcauth_gss.c
---- linux-2.6.13-rc5/net/sunrpc/auth_gss/svcauth_gss.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/auth_gss/svcauth_gss.c	2005-08-02 16:41:16.000000000 -0700
-@@ -250,6 +250,7 @@ out:
- }
- 
- static struct cache_detail rsi_cache = {
-+	.owner		= THIS_MODULE,
- 	.hash_size	= RSI_HASHMAX,
- 	.hash_table     = rsi_table,
- 	.name           = "auth.rpcsec.init",
-@@ -436,6 +437,7 @@ out:
- }
- 
- static struct cache_detail rsc_cache = {
-+	.owner		= THIS_MODULE,
- 	.hash_size	= RSC_HASHMAX,
- 	.hash_table	= rsc_table,
- 	.name		= "auth.rpcsec.context",
-@@ -1074,7 +1076,9 @@ gss_svc_init(void)
- void
- gss_svc_shutdown(void)
- {
--	cache_unregister(&rsc_cache);
--	cache_unregister(&rsi_cache);
-+	if (cache_unregister(&rsc_cache))
-+		printk(KERN_ERR "auth_rpcgss: failed to unregister rsc cache\n");
-+	if (cache_unregister(&rsi_cache))
-+		printk(KERN_ERR "auth_rpcgss: failed to unregister rsi cache\n");
- 	svc_auth_unregister(RPC_AUTH_GSS);
- }
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/net/sunrpc/cache.c linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/cache.c
---- linux-2.6.13-rc5/net/sunrpc/cache.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/cache.c	2005-08-02 15:53:45.000000000 -0700
-@@ -177,7 +177,7 @@ void cache_register(struct cache_detail 
- 	cd->proc_ent = proc_mkdir(cd->name, proc_net_rpc);
- 	if (cd->proc_ent) {
- 		struct proc_dir_entry *p;
--		cd->proc_ent->owner = THIS_MODULE;
-+		cd->proc_ent->owner = cd->owner;
- 		cd->channel_ent = cd->content_ent = NULL;
- 		
-  		p = create_proc_entry("flush", S_IFREG|S_IRUSR|S_IWUSR,
-@@ -185,7 +185,7 @@ void cache_register(struct cache_detail 
- 		cd->flush_ent =  p;
-  		if (p) {
-  			p->proc_fops = &cache_flush_operations;
-- 			p->owner = THIS_MODULE;
-+ 			p->owner = cd->owner;
-  			p->data = cd;
-  		}
-  
-@@ -195,7 +195,7 @@ void cache_register(struct cache_detail 
- 			cd->channel_ent = p;
- 			if (p) {
- 				p->proc_fops = &cache_file_operations;
--				p->owner = THIS_MODULE;
-+				p->owner = cd->owner;
- 				p->data = cd;
- 			}
- 		}
-@@ -205,7 +205,7 @@ void cache_register(struct cache_detail 
- 			cd->content_ent = p;
-  			if (p) {
-  				p->proc_fops = &content_file_operations;
-- 				p->owner = THIS_MODULE;
-+ 				p->owner = cd->owner;
-  				p->data = cd;
-  			}
-  		}
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/net/sunrpc/sunrpc_syms.c linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/sunrpc_syms.c
---- linux-2.6.13-rc5/net/sunrpc/sunrpc_syms.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/sunrpc_syms.c	2005-08-02 15:54:03.000000000 -0700
-@@ -176,8 +176,10 @@ cleanup_sunrpc(void)
- {
- 	unregister_rpc_pipefs();
- 	rpc_destroy_mempool();
--	cache_unregister(&auth_domain_cache);
--	cache_unregister(&ip_map_cache);
-+	if (cache_unregister(&auth_domain_cache))
-+		printk(KERN_ERR "sunrpc: failed to unregister auth_domain cache\n");
-+	if (cache_unregister(&ip_map_cache))
-+		printk(KERN_ERR "sunrpc: failed to unregister ip_map cache\n");
- #ifdef RPC_DEBUG
- 	rpc_unregister_sysctl();
- #endif
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/net/sunrpc/svcauth.c linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/svcauth.c
---- linux-2.6.13-rc5/net/sunrpc/svcauth.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/svcauth.c	2005-08-02 16:01:01.000000000 -0700
-@@ -143,6 +143,7 @@ static void auth_domain_drop(struct cach
- 
- 
- struct cache_detail auth_domain_cache = {
-+	.owner		= THIS_MODULE,
- 	.hash_size	= DN_HASHMAX,
- 	.hash_table	= auth_domain_table,
- 	.name		= "auth.domain",
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/net/sunrpc/svcauth_unix.c linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/svcauth_unix.c
---- linux-2.6.13-rc5/net/sunrpc/svcauth_unix.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-rpc_cache_register/net/sunrpc/svcauth_unix.c	2005-08-02 16:01:34.000000000 -0700
-@@ -242,6 +242,7 @@ static int ip_map_show(struct seq_file *
- 	
- 
- struct cache_detail ip_map_cache = {
-+	.owner		= THIS_MODULE,
- 	.hash_size	= IP_HASHMAX,
- 	.hash_table	= ip_table,
- 	.name		= "auth.unix.ip",
+Changes:
+- Make first column more terse
+- Move full download links to a seperate table, where they can be found.
+- Add <h2> headings above the patches and above the tarballs
+- Add some hints
+- Create a dead link to a patching-HOWTO
+- Add a 'applies to:' column
+- fix legend to match changes
 
 
+Signed-off-by: Bodo Eggert <7eggert@gmx.de>
+
+--- index.ori	2005-08-03 02:26:03.618204515 +0200
++++ index.html	2005-08-03 02:35:57.326133017 +0200
+@@ -16,5 +16,5 @@
+ 	body{margin:10px;padding:0px;background:#fff;color:#000;font-family:Sans-Serif;}
+ 	h1{padding:4px;text-align:center;border:4px double #000;background:#ffd;}
+-	h2{padding:4px;border:1px solid #888;background:#ffd;}
++	h2{padding:4px;border:1px solid #888;background:#ffd;text-align:center;}
+ 	table{border:0;margin-left:auto;margin-right:auto;margin-bottom:10px;}
+ 	th{background:#bbd;padding:2px;}
+@@ -31,5 +31,5 @@
+ 	#sponsors{text-align:center;margin-left:auto;margin-right:auto;}
+ 	#trademark{font-size:75%;text-align:center;}
+-	#versions{text-align:center;}
++	#versions{text-align:left;}
+ 	.kver{text-align:center;color:#004;font-size:90%;}
+ 	.pvkey{color:#400;font-size:66%;}
+@@ -72,10 +72,29 @@
+   <div id="versions">
+ 
++<h2>Latest kernel patches</h2>
++
+   <table class="kver">
+ <tr align="left">
+-<td>The latest stable version of the Linux kernel is:&nbsp;</td>
++
++<p>Use these patches if you want to upgrade your kernel source within a kernel series.</p>
++<p>Complete tarballs are <a href="#tarballs">below</a></p>
++<p>For a complete list of patches and source tarballs, see the kernel <a href="http://www.kernel.org/pub/linux/kernel/">
++archive</a>.</p>
++<p>Please read the <a href="kernel-patching-HOWTO.html">kernel-patching-HOWTO</a></p>
++
++<td>latest upgrade to stable</td>
++<td><b><a href="/pub/linux/kernel/v2.6/patch-2.6.12.bz2">2.6.12</a></b></td>
++<td>applies to: 2.6.11</td>
++<td>2005-07-15 21:38 UTC</td>
++<td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fpatch-2.6.12.3.bz2">V</a></td>
++<td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fincr%2Fpatch-2.6.12.2-3.bz2">VI</a></td>
++<td><a href="http://www.kernel.org/git/?p=linux%2Fkernel%2Fgit%2Fgregkh%2Flinux-2.6.12.y.git;a=summary">C</a></td>
++<td><a href="/pub/linux/kernel/v2.6/ChangeLog-2.6.12.3">Changelog</a></td>
++</tr>
++<tr align="left">
++<td>stability and security patches</td>
+ <td><b><a href="/pub/linux/kernel/v2.6/patch-2.6.12.3.bz2">2.6.12.3</a></b></td>
++<td>applies to: 2.6.12</td>
+ <td>2005-07-15 21:38 UTC</td>
+-<td><a href="/pub/linux/kernel/v2.6/linux-2.6.12.3.tar.bz2">F</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fpatch-2.6.12.3.bz2">V</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fincr%2Fpatch-2.6.12.2-3.bz2">VI</a></td>
+@@ -84,8 +103,8 @@
+ </tr>
+ <tr align="left">
+-<td>The latest <a href="http://kernel.org/patchtypes/pre.html">prepatch</a> for the stable Linux kernel tree is:&nbsp;</td>
++<td><a href="http://kernel.org/patchtypes/pre.html">prepatch</a> for the stable</td>
+ <td><b><a href="/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc5.bz2">2.6.13-rc5</a></b></td>
++<td>applies to: 2.6.12</td>
+ <td>2005-08-02 05:09 UTC</td>
+-<td>&nbsp;</td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Ftesting%2Fpatch-2.6.13-rc5.bz2">V</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Ftesting%2Fincr%2Fpatch-2.6.13-rc4-rc5.bz2">VI</a></td>
+@@ -94,8 +113,8 @@
+ </tr>
+ <tr align="left">
+-<td>The latest <a href="http://kernel.org/patchtypes/snapshot.html">snapshot</a> for the stable Linux kernel tree is:&nbsp;</td>
++<td><a href="http://kernel.org/patchtypes/snapshot.html">snapshot</a> for the stable</td>
+ <td><b><a href="/pub/linux/kernel/v2.6/snapshots/patch-2.6.12-git10.bz2">2.6.12-git10</a></b></td>
++<td>applies to: 2.6.12</td>
+ <td>2005-06-28 09:02 UTC</td>
+-<td>&nbsp;</td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fsnapshots%2Fpatch-2.6.12-git10.bz2">V</a></td>
+ <td>&nbsp;</td>
+@@ -104,8 +123,8 @@
+ </tr>
+ <tr align="left">
+-<td>The latest 2.4 version of the Linux kernel is:&nbsp;</td>
++<td>Version 2.4 series</td>
+ <td><b><a href="/pub/linux/kernel/v2.4/patch-2.4.31.bz2">2.4.31</a></b></td>
++<td>applies to: 2.4.30</td>
+ <td>2005-06-01 00:57 UTC</td>
+-<td><a href="/pub/linux/kernel/v2.4/linux-2.4.31.tar.bz2">F</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.4%2Fpatch-2.4.31.bz2">V</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.4%2Ftesting%2Fincr%2Fpatch-2.4.31-rc2-final.bz2">VI</a></td>
+@@ -114,8 +133,8 @@
+ </tr>
+ <tr align="left">
+-<td>The latest <a href="http://kernel.org/patchtypes/pre.html">prepatch</a> for the 2.4 Linux kernel tree is:&nbsp;</td>
++<td><a href="http://kernel.org/patchtypes/pre.html">prepatch</a> for the 2.4</td>
+ <td><b><a href="/pub/linux/kernel/v2.4/testing/patch-2.4.32-pre2.bz2">2.4.32-pre2</a></b></td>
++<td>applies to: 2.4.31</td>
+ <td>2005-07-27 19:56 UTC</td>
+-<td>&nbsp;</td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.4%2Ftesting%2Fpatch-2.4.32-pre2.bz2">V</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.4%2Ftesting%2Fincr%2Fpatch-2.4.32-pre1-pre2.bz2">VI</a></td>
+@@ -124,8 +143,8 @@
+ </tr>
+ <tr align="left">
+-<td>The latest 2.2 version of the Linux kernel is:&nbsp;</td>
++<td>Version 2.2 series</td>
+ <td><b><a href="/pub/linux/kernel/v2.2/patch-2.2.26.bz2">2.2.26</a></b></td>
++<td>applies to: 2.2.25</td>
+ <td>2004-02-25 00:28 UTC</td>
+-<td><a href="/pub/linux/kernel/v2.2/linux-2.2.26.tar.bz2">F</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.2%2Fpatch-2.2.26.bz2">V</a></td>
+ <td>&nbsp;</td>
+@@ -134,8 +153,8 @@
+ </tr>
+ <tr align="left">
+-<td>The latest <a href="http://kernel.org/patchtypes/pre.html">prepatch</a> for the 2.2 Linux kernel tree is:&nbsp;</td>
++<td><a href="http://kernel.org/patchtypes/pre.html">prepatch</a> for the 2.2</td>
+ <td><b><a href="/pub/linux/kernel/v2.2/testing/patch-2.2.27-rc2.bz2">2.2.27-rc2</a></b></td>
++<td>applies to: 2.2.26</td>
+ <td>2005-01-12 23:55 UTC</td>
+-<td>&nbsp;</td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.2%2Ftesting%2Fpatch-2.2.27-rc2.bz2">V</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.2%2Ftesting%2Fincr%2Fpatch-2.2.27-rc1-rc2.bz2">VI</a></td>
+@@ -144,8 +163,8 @@
+ </tr>
+ <tr align="left">
+-<td>The latest 2.0 version of the Linux kernel is:&nbsp;</td>
++<td>Version 2.0 series</td>
+ <td><b><a href="/pub/linux/kernel/v2.0/patch-2.0.40.bz2">2.0.40</a></b></td>
++<td>applies to: 2.0.39</td>
+ <td>2004-02-08 07:13 UTC</td>
+-<td><a href="/pub/linux/kernel/v2.0/linux-2.0.40.tar.bz2">F</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.0%2Fpatch-2.0.40.bz2">V</a></td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.0%2Ftesting%2Fincr%2Fpatch-2.0.40-rc8-final.bz2">VI</a></td>
+@@ -154,8 +173,8 @@
+ </tr>
+ <tr align="left">
+-<td>The latest <a href="http://kernel.org/patchtypes/ac.html">-ac patch</a> to the stable Linux kernels is:&nbsp;</td>
++<td><a href="http://kernel.org/patchtypes/ac.html">-ac patch</a></td>
+ <td><b><a href="/pub/linux/kernel/people/alan/linux-2.6/2.6.11/patch-2.6.11-ac7.bz2">2.6.11-ac7</a></b></td>
++<td>applies to: 2.6.11</td>
+ <td>2005-04-11 18:36 UTC</td>
+-<td>&nbsp;</td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fpeople%2Falan%2Flinux-2.6%2F2.6.11%2Fpatch-2.6.11-ac7.bz2">V</a></td>
+ <td>&nbsp;</td>
+@@ -164,8 +183,8 @@
+ </tr>
+ <tr align="left">
+-<td>The latest <a href="http://kernel.org/patchtypes/mm.html">-mm patch</a> to the stable Linux kernels is:&nbsp;</td>
++<td><a href="http://kernel.org/patchtypes/mm.html">-mm patch</a></td>
+ <td><b><a href="/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc4/2.6.13-rc4-mm1/2.6.13-rc4-mm1.bz2">2.6.13-rc4-mm1</a></b></td>
++<td>applies to: <a href="/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc4.bz2">2.6.13-rc4</a></td>
+ <td>2005-07-31 08:45 UTC</td>
+-<td>&nbsp;</td>
+ <td><a href="http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fpeople%2Fakpm%2Fpatches%2F2.6%2F2.6.13-rc4%2F2.6.13-rc4-mm1%2F2.6.13-rc4-mm1.bz2">V</a></td>
+ <td>&nbsp;</td>
+@@ -176,6 +195,6 @@
+   </table>
+ 
+-  <p class="pvkey">
+-    <b>F</b> = full source, <b>V</b> = view patch,
++  <p class="pvkey" align="center">
++    <b>V</b> = view patch,
+     <b>VI</b> = view incremental, <b>C</b> = current <a href="changeset.html">changesets</a><br />
+     Changelogs are provided by the kernel authors directly. Please
+@@ -183,4 +202,41 @@
+     <a href="diff/config.html">Customize the patch viewer</a>
+   </p>
++<a name="tarballs"><h2>Latest kernel archives</h2></a>
++
++<p>This is the complete kernel source. If you don't have an old version from the same
++kernel series, get one of these. Otherwise, you may want to upgrade using the patches
++from above</p>
++
++<table class="kver">
++<tr align="left">
++<td><a href="/pub/linux/kernel/v2.6/linux-2.6.12.3.tar.bz2">2.6.12.3</a></td>
++<td>The current kernel source with stability- and security-fixes from above</td>
++</tr>
++<tr align="left">
++<td><a href="/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2">2.6.12</a></td>
++<td>The current kernel source, suitable for patching</td>
++</tr>
++<tr align="left">
++<td><a href="/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2">2.6.11</a></td>
++<td>The kernel source suitable for the -ac-patch</td>
++</tr>
++<tr align="left">
++<td><a href="/pub/linux/kernel/v2.4/linux-2.4.31.tar.bz2">2.4.31</a></td>
++<td>The latest 2.4 kernel source</td>
++</tr>
++<tr align="left">
++<td><a href="/pub/linux/kernel/v2.2/linux-2.2.26.tar.bz2">2.2.26</a></td>
++<td>The latest 2.2 kernel source</td>
++</tr>
++<tr align="left">
++<td><a href="/pub/linux/kernel/v2.0/linux-2.0.40.tar.bz2">2.0.40</a></td>
++<td>The latest 2.0 kernel source</td>
++</tr>
++<tr align="left">
++</tr>
++<tr align="left">
++</tr>
++</table>
++
+   </div>
+ 
+-- 
+Top 100 things you don't want the sysadmin to say:
+28. Nobody was using that file /vmunix, were they?

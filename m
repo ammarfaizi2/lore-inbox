@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVHCLvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVHCLtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbVHCLvb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 07:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVHCLtT
+	id S262235AbVHCLtK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 07:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVHCLrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 07:49:19 -0400
-Received: from gate.crashing.org ([63.228.1.57]:23982 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262236AbVHCLrS (ORCPT
+	Wed, 3 Aug 2005 07:47:17 -0400
+Received: from gate.crashing.org ([63.228.1.57]:19374 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262236AbVHCLpd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 07:47:18 -0400
+	Wed, 3 Aug 2005 07:45:33 -0400
 Subject: Re: Calling suspend() in halt/restart/shutdown -> not a good idea
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>,
        Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1ack0xuzq.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <20050802100435.GC1442@elf.ucw.cz>
 References: <1122908972.18835.153.camel@gaston>
-	 <20050802095312.GA1442@elf.ucw.cz>
-	 <m1ack0xuzq.fsf@ebiederm.dsl.xmission.com>
+	 <20050802100435.GC1442@elf.ucw.cz>
 Content-Type: text/plain
-Date: Wed, 03 Aug 2005 13:43:07 +0200
-Message-Id: <1123069387.30257.33.camel@gaston>
+Date: Wed, 03 Aug 2005 13:41:23 +0200
+Message-Id: <1123069285.30257.29.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-02 at 08:40 -0600, Eric W. Biederman wrote:
-> Pavel Machek <pavel@ucw.cz> writes:
+On Tue, 2005-08-02 at 12:04 +0200, Pavel Machek wrote:
+> Hi!
 > 
-> > Hi!
-> >
-> >> Why are we calling driver suspend routines in these ? This is _not_
-> >
-> > Well, reason is that if you remove device_suspend() you'll get
-> > emergency hard disk park during powerdown. As harddrives can survive
-> > only limited number of emergency stops, that is not a good idea.
+> > Why are we calling driver suspend routines in these ? This is _not_ a
+> > good idea ! On various machines, the mecanisms for shutting down are
+> > quite different from suspend/resume, and current drivers have too many
+> > bugs to make that safe. I keep getting all sort of reports of machines
 > 
-> Then the practical question is: do we suspend the disk by
-> calling device_suspend() for every device.  Or do we modify
-> the ->shutdown() method for the disk.
+> Well, powerdown at the end of suspend-to-disk should be *very* similar
+> to normal powerdown => if device_suspend() breaks something, it is a
+> bug in driver anyway.
 
-afaik, IDE used to have a shutdown callback or a shutdown notifier
-already anyway. If that was lost, then this is a different problem. If
-SATA and/or SCSI aren't doing it, then they need fixing, but suspend()
-isn't the solution.
+Power Down != Suspend. Period.
+
+> Now, we may have a lot of such bugs, and the change went in too early,
+> but in the long run...
+
+Crap. It's not the same thing.
 
 Ben.
 

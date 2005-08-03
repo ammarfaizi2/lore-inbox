@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVHCQzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVHCRA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVHCQzj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 12:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVHCQzj
+	id S262344AbVHCRA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 13:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbVHCRA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 12:55:39 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1526 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262347AbVHCQzZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 12:55:25 -0400
-Message-ID: <42F0F6DD.6070205@mvista.com>
-Date: Wed, 03 Aug 2005 09:54:53 -0700
-From: Mark Bellon <mbellon@mvista.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
+	Wed, 3 Aug 2005 13:00:27 -0400
+Received: from fmr13.intel.com ([192.55.52.67]:53952 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262344AbVHCRAY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 13:00:24 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH]  IDE disks show invalid geometries in /proc/ide/hd*/geometry
-References: <Pine.LNX.4.10.10508030018390.21865-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10508030018390.21865-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] optimize writer path in time_interpolator_get_counter()
+Date: Wed, 3 Aug 2005 10:00:11 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F040F6E87@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] optimize writer path in time_interpolator_get_counter()
+Thread-Index: AcWYRfZFgWY9Gg32QtmwXUHtXHQEqgABVeUQ
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Christoph Lameter" <clameter@engr.sgi.com>,
+       "Alex Williamson" <alex.williamson@hp.com>
+Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+X-OriginalArrivalTime: 03 Aug 2005 17:00:13.0219 (UTC) FILETIME=[D074F730:01C5984C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
 
->Did you read ATA-1 through ATA-7 to understand all the variations?
->  
->
-Regardless of all of the geometry returns by the drives and their ATA 
-compliance, the existing code will fail for some drives and return 
-values. For instance, the existing code attempts to "fix up" LBA 48 
-fails to handle LBA 28. In both cases the "fix up" code appears errant - 
-it doesn't create a complete, valid geometry.
+>Think about a threaded process that gets time on multiple processors 
+>and then compares the times. This means that the time value obtained later 
+>on one thread may indicate a time earlier than that obtained on another 
+>thread. An essential requirement for time values is that they are 
+>monotonically increasing. You are changing that basic nature.
 
-My patch attempts to preserve the flow and side effects of the existing 
-code while handling all of the boundary cases. Given the way the 
-original code appears to read one should be able to "fix up" things 
-without regard for the ATA compliance of a drive.
+But this comes down to how much time does it take for two threads
+to perform some synchronization operation so that they know that one
+thread made the call before the other[1]?  I think that it might be
+possible to make the claim[2] that we have synchonized the ITC values
+more closely than the fastest user synchronization method ... hence
+a simplistic kernel implementation will be monotonic in practice.
 
-It might help to read the code before and after my patch is applied. The 
-explaination and patch alone don't make it easy to see what I think is a 
-simple fix.
+-Tony
 
-mark
+[1] It is pointless to expect one return value to be greater than
+another unless we know that the calls were made in a particular sequence.
 
->On Tue, 2 Aug 2005, Mark Bellon wrote:
->
->  
->
->>The ATA specification tells large disk drives to return C/H/S data of 
->>16383/16/63 regardless of their actual size (other variations on this 
->>return include 15 heads and/or 4092 cylinders). Unfortunately these CHS 
->>data confuse the existing IDE code and cause it to report invalid 
->>geometries in /proc when the disk runs in LBA mode.
->>
->>The invalid geometries can cause failures in the partitioning tools; 
->>partitioning may be impossible or illogical size limitations occur. This 
->>also leads to various forms of human confusion.
->>
->>I attach a patch that fixes this problem while strongly attempting to 
->>not break any existing side effects and await any comments.
->>
->>mark
->>
->>Signed-off-by: Mark Bellon <mbellon@mvista.com>
->>
->>
->>    
->>
->
->  
->
-
+[2] Hands are waving so wildly here that it is a wonder that I can
+even type.

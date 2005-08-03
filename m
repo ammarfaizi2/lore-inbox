@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbVHCTMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVHCTOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262394AbVHCTMx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 15:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVHCTMx
+	id S262406AbVHCTOT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 15:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbVHCTOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 15:12:53 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:44246 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262394AbVHCTMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 15:12:52 -0400
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-From: Lee Revell <rlrevell@joe-job.com>
-To: Stephen Ray <stephen@mrmighty.net>
-Cc: Pavel Machek <pavel@ucw.cz>, James Bruce <bruce@andrew.cmu.edu>,
-       David Weinehall <tao@acc.umu.se>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <42F0FB55.9000409@mrmighty.net>
-References: <20050730195116.GB9188@elf.ucw.cz>
-	 <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>
-	 <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>
-	 <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz>
-	 <1122852234.13000.27.camel@mindpipe>
-	 <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu>
-	 <20050802112529.GA7954@elf.ucw.cz> <1122991631.5490.29.camel@mindpipe>
-	 <42F0FB55.9000409@mrmighty.net>
-Content-Type: text/plain
-Date: Wed, 03 Aug 2005 15:12:49 -0400
-Message-Id: <1123096370.9038.9.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Aug 2005 15:14:18 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:53141 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262427AbVHCTOO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 15:14:14 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: [PATCH 2.6.12.3] drivers/pci: recognize more ICH7 PCI/SATA chips
+Date: Wed, 3 Aug 2005 12:13:56 -0700
+Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F504764874@orsmsx410>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: [PATCH 2.6.12.3] drivers/pci: recognize more ICH7 PCI/SATA chips
+thread-index: AcWYX364SC6m4vCURu6KtBMiLVIQVA==
+From: "Gaston, Jason D" <jason.d.gaston@intel.com>
+To: <nash@solace.net>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 03 Aug 2005 19:13:58.0862 (UTC) FILETIME=[801CE6E0:01C5985F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-03 at 14:13 -0300, Stephen Ray wrote:
-> Lee Revell wrote:
-> > On Tue, 2005-08-02 at 13:25 +0200, Pavel Machek wrote:
-> > 
-> >>BTW I think many architectures have HZ=100 even in 2.6, so it is not
-> >>as siple as "go 2.6"...
-> > 
-> > 
-> > Does not matter.  An app that only ever worked on 2.6 + x86 will break
-> > on 2.6.13.
-> > 
-> > Lee
-> > 
-> 
-> But then isn't that app broken?  What if the user running it selects 
-> something other than HZ=1000?
+This is not right.  0x27b8 is the ICH7 LPC controller DID, not a SATA
+Controller DID.  The ICH7 IDE mode SATA controller DID's are 0x27c0 and
+0x27c4 and they are already in the quirks.c file.
 
-Then they changed the setting from the defaults, so they get what they
-deserve.  If kernel defaults are irrelevant, the only issue is whether
-or not we choose to violate the principle of least surprise for people
-who run kernel.org kernels.  The technical merits of different HZ
-settings are completely irrelevant.
+Jason Gaston
 
-Lee
+
+>Message: 124
+>Date: Tue, 2 Aug 2005 14:34:41 -0400
+>From: Nash <nash@solace.net>
+>Subject: Re: [PATCH 2.6.12.3] drivers/pci: recognize more ICH7
+>	PCI/SATA chips
+>To: linux-kernel@vger.kernel.org
+>Message-ID: <20050802183441.GD25843@quack.solace.net>
+>Content-Type: text/plain; charset=us-ascii
+>
+>
+>On Tue, Aug 02, 2005 at 02:28:42PM -0400, Nash wrote:
+>> 
+>> Updated pci/quirks.c to recognize additional ICH7 PCI/SATA controller
+>> chips such as those integrated on the ASUS P5WD2 Premium motherboard.
+>> 
+>> Signed-off-by: Nash E Foster <nash@solace.net>
+>
+>Blergh, this is the correct ratch. How embarrassing.
+>
+>Index: linux-2.6.12.3/drivers/pci/quirks.c
+>===================================================================
+>--- linux-2.6.12.3/drivers/pci/quirks.c 2005-07-15 17:18:57.000000000
+>-0400
+>+++ linux/drivers/pci/quirks.c  2005-07-26 22:32:09.000000000 -0400
+>@@ -1199,6 +1199,7 @@
+>        case 0x2680:    /* ESB2 */
+>                ich = 6;
+>                break;
+>+       case 0x27b8:
+>        case 0x27c0:
+>        case 0x27c4:
+>                ich = 7;
 

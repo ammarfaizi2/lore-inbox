@@ -1,73 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVHCVnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVHCVqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVHCVnc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 17:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVHCVnc
+	id S261523AbVHCVqL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 17:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVHCVqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 17:43:32 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:53731 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S261522AbVHCVnb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 17:43:31 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: matthieu castet <castet.matthieu@free.fr>
-Subject: Re: [ACPI] Re: [PATCH] PNPACPI: fix types when decoding ACPI resources [resend]
-Date: Wed, 3 Aug 2005 15:41:53 -0600
-User-Agent: KMail/1.8.1
-Cc: acpi-devel@lists.sourceforge.net, Shaohua Li <shaohua.li@intel.com>,
-       Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-References: <200508020955.54844.bjorn.helgaas@hp.com> <200508030920.13450.bjorn.helgaas@hp.com> <42F1343B.70707@free.fr>
-In-Reply-To: <42F1343B.70707@free.fr>
+	Wed, 3 Aug 2005 17:46:11 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:41947 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261523AbVHCVqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 17:46:08 -0400
+Date: Wed, 3 Aug 2005 23:46:01 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>,
+       Bodo Eggert <7eggert@gmx.de>, Gene Heskett <gene.heskett@verizon.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, David Brown <dmlb2000@gmail.com>,
+       Puneet Vyas <vyas.puneet@gmail.com>,
+       Richard Hubbell <richard.hubbell@gmail.com>, webmaster@kernel.org
+Subject: Re: Documentation - how to apply patches for various trees
+In-Reply-To: <200508032251.07996.jesper.juhl@gmail.com>
+Message-ID: <Pine.LNX.4.58.0508032257080.3158@be1.lrz>
+References: <200508022332.21380.jesper.juhl@gmail.com>
+ <200508030840.39852@bilbo.math.uni-mannheim.de>
+ <Pine.LNX.4.50.0508030742350.489-100000@shark.he.net>
+ <200508032251.07996.jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508031541.53777.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 August 2005 3:16 pm, matthieu castet wrote:
-> Bjorn Helgaas wrote:
->  > On Tuesday 02 August 2005 7:01 pm, Shaohua Li wrote:
->  >>Did you have plan to remove other
->  >>legacy acpi drivers?
->  > No, I didn't -- which ones are you thinking about?  Looking at
->  > the callers of acpi_bus_register_driver(), I see:
-> looking for METHOD_NAME__CRS is more acurate.
+On Wed, 3 Aug 2005, Jesper Juhl wrote:
 
-I didn't see any new ones when I looked for METHOD_NAME__CRS.
+> +What is a patch?
 
->  > 	drivers/char/hpet.c
->  > 		This probably should be converted to PNP.  I'll
->  > 		look into doing this.
-> IIRC, I am not sure that the pnp layer was able to pass the 64 bits 
-> memory adress for hpet correctly. But it would be nice if it works.
+> +To correctly apply a patch you need to know what base it was generated from
+> +and what new version the patch will change the source tree into. These
+> +should both be present in the patch file metadata.
 
-You're right, this was broken.  But I've been pushing a PNPACPI
-patch to fix this.
+This is usurally not true for kernel patches, the directories are mostly
+named a and b. You can however deduce the to-bepatched version and the
+patched version from the filename.
 
-> There was an extention of a floppy driver in order to use acpi in -mm, 
-> but it seems to have been dropped.
+> +How do I apply a patch?
+> +---
+> + You apply a patch with the `patch' program. The patch program reads a diff
+> +(or patch) file and makes the changes to the source tree described in it.
+> +Patches for the Linux kernel are generated relative to the parent directory
+> +holding the kernel source dir. This means that paths to files inside the
+> +patch file contain the name of the kernel source directories it was
+> +generated against - since this is unlikely to match the name of the kernel
+> +source dir on your local machine (but is often useful info to see what
+> +version an otherwise unlabeled patch was generated against)
 
-Yeah, I did that, and it was a huge mistake.  The point was to avoid
-blind probing for the device, but my concern was for ia64, and no ia64
-boxes have floppy, so it's much easier to just not build the driver.
+Same issue.
 
-> PS : I saw in acpi ols paper that you plan once all dupe acpi drivers 
-> will be removed to register again the pnp device in acpi layer. Do you 
-> plan to add more check and for example add only device that have a CRS 
-> in pnp layer ?
+> you should
+> +change into your kernel source directory and then strip the first element of
+> +the path from filenames in the patch file when applying it (the -p1 argument
+> +to `patch' does this). To revert a previously applied patch, use the -R
+> +argument to patch.
 
-If you mean the last paragraph of section 6, I don't really understand
-it.  But it mentions 8250_acpi.c as an obstacle, and I do know that we
-are very close to being able to remove that.  I've already posted two
-patches (one to PNPACPI to fix the 64-bit address problem, and one to
-8250_pnp to add support for MMIO UARTs).  Once those are accepted, we
-should be able to remove 8250_acpi.c.  I think only ia64 really relies
-on it anyway.
+> +How do I feed a patch/diff file to `patch'?
+[...]
 
-> PPS : is there any plan to integrate 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111827568001255&w=2
+Or: bzcat patch1 patch2 patch3 | (cd linux-oldversion && patch -p1)
 
-I'm afraid I don't know anything about this one.
+
+Finding out if a patch applied correctly
+---
+A quick check is to search for .rej files. Unfortunately some errors 
+
+
+How do I undo a patch?
+---
+You can undo a patch by supplying the -R switch to patch. If you patched 
+using zcat ../patch.gz | patch -p1, zcat ../patch.gz | patch -Rp1 will 
+undo the changes as long as the patch applied correctly.
+
+
+Common errors while patching
+---
+"File to patch:"
+
+  Patch could not find a file to be patched. Most probably you forgot to
+  use -p1 or you're in the wrong directory. Less often, you'll find
+  patches that need to be applied with -p0 instead (you can't just omit
+  -p0!).                                            ^^^^^^^^^^^^^^^^^^^
+  ^^^^^ [IIRC]
+
+  Sometimes this is the result of an incomplete tarball, a out-of-space 
+  error while unpacking or a fsck.
+
+"Hunk #2 succeeded at 1887 with fuzz 2 (offset 7 lines)."
+
+  The patch was applied, but it might be applied to the wrong place
+  because you patched the "wrong" source. The result might not work
+  correctly.
+
+"Hunk #3 FAILED at 2387."
+
+  The patch could not be applied correctly. This is usurally fatal, except 
+  if you apply external patches to the stable series (e.g. to 2.6.23.42
+  instead of 2.6.23) and the reject is in the toplevel Makefile.
+  (You'll have to manually edit the Makefile and change the version string 
+   as recorded in Makefile.rej)
+
+  If you apply more than one external patch, the same thing will happen, 
+  but there is no guarantee for a working kernel (the changes may bite 
+  each other).
+
+  You can most likely recover the source tree by undoing the patch and 
+  removing the .rej and .orig files. YMMV.
+
+"Reversed (or previously applied) patch detected!  Assume -R? [n]"
+
+  Either you really applied the patch before, or the patch is for some
+  other source. If this is not the very first message, the source is
+  most likely unusable by now.
+
+"patch: **** unexpected end of file in patch"
+  Your download is broken. Re-get the file.
+
+-- 
+To steal information from a person is called plagiarism. To steal
+information from the enemy is called gathering intelligence.

@@ -1,430 +1,686 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVHCWB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVHCWFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVHCWB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 18:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVHCWB3
+	id S261576AbVHCWFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 18:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVHCWFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 18:01:29 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:39120 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261585AbVHCWAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 18:00:45 -0400
-Date: Wed, 3 Aug 2005 15:00:43 -0700
-From: Mike Waychison <mikew@google.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] Convert /proc/sysvipc/* to generic seq_file interface
-Message-ID: <20050803220042.GB3353@google.com>
-References: <20050803215559.GA3303@google.com>
+	Wed, 3 Aug 2005 18:05:25 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:34265 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261576AbVHCWFV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 18:05:21 -0400
+Subject: Re: [PATCH] Add Documentation/kprobes.txt
+From: Jim Keniston <jkenisto@us.ibm.com>
+To: suparna@in.ibm.com
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       SystemTAP <systemtap@sources.redhat.com>,
+       Prasanna Panchamukhi <ppancham@in.ibm.com>
+In-Reply-To: <20050803104141.GA6958@in.ibm.com>
+References: <1123021206.2865.87.camel@dyn9047018079.beaverton.ibm.com>
+	 <20050803104141.GA6958@in.ibm.com>
+Content-Type: multipart/mixed; boundary="=-kX1t/s8+aGvUWEoCrWmA"
+Organization: 
+Message-Id: <1123106703.2759.15.camel@dyn9047018079.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050803215559.GA3303@google.com>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 03 Aug 2005 15:05:03 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes the /proc/sysvipc/shm|sem|msg files to use the generic seq_file implementation for struct ipc_ids.
 
-Signed-off-by: Mike Waychison <mikew@google.com>
+--=-kX1t/s8+aGvUWEoCrWmA
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
- include/linux/msg.h |    1 
- include/linux/sem.h |    1 
- ipc/msg.c           |   80 +++++++++++++++---------------------------------
- ipc/sem.c           |   71 +++++++++++++-----------------------------
- ipc/shm.c           |   86 ++++++++++++++++------------------------------------
- 5 files changed, 78 insertions(+), 161 deletions(-)
+On Wed, 2005-08-03 at 03:41, Suparna Bhattacharya wrote:
+> On Tue, Aug 02, 2005 at 03:20:06PM -0700, Jim Keniston wrote:
+> > The enclosed patch creates Documentation/kprobes.txt, a guide to using
+> > the existing Kprobes facility for dynamic kernel instrumentation.
+> > Please apply.
+...
+> > +Here's how it works.  When the probe is hit, Kprobes makes a copy of
+> > +the saved registers and a generous portion of the stack (see below).
+> > +Kprobes then points the saved stack pointer at the stack-copy, points
+> > +the saved instruction pointer at the jprobe's handler routine, and
+> > +returns from the trap.  As a result, control passes to the handler,
+> > +which is presented with the same register and stack contents as the
+> > +probed function.  When it is done, the handler calls jprobe_return(),
+> > +which traps again to restore processor state and switch back to the
+> > +probed function.
+> > +
+> > +gcc assumes that the callee owns its arguments.  To prevent unexpected
+> > +modifications to the probed function's stack, Kprobes presents the
+> > +jprobe handler with a copy of the stack.  Up to MAX_STACK_SIZE bytes
+> > +are copied -- e.g., 64 bytes on i386.
+> 
+> IIRC, we save and restore the stack, rather than pass a copy of the stack
+> to the handler. Thus, while jprobes does make a copy of MAX_STACK_SIZE
+> bytes, the handler still operates on the original stack (e.g. stack
+> addresses are unchanged) and the stack contents are restored
+> before returning control to the probed routine.
+...
 
-Index: linux-2.6.12.3/ipc/shm.c
-===================================================================
---- linux-2.6.12.3.orig/ipc/shm.c	2005-08-03 14:31:28.000000000 -0700
-+++ linux-2.6.12.3/ipc/shm.c	2005-08-03 14:35:29.000000000 -0700
-@@ -23,12 +23,12 @@
- #include <linux/init.h>
- #include <linux/file.h>
- #include <linux/mman.h>
--#include <linux/proc_fs.h>
- #include <linux/shmem_fs.h>
- #include <linux/security.h>
- #include <linux/syscalls.h>
- #include <linux/audit.h>
- #include <linux/ptrace.h>
-+#include <linux/seq_file.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -51,7 +51,7 @@ static int newseg (key_t key, int shmflg
- static void shm_open (struct vm_area_struct *shmd);
- static void shm_close (struct vm_area_struct *shmd);
- #ifdef CONFIG_PROC_FS
--static int sysvipc_shm_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data);
-+static int sysvipc_shm_proc_show(struct seq_file *s, void *it);
- #endif
- 
- size_t	shm_ctlmax = SHMMAX;
-@@ -63,9 +63,10 @@ static int shm_tot; /* total number of s
- void __init shm_init (void)
- {
- 	ipc_init_ids(&shm_ids, 1);
--#ifdef CONFIG_PROC_FS
--	create_proc_read_entry("sysvipc/shm", 0, NULL, sysvipc_shm_read_proc, NULL);
--#endif
-+	ipc_init_proc_interface("sysvipc/shm",
-+				"       key      shmid perms       size  cpid  lpid nattch   uid   gid  cuid  cgid      atime      dtime      ctime\n",
-+				&shm_ids,
-+				sysvipc_shm_proc_show);
- }
- 
- static inline int shm_checkid(struct shmid_kernel *s, int id)
-@@ -869,63 +870,32 @@ asmlinkage long sys_shmdt(char __user *s
- }
- 
- #ifdef CONFIG_PROC_FS
--static int sysvipc_shm_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data)
-+static int sysvipc_shm_proc_show(struct seq_file *s, void *it)
- {
--	off_t pos = 0;
--	off_t begin = 0;
--	int i, len = 0;
--
--	down(&shm_ids.sem);
--	len += sprintf(buffer, "       key      shmid perms       size  cpid  lpid nattch   uid   gid  cuid  cgid      atime      dtime      ctime\n");
-+	struct shmid_kernel *shp = it;
-+	char *format;
- 
--	for(i = 0; i <= shm_ids.max_id; i++) {
--		struct shmid_kernel* shp;
--
--		shp = shm_lock(i);
--		if(shp!=NULL) {
- #define SMALL_STRING "%10d %10d  %4o %10u %5u %5u  %5d %5u %5u %5u %5u %10lu %10lu %10lu\n"
- #define BIG_STRING   "%10d %10d  %4o %21u %5u %5u  %5d %5u %5u %5u %5u %10lu %10lu %10lu\n"
--			char *format;
- 
--			if (sizeof(size_t) <= sizeof(int))
--				format = SMALL_STRING;
--			else
--				format = BIG_STRING;
--			len += sprintf(buffer + len, format,
--				shp->shm_perm.key,
--				shm_buildid(i, shp->shm_perm.seq),
--				shp->shm_flags,
--				shp->shm_segsz,
--				shp->shm_cprid,
--				shp->shm_lprid,
--				is_file_hugepages(shp->shm_file) ? (file_count(shp->shm_file) - 1) : shp->shm_nattch,
--				shp->shm_perm.uid,
--				shp->shm_perm.gid,
--				shp->shm_perm.cuid,
--				shp->shm_perm.cgid,
--				shp->shm_atim,
--				shp->shm_dtim,
--				shp->shm_ctim);
--			shm_unlock(shp);
--
--			pos += len;
--			if(pos < offset) {
--				len = 0;
--				begin = pos;
--			}
--			if(pos > offset + length)
--				goto done;
--		}
--	}
--	*eof = 1;
--done:
--	up(&shm_ids.sem);
--	*start = buffer + (offset - begin);
--	len -= (offset - begin);
--	if(len > length)
--		len = length;
--	if(len < 0)
--		len = 0;
--	return len;
-+	if (sizeof(size_t) <= sizeof(int))
-+		format = SMALL_STRING;
-+	else
-+		format = BIG_STRING;
-+	return seq_printf(s, format,
-+			  shp->shm_perm.key,
-+			  shp->id,
-+			  shp->shm_flags,
-+			  shp->shm_segsz,
-+			  shp->shm_cprid,
-+			  shp->shm_lprid,
-+			  is_file_hugepages(shp->shm_file) ? (file_count(shp->shm_file) - 1) : shp->shm_nattch,
-+			  shp->shm_perm.uid,
-+			  shp->shm_perm.gid,
-+			  shp->shm_perm.cuid,
-+			  shp->shm_perm.cgid,
-+			  shp->shm_atim,
-+			  shp->shm_dtim,
-+			  shp->shm_ctim);
- }
- #endif
-Index: linux-2.6.12.3/include/linux/sem.h
-===================================================================
---- linux-2.6.12.3.orig/include/linux/sem.h	2005-08-03 14:31:28.000000000 -0700
-+++ linux-2.6.12.3/include/linux/sem.h	2005-08-03 14:35:29.000000000 -0700
-@@ -88,6 +88,7 @@ struct sem {
- /* One sem_array data structure for each set of semaphores in the system. */
- struct sem_array {
- 	struct kern_ipc_perm	sem_perm;	/* permissions .. see ipc.h */
-+	int			sem_id;
- 	time_t			sem_otime;	/* last semop time */
- 	time_t			sem_ctime;	/* last change time */
- 	struct sem		*sem_base;	/* ptr to first semaphore in array */
-Index: linux-2.6.12.3/ipc/sem.c
-===================================================================
---- linux-2.6.12.3.orig/ipc/sem.c	2005-08-03 14:31:28.000000000 -0700
-+++ linux-2.6.12.3/ipc/sem.c	2005-08-03 14:35:29.000000000 -0700
-@@ -73,6 +73,7 @@
- #include <linux/security.h>
- #include <linux/syscalls.h>
- #include <linux/audit.h>
-+#include <linux/seq_file.h>
- #include <asm/uaccess.h>
- #include "util.h"
- 
-@@ -89,7 +90,7 @@ static struct ipc_ids sem_ids;
- static int newary (key_t, int, int);
- static void freeary (struct sem_array *sma, int id);
- #ifdef CONFIG_PROC_FS
--static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data);
-+static int sysvipc_sem_proc_show(struct seq_file *s, void *it);
- #endif
- 
- #define SEMMSL_FAST	256 /* 512 bytes on stack */
-@@ -116,10 +117,10 @@ void __init sem_init (void)
- {
- 	used_sems = 0;
- 	ipc_init_ids(&sem_ids,sc_semmni);
--
--#ifdef CONFIG_PROC_FS
--	create_proc_read_entry("sysvipc/sem", 0, NULL, sysvipc_sem_read_proc, NULL);
--#endif
-+	ipc_init_proc_interface("sysvipc/sem",
-+				"       key      semid perms      nsems   uid   gid  cuid  cgid      otime      ctime\n",
-+				&sem_ids,
-+				sysvipc_sem_proc_show);
- }
- 
- /*
-@@ -193,6 +194,7 @@ static int newary (key_t key, int nsems,
- 	}
- 	used_sems += nsems;
- 
-+	sma->sem_id = sem_buildid(id, sma->sem_perm.seq);
- 	sma->sem_base = (struct sem *) &sma[1];
- 	/* sma->sem_pending = NULL; */
- 	sma->sem_pending_last = &sma->sem_pending;
-@@ -201,7 +203,7 @@ static int newary (key_t key, int nsems,
- 	sma->sem_ctime = get_seconds();
- 	sem_unlock(sma);
- 
--	return sem_buildid(id, sma->sem_perm.seq);
-+	return sma->sem_id;
- }
- 
- asmlinkage long sys_semget (key_t key, int nsems, int semflg)
-@@ -1332,50 +1334,21 @@ next_entry:
- }
- 
- #ifdef CONFIG_PROC_FS
--static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data)
-+static int sysvipc_sem_proc_show(struct seq_file *s, void *it)
- {
--	off_t pos = 0;
--	off_t begin = 0;
--	int i, len = 0;
--
--	len += sprintf(buffer, "       key      semid perms      nsems   uid   gid  cuid  cgid      otime      ctime\n");
--	down(&sem_ids.sem);
--
--	for(i = 0; i <= sem_ids.max_id; i++) {
--		struct sem_array *sma;
--		sma = sem_lock(i);
--		if(sma) {
--			len += sprintf(buffer + len, "%10d %10d  %4o %10lu %5u %5u %5u %5u %10lu %10lu\n",
--				sma->sem_perm.key,
--				sem_buildid(i,sma->sem_perm.seq),
--				sma->sem_perm.mode,
--				sma->sem_nsems,
--				sma->sem_perm.uid,
--				sma->sem_perm.gid,
--				sma->sem_perm.cuid,
--				sma->sem_perm.cgid,
--				sma->sem_otime,
--				sma->sem_ctime);
--			sem_unlock(sma);
-+	struct sem_array *sma = it;
- 
--			pos += len;
--			if(pos < offset) {
--				len = 0;
--	    			begin = pos;
--			}
--			if(pos > offset + length)
--				goto done;
--		}
--	}
--	*eof = 1;
--done:
--	up(&sem_ids.sem);
--	*start = buffer + (offset - begin);
--	len -= (offset - begin);
--	if(len > length)
--		len = length;
--	if(len < 0)
--		len = 0;
--	return len;
-+	return seq_printf(s,
-+			  "%10d %10d  %4o %10lu %5u %5u %5u %5u %10lu %10lu\n",
-+			  sma->sem_perm.key,
-+			  sma->sem_id,
-+			  sma->sem_perm.mode,
-+			  sma->sem_nsems,
-+			  sma->sem_perm.uid,
-+			  sma->sem_perm.gid,
-+			  sma->sem_perm.cuid,
-+			  sma->sem_perm.cgid,
-+			  sma->sem_otime,
-+			  sma->sem_ctime);
- }
- #endif
-Index: linux-2.6.12.3/include/linux/msg.h
-===================================================================
---- linux-2.6.12.3.orig/include/linux/msg.h	2005-08-03 14:31:28.000000000 -0700
-+++ linux-2.6.12.3/include/linux/msg.h	2005-08-03 14:35:29.000000000 -0700
-@@ -77,6 +77,7 @@ struct msg_msg {
- /* one msq_queue structure for each present queue on the system */
- struct msg_queue {
- 	struct kern_ipc_perm q_perm;
-+	int q_id;
- 	time_t q_stime;			/* last msgsnd time */
- 	time_t q_rtime;			/* last msgrcv time */
- 	time_t q_ctime;			/* last change time */
-Index: linux-2.6.12.3/ipc/msg.c
-===================================================================
---- linux-2.6.12.3.orig/ipc/msg.c	2005-08-03 14:31:28.000000000 -0700
-+++ linux-2.6.12.3/ipc/msg.c	2005-08-03 14:35:29.000000000 -0700
-@@ -26,6 +26,7 @@
- #include <linux/sched.h>
- #include <linux/syscalls.h>
- #include <linux/audit.h>
-+#include <linux/seq_file.h>
- #include <asm/current.h>
- #include <asm/uaccess.h>
- #include "util.h"
-@@ -74,16 +75,16 @@ static struct ipc_ids msg_ids;
- static void freeque (struct msg_queue *msq, int id);
- static int newque (key_t key, int msgflg);
- #ifdef CONFIG_PROC_FS
--static int sysvipc_msg_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data);
-+static int sysvipc_msg_proc_show(struct seq_file *s, void *it);
- #endif
- 
- void __init msg_init (void)
- {
- 	ipc_init_ids(&msg_ids,msg_ctlmni);
--
--#ifdef CONFIG_PROC_FS
--	create_proc_read_entry("sysvipc/msg", 0, NULL, sysvipc_msg_read_proc, NULL);
--#endif
-+	ipc_init_proc_interface("sysvipc/msg",
-+				"       key      msqid perms      cbytes       qnum lspid lrpid   uid   gid  cuid  cgid      stime      rtime      ctime\n",
-+				&msg_ids,
-+				sysvipc_msg_proc_show);
- }
- 
- static int newque (key_t key, int msgflg)
-@@ -113,6 +114,7 @@ static int newque (key_t key, int msgflg
- 		return -ENOSPC;
- 	}
- 
-+	msq->q_id = msg_buildid(id,msq->q_perm.seq);
- 	msq->q_stime = msq->q_rtime = 0;
- 	msq->q_ctime = get_seconds();
- 	msq->q_cbytes = msq->q_qnum = 0;
-@@ -123,7 +125,7 @@ static int newque (key_t key, int msgflg
- 	INIT_LIST_HEAD(&msq->q_senders);
- 	msg_unlock(msq);
- 
--	return msg_buildid(id,msq->q_perm.seq);
-+	return msq->q_id;
- }
- 
- static inline void ss_add(struct msg_queue* msq, struct msg_sender* mss)
-@@ -808,55 +810,25 @@ out_unlock:
- }
- 
- #ifdef CONFIG_PROC_FS
--static int sysvipc_msg_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data)
-+static int sysvipc_msg_proc_show(struct seq_file *s, void *it)
- {
--	off_t pos = 0;
--	off_t begin = 0;
--	int i, len = 0;
--
--	down(&msg_ids.sem);
--	len += sprintf(buffer, "       key      msqid perms      cbytes       qnum lspid lrpid   uid   gid  cuid  cgid      stime      rtime      ctime\n");
--
--	for(i = 0; i <= msg_ids.max_id; i++) {
--		struct msg_queue * msq;
--		msq = msg_lock(i);
--		if(msq != NULL) {
--			len += sprintf(buffer + len, "%10d %10d  %4o  %10lu %10lu %5u %5u %5u %5u %5u %5u %10lu %10lu %10lu\n",
--				msq->q_perm.key,
--				msg_buildid(i,msq->q_perm.seq),
--				msq->q_perm.mode,
--				msq->q_cbytes,
--				msq->q_qnum,
--				msq->q_lspid,
--				msq->q_lrpid,
--				msq->q_perm.uid,
--				msq->q_perm.gid,
--				msq->q_perm.cuid,
--				msq->q_perm.cgid,
--				msq->q_stime,
--				msq->q_rtime,
--				msq->q_ctime);
--			msg_unlock(msq);
--
--			pos += len;
--			if(pos < offset) {
--				len = 0;
--				begin = pos;
--			}
--			if(pos > offset + length)
--				goto done;
--		}
-+	struct msg_queue *msq = it;
- 
--	}
--	*eof = 1;
--done:
--	up(&msg_ids.sem);
--	*start = buffer + (offset - begin);
--	len -= (offset - begin);
--	if(len > length)
--		len = length;
--	if(len < 0)
--		len = 0;
--	return len;
-+	return seq_printf(s,
-+			  "%10d %10d  %4o  %10lu %10lu %5u %5u %5u %5u %5u %5u %10lu %10lu %10lu\n",
-+			  msq->q_perm.key,
-+			  msq->q_id,
-+			  msq->q_perm.mode,
-+			  msq->q_cbytes,
-+			  msq->q_qnum,
-+			  msq->q_lspid,
-+			  msq->q_lrpid,
-+			  msq->q_perm.uid,
-+			  msq->q_perm.gid,
-+			  msq->q_perm.cuid,
-+			  msq->q_perm.cgid,
-+			  msq->q_stime,
-+			  msq->q_rtime,
-+			  msq->q_ctime);
- }
- #endif
+You're right.  Thanks.  I've modified those two paragraphs to read as
+follows:
+-----
+Here's how it works.  When the probe is hit, Kprobes makes a copy of
+the saved registers and a generous portion of the stack (see below).
+Kprobes then points the saved instruction pointer at the jprobe's
+handler routine, and returns from the trap.  As a result, control
+passes to the handler, which is presented with the same register and
+stack contents as the probed function.  When it is done, the handler
+calls jprobe_return(), which traps again to restore the original stack
+contents and processor state and switch to the probed function.
+
+By convention, the callee owns its arguments, so gcc may produce code
+that unexpectedly modifies that portion of the stack.  This is why
+Kprobes saves a copy of the stack and restores it after the jprobe
+handler has run.  Up to MAX_STACK_SIZE bytes are copied -- e.g.,
+64 bytes on i386.
+-----
+Enclosed is the updated patch.  Please apply.
+
+Jim Keniston
+
+Acked-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+Signed-off-by: Jim Keniston <jkenisto@us.ibm.com>
+
+--=-kX1t/s8+aGvUWEoCrWmA
+Content-Disposition: attachment; filename=kprobes.txt.patch
+Content-Type: text/plain; name=kprobes.txt.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- linux.old/Documentation/kprobes.txt	1969-12-31 16:00:00.000000000 -0800
++++ linux.new/Documentation/kprobes.txt	2005-08-03 14:47:02.000000000 -0700
+@@ -0,0 +1,588 @@
++Title	: Kernel Probes (Kprobes)
++Authors	: Jim Keniston <jkenisto@us.ibm.com>
++	: Prasanna S Panchamukhi <prasanna@in.ibm.com>
++
++CONTENTS
++
++1. Concepts: Kprobes, Jprobes, Return Probes
++2. Architectures Supported
++3. Configuring Kprobes
++4. API Reference
++5. Kprobes Features and Limitations
++6. Probe Overhead
++7. TODO
++8. Kprobes Example
++9. Jprobes Example
++10. Kretprobes Example
++
++1. Concepts: Kprobes, Jprobes, Return Probes
++
++Kprobes enables you to dynamically break into any kernel routine and
++collect debugging and performance information non-disruptively. You
++can trap at almost any kernel code address, specifying a handler
++routine to be invoked when the breakpoint is hit.
++
++There are currently three types of probes: kprobes, jprobes, and
++kretprobes (also called return probes).  A kprobe can be inserted
++on virtually any instruction in the kernel.  A jprobe is inserted at
++the entry to a kernel function, and provides convenient access to the
++function's arguments.  A return probe fires when a specified function
++returns.
++
++In the typical case, Kprobes-based instrumentation is packaged as
++a kernel module.  The module's init function installs ("registers")
++one or more probes, and the exit function unregisters them.  A
++registration function such as register_kprobe() specifies where
++the probe is to be inserted and what handler is to be called when
++the probe is hit.
++
++The next three subsections explain how the different types of
++probes work.  They explain certain things that you'll need to
++know in order to make the best use of Kprobes -- e.g., the
++difference between a pre_handler and a post_handler, and how
++to use the maxactive and nmissed fields of a kretprobe.  But
++if you're in a hurry to start using Kprobes, you can skip ahead
++to section 2.
++
++1.1 How Does a Kprobe Work?
++
++When a kprobe is registered, Kprobes makes a copy of the probed
++instruction and replaces the first byte(s) of the probed instruction
++with a breakpoint instruction (e.g., int3 on i386 and x86_64).
++
++When a CPU hits the breakpoint instruction, a trap occurs, the CPU's
++registers are saved, and control passes to Kprobes via the
++notifier_call_chain mechanism.  Kprobes executes the "pre_handler"
++associated with the kprobe, passing the handler the addresses of the
++kprobe struct and the saved registers.
++
++Next, Kprobes single-steps its copy of the probed instruction.
++(It would be simpler to single-step the actual instruction in place,
++but then Kprobes would have to temporarily remove the breakpoint
++instruction.  This would open a small time window when another CPU
++could sail right past the probepoint.)
++
++After the instruction is single-stepped, Kprobes executes the
++"post_handler," if any, that is associated with the kprobe.
++Execution then continues with the instruction following the probepoint.
++
++1.2 How Does a Jprobe Work?
++
++A jprobe is implemented using a kprobe that is placed on a function's
++entry point.  It employs a simple mirroring principle to allow
++seamless access to the probed function's arguments.  The jprobe
++handler routine should have the same signature (arg list and return
++type) as the function being probed, and must always end by calling
++the Kprobes function jprobe_return().
++
++Here's how it works.  When the probe is hit, Kprobes makes a copy of
++the saved registers and a generous portion of the stack (see below).
++Kprobes then points the saved instruction pointer at the jprobe's
++handler routine, and returns from the trap.  As a result, control
++passes to the handler, which is presented with the same register and
++stack contents as the probed function.  When it is done, the handler
++calls jprobe_return(), which traps again to restore the original stack
++contents and processor state and switch to the probed function.
++
++By convention, the callee owns its arguments, so gcc may produce code
++that unexpectedly modifies that portion of the stack.  This is why
++Kprobes saves a copy of the stack and restores it after the jprobe
++handler has run.  Up to MAX_STACK_SIZE bytes are copied -- e.g.,
++64 bytes on i386.
++
++Note that the probed function's args may be passed on the stack
++or in registers (e.g., for x86_64 or for an i386 fastcall function).  
++The jprobe will work in either case, so long as the handler's
++prototype matches that of the probed function.
++
++1.3 How Does a Return Probe Work?
++
++When you call register_kretprobe(), Kprobes establishes a kprobe at
++the entry to the function.  When the probed function is called and this
++probe is hit, Kprobes saves a copy of the return address, and replaces
++the return address with the address of a "trampoline."  The trampoline
++is an arbitrary piece of code -- typically just a nop instruction.
++At boot time, Kprobes registers a kprobe at the trampoline.
++
++When the probed function executes its return instruction, control
++passes to the trampoline and that probe is hit.  Kprobes' trampoline
++handler calls the user-specified handler associated with the kretprobe,
++then sets the saved instruction pointer to the saved return address,
++and that's where execution resumes upon return from the trap.
++
++While the probed function is executing, its return address is
++stored in an object of type kretprobe_instance.  Before calling
++register_kretprobe(), the user sets the maxactive field of the
++kretprobe struct to specify how many instances of the specified
++function can be probed simultaneously.  register_kretprobe()
++pre-allocates the indicated number of kretprobe_instance objects.
++
++For example, if the function is non-recursive and is called with a
++spinlock held, maxactive = 1 should be enough.  If the function is
++non-recursive and can never relinquish the CPU (e.g., via a semaphore
++or preemption), NR_CPUS should be enough.  If maxactive <= 0, it is
++set to a default value.  If CONFIG_PREEMPT is enabled, the default
++is max(10, 2*NR_CPUS).  Otherwise, the default is NR_CPUS.
++
++It's not a disaster if you set maxactive too low; you'll just miss
++some probes.  In the kretprobe struct, the nmissed field is set to
++zero when the return probe is registered, and is incremented every
++time the probed function is entered but there is no kretprobe_instance
++object available for establishing the return probe.
++
++2. Architectures Supported
++
++Kprobes, jprobes, and return probes are implemented on the following
++architectures:
++
++- i386
++- x86_64 (AMD-64, E64MT)
++- ppc64
++- ia64 (Support for probes on certain instruction types is still in progress.)
++- sparc64 (Return probes not yet implemented.)
++
++3. Configuring Kprobes
++
++When configuring the kernel using make menuconfig/xconfig/oldconfig,
++ensure that CONFIG_KPROBES is set to "y".  Under "Kernel hacking",
++look for "Kprobes".  You may have to enable "Kernel debugging"
++(CONFIG_DEBUG_KERNEL) before you can enable Kprobes.
++
++You may also want to ensure that CONFIG_KALLSYMS and perhaps even
++CONFIG_KALLSYMS_ALL are set to "y", since kallsyms_lookup_name()
++is a handy, version-independent way to find a function's address.
++
++If you need to insert a probe in the middle of a function, you may find
++it useful to "Compile the kernel with debug info" (CONFIG_DEBUG_INFO),
++so you can use "objdump -d -l vmlinux" to see the source-to-object
++code mapping.
++
++4. API Reference
++
++The Kprobes API includes a "register" function and an "unregister"
++function for each type of probe.  Here are terse, mini-man-page
++specifications for these functions and the associated probe handlers
++that you'll write.  See the latter half of this document for examples.
++
++4.1 register_kprobe
++
++#include <linux/kprobes.h>
++int register_kprobe(struct kprobe *kp);
++
++Sets a breakpoint at the address kp->addr.  When the breakpoint is
++hit, Kprobes calls kp->pre_handler.  After the probed instruction
++is single-stepped, Kprobe calls kp->post_handler.  If a fault
++occurs during execution of kp->pre_handler or kp->post_handler,
++or during single-stepping of the probed instruction, Kprobes calls
++kp->fault_handler.  Any or all handlers can be NULL.
++
++register_kprobe() returns 0 on success, or a negative errno otherwise.
++
++User's pre-handler (kp->pre_handler):
++#include <linux/kprobes.h>
++#include <linux/ptrace.h>
++int pre_handler(struct kprobe *p, struct pt_regs *regs);
++
++Called with p pointing to the kprobe associated with the breakpoint,
++and regs pointing to the struct containing the registers saved when
++the breakpoint was hit.  Return 0 here unless you're a Kprobes geek.
++
++User's post-handler (kp->post_handler):
++#include <linux/kprobes.h>
++#include <linux/ptrace.h>
++void post_handler(struct kprobe *p, struct pt_regs *regs,
++	unsigned long flags);
++
++p and regs are as described for the pre_handler.  flags always seems
++to be zero.
++
++User's fault-handler (kp->fault_handler):
++#include <linux/kprobes.h>
++#include <linux/ptrace.h>
++int fault_handler(struct kprobe *p, struct pt_regs *regs, int trapnr);
++
++p and regs are as described for the pre_handler.  trapnr is the
++architecture-specific trap number associated with the fault (e.g.,
++on i386, 13 for a general protection fault or 14 for a page fault).
++Returns 1 if it successfully handled the exception.
++
++4.2 register_jprobe
++
++#include <linux/kprobes.h>
++int register_jprobe(struct jprobe *jp)
++
++Sets a breakpoint at the address jp->kp.addr, which must be the address
++of the first instruction of a function.  When the breakpoint is hit,
++Kprobes runs the handler whose address is jp->entry.
++
++The handler should have the same arg list and return type as the probed
++function; and just before it returns, it must call jprobe_return().
++(The handler never actually returns, since jprobe_return() returns
++control to Kprobes.)  If the probed function is declared asmlinkage,
++fastcall, or anything else that affects how args are passed, the
++handler's declaration must match.
++
++register_jprobe() returns 0 on success, or a negative errno otherwise.
++
++4.3 register_kretprobe
++
++#include <linux/kprobes.h>
++int register_kretprobe(struct kretprobe *rp);
++
++Establishes a return probe for the function whose address is
++rp->kp.addr.  When that function returns, Kprobes calls rp->handler.
++You must set rp->maxactive appropriately before you call
++register_kretprobe(); see "How Does a Return Probe Work?" for details.
++
++register_kretprobe() returns 0 on success, or a negative errno
++otherwise.
++
++User's return-probe handler (rp->handler):
++#include <linux/kprobes.h>
++#include <linux/ptrace.h>
++int kretprobe_handler(struct kretprobe_instance *ri, struct pt_regs *regs);
++
++regs is as described for kprobe.pre_handler.  ri points to the
++kretprobe_instance object, of which the following fields may be
++of interest:
++- ret_addr: the return address
++- rp: points to the corresponding kretprobe object
++- task: points to the corresponding task struct
++The handler's return value is currently ignored.
++
++4.4 unregister_*probe
++
++#include <linux/kprobes.h>
++void unregister_kprobe(struct kprobe *kp);
++void unregister_jprobe(struct jprobe *jp);
++void unregister_kretprobe(struct kretprobe *rp);
++
++Removes the specified probe.  The unregister function can be called
++at any time after the probe has been registered.
++
++5. Kprobes Features and Limitations
++
++As of Linux v2.6.12, Kprobes allows multiple probes at the same
++address.  Currently, however, there cannot be multiple jprobes on
++the same function at the same time.
++
++In general, you can install a probe anywhere in the kernel.
++In particular, you can probe interrupt handlers.  Known exceptions
++are discussed in this section.
++
++For obvious reasons, it's a bad idea to install a probe in
++the code that implements Kprobes (mostly kernel/kprobes.c and
++arch/*/kernel/kprobes.c).  A patch in the v2.6.13 timeframe instructs
++Kprobes to reject such requests.
++
++If you install a probe in an inline-able function, Kprobes makes
++no attempt to chase down all inline instances of the function and
++install probes there.  gcc may inline a function without being asked,
++so keep this in mind if you're not seeing the probe hits you expect.
++
++A probe handler can modify the environment of the probed function
++-- e.g., by modifying kernel data structures, or by modifying the
++contents of the pt_regs struct (which are restored to the registers
++upon return from the breakpoint).  So Kprobes can be used, for example,
++to install a bug fix or to inject faults for testing.  Kprobes, of
++course, has no way to distinguish the deliberately injected faults
++from the accidental ones.  Don't drink and probe.
++
++Kprobes makes no attempt to prevent probe handlers from stepping on
++each other -- e.g., probing printk() and then calling printk() from a
++probe handler.  As of Linux v2.6.12, if a probe handler hits a probe,
++that second probe's handlers won't be run in that instance.
++
++In Linux v2.6.12 and previous versions, Kprobes' data structures are
++protected by a single lock that is held during probe registration and
++unregistration and while handlers are run.  Thus, no two handlers
++can run simultaneously.  To improve scalability on SMP systems,
++this restriction will probably be removed soon, in which case
++multiple handlers (or multiple instances of the same handler) may
++run concurrently on different CPUs.  Code your handlers accordingly.
++
++Kprobes does not use semaphores or allocate memory except during
++registration and unregistration.
++
++Probe handlers are run with preemption disabled.  Depending on the
++architecture, handlers may also run with interrupts disabled.  In any
++case, your handler should not yield the CPU (e.g., by attempting to
++acquire a semaphore).
++
++Since a return probe is implemented by replacing the return
++address with the trampoline's address, stack backtraces and calls
++to __builtin_return_address() will typically yield the trampoline's
++address instead of the real return address for kretprobed functions.
++(As far as we can tell, __builtin_return_address() is used only
++for instrumentation and error reporting.)
++
++If the number of times a function is called does not match the
++number of times it returns, registering a return probe on that
++function may produce undesirable results.  We have the do_exit()
++and do_execve() cases covered.  do_fork() is not an issue.  We're
++unaware of other specific cases where this could be a problem.
++
++6. Probe Overhead
++
++On a typical CPU in use in 2005, a kprobe hit takes 0.5 to 1.0
++microseconds to process.  Specifically, a benchmark that hits the same
++probepoint repeatedly, firing a simple handler each time, reports 1-2
++million hits per second, depending on the architecture.  A jprobe or
++return-probe hit typically takes 50-75% longer than a kprobe hit.
++When you have a return probe set on a function, adding a kprobe at
++the entry to that function adds essentially no overhead.
++
++Here are sample overhead figures (in usec) for different architectures.
++k = kprobe; j = jprobe; r = return probe; kr = kprobe + return probe
++on same function; jr = jprobe + return probe on same function
++
++i386: Intel Pentium M, 1495 MHz, 2957.31 bogomips
++k = 0.57 usec; j = 1.00; r = 0.92; kr = 0.99; jr = 1.40
++
++x86_64: AMD Opteron 246, 1994 MHz, 3971.48 bogomips
++k = 0.49 usec; j = 0.76; r = 0.80; kr = 0.82; jr = 1.07
++
++ppc64: POWER5 (gr), 1656 MHz (SMT disabled, 1 virtual CPU per physical CPU)
++k = 0.77 usec; j = 1.31; r = 1.26; kr = 1.45; jr = 1.99
++
++7. TODO
++
++a. SystemTap (http://sourceware.org/systemtap): Work in progress
++to provide a simplified programming interface for probe-based
++instrumentation.
++b. Improved SMP scalability: Currently, work is in progress to handle
++multiple kprobes in parallel.
++c. Kernel return probes for sparc64.
++d. Support for other architectures.
++e. User-space probes.
++
++8. Kprobes Example
++
++Here's a sample kernel module showing the use of kprobes to dump a
++stack trace and selected i386 registers when do_fork() is called.
++----- cut here -----
++/*kprobe_example.c*/
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/kprobes.h>
++#include <linux/kallsyms.h>
++#include <linux/sched.h>
++
++/*For each probe you need to allocate a kprobe structure*/
++static struct kprobe kp;
++
++/*kprobe pre_handler: called just before the probed instruction is executed*/
++int handler_pre(struct kprobe *p, struct pt_regs *regs)
++{
++	printk("pre_handler: p->addr=0x%p, eip=%lx, eflags=0x%lx\n",
++		p->addr, regs->eip, regs->eflags);
++	dump_stack();
++	return 0;
++}
++
++/*kprobe post_handler: called after the probed instruction is executed*/
++void handler_post(struct kprobe *p, struct pt_regs *regs, unsigned long flags)
++{
++	printk("post_handler: p->addr=0x%p, eflags=0x%lx\n",
++		p->addr, regs->eflags);
++}
++
++/* fault_handler: this is called if an exception is generated for any
++ * instruction within the pre- or post-handler, or when Kprobes
++ * single-steps the probed instruction.
++ */
++int handler_fault(struct kprobe *p, struct pt_regs *regs, int trapnr)
++{
++	printk("fault_handler: p->addr=0x%p, trap #%dn",
++		p->addr, trapnr);
++	/* Return 0 because we don't handle the fault. */
++	return 0;
++}
++
++int init_module(void)
++{
++	int ret;
++	kp.pre_handler = handler_pre;
++	kp.post_handler = handler_post;
++	kp.fault_handler = handler_fault;
++	kp.addr = (kprobe_opcode_t*) kallsyms_lookup_name("do_fork");
++	/* register the kprobe now */
++	if (!kp.addr) {
++		printk("Couldn't find %s to plant kprobe\n", "do_fork");
++		return -1;
++	}
++	if ((ret = register_kprobe(&kp) < 0)) {
++		printk("register_kprobe failed, returned %d\n", ret);
++		return -1;
++	}
++	printk("kprobe registered\n");
++	return 0;
++}
++
++void cleanup_module(void)
++{
++	unregister_kprobe(&kp);
++	printk("kprobe unregistered\n");
++}
++
++MODULE_LICENSE("GPL");
++----- cut here -----
++
++You can build the kernel module, kprobe-example.ko, using the following
++Makefile:
++----- cut here -----
++obj-m := kprobe-example.o
++KDIR := /lib/modules/$(shell uname -r)/build
++PWD := $(shell pwd)
++default:
++	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
++clean:
++	rm -f *.mod.c *.ko *.o
++----- cut here -----
++
++$ make
++$ su -
++...
++# insmod kprobe-example.ko
++
++You will see the trace data in /var/log/messages and on the console
++whenever do_fork() is invoked to create a new process.
++
++9. Jprobes Example
++
++Here's a sample kernel module showing the use of jprobes to dump
++the arguments of do_fork().
++----- cut here -----
++/*jprobe-example.c */
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/uio.h>
++#include <linux/kprobes.h>
++#include <linux/kallsyms.h>
++
++/* 
++ * Jumper probe for do_fork. 
++ * Mirror principle enables access to arguments of the probed routine 
++ * from the probe handler.
++ */
++
++/* Proxy routine having the same arguments as actual do_fork() routine */
++long jdo_fork(unsigned long clone_flags, unsigned long stack_start,
++	      struct pt_regs *regs, unsigned long stack_size,
++	      int __user * parent_tidptr, int __user * child_tidptr)
++{
++	printk("jprobe: clone_flags=0x%lx, stack_size=0x%lx, regs=0x%p\n",
++	       clone_flags, stack_size, regs);
++	/* Always end with a call to jprobe_return(). */
++	jprobe_return();
++	/*NOTREACHED*/
++	return 0;
++}
++
++static struct jprobe my_jprobe = {
++	.entry = (kprobe_opcode_t *) jdo_fork
++};
++
++int init_module(void)
++{
++	int ret;
++	my_jprobe.kp.addr = (kprobe_opcode_t *) kallsyms_lookup_name("do_fork");
++	if (!my_jprobe.kp.addr) {
++		printk("Couldn't find %s to plant jprobe\n", "do_fork");
++		return -1;
++	}
++
++	if ((ret = register_jprobe(&my_jprobe)) <0) {
++		printk("register_jprobe failed, returned %d\n", ret);
++		return -1;
++	}
++	printk("Planted jprobe at %p, handler addr %p\n",
++	       my_jprobe.kp.addr, my_jprobe.entry);
++	return 0;
++}
++
++void cleanup_module(void)
++{
++	unregister_jprobe(&my_jprobe);
++	printk("jprobe unregistered\n");
++}
++
++MODULE_LICENSE("GPL");
++----- cut here -----
++
++Build and insert the kernel module as shown in the above kprobe
++example.  You will see the trace data in /var/log/messages and on
++the console whenever do_fork() is invoked to create a new process.
++(Some messages may be suppressed if syslogd is configured to
++eliminate duplicate messages.)
++
++10. Kretprobes Example
++
++Here's a sample kernel module showing the use of return probes to
++report failed calls to sys_open().
++----- cut here -----
++/*kretprobe-example.c*/
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/kprobes.h>
++#include <linux/kallsyms.h>
++
++static const char *probed_func = "sys_open";
++
++/* Return-probe handler: If the probed function fails, log the return value. */
++static int ret_handler(struct kretprobe_instance *ri, struct pt_regs *regs)
++{
++	// Substitute the appropriate register name for your architecture --
++	// e.g., regs->rax for x86_64, regs->gpr[3] for ppc64.
++	int retval = (int) regs->eax;
++	if (retval < 0) {
++		printk("%s returns %d\n", probed_func, retval);
++	}
++	return 0;
++}
++
++static struct kretprobe my_kretprobe = {
++	.handler = ret_handler,
++	/* Probe up to 20 instances concurrently. */
++	.maxactive = 20
++};
++
++int init_module(void)
++{
++	int ret;
++	my_kretprobe.kp.addr =
++		(kprobe_opcode_t *) kallsyms_lookup_name(probed_func);
++	if (!my_kretprobe.kp.addr) {
++		printk("Couldn't find %s to plant return probe\n", probed_func);
++		return -1;
++	}
++	if ((ret = register_kretprobe(&my_kretprobe)) < 0) {
++		printk("register_kretprobe failed, returned %d\n", ret);
++		return -1;
++	}
++	printk("Planted return probe at %p\n", my_kretprobe.kp.addr);
++	return 0;
++}
++
++void cleanup_module(void)
++{
++	unregister_kretprobe(&my_kretprobe);
++	printk("kretprobe unregistered\n");
++	/* nmissed > 0 suggests that maxactive was set too low. */
++	printk("Missed probing %d instances of %s\n",
++		my_kretprobe.nmissed, probed_func);
++}
++
++MODULE_LICENSE("GPL");
++----- cut here -----
++
++Build and insert the kernel module as shown in the above kprobe
++example.  You will see the trace data in /var/log/messages and on the
++console whenever sys_open() returns a negative value.  (Some messages
++may be suppressed if syslogd is configured to eliminate duplicate
++messages.)
++
++For additional information on Kprobes, refer to the following URLs:
++http://www-106.ibm.com/developerworks/library/l-kprobes.html?ca=dgr-lnxw42Kprobe
++http://www.redhat.com/magazine/005mar05/features/kprobes/
+
+--=-kX1t/s8+aGvUWEoCrWmA--
+

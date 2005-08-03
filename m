@@ -1,26 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVHCHEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVHCHHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVHCHEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 03:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVHCHCZ
+	id S262145AbVHCHHA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 03:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbVHCHGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 03:02:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7390 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262123AbVHCHAK (ORCPT
+	Wed, 3 Aug 2005 03:06:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13279 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262119AbVHCHEs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 03:00:10 -0400
-Date: Tue, 2 Aug 2005 23:59:48 -0700
+	Wed, 3 Aug 2005 03:04:48 -0400
+Date: Wed, 3 Aug 2005 00:04:12 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Patrick McHardy <kaber@trash.net>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: [08/13] [NETFILTER]: Wait until all references to ip_conntrack_untracked are dropped on unload
-Message-ID: <20050803065948.GW7762@shell0.pdx.osdl.net>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, blaisorblade@yahoo.it
+Subject: [11/13] sys_get_thread_area does not clear the returned argument
+Message-ID: <20050803070412.GZ7762@shell0.pdx.osdl.net>
 References: <20050803064439.GO7762@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -34,26 +32,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ------------------
 
-[NETFILTER]: Wait until all references to ip_conntrack_untracked are dropped on unload
+sys_get_thread_area does not memset to 0 its struct user_desc info before
+copying it to user space...  since sizeof(struct user_desc) is 16 while the
+actual datas which are filled are only 12 bytes + 9 bits (across the
+bitfields), there is a (small) information leak.
 
-Fixes a crash when unloading ip_conntrack.
+This was already committed to Linus' repository.
 
-Signed-off-by: Patrick McHardy <kaber@trash.net>
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- net/ipv4/netfilter/ip_conntrack_core.c |    3 +++
- 1 files changed, 3 insertions(+)
 
---- linux-2.6.12.3.orig/net/ipv4/netfilter/ip_conntrack_core.c	2005-07-28 11:17:01.000000000 -0700
-+++ linux-2.6.12.3/net/ipv4/netfilter/ip_conntrack_core.c	2005-07-28 11:17:16.000000000 -0700
-@@ -1124,6 +1124,9 @@
- 		schedule();
- 		goto i_see_dead_people;
- 	}
-+	/* wait until all references to ip_conntrack_untracked are dropped */
-+	while (atomic_read(&ip_conntrack_untracked.ct_general.use) > 1)
-+		schedule();
+ vanilla-linux-2.6.12-paolo/arch/i386/kernel/process.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+diff -puN arch/i386/kernel/process.c~sec-micro-info-leak arch/i386/kernel/process.c
+--- vanilla-linux-2.6.12/arch/i386/kernel/process.c~sec-micro-info-leak	2005-07-28 21:19:26.000000000 +0200
++++ vanilla-linux-2.6.12-paolo/arch/i386/kernel/process.c	2005-07-28 21:19:26.000000000 +0200
+@@ -827,6 +827,8 @@ asmlinkage int sys_get_thread_area(struc
+ 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
+ 		return -EINVAL;
  
- 	kmem_cache_destroy(ip_conntrack_cachep);
- 	kmem_cache_destroy(ip_conntrack_expect_cachep);
++	memset(&info, 0, sizeof(info));
++
+ 	desc = current->thread.tls_array + idx - GDT_ENTRY_TLS_MIN;
+ 
+ 	info.entry_number = idx;

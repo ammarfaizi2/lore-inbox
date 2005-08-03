@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVHCKsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVHCKt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262206AbVHCKsM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 06:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbVHCKsM
+	id S262208AbVHCKt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 06:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVHCKtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 06:48:12 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:8896 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262206AbVHCKsK (ORCPT
+	Wed, 3 Aug 2005 06:49:25 -0400
+Received: from main.gmane.org ([80.91.229.2]:11942 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262208AbVHCKsQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 06:48:10 -0400
-Date: Wed, 3 Aug 2005 12:48:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Daniel Walker <dwalker@mvista.com>
-Subject: Re: [Question] arch-independent way to differentiate between user and kernel
-Message-ID: <20050803104856.GA10118@elte.hu>
-References: <1122931238.4623.17.camel@dhcp153.mvista.com> <1122944010.6759.64.camel@localhost.localdomain> <20050802101920.GA25759@elte.hu> <1123011928.1590.43.camel@localhost.localdomain> <1123025895.25712.7.camel@dhcp153.mvista.com> <1123027226.1590.59.camel@localhost.localdomain> <1123035909.11101.1.camel@c-67-188-6-232.hsd1.ca.comcast.net> <1123036936.1590.69.camel@localhost.localdomain> <1123037933.11101.11.camel@c-67-188-6-232.hsd1.ca.comcast.net> <1123065472.1590.84.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123065472.1590.84.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 3 Aug 2005 06:48:16 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andrey Melnikoff <temnota+news@kmv.ru>
+Subject: Re: [PATCH 2.4.31 1/1] scsi/megaraid2: add 64-bit application sup?port
+Date: Wed, 3 Aug 2005 14:44:16 +0400
+Message-ID: <0pj6s2-grt.ln1@kenga.kmv.ru>
+References: <0E3FA95632D6D047BA649F95DAB60E5703662A89@exa-atlanta>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: kenga.kmv.ru
+Cancel-Lock: sha1:AymUAYmVBwGtSVq8pVVjvMNnLcQ=
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.4.31 (i686))
+Cc: linux-scsi@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ju, Seokmann <sju@lsil.com> wrote:
+> [-- text/plain, encoding 7bit, charset: iso-8859-1, 1346 lines --]
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+> Hi Marcelo,
 
-> Hi all,
-> 
-> I'm dealing with a problem where I want to know from __do_IRQ in 
-> kernel/irq/handle.c if the interrupt occurred while the process was in 
-> user space or kernel space.  But the trick here is that it must work 
-> on all architectures.
-> 
-> Does anyone know of some way that that function can tell if it had 
-> interrupted the kernel or user space?  I know of serveral 
-> arch-dependent ways, but that's not acceptable right now.
+> I've made changes that reflect your comments.
 
-i dont think there's any. user_mode(regs) gets the closest - it might 
-make sense to generalize it over all arches.
+> On Tuesday, July 26, 2005 4:33 AM, Marcelo Tosatti wrote:
+> > vary_io has never been part of mainline. How come did you add it
+> > here?
+> Has removed '.vary_io'.
+> > There is no CONFIG_COMPAT on v2.4... thanks James and Christoph
+> > for reviewing.
+> Has removed 'CONFIG_COMPAT'.
 
-update_process_times() gets an arch-independent 'was the tick user-space 
-or kernel-space' flag, so the best starting point would be to look at 
-the output of:
+> Thank you.
 
- for N in `find . -name '*.c' | xargs grep update_process_times |
-  grep arch`; do echo $N; done | grep update_process_times |
-   sort | uniq -c
+> Signed-off-by: Seokmann Ju <seokmann.ju@lsil.com>
+Still not compile with gcc-3.4
 
-which gives:
+-- cut --
+gcc-3.4 -D__KERNEL__ -I/usr/src/linux-2.4.31/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
+-fno-unit-at-a-time   -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=megaraid2  -c -o megaraid2.o megaraid2.c
+megaraid2.c: In function `megaraid_queue':
+megaraid2.h:1113: sorry, unimplemented: inlining failed in call to
+'mega_runpendq': function body not available
+megaraid2.c:1033: sorry, unimplemented: called from here
+megaraid2.c: In function `mega_n_to_m':
+megaraid2.c:4658: warning: unused variable `uiocp'
+make[3]: *** [megaraid2.o] Error 1
 
-      2 update_process_times()
-      1 update_process_times(CHOOSE_MODE(user_context(UPT_SP(regs)),
-      6 update_process_times(user);
-      1 update_process_times(user_mode(fp));
-     33 update_process_times(user_mode(regs));
-      2 update_process_times(user_mode_vm(regs));
+-- cut --
 
-so ~33 calls use user_mode(regs), and the rest needs to be reviewed and 
-possibly changed. Looks doable.
-
-	Ingo

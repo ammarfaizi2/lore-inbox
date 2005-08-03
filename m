@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVHCTWC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbVHCTak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262445AbVHCTWC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 15:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbVHCTV5
+	id S262426AbVHCTak (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 15:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbVHCTak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 15:21:57 -0400
-Received: from dsw2k3.info ([195.71.86.227]:16328 "EHLO dsw2k3.info")
-	by vger.kernel.org with ESMTP id S262440AbVHCTVb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 15:21:31 -0400
-Message-ID: <42F11933.7050607@citd.de>
-Date: Wed, 03 Aug 2005 21:21:23 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: linux-ide@vger.kernel.org
-Subject: Re: ahci, SActive flag, and the HD activity LED
-References: <42EF93F8.8050601@fujitsu-siemens.com> <20050802163519.GB3710@suse.de> <42F05359.7030006@fujitsu-siemens.com>
-In-Reply-To: <42F05359.7030006@fujitsu-siemens.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Aug 2005 15:30:40 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:28866 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262426AbVHCTai
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 15:30:38 -0400
+Date: Wed, 3 Aug 2005 14:27:51 -0500
+From: serue@us.ibm.com
+To: Chris Wright <chrisw@osdl.org>
+Cc: serue@us.ibm.com, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Stacker - single-use static slots
+Message-ID: <20050803192751.GA18837@serge.austin.ibm.com>
+References: <20050727181732.GA22483@serge.austin.ibm.com> <Lynx.SEL.4.62.0507271527390.1844@thoron.boston.redhat.com> <Lynx.SEL.4.62.0507271535150.1844@thoron.boston.redhat.com> <20050803164516.GB13691@serge.austin.ibm.com> <20050803175742.GI7762@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050803175742.GI7762@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Wilck wrote:
-> Jens Axboe wrote:
+Quoting Chris Wright (chrisw@osdl.org):
+> * serue@us.ibm.com (serue@us.ibm.com) wrote:
+> > +#if 0
+> > +	printk(KERN_NOTICE "__get_value: %s (%d): head %lx p %lx idx %d returning %lx at %lx\n",
+> > +		__FUNCTION__, __LINE__, (long)head, (long)p, idx, (long)p[idx], (long)&p[idx]);
+> > +#endif
+> > +	return p[idx];
 > 
->>> If I am reading the specs correctly, that'd mean the ahci driver is 
->>> wrong in setting the SActive bit.
->>
->>
->> I completely agree, that was my reading of the spec as well and hence my
->> original posts about this in the NCQ thread.
+> pr_debug
+
+Thanks.
+
+> > +config SECURITY_STACKER_NUMFIELDS
+> > +	int "Number of security fields to reserve"
+> > +	depends on SECURITY_STACKER
+> > +	default 1
 > 
-> Have you (or has anybody else) also seen the wrong behavior of the 
-> activity LED?
+> Not sure config is worth it, also, James had suggested smth like 3
+> slots.
 
-925X-Chipset
-Lspci says: 8086:2652
-Intel Corp. 82801FR/FRW (ICH6R/ICH6RW) SATA Controller (rev 03)
-HDD:
-Western Digital WD2000JD-00H, i believe this HDD is non-NCQ.
+I misread that.  I'd latched onto the "selinux+capability" (again),
+which combined would need only one spot.
 
-Kernels: 2.6.10 - 2.6.12
-The Activity-LED has burned like a light-bulb every since i have that 
-computer. (Excluding the few seconds before booting Linux. :-) )
+> >  		INIT_HLIST_HEAD(&inode->i_security);
+> > +		memset(&inode->i_security_p, 0,
+> > +			CONFIG_SECURITY_STACKER_NUMFIELDS*sizeof(void *));
+> 
+> This CONFIG... is a bit rough.  Can we use a simple name, and if config
+> is necessary, assign config to simple name?
 
+Will do.
 
+> > Index: linux-2.6.12/include/linux/fs.h
+> > ===================================================================
+> > --- linux-2.6.12.orig/include/linux/fs.h	2005-08-01 20:00:50.000000000 -0500
+> > +++ linux-2.6.12/include/linux/fs.h	2005-08-01 20:24:55.000000000 -0500
+> > @@ -486,6 +486,7 @@ struct inode {
+> >  
+> >  	atomic_t		i_writecount;
+> >  	struct hlist_head	i_security;
+> > +	void			*i_security_p[CONFIG_SECURITY_STACKER_NUMFIELDS];
+> 
+> James had suggested to effectively stash the list in the last slot, so
+> there's only the array with one reserved slot.
 
-Bis denn
+Oh, I didn't catch that.  I like it.  Will do.
 
--- 
-Real Programmers consider "what you see is what you get" to be just as
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated,
-cryptic, powerful, unforgiving, dangerous.
+So you mean 3 slots total including the shared one?
 
+Any comments on the added argument to register_security and
+mod_reg_security to request a static slot?  Given the likelyhood of
+capability/cap_stack being registered, it seemed worthwhile not to have
+it waste a spot, but it is an API change...
+
+thanks,
+-serge

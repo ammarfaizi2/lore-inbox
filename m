@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVHCHuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVHCH5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbVHCHuz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 03:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVHCHuz
+	id S262136AbVHCH5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 03:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVHCH5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 03:50:55 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:21429 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262133AbVHCHux (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 03:50:53 -0400
-Date: Wed, 3 Aug 2005 09:51:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jack Steiner <steiner@sgi.com>
-Subject: Re: [patch 1/2] sched: reduce locking in newidle balancing
-Message-ID: <20050803075129.GA6013@elte.hu>
-References: <42EF65A9.1060408@yahoo.com.au> <42EF65FF.2000102@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42EF65FF.2000102@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 3 Aug 2005 03:57:49 -0400
+Received: from ns1.axalto.com ([194.98.128.2]:43196 "EHLO
+	cro-su-02.croissy.axalto.com") by vger.kernel.org with ESMTP
+	id S262136AbVHCH5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 03:57:41 -0400
+Date: Wed, 03 Aug 2005 09:57:39 +0200
+From: bgerard <bgerard@axalto.com>
+Subject: hotplug problem
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42F078F3.4040808@axalto.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+I'm working on an embeded system with linux kernel 2.4.27 and busybox 
+1.00. Lately I've decided to add hotplug feature to my kernel in order 
+to automaticaly mount usb keys.
 
-> Similarly to the earlier change in load_balance, only lock the 
-> runqueue in load_balance_newidle if the busiest queue found has a 
-> nr_running > 1. This will reduce frequency of expensive remote 
-> runqueue lock aquisitions in the schedule() path on some workloads.
-> 
-> Signed-off-by: Nick Piggin <npiggin@suse.de>
+When I plug the usb key, I can see in the kernel debug that 
+"/sbin/hotplug" is called but my script is not executed. I've tried to 
+replace the hotplug script by a simple one but nothing appeared. Here is 
+my script :
+#!/bin/sh
+echo "usb key un/plugged"
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+The script is working when I run it myself (./sbin/hotplug )
 
-	Ingo
+I've also noticed that when kmod try to call modprobe, it's not executed 
+while the debug message says that everything went fine.
+
+Can anyone help me ?
+Thanks in advance.
+Ben.

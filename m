@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVHCPUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbVHCPVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbVHCPUV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 11:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVHCPUV
+	id S262310AbVHCPVz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 11:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVHCPVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 11:20:21 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:15530 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S262312AbVHCPUS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 11:20:18 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: [PATCH] PNPACPI: fix types when decoding ACPI resources [resend]
-Date: Wed, 3 Aug 2005 09:20:13 -0600
-User-Agent: KMail/1.8.1
-Cc: Shaohua Li <shaohua.li@intel.com>, Adam Belay <ambx1@neo.rr.com>,
-       Matthieu Castet <castet.matthieu@free.fr>, linux-kernel@vger.kernel.org
-References: <200508020955.54844.bjorn.helgaas@hp.com> <1123030861.2937.4.camel@linux-hp.sh.intel.com>
-In-Reply-To: <1123030861.2937.4.camel@linux-hp.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508030920.13450.bjorn.helgaas@hp.com>
+	Wed, 3 Aug 2005 11:21:54 -0400
+Received: from ms-smtp-02-smtplb.ohiordc.rr.com ([65.24.5.136]:60358 "EHLO
+	ms-smtp-02-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S262310AbVHCPUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 11:20:36 -0400
+Date: Wed, 03 Aug 2005 11:20:29 -0400
+From: ambx1@neo.rr.com
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: James Bruce <bruce@andrew.cmu.edu>, David Weinehall <tao@acc.umu.se>,
+       Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>,
+       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+Message-id: <dbb91149e.1149edbb9@columbus.rr.com>
+MIME-version: 1.0
+X-Mailer: iPlanet Messenger Express 5.2 HotFix 2.04 (built Feb  8 2005)
+Content-type: text/plain; charset=us-ascii
+Content-language: en
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 August 2005 7:01 pm, Shaohua Li wrote:
-> On Tue, 2005-08-02 at 09:55 -0600, Bjorn Helgaas wrote:
-> > Any objections to the patch below?  I posted it last Wednesday,
-> > but haven't heard anything.  Once we have this fix, 8250_pnp
-> > should have sufficient functionality that we can get rid of
-> > 8250_acpi.
+
+
+----- Original Message -----
+From: Theodore Ts'o <tytso@mit.edu>
+Date: Monday, August 1, 2005 4:42 pm
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+
+> On Mon, Aug 01, 2005 at 12:18:18PM -0400, James Bruce wrote:
 > > 
-> > Use types that match the ACPI resource structures.  Previously
-> > the u64 value from an RSTYPE_ADDRESS64 was passed as an int,
-> > which corrupts the value.
-> > 
-> > This is one of the things that prevents 8250_pnp from working
-> > on HP ia64 boxes.  After 8250_pnp works, we will be able to
-> > remove 8250_acpi.c.
-> We might always use 'unsigned long'.
+> > The tradeoff is a realistic 4.4% power savings vs a 300% increase 
+> in the 
+> > minimum sleep period.  A user will see zero power savings if they 
+> have a 
+> > USB mouse (probably 99% of desktops).  On top of that, we can 
+> throw in 
+> > Con's disturbing AV benchmark results (1).  As a result, some of 
+> us 
+> > don't think 250HZ is a great tradeoff to make 
+> _for_the_default_value_.
+> Most laptops (including mine, a Thinkpad T40) use a PS/2 mouse.  So in
+> the places where power consumption savins matters most, it's usually
+> quite possible to function without needing any USB devices.  The 90%
+> figure isn't at all right; in fact, it may be that over 90% of the
+> laptops still use PS/2 mice and keyboards.
+> 
+>                                        	- Ted
 
-Do you have a reason for preferring 'unsigned long' over the
-exact types used in the ACPI resource structures?  I thought
-it was useful to use the exact types, because then whatever
-conversion needs to happen is all in one place.
+Also, my understanding was that when we properly support usb suspend,
+this won't be an issue anyway for much usb hardware.  I think it's
+possible to put some mice to sleep when there isn't any motion and
+then wakeup later.
 
-In the existing code, there's implicit conversion when you
-call "pnpacpi_parse_allocated_memresource(..., int mem, int len)"
-and pass u64 values as "mem" and "len".  You have to look both
-at the call site and the called code.  And gcc doesn't even
-complain about this truncation.
+4.4% savings may not be much, but these things do add up.  For a
+laptop's workload, I think this is worth it.
 
-But I guess it doesn't matter much either way.
+Thanks,
+Adam
 
-> Did you have plan to remove other 
-> legacy acpi drivers?
-
-No, I didn't -- which ones are you thinking about?  Looking at
-the callers of acpi_bus_register_driver(), I see:
-
-	arch/ia64/hp/common/sba_iommu.c
-		Probably can't be converted because it needs the
-		ACPI handle to extract a vendor-specific data
-		item from _CRS.
-
-	drivers/char/hpet.c
-		This probably should be converted to PNP.  I'll
-		look into doing this.
-
-Then of course, there are a bunch of things in drivers/acpi/
-(battery, button, fan, ec, etc).  I expect the reason they are
-in drivers/acpi/ is because they need ACPI-specific functionality,
-so they probably couldn't be converted to PNP.

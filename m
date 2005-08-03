@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVHCHHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVHCHHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbVHCHHA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 03:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbVHCHGm
+	id S262119AbVHCHHW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 03:07:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVHCHHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 03:06:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13279 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262119AbVHCHEs (ORCPT
+	Wed, 3 Aug 2005 03:07:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34271 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262119AbVHCHGy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 03:04:48 -0400
-Date: Wed, 3 Aug 2005 00:04:12 -0700
+	Wed, 3 Aug 2005 03:06:54 -0400
+Date: Wed, 3 Aug 2005 00:06:00 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, blaisorblade@yahoo.it
-Subject: [11/13] sys_get_thread_area does not clear the returned argument
-Message-ID: <20050803070412.GZ7762@shell0.pdx.osdl.net>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, tommy.christensen@tpack.net,
+       dsd@gentoo.org, davem@davemloft.net
+Subject: [12/13] [VLAN]: Fix early vlan adding leads to not functional device
+Message-ID: <20050803070600.GA7762@shell0.pdx.osdl.net>
 References: <20050803064439.GO7762@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -32,29 +33,37 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ------------------
 
-sys_get_thread_area does not memset to 0 its struct user_desc info before
-copying it to user space...  since sizeof(struct user_desc) is 16 while the
-actual datas which are filled are only 12 bytes + 9 bits (across the
-bitfields), there is a (small) information leak.
+[VLAN]: Fix early vlan adding leads to not functional device
 
-This was already committed to Linus' repository.
+OK, I can see what's happening here. eth0 doesn't detect link-up until
+after a few seconds, so when the vlan interface is opened immediately
+after eth0 has been opened, it inherits the link-down state. Subsequently
+the vlan interface is never properly activated and are thus unable to
+transmit any packets.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+dev->state bits are not supposed to be manipulated directly. Something
+similar is probably needed for the netif_device_present() bit, although
+I don't know how this is meant to work for a virtual device.
+  
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 ---
 
- vanilla-linux-2.6.12-paolo/arch/i386/kernel/process.c |    2 ++
- 1 files changed, 2 insertions(+)
-
-diff -puN arch/i386/kernel/process.c~sec-micro-info-leak arch/i386/kernel/process.c
---- vanilla-linux-2.6.12/arch/i386/kernel/process.c~sec-micro-info-leak	2005-07-28 21:19:26.000000000 +0200
-+++ vanilla-linux-2.6.12-paolo/arch/i386/kernel/process.c	2005-07-28 21:19:26.000000000 +0200
-@@ -827,6 +827,8 @@ asmlinkage int sys_get_thread_area(struc
- 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
- 		return -EINVAL;
+--- a/net/8021q/vlan.c
++++ b/net/8021q/vlan.c
+@@ -578,6 +578,14 @@ static int vlan_device_event(struct noti
+ 			if (!vlandev)
+ 				continue;
  
-+	memset(&info, 0, sizeof(info));
++			if (netif_carrier_ok(dev)) {
++				if (!netif_carrier_ok(vlandev))
++					netif_carrier_on(vlandev);
++			} else {
++				if (netif_carrier_ok(vlandev))
++					netif_carrier_off(vlandev);
++			}
 +
- 	desc = current->thread.tls_array + idx - GDT_ENTRY_TLS_MIN;
- 
- 	info.entry_number = idx;
+ 			if ((vlandev->state & VLAN_LINK_STATE_MASK) != flgs) {
+ 				vlandev->state = (vlandev->state &~ VLAN_LINK_STATE_MASK) 
+ 					| flgs;
+

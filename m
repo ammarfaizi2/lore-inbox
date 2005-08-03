@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVHCCNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVHCCOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbVHCCNI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 22:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVHCCNI
+	id S261978AbVHCCOx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 22:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVHCCOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 22:13:08 -0400
-Received: from xenotime.net ([66.160.160.81]:59534 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S261976AbVHCCNH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 22:13:07 -0400
-Date: Tue, 2 Aug 2005 19:13:03 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Testing RC kernels [KORG]
-Message-Id: <20050802191303.09e635c3.rdunlap@xenotime.net>
-In-Reply-To: <200508022204.16204.gene.heskett@verizon.net>
-References: <1123007589.24010.41.camel@jy.metro1.com>
-	<1123008881.12562.16.camel@mindpipe>
-	<1123010465.1590.34.camel@localhost.localdomain>
-	<200508022204.16204.gene.heskett@verizon.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 2 Aug 2005 22:14:53 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:13046 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261978AbVHCCOt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 22:14:49 -0400
+Message-ID: <42F0281E.4030001@mvista.com>
+Date: Tue, 02 Aug 2005 19:12:46 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
+References: <4094.1123033708@kao2.melbourne.sgi.com>
+In-Reply-To: <4094.1123033708@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 02 Aug 2005 22:04:16 -0400 Gene Heskett wrote:
-
-> On Tuesday 02 August 2005 15:21, Steven Rostedt wrote:
-> >On Tue, 2005-08-02 at 14:54 -0400, Lee Revell wrote:
-> >> On Tue, 2005-08-02 at 11:36 -0700, Sean Bruno wrote:
-> >> > On Tue, 2005-08-02 at 14:36 -0400, Lee Revell wrote:
-> >> > > On Tue, 2005-08-02 at 11:33 -0700, Sean Bruno wrote:
-> >> > > > <noob question>
-> >> > > >
-> >> > > > I have been trying to test the 2.6.13 and can't quite get
-> >> > > > the patches applied cleanly.
-> >> > > >
-> >> > > > What kernel version (full kernel source tar ball) should I
-> >> > > > be using to apply the patches(rc5) with?  Is it 2.6.12.3?
-> >> > >
-> >> > > No, 2.6.12.
-> >> > >
-> >> > > Lee
-> >> >
-> >> > Ah!  Thanks.
-> >>
-> >> Thanks for testing the RCs, we need more users to do that.
-> >>
-> >> If any of your hardware stops working, make sure to report it,
-> >> don't assume that it will fix itself!  Assume you're the first to
-> >> notice the bug.
-> >
-> >I've been complaining about this for some time. Kernel.org really
-> > needs to show more information about the rc kernels and how to
-> > create them. We want more testers, but I wonder how many people go
-> > through the above steps and just give up when things don't work.
-> > Luckly Sean was nice enough to email the LKML and ask.
-> >
-> >My main gripe is that there's no link to 2.6.12 which is what most
-> > of the other patches go against.
+Keith Owens wrote:
+> On Tue, 02 Aug 2005 18:12:27 -0700, 
+> George Anzinger <george@mvista.com> wrote:
 > 
-> Can someone with access to the html for kernel.org please fix that?  
-> We've had several messages now complaining about this.
+>>How about something like:
+>>	if (current + THREAD_SIZE/sizeof(long) - (regs + sizeof(pt_regs)) > MAGIC)
+> 
+> 
+> current points to the current struct task, regs points to the kernel
+> stack.  Those two data areas can be completely separate, as they are on
+> i386.  Also i386 uses a separate kernel stack for interrupts.
 
-Was the request cc-ed to webmaster@kernel.org (along with
-the [KORG] in the subject line)?
-I can't tell from the email archives.
+Acually I must mean the thread_info and not current.  i386 only uses a 
+seperate stack if you use 4K stacks.  I think others use seperate 
+interrupt stacks, however :(.  Also, on thinking on it, I think some 
+archs don't call the registers pt_regs either.  Oh, well, it was a 
+thought...
 
-> FWIW, gftp users CAN find it, its sitting right in 
-> the /pub/linux/kernel/2.6 directory in plain sight.
-
-Sure, anyone can find it if they search enough subdirectories
-and know what they are looking for.
-
----
-~Randy
+Waiting for its brother... :)
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

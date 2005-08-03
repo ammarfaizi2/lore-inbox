@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVHCSIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVHCSNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbVHCSIr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 14:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVHCSIr
+	id S262366AbVHCSNK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 14:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVHCSNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 14:08:47 -0400
-Received: from bee.hiwaay.net ([216.180.54.11]:42312 "EHLO bee.hiwaay.net")
-	by vger.kernel.org with ESMTP id S262385AbVHCSIo (ORCPT
+	Wed, 3 Aug 2005 14:13:10 -0400
+Received: from server262.com ([64.14.68.15]:17320 "EHLO server262.com")
+	by vger.kernel.org with ESMTP id S262366AbVHCSNI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 14:08:44 -0400
-Date: Wed, 3 Aug 2005 13:08:35 -0500
-From: Chris Adams <cmadams@hiwaay.net>
-To: linux-kernel@vger.kernel.org
-Cc: Simon Matter <simon.matter@invoca.ch>
-Subject: Re: File corruption on LVM2 on top of software RAID1
-Message-ID: <20050803180835.GA1043467@hiwaay.net>
+	Wed, 3 Aug 2005 14:13:08 -0400
+Subject: Re: ahci, SActive flag, and the HD activity LED
+From: Adam Goode <adam@evdebs.org>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
+In-Reply-To: <42F05359.7030006@fujitsu-siemens.com>
+References: <42EF93F8.8050601@fujitsu-siemens.com>
+	 <20050802163519.GB3710@suse.de>  <42F05359.7030006@fujitsu-siemens.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-T2iqRVyEcl4pLSqTu15z"
+Date: Wed, 03 Aug 2005 14:12:41 -0400
+Message-Id: <1123092761.3982.20.camel@lynx.auton.cs.cmu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fa.joi2dm7.1l4o8in@ifi.uio.no>
-User-Agent: Mutt/1.4i
-X-Newsgroups: fa.linux.kernel
-Organization: HiWAAY Internet Services
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, "Simon Matter" <simon.matter@invoca.ch> said:
->In my tests I get corrupt files on LVM2 which is on top of software raid1.
->(This is a common setup even mentioned in the software RAID HOWTO and has
->worked for me on RedHat 9 / kernel 2.4 for a long time now and it's my
->favourite configuration). Now, I tested two different distributions, three
->kernels, three different filesystems and three different hardware. I can
->always reproduce it with the following easy scripts:
 
-See:
+--=-T2iqRVyEcl4pLSqTu15z
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-http://bugzilla.kernel.org/show_bug.cgi?id=4946
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=152162
+On Wed, 2005-08-03 at 07:17 +0200, Martin Wilck wrote:
+> Jens Axboe wrote:
+>=20
+> >>If I am reading the specs correctly, that'd mean the ahci driver is=20
+> >>wrong in setting the SActive bit.
+> >=20
+> > I completely agree, that was my reading of the spec as well and hence m=
+y
+> > original posts about this in the NCQ thread.
+>=20
+> Have you (or has anybody else) also seen the wrong behavior of the=20
+> activity LED?
 
-There's a one-line patch in there; see if that fixes the problem for
-you.
+Yes, Dell Precision 380, ICH7R AHCI controller, SATA non-NCQ Western
+Digital drive.
 
--- 
-Chris Adams <cmadams@hiwaay.net>
-Systems and Network Administrator - HiWAAY Internet Services
-I don't speak for anybody but myself - that's enough trouble.
+
+Adam
+
+
+--=-T2iqRVyEcl4pLSqTu15z
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC8QkZlenB4PQRJawRAk3kAJ4yui1ZC8oophTsbDAnUnG0/0kAcgCgghud
+JV+sKoa/yL4Ex5EPdQwi4qU=
+=ufbG
+-----END PGP SIGNATURE-----
+
+--=-T2iqRVyEcl4pLSqTu15z--
+

@@ -1,46 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVHCVxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVHCV4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVHCVxG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 17:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVHCVxG
+	id S261557AbVHCV4K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 17:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVHCV4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 17:53:06 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:23469 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261563AbVHCVxE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 17:53:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=AxqJMSHwYksTPGyHuNrxjCptUm7OUZYL3gtT9IasCbDAoYXhyBLBwrGnzp5aXP8F1jvgkWz2lxH34zBIqCikorEoB1h5t0uub8k+0D79DI4FGwCXIlhCBQlDJuj1RifgVwbaYWOhVtM42o8zOvTH2emwR5AxHFBcYppven4+Eb4=
-From: Andrew James Wade <andrew.j.wade@gmail.com>
-Reply-To: andrew.j.wade@gmail.com
-To: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Testing RC kernels [KORG]
-Date: Wed, 3 Aug 2005 17:52:59 -0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, webmaster@kernel.org
-References: <1123007589.24010.41.camel@jy.metro1.com> <20050802191303.09e635c3.rdunlap@xenotime.net> <200508022330.51364.gene.heskett@verizon.net>
-In-Reply-To: <200508022330.51364.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Aug 2005 17:56:10 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:31514 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S261557AbVHCV4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 17:56:08 -0400
+Date: Wed, 3 Aug 2005 14:55:59 -0700
+From: Mike Waychison <mikew@google.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 0/2] Conversion of /proc/sysvipc/* to seq_file
+Message-ID: <20050803215559.GA3303@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508031753.00402.andrew.j.wade@gmail.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 2, 2005 11:30 pm, Gene Heskett wrote:
-> And my point is that anyone with the skills to build a kernel 
-> shouldn't have any problems at all find it with gftp.
+The following two patches convert /proc/sysvipc/* to use seq_file.
 
-I updated my kernel more frequently after learning of ketchup.
-(<http://www.selenic.com/ketchup/>). The bother of getting the
-patch sequence right and applying it was enough to discourage me.
-No, it's not particularly difficult, but it may well be enough
-to discourage casual testers. 
+This gives us the following:
 
-Posting a link to ketchup on kernel.org may also decrease the
-bandwidth demand, as it seems to be pretty intelligent about
-using patches.
+ - Self-consistent IPC records in proc.
+ - O(n) reading of the files themselves.
+
+Please consider applying.  Thanks,
+
+Mike Waychison

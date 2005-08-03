@@ -1,62 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVHCKt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVHCKw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbVHCKt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 06:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVHCKtZ
+	id S262209AbVHCKw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 06:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVHCKw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 06:49:25 -0400
-Received: from main.gmane.org ([80.91.229.2]:11942 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262208AbVHCKsQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 06:48:16 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andrey Melnikoff <temnota+news@kmv.ru>
-Subject: Re: [PATCH 2.4.31 1/1] scsi/megaraid2: add 64-bit application sup?port
-Date: Wed, 3 Aug 2005 14:44:16 +0400
-Message-ID: <0pj6s2-grt.ln1@kenga.kmv.ru>
-References: <0E3FA95632D6D047BA649F95DAB60E5703662A89@exa-atlanta>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: kenga.kmv.ru
-Cancel-Lock: sha1:AymUAYmVBwGtSVq8pVVjvMNnLcQ=
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.4.31 (i686))
-Cc: linux-scsi@vger.kernel.org
+	Wed, 3 Aug 2005 06:52:59 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:59520 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262209AbVHCKwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 06:52:53 -0400
+Message-ID: <42F0A1F1.50603@gmail.com>
+Date: Wed, 03 Aug 2005 12:52:33 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: mkrufky@m1k.net
+CC: Sean Bruno <sean.bruno@dsl-only.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Testing RC kernels
+References: <1123007589.24010.41.camel@jy.metro1.com> <42EFBD63.2060709@m1k.net>
+In-Reply-To: <42EFBD63.2060709@m1k.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ju, Seokmann <sju@lsil.com> wrote:
-> [-- text/plain, encoding 7bit, charset: iso-8859-1, 1346 lines --]
+Michael Krufky napsal(a):
 
-> Hi Marcelo,
+> 2.6.13-rc* patches apply against 2.6.12  NOT 2.6.12.x
 
-> I've made changes that reflect your comments.
-
-> On Tuesday, July 26, 2005 4:33 AM, Marcelo Tosatti wrote:
-> > vary_io has never been part of mainline. How come did you add it
-> > here?
-> Has removed '.vary_io'.
-> > There is no CONFIG_COMPAT on v2.4... thanks James and Christoph
-> > for reviewing.
-> Has removed 'CONFIG_COMPAT'.
-
-> Thank you.
-
-> Signed-off-by: Seokmann Ju <seokmann.ju@lsil.com>
-Still not compile with gcc-3.4
-
--- cut --
-gcc-3.4 -D__KERNEL__ -I/usr/src/linux-2.4.31/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
--fno-unit-at-a-time   -nostdinc -iwithprefix include
--DKBUILD_BASENAME=megaraid2  -c -o megaraid2.o megaraid2.c
-megaraid2.c: In function `megaraid_queue':
-megaraid2.h:1113: sorry, unimplemented: inlining failed in call to
-'mega_runpendq': function body not available
-megaraid2.c:1033: sorry, unimplemented: called from here
-megaraid2.c: In function `mega_n_to_m':
-megaraid2.c:4658: warning: unused variable `uiocp'
-make[3]: *** [megaraid2.o] Error 1
-
--- cut --
+The best way to find out this, is to look into patch file on
+--- linux-2.6.13-rc4/Makefile
+line, a few lines below is -old version (to patch) and +new version as 
+result ;).
 

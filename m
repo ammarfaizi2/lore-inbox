@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVHCH7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVHCIBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbVHCH7E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 03:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVHCH65
+	id S262138AbVHCIBq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 04:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVHCIBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 03:58:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:58805 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262138AbVHCH6c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 03:58:32 -0400
-Date: Wed, 3 Aug 2005 09:59:16 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jack Steiner <steiner@sgi.com>
-Subject: Re: [patch 2/2] sched: reduce locking in periodic balancing
-Message-ID: <20050803075916.GB6013@elte.hu>
-References: <42EF65A9.1060408@yahoo.com.au> <42EF65FF.2000102@yahoo.com.au> <42EF6628.4070102@yahoo.com.au>
+	Wed, 3 Aug 2005 04:01:45 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14856 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262138AbVHCH7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 03:59:20 -0400
+Date: Wed, 3 Aug 2005 08:59:10 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>, Tony Lindgren <tony@atomide.com>,
+       tuukka.tikkanen@elektrobit.com
+Subject: Re: [PATCH] no-idle-hz aka dynamic ticks
+Message-ID: <20050803085910.A29066@flint.arm.linux.org.uk>
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	ck list <ck@vds.kolivas.org>, Tony Lindgren <tony@atomide.com>,
+	tuukka.tikkanen@elektrobit.com
+References: <200508022225.31429.kernel@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42EF6628.4070102@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200508022225.31429.kernel@kolivas.org>; from kernel@kolivas.org on Tue, Aug 02, 2005 at 10:25:26PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 02, 2005 at 10:25:26PM +1000, Con Kolivas wrote:
+> As promised, here is an updated patch for the newly released 2.6.13-rc5.
+> Boots and runs fine on P4HT (SMP+SMT kernel) built with gcc 4.0.1.
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Please note that ARM already has dyn-tick merged in mainline.  If
+we're going to be adding dyn-tick for x86, please do it in a way
+that we don't create another goddamned awful mess like we did for
+the ARM IRQ stuff.
 
-> During periodic load balancing, don't hold this runqueue's lock while
-> scanning remote runqueues, which can take a non trivial amount of time
-> especially on very large systems.
-> 
-> Holding the runqueue lock will only help to stabalise ->nr_running,
+I notice that this version does some things in a different way to
+the ARM version - for instance, it doesn't pass the "number of
+jiffies to skip" to the arch reprogram function.
 
-s/stabalise/stabilise/
-
-> however this isn't doesn't do much to help because tasks being woken 
-
-s/isn't //
-
-> will simply get held up on the runqueue lock, so ->nr_running would 
-> not provide a really accurate picture of runqueue load in that case 
-> anyway.
-> 
-> What's more, ->nr_running (and possibly the cpu_load averages) of
-> remote runqueues won't be stable anyway, so load balancing is always
-> an inexact operation.
-> 
-> Signed-off-by: Nick Piggin <npiggin@suse.de>
-
-btw., holding the runqueue lock during the initial scanning portion of 
-load-balancing is one of the top PREEMPT_RT critical paths on SMP. (It's 
-not bad, but it's one of the factors that makes SMP latencies higher.)
-
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

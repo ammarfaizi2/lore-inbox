@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVHCJJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVHCJLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbVHCJJV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 05:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVHCJJV
+	id S262163AbVHCJLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 05:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVHCJLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 05:09:21 -0400
-Received: from [195.144.244.147] ([195.144.244.147]:44191 "EHLO
-	amanaus.varma-el.com") by vger.kernel.org with ESMTP
-	id S262166AbVHCJJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 05:09:14 -0400
-Message-ID: <42F089B6.8000304@varma-el.com>
-Date: Wed, 03 Aug 2005 13:09:10 +0400
-From: Andrey Volkov <avolkov@varma-el.com>
-Organization: Varma Electronics Oy
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ru-ru, ru
-MIME-Version: 1.0
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: Greg KH <gregkh@suse.de>, Jamey Hicks <jamey.hicks@hp.com>,
-       linux-kernel@vger.kernel.org, rpurdie@rpsys.net, tony.luck@intel.com,
-       edwardsg@sgi.com
-Subject: Re: [Linux-fbdev-devel] Re: Where is place of arch independed companion
- chips?
-References: <42EB6A12.70100@varma-el.com> <42EE15AF.5050902@hp.com>	 <20050801181357.GA31144@suse.de> <1123019379.7782.86.camel@localhost.localdomain>
-In-Reply-To: <1123019379.7782.86.camel@localhost.localdomain>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=KOI8-R
+	Wed, 3 Aug 2005 05:11:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:19917 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262163AbVHCJJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 05:09:57 -0400
+Subject: Re: [PATCH 00/14] GFS
+From: Arjan van de Ven <arjan@infradead.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       David Teigland <teigland@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+In-Reply-To: <42F01712.2030105@namesys.com>
+References: <20050802071828.GA11217@redhat.com>
+	 <1122968724.3247.22.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0508021655580.4138@yvahk01.tjqt.qr>
+	 <1122994972.3247.31.camel@laptopd505.fenrus.org>
+	 <42F01712.2030105@namesys.com>
+Content-Type: text/plain
+Date: Wed, 03 Aug 2005 11:09:02 +0200
+Message-Id: <1123060142.3363.8.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Purdie wrote:
-> On Mon, 2005-08-01 at 11:13 -0700, Greg KH wrote:
-> 
->>>Good question.  I was about to submit a patch that created 
->>>drivers/platform because the toplevel driver for MQ11xx is a 
->>>platform_device driver.  Any thoughts on this?
->>
->>drivers/platform sounds good to me.
-> 
-> 
-> In another thread (about the ucb1x00) we came up with the idea of
-> drivers/mfd (mfd = multi function devices).
-> 
-> The core and platform specific parts would live here with suitable clear
-> naming and the subsection specific parts that were separable would live
-> in the appropriate place within the kernel.
-> 
-> Just another idea to add to the mix and removes the dilemma of a
-> multifunction device with isn't platform based...
-> 
-drivers/mfd as drivers/mfd, I have not objections. Who will send the
-patch first?
 
---
-Regards
-Andrey Volkov
+> I don't know anything about GFS, but expecting a filesystem author to
+> use a journaling layer he does not want to is a bit arrogant.
 
-P.S. Tony, Greg, may be it will someone from you? (I've in mind sn/ subdir)
-
-
-
+good that I didn't expect that then.
+I think it's fair enough to ask people if they can use it. If the answer
+is "No because it doesn't fit our model <here>" then that's fine. If the
+answer is "eh yeah we could" then I think it's entirely reasonable to
+expect people to use common code as opposed to adding new code.
 
 

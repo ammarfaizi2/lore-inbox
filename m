@@ -1,35 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVHCBt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVHCCAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbVHCBt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 21:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbVHCBt2
+	id S261965AbVHCCAw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 22:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVHCCAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 21:49:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:18834 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261971AbVHCBtD (ORCPT
+	Tue, 2 Aug 2005 22:00:52 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:56920 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261965AbVHCCAt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 21:49:03 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: george@mvista.com
-cc: Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01 
-In-reply-to: Your message of "Tue, 02 Aug 2005 18:12:27 MST."
-             <42F019FB.1030200@mvista.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 03 Aug 2005 11:48:28 +1000
-Message-ID: <4094.1123033708@kao2.melbourne.sgi.com>
+	Tue, 2 Aug 2005 22:00:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ln+0qvyuxElSh2RPYJzq3HCoZ4ucSfR+tx/hvX9dtUSBWe7MohbC/1qvwgviu9wCABOIc7MsuBAAF05W70xRjGMEoAwD8p43LKWJN1rBbmsTsOrqYIaq4o80a402nQxs+fTCrcNoiZzCe9At9ycvqkZ660B7lcPU5pB6PCaTv7Q=
+Message-ID: <42F0254E.8020309@gmail.com>
+Date: Tue, 02 Aug 2005 22:00:46 -0400
+From: Puneet Vyas <vyas.puneet@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Documentation - how to apply patches for various trees
+References: <200508022332.21380.jesper.juhl@gmail.com>
+In-Reply-To: <200508022332.21380.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 02 Aug 2005 18:12:27 -0700, 
-George Anzinger <george@mvista.com> wrote:
->How about something like:
->	if (current + THREAD_SIZE/sizeof(long) - (regs + sizeof(pt_regs)) > MAGIC)
+Thanks for this wonderful effort! Add one more to the testing team.
 
-current points to the current struct task, regs points to the kernel
-stack.  Those two data areas can be completely separate, as they are on
-i386.  Also i386 uses a separate kernel stack for interrupts.
+~Puneet
+
+Jesper Juhl wrote:
+
+>Hi, 
+>
+>How to apply the -rc, -git, -mm and the 2.6.x.y (-stable) patches is a quite
+>frequently asked question on LKML and elsewhere. 
+>Since so many people seem to be confused by this I gathered it ought to be 
+>properly documented once and for all so we  a) get more people testing those 
+>trees  and  b) get asked this question less often.
+>So, I sat down and wrote such a document.
+>  
+>
 

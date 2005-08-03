@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVHCOWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVHCOX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVHCOWO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 10:22:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbVHCOWO
+	id S261632AbVHCOX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 10:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVHCOX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 10:22:14 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:60815 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261399AbVHCOWM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 10:22:12 -0400
-Date: Wed, 3 Aug 2005 16:20:57 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-Subject: Re: [UPDATE PATCH] Add schedule_timeout_{intr,unintr}{,_msecs}()
- interfaces
-In-Reply-To: <20050801193522.GA24909@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0508031419000.3728@scrub.home>
-References: <1122116986.3582.7.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231340070.3743@scrub.home> <1122123085.3582.13.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231456000.3728@scrub.home> <20050723164310.GD4951@us.ibm.com>
- <Pine.LNX.4.61.0507231911540.3743@scrub.home> <20050723191004.GB4345@us.ibm.com>
- <Pine.LNX.4.61.0507232151150.3743@scrub.home> <20050727222914.GB3291@us.ibm.com>
- <Pine.LNX.4.61.0507310046590.3728@scrub.home> <20050801193522.GA24909@us.ibm.com>
+	Wed, 3 Aug 2005 10:23:59 -0400
+Received: from outmx010.isp.belgacom.be ([195.238.3.233]:60618 "EHLO
+	outmx010.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S261636AbVHCOXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 10:23:53 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+Date: Wed, 3 Aug 2005 16:23:59 +0200
+User-Agent: KMail/1.8.1
+Cc: Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com
+References: <200508031559.24704.kernel@kolivas.org> <200508031354.52972.lkml@kcore.org> <200508032214.45451.kernel@kolivas.org>
+In-Reply-To: <200508032214.45451.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508031624.00319.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 03 August 2005 14:14, Con Kolivas wrote:
+> On Wed, 3 Aug 2005 21:54, Jan De Luyck wrote:
+> > On Wednesday 03 August 2005 07:59, Con Kolivas wrote:
+> > > This is the dynamic ticks patch for i386 as written by Tony Lindgen
+> > > <tony@atomide.com> and Tuukka Tikkanen
+> > > <tuukka.tikkanen@elektrobit.com>. Patch for 2.6.13-rc5
+> >
+> > Compiles and runs ok here.
+> >
+> > Is there actually any timer frequency that's advisable to set as maximum?
+> > (in the kernel config)
+>
+> I'd recommend 1000.
 
-On Mon, 1 Aug 2005, Nishanth Aravamudan wrote:
+Thanks. Currently the system - under X, KDE, no artsd, bottoms at around 
+300HZ. In total single mode with every module unloaded that I can unload it 
+stops around 22HZ.
 
-> +unsigned int __sched schedule_timeout_msecs(unsigned int timeout_msecs)
-> +{
-> +	unsigned long expire_jifs;
-> +
-> +	if (timeout_msecs == MAX_SCHEDULE_TIMEOUT_MSECS) {
-> +		expire_jifs = MAX_SCHEDULE_TIMEOUT;
-> +	} else {
-> +		/*
-> +		 * msecs_to_jiffies() is a unit conversion, which truncates
-> +		 * (rounds down), so we need to add 1.
-> +		 */
-> +		expire_jifs = msecs_to_jiffies(timeout_msecs) + 1;
-> +	}
-> +
-> +	expire_jifs = schedule_timeout(expire_jifs);
-> +
-> +	/*
-> +	 * don't need to add 1 here, even though there is truncation,
-> +	 * because we will add 1 if/when the value is sent back in
-> +	 */
-> +	return jiffies_to_msecs(expire_jifs);
-> +}
+I guess I'll have to go hunting whatever thing is causing the pollings. no 
+timertop yet, I guess? :P
 
-As I already mentioned for msleep_interruptible this is a really terrible 
-interface.
-The "jiffies_to_msecs(msecs_to_jiffies(timeout_msecs) + 1)" case (when the 
-process is immediately woken up again) makes the caller suspectible to 
-timeout manipulations and requires constant reauditing, that no caller 
-gets it wrong, so it's better to avoid this error source completely.
-Constant conversion between different time units is a really bad idea. If 
-the user needs the remaining time, he is really better off to do it 
-himself by checking jiffies and only does an initial conversion from 
-relative to absolute (kernel) time.
-This wrapper function really should be an inline function and should look 
-more like this:
+Jan
 
-static inline int schedule_timeout_msecs(unsigned int timeout_msecs)
-{
-	return schedule_timeout(msecs_to_jiffies(timeout_msecs) + 1) != 0;
-}
-
-bye, Roman
+-- 
+If you give Congress a chance to vote on both sides of an issue, it
+will always do it.
+		-- Les Aspin, D., Wisconsin

@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVHCFpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbVHCFy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbVHCFpL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 01:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVHCFpL
+	id S262062AbVHCFy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 01:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVHCFy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 01:45:11 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:60895 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262061AbVHCFpI (ORCPT
+	Wed, 3 Aug 2005 01:54:28 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47027 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262062AbVHCFy0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 01:45:08 -0400
-Date: Tue, 2 Aug 2005 22:44:59 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [PATCH] String conversions for memory policy
-Message-Id: <20050802224459.5f30d73e.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0508012311170.16052@graphe.net>
-References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
-	<20050729152049.4b172d78.pj@sgi.com>
-	<Pine.LNX.4.62.0507291746000.8663@graphe.net>
-	<20050729230026.1aa27e14.pj@sgi.com>
-	<Pine.LNX.4.62.0507301042420.26355@graphe.net>
-	<20050730181418.65caed1f.pj@sgi.com>
-	<Pine.LNX.4.62.0507301814540.31359@graphe.net>
-	<20050730190126.6bec9186.pj@sgi.com>
-	<Pine.LNX.4.62.0507301904420.31882@graphe.net>
-	<20050730191228.15b71533.pj@sgi.com>
-	<Pine.LNX.4.62.0508011147030.5541@graphe.net>
-	<20050801160351.71ee630a.pj@sgi.com>
-	<Pine.LNX.4.62.0508011618120.9351@graphe.net>
-	<20050801165947.36b5da96.pj@sgi.com>
-	<Pine.LNX.4.62.0508011713540.9824@graphe.net>
-	<20050801223304.2a8871e8.pj@sgi.com>
-	<Pine.LNX.4.62.0508012311170.16052@graphe.net>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Wed, 3 Aug 2005 01:54:26 -0400
+Date: Wed, 3 Aug 2005 07:54:13 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: mdew <some.nzguy@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net, Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Fw: ati-remote strangeness from 2.6.12 onwards
+Message-ID: <20050803055413.GB1399@elf.ucw.cz>
+References: <20050730173253.693484a2.akpm@osdl.org> <1c1c8636050801220442d8351c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1c1c8636050801220442d8351c@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph wrote:
-> Could you rework the patch to all of that?
+Hi!
 
-Next week - I am on vacation at the moment.
+> I discovered a minor change in 2.6.10-mm1, changing this value back
+> corrects the "ok" button issue.
+> 
+> 
+> diff -urN linux/drivers/usb/input/ati_remote.c
+> linux-2.6.11/drivers/usb/input/ati_remote.c
+> --- linux/drivers/usb/input/ati_remote.c        2005-08-02
+> 17:56:26.000000000 +1200
+> +++ linux-2.6.11/drivers/usb/input/ati_remote.c 2005-08-02
+> 17:54:34.000000000 +1200
+> @@ -263,7 +263,7 @@
+>         {KIND_FILTERED, 0xe4, 0x1f, EV_KEY, KEY_RIGHT, 1},      /* right */
+>         {KIND_FILTERED, 0xe7, 0x22, EV_KEY, KEY_DOWN, 1},       /* down */
+>         {KIND_FILTERED, 0xdf, 0x1a, EV_KEY, KEY_UP, 1},         /* up */
+> -       {KIND_FILTERED, 0xe3, 0x1e, EV_KEY, KEY_ENTER, 1},      /* "OK" */
+> +       {KIND_FILTERED, 0xe3, 0x1e, EV_KEY, KEY_OK, 1},         /* "OK" */
+>         {KIND_FILTERED, 0xce, 0x09, EV_KEY, KEY_VOLUMEDOWN, 1}, /* VOL + */
+>         {KIND_FILTERED, 0xcd, 0x08, EV_KEY, KEY_VOLUMEUP, 1},   /* VOL - */
+>         {KIND_FILTERED, 0xcf, 0x0a, EV_KEY, KEY_MUTE, 1},       /* MUTE  */
+
+I'd say that KEY_ENTER is perhaps more logical there? It is certainly
+more usefull than "OK" key.
+								Pavel
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+teflon -- maybe it is a trademark, but it should not be.

@@ -1,95 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVHCRj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVHCRuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbVHCRj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 13:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVHCRj3
+	id S262376AbVHCRuN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 13:50:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVHCRuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 13:39:29 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:40951 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262368AbVHCRj2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 13:39:28 -0400
-Message-ID: <42F100C8.8040700@mvista.com>
-Date: Wed, 03 Aug 2005 10:37:12 -0700
-From: Mark Bellon <mbellon@mvista.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] IDE disks show invalid geometries in /proc/ide/hd*/geometry
-References: <42EFE547.3010206@mvista.com>	 <Pine.LNX.4.10.10508030018390.21865-100000@master.linux-ide.org> <58cb370e05080310195c244f72@mail.gmail.com>
-In-Reply-To: <58cb370e05080310195c244f72@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Aug 2005 13:50:13 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:41376 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262373AbVHCRuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 13:50:10 -0400
+Date: Wed, 3 Aug 2005 10:49:43 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: kylin <fierykylin@gmail.com>
+Cc: rajesh.shah@intel.com, linux-kernel@vger.kernel.org,
+       linux-newbie@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       linux-hotplug-devel@lists.sourceforge.net, dkumar@noida.hcltech.com
+Subject: Re: Re: Problem while inserting pciehp (PCI Express Hot-plug) driver
+Message-ID: <20050803104940.A3754@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <87ab37ab0507300920570b0ea6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <87ab37ab0507300920570b0ea6@mail.gmail.com>; from fierykylin@gmail.com on Sun, Jul 31, 2005 at 12:20:30AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
+On Sun, Jul 31, 2005 at 12:20:30AM +0800, kylin wrote:
+> I wonder if i can workaround the MSI using the polling way on the
+> server geared by E7520 and the firmware with no OSC implemented
+> 
+Per the PCI firmware spec (I'm looking at draft 0.9, version 3.0),
+the OS must explicitly get control of native pcie hotplug from
+firmware using _OSC before trying to use it. Firmware may be
+deliberately not creating an _OSC because it is controlling the
+hotplug hardware, or may be aware of other reasons (e.g. errata)
+why OS native pcie hotplug should not be used on this platform.
+So no, I don't think we can load and use pciehp if there's
+no _OSC implemented in firmware.
 
->Hi,
->
->The topic was discussed to death on linux-kernel.
->
->Mark, you need to fix your applications and stop using /proc/ide/hd*/geometry
->or/and HDIO_GET_GEO ioctl (which BTW your patch also affects).
->  
->
-Fixing the applications I can understand but the patch still seems 
-necessary, to me, so the
-HDIO_GET_GEO returns "rational" values.
-
-I tested  HDIO_GET_GEO and it returns the same broken values as go into 
-/proc (no surprises) without my patch.
-
-If a drive is in LBA mode (28 or 48 bit) the existing code doesn't 
-always "fix up" the geometry properly for some value returns. It only 
-tries with 48 bit mode and it fails there for some values.  My patch 
-forces a complete geometry and appears (to me) to preserve the side 
-efefcts of the existing code.
-
-Am I missing something?
-
-mark
-
->Bartlomiej
->
->On 8/3/05, Andre Hedrick <andre@linux-ide.org> wrote:
->  
->
->>Did you read ATA-1 through ATA-7 to understand all the variations?
->>
->>On Tue, 2 Aug 2005, Mark Bellon wrote:
->>
->>    
->>
->>>The ATA specification tells large disk drives to return C/H/S data of
->>>16383/16/63 regardless of their actual size (other variations on this
->>>return include 15 heads and/or 4092 cylinders). Unfortunately these CHS
->>>data confuse the existing IDE code and cause it to report invalid
->>>geometries in /proc when the disk runs in LBA mode.
->>>
->>>The invalid geometries can cause failures in the partitioning tools;
->>>partitioning may be impossible or illogical size limitations occur. This
->>>also leads to various forms of human confusion.
->>>
->>>I attach a patch that fixes this problem while strongly attempting to
->>>not break any existing side effects and await any comments.
->>>
->>>mark
->>>
->>>Signed-off-by: Mark Bellon <mbellon@mvista.com>
->>>
->>>
->>>      
->>>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
->>    
->>
-
+Rajesh

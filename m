@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262252AbVHCMIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVHCMFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262252AbVHCMIg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 08:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVHCMFu
+	id S262261AbVHCMFi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 08:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVHCMDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 08:05:50 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10956 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262248AbVHCMDg (ORCPT
+	Wed, 3 Aug 2005 08:03:32 -0400
+Received: from mail.isurf.ca ([66.154.97.68]:34194 "EHLO columbo.isurf.ca")
+	by vger.kernel.org with ESMTP id S262248AbVHCMBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 08:03:36 -0400
-Date: Wed, 3 Aug 2005 14:04:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       LKML <linux-kernel@vger.kernel.org>, Daniel Walker <dwalker@mvista.com>
-Subject: Re: [Question] arch-independent way to differentiate between user andkernel
-Message-ID: <20050803120413.GA12317@elte.hu>
-References: <20050802101920.GA25759@elte.hu> <1123011928.1590.43.camel@localhost.localdomain> <1123025895.25712.7.camel@dhcp153.mvista.com> <1123027226.1590.59.camel@localhost.localdomain> <1123035909.11101.1.camel@c-67-188-6-232.hsd1.ca.comcast.net> <1123036936.1590.69.camel@localhost.localdomain> <1123037933.11101.11.camel@c-67-188-6-232.hsd1.ca.comcast.net> <1123065472.1590.84.camel@localhost.localdomain> <Pine.LNX.4.61.0508030647140.9343@chaos.analogic.com> <1123069449.1590.93.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123069449.1590.93.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 3 Aug 2005 08:01:18 -0400
+Message-ID: <42F0B223.20404@staticwave.ca>
+Date: Wed, 03 Aug 2005 08:01:39 -0400
+From: Gabriel Devenyi <ace@staticwave.ca>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ck] [ANNOUNCE] Interbench v0.26
+References: <200508031758.31246.kernel@kolivas.org>
+In-Reply-To: <200508031758.31246.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You haven't quite completely fixed the SD calculations it seems:
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> On Wed, 2005-08-03 at 06:56 -0400, linux-os (Dick Johnson) wrote:
-> > On Wed, 3 Aug 2005, Steven Rostedt wrote:
-> > The interrupt handler gets a pointer to a structure called "struct pt_regs".
-> > That contains, amongst other things, the registers pushed onto the stack
-> > during the interrupt. If the segments were kernel segments, the interrupt
-> > occurred while in kernel mode. But..... If you have any code that
-> > needs to know, it's horribly and irreparably broken beyond all
-> > repair. Interrupts need to be handled NOW, without regard to what
-> > got interrupted.
-> > 
+--- Benchmarking simulated cpu of Gaming in the presence of simulated---
+Load    Latency +/- SD (ms)  Max Latency   % Desired CPU
+None       2.44 +/- nan         48.6            98.7
+Video      12.8 +/- nan         55.2              89
+X          89.7 +/- nan          494            52.8
+Burn        400 +/- nan         1004            20.1
+Write      49.2 +/- nan          343            67.2
+Read       4.14 +/- nan         56.7            96.7
+Compile     551 +/- nan         1369            15.4
+
+
+--
+Gabriel Devenyi
+ace@staticwave.ca
+
+Con Kolivas wrote:
+> This benchmark application is designed to benchmark interactivity in Linux.
 > 
-> By the time you get to __do_IRQ there's already more stuff on the 
-> stack. And the pt_regs is arch specific so this doesn't help.
-
-the actual layout of pt_regs is arch-specific, but user_mode(regs) is 
-pretty much generic across most arches.
-
-	Ingo
+> Direct download link:
+> http://ck.kolivas.org/apps/interbench/interbench-0.26.tar.bz2
+> 
+> Web site:
+> http://interbench.kolivas.org
+> 
+> Changes since v0.24:
+> 
+> v0.25:
+> The timekeeping thread of background load no longer runs SCHED_FIFO. The 
+> benchmark is allowed to proceed if it does not detect swap and instead 
+> disables mem_load. The documentation was updated.
+> 
+> v0.26:
+> Fixed the standard deviation measurements at last (thanks Peter Williams). 
+> There should be no practical limit to how long you can run a benchmark for 
+> now.
+> 
+> Cheers,
+> Con
+> _______________________________________________
+> ck@vds.kolivas.org
+> ck mailing list. Please reply-to-all when posting.
+> If replying to an email please reply below the original message.
+> http://bhhdoa.org.au/mailman/listinfo/ck
+> 

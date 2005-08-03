@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVHCXij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVHCXxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVHCXij (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 19:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVHCXij
+	id S261641AbVHCXxk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 19:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVHCXxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 19:38:39 -0400
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:25544 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261622AbVHCXii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 19:38:38 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck@vds.kolivas.org
-Subject: Re: [ck] [ANNOUNCE] Interbench v0.26
-Date: Thu, 4 Aug 2005 09:34:19 +1000
-User-Agent: KMail/1.8.1
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Jake Moilanen <moilanen@austin.ibm.com>, linux-kernel@vger.kernel.org
-References: <200508031758.31246.kernel@kolivas.org> <42F15264.20409@bigpond.net.au> <200508040925.57577.kernel@kolivas.org>
-In-Reply-To: <200508040925.57577.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Aug 2005 19:53:40 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:2973 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261641AbVHCXxi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 19:53:38 -0400
+Date: Thu, 4 Aug 2005 01:56:39 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
+       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>,
+       Bodo Eggert <7eggert@gmx.de>, Gene Heskett <gene.heskett@verizon.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, David Brown <dmlb2000@gmail.com>,
+       Puneet Vyas <vyas.puneet@gmail.com>,
+       Richard Hubbell <richard.hubbell@gmail.com>, webmaster@kernel.org
+Message-ID: <20050803235639.GC6223@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Jesper Juhl <jesper.juhl@gmail.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	"Randy.Dunlap" <rdunlap@xenotime.net>,
+	Rolf Eike Beer <eike-kernel@sf-tec.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
+	Sean Bruno <sean.bruno@dsl-only.net>,
+	Lee Revell <rlrevell@joe-job.com>, Bodo Eggert <7eggert@gmx.de>,
+	Gene Heskett <gene.heskett@verizon.net>,
+	"H. Peter Anvin" <hpa@zytor.com>, David Brown <dmlb2000@gmail.com>,
+	Puneet Vyas <vyas.puneet@gmail.com>,
+	Richard Hubbell <richard.hubbell@gmail.com>, webmaster@kernel.org
+References: <200508022332.21380.jesper.juhl@gmail.com> <200508032251.07996.jesper.juhl@gmail.com> <Pine.LNX.4.58.0508031400390.3258@g5.osdl.org> <200508032328.07727.jesper.juhl@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508040934.19498.kernel@kolivas.org>
+In-Reply-To: <200508032328.07727.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: 84.189.229.180
+Subject: Re: Documentation - how to apply patches for various trees
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Aug 2005 09:25 am, Con Kolivas wrote:
-> On Thu, 4 Aug 2005 09:25 am, Peter Williams wrote:
-> > Con Kolivas wrote:
-> > > On Wed, 3 Aug 2005 22:01, Gabriel Devenyi wrote:
-> > >>You haven't quite completely fixed the SD calculations it seems:
-> > >>
-> > >>
-> > >>--- Benchmarking simulated cpu of Gaming in the presence of
-> > >> simulated--- Load    Latency +/- SD (ms)  Max Latency   % Desired CPU
-> > >>None       2.44 +/- nan         48.6            98.7
-> > >>Video      12.8 +/- nan         55.2              89
-> > >>X          89.7 +/- nan          494            52.8
-> > >>Burn        400 +/- nan         1004            20.1
-> > >>Write      49.2 +/- nan          343            67.2
-> > >>Read       4.14 +/- nan         56.7            96.7
-> > >>Compile     551 +/- nan         1369            15.4
-> > >>
-> > >>:(
-> > >
-> > > I keep trying
-> >
-> > The problem is a variation of the original one that I pointed out.  The
-> > value that's being added to the sum of the squares of the latency is not
-> > always the square of the value being added to the latency.
-> >
-> > Would you like me to fix it and send you a patch?
->
-> I fixed that too in what is in front of me (sorry not the one I've released
-> it was only clear to me when this report came back) and am still hitting
-> some bug somewhere. I've yet to track it down.
+On Wed, Aug 03, 2005 Jesper Juhl wrote:
+> +How do I feed a patch/diff file to `patch'?
+> +---
+> + This (as usual with Linux and other UNIX like operating systems) can be
+> +done in several different ways.
+> +In all the examples below I feed the file (in uncompressed form) to patch
+> +via stdin using the following syntax:
+> +	patch -p1 < path/to/patch-x.y.z
 
-Silly me. The gaming emulation doesn't use periodic_schedule so I wasn't 
-storing the data anywhere for standard deviation. Will release a fixed 
-version soon.
+I think you should mention the -s flag. Given the size of an
+average kernel patch it is otherwise very likely that errors scroll
+away unnoticed.
 
-Cheers,
-Con
+OTOH you might also want to add a mention of lsdiff and diffstat.
+
+Johannes

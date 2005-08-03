@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVHCLtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVHCMIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbVHCLtI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 07:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVHCLrb
+	id S262253AbVHCMIh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 08:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVHCMFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 07:47:31 -0400
-Received: from gate.crashing.org ([63.228.1.57]:18350 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262229AbVHCLpF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 07:45:05 -0400
-Subject: Re: Calling suspend() in halt/restart/shutdown -> not a good idea
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050802095401.GB1442@elf.ucw.cz>
-References: <1122908972.18835.153.camel@gaston>
-	 <20050801203728.2012f058.Ballarin.Marc@gmx.de>
-	 <1122926885.30257.4.camel@gaston>  <20050802095401.GB1442@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 03 Aug 2005 13:40:54 +0200
-Message-Id: <1123069255.30257.27.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Wed, 3 Aug 2005 08:05:43 -0400
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:34008 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262253AbVHCMEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 08:04:20 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Gabriel Devenyi <ace@staticwave.ca>
+Subject: Re: [ck] [ANNOUNCE] Interbench v0.26
+Date: Wed, 3 Aug 2005 22:03:44 +1000
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org,
+       Jake Moilanen <moilanen@austin.ibm.com>
+References: <200508031758.31246.kernel@kolivas.org> <42F0B223.20404@staticwave.ca>
+In-Reply-To: <42F0B223.20404@staticwave.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508032203.44795.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Aug 2005 22:01, Gabriel Devenyi wrote:
+> You haven't quite completely fixed the SD calculations it seems:
+>
+>
+> --- Benchmarking simulated cpu of Gaming in the presence of simulated---
+> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU
+> None       2.44 +/- nan         48.6            98.7
+> Video      12.8 +/- nan         55.2              89
+> X          89.7 +/- nan          494            52.8
+> Burn        400 +/- nan         1004            20.1
+> Write      49.2 +/- nan          343            67.2
+> Read       4.14 +/- nan         56.7            96.7
+> Compile     551 +/- nan         1369            15.4
 
-> I'd like to get rid of shutdown callback. Having two copies of code
-> (one in callback, one in suspend) is ugly.
+>:(
 
-Well, it's obviously not a good time for this. First, suspend and
-shutdown don't necessarily do the same thing, then it just doesn't work
-in practice. So either do it right completely or not at all, but 2.6.13
-isn't the place for an half-assed hack that looks like a solution to
-you.
+I keep trying
 
-I do agree that there are enough similarities between the suspend and
-shutdown process that we could use the same callback, but then, please,
-at least with a different argument and with drivers beeing fixed to
-handle it. Most drivers should probably just "ignore" shutdown anyway.
-
-BTW. I suppose we still have the same constant for PMSG_FREEZE and
-PMSG_SUSPEND ? That could have been fixed ages ago and is more important
-imho....
-
-Ben.
-
-
+Con

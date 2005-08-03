@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVHCK0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVHCK2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262200AbVHCK0o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 06:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVHCK0n
+	id S262194AbVHCK2w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 06:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVHCK0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 06:26:43 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:21356 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262202AbVHCKZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 06:25:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=YW2A+gWvuPTipXIy34u0EDn5a59JpoS9jQSEry0FqPExFJOe5Nlszl3pVyUlxSZhSb8tfSnRJ1rpL0QIi7E2kq2VSyOnjhDS3dP9RN+vTsjzcAesZt7Df3Qm3RmDsTDJHWDlFSVGj/Y8AgWrIgxZ9C31zxMakNzHVP1/MWbRotA=  ;
-Message-ID: <42F09BA8.9030403@yahoo.com.au>
-Date: Wed, 03 Aug 2005 20:25:44 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+	Wed, 3 Aug 2005 06:26:54 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:27536 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262207AbVHCKYh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 06:24:37 -0400
+In-Reply-To: <Pine.LNX.4.61.0508022150530.10815@goblin.wat.veritas.com>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Roland McGrath <roland@redhat.com>, Linus Torvalds <torvalds@osdl.org>
+X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
+Message-ID: <OFE9263DCA.5243AC8F-ON42257052.0038D22F-42257052.00392CDD@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Wed, 3 Aug 2005 12:24:30 +0200
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 03/08/2005 12:24:33
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jack Steiner <steiner@sgi.com>
-Subject: Re: [patch 2/2] sched: reduce locking in periodic balancing
-References: <42EF65A9.1060408@yahoo.com.au> <42EF65FF.2000102@yahoo.com.au> <42EF6628.4070102@yahoo.com.au> <20050803075916.GB6013@elte.hu>
-In-Reply-To: <20050803075916.GB6013@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+Hugh Dickins <hugh@veritas.com> wrote on 08/02/2005 10:55:31 PM:
 
-[...]
+> > Go for it, I think whatever we do won't be wonderfully pretty.
+>
+> Here we are: get_user_pages quite untested, let alone the racy case,
+> but I think it should work.  Please all hack it around as you see fit,
+> I'll check mail when I get home, but won't be very responsive...
 
-Thanks for the corrections.
+Ahh, just tested it and everythings seems to work (even for s390)..
+I'm happy :-)
 
-> 
-> btw., holding the runqueue lock during the initial scanning portion of 
-> load-balancing is one of the top PREEMPT_RT critical paths on SMP. (It's 
-> not bad, but it's one of the factors that makes SMP latencies higher.)
-> 
+blue skies,
+   Martin
 
-Good, I'm glad they will be of some immediate help.
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
-> 
-
-Thanks.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

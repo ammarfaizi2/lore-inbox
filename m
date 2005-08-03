@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVHCPlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbVHCPum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbVHCPlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 11:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVHCPlQ
+	id S262300AbVHCPum (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 11:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbVHCPum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 11:41:16 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:17077 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S262251AbVHCPlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 11:41:15 -0400
-From: Grant Coady <lkml@dodo.com.au>
-To: Adrian Bunk <bunk@stusta.de>
+	Wed, 3 Aug 2005 11:50:42 -0400
+Received: from out01.east.net ([210.56.193.7]:28591 "EHLO out01.east.net")
+	by vger.kernel.org with ESMTP id S262300AbVHCPuk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 11:50:40 -0400
+Subject: Re: [PATCH] latency logger for
+	realtime-preempt-2.6.12-final-V0.7.51-30
+From: Yang Yi <yang.yi@bmrtech.com>
+Reply-To: yang.yi@bmrtech.com
+To: mingo@elte.hu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc5 randconfig kernel build errors
-Date: Thu, 04 Aug 2005 01:41:11 +1000
-Organization: www.scatter.mine.nu
-Reply-To: lkml@dodo.com.au
-Message-ID: <gmm1f1lnevmoo47vsgpeub6gajgqu8c4qq@4ax.com>
-References: <lrque1drc20ev6o6441mn918e753r7vmki@4ax.com> <1651f199ie23tv14qv8jnnc53m97qdk1uh@4ax.com> <20050803112050.GL4029@stusta.de>
-In-Reply-To: <20050803112050.GL4029@stusta.de>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Date: Wed, 03 Aug 2005 12:19:17 +0800
+Message-Id: <1123042757.2997.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
-On Wed, 3 Aug 2005 13:20:50 +0200, Adrian Bunk <bunk@stusta.de> wrote:
-
+>> Hi, Ingo
 >> 
->> After 300 random builds, add one more error:
->> drivers/acpi/osl.c:261: error: `AmlCode' undeclared (first use in this function)
->> drivers/acpi/osl.c:61:10: empty file name in #include
+>> This patch can record interrupt-off latency, preemption-off latency 
+>> and wakeup latency in a big history array, in the meanwhile, it 
+>> dummies up printks produced by these latency timing.
+
+>looks pretty good! I'll look at merging your patch after KS/OLS.
 >
->Please exclude builds with CONFIG_STANDALONE=n.
-Okay.
->
->And please don't send every new error you are finding to this list.
-Go tell the dimwits not trimming their posts to control themselves, 
-I'm generating minimal traffic with this project.  Certainly far 
-less traffic then that imbecile arguing for _his_ default setting.
+>	Ingo
 
->As I've already said generating the errors is the the easy part -
->analyzing them is the real work.
+Hi, ingo
 
-Starting somewhere, I'll settle :)  It is this feedback I need at 
-start -- sorts of things to exclude.  I'll not get any feedback 
-without reporting stuff to the list.
->
->It would be best if you would do this yourself and send specific bug 
->reports (or even patches) for the problems you've find.
-
-I looked at that AmlCode error source file and grepping for a match 
-failed for entire source tree, so did not understand it.  
->
->If you want to publish the errors you've found, send a pointer to a 
->location where it is available _once_ and update the information there.
-
-Killfile me.  I'm posting far less noise to lkml per month than 
-your daily line count of repetitive, non-informational space 
-wasting dot_sig.
-
-Thanks,
-Grant.
+Do you have any trouble while you merge that latency logger patch?
 

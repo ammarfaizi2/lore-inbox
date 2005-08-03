@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVHCTOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbVHCTUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbVHCTOT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 15:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbVHCTOS
+	id S262414AbVHCTUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 15:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbVHCTUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 15:14:18 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:53141 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262427AbVHCTOO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 15:14:14 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: [PATCH 2.6.12.3] drivers/pci: recognize more ICH7 PCI/SATA chips
-Date: Wed, 3 Aug 2005 12:13:56 -0700
-Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F504764874@orsmsx410>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: [PATCH 2.6.12.3] drivers/pci: recognize more ICH7 PCI/SATA chips
-thread-index: AcWYX364SC6m4vCURu6KtBMiLVIQVA==
-From: "Gaston, Jason D" <jason.d.gaston@intel.com>
-To: <nash@solace.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Aug 2005 19:13:58.0862 (UTC) FILETIME=[801CE6E0:01C5985F]
+	Wed, 3 Aug 2005 15:20:15 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:21227 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262414AbVHCTUN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 15:20:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=naoZf04wyBqS+k2uLIY0kP0cJi6JgH1T3wxjucxdk/mwkbkYR8A1BRxZyKYI9RBNEmiHQkrWSyxvF8YE/rt9Zl382CUOEpvRONm28jGW8ncnjAtbk/aqI8tjwyQzjGaTbYYE5JgO9SrSlUHmMyxbcvYrO7Cuf2r87b1csnujmV4=
+Message-ID: <3afbacad05080312201d388f8e@mail.gmail.com>
+Date: Wed, 3 Aug 2005 21:20:13 +0200
+From: Jim MacBaine <jmacbaine@gmail.com>
+Reply-To: Jim MacBaine <jmacbaine@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com
+In-Reply-To: <200508031559.24704.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200508031559.24704.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is not right.  0x27b8 is the ICH7 LPC controller DID, not a SATA
-Controller DID.  The ICH7 IDE mode SATA controller DID's are 0x27c0 and
-0x27c4 and they are already in the quirks.c file.
+On 8/3/05, Con Kolivas <kernel@kolivas.org> wrote:
 
-Jason Gaston
+> This is the dynamic ticks patch for i386 as written by Tony Lindgen
+> <tony@atomide.com> and Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>.
+> Patch for 2.6.13-rc5
+> 
+> There were a couple of things that I wanted to change so here is an updated
+> version. This code should have stabilised enough for general testing now.
 
+Runs very well here on a (noname) laptop, even with apic timer, the
+desktop does not "feel" different from static 1000HZ.  But dtck
+reproducibly breaks software-suspend2; the kernel will simply stall on
+resume.  Also stalls with dyntick=noapic.  As soon as I set
+CONFIG_NO_IDLE_HZ = n, resume works again.
 
->Message: 124
->Date: Tue, 2 Aug 2005 14:34:41 -0400
->From: Nash <nash@solace.net>
->Subject: Re: [PATCH 2.6.12.3] drivers/pci: recognize more ICH7
->	PCI/SATA chips
->To: linux-kernel@vger.kernel.org
->Message-ID: <20050802183441.GD25843@quack.solace.net>
->Content-Type: text/plain; charset=us-ascii
->
->
->On Tue, Aug 02, 2005 at 02:28:42PM -0400, Nash wrote:
->> 
->> Updated pci/quirks.c to recognize additional ICH7 PCI/SATA controller
->> chips such as those integrated on the ASUS P5WD2 Premium motherboard.
->> 
->> Signed-off-by: Nash E Foster <nash@solace.net>
->
->Blergh, this is the correct ratch. How embarrassing.
->
->Index: linux-2.6.12.3/drivers/pci/quirks.c
->===================================================================
->--- linux-2.6.12.3/drivers/pci/quirks.c 2005-07-15 17:18:57.000000000
->-0400
->+++ linux/drivers/pci/quirks.c  2005-07-26 22:32:09.000000000 -0400
->@@ -1199,6 +1199,7 @@
->        case 0x2680:    /* ESB2 */
->                ich = 6;
->                break;
->+       case 0x27b8:
->        case 0x27c0:
->        case 0x27c4:
->                ich = 7;
+My kernel is 2.6.13-rc5 + swsusp-2.1.9.11 + dtck-3, the system is a
+Mitac 8375 laptop, via chipset, mobile athlon xp, gcc-3.4.4
 
+Regards,
+Jim

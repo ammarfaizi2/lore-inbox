@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVHCH5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVHCH7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbVHCH5u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 03:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVHCH5t
+	id S262139AbVHCH7E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 03:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVHCH65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 03:57:49 -0400
-Received: from ns1.axalto.com ([194.98.128.2]:43196 "EHLO
-	cro-su-02.croissy.axalto.com") by vger.kernel.org with ESMTP
-	id S262136AbVHCH5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 03:57:41 -0400
-Date: Wed, 03 Aug 2005 09:57:39 +0200
-From: bgerard <bgerard@axalto.com>
-Subject: hotplug problem
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <42F078F3.4040808@axalto.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Wed, 3 Aug 2005 03:58:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:58805 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262138AbVHCH6c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 03:58:32 -0400
+Date: Wed, 3 Aug 2005 09:59:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Jack Steiner <steiner@sgi.com>
+Subject: Re: [patch 2/2] sched: reduce locking in periodic balancing
+Message-ID: <20050803075916.GB6013@elte.hu>
+References: <42EF65A9.1060408@yahoo.com.au> <42EF65FF.2000102@yahoo.com.au> <42EF6628.4070102@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42EF6628.4070102@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-I'm working on an embeded system with linux kernel 2.4.27 and busybox 
-1.00. Lately I've decided to add hotplug feature to my kernel in order 
-to automaticaly mount usb keys.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-When I plug the usb key, I can see in the kernel debug that 
-"/sbin/hotplug" is called but my script is not executed. I've tried to 
-replace the hotplug script by a simple one but nothing appeared. Here is 
-my script :
-#!/bin/sh
-echo "usb key un/plugged"
+> During periodic load balancing, don't hold this runqueue's lock while
+> scanning remote runqueues, which can take a non trivial amount of time
+> especially on very large systems.
+> 
+> Holding the runqueue lock will only help to stabalise ->nr_running,
 
-The script is working when I run it myself (./sbin/hotplug )
+s/stabalise/stabilise/
 
-I've also noticed that when kmod try to call modprobe, it's not executed 
-while the debug message says that everything went fine.
+> however this isn't doesn't do much to help because tasks being woken 
 
-Can anyone help me ?
-Thanks in advance.
-Ben.
+s/isn't //
+
+> will simply get held up on the runqueue lock, so ->nr_running would 
+> not provide a really accurate picture of runqueue load in that case 
+> anyway.
+> 
+> What's more, ->nr_running (and possibly the cpu_load averages) of
+> remote runqueues won't be stable anyway, so load balancing is always
+> an inexact operation.
+> 
+> Signed-off-by: Nick Piggin <npiggin@suse.de>
+
+btw., holding the runqueue lock during the initial scanning portion of 
+load-balancing is one of the top PREEMPT_RT critical paths on SMP. (It's 
+not bad, but it's one of the factors that makes SMP latencies higher.)
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

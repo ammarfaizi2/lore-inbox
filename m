@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVHCTzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVHCUAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbVHCTzT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 15:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbVHCTzT
+	id S262433AbVHCUAr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 16:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbVHCUAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 15:55:19 -0400
-Received: from Mail.MNSU.EDU ([134.29.1.12]:63686 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S262430AbVHCTzQ (ORCPT
+	Wed, 3 Aug 2005 16:00:47 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:50839 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S262433AbVHCUAo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 15:55:16 -0400
-Message-ID: <42F12100.5020006@mnsu.edu>
-Date: Wed, 03 Aug 2005 14:54:40 -0500
-From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Wed, 3 Aug 2005 16:00:44 -0400
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: [PATCH] VM: add vm.free_node_memory sysctl
+Date: Wed, 3 Aug 2005 14:59:22 -0500
+User-Agent: KMail/1.8
+cc: "Martin Hicks" <mort@sgi.com>, "Ingo Molnar" <mingo@elte.hu>,
+       "Linux MM" <linux-mm@kvack.org>, "Andrew Morton" <akpm@osdl.org>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20050801113913.GA7000@elte.hu>
+ <20050803142440.GQ26803@localhost>
+ <20050803143855.GA10895@wotan.suse.de>
+In-Reply-To: <20050803143855.GA10895@wotan.suse.de>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
-       tuukka.tikkanen@elektrobit.com
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
-References: <200508031559.24704.kernel@kolivas.org>
-In-Reply-To: <200508031559.24704.kernel@kolivas.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-ID: <200508031459.22834.raybry@mpdtxmail.amd.com>
+X-WSS-ID: 6EEFFDC41UW7222803-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+On Wednesday 03 August 2005 09:38, Andi Kleen wrote:
+> On Wed, Aug 03, 2005 at 10:24:40AM -0400, Martin Hicks wrote:
+> > On Wed, Aug 03, 2005 at 04:15:29PM +0200, Andi Kleen wrote:
+> > > On Wed, Aug 03, 2005 at 09:56:46AM -0400, Martin Hicks wrote:
+> > > > Here's the promised sysctl to dump a node's pagecache.  Please
+> > > > review!
+> > > >
+> > > > This patch depends on the zone reclaim atomic ops cleanup:
+> > > > http://marc.theaimsgroup.com/?l=linux-mm&m=112307646306476&w=2
+> > >
+> > > Doesn't numactl --bind=node memhog nodesize-someslack do the same?
+> > >
+> > > It just might kick in the oom killer if someslack is too small
+> > > or someone has unfreeable data there. But then there should be
+> > > already an sysctl to turn that one off.
+> >
+Hmmm.... What happens if there are already mapped pages (e. g. mapped in the 
+sense that pages are mapped into an address space) on the node and you want 
+to allocate some more, but can't because the node is full of clean page cache 
+pages?   Then one would have to set the memhog argument to the right thing to 
+keep the existing mapped memory from being swapped out, right?  Is the data 
+to set that argument readily available to user space?  Martin's patch has the 
+advantage of targeting just the clean page cache pages.
 
->This is the dynamic ticks patch for i386 as written by Tony Lindgen 
-><tony@atomide.com> and Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>. 
->Patch for 2.6.13-rc5
->
->There were a couple of things that I wanted to change so here is an updated 
->version. This code should have stabilised enough for general testing now.
->
->The sysfs interface was moved to its own directory 
->in /sys/devices/system/dyn_tick and split into separate files to 
->enable/disable dynamic ticks and usage of apic on the fly. It makes sense to 
->enable dynamic ticks and usage of apic by default if they're actually built 
->into the kernel so that is now done.
->  
->
+The way I see this, the problem is that clean page cache pages >>should<< be 
+easily available to be used to satisfy a request for mapped pages.   This 
+works correctly in non-NUMA Linux systems.  But in NUMA Linux systems, we 
+keep tripping over this problem all the time, particularly in the  HPC space, 
+and patches like Martin's come about as an attempt to solve this in the VMM.
+(We trip over this in the sense that we end up allocating off node storage 
+because the current node is full of page cache pages.)
 
-I am successfully running the dynamic tick patch on an old IBM ThinkPad 
-A22m.  When I enable the APIC support console beeps, you know bash -c 
-'echo -e "\a"', takes a REALLY long time to finish.  I'm assuming this 
-is a badly written program and not a kernel problem.  Correct?
+The best answer we have at the present time is to run a memory hog program 
+that forces the clean page cache pages to be reclaimed by putting the node in 
+question under memory pressure, but this seems like an indirect way to solve 
+the problem at hand which is, really, to quickly release those page cache 
+pages and make them available for user programs to allocate.  So the most 
+direct way to fix this is to fix it in the VMM rather than depending on a 
+memory hog based work-around of some kind.   Perhaps we haven't gotten the 
+right set of patches together to do this, but my take is that is where the 
+fix belongs. 
 
-BTW: how do you know what HZ your machine is running at?
-
+And, just for the record (  :-)  ), this is not just an Altix problem.  
+Opterons are NUMA systems too, and we encounter exactly this same problem in 
+the HPC space on 4-node systems.  
 -- 
-Jeffrey Hundstad
+Ray Bryant
+AMD Performance Labs                   Austin, Tx
+512-602-0038 (o)                 512-507-7807 (c)
 

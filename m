@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVHCGxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVHCGxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVHCGxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 02:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVHCGvE
+	id S262118AbVHCGxX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 02:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVHCGxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 02:51:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60634 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262118AbVHCGtN (ORCPT
+	Wed, 3 Aug 2005 02:53:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47579 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262121AbVHCGwn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 02:49:13 -0400
-Date: Tue, 2 Aug 2005 23:48:38 -0700
+	Wed, 3 Aug 2005 02:52:43 -0400
+Date: Tue, 2 Aug 2005 23:52:20 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,10 +17,11 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
        akpm@osdl.org,
-       "alan@lxorguk.ukuu.org.uk Andrew Vasquez" <andrew.vasquez@qlogic.com>,
-       Michael Reed <mdr@sgi.com>
-Subject: [02/13] qla2xxx: Correct handling of fc_remote_port_add() failure case.
-Message-ID: <20050803064838.GQ7762@shell0.pdx.osdl.net>
+       "alan@lxorguk.ukuu.org.uk Siddha, Suresh B" 
+	<suresh.b.siddha@intel.com>,
+       Andi Kleen <ak@suse.de>
+Subject: [04/13] x86_64 memleak from malicious 32bit elf program
+Message-ID: <20050803065220.GS7762@shell0.pdx.osdl.net>
 References: <20050803064439.GO7762@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -34,33 +35,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ------------------
 
-Correct handling of fc_remote_port_add() failure case.
+malicious 32bit app can have an elf section at 0xffffe000.  During
+exec of this app, we will have a memory leak as insert_vm_struct() is
+not checking for return value in syscall32_setup_pages() and thus not
+freeing the vma allocated for the vsyscall page.
 
-Immediately return if fc_remote_port_add() fails to allocate
-resources for the rport.  Original code would result in NULL
-pointer dereference upon failure.
+Check the return value and free the vma incase of failure.
 
-Reported-by: Michael Reed <mdr@sgi.com>
-
-Signed-off-by: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+ arch/x86_64/ia32/syscall32.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
 
---- linux-2.6.12.3.orig/drivers/scsi/qla2xxx/qla_init.c	2005-07-28 11:17:01.000000000 -0700
-+++ linux-2.6.12.3/drivers/scsi/qla2xxx/qla_init.c	2005-07-28 11:17:08.000000000 -0700
-@@ -1914,9 +1914,11 @@
- 		rport_ids.roles |= FC_RPORT_ROLE_FCP_TARGET;
+--- linux-2.6.12.3.orig/arch/x86_64/ia32/syscall32.c	2005-07-28 11:17:01.000000000 -0700
++++ linux-2.6.12.3/arch/x86_64/ia32/syscall32.c	2005-07-28 11:17:11.000000000 -0700
+@@ -57,6 +57,7 @@
+ 	int npages = (VSYSCALL32_END - VSYSCALL32_BASE) >> PAGE_SHIFT;
+ 	struct vm_area_struct *vma;
+ 	struct mm_struct *mm = current->mm;
++	int ret;
  
- 	fcport->rport = rport = fc_remote_port_add(ha->host, 0, &rport_ids);
--	if (!rport)
-+	if (!rport) {
- 		qla_printk(KERN_WARNING, ha,
- 		    "Unable to allocate fc remote port!\n");
-+		return;
+ 	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+ 	if (!vma)
+@@ -78,7 +79,11 @@
+ 	vma->vm_mm = mm;
+ 
+ 	down_write(&mm->mmap_sem);
+-	insert_vm_struct(mm, vma);
++	if ((ret = insert_vm_struct(mm, vma))) {
++		up_write(&mm->mmap_sem);
++		kmem_cache_free(vm_area_cachep, vma);
++		return ret;
 +	}
- 
- 	if (rport->scsi_target_id != -1 && rport->scsi_target_id < MAX_TARGETS)
- 		fcport->os_target_id = rport->scsi_target_id;
+ 	mm->total_vm += npages;
+ 	up_write(&mm->mmap_sem);
+ 	return 0;

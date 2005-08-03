@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbVHCTu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVHCTzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbVHCTu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 15:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbVHCTu5
+	id S262430AbVHCTzT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 15:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbVHCTzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 15:50:57 -0400
-Received: from mail.suse.de ([195.135.220.2]:27855 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262429AbVHCTuy (ORCPT
+	Wed, 3 Aug 2005 15:55:19 -0400
+Received: from Mail.MNSU.EDU ([134.29.1.12]:63686 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S262430AbVHCTzQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 15:50:54 -0400
-Date: Wed, 3 Aug 2005 21:50:53 +0200
-From: Andi Kleen <ak@suse.de>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Disable the debug.exception-trace sysctl by default
-Message-ID: <20050803195053.GC8266@wotan.suse.de>
-References: <1122533610.14066.4.camel@localhost.localdomain> <20050803090344.GI10895@wotan.suse.de> <1123097973.2873.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123097973.2873.4.camel@localhost.localdomain>
+	Wed, 3 Aug 2005 15:55:16 -0400
+Message-ID: <42F12100.5020006@mnsu.edu>
+Date: Wed, 03 Aug 2005 14:54:40 -0500
+From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+References: <200508031559.24704.kernel@kolivas.org>
+In-Reply-To: <200508031559.24704.kernel@kolivas.org>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 03, 2005 at 12:39:33PM -0700, Nicholas Miell wrote:
-> On Wed, 2005-08-03 at 11:03 +0200, Andi Kleen wrote:
-> > On Wed, Jul 27, 2005 at 11:53:30PM -0700, Nicholas Miell wrote:
-> > > debug.exception-trace causes a large amount of log spew when on, and
-> > > it's on by default, which is an irritation.
-> > 
-> > > Here's a patch to turn it off.
-> > Rejected. 
-> 
-> Why?
+Con Kolivas wrote:
 
-It is supposed to print normally silent segfaults. That improves
-quality of software greatly because people actually notice them and
-bugs get only fixed when they are noticed.
+>This is the dynamic ticks patch for i386 as written by Tony Lindgen 
+><tony@atomide.com> and Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>. 
+>Patch for 2.6.13-rc5
+>
+>There were a couple of things that I wanted to change so here is an updated 
+>version. This code should have stabilised enough for general testing now.
+>
+>The sysfs interface was moved to its own directory 
+>in /sys/devices/system/dyn_tick and split into separate files to 
+>enable/disable dynamic ticks and usage of apic on the fly. It makes sense to 
+>enable dynamic ticks and usage of apic by default if they're actually built 
+>into the kernel so that is now done.
+>  
+>
 
-We started it early with the port, but it is still very useful.
+I am successfully running the dynamic tick patch on an old IBM ThinkPad 
+A22m.  When I enable the APIC support console beeps, you know bash -c 
+'echo -e "\a"', takes a REALLY long time to finish.  I'm assuming this 
+is a badly written program and not a kernel problem.  Correct?
 
-Some misguided distributions unfortunately turn it off by default, but
-I think they pay the price in general software quality.
+BTW: how do you know what HZ your machine is running at?
 
+-- 
+Jeffrey Hundstad
 
-> 
-> Getting 5000 lines of
-> "inkscape[13137] trap int3 rip:425051 rsp:7fffffa26158 error:0"
-> in my logs every time I ltrace something is vastly irritating and serves
-> no useful purpose.
-
-Normally it's not supposed to print anything when the process is under control of 
-a debugger.  But we made an exception for strace.
-
-Unfortunately that triggers with ltrace because it uses PTRACE_SYSCALL instead
-of PTRACE_CONT. 
-
-Anyways, this patch would fix that:
-
-
-Index: linux/arch/x86_64/mm/fault.c
-===================================================================
---- linux.orig/arch/x86_64/mm/fault.c
-+++ linux/arch/x86_64/mm/fault.c
-@@ -211,9 +211,7 @@ int unhandled_signal(struct task_struct 
- {
- 	if (tsk->pid == 1)
- 		return 1;
--	/* Warn for strace, but not for gdb */
--	if (!test_ti_thread_flag(tsk->thread_info, TIF_SYSCALL_TRACE) &&
--	    (tsk->ptrace & PT_PTRACED))
-+	if (tsk->ptrace & PT_PTRACED)
- 		return 0;
- 	return (tsk->sighand->action[sig-1].sa.sa_handler == SIG_IGN) ||
- 		(tsk->sighand->action[sig-1].sa.sa_handler == SIG_DFL);
-
-
-> Admittedly, I can (and have) turned this off, but disabling it by
-> default will probably save somebody else the trouble of figuring out
-> where this crap is coming from and how to kill it.
-
-Giving some other users with the pleasure to figure why things mysteriously
-break with silent segfaults. Not a good tradeoff.
-
--Andi

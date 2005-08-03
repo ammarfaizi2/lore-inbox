@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVHCQca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVHCQhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVHCQca (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 12:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVHCQc3
+	id S262327AbVHCQhN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 12:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVHCQhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 12:32:29 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:387 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S262325AbVHCQcW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 12:32:22 -0400
-Subject: Re: [PATCH] optimize writer path in time_interpolator_get_counter()
-From: Alex Williamson <alex.williamson@hp.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.62.0508030907370.24104@schroedinger.engr.sgi.com>
-References: <1122911571.5243.23.camel@tdi>
-	 <200508021837.j72Ib7T9020681@agluck-lia64.sc.intel.com>
-	 <1123080155.5193.15.camel@tdi>
-	 <Pine.LNX.4.62.0508030907370.24104@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: LOSL
-Date: Wed, 03 Aug 2005 10:32:13 -0600
-Message-Id: <1123086733.5193.69.camel@tdi>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Aug 2005 12:37:13 -0400
+Received: from compunauta.com ([69.36.170.169]:62089 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S262327AbVHCQhJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 12:37:09 -0400
+From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove support for gcc < 3.2
+Date: Tue, 2 Aug 2005 21:08:05 -0500
+User-Agent: KMail/1.8
+References: <20050731222606.GL3608@stusta.de>
+In-Reply-To: <20050731222606.GL3608@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200508022108.05391.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-03 at 09:10 -0700, Christoph Lameter wrote:
-> On Wed, 3 Aug 2005, Alex Williamson wrote:
-> 
-> > be a reasonable performance vs absolute accuracy trade-off.  What
-> > happens to your worst case time if you (just for a test) hard code a
-> > min_delta of something around 20-50?  There could be some kind of
-> 
-> Think about a threaded process that gets time on multiple processors 
-> and then compares the times. This means that the time value obtained later 
-> on one thread may indicate a time earlier than that obtained on another 
-> thread. An essential requirement for time values is that they are 
-> monotonically increasing. You are changing that basic nature.
+El Domingo, 31 de Julio de 2005 17:26, escribió:
+> This patch removes support for gcc < 3.2 .
+> [1] support removed: 2.95, 2.96, 3.0, 3.1
+Please keep the 2.95 support I use to use a lot, on not new hardware.
+If you have old hardware with not much resources gcc 2.95 works just fine and 
+fast, even you build the main kernel on other machine, by compatibility 
+issues one or two drivers should be builded a lot of times into the older 
+hardware, then we are forced to build gcc 3.4 or something like.
 
-   Ok, I can see the scenario where that could produce jitter.  However,
-that implies than any exit through that path could produce jitter as it
-is.  For instance:
-
-CPU0				CPU1
-read lcycle
-read itc
-				read lcycle
-				read itc
-cmpxchg
-				oops, lcycle is stale
-
-So the window already exists for this...
-
-	Alex
+:(
 
 -- 
-Alex Williamson                             HP Linux & Open Source Lab
-
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

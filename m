@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVHCJHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVHCJJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbVHCJHE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 05:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVHCJHE
+	id S262166AbVHCJJV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 05:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVHCJJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 05:07:04 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:4293 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262164AbVHCJHC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 05:07:02 -0400
-X-ORBL: [67.117.73.34]
-Date: Wed, 3 Aug 2005 02:06:47 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>, tuukka.tikkanen@elektrobit.com
-Subject: Re: [PATCH] no-idle-hz aka dynamic ticks
-Message-ID: <20050803090646.GF5406@atomide.com>
-References: <200508022225.31429.kernel@kolivas.org> <20050803085910.A29066@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050803085910.A29066@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 3 Aug 2005 05:09:21 -0400
+Received: from [195.144.244.147] ([195.144.244.147]:44191 "EHLO
+	amanaus.varma-el.com") by vger.kernel.org with ESMTP
+	id S262166AbVHCJJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 05:09:14 -0400
+Message-ID: <42F089B6.8000304@varma-el.com>
+Date: Wed, 03 Aug 2005 13:09:10 +0400
+From: Andrey Volkov <avolkov@varma-el.com>
+Organization: Varma Electronics Oy
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ru-ru, ru
+MIME-Version: 1.0
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: Greg KH <gregkh@suse.de>, Jamey Hicks <jamey.hicks@hp.com>,
+       linux-kernel@vger.kernel.org, rpurdie@rpsys.net, tony.luck@intel.com,
+       edwardsg@sgi.com
+Subject: Re: [Linux-fbdev-devel] Re: Where is place of arch independed companion
+ chips?
+References: <42EB6A12.70100@varma-el.com> <42EE15AF.5050902@hp.com>	 <20050801181357.GA31144@suse.de> <1123019379.7782.86.camel@localhost.localdomain>
+In-Reply-To: <1123019379.7782.86.camel@localhost.localdomain>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Russell King <rmk+lkml@arm.linux.org.uk> [050803 00:59]:
-> On Tue, Aug 02, 2005 at 10:25:26PM +1000, Con Kolivas wrote:
-> > As promised, here is an updated patch for the newly released 2.6.13-rc5.
-> > Boots and runs fine on P4HT (SMP+SMT kernel) built with gcc 4.0.1.
+Richard Purdie wrote:
+> On Mon, 2005-08-01 at 11:13 -0700, Greg KH wrote:
 > 
-> Please note that ARM already has dyn-tick merged in mainline.  If
-> we're going to be adding dyn-tick for x86, please do it in a way
-> that we don't create another goddamned awful mess like we did for
-> the ARM IRQ stuff.
+>>>Good question.  I was about to submit a patch that created 
+>>>drivers/platform because the toplevel driver for MQ11xx is a 
+>>>platform_device driver.  Any thoughts on this?
+>>
+>>drivers/platform sounds good to me.
+> 
+> 
+> In another thread (about the ucb1x00) we came up with the idea of
+> drivers/mfd (mfd = multi function devices).
+> 
+> The core and platform specific parts would live here with suitable clear
+> naming and the subsection specific parts that were separable would live
+> in the appropriate place within the kernel.
+> 
+> Just another idea to add to the mix and removes the dilemma of a
+> multifunction device with isn't platform based...
+> 
+drivers/mfd as drivers/mfd, I have not objections. Who will send the
+patch first?
 
-I agree, and will be working on that :)
+--
+Regards
+Andrey Volkov
 
-> I notice that this version does some things in a different way to
-> the ARM version - for instance, it doesn't pass the "number of
-> jiffies to skip" to the arch reprogram function.
+P.S. Tony, Greg, may be it will someone from you? (I've in mind sn/ subdir)
 
-I've been meaning to update the x86 stuff with the changes we did for
-ARM as soon as I have some time.
 
-Tony
+
+
+

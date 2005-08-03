@@ -1,31 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVHCHGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVHCHCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVHCHGd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 03:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVHCHEQ
+	id S262046AbVHCHCR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 03:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVHCHCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 03:04:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5855 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262144AbVHCHDt (ORCPT
+	Wed, 3 Aug 2005 03:02:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40670 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262046AbVHCHB7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 03:03:49 -0400
-Date: Wed, 3 Aug 2005 00:03:03 -0700
+	Wed, 3 Aug 2005 03:01:59 -0400
+Date: Wed, 3 Aug 2005 00:01:27 -0700
 From: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, axboe@suse.de
-Subject: [10/13] [PATCH] bio_clone fix
-Message-ID: <20050803070303.GY7762@shell0.pdx.osdl.net>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [09/13] [XFRM]: Fix possible overflow of sock->sk_policy
+Message-ID: <20050803070127.GX7762@shell0.pdx.osdl.net>
 References: <20050803064439.GO7762@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20050803064439.GO7762@shell0.pdx.osdl.net>
 User-Agent: Mutt/1.5.6i
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -33,38 +34,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ------------------
 
-[PATCH] bio_clone fix
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-Fix bug introduced in 2.6.11-rc2: when we clone a BIO we need to copy over the
-current index into it as well.
+[XFRM]: Fix possible overflow of sock->sk_policy
 
-It corrupts data with some MD setups.
+Spotted by, and original patch by, Balazs Scheidler.
 
-See http://bugzilla.kernel.org/show_bug.cgi?id=4946
-
-Huuuuuuuuge thanks to Matthew Stapleton <matthew4196@gmail.com> for doggedly
-chasing this one down.
-
-Acked-by: Jens Axboe <axboe@suse.de>
-Cc: <linux-raid@vger.kernel.org>
-Cc: <dm-devel@redhat.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
+ net/xfrm/xfrm_user.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
- fs/bio.c |    1 +
- 1 files changed, 1 insertion(+)
-
-diff --git a/fs/bio.c b/fs/bio.c
---- a/fs/bio.c
-+++ b/fs/bio.c
-@@ -261,6 +261,7 @@ inline void __bio_clone(struct bio *bio,
- 	 */
- 	bio->bi_vcnt = bio_src->bi_vcnt;
- 	bio->bi_size = bio_src->bi_size;
-+	bio->bi_idx = bio_src->bi_idx;
- 	bio_phys_segments(q, bio);
- 	bio_hw_segments(q, bio);
- }
--
+--- linux-2.6.12.3.orig/net/xfrm/xfrm_user.c	2005-07-28 11:17:01.000000000 -0700
++++ linux-2.6.12.3/net/xfrm/xfrm_user.c	2005-07-28 11:17:18.000000000 -0700
+@@ -1180,6 +1180,9 @@
+ 	if (nr > XFRM_MAX_DEPTH)
+ 		return NULL;
+ 
++	if (p->dir > XFRM_POLICY_OUT)
++		return NULL;
++
+ 	xp = xfrm_policy_alloc(GFP_KERNEL);
+ 	if (xp == NULL) {
+ 		*dir = -ENOBUFS;

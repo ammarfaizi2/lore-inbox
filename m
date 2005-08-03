@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVHCPYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVHCPbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbVHCPYk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 11:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVHCPYe
+	id S261950AbVHCPbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 11:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVHCPbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 11:24:34 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:29636 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262320AbVHCPY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 11:24:29 -0400
-Date: Wed, 3 Aug 2005 17:24:26 +0200
-To: linux-kernel@vger.kernel.org, pp@ee.oulu.fi
-Subject: b44 transmit timeout with kernel 2.6
-Message-ID: <20050803152426.GR30602@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Wed, 3 Aug 2005 11:31:25 -0400
+Received: from [217.16.192.235] ([217.16.192.235]:31210 "EHLO
+	mailgwy.ecovision.se") by vger.kernel.org with ESMTP
+	id S261950AbVHCPbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 11:31:24 -0400
+Message-ID: <42F0E347.2000406@ecovision.se>
+Date: Wed, 03 Aug 2005 17:31:19 +0200
+From: Henrik Holst <henrik.holst@ecovision.se>
+Organization: Ecovision AB
+User-Agent: Mozilla Thunderbird 1.0.5 (Windows/20050711)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, cipicip@yahoo.com
+Subject: Re: kernel 2.6 speed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Pekka, dear developers!
+>> In windows were performed about 300 millions cycles,
+>> while in Linux about 10 millions. This test was run on
+>> Fedora 4 and Suse 9.2 as Linux machines, and Windows
+>> XP Pro with VS .Net 2003 on the MS side. My CPU is a
+>> P4 @3GHz HT 800MHz bus.
 
-Some time ago I reported problems with transmit timeouts with b44 and
-kernel 2.4 (http://lkml.org/lkml/2003/9/1/197 and followin discussion).
+> Hi,
 
-Now I have very similar problems with kernel 2.6:
-Aug  2 09:53:15 gandalf vmunix: b44: eth0: Link is up at 100 Mbps, full duplex.
-Aug  2 09:53:15 gandalf vmunix: b44: eth0: Flow control is off for TX and off for RX.
-Aug  2 09:53:15 gandalf ifplugd(eth0)[3291]: Link beat detected.
-Aug  2 09:53:20 gandalf dnsmasq[3005]: reading /var/run/dnsmasq/resolv.conf
-Aug  2 09:53:20 gandalf dnsmasq[3005]: using nameserver 193.205.4.2#53
-Aug  2 09:53:20 gandalf dnsmasq[3005]: using nameserver 193.205.4.11#53
-Aug  2 09:53:25 gandalf vmunix: NETDEV WATCHDOG: eth0: transmit timed out
-Aug  2 09:53:25 gandalf vmunix: b44: eth0: transmit timed out, resetting
-Aug  2 09:53:26 gandalf kernel: b44: eth0: Link is down.
-Aug  2 09:53:26 gandalf ifplugd(eth0)[3291]: Link beat lost.
-Aug  2 09:53:28 gandalf vmunix: b44: eth0: Link is up at 100 Mbps, full duplex.
-Aug  2 09:53:28 gandalf vmunix: b44: eth0: Flow control is off for TX and off for RX.
+> This test gives you the price of the time function on each OS
+> since the 4 arithmetical operations are shorter to compute
+> (several cycles against tons of cycles). It appears that the time
+> function costs about 3 us on Linux against 0.1 us on Windows.
 
-and wanted to ask what I can do to overcome this problems again.
+I know that this benchmark is totally flawed, but I couldn't refuse to 
+run it on my own and
+to my surprise my numbers where the reverse! Running 2.6.12 gave my 
+roughly 73 million
+"cycles" while WinXP only gave me 28 million "cycles".
 
-Currently I am running 2.6.13-rc4-mm1 on an acer travelmate 654LCi.
+This result made me further test the difference in time() in Linux and 
+WinXP and on my hw
+(Compaq Evo N800c Laptop) it turns out that the time() call takes 
+roughly 0.4 us in Linux vs
+1.0 us in WinXP.
 
-Best wishes
+Using the GetSystemTime() functions in WinXP yielded the same values as 
+time() did in Linux,
+so it seams like that atleast on my hw that the time() and 
+gettimeofday() functions are as fast
+or faster than in WinXP. The question is of course why my results differ 
+so much from Ciprians.
 
-Norbert
-
--------------------------------------------------------------------------------
-Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-`I am so amazingly cool you could keep a side of meat in
-me for a month. I am so hip I have difficulty seeing over
-my pelvis.'
-                 --- Zaphod being cool.
-                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy
+/Henrik H

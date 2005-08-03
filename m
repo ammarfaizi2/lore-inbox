@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVHDXOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbVHDXOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262684AbVHDXOG (ORCPT <rfc822;willy@w.ods.org>);
+	id S262728AbVHDXOG (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 4 Aug 2005 19:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVHDXMC
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVHDURp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 19:12:02 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:24821 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262728AbVHDXKb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 19:10:31 -0400
-Date: Thu, 04 Aug 2005 16:10:28 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Hugh Dickins <hugh@veritas.com>, Andi Kleen <ak@suse.de>
-cc: Danny ter Haar <dth@picard.cistron.nl>, Pavel Roskin <proski@gnu.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc5-git2 does not boot on (my) amd64
-Message-ID: <113800000.1123197027@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.61.0508042358530.8665@goblin.wat.veritas.com>
-References: <dctuso$tl$1@news.cistron.nl.suse.lists.linux.kernel><p73iryl73nm.fsf@bragg.suse.de> <Pine.LNX.4.61.0508042358530.8665@goblin.wat.veritas.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 4 Aug 2005 16:17:45 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42374 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262660AbVHDUQl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 16:16:41 -0400
+Date: Wed, 3 Aug 2005 23:27:05 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Prakash Punnoor <prakash@punnoor.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>, Tony Lindgren <tony@atomide.com>,
+       tuukka.tikkanen@elektrobit.com
+Subject: Re: [PATCH] no-idle-hz aka dynamic ticks-2
+Message-ID: <20050803212705.GA1281@elf.ucw.cz>
+References: <200508022225.31429.kernel@kolivas.org> <42EF6DF7.6030100@punnoor.de> <200508022328.09482.kernel@kolivas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <200508022328.09482.kernel@kolivas.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
---Hugh Dickins <hugh@veritas.com> wrote (on Friday, August 05, 2005 00:06:25 +0100):
-
-> On Thu, 5 Aug 2005, Andi Kleen wrote:
->> dth@picard.cistron.nl (Danny ter Haar) writes:
->> > 
->> > Freeing unused kernel memory: 248k freed
->> > VM: killing process hotplug
->> > VM: killing process hotplug
->> > VM: killing process hotplug
->> > VM: killing process hotplug
->> > Unable to handle kernel paging request at fffffff28017b5be RIP:
->> > [<fffffff28017b5be>]
->> 
->> Looks weird. Just to make sure can you do a make distclean and try
->> again? It might be a bad compile.
+> > > As promised, here is an updated patch for the newly released 2.6.13-rc5.
+> > > Boots and runs fine on P4HT (SMP+SMT kernel) built with gcc 4.0.1.
+> >
+> > Doesn't compile for me w/ gcc 3.4.4:
 > 
-> No, like Pavel's and Martin's reports, this is just an effect
-> of the not-quite-fully-baked do_wp_page/get_user_pages race fix in
-> 2.6.13-rc5-git2, which AlexN reported earlier.  Should now be fully
-> fixed in Linus' current git, and in the 2.6.13-rc6 akpm prophesies
-> to be coming soon - please all test that.
+> Thanks for the report. Tiny change required. Here is a respun patch.
 
-OK, nightly builds tests should auto-appear on http://test.kernel.org
-tommorow morning. I'll try to remember to look for it; if you remember
-before I wake up Hugh, should be published there ... ;-)
+I tried  setting DYN_TICK_USE_APIC, and it got even worse. Basically
+machine was frozen; if I pressed enough keys, it moved forward, then
+froze again.
+								Pavel
 
-Thanks for the feedback,
-
-M
+-- 
+teflon -- maybe it is a trademark, but it should not be.

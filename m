@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVHCQyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVHCQzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbVHCQyN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 12:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVHCQyN
+	id S262351AbVHCQzj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 12:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVHCQzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 12:54:13 -0400
-Received: from smtpout.mac.com ([17.250.248.72]:9926 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262340AbVHCQyM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 12:54:12 -0400
-In-Reply-To: <1123069255.30257.27.camel@gaston>
-References: <1122908972.18835.153.camel@gaston> <20050801203728.2012f058.Ballarin.Marc@gmx.de> <1122926885.30257.4.camel@gaston> <20050802095401.GB1442@elf.ucw.cz> <1123069255.30257.27.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <D6591B2F-4E98-48A0-A3DD-71AAC564278E@mac.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
+	Wed, 3 Aug 2005 12:55:39 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:1526 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262347AbVHCQzZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 12:55:25 -0400
+Message-ID: <42F0F6DD.6070205@mvista.com>
+Date: Wed, 03 Aug 2005 09:54:53 -0700
+From: Mark Bellon <mbellon@mvista.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH]  IDE disks show invalid geometries in /proc/ide/hd*/geometry
+References: <Pine.LNX.4.10.10508030018390.21865-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10508030018390.21865-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Calling suspend() in halt/restart/shutdown -> not a good idea
-Date: Wed, 3 Aug 2005 12:53:57 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 3, 2005, at 07:40:54, Benjamin Herrenschmidt wrote:
->> I'd like to get rid of shutdown callback. Having two copies of code
->> (one in callback, one in suspend) is ugly.
+Andre Hedrick wrote:
+
+>Did you read ATA-1 through ATA-7 to understand all the variations?
+>  
 >
-> Well, it's obviously not a good time for this. First, suspend and
-> shutdown don't necessarily do the same thing, then it just doesn't  
-> work
-> in practice. So either do it right completely or not at all, but  
-> 2.6.13
-> isn't the place for an half-assed hack that looks like a solution to
-> you.
+Regardless of all of the geometry returns by the drives and their ATA 
+compliance, the existing code will fail for some drives and return 
+values. For instance, the existing code attempts to "fix up" LBA 48 
+fails to handle LBA 28. In both cases the "fix up" code appears errant - 
+it doesn't create a complete, valid geometry.
 
-One possible way to proceed might be to add a new callback that takes a
-pm_message_t: powerdown()  If it exists, it would be called in both the
-suspend and shutdown paths, before the suspend() and shutdown() calls to
-that driver are made.  As drivers are fixed to clean up and combine that
-code, they could put the merged result into the powerdown() function,
-and remove their suspend() and shutdown() functions.
+My patch attempts to preserve the flow and side effects of the existing 
+code while handling all of the boundary cases. Given the way the 
+original code appears to read one should be able to "fix up" things 
+without regard for the ATA compliance of a drive.
 
-Cheers,
-Kyle Moffett
+It might help to read the code before and after my patch is applied. The 
+explaination and patch alone don't make it easy to see what I think is a 
+simple fix.
 
---
-I lost interest in "blade servers" when I found they didn't throw  
-knives at
-people who weren't supposed to be in your machine room.
-   -- Anthony de Boer
+mark
 
+>On Tue, 2 Aug 2005, Mark Bellon wrote:
+>
+>  
+>
+>>The ATA specification tells large disk drives to return C/H/S data of 
+>>16383/16/63 regardless of their actual size (other variations on this 
+>>return include 15 heads and/or 4092 cylinders). Unfortunately these CHS 
+>>data confuse the existing IDE code and cause it to report invalid 
+>>geometries in /proc when the disk runs in LBA mode.
+>>
+>>The invalid geometries can cause failures in the partitioning tools; 
+>>partitioning may be impossible or illogical size limitations occur. This 
+>>also leads to various forms of human confusion.
+>>
+>>I attach a patch that fixes this problem while strongly attempting to 
+>>not break any existing side effects and await any comments.
+>>
+>>mark
+>>
+>>Signed-off-by: Mark Bellon <mbellon@mvista.com>
+>>
+>>
+>>    
+>>
+>
+>  
+>
 

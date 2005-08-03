@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVHCIiD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbVHCIrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbVHCIiD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 04:38:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVHCIhc
+	id S262150AbVHCIrM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 04:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVHCIrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 04:37:32 -0400
-Received: from moutvdom.kundenserver.de ([212.227.126.249]:62401 "EHLO
-	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262143AbVHCIha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 04:37:30 -0400
-Message-ID: <42F08247.1020405@anagramm.de>
-Date: Wed, 03 Aug 2005 10:37:27 +0200
-From: Clemens Koller <clemens.koller@anagramm.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: bgerard <bgerard@axalto.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: hotplug problem
-References: <42F078F3.4040808@axalto.com>
-In-Reply-To: <42F078F3.4040808@axalto.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Aug 2005 04:47:12 -0400
+Received: from ns2.suse.de ([195.135.220.15]:54233 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262150AbVHCIrK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 04:47:10 -0400
+Date: Wed, 3 Aug 2005 10:46:59 +0200
+From: Andi Kleen <ak@suse.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org,
+       "alan@lxorguk.ukuu.org.uk Siddha, Suresh B" 
+	<suresh.b.siddha@intel.com>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [04/13] x86_64 memleak from malicious 32bit elf program
+Message-ID: <20050803084659.GA10895@wotan.suse.de>
+References: <20050803064439.GO7762@shell0.pdx.osdl.net> <20050803065220.GS7762@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050803065220.GS7762@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben!
+Ok for me. Thanks Suresh.
 
-bgerard wrote:
-> I'm working on an embeded system with linux kernel 2.4.27 and busybox 
-> 1.00. Lately I've decided to add hotplug feature to my kernel in order 
-> to automaticaly mount usb keys.
+-Andi
+
+
+On Tue, Aug 02, 2005 at 11:52:20PM -0700, Chris Wright wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
 > 
-> When I plug the usb key, I can see in the kernel debug that 
-> "/sbin/hotplug" is called but my script is not executed. I've tried to 
-> replace the hotplug script by a simple one but nothing appeared. Here is 
-> my script :
-> #!/bin/sh
-> echo "usb key un/plugged"
-
-I don't know much about hotplugging on 2.4.x and how you might need
-to enable it in /proc... it just works for me on 2.6. with
-CONFIG_HOTPLUG enabled and the latest hotplug-scripts.
-
-> The script is working when I run it myself (./sbin/hotplug )
+> ------------------
 > 
-> I've also noticed that when kmod try to call modprobe, it's not executed 
-> while the debug message says that everything went fine.
-
-Try newer modutils?
-
-And you might have more luck asking on:
-linux-hotplug-devel@lists.sourceforge.net
-
-Greets,
-
-Clemens
-
+> malicious 32bit app can have an elf section at 0xffffe000.  During
+> exec of this app, we will have a memory leak as insert_vm_struct() is
+> not checking for return value in syscall32_setup_pages() and thus not
+> freeing the vma allocated for the vsyscall page.
+> 

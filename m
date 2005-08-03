@@ -1,77 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVHCGs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVHCGs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbVHCGs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 02:48:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVHCGs3
+	id S262113AbVHCGs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 02:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVHCGse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 02:48:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24282 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262119AbVHCGsM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 02:48:12 -0400
-Date: Tue, 2 Aug 2005 23:47:17 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, trini@kernel.crashing.org,
-       george@mvista.com, sam@ravnborg.org
-Subject: [01/13] kbuild: build TAGS problem with O=
-Message-ID: <20050803064717.GP7762@shell0.pdx.osdl.net>
-References: <20050803064439.GO7762@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 Aug 2005 02:48:34 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20416 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262113AbVHCGrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 02:47:36 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "David S. Miller" <davem@davemloft.net>, jgarzik@pobox.com
+Subject: 2.6.11-rc5 and 2.6.12: cannot transmit anything - more info
+Date: Wed, 3 Aug 2005 09:47:01 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050803064439.GO7762@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200508030947.01901.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+Hi,
 
-------------------
+As reported earlier, sometimes my home box don't want
+to send anything.
 
-For inclusion into 2.6.12.stable, extracted from current Linus git:
+# ip r
+1.1.5.5 dev tun0  proto kernel  scope link  src 1.1.5.6
+1.1.4.0/24 dev if  proto kernel  scope link  src 1.1.4.6
+default via 1.1.5.5 dev tun0
+# ping 1.1.4.1 -i 0.01
 
-[PATCH] kbuild: build TAGS problem with O=
+kernel log:
+2005-07-30_21:28:25.15338 kern.info: qdisc_restart: start
+2005-07-30_21:28:25.16438 kern.info: qdisc_restart: start
+2005-07-30_21:28:25.17538 kern.info: qdisc_restart: start
+2005-07-30_21:28:25.18638 kern.info: qdisc_restart: start
+2005-07-30_21:28:25.19738 kern.info: qdisc_restart: start
+2005-07-30_21:28:25.20837 kern.info: qdisc_restart: start
+2005-07-30_21:28:25.21937 kern.info: qdisc_restart: start
+2005-07-30_21:28:25.23037 kern.info: qdisc_restart: start
+2005-07-30_21:28:25.24137 kern.info: qdisc_restart: start
+...
 
-  make O=/dir TAGS
+updated kernel log:
+2005-08-02_19:12:06.14733 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:06.15832 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:06.16932 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:06.18032 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:06.19132 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:06.20232 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:06.21332 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:06.22431 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:06.23531 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:08.04506 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:12.19652 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:17.19567 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:18.19551 kern.info: qdisc_restart: start, q->dequeue=c03e8662
+2005-08-02_19:12:19.19536 kern.info: qdisc_restart: start, q->dequeue=c03e8662
 
-  fails with:
+System.map:
+c03e8662 t noop_dequeue
 
-    MAKE   TAGS
-  find: security/selinux/include: No such file or directory
-  find: include: No such file or directory
-  find: include/asm-i386: No such file or directory
-  find: include/asm-generic: No such file or directory
+I guess this explains why I do not see calls to pfifo_fast_dequeue! :)
+But how come my interface is using noop queue, is a mystery to me.
 
-  The problem is in this line:
-  ifeq ($(KBUILD_OUTPUT),)
+# ip l 
+[I have 4 wireless PCI cards for testing - lots of netdevs:]
+1: if: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ether 00:0a:e6:7c:dd:79 brd ff:ff:ff:ff:ff:ff
+2: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+3: wifi0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ieee802.11 00:09:5b:67:8f:70 brd ff:ff:ff:ff:ff:ff
+4: ifh: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue
+    link/[802] 00:09:5b:67:8f:70 brd ff:ff:ff:ff:ff:ff
+5: wifi1: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ieee802.11 00:09:5b:68:2b:d7 brd ff:ff:ff:ff:ff:ff
+6: ifm: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue
+    link/[802] 00:09:5b:68:2b:d7 brd ff:ff:ff:ff:ff:ff
+7: wifi2: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ieee802.11 00:09:5b:69:17:c8 brd ff:ff:ff:ff:ff:ff
+8: ifn: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue
+    link/[802] 00:09:5b:69:17:c8 brd ff:ff:ff:ff:ff:ff
+9: ifhwds0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop
+    link/ether 00:09:5b:67:8f:70 brd ff:ff:ff:ff:ff:ff
+10: ifmwds0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop
+    link/ether 00:09:5b:68:2b:d7 brd ff:ff:ff:ff:ff:ff
+13: tun0: <POINTOPOINT,MULTICAST,NOARP,UP> mtu 1464 qdisc pfifo_fast qlen 100
+    link/[65534]
 
-KBUILD_OUTPUT is not defined (ever) after make reruns itself.  This line is
-used in the TAGS, tags, and cscope makes.
+After modprobe -r hostap_pci:
 
-Signed-off-by: George Anzinger <george@mvista.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+# ip l
+1: if: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ether 00:0a:e6:7c:dd:79 brd ff:ff:ff:ff:ff:ff
+2: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+17: tun0: <POINTOPOINT,MULTICAST,NOARP,UP> mtu 1464 qdisc pfifo_fast qlen 100
+    link/[65534]
 
+As you can see, ip l reports that iface 'if' uses pfifo_fast, not noop...
 
----
- Makefile |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Any ideas?
+--
+vda
 
---- linux-2.6.12.3.orig/Makefile	2005-07-28 11:17:01.000000000 -0700
-+++ linux-2.6.12.3/Makefile	2005-07-28 11:17:04.000000000 -0700
-@@ -1149,7 +1149,7 @@
- #(which is the most common case IMHO) to avoid unneeded clutter in the big tags file.
- #Adding $(srctree) adds about 20M on i386 to the size of the output file!
- 
--ifeq ($(KBUILD_OUTPUT),)
-+ifeq ($(src),$(obj))
- __srctree =
- else
- __srctree = $(srctree)/

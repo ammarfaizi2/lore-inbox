@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVHCHHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVHCHMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVHCHHW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 03:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVHCHHK
+	id S262144AbVHCHMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 03:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVHCHJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 03:07:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34271 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262119AbVHCHGy (ORCPT
+	Wed, 3 Aug 2005 03:09:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57311 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262155AbVHCHI5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 03:06:54 -0400
-Date: Wed, 3 Aug 2005 00:06:00 -0700
+	Wed, 3 Aug 2005 03:08:57 -0400
+Date: Wed, 3 Aug 2005 00:07:52 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, tommy.christensen@tpack.net,
-       dsd@gentoo.org, davem@davemloft.net
-Subject: [12/13] [VLAN]: Fix early vlan adding leads to not functional device
-Message-ID: <20050803070600.GA7762@shell0.pdx.osdl.net>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>,
+       davej@redhat.com, Mark Langsdorf <mark.langsdorf@amd.com>
+Subject: [13/13] Fix powernow oops on dual-core athlon
+Message-ID: <20050803070752.GB7762@shell0.pdx.osdl.net>
 References: <20050803064439.GO7762@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -33,37 +33,54 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ------------------
 
-[VLAN]: Fix early vlan adding leads to not functional device
+powernow-k8 requires that a data structure for
+each core be created in the _cpu_init function
+call.  The cpufreq infrastructure doesn't call
+_cpu_init for the second core in each processor.
+Some systems crashed when _get was called with
+an odd-numbered core because it tried to
+dereference a NULL pointer since the data
+structure had not been created.
 
-OK, I can see what's happening here. eth0 doesn't detect link-up until
-after a few seconds, so when the vlan interface is opened immediately
-after eth0 has been opened, it inherits the link-down state. Subsequently
-the vlan interface is never properly activated and are thus unable to
-transmit any packets.
+The attached patch solves the problem by
+initializing data structures for all shared
+cores in the _cpu_init function.  It should
+apply to 2.6.12-rc6 and has been tested by
+AMD and Sun.
 
-dev->state bits are not supposed to be manipulated directly. Something
-similar is probably needed for the netif_device_present() bit, although
-I don't know how this is meant to work for a virtual device.
-  
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mark Langsdorf <mark.langsdorf@amd.com>
+Signed-off-by: Dave Jones <davej@redhat.com>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 ---
 
---- a/net/8021q/vlan.c
-+++ b/net/8021q/vlan.c
-@@ -578,6 +578,14 @@ static int vlan_device_event(struct noti
- 			if (!vlandev)
- 				continue;
+--- a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
++++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+@@ -44,7 +44,7 @@
  
-+			if (netif_carrier_ok(dev)) {
-+				if (!netif_carrier_ok(vlandev))
-+					netif_carrier_on(vlandev);
-+			} else {
-+				if (netif_carrier_ok(vlandev))
-+					netif_carrier_off(vlandev);
-+			}
-+
- 			if ((vlandev->state & VLAN_LINK_STATE_MASK) != flgs) {
- 				vlandev->state = (vlandev->state &~ VLAN_LINK_STATE_MASK) 
- 					| flgs;
-
+ #define PFX "powernow-k8: "
+ #define BFX PFX "BIOS error: "
+-#define VERSION "version 1.40.2"
++#define VERSION "version 1.40.4"
+ #include "powernow-k8.h"
+ 
+ /* serialize freq changes  */
+@@ -978,7 +978,7 @@ static int __init powernowk8_cpu_init(st
+ {
+ 	struct powernow_k8_data *data;
+ 	cpumask_t oldmask = CPU_MASK_ALL;
+-	int rc;
++	int rc, i;
+ 
+ 	if (!check_supported_cpu(pol->cpu))
+ 		return -ENODEV;
+@@ -1064,7 +1064,9 @@ static int __init powernowk8_cpu_init(st
+ 	printk("cpu_init done, current fid 0x%x, vid 0x%x\n",
+ 	       data->currfid, data->currvid);
+ 
+-	powernow_data[pol->cpu] = data;
++	for_each_cpu_mask(i, cpu_core_map[pol->cpu]) {
++		powernow_data[i] = data;
++	}
+ 
+ 	return 0;
+ 

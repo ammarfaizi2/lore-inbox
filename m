@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVHCXVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVHCXXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbVHCXVb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 19:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVHCXV3
+	id S261638AbVHCXXs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 19:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVHCXXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 19:21:29 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:24220 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261538AbVHCXT2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 19:19:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=d+crsbmmzO92Xt5DxjYsPqV60JL9W5I6iZF+yDZ/5kiYmh9es4L+x5eTQSnEjg8+mhQLfv2OBQT/KN5ellbKFwvAlCiG2aFZpjGeAENNrigAHZwkLnfuQ3qrM+updiIBJh17LPUPsDTM15bgkiJD3nXVclFBQ1VfALQzDZinkFg=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: Documentation - how to apply patches for various trees
-Date: Thu, 4 Aug 2005 01:19:19 +0200
-User-Agent: KMail/1.8.2
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>,
-       Gene Heskett <gene.heskett@verizon.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, David Brown <dmlb2000@gmail.com>,
-       Puneet Vyas <vyas.puneet@gmail.com>,
-       Richard Hubbell <richard.hubbell@gmail.com>, webmaster@kernel.org
-References: <200508022332.21380.jesper.juhl@gmail.com> <200508032251.07996.jesper.juhl@gmail.com> <Pine.LNX.4.58.0508032257080.3158@be1.lrz>
-In-Reply-To: <Pine.LNX.4.58.0508032257080.3158@be1.lrz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Aug 2005 19:23:48 -0400
+Received: from mail4.worldserver.net ([217.13.200.24]:24000 "EHLO
+	mail4.worldserver.net") by vger.kernel.org with ESMTP
+	id S261638AbVHCXWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 19:22:35 -0400
+X-Speedbone-MailScanner-Mail-From: christian@leber.de via mail4.worldserver.net
+X-Speedbone-MailScanner: 1.25st (Clear:RC:1(84.171.135.200):. Processed in 0.018219 secs Process 32620)
+Date: Thu, 4 Aug 2005 01:22:36 +0200
+From: Christian Leber <christian@leber.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+Message-ID: <20050803232236.GA13520@core.home>
+References: <200508031559.24704.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508040119.20289.jesper.juhl@gmail.com>
+In-Reply-To: <200508031559.24704.kernel@kolivas.org>
+X-Accept-Language: de en
+X-Location: Europe, Germany, Mannheim
+X-Operating-System: Debian GNU/Linux (sid)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 August 2005 23:46, Bodo Eggert wrote:
-> On Wed, 3 Aug 2005, Jesper Juhl wrote:
-> 
-> > +What is a patch?
-> 
-> > +To correctly apply a patch you need to know what base it was generated from
-> > +and what new version the patch will change the source tree into. These
-> > +should both be present in the patch file metadata.
-> 
-> This is usurally not true for kernel patches, the directories are mostly
-> named a and b. You can however deduce the to-bepatched version and the
-> patched version from the filename.
-> 
-hmm, I'd say the patch filename could be considered "metadata" as well.
+On Wed, Aug 03, 2005 at 03:59:24PM +1000, Con Kolivas wrote:
+> Patch for 2.6.13-rc5
+
+Just a few numbers:
+
+I tried it on a Laptop (Dell C810, P3m 1133 mhz) and measured the power
+usage with an external device and it stayed with or without patch at
+27W. (HZ was at about 28)
+
+On a desktop with AthlonXP with STOP activated i got a power usage of
+57W with and without patch (without STOP activated 94W).
+(HZ was about at 50)
 
 
-> [...]
-> 
-> Or: bzcat patch1 patch2 patch3 | (cd linux-oldversion && patch -p1)
-> 
-yes, there are many ways, impossible to list them all, but this might be a
-good example to add, just to show application of several patches in one go.
-
-> 
-<snip lots of good stuff>
-
-I need to get some sleep now, but I'll add most of your text to the document
-tomorrow and post a new patch.
-
-Thanks!
-
+Christian Leber
 
 -- 
-Jesper
-
+  "Omnis enim res, quae dando non deficit, dum habetur et non datur,
+   nondum habetur, quomodo habenda est."       (Aurelius Augustinus)
+  Translation: <http://gnuhh.org/work/fsf-europe/augustinus.html>

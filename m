@@ -1,90 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbVHCOo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVHCOtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbVHCOo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 10:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbVHCOo7
+	id S261938AbVHCOtD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 10:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbVHCOtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 10:44:59 -0400
-Received: from xenotime.net ([66.160.160.81]:26281 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S262299AbVHCOo3 (ORCPT
+	Wed, 3 Aug 2005 10:49:02 -0400
+Received: from fmr15.intel.com ([192.55.52.69]:29569 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261938AbVHCOtA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 10:44:29 -0400
-Date: Wed, 3 Aug 2005 07:44:27 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Documentation - how to apply patches for various trees
-In-Reply-To: <200508030840.39852@bilbo.math.uni-mannheim.de>
-Message-ID: <Pine.LNX.4.50.0508030742350.489-100000@shark.he.net>
-References: <200508022332.21380.jesper.juhl@gmail.com>
- <200508030840.39852@bilbo.math.uni-mannheim.de>
+	Wed, 3 Aug 2005 10:49:00 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Automatically enable bigsmp when we have more than 8 CPUs
+Date: Wed, 3 Aug 2005 07:48:18 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6005598C0A@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Automatically enable bigsmp when we have more than 8 CPUs
+Thread-Index: AcWYFPjBTxDp+YoYRs6jJ/4OvkImkwAJKOkg
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Shah, Rajesh" <rajesh.shah@intel.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+X-OriginalArrivalTime: 03 Aug 2005 14:48:20.0387 (UTC) FILETIME=[640A9F30:01C5983A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Aug 2005, Rolf Eike Beer wrote:
+ 
 
-> Jesper Juhl wrote:
+>-----Original Message-----
+>From: Andi Kleen [mailto:ak@suse.de] 
+>Sent: Wednesday, August 03, 2005 3:20 AM
+>To: Pallipadi, Venkatesh
+>Cc: Andrew Morton; Andi Kleen; Shah, Rajesh; linux-kernel
+>Subject: Re: [PATCH] Automatically enable bigsmp when we have 
+>more than 8 CPUs
 >
-> >+Where can I download the patches?
+>On Thu, Jul 28, 2005 at 11:51:42AM -0700, Venkatesh Pallipadi wrote:
+>>  				smp_found_config = 1;
+>> -				clustered_apic_check();
 >
-> Maybe it would be useful to once again mention that local mirrors should be
-> used at least for stable releases and */testing/*.
+>Removing that here will break x86-64.
 >
-> >+The 2.6.x kernels
-> [...]
-> >+# moving from 2.6.11 to 2.6.12
-> >+$ cd ~/linux-2.6.11			# change to kernel source dir
-> >+$ patch -p1 < ../patch-2.6.12		# apply the 2.6.12 patch
->
-> patch also nows "-i": patch -p1 -i ../patch-2.6.12
->
-> More likely the user will get the patch compressed either with bzip2 or gzip,
-> so I think it would be useful to tell once more how to apply such a patch:
->
-> bzcat ../patch-2.6.12.bz2 | patch -p1
->
-> >+The 2.6.x.y kernels
->
-> >+$ cd ~/linux-2.6.12.2			# change into the kernel source dir
-> >+$ patch -p1 -R < ../patch-2.6.12.2	# revert the 2.6.12.2 patch
-> >+$ patch -p1 < ../patch-2.6.12.3		# apply the new 2.6.12.3 patch
-> >+$ cd ..
-> >+$ mv linux-2.6.12.2 linux-2.6.12.3	# rename the kernel source dir
->
-> The better way would probably be to use interdiff. Another goodie is that
-> interdiff knows about -z:
->
-> cd ~/linux-2.6.12.2
-> interdiff -z ../patch-2.6.12.2.bz2 ../patch-2.6.12.3.gz | patch -p1
->
-> This should only be shown as "another way" to do so. Sometimes interdiff get's
-> confused and breaks things, although this is very unlikely for the stable
-> diffs.
 
-Another (better IMO) solution is to use 'ketchup'.
-It knows about all of these revisions/patches and how to download
-and apply them AFAIK.
-http://www.selenic.com/ketchup/
+Yes. Ashok sent another patch to fix this part. Lkml subjectline
+[patch 1/8] x86_64: Reintroduce clustered_apic_check() for x86_64
 
-> >+The -mm kernels
+>>  
+>> +#ifdef CONFIG_X86_GENERICARCH
+>> +	generic_apic_probe(*cmdline_p);
+>> +#endif        
 >
-> >+ These kernels in
-> >+ addition to all the other experimental patches they contain usually also
-> >+ contain any changes in the mainline -git kernels available at the time of
-> >+ release.
+>This move looks risky because ACPI can already switch subarchs. Are you
+>sure the command line option still works? Testing on summit and es7000
+>would be good.
 >
-> These two "contain"'s that close to each user are likely to confuse. In a
-> German text I would but a comma before "in addition" and behind the first
-> "contain", don't know what the rules for this are in English.
->
-> Eike
 
--- 
-~Randy
+Yes. We also saw some potential issues with ACPI ioapic detection on
+other sub-archs after this change, late yesteraday. I am right now 
+reworking this patch.
+
+Andrew: Until I send a reworked patch can you remove these two patces
+from 
+the mm. Thanks.
+1) [PATCH] Automatically enable bigsmp when we have more than 8 CPUs
+2) [patch 1/8] x86_64: Reintroduce clustered_apic_check() for x86_64
+
+Thanks,
+Venki

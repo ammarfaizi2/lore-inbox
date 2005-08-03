@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVHCEV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVHCEWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbVHCEV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 00:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVHCEV0
+	id S262039AbVHCEWM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 00:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVHCEWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 00:21:26 -0400
-Received: from dvhart.com ([64.146.134.43]:22459 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262015AbVHCEVZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 00:21:25 -0400
-Date: Tue, 02 Aug 2005 21:21:29 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm3
-Message-ID: <36680000.1123042889@[10.10.2.4]>
-In-Reply-To: <30040000.1123031853@[10.10.2.4]>
-References: <20050728025840.0596b9cb.akpm@osdl.org><159960000.1122616883@[10.10.2.4]> <20050728231029.0c0026bc.akpm@osdl.org> <30040000.1123031853@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 3 Aug 2005 00:22:12 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:57035 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262039AbVHCEVo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 00:21:44 -0400
+Message-ID: <42F04632.5070109@zytor.com>
+Date: Tue, 02 Aug 2005 21:21:06 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bodo Eggert <7eggert@gmx.de>
+CC: Steven Rostedt <rostedt@goodmis.org>, Sean Bruno <sean.bruno@dsl-only.net>,
+       Lee Revell <rlrevell@joe-job.com>, webmaster@kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Michael Krufky <mkrufky@m1k.net>
+Subject: Re: Testing RC kernels [KORG]
+References: <Pine.LNX.4.58.0508030214150.7510@be1.lrz>
+In-Reply-To: <Pine.LNX.4.58.0508030214150.7510@be1.lrz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---"Martin J. Bligh" <mbligh@mbligh.org> wrote (on Tuesday, August 02, 2005 18:17:33 -0700):
-> --Andrew Morton <akpm@osdl.org> wrote (on Thursday, July 28, 2005 23:10:29 -0700):
+Bodo Eggert wrote:
 > 
->> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
->>> 
->>> NUMA-Q boxes are still crashing on boot with -mm BTW. Is the thing we 
->>> identified earlier with the sched patches ...
->>> 
->>> http://test.kernel.org/9398/debug/console.log
->> 
->> Oh, thanks.  That's about 8,349 bugs ago and I'd forgotten.
->> 
->>> Works with mainline still (including -rc4) ... hopefully those patches 
->>> aren't on their way upstream anytime soon ;-)
->> 
->> Well can you identify the offending patch(es)?  If so, I'll exterminate them.
+> I hacked some changes to create vogon-compatibility. Maybe you like it.
+> I'm not completely happy, but it's too late now.
 > 
-> scheduler-cache-hot-autodetect.patch, I think.
+> Changes:
+> - Make first column more terse
+> - Move full download links to a seperate table, where they can be found.
+> - Add <h2> headings above the patches and above the tarballs
+> - Add some hints
+> - Create a dead link to a patching-HOWTO
+> - Add a 'applies to:' column
+> - fix legend to match changes
 > 
-> will double-check.
 
-Yup, backing out that one patch definitely fixes it. There was an earlier
-thread with Ingo about doing some possible debug on it, but to be honest,
-I haven't had time to play much beyond the initial ideas we tried.
+This is completely useless.  The issue isn't the formatting, the issue 
+is to make yet another change to an already hard-to-maintain set of scripts.
 
-M.
+	-hpa

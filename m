@@ -1,56 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVHCNUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVHCNiD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbVHCNUg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 09:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbVHCNUg
+	id S262287AbVHCNiD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 09:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVHCNiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 09:20:36 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:42630 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262285AbVHCNU0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 09:20:26 -0400
-Date: Wed, 3 Aug 2005 15:20:25 +0200
-From: Andi Kleen <ak@suse.de>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: pci cacheline size / latency oddness.
-Message-ID: <20050803132025.GU10895@wotan.suse.de>
-References: <20050801233517.GA23172@redhat.com> <1122943309.26405.7.camel@localhost>
+	Wed, 3 Aug 2005 09:38:03 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:37787 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S262287AbVHCNiB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 09:38:01 -0400
+Date: Wed, 3 Aug 2005 06:37:57 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, amitkale@linsyssoft.com
+Subject: Re: [patch 07/15] Basic x86_64 support
+Message-ID: <20050803133756.GA3337@smtp.west.cox.net>
+References: <resend.6.2972005.trini@kernel.crashing.org> <1.2972005.trini@kernel.crashing.org> <resend.7.2972005.trini@kernel.crashing.org> <20050803130531.GR10895@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1122943309.26405.7.camel@localhost>
+In-Reply-To: <20050803130531.GR10895@wotan.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 08:41:49PM -0400, Parag Warudkar wrote:
-> On Mon, 2005-08-01 at 19:35 -0400, Dave Jones wrote:
-> > This means we will do the wrong thing on AMD machines which have
-> > 64 byte cachelines.
+On Wed, Aug 03, 2005 at 03:05:31PM +0200, Andi Kleen wrote:
 > 
-> pcibios_init (in i386/pci/common.c, which is linked in by X86_64 PCI
-> code) seems to do this 
->  
-> if (c->x86 >= 6 && c->x86_vendor == X86_VENDOR_AMD)
->                 pci_cache_line_size = 64 >> 2;  /* K7 & K8 */
+> Only reading the changes outside kgdb.c....
 > 
-> Is it correct to expect all AMD k7/8 machines to have 16 as cache line
-> size - I thought 64 was more appropriate?
-
-iirc the pci cache line register takes a value shifted left by 2 bits.
-
-And yes all K7/K8 machines have 64byte cache lines.
-
-> On my Athlon64 laptop, all PCI devices end up having 0 latency. 
-
-That has nothing to do with the cache line size.
-
+> > +
+> > +#ifdef CONFIG_KGDB
+> > +	/*
+> > +	 * Has KGDB been told to break as soon as possible?
+> > +	 */
+> > +	if (kgdb_initialized == -1)
+> > +		tasklet_schedule(&kgdb_tasklet_breakpoint);
 > 
-> > x86-64 doesn't have an arch override for pci_cache_line_size
+> That doesn't make much sense here. tasklet will only run when interrupts
+> are enabled, and that is much later. You could move it to there.
+
+Where?  Keep in mind it's really only x86_64 that isn't able to break
+sooner.
+
+> > diff -puN include/asm-x86_64/hw_irq.h~x86_64-lite include/asm-x86_64/hw_irq.h
+> > --- linux-2.6.13-rc3/include/asm-x86_64/hw_irq.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
+> > +++ linux-2.6.13-rc3-trini/include/asm-x86_64/hw_irq.h	2005-07-29 13:19:10.000000000 -0700
+> > @@ -55,6 +55,7 @@ struct hw_interrupt_type;
+> >  #define TASK_MIGRATION_VECTOR	0xfb
+> >  #define CALL_FUNCTION_VECTOR	0xfa
+> >  #define KDB_VECTOR	0xf9
+> > +#define KGDB_VECTOR	0xf8
 > 
-> I am trying to fix it up - What's the right way to override it in x86_64
-> code?  Just initialize it to 64 may be?
+> I already allocated these vectors for something else.
 
-I don't think there is anything to fix.
+Is there another we can use?  Just following what looked to be the
+logical order.
 
--Andi
+> >  #define THERMAL_APIC_VECTOR	0xf0
+> >  
+> > diff -puN include/asm-x86_64/ipi.h~x86_64-lite include/asm-x86_64/ipi.h
+> > --- linux-2.6.13-rc3/include/asm-x86_64/ipi.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
+> > +++ linux-2.6.13-rc3-trini/include/asm-x86_64/ipi.h	2005-07-29 13:19:10.000000000 -0700
+> > @@ -62,6 +62,12 @@ static inline void __send_IPI_shortcut(u
+> >  	 * No need to touch the target chip field
+> >  	 */
+> >  	cfg = __prepare_ICR(shortcut, vector, dest);
+> > +        if (vector == KGDB_VECTOR) {
+> > +                 /*
+> > +                  * KGDB IPI is to be delivered as a NMI
+> > +                  */
+> > +                 cfg = (cfg&~APIC_VECTOR_MASK)|APIC_DM_NMI;
+> > +         }
+> 
+> No way adding another ugly special case like this. I wanted
+> to rip out the KDB version for a long time.
+
+I'd be happy to rework it in a cleaner manner, just point me at an
+example please.
+
+> If anything pass a flag.
+
+In __send_IPI_shortcut?  OK.
+
+> >  	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
+> >  
+> >  #define switch_to(prev,next,last) \
+> > -	asm volatile(SAVE_CONTEXT						    \
+> > +       asm volatile(".globl __switch_to_begin\n\t"				    \
+> > +		     "__switch_to_begin:\n\t"					  \
+> > +		     SAVE_CONTEXT						  \
+> 
+> Why is this needed?
+
+So that backtraces show they're in switch_to rather than somewhere else
+(since it's a #define we wouldn't know otherwise).
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

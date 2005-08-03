@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVHCUIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVHCUJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbVHCUIE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 16:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVHCUIE
+	id S262441AbVHCUJB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 16:09:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVHCUJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 16:08:04 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:13457 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262440AbVHCUHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 16:07:32 -0400
-Message-Id: <200508032007.j73K7E2o007651@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-       ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3 
-In-Reply-To: Your message of "Wed, 03 Aug 2005 14:54:40 CDT."
-             <42F12100.5020006@mnsu.edu> 
-From: Valdis.Kletnieks@vt.edu
-References: <200508031559.24704.kernel@kolivas.org>
-            <42F12100.5020006@mnsu.edu>
+	Wed, 3 Aug 2005 16:09:00 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59059 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262441AbVHCUIK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 16:08:10 -0400
+Date: Wed, 3 Aug 2005 22:08:08 +0200
+From: Andi Kleen <ak@suse.de>
+To: Ray Bryant <raybry@mpdtxmail.amd.com>
+Cc: Andi Kleen <ak@suse.de>, Martin Hicks <mort@sgi.com>,
+       Ingo Molnar <mingo@elte.hu>, Linux MM <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VM: add vm.free_node_memory sysctl
+Message-ID: <20050803200808.GE8266@wotan.suse.de>
+References: <20050801113913.GA7000@elte.hu> <20050803142440.GQ26803@localhost> <20050803143855.GA10895@wotan.suse.de> <200508031459.22834.raybry@mpdtxmail.amd.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1123099634_3357P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 03 Aug 2005 16:07:14 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508031459.22834.raybry@mpdtxmail.amd.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1123099634_3357P
-Content-Type: text/plain; charset=us-ascii
+On Wed, Aug 03, 2005 at 02:59:22PM -0500, Ray Bryant wrote:
+> On Wednesday 03 August 2005 09:38, Andi Kleen wrote:
+> > On Wed, Aug 03, 2005 at 10:24:40AM -0400, Martin Hicks wrote:
+> > > On Wed, Aug 03, 2005 at 04:15:29PM +0200, Andi Kleen wrote:
+> > > > On Wed, Aug 03, 2005 at 09:56:46AM -0400, Martin Hicks wrote:
+> > > > > Here's the promised sysctl to dump a node's pagecache.  Please
+> > > > > review!
+> > > > >
+> > > > > This patch depends on the zone reclaim atomic ops cleanup:
+> > > > > http://marc.theaimsgroup.com/?l=linux-mm&m=112307646306476&w=2
+> > > >
+> > > > Doesn't numactl --bind=node memhog nodesize-someslack do the same?
+> > > >
+> > > > It just might kick in the oom killer if someslack is too small
+> > > > or someone has unfreeable data there. But then there should be
+> > > > already an sysctl to turn that one off.
+> > >
+> Hmmm.... What happens if there are already mapped pages (e. g. mapped in the 
+> sense that pages are mapped into an address space) on the node and you want 
+> to allocate some more, but can't because the node is full of clean page cache 
+> pages?   Then one would have to set the memhog argument to the right thing to 
 
-On Wed, 03 Aug 2005 14:54:40 CDT, Jeffrey Hundstad said:
+If you have a bind policy in the memory grabbing program then the standard try_to_free_pages
+should DTRT. That is because we generated a custom zone list only containing nodes
+in that zone and the zone reclaim only looks into those.
 
-> BTW: how do you know what HZ your machine is running at?
+With prefered or other policies it's different though, in that cases t_t_f_p
+will also look into other nodes because the policy is not binding.
 
-% zcat /proc/config.gz | grep -i hz
+That said it might be probably possible to even make non bind policies more
+aggressive at freeing in the current node before looking into other nodes. 
+I think the zone balancing has been mostly tuned on non NUMA systems, so
+some improvements might be possible here.
 
-might do what you thought you wanted.
+Most people don't use BIND and changing the default policies like this 
+might give NUMA systems a better "out of the box" experience.  However this 
+memory balance is very subtle code and easy to break, so this would need some
+care.
 
-What rate you're *actually* running at is probably best done by taking the
-number of timer interrupts from /proc/interrupts and dividing by the
-uptime in /proc/uptime....
+I don't think sysctls or new syscalls are the way to go here though.
 
---==_Exmh_1123099634_3357P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFC8SPycC3lWbTT17ARAsSDAJ9qytzokLQHjUQPhMaC1yLIgs7vQgCdHP7/
-cHfAikEOsAm6eMP1Nn1W+Zc=
-=9pVX
------END PGP SIGNATURE-----
-
---==_Exmh_1123099634_3357P--
+-Andi

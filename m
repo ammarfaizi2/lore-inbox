@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVHCLQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVHCLUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262225AbVHCLQB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 07:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVHCLQB
+	id S262224AbVHCLUy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 07:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVHCLUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 07:16:01 -0400
-Received: from send.forptr.21cn.com ([202.105.45.50]:58009 "HELO 21cn.com")
-	by vger.kernel.org with SMTP id S262239AbVHCLP5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 07:15:57 -0400
-Message-ID: <42F0A7ED.5090802@21cn.com>
-Date: Wed, 03 Aug 2005 19:18:05 +0800
-From: Yan Zheng <yanzheng@21cn.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [Question]No memory release after enlarge fib_info hash table
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AIMC-AUTH: yanzheng
-X-AIMC-MAILFROM: yanzheng@21cn.com
+	Wed, 3 Aug 2005 07:20:54 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15884 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262224AbVHCLUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 07:20:52 -0400
+Date: Wed, 3 Aug 2005 13:20:50 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Grant Coady <lkml@dodo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc5 randconfig kernel build errors
+Message-ID: <20050803112050.GL4029@stusta.de>
+References: <lrque1drc20ev6o6441mn918e753r7vmki@4ax.com> <1651f199ie23tv14qv8jnnc53m97qdk1uh@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1651f199ie23tv14qv8jnnc53m97qdk1uh@4ax.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux 2.6.12.3
+On Wed, Aug 03, 2005 at 07:58:02PM +1000, Grant Coady wrote:
+> On Tue, 02 Aug 2005 22:58:59 +1000, Grant Coady <lkml@dodo.com.au> wrote:
+> 
+> >Greetings,
+> >
+> >Preliminary results, better sample (some hundreds) in a day or so.
+> 
+> After 300 random builds, add one more error:
+> drivers/acpi/osl.c:261: error: `AmlCode' undeclared (first use in this function)
+> drivers/acpi/osl.c:61:10: empty file name in #include
 
-net/ipv4/fib_semantics.c:line 679
+Please exclude builds with CONFIG_STANDALONE=n.
 
+And please don't send every new error you are finding to this list.
+As I've already said generating the errors is the the easy part -
+analyzing them is the real work.
 
-        if (fib_info_cnt >= fib_hash_size) {
-                unsigned int new_size = fib_hash_size << 1;
-                struct hlist_head *new_info_hash;
-                struct hlist_head *new_laddrhash;
-                unsigned int bytes;
+It would be best if you would do this yourself and send specific bug 
+reports (or even patches) for the problems you've find.
 
-                if (!new_size)
-                        new_size = 1;
-                bytes = new_size * sizeof(struct hlist_head *);
-                new_info_hash = fib_hash_alloc(bytes);
-                new_laddrhash = fib_hash_alloc(bytes);
-                if (!new_info_hash || !new_laddrhash) {
-                        fib_hash_free(new_info_hash, bytes);
-                        fib_hash_free(new_laddrhash, bytes);
-                } else {
-                        memset(new_info_hash, 0, bytes);
-                        memset(new_laddrhash, 0, bytes);
+If you want to publish the errors you've found, send a pointer to a 
+location where it is available _once_ and update the information there.
 
-                        fib_hash_move(new_info_hash, new_laddrhash, 
-new_size);
-                }
+This is e.g. how Jan Dittmer is doing it with his very valuable cross 
+compile site [1] - he doesn't send daily emails but if I want to know 
+the information I can always find it there.
 
-                if (!fib_hash_size)
-                        goto failure;
-        }
+> Cheers,
+> Grant.
 
-In fib_hash_move, there is no code call fib_hash_free to release memory 
-used by old hash table.  after call fib_hash_move,  fib_info_hash and 
-fib_info_laddrhash  are  the new memory addresses , old addresses  are 
-lost. Is this a bug?
+cu
+Adrian
 
-                                   thanks
+[1] http://l4x.org/k/
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

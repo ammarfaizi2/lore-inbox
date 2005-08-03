@@ -1,74 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVHCOPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVHCOWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262249AbVHCOPd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 10:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVHCOPd
+	id S261399AbVHCOWO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 10:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbVHCOWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 10:15:33 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:63885 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262249AbVHCOPb (ORCPT
+	Wed, 3 Aug 2005 10:22:14 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:60815 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261399AbVHCOWM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 10:15:31 -0400
-Date: Wed, 3 Aug 2005 16:15:29 +0200
-From: Andi Kleen <ak@suse.de>
-To: Martin Hicks <mort@sgi.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Linux MM <linux-mm@kvack.org>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] VM: add vm.free_node_memory sysctl
-Message-ID: <20050803141529.GX10895@wotan.suse.de>
-References: <20050801113913.GA7000@elte.hu> <20050801102903.378da54f.akpm@osdl.org> <20050801195426.GA17548@elte.hu> <20050802171050.GG26803@localhost> <20050802210746.GA26494@elte.hu> <20050803135646.GO26803@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050803135646.GO26803@localhost>
+	Wed, 3 Aug 2005 10:22:12 -0400
+Date: Wed, 3 Aug 2005 16:20:57 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
+Subject: Re: [UPDATE PATCH] Add schedule_timeout_{intr,unintr}{,_msecs}()
+ interfaces
+In-Reply-To: <20050801193522.GA24909@us.ibm.com>
+Message-ID: <Pine.LNX.4.61.0508031419000.3728@scrub.home>
+References: <1122116986.3582.7.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0507231340070.3743@scrub.home> <1122123085.3582.13.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0507231456000.3728@scrub.home> <20050723164310.GD4951@us.ibm.com>
+ <Pine.LNX.4.61.0507231911540.3743@scrub.home> <20050723191004.GB4345@us.ibm.com>
+ <Pine.LNX.4.61.0507232151150.3743@scrub.home> <20050727222914.GB3291@us.ibm.com>
+ <Pine.LNX.4.61.0507310046590.3728@scrub.home> <20050801193522.GA24909@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 03, 2005 at 09:56:46AM -0400, Martin Hicks wrote:
-> 
-> On Tue, Aug 02, 2005 at 11:07:46PM +0200, Ingo Molnar wrote:
-> > 
-> > * Martin Hicks <mort@sgi.com> wrote:
-> > 
-> > > On Mon, Aug 01, 2005 at 09:54:26PM +0200, Ingo Molnar wrote:
-> > > > 
-> > > > * Andrew Morton <akpm@osdl.org> wrote:
-> > > > 
-> > > > > >  We could perhaps add a CAP_SYS_ADMIN-only sysctl for this hack,
-> > > > > 
-> > > > > That would be more appropriate.
-> > > > > 
-> > > > > (I'm still not sure what happened to the idea of adding a call to 
-> > > > > "clear out this node+zone's pagecache now" rather than "set this 
-> > > > > noed+zone's policy")
-> > > > 
-> > > > lets do that as a sysctl hack. It would be useful for debugging purposes 
-> > > > anyway. But i'm not sure whether it's the same issue - Martin?
-> > > 
-> > > (Sorry..I was on vacation yesterday)
-> > > 
-> > > Yes, this is the same issue with a different way of making it happen. 
-> > > Setting a zone's policy allows reclaim to happen automatically.
-> > > 
-> > > I'll send in a patch to add a sysctl to do the manual dumping of 
-> > > pagecache really soon.
-> > 
-> > cool! [ Incidentally, when i found this problem i was looking for 
-> > existing bits in the kernel to write such a patch myself (which i wanted 
-> > to use on non-NUMA to create more reproducable workloads for 
-> > performance-testing) - now i'll wait for your patch. ]
-> 
-> Here's the promised sysctl to dump a node's pagecache.  Please review!
-> 
-> This patch depends on the zone reclaim atomic ops cleanup:
-> http://marc.theaimsgroup.com/?l=linux-mm&m=112307646306476&w=2
+Hi,
 
-Doesn't numactl --bind=node memhog nodesize-someslack do the same?
+On Mon, 1 Aug 2005, Nishanth Aravamudan wrote:
 
-It just might kick in the oom killer if someslack is too small
-or someone has unfreeable data there. But then there should be 
-already an sysctl to turn that one off.
+> +unsigned int __sched schedule_timeout_msecs(unsigned int timeout_msecs)
+> +{
+> +	unsigned long expire_jifs;
+> +
+> +	if (timeout_msecs == MAX_SCHEDULE_TIMEOUT_MSECS) {
+> +		expire_jifs = MAX_SCHEDULE_TIMEOUT;
+> +	} else {
+> +		/*
+> +		 * msecs_to_jiffies() is a unit conversion, which truncates
+> +		 * (rounds down), so we need to add 1.
+> +		 */
+> +		expire_jifs = msecs_to_jiffies(timeout_msecs) + 1;
+> +	}
+> +
+> +	expire_jifs = schedule_timeout(expire_jifs);
+> +
+> +	/*
+> +	 * don't need to add 1 here, even though there is truncation,
+> +	 * because we will add 1 if/when the value is sent back in
+> +	 */
+> +	return jiffies_to_msecs(expire_jifs);
+> +}
 
+As I already mentioned for msleep_interruptible this is a really terrible 
+interface.
+The "jiffies_to_msecs(msecs_to_jiffies(timeout_msecs) + 1)" case (when the 
+process is immediately woken up again) makes the caller suspectible to 
+timeout manipulations and requires constant reauditing, that no caller 
+gets it wrong, so it's better to avoid this error source completely.
+Constant conversion between different time units is a really bad idea. If 
+the user needs the remaining time, he is really better off to do it 
+himself by checking jiffies and only does an initial conversion from 
+relative to absolute (kernel) time.
+This wrapper function really should be an inline function and should look 
+more like this:
 
--Andi
+static inline int schedule_timeout_msecs(unsigned int timeout_msecs)
+{
+	return schedule_timeout(msecs_to_jiffies(timeout_msecs) + 1) != 0;
+}
+
+bye, Roman

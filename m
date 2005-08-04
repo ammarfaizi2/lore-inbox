@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVHDAyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVHDAwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVHDAyu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 20:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVHDAwr
+	id S261711AbVHDAwh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 20:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVHDAuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 20:52:47 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:48834 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261687AbVHDAvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 20:51:06 -0400
-Subject: Re: [ACPI] Re: [PATCH] PNPACPI: fix types when decoding ACPI
-	resources [resend]
-From: Shaohua Li <shaohua.li@intel.com>
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, acpi-devel@lists.sourceforge.net,
-       Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <42F1343B.70707@free.fr>
-References: <200508020955.54844.bjorn.helgaas@hp.com>
-	 <1123030861.2937.4.camel@linux-hp.sh.intel.com>
-	 <200508030920.13450.bjorn.helgaas@hp.com>  <42F1343B.70707@free.fr>
-Content-Type: text/plain
-Date: Thu, 04 Aug 2005 08:51:52 +0800
-Message-Id: <1123116712.2929.8.camel@linux-hp.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Wed, 3 Aug 2005 20:50:16 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:45756 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261678AbVHDAtB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 20:49:01 -0400
+Message-ID: <42F165BC.9030504@zytor.com>
+Date: Wed, 03 Aug 2005 17:47:56 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: zach@vmware.com
+CC: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk,
+       linux-kernel@vger.kernel.org, pratap@vmware.com, Riley@Williams.Name
+Subject: Re: [PATCH] 1/5 more-asm-cleanup
+References: <200508040043.j740h4wB004166@zach-dev.vmware.com>
+In-Reply-To: <200508040043.j740h4wB004166@zach-dev.vmware.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-03 at 23:16 +0200, matthieu castet wrote:
-> 
-> There are drivers/acpi/motherboard.c that done some stuff already handle 
-> by pnp/system.c.
-Yes, it should be disabled if pnpacpi is enabled. The only concern is
-motherboard.c also request some ACPI resources, which might not declaim
-in ACPI motherboard device, but it's completely BIOS dependent. We might
-could try remove it at -mm tree to see if it breaks any system later.
+zach@vmware.com wrote:
+> Some more assembler cleanups I noticed along the way.
 
-> 
-> PS : I saw in acpi ols paper that you plan once all dupe acpi drivers 
-> will be removed to register again the pnp device in acpi layer. Do you 
-> plan to add more check and for example add only device that have a CRS 
-> in pnp layer ?
-For detecting PNP device? it's worthy trying.
+> Index: linux-2.6.13/arch/i386/kernel/cpu/intel.c
+> ===================================================================
+> --- linux-2.6.13.orig/arch/i386/kernel/cpu/intel.c	2005-08-03 15:18:18.000000000 -0700
+> +++ linux-2.6.13/arch/i386/kernel/cpu/intel.c	2005-08-03 15:19:39.000000000 -0700
+> @@ -82,16 +82,12 @@
+>   */
+>  static int __devinit num_cpu_cores(struct cpuinfo_x86 *c)
+>  {
+> -	unsigned int eax;
+> +	unsigned int eax, ebx, ecx, edx;
+>  
+>  	if (c->cpuid_level < 4)
+>  		return 1;
+>  
+> -	__asm__("cpuid"
+> -		: "=a" (eax)
+> -		: "0" (4), "c" (0)
+> -		: "bx", "dx");
+> -
+> +	cpuid(4, &eax, &ebx, &ecx, &edx);
+>  	if (eax & 0x1f)
+>  		return ((eax >> 26) + 1);
 
-Thanks,
-Shaohua
+Reject!  This is a bogus patch; Intel's CPUID level 4 has a nonstandard 
+dependency on ECX (idiots...) and therefore this needs special handling.
 
+	-hpa

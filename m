@@ -1,51 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVHDMkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVHDMmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262512AbVHDMkE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 08:40:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVHDMiz
+	id S262517AbVHDMmy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 08:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVHDMkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 08:38:55 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:35984 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S262509AbVHDMiy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 08:38:54 -0400
-Message-ID: <42F20C5B.3020506@free.fr>
-Date: Thu, 04 Aug 2005 14:38:51 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: acpi-devel@lists.sourceforge.net, Shaohua Li <shaohua.li@intel.com>,
-       Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Re: [PATCH] PNPACPI: fix types when decoding ACPI resources
- [resend]
-References: <200508020955.54844.bjorn.helgaas@hp.com> <200508030920.13450.bjorn.helgaas@hp.com> <42F1343B.70707@free.fr> <200508031541.53777.bjorn.helgaas@hp.com>
-In-Reply-To: <200508031541.53777.bjorn.helgaas@hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Aug 2005 08:40:13 -0400
+Received: from mx2.suse.de ([195.135.220.15]:62410 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262509AbVHDMjH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 08:39:07 -0400
+Date: Thu, 4 Aug 2005 14:39:00 +0200
+From: Andi Kleen <ak@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       amitkale@linsyssoft.com
+Subject: Re: [patch 07/15] Basic x86_64 support
+Message-ID: <20050804123900.GR8266@wotan.suse.de>
+References: <resend.6.2972005.trini@kernel.crashing.org> <1.2972005.trini@kernel.crashing.org> <resend.7.2972005.trini@kernel.crashing.org> <20050803130531.GR10895@wotan.suse.de> <20050803133756.GA3337@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050803133756.GA3337@smtp.west.cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > That doesn't make much sense here. tasklet will only run when interrupts
+> > are enabled, and that is much later. You could move it to there.
+> 
+> Where?  Keep in mind it's really only x86_64 that isn't able to break
+> sooner.
 
-Bjorn Helgaas wrote:
-> On Wednesday 03 August 2005 3:16 pm, matthieu castet wrote:
-> 
->>Bjorn Helgaas wrote:
->> > 	drivers/char/hpet.c
->> > 		This probably should be converted to PNP.  I'll
->> > 		look into doing this.
->>IIRC, I am not sure that the pnp layer was able to pass the 64 bits 
->>memory adress for hpet correctly. But it would be nice if it works.
-> 
-> 
-> You're right, this was broken.  But I've been pushing a PNPACPI
-> patch to fix this.
-> 
-> 
-Yes but is ACPI_RSTYPE_ADDRESS64 possible on 32 bit machine ?
-In this case your patch won't work as res->mem_resource[i].start and 
-res->mem_resource[i].end are unsigned long, and 64 bit value won't fit.
+The local_irq_enable() call in init/main.c:start_kernel()
 
-Matthieu
+If you want to run gdb earlier you need to do it without a tasklet.
+
+> > > --- linux-2.6.13-rc3/include/asm-x86_64/hw_irq.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
+> > > +++ linux-2.6.13-rc3-trini/include/asm-x86_64/hw_irq.h	2005-07-29 13:19:10.000000000 -0700
+> > > @@ -55,6 +55,7 @@ struct hw_interrupt_type;
+> > >  #define TASK_MIGRATION_VECTOR	0xfb
+> > >  #define CALL_FUNCTION_VECTOR	0xfa
+> > >  #define KDB_VECTOR	0xf9
+> > > +#define KGDB_VECTOR	0xf8
+> > 
+> > I already allocated these vectors for something else.
+> 
+> Is there another we can use?  Just following what looked to be the
+> logical order.
+
+How about you use KDB_VECTOR and rename it to DEBUG_VECTOR
+and then just check if kgdb is currently active? 
+
+KDB can do the same.
+
+I changed the assignment in my tree like this:
+
+#define SPURIOUS_APIC_VECTOR    0xff
+#define ERROR_APIC_VECTOR       0xfe
+#define RESCHEDULE_VECTOR       0xfd
+#define CALL_FUNCTION_VECTOR    0xfc
+#define KDB_VECTOR              0xfb    /* reserved for KDB */
+#define THERMAL_APIC_VECTOR     0xfa
+/* 0xf9 free */
+#define INVALIDATE_TLB_VECTOR_END       0xf8
+#define INVALIDATE_TLB_VECTOR_START     0xf0    /* f0-f8 used for TLB flush */
+
+
+but that can be merged later. THere will be probably more changes
+with the per CPU IDT planned.
+
+> > >  	cfg = __prepare_ICR(shortcut, vector, dest);
+> > > +        if (vector == KGDB_VECTOR) {
+> > > +                 /*
+> > > +                  * KGDB IPI is to be delivered as a NMI
+> > > +                  */
+> > > +                 cfg = (cfg&~APIC_VECTOR_MASK)|APIC_DM_NMI;
+> > > +         }
+> > 
+> > No way adding another ugly special case like this. I wanted
+> > to rip out the KDB version for a long time.
+> 
+> I'd be happy to rework it in a cleaner manner, just point me at an
+> example please.
+
+The code is equivalent to passing shortcut|APIC_DM_NMI and vector == 0
+
+> > > -	asm volatile(SAVE_CONTEXT						    \
+> > > +       asm volatile(".globl __switch_to_begin\n\t"				    \
+> > > +		     "__switch_to_begin:\n\t"					  \
+> > > +		     SAVE_CONTEXT						  \
+> > 
+> > Why is this needed?
+> 
+> So that backtraces show they're in switch_to rather than somewhere else
+> (since it's a #define we wouldn't know otherwise).
+
+Ok.
+
+-Andi

@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262468AbVHDKfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVHDKhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262468AbVHDKfi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 06:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVHDKfi
+	id S262471AbVHDKhz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 06:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVHDKhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 06:35:38 -0400
-Received: from jay.exetel.com.au ([220.233.0.8]:46749 "EHLO jay.exetel.com.au")
-	by vger.kernel.org with ESMTP id S262459AbVHDKff (ORCPT
+	Thu, 4 Aug 2005 06:37:55 -0400
+Received: from colin.muc.de ([193.149.48.1]:40458 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S262472AbVHDKhv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 06:35:35 -0400
-Date: Thu, 4 Aug 2005 20:35:23 +1000
-To: Guillaume Pelat <guillaume.pelat@winch-hebergement.net>
-Cc: davem@davemloft.net, akpm@osdl.org, netdev@vger.kernel.org,
+	Thu, 4 Aug 2005 06:37:51 -0400
+Date: 4 Aug 2005 12:37:49 +0200
+Date: Thu, 4 Aug 2005 12:37:49 +0200
+From: Andi Kleen <ak@muc.de>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, zwane@arm.linux.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4 - kernel panic - BUG at net/ipv4/tcp_output.c:918
-Message-ID: <20050804103523.GA11381@gondor.apana.org.au>
-References: <42EDDE50.6050800@winch-hebergement.net> <20050804033329.GA14501@gondor.apana.org.au>
+Subject: Re: [patch 2/8] x86_64: create sysfs entries for cpu only for present cpus
+Message-ID: <20050804103749.GA97893@muc.de>
+References: <20050801202017.043754000@araj-em64t> <20050801203011.065721000@araj-em64t>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="huq684BweRXVnRxX"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050804033329.GA14501@gondor.apana.org.au>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20050801203011.065721000@araj-em64t>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 01, 2005 at 01:20:19PM -0700, Ashok Raj wrote:
+> Need to create sysfs only for cpus that are present. Without which we see
+> NR_CPUS entries created when we have CONFIG_HOTPLUG and CONFIG_HOTPLUG_CPU
+> enabled.
 
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks looks good.
 
-On Thu, Aug 04, 2005 at 01:33:29PM +1000, herbert wrote:
+-Andi
+
 > 
-> So I suppose we should reset cwnd_quota after tcp_transmit_skb?
-
-Please try this patch to see if this is really the problem or not.
-
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1027,19 +1027,14 @@ static int tcp_write_xmit(struct sock *s
- 		tcp_minshall_update(tp, mss_now, skb);
- 		sent_pkts++;
- 
--		/* Do not optimize this to use tso_segs. If we chopped up
--		 * the packet above, tso_segs will no longer be valid.
--		 */
--		cwnd_quota -= tcp_skb_pcount(skb);
--
--		BUG_ON(cwnd_quota < 0);
--		if (!cwnd_quota)
--			break;
--
- 		skb = sk->sk_send_head;
- 		if (!skb)
- 			break;
-+
- 		tso_segs = tcp_init_tso_segs(sk, skb, mss_now);
-+		cwnd_quota = tcp_cwnd_test(tp, skb);
-+		if (!cwnd_quota)
-+			break;
- 	}
- 
- 	if (likely(sent_pkts)) {
-
---huq684BweRXVnRxX--
+> Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+> --------------------------------------------------------------
+>  arch/i386/mach-default/topology.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> Index: linux-2.6.13-rc3-ak/arch/i386/mach-default/topology.c
+> ===================================================================
+> --- linux-2.6.13-rc3-ak.orig/arch/i386/mach-default/topology.c
+> +++ linux-2.6.13-rc3-ak/arch/i386/mach-default/topology.c
+> @@ -76,7 +76,7 @@ static int __init topology_init(void)
+>  	for_each_online_node(i)
+>  		arch_register_node(i);
+>  
+> -	for_each_cpu(i)
+> +	for_each_present_cpu(i)
+>  		arch_register_cpu(i);
+>  	return 0;
+>  }
+> @@ -87,7 +87,7 @@ static int __init topology_init(void)
+>  {
+>  	int i;
+>  
+> -	for_each_cpu(i)
+> +	for_each_present_cpu(i)
+>  		arch_register_cpu(i);
+>  	return 0;
+>  }
+> 
+> --
+> 

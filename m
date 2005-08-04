@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVHDXS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbVHDXVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262658AbVHDXS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 19:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVHDXS5
+	id S262729AbVHDXVR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 19:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVHDXVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 19:18:57 -0400
-Received: from cantor.suse.de ([195.135.220.2]:31974 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262658AbVHDXQ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 19:16:56 -0400
-Date: Fri, 5 Aug 2005 01:16:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andi Kleen <ak@suse.de>, Danny ter Haar <dth@picard.cistron.nl>,
-       Pavel Roskin <proski@gnu.org>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc5-git2 does not boot on (my) amd64
-Message-ID: <20050804231649.GI8266@wotan.suse.de>
-References: <dctuso$tl$1@news.cistron.nl.suse.lists.linux.kernel> <p73iryl73nm.fsf@bragg.suse.de> <Pine.LNX.4.61.0508042358530.8665@goblin.wat.veritas.com>
+	Thu, 4 Aug 2005 19:21:16 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:46023 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262729AbVHDXVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 19:21:07 -0400
+Subject: [PATCH] fix voyager compile after machine_emergency_restart
+	breakage
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 18:20:49 -0500
+Message-Id: <1123197649.5026.81.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508042358530.8665@goblin.wat.veritas.com>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 12:06:25AM +0100, Hugh Dickins wrote:
-> On Thu, 5 Aug 2005, Andi Kleen wrote:
-> > dth@picard.cistron.nl (Danny ter Haar) writes:
-> > > 
-> > > Freeing unused kernel memory: 248k freed
-> > > VM: killing process hotplug
-> > > VM: killing process hotplug
-> > > VM: killing process hotplug
-> > > VM: killing process hotplug
-> > > Unable to handle kernel paging request at fffffff28017b5be RIP:
-> > > [<fffffff28017b5be>]
-> > 
-> > Looks weird. Just to make sure can you do a make distclean and try
-> > again? It might be a bad compile.
-> 
-> No, like Pavel's and Martin's reports, this is just an effect
-> of the not-quite-fully-baked do_wp_page/get_user_pages race fix in
-> 2.6.13-rc5-git2, which AlexN reported earlier.  Should now be fully
-> fixed in Linus' current git, and in the 2.6.13-rc6 akpm prophesies
-> to be coming soon - please all test that.
+[PATCH] i386: Implement machine_emergency_reboot
 
-Yes. I didn't read the mail fully before replying to that one.
+introduced this new function into arch/i386/reboot.c.  However,
+subarchitectures are entitled to implement their own copies of reboot.c
+from which this new function is now missing.
 
--Andi
+It looks like visws will also need a similar fixup
+
+Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+
+diff --git a/arch/i386/mach-voyager/voyager_basic.c b/arch/i386/mach-voyager/voyager_basic.c
+--- a/arch/i386/mach-voyager/voyager_basic.c
++++ b/arch/i386/mach-voyager/voyager_basic.c
+@@ -279,6 +279,13 @@ machine_restart(char *cmd)
+ }
+ 
+ void
++machine_emergency_restart(void)
++{
++	/*for now, just hook this to a warm restart */
++	machine_restart(NULL);
++}
++
++void
+ mca_nmi_hook(void)
+ {
+ 	__u8 dumpval __attribute__((unused)) = inb(0xf823);
+
+
+

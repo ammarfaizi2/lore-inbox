@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVHCXxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVHDACg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVHCXxk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 19:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVHCXxk
+	id S261405AbVHDACg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 20:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVHDACg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 19:53:40 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:2973 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261641AbVHCXxi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 19:53:38 -0400
-Date: Thu, 4 Aug 2005 01:56:39 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
-       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>,
-       Bodo Eggert <7eggert@gmx.de>, Gene Heskett <gene.heskett@verizon.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, David Brown <dmlb2000@gmail.com>,
-       Puneet Vyas <vyas.puneet@gmail.com>,
-       Richard Hubbell <richard.hubbell@gmail.com>, webmaster@kernel.org
-Message-ID: <20050803235639.GC6223@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Jesper Juhl <jesper.juhl@gmail.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	"Randy.Dunlap" <rdunlap@xenotime.net>,
-	Rolf Eike Beer <eike-kernel@sf-tec.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
-	Sean Bruno <sean.bruno@dsl-only.net>,
-	Lee Revell <rlrevell@joe-job.com>, Bodo Eggert <7eggert@gmx.de>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	"H. Peter Anvin" <hpa@zytor.com>, David Brown <dmlb2000@gmail.com>,
-	Puneet Vyas <vyas.puneet@gmail.com>,
-	Richard Hubbell <richard.hubbell@gmail.com>, webmaster@kernel.org
-References: <200508022332.21380.jesper.juhl@gmail.com> <200508032251.07996.jesper.juhl@gmail.com> <Pine.LNX.4.58.0508031400390.3258@g5.osdl.org> <200508032328.07727.jesper.juhl@gmail.com>
-Mime-Version: 1.0
+	Wed, 3 Aug 2005 20:02:36 -0400
+Received: from mxsf08.cluster1.charter.net ([209.225.28.208]:24295 "EHLO
+	mxsf08.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261405AbVHDACf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 20:02:35 -0400
+X-IronPort-AV: i="3.95,165,1120449600"; 
+   d="scan'208"; a="1206079250:sNHT15649548"
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508032328.07727.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: 84.189.229.180
-Subject: Re: Documentation - how to apply patches for various trees
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Content-Transfer-Encoding: 7bit
+Message-ID: <17137.23321.832718.662521@smtp.charter.net>
+Date: Wed, 3 Aug 2005 20:02:33 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: andrew.j.wade@gmail.com
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+Subject: Re: Testing RC kernels [KORG]
+In-Reply-To: <200508031753.00402.andrew.j.wade@gmail.com>
+References: <1123007589.24010.41.camel@jy.metro1.com>
+	<20050802191303.09e635c3.rdunlap@xenotime.net>
+	<200508022330.51364.gene.heskett@verizon.net>
+	<200508031753.00402.andrew.j.wade@gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 03, 2005 Jesper Juhl wrote:
-> +How do I feed a patch/diff file to `patch'?
-> +---
-> + This (as usual with Linux and other UNIX like operating systems) can be
-> +done in several different ways.
-> +In all the examples below I feed the file (in uncompressed form) to patch
-> +via stdin using the following syntax:
-> +	patch -p1 < path/to/patch-x.y.z
+>>>>> "Andrew" == Andrew James Wade <andrew.j.wade@gmail.com> writes:
 
-I think you should mention the -s flag. Given the size of an
-average kernel patch it is otherwise very likely that errors scroll
-away unnoticed.
+Andrew> I updated my kernel more frequently after learning of ketchup.
+Andrew> (<http://www.selenic.com/ketchup/>). The bother of getting the
+Andrew> patch sequence right and applying it was enough to discourage me.
+Andrew> No, it's not particularly difficult, but it may well be enough
+Andrew> to discourage casual testers. 
 
-OTOH you might also want to add a mention of lsdiff and diffstat.
+Hear hear!  Ketchup is an amazing tool and automates a boring task, so
+it's got my vote for most useful kernel build tool right now.
 
-Johannes
+John

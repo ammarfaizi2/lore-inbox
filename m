@@ -1,82 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbVHDVRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVHDVRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbVHDVRE (ORCPT <rfc822;willy@w.ods.org>);
+	id S262703AbVHDVRE (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 4 Aug 2005 17:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbVHDVQz
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVHDVQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 17:16:55 -0400
-Received: from cantor.suse.de ([195.135.220.2]:1243 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262707AbVHDVOs (ORCPT
+	Thu, 4 Aug 2005 17:16:47 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:31970 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262689AbVHDVPT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 17:14:48 -0400
-Date: Thu, 4 Aug 2005 23:14:45 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: NUMA policy interface
-Message-ID: <20050804211445.GE8266@wotan.suse.de>
-References: <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net> <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net> <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net> <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net> <20050804170803.GB8266@wotan.suse.de> <Pine.LNX.4.62.0508041011590.7314@graphe.net>
+	Thu, 4 Aug 2005 17:15:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=DpN6MM1DrazHbtkL0CkkS7xIDO8pcMjR+/ImJZXWMnnSSp3MJSzXyFSdWBWXwk8DxPPICbZ777Nc8/w4ONtQyCl073tqPhpGPZbxZWkBDrBCnsur4u5pvM1vxtY7k35vjuR2XNUxeSZr8IgtONWAhRaMjbZTSZhxbhxei5eDJg0=
+Message-ID: <9268368b050804141525539666@mail.gmail.com>
+Date: Thu, 4 Aug 2005 17:15:14 -0400
+From: Daniel Petrini <d.pensator@gmail.com>
+Reply-To: Daniel Petrini <d.pensator@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>, tony@atomide.com
+Subject: [PATCH] Timer Top was: i386 No-Idle-Hz aka Dynamic-Ticks 3
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org,
+       tuukka.tikkanen@elektrobit.com, ilias.biris@indt.org.br
+In-Reply-To: <200508031559.24704.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0508041011590.7314@graphe.net>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_5444_27818742.1123190114427"
+References: <200508031559.24704.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. BIND policy implemented in a way that fills up nodes from the lowest 
->    to the higest instead of allocating memory on the local node.
+------=_Part_5444_27818742.1123190114427
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Hmm, there was a patch from PJ for that at some point. Not sure why it 
-was not merged. iirc the first implementation was too complex, but
-there was a second reasonable one.
+Hi,
 
-> 
-> 2. No separation between sys_ and do_ functions. Therefore difficult
->    to use from kernel context.
+Here we have some support to have more tests on Dynamic Tick.
+We have some functions that exports timers information to a proc entry
+(/proc/top_info), in a kernel patch and a script that handles this
+info and give some output to analyse. We tried to make it less
+intrusive as possible.
 
-set_fs(KERNEL_DS)
-Some policies can be even set without that.
+It is based in suggestions from Tony Lindgren.
 
-There are already kernel users BTW that prove you wrong.
+It is experimental and should evolve.
 
+Must be applied after 2.6.13-rc5-dtck-3.patch and 2.6.13-rc5.
 
-> 3. Functions have weird side effect (f.e. get_nodes updating 
->    and using cpuset policies). Code is therefore difficult 
->    to maintain.
+Usage: with kernel compiled with attached patch: "perl timer_top.pl
+5", to have refresh time of 5s.
 
-Agreed that should be cleaned up.
+Regards,
 
-> 4. Uses bitmaps instead of nodemask_t.
+Daniel Petrini
+--=20
+10LE - Linux Lab
+Instituto Nokia de Tecnologia - INdT
+Manaus - Brazil
 
-Should be easy to fix if someone is motivated.  When I wrote the code
-nodemask_t didn't exist yet, and when it was merged it wasn't 
-converted over. Not a big deal.
+------=_Part_5444_27818742.1123190114427
+Content-Type: text/x-patch; name="timer_top1-20050804.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="timer_top1-20050804.patch"
 
-> 
-> 5. No means to figure out where the memory was allocated although
->    mempoliy.c implements scans over ptes that would allow that 
->    determination.
+ZGlmZiAtdXByTiBsaW51eC0yLjYuMTItb3JpZy9rZXJuZWwvTWFrZWZpbGUgbGludXgtZHluLXRp
+Y2sva2VybmVsL01ha2VmaWxlCi0tLSBsaW51eC0yLjYuMTItb3JpZy9rZXJuZWwvTWFrZWZpbGUJ
+MjAwNS0wOC0wMyAyMzo1MDoyNi4wMDAwMDAwMDAgLTA0MDAKKysrIGxpbnV4LWR5bi10aWNrL2tl
+cm5lbC9NYWtlZmlsZQkyMDA1LTA4LTA0IDE2OjU2OjE0LjAwMDAwMDAwMCAtMDQwMApAQCAtNyw3
+ICs3LDcgQEAgb2JqLXkgICAgID0gc2NoZWQubyBmb3JrLm8gZXhlY19kb21haW4ubwogCSAgICBz
+eXNjdGwubyBjYXBhYmlsaXR5Lm8gcHRyYWNlLm8gdGltZXIubyB1c2VyLm8gXAogCSAgICBzaWdu
+YWwubyBzeXMubyBrbW9kLm8gd29ya3F1ZXVlLm8gcGlkLm8gXAogCSAgICByY3VwZGF0ZS5vIGlu
+dGVybW9kdWxlLm8gZXh0YWJsZS5vIHBhcmFtcy5vIHBvc2l4LXRpbWVycy5vIFwKLQkgICAga3Ro
+cmVhZC5vIHdhaXQubyBrZmlmby5vIHN5c19uaS5vIHBvc2l4LWNwdS10aW1lcnMubworCSAgICBr
+dGhyZWFkLm8gd2FpdC5vIGtmaWZvLm8gc3lzX25pLm8gcG9zaXgtY3B1LXRpbWVycy5vIHRpbWVy
+X3RvcC5vCiAKIG9iai0kKENPTkZJR19GVVRFWCkgKz0gZnV0ZXgubwogb2JqLSQoQ09ORklHX0dF
+TkVSSUNfSVNBX0RNQSkgKz0gZG1hLm8KZGlmZiAtdXByTiBsaW51eC0yLjYuMTItb3JpZy9rZXJu
+ZWwvdGltZXIuYyBsaW51eC1keW4tdGljay9rZXJuZWwvdGltZXIuYwotLS0gbGludXgtMi42LjEy
+LW9yaWcva2VybmVsL3RpbWVyLmMJMjAwNS0wOC0wMyAyMzo1MDoyNy4wMDAwMDAwMDAgLTA0MDAK
+KysrIGxpbnV4LWR5bi10aWNrL2tlcm5lbC90aW1lci5jCTIwMDUtMDgtMDQgMTY6NTY6MjcuMDAw
+MDAwMDAwIC0wNDAwCkBAIC01MDgsNiArNTA4LDggQEAgc3RhdGljIGlubGluZSB2b2lkIF9fcnVu
+X3RpbWVycyh0dmVjX2JhcwogfQogCiAjaWZkZWYgQ09ORklHX05PX0lETEVfSFoKK2V4dGVybiBz
+dHJ1Y3QgdGltZXJfdG9wX2luZm8gdG9wX2luZm87CitleHRlcm4gaW50IGFjY291bnRfdGltZXIo
+dW5zaWduZWQgaW50IGZ1bmN0aW9uLCBzdHJ1Y3QgdGltZXJfdG9wX2luZm8gKiB0b3BfaW5mbyk7
+CiAvKgogICogRmluZCBvdXQgd2hlbiB0aGUgbmV4dCB0aW1lciBldmVudCBpcyBkdWUgdG8gaGFw
+cGVuLiBUaGlzCiAgKiBpcyB1c2VkIG9uIFMvMzkwIHRvIHN0b3AgYWxsIGFjdGl2aXR5IHdoZW4g
+YSBjcHVzIGlzIGlkbGUuCkBAIC01NzEsNiArNTczLDcgQEAgZm91bmQ6CiAJCQkJZXhwaXJlcyA9
+IG50ZS0+ZXhwaXJlczsKIAkJfQogCX0KKwlhY2NvdW50X3RpbWVyKCh1bnNpZ25lZCBpbnQpbnRl
+LT5mdW5jdGlvbiwgJnRvcF9pbmZvKTsKIAlzcGluX3VubG9jaygmYmFzZS0+dF9iYXNlLmxvY2sp
+OwogCXJldHVybiBleHBpcmVzOwogfQpkaWZmIC11cHJOIGxpbnV4LTIuNi4xMi1vcmlnL2tlcm5l
+bC90aW1lcl90b3AuYyBsaW51eC1keW4tdGljay9rZXJuZWwvdGltZXJfdG9wLmMKLS0tIGxpbnV4
+LTIuNi4xMi1vcmlnL2tlcm5lbC90aW1lcl90b3AuYwkxOTY5LTEyLTMxIDIwOjAwOjAwLjAwMDAw
+MDAwMCAtMDQwMAorKysgbGludXgtZHluLXRpY2sva2VybmVsL3RpbWVyX3RvcC5jCTIwMDUtMDgt
+MDQgMTY6NTE6MzYuMDAwMDAwMDAwIC0wNDAwCkBAIC0wLDAgKzEsMTAxIEBACisvKgorICoga2Vy
+bmVsL3RpbWVyX3RvcC5jCisgKgorICogRXhwb3J0IFRpbWVycyBpbmZvcm1hdGlvbiB0byAvcHJv
+Yy90b3BfaW5mbworICoKKyAqIENvcHlyaWdodCAoQykgMjAwNSBJbnN0aXR1dG8gTm9raWEgZGUg
+VGVjbm9sb2dpYSAtIElOZFQgLSBNYW5hdXMKKyAqIFdyaXR0ZW4gYnkgRGFuaWVsIFBldHJpbmkg
+PGQucGVuc2F0b3JAZ21haWwuY29tPgorICoKKyAqIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3
+YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9kaWZ5CisgKiBpdCB1bmRlciB0
+aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIHZlcnNpb24gMiBhcwor
+ICogcHVibGlzaGVkIGJ5IHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb24uCisgKi8KKworCisj
+aW5jbHVkZSA8bGludXgvbGlzdC5oPgorI2luY2x1ZGUgPGxpbnV4L3Byb2NfZnMuaD4KKyNpbmNs
+dWRlIDxsaW51eC9tb2R1bGUuaD4KKworc3RhdGljIExJU1RfSEVBRCh0aW1lcl9saXN0KTsKKwor
+c3RydWN0IHRpbWVyX3RvcF9pbmZvIHsKKwl1bnNpZ25lZCBpbnQJCWZ1bmNfcG9pbnRlcjsKKwl1
+bnNpZ25lZCBpbnQgbG9uZwljb3VudGVyOworCXN0cnVjdCBsaXN0X2hlYWQgCWxpc3Q7ICAgICAg
+CQorfTsKKworc3RydWN0IHRpbWVyX3RvcF9pbmZvIHRvcF9pbmZvOworCitpbnQgYWNjb3VudF90
+aW1lcih1bnNpZ25lZCBpbnQgZnVuY3Rpb24sIHN0cnVjdCB0aW1lcl90b3BfaW5mbyAqIHRvcF9p
+bmZvKQoreworCXN0cnVjdCB0aW1lcl90b3BfaW5mbyAqdG9wOworCisJbGlzdF9mb3JfZWFjaF9l
+bnRyeSAodG9wLCAmdGltZXJfbGlzdCwgbGlzdCkgeworCQkvKiBpZiBpdCBpcyBpbiB0aGUgbGlz
+dCBpbmNyZW1lbnQgaXRzIGNvdW50ICovCisJCWlmICh0b3AtPmZ1bmNfcG9pbnRlciA9PSBmdW5j
+dGlvbikgeworCQkJdG9wLT5jb3VudGVyICs9IDE7CisJCQlyZXR1cm4gMDsKKwkJfQorCX0KKwkK
+KwkvKiBpZiB5b3UgYXJlIGhlcmUgdGhlbiBpdCBkaWRudCBmaW5kIHNvIGluc2VydHMgaW4gdGhl
+IGxpc3QgKi8KKworCXRvcCA9IGttYWxsb2Moc2l6ZW9mKHN0cnVjdCB0aW1lcl90b3BfaW5mbyks
+IEdGUF9LRVJORUwpOworCWlmICghdG9wKSAKKwkJcmV0dXJuIC1FTk9NRU07CisJdG9wLT5mdW5j
+X3BvaW50ZXIgPSBmdW5jdGlvbjsKKwl0b3AtPmNvdW50ZXIgPSAxOworCWxpc3RfYWRkKCZ0b3At
+Pmxpc3QsICZ0aW1lcl9saXN0KTsKKworCXJldHVybiAwOworfQorCitFWFBPUlRfU1lNQk9MKGFj
+Y291bnRfdGltZXIpOworCitzdHJ1Y3QgdG9wX2luZm9fcG9sbCB7CisgIGNoYXIgdmFsdWVbMThd
+OworfTsKKworc3RydWN0IHRvcF9pbmZvX3BvbGwgdG9wX2luZm9fcG9sbF9kdDsKK3N0cnVjdCBw
+cm9jX2Rpcl9lbnRyeSAqdG9wX2luZm9fZmlsZTsKKworc3RhdGljIGludCBwcm9jX3JlYWRfdG9w
+X2luZm8oY2hhciAqcGFnZSwgY2hhciAqKnN0YXJ0LCBvZmZfdCBvZmYsCisgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIGludCBjb3VudCwgaW50ICplb2YsIHZvaWQgKmRhdGEpCit7CisJ
+Y2hhciBhdXhbMThdOworCXN0cnVjdCB0aW1lcl90b3BfaW5mbyAqdG9wOworCisJc3RydWN0IHRv
+cF9pbmZvX3BvbGwgKmluZm9fcG9sbF9kYXRhPShzdHJ1Y3QgdG9wX2luZm9fcG9sbCAqKWRhdGE7
+CisKKwlzcHJpbnRmKHBhZ2UsICJGdW5jdGlvbiBjb3VudGVyIC0gJXNcbiIsIGluZm9fcG9sbF9k
+YXRhLT52YWx1ZSk7CisKKwlsaXN0X2Zvcl9lYWNoX2VudHJ5ICh0b3AsICZ0aW1lcl9saXN0LCBs
+aXN0KSB7CisJCXNwcmludGYoYXV4LCAiJXggJWx1XG4iLCB0b3AtPmZ1bmNfcG9pbnRlciwgdG9w
+LT5jb3VudGVyKTsKKwkJc3RyY2F0KHBhZ2UsIGF1eCk7CisJfQorCisJcmV0dXJuIHN0cmxlbihw
+YWdlKTsKKyAKK30gCisKK3N0YXRpYyBpbnQgaW5pdF90b3BfaW5mbyh2b2lkKQoreworCXRvcF9p
+bmZvX2ZpbGUgPSBjcmVhdGVfcHJvY19lbnRyeSgidG9wX2luZm8iLCAwNjY2LCBOVUxMKTsKKwlp
+Zih0b3BfaW5mb19maWxlID09IE5VTEwpIHsKKwkgIHJldHVybiAtRU5PTUVNOworCX0KKworCXN0
+cmNweSh0b3BfaW5mb19wb2xsX2R0LnZhbHVlLCAiVGltZXIgVG9wIHYwLjkuMSIpOworCisJdG9w
+X2luZm9fZmlsZS0+ZGF0YSA9ICZ0b3BfaW5mb19wb2xsX2R0OworCXRvcF9pbmZvX2ZpbGUtPnJl
+YWRfcHJvYyA9ICZwcm9jX3JlYWRfdG9wX2luZm87CisJdG9wX2luZm9fZmlsZS0+b3duZXIgPSBU
+SElTX01PRFVMRTsKKwkKKwlyZXR1cm4gMDsKK30KKworbW9kdWxlX2luaXQoaW5pdF90b3BfaW5m
+byk7CisvL21vZHVsZV9leGl0KCk7CisKKworCg==
+------=_Part_5444_27818742.1123190114427
+Content-Type: application/x-perl; name="timer_top.pl"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="timer_top.pl"
 
-You lost me here.
-
->  
-> 6. Needs hook into page migration layer to move pages to either conform
->    to policy or to move them menually.
-
-Does it really? So far my feedback from all users I talked to is that they only
-use a small subset of the functionality, even what is there is too complex.
-Nobody with a real app so far has asked me for page migration.
-
-There was one implementation of simple page migration in Steve L.'s patches,
-but that was just because it was too hard to handle one corner case
-otherwise.
-
-
-> The long term impact of this missing functionality is already showing 
-> in the numbers of workarounds that I have seen at a various sites, 
-
-Examples? 
-
--Andi
-
+IwojIHRpbWVyX3RvcC5wbAojCiMgVGltZXIgVG9wOiBnZXRzIHRpbWVycyBpbmZvIGV4cG9ydGVk
+IGJ5IGtlcm5lbCBpbiAvcHJvYy90b3BfaW5mbyBhbmQKIyBvcmdhbml6ZXMgYW5kIHNob3dzIHVz
+ZWZ1bCBpbmZvIGluIHRoZSBzY3JlZW4uIEl0cyBtYWluIHB1cnBvc2UgaXMgdG8KIyB0ZXN0IHRo
+ZSBkeW5hbWljIHRpY2sgcGF0Y2ggYnkgVG9ueSBMaW5kZ3JlbiBhbmQgVHV1a2thIFRpa2thbmVu
+LgojIElkZWEgaXMgdG8gZXZvbHZlIHRoaXMgaW4gb3JkZXIgdG8gZ2V0IG1vcmUgdXNlZnVsIGlu
+Zm8KIyBJdCBuZWVkcyB0aGUgU3lzdGVtLm1hcCBmaWxlIHRvIGJlIGluIHRoZSBzYW1lIGRpcmVj
+dG9yeQojCiMgQ29weXJpZ2h0IChDKSAyMDA1IEluc2l0dXRvIE5va2lhIGRlIFRlY25vbG9naWEg
+LSBJTmRUIC0gTWFuYXVzCiMgV3JpdHRlbiBieSBEYW5pZWwgUGV0cmluaSA8ZGFuaWVsLnBldHJp
+bmlAaW5kdC5vcmcuYnI+IGFuZAojICAgICAgICAgICAgSWxpYXMgQmlyaXMgPGlsaWFzLmJpcmlz
+QGluZHQub3JnLmJyPgojCiMgVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4g
+cmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkKIyBpdCB1bmRlciB0aGUgdGVybXMgb2YgdGhl
+IEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIHZlcnNpb24gMiBhcwojIHB1Ymxpc2hlZCBieSB0
+aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLgojIAojIS91c3IvYmluL3BlcmwKCm9wZW4gKElO
+RklMRSwgIlN5c3RlbS5tYXAiKSB8fCBkaWUgKCJjYW5ub3Qgb3BlbiBmaWxlXG4iKTsKCm15ICgk
+aW50ZXJ2YWwpID0gJEFSR1ZbMF07Cm15ICgkZGlmZikgPSAkQVJHVlsxXTsKCmlmICgkaW50ZXJ2
+YWwgZXEgIiIpIHsKICAgIHByaW50ZigiVXNhZ2U6ICVzIGludGVydmFsX2luX3NlY29uZHMgcHJp
+bnRfZGlmZlxuIiwgJDApOwkKICAgIGV4aXQoMSk7Cn0KCmlmICgkZGlmZiBlcSAiIikgewogICAg
+JGRpZmYgPSAxOyAgICAKfSAKCiVzeXNfbWFwX2xpbmVzPSgpOwoldG9wX2xpbmVzPSgpOwolbnVt
+Yl9mdW5jPSgpOwolZGlmZl90aW1lPSgpOwoKd2hpbGUoPElORklMRT4pIHsKICAgIGNob21wICRf
+OwogICAgaWYoICRfIG5lICIiICkgewoJJHN5c19tYXBfbGluZSA9IHN1YnN0cigkXywgMCwgOCk7
+CQoJJHN5c19tYXBfbGluZXN7JHN5c19tYXBfbGluZX09c3Vic3RyKCRfLCAxMCwgbGVuZ3RoKCRf
+KSk7CiAgICB9Cn0KY2xvc2UoSU5GSUxFKTsKCgpzdWIgcmVhZF90b3BfaW5mbyB7CgogICAgb3Bl
+biAoSU5GSUxFMiwgIi9wcm9jL3RvcF9pbmZvIikgfHwgZGllICgiY2Fubm90IG9wZW4gZmlsZVxu
+Iik7CgogICAgd2hpbGUoPElORklMRTI+KXsKCWlmKCAkXyAhfiBtL15GdW5jdGlvblxzY291bnRl
+ci8gKXsKCSAgICAkZnVuY190b3AgPSBzdWJzdHIoICRfLCAwLCA4KTsKCSAgICAkbnVtYl90b3Ag
+PSBzdWJzdHIoICRfLCA5LCA4KTsKCSAgICBpZiggJHN5c19tYXBfbGluZXN7JGZ1bmNfdG9wfSBu
+ZSAiIiApewoJCSMgQ2hlY2sgaWYgdGhlcmUgaXMgdmFyaWF0aW9uIGZvciB0aGF0IHRpbWVyIGZ1
+bmN0aW9uCgkJaWYgKCAoJG51bWJfdG9wKSAhPSAoJG51bWJfZnVuY3skZnVuY190b3B9KSAgKSB7
+CgkJICAgICR0b3BfbGluZXN7JGZ1bmNfdG9wfSA9ICRzeXNfbWFwX2xpbmVzeyRmdW5jX3RvcH07
+CgkJICAgICRkaWZmX3RpbWV7JGZ1bmNfdG9wfSA9ICRudW1iX3RvcCAtICRudW1iX2Z1bmN7JGZ1
+bmNfdG9wfTsJI0dldCB0aGUgZGlmZmVyZW5jZQoJCSAgICAkbnVtYl9mdW5jeyRmdW5jX3RvcH0g
+PSAkbnVtYl90b3A7CgkgICAgCX0gZWxzZSB7CgkJICAgICR0b3BfbGluZXN7JGZ1bmNfdG9wfSA9
+ICIiOwoJCX0gCgkJICAgIAoKCSAgICB9Cgl9CiAgICB9CiAgICBjbG9zZShJTkZJTEUyKTsKfQoK
+d2hpbGUgKDEpIHsKCiAgICByZWFkX3RvcF9pbmZvKCk7CgogICAgc3lzdGVtKCJjbGVhciIpOwoK
+ICAgIHByaW50ICJUaW1lciBUb3AgdjAuOS4xIFxuIjsKICAgIHByaW50ICJBZGRyZXNzICAgICAg
+Q291bnQgICBGcmVxKEh6KSAgIEZ1bmN0aW9uXG4iOwoKICAgIHdoaWxlKCgkaXRlbSwgJHZhbHVl
+KSA9IGVhY2goJXRvcF9saW5lcykpIHsKCWlmICggJHRvcF9saW5lc3skaXRlbX0gbmUgIiIgKSB7
+CgkgICAgY2hvbXAgKCRudW1iX2Z1bmN7JGl0ZW19KTsKCSAgICBwcmludGYgIiVzfCUxMHN8JTku
+MmZ8JXNcbiIsICRpdGVtLCAkbnVtYl9mdW5jeyRpdGVtfSwgJGRpZmZfdGltZXskaXRlbX0vJGlu
+dGVydmFsLCAkdmFsdWU7Cgl9CiAgICB9CiAgICBzbGVlcCAkaW50ZXJ2YWw7Cn0K
+------=_Part_5444_27818742.1123190114427--

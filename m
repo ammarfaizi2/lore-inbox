@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVHDRe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVHDQij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVHDRe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 13:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVHDRdE
+	id S262604AbVHDQij (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 12:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVHDQfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 13:33:04 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:65187 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S261487AbVHDRc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 13:32:27 -0400
-X-IronPort-AV: i="3.95,167,1120460400"; 
-   d="scan'208"; a="202753960:sNHT1137745554"
-To: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: [RFC] Move InfiniBand .h files
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rolandd@cisco.com>
-Date: Thu, 04 Aug 2005 10:32:14 -0700
-Message-ID: <52iryla9r5.fsf@cisco.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 Aug 2005 17:32:15.0877 (UTC) FILETIME=[74DD0B50:01C5991A]
+	Thu, 4 Aug 2005 12:35:34 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:44435 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262598AbVHDQdl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 12:33:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BeEmhJFLf+HN1vMGDt/sfAOLEI49vu5gQ8aw57CApY+/3U9HpS3t2psVtbnb9s2RcdJilhdEOrfFZbQtNz/insVJCLHPIGlRgyPILuFFipnYMQEHjX4d+9266MwPALoWeUqpv2JB0Am3PpI5W6nd5Q6t+svuuHc5SF47wKfYxFY=
+Message-ID: <86802c44050804093374aca360@mail.gmail.com>
+Date: Thu, 4 Aug 2005 09:33:38 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+Reply-To: yhlu <yhlu.kernel@gmail.com>
+To: Roland Dreier <rolandd@cisco.com>
+Subject: Re: mthca and LinuxBIOS (was: [PATCH 1/2] [IB/cm]: Correct CM port redirect reject codes)
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <52u0i6b9an.fsf_-_@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
+	 <20057281331.7vqhiAJ1Yc0um2je@cisco.com>
+	 <86802c44050803175873fb0569@mail.gmail.com>
+	 <52u0i6b9an.fsf_-_@cisco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to get people's reactions to moving the InfiniBand .h
-files from their current location in drivers/infiniband/include/ to
-include/linux/rdma/.  If we agree that this is a good idea then I'll
-push this change as soon as 2.6.14 starts.
+YES.
 
-The advantages of doing this are:
+I will send you the output message later about "CONFIG_INFINIBAND_MTHCA_DEBUG=y"
 
-  - The headers become more easily accessible to other parts of the
-    tree that might want to use IB support.  For example, an NFS/RDMA
-    client probably wants to live under fs/
-  - It makes it easier to build IB modules outside the tree, since
-    include/linux gets put in /lib/modules/<ver>/build.  I realize
-    that we don't really care about out-of-tree modules, but it is
-    convenient to be able to develop and distribute new drivers that
-    build against someone's existing kernels.
-  - We can kill off the ugly
+YH
 
-        EXTRA_CFLAGS += -Idrivers/infiniband/include
-
-    lines in our Makefiles.
-
-The disadvantages are:
-
-  - It's churn with little technical merit.
-  - It makes it a little harder to pull the OpenIB svn tree into a
-    kernel tree, since one would have to link both drivers/infiniband
-    and include/linux/rdma instead of just drivers/infiniband.  This
-    problem goes away if/when OpenIB shifts over to a new source code
-    control system.
-
-Thanks,
-  Roland
+On 8/3/05, Roland Dreier <rolandd@cisco.com> wrote:
+>     yhlu> In LinuxBIOS, If I enable the prefmem64 to use real 64
+>     yhlu> range. the IB driver in Kernel can not be loaded.
+> 
+> What does it mean to "enable the prefmem64 to use real 64 range"?
+> 
+> Does the driver work if you don't do this?
+> 
+>     yhlu> ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
+> 
+> Can you add printk()s to mthca_qp.c::mthca_init_qp_table() to find out
+> how far the function gets before it fails?
+> 
+> It would also be useful for you to build with CONFIG_INFINIBAND_MTHCA_DEBUG=y
+> and send the kernel output you get with that.
+> 
+>  - Roland
+>

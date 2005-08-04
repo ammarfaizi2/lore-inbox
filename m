@@ -1,166 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVHDBeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVHDBgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbVHDBeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 21:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVHDBeI
+	id S261740AbVHDBgp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 21:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVHDBgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 21:34:08 -0400
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:8323 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261736AbVHDBd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 21:33:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:MIME-Version:Message-Id:Content-Type;
-  b=dp+10Xk8rsvtaxiBHzURDy0vOg9FcTVtx5Kg0Lkr/xK7SQr6DrveV1bzTT72P84QEX9SccEQxAP+8USejoVhAaPJ9tWNSbBbuQkma9AUtfEyqjin7bRROgrreHDe0W82UGLsHRbaR9inBXiuOCGq66Hlil3BKpyL7Q7MWjbdeXA=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: linux-kernel@vger.kernel.org, hirofumi@mail.parknet.co.jp, akpm@osdl.org
-Subject: [PATCH] Speedup FAT filesystem directory reads
-Date: Thu, 4 Aug 2005 03:33:44 +0200
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Message-Id: <200508040333.44935.annabellesgarden@yahoo.de>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_4BX8CKFpQzD4PrX"
+	Wed, 3 Aug 2005 21:36:44 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:25831 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261740AbVHDBfs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 21:35:48 -0400
+Date: Wed, 3 Aug 2005 18:39:10 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH 1/2] [IB/cm]: Correct CM port redirect reject codes
+Message-ID: <20050804013910.GG16417@esmail.cup.hp.com>
+References: <20057281331.dR47KhjBsU48JfGE@cisco.com> <20057281331.7vqhiAJ1Yc0um2je@cisco.com> <86802c44050803175873fb0569@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86802c44050803175873fb0569@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_4BX8CKFpQzD4PrX
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, Aug 03, 2005 at 05:58:11PM -0700, yhlu wrote:
+> Roland,
+> 
+> In LinuxBIOS, If I enable the prefmem64 to use real 64 range. the IB
+> driver in Kernel can not be loaded.
 
-Hi,
+Can you provide a few more details about the configuration?
+o kernel version
+o architecture (i386 or x86-64)
+o post the full console output from power up?
 
-Please give this a try and commit to -mm or mainline, if approved.
+Recent email on linux-pci raised awareness that 32-bit kernel
+can not support 64-bit PCI MMIO addresses. struct resource (defined in
+include/linux/ioport.h) defines the start/end field as "unsigned long".
+That's only 32-bit on i386 kernels.
 
-Thanks,
-Karsten
+> PCI: 04:00.0 18 <- [0xfcf0000000 - 0xfcf07fffff] prefmem64
+> PCI: 04:00.0 20 <- [0xfce0000000 - 0xfcefffffff] prefmem64                      
+I have to wonder if those BARs are truly prefetchable.
+Does Mellanox assume CPU is the only one to write the 3rd BAR (RAM)
+and the CPU implements a write-through cache (vs write back)?
 
-Summary:
-This speeds up directory reads for large FAT partitions,
-if the buffercache has to be filled from the drive.
-Following values were taken from:
-	$ time find path_to_freshly_mounted_fat > /dev/null
-on an otherwise idle system.
-FAT with 16KB Clusters on IDE attached drive:	Factor  2
-FAT with 32KB Clusters on USB2 attached drive:	Factor 10 (!)
-Its less than 1/10 slower, if the buffercache is uptodate.
+I'm just guessing because I don't understand exactly how the
+256MB of onboard RAM is accessed.
 
-The patch touches 3 areas:
-- fat_bmap() returns the sector's offset in the cluster or a 
-  negativ error code instead of 0 or the negativ error code.
-  It's callers are changed accordingly.
-- fat__get_entry() calls sb_breadahead() to readahead a whole cluster,
-  if the requested sector is the first one in a cluster.
-  It is usefull to do this, because on FAT directories occupy whole
-  clusters.
-  Readahead is only done, if the cluster's first sector is not uptodate
-  to avoid overhead, when the buffer cache is already uptodate.
-  Note that on memory pressure, the maximal byte count wasted
-  (read: has to be red from disk twice) is 1 cluster's size. Thats 64KB.
-- Unrelated cleanup at one spot:
-	if (bh)
-		brelse(bh);
-  is replaced with:
-	brelse(bh);
-  brelse() can handle NULL pointer arguments by itself.
+hth,
+grant
 
-Signed-off-by: Karsten Wiese <annabellesgarden@yahoo.de>
+> 
+> ib_mthca: Mellanox InfiniBand HCA driver v0.06 (June 23, 2005)
+> ib_mthca: Initializing Mellanox Technologies MT25208 InfiniHost III Ex (Tavor c)
+> ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
+> ib_mthca: probe of 0000:04:00.0 failed with error -16
+> _______________________________________________
+> openib-general mailing list
+> openib-general@openib.org
+> http://openib.org/mailman/listinfo/openib-general
+> 
+> To unsubscribe, please visit http://openib.org/mailman/listinfo/openib-general
 
-
---Boundary-00=_4BX8CKFpQzD4PrX
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="fat+sb_breadahead.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="fat+sb_breadahead.diff"
-
-diff -ur linux-2.6.13_orig/fs/fat/cache.c linux-2.6.13/fs/fat/cache.c
---- linux-2.6.13_orig/fs/fat/cache.c	2005-07-31 21:15:16.000000000 +0200
-+++ linux-2.6.13/fs/fat/cache.c	2005-08-02 13:55:50.000000000 +0200
-@@ -320,5 +320,5 @@
- 		return cluster;
- 	else if (cluster)
- 		*phys = fat_clus_to_blknr(sbi, cluster) + offset;
--	return 0;
-+	return offset;
- }
-diff -ur linux-2.6.13_orig/fs/fat/dir.c linux-2.6.13/fs/fat/dir.c
---- linux-2.6.13_orig/fs/fat/dir.c	2005-07-31 21:14:20.000000000 +0200
-+++ linux-2.6.13/fs/fat/dir.c	2005-07-31 21:53:28.000000000 +0200
-@@ -46,7 +46,7 @@
- 	struct super_block *sb = dir->i_sb;
- 	sector_t phys, iblock;
- 	int offset;
--	int err;
-+	int clu_sector;
- 
- next:
- 	if (*bh)
-@@ -54,10 +54,21 @@
- 
- 	*bh = NULL;
- 	iblock = *pos >> sb->s_blocksize_bits;
--	err = fat_bmap(dir, iblock, &phys);
--	if (err || !phys)
-+	clu_sector = fat_bmap(dir, iblock, &phys);
-+	if (clu_sector < 0 || !phys)
- 		return -1;	/* beyond EOF or error */
- 
-+	if (0 == clu_sector) {
-+		struct buffer_head *bh = __getblk(sb->s_bdev, phys, sb->s_blocksize);
-+		if (!buffer_uptodate(bh)) {
-+			int sec;
-+			int sec_per_clus = MSDOS_SB(sb)->sec_per_clus;
-+			for (sec = 0; sec < sec_per_clus; sec++)
-+				sb_breadahead(sb, phys + sec);
-+		}
-+		brelse(bh);
-+	}
-+
- 	*bh = sb_bread(sb, phys);
- 	if (*bh == NULL) {
- 		printk(KERN_ERR "FAT: Directory bread(block %llu) failed\n",
-@@ -635,8 +646,7 @@
- EODir:
- 	filp->f_pos = cpos;
- FillFailed:
--	if (bh)
--		brelse(bh);
-+	brelse(bh);
- 	if (unicode)
- 		free_page((unsigned long)unicode);
- out:
-diff -ur linux-2.6.13_orig/fs/fat/inode.c linux-2.6.13/fs/fat/inode.c
---- linux-2.6.13_orig/fs/fat/inode.c	2005-07-31 21:15:16.000000000 +0200
-+++ linux-2.6.13/fs/fat/inode.c	2005-08-02 13:55:50.000000000 +0200
-@@ -56,7 +56,7 @@
- 	int err;
- 
- 	err = fat_bmap(inode, iblock, &phys);
--	if (err)
-+	if (err < 0)
- 		return err;
- 	if (phys) {
- 		map_bh(bh_result, sb, phys);
-@@ -76,7 +76,7 @@
- 	}
- 	MSDOS_I(inode)->mmu_private += sb->s_blocksize;
- 	err = fat_bmap(inode, iblock, &phys);
--	if (err)
-+	if (err < 0)
- 		return err;
- 	if (!phys)
- 		BUG();
-
---Boundary-00=_4BX8CKFpQzD4PrX--
-
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+And I have to wonder if those BARs truly are prefetchable.
+It would imply only the CPU writes them and 

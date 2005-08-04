@@ -1,90 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbVHDNXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262528AbVHDNYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbVHDNXk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 09:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbVHDNXk
+	id S262528AbVHDNYn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVHDNYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 09:23:40 -0400
-Received: from ns1.suse.de ([195.135.220.2]:21893 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262525AbVHDNXj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 09:23:39 -0400
-Date: Thu, 4 Aug 2005 15:23:38 +0200
-From: Andi Kleen <ak@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Anton Blanchard <anton@samba.org>, cr@sap.com, linux-mm@kvack.org
-Subject: Re: Getting rid of SHMMAX/SHMALL ?
-Message-ID: <20050804132338.GT8266@wotan.suse.de>
-References: <20050804113941.GP8266@wotan.suse.de> <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com>
+	Thu, 4 Aug 2005 09:24:43 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:32242 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262528AbVHDNYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 09:24:10 -0400
+Message-ID: <42F216F7.6070604@acm.org>
+Date: Thu, 04 Aug 2005 08:24:07 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IPMI driver update part 1, add per-channel IPMB addresses
+References: <42F14AC9.2060109@acm.org> <20050803225954.27aa6ffd.akpm@osdl.org>
+In-Reply-To: <20050803225954.27aa6ffd.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 02:19:21PM +0100, Hugh Dickins wrote:
-> On Thu, 4 Aug 2005, Andi Kleen wrote:
-> 
-> > I noticed that even 64bit architectures have a ridiculously low 
-> > max limit on shared memory segments by default:
-> > 
-> > #define SHMMAX 0x2000000                 /* max shared seg size (bytes) */
-> > #define SHMMNI 4096                      /* max num of segs system wide */
-> > #define SHMALL (SHMMAX/PAGE_SIZE*(SHMMNI/16)) /* max shm system wide (pages) */
-> > 
-> > Even on 32bit architectures it is far too small and doesn't
-> > make much sense. Does anybody remember why we even have this limit?
-> 
-> To be like the UNIXes.
+Andrew Morton wrote:
 
-Ok, no other more fundamental reason  ? :) 
-I cannot think of any at least.
+>Corey Minyard <minyard@acm.org> wrote:
+>  
+>
+>>ipmi-per-channel-slave-address.patch  unknown/unknown (13533 bytes)]
+>>    
+>>
+>
+>Could you fix up the mimetype, please?  It makes it hard for various email
+>clients.
+>  
+>
+Dang, you switch to a new mail client and everything is screwed up.  Sorry.
 
-> 
-> > IMHO per process shm mappings should just be controlled by the normal
-> > process and global mappings with the same heuristics as tmpfs
-> > (by default max memory / 2 or more if shmfs is mounted with more)
-> > Actually I suspect databases will usually want to use more 
-> > so it might even make sense to support max memory - 1/8*max_memory
-> > 
-> > I would propose to get rid of of shmmax completely
-> > and only keep the old shmall sysctl for compatibility.
-> 
-> Anton proposed raising the limits last autumn, but I was a bit
-> discouraging back then, having noticed that even Solaris 9 was more
-> restrictive than Linux.  They seem to be ancient traditional limits
-> which everyone knows must be raised to get real work done.
-> 
-> It's possible that if we raise the limits, installation
-> of this or that application will then lower them again?
+>  
+>
+>>IPMI allows multiple IPMB channels on a single interface, and
+>>each channel might have a different IPMB address.  However, the
+>>driver has only one IPMB address that it uses for everything.
+>>This patch adds new IOCTLS and a new internal interface for
+>>setting per-channel IPMB addresses and LUNs.  New systems are
+>>coming out with support for multiple IPMB channels, and they
+>>are broken without this patch.
+>>
+>>...
+>>+	for (i=0; i<IPMI_MAX_CHANNELS; i++)
+>>    
+>>
+>
+>Preferred coding style is actually
+>
+>	for (i = 0; i < IPMI_MAX_CHANNELS; i++)
+>
+>but we've kinda lost that fight in drivers :(
+>  
+>
+Ok, I'll see what I can do.  It's the wrong way all over the driver 
+right now.
 
-I think we should just get rid of the per process limit and keep
-the global limit, but make it auto tuning based on available memory.
-That is still not very nice because that would likely keep it < available 
-memory/2, but I suspect databases usually want more than that. So
-I would even make it bigger than tmpfs for reasonably big machines.
-Let's say
+>  
+>
+>>+#define IPMICTL_SET_MY_CHANNEL_ADDRESS_CMD _IOR(IPMI_IOC_MAGIC, 24, struct ipmi_channel_lun_address_set)
+>>+#define IPMICTL_GET_MY_CHANNEL_ADDRESS_CMD _IOR(IPMI_IOC_MAGIC, 25, struct ipmi_channel_lun_address_set)
+>>+#define IPMICTL_SET_MY_CHANNEL_LUN_CMD	   _IOR(IPMI_IOC_MAGIC, 26, struct ipmi_channel_lun_address_set)
+>>+#define IPMICTL_GET_MY_CHANNEL_LUN_CMD	   _IOR(IPMI_IOC_MAGIC, 27, struct ipmi_channel_lun_address_set)
+>>    
+>>
+>
+>Are these all OK wrt compat handling?
+>  
+>
+Yes, it is a structure of an unsigned short and an unsigned char, so it 
+should be ok.
 
-if (main memory >= 1GB)
-	maxmem = main memory - main memory/8 
-else  
-	maxmem = main memory / 2
+>  
+>
+>> 	case IPMICTL_SET_MY_ADDRESS_CMD:
+>> 	{
+>> 		unsigned int val;
+>>...
+>> 	case IPMICTL_GET_MY_ADDRESS_CMD:
+>> 	{
+>>-		unsigned int val;
+>>+		unsigned int  val;
+>>+		unsigned char rval;
+>>...
+>> 	case IPMICTL_GET_MY_LUN_CMD:
+>> 	{
+>>-		unsigned int val;
+>>+		unsigned int  val;
+>>+		unsigned char rval;
+>>+
+>>...
+>>+	case IPMICTL_SET_MY_CHANNEL_ADDRESS_CMD:
+>>+	{
+>>+		struct ipmi_channel_lun_address_set val;
+>>...
+>>+	case IPMICTL_GET_MY_CHANNEL_ADDRESS_CMD:
+>>+	{
+>>+		struct ipmi_channel_lun_address_set val;
+>>...
+>>+	case IPMICTL_SET_MY_CHANNEL_LUN_CMD:
+>>+	{
+>>+		struct ipmi_channel_lun_address_set val;
+>>...
+>>+	case IPMICTL_GET_MY_CHANNEL_LUN_CMD:
+>>+	{
+>>+		struct ipmi_channel_lun_address_set val;
+>>...
+>> 	case IPMICTL_SET_TIMING_PARMS_CMD:
+>> 	{
+>> 		struct ipmi_timing_parms parms;
+>>
+>>    
+>>
+>
+>Be aware that this function will use more stack space than it needs to: gcc
+>will create a separate stack slot for all the above locals.
+>
+>Hence it would be better to declare them all at the start of the function. 
+>Faster, too - less dcache footprint.
+>
+>Maybe not as nice from a purist point of view, but it does allow you to
+>lose those braces in the switch statement...
+>  
+>
+Hmm, I assumed that gcc would optimize and allocate the stack as it 
+needed it without waste.  Ok, easy enough to fix.
 
-possible increase the 4096 segments limit too, it seems quite low,
-or also auto tune based on memory.
+Thanks,
 
-One possible problem with getting rid of /proc/sys/kernel/shmmni 
-would be that some programs might read it and fail if it's not available. i
-So I would probably keep it read only but always return LONG_MAX.
-
-> 
-> I don't think my opinion is worth much on this:
-> what would the distro tuners like to see there?
-
-suse has shipped larger default limits for a long time.
-And all the databases and some other software documents increasing these
-values.
-
--Andi
+-Corey

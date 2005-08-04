@@ -1,100 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVHDEoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVHDEsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVHDEoe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 00:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVHDEoU
+	id S261814AbVHDEsw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 00:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVHDErD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 00:44:20 -0400
-Received: from bgerelbas01.asiapac.hp.net ([15.219.201.134]:25473 "EHLO
-	bgerelbas01.ind.hp.com") by vger.kernel.org with ESMTP
-	id S261776AbVHDEnT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 00:43:19 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 4 Aug 2005 00:47:03 -0400
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:4221 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S261716AbVHDEoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 00:44:38 -0400
+X-IronPort-AV: i="3.95,166,1120460400"; 
+   d="scan'208"; a="328822826:sNHT29395594"
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: mthca and LinuxBIOS (was: [PATCH 1/2] [IB/cm]: Correct CM port
+ redirect reject codes)
+X-Message-Flag: Warning: May contain useful information
+References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
+	<20057281331.7vqhiAJ1Yc0um2je@cisco.com>
+	<86802c44050803175873fb0569@mail.gmail.com>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 03 Aug 2005 21:44:32 -0700
+In-Reply-To: <86802c44050803175873fb0569@mail.gmail.com> (yhlu's message of
+ "Wed, 3 Aug 2005 17:58:11 -0700")
+Message-ID: <52u0i6b9an.fsf_-_@cisco.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH 1/3] cpqarray: support for SENSE_SURF_STATUS ioctl
-Date: Thu, 4 Aug 2005 10:13:15 +0530
-Message-ID: <4221C1B21C20854291E185D1243EA8F302623BD4@bgeexc04.asiapacific.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/3] cpqarray: support for SENSE_SURF_STATUS ioctl
-Thread-Index: AcWYrwdIQM44ZTUHT+2wf85E37HaiQ==
-From: "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>
-To: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Cc: <axboe@suse.de>
-X-OriginalArrivalTime: 04 Aug 2005 04:43:16.0752 (UTC) FILETIME=[07CD4900:01C598AF]
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 04 Aug 2005 04:44:32.0797 (UTC) FILETIME=[3520D4D0:01C598AF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 1 of 3
-This patch adds support for SENSE_SURF_STATUS ioctl for configuring
-SA4200 controller
-using Array Configuration Utility (ACU).
+    yhlu> In LinuxBIOS, If I enable the prefmem64 to use real 64
+    yhlu> range. the IB driver in Kernel can not be loaded.
 
-Please consider this for inclusion.
+What does it mean to "enable the prefmem64 to use real 64 range"?
 
-Signed-off-by: Ramanamurthy Saripalli <saripalli@hp.com>
+Does the driver work if you don't do this?
 
- cpqarray.c |    8 +++++---
- ida_cmd.h  |    2 ++
- 2 files changed, 7 insertions(+), 3 deletions(-)
-------------------------------------------------------------------------
---------------
-diff -burpN old/drivers/block/cpqarray.c new1/drivers/block/cpqarray.c
---- old/drivers/block/cpqarray.c	2005-06-28 23:26:06.000000000
--0400
-+++ new1/drivers/block/cpqarray.c	2005-06-28 23:28:03.000000000
--0400
-@@ -45,13 +45,13 @@
- 
- #define SMART2_DRIVER_VERSION(maj,min,submin)
-((maj<<16)|(min<<8)|(submin))
- 
--#define DRIVER_NAME "Compaq SMART2 Driver (v 2.6.0)"
--#define DRIVER_VERSION SMART2_DRIVER_VERSION(2,6,0)
-+#define DRIVER_NAME "Compaq SMART2 Driver (v 2.6.1)"
-+#define DRIVER_VERSION SMART2_DRIVER_VERSION(2,6,1)
- 
- /* Embedded module documentation macros - see modules.h */
- /* Original author Chris Frantz - Compaq Computer Corporation */
- MODULE_AUTHOR("Compaq Computer Corporation");
--MODULE_DESCRIPTION("Driver for Compaq Smart2 Array Controllers version
-2.6.0");
-+MODULE_DESCRIPTION("Driver for Compaq Smart2 Array Controllers version
-2.6.1");
- MODULE_LICENSE("GPL");
- 
- #include "cpqarray.h"
-@@ -1272,6 +1272,7 @@ static int ida_ctlr_ioctl(ctlr_info_t *h
- 		c->req.hdr.sg_cnt = 1;
- 		break;
- 	case IDA_READ:
-+	case SENSE_SURF_STATUS:
- 	case READ_FLASH_ROM:
- 	case SENSE_CONTROLLER_PERFORMANCE:
- 		p = kmalloc(io->sg[0].size, GFP_KERNEL);
-@@ -1337,6 +1338,7 @@ static int ida_ctlr_ioctl(ctlr_info_t *h
-                                 sizeof(ida_ioctl_t),
-                                 PCI_DMA_BIDIRECTIONAL);
- 	case IDA_READ:
-+	case SENSE_SURF_STATUS:
- 	case DIAG_PASS_THRU:
- 	case SENSE_CONTROLLER_PERFORMANCE:
- 	case READ_FLASH_ROM:
-diff -burpN old/drivers/block/ida_cmd.h new1/drivers/block/ida_cmd.h
---- old/drivers/block/ida_cmd.h	2005-06-28 23:26:22.000000000 -0400
-+++ new1/drivers/block/ida_cmd.h	2005-06-28 23:28:03.000000000
--0400
-@@ -318,6 +318,8 @@ typedef struct {
- 	__u8	reserved[510];
- } mp_delay_t;
- 
-+#define SENSE_SURF_STATUS       0x70
-+
- #define PASSTHRU_A	0x91
- typedef struct {
- 	__u8	target;
+    yhlu> ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
+
+Can you add printk()s to mthca_qp.c::mthca_init_qp_table() to find out
+how far the function gets before it fails?
+
+It would also be useful for you to build with CONFIG_INFINIBAND_MTHCA_DEBUG=y
+and send the kernel output you get with that.
+
+ - Roland

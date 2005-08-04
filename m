@@ -1,46 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbVHDSXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVHDS0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbVHDSXr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 14:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbVHDSXk
+	id S262637AbVHDS0a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 14:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVHDS0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 14:23:40 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:6862 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262534AbVHDSXd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 14:23:33 -0400
-Date: Thu, 4 Aug 2005 11:26:52 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [RFC] Move InfiniBand .h files
-Message-ID: <20050804182652.GF20422@esmail.cup.hp.com>
-References: <52iryla9r5.fsf@cisco.com> <1123178038.3318.40.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123178038.3318.40.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
+	Thu, 4 Aug 2005 14:26:11 -0400
+Received: from gw2.cosmosbay.com ([195.115.130.129]:23984 "EHLO
+	gw2.cosmosbay.com") by vger.kernel.org with ESMTP id S262646AbVHDSXu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 14:23:50 -0400
+Message-ID: <42F25D33.7080607@cosmosbay.com>
+Date: Thu, 04 Aug 2005 20:23:47 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] : SLAB : Could we have a process context only versions of 
+ kmem_cache_alloc(), and kmem_cache_free()
+References: <42EDDE50.6050800@winch-hebergement.net> <20050804033329.GA14501@gondor.apana.org.au> <20050804103523.GA11381@gondor.apana.org.au> <42F25352.8050805@winch-hebergement.net>
+In-Reply-To: <42F25352.8050805@winch-hebergement.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw2.cosmosbay.com [172.16.0.156]); Thu, 04 Aug 2005 20:23:48 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 07:53:58PM +0200, Arjan van de Ven wrote:
-> On Thu, 2005-08-04 at 10:32 -0700, Roland Dreier wrote:
-> > I would like to get people's reactions to moving the InfiniBand .h
-> > files from their current location in drivers/infiniband/include/ to
-> > include/linux/rdma/.  If we agree that this is a good idea then I'll
-> > push this change as soon as 2.6.14 starts.
-> 
-> please only put userspace clean headers here; the rest is more or less
-> private headers for your subsystem. 
+Hi
 
-Sorry...this smells like a rathole...but does this mean
-linus agrees the kernel subsystems should export headers suitable for
-both user space and kernel driver modules?
+The cost of local_irq_save(flags)/local_irq_restore(flags) in slab functions is very high
+  popf, cli, pushf do stress the modern processors.
 
-Historical, I thought glibc and other user space libs were expected to
-maintain their own set of header files. Maybe I'm just confused...
+Maybe we could provide special functions for caches that are known to be used only from process context ?
 
-thanks,
-grant
+
+These functions may use the local_irq_save(flags)/local_irq_restore(flags) only if needed (cache_alloc_refill() or cache_flusharray())
+
+Something like :
+
+void *kmem_cache_alloc_noirq(kmem_cache_t *cachep, unsigned int __nocast flags)
+{
+         unsigned long save_flags;
+         void* objp;
+         struct array_cache *ac;
+
+         cache_alloc_debugcheck_before(cachep, flags);
+	check_irq_on();
+         preempt_disable();
+         ac = ac_data(cachep);
+         if (likely(ac->avail)) {
+                 STATS_INC_ALLOCHIT(cachep);
+                 ac->touched = 1;
+                 objp = ac_entry(ac)[--ac->avail];
+         } else {
+                 STATS_INC_ALLOCMISS(cachep);
+		local_irq_save(save_flags);
+                 objp = cache_alloc_refill(cachep, flags);
+		local_irq_restore(save_flags);
+         }
+         preempt_enable();
+         objp = cache_alloc_debugcheck_after(cachep, flags, objp, __builtin_return_address(0));
+	prefetchw(objp);
+         return objp;
+}
+
+
+void kmem_cache_free_noirq(kmem_cache_t *cachep, void *objp)
+{
+         struct array_cache *ac;
+
+	check_irq_on();
+	preempt_disable();
+	ac  = ac_data(cachep);
+
+         objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
+
+         if (likely(ac->avail < ac->limit)) {
+                 STATS_INC_FREEHIT(cachep);
+         } else {
+		unsigned long flags;
+                 STATS_INC_FREEMISS(cachep);
+		local_irq_save(flags);
+                 cache_flusharray(cachep, ac);
+		local_irq_restore(flags);
+         }
+         ac_entry(ac)[ac->avail++] = objp;
+	preempt_disable();
+}
+
+Thank you
+
+Eric Dumazet
+

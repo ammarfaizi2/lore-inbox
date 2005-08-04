@@ -1,117 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVHDM7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262515AbVHDNDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262509AbVHDM7j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 08:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbVHDM7j
+	id S262515AbVHDNDB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVHDNDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 08:59:39 -0400
-Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:51388 "EHLO
-	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
-	id S262509AbVHDM7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 08:59:35 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pmtmr and PRINTK_TIME timings display
-Date: Thu, 4 Aug 2005 14:59:43 +0200
-User-Agent: KMail/1.7.2
+	Thu, 4 Aug 2005 09:03:00 -0400
+Received: from silver.veritas.com ([143.127.12.111]:57254 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S262515AbVHDNC7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 09:02:59 -0400
+Date: Thu, 4 Aug 2005 14:04:44 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Robin Holt <holt@sgi.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrew Morton <akpm@osdl.org>, Roland McGrath <roland@redhat.com>,
+       linux-mm@kvack.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <20050804114812.GB31596@lnx-holt.americas.sgi.com>
+Message-ID: <Pine.LNX.4.61.0508041352100.3365@goblin.wat.veritas.com>
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com>
+ <42EDDB82.1040900@yahoo.com.au> <Pine.LNX.4.58.0508010833250.14342@g5.osdl.org>
+ <Pine.LNX.4.58.0508011116180.3341@g5.osdl.org> <20050803082414.GB6384@lnx-holt.americas.sgi.com>
+ <Pine.LNX.4.61.0508031223590.13845@goblin.wat.veritas.com>
+ <20050804114812.GB31596@lnx-holt.americas.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508041459.43500.petkov@uni-muenster.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 04 Aug 2005 13:02:56.0448 (UTC) FILETIME=[D517DC00:01C598F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 4 Aug 2005, Robin Holt wrote:
+> On Wed, Aug 03, 2005 at 12:31:34PM +0100, Hugh Dickins wrote:
+> > On Wed, 3 Aug 2005, Robin Holt wrote:
+> > > On Mon, Aug 01, 2005 at 11:18:42AM -0700, Linus Torvalds wrote:
+> > > > 
+> > > > Can somebody who saw the problem in the first place please verify?
+> 
+> OK.  I took the three commits:
+> 4ceb5db9757aaeadcf8fbbf97d76bd42aa4df0d6
+> f33ea7f404e592e4563b12101b7a4d17da6558d7
+> a68d2ebc1581a3aec57bd032651e013fa609f530
+> 
+> I back ported them to the SuSE SLES9SP2 kernel.  I will add them at
+> the end so you can tell me if I messed things up.  I was then able
+> to run the customer test application multiple times without issue.
+> Before the fix, we had never acheived three consecutive runs that did
+> not trip the fault.  After the change, it has been in excess of thirty.
+> I would say this has fixed the problem.  Did I miss anything which
+> needs to be tested?
 
-on my laptop ASUS M6B00N PRINTK_TIME is enabled in order to show timing 
-information in all the boottime printk's. However, all output looks like this
+Great, thanks for the testing, the set of patches you tested is correct.
 
-<snip>
-[4294667.997000] CPU: After generic identify, caps: a7e9fbbf 00000000 00000000 
-00000000 00000180 00000000 00000000
-[4294667.997000] CPU: After vendor identify, caps: a7e9fbbf 00000000 00000000 
-00000000 00000180 00000000 00000000
-[4294667.997000] CPU: L1 I cache: 32K, L1 D cache: 32K
-[4294667.997000] CPU: L2 cache: 1024K
-[4294667.997000] CPU: After all inits, caps: a7e9fbbf 00000000 00000000 
-00000040 00000180 00000000 00000000
-[4294667.997000] CPU: Intel(R) Pentium(R) M processor 1500MHz stepping 05
-[4294667.997000] Enabling fast FPU save and restore... done.
-[4294667.997000] Enabling unmasked SIMD FPU exception support... done.
-[4294667.997000] Checking 'hlt' instruction... OK.
-[4294668.041000] ACPI: setting ELCR to 0200 (from 0c30)
-</snip>
+(I think there is one minor anomaly in your patch backport, which has no
+effect on the validity of your testing: you've probably ended up with two
+separate calls to set_page_dirty in your follow_page, because that moved
+between 2.6.5 and 2.6.13.  It doesn't matter, but you might want to tidy
+that up one way or the other if you're passing your patch on further.)
 
-If I'm not wrong, the time value that gets printed is actually the jiffies_64 
-value set to INITIAL_JIFFIES, which in turn is set to wrap 5 minutes after 
-boot so that "jiffies wrap bugs show up earlier." This is because 
-sched_clock() in <arch/i386/kernel/timers/timer_tsc.c> returns the jiffies_64 
-value converted to nanoseconds after checking use_tsc. This, in turn, is 0 
-because my machine selects the power management timer as the high-res 
-timesource before reading the timestamp counter for printk timing.
-
-My desktop machine however, uses the tsc for printk timing and its boot 
-messages look like this:
-
-<snip>
-[4294667.296000] mapped APIC to ffffd000 (fee00000)
-[4294667.296000] mapped IOAPIC to ffffc000 (fec00000)
-[4294667.296000] Initializing CPU#0
-[4294667.296000] CPU 0 irqstacks, hard=c0481000 soft=c047f000
-[4294667.296000] PID hash table entries: 2048 (order: 11, 32768 bytes)
-[    0.000000] Detected 2606.874 MHz processor.
-[   20.523785] Using tsc for high-res timesource
-[   20.524715] Console: colour VGA+ 80x25
-[   20.751678] Dentry cache hash table entries: 131072 (order: 7, 524288 
-bytes)
-[   20.760133] Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
-[   20.778329] Memory: 514964k/524224k available (2127k kernel code, 8776k 
-reserved, 1246k data, 180k init, 0k highmem)
-</snip>
-
-where you see the deltas between the printk's printed once the tsc timer is 
-initialized as opposed to the first bootlog where you see all times relative 
-to a single point in time. The python script <scripts/show_delta> in the 
-kernel source converts between these two representations but there's a pretty 
-simple solution IMHO to make PRINTK_TIME uniform and independent from the 
-used timer. The one liner is against 2.6.12.3.
-
-After applying it, printk timing looks like this:
-
-<snip>
-[    0.000000] Detected 1500.132 MHz processor.
-[    0.000000] Using pmtmr for high-res timesource
-[    0.000000] Console: colour VGA+ 80x25
-[    1.890000] Dentry cache hash table entries: 131072 (order: 7, 524288 
-bytes)
-[    1.891000] Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
-[    1.906000] Memory: 513756k/523520k available (2839k kernel code, 9276k 
-reserved, 1148k data, 152k init, 0k highmem)
-[    1.906000] Checking if this processor honours the WP bit even in 
-supervisor mode... Ok.
-[    1.906000] Calibrating delay loop... 2973.69 BogoMIPS (lpj=1486848)
-[    1.928000] Security Framework v1.0.0 initialized
-</snip>
-
-
-Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
-
---- arch/i386/kernel/timers/timer_tsc.c.orig	2005-08-04 12:57:37.000000000 
-+0200
-+++ arch/i386/kernel/timers/timer_tsc.c	2005-08-04 14:19:48.000000000 +0200
-@@ -146,7 +146,7 @@ unsigned long long sched_clock(void)
- 	if (!use_tsc)
- #endif
- 		/* no locking but a rare wrong value is not a big deal */
--		return jiffies_64 * (1000000000 / HZ);
-+		return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
- 
- 	/* Read the Time Stamp Counter */
- 	rdtscll(this_offset);
-
-
--- 
-Regards,
-Borislav Petkov.
+Hugh

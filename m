@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVHDDYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVHDDdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbVHDDYM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 23:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVHDDYM
+	id S261747AbVHDDdk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 23:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVHDDdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 23:24:12 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:22919 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261748AbVHDDYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 23:24:11 -0400
-Subject: Re: [PATCH 0/23] reboot-fixes
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050727225442.GD6529@elf.ucw.cz>
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
-	 <20050727025923.7baa38c9.akpm@osdl.org>
-	 <m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com>
-	 <20050727104123.7938477a.akpm@osdl.org>
-	 <m18xzs9ktc.fsf@ebiederm.dsl.xmission.com>
-	 <20050727224711.GA6671@elf.ucw.cz> <20050727155118.6d67d48e.akpm@osdl.org>
-	 <20050727225442.GD6529@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1123125850.948.9.camel@localhost>
+	Wed, 3 Aug 2005 23:33:39 -0400
+Received: from jay.exetel.com.au ([220.233.0.8]:8358 "EHLO jay.exetel.com.au")
+	by vger.kernel.org with ESMTP id S261747AbVHDDdi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 23:33:38 -0400
+Date: Thu, 4 Aug 2005 13:33:29 +1000
+To: Guillaume Pelat <guillaume.pelat@winch-hebergement.net>
+Cc: davem@davemloft.net, akpm@osdl.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc4 - kernel panic - BUG at net/ipv4/tcp_output.c:918
+Message-ID: <20050804033329.GA14501@gondor.apana.org.au>
+References: <42EDDE50.6050800@winch-hebergement.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 04 Aug 2005 13:24:11 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42EDDE50.6050800@winch-hebergement.net>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Thu, 2005-07-28 at 08:54, Pavel Machek wrote:
-> Hi!
+On Mon, Aug 01, 2005 at 08:33:20AM +0000, Guillaume Pelat wrote:
 > 
-> > >  > Good question.  I'm not certain if Pavel intended to add
-> > >  > device_suspend(PMSG_FREEZE) to the reboot path.  It was
-> > >  > there in only one instance.  Pavel comments talk only about
-> > >  > the suspend path.
-> > > 
-> > >  Yes, I think we should do device_suspend(PMSG_FREEZE) in reboot path.
-> > 
-> > Why?
+> I just tried the patch attached. :)
 > 
-> Many bioses are broken; if you leave hardware active during reboot,
-> they'll hang during reboot. It is so common problem that I think that
-> only sane solution is make hardware quiet before reboot.
+> The bug is still here (same symptoms), with a slightly different backtrace :
+> ------------[ cut here ]------------
+> kernel BUG at net/ipv4/tcp_output.c:918!
 
-Sorry for my slow reply.
+OK, let's try again :)
 
-If I remember correctly PMSG_FREEZE was intended solely for stopping
-activity when suspend to disk implementations are about to do their
-atomic copies. I thought that ide reacts to this message by putting a
-hold on queues, but doesn't otherwise do anything to prepare a drive for
-a restart. If that's true, using FREEZE here isn't going to stop drives
-from doing their emergency shutdown actions. Don't we need PMSG_SUSPEND
-instead?
+I bet it's the tcp_enter_cwr() call in tcp_transmit_skb().  So
+the sequence is:
 
-Regards,
+tcp_write_xmit
+	cwnd_quota = tcp_cwnd_test
+	tcp_transmit_skb
+		tcp_enter_cwr
+			tp->snd_cwnd = min(tp->snd_cwnd, in_flight + 1)
 
-Nigel
+At this point cwnd_quota is out-of-sync with tp->snd_cwnd.
+
+	cwnd_quota -= tcp_skb_pcount(skb)
+	cwnd_quota > 0
+	tcp_tso_should_defer
+		BUG since tp->snd_cwnd is smaller than what
+		cwnd_quota indicated.
+
+So I suppose we should reset cwnd_quota after tcp_transmit_skb?
+
+Perhaps we should only transmit one MSS in this case?
+
+Cheers,
 -- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

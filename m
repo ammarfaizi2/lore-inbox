@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVHDRku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVHDRhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbVHDRku (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 13:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVHDRkt
+	id S261940AbVHDRhv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 13:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVHDRfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 13:40:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14056 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261487AbVHDRjI (ORCPT
+	Thu, 4 Aug 2005 13:35:03 -0400
+Received: from graphe.net ([209.204.138.32]:23784 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261512AbVHDRe0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 13:39:08 -0400
-Date: Thu, 4 Aug 2005 13:38:56 -0400
-From: Dave Jones <davej@redhat.com>
-To: Rolf Eike Beer <eike@sf-mail.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
-       linux-scsi@vger.kernel.org, axboe@suse.de
-Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
-Message-ID: <20050804173856.GG22886@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Rolf Eike Beer <eike@sf-mail.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
-	linux-scsi@vger.kernel.org, axboe@suse.de
-References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net> <200508041756.23611@bilbo.math.uni-mannheim.de> <20050804164259.GD22886@redhat.com> <200508041911.46911@bilbo.math.uni-mannheim.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508041911.46911@bilbo.math.uni-mannheim.de>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 4 Aug 2005 13:34:26 -0400
+Date: Thu, 4 Aug 2005 10:34:24 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andi Kleen <ak@suse.de>
+cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: NUMA policy interface
+In-Reply-To: <20050804170803.GB8266@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0508041011590.7314@graphe.net>
+References: <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net>
+ <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net>
+ <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net>
+ <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net>
+ <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net>
+ <20050804170803.GB8266@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 07:11:38PM +0200, Rolf Eike Beer wrote:
- > >It's pointless to fix this, without fixing also CpqTsGetSFQEntry()
- > At least half of the file should be rewritten.
+On Thu, 4 Aug 2005, Andi Kleen wrote:
 
-Just half ? You're such an optimist :-)
+> > So your point of view is that there will be no control and monitoring of 
+> > the memory usage and policies?
+> 
+> External control is implemented for named objects and for process policy.
+> A process can also monitor its own policies if it wants.
 
- > > > No, ulDestPtr ist ULONG* so we increase it by sizeof(ULONG)*16 which is
- > > > 64.
- > >Duh, yes.  That is broken on 64-bit however, where it will advance 128 bytes
- > >instead of 64 bytes.
- > 
- > ULONG is defined to __u32 in some of the cpq* headers.
+Named objects like files and not processes and/or threads? But then these 
+named objects do not have memory allocated to them.
 
-Ewwwww.
-Ok, definitly time to stop reading.
+> I think the payoff for external monitoring of policies vs complexity 
+> and cleanliness of interface and long term code impact is too bad to make 
+> it an attractive option.
 
-		Dave
+Well the implementation has the following issues right now:
 
+1. BIND policy implemented in a way that fills up nodes from the lowest 
+   to the higest instead of allocating memory on the local node.
+
+2. No separation between sys_ and do_ functions. Therefore difficult
+   to use from kernel context.
+
+3. Functions have weird side effect (f.e. get_nodes updating 
+   and using cpuset policies). Code is therefore difficult 
+   to maintain.
+
+4. Uses bitmaps instead of nodemask_t.
+
+5. No means to figure out where the memory was allocated although
+   mempoliy.c implements scans over ptes that would allow that 
+   determination.
+ 
+6. Needs hook into page migration layer to move pages to either conform
+   to policy or to move them menually.
+
+The long term impact of this missing functionality is already showing 
+in the numbers of workarounds that I have seen at a various sites, 
+
+The code is currently complex and difficult to handle because some of the 
+issues mentioned above. We need to fix this in order to have clean code 
+and in order to control future complexity.

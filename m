@@ -1,127 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVHDMAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262490AbVHDMEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262495AbVHDMAc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 08:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVHDMAb
+	id S262490AbVHDMEq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 08:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbVHDMEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 08:00:31 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:61057 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262493AbVHDMAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 08:00:04 -0400
-Message-ID: <42F20345.3020603@gmail.com>
-Date: Thu, 04 Aug 2005 14:00:05 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: cs, en-us, en
+	Thu, 4 Aug 2005 08:04:46 -0400
+Received: from mail.isurf.ca ([66.154.97.68]:37284 "EHLO columbo.isurf.ca")
+	by vger.kernel.org with ESMTP id S262490AbVHDMEp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 08:04:45 -0400
+Message-ID: <42F2047A.1050906@staticwave.ca>
+Date: Thu, 04 Aug 2005 08:05:14 -0400
+From: Gabriel Devenyi <ace@staticwave.ca>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Old api files, rewrite or delete?
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: Con Kolivas <kernel@kolivas.org>
+Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ck] [ANNOUNCE] Interbench 0.27
+References: <200508031758.31246.kernel@kolivas.org> <200508041004.46675.kernel@kolivas.org> <42F1FF89.5030903@staticwave.ca> <200508042146.13710.kernel@kolivas.org>
+In-Reply-To: <200508042146.13710.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-I'm interested mainly in things that may be removed. I don't want to 
-rewrite drivers, which nobody uses.
-Thanks for your opinion and knowledge about usage.
+Con Kolivas wrote:
+> On Thu, 4 Aug 2005 21:44, Gabriel Devenyi wrote:
+> 
+>>Hi Con,
+>>
+>>You must hate me by now...
+> 
+> 
+> No. A bug report is a bug report. I hate the fact that I coded up 2000 lines 
+> of code and am still suffering from a problem in the same 10 lines that I did 
+> in version .01. PEBKAC. 
+I guess we all have our weaknesses, mine is off-by-one errors, which are 
+a bad thing when writing code for a statistics class at school ;)
 
-I was searching for pci_find_device, so changes to do may not be huge,
-only few lines in some cases could be everything what to do.
-the result is:
+> 
+> 
+>>The "Gaming" benchmark has the same issue with nan coming out of the
+>>STDEV calculations, probably requires the same fix as before.
+> 
+> 
+> Anyway Peter Williams has promised to fix it for me (yay!).
+> 
+> 
+>>Secondly, the benchmarking of loops_per_ms is running forever, and I
+>>managed to determine where its happening.
+>>
+>>In calibrate loops you run a while loop and iterate to get 1000 for
+>>run_time, then you calculate it one more time to ensure it was right
+>>*however* you put a sleep(1) before that. It seems to seriously skew the
+>>results, as it consistently adds ~500 to run_time, as run_time is now
+>>1500, it jumps back up to redo because of the goto statement, and runs
+>>the while loop again, continue ad nausium. I added some simple debugging
+>>output which prints run time at the end of each while loop, and right
+>>before the goto if statement, this is the output.
+> 
+> 
+>>The solution I used is of course to simply comment out the sleep
+>>statement, then everything works nicely, however your comments appear to
+>>indicate that the sleep is there to make the system settle a little,
+>>perhaps another method needs to be used. Thanks for your time!
+> 
+> 
+> I have to think about it. This seems a problem only on one type of cpu for 
+> some strange reason (lemme guess; athlon?) and indeed leaving out the sleep 1 
+> followed by the check made results far less reliable. This way with the sleep 
+> 1 I have not had spurious results returned by the calibration. I'm open to 
+> suggestions if anyone's got one.
+Yeah, thats right, it spins forever on both my athlon-tbird and my 
+athlon64 (in x86_64 mode). I'll take another look at the code tonight, 
+to see if I can figure out why its causing this, or another way of 
+incurring the delay you're looking for.
 
-REWRITE:
-drivers/media/video/bttv-cards.c
-drivers/media/video/zoran_card.c
-drivers/media/video/stradis.c
-drivers/media/radio/radio-maestro.c
-drivers/video/sis/sis_main.c
-drivers/video/igafb.c
-drivers/net/skfp/drvfbi.c
-drivers/net/sunhme.c
-drivers/net/gt96100eth.c
-drivers/char/watchdog/i8xx_tco.c
-drivers/char/watchdog/alim1535_wdt.c
-drivers/char/watchdog/alim7101_wdt.c
-drivers/char/watchdog/i6300esb.c
-drivers/char/sx.c
-drivers/char/istallion.c
-drivers/char/mxser.c
-drivers/char/rocket.c
-drivers/char/stallion.c
-drivers/char/specialix.c
-drivers/char/ip2main.c
-drivers/isdn/hisax/gazel.c
-drivers/isdn/hisax/elsa.c
-drivers/isdn/hisax/nj_u.c
-drivers/isdn/hisax/nj_s.c
-drivers/isdn/hisax/avm_pci.c
-drivers/isdn/hisax/bkm_a4t.c
-drivers/isdn/hisax/hfc_pci.c
-drivers/isdn/hisax/telespci.c
-drivers/isdn/hisax/enternow_pci.c
-drivers/isdn/hisax/bkm_a8.c
-drivers/isdn/hisax/w6692.c
-drivers/isdn/hisax/diva.c
-drivers/isdn/hisax/sedlbauer.c
-drivers/isdn/hisax/niccy.c
-drivers/isdn/hysdn/hysdn_init.c
-drivers/scsi/cpqfcTSinit.c
-drivers/scsi/initio.c
-drivers/scsi/advansys.c
-drivers/scsi/gdth.c
-drivers/scsi/eata_pio.c
-drivers/scsi/fdomain.c
-drivers/scsi/qlogicfc.c
-drivers/scsi/dpt_i2o.c
-drivers/scsi/qlogicisp.c
-drivers/scsi/aic7xxx_old.c
-drivers/scsi/BusLogic.c
-drivers/parport/parport_pc.c
-drivers/mtd/devices/pmc551.c
-drivers/mtd/maps/ichxrom.c
-drivers/mtd/maps/amd76xrom.c
-drivers/mtd/maps/scx200_docflash.c
-drivers/mtd/maps/l440gx.c
-drivers/ide/pci/serverworks.c
-drivers/ide/pci/piix.c
-drivers/ide/pci/cs5530.c
-drivers/ide/pci/alim15x3.c
-drivers/ide/pci/sis5513.c
-drivers/ide/pci/pdc202xx_new.c
-drivers/ide/pci/via82cxxx.c
-drivers/ide/pci/hpt366.c
-drivers/ide/setup-pci.c
-drivers/macintosh/via-pmu68k.c
-drivers/macintosh/via-pmu.c
-drivers/telephony/ixj.c
-arch/ppc/kernel/pci.c
-arch/ppc/platforms/85xx/mpc85xx_cds_common.c
-arch/sparc64/kernel/ebus.c
-arch/alpha/kernel/sys_sio.c
-arch/alpha/kernel/sys_alcor.c
-arch/frv/mb93090-mb00/pci-frv.c
-arch/frv/mb93090-mb00/pci-irq.c
-include/asm-i386/ide.h
-sound/pci/cs46xx/cs46xx_lib.c
-sound/pci/au88x0/au88x0.c
-sound/pci/via82xx.c
-sound/pci/ali5451/ali5451.c
-sound/core/memalloc.c
+> 
+> Cheers,
+> Con
+> 
 
-LET IT BE (and then delete):
-sound/oss/esssolo1.c
-sound/oss/via82cxxx_audio.c
-sound/oss/trident.c
-sound/oss/maestro.c
-sound/oss/cs46xx.c
-
-REMOVE:
-drivers/video/pm3fb.c
-
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
-
+--
+Gabriel Devenyi
+ace@staticwave.ca

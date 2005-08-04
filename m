@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVHDEsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVHDEvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbVHDEsw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 00:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVHDErD
+	id S261819AbVHDEvA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 00:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbVHDEtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 00:47:03 -0400
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:4221 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S261716AbVHDEoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 00:44:38 -0400
-X-IronPort-AV: i="3.95,166,1120460400"; 
-   d="scan'208"; a="328822826:sNHT29395594"
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: mthca and LinuxBIOS (was: [PATCH 1/2] [IB/cm]: Correct CM port
- redirect reject codes)
-X-Message-Flag: Warning: May contain useful information
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
-	<20057281331.7vqhiAJ1Yc0um2je@cisco.com>
-	<86802c44050803175873fb0569@mail.gmail.com>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Wed, 03 Aug 2005 21:44:32 -0700
-In-Reply-To: <86802c44050803175873fb0569@mail.gmail.com> (yhlu's message of
- "Wed, 3 Aug 2005 17:58:11 -0700")
-Message-ID: <52u0i6b9an.fsf_-_@cisco.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 Aug 2005 04:44:32.0797 (UTC) FILETIME=[3520D4D0:01C598AF]
+	Thu, 4 Aug 2005 00:49:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15292 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261716AbVHDErF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 00:47:05 -0400
+Date: Wed, 3 Aug 2005 21:45:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: greg@kroah.com, 7eggert@gmx.de, video4linux-list@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.6.13-rc5]  V4L: OOPS fix for BTTV on bad
+ behaviored PCI chipsets
+Message-Id: <20050803214537.16b753f2.akpm@osdl.org>
+In-Reply-To: <1123126493.8274.51.camel@localhost>
+References: <1123126493.8274.51.camel@localhost>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    yhlu> In LinuxBIOS, If I enable the prefmem64 to use real 64
-    yhlu> range. the IB driver in Kernel can not be loaded.
+Mauro Carvalho Chehab <mchehab@brturbo.com.br> wrote:
+>
+> --- linux-2.6.13/drivers/media/video/bttv-driver.c	2005-08-03 18:25:55.000000000 -0300
+>  +++ linux/drivers/media/video/bttv-driver.c	2005-08-03 22:19:44.000000000 -0300
+>  @@ -1,5 +1,5 @@
+>   /*
+>  -    $Id: bttv-driver.c,v 1.45 2005/07/20 19:43:24 mkrufky Exp $
+>  +    $Id: bttv-driver.c,v 1.52 2005/08/04 00:55:16 mchehab Exp $
+>   
+>       bttv - Bt848 frame grabber driver
+>   
+>  @@ -80,6 +80,7 @@
+>   static unsigned int uv_ratio    = 50;
+>   static unsigned int full_luma_range = 0;
+>   static unsigned int coring      = 0;
+>  +extern int no_overlay;
 
-What does it mean to "enable the prefmem64 to use real 64 range"?
+umm, OK.  Could you please send a fixup patch sometime which 
 
-Does the driver work if you don't do this?
+a) renames the now-global no_overlay to something more subsystem-specific and
 
-    yhlu> ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
+b) move its declaration out of .c and into .h?
 
-Can you add printk()s to mthca_qp.c::mthca_init_qp_table() to find out
-how far the function gets before it fails?
-
-It would also be useful for you to build with CONFIG_INFINIBAND_MTHCA_DEBUG=y
-and send the kernel output you get with that.
-
- - Roland
+Thanks.

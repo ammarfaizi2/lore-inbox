@@ -1,92 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVHDWL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262750AbVHDWLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262752AbVHDWL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 18:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVHDWLQ
+	id S262750AbVHDWLG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 18:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbVHDWI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 18:11:16 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:51663 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S262755AbVHDWIf (ORCPT
+	Thu, 4 Aug 2005 18:08:29 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:54725 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262756AbVHDWIL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 18:08:35 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
-Subject: Re: [patch] fix ACPI table discovery from EFI for x86
-Date: Thu, 4 Aug 2005 16:07:35 -0600
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-ia64@vger.kernel.org,
-       tony.luck@intel.com
-References: <200507140109.j6E19a58013012@snoqualmie.dp.intel.com>
-In-Reply-To: <200507140109.j6E19a58013012@snoqualmie.dp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Aug 2005 18:08:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=gmWDRzqk6P/vJnKYn+TnshLXk6MAQsjxr9W12V4hTI+fU1luXGjmzqDjC/TeQgupxkyxoMyypLydXtNAuws7uJyOWE2PjIDK6WNJdpAADRKQMaAxafZWkwAV4Xv6uTZpKzxekwQvjsX4mXnwXSHyLbMD5oDfBqK6Ogt4mMkXt+c=
+Date: Fri, 5 Aug 2005 02:16:12 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org, axboe@suse.de,
+       "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>
+Subject: Documentation/ioctl-mess.txt and ida_ioctl() review (was Re: [PATCH 2/3] cpqarray: ioctl support to configure LUNs dynamically)
+Message-ID: <20050804221612.GA3446@mipter.zuzino.mipt.ru>
+References: <4221C1B21C20854291E185D1243EA8F302623BD9@bgeexc04.asiapacific.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508041607.35914.bjorn.helgaas@hp.com>
+In-Reply-To: <4221C1B21C20854291E185D1243EA8F302623BD9@bgeexc04.asiapacific.cpqcorp.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 July 2005 7:09 pm, Matt Tolentino wrote:
-> This patch addresses a problem on x86 EFI systems with larger memory
-> configurations.  Up until now, we've relied on the fact that the 
-> ACPI RSDT would reside somewhere in low memory that could be permanently 
-> mapped in kernel address space - so __va() has been sufficient.  However,
-> on EFI systems, the RSDT is often anywhere in the lower 4GB of physical
-> address space.  So, we may need to remap it on x86 systems.  
+On Thu, Aug 04, 2005 at 10:15:29AM +0530, Saripalli, Venkata Ramanamurthy (STSD) wrote:
+> Patch 2 of 3
+> This patch adds support for IDAREGNEWDISK, IDADEREGDISK, IDAGETLOGINFO
+> ioctls required
+> to configure LUNs dynamically on SA4200 controller using ACU.
 
-The hunk below breaks HP rx7620, rx8620, and Superdome (all ia64)
-systems.  This is from 2.6.13-rc4-mm1, in
+drivers/block/cpqarray.c:
 
-    acpi-fix-table-discovery-from-efi-for-x86.patch
+  1131	static int ida_ioctl(struct inode *inode, struct file *filep, unsigned int cmd, unsigned long arg)
+  1132	{
+  1133		drv_info_t *drv = get_drv(inode->i_bdev->bd_disk);
+  1134		ctlr_info_t *host = get_host(inode->i_bdev->bd_disk);
+  1135		int error;
+  1136		int diskinfo[4];
 
-> @@ -187,7 +187,9 @@ acpi_status
->  acpi_os_map_memory(acpi_physical_address phys, acpi_size size, void __iomem **virt)
->  {
->  	if (efi_enabled) {
-> -		if (EFI_MEMORY_WB & efi_mem_attributes(phys)) {
-> +		/* determine whether or not we need to call ioremap */
-> +		if ((EFI_MEMORY_WB & efi_mem_attributes(phys)) && 
-> +			((unsigned long)phys < (unsigned long)__pa(high_memory))) {
->  			*virt = (void __iomem *) phys_to_virt(phys);
->  		} else {
->  			*virt = ioremap(phys, size);
+Hmm... diskinfo[3] seems to be enough.
 
-If "phys >= __pa(high_memory)", we use ioremap(), but there's no
-guarantee that phys is in memory that supports UC.  On the systems
-I mentioned, phys is above high_memory, but in memory that only
-supports WB, which leads to an MCA.
+  1137		struct hd_geometry __user *geo = (struct hd_geometry __user *)arg;
+  1138		ida_ioctl_t __user *io = (ida_ioctl_t __user *)arg;
+  1139		ida_ioctl_t *my_io;
+  1140
+  1141		switch(cmd) {
+  1142		case HDIO_GETGEO:
+  1143			if (drv->cylinders) {
+  1144				diskinfo[0] = drv->heads;
+  1145				diskinfo[1] = drv->sectors;
+  1146				diskinfo[2] = drv->cylinders;
+  1147			} else {
+  1148				diskinfo[0] = 0xff;
+  1149				diskinfo[1] = 0x3f;
+  1150				diskinfo[2] = drv->nr_blks / (0xff*0x3f);
+  1151			}
+  1152			put_user(diskinfo[0], &geo->heads);
+  1153			put_user(diskinfo[1], &geo->sectors);
+  1154			put_user(diskinfo[2], &geo->cylinders);
+  1155			put_user(get_start_sect(inode->i_bdev), &geo->start);
 
-Here's a bit of the memmap:
+Mental note: export drv->heads, drv->sectors, drv->cylinders and
+inode->i_bdev->bd_part->start_sect to userspace (with possible tweaking).
 
-available  0000000100000000-00000007FDFFFFFF  00000000006FE000 0000000000000008
-reserved   00000040000A0000-00000040000BFFFF  0000000000000020 0000000000000008
-available  0000004080000000-00000040FED9FFFF  000000000007EDA0 0000000000000008
-BS_data    00000040FEDA0000-00000040FEDA1FFF  0000000000000002 0000000000000008
-available  00000040FEDA2000-00000040FEDA7FFF  0000000000000006 0000000000000008
-BS_data    00000040FEDA8000-00000040FF1FFFFF  0000000000000458 0000000000000008
-available  00000040FF200000-00000040FF555FFF  0000000000000356 0000000000000008
-RT_code    00000040FF556000-00000040FF5BFFFF  000000000000006A 8000000000000008
-BS_code    00000040FF5C0000-00000040FF5FFFFF  0000000000000040 0000000000000008
-available  00000040FF600000-00000040FF641FFF  0000000000000042 0000000000000008
-RT_code    00000040FF642000-00000040FF67FFFF  000000000000003E 8000000000000008
-available  00000040FF680000-00000040FF7DFFFF  0000000000000160 0000000000000008
-RT_data    00000040FF7E0000-00000040FF7FFFFF  0000000000000020 8000000000000008
-RT_code    00000703FF000000-00000703FFFFFFFF  0000000000001000 8000000000000008
-PAL_code   00000723FF000000-00000723FF03FFFF  0000000000000040 8000000000000008
-RT_code    00000723FF040000-00000723FFBAFFFF  0000000000000B70 8000000000000008
-reserved   00000723FFBB0000-00000723FFE8FFFF  00000000000002E0 8000000000000008
-RT_code    00000723FFE90000-00000723FFFFFFFF  0000000000000170 8000000000000008
-MemMapIO   00000F0000000000-00000F003FFFFFFF  0000000000040000 8000000000000001
+  1156			return 0;
+  1157		case IDAGETDRVINFO:
+  1158			if (copy_to_user(&io->c.drv, drv, sizeof(drv_info_t)))
 
-The firmware tables are up in the reserved section at 0x723FFBB0000:
+What does drv_info_t contain? From drivers/block/cpqarray.h:
 
-    EFI v1.10 by HP: SALsystab=0x723ff7e7640 ACPI 2.0=0x723ffbb0000 HCDP=0x723ffbf27f0 SMBIOS=0x7fffe000
+    47	typedef struct {
+    48		unsigned blk_size;
+    49		unsigned nr_blks;
+    50		unsigned cylinders;
+    51		unsigned heads;
+    52		unsigned sectors;
+    53		int usage_count;
+    54	} drv_info_t;
 
-But high_memory is only 0x00000040ff000000 because there's no available
-memory for the OS to use above that point (there are a few pages marked
-"available", but we ignore them to avoid attribute aliasing on ia64).
+Great... Same heads, sectors, cylinders we can already export. Without magic
+"if (!drv->cylinders)". With extra crap for free: "usage_count". Why should
+userspace know about reference count of drive? <greppery-grep> This is
+not even funny...
 
-So we erroneously try to ioremap the ACPI tables, which causes uncached
-accesses to them, which blows up because they really live in memory that
-doesn't support UC.
+$ grep usage_count -w -r . | grep cpq
+./drivers/block/cpqarray.c:	host->usage_count++;
+./drivers/block/cpqarray.c:	host->usage_count--;
+./drivers/block/cpqarray.c:	if (host->usage_count > 1) {
+./drivers/block/cpqarray.c:			" revalidation (usage=%d)\n", host->usage_count);
+./drivers/block/cpqarray.c:	host->usage_count++;
+./drivers/block/cpqarray.c:	host->usage_count--;
+./drivers/block/cpqarray.h:	int usage_count;
+./drivers/block/cpqarray.h:	int	usage_count;
+
+where the type of "host" is "struct ctlr_info", NOT drv_info_t.
+
+  1159				return -EFAULT;
+  1160			return 0;
+  1161		case IDAPASSTHRU:
+  1162			if (!capable(CAP_SYS_RAWIO))
+  1163				return -EPERM;
+  1164			my_io = kmalloc(sizeof(ida_ioctl_t), GFP_KERNEL);
+  1165			if (!my_io)
+  1166				return -ENOMEM;
+  1167			error = -EFAULT;
+  1168			if (copy_from_user(my_io, io, sizeof(*my_io)))
+  1169				goto out_passthru;
+  1170			error = ida_ctlr_ioctl(host, drv - host->drv, my_io);
+  1171			if (error)
+  1172				goto out_passthru;
+  1173			error = -EFAULT;
+  1174			if (copy_to_user(io, my_io, sizeof(*my_io)))
+  1175				goto out_passthru;
+  1176			error = 0;
+  1177	out_passthru:
+  1178			kfree(my_io);
+  1179			return error;
+  1180		case IDAGETCTLRSIG:
+  1181			if (!arg) return -EINVAL;
+  1182			put_user(host->ctlr_sig, (int __user *)arg);
+  1183			return 0;
+  1184		case IDAREVALIDATEVOLS:
+  1185			if (iminor(inode) != 0)
+  1186				return -ENXIO;
+  1187			return revalidate_allvol(host);
+  1188		case IDADRIVERVERSION:
+  1189			if (!arg) return -EINVAL;
+  1190			put_user(DRIVER_VERSION, (unsigned long __user *)arg);
+  1191			return 0;
+
+Why should userspace know anything about module version?
+
+  1192		case IDAGETPCIINFO:
+  1193		{
+  1194
+  1195			ida_pci_info_struct pciinfo;
+  1196
+  1197			if (!arg) return -EINVAL;
+  1198			pciinfo.bus = host->pci_dev->bus->number;
+  1199			pciinfo.dev_fn = host->pci_dev->devfn;
+  1200			pciinfo.board_id = host->board_id;
+
+Why should usersp.... Anyone remembers what was merged first: /proc/pci/ or
+this crap?
+
+  1201			if(copy_to_user((void __user *) arg, &pciinfo,
+  1202				sizeof( ida_pci_info_struct)))
+  1203					return -EFAULT;
+  1204			return(0);
+  1205		}
+  1206
+  1207		default:
+  1208			return -EINVAL;
+  1209		}
+  1210
+  1211	}
+
+Jens, I ask you to drop this patch. $DEITY witness,
+it was wordwrapped,
+wasn't incremental,
+adds function which semi-duplicates already existing one,
+contains irrelevant chunks,
+contains commented pieces which are not debugging printks,
+adds useless casts,
+uses silly (in two orthogonal directions, silly) name for newly added struct,
+sometimes returns -E, sometimes -1. Where it isn't a rocket science to
+guess _right_ error code, it, of course, returns -1.
+and generally says [censored] to CodingStyle.
+
+The most important part, of course, is "it adds new ioctls to where there's
+enough mess already".
+
+P. S.: Al repeated many times: people, stay the fuck away from *_ioctl()
+unless. Being young and idiot, I didn't want to hear the advice of experienced
+hacker. Already LARTed myself.
+
+I did "grep -i ioctl -r .". I started to dig through it. From ~10% of the log
+I got ~970 ioctls. But now, after ida_ioctl(), I'm definitely going to finish
+and submit Documentation/ioctl-mess.txt. I can't estimate how much time it will
+take.
+
+But a question in advance: what information about them people want to see?
+Name, type of input and output seems obvious, what else?
+

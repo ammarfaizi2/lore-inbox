@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVHDRLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVHDRLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVHDRLu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 13:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVHDRLt
+	id S261603AbVHDRLm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 13:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbVHDRIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 13:11:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12215 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262596AbVHDRJo (ORCPT
+	Thu, 4 Aug 2005 13:08:30 -0400
+Received: from mx2.suse.de ([195.135.220.15]:6807 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262636AbVHDRIE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 13:09:44 -0400
-Date: Thu, 4 Aug 2005 10:08:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: nacc@us.ibm.com, arjan@infradead.org, domen@coderock.org,
-       linux-kernel@vger.kernel.org, clucas@rotomalug.org
-Subject: Re: [PATCH] push rounding up of relative request to
- schedule_timeout()
-Message-Id: <20050804100810.293c9ba6.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0508041123220.3728@scrub.home>
-References: <1122123085.3582.13.camel@localhost.localdomain>
-	<Pine.LNX.4.61.0507231456000.3728@scrub.home>
-	<20050723164310.GD4951@us.ibm.com>
-	<Pine.LNX.4.61.0507231911540.3743@scrub.home>
-	<20050723191004.GB4345@us.ibm.com>
-	<Pine.LNX.4.61.0507232151150.3743@scrub.home>
-	<20050727222914.GB3291@us.ibm.com>
-	<Pine.LNX.4.61.0507310046590.3728@scrub.home>
-	<20050801193522.GA24909@us.ibm.com>
-	<Pine.LNX.4.61.0508031419000.3728@scrub.home>
-	<20050804005147.GC4255@us.ibm.com>
-	<Pine.LNX.4.61.0508041123220.3728@scrub.home>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 4 Aug 2005 13:08:04 -0400
+Date: Thu, 4 Aug 2005 19:08:03 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] String conversions for memory policy
+Message-ID: <20050804170803.GB8266@wotan.suse.de>
+References: <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net> <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net> <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net> <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net> <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0508040922110.6650@graphe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> wrote:
->
-> Andrew, please drop this patch. 
+> > > This piece here only does conversion to a string representation so it 
+> > > should not be affected by locking issues. Processes need to do proper 
+> > > locking when using the conversion functions.
+> > 
+> > It's useless.
+> 
+> So your point of view is that there will be no control and monitoring of 
+> the memory usage and policies?
 
-Well I was sitting on them with the intention of taking a look later and
-trying to work out what the heck you two have been going on about.
+External control is implemented for named objects and for process policy.
+A process can also monitor its own policies if it wants.
 
-But maybe dropping them means that we'll later get a clear and concise
-description of the problem and its solution, so I'll do that.
+I think the payoff for external monitoring of policies vs complexity 
+and cleanliness of interface and long term code impact is too bad to make 
+it an attractive option.
 
-(This was supposed to be just a simple "consolidate
-set_current_state+schedule_timeout into a single function call" patch. 
-What happened?)
+
+-Andi
+

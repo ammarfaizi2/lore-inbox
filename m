@@ -1,90 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVHDAr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVHDAuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVHDAr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 20:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVHDApe
+	id S261669AbVHDAuF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 20:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVHDAsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 20:45:34 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:24339 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S261667AbVHDApI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 20:45:08 -0400
-Date: Wed, 3 Aug 2005 17:44:04 -0700
-From: zach@vmware.com
-Message-Id: <200508040044.j740i4uj004192@zach-dev.vmware.com>
-To: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk, hpa@zytor.com,
-       linux-kernel@vger.kernel.org, pratap@vmware.com, Riley@Williams.Name,
-       zach@vmware.com
-Subject: [PATCH] 4/5 gdt-tss-redundant
-X-OriginalArrivalTime: 04 Aug 2005 00:44:01.0921 (UTC) FILETIME=[9BA7E710:01C5988D]
+	Wed, 3 Aug 2005 20:48:05 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:57557 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261669AbVHDApz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 20:45:55 -0400
+Subject: Re: [ACPI] Re: [PATCH] PNPACPI: fix types when decoding ACPI
+	resources [resend]
+From: Shaohua Li <shaohua.li@intel.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: acpi-devel@lists.sourceforge.net, Adam Belay <ambx1@neo.rr.com>,
+       Matthieu Castet <castet.matthieu@free.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <200508030920.13450.bjorn.helgaas@hp.com>
+References: <200508020955.54844.bjorn.helgaas@hp.com>
+	 <1123030861.2937.4.camel@linux-hp.sh.intel.com>
+	 <200508030920.13450.bjorn.helgaas@hp.com>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 08:46:35 +0800
+Message-Id: <1123116395.2929.1.camel@linux-hp.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When reviewing GDT updates, I found the code:
+On Wed, 2005-08-03 at 09:20 -0600, Bjorn Helgaas wrote:
+> On Tuesday 02 August 2005 7:01 pm, Shaohua Li wrote:
+> > On Tue, 2005-08-02 at 09:55 -0600, Bjorn Helgaas wrote:
+> > > Any objections to the patch below?  I posted it last Wednesday,
+> > > but haven't heard anything.  Once we have this fix, 8250_pnp
+> > > should have sufficient functionality that we can get rid of
+> > > 8250_acpi.
+> > > 
+> > > Use types that match the ACPI resource structures.  Previously
+> > > the u64 value from an RSTYPE_ADDRESS64 was passed as an int,
+> > > which corrupts the value.
+> > > 
+> > > This is one of the things that prevents 8250_pnp from working
+> > > on HP ia64 boxes.  After 8250_pnp works, we will be able to
+> > > remove 8250_acpi.c.
+> > We might always use 'unsigned long'.
+> 
+> Do you have a reason for preferring 'unsigned long' over the
+> exact types used in the ACPI resource structures?  I thought
+> it was useful to use the exact types, because then whatever
+> conversion needs to happen is all in one place.
+> 
+> In the existing code, there's implicit conversion when you
+> call "pnpacpi_parse_allocated_memresource(..., int mem, int len)"
+> and pass u64 values as "mem" and "len".  You have to look both
+> at the call site and the called code.  And gcc doesn't even
+> complain about this truncation.
+> 
+> But I guess it doesn't matter much either way.
+Either is ok to me.
 
-	set_tss_desc(cpu,t);	/* This just modifies memory; ... */
-        per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_TSS].b &= 0xfffffdff;
+> 
+> > Did you have plan to remove other 
+> > legacy acpi drivers?
+> 
+> No, I didn't -- which ones are you thinking about?  Looking at
+> the callers of acpi_bus_register_driver(), I see:
+> 
+> 	arch/ia64/hp/common/sba_iommu.c
+> 		Probably can't be converted because it needs the
+> 		ACPI handle to extract a vendor-specific data
+> 		item from _CRS.
+> 
+> 	drivers/char/hpet.c
+> 		This probably should be converted to PNP.  I'll
+> 		look into doing this.
+Great! After then we could push the ACPIPNP hotplug staff.
 
-This second line is unnecessary, since set_tss_desc() has already cleared
-the busy bit.
+Thanks,
+Shaohua
 
-Commented disassembly, line 1:
-
-c028b8bd:       8b 0c 86                mov    (%esi,%eax,4),%ecx
-c028b8c0:       01 cb                   add    %ecx,%ebx
-c028b8c2:       8d 0c 39                lea    (%ecx,%edi,1),%ecx
-
-  => %ecx = per_cpu(cpu_gdt_table, cpu)
-
-c028b8c5:       8d 91 80 00 00 00       lea    0x80(%ecx),%edx
-
-  => %edx = &per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_TSS]
-
-c028b8cb:       66 c7 42 00 73 20       movw   $0x2073,0x0(%edx)
-c028b8d1:       66 89 5a 02             mov    %bx,0x2(%edx)
-c028b8d5:       c1 cb 10                ror    $0x10,%ebx
-c028b8d8:       88 5a 04                mov    %bl,0x4(%edx)
-c028b8db:       c6 42 05 89             movb   $0x89,0x5(%edx)
-
-  => ((char *)%edx)[5] = 0x89
-  (equivalent) ((char *)per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_TSS])[5] = 0x89
-
-c028b8df:       c6 42 06 00             movb   $0x0,0x6(%edx)
-c028b8e3:       88 7a 07                mov    %bh,0x7(%edx)
-c028b8e6:       c1 cb 10                ror    $0x10,%ebx
-
-  => other bits
-
-Commented disassembly, line 2:
-
-c028b8e9:       8b 14 86                mov    (%esi,%eax,4),%edx
-c028b8ec:       8d 04 3a                lea    (%edx,%edi,1),%eax
-
-  => %eax = per_cpu(cpu_gdt_table, cpu)
-
-c028b8ef:       81 a0 84 00 00 00 ff    andl   $0xfffffdff,0x84(%eax)
-
-  => per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_TSS].b &= 0xfffffdff;
-  (equivalent) ((char *)per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_TSS])[5] &= 0xfd
-
-Note that (0x89 & ~0xfd) == 0; i.e, set_tss_desc(cpu,t) has already stored the
-type field in the GDT with the busy bit clear.
-
-Eliminating redundant and obscure code is always a good thing; in fact, I
-pointed out this same optimization many moons ago in arch/i386/setup.c, back
-when it used to be called that.
-
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-
-Index: linux-2.6.13/arch/i386/power/cpu.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/power/cpu.c	2005-08-02 17:06:21.000000000 -0700
-+++ linux-2.6.13/arch/i386/power/cpu.c	2005-08-03 15:27:57.000000000 -0700
-@@ -84,7 +84,6 @@
- 	struct tss_struct * t = &per_cpu(init_tss, cpu);
- 
- 	set_tss_desc(cpu,t);	/* This just modifies memory; should not be necessary. But... This is necessary, because 386 hardware has concept of busy TSS or some similar stupidity. */
--        per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_TSS].b &= 0xfffffdff;
- 
- 	load_TR_desc();				/* This does ltr */
- 	load_LDT(&current->active_mm->context);	/* This does lldt */

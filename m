@@ -1,111 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262621AbVHDTm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbVHDToZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262621AbVHDTm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 15:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbVHDTm5
+	id S262649AbVHDToZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 15:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbVHDToQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 15:42:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43999 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262621AbVHDTm4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 15:42:56 -0400
-Date: Thu, 4 Aug 2005 12:44:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc6-mm1
-Message-Id: <20050804124453.177f6834.akpm@osdl.org>
-In-Reply-To: <200507292337.14784.dominik.karall@gmx.net>
-References: <20050607042931.23f8f8e0.akpm@osdl.org>
-	<200507292319.21167.dominik.karall@gmx.net>
-	<20050729142703.7e9494c4.akpm@osdl.org>
-	<200507292337.14784.dominik.karall@gmx.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 4 Aug 2005 15:44:16 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:58309 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262644AbVHDToD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 15:44:03 -0400
+Subject: [GIT PATCH] scsi bug fixes for 2.6.13
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 04 Aug 2005 14:43:54 -0500
+Message-Id: <1123184634.5026.58.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Karall <dominik.karall@gmx.net> wrote:
->
-> On Friday 29 July 2005 23:27, Andrew Morton wrote:
-> > Dominik Karall <dominik.karall@gmx.net> wrote:
-> > > On Friday 29 July 2005 20:22, Andrew Morton wrote:
-> > > > Dominik Karall <dominik.karall@gmx.net> wrote:
-> > > > > On Friday 29 July 2005 06:54, Andrew Morton wrote:
-> > > > > > Dominik Karall <dominik.karall@gmx.net> wrote:
-> > > > > > > On Tuesday 07 June 2005 13:29, Andrew Morton wrote:
-> > > > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2
-> > > > > > > >.6.1 2-rc 6/2. 6.12-rc6-mm1/
-> > > > > > >
-> > > > > > > After looking in my dmesg output today, I saw following error
-> > > > > > > with 2.6.12-rc6-mm1, maybe it's usefull to you. I don't know when
-> > > > > > > it exactly happens, cause I never used mono last time, I just did
-> > > > > > > an emerge mono on my gentoo system, maybe this forced the
-> > > > > > > failure.
-> > > > > > >
-> > > > > > > note: mono[26736] exited with preempt_count 1
-> > > > > > > scheduling while atomic: mono/0x10000001/26736
-> > > > > > >
-> > > > > > > Call Trace:<ffffffff803e13ea>{schedule+122}
-> > > > > > > <ffffffff8013197b>{vprintk+635}
-> > > > > > > <ffffffff803e2738>{cond_resched+56}
-> > > > > > > <ffffffff80164de3>{unmap_vmas+1587}
-> > > > > > > <ffffffff8016a560>{exit_mmap+128} <ffffffff8012e7bf>{mmput+31}
-> > > > > > > <ffffffff80133466>{do_exit+438}
-> > > > > > > <ffffffff8013bf25>{__dequeue_signal+501}
-> > > > > > >        <ffffffff801340c8>{do_group_exit+280}
-> > > > > > > <ffffffff8013e147>{get_signal_to_deliver+1575}
-> > > > > > >        <ffffffff8010de92>{do_signal+162}
-> > > > > > > <ffffffff8012d1e0>{default_wake_function+0}
-> > > > > > >        <ffffffff8010e8e1>{sys_rt_sigreturn+577}
-> > > > > > > <ffffffff8010eb3f>{sysret_signal+28}
-> > > > > > >        <ffffffff8010ee27>{ptregscall_common+103}
-> > > > > >
-> > > > > > A couple of people reported this, but all seems to have gone quiet.
-> > > > > >  Is it fixed in later -mm's?   Is 2.6.13-rc4 running OK?
-> > > > > >
-> > > > > > Thanks.
-> > > > >
-> > > > > hi andrew!
-> > > > >
-> > > > > I'm sorry, but it's not fixed in current 2.6.13-rc3-mm3. I did an
-> > > > > emerge mono right now to test it, and I got this one:
-> > > > > Jul 29 15:26:37 [kernel] note: mono[11138] exited with preempt_count
-> > > > > 1 Jul 29 15:26:50 [kernel] file[14627]: segfault at 00002aaaab453000
-> > > > > rip 00002aaaaaf652cf rsp 00007fffffe43b50 error 4
-> > > > > Jul 29 15:26:50 [kernel] file[14633]: segfault at 00002aaaab453000
-> > > > > rip 00002aaaaaf652cf rsp 00007fffffcc87a0 error 4
-> > > > > Jul 29 15:26:51 [kernel] file[14669]: segfault at 00002aaaab453000
-> > > > > rip 00002aaaaaf652cf rsp 00007fffff905f80 error 4
-> > > > >
-> > > > > DEBUG_KERNEL/ PREEMPT/ SPINLOCK are enabled, but I didn't get more
-> > > > > info about the bug. Did I forget any debug option?
-> > > >
-> > > > Gee, I don't know how to find this one.  Do you know if the problem is
-> > > > specific to -mm?
-> > >
-> > > Tested with 2.6.13-rc4 and it seems to work. Didn't get any error.
-> >
-> > Great, thanks for that.
-> >
-> > > So it seems to be -mm related. Do you suspect any patch which could cause
-> > > the error?
-> >
-> > I wouldn't know, sorry.  Possible the scheduler patches, possibly an
-> > x86_64-specific patch.  Is the problem repeatable?  If so, a binary search
-> > would only take ten build-n-boots ;)
-> 
-> Yes, it is repeatable. I tested on lastest -mm about 4 times. Ok, I will try 
-> to find the right patch tomorrow, 10 build-n-boots would end up in morning ;)
-> 
-> btw, as the error occured in 2.6.12-rc6-mm1 too, it must be an old patch which 
-> wasn't merged to linus tree till now...hope there aren't a lot of them :)
-> 
+This is my (hopefully final) collection of safe driver updates and bug
+fixes for 2.6.13.
 
-Any progress on this?  It kinda measn that the whole of the -mm lineup is
-stuck until we can identify the offending patch.  We have a couple of weeks
-in which to do this but if you can identify the bad patch it'd help
-enormously, thanks.
+The tree is available from
+
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jejb/scsi-for-
+linus-2.6.git
+
+The short changelog is
+
+Andrew Morton:
+  o fc4 warning fix
+
+Jack Hammer:
+  o ServeRAID V7.12.02
+
+James Bottomley:
+  o fix aic7xxx performance issues since 2.6.12-rc2
+  o aic7xxx: final fixes for DT handling
+  o aic7xxx: fix bug in DT handing
+
+Kai Mäkisara:
+  o Fix SCSI tape oops at module removal
+
+Linda Xie:
+  o scsi/ibmvscsi/srp.h: Fix a wrong type code used for SRP_LOGIN_REJ
+
+And the diffstat:
+
+ fc4/fc.c                   |    2 +-
+ scsi/aic7xxx/aic7xxx_osm.c |   24 +++++++++++-------------
+ scsi/ibmvscsi/srp.h        |    2 +-
+ scsi/ips.c                 |    8 +++++---
+ scsi/ips.h                 |   39 +++++++++++++++++++++------------------
+ scsi/st.c                  |    8 ++------
+ 6 files changed, 41 insertions(+), 42 deletions(-)
+
+James
+
 

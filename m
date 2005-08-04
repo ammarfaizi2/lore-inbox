@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbVHDUWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262644AbVHDUgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262681AbVHDUWr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 16:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVHDUWd
+	id S262644AbVHDUgl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 16:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbVHDUgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 16:22:33 -0400
-Received: from mailfe15.tele2.se ([212.247.155.193]:7904 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262667AbVHDUUb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 16:20:31 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Thu, 4 Aug 2005 22:20:25 +0200
-From: Alexander Nyberg <alexn@telia.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: x86_64 access of some bad address
-Message-ID: <20050804202025.GA4101@localhost.localdomain>
-References: <1119539630.1170.6.camel@localhost.localdomain> <20050804131512.7d464fad.akpm@osdl.org>
+	Thu, 4 Aug 2005 16:36:35 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:43478 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262629AbVHDUer convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 16:34:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kOWEEO7Sd7gANosmdTQmIKfRdAc1C57UJE2yIwlleUyslmVoUhrufOzn1NmN6wVBszOcNba95IUX8Ifn5WYlbL+rcVFFRST2ysfEgN1QNnoI/fiSjZKN6mBLYjaHIHj+pz1luCY4X9s7Irfe+r7hMhIc93pRGuqlOnp/Eeo6EEQ=
+Message-ID: <105c793f05080413342f4295b9@mail.gmail.com>
+Date: Thu, 4 Aug 2005 16:34:44 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: =?ISO-8859-1?Q?Kristian_Gr=F8nfeldt_S=F8rensen?= <kriller@vkr.dk>
+Subject: Re: Oops when shutting down laptop
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1123186901.8831.42.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050804131512.7d464fad.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+References: <1123186901.8831.42.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 01:15:12PM -0700 Andrew Morton wrote:
+On 8/4/05, Kristian Grønfeldt Sørensen <kriller@vkr.dk> wrote:
+> http://www.vkr.dk/~kriller/oops.jpg
+Sorry that I can't help. I actually have a machine that's Oops'ing
+during software suspend (with suspend2). I typed it all up last night,
+which was terribly time-consuming. I have another laptop, but it
+doesn't have any serial ports. I've tried taking pictures, but you
+can't read the text.
 
-> Alexander Nyberg <alexn@telia.com> wrote:
-> >
-> > As I only have one x86_64 which is my main workstation it's far too
-> > tedious to do binary searching (this doesn't happen on x86).
-> > 
-> > Happens with both latest -git and 2.6.12-mm1
-> > The tools to reproduce this is at: http://serkiaden.mine.nu/kp2.tar
-> > 
-> > Just do:
-> > gdb lyze
-> > run
-> > 
-> > and it crashes here giving:
-> > 
-> > ----------- [cut here ] --------- [please bite here ] ---------
-> > Kernel BUG at "mm/memory.c":911
-> 
-> So I think Hugh's patch this morning should fix this up.  Please retest
-> -rc6 when it's out?
+How did you get that image? With a scan-converter?
 
-Maybe I forgot to tell but I've already tested and it works fine.
+Thanks.
+
+-Andy

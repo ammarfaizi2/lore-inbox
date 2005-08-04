@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVHDRhv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVHDRpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbVHDRhv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 13:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVHDRfD
+	id S262493AbVHDRpa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 13:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVHDRpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 13:35:03 -0400
-Received: from graphe.net ([209.204.138.32]:23784 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261512AbVHDRe0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 13:34:26 -0400
-Date: Thu, 4 Aug 2005 10:34:24 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Andi Kleen <ak@suse.de>
-cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: NUMA policy interface
-In-Reply-To: <20050804170803.GB8266@wotan.suse.de>
-Message-ID: <Pine.LNX.4.62.0508041011590.7314@graphe.net>
-References: <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net>
- <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net>
- <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net>
- <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net>
- <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net>
- <20050804170803.GB8266@wotan.suse.de>
+	Thu, 4 Aug 2005 13:45:30 -0400
+Received: from mx.winch-hebergement.net ([82.196.5.104]:28066 "EHLO
+	mx.ifrance.com") by vger.kernel.org with ESMTP id S262486AbVHDRoJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 13:44:09 -0400
+Message-ID: <42F25352.8050805@winch-hebergement.net>
+Date: Thu, 04 Aug 2005 19:41:38 +0200
+From: Guillaume Pelat <guillaume.pelat@winch-hebergement.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: davem@davemloft.net, akpm@osdl.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc4 - kernel panic - BUG at net/ipv4/tcp_output.c:918
+References: <42EDDE50.6050800@winch-hebergement.net> <20050804033329.GA14501@gondor.apana.org.au> <20050804103523.GA11381@gondor.apana.org.au>
+In-Reply-To: <20050804103523.GA11381@gondor.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Aug 2005, Andi Kleen wrote:
+Hi,
 
-> > So your point of view is that there will be no control and monitoring of 
-> > the memory usage and policies?
+Herbert Xu wrote:
+> On Thu, Aug 04, 2005 at 01:33:29PM +1000, herbert wrote:
 > 
-> External control is implemented for named objects and for process policy.
-> A process can also monitor its own policies if it wants.
+>>So I suppose we should reset cwnd_quota after tcp_transmit_skb?
+> 
+> Please try this patch to see if this is really the problem or not.
+> 
+> Thanks,
 
-Named objects like files and not processes and/or threads? But then these 
-named objects do not have memory allocated to them.
+I just applied your patch, and it seems to work :)
+2 hours uptime, and no crash yet (without the patch, it was crashing a 
+few mins only after booting).
+So i think the bug is crushed :)
 
-> I think the payoff for external monitoring of policies vs complexity 
-> and cleanliness of interface and long term code impact is too bad to make 
-> it an attractive option.
+Thanks a lot !
 
-Well the implementation has the following issues right now:
-
-1. BIND policy implemented in a way that fills up nodes from the lowest 
-   to the higest instead of allocating memory on the local node.
-
-2. No separation between sys_ and do_ functions. Therefore difficult
-   to use from kernel context.
-
-3. Functions have weird side effect (f.e. get_nodes updating 
-   and using cpuset policies). Code is therefore difficult 
-   to maintain.
-
-4. Uses bitmaps instead of nodemask_t.
-
-5. No means to figure out where the memory was allocated although
-   mempoliy.c implements scans over ptes that would allow that 
-   determination.
- 
-6. Needs hook into page migration layer to move pages to either conform
-   to policy or to move them menually.
-
-The long term impact of this missing functionality is already showing 
-in the numbers of workarounds that I have seen at a various sites, 
-
-The code is currently complex and difficult to handle because some of the 
-issues mentioned above. We need to fix this in order to have clean code 
-and in order to control future complexity.
+-- 
+Guillaume Pelat

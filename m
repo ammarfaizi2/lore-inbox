@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262773AbVHDXzB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbVHEAAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262773AbVHDXzB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 19:55:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVHDXxD
+	id S262784AbVHEAAF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 20:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVHDX56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 19:53:03 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:61829 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S262770AbVHDXw1 (ORCPT
+	Thu, 4 Aug 2005 19:57:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26808 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262785AbVHDX4s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 19:52:27 -0400
-Subject: [patch] Add write protection switch handling to the PXA MMC driver
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Russell King <linux@arm.linux.org.uk>, LKML <linux-kernel@vger.kernel.org>,
-       Nicolas Pitre <nico@cam.org>
-Content-Type: text/plain
-Date: Fri, 05 Aug 2005 00:52:08 +0100
-Message-Id: <1123199529.8987.94.camel@localhost.localdomain>
+	Thu, 4 Aug 2005 19:56:48 -0400
+Date: Thu, 4 Aug 2005 16:58:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Guillaume Pelat <guillaume.pelat@winch-hebergement.net>
+Cc: herbert@gondor.apana.org.au, davem@davemloft.net, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc4 - kernel panic - BUG at net/ipv4/tcp_output.c:918
+Message-Id: <20050804165842.4d673f97.akpm@osdl.org>
+In-Reply-To: <42F25352.8050805@winch-hebergement.net>
+References: <42EDDE50.6050800@winch-hebergement.net>
+	<20050804033329.GA14501@gondor.apana.org.au>
+	<20050804103523.GA11381@gondor.apana.org.au>
+	<42F25352.8050805@winch-hebergement.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a write protection switch handling code to the PXA MMC driver so
-that platform specific code can provide it if available (extending the
-MMC/SD patches in -mm).
+Guillaume Pelat <guillaume.pelat@winch-hebergement.net> wrote:
+>
+> Hi,
+> 
+> Herbert Xu wrote:
+> > On Thu, Aug 04, 2005 at 01:33:29PM +1000, herbert wrote:
+> > 
+> >>So I suppose we should reset cwnd_quota after tcp_transmit_skb?
+> > 
+> > Please try this patch to see if this is really the problem or not.
+> > 
+> > Thanks,
+> 
+> I just applied your patch, and it seems to work :)
+> 2 hours uptime, and no crash yet (without the patch, it was crashing a 
+> few mins only after booting).
+> So i think the bug is crushed :)
+> 
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+Thanks, Guillaume.  Herbert, David is travelling and not able to do a lot
+of patchmonkeying.  Could you please prepare and submit a final patch?
 
-Index: linux-2.6.12/include/asm-arm/arch-pxa/mmc.h
-===================================================================
---- linux-2.6.12.orig/include/asm-arm/arch-pxa/mmc.h	2005-08-05 00:29:17.000000000 +0100
-+++ linux-2.6.12/include/asm-arm/arch-pxa/mmc.h	2005-08-05 00:29:43.000000000 +0100
-@@ -10,6 +10,7 @@
- struct pxamci_platform_data {
- 	unsigned int ocr_mask;			/* available voltages */
- 	int (*init)(struct device *, irqreturn_t (*)(int, void *, struct pt_regs *), void *);
-+	int (*get_ro)(struct device *);
- 	void (*setpower)(struct device *, unsigned int);
- 	void (*exit)(struct device *, void *);
- };
-Index: linux-2.6.12/drivers/mmc/pxamci.c
-===================================================================
---- linux-2.6.12.orig/drivers/mmc/pxamci.c	2005-08-05 00:29:17.000000000 +0100
-+++ linux-2.6.12/drivers/mmc/pxamci.c	2005-08-05 00:29:43.000000000 +0100
-@@ -362,6 +362,16 @@
- 	pxamci_start_cmd(host, mrq->cmd, cmdat);
- }
- 
-+static int pxamci_get_ro(struct mmc_host *mmc)
-+{
-+	struct pxamci_host *host = mmc_priv(mmc);
-+
-+	if (host->pdata && host->pdata->get_ro)
-+		return host->pdata->get_ro(mmc->dev);
-+	/* Host doesn't support read only detection so assume writeable */
-+	return 0;
-+}
-+
- static void pxamci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
- {
- 	struct pxamci_host *host = mmc_priv(mmc);
-@@ -401,6 +411,7 @@
- 
- static struct mmc_host_ops pxamci_ops = {
- 	.request	= pxamci_request,
-+	.get_ro		= pxamci_get_ro,
- 	.set_ios	= pxamci_set_ios,
- };
+Thanks.
 

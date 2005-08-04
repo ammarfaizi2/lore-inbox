@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVHDNtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbVHDNv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262542AbVHDNtL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 09:49:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbVHDNrU
+	id S262546AbVHDNv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVHDNvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 09:47:20 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:28811 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S262531AbVHDNpe (ORCPT
+	Thu, 4 Aug 2005 09:51:54 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:7610 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262546AbVHDNvZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 09:45:34 -0400
-Message-ID: <42F21BD6.3000807@drzeus.cx>
-Date: Thu, 04 Aug 2005 15:44:54 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-0.1.fc5 (X11/20050719)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: netdev@vger.kernel.org
-CC: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 8139cp misses interrupts during resume
-References: <42DD3BA1.7010302@drzeus.cx>
-In-Reply-To: <42DD3BA1.7010302@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Aug 2005 09:51:25 -0400
+Date: Thu, 4 Aug 2005 15:52:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Yang Yi <yang.yi@bmrtech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] latency logger for realtime-preempt-2.6.12-final-V0.7.51-30
+Message-ID: <20050804135200.GA14402@elte.hu>
+References: <1123042757.2997.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1123042757.2997.5.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> I'm having problem with the interrupt getting killed after suspend with
-> my 8139cp controller. The problem only appears if the cable is connected
-> during resume (before suspend is irrelevant) and the interface is down.
-> 
-> Both suspend-to-disk and suspend-to-ram exhibit the error. dmesg from
-> suspend-to-ram included.
-> 
-> I find it a bit strange that 8139cp's interrupt handler isn't included
-> when it dumps the handlers. Could this be related to the problem?
-> 
 
-Anyone familiar with this driver that can give me some pointers on what
-to look for? I'd prefer not to have to learn how the entire thing works
-just to fix one bug. :)
+* Yang Yi <yang.yi@bmrtech.com> wrote:
 
-Rgds
-Pierre
+> > looks pretty good! I'll look at merging your patch after KS/OLS.
+> 
+> Do you have any trouble while you merge that latency logger patch?
+
+i've merged it to the -52-11 patch that, and i've uploaded it a couple 
+of minutes ago.
+
+i have done a number of cleanups on it - e.g. instead of latency logging 
+it's now called latency histogram, and i've also fixed a number of 
+coding style issues. Please double-check that it's still OK, seems to 
+work here.
+
+would be nice to clean up the impact of the latency-histogram code some 
+more though: e.g. the #ifdef jungle check_critical_timing() is 
+disgusting. Could be cleaned up by always recording the latency_type 
+being currently traced into a new tr->latency_type field, and then using 
+that in check_critical_timing().
+
+	Ingo

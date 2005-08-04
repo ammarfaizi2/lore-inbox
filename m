@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVHDRSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVHDRSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbVHDRSA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 13:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVHDRQT
+	id S261788AbVHDRSR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 13:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVHDRSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 13:16:19 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:15647 "EHLO
-	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
-	id S261512AbVHDRPy convert rfc822-to-8bit (ORCPT
+	Thu, 4 Aug 2005 13:18:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13242 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261512AbVHDRQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 13:15:54 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: IDE disk and HPA
-Date: Thu, 4 Aug 2005 10:15:49 -0700
-Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C341EB82@scl-exch2k3.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: IDE disk and HPA
-thread-index: AcWY7nw+Viy9EnTtQrWYAOu2Hp5JkQAKGNaw
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: <etienne.lorrain@masroudeau.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Aug 2005 17:15:50.0034 (UTC) FILETIME=[29415720:01C59918]
+	Thu, 4 Aug 2005 13:16:33 -0400
+Date: Thu, 4 Aug 2005 10:15:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: mdew <some.nzguy@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       vojtech@suse.cz, dtor_core@ameritech.net
+Subject: Re: Fw: ati-remote strangeness from 2.6.12 onwards
+Message-Id: <20050804101515.4a983b29.akpm@osdl.org>
+In-Reply-To: <1c1c8636050801220442d8351c@mail.gmail.com>
+References: <20050730173253.693484a2.akpm@osdl.org>
+	<1c1c8636050801220442d8351c@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->Etienne Lorrain
->Sent: Thursday, August 04, 2005 5:11 AM
->To: linux-kernel@vger.kernel.org
->Subject: Re: IDE disk and HPA
+mdew <some.nzguy@gmail.com> wrote:
 >
->> > > My question is now: why is an HPA disabled i.e. disprotected when
->> > > detected? Why not let the HPA alone, because a certain 
->set of disk
->> > > sectors shall not be accessible by the OS?
->> >
->> > Because the HPA is most commonly used to hide all but a 
->fraction of a
->> > disk to work with older BIOSes.
->>
->> But as to my knowledge, the HPA was had been introduced to allow HW
->> vendors to store things like diagnostic programs in a part of the
->> disk protected from partitioning and filesystems.
->> The point is, IF there is an HPA, there MIGHT be a partitioning
->> scheme and some filesystems on the disk which rely on the size of
->> disk being the native size MINUS the HPA.
->
->  If those HW vendors want to store software in the HPA of the IDE
-> hard disk, and they employ people able to read the IDE specifications,
-> they know that this HPA can be protected by password and so Linux
-> just display a failure when trying to restore the capacity of the
-> Hard Disk - because it lacks the unlocking password.
+> I discovered a minor change in 2.6.10-mm1, changing this value back
+>  corrects the "ok" button issue.
+> 
+> 
+>  diff -urN linux/drivers/usb/input/ati_remote.c
+>  linux-2.6.11/drivers/usb/input/ati_remote.c
+>  --- linux/drivers/usb/input/ati_remote.c        2005-08-02
+>  17:56:26.000000000 +1200
+>  +++ linux-2.6.11/drivers/usb/input/ati_remote.c 2005-08-02
+>  17:54:34.000000000 +1200
+>  @@ -263,7 +263,7 @@
+>          {KIND_FILTERED, 0xe4, 0x1f, EV_KEY, KEY_RIGHT, 1},      /* right */
+>          {KIND_FILTERED, 0xe7, 0x22, EV_KEY, KEY_DOWN, 1},       /* down */
+>          {KIND_FILTERED, 0xdf, 0x1a, EV_KEY, KEY_UP, 1},         /* up */
+>  -       {KIND_FILTERED, 0xe3, 0x1e, EV_KEY, KEY_ENTER, 1},      /* "OK" */
+>  +       {KIND_FILTERED, 0xe3, 0x1e, EV_KEY, KEY_OK, 1},         /* "OK" */
+>          {KIND_FILTERED, 0xce, 0x09, EV_KEY, KEY_VOLUMEDOWN, 1}, /* VOL + */
+>          {KIND_FILTERED, 0xcd, 0x08, EV_KEY, KEY_VOLUMEUP, 1},   /* VOL - */
+>          {KIND_FILTERED, 0xcf, 0x0a, EV_KEY, KEY_MUTE, 1},       /* MUTE  */
 
- Yep, you are right. When used by BIOS/firmware, it is usually 
-protected by password. And interesting enough, as in this particular 
-case, they employ people to not only read them, but to write them as
-well ;)
-  However, if not protected by the password, it is probably Ok 
-to make it visible (as things currently are).
-
->
->  Note that this HPA is a good place to store a bootloader too, in fact
-> I like to think of it as the big floppy drive of the PC which no more
-> have any floppy drive: create a FAT filesystem of 64 Mbytes there and
-> copy all the floppy you used to have there. Your bootloader, if it
-> is good enough, will be able to run software from this area.
-
-If your bootloader if the first thing to run in the system, you can 
-use & protect portion of your hardrive for yourself - just make sure you
-
-lock with set max with password when passing control to 'normal'
-OS/loader.
-
-Aleks.
+This appears to be already applied in 2.6.12-rc5.

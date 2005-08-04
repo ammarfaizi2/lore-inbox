@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbVHDQij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVHDQik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262606AbVHDQij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 12:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbVHDQf2
+	id S262602AbVHDQik (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 12:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVHDQfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 12:35:28 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:4633 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S262602AbVHDQdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 12:33:47 -0400
-X-OUTRCPT-TO: from-linux-kernel@i-love.sakura.ne.jp, linux-kernel@vger.kernel.org
-X-OUTMAIL-FROM: mdomsch@lists.us.dell.com
-X-IronPort-AV: i="3.95,167,1120453200"; 
-   d="scan'208"; a="294578220:sNHT16929710"
-Date: Thu, 4 Aug 2005 11:33:46 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Could you please check mail configuration?
-Message-ID: <20050804163346.GA22026@lists.us.dell.com>
-References: <200508042245.IEC40094.631911@I-love.SAKURA.ne.jp> <20050804140543.GA16674@lists.us.dell.com> <200508050030.BIJ05555.PtJGMVOLSFSYFMOtN@i-love.sakura.ne.jp>
+	Thu, 4 Aug 2005 12:35:21 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:19619 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262604AbVHDQeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 12:34:00 -0400
+Date: Thu, 4 Aug 2005 09:33:06 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
+       zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [patch 4/8] x86_64:Fix cluster mode send_IPI_allbutself to use get_cpu()/put_cpu()
+Message-ID: <20050804093306.B15274@unix-os.sc.intel.com>
+References: <20050801202017.043754000@araj-em64t> <20050801203011.290911000@araj-em64t> <20050804104302.GC97893@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200508050030.BIJ05555.PtJGMVOLSFSYFMOtN@i-love.sakura.ne.jp>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050804104302.GC97893@muc.de>; from ak@muc.de on Thu, Aug 04, 2005 at 12:43:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 12:31:10AM +0900, Tetsuo Handa wrote:
-> Hello, Matt.
+On Thu, Aug 04, 2005 at 12:43:02PM +0200, Andi Kleen wrote:
+> On Mon, Aug 01, 2005 at 01:20:21PM -0700, Ashok Raj wrote:
+> > Need to ensure we dont get prempted when we clear ourself from mask when using
+> > clustered mode genapic code.
 > 
-> > I had a note from you that this was a configuration error on your
-> > server's part, not on the list.  So I stopped worrying about it...
-> Oh, really? I'm sorry.
+> It's not needed I think. If the caller wants to execute code
+> on the current CPU then it has to have disabled preemption
+> itself already to avoid races. And if not it doesn't care.
 > 
-> What is funny is that ...
+> One could argue that this function should be always called
+> with preemption disabled though. Perhaps better a WARN_ON().
 > 
-> The mail from Matt had a X-OUTRCPT-TO header
-> with 2 mail addresses (my address and this ml's address),
-> but the mail from Jesper didn't have the X-OUTRCPT-TO header,
-> although both mails are sent as a reply to my mail.
-> 
-> The X-OUTRCPT-TO: header in a Linux-kernel-daily-digest Digest
-> contains 80 mail addresses including my address.
-> 
-> I can find X-OUTRCPT-TO header only in mails from
-> Matt and Linux-kernel-daily-digest Digest.
-> 
-> You say this is a configuration error on my server's part.
-> I thought this X-OUTRCPT-TO header is added at linux.us.dell.com
-> and delivered to 80 recipients, resulting 80 recipients can see
-> other 79 addresses.
 
-It is indeed a mistake on Dell's part, and it'll be fixed
-momentarily.  lists.us.dell.com relays to an intermediate server
-before being sent to you, and the intermediate relay was adding that
-field incorrectly.  Thanks for bringing it to my attention.
+This is only required for smp_call_function(), since we do allbutself
+by exclusing self, its the internal function that needs to do this.
 
--Matt
+allbutself shortcut takes care of it, since it doesnt matter which cpu
+we write the shortcut, in the mask version and for cluster i think its required
+to ensure in the low level function. Otherwise we would need each 
+implementation of smp_call_function() and send_IPI_allbutself() callers would
+need to do this, which would be lots of changes.
+> -Andi
 
 -- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Cheers,
+Ashok Raj
+- Open Source Technology Center

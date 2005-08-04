@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVHDGG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVHDGMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVHDGG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 02:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVHDGGz
+	id S261852AbVHDGMP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 02:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVHDGJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 02:06:55 -0400
-Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:64263 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261847AbVHDGF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 02:05:59 -0400
-To: will.dyson@gmail.com
-CC: jirislaby@gmail.com, linux-kernel@vger.kernel.org
-In-reply-to: <8e6f9472050803214250821160@mail.gmail.com> (message from Will
-	Dyson on Thu, 4 Aug 2005 00:42:54 -0400)
-Subject: Re: Obsolete files in 2.6 tree
-References: <42DED9F3.4040300@gmail.com> <42F145ED.2060008@gmail.com> <8e6f9472050803214250821160@mail.gmail.com>
-Message-Id: <E1E0YrP-0000rm-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 04 Aug 2005 08:05:43 +0200
+	Thu, 4 Aug 2005 02:09:53 -0400
+Received: from hendrix.ece.utexas.edu ([128.83.59.42]:43405 "EHLO
+	hendrix.ece.utexas.edu") by vger.kernel.org with ESMTP
+	id S261852AbVHDGH6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 02:07:58 -0400
+Date: Thu, 4 Aug 2005 01:07:50 -0500 (CDT)
+From: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
+Reply-To: youssef@ece.utexas.edu
+To: linux-kernel@vger.kernel.org
+cc: linux-scsi@vger.kernel.org, youssef@ece.utexas.edu
+Subject: [PATCH] [SCSI] megaraid: add check for NULL pointer
+Message-ID: <Pine.LNX.4.61.0508040023020.14176@linux08.ece.utexas.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, don't know about anyone else, but I certainly don't use it
-> anymore. If anyone needs  a fully-functional befs driver, the easiest
-> route to that would probably be getting Haiku's befs driver to compile
-> in userland as a FUSE fs.
 
-That has already been done:
+This patch adds a check for NULL return from kmalloc.
 
-  http://prdownloads.sourceforge.net/fuse/mountlo-i386-0.1.tar.gz
+Signed-off-by: Youssef Hmamouche <hyoussef@gmail.com>
 
-All is needed is a working FUSE installation, and the above binary, to
-be able to mount any filesystem image/partition.
 
-Miklos
+--- a/drivers/scsi/megaraid.c   2005-08-03 21:12:43.000000000 -0700
++++ b/drivers/scsi/megaraid.c   2005-08-03 21:14:37.000000000 -0700
+@@ -4456,6 +4456,10 @@
+         memset(scmd, 0, sizeof(Scsi_Cmnd));
+
+         sdev = kmalloc(sizeof(struct scsi_device), GFP_KERNEL);
++       if(sdev == NULL) {
++               printk(KERN_WARNING "megaraid: out of RAM.\n");
++               return -ENOMEM;
++       }
+         memset(sdev, 0, sizeof(struct scsi_device));
+         scmd->device = sdev;
+

@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbVHDXBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbVHDXGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbVHDXBP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 19:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbVHDXBF
+	id S262707AbVHDXGB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 19:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVHDXFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 19:01:05 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:44975 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262768AbVHDW7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 18:59:13 -0400
-Message-Id: <200508042258.j74Mwsg18638@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andi Kleen'" <ak@suse.de>
-Cc: "Hugh Dickins" <hugh@veritas.com>, <linux-kernel@vger.kernel.org>,
-       "Anton Blanchard" <anton@samba.org>, <cr@sap.com>, <linux-mm@kvack.org>
-Subject: RE: Getting rid of SHMMAX/SHMALL ?
-Date: Thu, 4 Aug 2005 15:58:52 -0700
+	Thu, 4 Aug 2005 19:05:49 -0400
+Received: from gold.veritas.com ([143.127.12.110]:56468 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S262727AbVHDXEr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 19:04:47 -0400
+Date: Fri, 5 Aug 2005 00:06:25 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andi Kleen <ak@suse.de>
+cc: Danny ter Haar <dth@picard.cistron.nl>, Pavel Roskin <proski@gnu.org>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc5-git2 does not boot on (my) amd64
+In-Reply-To: <p73iryl73nm.fsf@bragg.suse.de>
+Message-ID: <Pine.LNX.4.61.0508042358530.8665@goblin.wat.veritas.com>
+References: <dctuso$tl$1@news.cistron.nl.suse.lists.linux.kernel>
+ <p73iryl73nm.fsf@bragg.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcWZR3QUjcPD3IqrRQu1MObSuIpYnQAAA5cA
-In-Reply-To: <20050804225413.GH8266@wotan.suse.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 04 Aug 2005 23:04:47.0146 (UTC) FILETIME=[E8BF18A0:01C59948]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote on Thursday, August 04, 2005 3:54 PM
-> > This might be too low on large system.  We usually stress shm pretty hard
-> > for db application and usually use more than 87% of total memory in just
-> > one shm segment.  So I prefer either no limit or a tunable.
+On Thu, 5 Aug 2005, Andi Kleen wrote:
+> dth@picard.cistron.nl (Danny ter Haar) writes:
+> > 
+> > Freeing unused kernel memory: 248k freed
+> > VM: killing process hotplug
+> > VM: killing process hotplug
+> > VM: killing process hotplug
+> > VM: killing process hotplug
+> > Unable to handle kernel paging request at fffffff28017b5be RIP:
+> > [<fffffff28017b5be>]
 > 
-> With large system you mean >32GB right?
+> Looks weird. Just to make sure can you do a make distclean and try
+> again? It might be a bad compile.
 
-Yes, between 32 GB - 128 GB.  On larger numa box in the 256 GB and upward,
-we have to break shm segment into one per-numa-node and then the limit
-should be OK.  I was concerned with SMP box with large memory.
+No, like Pavel's and Martin's reports, this is just an effect
+of the not-quite-fully-baked do_wp_page/get_user_pages race fix in
+2.6.13-rc5-git2, which AlexN reported earlier.  Should now be fully
+fixed in Linus' current git, and in the 2.6.13-rc6 akpm prophesies
+to be coming soon - please all test that.
 
-> I think on a large systems some tuning is reasonable because they likely
-> have trained admins. I'm more worried on reasonable defaults for the
-> class of systems with 0-4GB
-
-Sounds reasonable to me.
-
-- Ken
-
+Hugh

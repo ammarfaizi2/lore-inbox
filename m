@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbVHDXk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVHDXpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbVHDXk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 19:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbVHDXk3
+	id S262731AbVHDXpG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 19:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbVHDXpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 19:40:29 -0400
-Received: from mx2.suse.de ([195.135.220.15]:29125 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262665AbVHDXk1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 19:40:27 -0400
-Date: Fri, 5 Aug 2005 01:40:25 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: NUMA policy interface
-Message-ID: <20050804234025.GJ8266@wotan.suse.de>
-References: <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net> <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net> <20050804170803.GB8266@wotan.suse.de> <Pine.LNX.4.62.0508041011590.7314@graphe.net> <20050804211445.GE8266@wotan.suse.de> <Pine.LNX.4.62.0508041416490.10150@graphe.net> <20050804214132.GF8266@wotan.suse.de> <Pine.LNX.4.62.0508041509330.10813@graphe.net>
+	Thu, 4 Aug 2005 19:45:06 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:12117 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262731AbVHDXpD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 19:45:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QuziTyvJArtJZEVYxnPdltI9vA6OoTMMzB7J1u4NmGodFH54XZQH0ztKPXN669I9IKJ4go7c4YyTyzPuustBcquX6vqU9jl3UpTS0TsXwwxvzmWAwlnpIf3iLl16g3VUvxAeAhs2IWURb35PJYAQCXIxJhAIKiW6bkzLe825Gw8=
+Message-ID: <311601c905080416456c92798f@mail.gmail.com>
+Date: Thu, 4 Aug 2005 17:45:03 -0600
+From: "Eric D. Mudama" <edmudama@gmail.com>
+Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: [PATCH] IDE disks show invalid geometries in /proc/ide/hd*/geometry
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Mark Bellon <mbellon@mvista.com>, Andre Hedrick <andre@linux-ide.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.61.0508040800130.22272@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0508041509330.10813@graphe.net>
+References: <42EFE547.3010206@mvista.com>
+	 <Pine.LNX.4.10.10508030018390.21865-100000@master.linux-ide.org>
+	 <58cb370e05080310195c244f72@mail.gmail.com>
+	 <42F100C8.8040700@mvista.com>
+	 <58cb370e05080311056a9276c0@mail.gmail.com>
+	 <42F10DB8.4020601@mvista.com>
+	 <58cb370e05080311517e6c02a8@mail.gmail.com>
+	 <Pine.LNX.4.61.0508040800130.22272@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 03:19:52PM -0700, Christoph Lameter wrote:
-> There are three possibilites:
-> 
-> 1. do what cpusets is doing by versioning.
-> 
-> 2. Have the task notifier access the task_struct information.
-> See http://lwn.net/Articles/145232/ "A new path to the refrigerator"
-> 
-> 3. Maybe the easiest: Require mmap_sem to be taken for all policy 
-> accesses. Currently its only require for vma policies. Then we need
-> to make a copy of the policy at some point so that alloc_pages can
-> access policy information lock free. This may also allow us to fix
-> the bind issue if we would f.e. keep a bitmap in the taskstruct or (ab)use 
-> the cpusets map.
+On 8/4/05, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> All of these numbers are virtual, since CHS is not really used anymore, as
+> we know. But, which of these fake CHS values (16383/16/63 | 65535/16/63 |
+> 1023/255/63) is the right one? 255/63/4982 is another matter, since it
+> [almost] matches the actual size of the disk while the other three are just
+> "for the bios".
 
-None of them seem very attractive to me.  I would prefer to just
-not support external accesses keeping things lean and fast.
+What do you mean by right?  Not one of those above values has any
+physical meaning....
 
-
-> > If they cannot afford enough disk space it might be possible
-> > to do the page migration in swap cache like Hugh proposed.
-> 
-> This code already exist in the memory hotplug code base and Ray already 
-> had a working implementation for page migration. The migration code will 
-> also be necessary in order to relocate pages with ECC single bit failures 
-> that Russ is working on (of course that will only work for some pages) and
-> for Mel Gorman's defragmentation approach (if we ever get the split into 
-> differnet types of memory chunks in).
-
-Individual physical page migration is quite different from
-address space migration.
-
--Andi
+--eric

@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVHDVVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVHDVVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262711AbVHDVVs (ORCPT <rfc822;willy@w.ods.org>);
+	id S262710AbVHDVVs (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 4 Aug 2005 17:21:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVHDVVg
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVHDVVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 17:21:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50101 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262711AbVHDVVO (ORCPT
+	Thu, 4 Aug 2005 17:21:42 -0400
+Received: from graphe.net ([209.204.138.32]:11962 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262710AbVHDVVO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 4 Aug 2005 17:21:14 -0400
+Date: Thu, 4 Aug 2005 14:21:09 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andi Kleen <ak@suse.de>
+cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: NUMA policy interface
+In-Reply-To: <20050804211445.GE8266@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0508041416490.10150@graphe.net>
+References: <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net>
+ <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net>
+ <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net>
+ <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net>
+ <20050804170803.GB8266@wotan.suse.de> <Pine.LNX.4.62.0508041011590.7314@graphe.net>
+ <20050804211445.GE8266@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-X-Fcc: ~/Mail/linus
-Cc: Gerd Knorr <kraxel@suse.de>, linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@redhat.com>
-Subject: Re: Fw: 2.6.12: itimer_real timers don't survive execve() any more
-In-Reply-To: George Anzinger's message of  Thursday, 4 August 2005 13:59:06 -0700 <42F2819A.7030109@mvista.com>
-X-Windows: graphics hacking :: Roman numerals : sqrt (pi)
-Date: Thu,  4 Aug 2005 14:12:37 -0700 (PDT)
-Message-Id: <20050804212105.98602180980@magilla.sf.frob.com>
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This change is bad.  Noone passed it by me that I recall.  exit_itimers is
-also used for exec, which has to clear timer_create timers but not
-setitimer timers.  Perhaps the comment on exit_itimers should get adjusted
-not to give the impression that it's only used at exit time.
+On Thu, 4 Aug 2005, Andi Kleen wrote:
 
+> > 1. BIND policy implemented in a way that fills up nodes from the lowest 
+> >    to the higest instead of allocating memory on the local node.
+> 
+> Hmm, there was a patch from PJ for that at some point. Not sure why it 
+> was not merged. iirc the first implementation was too complex, but
+> there was a second reasonable one.
 
-Thanks,
-Roland
+Yes he mentioned that patch earlier in this thread.
 
+> > 5. No means to figure out where the memory was allocated although
+> >    mempoliy.c implements scans over ptes that would allow that 
+> >    determination.
+> 
+> You lost me here.
 
-commit caf2857ac6e0ba2651e722f05d5f7d3ec8ef2615
-tree cb8e51e7c17c0964bdfd29635d51da0124d0dfe8
-parent 
-author Ingo Molnar <mingo@elte.hu> Fri, 17 Jun 2005 11:36:36 +0200
-committer Linus Torvalds <torvalds@ppc970.osdl.org> Sat, 18 Jun 2005 00:03:50 -0700
+There is this scan over the page table that verifies if all nodes are 
+allocated according to the policy. That scan could easily be used to 
+provide a map to the application (and to /proc/<pid>/smap) of where the
+memory was allocated.
+ 
+> > 6. Needs hook into page migration layer to move pages to either conform
+> >    to policy or to move them menually.
+> 
+> Does it really? So far my feedback from all users I talked to is that they only
+> use a small subset of the functionality, even what is there is too complex.
+> Nobody with a real app so far has asked me for page migration.
 
-[PATCH] timer exit cleanup
+Maybe we have different customers. My feedback is consistently that this 
+is a very urgently feature needed.
+ 
+> There was one implementation of simple page migration in Steve L.'s patches,
+> but that was just because it was too hard to handle one corner case
+> otherwise.
 
-Do all timer zapping in exit_itimers.
+There is a page migration implementation in the hotplug patchset.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> > The long term impact of this missing functionality is already showing 
+> > in the numbers of workarounds that I have seen at a various sites, 
+> 
+> Examples? 
+
+Two of the high profile ones are NASA and APA. One person from the APA 
+posted in one of our earlier discussions.

@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbVHDOdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbVHDOdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262500AbVHDOdk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 10:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVHDOb2
+	id S262563AbVHDOdj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 10:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVHDObd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 10:31:28 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:42880 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261849AbVHDOaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 10:30:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Zz2oU1i3yyyLwDu1YYhO1kirJAVOpaFJJ/xNwKb3RHYrSfjVBWdkwiAfwoNL1WZ8slSBXmRXxAzZhIWCZHeAk9e0h7I+p6c8+LKPpoacwxehlG0EV0r9SUga1kkOhwpdQ/3gOkhCuCV1K5IVyvFEDySVKOgrFNEpCN1StXtsheI=  ;
-Message-ID: <42F2266F.30008@yahoo.com.au>
-Date: Fri, 05 Aug 2005 00:30:07 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Nyberg <alexn@telia.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
-References: <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org> <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com> <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org> <Pine.LNX.4.61.0508021809530.5659@goblin.wat.veritas.com> <Pine.LNX.4.58.0508021127120.3341@g5.osdl.org> <Pine.LNX.4.61.0508022001420.6744@goblin.wat.veritas.com> <Pine.LNX.4.58.0508021244250.3341@g5.osdl.org> <Pine.LNX.4.61.0508022150530.10815@goblin.wat.veritas.com> <42F09B41.3050409@yahoo.com.au> <Pine.LNX.4.58.0508030902380.3341@g5.osdl.org> <20050804141457.GA1178@localhost.localdomain>
-In-Reply-To: <20050804141457.GA1178@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Aug 2005 10:31:33 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:50915 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261732AbVHDO3o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 10:29:44 -0400
+Date: Thu, 4 Aug 2005 16:29:42 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] String conversions for memory policy
+Message-ID: <20050804142942.GY8266@wotan.suse.de>
+References: <20050729230026.1aa27e14.pj@sgi.com> <Pine.LNX.4.62.0507301042420.26355@graphe.net> <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net> <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net> <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net> <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0508040704590.3319@graphe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg wrote:
-> On Wed, Aug 03, 2005 at 09:12:37AM -0700 Linus Torvalds wrote:
+On Thu, Aug 04, 2005 at 07:11:36AM -0700, Christoph Lameter wrote:
+> On Wed, 3 Aug 2005, Andi Kleen wrote:
 > 
+> > I really hate this whole /proc/<pid>/numa_policy thing. /proc/<pid>/maps
+> > was imho always a desaster (hard to parse, slow etc.). Also external
+> > access of NUMA policies has interesting locking issues. I intentionally
+> > didn't add something like that when I designed the original
+> > NUMA API. Please don't add it.
 > 
->>
->>Ok, I applied this because it was reasonably pretty and I liked the 
->>approach. It seems buggy, though, since it was using "switch ()" to test 
->>the bits (wrongly, afaik), and I'm going to apply the appended on top of 
->>it. Holler quickly if you disagreee..
->>
-> 
-> 
-> x86_64 had hardcoded the VM_ numbers so it broke down when the numbers
-> were changed.
-> 
+> You designed a NUMA API to control a process memory access patterns 
+> without the ability to view or modify the policies in use?
 
-Ugh, sorry I should have audited this but I really wasn't expecting
-it (famous last words). Hasn't been a good week for me.
+Processes internally can get the information if they want.
+Externally I didn't expose it intentionally to avoid locking problems
 
-parisc, cris, m68k, frv, sh64, arm26 are also broken.
-Would you mind resending a patch that fixes them all?
+> The locking issues for the policy information in the task_struct could be 
+> solved by having a thread execute a function that either sets or gets the 
+> memory policy. The vma policies already have a locking mechanism.
 
-Thanks,
-Nick
+But why? It all only adds complexity. Keep it simple please.
 
--- 
-SUSE Labs, Novell Inc.
+>  
+> This piece here only does conversion to a string representation so it 
+> should not be affected by locking issues. Processes need to do proper 
+> locking when using the conversion functions.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+It's useless.
+
+-Andi

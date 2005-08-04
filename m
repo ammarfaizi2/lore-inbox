@@ -1,154 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVHDFO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVHDFTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVHDFO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 01:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVHDFO5
+	id S261815AbVHDFTt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 01:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVHDFTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 01:14:57 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:53658 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261828AbVHDFOk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 01:14:40 -0400
-Date: Wed, 3 Aug 2005 22:14:34 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-Subject: [UPDATE PATCH] push rounding up of relative request to schedule_timeout()
-Message-ID: <20050804051434.GA4520@us.ibm.com>
-References: <Pine.LNX.4.61.0507231456000.3728@scrub.home> <20050723164310.GD4951@us.ibm.com> <Pine.LNX.4.61.0507231911540.3743@scrub.home> <20050723191004.GB4345@us.ibm.com> <Pine.LNX.4.61.0507232151150.3743@scrub.home> <20050727222914.GB3291@us.ibm.com> <Pine.LNX.4.61.0507310046590.3728@scrub.home> <20050801193522.GA24909@us.ibm.com> <Pine.LNX.4.61.0508031419000.3728@scrub.home> <20050804005147.GC4255@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050804005147.GC4255@us.ibm.com>
-X-Operating-System: Linux 2.6.12 (i686)
-User-Agent: Mutt/1.5.9i
+	Thu, 4 Aug 2005 01:19:49 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:20710 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261815AbVHDFTs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 01:19:48 -0400
+Message-ID: <42F1A540.2050909@jp.fujitsu.com>
+Date: Thu, 04 Aug 2005 14:18:56 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+CC: Adam Belay <ambx1@neo.rr.com>, Matthieu Castet <castet.matthieu@free.fr>,
+       Li Shaohua <shaohua.li@intel.com>, acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] [PATCH] PNPACPI: fix types when decoding ACPI resources
+ [resend]
+References: <200508020955.54844.bjorn.helgaas@hp.com> <42F0185A.7060901@jp.fujitsu.com> <200508031229.05343.bjorn.helgaas@hp.com>
+In-Reply-To: <200508031229.05343.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03.08.2005 [17:51:47 -0700], Nishanth Aravamudan wrote:
-> On 03.08.2005 [16:20:57 +0200], Roman Zippel wrote:
-> > Hi,
-> > 
-> > On Mon, 1 Aug 2005, Nishanth Aravamudan wrote:
-> > 
-> > > +unsigned int __sched schedule_timeout_msecs(unsigned int timeout_msecs)
-> > > +{
-> > > +	unsigned long expire_jifs;
-> > > +
-> > > +	if (timeout_msecs == MAX_SCHEDULE_TIMEOUT_MSECS) {
-> > > +		expire_jifs = MAX_SCHEDULE_TIMEOUT;
-> > > +	} else {
-> > > +		/*
-> > > +		 * msecs_to_jiffies() is a unit conversion, which truncates
-> > > +		 * (rounds down), so we need to add 1.
-> > > +		 */
-> > > +		expire_jifs = msecs_to_jiffies(timeout_msecs) + 1;
-> > > +	}
-> > > +
-> > > +	expire_jifs = schedule_timeout(expire_jifs);
-> > > +
-> > > +	/*
-> > > +	 * don't need to add 1 here, even though there is truncation,
-> > > +	 * because we will add 1 if/when the value is sent back in
-> > > +	 */
-> > > +	return jiffies_to_msecs(expire_jifs);
-> > > +}
-> > 
-> > As I already mentioned for msleep_interruptible this is a really terrible 
-> > interface.
-> > The "jiffies_to_msecs(msecs_to_jiffies(timeout_msecs) + 1)" case (when the 
-> > process is immediately woken up again) makes the caller suspectible to 
-> > timeout manipulations and requires constant reauditing, that no caller 
-> > gets it wrong, so it's better to avoid this error source completely.
+Hi Bjorn,
+
+Thank you very much for the new patch
+and I'm very sorry for troubling you.
+
+The patch looks very good to me.
+
+Thanks,
+Kenji Kaneshige
+
+
+Bjorn Helgaas wrote:
+> On Tuesday 02 August 2005 7:05 pm, Kenji Kaneshige wrote:
 > 
-> After some thought today, I realized the +1 case is not specific to
-> milliseconds. It's just that it's only being done *correctly* in the
-> milliseconds case...I think ;)
-
-<snip>
-
-> Description: Ensure that schedule_timeout() requests can not possibly
-> expire early in the timeout case, by adding the requested relative jiffy
-> value to the next value of jiffies. Currently, by adding to the current
-> value of jiffies, we might actually expire a jiffy too early (in a
-> corner case).
-
-Sorry, I forgot that sys_nanosleep() also always adds 1 to the request
-(to account for this same issue, I believe, as POSIX demands no early
-return from nanosleep() calls). There are some other locations where
-similar
-
-	+ (t.tv_sec || t.tv_nsec)
-
-rounding-ups occur. I'll fix those separately if this patch goes in.  I
-change the one in sys_nanosleep() below to maintain the same latency as
-we currently have. I also screwed up my layout in the previous
-submission, sorry about that.
-
-Description: Ensure that schedule_timeout() requests can not possibly
-expire early in the timeout case, by adding the requested relative jiffy
-value to the next value of jiffies. Currently, by adding to the current
-value of jiffies, we might actually expire a jiffy too early (in a
-corner case). Modify the callers of schedule_timeout() in timer.c to not
-add 1 themselves.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-
----
-
- timer.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
-
---- 2.6.13-rc4-dev/kernel/timer.c	2005-08-01 12:31:53.000000000 -0700
-+++ 2.6.13-rc5/kernel/timer.c	2005-08-03 22:05:16.000000000 -0700
-@@ -1134,7 +1134,7 @@ fastcall signed long __sched schedule_ti
- 		}
- 	}
- 
--	expire = timeout + jiffies;
-+	expire = timeout + jiffies + 1;
- 
- 	init_timer(&timer);
- 	timer.expires = expire;
-@@ -1190,9 +1190,10 @@ unsigned int __sched schedule_timeout_ms
- 	} else {
- 		/*
- 		 * msecs_to_jiffies() is a unit conversion, which truncates
--		 * (rounds down), so we need to add 1.
-+		 * (rounds down), so we need to add 1, but this is taken
-+		 * care of by schedule_timeout() now.
- 		 */
--		expire_jifs = msecs_to_jiffies(timeout_msecs) + 1;
-+		expire_jifs = msecs_to_jiffies(timeout_msecs);
- 	}
- 
- 	expire_jifs = schedule_timeout(expire_jifs);
-@@ -1286,7 +1287,7 @@ asmlinkage long sys_nanosleep(struct tim
- 	if ((t.tv_nsec >= 1000000000L) || (t.tv_nsec < 0) || (t.tv_sec < 0))
- 		return -EINVAL;
- 
--	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
-+	expire = timespec_to_jiffies(&t);
- 	current->state = TASK_INTERRUPTIBLE;
- 	expire = schedule_timeout(expire);
- 
-@@ -1675,7 +1676,7 @@ unregister_time_interpolator(struct time
-  */
- void msleep(unsigned int msecs)
- {
--	unsigned long timeout = msecs_to_jiffies(msecs) + 1;
-+	unsigned long timeout = msecs_to_jiffies(msecs);
- 
- 	while (timeout) {
- 		set_current_state(TASK_UNINTERRUPTIBLE);
-@@ -1691,7 +1692,7 @@ EXPORT_SYMBOL(msleep);
-  */
- unsigned long msleep_interruptible(unsigned int msecs)
- {
--	unsigned long timeout = msecs_to_jiffies(msecs) + 1;
-+	unsigned long timeout = msecs_to_jiffies(msecs);
- 
- 	while (timeout && !signal_pending(current)) {
- 		set_current_state(TASK_INTERRUPTIBLE);
+>>This breaks the following patch that is already included into -mm
+>>tree.
+>>
+>>http://sourceforge.net/mailarchive/forum.php?thread_id=7844247&forum_id=6102
+>>
+>>I think we need to check if acpi_register_gsi() succeeded or not.
+> 
+> 
+> You're absolutely right.  I was just based off a Linus tree, non -mm,
+> and didn't notice that your patch conflicted.  How about the following
+> (based on 2.6.13-rc4-mm1)?  I moved the acpi_register_gsi() into
+> pnpacpi_parse_allocated_irqresource(), which I think is nice because
+> the test for failure is right next to the call.
+> 
+> 
+> 
+> PNPACPI: fix types when decoding ACPI resources
+> 
+> Use types that match the ACPI resource structures.  Previously
+> the u64 value from an RSTYPE_ADDRESS64 was passed as an int,
+> which corrupts the value.
+> 
+> This is one of the things that prevents 8250_pnp from working
+> on HP ia64 boxes.  After 8250_pnp works, we will be able to
+> remove 8250_acpi.c.
+> 
+> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> 
+> Index: work-mm/drivers/pnp/pnpacpi/rsparser.c
+> ===================================================================
+> --- work-mm.orig/drivers/pnp/pnpacpi/rsparser.c	2005-08-02 09:39:25.000000000 -0600
+> +++ work-mm/drivers/pnp/pnpacpi/rsparser.c	2005-08-03 09:31:05.000000000 -0600
+> @@ -73,25 +73,28 @@
+>  }
+>  
+>  static void
+> -pnpacpi_parse_allocated_irqresource(struct pnp_resource_table * res, int irq)
+> +pnpacpi_parse_allocated_irqresource(struct pnp_resource_table * res, u32 gsi,
+> +	int edge_level, int active_high_low)
+>  {
+>  	int i = 0;
+> +	int irq;
+>  	while (!(res->irq_resource[i].flags & IORESOURCE_UNSET) &&
+>  			i < PNP_MAX_IRQ)
+>  		i++;
+>  	if (i < PNP_MAX_IRQ) {
+>  		res->irq_resource[i].flags = IORESOURCE_IRQ;  //Also clears _UNSET flag
+> +		irq = acpi_register_gsi(gsi, edge_level, active_high_low);
+>  		if (irq < 0) {
+>  			res->irq_resource[i].flags |= IORESOURCE_DISABLED;
+>  			return;
+>  		}
+> -		res->irq_resource[i].start =(unsigned long) irq;
+> -		res->irq_resource[i].end = (unsigned long) irq;
+> +		res->irq_resource[i].start = irq;
+> +		res->irq_resource[i].end = irq;
+>  	}
+>  }
+>  
+>  static void
+> -pnpacpi_parse_allocated_dmaresource(struct pnp_resource_table * res, int dma)
+> +pnpacpi_parse_allocated_dmaresource(struct pnp_resource_table * res, u32 dma)
+>  {
+>  	int i = 0;
+>  	while (i < PNP_MAX_DMA &&
+> @@ -103,14 +106,14 @@
+>  			res->dma_resource[i].flags |= IORESOURCE_DISABLED;
+>  			return;
+>  		}
+> -		res->dma_resource[i].start =(unsigned long) dma;
+> -		res->dma_resource[i].end = (unsigned long) dma;
+> +		res->dma_resource[i].start = dma;
+> +		res->dma_resource[i].end = dma;
+>  	}
+>  }
+>  
+>  static void
+>  pnpacpi_parse_allocated_ioresource(struct pnp_resource_table * res,
+> -	int io, int len)
+> +	u32 io, u32 len)
+>  {
+>  	int i = 0;
+>  	while (!(res->port_resource[i].flags & IORESOURCE_UNSET) &&
+> @@ -122,14 +125,14 @@
+>  			res->port_resource[i].flags |= IORESOURCE_DISABLED;
+>  			return;
+>  		}
+> -		res->port_resource[i].start = (unsigned long) io;
+> -		res->port_resource[i].end = (unsigned long)(io + len - 1);
+> +		res->port_resource[i].start = io;
+> +		res->port_resource[i].end = io + len - 1;
+>  	}
+>  }
+>  
+>  static void
+>  pnpacpi_parse_allocated_memresource(struct pnp_resource_table * res,
+> -	int mem, int len)
+> +	u64 mem, u64 len)
+>  {
+>  	int i = 0;
+>  	while (!(res->mem_resource[i].flags & IORESOURCE_UNSET) &&
+> @@ -141,8 +144,8 @@
+>  			res->mem_resource[i].flags |= IORESOURCE_DISABLED;
+>  			return;
+>  		}
+> -		res->mem_resource[i].start = (unsigned long) mem;
+> -		res->mem_resource[i].end = (unsigned long)(mem + len - 1);
+> +		res->mem_resource[i].start = mem;
+> +		res->mem_resource[i].end = mem + len - 1;
+>  	}
+>  }
+>  
+> @@ -156,10 +159,10 @@
+>  	case ACPI_RSTYPE_IRQ:
+>  		if ((res->data.irq.number_of_interrupts > 0) &&
+>  			valid_IRQ(res->data.irq.interrupts[0])) {
+> -			pnpacpi_parse_allocated_irqresource(res_table, 
+> -				acpi_register_gsi(res->data.irq.interrupts[0],
+> -					res->data.irq.edge_level,
+> -					res->data.irq.active_high_low));
+> +			pnpacpi_parse_allocated_irqresource(res_table,
+> +				res->data.irq.interrupts[0],
+> +				res->data.irq.edge_level,
+> +				res->data.irq.active_high_low);
+>  			pcibios_penalize_isa_irq(res->data.irq.interrupts[0], 1);
+>  		}
+>  		break;
+> @@ -167,10 +170,10 @@
+>  	case ACPI_RSTYPE_EXT_IRQ:
+>  		if ((res->data.extended_irq.number_of_interrupts > 0) &&
+>  			valid_IRQ(res->data.extended_irq.interrupts[0])) {
+> -			pnpacpi_parse_allocated_irqresource(res_table, 
+> -				acpi_register_gsi(res->data.extended_irq.interrupts[0],
+> -					res->data.extended_irq.edge_level,
+> -					res->data.extended_irq.active_high_low));
+> +			pnpacpi_parse_allocated_irqresource(res_table,
+> +				res->data.extended_irq.interrupts[0],
+> +				res->data.extended_irq.edge_level,
+> +				res->data.extended_irq.active_high_low);
+>  			pcibios_penalize_isa_irq(res->data.extended_irq.interrupts[0], 1);
+>  		}
+>  		break;
+> 
 

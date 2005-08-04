@@ -1,99 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVHDMmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262516AbVHDMpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262517AbVHDMmy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 08:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVHDMkN
+	id S262516AbVHDMpG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 08:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVHDMm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 08:40:13 -0400
-Received: from mx2.suse.de ([195.135.220.15]:62410 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262509AbVHDMjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 08:39:07 -0400
-Date: Thu, 4 Aug 2005 14:39:00 +0200
-From: Andi Kleen <ak@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       amitkale@linsyssoft.com
-Subject: Re: [patch 07/15] Basic x86_64 support
-Message-ID: <20050804123900.GR8266@wotan.suse.de>
-References: <resend.6.2972005.trini@kernel.crashing.org> <1.2972005.trini@kernel.crashing.org> <resend.7.2972005.trini@kernel.crashing.org> <20050803130531.GR10895@wotan.suse.de> <20050803133756.GA3337@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050803133756.GA3337@smtp.west.cox.net>
+	Thu, 4 Aug 2005 08:42:59 -0400
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:17388 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262509AbVHDMlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 08:41:16 -0400
+Message-ID: <42F20CEC.60206@anagramm.de>
+Date: Thu, 04 Aug 2005 14:41:16 +0200
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML List <linux-kernel@vger.kernel.org>
+Subject: How to get the physical page addresses from a kernel virtual address
+ for DMA SG List?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > That doesn't make much sense here. tasklet will only run when interrupts
-> > are enabled, and that is much later. You could move it to there.
-> 
-> Where?  Keep in mind it's really only x86_64 that isn't able to break
-> sooner.
+Hello!
 
-The local_irq_enable() call in init/main.c:start_kernel()
+This might be an FAQ - I've got several ideas from googling
+around for days and reading 'Linux Device Drivers' or
+'Understanding The Linux Kernel' which are both really good
+books. However I am not really sure of how to do it on the latest
+linux-2.6.
 
-If you want to run gdb earlier you need to do it without a tasklet.
+I am currently working on a dma driver for a ppc32 system.
+The idea is that a userspace app allocates a big contigous
+chunk of memory (i.e. 400MBytes, user virtual mem) and tells
+my dma's char driver via ioctl the pointer to that memory.
 
-> > > --- linux-2.6.13-rc3/include/asm-x86_64/hw_irq.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
-> > > +++ linux-2.6.13-rc3-trini/include/asm-x86_64/hw_irq.h	2005-07-29 13:19:10.000000000 -0700
-> > > @@ -55,6 +55,7 @@ struct hw_interrupt_type;
-> > >  #define TASK_MIGRATION_VECTOR	0xfb
-> > >  #define CALL_FUNCTION_VECTOR	0xfa
-> > >  #define KDB_VECTOR	0xf9
-> > > +#define KGDB_VECTOR	0xf8
-> > 
-> > I already allocated these vectors for something else.
-> 
-> Is there another we can use?  Just following what looked to be the
-> logical order.
+In the driver I can now use that (void __user *) casted address
+as a kernel virtual address, right? It's contigous there and I can
+do a memcpy() to get data to userspace simliar to a copy_to_user().
+fine!
 
-How about you use KDB_VECTOR and rename it to DEBUG_VECTOR
-and then just check if kgdb is currently active? 
+But I want to setup a scatter/gather DMA list and blow my data
+directly into the applications physical pages.
 
-KDB can do the same.
+What's the best way to setup the dma_sg_list?
+I have checked several things to get the pages and physical addresses
+but with no real success now:
+get_user_page()
+vmalloc_to_page()
+kvirt_to_bus() (deprecated?)
+virt_to_phys()
+virt_to_bus()
 
-I changed the assignment in my tree like this:
+Or do I need to remap the whole thing before I can get all the pages and
+physical addresses?
+remap_page_range()
+remap_pfn_range()
+map_user_kiobuf()
+unmap_kiobuf()
 
-#define SPURIOUS_APIC_VECTOR    0xff
-#define ERROR_APIC_VECTOR       0xfe
-#define RESCHEDULE_VECTOR       0xfd
-#define CALL_FUNCTION_VECTOR    0xfc
-#define KDB_VECTOR              0xfb    /* reserved for KDB */
-#define THERMAL_APIC_VECTOR     0xfa
-/* 0xf9 free */
-#define INVALIDATE_TLB_VECTOR_END       0xf8
-#define INVALIDATE_TLB_VECTOR_START     0xf0    /* f0-f8 used for TLB flush */
+Or do I need the direct-io stuff or the block-io?
+How do I need to alloc the mem in my app? (get_pages()?)
+How do I need to lock the memory to make sure it's in phys memory? (mlockall()?)
+Can somebody please put some light on what's _the_ way to do that on the
+latest 2.6 kernels? I am pretty much confused which functions are current
+and okay to use to solve my problem.
+Pointers to some code is also very welcome. But it should be _current_.
+I've spent already a lot of time reading outdated things. :-(
 
+Best regards,
 
-but that can be merged later. THere will be probably more changes
-with the per CPU IDT planned.
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
 
-> > >  	cfg = __prepare_ICR(shortcut, vector, dest);
-> > > +        if (vector == KGDB_VECTOR) {
-> > > +                 /*
-> > > +                  * KGDB IPI is to be delivered as a NMI
-> > > +                  */
-> > > +                 cfg = (cfg&~APIC_VECTOR_MASK)|APIC_DM_NMI;
-> > > +         }
-> > 
-> > No way adding another ugly special case like this. I wanted
-> > to rip out the KDB version for a long time.
-> 
-> I'd be happy to rework it in a cleaner manner, just point me at an
-> example please.
-
-The code is equivalent to passing shortcut|APIC_DM_NMI and vector == 0
-
-> > > -	asm volatile(SAVE_CONTEXT						    \
-> > > +       asm volatile(".globl __switch_to_begin\n\t"				    \
-> > > +		     "__switch_to_begin:\n\t"					  \
-> > > +		     SAVE_CONTEXT						  \
-> > 
-> > Why is this needed?
-> 
-> So that backtraces show they're in switch_to rather than somewhere else
-> (since it's a #define we wouldn't know otherwise).
-
-Ok.
-
--Andi
+http://www.anagramm.de
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19

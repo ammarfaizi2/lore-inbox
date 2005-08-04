@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVHDTv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVHDTxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbVHDTv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 15:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVHDTv6
+	id S261391AbVHDTxo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 15:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbVHDTxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 15:51:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26557 "EHLO
+	Thu, 4 Aug 2005 15:53:43 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:28093 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262704AbVHDTvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 15:51:50 -0400
-Subject: Re: [openib-general] Re: [RFC] Move InfiniBand .h files
+	id S261391AbVHDTwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 15:52:34 -0400
+Subject: Re: [RFC] Move InfiniBand .h files
 From: Arjan van de Ven <arjan@infradead.org>
-To: Grant Grundler <iod00d@hp.com>
-Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <20050804182652.GF20422@esmail.cup.hp.com>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+In-Reply-To: <52wtn18r7w.fsf@cisco.com>
 References: <52iryla9r5.fsf@cisco.com>
-	 <1123178038.3318.40.camel@laptopd505.fenrus.org>
-	 <20050804182652.GF20422@esmail.cup.hp.com>
+	 <1123178038.3318.40.camel@laptopd505.fenrus.org> <52acjxa70j.fsf@cisco.com>
+	 <1123180717.3318.43.camel@laptopd505.fenrus.org> <52wtn18r7w.fsf@cisco.com>
 Content-Type: text/plain
-Date: Thu, 04 Aug 2005 21:51:10 +0200
-Message-Id: <1123185070.3318.49.camel@laptopd505.fenrus.org>
+Date: Thu, 04 Aug 2005 21:51:34 +0200
+Message-Id: <1123185094.3318.51.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
@@ -38,29 +37,17 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-04 at 11:26 -0700, Grant Grundler wrote:
-> On Thu, Aug 04, 2005 at 07:53:58PM +0200, Arjan van de Ven wrote:
-> > On Thu, 2005-08-04 at 10:32 -0700, Roland Dreier wrote:
-> > > I would like to get people's reactions to moving the InfiniBand .h
-> > > files from their current location in drivers/infiniband/include/ to
-> > > include/linux/rdma/.  If we agree that this is a good idea then I'll
-> > > push this change as soon as 2.6.14 starts.
-> > 
-> > please only put userspace clean headers here; the rest is more or less
-> > private headers for your subsystem. 
+On Thu, 2005-08-04 at 11:57 -0700, Roland Dreier wrote:
+>     Roland> Also, drivers/infiniband/include doesn't get put into the
+>     Roland> /lib/modules/<ver>/build directory,
 > 
-> Sorry...this smells like a rathole...but does this mean
-> linus agrees the kernel subsystems should export headers suitable for
-> both user space and kernel driver modules?
+>     Arjan> that is a symlink not a directory, and a symlink to the
+>     Arjan> full source...
 > 
-> Historical, I thought glibc and other user space libs were expected to
-> maintain their own set of header files. Maybe I'm just confused...
+> Sorry, I was too terse about the problem.  You're right, but typical
+> distros don't ship full kernel source in their "support kernel builds"
+> package.
 
-there is a definite requirement for the kernel to expose SOME things to
-userspace. Well for SOMETHING to expose them. Right now most distros
-ship a hacked up version of the kernel headers (eg removed of all the
-kernel specific stuff and all the gpl inline code etc). A good part of
-making such an external project possible is to make a clean separation
-between userspace shared stuff and pure kernel internals.
+so what makes you think they will ship include/infiniband ?
 
 

@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVHDNRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262526AbVHDNTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbVHDNRk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 09:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbVHDNRk
+	id S262526AbVHDNTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbVHDNTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 09:17:40 -0400
-Received: from gold.veritas.com ([143.127.12.110]:49719 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S262522AbVHDNRd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 09:17:33 -0400
-Date: Thu, 4 Aug 2005 14:19:21 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
-       cr@sap.com, linux-mm@kvack.org
-Subject: Re: Getting rid of SHMMAX/SHMALL ?
-In-Reply-To: <20050804113941.GP8266@wotan.suse.de>
-Message-ID: <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com>
-References: <20050804113941.GP8266@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Aug 2005 13:17:32.0682 (UTC) FILETIME=[DF5E8EA0:01C598F6]
+	Thu, 4 Aug 2005 09:19:16 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:44513 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262526AbVHDNTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 09:19:12 -0400
+Subject: Re: [PATCH] pmtmr and PRINTK_TIME timings display
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Borislav Petkov <petkov@uni-muenster.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200508041459.43500.petkov@uni-muenster.de>
+References: <200508041459.43500.petkov@uni-muenster.de>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 04 Aug 2005 09:19:05 -0400
+Message-Id: <1123161545.12009.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Aug 2005, Andi Kleen wrote:
+On Thu, 2005-08-04 at 14:59 +0200, Borislav Petkov wrote:
 
-> I noticed that even 64bit architectures have a ridiculously low 
-> max limit on shared memory segments by default:
 > 
-> #define SHMMAX 0x2000000                 /* max shared seg size (bytes) */
-> #define SHMMNI 4096                      /* max num of segs system wide */
-> #define SHMALL (SHMMAX/PAGE_SIZE*(SHMMNI/16)) /* max shm system wide (pages) */
+> where you see the deltas between the printk's printed once the tsc timer is 
+> initialized as opposed to the first bootlog where you see all times relative 
+> to a single point in time. The python script <scripts/show_delta> in the 
+> kernel source converts between these two representations but there's a pretty 
+> simple solution IMHO to make PRINTK_TIME uniform and independent from the 
+> used timer. The one liner is against 2.6.12.3.
 > 
-> Even on 32bit architectures it is far too small and doesn't
-> make much sense. Does anybody remember why we even have this limit?
-
-To be like the UNIXes.
-
-> IMHO per process shm mappings should just be controlled by the normal
-> process and global mappings with the same heuristics as tmpfs
-> (by default max memory / 2 or more if shmfs is mounted with more)
-> Actually I suspect databases will usually want to use more 
-> so it might even make sense to support max memory - 1/8*max_memory
+> After applying it, printk timing looks like this:
 > 
-> I would propose to get rid of of shmmax completely
-> and only keep the old shmall sysctl for compatibility.
+> <snip>
+> [    0.000000] Detected 1500.132 MHz processor.
+> [    0.000000] Using pmtmr for high-res timesource
+> [    0.000000] Console: colour VGA+ 80x25
+> [    1.890000] Dentry cache hash table entries: 131072 (order: 7, 524288 
+> bytes)
+> [    1.891000] Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+> [    1.906000] Memory: 513756k/523520k available (2839k kernel code, 9276k 
+> reserved, 1148k data, 152k init, 0k highmem)
+> [    1.906000] Checking if this processor honours the WP bit even in 
+> supervisor mode... Ok.
+> [    1.906000] Calibrating delay loop... 2973.69 BogoMIPS (lpj=1486848)
+> [    1.928000] Security Framework v1.0.0 initialized
+> </snip>
+> 
 
-Anton proposed raising the limits last autumn, but I was a bit
-discouraging back then, having noticed that even Solaris 9 was more
-restrictive than Linux.  They seem to be ancient traditional limits
-which everyone knows must be raised to get real work done.
+But if you are debugging problems with jiffies wrapping, wouldn't you
+want to see the jiffies unmodified?  I understand your point, but the
+tsc output (which I do prefer) seems to only be for the tsc (on x86),
+and all else use jiffies (haven't looked at other archs). So debugging a
+problem with jiffy wrap*, one would need to use something other than the
+tsc, and then they would see the time the wrap occurred.
 
-It's possible that if we raise the limits, installation
-of this or that application will then lower them again?
+Also, the big number stands out more than the 3 zeros, so when I see
+that, I know right away to go and change it back to use the tsc (since
+my debugging usually needs higher resolutions).
 
-I don't think my opinion is worth much on this:
-what would the distro tuners like to see there?
+* new product from Renolds ;-)
 
-Hugh
+-- Steve
+
+

@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVHDBCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVHDAyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVHDBCM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 21:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVHDA7f
+	id S261678AbVHDAyu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 20:54:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVHDAwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 20:59:35 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:12022 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261732AbVHDA6N convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 20:58:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XS1yCAyFt3rSLJQdkXsRDSM7qV7LISjLpeUcbj3maQVZc6AuS5fm8b9KFLJMUAcPjH7YohAGhnQSOZExmHW/gPNBKvXQn26H/NY1GyNGu+aHMLBEuNCT1nPPqsy3oVrf+U5oj+j3lVPsdatTY3kCbU+1KBix3HyP0cFcod+wuAE=
-Message-ID: <86802c44050803175873fb0569@mail.gmail.com>
-Date: Wed, 3 Aug 2005 17:58:11 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-Reply-To: yhlu <yhlu.kernel@gmail.com>
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: [PATCH 1/2] [IB/cm]: Correct CM port redirect reject codes
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <20057281331.7vqhiAJ1Yc0um2je@cisco.com>
+	Wed, 3 Aug 2005 20:52:47 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:48834 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261687AbVHDAvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 20:51:06 -0400
+Subject: Re: [ACPI] Re: [PATCH] PNPACPI: fix types when decoding ACPI
+	resources [resend]
+From: Shaohua Li <shaohua.li@intel.com>
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, acpi-devel@lists.sourceforge.net,
+       Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <42F1343B.70707@free.fr>
+References: <200508020955.54844.bjorn.helgaas@hp.com>
+	 <1123030861.2937.4.camel@linux-hp.sh.intel.com>
+	 <200508030920.13450.bjorn.helgaas@hp.com>  <42F1343B.70707@free.fr>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 08:51:52 +0800
+Message-Id: <1123116712.2929.8.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
-	 <20057281331.7vqhiAJ1Yc0um2je@cisco.com>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland,
+On Wed, 2005-08-03 at 23:16 +0200, matthieu castet wrote:
+> 
+> There are drivers/acpi/motherboard.c that done some stuff already handle 
+> by pnp/system.c.
+Yes, it should be disabled if pnpacpi is enabled. The only concern is
+motherboard.c also request some ACPI resources, which might not declaim
+in ACPI motherboard device, but it's completely BIOS dependent. We might
+could try remove it at -mm tree to see if it breaks any system later.
 
-In LinuxBIOS, If I enable the prefmem64 to use real 64 range. the IB
-driver in Kernel can not be loaded.
+> 
+> PS : I saw in acpi ols paper that you plan once all dupe acpi drivers 
+> will be removed to register again the pnp device in acpi layer. Do you 
+> plan to add more check and for example add only device that have a CRS 
+> in pnp layer ?
+For detecting PNP device? it's worthy trying.
 
-YH
+Thanks,
+Shaohua
 
-PCI: 00:18.0 1c1 <- [0x0000001000 - 0x0000003fff] io <node 0 link 1>
-PCI: 00:18.0 1b9 <- [0xfce0000000 - 0xfcf07fffff] prefmem <node 0 link 1>
-PCI: 00:18.0 1b1 <- [0x00fc000000 - 0x00fd2fffff] mem <node 0 link 1>           
-PCI: 01:0f.0 24 <- [0xfce0000000 - 0xfcf07fffff] bus 4 prefmem
-PCI: 01:0f.0 20 <- [0x00fd100000 - 0x00fd1fffff] bus 4 mem
-PCI: 04:00.0 10 <- [0x00fd100000 - 0x00fd1fffff] mem64
-PCI: 04:00.0 18 <- [0xfcf0000000 - 0xfcf07fffff] prefmem64
-PCI: 04:00.0 20 <- [0xfce0000000 - 0xfcefffffff] prefmem64                      
-
-ib_mthca: Mellanox InfiniBand HCA driver v0.06 (June 23, 2005)
-ib_mthca: Initializing Mellanox Technologies MT25208 InfiniHost III Ex (Tavor c)
-ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
-ib_mthca: probe of 0000:04:00.0 failed with error -16

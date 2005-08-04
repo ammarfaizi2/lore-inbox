@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVHDSgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVHDSio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbVHDSgC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 14:36:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVHDSgC
+	id S262537AbVHDSio (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 14:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVHDSio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 14:36:02 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:57108 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S262543AbVHDSf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 14:35:59 -0400
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: mthca and LinuxBIOS
-X-Message-Flag: Warning: May contain useful information
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
-	<20057281331.7vqhiAJ1Yc0um2je@cisco.com>
-	<86802c44050803175873fb0569@mail.gmail.com>
-	<52u0i6b9an.fsf_-_@cisco.com>
-	<86802c44050804093374aca360@mail.gmail.com> <52mznxacbp.fsf@cisco.com>
-	<86802c4405080410236ba59619@mail.gmail.com>
-	<86802c4405080411013b60382c@mail.gmail.com>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Thu, 04 Aug 2005 11:35:44 -0700
-In-Reply-To: <86802c4405080411013b60382c@mail.gmail.com> (yhlu's message of
- "Thu, 4 Aug 2005 11:01:55 -0700")
-Message-ID: <521x59a6tb.fsf@cisco.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 Aug 2005 18:35:45.0698 (UTC) FILETIME=[53B19820:01C59923]
+	Thu, 4 Aug 2005 14:38:44 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:59569 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262537AbVHDSil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 14:38:41 -0400
+Subject: Re: [RFC] Move InfiniBand .h files
+From: Arjan van de Ven <arjan@infradead.org>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+In-Reply-To: <52acjxa70j.fsf@cisco.com>
+References: <52iryla9r5.fsf@cisco.com>
+	 <1123178038.3318.40.camel@laptopd505.fenrus.org> <52acjxa70j.fsf@cisco.com>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 20:38:37 +0200
+Message-Id: <1123180717.3318.43.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    yhlu> i enable CCONFIG_INFINIBAND_MTHCA_DEBUG=y I didn't get any
-    yhlu> more debug info, is that depend other setting?
 
-It shouldn't depend on anything.  mthca_dbg() gets turned into
-dev_dbg(), which just does dev_printk(KERN_DEBUG,...).  Perhaps you
-have to change your console level to see KERN_DEBUG messages?
+> Also, drivers/infiniband/include doesn't get put into the
+> /lib/modules/<ver>/build directory,
 
-Since you're getting to the call to mthca_init_qp_table(), there are
-mthca_dbg() calls that you should definitely be getting output from.
+that is a symlink not a directory, and a symlink to the full source...
 
- - R.
+

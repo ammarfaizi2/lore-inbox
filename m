@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVHDQqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbVHDQtC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbVHDQqa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 12:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVHDQn5
+	id S262626AbVHDQtC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 12:49:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVHDQqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 12:43:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1988 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262598AbVHDQnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 12:43:17 -0400
-Date: Thu, 4 Aug 2005 12:42:59 -0400
-From: Dave Jones <davej@redhat.com>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
-       linux-scsi@vger.kernel.org, axboe@suse.de
-Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
-Message-ID: <20050804164259.GD22886@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Rolf Eike Beer <eike-kernel@sf-tec.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
-	linux-scsi@vger.kernel.org, axboe@suse.de
-References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net> <200508041138.38216@bilbo.math.uni-mannheim.de> <20050804154023.GA22886@redhat.com> <200508041756.23611@bilbo.math.uni-mannheim.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Aug 2005 12:46:35 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:14011 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262630AbVHDQpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 12:45:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=WaoDA/v3Z0JUM1cYmgm4SEBQG7OcYgjjyuww+S499ZRtDHXiKlwLWVXteLJKgwFGFh5xF1c40z+8Zkg7uqy+Lm5R5Uh9Ii8An73ZvNlNUDtcFjbO2YuEdvfesnyFZhEtsaciR9IWPPJE0OYijnxtvxT3pklDtWMDoSCX5fFIAzE=  ;
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [RFC] AMD64 @ K8T800/VT8237: Doubled IOAPIC-level-interrupt rate
+Date: Thu, 4 Aug 2005 18:45:20 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, ak@suse.de
+References: <200508041625.41296.annabellesgarden@yahoo.de> <20050804151911.GA20765@elte.hu>
+In-Reply-To: <20050804151911.GA20765@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200508041756.23611@bilbo.math.uni-mannheim.de>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200508041845.20532.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 05:56:14PM +0200, Rolf Eike Beer wrote:
- > Am Donnerstag, 4. August 2005 17:40 schrieb Dave Jones:
- > >On Thu, Aug 04, 2005 at 11:38:30AM +0200, Rolf Eike Beer wrote:
- > > > >+	  ulFibreFrame = kmalloc((2048/4), GFP_KERNEL);
- > > >
- > > > The size bug was already found by Dave Jones. This never should be
- > > > written this way (not your fault). The array should have been
- > > > [2048/sizeof(ULONG)].
- > >
- > >wasteful. We only ever use 2048 bytes of this array, so doubling
- > >its size on 64bit is pointless, unless you make changes later on
- > >in the driver. (Which I think don't make sense, as we just copy
- > >32 64byte chunks).
- > 
- > No, this is how it should have been before. This way it would have been clear 
- > where the magic 4 came from.
+Am Donnerstag, 4. August 2005 17:19 schrieb Ingo Molnar:
+> 
+> * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+> 
+> > Hi,
+> > 
+> > this should likely be addressed to VIA Taiwan,
+> > but I don't know their engineer's e-mail address and their forum
+> > doesn't work for me.
+> > Maybe somebody here has a clue?
+> > Or maybe this is even motherboard specific?
+> > 
+> > To reproduce:
+> > 	$ aplay -Dhw:0 -fdat /dev/zero
+> > 
+> > On a sane system (or here in PIC Mode) you'll see
+> > around 12 Interrupts/s.
+> > Here I see 24.
+> 
+> i think this is an effect of the 'POST-flush' symptom: the IO-APIC write 
+> of unmasking the IRQ does not reach the chipset before the ACK via the 
+> local-APIC does. Does it work fine if you artificially read after the 
+> IO-APIC write?
+> 
+Sorry, I missed to say this happens on mainline .12 and .13-rcx.
+In i386 and x86_64 mode.
+So there is no IO-APIC (un)masking during the interrupt Routine.
 
-It's pointless to fix this, without fixing also CpqTsGetSFQEntry()
-...
+I printk()ed the CPU-APIC's IRR immediately before the soundcard's
+interrupt pin is deasserted and immediately after that:
+The relevant IRR-bit is set again just then!
 
- > >we're trashing the last 48 bytes of every copy we make.
- > >Does this driver even work ?
- > 
- > No, ulDestPtr ist ULONG* so we increase it by sizeof(ULONG)*16 which is 64. 
+    Karsten
 
-Duh, yes.  That is broken on 64-bit however, where it will advance 128 bytes
-instead of 64 bytes.
+	
 
-		Dave
-
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

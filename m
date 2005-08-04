@@ -1,182 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVHDVRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbVHDVJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262703AbVHDVRE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 17:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVHDVQr
+	id S262699AbVHDVJt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 17:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVHDVJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 17:16:47 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:31970 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262689AbVHDVPT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 17:15:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=DpN6MM1DrazHbtkL0CkkS7xIDO8pcMjR+/ImJZXWMnnSSp3MJSzXyFSdWBWXwk8DxPPICbZ777Nc8/w4ONtQyCl073tqPhpGPZbxZWkBDrBCnsur4u5pvM1vxtY7k35vjuR2XNUxeSZr8IgtONWAhRaMjbZTSZhxbhxei5eDJg0=
-Message-ID: <9268368b050804141525539666@mail.gmail.com>
-Date: Thu, 4 Aug 2005 17:15:14 -0400
-From: Daniel Petrini <d.pensator@gmail.com>
-Reply-To: Daniel Petrini <d.pensator@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>, tony@atomide.com
-Subject: [PATCH] Timer Top was: i386 No-Idle-Hz aka Dynamic-Ticks 3
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org,
-       tuukka.tikkanen@elektrobit.com, ilias.biris@indt.org.br
-In-Reply-To: <200508031559.24704.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_5444_27818742.1123190114427"
-References: <200508031559.24704.kernel@kolivas.org>
+	Thu, 4 Aug 2005 17:09:40 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:18134 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262699AbVHDVH2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 17:07:28 -0400
+To: torvalds@osdl.org
+Subject: [git pull] jfs update
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20050804210724.9BA1883FA2@kleikamp.dyn.webahead.ibm.com>
+Date: Thu,  4 Aug 2005 16:07:24 -0500 (CDT)
+From: shaggy@austin.ibm.com (Dave Kleikamp)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_5444_27818742.1123190114427
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Linus, if there is still time to get this into 2.6.13, please pull from
 
-Hi,
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git for-linus
 
-Here we have some support to have more tests on Dynamic Tick.
-We have some functions that exports timers information to a proc entry
-(/proc/top_info), in a kernel patch and a script that handles this
-info and give some output to analyse. We tried to make it less
-intrusive as possible.
+I'm experimenting with a sparse git tree, so if it fails, that's probably why.
+I was able to pull from it, so I expect it to work.
 
-It is based in suggestions from Tony Lindgren.
+This will update the following files:
 
-It is experimental and should evolve.
+ fs/jfs/inode.c      |    4 ++++
+ fs/jfs/jfs_logmgr.c |   36 +++++++++++++++++++-----------------
+ fs/jfs/jfs_logmgr.h |    2 +-
+ fs/jfs/jfs_txnmgr.c |   10 +++++-----
+ fs/jfs/super.c      |    2 +-
+ 5 files changed, 30 insertions(+), 24 deletions(-)
 
-Must be applied after 2.6.13-rc5-dtck-3.patch and 2.6.13-rc5.
+through these ChangeSets:
 
-Usage: with kernel compiled with attached patch: "perl timer_top.pl
-5", to have refresh time of 5s.
+commit a5c96cab8f3c4ca9b2177dceb5de5a0edb31418e
+tree 45692a1b3d770f721f4586ad81c206f1b8509b75
+parent 30db1ae8640d3527ca7ac8df4bcbf14ccc6ae9cd
+parent 1c5ad84516ae7ea4ec868436a910a6bd8d20215a
+author Dave Kleikamp <shaggy@austin.ibm.com> Thu, 04 Aug 2005 15:56:15 -0500
+committer Dave Kleikamp <shaggy@austin.ibm.com> Thu, 04 Aug 2005 15:56:15 -0500
 
-Regards,
+    Merge with /home/shaggy/git/linus-clean/
+    
+    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
 
-Daniel Petrini
---=20
-10LE - Linux Lab
-Instituto Nokia de Tecnologia - INdT
-Manaus - Brazil
+commit 30db1ae8640d3527ca7ac8df4bcbf14ccc6ae9cd
+tree f42fc0f8fc07dcd0c2cc15aa31566a321a8f2a30
+parent da28c12089dfcfb8695b6b555cdb8e03dda2b690
+author Dave Kleikamp <shaggy@austin.ibm.com> Mon, 01 Aug 2005 16:54:26 -0500
+committer Dave Kleikamp <shaggy@austin.ibm.com> Mon, 01 Aug 2005 16:54:26 -0500
 
-------=_Part_5444_27818742.1123190114427
-Content-Type: text/x-patch; name="timer_top1-20050804.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="timer_top1-20050804.patch"
+    JFS: Check for invalid inodes in jfs_delete_inode
+    
+    Some error paths may iput an invalid inode with i_nlink=0.  jfs should
+    not try to actually delete such an inode.
+    
+    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
 
-ZGlmZiAtdXByTiBsaW51eC0yLjYuMTItb3JpZy9rZXJuZWwvTWFrZWZpbGUgbGludXgtZHluLXRp
-Y2sva2VybmVsL01ha2VmaWxlCi0tLSBsaW51eC0yLjYuMTItb3JpZy9rZXJuZWwvTWFrZWZpbGUJ
-MjAwNS0wOC0wMyAyMzo1MDoyNi4wMDAwMDAwMDAgLTA0MDAKKysrIGxpbnV4LWR5bi10aWNrL2tl
-cm5lbC9NYWtlZmlsZQkyMDA1LTA4LTA0IDE2OjU2OjE0LjAwMDAwMDAwMCAtMDQwMApAQCAtNyw3
-ICs3LDcgQEAgb2JqLXkgICAgID0gc2NoZWQubyBmb3JrLm8gZXhlY19kb21haW4ubwogCSAgICBz
-eXNjdGwubyBjYXBhYmlsaXR5Lm8gcHRyYWNlLm8gdGltZXIubyB1c2VyLm8gXAogCSAgICBzaWdu
-YWwubyBzeXMubyBrbW9kLm8gd29ya3F1ZXVlLm8gcGlkLm8gXAogCSAgICByY3VwZGF0ZS5vIGlu
-dGVybW9kdWxlLm8gZXh0YWJsZS5vIHBhcmFtcy5vIHBvc2l4LXRpbWVycy5vIFwKLQkgICAga3Ro
-cmVhZC5vIHdhaXQubyBrZmlmby5vIHN5c19uaS5vIHBvc2l4LWNwdS10aW1lcnMubworCSAgICBr
-dGhyZWFkLm8gd2FpdC5vIGtmaWZvLm8gc3lzX25pLm8gcG9zaXgtY3B1LXRpbWVycy5vIHRpbWVy
-X3RvcC5vCiAKIG9iai0kKENPTkZJR19GVVRFWCkgKz0gZnV0ZXgubwogb2JqLSQoQ09ORklHX0dF
-TkVSSUNfSVNBX0RNQSkgKz0gZG1hLm8KZGlmZiAtdXByTiBsaW51eC0yLjYuMTItb3JpZy9rZXJu
-ZWwvdGltZXIuYyBsaW51eC1keW4tdGljay9rZXJuZWwvdGltZXIuYwotLS0gbGludXgtMi42LjEy
-LW9yaWcva2VybmVsL3RpbWVyLmMJMjAwNS0wOC0wMyAyMzo1MDoyNy4wMDAwMDAwMDAgLTA0MDAK
-KysrIGxpbnV4LWR5bi10aWNrL2tlcm5lbC90aW1lci5jCTIwMDUtMDgtMDQgMTY6NTY6MjcuMDAw
-MDAwMDAwIC0wNDAwCkBAIC01MDgsNiArNTA4LDggQEAgc3RhdGljIGlubGluZSB2b2lkIF9fcnVu
-X3RpbWVycyh0dmVjX2JhcwogfQogCiAjaWZkZWYgQ09ORklHX05PX0lETEVfSFoKK2V4dGVybiBz
-dHJ1Y3QgdGltZXJfdG9wX2luZm8gdG9wX2luZm87CitleHRlcm4gaW50IGFjY291bnRfdGltZXIo
-dW5zaWduZWQgaW50IGZ1bmN0aW9uLCBzdHJ1Y3QgdGltZXJfdG9wX2luZm8gKiB0b3BfaW5mbyk7
-CiAvKgogICogRmluZCBvdXQgd2hlbiB0aGUgbmV4dCB0aW1lciBldmVudCBpcyBkdWUgdG8gaGFw
-cGVuLiBUaGlzCiAgKiBpcyB1c2VkIG9uIFMvMzkwIHRvIHN0b3AgYWxsIGFjdGl2aXR5IHdoZW4g
-YSBjcHVzIGlzIGlkbGUuCkBAIC01NzEsNiArNTczLDcgQEAgZm91bmQ6CiAJCQkJZXhwaXJlcyA9
-IG50ZS0+ZXhwaXJlczsKIAkJfQogCX0KKwlhY2NvdW50X3RpbWVyKCh1bnNpZ25lZCBpbnQpbnRl
-LT5mdW5jdGlvbiwgJnRvcF9pbmZvKTsKIAlzcGluX3VubG9jaygmYmFzZS0+dF9iYXNlLmxvY2sp
-OwogCXJldHVybiBleHBpcmVzOwogfQpkaWZmIC11cHJOIGxpbnV4LTIuNi4xMi1vcmlnL2tlcm5l
-bC90aW1lcl90b3AuYyBsaW51eC1keW4tdGljay9rZXJuZWwvdGltZXJfdG9wLmMKLS0tIGxpbnV4
-LTIuNi4xMi1vcmlnL2tlcm5lbC90aW1lcl90b3AuYwkxOTY5LTEyLTMxIDIwOjAwOjAwLjAwMDAw
-MDAwMCAtMDQwMAorKysgbGludXgtZHluLXRpY2sva2VybmVsL3RpbWVyX3RvcC5jCTIwMDUtMDgt
-MDQgMTY6NTE6MzYuMDAwMDAwMDAwIC0wNDAwCkBAIC0wLDAgKzEsMTAxIEBACisvKgorICoga2Vy
-bmVsL3RpbWVyX3RvcC5jCisgKgorICogRXhwb3J0IFRpbWVycyBpbmZvcm1hdGlvbiB0byAvcHJv
-Yy90b3BfaW5mbworICoKKyAqIENvcHlyaWdodCAoQykgMjAwNSBJbnN0aXR1dG8gTm9raWEgZGUg
-VGVjbm9sb2dpYSAtIElOZFQgLSBNYW5hdXMKKyAqIFdyaXR0ZW4gYnkgRGFuaWVsIFBldHJpbmkg
-PGQucGVuc2F0b3JAZ21haWwuY29tPgorICoKKyAqIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3
-YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9kaWZ5CisgKiBpdCB1bmRlciB0
-aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIHZlcnNpb24gMiBhcwor
-ICogcHVibGlzaGVkIGJ5IHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb24uCisgKi8KKworCisj
-aW5jbHVkZSA8bGludXgvbGlzdC5oPgorI2luY2x1ZGUgPGxpbnV4L3Byb2NfZnMuaD4KKyNpbmNs
-dWRlIDxsaW51eC9tb2R1bGUuaD4KKworc3RhdGljIExJU1RfSEVBRCh0aW1lcl9saXN0KTsKKwor
-c3RydWN0IHRpbWVyX3RvcF9pbmZvIHsKKwl1bnNpZ25lZCBpbnQJCWZ1bmNfcG9pbnRlcjsKKwl1
-bnNpZ25lZCBpbnQgbG9uZwljb3VudGVyOworCXN0cnVjdCBsaXN0X2hlYWQgCWxpc3Q7ICAgICAg
-CQorfTsKKworc3RydWN0IHRpbWVyX3RvcF9pbmZvIHRvcF9pbmZvOworCitpbnQgYWNjb3VudF90
-aW1lcih1bnNpZ25lZCBpbnQgZnVuY3Rpb24sIHN0cnVjdCB0aW1lcl90b3BfaW5mbyAqIHRvcF9p
-bmZvKQoreworCXN0cnVjdCB0aW1lcl90b3BfaW5mbyAqdG9wOworCisJbGlzdF9mb3JfZWFjaF9l
-bnRyeSAodG9wLCAmdGltZXJfbGlzdCwgbGlzdCkgeworCQkvKiBpZiBpdCBpcyBpbiB0aGUgbGlz
-dCBpbmNyZW1lbnQgaXRzIGNvdW50ICovCisJCWlmICh0b3AtPmZ1bmNfcG9pbnRlciA9PSBmdW5j
-dGlvbikgeworCQkJdG9wLT5jb3VudGVyICs9IDE7CisJCQlyZXR1cm4gMDsKKwkJfQorCX0KKwkK
-KwkvKiBpZiB5b3UgYXJlIGhlcmUgdGhlbiBpdCBkaWRudCBmaW5kIHNvIGluc2VydHMgaW4gdGhl
-IGxpc3QgKi8KKworCXRvcCA9IGttYWxsb2Moc2l6ZW9mKHN0cnVjdCB0aW1lcl90b3BfaW5mbyks
-IEdGUF9LRVJORUwpOworCWlmICghdG9wKSAKKwkJcmV0dXJuIC1FTk9NRU07CisJdG9wLT5mdW5j
-X3BvaW50ZXIgPSBmdW5jdGlvbjsKKwl0b3AtPmNvdW50ZXIgPSAxOworCWxpc3RfYWRkKCZ0b3At
-Pmxpc3QsICZ0aW1lcl9saXN0KTsKKworCXJldHVybiAwOworfQorCitFWFBPUlRfU1lNQk9MKGFj
-Y291bnRfdGltZXIpOworCitzdHJ1Y3QgdG9wX2luZm9fcG9sbCB7CisgIGNoYXIgdmFsdWVbMThd
-OworfTsKKworc3RydWN0IHRvcF9pbmZvX3BvbGwgdG9wX2luZm9fcG9sbF9kdDsKK3N0cnVjdCBw
-cm9jX2Rpcl9lbnRyeSAqdG9wX2luZm9fZmlsZTsKKworc3RhdGljIGludCBwcm9jX3JlYWRfdG9w
-X2luZm8oY2hhciAqcGFnZSwgY2hhciAqKnN0YXJ0LCBvZmZfdCBvZmYsCisgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIGludCBjb3VudCwgaW50ICplb2YsIHZvaWQgKmRhdGEpCit7CisJ
-Y2hhciBhdXhbMThdOworCXN0cnVjdCB0aW1lcl90b3BfaW5mbyAqdG9wOworCisJc3RydWN0IHRv
-cF9pbmZvX3BvbGwgKmluZm9fcG9sbF9kYXRhPShzdHJ1Y3QgdG9wX2luZm9fcG9sbCAqKWRhdGE7
-CisKKwlzcHJpbnRmKHBhZ2UsICJGdW5jdGlvbiBjb3VudGVyIC0gJXNcbiIsIGluZm9fcG9sbF9k
-YXRhLT52YWx1ZSk7CisKKwlsaXN0X2Zvcl9lYWNoX2VudHJ5ICh0b3AsICZ0aW1lcl9saXN0LCBs
-aXN0KSB7CisJCXNwcmludGYoYXV4LCAiJXggJWx1XG4iLCB0b3AtPmZ1bmNfcG9pbnRlciwgdG9w
-LT5jb3VudGVyKTsKKwkJc3RyY2F0KHBhZ2UsIGF1eCk7CisJfQorCisJcmV0dXJuIHN0cmxlbihw
-YWdlKTsKKyAKK30gCisKK3N0YXRpYyBpbnQgaW5pdF90b3BfaW5mbyh2b2lkKQoreworCXRvcF9p
-bmZvX2ZpbGUgPSBjcmVhdGVfcHJvY19lbnRyeSgidG9wX2luZm8iLCAwNjY2LCBOVUxMKTsKKwlp
-Zih0b3BfaW5mb19maWxlID09IE5VTEwpIHsKKwkgIHJldHVybiAtRU5PTUVNOworCX0KKworCXN0
-cmNweSh0b3BfaW5mb19wb2xsX2R0LnZhbHVlLCAiVGltZXIgVG9wIHYwLjkuMSIpOworCisJdG9w
-X2luZm9fZmlsZS0+ZGF0YSA9ICZ0b3BfaW5mb19wb2xsX2R0OworCXRvcF9pbmZvX2ZpbGUtPnJl
-YWRfcHJvYyA9ICZwcm9jX3JlYWRfdG9wX2luZm87CisJdG9wX2luZm9fZmlsZS0+b3duZXIgPSBU
-SElTX01PRFVMRTsKKwkKKwlyZXR1cm4gMDsKK30KKworbW9kdWxlX2luaXQoaW5pdF90b3BfaW5m
-byk7CisvL21vZHVsZV9leGl0KCk7CisKKworCg==
-------=_Part_5444_27818742.1123190114427
-Content-Type: application/x-perl; name="timer_top.pl"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="timer_top.pl"
+commit da28c12089dfcfb8695b6b555cdb8e03dda2b690
+tree b3ff509f21352ef053cb3d490cb13528090d32ac
+parent 6de7dc2c4c713d037c19aa1e310d240f16973414
+parent 577a4f8102d54b504cb22eb021b89e957e8df18f
+author Dave Kleikamp <shaggy@austin.ibm.com> Thu, 28 Jul 2005 09:03:36 -0500
+committer Dave Kleikamp <shaggy@austin.ibm.com> Thu, 28 Jul 2005 09:03:36 -0500
 
-IwojIHRpbWVyX3RvcC5wbAojCiMgVGltZXIgVG9wOiBnZXRzIHRpbWVycyBpbmZvIGV4cG9ydGVk
-IGJ5IGtlcm5lbCBpbiAvcHJvYy90b3BfaW5mbyBhbmQKIyBvcmdhbml6ZXMgYW5kIHNob3dzIHVz
-ZWZ1bCBpbmZvIGluIHRoZSBzY3JlZW4uIEl0cyBtYWluIHB1cnBvc2UgaXMgdG8KIyB0ZXN0IHRo
-ZSBkeW5hbWljIHRpY2sgcGF0Y2ggYnkgVG9ueSBMaW5kZ3JlbiBhbmQgVHV1a2thIFRpa2thbmVu
-LgojIElkZWEgaXMgdG8gZXZvbHZlIHRoaXMgaW4gb3JkZXIgdG8gZ2V0IG1vcmUgdXNlZnVsIGlu
-Zm8KIyBJdCBuZWVkcyB0aGUgU3lzdGVtLm1hcCBmaWxlIHRvIGJlIGluIHRoZSBzYW1lIGRpcmVj
-dG9yeQojCiMgQ29weXJpZ2h0IChDKSAyMDA1IEluc2l0dXRvIE5va2lhIGRlIFRlY25vbG9naWEg
-LSBJTmRUIC0gTWFuYXVzCiMgV3JpdHRlbiBieSBEYW5pZWwgUGV0cmluaSA8ZGFuaWVsLnBldHJp
-bmlAaW5kdC5vcmcuYnI+IGFuZAojICAgICAgICAgICAgSWxpYXMgQmlyaXMgPGlsaWFzLmJpcmlz
-QGluZHQub3JnLmJyPgojCiMgVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4g
-cmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkKIyBpdCB1bmRlciB0aGUgdGVybXMgb2YgdGhl
-IEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIHZlcnNpb24gMiBhcwojIHB1Ymxpc2hlZCBieSB0
-aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLgojIAojIS91c3IvYmluL3BlcmwKCm9wZW4gKElO
-RklMRSwgIlN5c3RlbS5tYXAiKSB8fCBkaWUgKCJjYW5ub3Qgb3BlbiBmaWxlXG4iKTsKCm15ICgk
-aW50ZXJ2YWwpID0gJEFSR1ZbMF07Cm15ICgkZGlmZikgPSAkQVJHVlsxXTsKCmlmICgkaW50ZXJ2
-YWwgZXEgIiIpIHsKICAgIHByaW50ZigiVXNhZ2U6ICVzIGludGVydmFsX2luX3NlY29uZHMgcHJp
-bnRfZGlmZlxuIiwgJDApOwkKICAgIGV4aXQoMSk7Cn0KCmlmICgkZGlmZiBlcSAiIikgewogICAg
-JGRpZmYgPSAxOyAgICAKfSAKCiVzeXNfbWFwX2xpbmVzPSgpOwoldG9wX2xpbmVzPSgpOwolbnVt
-Yl9mdW5jPSgpOwolZGlmZl90aW1lPSgpOwoKd2hpbGUoPElORklMRT4pIHsKICAgIGNob21wICRf
-OwogICAgaWYoICRfIG5lICIiICkgewoJJHN5c19tYXBfbGluZSA9IHN1YnN0cigkXywgMCwgOCk7
-CQoJJHN5c19tYXBfbGluZXN7JHN5c19tYXBfbGluZX09c3Vic3RyKCRfLCAxMCwgbGVuZ3RoKCRf
-KSk7CiAgICB9Cn0KY2xvc2UoSU5GSUxFKTsKCgpzdWIgcmVhZF90b3BfaW5mbyB7CgogICAgb3Bl
-biAoSU5GSUxFMiwgIi9wcm9jL3RvcF9pbmZvIikgfHwgZGllICgiY2Fubm90IG9wZW4gZmlsZVxu
-Iik7CgogICAgd2hpbGUoPElORklMRTI+KXsKCWlmKCAkXyAhfiBtL15GdW5jdGlvblxzY291bnRl
-ci8gKXsKCSAgICAkZnVuY190b3AgPSBzdWJzdHIoICRfLCAwLCA4KTsKCSAgICAkbnVtYl90b3Ag
-PSBzdWJzdHIoICRfLCA5LCA4KTsKCSAgICBpZiggJHN5c19tYXBfbGluZXN7JGZ1bmNfdG9wfSBu
-ZSAiIiApewoJCSMgQ2hlY2sgaWYgdGhlcmUgaXMgdmFyaWF0aW9uIGZvciB0aGF0IHRpbWVyIGZ1
-bmN0aW9uCgkJaWYgKCAoJG51bWJfdG9wKSAhPSAoJG51bWJfZnVuY3skZnVuY190b3B9KSAgKSB7
-CgkJICAgICR0b3BfbGluZXN7JGZ1bmNfdG9wfSA9ICRzeXNfbWFwX2xpbmVzeyRmdW5jX3RvcH07
-CgkJICAgICRkaWZmX3RpbWV7JGZ1bmNfdG9wfSA9ICRudW1iX3RvcCAtICRudW1iX2Z1bmN7JGZ1
-bmNfdG9wfTsJI0dldCB0aGUgZGlmZmVyZW5jZQoJCSAgICAkbnVtYl9mdW5jeyRmdW5jX3RvcH0g
-PSAkbnVtYl90b3A7CgkgICAgCX0gZWxzZSB7CgkJICAgICR0b3BfbGluZXN7JGZ1bmNfdG9wfSA9
-ICIiOwoJCX0gCgkJICAgIAoKCSAgICB9Cgl9CiAgICB9CiAgICBjbG9zZShJTkZJTEUyKTsKfQoK
-d2hpbGUgKDEpIHsKCiAgICByZWFkX3RvcF9pbmZvKCk7CgogICAgc3lzdGVtKCJjbGVhciIpOwoK
-ICAgIHByaW50ICJUaW1lciBUb3AgdjAuOS4xIFxuIjsKICAgIHByaW50ICJBZGRyZXNzICAgICAg
-Q291bnQgICBGcmVxKEh6KSAgIEZ1bmN0aW9uXG4iOwoKICAgIHdoaWxlKCgkaXRlbSwgJHZhbHVl
-KSA9IGVhY2goJXRvcF9saW5lcykpIHsKCWlmICggJHRvcF9saW5lc3skaXRlbX0gbmUgIiIgKSB7
-CgkgICAgY2hvbXAgKCRudW1iX2Z1bmN7JGl0ZW19KTsKCSAgICBwcmludGYgIiVzfCUxMHN8JTku
-MmZ8JXNcbiIsICRpdGVtLCAkbnVtYl9mdW5jeyRpdGVtfSwgJGRpZmZfdGltZXskaXRlbX0vJGlu
-dGVydmFsLCAkdmFsdWU7Cgl9CiAgICB9CiAgICBzbGVlcCAkaW50ZXJ2YWw7Cn0K
-------=_Part_5444_27818742.1123190114427--
+    Merge with /home/shaggy/git/linus-clean/
+    /home/shaggy/git/linus-clean/
+    /home/shaggy/git/linus-clean/
+    
+    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+
+commit 6de7dc2c4c713d037c19aa1e310d240f16973414
+tree 68963db8081e6ef18affd06cf2e9b00578ef874e
+parent cbc3d65ebcb0c494183d45cf202a53352cbf3871
+parent 9e566d8bd61f939b7f5d7d969f5b178571471cf9
+author Dave Kleikamp <shaggy@austin.ibm.com> Wed, 27 Jul 2005 12:50:08 -0500
+committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 27 Jul 2005 12:50:08 -0500
+
+    Merge with /home/shaggy/git/linus-clean/
+    
+    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+
+commit cbc3d65ebcb0c494183d45cf202a53352cbf3871
+tree 4f05bef55fd76ddd7668187e84e7fbc16a4849f6
+parent de8fd087b280797977b012a4275ee53ff2999f3f
+author Dave Kleikamp <shaggy@austin.ibm.com> Wed, 27 Jul 2005 09:17:57 -0500
+committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 27 Jul 2005 09:17:57 -0500
+
+    JFS: Improve sync barrier processing
+    
+    Under heavy load, hot metadata pages are often locked by non-committed
+    transactions, making them difficult to flush to disk.  This prevents
+    the sync point from advancing past a transaction that had modified the
+    page.
+    
+    There is a point during the sync barrier processing where all
+    outstanding transactions have been committed to disk, but no new
+    transaction have been allowed to proceed.  This is the best time
+    to write the metadata.
+    
+    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+
+commit de8fd087b280797977b012a4275ee53ff2999f3f
+tree 5cd65289983ad65812a6a4335fe657eeb125a7f0
+parent 18190cc08d70a6ec8ef69f0f6ede021f7cb3f9b8
+parent 6b6a93c6876ea1c530d5d3f68e3678093a27fab0
+author Dave Kleikamp <shaggy@austin.ibm.com> Tue, 26 Jul 2005 09:55:10 -0500
+committer Dave Kleikamp <shaggy@austin.ibm.com> Tue, 26 Jul 2005 09:55:10 -0500
+
+    Merge with /home/shaggy/git/linus-clean/
+    
+    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+

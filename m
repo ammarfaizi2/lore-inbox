@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbVHDQJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVHDQWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262594AbVHDQJm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 12:09:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbVHDQJm
+	id S261732AbVHDQWN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 12:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVHDQWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 12:09:42 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:56463 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S262595AbVHDQIS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 12:08:18 -0400
-Message-ID: <42F23D70.5010201@free.fr>
-Date: Thu, 04 Aug 2005 18:08:16 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: acpi-devel@lists.sourceforge.net, Shaohua Li <shaohua.li@intel.com>,
-       Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Re: [PATCH] PNPACPI: fix types when decoding ACPI resources
- [resend]
-References: <200508020955.54844.bjorn.helgaas@hp.com> <200508031541.53777.bjorn.helgaas@hp.com> <42F20C5B.3020506@free.fr> <200508040957.55485.bjorn.helgaas@hp.com>
-In-Reply-To: <200508040957.55485.bjorn.helgaas@hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Aug 2005 12:22:13 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:181 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261732AbVHDQWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 12:22:12 -0400
+Date: Thu, 04 Aug 2005 12:22:10 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Is anyone maintaining the smb filesystem?
+In-reply-to: <Pine.LNX.4.60.0508041716110.15383@kepler.fjfi.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Message-id: <200508041222.10631.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <OFF8C2E0A3.E0EC1DCE-ON80257053.002D9CAB-80257053.002E3C62@sophos.com>
+ <200508041003.57105.gene.heskett@verizon.net>
+ <Pine.LNX.4.60.0508041716110.15383@kepler.fjfi.cvut.cz>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas wrote:
-> On Thursday 04 August 2005 6:38 am, matthieu castet wrote:
-> 
->>Bjorn Helgaas wrote:
+On Thursday 04 August 2005 11:17, Martin Drab wrote:
+>On Thu, 4 Aug 2005, Gene Heskett wrote:
+>> On Thursday 04 August 2005 04:25, tvrtko.ursulin@sophos.com wrote:
+>> >On 03/08/2005 17:03:04 linux-kernel-owner wrote:
+>> >>Is anyone maintaining the smb filesystem in the Linux kernel?
+>> >
+>> >It probably won't help you much, but I had the same problem few
+>> > months ago. There was a bug in smbfs which I tried to discuss
+>> > with someone, and after failing to contact the maintainer, I
+>> > sent the fix to Linus. I don't think even he managed to get a
+>> > response from Urban or someone else. The fix went in so I
+>> > stopped chasing it.
+>> >
+>> >So it looks like smbfs is not maintained.
 >>
->>>On Wednesday 03 August 2005 3:16 pm, matthieu castet wrote:
->>>
->>>>Bjorn Helgaas wrote:
->>>>
->>>>>	drivers/char/hpet.c
->>>>>		This probably should be converted to PNP.  I'll
->>>>>		look into doing this.
->>>>
->>>>IIRC, I am not sure that the pnp layer was able to pass the 64 bits 
->>>>memory adress for hpet correctly. But it would be nice if it works.
->>>
->>>You're right, this was broken.  But I've been pushing a PNPACPI
->>>patch to fix this.
->>>
+>> I thought that originally was Andrew Tridgels output?
 >>
->>Yes but is ACPI_RSTYPE_ADDRESS64 possible on 32 bit machine ?
-> 
-> 
-> I can't think of a case where that would make sense, but I don't
-> actually know the answer.
-> 
-> 
->>In this case your patch won't work as res->mem_resource[i].start and 
->>res->mem_resource[i].end are unsigned long, and 64 bit value won't fit.
-> 
-> 
-> True.  But fixing that would be pretty far-reaching (changing struct
-> resource), so I'm not worried until it is shown to be a problem.
-> 
-Ok, may be you could add a BUG_ON(sizeof(long)==4) for 
-ACPI_RSTYPE_ADDRESS64.
+>> I'm having problems with it too, but only on a deb3.1 system.  I
+>> looked in Borders yesterday, but couldn't find a 'samba for
+>> dummies' or similar publication.
+>>
+>> The question then is: Where might there be a decent publication
+>> describing samba and how to make it work?  Dead tree, pdf equally
+>> welcome here.
+>
+>Have you tried <http://www.samba.org> ?
+>
+Duh!  I'll go quietly.
 
-Matthieu
+>Martin
 
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

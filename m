@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262776AbVHDXwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVHDXxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262776AbVHDXwy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 19:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVHDXuk
+	id S262761AbVHDXxB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 19:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVHDXw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 19:50:40 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:51671 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262751AbVHDXtP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 19:49:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NtOvH6DxYGy9Qa1/nvEf+0pXPJPuRDzmiAuTHzwL4VTqvleGfOoBP6h+5h0Lc7WKt5f9p2yZ9n3xFo+8PtxrQQPKr0+no/nWbufq21SInj+RVsrMYL4zlLOWH06y3kw2fUjTw2F7YObxIZ1Y0/wZHv8SO5T7ZrohzhYsYIQ3qZg=
-Message-ID: <311601c9050804164962d8a511@mail.gmail.com>
-Date: Thu, 4 Aug 2005 17:49:15 -0600
-From: "Eric D. Mudama" <edmudama@gmail.com>
-Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: ahci, SActive flag, and the HD activity LED
-Cc: Martin Wilck <martin.wilck@fujitsu-siemens.com>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       linux-ide@vger.kernel.org,
-       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
-In-Reply-To: <20050803061917.GE3710@suse.de>
+	Thu, 4 Aug 2005 19:52:58 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:62085 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262772AbVHDXw1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 19:52:27 -0400
+Subject: [patch] Corgi: Add MMC/SD write protection switch handling
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Russell King <linux@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 05 Aug 2005 00:52:11 +0100
+Message-Id: <1123199531.8987.97.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42EF93F8.8050601@fujitsu-siemens.com>
-	 <20050802163519.GB3710@suse.de> <42F05359.7030006@fujitsu-siemens.com>
-	 <20050803061917.GE3710@suse.de>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/3/05, Jens Axboe <axboe@suse.de> wrote:
-> On Wed, Aug 03 2005, Martin Wilck wrote:
-> > Have you (or has anybody else) also seen the wrong behavior of the
-> > activity LED?
-> 
-> No, but I have observed that SActive never gets cleared by the device
-> for non-NCQ commands (which is probably which gets you the stuck LED on
-> some systems?), which to me is another indication that we should not be
-> setting the tag bits for those commands.
+Add MMC/SD write protection switch handling for the Corgi platform
+(extending the MMC/SD patches in -mm).
 
-The drives won't send a SetBits FIS when not using NCQ, as it can
-really confuse some host adapters that don't understand NCQ.  I'd
-imagine you're correct that the driver shouldn't be setting the bit in
-the first place.
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
---eric
+Index: linux-2.6.12/arch/arm/mach-pxa/corgi.c
+===================================================================
+--- linux-2.6.12.orig/arch/arm/mach-pxa/corgi.c	2005-08-05 00:29:17.000000000 +0100
++++ linux-2.6.12/arch/arm/mach-pxa/corgi.c	2005-08-05 00:29:45.000000000 +0100
+@@ -160,6 +160,11 @@
+ 	}
+ }
+ 
++static int corgi_mci_get_ro(struct device *dev)
++{
++	return GPLR(CORGI_GPIO_nSD_WP) & GPIO_bit(CORGI_GPIO_nSD_WP);
++}
++
+ static void corgi_mci_exit(struct device *dev, void *data)
+ {
+ 	free_irq(CORGI_IRQ_GPIO_nSD_DETECT, data);
+@@ -169,6 +174,7 @@
+ static struct pxamci_platform_data corgi_mci_platform_data = {
+ 	.ocr_mask	= MMC_VDD_32_33|MMC_VDD_33_34,
+ 	.init 		= corgi_mci_init,
++	.get_ro		= corgi_mci_get_ro,
+ 	.setpower 	= corgi_mci_setpower,
+ 	.exit		= corgi_mci_exit,
+ };
+

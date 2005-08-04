@@ -1,69 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVHDLAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbVHDLCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbVHDLAA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 07:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVHDLAA
+	id S262479AbVHDLCy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 07:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbVHDLCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 07:00:00 -0400
-Received: from piraten.student.lu.se ([130.235.208.46]:65181 "EHLO
-	piraten.student.lu.se") by vger.kernel.org with ESMTP
-	id S262470AbVHDK77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 06:59:59 -0400
-Date: Thu, 04 Aug 2005 12:59:56 +0200
-From: Johan Veenhuizen <veenhuizen@users.sf.net>
-Subject: Re: [PATCH 2.6.12.3] Deny chmod in /proc/<pid>/
-In-reply-to: <Pine.LNX.4.61.0508040804540.22272@yvahk01.tjqt.qr>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <42f1f52c.i789DItxDhDreK/t%veenhuizen@users.sf.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-User-Agent: nail 11.24 7/14/05
-References: <42efd43d.ijkrXtpGJUM7deW2%veenhuizen@users.sf.net>
- <Pine.LNX.4.61.0508030816150.2263@yvahk01.tjqt.qr>
- <42f096e7.9SOTOrosbBYB6uCh%veenhuizen@users.sf.net>
- <Pine.LNX.4.61.0508040804540.22272@yvahk01.tjqt.qr>
+	Thu, 4 Aug 2005 07:02:54 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:12165 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262479AbVHDLCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 07:02:39 -0400
+Message-ID: <42F1F56E.5020300@gmail.com>
+Date: Thu, 04 Aug 2005 13:01:02 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+       Jiri Slaby <lnx4us@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 2.6.13-rc4-mm1] Re: Obsolete files in 2.6 tree
+References: <42DED9F3.4040300@gmail.com> <42DF6F34.4080804@gmail.com>	 <20050726120727.GA2134@ucw.cz> <1122421245.2542.35.camel@localhost.localdomain> <42F14A9B.2050803@gmail.com>
+In-Reply-To: <42F14A9B.2050803@gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------030507060600060706070109"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+This is a multi-part message in MIME format.
+--------------030507060600060706070109
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Jiri Slaby napsal(a):
+
+> Alan Cox napsal(a):
 >
-> >Did you mean "chmod"?
+>>>> drivers/char/drm/gamma_dma.c
+>>>> drivers/char/drm/gamma_drv.c
+>>>>     
+>>>
+>>
+>> Gamma is defunct certainly
+>>  
+>>
+> Removes gamma sources, headers and pointers from Kconfig and Makefile.
 >
-> No, I really meant chown - which just turned up another should-not-be:
-> no warning is generated when trying to chown;
-> chmod is even _persistent_ - for the moment.
+> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 >
-
-Did you even bother to read my first mail?  Quoting myself:
-
-    "The patch does also trigger an EPERM when someone tries
-    to chown/chgrp an entry (which is currently silently ignored)."
-                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-and
-
-    "... it is currently possible for the owner of a process to
-    temporarily chmod the entries."
-
-Those are the problems that my patch fixes!  And NO, chmod is NOT
-persistent.  It just appears to be.  The permissions are dropped
-when the dentry for a file is released (and with it, the reference
-to the temporary inode).  (You might have understood this.
-I don't know what you mean by "for the moment".)
-
-It's a very Bad Thing that the chmod succeeds for a while, because
-it gives users the impression that the files can be protected
-(e.g. /proc/<pid>/cmdline).  As it is now, you'll have to look
-at the kernel source to figure out which files will preserve
-their permissions...
-
-> >And I don't even have "smaps".
+> patch is here (about 70 KiB):
+> http://www.fi.muni.cz/~xslaby/lnx/gamma.txt
 >
-> Just take any file.
+Removes gamma line from Documentation/kernel-parameters.txt
 
-Not any file exists under /proc, so I'll rather take a file that
-is there for my examples.
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 
-	Johan
+diff --git a/Documentation/kernel-parameters.txt 
+b/Documentation/kernel-parameters.txt
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -497,8 +497,6 @@ running once the system is up.
+                        Format: <port#>,<pad1>,<pad2>,<pad3>,<pad4>,<pad5>
+                        See also Documentation/input/joystick-parport.txt
+
+-       gamma=          [HW,DRM]
+-
+        gdth=           [HW,SCSI]
+                        See header of drivers/scsi/gdth.c.
+
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
+
+
+
+--------------030507060600060706070109
+Content-Type: text/plain;
+ name="gamma_doc_rm.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="gamma_doc_rm.txt"
+
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -497,8 +497,6 @@ running once the system is up.
+ 			Format: <port#>,<pad1>,<pad2>,<pad3>,<pad4>,<pad5>
+ 			See also Documentation/input/joystick-parport.txt
+ 
+-	gamma=		[HW,DRM]
+-
+ 	gdth=		[HW,SCSI]
+ 			See header of drivers/scsi/gdth.c.
+ 
+
+--------------030507060600060706070109--

@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVHDPXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbVHDP2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbVHDPXn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 11:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVHDPVg
+	id S262577AbVHDP2X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 11:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVHDP0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 11:21:36 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:34945 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262577AbVHDPTk (ORCPT
+	Thu, 4 Aug 2005 11:26:01 -0400
+Received: from gate.crashing.org ([63.228.1.57]:60346 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262560AbVHDPZL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 11:19:40 -0400
-Date: Thu, 4 Aug 2005 17:19:38 +0200
-From: Andi Kleen <ak@suse.de>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Andi Kleen <ak@suse.de>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
-       cr@sap.com, linux-mm@kvack.org
-Subject: Re: Getting rid of SHMMAX/SHMALL ?
-Message-ID: <20050804151938.GZ8266@wotan.suse.de>
-References: <20050804113941.GP8266@wotan.suse.de> <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com> <20050804132338.GT8266@wotan.suse.de> <20050804142040.GB22165@mea-ext.zmailer.org>
+	Thu, 4 Aug 2005 11:25:11 -0400
+Subject: Re: [PATCH] Remove suspend() calls from shutdown path
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050804121604.GA4659@gemtek.lt>
+References: <1123148187.30257.55.camel@gaston>
+	 <20050804121604.GA4659@gemtek.lt>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 17:20:44 +0200
+Message-Id: <1123168844.30257.64.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050804142040.GB22165@mea-ext.zmailer.org>
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 05:20:40PM +0300, Matti Aarnio wrote:
-> SHM resources are non-swappable, thus I would not by default
-
-Not true.
-
-> let user programs go and allocate very much SHM spaces at all.
-> Such is usually spelled as: "denial-of-service-attack"
-> For that reason I would not raise builtin defaults either.
-
-It is equivalent to allocating anymous memory in programs.
-
-In theory you could limit it for each user by RLIMIT_NPROC*RLIMIT_AS,
-but in practice that would be usually
-If Linux ever gets a "max memory total used per user" rlimit it may make
-sense to limit the shm growth caused by them to that, but that is not
-there yet. In addition I want to point out that there are a zillion
-of subsystems which can be used to allocate quite a lot of memory
-(e.g. fill the socket buffers of a few hundred sockets)
-So far nobody knows how to limit all of these and it's probably too hard
-to do. The general wisdom is that if you want strong isolation like
-that use a virtualized environment.
-
-> > 
-> > I think we should just get rid of the per process limit and keep
-> > the global limit, but make it auto tuning based on available memory.
+On Thu, 2005-08-04 at 15:16 +0300, Zilvinas Valinskas wrote:
+> Hello Ben, Andrew, 
 > 
-> Err...  No thanks!   I would prefer to have even finer grained control
-> of how much SHM somebody can allocate.  For normal user the value
-> might be zero, but for users in a group "SHM1" there could be a level
-> of N MB, etc.  (Except that such mechanisms are rather complex...)
+> This patch helps me if I disconnect all USB peripherals before shutting
+> down notebook. With connected peripherals (USB mouse, PL2303
+> USB<->serial converter/port) - powering off process stops right after
+> unmounting filesystems but before hda power off ... 
+> 
+> There is a bug report for this too:
+> http://bugzilla.kernel.org/show_bug.cgi?id=4992
 
-shmmni will stay, although the defaults will be larger. If you really
-want you can lower it, but in practice it won't buy you much if anything.
+This is unclear.
 
--Andi
+I would expect the behaviour you report to happen _without_ this patch,
+that is with current git tree, and I would expect this patch to fix it
+by reverting to the previous 2.6.12 behaviour...
+
+Ben.
+
+

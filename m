@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbVHDOKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262564AbVHDOPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbVHDOKK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 10:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVHDOIF
+	id S262564AbVHDOPV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 10:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVHDOPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 10:08:05 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:22043 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S262557AbVHDOFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 10:05:46 -0400
-X-OUTRCPT-TO: 200508@i-love.sakura.ne.jp, linux-kernel@vger.kernel.org
-X-OUTMAIL-FROM: mdomsch@lists.us.dell.com
-X-IronPort-AV: i="3.95,166,1120453200"; 
-   d="scan'208"; a="275382808:sNHT22116238"
-Date: Thu, 4 Aug 2005 09:05:44 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Tetsuo Handa <200508@I-love.SAKURA.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Could you please check mail configuration?
-Message-ID: <20050804140543.GA16674@lists.us.dell.com>
-References: <200508042245.IEC40094.631911@I-love.SAKURA.ne.jp>
+	Thu, 4 Aug 2005 10:15:16 -0400
+Received: from mailfe09.swip.net ([212.247.155.1]:9119 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262564AbVHDOPH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 10:15:07 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Date: Thu, 4 Aug 2005 16:14:57 +0200
+From: Alexander Nyberg <alexn@telia.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+Message-ID: <20050804141457.GA1178@localhost.localdomain>
+References: <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org> <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com> <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org> <Pine.LNX.4.61.0508021809530.5659@goblin.wat.veritas.com> <Pine.LNX.4.58.0508021127120.3341@g5.osdl.org> <Pine.LNX.4.61.0508022001420.6744@goblin.wat.veritas.com> <Pine.LNX.4.58.0508021244250.3341@g5.osdl.org> <Pine.LNX.4.61.0508022150530.10815@goblin.wat.veritas.com> <42F09B41.3050409@yahoo.com.au> <Pine.LNX.4.58.0508030902380.3341@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200508042245.IEC40094.631911@I-love.SAKURA.ne.jp>
+In-Reply-To: <Pine.LNX.4.58.0508030902380.3341@g5.osdl.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 10:46:35PM +0900, Tetsuo Handa wrote:
-> Message to the moderators of this ML.
-> 
-> Please don't forward this mail to this ML.
-> I intendedly mailed using a non-subscriber's address
-> so that this mail only seen to the moderators.
-> 
-> -----------------------------------------
-> 
-> Hello,
-> 
-> I found X-OUTRCPT-TO: header since
-> Linux-kernel-daily-digest Digest, Vol 8, Issue 21
-> (at Date: Thu, 21 Jul 2005 06:00:01 -0500).
-> The X-OUTRCPT-TO: header exposes recipient's mail addresses.
-> And recently I'm getting spam mails to the exposed address.
-> I want you to hide X-OUTRCPT-TO header if you can.
-> 
-> I sent to the person managing the list
-> (linux-kernel-daily-digest-owner@lists.us.dell.com)
-> on Mon, 1 Aug 2005 20:11:31 +0900, but no reply.
-> So I sent to you this time.
+On Wed, Aug 03, 2005 at 09:12:37AM -0700 Linus Torvalds wrote:
 
-I run the daily-digest list.
+> 
+> 
+> On Wed, 3 Aug 2005, Nick Piggin wrote:
+> > 
+> > Oh, it gets rid of the -1 for VM_FAULT_OOM. Doesn't seem like there
+> > is a good reason for it, but might that break out of tree drivers?
+> 
+> Ok, I applied this because it was reasonably pretty and I liked the 
+> approach. It seems buggy, though, since it was using "switch ()" to test 
+> the bits (wrongly, afaik), and I'm going to apply the appended on top of 
+> it. Holler quickly if you disagreee..
+> 
 
-I had a note from you that this was a configuration error on your
-server's part, not on the list.  So I stopped worrying about it...
+x86_64 had hardcoded the VM_ numbers so it broke down when the numbers
+were changed.
 
--Matt
+Signed-off-by: Alexander Nyberg <alexn@telia.com>
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Index: linux-2.6/arch/x86_64/mm/fault.c
+===================================================================
+--- linux-2.6.orig/arch/x86_64/mm/fault.c	2005-07-31 18:10:20.000000000 +0200
++++ linux-2.6/arch/x86_64/mm/fault.c	2005-08-04 16:04:59.000000000 +0200
+@@ -439,13 +439,13 @@
+ 	 * the fault.
+ 	 */
+ 	switch (handle_mm_fault(mm, vma, address, write)) {
+-	case 1:
++	case VM_FAULT_MINOR:
+ 		tsk->min_flt++;
+ 		break;
+-	case 2:
++	case VM_FAULT_MAJOR:
+ 		tsk->maj_flt++;
+ 		break;
+-	case 0:
++	case VM_FAULT_SIGBUS:
+ 		goto do_sigbus;
+ 	default:
+ 		goto out_of_memory;

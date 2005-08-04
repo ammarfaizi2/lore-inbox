@@ -1,191 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVHDXXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVHDX0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbVHDXXb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 19:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVHDXVY
+	id S262629AbVHDX0m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 19:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVHDX0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 19:21:24 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:65433 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262701AbVHDXUq (ORCPT
+	Thu, 4 Aug 2005 19:26:42 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:59052 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S262629AbVHDX0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 19:20:46 -0400
-Date: Fri, 5 Aug 2005 01:20:13 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-Subject: Re: [PATCH] push rounding up of relative request to schedule_timeout()
-In-Reply-To: <20050804191123.GA6614@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0508042347020.3728@scrub.home>
-References: <20050723191004.GB4345@us.ibm.com> <Pine.LNX.4.61.0507232151150.3743@scrub.home>
- <20050727222914.GB3291@us.ibm.com> <Pine.LNX.4.61.0507310046590.3728@scrub.home>
- <20050801193522.GA24909@us.ibm.com> <Pine.LNX.4.61.0508031419000.3728@scrub.home>
- <20050804005147.GC4255@us.ibm.com> <Pine.LNX.4.61.0508041123220.3728@scrub.home>
- <20050804143339.GE4520@us.ibm.com> <Pine.LNX.4.61.0508042049450.3728@scrub.home>
- <20050804191123.GA6614@us.ibm.com>
+	Thu, 4 Aug 2005 19:26:37 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Adam Belay <ambx1@neo.rr.com>
+Subject: [PATCH] PNPACPI: fix IRQ and 64-bit address decoding
+Date: Thu, 4 Aug 2005 17:26:19 -0600
+User-Agent: KMail/1.8.1
+Cc: Matthieu Castet <castet.matthieu@free.fr>,
+       Li Shaohua <shaohua.li@intel.com>,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508041726.19336.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Maybe the third time's the charm :-)  Added a bugfix
+(pcibios_penalize_isa_irq()) and a workaround for HP
+HPET firmware description since last time.  The workaround
+accepts stuff that is illegal according to the spec,
+so speak up if you think this is a problem.  It seems
+fairly safe to me.
 
-On Thu, 4 Aug 2005, Nishanth Aravamudan wrote:
 
-> > What makes you think the comment is correct? This comment was added at 
-> > 2.4.3, while schedule_timeout() has this behaviour since it was added at 
-> > 2.1.127.
-> 
-> Fair enough. Should we change the comment?
 
-It can't hurt to fix the comment.
+Use types that match the ACPI resource structures.  Previously
+the u64 value from an RSTYPE_ADDRESS64 was passed as an int,
+which corrupts the value.
 
-> If a user requests schedule_timeout(HZ/100); which, if HZ is 1000, is 10
-> jiffies, yes? But, since we are between ticks, we want to actually add
-> that request to the next interval, not to the current one. Otherwise, we
-> do have the possibility of returning early. Currently, we require
-> callers to add the +1 to their request, and thus they only add it to the
-> first one. The problem with my patch which pushed it to
-> schedule_timeout(), is that we will do +1 to every request. I'm not
-> sure, without some sort of "persistent" timeout control structure, how
-> we get around that, though, in the schedule_timeout() case. Does that
-> make any more sense?
+Move pcibios_penalize_isa_irq() to pnpacpi_parse_allocated_irqresource().
+Previously we passed the GSI, not the IRQ, and we did it even if parsing
+the IRQ resource failed.
 
-I don't disagree, but please create some sane interfaces, e.g. something 
-like below. This allows to first convert as much as possible 
-schedule_timeout() users and then we can still change the 
-schedule_timeout() interface.
+Parse IRQ descriptors that contain multiple interrupts.  This violates
+the spec (in _CRS, only one interrupt per descriptor is allowed), but
+some firmware, e.g., HP rx7620 and rx8620 descriptions of HPET, has this
+bug.
 
-bye, Roman
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
- include/linux/sched.h |   17 +++++++++++
- kernel/timer.c        |   71 +++++++++++++++++++++++++++++++++++++++++++-------
- 2 files changed, 78 insertions(+), 10 deletions(-)
-
-Index: linux-2.6/include/linux/sched.h
+Index: work-mm/drivers/pnp/pnpacpi/rsparser.c
 ===================================================================
---- linux-2.6.orig/include/linux/sched.h	2005-06-18 15:00:59.000000000 +0200
-+++ linux-2.6/include/linux/sched.h	2005-08-04 23:42:43.000000000 +0200
-@@ -182,9 +182,24 @@ extern void scheduler_tick(void);
- extern int in_sched_functions(unsigned long addr);
- 
- #define	MAX_SCHEDULE_TIMEOUT	LONG_MAX
--extern signed long FASTCALL(schedule_timeout(signed long timeout));
-+extern void schedule_until(unsigned long expire) fastcall;
-+extern int schedule_until_intr(unsigned long expire) fastcall;
-+extern int schedule_until_unintr(unsigned long expire) fastcall;
-+extern signed long schedule_timeout(signed long timeout) fastcall;
-+extern int schedule_timeout_intr(signed long timeout) fastcall;
-+extern int schedule_timeout_unintr(signed long timeout) fastcall;
- asmlinkage void schedule(void);
- 
-+static inline int schedule_timeout_msecs_intr(unsigned int timeout)
-+{
-+	return schedule_timeout_intr(msecs_to_jiffies(timeout));
-+}
-+
-+static inline int schedule_timeout_msecs_unintr(unsigned int timeout)
-+{
-+	return schedule_timeout_unintr(msecs_to_jiffies(timeout));
-+}
-+
- struct namespace;
- 
- /* Maximum number of active map areas.. This is a random (large) number */
-Index: linux-2.6/kernel/timer.c
-===================================================================
---- linux-2.6.orig/kernel/timer.c	2005-06-18 15:01:12.000000000 +0200
-+++ linux-2.6/kernel/timer.c	2005-08-04 23:42:36.000000000 +0200
-@@ -1049,6 +1049,67 @@ static void process_timeout(unsigned lon
- 	wake_up_process((task_t *)__data);
+--- work-mm.orig/drivers/pnp/pnpacpi/rsparser.c	2005-08-04 16:41:04.000000000 -0600
++++ work-mm/drivers/pnp/pnpacpi/rsparser.c	2005-08-04 16:42:52.000000000 -0600
+@@ -73,25 +73,35 @@
  }
  
-+fastcall __sched void schedule_until(unsigned long expire)
-+{
-+	struct timer_list timer;
-+
-+	init_timer(&timer);
-+	timer.expires = expire;
-+	timer.data = (unsigned long) current;
-+	timer.function = process_timeout;
-+
-+	add_timer(&timer);
-+	schedule();
-+	del_singleshot_timer_sync(&timer);
-+}
-+EXPORT_SYMBOL(schedule_until);
-+
-+fastcall __sched int schedule_until_intr(unsigned long expire)
-+{
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	schedule_until(expire);
-+	return time_before(expire, jiffies);
-+}
-+EXPORT_SYMBOL(schedule_until_intr);
-+
-+fastcall __sched int schedule_until_unintr(unsigned long expire)
-+{
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_until(expire);
-+	return time_before(expire, jiffies);
-+}
-+EXPORT_SYMBOL(schedule_until_intr);
-+
-+fastcall __sched int schedule_timeout_intr(signed long timeout)
-+{
-+	unsigned long expire;
-+	
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	if (timeout >= MAX_SCHEDULE_TIMEOUT - 1) {
-+		schedule();
-+		return 1;
-+	}
-+	expire = jiffies + timeout + 1;
-+	schedule_until(expire);
-+	return time_before(expire, jiffies);
-+}
-+EXPORT_SYMBOL(schedule_timeout_intr);
-+
-+fastcall __sched int schedule_timeout_unintr(signed long timeout)
-+{
-+	unsigned long expire;
-+
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	if (timeout >= MAX_SCHEDULE_TIMEOUT - 1) {
-+		schedule();
-+		return 1;
-+	}
-+	expire = jiffies + timeout + 1;
-+	schedule_until(expire);
-+	return time_before(expire, jiffies);
-+}
-+EXPORT_SYMBOL(schedule_timeout_unintr);
-+
- /**
-  * schedule_timeout - sleep until timeout
-  * @timeout: timeout value in jiffies
-@@ -1077,7 +1138,6 @@ static void process_timeout(unsigned lon
-  */
- fastcall signed long __sched schedule_timeout(signed long timeout)
+ static void
+-pnpacpi_parse_allocated_irqresource(struct pnp_resource_table * res, int irq)
++pnpacpi_parse_allocated_irqresource(struct pnp_resource_table * res, u32 gsi,
++	int edge_level, int active_high_low)
  {
--	struct timer_list timer;
- 	unsigned long expire;
+ 	int i = 0;
++	int irq;
++
++	if (!valid_IRQ(gsi))
++		return;
++
+ 	while (!(res->irq_resource[i].flags & IORESOURCE_UNSET) &&
+ 			i < PNP_MAX_IRQ)
+ 		i++;
+-	if (i < PNP_MAX_IRQ) {
+-		res->irq_resource[i].flags = IORESOURCE_IRQ;  //Also clears _UNSET flag
+-		if (irq < 0) {
+-			res->irq_resource[i].flags |= IORESOURCE_DISABLED;
+-			return;
+-		}
+-		res->irq_resource[i].start =(unsigned long) irq;
+-		res->irq_resource[i].end = (unsigned long) irq;
++	if (i >= PNP_MAX_IRQ)
++		return;
++
++	res->irq_resource[i].flags = IORESOURCE_IRQ;  // Also clears _UNSET flag
++	irq = acpi_register_gsi(gsi, edge_level, active_high_low);
++	if (irq < 0) {
++		res->irq_resource[i].flags |= IORESOURCE_DISABLED;
++		return;
+ 	}
++
++	res->irq_resource[i].start = irq;
++	res->irq_resource[i].end = irq;
++	pcibios_penalize_isa_irq(irq, 1);
+ }
  
- 	switch (timeout)
-@@ -1112,14 +1172,7 @@ fastcall signed long __sched schedule_ti
+ static void
+-pnpacpi_parse_allocated_dmaresource(struct pnp_resource_table * res, int dma)
++pnpacpi_parse_allocated_dmaresource(struct pnp_resource_table * res, u32 dma)
+ {
+ 	int i = 0;
+ 	while (i < PNP_MAX_DMA &&
+@@ -103,14 +113,14 @@
+ 			res->dma_resource[i].flags |= IORESOURCE_DISABLED;
+ 			return;
+ 		}
+-		res->dma_resource[i].start =(unsigned long) dma;
+-		res->dma_resource[i].end = (unsigned long) dma;
++		res->dma_resource[i].start = dma;
++		res->dma_resource[i].end = dma;
+ 	}
+ }
  
- 	expire = timeout + jiffies;
+ static void
+ pnpacpi_parse_allocated_ioresource(struct pnp_resource_table * res,
+-	int io, int len)
++	u32 io, u32 len)
+ {
+ 	int i = 0;
+ 	while (!(res->port_resource[i].flags & IORESOURCE_UNSET) &&
+@@ -122,14 +132,14 @@
+ 			res->port_resource[i].flags |= IORESOURCE_DISABLED;
+ 			return;
+ 		}
+-		res->port_resource[i].start = (unsigned long) io;
+-		res->port_resource[i].end = (unsigned long)(io + len - 1);
++		res->port_resource[i].start = io;
++		res->port_resource[i].end = io + len - 1;
+ 	}
+ }
  
--	init_timer(&timer);
--	timer.expires = expire;
--	timer.data = (unsigned long) current;
--	timer.function = process_timeout;
--
--	add_timer(&timer);
--	schedule();
--	del_singleshot_timer_sync(&timer);
-+	schedule_until(expire);
+ static void
+ pnpacpi_parse_allocated_memresource(struct pnp_resource_table * res,
+-	int mem, int len)
++	u64 mem, u64 len)
+ {
+ 	int i = 0;
+ 	while (!(res->mem_resource[i].flags & IORESOURCE_UNSET) &&
+@@ -141,8 +151,8 @@
+ 			res->mem_resource[i].flags |= IORESOURCE_DISABLED;
+ 			return;
+ 		}
+-		res->mem_resource[i].start = (unsigned long) mem;
+-		res->mem_resource[i].end = (unsigned long)(mem + len - 1);
++		res->mem_resource[i].start = mem;
++		res->mem_resource[i].end = mem + len - 1;
+ 	}
+ }
  
- 	timeout = expire - jiffies;
+@@ -151,27 +161,28 @@
+ 	void *data)
+ {
+ 	struct pnp_resource_table * res_table = (struct pnp_resource_table *)data;
++	int i;
  
+ 	switch (res->id) {
+ 	case ACPI_RSTYPE_IRQ:
+-		if ((res->data.irq.number_of_interrupts > 0) &&
+-			valid_IRQ(res->data.irq.interrupts[0])) {
+-			pnpacpi_parse_allocated_irqresource(res_table, 
+-				acpi_register_gsi(res->data.irq.interrupts[0],
+-					res->data.irq.edge_level,
+-					res->data.irq.active_high_low));
+-			pcibios_penalize_isa_irq(res->data.irq.interrupts[0], 1);
++		/*
++		 * Per spec, only one interrupt per descriptor is allowed in
++		 * _CRS, but some firmware violates this, so parse them all.
++		 */
++		for (i = 0; i < res->data.irq.number_of_interrupts; i++) {
++			pnpacpi_parse_allocated_irqresource(res_table,
++				res->data.irq.interrupts[i],
++				res->data.irq.edge_level,
++				res->data.irq.active_high_low);
+ 		}
+ 		break;
+ 
+ 	case ACPI_RSTYPE_EXT_IRQ:
+-		if ((res->data.extended_irq.number_of_interrupts > 0) &&
+-			valid_IRQ(res->data.extended_irq.interrupts[0])) {
+-			pnpacpi_parse_allocated_irqresource(res_table, 
+-				acpi_register_gsi(res->data.extended_irq.interrupts[0],
+-					res->data.extended_irq.edge_level,
+-					res->data.extended_irq.active_high_low));
+-			pcibios_penalize_isa_irq(res->data.extended_irq.interrupts[0], 1);
++		for (i = 0; i < res->data.extended_irq.number_of_interrupts; i++) {
++			pnpacpi_parse_allocated_irqresource(res_table,
++				res->data.extended_irq.interrupts[i],
++				res->data.extended_irq.edge_level,
++				res->data.extended_irq.active_high_low);
+ 		}
+ 		break;
+ 	case ACPI_RSTYPE_DMA:

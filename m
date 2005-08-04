@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVHDTxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVHDT50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVHDTxo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 15:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbVHDTxn
+	id S261416AbVHDT50 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 15:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVHDT5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 15:53:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:28093 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261391AbVHDTwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 15:52:34 -0400
+	Thu, 4 Aug 2005 15:57:25 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:8151 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261416AbVHDT5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 15:57:25 -0400
+Message-ID: <42F27290.2070002@nortel.com>
+Date: Thu, 04 Aug 2005 13:54:56 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Roland Dreier <rolandd@cisco.com>, Arjan van de Ven <arjan@infradead.org>,
+       openib-general@openib.org, linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Move InfiniBand .h files
-From: Arjan van de Ven <arjan@infradead.org>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-In-Reply-To: <52wtn18r7w.fsf@cisco.com>
-References: <52iryla9r5.fsf@cisco.com>
-	 <1123178038.3318.40.camel@laptopd505.fenrus.org> <52acjxa70j.fsf@cisco.com>
-	 <1123180717.3318.43.camel@laptopd505.fenrus.org> <52wtn18r7w.fsf@cisco.com>
-Content-Type: text/plain
-Date: Thu, 04 Aug 2005 21:51:34 +0200
-Message-Id: <1123185094.3318.51.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+References: <52iryla9r5.fsf@cisco.com> <1123178038.3318.40.camel@laptopd505.fenrus.org> <52acjxa70j.fsf@cisco.com> <1123180717.3318.43.camel@laptopd505.fenrus.org> <52wtn18r7w.fsf@cisco.com> <20050804192229.GA26714@mars.ravnborg.org>
+In-Reply-To: <20050804192229.GA26714@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-04 at 11:57 -0700, Roland Dreier wrote:
->     Roland> Also, drivers/infiniband/include doesn't get put into the
->     Roland> /lib/modules/<ver>/build directory,
+Sam Ravnborg wrote:
+> On Thu, Aug 04, 2005 at 11:57:55AM -0700, Roland Dreier wrote:
+
+>>Sorry, I was too terse about the problem.  You're right, but typical
+>>distros don't ship full kernel source in their "support kernel builds"
+>>package.  And if I use an external build directory (ie "O=") then
+>>the symlink just points to my external build directory, which doesn't
+>>include the source to drivers/, just links to include/
 > 
->     Arjan> that is a symlink not a directory, and a symlink to the
->     Arjan> full source...
 > 
-> Sorry, I was too terse about the problem.  You're right, but typical
-> distros don't ship full kernel source in their "support kernel builds"
-> package.
+> If the external module uses a Kbuild file as explained in
+> Documentation/kbuild/makefiles.txt and then uses both O= and M=
+> when compiling the module there is no issue.
+> 
+> With respect to moving the .h files - please do so.
+> drivers/infiniband should only include header used in that same
+> directory. Not header files potentially uased by fs/.
 
-so what makes you think they will ship include/infiniband ?
+I think Roland was talking about the case where the running kernel was 
+built with "O=", in which case the /lib/modules.../build symlink points 
+to the build directory rather than the original source tree.
 
+Does Kbuild handle this case properly?
 
+Chris

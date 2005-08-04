@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVHDHOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVHDHQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261922AbVHDHOY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 03:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVHDHOY
+	id S261937AbVHDHQp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 03:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVHDHQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 03:14:24 -0400
-Received: from smtp1.belwue.de ([129.143.2.12]:10696 "EHLO smtp1.BelWue.DE")
-	by vger.kernel.org with ESMTP id S261922AbVHDHOX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 03:14:23 -0400
-From: Oliver Tennert <O.Tennert@science-computing.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IDE disk and HPA
-Date: Thu, 4 Aug 2005 09:14:09 +0200
-User-Agent: KMail/1.8.2
-Cc: Oliver Tennert <O.Tennert@science-computing.de>,
-       linux-kernel@vger.kernel.org
-References: <200507221417.04640.tennert@science-computing.de> <1122043638.9478.14.camel@localhost.localdomain>
-In-Reply-To: <1122043638.9478.14.camel@localhost.localdomain>
+	Thu, 4 Aug 2005 03:16:45 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:25006 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261937AbVHDHQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 03:16:43 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Jim MacBaine <jmacbaine@gmail.com>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+Date: Thu, 4 Aug 2005 17:12:31 +1000
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com
+References: <200508031559.24704.kernel@kolivas.org> <3afbacad05080323596b39e9eb@mail.gmail.com> <200508041704.37026.kernel@kolivas.org>
+In-Reply-To: <200508041704.37026.kernel@kolivas.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200508040914.10810.tennert@science-computing.de>
+Message-Id: <200508041712.31972.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 22. July 2005 16:47, Alan Cox wrote:
-> > Do I interpret it right that the following is done in the above function:
+On Thu, 4 Aug 2005 05:04 pm, Con Kolivas wrote:
+> On Thu, 4 Aug 2005 04:59 pm, Jim MacBaine wrote:
+> > I just borrowed a power meter to see (or not to see) real effects of
+> > dyntick. The difference between static 1000 HZ and dynamic HZ is much
+> > less than I expected, only a very little about noise.  With dyntick
+> > disabled at 1000 HZ my laptop needs 31,3 W.  With dyntick enabled I
+> > get 29.8 W, the pmstats-0.2 script shows me that the system is at
+> > 35-45 HZ when it is idle.
+> >
+> > The power consumption difference between 250 HZ static and dyntick is
+> > below the noise, so maybe hardly worth all the struggle.
 >
-> Aside from the version in most kernels being buggy yes
->
-> > My question is now: why is an HPA disabled i.e. disprotected when
-> > detected? Why not let the HPA alone, because a certain set of disk
-> > sectors shall not be accessible by the OS?
->
-> Because the HPA is most commonly used to hide all but a fraction of a
-> disk to work with older BIOSes.
+> That's not the point. We want the power savings without sacrificing the
+> extra ticks if we need them.
 
-But as to my knowledge, the HPA was had been introduced to allow HW vendors to 
-store things like diagnostic programs in a part of the disk protected from 
-partitioning and filesystems. The point is, IF there is an HPA, there MIGHT 
-be a partitioning scheme and some filesystems on the disk which rely on the 
-size of disk being the native size MINUS the HPA.
+Oh but thank you very much for confirming the power savings are around the 5% 
+mark. If we don't measure we won't know (and everything else is mental 
+masturbation according to Linus ;)).
 
-Also there might be some contents in the HPA which is vulnerable to deletion 
-if exposed to the OS in such a transparent way.
-
-So unconditionally disabling the HPA seems not an unconditionally good idea to 
-me.
-
-Why is the HPA not just left alone?
-
-Best regards
-
-Oliver
-
--- 
-"She said, `I know you ... you cannot sing'.  I said, `That's nothing,
-you should hear me play piano.'"
-		-- Morrisey
---
-__
-________________________________________creating IT solutions
-
-Dr. Oliver Tennert
-Senior Solutions Engineer
-CAx Professional Services
-                                        science + computing ag
-phone   +49(0)7071 9457-598             Hagellocher Weg 71-75	
-fax     +49(0)7071 9457-411             D-72070 Tuebingen, Germany
-O.Tennert@science-computing.de          www.science-computing.de
-
-
+Cheers,
+Con

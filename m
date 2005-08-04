@@ -1,41 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVHDU3B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbVHDUbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbVHDU3B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 16:29:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbVHDU1W
+	id S262678AbVHDUbm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 16:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVHDUbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 16:27:22 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14522 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262727AbVHDU1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 16:27:16 -0400
-Date: Thu, 4 Aug 2005 22:27:01 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Frank Loeffler <knarf.loeffler@freenet.de>
-Cc: mdew <some.nzguy@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net, Vojtech Pavlik <vojtech@suse.cz>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [linux-usb-devel] Re: Fw: ati-remote strangeness from 2.6.12 onwards
-Message-ID: <20050804202701.GB1285@elf.ucw.cz>
-References: <20050730173253.693484a2.akpm@osdl.org> <1c1c8636050801220442d8351c@mail.gmail.com> <20050803055413.GB1399@elf.ucw.cz> <1c1c86360508030311486fc30a@mail.gmail.com> <42F0AD60.3070201@freenet.de>
+	Thu, 4 Aug 2005 16:31:41 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:26765 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262644AbVHDUbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 16:31:19 -0400
+Subject: Re: Oops when shutting down laptop
+From: Lee Revell <rlrevell@joe-job.com>
+To: Kristian =?ISO-8859-1?Q?Gr=F8nfeldt_S=F8rensen?= <kriller@vkr.dk>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1123186901.8831.42.camel@localhost.localdomain>
+References: <1123186901.8831.42.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 04 Aug 2005 16:31:14 -0400
+Message-Id: <1123187474.3646.2.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42F0AD60.3070201@freenet.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2005-08-04 at 22:21 +0200, Kristian Grønfeldt Sørensen wrote:
+> My laptop oops'es in the final phase of shutdown
 
-> - You might want to differentiate between this key and the ENTER key
->   of your keyboard, at least I do. If the kernel is sending the same
->   code for both keys, this is not possible in userspace.
+Kernel is tainted due to ndiswrapper being loaded.  Please reproduce
+with a non tainted kernel.
 
-No, I think that you can still diferentiate between them ... they come
-from different keyboard after all. See /dev/input/event*.
+Lee
 
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.

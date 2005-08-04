@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbVHDVkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVHDVmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbVHDVkb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 17:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbVHDVid
+	id S262742AbVHDVmx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 17:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVHDVkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 17:38:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37777 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262719AbVHDVf4 (ORCPT
+	Thu, 4 Aug 2005 17:40:36 -0400
+Received: from mx2.netapp.com ([216.240.18.37]:10895 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S262735AbVHDVii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 17:35:56 -0400
-Date: Thu, 4 Aug 2005 14:37:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: george@mvista.com
-Cc: kraxel@suse.de, roland@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.6.12: itimer_real timers don't survive execve()
- any more
-Message-Id: <20050804143728.182086ba.akpm@osdl.org>
-In-Reply-To: <42F28707.7060806@mvista.com>
-References: <20050804164532.GB31853@bytesex>
-	<42F28707.7060806@mvista.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Aug 2005 17:38:38 -0400
+X-IronPort-AV: i="3.95,168,1120460400"; 
+   d="scan'208"; a="300351852:sNHT16688364"
+Date: Thu, 4 Aug 2005 17:38:35 -0400 (EDT)
+From: James Lentini <jlentini@netapp.com>
+X-X-Sender: jlentini@jlentini-linux.nane.netapp.com
+To: Roland Dreier <rolandd@cisco.com>
+cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] [RFC] Move InfiniBand .h files
+In-Reply-To: <52iryla9r5.fsf@cisco.com>
+Message-ID: <Pine.LNX.4.61.0508041654370.5243@jlentini-linux.nane.netapp.com>
+References: <52iryla9r5.fsf@cisco.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger <george@mvista.com> wrote:
+
+
+On Thu, 4 Aug 2005, Roland Dreier wrote:
+
+> I would like to get people's reactions to moving the InfiniBand .h
+> files from their current location in drivers/infiniband/include/ to
+> include/linux/rdma/.  If we agree that this is a good idea then I'll
+> push this change as soon as 2.6.14 starts.
+
+I think it is a good idea.
+
+> The advantages of doing this are:
 >
-> Source: MontaVista Software, Inc. George Anzinger <george@mvista.com>
-> Type: Defect Fix 
-> Description:
-> 
->  	The changes to itimer of late (after 2.6.11) cause itimers not
->  	to survive the exec* calls.  Standard says they should.  
-> 
-> Signed-off-by: George Anzinger<george@mvista.com>
-> 
->  exit.c         |    1 +
->  posix-timers.c |    4 ++--
->  2 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> 
-> Index: linux-2.6.13-rc/kernel/exit.c
-> ===================================================================
-> --- linux-2.6.13-rc.orig/kernel/exit.c
-> +++ linux-2.6.13-rc/kernel/exit.c
-> @@ -794,6 +794,7 @@ fastcall NORET_TYPE void do_exit(long co
->  	}
->  
->  	tsk->flags |= PF_EXITING;
-> +	del_timer_sync(&tsk->signal->real_timer);
->  
->  	/*
->  	 * Make sure we don't try to process any timer firings
-> Index: linux-2.6.13-rc/kernel/posix-timers.c
-> ===================================================================
-> --- linux-2.6.13-rc.orig/kernel/posix-timers.c
-> +++ linux-2.6.13-rc/kernel/posix-timers.c
-> @@ -1183,10 +1183,10 @@ void exit_itimers(struct signal_struct *
->  	struct k_itimer *tmr;
->  
->  	while (!list_empty(&sig->posix_timers)) {
-> -		tmr = list_entry(sig->posix_timers.next, struct k_itimer, list);
-> +		tmr = list_entry(sig->posix_timers.next,
-> +				 struct k_itimer, list);
->  		itimer_delete(tmr);
->  	}
-> -	del_timer_sync(&sig->real_timer);
->  }
+>  - The headers become more easily accessible to other parts of the
+>    tree that might want to use IB support.  For example, an NFS/RDMA
+>    client probably wants to live under fs/
 
-Yup, that's the one, thanks George.
-
-Obvious though it is, I'll hold off on forwarding this Linuswards until
-Gerd has had a chance to test it.  Or did you run Gerd's test app?
-
+net/sunrpc/ has also been proposed.

@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVHDWgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbVHDWjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbVHDWgU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 18:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbVHDWe2
+	id S262767AbVHDWjj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 18:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbVHDWjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 18:34:28 -0400
-Received: from fmr13.intel.com ([192.55.52.67]:9405 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262722AbVHDWeV convert rfc822-to-8bit (ORCPT
+	Thu, 4 Aug 2005 18:39:18 -0400
+Received: from ozlabs.org ([203.10.76.45]:32688 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262767AbVHDWjK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 18:34:21 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 4 Aug 2005 18:39:10 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch] fix ACPI table discovery from EFI for x86
-Date: Thu, 4 Aug 2005 15:34:10 -0700
-Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB00A9F04AD@fmsmsx406.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] fix ACPI table discovery from EFI for x86
-thread-index: AcWZQfcj/hYMKzr4QUuIdFARAztOUwAAXeEQ
-From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Brown, Len" <len.brown@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <linux-ia64@vger.kernel.org>, "Luck, Tony" <tony.luck@intel.com>
-X-OriginalArrivalTime: 04 Aug 2005 22:34:13.0585 (UTC) FILETIME=[A3DBE410:01C59944]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17138.38287.648439.271259@cargo.ozlabs.ibm.com>
+Date: Fri, 5 Aug 2005 08:24:15 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: youssef@ece.utexas.edu
+Cc: linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org
+Subject: Re: [PATCH][PPP] ppp_generic: Add checks for NULL pointers
+In-Reply-To: <Pine.LNX.4.61.0508040053050.14176@linux08.ece.utexas.edu>
+References: <Pine.LNX.4.61.0508040053050.14176@linux08.ece.utexas.edu>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas <> wrote:
-> On Wednesday 13 July 2005 7:09 pm, Matt Tolentino wrote:
->> This patch addresses a problem on x86 EFI systems with larger memory
->> configurations.  Up until now, we've relied on the fact that the
->> ACPI RSDT would reside somewhere in low memory that could be
->> permanently 
->> mapped in kernel address space - so __va() has been sufficient. 
->> However, 
->> on EFI systems, the RSDT is often anywhere in the lower 4GB of
->> physical 
->> address space.  So, we may need to remap it on x86 systems.
-> 
-> The hunk below breaks HP rx7620, rx8620, and Superdome (all ia64)
-> systems.  This is from 2.6.13-rc4-mm1, in
+Hmamouche, Youssef writes:
 
-Ugh.  Well, that's pretty ugly...
+> This patch adds two checks for NULL pointers.
 
-Andrew, Len, please drop this one until I look at this closer.  
+OK, but get the whitespace right please - use tabs not spaces for
+indentation, and put a space between "if" and "(".  See
+Documentation/CodingStyle.
 
->     acpi-fix-table-discovery-from-efi-for-x86.patch
-
-Thanks for testing Bjorn.  
-
-matt 
-
- 
+Paul.

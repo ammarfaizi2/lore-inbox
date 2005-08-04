@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVHDSvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVHDS4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262502AbVHDSvL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 14:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbVHDSvE
+	id S262610AbVHDS4k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 14:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVHDS4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 14:51:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:35639 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262632AbVHDStS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 14:49:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kak/IoEo4OnkfpFLsENed4g86L8WtNOnFAvxEtj2sz/9hr52t6MG1X8H/EOYHYGrtUhYfiVyOjEBRDKYKZNkJkP9Kt/IkZYtl5XvxwPqZaPfiNXfnl9VM4HM1Qjv+aMUBvfvNw+7kgq21mn/PCtNTbvNRbKCAeBJ5qvHgLfTpUs=
-Message-ID: <29495f1d050804114949284cbf@mail.gmail.com>
-Date: Thu, 4 Aug 2005 11:49:16 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: george@mvista.com
-Subject: Re: [UPDATE PATCH] push rounding up of relative request to schedule_timeout()
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-In-Reply-To: <42F24AC4.5080103@mvista.com>
+	Thu, 4 Aug 2005 14:56:40 -0400
+Received: from ns2.suse.de ([195.135.220.15]:61611 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262610AbVHDS4i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 14:56:38 -0400
+Date: Thu, 4 Aug 2005 20:56:32 +0200
+From: Andi Kleen <ak@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       amitkale@linsyssoft.com
+Subject: Re: [patch 07/15] Basic x86_64 support
+Message-ID: <20050804185632.GD8266@wotan.suse.de>
+References: <1.2972005.trini@kernel.crashing.org> <resend.7.2972005.trini@kernel.crashing.org> <20050803130531.GR10895@wotan.suse.de> <20050803133756.GA3337@smtp.west.cox.net> <20050804123900.GR8266@wotan.suse.de> <20050804140445.GB3337@smtp.west.cox.net> <20050804140620.GW8266@wotan.suse.de> <20050804141437.GC3337@smtp.west.cox.net> <20050804142806.GX8266@wotan.suse.de> <20050804150636.GD3337@smtp.west.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.61.0507231456000.3728@scrub.home>
-	 <20050723191004.GB4345@us.ibm.com>
-	 <Pine.LNX.4.61.0507232151150.3743@scrub.home>
-	 <20050727222914.GB3291@us.ibm.com>
-	 <Pine.LNX.4.61.0507310046590.3728@scrub.home>
-	 <20050801193522.GA24909@us.ibm.com>
-	 <Pine.LNX.4.61.0508031419000.3728@scrub.home>
-	 <20050804005147.GC4255@us.ibm.com> <20050804051434.GA4520@us.ibm.com>
-	 <42F24AC4.5080103@mvista.com>
+In-Reply-To: <20050804150636.GD3337@smtp.west.cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/4/05, George Anzinger <george@mvista.com> wrote:
-> Nishanth Aravamudan wrote:
-> ~
-> > Sorry, I forgot that sys_nanosleep() also always adds 1 to the request
-> > (to account for this same issue, I believe, as POSIX demands no early
-> > return from nanosleep() calls). There are some other locations where
-> > similar
-> >
-> >       + (t.tv_sec || t.tv_nsec)
+On Thu, Aug 04, 2005 at 08:06:36AM -0700, Tom Rini wrote:
+> > 
+> > Why can't you run on x86-64 early? 
 > 
-> This is not the same as "always add 1".  We don't do it this way just to
-> have fun with C.  If you change schedule_timeout() to add the 1,
-> nanosleep() will need to do things differently to get the same behavior.
->   (And, YES users do pass in zero sleep times.)
+> As I said earlier:
+> "
+> > If you want to run gdb earlier you need to do it without a tasklet.
+> 
+> We really would like to try again once stacks are setup (IOW, once
+> if ((&__get_cpu_var(init_tss))[0].ist[0])) is true).
+> "
+> 
+> IOW, when we parse the params on x86_64 this isn't true (or rather it
+> wasn't true as of 2.6.9'ish, if this has changed I'd be glad to retest
+> things).
 
-Fair enough. Will need to think about this more.
+The ISTs are set up for the boot processor extremly early - even
+before start_kernel. But they are useless before trap_init()
+runs because you won't get any exceptions that need an IDT (or rather
+they will all still point to the early exception handler that just panics) 
 
-Thanks,
-Nish
+-Andi
+

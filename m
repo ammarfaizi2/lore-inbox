@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVHDVvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbVHDV4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262749AbVHDVvo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 17:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbVHDVr0
+	id S262734AbVHDV4W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 17:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbVHDV4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 17:47:26 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29838 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262746AbVHDVrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 17:47:15 -0400
-Date: Thu, 4 Aug 2005 23:45:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/23] reboot-fixes
-Message-ID: <20050804214520.GF1780@elf.ucw.cz>
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com> <20050727025923.7baa38c9.akpm@osdl.org> <m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com> <20050727104123.7938477a.akpm@osdl.org> <m18xzs9ktc.fsf@ebiederm.dsl.xmission.com> <20050727224711.GA6671@elf.ucw.cz> <20050727155118.6d67d48e.akpm@osdl.org> <20050727225442.GD6529@elf.ucw.cz> <1123125850.948.9.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123125850.948.9.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 4 Aug 2005 17:56:18 -0400
+Received: from livid.absolutedigital.net ([66.92.46.173]:1541 "EHLO
+	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S262744AbVHDVyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 17:54:45 -0400
+Date: Thu, 4 Aug 2005 17:54:43 -0400 (EDT)
+From: Cal Peake <cp@absolutedigital.net>
+To: Andrew Morton <akpm@osdl.org>
+cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, pavel@suse.cz,
+       davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: amd64-agp vs. swsusp
+In-Reply-To: <20050804142548.5b813700.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0508041741540.4557@lancer.cnet.absolutedigital.net>
+References: <42DD67D9.60201@stud.feec.vutbr.cz> <20050804142548.5b813700.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 4 Aug 2005, Andrew Morton wrote:
 
-> > > >  > Good question.  I'm not certain if Pavel intended to add
-> > > >  > device_suspend(PMSG_FREEZE) to the reboot path.  It was
-> > > >  > there in only one instance.  Pavel comments talk only about
-> > > >  > the suspend path.
-> > > > 
-> > > >  Yes, I think we should do device_suspend(PMSG_FREEZE) in reboot path.
-> > > 
-> > > Why?
-> > 
-> > Many bioses are broken; if you leave hardware active during reboot,
-> > they'll hang during reboot. It is so common problem that I think that
-> > only sane solution is make hardware quiet before reboot.
+> Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+> >
+> > Does resuming from swsuspend work for anyone with amd64-agp loaded?
 > 
-> Sorry for my slow reply.
-> 
-> If I remember correctly PMSG_FREEZE was intended solely for stopping
-> activity when suspend to disk implementations are about to do their
+> It would seem not ;)
 
-Well, I think that PMSG_FREEZE can be handy when we want to stop
-activity for other reasons, too...
+Must have missed the OP. Yes I can resume fine from swsusp with amd64-agp.
 
-> atomic copies. I thought that ide reacts to this message by putting a
-> hold on queues, but doesn't otherwise do anything to prepare a drive for
-> a restart. If that's true, using FREEZE here isn't going to stop drives
-> from doing their emergency shutdown actions. Don't we need PMSG_SUSPEND
-> instead?
+System is an Averatec 3270 (Mobile Sempron(K8)).
 
-Spinning disk down is not neccessary for reboot. Users will be angry
-if we do it before reboot...
-								Pavel
+Not that this helps at all other than confirming it is possible ;)
+
+-cp
+
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+"There are three kinds of lies: lies, damned lies, and statistics."
+                     -- Benjamin Disraeli
+

@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbVHDSdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVHDSgC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbVHDSdB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 14:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVHDSdA
+	id S262543AbVHDSgC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 14:36:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVHDSgC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 14:33:00 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:58026 "EHLO
+	Thu, 4 Aug 2005 14:36:02 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:57108 "EHLO
 	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S262543AbVHDSc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 14:32:56 -0400
-To: Grant Grundler <iod00d@hp.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] [RFC] Move InfiniBand .h files
+	id S262543AbVHDSf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 14:35:59 -0400
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: mthca and LinuxBIOS
 X-Message-Flag: Warning: May contain useful information
-References: <52iryla9r5.fsf@cisco.com>
-	<20050804182016.GE20422@esmail.cup.hp.com>
+References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
+	<20057281331.7vqhiAJ1Yc0um2je@cisco.com>
+	<86802c44050803175873fb0569@mail.gmail.com>
+	<52u0i6b9an.fsf_-_@cisco.com>
+	<86802c44050804093374aca360@mail.gmail.com> <52mznxacbp.fsf@cisco.com>
+	<86802c4405080410236ba59619@mail.gmail.com>
+	<86802c4405080411013b60382c@mail.gmail.com>
 From: Roland Dreier <rolandd@cisco.com>
-Date: Thu, 04 Aug 2005 11:32:50 -0700
-In-Reply-To: <20050804182016.GE20422@esmail.cup.hp.com> (Grant Grundler's
- message of "Thu, 4 Aug 2005 11:20:16 -0700")
-Message-ID: <5264ula6y5.fsf@cisco.com>
+Date: Thu, 04 Aug 2005 11:35:44 -0700
+In-Reply-To: <86802c4405080411013b60382c@mail.gmail.com> (yhlu's message of
+ "Thu, 4 Aug 2005 11:01:55 -0700")
+Message-ID: <521x59a6tb.fsf@cisco.com>
 User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 Aug 2005 18:32:50.0815 (UTC) FILETIME=[EB7490F0:01C59922]
+X-OriginalArrivalTime: 04 Aug 2005 18:35:45.0698 (UTC) FILETIME=[53B19820:01C59923]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Grant> Any thoughts on renaming drivers/infiniband to drivers/rdma
-    Grant> at the same time?
+    yhlu> i enable CCONFIG_INFINIBAND_MTHCA_DEBUG=y I didn't get any
+    yhlu> more debug info, is that depend other setting?
 
-    Grant> If you are going to churn...don't be shy about it :^)
+It shouldn't depend on anything.  mthca_dbg() gets turned into
+dev_dbg(), which just does dev_printk(KERN_DEBUG,...).  Perhaps you
+have to change your console level to see KERN_DEBUG messages?
 
-Well, I'd rather avoid churn for purely political reasons.  The main
-point of my proposal is to move the includes from drivers/ to
-include/, but while we're at it me might as well pick a more neutral
-directory name.
-
-Moving drivers/infiniband to drivers/rdma has no technical merit right
-now, so I'd rather wait and see how it makes sense to organize the
-code we end up with.
+Since you're getting to the call to mthca_init_qp_table(), there are
+mthca_dbg() calls that you should definitely be getting output from.
 
  - R.

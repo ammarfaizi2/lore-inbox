@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVHDRLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVHDRLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVHDRLl (ORCPT <rfc822;willy@w.ods.org>);
+	id S261521AbVHDRLl (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 4 Aug 2005 13:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVHDRIf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbVHDRIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 13:08:35 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21240 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262634AbVHDRHS
+	Thu, 4 Aug 2005 13:08:39 -0400
+Received: from [206.152.180.10] ([206.152.180.10]:55256 "EHLO
+	unix.worldpath.net") by vger.kernel.org with ESMTP id S262560AbVHDRFp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 13:07:18 -0400
-Message-ID: <42F24AC4.5080103@mvista.com>
-Date: Thu, 04 Aug 2005 10:05:08 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-CC: Roman Zippel <zippel@linux-m68k.org>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-Subject: Re: [UPDATE PATCH] push rounding up of relative request to schedule_timeout()
-References: <Pine.LNX.4.61.0507231456000.3728@scrub.home> <20050723164310.GD4951@us.ibm.com> <Pine.LNX.4.61.0507231911540.3743@scrub.home> <20050723191004.GB4345@us.ibm.com> <Pine.LNX.4.61.0507232151150.3743@scrub.home> <20050727222914.GB3291@us.ibm.com> <Pine.LNX.4.61.0507310046590.3728@scrub.home> <20050801193522.GA24909@us.ibm.com> <Pine.LNX.4.61.0508031419000.3728@scrub.home> <20050804005147.GC4255@us.ibm.com> <20050804051434.GA4520@us.ibm.com>
-In-Reply-To: <20050804051434.GA4520@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 4 Aug 2005 13:05:45 -0400
+Subject: [GIT PATCH] ACPI patches for 2.6.13-rc5+
+From: Len Brown <len.brown@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1123110985.13136.12.camel@toshiba>
+References: <1122702560.26850.9.camel@toshiba>
+	 <1123110985.13136.12.camel@toshiba>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 13:11:19 -0400
+Message-Id: <1123175479.13136.21.camel@toshiba>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nishanth Aravamudan wrote:
-~
-> Sorry, I forgot that sys_nanosleep() also always adds 1 to the request
-> (to account for this same issue, I believe, as POSIX demands no early
-> return from nanosleep() calls). There are some other locations where
-> similar
-> 
-> 	+ (t.tv_sec || t.tv_nsec)
+Hi Linus,
 
-This is not the same as "always add 1".  We don't do it this way just to 
-have fun with C.  If you change schedule_timeout() to add the 1, 
-nanosleep() will need to do things differently to get the same behavior. 
-  (And, YES users do pass in zero sleep times.)
+Please pull from:
+
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/lenb/to-linus.git
+
+Two additional patches to remove some rough edges for 2.6.13.
+
+thanks,
+-Len
+
+p.s.
+Latest ACPI plain patch, including stuff waiting for 2.6.14 is available
+here:
+http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.12/
+http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.12/broken-out/
+
+ drivers/acpi/dispatcher/dswload.c |    6 ------
+ drivers/acpi/osl.c                |    6 +++++-
+ drivers/acpi/pci_link.c           |    7 +++++++
+ 3 files changed, 12 insertions(+), 7 deletions(-)
+
+commit 11e981f1e02c2a36465cbb208b21cb8b6480f399
+Author: David Shaohua Li <shaohua.li@intel.com>
+Date:   Wed Aug 3 23:46:33 2005 -0400
+
+    [ACPI] S3 resume: avoid kmalloc() might_sleep oops symptom
+    
+    ACPI now uses kmalloc(...,GPF_ATOMIC) during suspend/resume.
+    
+    http://bugzilla.kernel.org/show_bug.cgi?id=3469
+    
+    Signed-off-by: David Shaohua Li <shaohua.li@intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit d4ab025b73a2d10548e17765eb76f3b7351dc611
+Author: Len Brown <len.brown@intel.com>
+Date:   Wed Aug 3 23:20:58 2005 -0400
+
+    [ACPI] delete Warning: Encountered executable code at module level,
+[AE_NOT_CONFIGURED]
+    
+    http://bugzilla.kernel.org/show_bug.cgi?id=4923
+    
+    Signed-off-by: Len Brown <len.brown@intel.com>
 
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+

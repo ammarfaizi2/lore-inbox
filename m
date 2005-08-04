@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVHDPVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262559AbVHDPVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262556AbVHDPVb (ORCPT <rfc822;willy@w.ods.org>);
+	id S262559AbVHDPVb (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 4 Aug 2005 11:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVHDPTZ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVHDPTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 11:19:25 -0400
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:52112 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S262560AbVHDPRe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 11:17:34 -0400
-Date: Thu, 4 Aug 2005 17:17:30 +0200 (CEST)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is anyone maintaining the smb filesystem?
-In-Reply-To: <200508041003.57105.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.60.0508041716110.15383@kepler.fjfi.cvut.cz>
-References: <OFF8C2E0A3.E0EC1DCE-ON80257053.002D9CAB-80257053.002E3C62@sophos.com>
- <200508041003.57105.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Aug 2005 11:19:20 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:42444 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262577AbVHDPTH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 11:19:07 -0400
+Date: Thu, 4 Aug 2005 17:19:11 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, ak@suse.de
+Subject: Re: [RFC] AMD64 @ K8T800/VT8237: Doubled IOAPIC-level-interrupt rate
+Message-ID: <20050804151911.GA20765@elte.hu>
+References: <200508041625.41296.annabellesgarden@yahoo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508041625.41296.annabellesgarden@yahoo.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Aug 2005, Gene Heskett wrote:
-> On Thursday 04 August 2005 04:25, tvrtko.ursulin@sophos.com wrote:
-> >On 03/08/2005 17:03:04 linux-kernel-owner wrote:
-> >>Is anyone maintaining the smb filesystem in the Linux kernel?
-> >
-> >It probably won't help you much, but I had the same problem few
-> > months ago. There was a bug in smbfs which I tried to discuss with
-> > someone, and after failing to contact the maintainer, I sent the
-> > fix to Linus. I don't think even he managed to get a response from
-> > Urban or someone else. The fix went in so I stopped chasing it.
-> >
-> >So it looks like smbfs is not maintained.
-> 
-> I thought that originally was Andrew Tridgels output?
-> 
-> I'm having problems with it too, but only on a deb3.1 system.  I 
-> looked in Borders yesterday, but couldn't find a 'samba for dummies' 
-> or similar publication.
-> 
-> The question then is: Where might there be a decent publication 
-> describing samba and how to make it work?  Dead tree, pdf equally 
-> welcome here.
 
-Have you tried <http://www.samba.org> ?
+* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
 
-Martin
+> Hi,
+> 
+> this should likely be addressed to VIA Taiwan,
+> but I don't know their engineer's e-mail address and their forum
+> doesn't work for me.
+> Maybe somebody here has a clue?
+> Or maybe this is even motherboard specific?
+> 
+> To reproduce:
+> 	$ aplay -Dhw:0 -fdat /dev/zero
+> 
+> On a sane system (or here in PIC Mode) you'll see
+> around 12 Interrupts/s.
+> Here I see 24.
+
+i think this is an effect of the 'POST-flush' symptom: the IO-APIC write 
+of unmasking the IRQ does not reach the chipset before the ACK via the 
+local-APIC does. Does it work fine if you artificially read after the 
+IO-APIC write?
+
+	Ingo

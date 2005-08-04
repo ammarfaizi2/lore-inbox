@@ -1,82 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVHDATK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVHDAd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbVHDATK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 20:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVHDATK
+	id S261660AbVHDAd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 20:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVHDAd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 20:19:10 -0400
-Received: from graphe.net ([209.204.138.32]:59582 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261656AbVHDATI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 20:19:08 -0400
-Date: Wed, 3 Aug 2005 17:19:04 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Richard Purdie <rpurdie@rpsys.net>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au
-Subject: Re: 2.6.13-rc3-mm3
-In-Reply-To: <1122937261.7648.151.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0508031716001.24733@graphe.net>
-References: <20050728025840.0596b9cb.akpm@osdl.org> 
- <1122860603.7626.32.camel@localhost.localdomain>  <Pine.LNX.4.62.0508010908530.3546@graphe.net>
-  <1122926537.7648.105.camel@localhost.localdomain> 
- <Pine.LNX.4.62.0508011335090.7011@graphe.net>  <1122930474.7648.119.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508011414480.7574@graphe.net>  <1122931637.7648.125.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508011438010.7888@graphe.net>  <1122933133.7648.141.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508011517300.8498@graphe.net> <1122937261.7648.151.camel@localhost.localdomain>
+	Wed, 3 Aug 2005 20:33:58 -0400
+Received: from [202.136.32.45] ([202.136.32.45]:65171 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S261660AbVHDAd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 20:33:57 -0400
+From: Grant Coady <lkml@dodo.com.au>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
+       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>,
+       Bodo Eggert <7eggert@gmx.de>, Gene Heskett <gene.heskett@verizon.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, David Brown <dmlb2000@gmail.com>,
+       Puneet Vyas <vyas.puneet@gmail.com>,
+       Richard Hubbell <richard.hubbell@gmail.com>, webmaster@kernel.org
+Subject: Re: Documentation - how to apply patches for various trees
+Date: Thu, 04 Aug 2005 10:33:31 +1000
+Organization: www.scatter.mine.nu
+Reply-To: lkml@dodo.com.au
+Message-ID: <vbn2f1do8pph1qvlfb6n73nci19c51ukue@4ax.com>
+References: <200508022332.21380.jesper.juhl@gmail.com> <200508032251.07996.jesper.juhl@gmail.com> <Pine.LNX.4.58.0508031400390.3258@g5.osdl.org> <200508032328.07727.jesper.juhl@gmail.com>
+In-Reply-To: <200508032328.07727.jesper.juhl@gmail.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could you try the following patch? I think the problem was that higher 
-addressses were not mappable via the page fault handler. This patch 
-inserts the pmd entry into the pgd as necessary if the pud level is 
-folded.
+Hi Jesper,
+On Wed, 3 Aug 2005 23:28:06 +0200, Jesper Juhl <jesper.juhl@gmail.com> wrote:
 
-Signed-off-by: Christoph Lameter <christoph@lameter.com>
+I like it, just a little concerned about confusing new user with too 
+many alternative patching methods up front...
 
-Index: linux-2.6.13-rc4/mm/memory.c
-===================================================================
---- linux-2.6.13-rc4.orig/mm/memory.c	2005-08-03 17:08:29.000000000 -0700
-+++ linux-2.6.13-rc4/mm/memory.c	2005-08-03 17:15:22.000000000 -0700
-@@ -2144,9 +2144,16 @@
- 	 */
- 	page_table_atomic_start(mm);
- 	pgd = pgd_offset(mm, address);
--#ifndef __PAGETABLE_PUD_FOLDED
- 	if (unlikely(pgd_none(*pgd))) {
-+#ifdef __PAGETABLE_PUD_FOLDED
-+		/* If the pud is folded then we need to insert a pmd entry into
-+		 * a pgd. pud_none(pgd) == 0 so the next if statement will never
-+		 * be taken
-+		 */
-+		pmd_t *new;
-+#else
- 		pud_t *new;
-+#endif
- 
- 		page_table_atomic_stop(mm);
- 		new = pud_alloc_one(mm, address);
-@@ -2158,7 +2165,6 @@
- 		if (!pgd_test_and_populate(mm, pgd, new))
- 			pud_free(new);
- 	}
--#endif
- 
- 	pud = pud_offset(pgd, address);
- 	if (unlikely(pud_none(*pud))) {
-Index: linux-2.6.13-rc4/include/asm-generic/4level-fixup.h
-===================================================================
---- linux-2.6.13-rc4.orig/include/asm-generic/4level-fixup.h	2005-08-03 17:06:01.000000000 -0700
-+++ linux-2.6.13-rc4/include/asm-generic/4level-fixup.h	2005-08-03 17:09:38.000000000 -0700
-@@ -27,6 +27,7 @@
- #define pud_ERROR(pud)			do { } while (0)
- #define pud_clear(pud)			pgd_clear(pud)
- #define pud_populate			pgd_populate
-+#define pud_alloc_one			pmd_alloc_one
- 
- #undef pud_free_tlb
- #define pud_free_tlb(tlb, x)            do { } while (0)
+>+ This (as usual with Linux and other UNIX like operating systems) can be
+>+done in several different ways.
+>+In all the examples below I feed the file (in uncompressed form) to patch
+>+via stdin using the following syntax:
+>+	patch -p1 < path/to/patch-x.y.z
+>+
+>+but patch can also get the name of the file to use via the -i argument, like
+>+this:
+>+	patch -p1 -i path/to/patch-x.y.z
+>+
+>+If your patch file is compressed with gzip or bzip2 and you don't want to
+>+uncompress it before applying it, then you can feed it to patch like this
+>+instead:
+
+	cat path/to/patch-x.y.z.gz | patch -p1
+>+	zcat path/to/patch-x.y.z.gz | patch -p1
+>+	bzcat path/to/patch-x.y.z.bz2 | patch -p1
+
+In a howto, I'd prefer  _one_ consistent method to reduce the 
+reader's confusion.  
+
+The above trio of commands serves me well over many years' kernel 
+patching, and it is trivial to up-arrow, home, change compression 
+method, retry ... when my fingers get ahead of my mind :)
+
+
+Experience users recognise the intent of the commands and use their 
+favourite method instead, almost without thinking.
+
+
+Spelling:
+
+s/uncompression/decompression/
+s/adviced/advised/
+s/bandwith/bandwidth/
+
+Cheers,
+Grant.
+

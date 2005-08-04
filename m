@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVHDV2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbVHDVbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262712AbVHDV2o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 17:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVHDV0X
+	id S262714AbVHDVbE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 17:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbVHDV2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 17:26:23 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:33416 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S262709AbVHDVYt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 17:24:49 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove suspend() calls from shutdown path
-Date: Thu, 4 Aug 2005 23:30:02 +0200
+	Thu, 4 Aug 2005 17:28:47 -0400
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:39042 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262709AbVHDV0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 17:26:24 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] no-idle-hz aka dynamic ticks-2
+Date: Fri, 5 Aug 2005 07:20:17 +1000
 User-Agent: KMail/1.8.2
-References: <1123148187.30257.55.camel@gaston> <200508042251.14740.rjw@sisk.pl> <20050804135833.07a6702f.akpm@osdl.org>
-In-Reply-To: <20050804135833.07a6702f.akpm@osdl.org>
+Cc: Prakash Punnoor <prakash@punnoor.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>, Tony Lindgren <tony@atomide.com>,
+       tuukka.tikkanen@elektrobit.com
+References: <200508022225.31429.kernel@kolivas.org> <200508022328.09482.kernel@kolivas.org> <20050803211238.GA1291@elf.ucw.cz>
+In-Reply-To: <20050803211238.GA1291@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200508042330.02817.rjw@sisk.pl>
-Cc: benh@kernel.crashing.org, zilvinas@gemtek.lt, torvalds@osdl.org
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508050720.18224.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 4 of August 2005 22:58, you wrote:
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+On Thu, 4 Aug 2005 07:12, Pavel Machek wrote:
+> Hi!
+>
+> > > > As promised, here is an updated patch for the newly released
+> > > > 2.6.13-rc5. Boots and runs fine on P4HT (SMP+SMT kernel) built with
+> > > > gcc 4.0.1.
+> > >
+> > > Doesn't compile for me w/ gcc 3.4.4:
 > >
-> > On Thursday, 4 of August 2005 17:20, Benjamin Herrenschmidt wrote:
-> > > On Thu, 2005-08-04 at 15:16 +0300, Zilvinas Valinskas wrote:
-> > > > Hello Ben, Andrew, 
-> > > > 
-> > > > This patch helps me if I disconnect all USB peripherals before shutting
-> > > > down notebook. With connected peripherals (USB mouse, PL2303
-> > > > USB<->serial converter/port) - powering off process stops right after
-> > > > unmounting filesystems but before hda power off ... 
-> > > > 
-> > > > There is a bug report for this too:
-> > > > http://bugzilla.kernel.org/show_bug.cgi?id=4992
-> > > 
-> > > This is unclear.
-> > > 
-> > > I would expect the behaviour you report to happen _without_ this patch,
-> > > that is with current git tree, and I would expect this patch to fix it
-> > > by reverting to the previous 2.6.12 behaviour...
-> > 
-> > I had this problem on a dual-core Athlon-based machine, but the patch
-> > apparently fixed it.
-> > 
-> 
-> So are all the (three?) bugs (regressions) which you were reporting now
-> fixed?
+> > Thanks for the report. Tiny change required. Here is a respun patch.
+>
+> Sorry, it breaks my machine in "interesting" way. Cursor no longer
+> blinks, sleep 1 takes more than five seconds, ...
+>
+> Pentium-M in compaq evo n620c notebok, cpufreq active:
+>
+> pavel@Elf:~$ dmesg | grep tick
+> dyn-tick: Found suitable timer: tsc
+> dyn-tick: Registering dynamic tick timer v050610-1
+> dyn-tick: Maximum ticks to skip limited to 13
+> dyn-tick: Timer not enabled during boot
+> pavel@Elf:~$
+>
+> Ouch, even system time seems to go slower. I'll try setting
+> DYNTICK_USE_APIC next.
+> 								Pavel
 
-Yes.  As far as 2.6.13-rc5 (with the Ben's patch) is concerned, I have no
-visible problems whatever on any of my boxes.
+I assume you've confirmed this doesn't happen in vanilla rc5?
 
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Cheers,
+Con

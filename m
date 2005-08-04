@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVHDRSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVHDRLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbVHDRSR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 13:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVHDRSG
+	id S261591AbVHDRLl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 13:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVHDRIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 13:18:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13242 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261512AbVHDRQd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 13:16:33 -0400
-Date: Thu, 4 Aug 2005 10:15:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: mdew <some.nzguy@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       vojtech@suse.cz, dtor_core@ameritech.net
-Subject: Re: Fw: ati-remote strangeness from 2.6.12 onwards
-Message-Id: <20050804101515.4a983b29.akpm@osdl.org>
-In-Reply-To: <1c1c8636050801220442d8351c@mail.gmail.com>
-References: <20050730173253.693484a2.akpm@osdl.org>
-	<1c1c8636050801220442d8351c@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Aug 2005 13:08:35 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:21240 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262634AbVHDRHS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 13:07:18 -0400
+Message-ID: <42F24AC4.5080103@mvista.com>
+Date: Thu, 04 Aug 2005 10:05:08 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+CC: Roman Zippel <zippel@linux-m68k.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
+Subject: Re: [UPDATE PATCH] push rounding up of relative request to schedule_timeout()
+References: <Pine.LNX.4.61.0507231456000.3728@scrub.home> <20050723164310.GD4951@us.ibm.com> <Pine.LNX.4.61.0507231911540.3743@scrub.home> <20050723191004.GB4345@us.ibm.com> <Pine.LNX.4.61.0507232151150.3743@scrub.home> <20050727222914.GB3291@us.ibm.com> <Pine.LNX.4.61.0507310046590.3728@scrub.home> <20050801193522.GA24909@us.ibm.com> <Pine.LNX.4.61.0508031419000.3728@scrub.home> <20050804005147.GC4255@us.ibm.com> <20050804051434.GA4520@us.ibm.com>
+In-Reply-To: <20050804051434.GA4520@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mdew <some.nzguy@gmail.com> wrote:
->
-> I discovered a minor change in 2.6.10-mm1, changing this value back
->  corrects the "ok" button issue.
+Nishanth Aravamudan wrote:
+~
+> Sorry, I forgot that sys_nanosleep() also always adds 1 to the request
+> (to account for this same issue, I believe, as POSIX demands no early
+> return from nanosleep() calls). There are some other locations where
+> similar
 > 
-> 
->  diff -urN linux/drivers/usb/input/ati_remote.c
->  linux-2.6.11/drivers/usb/input/ati_remote.c
->  --- linux/drivers/usb/input/ati_remote.c        2005-08-02
->  17:56:26.000000000 +1200
->  +++ linux-2.6.11/drivers/usb/input/ati_remote.c 2005-08-02
->  17:54:34.000000000 +1200
->  @@ -263,7 +263,7 @@
->          {KIND_FILTERED, 0xe4, 0x1f, EV_KEY, KEY_RIGHT, 1},      /* right */
->          {KIND_FILTERED, 0xe7, 0x22, EV_KEY, KEY_DOWN, 1},       /* down */
->          {KIND_FILTERED, 0xdf, 0x1a, EV_KEY, KEY_UP, 1},         /* up */
->  -       {KIND_FILTERED, 0xe3, 0x1e, EV_KEY, KEY_ENTER, 1},      /* "OK" */
->  +       {KIND_FILTERED, 0xe3, 0x1e, EV_KEY, KEY_OK, 1},         /* "OK" */
->          {KIND_FILTERED, 0xce, 0x09, EV_KEY, KEY_VOLUMEDOWN, 1}, /* VOL + */
->          {KIND_FILTERED, 0xcd, 0x08, EV_KEY, KEY_VOLUMEUP, 1},   /* VOL - */
->          {KIND_FILTERED, 0xcf, 0x0a, EV_KEY, KEY_MUTE, 1},       /* MUTE  */
+> 	+ (t.tv_sec || t.tv_nsec)
 
-This appears to be already applied in 2.6.12-rc5.
+This is not the same as "always add 1".  We don't do it this way just to 
+have fun with C.  If you change schedule_timeout() to add the 1, 
+nanosleep() will need to do things differently to get the same behavior. 
+  (And, YES users do pass in zero sleep times.)
+
+
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

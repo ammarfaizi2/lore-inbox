@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVHDS4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVHDS6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbVHDS4k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 14:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVHDS4k
+	id S262633AbVHDS6H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 14:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbVHDS6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 14:56:40 -0400
-Received: from ns2.suse.de ([195.135.220.15]:61611 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262610AbVHDS4i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 14:56:38 -0400
-Date: Thu, 4 Aug 2005 20:56:32 +0200
-From: Andi Kleen <ak@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       amitkale@linsyssoft.com
-Subject: Re: [patch 07/15] Basic x86_64 support
-Message-ID: <20050804185632.GD8266@wotan.suse.de>
-References: <1.2972005.trini@kernel.crashing.org> <resend.7.2972005.trini@kernel.crashing.org> <20050803130531.GR10895@wotan.suse.de> <20050803133756.GA3337@smtp.west.cox.net> <20050804123900.GR8266@wotan.suse.de> <20050804140445.GB3337@smtp.west.cox.net> <20050804140620.GW8266@wotan.suse.de> <20050804141437.GC3337@smtp.west.cox.net> <20050804142806.GX8266@wotan.suse.de> <20050804150636.GD3337@smtp.west.cox.net>
-Mime-Version: 1.0
+	Thu, 4 Aug 2005 14:58:07 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:52097 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S262627AbVHDS6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 14:58:00 -0400
+X-IronPort-AV: i="3.95,168,1120460400"; 
+   d="scan'208"; a="202776721:sNHT27667828"
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Move InfiniBand .h files
+X-Message-Flag: Warning: May contain useful information
+References: <52iryla9r5.fsf@cisco.com>
+	<1123178038.3318.40.camel@laptopd505.fenrus.org>
+	<52acjxa70j.fsf@cisco.com>
+	<1123180717.3318.43.camel@laptopd505.fenrus.org>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Thu, 04 Aug 2005 11:57:55 -0700
+In-Reply-To: <1123180717.3318.43.camel@laptopd505.fenrus.org> (Arjan van de
+ Ven's message of "Thu, 04 Aug 2005 20:38:37 +0200")
+Message-ID: <52wtn18r7w.fsf@cisco.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050804150636.GD3337@smtp.west.cox.net>
+X-OriginalArrivalTime: 04 Aug 2005 18:57:56.0127 (UTC) FILETIME=[6CB0F2F0:01C59926]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 08:06:36AM -0700, Tom Rini wrote:
-> > 
-> > Why can't you run on x86-64 early? 
-> 
-> As I said earlier:
-> "
-> > If you want to run gdb earlier you need to do it without a tasklet.
-> 
-> We really would like to try again once stacks are setup (IOW, once
-> if ((&__get_cpu_var(init_tss))[0].ist[0])) is true).
-> "
-> 
-> IOW, when we parse the params on x86_64 this isn't true (or rather it
-> wasn't true as of 2.6.9'ish, if this has changed I'd be glad to retest
-> things).
+    Roland> Also, drivers/infiniband/include doesn't get put into the
+    Roland> /lib/modules/<ver>/build directory,
 
-The ISTs are set up for the boot processor extremly early - even
-before start_kernel. But they are useless before trap_init()
-runs because you won't get any exceptions that need an IDT (or rather
-they will all still point to the early exception handler that just panics) 
+    Arjan> that is a symlink not a directory, and a symlink to the
+    Arjan> full source...
 
--Andi
+Sorry, I was too terse about the problem.  You're right, but typical
+distros don't ship full kernel source in their "support kernel builds"
+package.  And if I use an external build directory (ie "O=") then
+the symlink just points to my external build directory, which doesn't
+include the source to drivers/, just links to include/
 
+ - R.

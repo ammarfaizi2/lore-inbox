@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVHDFeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVHDFf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbVHDFeO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 01:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVHDFeO
+	id S261829AbVHDFf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 01:35:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVHDFfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 01:34:14 -0400
-Received: from outmx012.isp.belgacom.be ([195.238.3.70]:35301 "EHLO
-	outmx012.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S261825AbVHDFeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 01:34:13 -0400
-From: Jan De Luyck <lkml@kcore.org>
+	Thu, 4 Aug 2005 01:35:23 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:5567 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261829AbVHDFen convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 01:34:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=a1UvMmRvIBz3fS9sqvNlQvY+l8m4SLQXtShW6IUoB6o2ocRZc3gWwBg2SL0W7O7HH/DJpb9mF2H1YOLqZPSwpjvhQS/GQYYSKz1ehG3PrErNH5zlZUXSaivybp0RluZTzt0tUAjrvXDfUu/1H3vEnjbjEcBbeM/09Q6bG5La6lo=
+Message-ID: <3afbacad0508032234f9af1f3@mail.gmail.com>
+Date: Thu, 4 Aug 2005 07:34:42 +0200
+From: Jim MacBaine <jmacbaine@gmail.com>
 To: Con Kolivas <kernel@kolivas.org>
 Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
-Date: Thu, 4 Aug 2005 07:34:13 +0200
-User-Agent: KMail/1.8.1
 Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
        tuukka.tikkanen@elektrobit.com
-References: <200508031559.24704.kernel@kolivas.org> <200508040709.19426.lkml@kcore.org> <200508041507.03562.kernel@kolivas.org>
-In-Reply-To: <200508041507.03562.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <200508040852.10224.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200508040734.13892.lkml@kcore.org>
+References: <200508031559.24704.kernel@kolivas.org>
+	 <200508040716.24346.kernel@kolivas.org>
+	 <3afbacad050803152226016790@mail.gmail.com>
+	 <200508040852.10224.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 August 2005 07:07, Con Kolivas wrote:
-> On Thu, 4 Aug 2005 03:09 pm, Jan De Luyck wrote:
-> > On Wednesday 03 August 2005 07:59, Con Kolivas wrote:
-> > > This is the dynamic ticks patch for i386 as written by Tony Lindgen
-> > > <tony@atomide.com> and Tuukka Tikkanen
-> > > <tuukka.tikkanen@elektrobit.com>. Patch for 2.6.13-rc5
-> >
-> > On a weird sidenote: my synaptics touchpad seems to not-like dyntick very
-> > much. When starting with a dyntick enabled kernel I get when psmouse.ko
-> > is loaded:
-> >
-> > Aug  4 06:45:47 precious kernel: Synaptics claims to have extended
-> > capabilities, but I'm not able to read them.<3>Unable to initialize
-> > Synaptics hardware. Aug  4 06:45:47 precious kernel: input: PS/2
-> > Synaptics TouchPad on isa0060/serio1
-> >
-> > subsequently, X fails to start too (touchpad is set as corepointer)
-> >
-> > reloading the module right then and there solves the problem:
-> >
-> > Aug  4 06:47:47 precious kernel: Synaptics Touchpad, model: 1, fw: 5.8,
-> > id: 0x9d48b1, caps: 0x904713/0x4006 Aug  4 06:47:47 precious kernel:
-> > input: SynPS/2 Synaptics TouchPad on isa0060/serio1
-> >
-> > Also, booting the same (but non-patched) kernel gives me a clean boot:
-> >
-> > Aug  4 06:56:42 precious kernel: Synaptics Touchpad, model: 1, fw: 5.8,
-> > id: 0x9d48b1, caps: 0x904713/0x4006 Aug  4 06:56:42 precious kernel:
-> > input: SynPS/2 Synaptics TouchPad on isa0060/serio1
-> >
-> > This is constantly reproducable for me. I guess some timing issue
-> > somewhere?
->
-> Did you try without the apic option or disable it at runtime? The apic
-> option is proving more problems than not so far for people that have tried
+On 8/4/05, Con Kolivas <kernel@kolivas.org> wrote:
+
+> Ok perhaps on the resume side instead. When trying to resume can you try
+> booting with 'dyntick=disable'. Note this isn't meant to be a long term fix
+> but once we figure out where the problem is we should be able to code around
 > it.
 
-The above was with apic enabled. With apic disabled, same story tho different 
-boot-time message:
+Sorry, no luck. 
 
-$ cat /sys/../state
-suitable:       1
-enabled:        1
-apic suitable:  1
-using APIC:     0
+I tried dyntick=disable and dyntick=noapic on resume time.  I also
+tried suspend and resume after the system has been started with
+dyntick=noapic: Same result.
 
-dmesg gives:
-Unable to query Synaptics hardware.
-input: PS/2 Synaptics TouchPad on isa0060/serio1
+As soon as I tell swsusp2 to discard its image, the system will come
+up flawlessly.
 
-and X refuses to start. Same resolution, just reload psmouse.
-
-Jan
--- 
-The default Magic Word, "Abracadabra", actually is a corruption of the
-Hebrew phrase "ha-Bracha dab'ra" which means "pronounce the blessing".
+Regards,
+Jim

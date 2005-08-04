@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVHDBvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVHDCUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVHDBvh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 21:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVHDBv1
+	id S261644AbVHDCUd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 22:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVHDCUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 21:51:27 -0400
-Received: from lixom.net ([66.141.50.11]:3487 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S261690AbVHDBvZ (ORCPT
+	Wed, 3 Aug 2005 22:20:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:21122 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261644AbVHDCUa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 21:51:25 -0400
-Date: Wed, 3 Aug 2005 20:30:10 -0500
-To: linux-kernel@vger.kernel.org
-Cc: linuxppc64-dev@ozlabs.org, akpm@osdl.org, paulus@samba.org,
-       anton@samba.org, miltonm@bga.com
-Subject: [PATCH] PPC64: Fix UP kernel build
-Message-ID: <20050804013010.GA10556@austin.ibm.com>
+	Wed, 3 Aug 2005 22:20:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=IuwzCQupaWbGpaBZ6Be+IQgl5H9LPaZluDaCc5nlpwcYbe/KovCIMRrnbMZT7EAJSf5aNUR+aNEnDZ3GzIX9C8nLej3G2mD6a2yygcETi0VJY3f6+/cGdEi1eabR5DxqFcIBqeFVWUUw0qwNuODVIqfPOJzu87ZLX9rEFGQOxgQ=
+Date: Thu, 4 Aug 2005 11:20:25 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Edward Falk <efalk@google.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Carlos Pardo <Carlos.Pardo@siliconimage.com>
+Subject: Re: [PATCH linux-2.6.13-rc3] SATA: rewritten sil24 driver
+Message-ID: <20050804022025.GA19237@htj.dyndns.org>
+References: <20050728013622.GA14026@htj.dyndns.org> <42E93FB9.6090800@pobox.com> <20050730081734.GA14242@htj.dyndns.org> <42EFFA05.8010003@google.com> <42F04361.4020001@pobox.com> <20050803142812.GA25446@htj.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: Olof Johansson <olof@lixom.net>
+In-Reply-To: <20050803142812.GA25446@htj.dyndns.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ Hello, Edward.
 
-CONFIG_KEXEC breaks UP builds because of a misspelled smp_release_cpus().
-Also, the function isn't defined unless built with CONFIG_SMP but it is
-needed if we are to go from a UP to SMP kernel. Enable it and document it.
+ One more question.
 
-Thanks to Steven Winiecki for reporting this and to Milton for remembering
-how it's supposed to work and why.
+> > >
+> > >I think this will work (adapted from sil_interrupt():
+> > >
+> > >static void sil_irq_clear(struct ata_port *ap)
+> > >{
+> > >        struct sil_port_priv *pp = ap->private_data;
+> > >        struct Port_Registers *port_base = pp->pregs;
+> > >    unsigned long port_int;
+> > >
+> > >    port_int  = readl((void *)&port_base->IntStatus);
+> > >    writel(port_int, &port_base->IntStatus);
+> > >}
+> > >
+> > >I'm assuming that this entry point is expected to clear all interrupts, no?
+> > 
+> > Correct.
+> > 
+> 
+>  I'll verify with the error register clearing part of the original
+> driver and submit a patch.
+> 
 
--Olof
+ Command completion interrupt is automatcally cleared by reading
+PORT_SLOT_STAT register (SlotStatus in the original driver), and error
+registers should be manually cleared by writing to PORT_IRQ_STAT
+(IntStatus).
 
-Signed-off-by: Olof Johansson <olof@lixom.net>
+ I agree that above code should clear both.  Just wanna verify.  Have
+you tested it and/or do you have any information confirming this?  If
+we don't have any further info, I think we should read PORT_SLOT_STAT
+before clearing PORT_IRQ_STAT to be on the safe side.
 
-Index: 2.6/arch/ppc64/kernel/machine_kexec.c
-===================================================================
---- 2.6.orig/arch/ppc64/kernel/machine_kexec.c	2005-08-03 19:53:16.000000000 -0500
-+++ 2.6/arch/ppc64/kernel/machine_kexec.c	2005-08-03 20:39:49.000000000 -0500
-@@ -243,13 +243,17 @@ static void kexec_prepare_cpus(void)
- 
- static void kexec_prepare_cpus(void)
- {
-+	extern void smp_release_cpus(void);
- 	/*
- 	 * move the secondarys to us so that we can copy
- 	 * the new kernel 0-0x100 safely
- 	 *
- 	 * do this if kexec in setup.c ?
-+	 *
-+	 * We need to release the cpus if we are ever going from an
-+	 * UP to an SMP kernel.
- 	 */
--	smp_relase_cpus();
-+	smp_release_cpus();
- 	if (ppc_md.cpu_irq_down)
- 		ppc_md.cpu_irq_down();
- 	local_irq_disable();
-Index: 2.6/arch/ppc64/kernel/head.S
-===================================================================
---- 2.6.orig/arch/ppc64/kernel/head.S	2005-08-03 19:53:16.000000000 -0500
-+++ 2.6/arch/ppc64/kernel/head.S	2005-08-03 20:37:22.000000000 -0500
-@@ -2071,7 +2071,7 @@ _GLOBAL(hmt_start_secondary)
- 	blr
- #endif
- 
--#if defined(CONFIG_SMP) && !defined(CONFIG_PPC_ISERIES)
-+#if defined(CONFIG_KEXEC) || (defined(CONFIG_SMP) && !defined(CONFIG_PPC_ISERIES))
- _GLOBAL(smp_release_cpus)
- 	/* All secondary cpus are spinning on a common
- 	 * spinloop, release them all now so they can start
+ Thanks.
+
+-- 
+tejun

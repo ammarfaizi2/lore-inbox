@@ -1,61 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbVHDOln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVHDOvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262455AbVHDOln (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 10:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVHDOjG
+	id S262575AbVHDOvI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 10:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVHDOs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 10:39:06 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:34692 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262519AbVHDOgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 10:36:37 -0400
-Message-ID: <42F227D9.8000405@gmail.com>
-Date: Thu, 04 Aug 2005 16:36:09 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: cs, en-us, en
+	Thu, 4 Aug 2005 10:48:56 -0400
+Received: from silver.veritas.com ([143.127.12.111]:29112 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S262575AbVHDOqu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 10:46:50 -0400
+Date: Thu, 4 Aug 2005 15:48:35 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Anton Blanchard <anton@samba.org>, cr@sap.com, linux-mm@kvack.org
+Subject: Re: Getting rid of SHMMAX/SHMALL ?
+In-Reply-To: <20050804142040.GB22165@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.61.0508041547500.4373@goblin.wat.veritas.com>
+References: <20050804113941.GP8266@wotan.suse.de>
+ <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com>
+ <20050804132338.GT8266@wotan.suse.de> <20050804142040.GB22165@mea-ext.zmailer.org>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Old api files, rewrite or delete?
-References: <42F20345.3020603@gmail.com> <20050804144331.E32154@flint.arm.linux.org.uk>
-In-Reply-To: <20050804144331.E32154@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 04 Aug 2005 14:46:47.0873 (UTC) FILETIME=[574FDB10:01C59903]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King napsal(a):
+On Thu, 4 Aug 2005, Matti Aarnio wrote:
+> 
+> SHM resources are non-swappable, thus I would not by default
+> let user programs go and allocate very much SHM spaces at all.
 
->On Thu, Aug 04, 2005 at 02:00:05PM +0200, Jiri Slaby wrote:
->  
->
->>drivers/parport/parport_pc.c
->>    
->>
->
->I think a fair number of people probably use this.
->  
->
-Yeah, I use it too, i don't know, why am I asking for this.
+No, SHM resources are swappable.
 
->>REMOVE:
->>drivers/video/pm3fb.c
->>    
->>
->
->I have one of these cards, and I believe it's only recently (2.5-ish)
->been merged.  Why are you so keen to mark it as "remove"?
->  
->
-Because it doesn't work for me (it doesn't compile) and it is marked as 
-"broken".
-Where are files fbcon-cfb{2,4,8,16,24,32}.h? Do you need some additional 
-packages?
--- then a few lines should be added to Kconfig.
-
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
-
+Hugh

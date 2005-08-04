@@ -1,45 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVHDRLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVHDRQM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVHDRLm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 13:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbVHDRIa
+	id S261409AbVHDRQM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 13:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVHDROP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 13:08:30 -0400
-Received: from mx2.suse.de ([195.135.220.15]:6807 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262636AbVHDRIE (ORCPT
+	Thu, 4 Aug 2005 13:14:15 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:26060 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S261606AbVHDRL5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 13:08:04 -0400
-Date: Thu, 4 Aug 2005 19:08:03 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] String conversions for memory policy
-Message-ID: <20050804170803.GB8266@wotan.suse.de>
-References: <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net> <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net> <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net> <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net> <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0508040922110.6650@graphe.net>
+	Thu, 4 Aug 2005 13:11:57 -0400
+From: Rolf Eike Beer <eike@sf-mail.de>
+To: Dave Jones <davej@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
+       linux-scsi@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
+Date: Thu, 4 Aug 2005 19:11:38 +0200
+User-Agent: KMail/1.8.1
+References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net> <200508041756.23611@bilbo.math.uni-mannheim.de> <20050804164259.GD22886@redhat.com>
+In-Reply-To: <20050804164259.GD22886@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1640321.ZKjtb9X6bI";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508041911.46911@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > This piece here only does conversion to a string representation so it 
-> > > should not be affected by locking issues. Processes need to do proper 
-> > > locking when using the conversion functions.
-> > 
-> > It's useless.
-> 
-> So your point of view is that there will be no control and monitoring of 
-> the memory usage and policies?
+--nextPart1640321.ZKjtb9X6bI
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-External control is implemented for named objects and for process policy.
-A process can also monitor its own policies if it wants.
+Dave Jones wrote:
+>On Thu, Aug 04, 2005 at 05:56:14PM +0200, Rolf Eike Beer wrote:
+> > Am Donnerstag, 4. August 2005 17:40 schrieb Dave Jones:
+> > >On Thu, Aug 04, 2005 at 11:38:30AM +0200, Rolf Eike Beer wrote:
+> > > > >+	  ulFibreFrame = kmalloc((2048/4), GFP_KERNEL);
+> > > >
+> > > > The size bug was already found by Dave Jones. This never should be
+> > > > written this way (not your fault). The array should have been
+> > > > [2048/sizeof(ULONG)].
+> > >
+> > >wasteful. We only ever use 2048 bytes of this array, so doubling
+> > >its size on 64bit is pointless, unless you make changes later on
+> > >in the driver. (Which I think don't make sense, as we just copy
+> > >32 64byte chunks).
+> >
+> > No, this is how it should have been before. This way it would have been
+> > clear where the magic 4 came from.
+>
+>It's pointless to fix this, without fixing also CpqTsGetSFQEntry()
+>...
 
-I think the payoff for external monitoring of policies vs complexity 
-and cleanliness of interface and long term code impact is too bad to make 
-it an attractive option.
+At least half of the file should be rewritten.
 
+> > >we're trashing the last 48 bytes of every copy we make.
+> > >Does this driver even work ?
+> >
+> > No, ulDestPtr ist ULONG* so we increase it by sizeof(ULONG)*16 which is
+> > 64.
+>
+>Duh, yes.  That is broken on 64-bit however, where it will advance 128 bytes
+>instead of 64 bytes.
 
--Andi
+ULONG is defined to __u32 in some of the cpq* headers.
 
+Eike
+
+--nextPart1640321.ZKjtb9X6bI
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBC8kxSXKSJPmm5/E4RAvDxAKCDr0RL7r+kInJoZYvrw/+P+Av51gCfbmFP
+Iozo+/e24VHZZyy7CHR/OcQ=
+=NbXn
+-----END PGP SIGNATURE-----
+
+--nextPart1640321.ZKjtb9X6bI--

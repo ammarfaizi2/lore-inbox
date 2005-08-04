@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVHDGGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVHDGG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVHDGGz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 02:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVHDGGv
+	id S261847AbVHDGG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 02:06:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVHDGGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 02:06:51 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:53705 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261891AbVHDGGn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 02:06:43 -0400
-Date: Thu, 4 Aug 2005 08:06:33 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Johan Veenhuizen <veenhuizen@users.sourceforge.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12.3] Deny chmod in /proc/<pid>/
-In-Reply-To: <42f096e7.9SOTOrosbBYB6uCh%veenhuizen@users.sf.net>
-Message-ID: <Pine.LNX.4.61.0508040804540.22272@yvahk01.tjqt.qr>
-References: <42efd43d.ijkrXtpGJUM7deW2%veenhuizen@users.sf.net>
- <Pine.LNX.4.61.0508030816150.2263@yvahk01.tjqt.qr>
- <42f096e7.9SOTOrosbBYB6uCh%veenhuizen@users.sf.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Aug 2005 02:06:55 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:64263 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261847AbVHDGF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 02:05:59 -0400
+To: will.dyson@gmail.com
+CC: jirislaby@gmail.com, linux-kernel@vger.kernel.org
+In-reply-to: <8e6f9472050803214250821160@mail.gmail.com> (message from Will
+	Dyson on Thu, 4 Aug 2005 00:42:54 -0400)
+Subject: Re: Obsolete files in 2.6 tree
+References: <42DED9F3.4040300@gmail.com> <42F145ED.2060008@gmail.com> <8e6f9472050803214250821160@mail.gmail.com>
+Message-Id: <E1E0YrP-0000rm-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 04 Aug 2005 08:05:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Well, don't know about anyone else, but I certainly don't use it
+> anymore. If anyone needs  a fully-functional befs driver, the easiest
+> route to that would probably be getting Haiku's befs driver to compile
+> in userland as a FUSE fs.
 
->Did you mean "chmod"?
+That has already been done:
 
-No, I really meant chown - which just turned up another should-not-be:
-no warning is generated when trying to chown;
-chmod is even _persistent_ - for the moment.
+  http://prdownloads.sourceforge.net/fuse/mountlo-i386-0.1.tar.gz
 
->And I don't even have "smaps".
+All is needed is a working FUSE installation, and the above binary, to
+be able to mount any filesystem image/partition.
 
-Just take any file.
-
-
-Jan Engelhardt
--- 
+Miklos

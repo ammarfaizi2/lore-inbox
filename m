@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVHDLub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbVHDLwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbVHDLub (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 07:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVHDLua
+	id S262488AbVHDLwT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 07:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVHDLuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 4 Aug 2005 07:50:37 -0400
+Received: from downeast.net ([12.149.251.230]:61382 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S262493AbVHDLua (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 4 Aug 2005 07:50:30 -0400
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:33937 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262489AbVHDLuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 07:50:24 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Gabriel Devenyi <ace@staticwave.ca>
-Subject: Re: [ck] [ANNOUNCE] Interbench 0.27
-Date: Thu, 4 Aug 2005 21:46:13 +1000
-User-Agent: KMail/1.8.2
-Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org,
-       Jake Moilanen <moilanen@austin.ibm.com>
-References: <200508031758.31246.kernel@kolivas.org> <200508041004.46675.kernel@kolivas.org> <42F1FF89.5030903@staticwave.ca>
-In-Reply-To: <42F1FF89.5030903@staticwave.ca>
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: Nick Sillik <n.sillik@temple.edu>
+Subject: Re: **SPAM** [PATCH 3/3] usb gadget driver for MQ11xx graphics chip
+Date: Thu, 4 Aug 2005 07:48:19 -0400
+User-Agent: KMail/1.8.50
+Cc: mkrufky@m1k.net, jamey@crl.dec.com, linux-kernel@vger.kernel.org
+References: <20050802192047.0995AB4A11@lspace.crl.dec.com> <42EFE2FB.8040503@m1k.net> <42F13BFE.40304@temple.edu>
+In-Reply-To: <42F13BFE.40304@temple.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart6538869.6gQGRUkMK0";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508042146.13710.kernel@kolivas.org>
+Message-Id: <200508040748.52587.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Aug 2005 21:44, Gabriel Devenyi wrote:
-> Hi Con,
+--nextPart6538869.6gQGRUkMK0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+On Wednesday 03 August 2005 05:49 pm, Nick Sillik wrote:
+> Michael Krufky wrote:
+> > jamey@crl.dec.com wrote:
+> >
+> > The email subject..... "Re: **SPAM** [PATCH 3/3] usb gadget driver for
+> > MQ11xx graphics chip" ... Was that an accident, or did my email server
+> > take over my headers?  (i'm not running any spam filering software or
+> > anything)
+> >
+> > If this happened on your end, you might want to re-send that one...
+> > Some email clients automatically filter messages containing "**SPAM**"
+> > in subject line.
 >
-> You must hate me by now...
+> Nope, isn't on your end. I'm seeing them too. I thought my mailserver
+> had gone off its rocker. I'm glad to know that others are seeing this.
 
-No. A bug report is a bug report. I hate the fact that I coded up 2000 lines 
-of code and am still suffering from a problem in the same 10 lines that I did 
-in version .01. PEBKAC. 
+I see it too. Looks like maybe his ISP filters outgoing mail with their=20
+anti-spam stuff?
 
-> The "Gaming" benchmark has the same issue with nan coming out of the
-> STDEV calculations, probably requires the same fix as before.
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-Anyway Peter Williams has promised to fix it for me (yay!).
+--nextPart6538869.6gQGRUkMK0
+Content-Type: application/pgp-signature
 
-> Secondly, the benchmarking of loops_per_ms is running forever, and I
-> managed to determine where its happening.
->
-> In calibrate loops you run a while loop and iterate to get 1000 for
-> run_time, then you calculate it one more time to ensure it was right
-> *however* you put a sleep(1) before that. It seems to seriously skew the
-> results, as it consistently adds ~500 to run_time, as run_time is now
-> 1500, it jumps back up to redo because of the goto statement, and runs
-> the while loop again, continue ad nausium. I added some simple debugging
-> output which prints run time at the end of each while loop, and right
-> before the goto if statement, this is the output.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-> The solution I used is of course to simply comment out the sleep
-> statement, then everything works nicely, however your comments appear to
-> indicate that the sleep is there to make the system settle a little,
-> perhaps another method needs to be used. Thanks for your time!
+iD8DBQBC8gCk8Gvouk7G1cURAq1JAJ4gYIxmN0/ujhzwzYFkIfW+L9RPsgCgkqKA
+dG3OMPnJnw00XQSaZ4Co+ng=
+=yEl7
+-----END PGP SIGNATURE-----
 
-I have to think about it. This seems a problem only on one type of cpu for 
-some strange reason (lemme guess; athlon?) and indeed leaving out the sleep 1 
-followed by the check made results far less reliable. This way with the sleep 
-1 I have not had spurious results returned by the calibration. I'm open to 
-suggestions if anyone's got one.
-
-Cheers,
-Con
+--nextPart6538869.6gQGRUkMK0--

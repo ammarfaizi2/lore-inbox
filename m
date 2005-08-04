@@ -1,88 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVHDJWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVHDJcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbVHDJWX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 05:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbVHDJWX
+	id S262448AbVHDJcM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 05:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVHDJcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 05:22:23 -0400
-Received: from mx2.suse.de ([195.135.220.15]:30362 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262317AbVHDJWW (ORCPT
+	Thu, 4 Aug 2005 05:32:11 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:17810 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S262405AbVHDJcJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 05:22:22 -0400
-Date: Thu, 4 Aug 2005 11:22:21 +0200
-From: Andi Kleen <ak@suse.de>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Subject: Re: [RFC][2.6.12.3] IRQ compression/sharing patch
-Message-ID: <20050804092221.GL8266@wotan.suse.de>
-References: <200507260012.41968.jamesclv@us.ibm.com> <20050726160319.GB5353@wotan.suse.de> <200508040005.50817.jamesclv@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508040005.50817.jamesclv@us.ibm.com>
+	Thu, 4 Aug 2005 05:32:09 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
+Date: Thu, 4 Aug 2005 11:38:30 +0200
+User-Agent: KMail/1.8.1
+Cc: "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
+       linux-scsi@vger.kernel.org, axboe@suse.de
+References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net>
+In-Reply-To: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3670994.FAo0KsVKFx";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508041138.38216@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 12:05:50AM -0700, James Cleverdon wrote:
+--nextPart3670994.FAo0KsVKFx
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> diff -pruN 2.6.12.3/arch/i386/kernel/acpi/boot.c n12.3/arch/i386/kernel/acpi/boot.c
-> --- 2.6.12.3/arch/i386/kernel/acpi/boot.c	2005-07-15 14:18:57.000000000 -0700
-> +++ n12.3/arch/i386/kernel/acpi/boot.c	2005-08-04 00:01:10.199710211 -0700
-> @@ -42,6 +42,7 @@
->  static inline void  acpi_madt_oem_check(char *oem_id, char *oem_table_id) { }
->  extern void __init clustered_apic_check(void);
->  static inline int ioapic_setup_disabled(void) { return 0; }
-> +extern int gsi_irq_sharing(int gsi);
->  #include <asm/proto.h>
->  
->  #else	/* X86 */
-> @@ -51,6 +52,9 @@ static inline int ioapic_setup_disabled(
->  #include <mach_mpparse.h>
->  #endif	/* CONFIG_X86_LOCAL_APIC */
->  
-> +static inline int gsi_irq_sharing(int gsi) { return gsi; }
+Saripalli, Venkata Ramanamurthy (STSD) wrote:
+>Patch 1 of 2
+>
+>This patch fixes the "#error this is too much stack" in 2.6 kernel.
+>Using kmalloc to allocate memory to ulFibreFrame.
 
-Why is this different for i386/x86-64? It shouldn't.
+Good idea.
 
-As a unrelated note we really need to get rid of this whole ifdef block.
+>Please consider this for inclusion
 
-> +++ n12.3/arch/x86_64/Kconfig	2005-08-03 21:31:07.487451167 -0700
-> @@ -280,13 +280,13 @@ config HAVE_DEC_LOCK
->  	default y
->  
->  config NR_CPUS
-> -	int "Maximum number of CPUs (2-256)"
-> -	range 2 256
-> +	int "Maximum number of CPUs (2-255)"
-> +	range 2 255
->  	depends on SMP
-> -	default "8"
-> +	default "16"
+Your patch is line-wrapped and can't be applied. Your second patch is also=
+=20
+line wrapped. And it touches this file in a different way so they can't be=
+=20
+applied cleanly over each other.
 
-Don't change the default please.
+>diff -burpN old/drivers/scsi/cpqfcTScontrol.c
+>new/drivers/scsi/cpqfcTScontrol.c
+>--- old/drivers/scsi/cpqfcTScontrol.c	2005-07-12 22:52:29.000000000
+>+0530
+>+++ new/drivers/scsi/cpqfcTScontrol.c	2005-07-18 22:19:54.229947176
+>+0530
+>@@ -606,22 +606,25 @@ static int PeekIMQEntry( PTACHYON fcChip
+>         if( (fcChip->IMQ->QEntry[CI].type & 0x1FF) =3D=3D 0x104 )
+>         {
+>           TachFCHDR_GCMND* fchs;
+>-#error This is too much stack
+>-          ULONG ulFibreFrame[2048/4];  // max DWORDS in incoming FC
+>Frame
+>+          ULONG *ulFibreFrame;  // max DWORDS in incoming FC Frame
+> 	  USHORT SFQpi =3D (USHORT)(fcChip->IMQ->QEntry[CI].word[0] &
+>0x0fffL);
 
-> +static int next_irq = 16;
+Why not use a void* here as type for the buffer? Or even better: remove thi=
+s=20
+at all and directly use fchs as target, because this is the only place wher=
+e=20
+this buffer goes to?
 
-Won't this need a lock for hotplug later?
+>+	  ulFibreFrame =3D kmalloc((2048/4), GFP_KERNEL);
 
-> +
-> + retry_vector:
-> +	vector = assign_irq_vector(gsi);
-> +
-> +	/*
-> +	 * Sharing vectors means sharing IRQs, so scan irq_vectors for previous
-> +	 * use of vector and if found, return that IRQ.  However, we never want
-> +	 * to share legacy IRQs, which usually have a different trigger mode
-> +	 * than PCI.
-> +	 */
+The size bug was already found by Dave Jones. This never should be written=
+=20
+this way (not your fault). The array should have been [2048/sizeof(ULONG)].
 
-Can we perhaps force such sharing early temporarily even when the table
-is not filled up?  This way we would get better test coverage of all
-of  this.
+> 	  CpqTsGetSFQEntry( fcChip,
+>             SFQpi,        // SFQ producer ndx
+> 	    ulFibreFrame, // contiguous dest. buffer
+> 	    FALSE);       // DON'T update chip--this is a "lookahead"
 
-That would be later disabled of course.
+CpqTsGetSFQEntry() should be modified to take a void* as third argument IMH=
+O.
 
-Rest looks ok to me.
+>-	  fchs =3D (TachFCHDR_GCMND*)&ulFibreFrame;
+>+	  fchs =3D (TachFCHDR_GCMND*)ulFibreFrame;
+>           if( fchs->pl[0] =3D=3D ELS_LILP_FRAME)
+> 	  {
+>+	    kfree(ulFibreFrame);
+>             return 1; // found the LILP frame!
+> 	  }
+> 	  else
+> 	  {
+>+	    kfree(ulFibreFrame);
+> 	    // keep looking...
+> 	  }
+> 	}
 
--Andi
+What a ...
+
+I would prefer if someone goes and really cleans up this driver.
+
+=2Dread Documentation/Codingstyle
+=2Dgo through Lindent.
+=2Dkill this ULONG stuff. If you want __u32 use it.
+=2Duse void* for "just a buffer"
+=2Ddon't use hardcoded type sizes. Use sizeof(type) to make clear what kind=
+ of=20
+magic is going on.
+=2Dthis is C, not C++. No C++ comments, use fewer uppercase letters.
+
+The way it is is very likely to cause people missing what's really going on=
+ at=20
+some places, which will cause errors afterwards.
+
+Eike
+
+--nextPart3670994.FAo0KsVKFx
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBC8eIeXKSJPmm5/E4RAtkMAKCSFuC/yhne0lNSSX0jRAJJXP3TeACfcytd
+HvrI/NzzJwK/aLqn1H2aAfs=
+=Lp1X
+-----END PGP SIGNATURE-----
+
+--nextPart3670994.FAo0KsVKFx--

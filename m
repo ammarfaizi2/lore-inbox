@@ -1,64 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVHDPKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVHDPMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262576AbVHDPKC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 11:10:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVHDPHa
+	id S262561AbVHDPMU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 11:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVHDPKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 11:07:30 -0400
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:54934 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S262559AbVHDPGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 11:06:38 -0400
-Date: Thu, 4 Aug 2005 08:06:36 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, amitkale@linsyssoft.com
-Subject: Re: [patch 07/15] Basic x86_64 support
-Message-ID: <20050804150636.GD3337@smtp.west.cox.net>
-References: <resend.6.2972005.trini@kernel.crashing.org> <1.2972005.trini@kernel.crashing.org> <resend.7.2972005.trini@kernel.crashing.org> <20050803130531.GR10895@wotan.suse.de> <20050803133756.GA3337@smtp.west.cox.net> <20050804123900.GR8266@wotan.suse.de> <20050804140445.GB3337@smtp.west.cox.net> <20050804140620.GW8266@wotan.suse.de> <20050804141437.GC3337@smtp.west.cox.net> <20050804142806.GX8266@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050804142806.GX8266@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
+	Thu, 4 Aug 2005 11:10:19 -0400
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:51344 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S262559AbVHDPIS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 11:08:18 -0400
+Date: Thu, 4 Aug 2005 17:08:13 +0200 (CEST)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Roger Heflin <rheflin@atipa.com>
+cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: MCE problem on dual Opteron
+In-Reply-To: <EXCHG2003J8uT6Ssuot000008e0@EXCHG2003.microtech-ks.com>
+Message-ID: <Pine.LNX.4.60.0508041700460.15383@kepler.fjfi.cvut.cz>
+References: <EXCHG2003J8uT6Ssuot000008e0@EXCHG2003.microtech-ks.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="546507526-868048530-1123168093=:15383"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 04:28:06PM +0200, Andi Kleen wrote:
-> On Thu, Aug 04, 2005 at 07:14:37AM -0700, Tom Rini wrote:
-> > On Thu, Aug 04, 2005 at 04:06:20PM +0200, Andi Kleen wrote:
-> > > On Thu, Aug 04, 2005 at 07:04:45AM -0700, Tom Rini wrote:
-> > > > On Thu, Aug 04, 2005 at 02:39:00PM +0200, Andi Kleen wrote:
-> > > > > > > That doesn't make much sense here. tasklet will only run when interrupts
-> > > > > > > are enabled, and that is much later. You could move it to there.
-> > > > > > 
-> > > > > > Where?  Keep in mind it's really only x86_64 that isn't able to break
-> > > > > > sooner.
-> > > > > 
-> > > > > The local_irq_enable() call in init/main.c:start_kernel()
-> > > > 
-> > > > But as I say, only x86_64 needs this kind of delay.
-> > > 
-> > > I don't think that's correct. Interrupts should be disabled on all
-> > > architectures until that.
-> > 
-> > Right, but we can run sooner elsewhere.  It's only x86_64 where we can't
-> > run when our commandline bits are parsed and need to wait.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--546507526-868048530-1123168093=:15383
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+On Thu, 4 Aug 2005, Roger Heflin wrote:
+
+> If this does not happen immediately at boot up (before the machine
+> finished all init stuff), it is generally a hardware problem.  In
+> my experience with new machines 75% of the time it will be the cpu
+> itself, and another 25% it will be a serious memory error.
+
+Unfortunatelly this seems to appear during bootup. Allways at the 
+exact same place. Attached is a dmesg output that precedes the below 
+mentioned MCE error. (BTW: The timestamp there isnt actually 847.7... but 
+84.7... I got it wrong when I was copying it from the screen by hand.) The 
+attached dmesg output is from the 'nomce' run of the kernel and it is 
+snipped so that it ends just where it ends without the 'nomce' option and 
+then follows the  below mentioned MCE error.
+
+I don't think it is a HW problem, or am I wrong?
+
+Martin
+
 > 
-> Why can't you run on x86-64 early? 
+> > -----Original Message-----
+> > From: linux-kernel-owner@vger.kernel.org 
+> > [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Martin Drab
+> > Sent: Thursday, August 04, 2005 8:55 AM
+> > To: Linux Kernel Mailing List
+> > Subject: MCE problem on dual Opteron
+> > 
+> > Hi,
+> > 
+> > I get the following problem with 2.6.13-rc5-git1 on a dual Opteron
+> > machine:
+> > 
+> > ---------
+> > ...
+> > [   847.745921] CPU 0: Machine Check Exception:               
+> >  7 Bank 3: b40000000000083b
+> > [   847.746066] RIP 10:<ffffffff802c04ee> {pci_conf1_read+0xbe/0x110}
+> > [   847.746149] TSC 189fe311d3f ADDR fdfc000cfe
+> > [   847.746218] Kernel panic - not syncing: Uncorrected machine check
+> > ---------
+> > 
+> > This appears during bootup and it hangs. So my question is: 
+> > Is this a HW problem or is it some kernel (MCE ?) bug? If it 
+> > is a HW problem is it possible to determine what's wrong somehow?
+...
+--546507526-868048530-1123168093=:15383
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dmesg.log"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.60.0508041708130.15383@kepler.fjfi.cvut.cz>
+Content-Description: dmesg preceding the MCE error
+Content-Disposition: attachment; filename="dmesg.log"
 
-As I said earlier:
-"
-> If you want to run gdb earlier you need to do it without a tasklet.
+WyAgICAwLjAwMDAwMF0gQm9vdGRhdGEgb2sgKGNvbW1hbmQgbGluZSBpcyBy
+byByb290PUxBQkVMPS8gcmVzdW1lPS9kZXYvc2RhMiByaGdiIHZnYT03OTQg
+aXBtaV93YXRjaGRvZy5zdGFydF9ub3c9MCBpcG1pX3dhdGNoZG9nLnRpbWVv
+dXQ9MCBub21jZSkNClsgICAgMC4wMDAwMDBdIExpbnV4IHZlcnNpb24gMi42
+LjEzLXJjNS1naXQxIChyb290QG5ldXRyb24uZmpmaS5jdnV0LmN6KSAoZ2Nj
+IHZlcnNpb24gNC4wLjAgMjAwNTA1MTkgKFJlZCBIYXQgNC4wLjAtOCkpICMy
+IFNNUCBXZWQgQXVnIDMgMTk6NDE6MTMgQ0VTVCAyMDA1DQpbICAgIDAuMDAw
+MDAwXSBCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6DQpbICAgIDAu
+MDAwMDAwXSAgQklPUy1lODIwOiAwMDAwMDAwMDAwMDAwMDAwIC0gMDAwMDAw
+MDAwMDA5YjAwMCAodXNhYmxlKQ0KWyAgICAwLjAwMDAwMF0gIEJJT1MtZTgy
+MDogMDAwMDAwMDAwMDA5YjAwMCAtIDAwMDAwMDAwMDAwYTAwMDAgKHJlc2Vy
+dmVkKQ0KWyAgICAwLjAwMDAwMF0gIEJJT1MtZTgyMDogMDAwMDAwMDAwMDBk
+MDAwMCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJlc2VydmVkKQ0KWyAgICAwLjAw
+MDAwMF0gIEJJT1MtZTgyMDogMDAwMDAwMDAwMDEwMDAwMCAtIDAwMDAwMDAw
+N2ZmNzAwMDAgKHVzYWJsZSkNClsgICAgMC4wMDAwMDBdICBCSU9TLWU4MjA6
+IDAwMDAwMDAwN2ZmNzAwMDAgLSAwMDAwMDAwMDdmZjdiMDAwIChBQ1BJIGRh
+dGEpDQpbICAgIDAuMDAwMDAwXSAgQklPUy1lODIwOiAwMDAwMDAwMDdmZjdi
+MDAwIC0gMDAwMDAwMDA3ZmY4MDAwMCAoQUNQSSBOVlMpDQpbICAgIDAuMDAw
+MDAwXSAgQklPUy1lODIwOiAwMDAwMDAwMDdmZjgwMDAwIC0gMDAwMDAwMDA4
+MDAwMDAwMCAocmVzZXJ2ZWQpDQpbICAgIDAuMDAwMDAwXSAgQklPUy1lODIw
+OiAwMDAwMDAwMGZlYzAwMDAwIC0gMDAwMDAwMDBmZWMwMDQwMCAocmVzZXJ2
+ZWQpDQpbICAgIDAuMDAwMDAwXSAgQklPUy1lODIwOiAwMDAwMDAwMGZlZTAw
+MDAwIC0gMDAwMDAwMDBmZWUwMTAwMCAocmVzZXJ2ZWQpDQpbICAgIDAuMDAw
+MDAwXSAgQklPUy1lODIwOiAwMDAwMDAwMGZmZjgwMDAwIC0gMDAwMDAwMDEw
+MDAwMDAwMCAocmVzZXJ2ZWQpDQpbICAgIDAuMDAwMDAwXSBBQ1BJOiBSU0RQ
+ICh2MDAyIFBUTFREICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+KSBAIDB4MDAwMDAwMDAwMDBmNzhlMA0KWyAgICAwLjAwMDAwMF0gQUNQSTog
+WFNEVCAodjAwMSBQVExURCAgCSBYU0RUICAgMHgwNjA0MDAwMCAgTFRQIDB4
+MDAwMDAwMDApIEAgMHgwMDAwMDAwMDdmZjc4ZDExDQpbICAgIDAuMDAwMDAw
+XSBBQ1BJOiBGQURUICh2MDAzIEFNRCAgICBIQU1NRVIgICAweDA2MDQwMDAw
+IFBURUMgMHgwMDBmNDI0MCkgQCAweDAwMDAwMDAwN2ZmN2FlMGUNClsgICAg
+MC4wMDAwMDBdIEFDUEk6IEhQRVQgKHYwMDEgQU1EICAgIEhBTU1FUiAgIDB4
+MDYwNDAwMDAgUFRFQyAweDAwMDAwMDAwKSBAIDB4MDAwMDAwMDA3ZmY3YWYw
+Mg0KWyAgICAwLjAwMDAwMF0gQUNQSTogTUFEVCAodjAwMSBQVExURCAgCSBB
+UElDICAgMHgwNjA0MDAwMCAgTFRQIDB4MDAwMDAwMDApIEAgMHgwMDAwMDAw
+MDdmZjdhZjNhDQpbICAgIDAuMDAwMDAwXSBBQ1BJOiBTUENSICh2MDAxIFBU
+TFREICAkVUNSVEJMJCAweDA2MDQwMDAwIFBUTCAgMHgwMDAwMDAwMSkgQCAw
+eDAwMDAwMDAwN2ZmN2FmYjANClsgICAgMC4wMDAwMDBdIEFDUEk6IERTRFQg
+KHYwMDEgQU1ELUs4ICBBTURBQ1BJIDB4MDYwNDAwMDAgTVNGVCAweDAxMDAw
+MDBlKSBAIDB4MDAwMDAwMDAwMDAwMDAwMA0KWyAgICAwLjAwMDAwMF0gU2Nh
+bm5pbmcgTlVNQSB0b3BvbG9neSBpbiBOb3J0aGJyaWRnZSAyNA0KWyAgICAw
+LjAwMDAwMF0gTnVtYmVyIG9mIG5vZGVzIDINClsgICAgMC4wMDAwMDBdIE5v
+ZGUgMCB1c2luZyBpbnRlcmxlYXZpbmcgbW9kZSAxLzANClsgICAgMC4wMDAw
+MDBdIE5vIE5VTUEgY29uZmlndXJhdGlvbiBmb3VuZA0KWyAgICAwLjAwMDAw
+MF0gRmFraW5nIGEgbm9kZSBhdCAwMDAwMDAwMDAwMDAwMDAwLTAwMDAwMDAw
+N2ZmNzAwMDANClsgICAgMC4wMDAwMDBdIEJvb3RtZW0gc2V0dXAgbm9kZSAw
+IDAwMDAwMDAwMDAwMDAwMDAtMDAwMDAwMDA3ZmY3MDAwMA0KWyAgICAwLjAw
+MDAwMF0gT24gbm9kZSAwIHRvdGFscGFnZXM6IDUyNDE0NA0KWyAgICAwLjAw
+MDAwMF0gICBETUEgem9uZTogNDA5NiBwYWdlcywgTElGTyBiYXRjaDoxDQpb
+ICAgIDAuMDAwMDAwXSAgIE5vcm1hbCB6b25lOiA1MjAwNDggcGFnZXMsIExJ
+Rk8gYmF0Y2g6MzENClsgICAgMC4wMDAwMDBdICAgSGlnaE1lbSB6b25lOiAw
+IHBhZ2VzLCBMSUZPIGJhdGNoOjENClsgICAgMC4wMDAwMDBdIEFDUEk6IExv
+Y2FsIEFQSUMgYWRkcmVzcyAweGZlZTAwMDAwDQpbICAgIDAuMDAwMDAwXSBB
+Q1BJOiBMQVBJQyAoYWNwaV9pZFsweDAwXSBsYXBpY19pZFsweDAwXSBlbmFi
+bGVkKQ0KWyAgICAwLjAwMDAwMF0gUHJvY2Vzc29yICMwIDE1OjUgQVBJQyB2
+ZXJzaW9uIDE2DQpbICAgIDAuMDAwMDAwXSBBQ1BJOiBMQVBJQyAoYWNwaV9p
+ZFsweDAxXSBsYXBpY19pZFsweDAxXSBlbmFibGVkKQ0KWyAgICAwLjAwMDAw
+MF0gUHJvY2Vzc29yICMxIDE1OjUgQVBJQyB2ZXJzaW9uIDE2DQpbICAgIDAu
+MDAwMDAwXSBBQ1BJOiBMQVBJQ19OTUkgKGFjcGlfaWRbMHgwMF0gaGlnaCBl
+ZGdlIGxpbnRbMHgxXSkNClsgICAgMC4wMDAwMDBdIEFDUEk6IExBUElDX05N
+SSAoYWNwaV9pZFsweDAxXSBoaWdoIGVkZ2UgbGludFsweDFdKQ0KWyAgICAw
+LjAwMDAwMF0gQUNQSTogSU9BUElDIChpZFsweDAyXSBhZGRyZXNzWzB4ZmVj
+MDAwMDBdIGdzaV9iYXNlWzBdKQ0KWyAgICAwLjAwMDAwMF0gSU9BUElDWzBd
+OiBhcGljX2lkIDIsIHZlcnNpb24gMTcsIGFkZHJlc3MgMHhmZWMwMDAwMCwg
+R1NJIDAtMjMNClsgICAgMC4wMDAwMDBdIEFDUEk6IElPQVBJQyAoaWRbMHgw
+M10gYWRkcmVzc1sweGZjMDAwMDAwXSBnc2lfYmFzZVsyNF0pDQpbICAgIDAu
+MDAwMDAwXSBJT0FQSUNbMV06IGFwaWNfaWQgMywgdmVyc2lvbiAxNywgYWRk
+cmVzcyAweGZjMDAwMDAwLCBHU0kgMjQtMjcNClsgICAgMC4wMDAwMDBdIEFD
+UEk6IElPQVBJQyAoaWRbMHgwNF0gYWRkcmVzc1sweGZjMDAxMDAwXSBnc2lf
+YmFzZVsyOF0pDQpbICAgIDAuMDAwMDAwXSBJT0FQSUNbMl06IGFwaWNfaWQg
+NCwgdmVyc2lvbiAxNywgYWRkcmVzcyAweGZjMDAxMDAwLCBHU0kgMjgtMzEN
+ClsgICAgMC4wMDAwMDBdIEFDUEk6IElOVF9TUkNfT1ZSIChidXMgMCBidXNf
+aXJxIDAgZ2xvYmFsX2lycSAyIGhpZ2ggZWRnZSkNClsgICAgMC4wMDAwMDBd
+IEFDUEk6IElSUTAgdXNlZCBieSBvdmVycmlkZS4NClsgICAgMC4wMDAwMDBd
+IEFDUEk6IElSUTIgdXNlZCBieSBvdmVycmlkZS4NClsgICAgMC4wMDAwMDBd
+IEFDUEk6IElSUTkgdXNlZCBieSBvdmVycmlkZS4NClsgICAgMC4wMDAwMDBd
+IFNldHRpbmcgQVBJQyByb3V0aW5nIHRvIGZsYXQNClsgICAgMC4wMDAwMDBd
+IEFDUEk6IEhQRVQgaWQ6IDB4MTAyMjgyYTAgYmFzZTogMHhmZWQwMDAwMA0K
+WyAgICAwLjAwMDAwMF0gVXNpbmcgQUNQSSAoTUFEVCkgZm9yIFNNUCBjb25m
+aWd1cmF0aW9uIGluZm9ybWF0aW9uDQpbICAgIDAuMDAwMDAwXSBBbGxvY2F0
+aW5nIFBDSSByZXNvdXJjZXMgc3RhcnRpbmcgYXQgODAwMDAwMDAgKGdhcDog
+ODAwMDAwMDA6N2VjMDAwMDApDQpbICAgIDAuMDAwMDAwXSBCdWlsdCAxIHpv
+bmVsaXN0cw0KWyAgICAwLjAwMDAwMF0gS2VybmVsIGNvbW1hbmQgbGluZTog
+cm8gcm9vdD1MQUJFTD0vIHJlc3VtZT0vZGV2L3NkYTIgcmhnYiB2Z2E9Nzk0
+IGlwbWlfd2F0Y2hkb2cuc3RhcnRfbm93PTAgaXBtaV93YXRjaGRvZy50aW1l
+b3V0PTAgbm9tY2UNClsgICAgMC4wMDAwMDBdIEluaXRpYWxpemluZyBDUFUj
+MA0KWyAgICAwLjAwMDAwMF0gUElEIGhhc2ggdGFibGUgZW50cmllczogNDA5
+NiAob3JkZXI6IDEyLCAxMzEwNzIgYnl0ZXMpDQpbICAgIDAuMDAwMDAwXSB0
+aW1lLmM6IFVzaW5nIDE0LjMxODE4MCBNSHogSFBFVCB0aW1lci4NClsgICAg
+MC4wMDAwMDBdIHRpbWUuYzogRGV0ZWN0ZWQgMTk5NC4wNjQgTUh6IHByb2Nl
+c3Nvci4NClsgICA5NC45NjQ1ODddIENvbnNvbGU6IGNvbG91ciBkdW1teSBk
+ZXZpY2UgODB4MjUNClsgICA5NC45Njc0MThdIERlbnRyeSBjYWNoZSBoYXNo
+IHRhYmxlIGVudHJpZXM6IDUyNDI4OCAob3JkZXI6IDEwLCA0MTk0MzA0IGJ5
+dGVzKQ0KWyAgIDk0Ljk3MTYzM10gSW5vZGUtY2FjaGUgaGFzaCB0YWJsZSBl
+bnRyaWVzOiAyNjIxNDQgKG9yZGVyOiA5LCAyMDk3MTUyIGJ5dGVzKQ0KWyAg
+IDk0Ljk5NTU3OV0gTWVtb3J5OiAyMDU1NDg0ay8yMDk2NTc2ayBhdmFpbGFi
+bGUgKDIyNjNrIGtlcm5lbCBjb2RlLCAwayByZXNlcnZlZCwgMTQ3M2sgZGF0
+YSwgMjIwayBpbml0KQ0KWyAgIDk1LjE0NDIwOV0gQ2FsaWJyYXRpbmcgZGVs
+YXkgdXNpbmcgdGltZXIgc3BlY2lmaWMgcm91dGluZS4uIDM5OTIuNDQgQm9n
+b01JUFMgKGxwaj0xOTk2MjIxOCkNClsgICA5NS4xNDQyNTFdIFNlY3VyaXR5
+IEZyYW1ld29yayB2MS4wLjAgaW5pdGlhbGl6ZWQNClsgICA5NS4xNDQyNjNd
+IFNFTGludXg6ICBJbml0aWFsaXppbmcuDQpbICAgOTUuMTQ0Mjc5XSBTRUxp
+bnV4OiAgU3RhcnRpbmcgaW4gcGVybWlzc2l2ZSBtb2RlDQpbICAgOTUuMTQ0
+Mjg2XSBzZWxpbnV4X3JlZ2lzdGVyX3NlY3VyaXR5OiAgUmVnaXN0ZXJpbmcg
+c2Vjb25kYXJ5IG1vZHVsZSBjYXBhYmlsaXR5DQpbICAgOTUuMTQ0MjkxXSBD
+YXBhYmlsaXR5IExTTSBpbml0aWFsaXplZCBhcyBzZWNvbmRhcnkNClsgICA5
+NS4xNDQzMDVdIE1vdW50LWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMjU2
+DQpbICAgOTUuMTQ0NDU2XSBDUFU6IEwxIEkgQ2FjaGU6IDY0SyAoNjQgYnl0
+ZXMvbGluZSksIEQgY2FjaGUgNjRLICg2NCBieXRlcy9saW5lKQ0KWyAgIDk1
+LjE0NDQ2MV0gQ1BVOiBMMiBDYWNoZTogMTAyNEsgKDY0IGJ5dGVzL2xpbmUp
+DQpbICAgOTUuMTQ0NDY1XSBDUFUgMCgxKSAtPiBOb2RlIDAgLT4gQ29yZSAw
+DQpbICAgOTUuMTQ0NDcwXSBtdHJyOiB2Mi4wICgyMDAyMDUxOSkNClsgICA5
+NS4yNTQwMjZdIFVzaW5nIGxvY2FsIEFQSUMgdGltZXIgaW50ZXJydXB0cy4N
+ClsgICA5NS4zMDQxMzBdIERldGVjdGVkIDEyLjQ2MiBNSHogQVBJQyB0aW1l
+ci4NClsgICA5NS4zMDQyMzddIEJvb3RpbmcgcHJvY2Vzc29yIDEvMiBBUElD
+IDB4MQ0KWyAgIDk1LjMxNDU0NF0gSW5pdGlhbGl6aW5nIENQVSMxDQpbICAg
+OTUuNDYzODMwXSBDYWxpYnJhdGluZyBkZWxheSB1c2luZyB0aW1lciBzcGVj
+aWZpYyByb3V0aW5lLi4gMzk4Ny42MyBCb2dvTUlQUyAobHBqPTE5OTM4MTg1
+KQ0KWyAgIDk1LjQ2MzgzOF0gQ1BVOiBMMSBJIENhY2hlOiA2NEsgKDY0IGJ5
+dGVzL2xpbmUpLCBEIGNhY2hlIDY0SyAoNjQgYnl0ZXMvbGluZSkNClsgICA5
+NS40NjM4NDBdIENQVTogTDIgQ2FjaGU6IDEwMjRLICg2NCBieXRlcy9saW5l
+KQ0KWyAgIDk1LjQ2Mzg0Ml0gQ1BVIDEoMSkgLT4gTm9kZSAwIC0+IENvcmUg
+MA0KWyAgIDk1LjQ2Mzk2OF0gQU1EIE9wdGVyb24odG0pIFByb2Nlc3NvciAy
+NDYgc3RlcHBpbmcgMGENClsgICA5NS40NjM5NzldIENQVSAxOiBTeW5jaW5n
+IFRTQyB0byBDUFUgMC4NClsgICA5NS40NjQwMDFdIEJyb3VnaHQgdXAgMiBD
+UFVzDQpbICAgOTUuNDY0MjQwXSBDUFUgMTogc3luY2hyb25pemVkIFRTQyB3
+aXRoIENQVSAwIChsYXN0IGRpZmYgLTIzIGN5Y2xlcywgbWF4ZXJyIDExMjQg
+Y3ljbGVzKQ0KWyAgIDk1LjQ2NDI3N10gdGltZS5jOiBVc2luZyBIUEVUIGJh
+c2VkIHRpbWVrZWVwaW5nLg0KWyAgIDk1LjQ2NDI4OV0gdGVzdGluZyBOTUkg
+d2F0Y2hkb2cgLi4uIE9LLg0KWyAgIDk1LjU2NDM4Nl0gY2hlY2tpbmcgaWYg
+aW1hZ2UgaXMgaW5pdHJhbWZzLi4uIGl0IGlzDQpbICAgOTUuNjQ3NzY0XSBO
+RVQ6IFJlZ2lzdGVyZWQgcHJvdG9jb2wgZmFtaWx5IDE2DQpbICAgOTUuNjQ3
+ODA4XSBBQ1BJOiBidXMgdHlwZSBwY2kgcmVnaXN0ZXJlZA0K
 
-We really would like to try again once stacks are setup (IOW, once
-if ((&__get_cpu_var(init_tss))[0].ist[0])) is true).
-"
-
-IOW, when we parse the params on x86_64 this isn't true (or rather it
-wasn't true as of 2.6.9'ish, if this has changed I'd be glad to retest
-things).
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+--546507526-868048530-1123168093=:15383--

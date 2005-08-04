@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262651AbVHDUCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbVHDUN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262651AbVHDUCo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 16:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVHDUCo
+	id S262656AbVHDUN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 16:13:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVHDUN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 16:02:44 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:33889 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262651AbVHDUCn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 16:02:43 -0400
-Date: Thu, 4 Aug 2005 22:02:45 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christopher Friesen <cfriesen@nortel.com>
-Cc: Roland Dreier <rolandd@cisco.com>, Arjan van de Ven <arjan@infradead.org>,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Move InfiniBand .h files
-Message-ID: <20050804200245.GA4622@mars.ravnborg.org>
-References: <52iryla9r5.fsf@cisco.com> <1123178038.3318.40.camel@laptopd505.fenrus.org> <52acjxa70j.fsf@cisco.com> <1123180717.3318.43.camel@laptopd505.fenrus.org> <52wtn18r7w.fsf@cisco.com> <20050804192229.GA26714@mars.ravnborg.org> <42F27290.2070002@nortel.com>
+	Thu, 4 Aug 2005 16:13:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39661 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262656AbVHDUN1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 16:13:27 -0400
+Date: Thu, 4 Aug 2005 13:15:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: x86_64 access of some bad address
+Message-Id: <20050804131512.7d464fad.akpm@osdl.org>
+In-Reply-To: <1119539630.1170.6.camel@localhost.localdomain>
+References: <1119539630.1170.6.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42F27290.2070002@nortel.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 01:54:56PM -0600, Christopher Friesen wrote:
-> Sam Ravnborg wrote:
-> >On Thu, Aug 04, 2005 at 11:57:55AM -0700, Roland Dreier wrote:
+Alexander Nyberg <alexn@telia.com> wrote:
+>
+> As I only have one x86_64 which is my main workstation it's far too
+> tedious to do binary searching (this doesn't happen on x86).
 > 
-> >>Sorry, I was too terse about the problem.  You're right, but typical
-> >>distros don't ship full kernel source in their "support kernel builds"
-> >>package.  And if I use an external build directory (ie "O=") then
-> >>the symlink just points to my external build directory, which doesn't
-> >>include the source to drivers/, just links to include/
-> >
-> >
-> >If the external module uses a Kbuild file as explained in
-> >Documentation/kbuild/makefiles.txt and then uses both O= and M=
-> >when compiling the module there is no issue.
-> >
-> >With respect to moving the .h files - please do so.
-> >drivers/infiniband should only include header used in that same
-> >directory. Not header files potentially uased by fs/.
+> Happens with both latest -git and 2.6.12-mm1
+> The tools to reproduce this is at: http://serkiaden.mine.nu/kp2.tar
 > 
-> I think Roland was talking about the case where the running kernel was 
-> built with "O=", in which case the /lib/modules.../build symlink points 
-> to the build directory rather than the original source tree.
+> Just do:
+> gdb lyze
+> run
 > 
-> Does Kbuild handle this case properly?
+> and it crashes here giving:
+> 
+> ----------- [cut here ] --------- [please bite here ] ---------
+> Kernel BUG at "mm/memory.c":911
 
-Yes it does.
-/lib/modules/.../ contains two symlinks these days:
-
-build -> always point to the directory containing the output of the build
-source -> always point to the kernel source
-
-In the 'make' case where the kernel is built without using O= they point
-to the same directory.
-In the 'make O=' case they point to different directories.
-
-SUSE does ship with a make O= build kernel these days.
-Fedora IIRC has done an ugly hack and just copied over a number of files
-so a compile works in most cases - but then also use both symlink.
-
-It has never been easier to build a module if the target is only the
-running kernel. Only when you adds backwards compatibility it gets messy :-(
-
-	Sam
+So I think Hugh's patch this morning should fix this up.  Please retest
+-rc6 when it's out?

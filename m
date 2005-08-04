@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVHDOH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVHDPA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVHDOH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 10:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVHDOFf
+	id S262568AbVHDPA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 11:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbVHDOMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 10:05:35 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:62634 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262550AbVHDOEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 10:04:04 -0400
-Date: Thu, 04 Aug 2005 10:03:56 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Is anyone maintaining the smb filesystem?
-In-reply-to: <OFF8C2E0A3.E0EC1DCE-ON80257053.002D9CAB-80257053.002E3C62@sophos.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <200508041003.57105.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <OFF8C2E0A3.E0EC1DCE-ON80257053.002D9CAB-80257053.002E3C62@sophos.com>
-User-Agent: KMail/1.7
+	Thu, 4 Aug 2005 10:12:55 -0400
+Received: from graphe.net ([209.204.138.32]:21652 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262557AbVHDOLk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 10:11:40 -0400
+Date: Thu, 4 Aug 2005 07:11:36 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andi Kleen <ak@suse.de>
+cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] String conversions for memory policy
+In-Reply-To: <20050803084849.GB10895@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0508040704590.3319@graphe.net>
+References: <20050729152049.4b172d78.pj@sgi.com> <Pine.LNX.4.62.0507291746000.8663@graphe.net>
+ <20050729230026.1aa27e14.pj@sgi.com> <Pine.LNX.4.62.0507301042420.26355@graphe.net>
+ <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net>
+ <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net>
+ <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net>
+ <20050803084849.GB10895@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 August 2005 04:25, tvrtko.ursulin@sophos.com wrote:
->On 03/08/2005 17:03:04 linux-kernel-owner wrote:
->>Is anyone maintaining the smb filesystem in the Linux kernel?
->
->It probably won't help you much, but I had the same problem few
-> months ago. There was a bug in smbfs which I tried to discuss with
-> someone, and after failing to contact the maintainer, I sent the
-> fix to Linus. I don't think even he managed to get a response from
-> Urban or someone else. The fix went in so I stopped chasing it.
->
->So it looks like smbfs is not maintained.
+On Wed, 3 Aug 2005, Andi Kleen wrote:
 
-I thought that originally was Andrew Tridgels output?
+> I really hate this whole /proc/<pid>/numa_policy thing. /proc/<pid>/maps
+> was imho always a desaster (hard to parse, slow etc.). Also external
+> access of NUMA policies has interesting locking issues. I intentionally
+> didn't add something like that when I designed the original
+> NUMA API. Please don't add it.
 
-I'm having problems with it too, but only on a deb3.1 system.  I 
-looked in Borders yesterday, but couldn't find a 'samba for dummies' 
-or similar publication.
+You designed a NUMA API to control a process memory access patterns 
+without the ability to view or modify the policies in use?
 
-The question then is: Where might there be a decent publication 
-describing samba and how to make it work?  Dead tree, pdf equally 
-welcome here.
+The locking issues for the policy information in the task_struct could be 
+solved by having a thread execute a function that either sets or gets the 
+memory policy. The vma policies already have a locking mechanism.
+ 
+This piece here only does conversion to a string representation so it 
+should not be affected by locking issues. Processes need to do proper 
+locking when using the conversion functions.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

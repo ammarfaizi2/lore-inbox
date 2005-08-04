@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262513AbVHDMXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVHDMXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbVHDMXi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 08:23:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbVHDMVZ
+	id S262508AbVHDMXj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 08:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVHDMVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 08:21:25 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:28870 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262504AbVHDMTi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 08:19:38 -0400
-To: zach@vmware.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 3/5 explicit-iopl
-References: <200508040043.j740hi0R004184@zach-dev.vmware.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 04 Aug 2005 14:19:37 +0200
-In-Reply-To: <200508040043.j740hi0R004184@zach-dev.vmware.com.suse.lists.linux.kernel>
-Message-ID: <p73k6j1rj1i.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Aug 2005 08:21:18 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:32876 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262508AbVHDMU6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 08:20:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mDcRZlinrkXk4gZAzHieVnvGHA5WTUF4o5I5kDkVl/5ox5+n/344GJzSINmtiwhiwTB+TNu9eDpDyCfpbexA3IAzXIstO84nVamQcWgPsr31LGtWnZsTi9rWdznfp51F5eH6QFRjkad5UN9UBpbFAyUTs4hcDy4y/4GgIPLLsf8=
+Message-ID: <3684cc7005080405203b2e8841@mail.gmail.com>
+Date: Thu, 4 Aug 2005 14:20:50 +0200
+From: Andrzej Nowak <warzywo@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
+Cc: Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20050730160345.GA3584@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050730160345.GA3584@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zach@vmware.com writes:
+On 7/30/05, Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> Unfortunately, this added one field to the thread_struct.  But as a bonus, on
-> P4, the fastest time measured for switch_to() went from 312 to 260 cycles, a
-> win of about 17% in the fast case through this performance critical path.
+> i have released the -V0.7.52-01 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
+> ...
+> reports, patches, suggestions welcome.
 
-Cool! Definitely want this on x86-64 too.
+I can't get it to run on x86_64. The kernel won't build with
+"voluntary preemption" enabled, it's complaining about mce_read_sem
+being undeclared. Including linux/semaphore.h in
+arch/x86_64/kernel/mce.c does get the compilation past that point, but
+later on mtrr and kprobes won't build. I can turn those off, but the
+build stops on kernel/printk.c with a "console_sem undeclared" error.
 
-Can we perhaps get rid of the PUSHF/POPF in the SYSENTER syscall path too?
-iirc they were only for single stepping. But SYSENTER doesn't disable
-single stepping, so the debug handler could detect this and set
-some magic flag that restores it on syscall exit.
+Everything builds fine with "real-time preemption" enabled, though the
+linux system as a whole still won't run, as init crashes on startup
+(kernel panic).
 
--Andi
+I saw earlier postings on lkml related to RT and x86_64, but
+unfortunately the suggestions made, such as turning off latency
+timing, didn't help. I tried this on a dual Xeon HT server with SLES
+9.1 64bit installed (config has SMP/SMT set to yes). I used the
+2.6.13-rc4 kernel patched with
+realtime-preempt-2.6.13-rc4-RT-V0.7.52-10.
+
+Any suggestions or any extra info I've missed would be appreciated.
+
+Andrzej Nowak

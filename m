@@ -1,95 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262639AbVHDTaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbVHDTd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262639AbVHDTaU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 15:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbVHDTaU
+	id S262646AbVHDTd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 15:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbVHDTd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 15:30:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:15696 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262639AbVHDTaR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 15:30:17 -0400
+	Thu, 4 Aug 2005 15:33:27 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:43346 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262644AbVHDTdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 15:33:24 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ensuheaf3yQ0MZXBb42AAPzkw4C4u7O/Nfm8xt90lqby0qheIr0IZ5KN5eImOaI2FE/9FWV/L9dvgd/HVujpv5Rrt6r3DeUi0JqWCzVWkzoqoEsbvGDvqF53o79LfVvpJb6gGQ765pcM6AyTMz6bs94PyVazZC90y2PHyuOY63Q=
-Message-ID: <86802c440508041230143354c2@mail.gmail.com>
-Date: Thu, 4 Aug 2005 12:30:17 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-Reply-To: yhlu <yhlu.kernel@gmail.com>
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: mthca and LinuxBIOS
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <521x59a6tb.fsf@cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
-	 <20057281331.7vqhiAJ1Yc0um2je@cisco.com>
-	 <86802c44050803175873fb0569@mail.gmail.com>
-	 <52u0i6b9an.fsf_-_@cisco.com>
-	 <86802c44050804093374aca360@mail.gmail.com> <52mznxacbp.fsf@cisco.com>
-	 <86802c4405080410236ba59619@mail.gmail.com>
-	 <86802c4405080411013b60382c@mail.gmail.com> <521x59a6tb.fsf@cisco.com>
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Message-Id;
+  b=kb2W6+FPo9OnfmZUCRkhvNpeAlYjnMUz75bPHO/moMEgwl+kIi8ort2mgGQ0JZUdOwvK6c0of9vUl4q4CsRtwKuGpog14OwCVnTcP2KFj9qPJ9mMf8FVRiFtrrobD+k0SYC+b1T7qmJHAdDj6lAzrBfhOrG2jMf1vgos26yzOKY=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Bugs on your remap_file_pages protections implementations
+Date: Thu, 4 Aug 2005 21:24:36 +0200
+User-Agent: KMail/1.8.1
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       user-mode-linux-devel@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_0tm8CxDNeJ5Qggx"
+Message-Id: <200508042124.36786.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ib_mthca: Mellanox InfiniBand HCA driver v0.06 (June 23, 2005)
-ib_mthca: Initializing Mellanox Technologies MT25208 InfiniHost III Ex
-(Tavor compatibility mode) (0000:04:00.0)
-ib_mthca 0000:04:00.0: FW version 000400060002, max commands 64
-ib_mthca 0000:04:00.0: FW size 6143 KB (start fcefa00000, end fcefffffff)
-ib_mthca 0000:04:00.0: HCA memory size 262143 KB (start fce0000000,
-end fcefffffff)
-ib_mthca 0000:04:00.0: Max QPs: 16777216, reserved QPs: 1024, entry size: 256
-ib_mthca 0000:04:00.0: Max CQs: 16777216, reserved CQs: 128, entry size: 64
-ib_mthca 0000:04:00.0: Max EQs: 64, reserved EQs: 1, entry size: 64
-ib_mthca 0000:04:00.0: reserved MPTs: 16, reserved MTTs: 16
-ib_mthca 0000:04:00.0: Max PDs: 16777216, reserved PDs: 0, reserved UARs: 1
-ib_mthca 0000:04:00.0: Max QP/MCG: 16777216, reserved MGMs: 0
-ib_mthca 0000:04:00.0: Flags: 00370347
-ib_mthca 0000:04:00.0: profile[ 0]--10/20 @ 0x      fce0000000 (size 0x 4000000)
-ib_mthca 0000:04:00.0: profile[ 1]-- 0/16 @ 0x      fce4000000 (size 0x 1000000)
-ib_mthca 0000:04:00.0: profile[ 2]-- 7/18 @ 0x      fce5000000 (size 0x  800000)
-ib_mthca 0000:04:00.0: profile[ 3]-- 9/17 @ 0x      fce5800000 (size 0x  800000)
-ib_mthca 0000:04:00.0: profile[ 4]-- 3/16 @ 0x      fce6000000 (size 0x  400000)
-ib_mthca 0000:04:00.0: profile[ 5]-- 4/16 @ 0x      fce6400000 (size 0x  200000)
-ib_mthca 0000:04:00.0: profile[ 6]--12/15 @ 0x      fce6600000 (size 0x  100000)
-ib_mthca 0000:04:00.0: profile[ 7]-- 8/13 @ 0x      fce6700000 (size 0x   80000)
-ib_mthca 0000:04:00.0: profile[ 8]--11/11 @ 0x      fce6780000 (size 0x   10000)
-ib_mthca 0000:04:00.0: profile[ 9]-- 6/ 5 @ 0x      fce6790000 (size 0x     800)
-ib_mthca 0000:04:00.0: HCA memory: allocated 106050 KB/256000 KB
-(149950 KB free)
-ib_mthca 0000:04:00.0: Allocated EQ 1 with 65536 entries
-ib_mthca 0000:04:00.0: Allocated EQ 2 with 128 entries
-ib_mthca 0000:04:00.0: Allocated EQ 3 with 128 entries
-ib_mthca 0000:04:00.0: Setting mask 00000000000f43fe for eqn 2
-ib_mthca 0000:04:00.0: Setting mask 0000000000000400 for eqn 3
-ib_mthca 0000:04:00.0: NOP command IRQ test passed
-<------------------------------------------------------------------------------------------------------stuck
-30s
-ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
-ib_mthca 0000:04:00.0: Clearing mask 00000000000f43fe for eqn 2
-ib_mthca 0000:04:00.0: Clearing mask 0000000000000400 for eqn 3
-ib_mthca: probe of 0000:04:00.0 failed with error -16
+--Boundary-00=_0tm8CxDNeJ5Qggx
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Hi Ingo, I'm the young UML hacker you met at OLS and who got your UML patches 
+sent ;-)
+
+I've been studying your patch (and the whole Linux VM, indeed) in the past 
+days, and I have some remarks, about the version of the code in 2.6.4-rc2-mm1 
+(which is the same you sent me) - I've now downloaded the version dropped 
+from 2.6.5-mm1, but it doesn't seem to address those problems.
+
+Btw, I've now seen why that patch was dropped, but not why it wasn't resubmit.
+
+*) with your patch, remapped pages without MAP_INHERIT are IMHO not safe 
+across swapout; re-swapping them in will pass through the arch-specific fault 
+handler, which will check VMA's protections, and fail if the VMA originally 
+had MAP_NONE. Or am I missing something?
+
+*) with the same binary, a call to mprotect() on a nonlinear VMA will no more 
+change the protections over fremap'ed PTEs (more exactly, PTEs going through 
+handle_pte_fault->do_file_page(), but it seems that _PAGE_FILE is only set by 
+fremap()).
+
+Currently mprotect fixes up the VMA and changes the protections for present 
+pages (see mm/mprotect.c:change_pte_range(), it's a no-op on not-present 
+pages). On not-present pages, the new VMA protections are loaded, even in 
+do_file_page.
+
+I propose adding a VM_NOINHERIT flag (reusing VM_MAPPED_COPY on MMU archs) to 
+be set on VMA's on which protections are not to be inherited.
+
+Normal VMA's behave as before, as soon as I remap_file_pages without 
+MAP_INHERIT (or with MAP_NOINHERIT, see below) that flag is set on the VMA, 
+on which, then, mprotect won't work.
+
+*) btw, adding a new syscall is not needed, adding a MAP_NOINHERIT flag for 
+remap_file_pages to ask for the new behaviour is more than enough:
+
+(inside sys_remap_file_pages)
+-       if (__prot)
+-               return err;
++       if (prot && !(flags & MAP_NOINHERIT))
++               goto out;
+
+Also, I've seen that a lot of fixes from your code haven't been merged; in 
+particular, currently MAP_PRIVATE |  MAP_POPULATE is broken (while it was 
+fixed by your patch, which only required VM_SHARED on the VMA if there was an 
+actual non-linear mapping).
+
+*) I don't understand this hunk (inside filemap_populate, not replicated 
+inside shmem_populate):
+
+        struct page *page;
+        int err;
+
++       /*
++        * mapping-removal fastpath:
++        */
++       if ((vma->vm_flags & VM_SHARED) &&
++                       (pgprot_val(prot) == pgprot_val(PAGE_NONE))) {
++               zap_page_range(vma, addr, len);
++               return 0;
++       }
++
+        if (!nonblock)
+                force_page_cache_readahead(mapping, vma->vm_file,
+
+I understand why it's done, but zap_page_range() will totally clear the PTE's, 
+it won't set _PAGE_FILE on the PTEs (as far as I can see), causing the pages 
+to be faulted again in, and this time linearly. This hunk is still in 
+2.6.5-mm1 (or so it seems).
+
+*) I don't understand at all the attached hunks in your patch (there's a long 
+description about them). Verified they hadn't been dropped from the patch in 
+2.6.5-mm1 (or so it seems).
+
+Note: for 2.6.5-mm1, I'm referring to the patch inside the "dropped" directory 
+in the archives.
+
+Bye and thanks for your attention.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+--Boundary-00=_0tm8CxDNeJ5Qggx
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="remap-file-pages-wrong.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="remap-file-pages-wrong.patch"
+
+This is wrong because both routines can be called from within do_file_page,
+which is called when !pte_present(pte) && !pte_none(pte) && pte_file(pte). I.e.
+the pte is not zeroed, so it has been used, but the page has been swapped out,
+or .
+
+Actually, in that situation ->populate is called with nonblock == 0, so only
+install_page can be called there. If ->populate fails, the faulting process
+will get a SIGBUS; and this *could* happen.
+
+The other caller is sys_remap_file_page. In that situation, we fail if
+!(vma->vm_flags & VM_SHARED), so we don't call ->populate.
+
+Actually, however, we could be called inside mmap for MAP_POPULATE. However,
+even in that case, old mappings have already been unmapped away.
+
+And actually, in Ingo's patch things were different, because if
+remap_file_pages was called only to change protections, without creating
+non-linear mappings, we didn't punt even if the VM was not shared. So,
+currently MAP_POPULATE will fail (though without returning any error) if the VMA
+is private and not shared, without a real reason to do so.
+
+But again, after mmap'ing an area, even with MAP_POPULATE, old mappings should
+have been cleared, so what are we bothering about here?
+
+diff -puN mm/fremap.c~remap-file-pages-prot-2.6.13-rc3-A2 mm/fremap.c
+--- linux-2.6.git/mm/fremap.c~remap-file-pages-prot-2.6.13-rc3-A2	2005-08-03 12:41:36.000000000 +0200
++++ linux-2.6.git-paolo/mm/fremap.c	2005-08-03 12:41:36.000000000 +0200
+@@ -90,6 +90,14 @@ int install_page(struct mm_struct *mm, s
+ 	if (!page->mapping || page->index >= size)
+ 		goto err_unlock;
+ 
++	/*
++	 * Only install a new page for a non-shared mapping if it's
++	 * not existent yet:
++	 */
++	err = -EEXIST;
++	if (!pte_none(*pte) && !(vma->vm_flags & VM_SHARED))
++		goto err_unlock;
++
+ 	zap_pte(mm, vma, addr, pte);
+ 
+ 	inc_mm_counter(mm,rss);
+@@ -136,6 +146,13 @@ int install_file_pte(struct mm_struct *m
+ 	err = 0;
+ 	if (linear && pte_none(*pte))
+ 		goto err_unlock;
++	/*
++	 * Only install a new page for a non-shared mapping if it's
++	 * not existent yet:
++	 */
++	err = -EEXIST;
++	if (!pte_none(*pte) && !(vma->vm_flags & VM_SHARED))
++		goto err_unlock;
+ 
+ 	zap_pte(mm, vma, addr, pte);
+ 
 
 
-On 8/4/05, Roland Dreier <rolandd@cisco.com> wrote:
->     yhlu> i enable CCONFIG_INFINIBAND_MTHCA_DEBUG=y I didn't get any
->     yhlu> more debug info, is that depend other setting?
-> 
-> It shouldn't depend on anything.  mthca_dbg() gets turned into
-> dev_dbg(), which just does dev_printk(KERN_DEBUG,...).  Perhaps you
-> have to change your console level to see KERN_DEBUG messages?
-> 
-> Since you're getting to the call to mthca_init_qp_table(), there are
-> mthca_dbg() calls that you should definitely be getting output from.
-> 
->  - R.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+# vim: tw=80
+
+
+--Boundary-00=_0tm8CxDNeJ5Qggx--
+
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

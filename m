@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262745AbVHDW4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbVHDW4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbVHDW4S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 18:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbVHDWxt
+	id S262782AbVHDW4k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 18:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbVHDW4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 18:53:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20130 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262753AbVHDWxQ (ORCPT
+	Thu, 4 Aug 2005 18:56:23 -0400
+Received: from mx1.suse.de ([195.135.220.2]:38884 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262727AbVHDWyQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 18:53:16 -0400
-Date: Thu, 4 Aug 2005 15:55:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Thonke <iogl64nx@gmail.com>
-Cc: robert.moore@intel.com, tk-shockwave@web.de, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: 2.6.13-rc3-mm3
-Message-Id: <20050804155513.727a3894.akpm@osdl.org>
-In-Reply-To: <42EAC9DB.9010702@gmail.com>
-References: <971FCB6690CD0E4898387DBF7552B90E023F8527@orsmsx403.amr.corp.intel.com>
-	<42EAC9DB.9010702@gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 4 Aug 2005 18:54:16 -0400
+Date: Fri, 5 Aug 2005 00:54:13 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Andi Kleen'" <ak@suse.de>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
+       cr@sap.com, linux-mm@kvack.org
+Subject: Re: Getting rid of SHMMAX/SHMALL ?
+Message-ID: <20050804225413.GH8266@wotan.suse.de>
+References: <20050804132338.GT8266@wotan.suse.de> <200508042249.j74Mndg18582@unix-os.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508042249.j74Mndg18582@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Thonke <iogl64nx@gmail.com> wrote:
->
-> Moore, Robert schrieb:
+On Thu, Aug 04, 2005 at 03:49:37PM -0700, Chen, Kenneth W wrote:
+> Andi Kleen wrote on Thursday, August 04, 2005 6:24 AM
+> > I think we should just get rid of the per process limit and keep
+> > the global limit, but make it auto tuning based on available memory.
+> > That is still not very nice because that would likely keep it < available 
+> > memory/2, but I suspect databases usually want more than that. So
+> > I would even make it bigger than tmpfs for reasonably big machines.
+> > Let's say
+> > 
+> > if (main memory >= 1GB)
+> > 	maxmem = main memory - main memory/8 
 > 
-> >+    ACPI-0287: *** Error: Region SystemMemory(0) has no handler
-> >+    ACPI-0127: *** Error: acpi_load_tables: Could not load namespace:
-> >AE_NOT_EXIST
-> >+    ACPI-0136: *** Error: acpi_load_tables: Could not load tables:
-> >
-> >This looks like a nasty case where some executable code in the table is
-> >attempting to access a SystemMemory operation region before any OpRegion
-> >handlers are initialized.
-> >
-> >We certainly want to see the output of acpidump to attempt to diagnose
-> >and/or reproduce the problem.
-> >
-> >Bob
-> >
-> >
-> >  
-> >
-> Sorry for double post.
-> 
-> With this mail I hand over the acpidump output with the pmtools
-> Andrew pointed me to.
-> 
-> And a dmesg output with CONFIG_KALLSYMS=y.
-> 
-> 
-> I attached them in bz2 format, because of the length.
-> 
-> I hope we find the problem.
-> 
+> This might be too low on large system.  We usually stress shm pretty hard
+> for db application and usually use more than 87% of total memory in just
+> one shm segment.  So I prefer either no limit or a tunable.
 
-Michael, I'm assuming that a) this problem remains in those -mm kernels
-which include git-acpi.patch and that b) the problems are not present in
-2.6.13-rc5 or 2.6.13-rc6, yes?
+With large system you mean >32GB right?
 
-So I think we have a bug in git-acpi.patch?
+I think on a large systems some tuning is reasonable because they likely
+have trained admins. I'm more worried on reasonable defaults for the
+class of systems with 0-4GB
 
-If that's all correct then can you please test the next -mm (which will
-include git-acpi.patch - the most recent -mm did not) and if the bug's
-still there can you raise a bugzilla.kernel.org entry for it?
+The /8 was to account for the overhead of page tables and mem_map and
+leave some other memory for the system, but you're right it might be less 
+with hugetlbfs.
 
-We seem to have a handful of bug reports against the -mm acpi patch.
-
-Thanks.
+-Andi

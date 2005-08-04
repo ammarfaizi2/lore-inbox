@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVHDVoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262754AbVHDVtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbVHDVoj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 17:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbVHDVnK
+	id S262754AbVHDVtT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 17:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVHDVrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 17:43:10 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:20418 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S262735AbVHDVk7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 17:40:59 -0400
-Subject: [patch] Fix a bit/byte counting error in the MMC/SD code
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>,
-       Pierre Ossman <drzeus@drzeus.cx>
-Content-Type: text/plain
-Date: Thu, 04 Aug 2005 22:40:40 +0100
-Message-Id: <1123191640.8987.68.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Aug 2005 17:47:31 -0400
+Received: from compunauta.com ([69.36.170.169]:60076 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S262726AbVHDVp2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 17:45:28 -0400
+From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: etienne.lorrain@masroudeau.com, linux-kernel@vger.kernel.org
+Subject: Re: IDE disk and HPA
+Date: Thu, 4 Aug 2005 16:45:23 -0500
+User-Agent: KMail/1.8
+References: <3235.192.168.201.6.1123157467.squirrel@www.masroudeau.com>
+In-Reply-To: <3235.192.168.201.6.1123157467.squirrel@www.masroudeau.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200508041645.23825.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes what looks like a bit/byte counting error in the MMC/SD code
-which was causing data corruption (in the -mm tree).
-
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
-
-Index: linux-2.6.12/drivers/mmc/mmc.c
-===================================================================
---- linux-2.6.12.orig/drivers/mmc/mmc.c	2005-08-04 22:27:44.000000000 +0100
-+++ linux-2.6.12/drivers/mmc/mmc.c	2005-08-04 22:30:02.000000000 +0100
-@@ -923,7 +923,7 @@
- 		mrq.cmd = &cmd;
- 		mrq.data = &data;
- 
--		sg_init_one(&sg, (u8*)card->raw_scr, 64);
-+		sg_init_one(&sg, (u8*)card->raw_scr, 8);
- 
- 		err = mmc_wait_for_req(host, &mrq);
- 		if (err != MMC_ERR_NONE) {
-
+El Jueves, 4 de Agosto de 2005 07:11, Etienne Lorrain escribió:
+> > > > My question is now: why is an HPA disabled i.e. disprotected when
+> > > > detected? Why not let the HPA alone, because a certain set of disk
+> > > > sectors shall not be accessible by the OS?
+> > >
+> > > Because the HPA is most commonly used to hide all but a fraction of a
+> > > disk to work with older BIOSes.
+> >
+> > But as to my knowledge, the HPA was had been introduced to allow HW
+> > vendors to store things like diagnostic programs in a part of the
+> > disk protected from partitioning and filesystems.
+> > The point is, IF there is an HPA, there MIGHT be a partitioning
+> > scheme and some filesystems on the disk which rely on the size of
+> > disk being the native size MINUS the HPA.
+>
+>   If those HW vendors want to store software in the HPA of the IDE
+>  hard disk, and they employ people able to read the IDE specifications,
+>  they know that this HPA can be protected by password and so Linux
+>  just display a failure when trying to restore the capacity of the
+>  Hard Disk - because it lacks the unlocking password.
+If I want to upgrade my IDE Hard drive by my self, how can I restore that kind 
+of data on other diferent PC? HPA should not exist, there are a lot of other 
+ways to store restore or diagnostics apps, Hibernation and Quick Restores 
+should be handled in other way, I have once an omnibook (earth unplugged) and 
+I can only reinstall Linux, because the host protected area does not allow me 
+to install The Original OS, in other PC with the porper hardware and back it 
+to the laptop.
+This HPA should be optional, but never by default, I once need to have them 
+disabled (where is the specifications from the manufacturer to reproduce them 
+in a new hard disk media).
+:|
+-- 
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbVHDXGB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVHDUmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbVHDXGB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 19:06:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVHDXFt
+	id S262668AbVHDUmV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 16:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbVHDUju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 19:05:49 -0400
-Received: from gold.veritas.com ([143.127.12.110]:56468 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S262727AbVHDXEr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 19:04:47 -0400
-Date: Fri, 5 Aug 2005 00:06:25 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andi Kleen <ak@suse.de>
-cc: Danny ter Haar <dth@picard.cistron.nl>, Pavel Roskin <proski@gnu.org>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc5-git2 does not boot on (my) amd64
-In-Reply-To: <p73iryl73nm.fsf@bragg.suse.de>
-Message-ID: <Pine.LNX.4.61.0508042358530.8665@goblin.wat.veritas.com>
-References: <dctuso$tl$1@news.cistron.nl.suse.lists.linux.kernel>
- <p73iryl73nm.fsf@bragg.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Aug 2005 23:04:47.0146 (UTC) FILETIME=[E8BF18A0:01C59948]
+	Thu, 4 Aug 2005 16:39:50 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:271 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262629AbVHDUif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 16:38:35 -0400
+Date: Thu, 4 Aug 2005 22:38:31 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove support for gcc < 3.2
+Message-ID: <20050804203831.GD4029@stusta.de>
+References: <20050731222606.GL3608@stusta.de> <21d7e99705080318347d6b58d5@mail.gmail.com> <20050804065447.GB25606@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050804065447.GB25606@lug-owl.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Aug 2005, Andi Kleen wrote:
-> dth@picard.cistron.nl (Danny ter Haar) writes:
-> > 
-> > Freeing unused kernel memory: 248k freed
-> > VM: killing process hotplug
-> > VM: killing process hotplug
-> > VM: killing process hotplug
-> > VM: killing process hotplug
-> > Unable to handle kernel paging request at fffffff28017b5be RIP:
-> > [<fffffff28017b5be>]
+On Thu, Aug 04, 2005 at 08:54:47AM +0200, Jan-Benedict Glaw wrote:
+>...
+> Current GCC from CVS (plus minor configury patches) seems to work. We
+> had -fno-unit-at-a-time missing in our arch Makefile which hides a bug
+> in kernel's sources.
 > 
-> Looks weird. Just to make sure can you do a make distclean and try
-> again? It might be a bad compile.
+> I guess that if you remove -fno-unit-at-a-time from i386 and use a
+> current GCC, you'll run into that fun, too.
 
-No, like Pavel's and Martin's reports, this is just an effect
-of the not-quite-fully-baked do_wp_page/get_user_pages race fix in
-2.6.13-rc5-git2, which AlexN reported earlier.  Should now be fully
-fixed in Linus' current git, and in the 2.6.13-rc6 akpm prophesies
-to be coming soon - please all test that.
+What bug exactly?
 
-Hugh
+I'm sometimes using kernels compiled with gcc 4.0 and without 
+-fno-unit-at-a-time and except for the kernel image being smaller I 
+haven't noticed any difference. Besides this, all architectures except 
+i386 and um are not disabling unit-at-a-time.
+
+There are a few parts of the kernel that might still have stack problems 
+with unit-at-a-time, but I assume that's not what you are talking about?
+
+> MfG, JBG
+>...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

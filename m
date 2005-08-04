@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVHDQlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVHDQqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbVHDQlX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 12:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVHDQio
+	id S262598AbVHDQqa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 12:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVHDQn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 12:38:44 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:23972 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262618AbVHDQhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 12:37:00 -0400
-Date: Thu, 4 Aug 2005 09:36:10 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
-       zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [patch 5/8] x86_64:Dont do broadcast IPIs when hotplug is enabled in flat mode.
-Message-ID: <20050804093609.C15274@unix-os.sc.intel.com>
-References: <20050801202017.043754000@araj-em64t> <20050801203011.403184000@araj-em64t> <20050804105107.GD97893@muc.de>
+	Thu, 4 Aug 2005 12:43:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1988 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262598AbVHDQnR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 12:43:17 -0400
+Date: Thu, 4 Aug 2005 12:42:59 -0400
+From: Dave Jones <davej@redhat.com>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
+       linux-scsi@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
+Message-ID: <20050804164259.GD22886@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Rolf Eike Beer <eike-kernel@sf-tec.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	"Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
+	linux-scsi@vger.kernel.org, axboe@suse.de
+References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net> <200508041138.38216@bilbo.math.uni-mannheim.de> <20050804154023.GA22886@redhat.com> <200508041756.23611@bilbo.math.uni-mannheim.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050804105107.GD97893@muc.de>; from ak@muc.de on Thu, Aug 04, 2005 at 12:51:07PM +0200
+In-Reply-To: <200508041756.23611@bilbo.math.uni-mannheim.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 12:51:07PM +0200, Andi Kleen wrote:
-> >  static void flat_send_IPI_allbutself(int vector)
-> >  {
-> > +#ifndef CONFIG_HOTPLUG_CPU
-> >  	if (((num_online_cpus()) - 1) >= 1)
-> >  		__send_IPI_shortcut(APIC_DEST_ALLBUT, vector,APIC_DEST_LOGICAL);
-> > +#else
-> > +	cpumask_t allbutme = cpu_online_map;
-> > +	int me = get_cpu(); /* Ensure we are not preempted when we clear */
-> > +	cpu_clear(me, allbutme);
-> > +	flat_send_IPI_mask(allbutme, vector);
-> > +	put_cpu();
-> 
-> This still needs the num_online_cpus()s check.
+On Thu, Aug 04, 2005 at 05:56:14PM +0200, Rolf Eike Beer wrote:
+ > Am Donnerstag, 4. August 2005 17:40 schrieb Dave Jones:
+ > >On Thu, Aug 04, 2005 at 11:38:30AM +0200, Rolf Eike Beer wrote:
+ > > > >+	  ulFibreFrame = kmalloc((2048/4), GFP_KERNEL);
+ > > >
+ > > > The size bug was already found by Dave Jones. This never should be
+ > > > written this way (not your fault). The array should have been
+ > > > [2048/sizeof(ULONG)].
+ > >
+ > >wasteful. We only ever use 2048 bytes of this array, so doubling
+ > >its size on 64bit is pointless, unless you make changes later on
+ > >in the driver. (Which I think don't make sense, as we just copy
+ > >32 64byte chunks).
+ > 
+ > No, this is how it should have been before. This way it would have been clear 
+ > where the magic 4 came from.
 
-Opps missed that... Thanks for spotting it.
+It's pointless to fix this, without fixing also CpqTsGetSFQEntry()
+...
 
-I will send an updated one to Andrew.
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+ > >we're trashing the last 48 bytes of every copy we make.
+ > >Does this driver even work ?
+ > 
+ > No, ulDestPtr ist ULONG* so we increase it by sizeof(ULONG)*16 which is 64. 
+
+Duh, yes.  That is broken on 64-bit however, where it will advance 128 bytes
+instead of 64 bytes.
+
+		Dave
+

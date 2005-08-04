@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVHDNe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVHDNgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262521AbVHDNe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 09:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVHDNe5
+	id S262529AbVHDNgi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbVHDNgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 09:34:57 -0400
-Received: from unthought.net ([212.97.129.88]:65180 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S262521AbVHDNe4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 09:34:56 -0400
-Date: Thu, 4 Aug 2005 15:34:54 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Anton Blanchard <anton@samba.org>, cr@sap.com, linux-mm@kvack.org
-Subject: Re: Getting rid of SHMMAX/SHMALL ?
-Message-ID: <20050804133454.GY30510@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Hugh Dickins <hugh@veritas.com>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
-	cr@sap.com, linux-mm@kvack.org
-References: <20050804113941.GP8266@wotan.suse.de> <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com>
+	Thu, 4 Aug 2005 09:36:37 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:50894 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262529AbVHDNfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 09:35:54 -0400
+Subject: Re: [PATCH] IPMI driver update part 1, add per-channel IPMB
+	addresses
+From: Arjan van de Ven <arjan@infradead.org>
+To: Corey Minyard <minyard@acm.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <42F216F7.6070604@acm.org>
+References: <42F14AC9.2060109@acm.org>
+	 <20050803225954.27aa6ffd.akpm@osdl.org>  <42F216F7.6070604@acm.org>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 15:35:09 +0200
+Message-Id: <1123162509.3318.21.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 02:19:21PM +0100, Hugh Dickins wrote:
-...
-> > Even on 32bit architectures it is far too small and doesn't
-> > make much sense. Does anybody remember why we even have this limit?
-> 
-> To be like the UNIXes.
 
- :)
+> >Be aware that this function will use more stack space than it needs to: gcc
+> >will create a separate stack slot for all the above locals.
+> >
+> >Hence it would be better to declare them all at the start of the function. 
+> >Faster, too - less dcache footprint.
+> >
+> >Maybe not as nice from a purist point of view, but it does allow you to
+> >lose those braces in the switch statement...
+> >  
+> >
+> Hmm, I assumed that gcc would optimize and allocate the stack as it 
+> needed it without waste.  Ok, easy enough to fix.
 
-...
-> Anton proposed raising the limits last autumn, but I was a bit
-> discouraging back then, having noticed that even Solaris 9 was more
-> restrictive than Linux.  They seem to be ancient traditional limits
-> which everyone knows must be raised to get real work done.
+latest gcc does the right thing; older gcc don't though.
 
-As I understand it (and I may be mistaken - if so please let me know) -
-the limit is for SVR4 IPC shared memory (shmget() and friends), and not
-shared memory in general.
-
-It makes good sense to limit use of the old SVR4 shared memory
-ressources, as they're generally administrator hell (doesn't free up
-ressources on process exit), and just plain shouldn't be used.
-
-It is my impression that SVR4 shmem is used in very few applications,
-and that the low limit is more than sufficient in most cases.
-
-Any proper application that really needs shared memory, can either
-memory map /dev/null and share that map (swap backed shared memory) or
-memory map a file on disk.
-
-If the above makes sense and isn't too far from the truth, then I guess
-that's a pretty good argument for maintaining status quo.
-
--- 
-
- / jakob
 

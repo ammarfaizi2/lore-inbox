@@ -1,134 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVHDJcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVHDJjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262448AbVHDJcM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 05:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVHDJcL
+	id S262453AbVHDJjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 05:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbVHDJjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 05:32:11 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:17810 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S262405AbVHDJcJ (ORCPT
+	Thu, 4 Aug 2005 05:39:18 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:3734 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262453AbVHDJjR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 05:32:09 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
-Date: Thu, 4 Aug 2005 11:38:30 +0200
-User-Agent: KMail/1.8.1
-Cc: "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
-       linux-scsi@vger.kernel.org, axboe@suse.de
-References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net>
-In-Reply-To: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net>
+	Thu, 4 Aug 2005 05:39:17 -0400
+Date: Thu, 4 Aug 2005 11:38:33 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
+Subject: Re: [PATCH] push rounding up of relative request to schedule_timeout()
+In-Reply-To: <20050804005147.GC4255@us.ibm.com>
+Message-ID: <Pine.LNX.4.61.0508041123220.3728@scrub.home>
+References: <1122123085.3582.13.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0507231456000.3728@scrub.home> <20050723164310.GD4951@us.ibm.com>
+ <Pine.LNX.4.61.0507231911540.3743@scrub.home> <20050723191004.GB4345@us.ibm.com>
+ <Pine.LNX.4.61.0507232151150.3743@scrub.home> <20050727222914.GB3291@us.ibm.com>
+ <Pine.LNX.4.61.0507310046590.3728@scrub.home> <20050801193522.GA24909@us.ibm.com>
+ <Pine.LNX.4.61.0508031419000.3728@scrub.home> <20050804005147.GC4255@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3670994.FAo0KsVKFx";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508041138.38216@bilbo.math.uni-mannheim.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3670994.FAo0KsVKFx
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi,
 
-Saripalli, Venkata Ramanamurthy (STSD) wrote:
->Patch 1 of 2
->
->This patch fixes the "#error this is too much stack" in 2.6 kernel.
->Using kmalloc to allocate memory to ulFibreFrame.
+Andrew, please drop this patch. 
+Nish, please stop fucking around with kernel APIs.
 
-Good idea.
+On Wed, 3 Aug 2005, Nishanth Aravamudan wrote:
 
->Please consider this for inclusion
+> > The "jiffies_to_msecs(msecs_to_jiffies(timeout_msecs) + 1)" case (when the 
+> > process is immediately woken up again) makes the caller suspectible to 
+> > timeout manipulations and requires constant reauditing, that no caller 
+> > gets it wrong, so it's better to avoid this error source completely.
 
-Your patch is line-wrapped and can't be applied. Your second patch is also=
-=20
-line wrapped. And it touches this file in a different way so they can't be=
-=20
-applied cleanly over each other.
+Nish, did you read this? Is my English this bad?
 
->diff -burpN old/drivers/scsi/cpqfcTScontrol.c
->new/drivers/scsi/cpqfcTScontrol.c
->--- old/drivers/scsi/cpqfcTScontrol.c	2005-07-12 22:52:29.000000000
->+0530
->+++ new/drivers/scsi/cpqfcTScontrol.c	2005-07-18 22:19:54.229947176
->+0530
->@@ -606,22 +606,25 @@ static int PeekIMQEntry( PTACHYON fcChip
->         if( (fcChip->IMQ->QEntry[CI].type & 0x1FF) =3D=3D 0x104 )
->         {
->           TachFCHDR_GCMND* fchs;
->-#error This is too much stack
->-          ULONG ulFibreFrame[2048/4];  // max DWORDS in incoming FC
->Frame
->+          ULONG *ulFibreFrame;  // max DWORDS in incoming FC Frame
-> 	  USHORT SFQpi =3D (USHORT)(fcChip->IMQ->QEntry[CI].word[0] &
->0x0fffL);
+> --- 2.6.13-rc5/kernel/timer.c	2005-08-01 12:31:53.000000000 -0700
+> +++ 2.6.13-rc5-dev/kernel/timer.c	2005-08-03 17:30:10.000000000 -0700
+> @@ -1134,7 +1134,7 @@ fastcall signed long __sched schedule_ti
+>  		}
+>  	}
+>  
+> -	expire = timeout + jiffies;
+> +	expire = timeout + jiffies + 1;
+>  
+>  	init_timer(&timer);
+>  	timer.expires = expire;
 
-Why not use a void* here as type for the buffer? Or even better: remove thi=
-s=20
-at all and directly use fchs as target, because this is the only place wher=
-e=20
-this buffer goes to?
+And a little later it does:
 
->+	  ulFibreFrame =3D kmalloc((2048/4), GFP_KERNEL);
+	timeout = expire - jiffies;
 
-The size bug was already found by Dave Jones. This never should be written=
-=20
-this way (not your fault). The array should have been [2048/sizeof(ULONG)].
+which means callers can get back a larger timeout.
+Nish, did you check and fix _all_ users? I can easily find a number of 
+users which immediately use the return value as next timeout.
+There are _a_lot_ of schedule_timeout(1) for small busy loops, these are 
+asking for "please schedule until next tick". Did you check that these are 
+still ok?
+schedule_timeout() is arguably a broken API, but can we please _first_ 
+come up with a plan to fix this, before we break even more?
 
-> 	  CpqTsGetSFQEntry( fcChip,
->             SFQpi,        // SFQ producer ndx
-> 	    ulFibreFrame, // contiguous dest. buffer
-> 	    FALSE);       // DON'T update chip--this is a "lookahead"
-
-CpqTsGetSFQEntry() should be modified to take a void* as third argument IMH=
-O.
-
->-	  fchs =3D (TachFCHDR_GCMND*)&ulFibreFrame;
->+	  fchs =3D (TachFCHDR_GCMND*)ulFibreFrame;
->           if( fchs->pl[0] =3D=3D ELS_LILP_FRAME)
-> 	  {
->+	    kfree(ulFibreFrame);
->             return 1; // found the LILP frame!
-> 	  }
-> 	  else
-> 	  {
->+	    kfree(ulFibreFrame);
-> 	    // keep looking...
-> 	  }
-> 	}
-
-What a ...
-
-I would prefer if someone goes and really cleans up this driver.
-
-=2Dread Documentation/Codingstyle
-=2Dgo through Lindent.
-=2Dkill this ULONG stuff. If you want __u32 use it.
-=2Duse void* for "just a buffer"
-=2Ddon't use hardcoded type sizes. Use sizeof(type) to make clear what kind=
- of=20
-magic is going on.
-=2Dthis is C, not C++. No C++ comments, use fewer uppercase letters.
-
-The way it is is very likely to cause people missing what's really going on=
- at=20
-some places, which will cause errors afterwards.
-
-Eike
-
---nextPart3670994.FAo0KsVKFx
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBC8eIeXKSJPmm5/E4RAtkMAKCSFuC/yhne0lNSSX0jRAJJXP3TeACfcytd
-HvrI/NzzJwK/aLqn1H2aAfs=
-=Lp1X
------END PGP SIGNATURE-----
-
---nextPart3670994.FAo0KsVKFx--
+bye, Roman

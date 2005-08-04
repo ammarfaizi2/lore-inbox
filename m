@@ -1,140 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262528AbVHDNYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVHDN2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbVHDNYn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 09:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVHDNYn
+	id S262527AbVHDN2z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVHDN2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 09:24:43 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:32242 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262528AbVHDNYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 09:24:10 -0400
-Message-ID: <42F216F7.6070604@acm.org>
-Date: Thu, 04 Aug 2005 08:24:07 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IPMI driver update part 1, add per-channel IPMB addresses
-References: <42F14AC9.2060109@acm.org> <20050803225954.27aa6ffd.akpm@osdl.org>
-In-Reply-To: <20050803225954.27aa6ffd.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 4 Aug 2005 09:28:55 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:51407 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262527AbVHDN2y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 09:28:54 -0400
+Subject: [patch] inotify: update help text
+From: Robert Love <rml@novell.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mr Morton <akpm@osdl.org>, The Cutch <ttb@tentacle.dhs.org>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 09:28:55 -0400
+Message-Id: <1123162135.30486.16.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+The inotify help text still refers to the character device.  Update it.
 
->Corey Minyard <minyard@acm.org> wrote:
->  
->
->>ipmi-per-channel-slave-address.patch  unknown/unknown (13533 bytes)]
->>    
->>
->
->Could you fix up the mimetype, please?  It makes it hard for various email
->clients.
->  
->
-Dang, you switch to a new mail client and everything is screwed up.  Sorry.
+Fixes kernel bug #4993.
 
->  
->
->>IPMI allows multiple IPMB channels on a single interface, and
->>each channel might have a different IPMB address.  However, the
->>driver has only one IPMB address that it uses for everything.
->>This patch adds new IOCTLS and a new internal interface for
->>setting per-channel IPMB addresses and LUNs.  New systems are
->>coming out with support for multiple IPMB channels, and they
->>are broken without this patch.
->>
->>...
->>+	for (i=0; i<IPMI_MAX_CHANNELS; i++)
->>    
->>
->
->Preferred coding style is actually
->
->	for (i = 0; i < IPMI_MAX_CHANNELS; i++)
->
->but we've kinda lost that fight in drivers :(
->  
->
-Ok, I'll see what I can do.  It's the wrong way all over the driver 
-right now.
+Signed-off-by: Robert Love <rml@novell.com>
 
->  
->
->>+#define IPMICTL_SET_MY_CHANNEL_ADDRESS_CMD _IOR(IPMI_IOC_MAGIC, 24, struct ipmi_channel_lun_address_set)
->>+#define IPMICTL_GET_MY_CHANNEL_ADDRESS_CMD _IOR(IPMI_IOC_MAGIC, 25, struct ipmi_channel_lun_address_set)
->>+#define IPMICTL_SET_MY_CHANNEL_LUN_CMD	   _IOR(IPMI_IOC_MAGIC, 26, struct ipmi_channel_lun_address_set)
->>+#define IPMICTL_GET_MY_CHANNEL_LUN_CMD	   _IOR(IPMI_IOC_MAGIC, 27, struct ipmi_channel_lun_address_set)
->>    
->>
->
->Are these all OK wrt compat handling?
->  
->
-Yes, it is a structure of an unsigned short and an unsigned char, so it 
-should be ok.
+ fs/Kconfig |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
 
->  
->
->> 	case IPMICTL_SET_MY_ADDRESS_CMD:
->> 	{
->> 		unsigned int val;
->>...
->> 	case IPMICTL_GET_MY_ADDRESS_CMD:
->> 	{
->>-		unsigned int val;
->>+		unsigned int  val;
->>+		unsigned char rval;
->>...
->> 	case IPMICTL_GET_MY_LUN_CMD:
->> 	{
->>-		unsigned int val;
->>+		unsigned int  val;
->>+		unsigned char rval;
->>+
->>...
->>+	case IPMICTL_SET_MY_CHANNEL_ADDRESS_CMD:
->>+	{
->>+		struct ipmi_channel_lun_address_set val;
->>...
->>+	case IPMICTL_GET_MY_CHANNEL_ADDRESS_CMD:
->>+	{
->>+		struct ipmi_channel_lun_address_set val;
->>...
->>+	case IPMICTL_SET_MY_CHANNEL_LUN_CMD:
->>+	{
->>+		struct ipmi_channel_lun_address_set val;
->>...
->>+	case IPMICTL_GET_MY_CHANNEL_LUN_CMD:
->>+	{
->>+		struct ipmi_channel_lun_address_set val;
->>...
->> 	case IPMICTL_SET_TIMING_PARMS_CMD:
->> 	{
->> 		struct ipmi_timing_parms parms;
->>
->>    
->>
->
->Be aware that this function will use more stack space than it needs to: gcc
->will create a separate stack slot for all the above locals.
->
->Hence it would be better to declare them all at the start of the function. 
->Faster, too - less dcache footprint.
->
->Maybe not as nice from a purist point of view, but it does allow you to
->lose those braces in the switch statement...
->  
->
-Hmm, I assumed that gcc would optimize and allocate the stack as it 
-needed it without waste.  Ok, easy enough to fix.
+--- linux-2.6.13-rc3-git8/fs/Kconfig	2005-07-27 10:59:32.000000000 -0400
++++ linux/fs/Kconfig	2005-08-04 09:26:46.000000000 -0400
+@@ -363,12 +363,15 @@
+ 	bool "Inotify file change notification support"
+ 	default y
+ 	---help---
+-	  Say Y here to enable inotify support and the /dev/inotify character
+-	  device.  Inotify is a file change notification system and a
++	  Say Y here to enable inotify support and the associated system
++	  calls.  Inotify is a file change notification system and a
+ 	  replacement for dnotify.  Inotify fixes numerous shortcomings in
+ 	  dnotify and introduces several new features.  It allows monitoring
+-	  of both files and directories via a single open fd.  Multiple file
+-	  events are supported.
++	  of both files and directories via a single open fd.  Other features
++	  include multiple file events, one-shot support, and unmount
++	  notification.
++
++	  For more information, see Documentation/filesystems/inotify.txt
+ 
+ 	  If unsure, say Y.
+ 
 
-Thanks,
 
--Corey

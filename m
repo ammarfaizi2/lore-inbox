@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVHDN2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVHDNe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbVHDN2z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 09:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVHDN2z
+	id S262521AbVHDNe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVHDNe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 09:28:55 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:51407 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262527AbVHDN2y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 09:28:54 -0400
-Subject: [patch] inotify: update help text
-From: Robert Love <rml@novell.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mr Morton <akpm@osdl.org>, The Cutch <ttb@tentacle.dhs.org>
-Content-Type: text/plain
-Date: Thu, 04 Aug 2005 09:28:55 -0400
-Message-Id: <1123162135.30486.16.camel@betsy>
+	Thu, 4 Aug 2005 09:34:57 -0400
+Received: from unthought.net ([212.97.129.88]:65180 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S262521AbVHDNe4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 09:34:56 -0400
+Date: Thu, 4 Aug 2005 15:34:54 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Anton Blanchard <anton@samba.org>, cr@sap.com, linux-mm@kvack.org
+Subject: Re: Getting rid of SHMMAX/SHMALL ?
+Message-ID: <20050804133454.GY30510@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Hugh Dickins <hugh@veritas.com>, Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
+	cr@sap.com, linux-mm@kvack.org
+References: <20050804113941.GP8266@wotan.suse.de> <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The inotify help text still refers to the character device.  Update it.
+On Thu, Aug 04, 2005 at 02:19:21PM +0100, Hugh Dickins wrote:
+...
+> > Even on 32bit architectures it is far too small and doesn't
+> > make much sense. Does anybody remember why we even have this limit?
+> 
+> To be like the UNIXes.
 
-Fixes kernel bug #4993.
+ :)
 
-Signed-off-by: Robert Love <rml@novell.com>
+...
+> Anton proposed raising the limits last autumn, but I was a bit
+> discouraging back then, having noticed that even Solaris 9 was more
+> restrictive than Linux.  They seem to be ancient traditional limits
+> which everyone knows must be raised to get real work done.
 
- fs/Kconfig |   11 +++++++----
- 1 files changed, 7 insertions(+), 4 deletions(-)
+As I understand it (and I may be mistaken - if so please let me know) -
+the limit is for SVR4 IPC shared memory (shmget() and friends), and not
+shared memory in general.
 
---- linux-2.6.13-rc3-git8/fs/Kconfig	2005-07-27 10:59:32.000000000 -0400
-+++ linux/fs/Kconfig	2005-08-04 09:26:46.000000000 -0400
-@@ -363,12 +363,15 @@
- 	bool "Inotify file change notification support"
- 	default y
- 	---help---
--	  Say Y here to enable inotify support and the /dev/inotify character
--	  device.  Inotify is a file change notification system and a
-+	  Say Y here to enable inotify support and the associated system
-+	  calls.  Inotify is a file change notification system and a
- 	  replacement for dnotify.  Inotify fixes numerous shortcomings in
- 	  dnotify and introduces several new features.  It allows monitoring
--	  of both files and directories via a single open fd.  Multiple file
--	  events are supported.
-+	  of both files and directories via a single open fd.  Other features
-+	  include multiple file events, one-shot support, and unmount
-+	  notification.
-+
-+	  For more information, see Documentation/filesystems/inotify.txt
- 
- 	  If unsure, say Y.
- 
+It makes good sense to limit use of the old SVR4 shared memory
+ressources, as they're generally administrator hell (doesn't free up
+ressources on process exit), and just plain shouldn't be used.
 
+It is my impression that SVR4 shmem is used in very few applications,
+and that the low limit is more than sufficient in most cases.
+
+Any proper application that really needs shared memory, can either
+memory map /dev/null and share that map (swap backed shared memory) or
+memory map a file on disk.
+
+If the above makes sense and isn't too far from the truth, then I guess
+that's a pretty good argument for maintaining status quo.
+
+-- 
+
+ / jakob
 

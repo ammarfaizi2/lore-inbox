@@ -1,99 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVHDSrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVHDSsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbVHDSrF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 14:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVHDSrF
+	id S262597AbVHDSsm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 14:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbVHDSsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 14:47:05 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61917 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262583AbVHDSrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 14:47:03 -0400
-To: Luca Falavigna <dktrkranz@gmail.com>
-Cc: rddunlap@osdl.org, fastboot@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kexec and frame buffer
-References: <42F219B3.6090502@gmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 04 Aug 2005 12:43:44 -0600
-In-Reply-To: <42F219B3.6090502@gmail.com> (Luca Falavigna's message of "Thu,
- 04 Aug 2005 13:35:47 +0000")
-Message-ID: <m17jf1zgnz.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Aug 2005 14:48:40 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:39947 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262621AbVHDSsE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 14:48:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GGxBAy74UQ+5qbKv7bUhidXJze/tGFIQN4pdNmK00mKXBTHL3JP1gDnaMsSuPO/apUQGbG6d3Q0ERF5zLioYcVrWPUV/5GCJmPsssJVKcIDxcF2NgFzz5QyPQfkee1Aj5Wj77Ucjltls5siD2Lbbq1CcFyllwv/vYIpkvfZHNyA=
+Message-ID: <29495f1d0508041148f9bb1fa@mail.gmail.com>
+Date: Thu, 4 Aug 2005 11:48:04 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: george@mvista.com
+Subject: Re: [UPDATE PATCH] push rounding up of relative request to schedule_timeout()
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
+In-Reply-To: <42F24643.7080702@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.61.0507231456000.3728@scrub.home>
+	 <20050723191004.GB4345@us.ibm.com>
+	 <Pine.LNX.4.61.0507232151150.3743@scrub.home>
+	 <20050727222914.GB3291@us.ibm.com>
+	 <Pine.LNX.4.61.0507310046590.3728@scrub.home>
+	 <20050801193522.GA24909@us.ibm.com>
+	 <Pine.LNX.4.61.0508031419000.3728@scrub.home>
+	 <20050804005147.GC4255@us.ibm.com> <20050804051434.GA4520@us.ibm.com>
+	 <42F24643.7080702@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luca Falavigna <dktrkranz@gmail.com> writes:
+On 8/4/05, George Anzinger <george@mvista.com> wrote:
+> Uh... PLEASE tell me you are NOT changing timespec_to_jiffies() (and
+> timeval_to_jiffies() to add 1.  This is NOT the right thing to do.  For
+> repeating times (see setitimer code) we need the actual time as we KNOW
+> where the jiffies edge is in the repeating case.  The +1 is needed ONLY
+> for the initial time, not the repeating time.
 
-> I made three experiments regarding kexec with frame buffer support (vesafb). For
-> each of them I gathered dmesg messages from original and relocated kernel, in
-> order to easily compare them later on. These tests were run on a virtual machine
-> in order to provide the same environment for each experiment.
->
-> Here are my tests and related results:
->
->
->
-> 	1) Frame buffer not enabled
->
-> Original kernel command line: root=/dev/hda1 ro
-> Relocated kernel command line: root=/dev/hda1 ro
->
-> Everything went well, as supposed to be. I was able to read boot messages and to
-> see login prompts.
->
->
-> 	2) Frame buffer enabled in the relocated kernel
->
-> Original kernel command line: root=/dev/hda1 ro
-> Relocated kernel command line: root=/dev/hda1 ro vga=791
->
-> This time I was able to read boot messages and so on, but I couldn't be able to
-> load vesafb in the relocated kernel. dmesg showed nothing about vesafb.
->
->
-> 	3) Frame buffer enabled in the original kernel
->
-> Original kernel command line: root=/dev/hda1 ro vga=791
-> Relocated kernel command line: root=/dev/hda1 ro {vga=791,}
->
-> This time I wasn't able to read boot messages in the relocated kernel, whether
-> vga parameter was set or not. I looked at dmesg in order to get some useful
-> informations:
->
-> Linux version 2.6.13-rc5 (dktrkranz@gandalf) (gcc version 3.3.4 (Debian
-> 1:3.3.4-13)) #3 Wed Aug 3 13:39:11 UTC 2005
-> [...]
-> -Console: colour dummy device 80x25
-> +Console: colour VGA+ 80x25
-> [...]
-> -vesafb: framebuffer at 0xf0000000, mapped to 0xc2880000, using 3072k, total
-> 16384k
-> -vesafb: mode is 1024x768x16, linelength=2048, pages=0
-> -vesafb: protected mode interface info at 00ff:44f0
-> -vesafb: scrolling: redraw
-> -vesafb: Truecolor: size=0:5:6:5, shift=0:11:5:0
-> -mtrr: your processor doesn't support write-combining
-> -Console: switching to colour frame buffer device 128x48
-> -fb0: VESA VGA frame buffer device
-> [...]
->
-> It seems relocated kernel doesn't (or can't) load vesafb. Is frame buffer
-> supported in kexec or there is some work-in-progress?
+Please read the patch. I didn't touch timespec_to_jiffies() or
+timeval_to_jiffies(). Not sure why you think I did. I agree that we
+only need the initial time, my patch is no good. But it is hard for
+non-itimers, like schedule_timeout() callers, to provide an interface
+that only adds 1 to the initial request, since the callers currently
+pass in an absolute jiffies value.
 
-So without doing passing --real-mode the vga= parameter currently
-cannot work.  The vga= parameter is processed by vga.S which
-make BIOS calls and we bypass all of the BIOS calls.
-
-So you can try with the --real-mode option and you have
-a chance of the code working.  Or you can figure out which
-information video.S passes to the kernel figure out how
-to get that same information out of a running kernel
-and then /sbin/kexec can be tweaked to pass the current
-video mode.  Changing frame buffer modes shouldn't work
-but you should at least be able to preserve the existing
-ones.
-
-Eric
+Thanks,
+Nish

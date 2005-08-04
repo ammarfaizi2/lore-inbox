@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVHDBgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVHDBjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261740AbVHDBgp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 21:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVHDBgo
+	id S261743AbVHDBjj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 21:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVHDBgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 21:36:44 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:25831 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S261740AbVHDBfs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 21:35:48 -0400
-Date: Wed, 3 Aug 2005 18:39:10 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 1/2] [IB/cm]: Correct CM port redirect reject codes
-Message-ID: <20050804013910.GG16417@esmail.cup.hp.com>
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com> <20057281331.7vqhiAJ1Yc0um2je@cisco.com> <86802c44050803175873fb0569@mail.gmail.com>
+	Wed, 3 Aug 2005 21:36:51 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:48064 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261738AbVHDBed convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 21:34:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DU5s2iGOZQab3EGkPyGNhrtOAV9J1+WIfznV1KWKGbpaooq2b90D52t0NUbKwslmb48rG3dkIUsueLbmo2QhNNNmHdw8fo1WXw26+TCNVdNCXnX8C1N5c1QYLzE+onyKnbDh0NIy6AOgU462QmX9ERfZm53BiGcJv+p/n3uHv3k=
+Message-ID: <21d7e99705080318347d6b58d5@mail.gmail.com>
+Date: Thu, 4 Aug 2005 11:34:27 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] remove support for gcc < 3.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050731222606.GL3608@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <86802c44050803175873fb0569@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+References: <20050731222606.GL3608@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 03, 2005 at 05:58:11PM -0700, yhlu wrote:
-> Roland,
+On 8/1/05, Adrian Bunk <bunk@stusta.de> wrote:
+> This patch removes support for gcc < 3.2 .
 > 
-> In LinuxBIOS, If I enable the prefmem64 to use real 64 range. the IB
-> driver in Kernel can not be loaded.
-
-Can you provide a few more details about the configuration?
-o kernel version
-o architecture (i386 or x86-64)
-o post the full console output from power up?
-
-Recent email on linux-pci raised awareness that 32-bit kernel
-can not support 64-bit PCI MMIO addresses. struct resource (defined in
-include/linux/ioport.h) defines the start/end field as "unsigned long".
-That's only 32-bit on i386 kernels.
-
-> PCI: 04:00.0 18 <- [0xfcf0000000 - 0xfcf07fffff] prefmem64
-> PCI: 04:00.0 20 <- [0xfce0000000 - 0xfcefffffff] prefmem64                      
-I have to wonder if those BARs are truly prefetchable.
-Does Mellanox assume CPU is the only one to write the 3rd BAR (RAM)
-and the CPU implements a write-through cache (vs write back)?
-
-I'm just guessing because I don't understand exactly how the
-256MB of onboard RAM is accessed.
-
-hth,
-grant
-
+> The advantages are:
+> - reducing the number of supported gcc versions from 8 to 4 [1]
+>   allows the removal of several #ifdef's and workarounds
+> - my impression is that the older compilers are only rarely
+>   used, so miscompilations of a driver with an old gcc might
+>   not be detected for a longer amount of time
 > 
-> ib_mthca: Mellanox InfiniBand HCA driver v0.06 (June 23, 2005)
-> ib_mthca: Initializing Mellanox Technologies MT25208 InfiniHost III Ex (Tavor c)
-> ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
-> ib_mthca: probe of 0000:04:00.0 failed with error -16
-> _______________________________________________
-> openib-general mailing list
-> openib-general@openib.org
-> http://openib.org/mailman/listinfo/openib-general
-> 
-> To unsubscribe, please visit http://openib.org/mailman/listinfo/openib-general
+>
 
-And I have to wonder if those BARs truly are prefetchable.
-It would imply only the CPU writes them and 
+Another disadvantage is you'll really piss of the VAX developers (all
+3 of us!!!, well me not so much anymore...)
+
+I think there is a gcc 4.x compiler nearly capable of building a
+kernel for the VAX...
+
+Dave.

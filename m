@@ -1,126 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVHDNK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVHDNRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbVHDNK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 09:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbVHDNK3
+	id S262522AbVHDNRk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbVHDNRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 09:10:29 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:58385 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S262520AbVHDNK1 convert rfc822-to-8bit (ORCPT
+	Thu, 4 Aug 2005 09:17:40 -0400
+Received: from gold.veritas.com ([143.127.12.110]:49719 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S262522AbVHDNRd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 09:10:27 -0400
+	Thu, 4 Aug 2005 09:17:33 -0400
+Date: Thu, 4 Aug 2005 14:19:21 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
+       cr@sap.com, linux-mm@kvack.org
+Subject: Re: Getting rid of SHMMAX/SHMALL ?
+In-Reply-To: <20050804113941.GP8266@wotan.suse.de>
+Message-ID: <Pine.LNX.4.61.0508041409540.3500@goblin.wat.veritas.com>
+References: <20050804113941.GP8266@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <42F20CEC.60206@anagramm.de>
-References: <42F20CEC.60206@anagramm.de>
-X-OriginalArrivalTime: 04 Aug 2005 13:10:26.0080 (UTC) FILETIME=[E1184200:01C598F5]
-Content-class: urn:content-classes:message
-Subject: Re: How to get the physical page addresses from a kernel virtual address for DMA SG List?
-Date: Thu, 4 Aug 2005 09:09:51 -0400
-Message-ID: <Pine.LNX.4.61.0508040900300.3410@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to get the physical page addresses from a kernel virtual address for DMA SG List?
-thread-index: AcWY9eEh5yVirIM3SmKfG3yMO+josg==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Clemens Koller" <clemens.koller@anagramm.de>
-Cc: "LKML List" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 04 Aug 2005 13:17:32.0682 (UTC) FILETIME=[DF5E8EA0:01C598F6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 4 Aug 2005, Andi Kleen wrote:
 
+> I noticed that even 64bit architectures have a ridiculously low 
+> max limit on shared memory segments by default:
+> 
+> #define SHMMAX 0x2000000                 /* max shared seg size (bytes) */
+> #define SHMMNI 4096                      /* max num of segs system wide */
+> #define SHMALL (SHMMAX/PAGE_SIZE*(SHMMNI/16)) /* max shm system wide (pages) */
+> 
+> Even on 32bit architectures it is far too small and doesn't
+> make much sense. Does anybody remember why we even have this limit?
 
-You are trying to do it backwards. You need to have your driver
-use get_dma_pages() to acquire pages suitable for DMA. Your
-driver then impliments mmap().
+To be like the UNIXes.
 
-The user-mode application then mmaps() the dma-able pages into
-its address-space. FYI, the pages may be from anywhere, some
-archs can only DMA to/from memory below 16MB. The pages do not have
-to be continuous because you will build a scatter-list for
-the DMA engine and you will mmap() the pages so they are
-contiguous to the user. Also 400 Megabytes is absurd.
+> IMHO per process shm mappings should just be controlled by the normal
+> process and global mappings with the same heuristics as tmpfs
+> (by default max memory / 2 or more if shmfs is mounted with more)
+> Actually I suspect databases will usually want to use more 
+> so it might even make sense to support max memory - 1/8*max_memory
+> 
+> I would propose to get rid of of shmmax completely
+> and only keep the old shmall sysctl for compatibility.
 
-On Thu, 4 Aug 2005, Clemens Koller wrote:
+Anton proposed raising the limits last autumn, but I was a bit
+discouraging back then, having noticed that even Solaris 9 was more
+restrictive than Linux.  They seem to be ancient traditional limits
+which everyone knows must be raised to get real work done.
 
-> Hello!
->
-> This might be an FAQ - I've got several ideas from googling
-> around for days and reading 'Linux Device Drivers' or
-> 'Understanding The Linux Kernel' which are both really good
-> books. However I am not really sure of how to do it on the latest
-> linux-2.6.
->
-> I am currently working on a dma driver for a ppc32 system.
-> The idea is that a userspace app allocates a big contigous
-> chunk of memory (i.e. 400MBytes, user virtual mem) and tells
-> my dma's char driver via ioctl the pointer to that memory.
->
-> In the driver I can now use that (void __user *) casted address
-> as a kernel virtual address, right? It's contigous there and I can
-> do a memcpy() to get data to userspace simliar to a copy_to_user().
-> fine!
->
-> But I want to setup a scatter/gather DMA list and blow my data
-> directly into the applications physical pages.
->
-> What's the best way to setup the dma_sg_list?
-> I have checked several things to get the pages and physical addresses
-> but with no real success now:
-> get_user_page()
-> vmalloc_to_page()
-> kvirt_to_bus() (deprecated?)
-> virt_to_phys()
-> virt_to_bus()
->
-> Or do I need to remap the whole thing before I can get all the pages and
-> physical addresses?
-> remap_page_range()
-> remap_pfn_range()
-> map_user_kiobuf()
-> unmap_kiobuf()
->
-> Or do I need the direct-io stuff or the block-io?
-> How do I need to alloc the mem in my app? (get_pages()?)
-> How do I need to lock the memory to make sure it's in phys memory? (mlockall()?)
-> Can somebody please put some light on what's _the_ way to do that on the
-> latest 2.6 kernels? I am pretty much confused which functions are current
-> and okay to use to solve my problem.
-> Pointers to some code is also very welcome. But it should be _current_.
-> I've spent already a lot of time reading outdated things. :-(
->
-> Best regards,
->
-> Clemens Koller
-> _______________________________
-> R&D Imaging Devices
-> Anagramm GmbH
-> Rupert-Mayer-Str. 45/1
-> 81379 Muenchen
-> Germany
->
-> http://www.anagramm.de
-> Phone: +49-89-741518-50
-> Fax: +49-89-741518-19
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+It's possible that if we raise the limits, installation
+of this or that application will then lower them again?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+I don't think my opinion is worth much on this:
+what would the distro tuners like to see there?
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Hugh

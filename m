@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVHDXtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262759AbVHDXuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbVHDXtE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 19:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVHDXtE
+	id S262759AbVHDXuf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 19:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVHDXud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 19:49:04 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:38349 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S262732AbVHDXtD (ORCPT
+	Thu, 4 Aug 2005 19:50:33 -0400
+Received: from graphe.net ([209.204.138.32]:60821 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262759AbVHDXtf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 19:49:03 -0400
-Subject: [patch] Corgi: Add keyboard and touchscreen device definitions
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <linux@arm.linux.org.uk>
-Content-Type: text/plain
-Date: Fri, 05 Aug 2005 00:48:48 +0100
-Message-Id: <1123199328.8987.91.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Aug 2005 19:49:35 -0400
+Date: Thu, 4 Aug 2005 16:49:33 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andi Kleen <ak@suse.de>
+cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: NUMA policy interface
+In-Reply-To: <20050804234025.GJ8266@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0508041642130.15157@graphe.net>
+References: <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net>
+ <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net>
+ <20050804170803.GB8266@wotan.suse.de> <Pine.LNX.4.62.0508041011590.7314@graphe.net>
+ <20050804211445.GE8266@wotan.suse.de> <Pine.LNX.4.62.0508041416490.10150@graphe.net>
+ <20050804214132.GF8266@wotan.suse.de> <Pine.LNX.4.62.0508041509330.10813@graphe.net>
+ <20050804234025.GJ8266@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add keyboard and touchscreen device definitions for corgi.
+On Fri, 5 Aug 2005, Andi Kleen wrote:
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+> None of them seem very attractive to me.  I would prefer to just
+> not support external accesses keeping things lean and fast.
 
-Index: linux-2.6.12/arch/arm/mach-pxa/corgi.c
-===================================================================
---- linux-2.6.12.orig/arch/arm/mach-pxa/corgi.c	2005-08-05 00:29:45.000000000 +0100
-+++ linux-2.6.12/arch/arm/mach-pxa/corgi.c	2005-08-05 00:29:47.000000000 +0100
-@@ -99,6 +99,27 @@
- 
- 
- /*
-+ * Corgi Keyboard Device
-+ */
-+static struct platform_device corgikbd_device = {
-+	.name		= "corgi-keyboard",
-+	.id		= -1,
-+};
-+
-+
-+/*
-+ * Corgi Touch Screen Device
-+ */
-+static struct platform_device corgits_device = {
-+	.name		= "corgi-ts",
-+	.dev		= {
-+ 		.parent = &corgissp_device.dev,
-+	},		
-+	.id		= -1,
-+};
-+
-+
-+/*
-  * MMC/SD Device
-  *
-  * The card detect interrupt isn't debounced so we delay it by HZ/4
-@@ -180,6 +201,7 @@
- };
- 
- 
-+
- /*
-  * USB Device Controller
-  */
-@@ -205,7 +227,9 @@
- 	&corgiscoop_device,
- 	&corgissp_device,
- 	&corgifb_device,
-+	&corgikbd_device,
- 	&corgibl_device,
-+	&corgits_device,
- };
- 
- static void __init corgi_init(void)
+That is a surprising statement given what we just discussed. Things 
+are not lean and fast but weirdly screwed up. The policy layer is 
+significantly impacted by historical contingencies rather than designed in 
+a clean way. It cannot even deliver the functionality it was designed to 
+deliver (see BIND).
 
+> Individual physical page migration is quite different from
+> address space migration.
+
+Address space migration? That is something new in this discussion. So 
+could you explain what you mean by that? I have looked at page migration 
+in a variety of contexts and could not see much difference.

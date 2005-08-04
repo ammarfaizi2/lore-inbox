@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVHDJjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262457AbVHDJlC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVHDJjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 05:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbVHDJjS
+	id S262457AbVHDJlC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 05:41:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbVHDJlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 05:39:18 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:3734 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262453AbVHDJjR (ORCPT
+	Thu, 4 Aug 2005 05:41:01 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15544 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262457AbVHDJk4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 05:39:17 -0400
-Date: Thu, 4 Aug 2005 11:38:33 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-Subject: Re: [PATCH] push rounding up of relative request to schedule_timeout()
-In-Reply-To: <20050804005147.GC4255@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0508041123220.3728@scrub.home>
-References: <1122123085.3582.13.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231456000.3728@scrub.home> <20050723164310.GD4951@us.ibm.com>
- <Pine.LNX.4.61.0507231911540.3743@scrub.home> <20050723191004.GB4345@us.ibm.com>
- <Pine.LNX.4.61.0507232151150.3743@scrub.home> <20050727222914.GB3291@us.ibm.com>
- <Pine.LNX.4.61.0507310046590.3728@scrub.home> <20050801193522.GA24909@us.ibm.com>
- <Pine.LNX.4.61.0508031419000.3728@scrub.home> <20050804005147.GC4255@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Aug 2005 05:40:56 -0400
+Subject: [PATCH] Remove suspend() calls from shutdown path
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 11:36:26 +0200
+Message-Id: <1123148187.30257.55.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Andrew !
 
-Andrew, please drop this patch. 
-Nish, please stop fucking around with kernel APIs.
+This patch remove the calls to device_suspend() from the shutdown path
+that were added sometime during 2.6.13-rc*. They aren't working properly
+on a number of configs (I got reports from both ppc powerbook users and
+x86 users) causing the system to not shutdown anymore.
 
-On Wed, 3 Aug 2005, Nishanth Aravamudan wrote:
+I think it isn't the right approach at the moment anyway. We have
+already a shutdown() callback for the drivers that actually care about
+shutdown and the suspend() code isn't yet in a good enough shape to be
+so much generalized. Also, the semantics of suspend and shutdown are
+slightly different on a number of setups and the way this was patched in
+provides little way for drivers to cleanly differenciate. It should have
+been at least a different message.
 
-> > The "jiffies_to_msecs(msecs_to_jiffies(timeout_msecs) + 1)" case (when the 
-> > process is immediately woken up again) makes the caller suspectible to 
-> > timeout manipulations and requires constant reauditing, that no caller 
-> > gets it wrong, so it's better to avoid this error source completely.
+For 2.6.13, I think we should revert to 2.6.12 behaviour and have a
+working suspend back.
 
-Nish, did you read this? Is my English this bad?
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-> --- 2.6.13-rc5/kernel/timer.c	2005-08-01 12:31:53.000000000 -0700
-> +++ 2.6.13-rc5-dev/kernel/timer.c	2005-08-03 17:30:10.000000000 -0700
-> @@ -1134,7 +1134,7 @@ fastcall signed long __sched schedule_ti
->  		}
->  	}
->  
-> -	expire = timeout + jiffies;
-> +	expire = timeout + jiffies + 1;
->  
->  	init_timer(&timer);
->  	timer.expires = expire;
+Index: linux-work/kernel/sys.c
+===================================================================
+--- linux-work.orig/kernel/sys.c	2005-08-01 14:03:46.000000000 +0200
++++ linux-work/kernel/sys.c	2005-08-04 11:32:51.000000000 +0200
+@@ -404,7 +404,6 @@
+ {
+ 	notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
+ 	system_state = SYSTEM_HALT;
+-	device_suspend(PMSG_SUSPEND);
+ 	device_shutdown();
+ 	printk(KERN_EMERG "System halted.\n");
+ 	machine_halt();
+@@ -415,7 +414,6 @@
+ {
+ 	notifier_call_chain(&reboot_notifier_list, SYS_POWER_OFF, NULL);
+ 	system_state = SYSTEM_POWER_OFF;
+-	device_suspend(PMSG_SUSPEND);
+ 	device_shutdown();
+ 	printk(KERN_EMERG "Power down.\n");
+ 	machine_power_off();
 
-And a little later it does:
 
-	timeout = expire - jiffies;
-
-which means callers can get back a larger timeout.
-Nish, did you check and fix _all_ users? I can easily find a number of 
-users which immediately use the return value as next timeout.
-There are _a_lot_ of schedule_timeout(1) for small busy loops, these are 
-asking for "please schedule until next tick". Did you check that these are 
-still ok?
-schedule_timeout() is arguably a broken API, but can we please _first_ 
-come up with a plan to fix this, before we break even more?
-
-bye, Roman

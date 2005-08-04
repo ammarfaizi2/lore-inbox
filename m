@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVHDITm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVHDIZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbVHDITm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 04:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbVHDITm
+	id S262216AbVHDIZI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 04:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVHDIZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 04:19:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:64718 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262255AbVHDITk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 04:19:40 -0400
-Subject: Re: [PATCH 2/3] cpqarray: ioctl support to configure LUNs
-	dynamically
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>
-Cc: axboe@suse.de, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4221C1B21C20854291E185D1243EA8F302623BD9@bgeexc04.asiapacific.cpqcorp.net>
-References: <4221C1B21C20854291E185D1243EA8F302623BD9@bgeexc04.asiapacific.cpqcorp.net>
-Content-Type: text/plain
-Date: Thu, 04 Aug 2005 10:18:43 +0200
-Message-Id: <1123143523.3318.7.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 4 Aug 2005 04:25:08 -0400
+Received: from viking.sophos.com ([194.203.134.132]:51211 "EHLO
+	viking.sophos.com") by vger.kernel.org with ESMTP id S262216AbVHDIZF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 04:25:05 -0400
+MIME-Version: 1.0
+X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
+  |February 13, 2003) at 04/08/2005 09:24:57,
+	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
+ 13, 2003) at 04/08/2005 09:24:57,
+	Serialize complete at 04/08/2005 09:24:57,
+	S/MIME Sign failed at 04/08/2005 09:24:57: The cryptographic key was not
+ found,
+	S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
+  |February 13, 2003) at 04/08/2005 09:25:01,
+	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
+ 13, 2003) at 04/08/2005 09:25:01,
+	Serialize complete at 04/08/2005 09:25:01,
+	S/MIME Sign failed at 04/08/2005 09:25:01: The cryptographic key was not
+ found,
+	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.2|June 01, 2004) at
+ 04/08/2005 09:25:04,
+	Serialize complete at 04/08/2005 09:25:04
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, samba@samba.org
+Subject: Re: Is anyone maintaining the smb filesystem?
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OFF8C2E0A3.E0EC1DCE-ON80257053.002D9CAB-80257053.002E3C62@sophos.com>
+From: tvrtko.ursulin@sophos.com
+Date: Thu, 4 Aug 2005 09:25:01 +0100
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-04 at 10:15 +0530, Saripalli, Venkata Ramanamurthy
-(STSD) wrote:
-> Patch 2 of 3
-> This patch adds support for IDAREGNEWDISK, IDADEREGDISK, IDAGETLOGINFO
-> ioctls required
-> to configure LUNs dynamically on SA4200 controller using ACU.
+On 03/08/2005 17:03:04 linux-kernel-owner wrote:
 
+>Is anyone maintaining the smb filesystem in the Linux kernel?
 
-I don't think it's a good idea to add new ioctls to drivers like this...
+It probably won't help you much, but I had the same problem few months 
+ago. There was a bug in smbfs which I tried to discuss with someone, and 
+after failing to contact the maintainer, I sent the fix to Linus. I don't 
+think even he managed to get a response from Urban or someone else. The 
+fix went in so I stopped chasing it.
+
+So it looks like smbfs is not maintained.
 
 

@@ -1,81 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVHDAd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVHDAfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVHDAd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Aug 2005 20:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVHDAd6
+	id S261662AbVHDAfP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Aug 2005 20:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVHDAfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Aug 2005 20:33:58 -0400
-Received: from [202.136.32.45] ([202.136.32.45]:65171 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261660AbVHDAd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Aug 2005 20:33:57 -0400
-From: Grant Coady <lkml@dodo.com.au>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
-       Sean Bruno <sean.bruno@dsl-only.net>, Lee Revell <rlrevell@joe-job.com>,
-       Bodo Eggert <7eggert@gmx.de>, Gene Heskett <gene.heskett@verizon.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, David Brown <dmlb2000@gmail.com>,
-       Puneet Vyas <vyas.puneet@gmail.com>,
-       Richard Hubbell <richard.hubbell@gmail.com>, webmaster@kernel.org
-Subject: Re: Documentation - how to apply patches for various trees
-Date: Thu, 04 Aug 2005 10:33:31 +1000
-Organization: www.scatter.mine.nu
-Reply-To: lkml@dodo.com.au
-Message-ID: <vbn2f1do8pph1qvlfb6n73nci19c51ukue@4ax.com>
-References: <200508022332.21380.jesper.juhl@gmail.com> <200508032251.07996.jesper.juhl@gmail.com> <Pine.LNX.4.58.0508031400390.3258@g5.osdl.org> <200508032328.07727.jesper.juhl@gmail.com>
-In-Reply-To: <200508032328.07727.jesper.juhl@gmail.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Wed, 3 Aug 2005 20:35:15 -0400
+Received: from mail02.hansenet.de ([213.191.73.62]:49092 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S261662AbVHDAez
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Aug 2005 20:34:55 -0400
+From: Thomas Koeller <thomas@koeller.dyndns.org>
+To: rusty@rustcorp.com.au
+Subject: [PATCH] flush icache early when loading module
+Date: Thu, 4 Aug 2005 02:34:49 +0200
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508040234.49661.thomas@koeller.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jesper,
-On Wed, 3 Aug 2005 23:28:06 +0200, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+The patch below, created against linux-2.6.12.3, changes the sequence of
+operations performed during module loading to flush the instruction cache
+before module parameters are processed. If a module has parameters of an
+unusual type that cannot be handled using the standard accessor functions
+param_set_xxx and param_get_xxx, it has to to provide a set of accessor
+functions for this type. This requires module code to be executed during
+parameter processing, which is of course only possible after the icache
+has been flushed.
 
-I like it, just a little concerned about confusing new user with too 
-many alternative patching methods up front...
-
->+ This (as usual with Linux and other UNIX like operating systems) can be
->+done in several different ways.
->+In all the examples below I feed the file (in uncompressed form) to patch
->+via stdin using the following syntax:
->+	patch -p1 < path/to/patch-x.y.z
->+
->+but patch can also get the name of the file to use via the -i argument, like
->+this:
->+	patch -p1 -i path/to/patch-x.y.z
->+
->+If your patch file is compressed with gzip or bzip2 and you don't want to
->+uncompress it before applying it, then you can feed it to patch like this
->+instead:
-
-	cat path/to/patch-x.y.z.gz | patch -p1
->+	zcat path/to/patch-x.y.z.gz | patch -p1
->+	bzcat path/to/patch-x.y.z.bz2 | patch -p1
-
-In a howto, I'd prefer  _one_ consistent method to reduce the 
-reader's confusion.  
-
-The above trio of commands serves me well over many years' kernel 
-patching, and it is trivial to up-arrow, home, change compression 
-method, retry ... when my fingers get ahead of my mind :)
+Signed-off-by: Thomas Koeller <thomas@koeller.dyndns.org>
 
 
-Experience users recognise the intent of the commands and use their 
-favourite method instead, almost without thinking.
 
 
-Spelling:
 
-s/uncompression/decompression/
-s/adviced/advised/
-s/bandwith/bandwidth/
+--- linux-2.6.12.3-orig/kernel/module.c	2005-08-04 01:11:32.000000000 +0200
++++ linux-2.6.12.3/kernel/module.c	2005-08-04 02:00:16.000000000 +0200
+@@ -1413,6 +1413,7 @@ static struct module *load_module(void _
+ 	long err = 0;
+ 	void *percpu = NULL, *ptr = NULL; /* Stops spurious gcc warning */
+ 	struct exception_table_entry *extable;
++	mm_segment_t old_fs;
+ 
+ 	DEBUGP("load_module: umod=%p, len=%lu, uargs=%p\n",
+ 	       umod, len, uargs);
+@@ -1677,6 +1678,24 @@ static struct module *load_module(void _
+ 	if (err < 0)
+ 		goto cleanup;
+ 
++	/* flush the icache in correct context */
++	old_fs = get_fs();
++	set_fs(KERNEL_DS);
++
++	/*
++	 * Flush the instruction cache, since we've played with text.
++	 * Do it before processing of module parameters, so the module
++	 * can provide parameter accessor functions of its own.
++	 */
++	if (mod->module_init)
++		flush_icache_range((unsigned long)mod->module_init,
++				   (unsigned long)mod->module_init
++				   + mod->init_size);
++	flush_icache_range((unsigned long)mod->module_core,
++			   (unsigned long)mod->module_core + mod->core_size);
++
++	set_fs(old_fs);
++
+ 	mod->args = args;
+ 	if (obsparmindex) {
+ 		err = obsolete_params(mod->name, mod->args,
+@@ -1758,7 +1777,6 @@ sys_init_module(void __user *umod,
+ 		const char __user *uargs)
+ {
+ 	struct module *mod;
+-	mm_segment_t old_fs = get_fs();
+ 	int ret = 0;
+ 
+ 	/* Must have permission */
+@@ -1776,19 +1794,6 @@ sys_init_module(void __user *umod,
+ 		return PTR_ERR(mod);
+ 	}
+ 
+-	/* flush the icache in correct context */
+-	set_fs(KERNEL_DS);
+-
+-	/* Flush the instruction cache, since we've played with text */
+-	if (mod->module_init)
+-		flush_icache_range((unsigned long)mod->module_init,
+-				   (unsigned long)mod->module_init
+-				   + mod->init_size);
+-	flush_icache_range((unsigned long)mod->module_core,
+-			   (unsigned long)mod->module_core + mod->core_size);
+-
+-	set_fs(old_fs);
+-
+ 	/* Now sew it into the lists.  They won't access us, since
+            strong_try_module_get() will fail. */
+ 	stop_machine_run(__link_module, mod, NR_CPUS);
 
-Cheers,
-Grant.
-
+-- 
+Thomas Koeller
+thomas@koeller.dyndns.org

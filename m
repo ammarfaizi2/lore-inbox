@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVHDQij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVHDRku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262604AbVHDQij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 12:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVHDQfe
+	id S261903AbVHDRku (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 13:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVHDRkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 12:35:34 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:44435 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262598AbVHDQdl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 12:33:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BeEmhJFLf+HN1vMGDt/sfAOLEI49vu5gQ8aw57CApY+/3U9HpS3t2psVtbnb9s2RcdJilhdEOrfFZbQtNz/insVJCLHPIGlRgyPILuFFipnYMQEHjX4d+9266MwPALoWeUqpv2JB0Am3PpI5W6nd5Q6t+svuuHc5SF47wKfYxFY=
-Message-ID: <86802c44050804093374aca360@mail.gmail.com>
-Date: Thu, 4 Aug 2005 09:33:38 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-Reply-To: yhlu <yhlu.kernel@gmail.com>
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: mthca and LinuxBIOS (was: [PATCH 1/2] [IB/cm]: Correct CM port redirect reject codes)
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <52u0i6b9an.fsf_-_@cisco.com>
+	Thu, 4 Aug 2005 13:40:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14056 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261487AbVHDRjI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 13:39:08 -0400
+Date: Thu, 4 Aug 2005 13:38:56 -0400
+From: Dave Jones <davej@redhat.com>
+To: Rolf Eike Beer <eike@sf-mail.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
+       linux-scsi@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
+Message-ID: <20050804173856.GG22886@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Rolf Eike Beer <eike@sf-mail.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	"Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
+	linux-scsi@vger.kernel.org, axboe@suse.de
+References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net> <200508041756.23611@bilbo.math.uni-mannheim.de> <20050804164259.GD22886@redhat.com> <200508041911.46911@bilbo.math.uni-mannheim.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
-	 <20057281331.7vqhiAJ1Yc0um2je@cisco.com>
-	 <86802c44050803175873fb0569@mail.gmail.com>
-	 <52u0i6b9an.fsf_-_@cisco.com>
+In-Reply-To: <200508041911.46911@bilbo.math.uni-mannheim.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-YES.
+On Thu, Aug 04, 2005 at 07:11:38PM +0200, Rolf Eike Beer wrote:
+ > >It's pointless to fix this, without fixing also CpqTsGetSFQEntry()
+ > At least half of the file should be rewritten.
 
-I will send you the output message later about "CONFIG_INFINIBAND_MTHCA_DEBUG=y"
+Just half ? You're such an optimist :-)
 
-YH
+ > > > No, ulDestPtr ist ULONG* so we increase it by sizeof(ULONG)*16 which is
+ > > > 64.
+ > >Duh, yes.  That is broken on 64-bit however, where it will advance 128 bytes
+ > >instead of 64 bytes.
+ > 
+ > ULONG is defined to __u32 in some of the cpq* headers.
 
-On 8/3/05, Roland Dreier <rolandd@cisco.com> wrote:
->     yhlu> In LinuxBIOS, If I enable the prefmem64 to use real 64
->     yhlu> range. the IB driver in Kernel can not be loaded.
-> 
-> What does it mean to "enable the prefmem64 to use real 64 range"?
-> 
-> Does the driver work if you don't do this?
-> 
->     yhlu> ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
-> 
-> Can you add printk()s to mthca_qp.c::mthca_init_qp_table() to find out
-> how far the function gets before it fails?
-> 
-> It would also be useful for you to build with CONFIG_INFINIBAND_MTHCA_DEBUG=y
-> and send the kernel output you get with that.
-> 
->  - Roland
->
+Ewwwww.
+Ok, definitly time to stop reading.
+
+		Dave
+

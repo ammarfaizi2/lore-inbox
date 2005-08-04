@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbVHDNv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVHDNxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbVHDNv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 09:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVHDNvy
+	id S262549AbVHDNxx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVHDNxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 09:51:54 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:7610 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262546AbVHDNvZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 09:51:25 -0400
-Date: Thu, 4 Aug 2005 15:52:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Yang Yi <yang.yi@bmrtech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] latency logger for realtime-preempt-2.6.12-final-V0.7.51-30
-Message-ID: <20050804135200.GA14402@elte.hu>
-References: <1123042757.2997.5.camel@localhost.localdomain>
+	Thu, 4 Aug 2005 09:53:48 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:5501 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262543AbVHDNxT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 09:53:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MTxTUFnbptGCyKqfWVj6DozuA7155fs5Iyg+OVB0u2v6cjkuKV35PjMzMTrbySYFhIWTIxreZOYDokIylc2RgQjAz+1DxGm5/oyGjTR8T/Kzq8GWULhaY4BMmRD032uu4YmET45kN+h/94+LXRppbf/2JTH8SCnP0jJNlBfSWKc=
+Message-ID: <9a87484905080406533ad143f9@mail.gmail.com>
+Date: Thu, 4 Aug 2005 15:53:19 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>
+Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, axboe@suse.de
+In-Reply-To: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1123042757.2997.5.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Yang Yi <yang.yi@bmrtech.com> wrote:
-
-> > looks pretty good! I'll look at merging your patch after KS/OLS.
+On 8/4/05, Saripalli, Venkata Ramanamurthy (STSD) <saripalli@hp.com> wrote:
+> Patch 1 of 2
 > 
-> Do you have any trouble while you merge that latency logger patch?
+> This patch fixes the "#error this is too much stack" in 2.6 kernel.
+> Using kmalloc to allocate memory to ulFibreFrame.
+> 
+[snip]
+>            if( fchs->pl[0] == ELS_LILP_FRAME)
+>           {
+> +           kfree(ulFibreFrame);
+>              return 1; // found the LILP frame!
+>           }
+>           else
+>           {
+> +           kfree(ulFibreFrame);
+>             // keep looking...
+>           }
 
-i've merged it to the -52-11 patch that, and i've uploaded it a couple 
-of minutes ago.
+The first thing you do in either branch is to call
+kfree(ulFibreFrame); , so instead of having the call in both branches
+you might as well just have one call before the if().  Ohh and this
+looks like it could do with a CodingStyle cleanup as well.
 
-i have done a number of cleanups on it - e.g. instead of latency logging 
-it's now called latency histogram, and i've also fixed a number of 
-coding style issues. Please double-check that it's still OK, seems to 
-work here.
+kfree(ulFibreFrame);
+if (fchs->pl[0] == ELS_LILP_FRAME)
+        return 1; /* found the LILP frame! */
+/* keep looking */
 
-would be nice to clean up the impact of the latency-histogram code some 
-more though: e.g. the #ifdef jungle check_critical_timing() is 
-disgusting. Could be cleaned up by always recording the latency_type 
-being currently traced into a new tr->latency_type field, and then using 
-that in check_critical_timing().
 
-	Ingo
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

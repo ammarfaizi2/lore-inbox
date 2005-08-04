@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVHDQdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbVHDQfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbVHDQdW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 12:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVHDQdW
+	id S262605AbVHDQfO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 12:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbVHDQd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 12:33:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62737 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262601AbVHDQc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 12:32:26 -0400
-Date: Thu, 4 Aug 2005 17:32:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Alexander Nyberg <alexn@telia.com>, Linus Torvalds <torvalds@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
-Message-ID: <20050804173215.I32154@flint.arm.linux.org.uk>
-Mail-Followup-To: Hugh Dickins <hugh@veritas.com>,
-	Alexander Nyberg <alexn@telia.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-	Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
-	Andi Kleen <ak@suse.de>
-References: <Pine.LNX.4.58.0508021127120.3341@g5.osdl.org> <Pine.LNX.4.61.0508022001420.6744@goblin.wat.veritas.com> <Pine.LNX.4.58.0508021244250.3341@g5.osdl.org> <Pine.LNX.4.61.0508022150530.10815@goblin.wat.veritas.com> <42F09B41.3050409@yahoo.com.au> <Pine.LNX.4.58.0508030902380.3341@g5.osdl.org> <20050804141457.GA1178@localhost.localdomain> <42F2266F.30008@yahoo.com.au> <20050804150053.GA1346@localhost.localdomain> <Pine.LNX.4.61.0508041618020.4668@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.61.0508041618020.4668@goblin.wat.veritas.com>; from hugh@veritas.com on Thu, Aug 04, 2005 at 04:35:06PM +0100
+	Thu, 4 Aug 2005 12:33:28 -0400
+Received: from graphe.net ([209.204.138.32]:38116 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262598AbVHDQb4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 12:31:56 -0400
+Date: Thu, 4 Aug 2005 09:31:53 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andi Kleen <ak@suse.de>
+cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] String conversions for memory policy
+In-Reply-To: <20050804142942.GY8266@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0508040922110.6650@graphe.net>
+References: <20050729230026.1aa27e14.pj@sgi.com> <Pine.LNX.4.62.0507301042420.26355@graphe.net>
+ <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net>
+ <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net>
+ <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net>
+ <20050803084849.GB10895@wotan.suse.de> <Pine.LNX.4.62.0508040704590.3319@graphe.net>
+ <20050804142942.GY8266@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 04:35:06PM +0100, Hugh Dickins wrote:
-> And it does miss arm, the only arch which actually needs changing
-> right now, if we simply restore the original values which Nick shifted
-> - although arm references the VM_FAULT_ codes in some places, it also
-> uses "> 0".  arm26 looks at first as if it needs changing too, but
-> a closer look shows it's remapping the faults and is okay - agreed?
+On Thu, 4 Aug 2005, Andi Kleen wrote:
 
-Your patch doesn't look right.  Firstly, I'd rather stay away from
-switch() if at all possible - past experience has shown that it
-generates inherently poor code on ARM.  Whether that's still true
-or not I've no idea, but I don't particularly want to find out at
-the moment.
+> > You designed a NUMA API to control a process memory access patterns 
+> > without the ability to view or modify the policies in use?
+> 
+> Processes internally can get the information if they want.
+> Externally I didn't expose it intentionally to avoid locking problems
 
-> Restore VM_FAULT_SIGBUS, VM_FAULT_MINOR and VM_FAULT_MAJOR to their
-> original values, so that arches which have them hardcoded will still
-> work before they're cleaned up.  And correct arm to use the VM_FAULT_
-> codes throughout, not assuming MINOR and MAJOR are the only ones > 0.
+The fundamental purpose of a memory policy layer is to control memory 
+allocation  on a system. If there no way to obtain that policy 
+information and no way to control the policies then what is the purpose of 
+the memory policies? Would it not be better to implement most what is 
+currently in the kernel in user space since its restricted to a process 
+anyways?
 
-And the above rules this out.
+> > The locking issues for the policy information in the task_struct could be 
+> > solved by having a thread execute a function that either sets or gets the 
+> > memory policy. The vma policies already have a locking mechanism.
+> 
+> But why? It all only adds complexity. Keep it simple please.
 
-As I say, I fixed ARM this morning, so changing these constants will
-break it again.  Let's just wait for things to stabilise instead of
-trying to race with architecture maintainers...
+Because its not possible to view and control memory policies otherwise.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> > This piece here only does conversion to a string representation so it 
+> > should not be affected by locking issues. Processes need to do proper 
+> > locking when using the conversion functions.
+> 
+> It's useless.
+
+So your point of view is that there will be no control and monitoring of 
+the memory usage and policies?

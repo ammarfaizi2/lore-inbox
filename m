@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVHDMXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbVHDMSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbVHDMXj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 08:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVHDMVS
+	id S262497AbVHDMSr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 08:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbVHDMQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 08:21:18 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:32876 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262508AbVHDMU6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 08:20:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mDcRZlinrkXk4gZAzHieVnvGHA5WTUF4o5I5kDkVl/5ox5+n/344GJzSINmtiwhiwTB+TNu9eDpDyCfpbexA3IAzXIstO84nVamQcWgPsr31LGtWnZsTi9rWdznfp51F5eH6QFRjkad5UN9UBpbFAyUTs4hcDy4y/4GgIPLLsf8=
-Message-ID: <3684cc7005080405203b2e8841@mail.gmail.com>
-Date: Thu, 4 Aug 2005 14:20:50 +0200
-From: Andrzej Nowak <warzywo@gmail.com>
+	Thu, 4 Aug 2005 08:16:44 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:57013 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262497AbVHDMJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 08:09:11 -0400
+From: Con Kolivas <kernel@kolivas.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-Cc: Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20050730160345.GA3584@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [ck] [ANNOUNCE] Interbench 0.27
+Date: Thu, 4 Aug 2005 22:04:57 +1000
+User-Agent: KMail/1.8.2
+Cc: Gabriel Devenyi <ace@staticwave.ca>, ck@vds.kolivas.org,
+       Jake Moilanen <moilanen@austin.ibm.com>
+References: <200508031758.31246.kernel@kolivas.org> <200508042146.13710.kernel@kolivas.org> <42F2047A.1050906@staticwave.ca>
+In-Reply-To: <42F2047A.1050906@staticwave.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20050730160345.GA3584@elte.hu>
+Message-Id: <200508042204.57977.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/30/05, Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> i have released the -V0.7.52-01 Real-Time Preemption patch, which can be
-> downloaded from the usual place:
-> ...
-> reports, patches, suggestions welcome.
+On Thu, 4 Aug 2005 22:05, Gabriel Devenyi wrote:
+> Con Kolivas wrote:
+> > I have to think about it. This seems a problem only on one type of cpu
+> > for some strange reason (lemme guess; athlon?) and indeed leaving out the
+> > sleep 1 followed by the check made results far less reliable. This way
+> > with the sleep 1 I have not had spurious results returned by the
+> > calibration. I'm open to suggestions if anyone's got one.
+>
+> Yeah, thats right, it spins forever on both my athlon-tbird and my
+> athlon64 (in x86_64 mode). I'll take another look at the code tonight,
+> to see if I can figure out why its causing this, or another way of
+> incurring the delay you're looking for.
 
-I can't get it to run on x86_64. The kernel won't build with
-"voluntary preemption" enabled, it's complaining about mce_read_sem
-being undeclared. Including linux/semaphore.h in
-arch/x86_64/kernel/mce.c does get the compilation past that point, but
-later on mtrr and kprobes won't build. I can turn those off, but the
-build stops on kernel/printk.c with a "console_sem undeclared" error.
+I'd appreciate it. It's almost like some power stepping that's responsible. 
+I've never seen it happen on any intel processor (including the pentiumM ones 
+which have truckloads of power saving features). I've asked many people if 
+they're running some equivalent of cool'n'quiet or powernow* and they all 
+insist they're not... I'm not that familiar with all the powersaving techs 
+though.
 
-Everything builds fine with "real-time preemption" enabled, though the
-linux system as a whole still won't run, as init crashes on startup
-(kernel panic).
-
-I saw earlier postings on lkml related to RT and x86_64, but
-unfortunately the suggestions made, such as turning off latency
-timing, didn't help. I tried this on a dual Xeon HT server with SLES
-9.1 64bit installed (config has SMP/SMT set to yes). I used the
-2.6.13-rc4 kernel patched with
-realtime-preempt-2.6.13-rc4-RT-V0.7.52-10.
-
-Any suggestions or any extra info I've missed would be appreciated.
-
-Andrzej Nowak
+Cheers,
+Con

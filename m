@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVHDNom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVHDNrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbVHDNom (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 09:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVHDNom
+	id S262538AbVHDNrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 09:47:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVHDNrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 09:44:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9744 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262532AbVHDNng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 09:43:36 -0400
-Date: Thu, 4 Aug 2005 14:43:31 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Old api files, rewrite or delete?
-Message-ID: <20050804144331.E32154@flint.arm.linux.org.uk>
-Mail-Followup-To: Jiri Slaby <jirislaby@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <42F20345.3020603@gmail.com>
+	Thu, 4 Aug 2005 09:47:15 -0400
+Received: from wine.ocn.ne.jp ([220.111.47.146]:24288 "EHLO
+	smtp.wine.ocn.ne.jp") by vger.kernel.org with ESMTP id S262538AbVHDNqh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 09:46:37 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Could you please check mail configuration?
+From: Tetsuo Handa <200508@I-love.SAKURA.ne.jp>
+Message-Id: <200508042245.IEC40094.631911@I-love.SAKURA.ne.jp>
+X-Mailer: Winbiff [Version 2.43]
+X-Accept-Language: ja,en
+Date: Thu, 4 Aug 2005 22:46:35 +0900
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42F20345.3020603@gmail.com>; from jirislaby@gmail.com on Thu, Aug 04, 2005 at 02:00:05PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 02:00:05PM +0200, Jiri Slaby wrote:
-> drivers/parport/parport_pc.c
+Message to the moderators of this ML.
 
-I think a fair number of people probably use this.
+Please don't forward this mail to this ML.
+I intendedly mailed using a non-subscriber's address
+so that this mail only seen to the moderators.
 
-> REMOVE:
-> drivers/video/pm3fb.c
+-----------------------------------------
 
-I have one of these cards, and I believe it's only recently (2.5-ish)
-been merged.  Why are you so keen to mark it as "remove"?
+Hello,
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+I found X-OUTRCPT-TO: header since
+Linux-kernel-daily-digest Digest, Vol 8, Issue 21
+(at Date: Thu, 21 Jul 2005 06:00:01 -0500).
+The X-OUTRCPT-TO: header exposes recipient's mail addresses.
+And recently I'm getting spam mails to the exposed address.
+I want you to hide X-OUTRCPT-TO header if you can.
+
+I sent to the person managing the list
+(linux-kernel-daily-digest-owner@lists.us.dell.com)
+on Mon, 1 Aug 2005 20:11:31 +0900, but no reply.
+So I sent to you this time.
+
+Regards...

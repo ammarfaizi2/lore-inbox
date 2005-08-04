@@ -1,88 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262545AbVHDQyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbVHDQtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262545AbVHDQyD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 12:54:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbVHDQwG
+	id S262625AbVHDQtB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 12:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbVHDQql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 12:52:06 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:55010 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262545AbVHDQuD
+	Thu, 4 Aug 2005 12:46:41 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:47605 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262629AbVHDQp3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 12:50:03 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 4 Aug 2005 18:45:32 +0200
-From: Gerd Knorr <kraxel@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.12: itimer_real timers don't survive execve() any more
-Message-ID: <20050804164532.GB31853@bytesex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Thu, 4 Aug 2005 12:45:29 -0400
+Message-ID: <42F245FF.1050006@mvista.com>
+Date: Thu, 04 Aug 2005 09:44:47 -0700
+From: Mark Bellon <mbellon@mvista.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] IDE disks show invalid geometries in /proc/ide/hd*/geometry
+References: <42EFE547.3010206@mvista.com>  <Pine.LNX.4.10.10508030018390.21865-100000@master.linux-ide.org>  <58cb370e05080310195c244f72@mail.gmail.com>  <42F100C8.8040700@mvista.com>  <58cb370e05080311056a9276c0@mail.gmail.com>  <42F10DB8.4020601@mvista.com> <58cb370e05080311517e6c02a8@mail.gmail.com> <Pine.LNX.4.61.0508040800130.22272@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0508040800130.22272@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+Jan Engelhardt wrote:
 
-Somewhere between 2.6.11 and 2.6.12 the regression in $subject
-was added to the linux kernel.  Testcase below.
+>>Simple: do not use BIOS values.
+>>[ Yes, there should be some warning from kernel. ]
+>>    
+>>
+>
+>On that matter, I get a warning from LILO wrt cyls and stuff:
+>
+>07:47 spectre:~ # cat /proc/ide/hda/geometry 
+>physical     16383/16/63
+>logical      65535/16/63
+>07:58 spectre:~ # lilo
+>Warning: Kernel & BIOS return differing head/sector geometries for device 0x80
+>    Kernel: 65535 cylinders, 16 heads, 63 sectors
+>      BIOS: 1023 cylinders, 255 heads, 63 sectors
+>Added linux *
+>07:59 spectre:~ # fdisk -l
+>
+>Disk /dev/hda: 40.9 GB, 40982151168 bytes
+>255 heads, 63 sectors/track, 4982 cylinders
+>
+>
+>All of these numbers are virtual, since CHS is not really used anymore, as 
+>we know. But, which of these fake CHS values (16383/16/63 | 65535/16/63 | 
+>1023/255/63) is the right one? 255/63/4982 is another matter, since it 
+>[almost] matches the actual size of the disk while the other three are just 
+>"for the bios".
+>  
+>
+This is exactly the case that my patch was attempting to fix (and 
+apparently didn't get quite right).
 
-Ideas on that anyone?
+Certain drive returns cause strange numbers to slip through often when 
+LBA 28 is involved.
 
-  Gerd
+mark
 
-==============================[ test_exec_alarm.c ]==============================
-#include <sys/time.h>
-#include <unistd.h>
-#include <string.h>
-
-int main(int argc, char ** argv)
-{
-    struct itimerval value;
-    int retval;
-    static char hosted_executable[256];
-    char * hosted_executable_args[2];
-
-    /* Set the alarm timer. */
-    value.it_interval.tv_sec = 0;
-    value.it_interval.tv_usec = 0;
-    value.it_value.tv_sec = 200;
-    value.it_value.tv_usec = 0;
-    retval = setitimer(ITIMER_REAL, &value, NULL);
-    if (retval != 0) {
-        perror("setitimer()");
-        return 1;
-    }
-
-    /* Prepare the file name of the hosted executable. */
-    strcpy(hosted_executable, "./test_getitimer");
-
-    /* Prepare the command line arguments. */
-    hosted_executable_args[0] = hosted_executable;
-    hosted_executable_args[1] = NULL;
-
-    /* Execute the hosted executable which should inherit the timer. */
-    retval = execvp(hosted_executable, hosted_executable_args);
-
-    /* If we get here, the execvp() call failed. */
-    perror("execvp()");
-    return 1;
-}
-==============================[ test_getitimer.c ]==============================
-#include <sys/time.h>
-#include <stdio.h>
-
-int main(int argc, char ** argv)
-{
-    struct itimerval value;
-    int retval;
-
-    retval = getitimer(ITIMER_REAL, &value);
-    if (retval != 0) {
-        perror("getitimer()");
-        return 1;
-    }
-
-    printf("alarm timer value: %u sec, %u msec\n", value.it_value.tv_sec, value.it_value.tv_usec);
-    return 0;
-}

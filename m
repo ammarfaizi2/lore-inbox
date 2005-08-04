@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVHDUmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262669AbVHDUjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbVHDUmV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 16:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbVHDUju
+	id S262669AbVHDUjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 16:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbVHDUg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 16:39:50 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:271 "HELO
+	Thu, 4 Aug 2005 16:36:29 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62990 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262629AbVHDUif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 16:38:35 -0400
-Date: Thu, 4 Aug 2005 22:38:31 +0200
+	id S262645AbVHDUfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 16:35:01 -0400
+Date: Thu, 4 Aug 2005 22:34:56 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove support for gcc < 3.2
-Message-ID: <20050804203831.GD4029@stusta.de>
-References: <20050731222606.GL3608@stusta.de> <21d7e99705080318347d6b58d5@mail.gmail.com> <20050804065447.GB25606@lug-owl.de>
+To: Mathieu Chouquet-Stringer <ml2news@optonline.net>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: networking problems when using gcc 4.0.1
+Message-ID: <20050804203456.GC4029@stusta.de>
+References: <20050731222606.GL3608@stusta.de> <200508022108.05391.gustavo@compunauta.com> <m3slxq34kf.fsf@mcs.bigip.mine.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050804065447.GB25606@lug-owl.de>
+In-Reply-To: <m3slxq34kf.fsf@mcs.bigip.mine.nu>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 08:54:47AM +0200, Jan-Benedict Glaw wrote:
->...
-> Current GCC from CVS (plus minor configury patches) seems to work. We
-> had -fno-unit-at-a-time missing in our arch Makefile which hides a bug
-> in kernel's sources.
+On Wed, Aug 03, 2005 at 08:53:52PM -0400, Mathieu Chouquet-Stringer wrote:
 > 
-> I guess that if you remove -fno-unit-at-a-time from i386 and use a
-> current GCC, you'll run into that fun, too.
+> Moreover I get some weird networking problems which prevent setting up the
+> routes (RNETLINK invalid argument messages) when I compile my kernel with
+> 4.0.1 while the same kernel, same config works fine compiled with 3.2.3...
+> 
+> So eventhough 4.0 is supposed to be supported, it doesn't work too well in
+> my case.
 
-What bug exactly?
+I haven't heard of such a problem.
 
-I'm sometimes using kernels compiled with gcc 4.0 and without 
--fno-unit-at-a-time and except for the kernel image being smaller I 
-haven't noticed any difference. Besides this, all architectures except 
-i386 and um are not disabling unit-at-a-time.
+Please give a complete bug report:
+- exact error messages
+- kernel version
+- self-compiled gcc or distrbution compiler?
 
-There are a few parts of the kernel that might still have stack problems 
-with unit-at-a-time, but I assume that's not what you are talking about?
-
-> MfG, JBG
->...
+> Mathieu Chouquet-Stringer
 
 cu
 Adrian

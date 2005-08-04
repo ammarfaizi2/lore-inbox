@@ -1,87 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbVHDWS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbVHDWOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbVHDWS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 18:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVHDWQr
+	id S262775AbVHDWOX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 18:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbVHDWOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 18:16:47 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:42134 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262774AbVHDWQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 18:16:33 -0400
-Subject: Re: [PATCH 0/23] reboot-fixes
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050804214520.GF1780@elf.ucw.cz>
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
-	 <20050727025923.7baa38c9.akpm@osdl.org>
-	 <m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com>
-	 <20050727104123.7938477a.akpm@osdl.org>
-	 <m18xzs9ktc.fsf@ebiederm.dsl.xmission.com>
-	 <20050727224711.GA6671@elf.ucw.cz> <20050727155118.6d67d48e.akpm@osdl.org>
-	 <20050727225442.GD6529@elf.ucw.cz> <1123125850.948.9.camel@localhost>
-	 <20050804214520.GF1780@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1123193791.9025.77.camel@localhost>
+	Thu, 4 Aug 2005 18:14:10 -0400
+Received: from mail.gmx.net ([213.165.64.20]:64932 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262777AbVHDWNt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 18:13:49 -0400
+X-Authenticated: #1725425
+Date: Fri, 5 Aug 2005 00:12:44 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+Message-Id: <20050805001244.65f41b4f.Ballarin.Marc@gmx.de>
+In-Reply-To: <200508031559.24704.kernel@kolivas.org>
+References: <200508031559.24704.kernel@kolivas.org>
+X-Mailer: Sylpheed version 2.0.0rc (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 05 Aug 2005 08:16:31 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 3 Aug 2005 15:59:24 +1000
+Con Kolivas <kernel@kolivas.org> wrote:
 
-On Fri, 2005-08-05 at 07:45, Pavel Machek wrote:
-> Hi!
-> 
-> > > > >  > Good question.  I'm not certain if Pavel intended to add
-> > > > >  > device_suspend(PMSG_FREEZE) to the reboot path.  It was
-> > > > >  > there in only one instance.  Pavel comments talk only about
-> > > > >  > the suspend path.
-> > > > > 
-> > > > >  Yes, I think we should do device_suspend(PMSG_FREEZE) in reboot path.
-> > > > 
-> > > > Why?
-> > > 
-> > > Many bioses are broken; if you leave hardware active during reboot,
-> > > they'll hang during reboot. It is so common problem that I think that
-> > > only sane solution is make hardware quiet before reboot.
-> > 
-> > Sorry for my slow reply.
-> > 
-> > If I remember correctly PMSG_FREEZE was intended solely for stopping
-> > activity when suspend to disk implementations are about to do their
-> 
-> Well, I think that PMSG_FREEZE can be handy when we want to stop
-> activity for other reasons, too...
-> 
-> > atomic copies. I thought that ide reacts to this message by putting a
-> > hold on queues, but doesn't otherwise do anything to prepare a drive for
-> > a restart. If that's true, using FREEZE here isn't going to stop drives
-> > from doing their emergency shutdown actions. Don't we need PMSG_SUSPEND
-> > instead?
-> 
-> Spinning disk down is not neccessary for reboot. Users will be angry
-> if we do it before reboot...
+> This is the dynamic ticks patch for i386 as written by Tony Lindgen 
+> <tony@atomide.com> and Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>. 
+> Patch for 2.6.13-rc5
 
-Yes, but I understood (perhaps wrongly) that we were discussing the
-shutdown path. Nevertheless, for rebooting, you don't want to simply
-freeze the queue - you want to flush the queue and tell the drive to
-flush too. For freeze, you may well flush the queue, but you might not
-necessarily force the drive to flush its queue too.
+One issue (tested the -rc4 Version on -mm):
+- on interrupt flood (ping -f) HZ goes down to 0-4 HZ.
+  This matches "ticks to skip" below. Coincidence?
 
-Regards,
+- ping -f complains:
+.Warning: time of day goes back (-304us), taking countermeasures.
+...
+.Warning: time of day goes back (-33us), taking countermeasures.
 
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
+Yet, system time _seems_ to be kept correctly.
 
+CPU is Pentium M.
+
+dmesg:
+Using pmtmr for high-res timesource
+dyn-tick: Found suitable timer: pmtmr
+
+dyn-tick: Maximum ticks to skip limited to 54
+dyn-tick: Timer not enabled during boot
+
+sysfs:
+suitable:       1
+enabled:        1
+using APIC:     0
+
+Regards

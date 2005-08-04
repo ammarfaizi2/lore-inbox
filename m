@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVHDMQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVHDMTB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbVHDMQi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 08:16:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVHDMQ3
+	id S262507AbVHDMTB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 08:19:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVHDMSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 08:16:29 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:24721 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262505AbVHDMOV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 08:14:21 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
-Date: Thu, 4 Aug 2005 15:13:51 +0300
-User-Agent: KMail/1.5.4
-Cc: "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
-       linux-scsi@vger.kernel.org, axboe@suse.de
-References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net> <200508041138.38216@bilbo.math.uni-mannheim.de>
-In-Reply-To: <200508041138.38216@bilbo.math.uni-mannheim.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Aug 2005 08:18:54 -0400
+Received: from barclay.balt.net ([195.14.162.78]:52104 "EHLO barclay.balt.net")
+	by vger.kernel.org with ESMTP id S262499AbVHDMRf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 08:17:35 -0400
+Date: Thu, 4 Aug 2005 15:16:04 +0300
+From: Zilvinas Valinskas <zilvinas@gemtek.lt>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove suspend() calls from shutdown path
+Message-ID: <20050804121604.GA4659@gemtek.lt>
+Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+References: <1123148187.30257.55.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508041513.51692.vda@ilport.com.ua>
+In-Reply-To: <1123148187.30257.55.camel@gaston>
+X-Attribution: Zilvinas
+X-Url: http://www.gemtek.lt/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 August 2005 12:38, Rolf Eike Beer wrote:
-> Saripalli, Venkata Ramanamurthy (STSD) wrote:
-> >Patch 1 of 2
-> >
-> >This patch fixes the "#error this is too much stack" in 2.6 kernel.
-> >Using kmalloc to allocate memory to ulFibreFrame.
-> 
-> Good idea.
-> 
-> >Please consider this for inclusion
-> 
-> Your patch is line-wrapped and can't be applied. Your second patch is also 
-> line wrapped. And it touches this file in a different way so they can't be 
-> applied cleanly over each other.
-> 
-> >diff -burpN old/drivers/scsi/cpqfcTScontrol.c
-> >new/drivers/scsi/cpqfcTScontrol.c
-> >--- old/drivers/scsi/cpqfcTScontrol.c	2005-07-12 22:52:29.000000000
-> >+0530
-> >+++ new/drivers/scsi/cpqfcTScontrol.c	2005-07-18 22:19:54.229947176
-> >+0530
-> >@@ -606,22 +606,25 @@ static int PeekIMQEntry( PTACHYON fcChip
-> >         if( (fcChip->IMQ->QEntry[CI].type & 0x1FF) == 0x104 )
-> >         {
-> >           TachFCHDR_GCMND* fchs;
-> >-#error This is too much stack
-> >-          ULONG ulFibreFrame[2048/4];  // max DWORDS in incoming FC
-> >Frame
-> >+          ULONG *ulFibreFrame;  // max DWORDS in incoming FC Frame
-> > 	  USHORT SFQpi = (USHORT)(fcChip->IMQ->QEntry[CI].word[0] &
-> >0x0fffL);
-> 
-> Why not use a void* here as type for the buffer? Or even better: remove this 
-> at all and directly use fchs as target, because this is the only place where 
-> this buffer goes to?
-> 
-> >+	  ulFibreFrame = kmalloc((2048/4), GFP_KERNEL);
-> 
-> The size bug was already found by Dave Jones. This never should be written 
-> this way (not your fault). The array should have been [2048/sizeof(ULONG)].
+Hello Ben, Andrew, 
 
-Also you need to check for NULL return.
---
-vda 
+This patch helps me if I disconnect all USB peripherals before shutting
+down notebook. With connected peripherals (USB mouse, PL2303
+USB<->serial converter/port) - powering off process stops right after
+unmounting filesystems but before hda power off ... 
 
+There is a bug report for this too:
+http://bugzilla.kernel.org/show_bug.cgi?id=4992
+
+Z.
+
+On Thu, Aug 04, 2005 at 11:36:26AM +0200, Benjamin Herrenschmidt wrote:
+> Hi Andrew !
+> 
+> This patch remove the calls to device_suspend() from the shutdown path
+> that were added sometime during 2.6.13-rc*. They aren't working properly
+> on a number of configs (I got reports from both ppc powerbook users and
+> x86 users) causing the system to not shutdown anymore.
+> 
+> I think it isn't the right approach at the moment anyway. We have
+> already a shutdown() callback for the drivers that actually care about
+> shutdown and the suspend() code isn't yet in a good enough shape to be
+> so much generalized. Also, the semantics of suspend and shutdown are
+> slightly different on a number of setups and the way this was patched in
+> provides little way for drivers to cleanly differenciate. It should have
+> been at least a different message.
+> 
+> For 2.6.13, I think we should revert to 2.6.12 behaviour and have a
+> working suspend back.
+> 
+> Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> 
+> Index: linux-work/kernel/sys.c
+> ===================================================================
+> --- linux-work.orig/kernel/sys.c	2005-08-01 14:03:46.000000000 +0200
+> +++ linux-work/kernel/sys.c	2005-08-04 11:32:51.000000000 +0200
+> @@ -404,7 +404,6 @@
+>  {
+>  	notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
+>  	system_state = SYSTEM_HALT;
+> -	device_suspend(PMSG_SUSPEND);
+>  	device_shutdown();
+>  	printk(KERN_EMERG "System halted.\n");
+>  	machine_halt();
+> @@ -415,7 +414,6 @@
+>  {
+>  	notifier_call_chain(&reboot_notifier_list, SYS_POWER_OFF, NULL);
+>  	system_state = SYSTEM_POWER_OFF;
+> -	device_suspend(PMSG_SUSPEND);
+>  	device_shutdown();
+>  	printk(KERN_EMERG "Power down.\n");
+>  	machine_power_off();
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbVHDWOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVHDW0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262775AbVHDWOX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 18:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbVHDWOK
+	id S262765AbVHDW0O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 18:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVHDW0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 18:14:10 -0400
-Received: from mail.gmx.net ([213.165.64.20]:64932 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262777AbVHDWNt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 18:13:49 -0400
-X-Authenticated: #1725425
-Date: Fri, 5 Aug 2005 00:12:44 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
-       tuukka.tikkanen@elektrobit.com
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
-Message-Id: <20050805001244.65f41b4f.Ballarin.Marc@gmx.de>
-In-Reply-To: <200508031559.24704.kernel@kolivas.org>
-References: <200508031559.24704.kernel@kolivas.org>
-X-Mailer: Sylpheed version 2.0.0rc (GTK+ 2.6.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Aug 2005 18:26:10 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:14217 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262762AbVHDWYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 18:24:37 -0400
+Message-ID: <42F2944C.3000603@gmail.com>
+Date: Fri, 05 Aug 2005 00:18:52 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Old api files, rewrite or delete?
+References: <42F20345.3020603@gmail.com> <20050804220357.GG4029@stusta.de>
+In-Reply-To: <20050804220357.GG4029@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Aug 2005 15:59:24 +1000
-Con Kolivas <kernel@kolivas.org> wrote:
+Adrian Bunk napsal(a):
 
-> This is the dynamic ticks patch for i386 as written by Tony Lindgen 
-> <tony@atomide.com> and Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>. 
-> Patch for 2.6.13-rc5
+>On Thu, Aug 04, 2005 at 02:00:05PM +0200, Jiri Slaby wrote:
+>  
+>
+>
+>There might be users for many of the listed drivers - even if there are 
+>only very few.
+>
+>And what do you really gain by removing drivers?
+>  
+>
+Nothing, I don't only want to rewrite driver, which others do not use.
 
-One issue (tested the -rc4 Version on -mm):
-- on interrupt flood (ping -f) HZ goes down to 0-4 HZ.
-  This matches "ticks to skip" below. Coincidence?
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 
-- ping -f complains:
-.Warning: time of day goes back (-304us), taking countermeasures.
-...
-.Warning: time of day goes back (-33us), taking countermeasures.
-
-Yet, system time _seems_ to be kept correctly.
-
-CPU is Pentium M.
-
-dmesg:
-Using pmtmr for high-res timesource
-dyn-tick: Found suitable timer: pmtmr
-
-dyn-tick: Maximum ticks to skip limited to 54
-dyn-tick: Timer not enabled during boot
-
-sysfs:
-suitable:       1
-enabled:        1
-using APIC:     0
-
-Regards

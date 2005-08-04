@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVHDP7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbVHDQEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbVHDP7E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 11:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVHDP6g
+	id S262591AbVHDQEU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 12:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVHDQDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 11:58:36 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:63164 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S262585AbVHDP57 (ORCPT
+	Thu, 4 Aug 2005 12:03:47 -0400
+Received: from barclay.balt.net ([195.14.162.78]:61110 "EHLO barclay.balt.net")
+	by vger.kernel.org with ESMTP id S262585AbVHDQCR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 11:57:59 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: matthieu castet <castet.matthieu@free.fr>
-Subject: Re: [ACPI] Re: [PATCH] PNPACPI: fix types when decoding ACPI resources [resend]
-Date: Thu, 4 Aug 2005 09:57:55 -0600
-User-Agent: KMail/1.8.1
-Cc: acpi-devel@lists.sourceforge.net, Shaohua Li <shaohua.li@intel.com>,
-       Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-References: <200508020955.54844.bjorn.helgaas@hp.com> <200508031541.53777.bjorn.helgaas@hp.com> <42F20C5B.3020506@free.fr>
-In-Reply-To: <42F20C5B.3020506@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 4 Aug 2005 12:02:17 -0400
+Subject: Re: [PATCH] Remove suspend() calls from shutdown path
+From: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Reply-To: zilvinas@gemtek.lt
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1123168844.30257.64.camel@gaston>
+References: <1123148187.30257.55.camel@gaston>
+	 <20050804121604.GA4659@gemtek.lt>  <1123168844.30257.64.camel@gaston>
+Content-Type: text/plain
+Date: Thu, 04 Aug 2005 19:02:09 +0300
+Message-Id: <1123171329.9251.4.camel@swoop.gemtek.lt>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508040957.55485.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 August 2005 6:38 am, matthieu castet wrote:
-> Bjorn Helgaas wrote:
-> > On Wednesday 03 August 2005 3:16 pm, matthieu castet wrote:
-> >>Bjorn Helgaas wrote:
-> >> > 	drivers/char/hpet.c
-> >> > 		This probably should be converted to PNP.  I'll
-> >> > 		look into doing this.
-> >>IIRC, I am not sure that the pnp layer was able to pass the 64 bits 
-> >>memory adress for hpet correctly. But it would be nice if it works.
+On Thu, 2005-08-04 at 17:20 +0200, Benjamin Herrenschmidt wrote:
+> On Thu, 2005-08-04 at 15:16 +0300, Zilvinas Valinskas wrote:
+> > Hello Ben, Andrew, 
 > > 
-> > You're right, this was broken.  But I've been pushing a PNPACPI
-> > patch to fix this.
+> > This patch helps me if I disconnect all USB peripherals before shutting
+> > down notebook. With connected peripherals (USB mouse, PL2303
+> > USB<->serial converter/port) - powering off process stops right after
+> > unmounting filesystems but before hda power off ... 
 > > 
-> Yes but is ACPI_RSTYPE_ADDRESS64 possible on 32 bit machine ?
+> > There is a bug report for this too:
+> > http://bugzilla.kernel.org/show_bug.cgi?id=4992
+> 
+> This is unclear.
+> 
+> I would expect the behaviour you report to happen _without_ this patch,
+> that is with current git tree, and I would expect this patch to fix it
+> by reverting to the previous 2.6.12 behaviour...
+> 
+> Ben.
 
-I can't think of a case where that would make sense, but I don't
-actually know the answer.
+Sys-rq - T: shows device_suspend() is called, perhaps that explains. It
+seems that any attempt to suspend either USB hub or device connected to
+it results in freeze. :\ Just guessing. 
 
-> In this case your patch won't work as res->mem_resource[i].start and 
-> res->mem_resource[i].end are unsigned long, and 64 bit value won't fit.
+Anything else should I try ?
 
-True.  But fixing that would be pretty far-reaching (changing struct
-resource), so I'm not worried until it is shown to be a problem.
+
+hcd_submit_urb
+wait_for_completion
+default_wake_function
+usb_start_wait_urb
+timeout_kill
+usb_internal_control_msg
+usb_control_msg
+hub_port_suspend
+__usb_suspend_device
+locktree
+usb_suspend_device
+__link_walk_path
+device_suspend   <----- still called ?
+ohci_reboot
+generic_ide_ioctl
+activate_task
+__group_send_sig_info
+sys_kill
+block_ioctl
+block_ioctl
+do_ioctl
+vfs_ioctl
+get_name
+sys_ioctl
+sys_enter_esp
+

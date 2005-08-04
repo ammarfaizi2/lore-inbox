@@ -1,67 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVHDPu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262609AbVHDPuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262616AbVHDPu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 11:50:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVHDPsP
+	id S262609AbVHDPuy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 11:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbVHDPuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 11:48:15 -0400
-Received: from mx1.suse.de ([195.135.220.2]:38054 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262616AbVHDPqu (ORCPT
+	Thu, 4 Aug 2005 11:50:35 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:19651 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S262613AbVHDPtv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 11:46:50 -0400
-Date: Thu, 4 Aug 2005 17:46:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 3/5 explicit-iopl
-Message-ID: <20050804154649.GA8266@wotan.suse.de>
-References: <200508040043.j740hi0R004184@zach-dev.vmware.com.suse.lists.linux.kernel> <p73k6j1rj1i.fsf@bragg.suse.de> <42F2344D.1070209@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42F2344D.1070209@vmware.com>
+	Thu, 4 Aug 2005 11:49:51 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Dave Jones <davej@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Saripalli, Venkata Ramanamurthy (STSD)" <saripalli@hp.com>,
+       linux-scsi@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH 1/2] cpqfc: fix for "Using too much stach" in 2.6 kernel
+Date: Thu, 4 Aug 2005 17:56:14 +0200
+User-Agent: KMail/1.8.1
+References: <4221C1B21C20854291E185D1243EA8F302623BCC@bgeexc04.asiapacific.cpqcorp.net> <200508041138.38216@bilbo.math.uni-mannheim.de> <20050804154023.GA22886@redhat.com>
+In-Reply-To: <20050804154023.GA22886@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart4067299.zUI2PIYtZU";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508041756.23611@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well... maybe.  On Opteron and/or Intel EMT it may not be a win.  The 
-> cost of the branch could overtake the cost of the POPF (that's the 
-> expensive one).  Grrr.
+--nextPart4067299.zUI2PIYtZU
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Not on Opteron, but probably on Intel.
-
-iirc popf will actually flush parts of the trace cache, while
-a branch shouldn't do that. So I expect it to be a win.
-
-
-> 
-> >Can we perhaps get rid of the PUSHF/POPF in the SYSENTER syscall path too?
-> >iirc they were only for single stepping. But SYSENTER doesn't disable
-> >single stepping, so the debug handler could detect this and set
-> >some magic flag that restores it on syscall exit.
-> > 
+Am Donnerstag, 4. August 2005 17:40 schrieb Dave Jones:
+>On Thu, Aug 04, 2005 at 11:38:30AM +0200, Rolf Eike Beer wrote:
+> > >+	  ulFibreFrame =3D kmalloc((2048/4), GFP_KERNEL);
 > >
-> 
-> A context switch requires IRET, which requires the flags to be saved, so 
-> you can't eliminate the pushf (*) IIRC, the popf is already omitted.  
+> > The size bug was already found by Dave Jones. This never should be
+> > written this way (not your fault). The array should have been
+> > [2048/sizeof(ULONG)].
+>
+>wasteful. We only ever use 2048 bytes of this array, so doubling
+>its size on 64bit is pointless, unless you make changes later on
+>in the driver. (Which I think don't make sense, as we just copy
+>32 64byte chunks).
 
-If we have iopl and TF elsewhere then the flags could just be replaced
-with a default value. 
+No, this is how it should have been before. This way it would have been cle=
+ar=20
+where the magic 4 came from.
 
-Drawback would be that it would be slightly incompatible to before,
-but then it's just a function call and function calls are not 
-required to preserve flags.
+>Ermm, actually this looks totally bogus..
+>CpqTsGetSFQEntry() ...
+>
+>    if( total_bytes <=3D 2048 )
+>    {
+>      memcpy( ulDestPtr,
+>              &fcChip->SFQ->QEntry[consumerIndex],
+>              64 );  // each SFQ entry is 64 bytes
+>      ulDestPtr +=3D 16;   // advance pointer to next 64 byte block
+>    }
+>
+>we're trashing the last 48 bytes of every copy we make.
+>Does this driver even work ?
 
-> (*) Well, you could.  It's just that system calls would have to clobber 
-> flags - hmm.. sysenter based calls already do. But I'm not 100% sure 
+No, ulDestPtr ist ULONG* so we increase it by sizeof(ULONG)*16 which is 64.=
+=20
+This is one of the places I was talking about where people might miss what'=
+s=20
+going on. ;) IMHO it makes absolutely no sense to use a ULONG* at this plac=
+e.
 
-They do pushf. 
+Eike
 
-> there isn't some bogon case where kernel preemption could cause you a 
-> problem.  Keeping around the fake IRET frame still appears to be a good 
-> thing to do just for the benefit of ptrace / debug functionality.  PUSHF 
-> is cheap on every core I have measured on.
+--nextPart4067299.zUI2PIYtZU
+Content-Type: application/pgp-signature
 
-Are you sure? I thought it was expensive on Northwood at least.
-Haven't measured on a Prescott or newer.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
--Andi
+iD8DBQBC8jqnXKSJPmm5/E4RAl0jAJ4lhshRFqO8h7pNU7yy8U2gjBnQtwCfWHGr
+iHvTKn9UUdUEirqTWe/xOms=
+=G1sE
+-----END PGP SIGNATURE-----
+
+--nextPart4067299.zUI2PIYtZU--

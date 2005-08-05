@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbVHEA3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbVHEAfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbVHEA3X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 20:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbVHEA3W
+	id S262772AbVHEAfo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 20:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbVHEAfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 20:29:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28612 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262797AbVHEA3H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 20:29:07 -0400
-Date: Thu, 4 Aug 2005 17:30:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: marcel@holtmann.org, rml@tech9.net, linux@dominikbrodowski.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4-git4: bluetooth oops on pcmcia shutdown
-Message-Id: <20050804173055.17088973.akpm@osdl.org>
-In-Reply-To: <42EEA8E9.5090107@domdv.de>
-References: <42EEA8E9.5090107@domdv.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Aug 2005 20:35:43 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:24266 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262772AbVHEAfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 20:35:41 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Marc Ballarin <Ballarin.Marc@gmx.de>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+Date: Fri, 5 Aug 2005 10:31:33 +1000
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com
+References: <200508031559.24704.kernel@kolivas.org> <20050805001244.65f41b4f.Ballarin.Marc@gmx.de>
+In-Reply-To: <20050805001244.65f41b4f.Ballarin.Marc@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508051031.33949.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Steinmetz <ast@domdv.de> wrote:
+On Fri, 5 Aug 2005 08:12 am, Marc Ballarin wrote:
+> On Wed, 3 Aug 2005 15:59:24 +1000
 >
-> The attached bluetooth oops can be reliably reproduced on my x86_64
-> laptop. It happens when hciattach is still running while a sequence of
-> "cardctl eject" and then "killproc /sbin/cardmgr" is executed.
-> Though this seems to point to preempt I could manage to cause similar
-> oopses on non-preemptible kernels a while ago.
+> Con Kolivas <kernel@kolivas.org> wrote:
+> > This is the dynamic ticks patch for i386 as written by Tony Lindgen
+> > <tony@atomide.com> and Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>.
+> > Patch for 2.6.13-rc5
+>
+> One issue (tested the -rc4 Version on -mm):
+> - on interrupt flood (ping -f) HZ goes down to 0-4 HZ.
+>   This matches "ticks to skip" below. Coincidence?
+>
+> - ping -f complains:
+> .Warning: time of day goes back (-304us), taking countermeasures.
+> ...
+> .Warning: time of day goes back (-33us), taking countermeasures.
+>
+> Yet, system time _seems_ to be kept correctly.
 
-Again, it doesn't look like we'll have a quick fix for this, so a bugzilla
-entry would be appreciated, please.
+Interesting... It almost seems like if you throw enough interrupts at it the 
+next_timer_interrupt function gets confused. I wonder if S390 and ARM are 
+seeing this at all since (it seems to me) they use that function?
 
-It would help if you can identify an earlier 2.6 kernel which didn't have
-the bug, thanks.
+Con

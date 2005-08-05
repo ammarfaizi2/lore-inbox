@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263057AbVHEPZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVHEPZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263057AbVHEPZR (ORCPT <rfc822;willy@w.ods.org>);
+	id S262256AbVHEPZR (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 5 Aug 2005 11:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVHEPXZ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263042AbVHEPXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 11:23:25 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:36006 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261779AbVHEPWB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 11:22:01 -0400
-Date: Fri, 5 Aug 2005 17:22:45 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] preempt-trace.patch (mono preempt-trace)
-Message-ID: <20050805152245.GA12650@elte.hu>
-References: <20050607042931.23f8f8e0.akpm@osdl.org> <20050804152858.2ef2d72b.akpm@osdl.org> <20050805104819.GA20278@elte.hu> <200508051626.56910.dominik.karall@gmx.net>
+	Fri, 5 Aug 2005 11:23:18 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:27956 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262256AbVHEPWt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 11:22:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WLHsQ6+ORO6qObMzi6JXTqwsWQ+eJVggG4+PmhiF7Tne84tdOfnMiD135CF9onF3LUl7afaU1s5UORk+bY15TLg3lPO1EP3O0RtPX4ARkdwsd/mOdpayX0Mh93OtqMU1J2DaIK/ekcLGHuOtoyF+h95OzygVSMuXs20l2dNKYm0=
+Message-ID: <d120d5000508050822f18c9ac@mail.gmail.com>
+Date: Fri, 5 Aug 2005 10:22:48 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 8/8] ALSA: convert kcalloc to kzalloc
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <ikr7kp.i3e3jm.bv3m5oebr5lt3u19xzl3ct9yu.beaver@cs.helsinki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200508051626.56910.dominik.karall@gmx.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <ikr7kg.6lzzr6.7ocpqo9oanclt926l5vz7gkyx.beaver@cs.helsinki.fi>
+	 <ikr7kp.i3e3jm.bv3m5oebr5lt3u19xzl3ct9yu.beaver@cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Dominik Karall <dominik.karall@gmx.net> wrote:
-
-> BUG: mono[10011] exited with nonzero preempt_count 1!
-> ---------------------------
-> | preempt count: 00000001 ]
-> | 1 level deep critical section nesting:
-> ----------------------------------------
-> .. [<ffffffff803f791e>] .... _spin_lock+0xe/0x70
-> .....[<0000000000000000>] ..   ( <= 0x0)
+On 8/5/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> This patch converts kcalloc(1, ...) calls to use the new kzalloc() function.
 > 
-> If there is anything I should test, let me know!
 
-please enable CONFIG_FRAME_POINTERS!
+Hi,
 
-we now know that it's a spin_lock reference that got leaked, but we dont 
-(yet) know the parent.
+Have you seen the following in include/sound/core?
 
-	Ingo
+...
+#define kmalloc(size, flags) snd_hidden_kmalloc(size, flags)
+#define kcalloc(n, size, flags) snd_hidden_kcalloc(n, size, flags)
+#define kfree(obj) snd_hidden_kfree(obj)
+
+-- 
+Dmitry

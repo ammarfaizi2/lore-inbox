@@ -1,221 +1,282 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbVHEBGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262811AbVHEBJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbVHEBGt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 21:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbVHEBGt
+	id S262811AbVHEBJn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 21:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVHEBG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 21:06:49 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43751 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262802AbVHEBGh (ORCPT
+	Thu, 4 Aug 2005 21:06:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:44263 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262803AbVHEBGi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 21:06:37 -0400
-Date: Thu, 4 Aug 2005 18:06:10 -0700
+	Thu, 4 Aug 2005 21:06:38 -0400
+Date: Thu, 4 Aug 2005 18:06:21 -0700
 From: Greg KH <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linville@tuxdriver.com
-Subject: [patch 1/5] PCI: restore BAR values after D3hot->D0 for devices that need it
-Message-ID: <20050805010610.GB19625@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
+Subject: [patch 2/5] pci and yenta: pcibios_bus_to_resource
+Message-ID: <20050805010621.GC19625@kroah.com>
 References: <20050805010206.711658000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="pci-restore-bar-values.patch"
+Content-Disposition: inline; filename="pci-pcibios_bus_to_resource.patch"
 In-Reply-To: <20050805010533.GA19625@kroah.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "John W. Linville" <linville@tuxdriver.com>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-Some PCI devices (e.g. 3c905B, 3c556B) lose all configuration
-(including BARs) when transitioning from D3hot->D0.  This leaves such
-a device in an inaccessible state.  The patch below causes the BARs
-to be restored when enabling such a device, so that its driver will
-be able to access it.
+In yenta_socket, we default to using the resource setting of the CardBus
+bridge.  However, this is a PCI-bus-centric view of resources and thus needs
+to be converted to generic resources first.  Therefore, add a call to
+pcibios_bus_to_resource() call in between.  This function is a mere wrapper on
+x86 and friends, however on some others it already exists, is added in this
+patch (alpha, arm, ppc, ppc64) or still needs to be provided (parisc -- where
+is its pcibios_resource_to_bus() ?).
 
-The patch also adds pci_restore_bars as a new global symbol, and adds a
-correpsonding EXPORT_SYMBOL_GPL for that.
-
-Some firmware (e.g. Thinkpad T21) leaves devices in D3hot after a
-(re)boot.  Most drivers call pci_enable_device very early, so devices
-left in D3hot that lose configuration during the D3hot->D0 transition
-will be inaccessible to their drivers.
-
-Drivers could be modified to account for this, but it would
-be difficult to know which drivers need modification.  This is
-especially true since often many devices are covered by the same
-driver.  It likely would be necessary to replicate code across dozens
-of drivers.
-
-The patch below should trigger only when transitioning from D3hot->D0
-(or at boot), and only for devices that have the "no soft reset" bit
-cleared in the PM control register.  I believe it is safe to include
-this patch as part of the PCI infrastructure.
-
-The cleanest implementation of pci_restore_bars was to call
-pci_update_resource.  Unfortunately, that does not currently exist
-for the sparc64 architecture.  The patch below includes a null
-implemenation of pci_update_resource for sparc64.
-
-Some have expressed interest in making general use of the the
-pci_restore_bars function, so that has been exported to GPL licensed
-modules.
-
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- arch/sparc64/kernel/pci.c |    6 ++++
- drivers/pci/pci.c         |   59 ++++++++++++++++++++++++++++++++++++++++++----
- drivers/pci/setup-res.c   |    2 -
- include/linux/pci.h       |    3 ++
- 4 files changed, 65 insertions(+), 5 deletions(-)
+ arch/alpha/kernel/pci.c       |   16 ++++++++++++++++
+ arch/arm/kernel/bios32.c      |   17 +++++++++++++++++
+ arch/ppc/kernel/pci.c         |   15 +++++++++++++++
+ arch/ppc64/kernel/pci.c       |   20 ++++++++++++++++++++
+ drivers/pcmcia/yenta_socket.c |   15 ++++++---------
+ include/asm-alpha/pci.h       |    3 +++
+ include/asm-arm/pci.h         |    4 ++++
+ include/asm-generic/pci.h     |    8 ++++++++
+ include/asm-parisc/pci.h      |    4 ++++
+ include/asm-ppc/pci.h         |    4 ++++
+ include/asm-ppc64/pci.h       |    4 ++++
+ 11 files changed, 101 insertions(+), 9 deletions(-)
 
---- gregkh-2.6.orig/arch/sparc64/kernel/pci.c	2005-08-04 17:37:26.000000000 -0700
-+++ gregkh-2.6/arch/sparc64/kernel/pci.c	2005-08-04 17:46:13.000000000 -0700
-@@ -413,6 +413,12 @@
- 	return -EBUSY;
+--- gregkh-2.6.orig/arch/alpha/kernel/pci.c	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/arch/alpha/kernel/pci.c	2005-08-04 17:46:16.000000000 -0700
+@@ -350,8 +350,24 @@
+ 	region->end = res->end - offset;
  }
  
-+void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno)
++void pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			     struct pci_bus_region *region)
 +{
-+	/* Not implemented for sparc64... */
-+	BUG();
++	struct pci_controller *hose = (struct pci_controller *)dev->sysdata;
++	unsigned long offset = 0;
++
++	if (res->flags & IORESOURCE_IO)
++		offset = hose->io_space->start;
++	else if (res->flags & IORESOURCE_MEM)
++		offset = hose->mem_space->start;
++
++	res->start = region->start + offset;
++	res->end = region->end + offset;
 +}
 +
- int pci_assign_resource(struct pci_dev *pdev, int resource)
- {
- 	struct pcidev_cookie *pcp = pdev->sysdata;
---- gregkh-2.6.orig/drivers/pci/pci.c	2005-08-04 17:37:26.000000000 -0700
-+++ gregkh-2.6/drivers/pci/pci.c	2005-08-04 17:46:13.000000000 -0700
-@@ -222,6 +222,37 @@
- }
- 
- /**
-+ * pci_restore_bars - restore a devices BAR values (e.g. after wake-up)
-+ * @dev: PCI device to have its BARs restored
-+ *
-+ * Restore the BAR values for a given device, so as to make it
-+ * accessible by its driver.
-+ */
-+void
-+pci_restore_bars(struct pci_dev *dev)
-+{
-+	int i, numres;
-+
-+	switch (dev->hdr_type) {
-+	case PCI_HEADER_TYPE_NORMAL:
-+		numres = 6;
-+		break;
-+	case PCI_HEADER_TYPE_BRIDGE:
-+		numres = 2;
-+		break;
-+	case PCI_HEADER_TYPE_CARDBUS:
-+		numres = 1;
-+		break;
-+	default:
-+		/* Should never get here, but just in case... */
-+		return;
-+	}
-+
-+	for (i = 0; i < numres; i ++)
-+		pci_update_resource(dev, &dev->resource[i], i);
-+}
-+
-+/**
-  * pci_set_power_state - Set the power state of a PCI device
-  * @dev: PCI device to be suspended
-  * @state: PCI power state (D0, D1, D2, D3hot, D3cold) we're entering
-@@ -239,7 +270,7 @@
- int
- pci_set_power_state(struct pci_dev *dev, pci_power_t state)
- {
--	int pm;
-+	int pm, need_restore = 0;
- 	u16 pmcsr, pmc;
- 
- 	/* bound the state we're entering */
-@@ -278,14 +309,17 @@
- 			return -EIO;
- 	}
- 
-+	pci_read_config_word(dev, pm + PCI_PM_CTRL, &pmcsr);
-+
- 	/* If we're in D3, force entire word to 0.
- 	 * This doesn't affect PME_Status, disables PME_En, and
- 	 * sets PowerState to 0.
- 	 */
--	if (dev->current_state >= PCI_D3hot)
-+	if (dev->current_state >= PCI_D3hot) {
-+		if (!(pmcsr & PCI_PM_CTRL_NO_SOFT_RESET))
-+			need_restore = 1;
- 		pmcsr = 0;
--	else {
--		pci_read_config_word(dev, pm + PCI_PM_CTRL, &pmcsr);
-+	} else {
- 		pmcsr &= ~PCI_PM_CTRL_STATE_MASK;
- 		pmcsr |= state;
- 	}
-@@ -308,6 +342,22 @@
- 		platform_pci_set_power_state(dev, state);
- 
- 	dev->current_state = state;
-+
-+	/* According to section 5.4.1 of the "PCI BUS POWER MANAGEMENT
-+	 * INTERFACE SPECIFICATION, REV. 1.2", a device transitioning
-+	 * from D3hot to D0 _may_ perform an internal reset, thereby
-+	 * going to "D0 Uninitialized" rather than "D0 Initialized".
-+	 * For example, at least some versions of the 3c905B and the
-+	 * 3c556B exhibit this behaviour.
-+	 *
-+	 * At least some laptop BIOSen (e.g. the Thinkpad T21) leave
-+	 * devices in a D3hot state at boot.  Consequently, we need to
-+	 * restore at least the BARs so that the device will be
-+	 * accessible to its driver.
-+	 */
-+	if (need_restore)
-+		pci_restore_bars(dev);
-+
- 	return 0;
- }
- 
-@@ -805,6 +855,7 @@
- EXPORT_SYMBOL(isa_bridge);
+ #ifdef CONFIG_HOTPLUG
+ EXPORT_SYMBOL(pcibios_resource_to_bus);
++EXPORT_SYMBOL(pcibios_bus_to_resource);
  #endif
  
-+EXPORT_SYMBOL_GPL(pci_restore_bars);
- EXPORT_SYMBOL(pci_enable_device_bars);
- EXPORT_SYMBOL(pci_enable_device);
- EXPORT_SYMBOL(pci_disable_device);
---- gregkh-2.6.orig/drivers/pci/setup-res.c	2005-08-04 17:37:26.000000000 -0700
-+++ gregkh-2.6/drivers/pci/setup-res.c	2005-08-04 17:46:13.000000000 -0700
-@@ -26,7 +26,7 @@
- #include "pci.h"
+ int
+--- gregkh-2.6.orig/arch/arm/kernel/bios32.c	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/arch/arm/kernel/bios32.c	2005-08-04 17:46:16.000000000 -0700
+@@ -447,9 +447,26 @@
+ 	region->end   = res->end - offset;
+ }
  
++void __devinit
++pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			struct pci_bus_region *region)
++{
++	struct pci_sys_data *root = dev->sysdata;
++	unsigned long offset = 0;
++
++	if (res->flags & IORESOURCE_IO)
++		offset = root->io_offset;
++	if (res->flags & IORESOURCE_MEM)
++		offset = root->mem_offset;
++
++	res->start = region->start + offset;
++	res->end   = region->end + offset;
++}
++
+ #ifdef CONFIG_HOTPLUG
+ EXPORT_SYMBOL(pcibios_fixup_bus);
+ EXPORT_SYMBOL(pcibios_resource_to_bus);
++EXPORT_SYMBOL(pcibios_bus_to_resource);
+ #endif
  
--static void
-+void
- pci_update_resource(struct pci_dev *dev, struct resource *res, int resno)
+ /*
+--- gregkh-2.6.orig/arch/ppc64/kernel/pci.c	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/arch/ppc64/kernel/pci.c	2005-08-04 17:46:16.000000000 -0700
+@@ -108,8 +108,28 @@
+ 	region->end = res->end - offset;
+ }
+ 
++void pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			      struct pci_bus_region *region)
++{
++	unsigned long offset = 0;
++	struct pci_controller *hose = pci_bus_to_host(dev->bus);
++
++	if (!hose)
++		return;
++
++	if (res->flags & IORESOURCE_IO)
++	        offset = (unsigned long)hose->io_base_virt - pci_io_base;
++
++	if (res->flags & IORESOURCE_MEM)
++		offset = hose->pci_mem_offset;
++
++	res->start = region->start + offset;
++	res->end = region->end + offset;
++}
++
+ #ifdef CONFIG_HOTPLUG
+ EXPORT_SYMBOL(pcibios_resource_to_bus);
++EXPORT_SYMBOL(pcibios_bus_to_resource);
+ #endif
+ 
+ /*
+--- gregkh-2.6.orig/arch/ppc/kernel/pci.c	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/arch/ppc/kernel/pci.c	2005-08-04 17:46:16.000000000 -0700
+@@ -160,6 +160,21 @@
+ }
+ EXPORT_SYMBOL(pcibios_resource_to_bus);
+ 
++void pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			     struct pci_bus_region *region)
++{
++	unsigned long offset = 0;
++	struct pci_controller *hose = dev->sysdata;
++
++	if (hose && res->flags & IORESOURCE_IO)
++		offset = (unsigned long)hose->io_base_virt - isa_io_base;
++	else if (hose && res->flags & IORESOURCE_MEM)
++		offset = hose->pci_mem_offset;
++	res->start = region->start + offset;
++	res->end = region->end + offset;
++}
++EXPORT_SYMBOL(pcibios_bus_to_resource);
++
+ /*
+  * We need to avoid collisions with `mirrored' VGA ports
+  * and other strange ISA hardware, so we always want the
+--- gregkh-2.6.orig/drivers/pcmcia/yenta_socket.c	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/drivers/pcmcia/yenta_socket.c	2005-08-04 17:46:16.000000000 -0700
+@@ -605,9 +605,8 @@
+ 
+ static void yenta_allocate_res(struct yenta_socket *socket, int nr, unsigned type, int addr_start, int addr_end)
  {
- 	struct pci_bus_region region;
---- gregkh-2.6.orig/include/linux/pci.h	2005-08-04 17:37:27.000000000 -0700
-+++ gregkh-2.6/include/linux/pci.h	2005-08-04 17:46:13.000000000 -0700
-@@ -225,6 +225,7 @@
- #define  PCI_PM_CAP_PME_D3cold  0x8000  /* PME# from D3 (cold) */
- #define PCI_PM_CTRL		4	/* PM control and status register */
- #define  PCI_PM_CTRL_STATE_MASK	0x0003	/* Current power state (D0 to D3) */
-+#define  PCI_PM_CTRL_NO_SOFT_RESET	0x0004	/* No reset for D3hot->D0 */
- #define  PCI_PM_CTRL_PME_ENABLE	0x0100	/* PME pin enable */
- #define  PCI_PM_CTRL_DATA_SEL_MASK	0x1e00	/* Data select (??) */
- #define  PCI_PM_CTRL_DATA_SCALE_MASK	0x6000	/* Data scale (??) */
-@@ -816,7 +817,9 @@
- void pci_clear_mwi(struct pci_dev *dev);
- int pci_set_dma_mask(struct pci_dev *dev, u64 mask);
- int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
-+void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno);
- int pci_assign_resource(struct pci_dev *dev, int i);
-+void pci_restore_bars(struct pci_dev *dev);
+-	struct pci_bus *bus;
+ 	struct resource *root, *res;
+-	u32 start, end;
++	struct pci_bus_region region;
+ 	unsigned mask;
  
- /* ROM control related routines */
- void __iomem *pci_map_rom(struct pci_dev *pdev, size_t *size);
+ 	res = socket->dev->resource + PCI_BRIDGE_RESOURCES + nr;
+@@ -620,15 +619,13 @@
+ 	if (type & IORESOURCE_IO)
+ 		mask = ~3;
+ 
+-	bus = socket->dev->subordinate;
+-	res->name = bus->name;
++	res->name = socket->dev->subordinate->name;
+ 	res->flags = type;
+ 
+-	start = config_readl(socket, addr_start) & mask;
+-	end = config_readl(socket, addr_end) | ~mask;
+-	if (start && end > start && !override_bios) {
+-		res->start = start;
+-		res->end = end;
++	region.start = config_readl(socket, addr_start) & mask;
++	region.end = config_readl(socket, addr_end) | ~mask;
++	if (region.start && region.end > region.start && !override_bios) {
++		pcibios_bus_to_resource(socket->dev, res, &region);
+ 		root = pci_find_parent_resource(socket->dev, res);
+ 		if (root && (request_resource(root, res) == 0))
+ 			return;
+--- gregkh-2.6.orig/include/asm-alpha/pci.h	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/include/asm-alpha/pci.h	2005-08-04 17:46:16.000000000 -0700
+@@ -251,6 +251,9 @@
+ extern void pcibios_resource_to_bus(struct pci_dev *, struct pci_bus_region *,
+ 				    struct resource *);
+ 
++extern void pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++				    struct pci_bus_region *region);
++
+ #define pci_domain_nr(bus) ((struct pci_controller *)(bus)->sysdata)->index
+ 
+ static inline int pci_proc_domain(struct pci_bus *bus)
+--- gregkh-2.6.orig/include/asm-arm/pci.h	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/include/asm-arm/pci.h	2005-08-04 17:46:16.000000000 -0700
+@@ -60,6 +60,10 @@
+ pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
+ 			 struct resource *res);
+ 
++extern void
++pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			struct pci_bus_region *region);
++
+ static inline void pcibios_add_platform_entries(struct pci_dev *dev)
+ {
+ }
+--- gregkh-2.6.orig/include/asm-generic/pci.h	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/include/asm-generic/pci.h	2005-08-04 17:46:16.000000000 -0700
+@@ -22,6 +22,14 @@
+ 	region->end = res->end;
+ }
+ 
++static inline void
++pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			struct pci_bus_region *region)
++{
++	res->start = region->start;
++	res->end = region->end;
++}
++
+ #define pcibios_scan_all_fns(a, b)	0
+ 
+ #ifndef HAVE_ARCH_PCI_GET_LEGACY_IDE_IRQ
+--- gregkh-2.6.orig/include/asm-parisc/pci.h	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/include/asm-parisc/pci.h	2005-08-04 17:46:16.000000000 -0700
+@@ -253,6 +253,10 @@
+ pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
+ 			 struct resource *res);
+ 
++extern void
++pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			struct pci_bus_region *region);
++
+ static inline void pcibios_add_platform_entries(struct pci_dev *dev)
+ {
+ }
+--- gregkh-2.6.orig/include/asm-ppc64/pci.h	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/include/asm-ppc64/pci.h	2005-08-04 17:46:16.000000000 -0700
+@@ -134,6 +134,10 @@
+ pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
+ 			struct resource *res);
+ 
++extern void
++pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			struct pci_bus_region *region);
++
+ extern int
+ unmap_bus_range(struct pci_bus *bus);
+ 
+--- gregkh-2.6.orig/include/asm-ppc/pci.h	2005-08-04 17:46:04.000000000 -0700
++++ gregkh-2.6/include/asm-ppc/pci.h	2005-08-04 17:46:16.000000000 -0700
+@@ -105,6 +105,10 @@
+ pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
+ 			struct resource *res);
+ 
++extern void
++pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			struct pci_bus_region *region);
++
+ extern void pcibios_add_platform_entries(struct pci_dev *dev);
+ 
+ struct file;
 
 --

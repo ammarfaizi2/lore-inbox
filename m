@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262923AbVHEIpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262915AbVHEJFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262923AbVHEIpd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 04:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbVHEIpd
+	id S262915AbVHEJFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 05:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbVHEJFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 04:45:33 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:26349 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262923AbVHEIpb
+	Fri, 5 Aug 2005 05:05:09 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:60118 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S262915AbVHEJFH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 04:45:31 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Fri, 5 Aug 2005 10:44:02 +0200
-From: Gerd Knorr <kraxel@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>, george@mvista.com,
+	Fri, 5 Aug 2005 05:05:07 -0400
+Date: Fri, 5 Aug 2005 11:05:06 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.6.12: itimer_real timers don't survive execve() any more
-Message-ID: <20050805084401.GA12145@bytesex>
-References: <42F28707.7060806@mvista.com> <20050804213416.1EA56180980@magilla.sf.frob.com> <20050804150251.5f4acb0a.akpm@osdl.org>
+Subject: Re: [PATCH] fix VmSize and VmData after mremap
+Message-ID: <20050805090506.GA26175@janus>
+References: <Pine.LNX.4.61.0508041902310.6282@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050804150251.5f4acb0a.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.61.0508041902310.6282@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04, 2005 at 03:02:51PM -0700, Andrew Morton wrote:
-> Roland McGrath <roland@redhat.com> wrote:
-> >
-> > That's wrong.  It has to be done only by the last thread in the group to go.
-> > Just revert Ingo's change.
-> > 
+On Thu, Aug 04, 2005 at 07:05:30PM +0100, Hugh Dickins wrote:
+> mremap's move_vma is applying __vm_stat_account to the old vma which may
+> have already been freed: move it to just before the do_munmap.
 > 
-> OK..
+> mremapping to and fro with CONFIG_DEBUG_SLAB=y showed /proc/<pid>/status
+> VmSize and VmData wrapping just like in kernel bugzilla #4842, and fixed
+> by this patch - worth including in 2.6.13, though not yet confirmed that
+> it fixes that specific report from Frank van Maarseveen.
+
+The patch works, thanks.
+
 > 
-> +++ 25-akpm/kernel/exit.c	Thu Aug  4 15:01:06 2005
-> @@ -829,8 +829,10 @@ fastcall NORET_TYPE void do_exit(long co
-> -	if (group_dead)
-> +	if (group_dead) {
-> + 		del_timer_sync(&tsk->signal->real_timer);
->  		acct_process(code);
-> +	}
-> +++ 25-akpm/kernel/posix-timers.c	Thu Aug  4 15:01:06 2005
-> @@ -1166,7 +1166,6 @@ void exit_itimers(struct signal_struct *
-> -	del_timer_sync(&sig->real_timer);
-
-That one fixes it for me.
-
-  Gerd
+> Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> 
+> --- 2.6.13-rc5-git2/mm/mremap.c	2005-06-17 20:48:29.000000000 +0100
+> +++ linux/mm/mremap.c	2005-08-03 16:22:33.000000000 +0100
+> @@ -229,6 +229,7 @@ static unsigned long move_vma(struct vm_
+>  	 * since do_munmap() will decrement it by old_len == new_len
+>  	 */
+>  	mm->total_vm += new_len >> PAGE_SHIFT;
+> +	__vm_stat_account(mm, vma->vm_flags, vma->vm_file, new_len>>PAGE_SHIFT);
+>  
+>  	if (do_munmap(mm, old_addr, old_len) < 0) {
+>  		/* OOM: unable to split vma, just get accounts right */
+> @@ -243,7 +244,6 @@ static unsigned long move_vma(struct vm_
+>  			vma->vm_next->vm_flags |= VM_ACCOUNT;
+>  	}
+>  
+> -	__vm_stat_account(mm, vma->vm_flags, vma->vm_file, new_len>>PAGE_SHIFT);
+>  	if (vm_flags & VM_LOCKED) {
+>  		mm->locked_vm += new_len >> PAGE_SHIFT;
+>  		if (new_len > old_len)
 
 -- 
-panic("it works"); /* avoid being flooded with debug messages */
+Frank

@@ -1,102 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262865AbVHEGFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbVHEGI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262865AbVHEGFD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 02:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbVHEGFD
+	id S262866AbVHEGI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 02:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbVHEGI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 02:05:03 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:55170 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S262865AbVHEGFB convert rfc822-to-8bit (ORCPT
+	Fri, 5 Aug 2005 02:08:29 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:2995 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262866AbVHEGI1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 02:05:01 -0400
-Content-class: urn:content-classes:message
+	Fri, 5 Aug 2005 02:08:27 -0400
+Date: Fri, 5 Aug 2005 08:08:07 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Phillip Lougher <phil.lougher@gmail.com>
+cc: plougher@users.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: squashfs seems nfs-incompatible
+In-Reply-To: <cce9e37e050804083347c138d4@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0508050804090.19610@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0508021710590.4634@yvahk01.tjqt.qr>
+ <cce9e37e050804083347c138d4@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: HOW to handle partitions on SD Card in the driver?
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Date: Fri, 5 Aug 2005 11:30:43 +0530
-Message-ID: <C349E772C72290419567CFD84C26E0170424F4@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: HOW to handle partitions on SD Card in the driver?
-thread-index: AcWZgwPmyi5V//GxRUaP/TGs+WZ30g==
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Hi,
 
-I have problem with my new driver that tired to support the partitions
-support on SD cards.
+>> I found out that you cannot mount an exported squash fs. The exports(5) fsid=
+>> parameter does not help it [like it did with unionfs].
+>
+>The exports(5) man page says fsid=num is necessary for filesystems on
+>non-block devices - I don't know whether this includes loopback
+>filesystems.  Have you tried exporting a Squashfs filesystem mounted
+>on a real block device?
 
-My driver supports 4 SD cards at a time. 
-The driver works well when there are partitions are disabled. i.e. when
-alloc_disk(1); - i.e. no partitions. It absolutely fine.
+Loopback is a real block device, and no, fsid= does not help it. I have talked 
+with the unionfs people, because it works for them. After a short flash of 
+idea and comparison, it turns out that squashfs is missing 
+sb->s_export->get_parent (the only requirement as it seems). Includes that you 
+have sb->s_export non-null, of course. sb->s_export can be set within 
+fill_super().
 
-Right now, I am working on getting the driver up with partitions
-supported. After making below changes in the gendisk initialization, I
-am able to mount the device in the socket 0 but I am NOT able mount the
-devices in the rest of the sockets when partitions are enabled?
+>I've never tried to export a Squashfs filesystem, and so I don't know
+>if it works.  If it doesn't, I would say it is because Squashfs (like
+>Cramfs) doesn't store correct nlink information for directories.
+>
+>The next release does store nlink information, has support for > 4GB
+>files/filesystems, and other nice improvements.  I'm hoping to release
+>an alpha release soon.
 
-Changes made in gendisk code
-----------------------------
-gDisk->gd = alloc_disk(4); /* 3 -> 3 partitions */
-gDisk->gd->first_minor = (iSock * 4);
-
-i.e. iSock = device no [0-3] ( 4 devices)
-
-Physical nodes creation
-------------------------
-
-To support partitions on device 0
---------------------------------- 
-
-mknod /dev/tfa0 b 252 0 ; mknod /dev/tfa1 b 252 1
-mknod /dev/tfa2 b 252 2 ; mknod /dev/tfa3 b 252 3
-
-To support partitions on device 1
----------------------------------
-
-mknod /dev/tfa4 b 252 4 ; mknod /dev/tfa5 b 252 5
-mknod /dev/tfa6 b 252 6 ; mknod /dev/tfa7 b 252 7
-
-To support partitions on device 2
----------------------------------
-
-mknod /dev/tfa8 b 252 8 ; mknod /dev/tfa9 b 252 9
-mknod /dev/tfa10 b 252 10 ; mknod /dev/tfa11 b 252 11
-
-To support partitions on device 3
----------------------------------
-
-mknod /dev/tfa12 b 252 12 ; mknod /dev/tfa13 b 252 13
-mknod /dev/tfa14 b 252 14 ; mknod /dev/tfa15 b 252 15
+FTR, I currently cheated by using
+`mount -t unionfs -o dirs=/squash=ro none /squash` to get the export working.
 
 
-With these physical nodes, I thought I am through & it should work.
-When a card is inserted in the socket 0, I am able to mount.
-#mount /dev/tfa0 /mnt (works fine & mounts)
 
-BUT, when a card is inserted in the socket 3, I am NOT able to mount.
-#mount /dev/tfa12 /mnt
-Mount: /dev/tfa12 is not a valid block device
-
- 
-However, 
-I am in bit confusion whether the above mentioned changes to the gendisk
-code will suffice to my partition requirement or NOT?
-
-This gendisk is invoked at on every socket initialization i.e. when card
-is inserted.
-
-Can anyone convey me where exactly I am missing or why is it failing?
-Any suggestion will be greatly helpful?
-
-Thanks & Regards,
-Mukund Jampala
-
-
+Jan Engelhardt
+-- 
+| Alphagate Systems, http://alphagate.hopto.org/

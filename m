@@ -1,83 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVHES1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVHES3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbVHES1N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 14:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbVHESYq
+	id S261946AbVHES3P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 14:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbVHES1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 14:24:46 -0400
-Received: from gold.veritas.com ([143.127.12.110]:41833 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S262652AbVHESXB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 14:23:01 -0400
-Date: Fri, 5 Aug 2005 19:24:45 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Prasanna Meda <pmeda@akamai.com>, Chris Wright <chrisw@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] fix madvise vma merging
-Message-ID: <Pine.LNX.4.61.0508051911120.6203@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 05 Aug 2005 18:22:58.0193 (UTC) FILETIME=[B4A36010:01C599EA]
+	Fri, 5 Aug 2005 14:27:18 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:53317 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261946AbVHES0i convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 14:26:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=meRS9ApN2I7dtooLXTMJgBpzSF9GRbmg5W8+Pbncc8is5MbkIFwCOkMoiLFBZpCJ1TGpcPGBBDomO8xhCjirSrRw6A5NiLiI390NFL/G9cIfVBjrmFfAyCdZW37nSvbjHiC51p1+FxjKSr6ej+mJxVvUTLsNGg57qKqI3XV881E=
+Message-ID: <86802c44050805112661d889aa@mail.gmail.com>
+Date: Fri, 5 Aug 2005 11:26:38 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: Roland Dreier <rolandd@cisco.com>
+Subject: Re: mthca and LinuxBIOS
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <52psss5k1x.fsf@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20057281331.dR47KhjBsU48JfGE@cisco.com> <52mznxacbp.fsf@cisco.com>
+	 <86802c4405080410236ba59619@mail.gmail.com>
+	 <86802c4405080411013b60382c@mail.gmail.com> <521x59a6tb.fsf@cisco.com>
+	 <86802c440508041230143354c2@mail.gmail.com> <52slxp6o5b.fsf@cisco.com>
+	 <86802c440508051103500f6942@mail.gmail.com>
+	 <86802c4405080511079d01532@mail.gmail.com> <52psss5k1x.fsf@cisco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Better late than never, I've at last reviewed the madvise vma merging
-going into 2.6.13.  Remove a pointless check and fix two little bugs -
-a simple test (with /proc/<pid>/maps hacked to show ReadHints) showed
-both mismerges in practice: though being madvise, neither was disastrous.
+before I do the cg-update this morning, it didn't mask out the upper 8 bit.
 
-1. Correct placement of the success label in madvise_behavior: as in
-   mprotect_fixup and mlock_fixup, it is necessary to update vm_flags
-   when vma_merge succeeds (to handle the exceptional Case 8 noted in
-   the comments above vma_merge itself).
+YH
 
-2. Correct initial value of prev when starting part way into a vma: as
-   in sys_mprotect and do_mlock, it needs to be set to vma in this case
-   (vma_merge handles only that minimum of cases shown in its comments).
-
-3. If find_vma_prev sets prev, then the vma it returns is prev->vm_next,
-   so it's pointless to make that same assignment again in sys_madvise.
-
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
-
---- 2.6.13-rc5-git3/mm/madvise.c	2005-08-02 12:07:23.000000000 +0100
-+++ linux/mm/madvise.c	2005-08-05 18:06:47.000000000 +0100
-@@ -37,7 +37,7 @@ static long madvise_behavior(struct vm_a
- 
- 	if (new_flags == vma->vm_flags) {
- 		*prev = vma;
--		goto success;
-+		goto out;
- 	}
- 
- 	pgoff = vma->vm_pgoff + ((start - vma->vm_start) >> PAGE_SHIFT);
-@@ -62,6 +62,7 @@ static long madvise_behavior(struct vm_a
- 			goto out;
- 	}
- 
-+success:
- 	/*
- 	 * vm_flags is protected by the mmap_sem held in write mode.
- 	 */
-@@ -70,7 +71,6 @@ static long madvise_behavior(struct vm_a
- out:
- 	if (error == -ENOMEM)
- 		error = -EAGAIN;
--success:
- 	return error;
- }
- 
-@@ -237,8 +237,9 @@ asmlinkage long sys_madvise(unsigned lon
- 	 * - different from the way of handling in mlock etc.
- 	 */
- 	vma = find_vma_prev(current->mm, start, &prev);
--	if (!vma && prev)
--		vma = prev->vm_next;
-+	if (vma && start > vma->vm_start)
-+		prev = vma;
-+
- 	for (;;) {
- 		/* Still start < end. */
- 		error = -ENOMEM;
+On 8/5/05, Roland Dreier <rolandd@cisco.com> wrote:
+>     yhlu> ps.  some kernel pci code patch broke sth yesterday night.
+>     yhlu> it mask out bit [32-39]
+> 
+> Is it possible that all your problems are coming from the PCI setup
+> code incorrectly assigning BARs?
+> 
+>  - R.
+>

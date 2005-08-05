@@ -1,146 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263036AbVHESjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262836AbVHESxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263036AbVHESjs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 14:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbVHEShL
+	id S262836AbVHESxN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 14:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbVHESwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 14:37:11 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:33309 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263009AbVHESgT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 14:36:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=kt5mZZaQM7u8ojmtMUeGTjCfgc+02+Y+4E2fpXvxlLcZhtmoyYvMve6Z6SFUM+ishNKw+n47lCWws0t3KbiD2Lt68YR6NmxNKz1lK9adHzQ1ztY0b7nugk64wVdyuV3WGaUQZj+GRk4qErH/fTP1OoDlrz9qdx8Hsi6IpXbrUvg=
-Date: Sat, 6 Aug 2005 03:36:08 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de, James.Bottomley@steeleye.com,
-       andrew.vasquez@qlogic.com
-Subject: [PATCH] blk: fix tag shrinking (revive real_max_size)
-Message-ID: <20050805183608.GA7249@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 Aug 2005 14:52:42 -0400
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:16581 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262836AbVHESuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 14:50:50 -0400
+From: Michael Stenzel <m.stenzel@tronix.homelinux.org>
+Organization: Unorganized since 1886
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] module ns558
+Date: Fri, 5 Aug 2005 20:52:41 +0200
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Message-Id: <200508052052.42128.m.stenzel@tronix.homelinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, Andrew.
+Hello dear Kernel People,
 
- The patch posted in the following mail (from me) incorrectly removed
-blk_queue_tag->real_max_depth.
+I have a problem with my gameport, it uses the ns558 driver, the module gets 
+loaded via hotplug/udev at boot, but the gameport gets deactivated somehow.
+I have this Problem for a long time now, and my solution always was rmmod the 
+module and load it again after that the gameport is working.
+But now i have 2.6.13-rc5 with debug stuff turned on and noticed that:
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111399777404464&w=2
+#rmmod ns558
+Speicherzugriffsfehler <-- Segfault
 
-commit: fa72b903f75e4f0f0b2c2feed093005167da4023
+This is from dmesg:
+kobject_hotplug: /sbin/hotplug input seq=393 HOME=/ 
+PATH=/sbin:/bin:/usr/sbin:/usr/bin ACTION=remove DEVPATH=/class/input/js0 
+SUBSYSTEM=input
+kobject js0: cleaning up
+analog.c: 0 out of 0 reads (0%) on pnp00:03/gameport0 failed
+kobject_hotplug
+fill_kobj_path: path = '/devices/pnp0/00:03/gameport0'
+kobject_hotplug: /sbin/hotplug gameport seq=394 HOME=/ 
+PATH=/sbin:/bin:/usr/sbin:/usr/bin ACTION=remove 
+DEVPATH=/devices/pnp0/00:03/gameport0 SUBSYSTEM=gameport
+kobject gameport0: cleaning up
+Unable to handle kernel paging request at virtual address 6b6b6b6b
+ printing eip:
+e0afc4ab
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: snd_seq_midi snd_seq_midi_event snd_seq video_buf_dvb 
+video_buf w83627hf w83781d i2c_sensor i2c_isa snd_pcm_oss snd_mixer_oss 
+ipt_MASQUERADE ipt_state iptable_mangle iptable_nat iptable_filter 
+ip_conntrack_ftp ip_conntrack_irc ip_conntrack ip_tables rtc joydev analog 
+ns558 budget s5h1420 l64781 ves1820 budget_core saa7146 ttpci_eeprom stv0299 
+tda8083 ves1x93 dvb_core 8139too snd_via82xx gameport snd_mpu401_uart 
+snd_rawmidi snd_seq_device via_rhine crc32 ide_scsi
+CPU:    0
+EIP:    0060:[<e0afc4ab>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.13-rc5-debug)
+EIP is at ns558_exit+0x4b/0x79 [ns558]
+eax: 6b6b6b57   ebx: 6b6b6b57   ecx: 00000000   edx: 6b6b6b6b
+esi: 00000000   edi: 00000002   ebp: d7cfdf60   esp: d7cfdf5c
+ds: 007b   es: 007b   ss: 0068
+Process rmmod (pid: 3267, threadinfo=d7cfc000 task=dfc94080)
+Stack: e0afd140 d7cfdfb4 c0146b4d 00000000 3535736e d7cf0038 c0169941 b7f43000
+       b7f42000 d7cfdfa4 c0169de5 b7f42000 b7f43000 df6a6f44 df6a61fc df17d3a4
+       df17d3d4 00000000 00cfdfb4 c0169e6a bf856ae0 b7f2917c d7cfc000 c0103889
+Call Trace:
+ [<c010483a>] show_stack+0x7a/0x90
+ [<c01049c6>] show_registers+0x156/0x1c0
+ [<c0104c1c>] die+0x14c/0x2c0
+ [<c0118093>] do_page_fault+0x343/0x655
+ [<c010430f>] error_code+0x4f/0x54
+ [<c0146b4d>] sys_delete_module+0x14d/0x190
+ [<c0103889>] syscall_call+0x7/0xb
+Code: 8b 43 10 e8 98 65 de ff 8b 4b 08 b8 a0 2f 46 c0 89 ca f7 da 23 53 04 e8 
+64 c7 62 df 89 d8 e8 5d 01 66 df 8b 53 14 8d 42 ec 89 c3 <8b> 40 14 0f 18 00 
+90 81 fa 20 cf af e0 75 c6 8b 1d c0 d2 af e0
 
- The original resize implementation was incorrect in the following
-points.
+However after modprobe ns558 the gameport works and rmmod isn't possible 
+anymore:
+# rmmod ns558
+ERROR: Removing 'ns558': Device or resource busy
 
- * actual allocation size of tag_index was shorter than real_max_size,
-   but assumed to be of the same size, possibly causing memory access
-   beyond the allocated area.
- * bits in tag_map between max_deptn and real_max_depth were
-   initialized to 1's, making the tags permanently reserved.
+Output of scripts/ver_linux follows(note the nvidia module, i have loaded it 
+after the oops so no problem, right?)
 
- In an attempt to fix above two bugs, I had removed allocation
-optimization in init_tag_map and real_max_size.  Tag map/index were
-allocated and freed immediately during resize.  Unfortunately, I
-wasn't considering that tag map/index can be resized dynamically with
-tags beyond new_depth active.  This led to accessing freed area after
-shrinking tags and led to the following bug reporting thread on
-linux-scsi.
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
 
-http://marc.theaimsgroup.com/?l=linux-scsi&m=112319898111885&w=2
+Linux yellow 2.6.13-rc5-debug #1 Fri Aug 5 01:39:18 CEST 2005 i686 AMD 
+Athlon(tm) XP 2400+ AuthenticAMD GNU/Linux
 
- To fix the problem, I've revived real_max_depth without allocation
-optimization in init_tag_map, and Andrew Vasquez confirmed that the
-problem was fixed.  As Jens is not going to be available for a week,
-he asked me to make sure that this patch reaches you.
+Gnu C                  3.3.6
+Gnu make               3.80
+binutils               2.15.92.0.2
+util-linux             2.12p
+mount                  2.12p
+module-init-tools      3.1
+e2fsprogs              1.35
+reiserfsprogs          3.6.18
+reiser4progs           line
+quota-tools            3.12.
+Linux C Library        2.3.5
+Dynamic linker (ldd)   2.3.5
+Linux C++ Library      5.0.7
+Procps                 3.2.3
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.2.1
+udev                   064
+Modules Loaded         nvidia snd_seq_midi snd_seq_midi_event snd_seq 
+video_buf_dvb video_buf w83627hf w83781d i2c_sensor i2c_isa snd_pcm_oss 
+snd_mixer_oss ipt_MASQUERADE ipt_state iptable_mangle iptable_nat 
+iptable_filter ip_conntrack_ftp ip_conntrack_irc ip_conntrack ip_tables rtc 
+joydev analog ns558 budget s5h1420 l64781 ves1820 budget_core saa7146 
+ttpci_eeprom stv0299 tda8083 ves1x93 dvb_core 8139too snd_via82xx gameport 
+snd_mpu401_uart snd_rawmidi snd_seq_device via_rhine crc32 ide_scsi
 
-http://marc.theaimsgroup.com/?l=linux-scsi&m=112325778530886&w=2
+I'll provide more info, if it's needed. 
+Please CC me because i'm not subscribed. 
+TIA and keep up the great work!
 
- So, here's the patch.  The patch is against today's Linus git head
-(2f60f8d3573ff90fe5d75a6d11fd2add1248e7d6).  The patch also applies to
-linux-2.6.13-rc4-mm1 with offset of 1.  I apologize for the bug and
-hassle.  Thank you.
-
---------------------------------------------------------------------
-
- Revive blk_queue_tag->real_max_size.  Previous commit
-fa72b903f75e4f0f0b2c2feed093005167da4023 incorrectly removed this
-field breaking dynamic shrinking of tags.  This patch revives
-real_max_size sans buggy allocation optimization the original code
-had.  Also, a comment was added to make sure that real_max_size is
-needed for dynamic shrinking.
-
-
-Signed-off-by: Tejun Heo <htejun@gmail.com>
-
-
-diff --git a/drivers/block/ll_rw_blk.c b/drivers/block/ll_rw_blk.c
---- a/drivers/block/ll_rw_blk.c
-+++ b/drivers/block/ll_rw_blk.c
-@@ -719,7 +719,7 @@ struct request *blk_queue_find_tag(reque
- {
- 	struct blk_queue_tag *bqt = q->queue_tags;
- 
--	if (unlikely(bqt == NULL || tag >= bqt->max_depth))
-+	if (unlikely(bqt == NULL || tag >= bqt->real_max_depth))
- 		return NULL;
- 
- 	return bqt->tag_index[tag];
-@@ -798,6 +798,7 @@ init_tag_map(request_queue_t *q, struct 
- 
- 	memset(tag_index, 0, depth * sizeof(struct request *));
- 	memset(tag_map, 0, nr_ulongs * sizeof(unsigned long));
-+	tags->real_max_depth = depth;
- 	tags->max_depth = depth;
- 	tags->tag_index = tag_index;
- 	tags->tag_map = tag_map;
-@@ -872,11 +873,22 @@ int blk_queue_resize_tags(request_queue_
- 		return -ENXIO;
- 
- 	/*
-+	 * if we already have large enough real_max_depth.  just
-+	 * adjust max_depth.  *NOTE* as requests with tag value
-+	 * between new_depth and real_max_depth can be in-flight, tag
-+	 * map can not be shrunk blindly here.
-+	 */
-+	if (new_depth <= bqt->real_max_depth) {
-+		bqt->max_depth = new_depth;
-+		return 0;
-+	}
-+
-+	/*
- 	 * save the old state info, so we can copy it back
- 	 */
- 	tag_index = bqt->tag_index;
- 	tag_map = bqt->tag_map;
--	max_depth = bqt->max_depth;
-+	max_depth = bqt->real_max_depth;
- 
- 	if (init_tag_map(q, bqt, new_depth))
- 		return -ENOMEM;
-@@ -913,7 +925,7 @@ void blk_queue_end_tag(request_queue_t *
- 
- 	BUG_ON(tag == -1);
- 
--	if (unlikely(tag >= bqt->max_depth))
-+	if (unlikely(tag >= bqt->real_max_depth))
- 		/*
- 		 * This can happen after tag depth has been reduced.
- 		 * FIXME: how about a warning or info message here?
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -301,6 +301,7 @@ struct blk_queue_tag {
- 	struct list_head busy_list;	/* fifo list of busy tags */
- 	int busy;			/* current depth */
- 	int max_depth;			/* what we will send to device */
-+	int real_max_depth;		/* what the array can hold */
- 	atomic_t refcnt;		/* map can be shared */
- };
- 

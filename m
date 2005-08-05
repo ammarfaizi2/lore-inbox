@@ -1,369 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbVHEPDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262955AbVHEQ14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbVHEPDK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 11:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbVHEOxj
+	id S262955AbVHEQ14 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 12:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVHEQ14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 10:53:39 -0400
-Received: from fep18.inet.fi ([194.251.242.243]:14783 "EHLO fep18.inet.fi")
-	by vger.kernel.org with ESMTP id S262630AbVHEOvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 10:51:55 -0400
-Subject: [PATCH 7/8] fs: convert kcalloc to kzalloc
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
+	Fri, 5 Aug 2005 12:27:56 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:13960 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262979AbVHEQ1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 12:27:48 -0400
+Subject: [PATCH] 6700/6702PXH quirk
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Cc: greg@kroah.com, rajesh.shah@intel.com
 Content-Type: text/plain
-Message-Id: <ikr7kg.6lzzr6.7ocpqo9oanclt926l5vz7gkyx.beaver@cs.helsinki.fi>
-In-Reply-To: <ikr7k7.yd6x86.4tha6emvbijm9jwl3fjqhsrfy.beaver@cs.helsinki.fi>
-Date: Fri, 5 Aug 2005 17:51:53 +0300
+Content-Transfer-Encoding: 7bit
+Date: Fri, 05 Aug 2005 09:27:42 -0700
+Message-Id: <1123259263.8917.9.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-OriginalArrivalTime: 05 Aug 2005 16:27:44.0014 (UTC) FILETIME=[9B7762E0:01C599DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts kcalloc(1, ...) calls to use the new kzalloc() function.
+On the 6700/6702 PXH part, a MSI may get corrupted if an ACPI hotplug
+driver and SHPC driver in MSI mode are used together.  This patch will
+prevent MSI from being enabled for the SHPC.  
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+I made this patch more generic than just shpc because I thought it was
+possible that other devices in the system might need to add themselves
+to the msi black list.
 
- cifs/connect.c        |   82 +++++++++++++++++++++++++-------------------------
- freevxfs/vxfs_super.c |    2 -
- 2 files changed, 42 insertions(+), 42 deletions(-)
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 
-Index: 2.6/fs/cifs/connect.c
-===================================================================
---- 2.6.orig/fs/cifs/connect.c
-+++ 2.6/fs/cifs/connect.c
-@@ -836,7 +836,7 @@ cifs_parse_mount_options(char *options, 
- 				/* go from value to value + temp_len condensing 
- 				double commas to singles. Note that this ends up
- 				allocating a few bytes too many, which is ok */
--				vol->password = kcalloc(1, temp_len, GFP_KERNEL);
-+				vol->password = kzalloc(temp_len, GFP_KERNEL);
- 				if(vol->password == NULL) {
- 					printk("CIFS: no memory for pass\n");
- 					return 1;
-@@ -851,7 +851,7 @@ cifs_parse_mount_options(char *options, 
- 				}
- 				vol->password[j] = 0;
- 			} else {
--				vol->password = kcalloc(1, temp_len+1, GFP_KERNEL);
-+				vol->password = kzalloc(temp_len+1, GFP_KERNEL);
- 				if(vol->password == NULL) {
- 					printk("CIFS: no memory for pass\n");
- 					return 1;
-@@ -1317,7 +1317,7 @@ ipv4_connect(struct sockaddr_in *psin_se
- 		sessinit is sent but no second negprot */
- 		struct rfc1002_session_packet * ses_init_buf;
- 		struct smb_hdr * smb_buf;
--		ses_init_buf = kcalloc(1, sizeof(struct rfc1002_session_packet), GFP_KERNEL);
-+		ses_init_buf = kzalloc(sizeof(struct rfc1002_session_packet), GFP_KERNEL);
- 		if(ses_init_buf) {
- 			ses_init_buf->trailer.session_req.called_len = 32;
- 			rfc1002mangle(ses_init_buf->trailer.session_req.called_name,
-@@ -1964,7 +1964,7 @@ CIFSSessSetup(unsigned int xid, struct c
- /* We look for obvious messed up bcc or strings in response so we do not go off
-    the end since (at least) WIN2K and Windows XP have a major bug in not null
-    terminating last Unicode string in response  */
--				ses->serverOS = kcalloc(1, 2 * (len + 1), GFP_KERNEL);
-+				ses->serverOS = kzalloc(2 * (len + 1), GFP_KERNEL);
- 				if(ses->serverOS == NULL)
- 					goto sesssetup_nomem;
- 				cifs_strfromUCS_le(ses->serverOS,
-@@ -1976,7 +1976,7 @@ CIFSSessSetup(unsigned int xid, struct c
- 				if (remaining_words > 0) {
- 					len = UniStrnlen((wchar_t *)bcc_ptr,
- 							 remaining_words-1);
--					ses->serverNOS = kcalloc(1, 2 * (len + 1),GFP_KERNEL);
-+					ses->serverNOS = kzalloc(2 * (len + 1),GFP_KERNEL);
- 					if(ses->serverNOS == NULL)
- 						goto sesssetup_nomem;
- 					cifs_strfromUCS_le(ses->serverNOS,
-@@ -1994,7 +1994,7 @@ CIFSSessSetup(unsigned int xid, struct c
- 						len = UniStrnlen((wchar_t *) bcc_ptr, remaining_words);
-           /* last string is not always null terminated (for e.g. for Windows XP & 2000) */
- 						ses->serverDomain =
--						    kcalloc(1, 2*(len+1),GFP_KERNEL);
-+						    kzalloc(2*(len+1),GFP_KERNEL);
- 						if(ses->serverDomain == NULL)
- 							goto sesssetup_nomem;
- 						cifs_strfromUCS_le(ses->serverDomain,
-@@ -2005,22 +2005,22 @@ CIFSSessSetup(unsigned int xid, struct c
- 					} /* else no more room so create dummy domain string */
- 					else
- 						ses->serverDomain = 
--							kcalloc(1, 2, GFP_KERNEL);
-+							kzalloc(2, GFP_KERNEL);
- 				} else {	/* no room so create dummy domain and NOS string */
- 					/* if these kcallocs fail not much we
- 					   can do, but better to not fail the
- 					   sesssetup itself */
- 					ses->serverDomain =
--					    kcalloc(1, 2, GFP_KERNEL);
-+					    kzalloc(2, GFP_KERNEL);
- 					ses->serverNOS =
--					    kcalloc(1, 2, GFP_KERNEL);
-+					    kzalloc(2, GFP_KERNEL);
- 				}
- 			} else {	/* ASCII */
- 				len = strnlen(bcc_ptr, 1024);
- 				if (((long) bcc_ptr + len) - (long)
- 				    pByteArea(smb_buffer_response)
- 					    <= BCC(smb_buffer_response)) {
--					ses->serverOS = kcalloc(1, len + 1,GFP_KERNEL);
-+					ses->serverOS = kzalloc(len + 1,GFP_KERNEL);
- 					if(ses->serverOS == NULL)
- 						goto sesssetup_nomem;
- 					strncpy(ses->serverOS,bcc_ptr, len);
-@@ -2030,7 +2030,7 @@ CIFSSessSetup(unsigned int xid, struct c
- 					bcc_ptr++;
+diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/drivers/pci/msi.c linux-2.6.13-rc4-pxhquirk/drivers/pci/msi.c
+--- linux-2.6.13-rc4/drivers/pci/msi.c	2005-07-28 15:44:44.000000000 -0700
++++ linux-2.6.13-rc4-pxhquirk/drivers/pci/msi.c	2005-08-04 12:09:44.000000000 -0700
+@@ -38,6 +38,32 @@ int vector_irq[NR_VECTORS] = { [0 ... NR
+ u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
+ #endif
  
- 					len = strnlen(bcc_ptr, 1024);
--					ses->serverNOS = kcalloc(1, len + 1,GFP_KERNEL);
-+					ses->serverNOS = kzalloc(len + 1,GFP_KERNEL);
- 					if(ses->serverNOS == NULL)
- 						goto sesssetup_nomem;
- 					strncpy(ses->serverNOS, bcc_ptr, len);
-@@ -2039,7 +2039,7 @@ CIFSSessSetup(unsigned int xid, struct c
- 					bcc_ptr++;
++
++LIST_HEAD(msi_quirk_list);
++
++struct msi_quirk 
++{
++	struct list_head list;
++	struct pci_dev *dev;
++};
++
++
++int msi_add_quirk(struct pci_dev *dev)
++{
++	struct msi_quirk *quirk;
++
++	quirk = (struct msi_quirk *) kmalloc(sizeof(*quirk), GFP_KERNEL);
++	if (!quirk)
++		return -ENOMEM;
++	
++	INIT_LIST_HEAD(&quirk->list);
++	quirk->dev = dev;
++	list_add(&quirk->list, &msi_quirk_list);
++	return 0;
++}
++
++
++
+ static void msi_cache_ctor(void *p, kmem_cache_t *cache, unsigned long flags)
+ {
+ 	memset(p, 0, NR_IRQS * sizeof(struct msi_desc));
+@@ -453,7 +479,7 @@ static void enable_msi_mode(struct pci_d
+ 	}
+ }
  
- 					len = strnlen(bcc_ptr, 1024);
--					ses->serverDomain = kcalloc(1, len + 1,GFP_KERNEL);
-+					ses->serverDomain = kzalloc(len + 1,GFP_KERNEL);
- 					if(ses->serverDomain == NULL)
- 						goto sesssetup_nomem;
- 					strncpy(ses->serverDomain, bcc_ptr, len);
-@@ -2240,7 +2240,7 @@ CIFSSpnegoSessSetup(unsigned int xid, st
-    the end since (at least) WIN2K and Windows XP have a major bug in not null
-    terminating last Unicode string in response  */
- 					ses->serverOS =
--					    kcalloc(1, 2 * (len + 1), GFP_KERNEL);
-+					    kzalloc(2 * (len + 1), GFP_KERNEL);
- 					cifs_strfromUCS_le(ses->serverOS,
- 							   (wchar_t *)
- 							   bcc_ptr, len,
-@@ -2254,7 +2254,7 @@ CIFSSpnegoSessSetup(unsigned int xid, st
- 								 remaining_words
- 								 - 1);
- 						ses->serverNOS =
--						    kcalloc(1, 2 * (len + 1),
-+						    kzalloc(2 * (len + 1),
- 							    GFP_KERNEL);
- 						cifs_strfromUCS_le(ses->serverNOS,
- 								   (wchar_t *)bcc_ptr,
-@@ -2267,7 +2267,7 @@ CIFSSpnegoSessSetup(unsigned int xid, st
- 						if (remaining_words > 0) {
- 							len = UniStrnlen((wchar_t *) bcc_ptr, remaining_words);	
-                             /* last string is not always null terminated (for e.g. for Windows XP & 2000) */
--							ses->serverDomain = kcalloc(1, 2*(len+1),GFP_KERNEL);
-+							ses->serverDomain = kzalloc(2*(len+1),GFP_KERNEL);
- 							cifs_strfromUCS_le(ses->serverDomain,
- 							     (wchar_t *)bcc_ptr, 
-                                  len,
-@@ -2278,10 +2278,10 @@ CIFSSpnegoSessSetup(unsigned int xid, st
- 						} /* else no more room so create dummy domain string */
- 						else
- 							ses->serverDomain =
--							    kcalloc(1, 2,GFP_KERNEL);
-+							    kzalloc(2,GFP_KERNEL);
- 					} else {	/* no room so create dummy domain and NOS string */
--						ses->serverDomain = kcalloc(1, 2, GFP_KERNEL);
--						ses->serverNOS = kcalloc(1, 2, GFP_KERNEL);
-+						ses->serverDomain = kzalloc(2, GFP_KERNEL);
-+						ses->serverNOS = kzalloc(2, GFP_KERNEL);
- 					}
- 				} else {	/* ASCII */
+-static void disable_msi_mode(struct pci_dev *dev, int pos, int type)
++void disable_msi_mode(struct pci_dev *dev, int pos, int type)
+ {
+ 	u16 control;
  
-@@ -2289,7 +2289,7 @@ CIFSSpnegoSessSetup(unsigned int xid, st
- 					if (((long) bcc_ptr + len) - (long)
- 					    pByteArea(smb_buffer_response)
- 					    <= BCC(smb_buffer_response)) {
--						ses->serverOS = kcalloc(1, len + 1, GFP_KERNEL);
-+						ses->serverOS = kzalloc(len + 1, GFP_KERNEL);
- 						strncpy(ses->serverOS, bcc_ptr, len);
+@@ -695,10 +721,16 @@ int pci_enable_msi(struct pci_dev* dev)
+ {
+ 	int pos, temp, status = -EINVAL;
+ 	u16 control;
++	struct msi_quirk *quirk;
  
- 						bcc_ptr += len;
-@@ -2297,14 +2297,14 @@ CIFSSpnegoSessSetup(unsigned int xid, st
- 						bcc_ptr++;
+ 	if (!pci_msi_enable || !dev)
+  		return status;
  
- 						len = strnlen(bcc_ptr, 1024);
--						ses->serverNOS = kcalloc(1, len + 1,GFP_KERNEL);
-+						ses->serverNOS = kzalloc(len + 1,GFP_KERNEL);
- 						strncpy(ses->serverNOS, bcc_ptr, len);
- 						bcc_ptr += len;
- 						bcc_ptr[0] = 0;
- 						bcc_ptr++;
++	list_for_each_entry(quirk, &msi_quirk_list, list) {
++		if (quirk->dev == dev)
++			return -EINVAL;
++	}
++
+ 	temp = dev->irq;
  
- 						len = strnlen(bcc_ptr, 1024);
--						ses->serverDomain = kcalloc(1, len + 1, GFP_KERNEL);
-+						ses->serverDomain = kzalloc(len + 1, GFP_KERNEL);
- 						strncpy(ses->serverDomain, bcc_ptr, len);
- 						bcc_ptr += len;
- 						bcc_ptr[0] = 0;
-@@ -2554,7 +2554,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
-    the end since (at least) WIN2K and Windows XP have a major bug in not null
-    terminating last Unicode string in response  */
- 					ses->serverOS =
--					    kcalloc(1, 2 * (len + 1), GFP_KERNEL);
-+					    kzalloc(2 * (len + 1), GFP_KERNEL);
- 					cifs_strfromUCS_le(ses->serverOS,
- 							   (wchar_t *)
- 							   bcc_ptr, len,
-@@ -2569,7 +2569,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
- 								 remaining_words
- 								 - 1);
- 						ses->serverNOS =
--						    kcalloc(1, 2 * (len + 1),
-+						    kzalloc(2 * (len + 1),
- 							    GFP_KERNEL);
- 						cifs_strfromUCS_le(ses->
- 								   serverNOS,
-@@ -2586,7 +2586,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
- 							len = UniStrnlen((wchar_t *) bcc_ptr, remaining_words);	
-            /* last string is not always null terminated (for e.g. for Windows XP & 2000) */
- 							ses->serverDomain =
--							    kcalloc(1, 2 *
-+							    kzalloc(2 *
- 								    (len +
- 								     1),
- 								    GFP_KERNEL);
-@@ -2612,13 +2612,13 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
- 						} /* else no more room so create dummy domain string */
- 						else
- 							ses->serverDomain =
--							    kcalloc(1, 2,
-+							    kzalloc(2,
- 								    GFP_KERNEL);
- 					} else {	/* no room so create dummy domain and NOS string */
- 						ses->serverDomain =
--						    kcalloc(1, 2, GFP_KERNEL);
-+						    kzalloc(2, GFP_KERNEL);
- 						ses->serverNOS =
--						    kcalloc(1, 2, GFP_KERNEL);
-+						    kzalloc(2, GFP_KERNEL);
- 					}
- 				} else {	/* ASCII */
- 					len = strnlen(bcc_ptr, 1024);
-@@ -2626,7 +2626,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
- 					    pByteArea(smb_buffer_response)
- 					    <= BCC(smb_buffer_response)) {
- 						ses->serverOS =
--						    kcalloc(1, len + 1,
-+						    kzalloc(len + 1,
- 							    GFP_KERNEL);
- 						strncpy(ses->serverOS,
- 							bcc_ptr, len);
-@@ -2637,7 +2637,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
+ 	if ((status = msi_init()) < 0)
+@@ -1127,3 +1159,5 @@ EXPORT_SYMBOL(pci_enable_msi);
+ EXPORT_SYMBOL(pci_disable_msi);
+ EXPORT_SYMBOL(pci_enable_msix);
+ EXPORT_SYMBOL(pci_disable_msix);
++EXPORT_SYMBOL(disable_msi_mode);
++EXPORT_SYMBOL(msi_add_quirk);
+diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/drivers/pci/quirks.c linux-2.6.13-rc4-pxhquirk/drivers/pci/quirks.c
+--- linux-2.6.13-rc4/drivers/pci/quirks.c	2005-07-28 15:44:44.000000000 -0700
++++ linux-2.6.13-rc4-pxhquirk/drivers/pci/quirks.c	2005-08-04 12:09:55.000000000 -0700
+@@ -21,6 +21,10 @@
+ #include <linux/acpi.h>
+ #include "pci.h"
  
- 						len = strnlen(bcc_ptr, 1024);
- 						ses->serverNOS =
--						    kcalloc(1, len + 1,
-+						    kzalloc(len + 1,
- 							    GFP_KERNEL);
- 						strncpy(ses->serverNOS, bcc_ptr, len);
- 						bcc_ptr += len;
-@@ -2646,7 +2646,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
++
++extern void disable_msi_mode(struct pci_dev *dev, int pos, int type);
++extern int msi_add_quirk(struct pci_dev *dev);
++
+ /* Deal with broken BIOS'es that neglect to enable passive release,
+    which can cause problems in combination with the 82441FX/PPro MTRRs */
+ static void __devinit quirk_passive_release(struct pci_dev *dev)
+@@ -1267,6 +1271,30 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_E7320_MCH,	quirk_pcie_mch );
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_E7525_MCH,	quirk_pcie_mch );
  
- 						len = strnlen(bcc_ptr, 1024);
- 						ses->serverDomain =
--						    kcalloc(1, len + 1,
-+						    kzalloc(len + 1,
- 							    GFP_KERNEL);
- 						strncpy(ses->serverDomain, bcc_ptr, len);	
- 						bcc_ptr += len;
-@@ -2948,7 +2948,7 @@ CIFSNTLMSSPAuthSessSetup(unsigned int xi
-   the end since (at least) WIN2K and Windows XP have a major bug in not null
-   terminating last Unicode string in response  */
- 					ses->serverOS =
--					    kcalloc(1, 2 * (len + 1), GFP_KERNEL);
-+					    kzalloc(2 * (len + 1), GFP_KERNEL);
- 					cifs_strfromUCS_le(ses->serverOS,
- 							   (wchar_t *)
- 							   bcc_ptr, len,
-@@ -2963,7 +2963,7 @@ CIFSNTLMSSPAuthSessSetup(unsigned int xi
- 								 remaining_words
- 								 - 1);
- 						ses->serverNOS =
--						    kcalloc(1, 2 * (len + 1),
-+						    kzalloc(2 * (len + 1),
- 							    GFP_KERNEL);
- 						cifs_strfromUCS_le(ses->
- 								   serverNOS,
-@@ -2979,7 +2979,7 @@ CIFSNTLMSSPAuthSessSetup(unsigned int xi
- 							len = UniStrnlen((wchar_t *) bcc_ptr, remaining_words);	
-      /* last string not always null terminated (e.g. for Windows XP & 2000) */
- 							ses->serverDomain =
--							    kcalloc(1, 2 *
-+							    kzalloc(2 *
- 								    (len +
- 								     1),
- 								    GFP_KERNEL);
-@@ -3004,17 +3004,17 @@ CIFSNTLMSSPAuthSessSetup(unsigned int xi
- 							    = 0;
- 						} /* else no more room so create dummy domain string */
- 						else
--							ses->serverDomain = kcalloc(1, 2,GFP_KERNEL);
-+							ses->serverDomain = kzalloc(2,GFP_KERNEL);
- 					} else {  /* no room so create dummy domain and NOS string */
--						ses->serverDomain = kcalloc(1, 2, GFP_KERNEL);
--						ses->serverNOS = kcalloc(1, 2, GFP_KERNEL);
-+						ses->serverDomain = kzalloc(2, GFP_KERNEL);
-+						ses->serverNOS = kzalloc(2, GFP_KERNEL);
- 					}
- 				} else {	/* ASCII */
- 					len = strnlen(bcc_ptr, 1024);
- 					if (((long) bcc_ptr + len) - 
-                         (long) pByteArea(smb_buffer_response) 
-                             <= BCC(smb_buffer_response)) {
--						ses->serverOS = kcalloc(1, len + 1,GFP_KERNEL);
-+						ses->serverOS = kzalloc(len + 1,GFP_KERNEL);
- 						strncpy(ses->serverOS,bcc_ptr, len);
- 
- 						bcc_ptr += len;
-@@ -3022,14 +3022,14 @@ CIFSNTLMSSPAuthSessSetup(unsigned int xi
- 						bcc_ptr++;
- 
- 						len = strnlen(bcc_ptr, 1024);
--						ses->serverNOS = kcalloc(1, len+1,GFP_KERNEL);
-+						ses->serverNOS = kzalloc(len+1,GFP_KERNEL);
- 						strncpy(ses->serverNOS, bcc_ptr, len);	
- 						bcc_ptr += len;
- 						bcc_ptr[0] = 0;
- 						bcc_ptr++;
- 
- 						len = strnlen(bcc_ptr, 1024);
--						ses->serverDomain = kcalloc(1, len+1,GFP_KERNEL);
-+						ses->serverDomain = kzalloc(len+1,GFP_KERNEL);
- 						strncpy(ses->serverDomain, bcc_ptr, len);
- 						bcc_ptr += len;
- 						bcc_ptr[0] = 0;
-@@ -3141,7 +3141,7 @@ CIFSTCon(unsigned int xid, struct cifsSe
- 				if(tcon->nativeFileSystem)
- 					kfree(tcon->nativeFileSystem);
- 				tcon->nativeFileSystem =
--				    kcalloc(1, length + 2, GFP_KERNEL);
-+				    kzalloc(length + 2, GFP_KERNEL);
- 				cifs_strfromUCS_le(tcon->nativeFileSystem,
- 						   (wchar_t *) bcc_ptr,
- 						   length, nls_codepage);
-@@ -3159,7 +3159,7 @@ CIFSTCon(unsigned int xid, struct cifsSe
- 				if(tcon->nativeFileSystem)
- 					kfree(tcon->nativeFileSystem);
- 				tcon->nativeFileSystem =
--				    kcalloc(1, length + 1, GFP_KERNEL);
-+				    kzalloc(length + 1, GFP_KERNEL);
- 				strncpy(tcon->nativeFileSystem, bcc_ptr,
- 					length);
- 			}
-Index: 2.6/fs/freevxfs/vxfs_super.c
-===================================================================
---- 2.6.orig/fs/freevxfs/vxfs_super.c
-+++ 2.6/fs/freevxfs/vxfs_super.c
-@@ -155,7 +155,7 @@ static int vxfs_fill_super(struct super_
- 
- 	sbp->s_flags |= MS_RDONLY;
- 
--	infp = kcalloc(1, sizeof(*infp), GFP_KERNEL);
-+	infp = kzalloc(sizeof(*infp), GFP_KERNEL);
- 	if (!infp) {
- 		printk(KERN_WARNING "vxfs: unable to allocate incore superblock\n");
- 		return -ENOMEM;
++
++/* 
++ * It's possible for the MSI to get corrupted if shpc and acpi
++ * are used together on certain PXH-based systems.
++ */
++static void __devinit quirk_pcie_pxh(struct pci_dev *dev)
++{
++	disable_msi_mode(dev, pci_find_capability(dev, PCI_CAP_ID_MSI),
++					PCI_CAP_ID_MSI);
++	if (!msi_add_quirk(dev)) 
++		printk(KERN_WARNING "PCI: PXH quirk detected, disabling MSI for SHPC device\n");
++	else {
++		pci_msi_quirk = 1;
++		printk(KERN_WARNING "PCI: PXH quirk detected, unable to disable MSI for SHPC device, disabling MSI for all devices\n");
++	}
++			
++}
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXHD_0,	quirk_pcie_pxh);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXHD_1,	quirk_pcie_pxh);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXH_0,	quirk_pcie_pxh);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXH_1,	quirk_pcie_pxh);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXHV,	quirk_pcie_pxh);
++
++
+ static void __devinit quirk_netmos(struct pci_dev *dev)
+ {
+ 	unsigned int num_parallel = (dev->subsystem_device & 0xf0) >> 4;
+diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/include/linux/pci_ids.h linux-2.6.13-rc4-pxhquirk/include/linux/pci_ids.h
+--- linux-2.6.13-rc4/include/linux/pci_ids.h	2005-07-28 15:44:44.000000000 -0700
++++ linux-2.6.13-rc4-pxhquirk/include/linux/pci_ids.h	2005-08-02 13:58:53.000000000 -0700
+@@ -2281,6 +2281,11 @@
+ #define PCI_VENDOR_ID_INTEL		0x8086
+ #define PCI_DEVICE_ID_INTEL_EESSC	0x0008
+ #define PCI_DEVICE_ID_INTEL_21145	0x0039
++#define PCI_DEVICE_ID_INTEL_PXHD_0	0x0320
++#define PCI_DEVICE_ID_INTEL_PXHD_1	0x0321
++#define PCI_DEVICE_ID_INTEL_PXH_0	0x0329
++#define PCI_DEVICE_ID_INTEL_PXH_1	0x032A
++#define PCI_DEVICE_ID_INTEL_PXHV	0x032C
+ #define PCI_DEVICE_ID_INTEL_82375	0x0482
+ #define PCI_DEVICE_ID_INTEL_82424	0x0483
+ #define PCI_DEVICE_ID_INTEL_82378	0x0484
+

@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbVHEGI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVHEGJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbVHEGI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 02:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbVHEGI3
+	id S262869AbVHEGJw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 02:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbVHEGIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 02:08:29 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:2995 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262866AbVHEGI1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 02:08:27 -0400
-Date: Fri, 5 Aug 2005 08:08:07 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Phillip Lougher <phil.lougher@gmail.com>
-cc: plougher@users.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: squashfs seems nfs-incompatible
-In-Reply-To: <cce9e37e050804083347c138d4@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0508050804090.19610@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0508021710590.4634@yvahk01.tjqt.qr>
- <cce9e37e050804083347c138d4@mail.gmail.com>
+	Fri, 5 Aug 2005 02:08:31 -0400
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:5522 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262867AbVHEGI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 02:08:28 -0400
+Message-ID: <42F30252.3080105@davyandbeth.com>
+Date: Fri, 05 Aug 2005 01:08:18 -0500
+From: Davy Durham <pubaddr2@davyandbeth.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: /proc question
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+After much research.. I have a question regarding /proc
 
->> I found out that you cannot mount an exported squash fs. The exports(5) fsid=
->> parameter does not help it [like it did with unionfs].
->
->The exports(5) man page says fsid=num is necessary for filesystems on
->non-block devices - I don't know whether this includes loopback
->filesystems.  Have you tried exporting a Squashfs filesystem mounted
->on a real block device?
+I have a zombie process which has apparently died for some unknown 
+reason.. I know it was terminated by a signal (found that from the 9th 
+field (sheduler flags) in /proc/pid/stat)
 
-Loopback is a real block device, and no, fsid= does not help it. I have talked 
-with the unionfs people, because it works for them. After a short flash of 
-idea and comparison, it turns out that squashfs is missing 
-sb->s_export->get_parent (the only requirement as it seems). Includes that you 
-have sb->s_export non-null, of course. sb->s_export can be set within 
-fill_super().
+However, I'm trying to figure out what signal killed it.
 
->I've never tried to export a Squashfs filesystem, and so I don't know
->if it works.  If it doesn't, I would say it is because Squashfs (like
->Cramfs) doesn't store correct nlink information for directories.
->
->The next release does store nlink information, has support for > 4GB
->files/filesystems, and other nice improvements.  I'm hoping to release
->an alpha release soon.
-
-FTR, I currently cheated by using
-`mount -t unionfs -o dirs=/squash=ro none /squash` to get the export working.
+Also, it would be nice if /proc could show what the exit status of a 
+dead process is.. seems strange that it doesn't contain that information 
+(or am I just not seeing it in there).
 
 
+Any info would be helpful.. thanks,
+  Davy
 
-Jan Engelhardt
--- 
-| Alphagate Systems, http://alphagate.hopto.org/
+

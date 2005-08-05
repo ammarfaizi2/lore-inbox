@@ -1,133 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263004AbVHEMjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbVHEMoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263004AbVHEMjs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 08:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbVHEMjr
+	id S263003AbVHEMoh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 08:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbVHEMof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 08:39:47 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:58374 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263004AbVHEMjm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 08:39:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=D4X5aX75Ex1LXwaS7nNNQ4QLAP8MKEkMRJ01xYHzE6K1Y5AvdIO3j0srmB6uaSkcr1WhzIXTAX57tBGMsAaF1xStl2AdimYZEzoSmwKy0GFPfyqBK/IHyxMwuxzMhITGih7hefQtetBzrm+g7DlvomkhJoftqPe/qGF/OfquA6M=
-Message-ID: <9268368b05080505397b1d4bfb@mail.gmail.com>
-Date: Fri, 5 Aug 2005 08:39:38 -0400
-From: Daniel Petrini <d.pensator@gmail.com>
-Reply-To: Daniel Petrini <d.pensator@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [ck] [PATCH] Timer Top was: i386 No-Idle-Hz aka Dynamic-Ticks 3
-Cc: Con Kolivas <kernel@kolivas.org>, tony@atomide.com, ck@vds.kolivas.org,
-       tuukka.tikkanen@elektrobit.com, linux-kernel@vger.kernel.org,
-       ilias.biris@indt.org.br
-In-Reply-To: <20050805064617.GL9369@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_7443_30390256.1123245578880"
-References: <200508031559.24704.kernel@kolivas.org>
-	 <9268368b050804141525539666@mail.gmail.com>
-	 <20050805064617.GL9369@suse.de>
+	Fri, 5 Aug 2005 08:44:35 -0400
+Received: from smtp.bredband2.net ([82.209.166.4]:57945 "EHLO
+	smtp.bredband2.net") by vger.kernel.org with ESMTP id S263003AbVHEMof
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 08:44:35 -0400
+Message-ID: <42F35F2E.6000100@home.se>
+Date: Fri, 05 Aug 2005 14:44:30 +0200
+From: =?ISO-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: lockups with netconsole on e1000 on media insertion
+References: <42F347D2.7000207@home.se.suse.lists.linux.kernel> <p73ek987gjw.fsf@bragg.suse.de>
+In-Reply-To: <p73ek987gjw.fsf@bragg.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_7443_30390256.1123245578880
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Andi Kleen wrote:
+> The patch was for 2.6.12, did a quick untested port to 2.6.13rc5.
+> 
+> -Andi
+> 
+> Only try a limited number to send packets in netpoll
 
-Hi,
+Thanks, worked nicely!
 
-> --
-> Jens Axboe
->=20
-
-Thanks for your corrections. Here we have a new version.=20
-
-Daniel Petrini
---=20
-10LE - Linux
-INdT - Manaus - Brazil
-
-------=_Part_7443_30390256.1123245578880
-Content-Type: text/x-patch; name="timer_top2-20050805.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="timer_top2-20050805.patch"
-
-ZGlmZiAtdXByTiBsaW51eC0yLjYuMTItb3JpZy9rZXJuZWwvTWFrZWZpbGUgbGludXgtZHluLXRp
-Y2sva2VybmVsL01ha2VmaWxlCi0tLSBsaW51eC0yLjYuMTItb3JpZy9rZXJuZWwvTWFrZWZpbGUJ
-MjAwNS0wOC0wMyAyMzo1MDoyNi4wMDAwMDAwMDAgLTA0MDAKKysrIGxpbnV4LWR5bi10aWNrL2tl
-cm5lbC9NYWtlZmlsZQkyMDA1LTA4LTA0IDE2OjU2OjE0LjAwMDAwMDAwMCAtMDQwMApAQCAtNyw3
-ICs3LDcgQEAgb2JqLXkgICAgID0gc2NoZWQubyBmb3JrLm8gZXhlY19kb21haW4ubwogCSAgICBz
-eXNjdGwubyBjYXBhYmlsaXR5Lm8gcHRyYWNlLm8gdGltZXIubyB1c2VyLm8gXAogCSAgICBzaWdu
-YWwubyBzeXMubyBrbW9kLm8gd29ya3F1ZXVlLm8gcGlkLm8gXAogCSAgICByY3VwZGF0ZS5vIGlu
-dGVybW9kdWxlLm8gZXh0YWJsZS5vIHBhcmFtcy5vIHBvc2l4LXRpbWVycy5vIFwKLQkgICAga3Ro
-cmVhZC5vIHdhaXQubyBrZmlmby5vIHN5c19uaS5vIHBvc2l4LWNwdS10aW1lcnMubworCSAgICBr
-dGhyZWFkLm8gd2FpdC5vIGtmaWZvLm8gc3lzX25pLm8gcG9zaXgtY3B1LXRpbWVycy5vIHRpbWVy
-X3RvcC5vCiAKIG9iai0kKENPTkZJR19GVVRFWCkgKz0gZnV0ZXgubwogb2JqLSQoQ09ORklHX0dF
-TkVSSUNfSVNBX0RNQSkgKz0gZG1hLm8KZGlmZiAtdXByTiBsaW51eC0yLjYuMTItb3JpZy9rZXJu
-ZWwvdGltZXIuYyBsaW51eC1keW4tdGljay9rZXJuZWwvdGltZXIuYwotLS0gbGludXgtMi42LjEy
-LW9yaWcva2VybmVsL3RpbWVyLmMJMjAwNS0wOC0wMyAyMzo1MDoyNy4wMDAwMDAwMDAgLTA0MDAK
-KysrIGxpbnV4LWR5bi10aWNrL2tlcm5lbC90aW1lci5jCTIwMDUtMDgtMDQgMTY6NTY6MjcuMDAw
-MDAwMDAwIC0wNDAwCkBAIC01MDgsNiArNTA4LDggQEAgc3RhdGljIGlubGluZSB2b2lkIF9fcnVu
-X3RpbWVycyh0dmVjX2JhcwogfQogCiAjaWZkZWYgQ09ORklHX05PX0lETEVfSFoKK2V4dGVybiBz
-dHJ1Y3QgdGltZXJfdG9wX2luZm8gdG9wX2luZm87CitleHRlcm4gaW50IGFjY291bnRfdGltZXIo
-dW5zaWduZWQgaW50IGZ1bmN0aW9uLCBzdHJ1Y3QgdGltZXJfdG9wX2luZm8gKiB0b3BfaW5mbyk7
-CiAvKgogICogRmluZCBvdXQgd2hlbiB0aGUgbmV4dCB0aW1lciBldmVudCBpcyBkdWUgdG8gaGFw
-cGVuLiBUaGlzCiAgKiBpcyB1c2VkIG9uIFMvMzkwIHRvIHN0b3AgYWxsIGFjdGl2aXR5IHdoZW4g
-YSBjcHVzIGlzIGlkbGUuCkBAIC01NzEsNiArNTczLDcgQEAgZm91bmQ6CiAJCQkJZXhwaXJlcyA9
-IG50ZS0+ZXhwaXJlczsKIAkJfQogCX0KKwlhY2NvdW50X3RpbWVyKCh1bnNpZ25lZCBpbnQpbnRl
-LT5mdW5jdGlvbiwgJnRvcF9pbmZvKTsKIAlzcGluX3VubG9jaygmYmFzZS0+dF9iYXNlLmxvY2sp
-OwogCXJldHVybiBleHBpcmVzOwogfQpkaWZmIC11cHJOIGxpbnV4LTIuNi4xMi1vcmlnL2tlcm5l
-bC90aW1lcl90b3AuYyBsaW51eC1keW4tdGljay9rZXJuZWwvdGltZXJfdG9wLmMKLS0tIGxpbnV4
-LTIuNi4xMi1vcmlnL2tlcm5lbC90aW1lcl90b3AuYwkxOTY5LTEyLTMxIDIwOjAwOjAwLjAwMDAw
-MDAwMCAtMDQwMAorKysgbGludXgtZHluLXRpY2sva2VybmVsL3RpbWVyX3RvcC5jCTIwMDUtMDgt
-MDUgMDg6MzE6MDguMDAwMDAwMDAwIC0wNDAwCkBAIC0wLDAgKzEsMTExIEBACisvKgorICoga2Vy
-bmVsL3RpbWVyX3RvcC5jCisgKgorICogRXhwb3J0IFRpbWVycyBpbmZvcm1hdGlvbiB0byAvcHJv
-Yy90b3BfaW5mbworICoKKyAqIENvcHlyaWdodCAoQykgMjAwNSBJbnN0aXR1dG8gTm9raWEgZGUg
-VGVjbm9sb2dpYSAtIElOZFQgLSBNYW5hdXMKKyAqIFdyaXR0ZW4gYnkgRGFuaWVsIFBldHJpbmkg
-PGQucGVuc2F0b3JAZ21haWwuY29tPgorICoKKyAqIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3
-YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9kaWZ5CisgKiBpdCB1bmRlciB0
-aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIHZlcnNpb24gMiBhcwor
-ICogcHVibGlzaGVkIGJ5IHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb24uCisgKi8KKworCisj
-aW5jbHVkZSA8bGludXgvbGlzdC5oPgorI2luY2x1ZGUgPGxpbnV4L3Byb2NfZnMuaD4KKyNpbmNs
-dWRlIDxsaW51eC9tb2R1bGUuaD4KKyNpbmNsdWRlIDxsaW51eC9zcGlubG9jay5oPgorCitzdGF0
-aWMgTElTVF9IRUFEKHRpbWVyX2xpc3QpOworCitzdHJ1Y3QgdGltZXJfdG9wX2luZm8geworCXVu
-c2lnbmVkIGludAkJZnVuY19wb2ludGVyOworCXVuc2lnbmVkIGludCBsb25nCWNvdW50ZXI7CisJ
-c3RydWN0IGxpc3RfaGVhZCAJbGlzdDsgICAgICAJCit9OworCitzdHJ1Y3QgdGltZXJfdG9wX2lu
-Zm8gdG9wX2luZm87CisKK3N0YXRpYyBzcGlubG9ja190IHRpbWVyX2xvY2sgPSBTUElOX0xPQ0tf
-VU5MT0NLRUQ7CitzdGF0aWMgdW5zaWduZWQgbG9uZyBmbGFnczsKKworCitpbnQgYWNjb3VudF90
-aW1lcih1bnNpZ25lZCBpbnQgZnVuY3Rpb24sIHN0cnVjdCB0aW1lcl90b3BfaW5mbyAqIHRvcF9p
-bmZvKQoreworCXN0cnVjdCB0aW1lcl90b3BfaW5mbyAqdG9wOworCisJc3Bpbl9sb2NrX2lycXNh
-dmUoJnRpbWVyX2xvY2ssIGZsYWdzKTsKKworCWxpc3RfZm9yX2VhY2hfZW50cnkgKHRvcCwgJnRp
-bWVyX2xpc3QsIGxpc3QpIHsKKwkJLyogaWYgaXQgaXMgaW4gdGhlIGxpc3QgaW5jcmVtZW50IGl0
-cyBjb3VudCAqLworCQlpZiAodG9wLT5mdW5jX3BvaW50ZXIgPT0gZnVuY3Rpb24pIHsKKwkJCXRv
-cC0+Y291bnRlciArPSAxOworCQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmdGltZXJfbG9jaywg
-ZmxhZ3MpOworCQkJcmV0dXJuIDA7CisJCX0KKwl9CisJCisJLyogaWYgeW91IGFyZSBoZXJlIHRo
-ZW4gaXQgZGlkbnQgZmluZCBzbyBpbnNlcnRzIGluIHRoZSBsaXN0ICovCisKKwl0b3AgPSBrbWFs
-bG9jKHNpemVvZihzdHJ1Y3QgdGltZXJfdG9wX2luZm8pLCBHRlBfQVRPTUlDKTsKKwlpZiAoIXRv
-cCkgCisJCXJldHVybiAtRU5PTUVNOworCXRvcC0+ZnVuY19wb2ludGVyID0gZnVuY3Rpb247CisJ
-dG9wLT5jb3VudGVyID0gMTsKKwlsaXN0X2FkZCgmdG9wLT5saXN0LCAmdGltZXJfbGlzdCk7CisK
-KwlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZ0aW1lcl9sb2NrLCBmbGFncyk7CisKKwlyZXR1cm4g
-MDsKK30KKworRVhQT1JUX1NZTUJPTChhY2NvdW50X3RpbWVyKTsKKworc3RydWN0IHRvcF9pbmZv
-X3BvbGwgeworICBjaGFyIHZhbHVlWzE4XTsKK307CisKK3N0YXRpYyBzdHJ1Y3QgdG9wX2luZm9f
-cG9sbCB0b3BfaW5mb19wb2xsX2R0Oworc3RhdGljIHN0cnVjdCBwcm9jX2Rpcl9lbnRyeSAqdG9w
-X2luZm9fZmlsZTsKKworc3RhdGljIGludCBwcm9jX3JlYWRfdG9wX2luZm8oY2hhciAqcGFnZSwg
-Y2hhciAqKnN0YXJ0LCBvZmZfdCBvZmYsCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IGludCBjb3VudCwgaW50ICplb2YsIHZvaWQgKmRhdGEpCit7CisJY2hhciBhdXhbMThdOworCXN0
-cnVjdCB0aW1lcl90b3BfaW5mbyAqdG9wOworCisJc3RydWN0IHRvcF9pbmZvX3BvbGwgKmluZm9f
-cG9sbF9kYXRhPShzdHJ1Y3QgdG9wX2luZm9fcG9sbCAqKWRhdGE7CisKKwlzcHJpbnRmKHBhZ2Us
-ICJGdW5jdGlvbiBjb3VudGVyIC0gJXNcbiIsIGluZm9fcG9sbF9kYXRhLT52YWx1ZSk7CisKKwls
-aXN0X2Zvcl9lYWNoX2VudHJ5ICh0b3AsICZ0aW1lcl9saXN0LCBsaXN0KSB7CisJCXNwcmludGYo
-YXV4LCAiJXggJWx1XG4iLCB0b3AtPmZ1bmNfcG9pbnRlciwgdG9wLT5jb3VudGVyKTsKKwkJc3Ry
-Y2F0KHBhZ2UsIGF1eCk7CisJfQorCisJcmV0dXJuIHN0cmxlbihwYWdlKTsKKyAKK30gCisKK3N0
-YXRpYyBpbnQgaW5pdF90b3BfaW5mbyh2b2lkKQoreworCXRvcF9pbmZvX2ZpbGUgPSBjcmVhdGVf
-cHJvY19lbnRyeSgidG9wX2luZm8iLCAwNjY2LCBOVUxMKTsKKwlpZih0b3BfaW5mb19maWxlID09
-IE5VTEwpIHsKKwkgIHJldHVybiAtRU5PTUVNOworCX0KKworCXN0cmNweSh0b3BfaW5mb19wb2xs
-X2R0LnZhbHVlLCAiVGltZXIgVG9wIHYwLjkuMSIpOworCisJdG9wX2luZm9fZmlsZS0+ZGF0YSA9
-ICZ0b3BfaW5mb19wb2xsX2R0OworCXRvcF9pbmZvX2ZpbGUtPnJlYWRfcHJvYyA9ICZwcm9jX3Jl
-YWRfdG9wX2luZm87CisJdG9wX2luZm9fZmlsZS0+b3duZXIgPSBUSElTX01PRFVMRTsKKwkKKwly
-ZXR1cm4gMDsKK30KKworbW9kdWxlX2luaXQoaW5pdF90b3BfaW5mbyk7CisvL21vZHVsZV9leGl0
-KCk7CisKKworCg==
-------=_Part_7443_30390256.1123245578880--
+---
+John Bäckstrand

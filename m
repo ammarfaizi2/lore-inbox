@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVHESUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbVHESSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbVHESUd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 14:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbVHESSa
+	id S262845AbVHESSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 14:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbVHESP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 14:18:30 -0400
-Received: from graphe.net ([209.204.138.32]:61610 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262827AbVHESQv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 14:16:51 -0400
-Date: Fri, 5 Aug 2005 11:16:37 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Stephen Pollei <stephen.pollei@gmail.com>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Pekka J Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
-       pmarques@grupopie.com, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
-In-Reply-To: <feed8cdd050805104954a07573@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0508051114001.31384@graphe.net>
-References: <1123219747.20398.1.camel@localhost>  <20050804223842.2b3abeee.akpm@osdl.org>
-  <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI> 
- <20050804233634.1406e92a.akpm@osdl.org>  <Pine.LNX.4.61.0508051132540.3743@scrub.home>
-  <1123235219.3239.46.camel@laptopd505.fenrus.org>  <Pine.LNX.4.61.0508051202520.3728@scrub.home>
-  <1123236831.3239.55.camel@laptopd505.fenrus.org>  <Pine.LNX.4.61.0508051225270.3743@scrub.home>
- <feed8cdd050805104954a07573@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Fri, 5 Aug 2005 14:15:56 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:52921 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262845AbVHESOP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 14:14:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=itVBIgqE0WEzNwxb6zASDpPbBN3UecjU7yLVAva34/KZImelZALPVghZ4BFf6ypU6HQlM++BX46tGVCJHbwSQ3322+kHhs4fa56V8faQ9SuaYCzWCgCYeup1exDUTCKIUyqc+4JBrW/HUlYLoIJt7UAJweV26Ap7x42aNAtaTlw=
+Message-ID: <9e47339105080511143e01c531@mail.gmail.com>
+Date: Fri, 5 Aug 2005 14:14:11 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
+Cc: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
+       Mitchell Blank Jr <mitch@sfgoth.com>, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200508052001.11442.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050726015401.GA25015@kroah.com>
+	 <20020101075339.GA467@openzaurus.ucw.cz>
+	 <9e47339105080506325d93f431@mail.gmail.com>
+	 <200508052001.11442.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Aug 2005, Stephen Pollei wrote:
+On 8/5/05, Oliver Neukum <oliver@neukum.org> wrote:
+> Am Freitag, 5. August 2005 15:32 schrieb Jon Smirl:
+> > On 1/1/02, Pavel Machek <pavel@ucw.cz> wrote:
+> > > Hi!
+> > >
+> > > > > > New, simplified version of the sysfs whitespace strip patch...
+> > > > >
+> > > > > Could you tell me why you don't just fail the operation if malformed
+> > > > > input is supplied?
+> > > >
+> > > > Leading/trailing white space should be allowed. For example echo
+> > > > appends '\n' unless you know to use -n. It is easier to fix the kernel
+> > > > than to teach everyone to use -n.
+> > >
+> > > Please, NO! echo -n is the right thing to do, and users will eventually learn.
+> > > We are not going to add such workarounds all over the kernel...
+> >
+> > It is not a work around. These are text attributes meant for human
+> > use.  Humans have a hard time cleaning up things they can't see. And
+> > the failure mode for this is awful, your attribute won't set but
+> > everything on the screen looks fine.
+> 
+> The average user has no place poking sysfs. Root should know when
+> to use -n, as should shell scripts.
 
-> > On Fri, 5 Aug 2005, Arjan van de Ven wrote:
-> > > > This would imply a similiar kmalloc() would be useful as well.
-> > > > Second, how relevant is it for the kernel?
-> > > we've had a non-negliable amount of security holes because of this
-> > So why don't we have a similiar kmalloc()?
-> You mean something like:
-> static void __bad_kmalloc_safe_nonconstant_size(void);
+So the average user never needs to change their console mode? Check
+out /sys/class/graphics/fb/modes and mode.
 
-Hmm. If we had kcmalloc then we may be able to add a zero bit to the slab 
-allocator. If we would obtain zeroed pages for the slab then we may skip 
-zeroing of individual entries. However, the cache warming effect of the 
-current zeroing is then not occurring. Not sure if this would make sense 
-but this is a possible optimization if we had kcmalloc.
+> 
+>         Regards
+>                 Oliver
+> 
 
 
+-- 
+Jon Smirl
+jonsmirl@gmail.com

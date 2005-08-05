@@ -1,79 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVHERza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVHESDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbVHERza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 13:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVHERza
+	id S262700AbVHESDi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 14:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbVHESDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 13:55:30 -0400
-Received: from pop.gmx.de ([213.165.64.20]:44944 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262824AbVHERzX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 13:55:23 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] preempt-trace.patch (mono preempt-trace)
-Date: Fri, 5 Aug 2005 19:58:10 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050607042931.23f8f8e0.akpm@osdl.org> <200508051626.56910.dominik.karall@gmx.net> <20050805152245.GA12650@elte.hu>
-In-Reply-To: <20050805152245.GA12650@elte.hu>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2967062.cxH0HmVIBH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508051958.12853.dominik.karall@gmx.net>
-X-Y-GMX-Trusted: 0
+	Fri, 5 Aug 2005 14:03:38 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:51174 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262700AbVHESDh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 14:03:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B9BORQXxVdy0mZYnZ2q1PUsHu45rBJdVL4VQKrRJvllGAfjbhKdmoa9y/W6MBuyUx+WxkO4erNzZya0QZdM6S0zzCjetBa7mCLkt0oJaBwYx5RhHkltiqtP42B2hk9QSVBoKd+lEUeG4tOJYTDDE88QyT+nC5aaZU1HMEr9a8JM=
+Message-ID: <86802c440508051103500f6942@mail.gmail.com>
+Date: Fri, 5 Aug 2005 11:03:36 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: Roland Dreier <rolandd@cisco.com>
+Subject: Re: mthca and LinuxBIOS
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <52slxp6o5b.fsf@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
+	 <86802c44050803175873fb0569@mail.gmail.com>
+	 <52u0i6b9an.fsf_-_@cisco.com>
+	 <86802c44050804093374aca360@mail.gmail.com> <52mznxacbp.fsf@cisco.com>
+	 <86802c4405080410236ba59619@mail.gmail.com>
+	 <86802c4405080411013b60382c@mail.gmail.com> <521x59a6tb.fsf@cisco.com>
+	 <86802c440508041230143354c2@mail.gmail.com> <52slxp6o5b.fsf@cisco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2967062.cxH0HmVIBH
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+You are right. CONG_SPECIAL_QP
 
-On Friday 05 August 2005 17:22, Ingo Molnar wrote:
-> * Dominik Karall <dominik.karall@gmx.net> wrote:
-> > BUG: mono[10011] exited with nonzero preempt_count 1!
-> > ---------------------------
-> >
-> > | preempt count: 00000001 ]
-> > | 1 level deep critical section nesting:
-> >
-> > ----------------------------------------
-> > .. [<ffffffff803f791e>] .... _spin_lock+0xe/0x70
-> > .....[<0000000000000000>] ..   ( <=3D 0x0)
-> >
-> > If there is anything I should test, let me know!
->
-> please enable CONFIG_FRAME_POINTERS!
->
-> we now know that it's a spin_lock reference that got leaked, but we dont
-> (yet) know the parent.
-
-I'm sorry, but I think I can't enable CONFIG_FRAME_POINTERS.
-Depends on: DEBUG_KERNEL && (X86 && !X86_64 || CRIS || M68K || M68KNOMMU ||=
-=20
-=46RV || UML)
-
-Seems to be disabled for x86_64.
-
-dominik
-
---nextPart2967062.cxH0HmVIBH
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
-
-iQCVAwUAQvOotAvcoSHvsHMnAQK4fAP9EneTLtjZpklttF3l/Iazzaiy+RvnMAu1
-E1XXYgKJQp2AeXPZ60eGGJ+QanjGAdVaNnhPMCWvGBVdDmPV3GhKQLfWKsMzJOHH
-7GrocobXxBh4Tkp2tUUT+49x4Jri8pFRKGELF/L8TPqCbtTWSMbHA/9IcWj6Q399
-ZJWWxNpBWqs=
-=5UxB
------END PGP SIGNATURE-----
-
---nextPart2967062.cxH0HmVIBH--
+ib_mthca: Mellanox InfiniBand HCA driver v0.06 (June 23, 2005)
+ib_mthca: Initializing Mellanox Technologies MT25208 InfiniHost III Ex
+(Tavor compatibility mode) (0000:04:00.0)
+ib_mthca 0000:04:00.0: FW version 000400060002, max commands 64
+ib_mthca 0000:04:00.0: FW size 6143 KB (start fcefa00000, end fcefffffff)
+ib_mthca 0000:04:00.0: HCA memory size 262143 KB (start fce0000000,
+end fcefffffff)
+ib_mthca 0000:04:00.0: Max QPs: 16777216, reserved QPs: 1024, entry size: 256
+ib_mthca 0000:04:00.0: Max CQs: 16777216, reserved CQs: 128, entry size: 64
+ib_mthca 0000:04:00.0: Max EQs: 64, reserved EQs: 1, entry size: 64
+ib_mthca 0000:04:00.0: reserved MPTs: 16, reserved MTTs: 16
+ib_mthca 0000:04:00.0: Max PDs: 16777216, reserved PDs: 0, reserved UARs: 1
+ib_mthca 0000:04:00.0: Max QP/MCG: 16777216, reserved MGMs: 0
+ib_mthca 0000:04:00.0: Flags: 00370347
+ib_mthca 0000:04:00.0: profile[ 0]--10/20 @ 0x      fce0000000 (size 0x 4000000)
+ib_mthca 0000:04:00.0: profile[ 1]-- 0/16 @ 0x      fce4000000 (size 0x 1000000)
+ib_mthca 0000:04:00.0: profile[ 2]-- 7/18 @ 0x      fce5000000 (size 0x  800000)
+ib_mthca 0000:04:00.0: profile[ 3]-- 9/17 @ 0x      fce5800000 (size 0x  800000)
+ib_mthca 0000:04:00.0: profile[ 4]-- 3/16 @ 0x      fce6000000 (size 0x  400000)
+ib_mthca 0000:04:00.0: profile[ 5]-- 4/16 @ 0x      fce6400000 (size 0x  200000)
+ib_mthca 0000:04:00.0: profile[ 6]--12/15 @ 0x      fce6600000 (size 0x  100000)
+ib_mthca 0000:04:00.0: profile[ 7]-- 8/13 @ 0x      fce6700000 (size 0x   80000)
+ib_mthca 0000:04:00.0: profile[ 8]--11/11 @ 0x      fce6780000 (size 0x   10000)
+ib_mthca 0000:04:00.0: profile[ 9]-- 6/ 5 @ 0x      fce6790000 (size 0x     800)
+ib_mthca 0000:04:00.0: HCA memory: allocated 106050 KB/256000 KB
+(149950 KB free)
+ib_mthca 0000:04:00.0: Allocated EQ 1 with 65536 entries
+ib_mthca 0000:04:00.0: Allocated EQ 2 with 128 entries
+ib_mthca 0000:04:00.0: Allocated EQ 3 with 128 entries
+ib_mthca 0000:04:00.0: Setting mask 00000000000f43fe for eqn 2
+ib_mthca 0000:04:00.0: Setting mask 0000000000000400 for eqn 3
+ib_mthca 0000:04:00.0: NOP command IRQ test passed
+ib_mthca 0000:04:00.0: mthca_init_qp_table: mthca_CONF_SPECIAL_QP
+failed for 0/1024 (-16)
+ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
+ib_mthca 0000:04:00.0: Clearing mask 00000000000f43fe for eqn 2
+ib_mthca 0000:04:00.0: Clearing mask 0000000000000400 for eqn 3
+ib_mthca: probe of 0000:04:00.0 failed with error -16

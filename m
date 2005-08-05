@@ -1,164 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262955AbVHEQ14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVHEQcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbVHEQ14 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 12:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVHEQ14
+	id S261385AbVHEQcD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 12:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbVHEQcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 12:27:56 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:13960 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262979AbVHEQ1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 12:27:48 -0400
-Subject: [PATCH] 6700/6702PXH quirk
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Cc: greg@kroah.com, rajesh.shah@intel.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 05 Aug 2005 09:27:42 -0700
-Message-Id: <1123259263.8917.9.camel@whizzy>
+	Fri, 5 Aug 2005 12:32:03 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:60060
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261385AbVHEQcB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 12:32:01 -0400
+Date: Fri, 05 Aug 2005 09:32:08 -0700 (PDT)
+Message-Id: <20050805.093208.74729918.davem@davemloft.net>
+To: sandos@home.se
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       herbert@gondor.apana.org.au, akpm@osdl.org
+Subject: Re: assertion (cnt <= tp->packets_out) failed
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <42F38B67.5040308@home.se>
+References: <42F38B67.5040308@home.se>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-X-OriginalArrivalTime: 05 Aug 2005 16:27:44.0014 (UTC) FILETIME=[9B7762E0:01C599DA]
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On the 6700/6702 PXH part, a MSI may get corrupted if an ACPI hotplug
-driver and SHPC driver in MSI mode are used together.  This patch will
-prevent MSI from being enabled for the SHPC.  
+From: John Bäckstrand <sandos@home.se>
+Date: Fri, 05 Aug 2005 17:53:11 +0200
 
-I made this patch more generic than just shpc because I thought it was
-possible that other devices in the system might need to add themselves
-to the msi black list.
+> KERNEL: assertion (cnt <= tp->packets_out) failed at 
+> net/ipv4/tcp_input.c (1476)
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+I suspect this is a side effect of some changes Herbert Xu and
+myself did to fix some other bugs.
 
-diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/drivers/pci/msi.c linux-2.6.13-rc4-pxhquirk/drivers/pci/msi.c
---- linux-2.6.13-rc4/drivers/pci/msi.c	2005-07-28 15:44:44.000000000 -0700
-+++ linux-2.6.13-rc4-pxhquirk/drivers/pci/msi.c	2005-08-04 12:09:44.000000000 -0700
-@@ -38,6 +38,32 @@ int vector_irq[NR_VECTORS] = { [0 ... NR
- u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
- #endif
- 
-+
-+LIST_HEAD(msi_quirk_list);
-+
-+struct msi_quirk 
-+{
-+	struct list_head list;
-+	struct pci_dev *dev;
-+};
-+
-+
-+int msi_add_quirk(struct pci_dev *dev)
-+{
-+	struct msi_quirk *quirk;
-+
-+	quirk = (struct msi_quirk *) kmalloc(sizeof(*quirk), GFP_KERNEL);
-+	if (!quirk)
-+		return -ENOMEM;
-+	
-+	INIT_LIST_HEAD(&quirk->list);
-+	quirk->dev = dev;
-+	list_add(&quirk->list, &msi_quirk_list);
-+	return 0;
-+}
-+
-+
-+
- static void msi_cache_ctor(void *p, kmem_cache_t *cache, unsigned long flags)
- {
- 	memset(p, 0, NR_IRQS * sizeof(struct msi_desc));
-@@ -453,7 +479,7 @@ static void enable_msi_mode(struct pci_d
- 	}
- }
- 
--static void disable_msi_mode(struct pci_dev *dev, int pos, int type)
-+void disable_msi_mode(struct pci_dev *dev, int pos, int type)
- {
- 	u16 control;
- 
-@@ -695,10 +721,16 @@ int pci_enable_msi(struct pci_dev* dev)
- {
- 	int pos, temp, status = -EINVAL;
- 	u16 control;
-+	struct msi_quirk *quirk;
- 
- 	if (!pci_msi_enable || !dev)
-  		return status;
- 
-+	list_for_each_entry(quirk, &msi_quirk_list, list) {
-+		if (quirk->dev == dev)
-+			return -EINVAL;
-+	}
-+
- 	temp = dev->irq;
- 
- 	if ((status = msi_init()) < 0)
-@@ -1127,3 +1159,5 @@ EXPORT_SYMBOL(pci_enable_msi);
- EXPORT_SYMBOL(pci_disable_msi);
- EXPORT_SYMBOL(pci_enable_msix);
- EXPORT_SYMBOL(pci_disable_msix);
-+EXPORT_SYMBOL(disable_msi_mode);
-+EXPORT_SYMBOL(msi_add_quirk);
-diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/drivers/pci/quirks.c linux-2.6.13-rc4-pxhquirk/drivers/pci/quirks.c
---- linux-2.6.13-rc4/drivers/pci/quirks.c	2005-07-28 15:44:44.000000000 -0700
-+++ linux-2.6.13-rc4-pxhquirk/drivers/pci/quirks.c	2005-08-04 12:09:55.000000000 -0700
-@@ -21,6 +21,10 @@
- #include <linux/acpi.h>
- #include "pci.h"
- 
-+
-+extern void disable_msi_mode(struct pci_dev *dev, int pos, int type);
-+extern int msi_add_quirk(struct pci_dev *dev);
-+
- /* Deal with broken BIOS'es that neglect to enable passive release,
-    which can cause problems in combination with the 82441FX/PPro MTRRs */
- static void __devinit quirk_passive_release(struct pci_dev *dev)
-@@ -1267,6 +1271,30 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_E7320_MCH,	quirk_pcie_mch );
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_E7525_MCH,	quirk_pcie_mch );
- 
-+
-+/* 
-+ * It's possible for the MSI to get corrupted if shpc and acpi
-+ * are used together on certain PXH-based systems.
-+ */
-+static void __devinit quirk_pcie_pxh(struct pci_dev *dev)
-+{
-+	disable_msi_mode(dev, pci_find_capability(dev, PCI_CAP_ID_MSI),
-+					PCI_CAP_ID_MSI);
-+	if (!msi_add_quirk(dev)) 
-+		printk(KERN_WARNING "PCI: PXH quirk detected, disabling MSI for SHPC device\n");
-+	else {
-+		pci_msi_quirk = 1;
-+		printk(KERN_WARNING "PCI: PXH quirk detected, unable to disable MSI for SHPC device, disabling MSI for all devices\n");
-+	}
-+			
-+}
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXHD_0,	quirk_pcie_pxh);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXHD_1,	quirk_pcie_pxh);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXH_0,	quirk_pcie_pxh);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXH_1,	quirk_pcie_pxh);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_PXHV,	quirk_pcie_pxh);
-+
-+
- static void __devinit quirk_netmos(struct pci_dev *dev)
- {
- 	unsigned int num_parallel = (dev->subsystem_device & 0xf0) >> 4;
-diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/include/linux/pci_ids.h linux-2.6.13-rc4-pxhquirk/include/linux/pci_ids.h
---- linux-2.6.13-rc4/include/linux/pci_ids.h	2005-07-28 15:44:44.000000000 -0700
-+++ linux-2.6.13-rc4-pxhquirk/include/linux/pci_ids.h	2005-08-02 13:58:53.000000000 -0700
-@@ -2281,6 +2281,11 @@
- #define PCI_VENDOR_ID_INTEL		0x8086
- #define PCI_DEVICE_ID_INTEL_EESSC	0x0008
- #define PCI_DEVICE_ID_INTEL_21145	0x0039
-+#define PCI_DEVICE_ID_INTEL_PXHD_0	0x0320
-+#define PCI_DEVICE_ID_INTEL_PXHD_1	0x0321
-+#define PCI_DEVICE_ID_INTEL_PXH_0	0x0329
-+#define PCI_DEVICE_ID_INTEL_PXH_1	0x032A
-+#define PCI_DEVICE_ID_INTEL_PXHV	0x032C
- #define PCI_DEVICE_ID_INTEL_82375	0x0482
- #define PCI_DEVICE_ID_INTEL_82424	0x0483
- #define PCI_DEVICE_ID_INTEL_82378	0x0484
+Herbert, I think there are serious consequences for changing the
+TSO counts for packets we have sent out already.  This mucks up
+all of the loss packet counts, which triggers asserts all over
+in tcp_input.c
 
+As you may note, we have all of this special code when we fragment
+packets that updates all of the counters properly.  And we're
+not doing that for the new code that reinits the TSO count when
+the MSS is found to no longer match.
+
+It therefore may be desirable to keep Herbert's fix in there, but
+back out my changes until they can be reimplemented correctly.
+
+Herbert?

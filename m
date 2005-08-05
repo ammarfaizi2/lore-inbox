@@ -1,94 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVHEHJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbVHEHWC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262890AbVHEHJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 03:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVHEHJS
+	id S262896AbVHEHWC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 03:22:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbVHEHWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 03:09:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46027 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262890AbVHEHJP (ORCPT
+	Fri, 5 Aug 2005 03:22:02 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17329 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262896AbVHEHWA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 03:09:15 -0400
-Date: Fri, 5 Aug 2005 15:14:15 +0800
-From: David Teigland <teigland@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: [PATCH 00/14] GFS
-Message-ID: <20050805071415.GC14880@redhat.com>
-References: <20050802071828.GA11217@redhat.com> <1122968724.3247.22.camel@laptopd505.fenrus.org>
+	Fri, 5 Aug 2005 03:22:00 -0400
+Date: Fri, 5 Aug 2005 00:17:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: <jamey@crl.dec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] platform-device driver for MQ11xx graphics chip
+Message-Id: <20050805001737.7bec8de7.akpm@osdl.org>
+In-Reply-To: <20050802192041.C09C5B4262@lspace.crl.dec.com>
+References: <20050802192041.C09C5B4262@lspace.crl.dec.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122968724.3247.22.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02, 2005 at 09:45:24AM +0200, Arjan van de Ven wrote:
-
-> * +static const uint32_t crc_32_tab[] = .....
-> why do you duplicate this? The kernel has a perfectly good set of
-> generic crc32 tables/functions just fine
-
-The gfs2_disk_hash() function and the crc table on which it's based are a
-part of gfs2_ondisk.h: the ondisk metadata specification.  This is a bit
-unusual since gfs uses a hash table on-disk for its directory structure.
-This header, including the hash function/table, must be included by user
-space programs like fsck that want to decipher a fs, and any change to the
-function or table would effectively make the fs corrupted.  Because of
-this I think it's best for gfs to keep it's own copy as part of its ondisk
-format spec.
-
-> * Why are you using bufferheads extensively in a new filesystem?
-
-bh's are used for metadata, the log, and journaled data which need to be
-written at the block granularity, not page.
-
-> why do you use a rwsem and not a regular semaphore? You are aware that
-> rwsems are far more expensive than regular ones right?  How skewed is
-> the read/write ratio?
-
-Aware, yes, it's the only rwsem in gfs.  Specific skew, no, we'll have to
-measure that.
-
-> * +++ b/fs/gfs2/fixed_div64.h	2005-08-01 14:13:08.009808200 +0800
-> ehhhh why?
-
-I'm not sure, actually, apart from the comments:
-
-do_div: /* For ia32 we need to pull some tricks to get past various versions
-           of the compiler which do not like us using do_div in the middle
-           of large functions. */
-
-do_mod: /* Side effect free 64 bit mod operation */
-
-fs/xfs/linux-2.6/xfs_linux.h (the origin of this file) has the same thing,
-perhaps this is an old problem that's now fixed?
-
-> * int gfs2_copy2user(struct buffer_head *bh, char **buf, unsigned int offset,
-> +		   unsigned int size)
-> +{
-> +	int error;
+<jamey@crl.dec.com> wrote:
+>
+> 
+> This patch adds platform_device driver for MQ11xx system-on-chip
+> graphics chip.  This chip is used in several non-PCI ARM and MIPS
+> platforms such as the iPAQ H5550.  Two subsequent patches add
+> support for the framebuffer and USB gadget subdevices.  This patch
+> adds the toplevel driver to drivers/platform because it does not
+> provide any specific functionality (e.g., framebuffer) and it not tied
+> to a named physical bus.  In these platforms, the MQ11xx is tied
+> directly to the host bus.
+> 
+> ...
 > +
-> +	if (bh)
-> +		error = copy_to_user(*buf, bh->b_data + offset, size);
-> +	else
-> +		error = clear_user(*buf, size);
-> 
-> that looks to be missing a few kmaps.. whats the guarantee that b_data
-> is actually, like in lowmem?
+> +static void
+> +mq_free (struct mediaq11xx_base *zis, u32 addr, unsigned size)
+> +{
+> +	int i, j;
+> +	u32 eaddr;
+> +	struct mq_data *mqdata = to_mq_data (zis);
+> +
+> +	size = (size + MEMBLOCK_ALIGN - 1) & ~(MEMBLOCK_ALIGN - 1);
+> +	eaddr = addr + size;
+> +
+> +	spin_lock (&mqdata->mem_lock);
 
-This is only used in the specific case of reading a journaled-data file.
-That seems to effectively be the same as reading a buffer of fs metadata.
+It's unusual for a memory allocate/free function to not be IRQ-safe.  Will
+there never be a requirement that mq_free() or mq_alloc() be called from
+interrupts or softirq's?
 
-> The diaper device is a block device within gfs that gets transparently
-> inserted between the real device the and rest of the filesystem.
-> 
-> hmmmm why not use device mapper or something? Is this really needed?
+> +	spin_unlock (&mqdata->mem_lock);
 
-This is needed for the "withdraw" feature (described in the comment) which
-is fairly important.  We'll see if dm could be used instead.
+You've religiously used the wrong coding style throughout these patches:
+neither core kernel nor arch/arm places a space before the opening paren. 
+A little thing, but easy to get right.
 
-Thanks,
-Dave
+There are eight-spaces where tabs should be in various places too..
 

@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVHEXnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263078AbVHEXpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbVHEXnf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 19:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVHEXnd
+	id S263078AbVHEXpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 19:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVHEXni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 19:43:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55210 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262162AbVHEXnT (ORCPT
+	Fri, 5 Aug 2005 19:43:38 -0400
+Received: from neveragain.de ([217.69.76.1]:31188 "EHLO hobbit.neveragain.de")
+	by vger.kernel.org with ESMTP id S263107AbVHEXn1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 19:43:19 -0400
-Date: Fri, 5 Aug 2005 16:43:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Olof Johansson <olof@lixom.net>
-cc: Stelian Pop <stelian@popies.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Export handle_mm_fault to modules.
-In-Reply-To: <20050805232530.GA8791@austin.ibm.com>
-Message-ID: <Pine.LNX.4.58.0508051642360.3258@g5.osdl.org>
-References: <1123278912.8224.2.camel@localhost.localdomain>
- <Pine.LNX.4.58.0508051558520.3258@g5.osdl.org> <20050805232530.GA8791@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Aug 2005 19:43:27 -0400
+Date: Sat, 6 Aug 2005 01:43:25 +0200
+From: Martin Loschwitz <madkiss@madkiss.org>
+To: Marc Ballarin <Ballarin.Marc@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: local DDOS? Kernel panic when accessing /proc/ioports
+Message-ID: <20050805234325.GA26603@minerva.local.lan>
+References: <20050805192628.GA24706@minerva.local.lan> <20050805195056.GB7991@shell0.pdx.osdl.net> <20050805215247.GA25652@minerva.local.lan> <20050806012909.618810dd.Ballarin.Marc@gmx.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
+Content-Disposition: inline
+In-Reply-To: <20050806012909.618810dd.Ballarin.Marc@gmx.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender succeded SMTP AUTH authentication, not delayed by milter-greylist-1.4 (hobbit.neveragain.de [217.69.76.1]); Sat, 06 Aug 2005 01:43:26 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--IJpNTDwzlM2Ie8A6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 5 Aug 2005, Olof Johansson wrote:
->
-> On Fri, Aug 05, 2005 at 04:02:13PM -0700, Linus Torvalds wrote:
-> 
-> > The only thing that has ever exported it afaik is
-> > 
-> > 	arch/ppc/kernel/ppc_ksyms.c:EXPORT_SYMBOL(handle_mm_fault); /* For MOL */
-> > 
-> > and that looks pretty suspicious too (what is MOL, and regardless, 
-> > shouldn't it be an EXPORT_SYMBOL_GPL?).
-> 
-> Mac-on-Linux, see http://www.maconlinux.org/. Run MacOS in a virtualized
-> machine under Linux (or the other way around). It's GPL.
+On Sat, Aug 06, 2005 at 01:29:09AM +0200, Marc Ballarin wrote:
+> On Fri, 5 Aug 2005 23:52:47 +0200
+> Martin Loschwitz <madkiss@madkiss.org> wrote:
+>=20
+> >=20
+> > The situation in this case is somewhat obscene ... Originally, I had ex=
+actly
+> > this problem while using the Knoppix standard kernel (2.6.11 vanilla SM=
+P). I
+> > then went to compile 2.6.12.3, also with SMP, and it showed exactly the=
+ same
+> > problem. I disable SMP, tried again -- voila, it worked.
+> >=20
+> > The kernel that I am encountering this error again now is 2.6.12.3 -- w=
+ithout
+> > SMP or whatsoever. I'm just out of ideas on how to fix it this time.
+>=20
+> Did you always use the same machine? If so, can you rule out hardware
+> issues? Can you reproduce this Oops at will?
+>=20
+I tried it on different machines -- same effect. Yes, I can reproduce it at
+will.
 
-Ok. Then I suspect the right patch is this one. Stelian, can you verify?
+> I can't reproduce this on various machines (all X86, kernels  2.6.11.9,
+> 2.6.12.2, 2.6.13-rc4-mm1, no SMP)
+>=20
+> Regards
 
-		Linus
----
-diff --git a/arch/ppc/kernel/ppc_ksyms.c b/arch/ppc/kernel/ppc_ksyms.c
---- a/arch/ppc/kernel/ppc_ksyms.c
-+++ b/arch/ppc/kernel/ppc_ksyms.c
-@@ -324,7 +324,7 @@ EXPORT_SYMBOL(__res);
- 
- EXPORT_SYMBOL(next_mmu_context);
- EXPORT_SYMBOL(set_context);
--EXPORT_SYMBOL(handle_mm_fault); /* For MOL */
-+EXPORT_SYMBOL_GPL(__handle_mm_fault); /* For MOL */
- EXPORT_SYMBOL(disarm_decr);
- #ifdef CONFIG_PPC_STD_MMU
- extern long mol_trampoline;
+--=20
+  .''`.   Martin Loschwitz           Debian GNU/Linux developer
+ : :'  :  madkiss@madkiss.org        madkiss@debian.org
+ `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
+   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
+
+--IJpNTDwzlM2Ie8A6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC8/mdHPo+jNcUXjARAgpFAJwLARriMZZeCKZ7aR40JLO4XR9aYQCgtWVF
+zg6dffE7+39Ub/5v7T9Kedg=
+=RcVX
+-----END PGP SIGNATURE-----
+
+--IJpNTDwzlM2Ie8A6--

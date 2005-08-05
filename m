@@ -1,132 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263022AbVHENzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263030AbVHEN4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263022AbVHENzX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 09:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbVHENzW
+	id S263030AbVHEN4v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 09:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVHEN4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 09:55:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:20067 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263022AbVHENzU (ORCPT
+	Fri, 5 Aug 2005 09:56:50 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59544 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S263025AbVHENzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 09:55:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=UOmt9hKUYcCSU8IO4t+B/OictIG9F7U+zc4VR5AsbL3Bn178rjiC5I/8Ui0JCRVr89R3o0jfhWmWadoG1wD1qdj/hSJXJCNS8g1V0tJWA0F6/n2buMU4nAa9GTuOqdQtyVrYlldNYMlmq0CggUEX75jigcldZ0NKiurwAg1TpDs=
-Message-ID: <9268368b050805065545d35ac5@mail.gmail.com>
-Date: Fri, 5 Aug 2005 09:55:19 -0400
-From: Daniel Petrini <d.pensator@gmail.com>
-Reply-To: Daniel Petrini <d.pensator@gmail.com>
-To: Jens Axboe <axboe@suse.de>, ck@vds.kolivas.org
-Subject: Re: [ck] [PATCH] Timer Top was: i386 No-Idle-Hz aka Dynamic-Ticks 3
-Cc: Con Kolivas <kernel@kolivas.org>, tony@atomide.com,
-       tuukka.tikkanen@elektrobit.com, linux-kernel@vger.kernel.org,
-       ilias.biris@indt.org.br
-In-Reply-To: <9268368b05080505397b1d4bfb@mail.gmail.com>
+	Fri, 5 Aug 2005 09:55:53 -0400
+Date: Fri, 5 Aug 2005 15:55:51 +0200
+From: Andi Kleen <ak@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       John B?ckstrand <sandos@home.se>
+Subject: Re: lockups with netconsole on e1000 on media insertion
+Message-ID: <20050805135551.GQ8266@wotan.suse.de>
+References: <42F347D2.7000207@home.se.suse.lists.linux.kernel> <p73ek987gjw.fsf@bragg.suse.de> <1123249743.18332.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_7664_24645536.1123250119962"
-References: <200508031559.24704.kernel@kolivas.org>
-	 <9268368b050804141525539666@mail.gmail.com>
-	 <20050805064617.GL9369@suse.de>
-	 <9268368b05080505397b1d4bfb@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1123249743.18332.16.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_7664_24645536.1123250119962
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> This is fixing the symptom and is not the cure.  Unfortunately I don't
+> have a e1000 card so I can't try a fix. But I did have a e100 card that
+> would lock up the same way.  The problem was that netpoll_poll calls the
+> cards netpoll routine (in e1000_main.c e1000_netpoll).  In the e100
+> case, when the transmit buffer would fill up, the queue would go down.
+> But the netpoll routine in the e100 code never put it back up after it
+> was all transfered. So this would lock up the kernel when that happened.
 
-Hi,
+In my case the hang happened when no cable was connected.
 
-Here we have a new version that includes Jens Axboe's corrections and
-Con Kolivas tweaks.
+There is no way to handle this in any other way. You eventually
+have to bail out.
 
-Thanks,
+>  
+>  repeat:
+> -	if(!np || !np->dev || !netif_running(np->dev)) {
+> +	if(try-- == 0 || !np || !np->dev || !netif_running(np->dev)) {
+> +		if (!try)
+> +			printk(KERN_WARNING "net driver is stuck down, maybe a"
+> +					" problem with the driver's netpoll\n");
 
-Daniel
---=20
-10LE - Linux
-INdT - Manaus - Brazil
+... and nobody will see that. It will not even trigger an output.
 
-------=_Part_7664_24645536.1123250119962
-Content-Type: text/x-patch; name="timer_top3-20050805.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="timer_top3-20050805.patch"
+-Andi
 
-ZGlmZiAtdXByTiBsaW51eC0yLjYuMTItb3JpZy9rZXJuZWwvTWFrZWZpbGUgbGludXgtZHluLXRp
-Y2sva2VybmVsL01ha2VmaWxlCi0tLSBsaW51eC0yLjYuMTItb3JpZy9rZXJuZWwvTWFrZWZpbGUJ
-MjAwNS0wOC0wNSAwOTozMzoyNC4wMDAwMDAwMDAgLTA0MDAKKysrIGxpbnV4LWR5bi10aWNrL2tl
-cm5lbC9NYWtlZmlsZQkyMDA1LTA4LTA1IDA5OjI4OjE4LjAwMDAwMDAwMCAtMDQwMApAQCAtMzAs
-NyArMzAsNyBAQCBvYmotJChDT05GSUdfU1lTRlMpICs9IGtzeXNmcy5vCiBvYmotJChDT05GSUdf
-R0VORVJJQ19IQVJESVJRUykgKz0gaXJxLwogb2JqLSQoQ09ORklHX0NSQVNIX0RVTVApICs9IGNy
-YXNoX2R1bXAubwogb2JqLSQoQ09ORklHX1NFQ0NPTVApICs9IHNlY2NvbXAubwotb2JqLSQoQ09O
-RklHX05PX0lETEVfSFopICs9IGR5bi10aWNrLm8KK29iai0kKENPTkZJR19OT19JRExFX0haKSAr
-PSBkeW4tdGljay5vIHRpbWVyX3RvcC5vCiAKIGlmbmVxICgkKENPTkZJR19TQ0hFRF9OT19OT19P
-TUlUX0ZSQU1FX1BPSU5URVIpLHkpCiAjIEFjY29yZGluZyB0byBBbGFuIE1vZHJhIDxhbGFuQGxp
-bnV4Y2FyZS5jb20uYXU+LCB0aGUgLWZuby1vbWl0LWZyYW1lLXBvaW50ZXIgaXMKZGlmZiAtdXBy
-TiBsaW51eC0yLjYuMTItb3JpZy9rZXJuZWwvdGltZXIuYyBsaW51eC1keW4tdGljay9rZXJuZWwv
-dGltZXIuYwotLS0gbGludXgtMi42LjEyLW9yaWcva2VybmVsL3RpbWVyLmMJMjAwNS0wOC0wNSAw
-OTozMzozMS4wMDAwMDAwMDAgLTA0MDAKKysrIGxpbnV4LWR5bi10aWNrL2tlcm5lbC90aW1lci5j
-CTIwMDUtMDgtMDUgMDk6Mzg6MzMuMDAwMDAwMDAwIC0wNDAwCkBAIC01MDgsNiArNTA4LDkgQEAg
-c3RhdGljIGlubGluZSB2b2lkIF9fcnVuX3RpbWVycyh0dmVjX2JhcwogfQogCiAjaWZkZWYgQ09O
-RklHX05PX0lETEVfSFoKK2V4dGVybiBzdHJ1Y3QgdGltZXJfdG9wX2luZm8gdG9wX2luZm87Citl
-eHRlcm4gaW50IGFjY291bnRfdGltZXIodW5zaWduZWQgaW50IGZ1bmN0aW9uLAorCSAgICAgICAJ
-CXN0cnVjdCB0aW1lcl90b3BfaW5mbyAqIHRvcF9pbmZvKTsKIC8qCiAgKiBGaW5kIG91dCB3aGVu
-IHRoZSBuZXh0IHRpbWVyIGV2ZW50IGlzIGR1ZSB0byBoYXBwZW4uIFRoaXMKICAqIGlzIHVzZWQg
-b24gUy8zOTAgdG8gc3RvcCBhbGwgYWN0aXZpdHkgd2hlbiBhIGNwdXMgaXMgaWRsZS4KQEAgLTU3
-MSw2ICs1NzQsNyBAQCBmb3VuZDoKIAkJCQlleHBpcmVzID0gbnRlLT5leHBpcmVzOwogCQl9CiAJ
-fQorCWFjY291bnRfdGltZXIoKHVuc2lnbmVkIGludCludGUtPmZ1bmN0aW9uLCAmdG9wX2luZm8p
-OwogCXNwaW5fdW5sb2NrKCZiYXNlLT50X2Jhc2UubG9jayk7CiAJcmV0dXJuIGV4cGlyZXM7CiB9
-CmRpZmYgLXVwck4gbGludXgtMi42LjEyLW9yaWcva2VybmVsL3RpbWVyX3RvcC5jIGxpbnV4LWR5
-bi10aWNrL2tlcm5lbC90aW1lcl90b3AuYwotLS0gbGludXgtMi42LjEyLW9yaWcva2VybmVsL3Rp
-bWVyX3RvcC5jCTE5NjktMTItMzEgMjA6MDA6MDAuMDAwMDAwMDAwIC0wNDAwCisrKyBsaW51eC1k
-eW4tdGljay9rZXJuZWwvdGltZXJfdG9wLmMJMjAwNS0wOC0wNSAwOToyODozOC4wMDAwMDAwMDAg
-LTA0MDAKQEAgLTAsMCArMSwxMDggQEAKKy8qCisgKiBrZXJuZWwvdGltZXJfdG9wLmMKKyAqCisg
-KiBFeHBvcnQgVGltZXJzIGluZm9ybWF0aW9uIHRvIC9wcm9jL3RvcF9pbmZvCisgKgorICogQ29w
-eXJpZ2h0IChDKSAyMDA1IEluc3RpdHV0byBOb2tpYSBkZSBUZWNub2xvZ2lhIC0gSU5kVCAtIE1h
-bmF1cworICogV3JpdHRlbiBieSBEYW5pZWwgUGV0cmluaSA8ZC5wZW5zYXRvckBnbWFpbC5jb20+
-CisgKgorICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmli
-dXRlIGl0IGFuZC9vciBtb2RpZnkKKyAqIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdl
-bmVyYWwgUHVibGljIExpY2Vuc2UgdmVyc2lvbiAyIGFzCisgKiBwdWJsaXNoZWQgYnkgdGhlIEZy
-ZWUgU29mdHdhcmUgRm91bmRhdGlvbi4KKyAqLworCisKKyNpbmNsdWRlIDxsaW51eC9saXN0Lmg+
-CisjaW5jbHVkZSA8bGludXgvcHJvY19mcy5oPgorI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgor
-I2luY2x1ZGUgPGxpbnV4L3NwaW5sb2NrLmg+CisKK3N0YXRpYyBMSVNUX0hFQUQodGltZXJfbGlz
-dCk7CisKK3N0cnVjdCB0aW1lcl90b3BfaW5mbyB7CisJdW5zaWduZWQgaW50CQlmdW5jX3BvaW50
-ZXI7CisJdW5zaWduZWQgbG9uZwkJY291bnRlcjsKKwlzdHJ1Y3QgbGlzdF9oZWFkIAlsaXN0OyAg
-ICAgIAkKK307CisKK3N0cnVjdCB0aW1lcl90b3BfaW5mbyB0b3BfaW5mbzsKKworc3RhdGljIHNw
-aW5sb2NrX3QgdGltZXJfbG9jayA9IFNQSU5fTE9DS19VTkxPQ0tFRDsKK3N0YXRpYyB1bnNpZ25l
-ZCBsb25nIGZsYWdzOworCisKK2ludCBhY2NvdW50X3RpbWVyKHVuc2lnbmVkIGludCBmdW5jdGlv
-biwgc3RydWN0IHRpbWVyX3RvcF9pbmZvICogdG9wX2luZm8pCit7CisJc3RydWN0IHRpbWVyX3Rv
-cF9pbmZvICp0b3A7CisKKwlzcGluX2xvY2tfaXJxc2F2ZSgmdGltZXJfbG9jaywgZmxhZ3MpOwor
-CisJbGlzdF9mb3JfZWFjaF9lbnRyeSh0b3AsICZ0aW1lcl9saXN0LCBsaXN0KSB7CisJCS8qIGlm
-IGl0IGlzIGluIHRoZSBsaXN0IGluY3JlbWVudCBpdHMgY291bnQgKi8KKwkJaWYgKHRvcC0+ZnVu
-Y19wb2ludGVyID09IGZ1bmN0aW9uKSB7CisJCQl0b3AtPmNvdW50ZXIrKzsKKwkJCXNwaW5fdW5s
-b2NrX2lycXJlc3RvcmUoJnRpbWVyX2xvY2ssIGZsYWdzKTsKKwkJCWdvdG8gb3V0OworCQl9CisJ
-fQorCQorCS8qIGlmIHlvdSBhcmUgaGVyZSB0aGVuIGl0IGRpZG50IGZpbmQgc28gaW5zZXJ0cyBp
-biB0aGUgbGlzdCAqLworCisJdG9wID0ga21hbGxvYyhzaXplb2Yoc3RydWN0IHRpbWVyX3RvcF9p
-bmZvKSwgR0ZQX0FUT01JQyk7CisJaWYgKCF0b3ApIAorCQlyZXR1cm4gLUVOT01FTTsKKwl0b3At
-PmZ1bmNfcG9pbnRlciA9IGZ1bmN0aW9uOworCXRvcC0+Y291bnRlciA9IDE7CisJbGlzdF9hZGQo
-JnRvcC0+bGlzdCwgJnRpbWVyX2xpc3QpOworCisJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmdGlt
-ZXJfbG9jaywgZmxhZ3MpOworCitvdXQ6CQorCXJldHVybiAwOworfQorCitFWFBPUlRfU1lNQk9M
-KGFjY291bnRfdGltZXIpOworCitzdHJ1Y3QgdG9wX2luZm9fcG9sbCB7CisJY2hhciB2YWx1ZVsx
-OF07Cit9OworCitzdGF0aWMgc3RydWN0IHRvcF9pbmZvX3BvbGwgdG9wX2luZm9fcG9sbF9kdDsK
-K3N0YXRpYyBzdHJ1Y3QgcHJvY19kaXJfZW50cnkgKnRvcF9pbmZvX2ZpbGU7CisKK3N0YXRpYyBp
-bnQgcHJvY19yZWFkX3RvcF9pbmZvKGNoYXIgKnBhZ2UsIGNoYXIgKipzdGFydCwgb2ZmX3Qgb2Zm
-LAorCQkJCWludCBjb3VudCwgaW50ICplb2YsIHZvaWQgKmRhdGEpCit7CisJY2hhciBhdXhbMThd
-OworCXN0cnVjdCB0aW1lcl90b3BfaW5mbyAqdG9wOworCisJc3RydWN0IHRvcF9pbmZvX3BvbGwg
-KmluZm9fcG9sbF9kYXRhPShzdHJ1Y3QgdG9wX2luZm9fcG9sbCAqKWRhdGE7CisKKwlzcHJpbnRm
-KHBhZ2UsICJGdW5jdGlvbiBjb3VudGVyIC0gJXNcbiIsIGluZm9fcG9sbF9kYXRhLT52YWx1ZSk7
-CisKKwlsaXN0X2Zvcl9lYWNoX2VudHJ5KHRvcCwgJnRpbWVyX2xpc3QsIGxpc3QpIHsKKwkJc3By
-aW50ZihhdXgsICIleCAlbHVcbiIsIHRvcC0+ZnVuY19wb2ludGVyLCB0b3AtPmNvdW50ZXIpOwor
-CQlzdHJjYXQocGFnZSwgYXV4KTsKKwl9CisKKwlyZXR1cm4gc3RybGVuKHBhZ2UpOworfSAKKwor
-c3RhdGljIGludCBpbml0X3RvcF9pbmZvKHZvaWQpCit7CisJdG9wX2luZm9fZmlsZSA9IGNyZWF0
-ZV9wcm9jX2VudHJ5KCJ0b3BfaW5mbyIsIDA2NjYsIE5VTEwpOworCWlmICh0b3BfaW5mb19maWxl
-ID09IE5VTEwpIHsKKwkJcmV0dXJuIC1FTk9NRU07CisJfQorCisJc3RyY3B5KHRvcF9pbmZvX3Bv
-bGxfZHQudmFsdWUsICJUaW1lciBUb3AgdjAuOS4xIik7CisKKwl0b3BfaW5mb19maWxlLT5kYXRh
-ID0gJnRvcF9pbmZvX3BvbGxfZHQ7CisJdG9wX2luZm9fZmlsZS0+cmVhZF9wcm9jID0gJnByb2Nf
-cmVhZF90b3BfaW5mbzsKKwl0b3BfaW5mb19maWxlLT5vd25lciA9IFRISVNfTU9EVUxFOworCQor
-CXJldHVybiAwOworfQorCittb2R1bGVfaW5pdChpbml0X3RvcF9pbmZvKTsKKy8vbW9kdWxlX2V4
-aXQoKTsK
-------=_Part_7664_24645536.1123250119962--

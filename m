@@ -1,189 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263006AbVHEMta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263007AbVHEMyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263006AbVHEMta (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 08:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbVHEMta
+	id S263007AbVHEMyT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 08:54:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbVHEMyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 08:49:30 -0400
-Received: from pop.gmx.de ([213.165.64.20]:53640 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263006AbVHEMt3 (ORCPT
+	Fri, 5 Aug 2005 08:54:19 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:7817 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S263007AbVHEMyS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 08:49:29 -0400
-Date: Fri, 5 Aug 2005 14:49:28 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: dwmw2@infradead.org
-Cc: drepper@redhat.com, jakub@redhat.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, michael.kerrisk@gmx.net
+	Fri, 5 Aug 2005 08:54:18 -0400
+Message-ID: <42F3617E.9040808@gmail.com>
+Date: Fri, 05 Aug 2005 14:54:22 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-References: <11156.1123243084@www3.gmx.net>
-Subject: =?ISO-8859-1?Q?Re:_Add_pselect,_ppoll_system_calls.?=
-X-Priority: 3 (Normal)
-X-Authenticated: #23581172
-Message-ID: <25911.1123246168@www3.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] sunrpc as module and bad proc/sys link count
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Hello.
+When sunrpc is as module, sysctl adds to proc fs proc/sys/sunrpc, adds 1 
+to number of proc/sys link (see later), but when it's ls-ed, there is 
+still old count.
+I.e.
+my proc/sys before modprobe-ing sunrpc:
+# ls -la /proc/sys
+celkem 0
+dr-xr-xr-x    9 root root 0 srp  5 12:43 .
+dr-xr-xr-x  114 root root 0 srp  5  2005 ..
+dr-xr-xr-x    2 root root 0 srp  5 14:33 debug
+dr-xr-xr-x    4 root root 0 srp  5 14:33 dev
+dr-xr-xr-x    5 root root 0 srp  5 12:43 fs
+drwxr-xr-x    5 root root 0 srp  5 14:33 kernel
+dr-xr-xr-x    7 root root 0 srp  5 14:33 net
+dr-xr-xr-x    2 root root 0 srp  5 14:33 proc
+dr-xr-xr-x    2 root root 0 srp  5 14:33 vm
+# stat /proc/sys
+  File: `/proc/sys'
+  Size: 0               Blocks: 0          IO Block: 1024   directory
+Device: 3h/3d   Inode: -268435429  Links: 9
+*[BTW This seems like bad interpretation of the un/signed number (real 
+inode from ls out is 4026531867.]*
+Access: (0555/dr-xr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2005-08-05 12:43:12.066160750 +0200
+Modify: 2005-08-05 12:43:12.066160750 +0200
+Change: 2005-08-05 12:43:12.066160750 +0200
 
-Not sure if your message below was meant as a reply-all or not,
-but I've brought it back onto the list.
+after:
+#modprobe sunrpc
+#ls -la /proc/sys
+celkem 0
+dr-xr-xr-x    9 root root 0 srp  5 12:43 . <-- The 9 here should be now 10
+dr-xr-xr-x  114 root root 0 srp  5  2005 ..
+dr-xr-xr-x    2 root root 0 srp  5 14:35 debug
+dr-xr-xr-x    4 root root 0 srp  5 14:35 dev
+dr-xr-xr-x    5 root root 0 srp  5 12:43 fs
+drwxr-xr-x    5 root root 0 srp  5 14:35 kernel
+dr-xr-xr-x    7 root root 0 srp  5 14:35 net
+dr-xr-xr-x    2 root root 0 srp  5 14:35 proc
+dr-xr-xr-x    2 root root 0 srp  5 14:35 sunrpc
+dr-xr-xr-x    2 root root 0 srp  5 14:35 vm
+# stat /proc/sys
+  File: `/proc/sys'
+  Size: 0               Blocks: 0          IO Block: 1024   directory
+Device: 3h/3d   Inode: -268435429  Links: 9
+Access: (0555/dr-xr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2005-08-05 12:43:12.066160750 +0200
+Modify: 2005-08-05 12:43:12.066160750 +0200
+Change: 2005-08-05 12:43:12.066160750 +0200
 
-There are some problems with your test program -- 
-it's not actually using pselect() in proper way, which is:
+When I add printk to proc/generic.c into create_proc_entry before and 
+after proc_register, it prints 9 and after 10 (so the nlink is added here).
 
-    /* Block signals that will be later unblocked by pselect() */
+On the other side, when sunrpc is in the kernel (not as module) it works 
+fine, and the count returned by proc fs is 10, so ok.
 
-    sigemptyset(&block);
-    sigaddset(&block, SIGINT);
-    sigprocmask(SIG_BLOCK, &block, NULL);
-
-    sigemptyset(&set);
-    status = my_pselect(1, &s, NULL, NULL, &timeout, &set);
-
-If I change your program to do something like the above, I also
-do not see a message from the handler -- i.e., it is not being
-called, and I'm pretty sure it should be.
-
-Below, is my modified version of your program -- it uses SIGINT.
-
-Cheers,
-
-Michael
-
-#define _GNU_SOURCE
-#include <syscall.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/select.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-
-#define __NR_pselect6 289
-
-static int my_pselect(int   n,
-       fd_set   *readfds,  fd_set  *writefds,  fd_set
-       *exceptfds, const struct timespec *timeout, sigset_t *sigmask)
-{
-        struct {
-                sigset_t *set;
-                size_t size;
-        } __attribute__((packed)) arg6;
-
-        arg6.size = 8;
-        arg6.set = sigmask;
-        return syscall(__NR_pselect6, n, readfds, writefds,
-                exceptfds, timeout, &arg6);
-}
-
-static void usr1_handler(int signo)
-{
-        write(1, "handler called\n", 20);
-}
-
-
-int main(void)
-{
-        fd_set s;
-        int status;
-        sigset_t set, block;
-        struct timespec timeout;
-
-        timeout.tv_sec = 30;
-        timeout.tv_nsec = 0;
-
-        FD_ZERO(&s);
-        FD_SET(0, &s);
-
-        signal(SIGINT, usr1_handler);
-
-        sigemptyset(&block);
-        sigaddset(&block, SIGINT);
-        sigprocmask(SIG_BLOCK, &block, NULL);
-
-        sigemptyset(&set);
-        status = my_pselect(1, &s, NULL, NULL, &timeout, &set);
-        printf("status=%d\n", status);
-        if (status == -1) perror("pselect");
-}
-
---- Weitergeleitete Nachricht ---
-Von: David Woodhouse <dwmw2@infradead.org>
-An: Michael Kerrisk <mtk-lkml@gmx.net>
-Betreff: Re: Add pselect, ppoll system calls.
-Datum: Fri, 05 Aug 2005 13:03:14 +0100
-
-This is the test program I used. I send it SIGUSR1 manually.
-
-#define __USE_MISC
-#include <unistd.h>
-#include <signal.h>
-#include <sys/select.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-
-#define __NR_pselect6 273
-
-int my_pselect(int   n,   fd_set   *readfds,  fd_set  *writefds,  fd_set
-       *exceptfds, const struct timespec *timeout, const sigset_t *sigmask)
-{
-        struct {
-                sigset_t *set;
-                size_t size;
-        } __attribute__((packed)) arg6;
-
-        arg6.size = 8;
-        arg6.set = sigmask;
-        return syscall(__NR_pselect6, n, readfds, writefds, exceptfds,
-timeout, &arg6);
-}
-
-void usr1_handler(int signo)
-{
-        write(1, "usr1_handler called\n", 20);
-}
-int main(void)
-{
-        fd_set s;
-        int p;
-        char buf[80];
-        sigset_t set;
-        fcntl(0, F_SETFL, O_NONBLOCK | fcntl(0, F_GETFL));
-
-        FD_ZERO(&s);
-        FD_SET(0, &s);
-
-        sigfillset(&set);
-
-        signal(SIGUSR1, usr1_handler);
-
-        printf("I am %d\n", getpid());
-
-        while (1) {
-                printf("Block usr1\n");
-                fflush(stdout);
-                sigaddset(&set, SIGUSR1);
-                my_pselect(1, &s, NULL, NULL, NULL, &set);
-                read(0, buf, 80);
-                printf("Allow usr1\n");
-                fflush(stdout);
-                sigdelset(&set, SIGUSR1);
-                my_pselect(1, &s, NULL, NULL, NULL, &set);
-                read(0, buf, 80);
-        }
-
-}
-
+This appears in kernels 2.6.11.12 through 2.6.13-rc4-mm1, maybe in older 
+kernels too.
 
 -- 
-5 GB Mailbox, 50 FreeSMS http://www.gmx.net/de/go/promail
-+++ GMX - die erste Adresse für Mail, Message, More +++
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
+

@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262885AbVHEGqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262884AbVHEGtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbVHEGqq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 02:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbVHEGqp
+	id S262884AbVHEGtA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 02:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbVHEGqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 02:46:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:5793 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262885AbVHEGoa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 02:44:30 -0400
-Date: Fri, 5 Aug 2005 08:46:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Daniel Petrini <d.pensator@gmail.com>
-Cc: Con Kolivas <kernel@kolivas.org>, tony@atomide.com, ck@vds.kolivas.org,
-       tuukka.tikkanen@elektrobit.com, linux-kernel@vger.kernel.org,
-       ilias.biris@indt.org.br
-Subject: Re: [ck] [PATCH] Timer Top was: i386 No-Idle-Hz aka Dynamic-Ticks 3
-Message-ID: <20050805064617.GL9369@suse.de>
-References: <200508031559.24704.kernel@kolivas.org> <9268368b050804141525539666@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9268368b050804141525539666@mail.gmail.com>
+	Fri, 5 Aug 2005 02:46:52 -0400
+Received: from mailserv.aei.mpg.de ([194.94.224.6]:27312 "EHLO
+	mailserv.aei.mpg.de") by vger.kernel.org with ESMTP id S262884AbVHEGqk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 02:46:40 -0400
+Message-ID: <42F30B42.1020806@freenet.de>
+Date: Fri, 05 Aug 2005 08:46:26 +0200
+From: Frank Loeffler <knarf.loeffler@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: de-de, de, en, en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ryan Brown <some.nzguy@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, vojtech@suse.cz,
+       dtor_core@ameritech.net
+Subject: Re: [linux-usb-devel] Re: Fw: ati-remote strangeness from 2.6.12
+ onwards
+References: <20050730173253.693484a2.akpm@osdl.org>	<1c1c8636050801220442d8351c@mail.gmail.com>	<20050804101515.4a983b29.akpm@osdl.org>	<1c1c863605080415233c6aac0@mail.gmail.com> <20050804154442.7e739886.akpm@osdl.org>
+In-Reply-To: <20050804154442.7e739886.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 04 2005, Daniel Petrini wrote:
-> +static LIST_HEAD(timer_list);
-> +
-> +struct timer_top_info {
-> +	unsigned int		func_pointer;
-> +	unsigned int long	counter;
-> +	struct list_head 	list;      	
-> +};
-> +
-> +struct timer_top_info top_info;
-> +
-> +int account_timer(unsigned int function, struct timer_top_info * top_info)
-> +{
-> +	struct timer_top_info *top;
-> +
-> +	list_for_each_entry (top, &timer_list, list) {
-> +		/* if it is in the list increment its count */
-> +		if (top->func_pointer == function) {
-> +			top->counter += 1;
-> +			return 0;
-> +		}
-> +	}
+Hi,
 
-What protects this list?
+Andrew Morton wrote:
+> IOW: what does this (wordwrapped!) patch do?
 
-> +	
-> +	/* if you are here then it didnt find so inserts in the list */
-> +
-> +	top = kmalloc(sizeof(struct timer_top_info), GFP_KERNEL);
-> +	if (!top) 
-> +		return -ENOMEM;
+It changes the keycode the kernel is sending for three keys. For normal 
+keyboards there is usually no argument to which keycode to send. An 'a' 
+would send the keycoe for an 'a'. This however is a remote control. The 
+keys are labled 'OK', 'TV' and 'DVD'. Therefore the kernel currently 
+sends the keycodes KEY_OK, KEY_TV and KEY_DVD. The patch changes this to 
+KEY_ENTER, KEY_PROG1 and KEY_PROG2.
 
-You can't use GFP_KERNEL here, you are inside the timer base lock.
+I do not know about the motivation of this patch, as the kernel 
+currently _does_ send keycodes, maybe just not the ones the some users 
+might want. IMHO this is an issue of remapping the keycodes in userspace 
+and I would like to leave the kernel-codes alone. However, I might not 
+see the whole problem here because it is working fine for me.
 
--- 
-Jens Axboe
+Btw, Pavel:
+
+ > No, I think that you can still diferentiate between them ... they come
+ > from different keyboard after all. See /dev/input/event*.
+
+How can I tell the consoles of linux which keyboard to use? So far they 
+all use all keyboards (which is my usual keyboard mixed with the remote 
+control keys). (Yes, I searched google extensivly and no, I do not have 
+X on that machine.)
+
+Frank
 

@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVHERNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263091AbVHERUD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262447AbVHERNI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 13:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263083AbVHERND
+	id S263091AbVHERUD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 13:20:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263090AbVHERTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 13:13:03 -0400
-Received: from mail23.sea5.speakeasy.net ([69.17.117.25]:3791 "EHLO
-	mail23.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S262447AbVHERKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 13:10:16 -0400
-Date: Fri, 5 Aug 2005 13:10:12 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: Antoine Martin <antoine@nagafix.co.uk>
-cc: linux-kernel@vger.kernel.org, "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: preempt with selinux NULL pointer dereference
-In-Reply-To: <1123260373.4471.8.camel@dhcp-192-168-22-217.internal>
-Message-ID: <Pine.LNX.4.63.0508051309360.1149@excalibur.intercode>
-References: <1123234785.7889.7.camel@dhcp-192-168-22-217.internal> 
- <Pine.LNX.4.63.0508051024100.559@excalibur.intercode>
- <1123260373.4471.8.camel@dhcp-192-168-22-217.internal>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 5 Aug 2005 13:19:51 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:54933 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S263085AbVHERSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 13:18:17 -0400
+Subject: Re: Bigger, harder, and longer - lasting results NOW with a
+	discreet little patch.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <77789118807.123231100743@218.56.244.119>
+References: <77789118807.123231100743@218.56.244.119>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 05 Aug 2005 13:18:12 -0400
+Message-Id: <1123262292.18332.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Aug 2005, Antoine Martin wrote:
+Linux ... Bigger, harder, lower latency results NOW with a discreet
+little patch.
 
-> # cat /proc/sys/kernel/tainted
-> 16
-> Even figuring out the definition of the 'tainted' masks took a bit of
-> googling.
-
-Try something like:
-
-   cat /proc/modules | cut -f1 -d ' '| xargs modinfo
+http://people.redhat.com/mingo/realtime-preempt/
 
 
--- 
-James Morris
-<jmorris@namei.org>
+Sorry, I just couldn't resist!
+
+-- Steve
+
+

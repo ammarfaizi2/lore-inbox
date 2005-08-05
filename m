@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVHEGcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbVHEGiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbVHEGcB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 02:32:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbVHEGcA
+	id S262873AbVHEGiU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 02:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVHEGiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 02:32:00 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:2028 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262878AbVHEGbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 02:31:48 -0400
-Message-ID: <42F307C4.9010503@davyandbeth.com>
-Date: Fri, 05 Aug 2005 01:31:32 -0500
-From: Davy Durham <pubaddr2@davyandbeth.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: /proc question
-References: <42F30252.3080105@davyandbeth.com> <Pine.LNX.4.61.0508050823530.20623@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0508050823530.20623@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 5 Aug 2005 02:38:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29352 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262873AbVHEGiT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 02:38:19 -0400
+Date: Thu, 4 Aug 2005 23:36:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: linux-kernel@vger.kernel.org, pmarques@grupopie.com
+Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
+Message-Id: <20050804233634.1406e92a.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI>
+References: <1123219747.20398.1.camel@localhost>
+	<20050804223842.2b3abeee.akpm@osdl.org>
+	<Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+>
+> [PATCH] use kzalloc instead of kmalloc/memset
+> 
 
->>I have a zombie process which has apparently died for some unknown reason.. I
->>know it was terminated by a signal (found that from the 9th field (sheduler
->>flags) in /proc/pid/stat)
->>    
->>
->
->Start the process under the observation of strace.
->
+dammit, I was hoping for akpmalloc()
+
 >  
->
->>However, I'm trying to figure out what signal killed it.
->>    
->>
->
->
->Jan Engelhardt
->  
->
-Wish I could.. but it's already happened (to a lot of processes for the 
-same reason)
+> +static inline void *kzalloc(size_t size, unsigned int __nocast flags)
+> +{
+> +	return kcalloc(1, size, flags);
+> +}
+> +
 
-It's an intermittant problem and can't really reproduce it at will.
+That'll generate just as much code as simply using kcalloc(1, ...).  This
+function should be out-of-line and EXPORT_SYMBOL()ed.  And kcalloc() can
+call it too..
 
-I've redeployed the binary now so I can hopefully attach to it with gdb 
-to figure out some things next time it does happen.

@@ -1,325 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262947AbVHETE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVHETGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262947AbVHETE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 15:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbVHETDN
+	id S262718AbVHETGx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 15:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbVHETEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 15:03:13 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:56237 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263101AbVHES7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 14:59:41 -0400
-Subject: Re: [PATCH] new contact info
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, rajesh.shah@intel.com
-In-Reply-To: <20050805183626.GB32405@kroah.com>
-References: <1123260594.8917.13.camel@whizzy>
-	 <200508051109.56230.bjorn.helgaas@hp.com> <1123265168.8917.22.camel@whizzy>
-	 <20050805183626.GB32405@kroah.com>
-Content-Type: text/plain
+	Fri, 5 Aug 2005 15:04:37 -0400
+Received: from imap.gmx.net ([213.165.64.20]:160 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262718AbVHETDG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 15:03:06 -0400
+X-Authenticated: #3439220
+From: Martin Maurer <martinmaurer@gmx.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Elitegroup K7S5A + usb_storage problem
+Date: Fri, 5 Aug 2005 21:02:57 +0200
+User-Agent: KMail/1.7.2
+References: <200508051751.34496.martinmaurer@gmx.at>
+In-Reply-To: <200508051751.34496.martinmaurer@gmx.at>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1204521.Fj763hPrA9";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Date: Fri, 05 Aug 2005 11:59:28 -0700
-Message-Id: <1123268368.8917.30.camel@whizzy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-X-OriginalArrivalTime: 05 Aug 2005 18:59:29.0745 (UTC) FILETIME=[CEE7AC10:01C599EF]
+Message-Id: <200508052102.59872.martinmaurer@gmx.at>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-05 at 11:36 -0700, Greg KH wrote:
-> On Fri, Aug 05, 2005 at 11:06:08AM -0700, Kristen Accardi wrote:
-> > diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/MAINTAINERS linux-2.6.13-rc5-new/MAINTAINERS
-> > --- linux-2.6.13-rc5/MAINTAINERS	2005-08-01 21:45:48.000000000 -0700
-> > +++ linux-2.6.13-rc5-new/MAINTAINERS	2005-08-05 11:03:36.000000000 -0700
-> > @@ -1825,6 +1825,11 @@ P:	Greg Kroah-Hartman
-> >  M:	greg@kroah.com
-> >  S:	Maintained
-> >  
-> > +PCIE HOTPLUG DRIVER
-> > +P:	Kristen Carlson Accardi
-> > +M:	kristen.c.accardi@intel.com
-> > +S:	Maintained
-> 
-> Care to try it again, and add the pcihpd mailing list address too?  That
-> is the place to talk about pci hotplug drivers, right?
-> 
-> thanks,
-> 
-> greg k-h
+--nextPart1204521.Fj763hPrA9
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_hf78CpcyqoxpMu8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Ok.
+--Boundary-01=_hf78CpcyqoxpMu8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+An update on this issue:
 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/pciehp_core.c linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp_core.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/pciehp_core.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp_core.c	2005-08-05 09:34:57.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/pciehp_ctrl.c linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp_ctrl.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/pciehp_ctrl.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp_ctrl.c	2005-08-05 09:35:31.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/pciehp.h linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp.h
---- linux-2.6.13-rc5/drivers/pci/hotplug/pciehp.h	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp.h	2005-08-05 09:35:48.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- #ifndef _PCIEHP_H
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/pciehp_hpc.c linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp_hpc.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/pciehp_hpc.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp_hpc.c	2005-08-05 09:36:07.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>,<dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>,<kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/pciehp_pci.c linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp_pci.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/pciehp_pci.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehp_pci.c	2005-08-05 09:36:24.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/pciehprm_acpi.c linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehprm_acpi.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/pciehprm_acpi.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehprm_acpi.c	2005-08-05 09:36:48.000000000 -0700
-@@ -20,7 +20,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <dely.l.sy@intel.com>
-+ * Send feedback to <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/pciehprm.h linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehprm.h
---- linux-2.6.13-rc5/drivers/pci/hotplug/pciehprm.h	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehprm.h	2005-08-05 09:37:07.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/pciehprm_nonacpi.c linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehprm_nonacpi.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/pciehprm_nonacpi.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehprm_nonacpi.c	2005-08-05 09:37:27.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/pciehprm_nonacpi.h linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehprm_nonacpi.h
---- linux-2.6.13-rc5/drivers/pci/hotplug/pciehprm_nonacpi.h	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/pciehprm_nonacpi.h	2005-08-05 09:39:59.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchp_core.c linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp_core.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchp_core.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp_core.c	2005-08-05 09:37:47.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchp_ctrl.c linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp_ctrl.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchp_ctrl.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp_ctrl.c	2005-08-05 09:38:02.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchp.h linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp.h
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchp.h	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp.h	2005-08-05 09:38:12.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>,<dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>,<kristen.c.accardi@intel.com>
-  *
-  */
- #ifndef _SHPCHP_H
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchp_hpc.c linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp_hpc.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchp_hpc.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp_hpc.c	2005-08-05 09:38:21.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>,<dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>,<kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchp_pci.c linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp_pci.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchp_pci.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchp_pci.c	2005-08-05 09:38:30.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_acpi.c linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_acpi.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_acpi.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_acpi.c	2005-08-05 09:38:39.000000000 -0700
-@@ -20,7 +20,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <dely.l.sy@intel.com>
-+ * Send feedback to <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm.h linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm.h
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm.h	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm.h	2005-08-05 09:38:47.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_legacy.c linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_legacy.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_legacy.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_legacy.c	2005-08-05 09:38:55.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>,<dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>,<kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_legacy.h linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_legacy.h
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_legacy.h	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_legacy.h	2005-08-05 09:39:04.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_nonacpi.c linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_nonacpi.c
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_nonacpi.c	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_nonacpi.c	2005-08-05 09:39:12.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_nonacpi.h linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_nonacpi.h
---- linux-2.6.13-rc5/drivers/pci/hotplug/shpchprm_nonacpi.h	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/drivers/pci/hotplug/shpchprm_nonacpi.h	2005-08-05 09:39:23.000000000 -0700
-@@ -23,7 +23,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * Send feedback to <greg@kroah.com>, <dely.l.sy@intel.com>
-+ * Send feedback to <greg@kroah.com>, <kristen.c.accardi@intel.com>
-  *
-  */
- 
-diff -uprN -X linux-2.6.13-rc5/Documentation/dontdiff linux-2.6.13-rc5/MAINTAINERS linux-2.6.13-rc5-new/MAINTAINERS
---- linux-2.6.13-rc5/MAINTAINERS	2005-08-01 21:45:48.000000000 -0700
-+++ linux-2.6.13-rc5-new/MAINTAINERS	2005-08-05 11:57:12.000000000 -0700
-@@ -1825,6 +1825,12 @@ P:	Greg Kroah-Hartman
- M:	greg@kroah.com
- S:	Maintained
- 
-+PCIE HOTPLUG DRIVER
-+P:	Kristen Carlson Accardi
-+M:	kristen.c.accardi@intel.com
-+L:	pcihpd-discuss@lists.sourceforge.net
-+S:	Maintained
-+
- PCMCIA SUBSYSTEM
- P:	Linux PCMCIA Team
- L:	http://lists.infradead.org/mailman/listinfo/linux-pcmcia
-@@ -2201,6 +2207,12 @@ W:	http://projects.buici.com/arm
- L:	linux-arm-kernel@lists.arm.linux.org.uk	(subscribers-only)
- S:	Maintained
- 
-+SHPC HOTPLUG DRIVER
-+P:	Kristen Carlson Accardi
-+M:	kristen.c.accardi@intel.com
-+L:	pcihpd-discuss@lists.sourceforge.net
-+S:	Maintained
-+
- SPARC (sparc32):
- P:	William L. Irwin
- M:	wli@holomorphy.com
+I realized a problem with my kernel configuration - i was missing sd_mod. T=
+his=20
+fixed the problem with the harddrive, but the usb stick still doesn't work.
+attached a new dmesg output of the mp3stick problem (only very little chang=
+es)
 
+greetings
+Martin Maurer
+
+On Friday, 5. August 2005 17:51, Martin Maurer wrote:
+> Hi everybody,
+>
+> For quite some time now I have got a problem mounting my usb-stick (MP3
+> FUN256 from DNT) with linux. This stick worked back in the 2.4.x days,
+> though it needed one of the later versions (I switched to 2.6.x as soon
+> about when it was released, so I didnt test the newest versions.)
+>
+> Recently I bought an usb harddisk encasing and tried this one, but it
+> doesnt work either. Taking a look at dmesg I think the devices are not
+> correctly found by the kernel. (I attached the two dmesg outputs).
+>
+> As I dont know which part of the kernel causes this problem I did not so
+> far report a bug using bugzilla. (And as it may be my fault too).
+>
+> I currently use 2.6.13-rc5 + software-suspoend 2 patch 2.1.9.12
+> (I tried 2.6.12-rc5, and some earlier versions too)
+>
+> Processor: AMD Athlon XP 1700+
+> Distribution: Debian unstable (though not updated for about a month).
+>
+> Anyone knows help for this issues ?
+> (patches to try and verify happily accepted)
+>
+> greetings
+> Martin Maurer
+
+--Boundary-01=_hf78CpcyqoxpMu8
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="mp3stick.dmesg.2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="mp3stick.dmesg.2"
+
+hub 1-1:1.0: state 5 ports 4 chg 0000 evt 0010
+hub 1-1:1.0: port 4, status 0101, change 0001, 12 Mb/s
+hub 1-1:1.0: debounce: port 4: total 100ms stable 100ms status 0x101
+usb 1-1.4: new full speed USB device using ohci_hcd and address 18
+usb 1-1.4: ep0 maxpacket = 32
+usb 1-1.4: new device strings: Mfr=0, Product=0, SerialNumber=0
+usb 1-1.4: hotplug
+usb 1-1.4: adding 1-1.4:1.0 (config #1, interface 0)
+usb 1-1.4:1.0: hotplug
+usb-storage 1-1.4:1.0: usb_probe_interface
+usb-storage 1-1.4:1.0: usb_probe_interface - got id
+usb-storage: USB Mass Storage device detected
+usb-storage: -- associate_dev
+usb-storage: Vendor: 0x0f19, Product: 0x0103, Revision: 0x0100
+usb-storage: Interface Subclass: 0x06, Protocol: 0x50
+usb-storage: Transport: Bulk
+usb-storage: Protocol: Transparent SCSI
+usb-storage: usb_stor_control_msg: rq=fe rqtype=a1 value=0000 index=00 len=1
+usb-storage: GetMaxLUN command result is -32, data is 85
+usb-storage: usb_stor_control_msg: rq=01 rqtype=02 value=0000 index=82 len=0
+usb-storage: usb_stor_clear_halt: result = 0
+usb-storage: usb_stor_control_msg: rq=01 rqtype=02 value=0000 index=01 len=0
+usb-storage: usb_stor_clear_halt: result = 0
+scsi10 : SCSI emulation for USB Mass Storage devices
+usb-storage: *** thread sleeping.
+hub 1-1:1.0: state 5 ports 4 chg 0000 evt 0010
+usb-storage: device found at 18
+usb-storage: waiting for device to settle before scanning
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command INQUIRY (6 bytes)
+usb-storage:  12 00 00 00 24 00
+usb-storage: Bulk Command S 0x43425355 T 0x1 L 36 F 128 Trg 0 LUN 0 CL 6
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_bulk_transfer_buf: xfer 36 bytes
+usb-storage: Status code 0; transferred 13/36
+usb-storage: -- short transfer
+usb-storage: Bulk data transfer result 0x1
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+ohci_hcd 0000:00:02.2: urb cf61ca60 path 1.4 ep2in 82160000 cc 8 --> status -75
+usb-storage: Status code -75; transferred 13/13
+usb-storage: -- babble
+usb-storage: Bulk status result = 3
+usb-storage: -- transport indicates error, resetting
+hub 1-1:1.0: state 5 ports 4 chg 0000 evt 0010
+usb 1-1.4: reset full speed USB device using ohci_hcd and address 18
+hub 1-1:1.0: state 5 ports 4 chg 0000 evt 0010
+usb 1-1.4: ep0 maxpacket = 32
+usb-storage: usb_reset_device returns 0
+usb-storage: scsi cmd done, result=0x70000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command INQUIRY (6 bytes)
+usb-storage:  12 00 00 00 24 00
+usb-storage: Bulk Command S 0x43425355 T 0x2 L 36 F 128 Trg 0 LUN 0 CL 6
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_bulk_transfer_buf: xfer 36 bytes
+usb-storage: Status code 0; transferred 36/36
+usb-storage: -- transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+usb-storage: Status code 0; transferred 13/13
+usb-storage: -- transfer complete
+usb-storage: Bulk status result = 0
+usb-storage: Bulk Status S 0x53425355 T 0x2 R 0 Stat 0x1
+usb-storage: -- transport indicates command failure
+usb-storage: Issuing auto-REQUEST_SENSE
+usb-storage: Bulk Command S 0x43425355 T 0x80000002 L 18 F 128 Trg 0 LUN 0 CL 6
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_bulk_transfer_buf: xfer 18 bytes
+usb-storage: Status code 0; transferred 18/18
+usb-storage: -- transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+usb-storage: Status code 0; transferred 13/13
+usb-storage: -- transfer complete
+usb-storage: Bulk status result = 0
+usb-storage: Bulk Status S 0x53425355 T 0x80000002 R 0 Stat 0x0
+usb-storage: -- Result from auto-sense is 0
+usb-storage: -- code: 0x70, key: 0x5, ASC: 0x24, ASCQ: 0x0
+usb-storage: Illegal Request: Invalid field in cdb
+usb-storage: scsi cmd done, result=0x2
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (1:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (2:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (3:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (4:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (5:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (6:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (7:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: device scan complete
+
+--Boundary-01=_hf78CpcyqoxpMu8--
+
+--nextPart1204521.Fj763hPrA9
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC87fjXHsqb5Up6wURAj8GAKC5tZywATmMvmUKJNZo+q20Yl91sgCfcyol
+7PMm86nPGJY3cgyyPtA9SUU=
+=OSXz
+-----END PGP SIGNATURE-----
+
+--nextPart1204521.Fj763hPrA9--

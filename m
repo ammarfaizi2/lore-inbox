@@ -1,101 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262858AbVHEFQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262859AbVHEF3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262858AbVHEFQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 01:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbVHEFQ3
+	id S262859AbVHEF3t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 01:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbVHEF3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 01:16:29 -0400
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:58835 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262858AbVHEFQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 01:16:28 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
-Date: Fri, 5 Aug 2005 15:12:18 +1000
-User-Agent: KMail/1.8.1
-Cc: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org,
-       ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com
-References: <200508031559.24704.kernel@kolivas.org> <200508031624.00319.lkml@kcore.org> <20050804150341.GA10282@ucw.cz>
-In-Reply-To: <20050804150341.GA10282@ucw.cz>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_yUv8CUP3JOPYPXo"
-Message-Id: <200508051512.18500.kernel@kolivas.org>
+	Fri, 5 Aug 2005 01:29:49 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:11408 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262859AbVHEF3s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 01:29:48 -0400
+Subject: [PATCH] kernel: use kcalloc instead kmalloc/memset
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Date: Fri, 05 Aug 2005 08:29:07 +0300
+Message-Id: <1123219747.20398.1.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_yUv8CUP3JOPYPXo
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This patch converts kernel/ to use kcalloc instead of kmalloc/memset.
 
-On Fri, 5 Aug 2005 01:03 am, Vojtech Pavlik wrote:
-> On Wed, Aug 03, 2005 at 04:23:59PM +0200, Jan De Luyck wrote:
-> > On Wednesday 03 August 2005 14:14, Con Kolivas wrote:
-> > > On Wed, 3 Aug 2005 21:54, Jan De Luyck wrote:
-> > > > On Wednesday 03 August 2005 07:59, Con Kolivas wrote:
-> > > > > This is the dynamic ticks patch for i386 as written by Tony Lindgen
-> > > > > <tony@atomide.com> and Tuukka Tikkanen
-> > > > > <tuukka.tikkanen@elektrobit.com>. Patch for 2.6.13-rc5
-> > > >
-> > > > Compiles and runs ok here.
-> > > >
-> > > > Is there actually any timer frequency that's advisable to set as
-> > > > maximum? (in the kernel config)
-> > >
-> > > I'd recommend 1000.
-> >
-> > Thanks. Currently the system - under X, KDE, no artsd, bottoms at around
-> > 300HZ. In total single mode with every module unloaded that I can unload
-> > it stops around 22HZ.
-> >
-> > I guess I'll have to go hunting whatever thing is causing the pollings.
-> > no timertop yet, I guess? :P
->
-> i8042 runs a steady periodic 20Hz timer. You can make it slower to get
-> even the total low lower, and it will not affect performance under
-> normal (sane hardware) circumstances.
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-Indeed and this patch (safely tried at home but serves no useful purpose 
-really) confirms a reasonable drop without problems. After this, only fbcon 
-polls at a similar rate (HZ/5).
+ intermodule.c |    3 +--
+ params.c      |    4 ++--
+ power/pm.c    |    3 +--
+ resource.c    |    3 +--
+ workqueue.c   |    3 +--
+ 5 files changed, 6 insertions(+), 10 deletions(-)
 
-Of interest to those using an ondemand scaling governor, now that we have 
-timertop, I have found that the default ondemand settings lead to 
-delayed_work_timer_fn at about 140Hz and this can be dropped substantially by 
-slowing the rate of polling (and subsequently slowing the speed with which 
-the ondemand governor responds) down to <25 by
-
-echo 100000 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/sampling_rate
-
-(the default is 10000 and the value is confusing as the rate goes down as you 
-increase this value).
-
-Cheers,
-Con
-
---Boundary-00=_yUv8CUP3JOPYPXo
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="i8042_slowpoll.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="i8042_slowpoll.patch"
-
-Index: linux-2.6.13-rc5-ck2/drivers/input/serio/i8042.h
+Index: 2.6/kernel/resource.c
 ===================================================================
---- linux-2.6.13-rc5-ck2.orig/drivers/input/serio/i8042.h	2005-07-06 16:56:52.000000000 +1000
-+++ linux-2.6.13-rc5-ck2/drivers/input/serio/i8042.h	2005-08-05 15:03:49.000000000 +1000
-@@ -44,7 +44,7 @@
-  * polling.
+--- 2.6.orig/kernel/resource.c
++++ 2.6/kernel/resource.c
+@@ -430,10 +430,9 @@ EXPORT_SYMBOL(adjust_resource);
   */
+ struct resource * __request_region(struct resource *parent, unsigned long start, unsigned long n, const char *name)
+ {
+-	struct resource *res = kmalloc(sizeof(*res), GFP_KERNEL);
++	struct resource *res = kcalloc(1, sizeof(*res), GFP_KERNEL);
  
--#define I8042_POLL_PERIOD	HZ/20
-+#define I8042_POLL_PERIOD	HZ/5
+ 	if (res) {
+-		memset(res, 0, sizeof(*res));
+ 		res->name = name;
+ 		res->start = start;
+ 		res->end = start + n - 1;
+Index: 2.6/kernel/intermodule.c
+===================================================================
+--- 2.6.orig/kernel/intermodule.c
++++ 2.6/kernel/intermodule.c
+@@ -39,7 +39,7 @@ void inter_module_register(const char *i
+ 	struct list_head *tmp;
+ 	struct inter_module_entry *ime, *ime_new;
  
- /*
-  * Status register bits.
+-	if (!(ime_new = kmalloc(sizeof(*ime), GFP_KERNEL))) {
++	if (!(ime_new = kcalloc(1, sizeof(*ime), GFP_KERNEL))) {
+ 		/* Overloaded kernel, not fatal */
+ 		printk(KERN_ERR
+ 			"Aiee, inter_module_register: cannot kmalloc entry for '%s'\n",
+@@ -47,7 +47,6 @@ void inter_module_register(const char *i
+ 		kmalloc_failed = 1;
+ 		return;
+ 	}
+-	memset(ime_new, 0, sizeof(*ime_new));
+ 	ime_new->im_name = im_name;
+ 	ime_new->owner = owner;
+ 	ime_new->userdata = userdata;
+Index: 2.6/kernel/params.c
+===================================================================
+--- 2.6.orig/kernel/params.c
++++ 2.6/kernel/params.c
+@@ -542,8 +542,8 @@ static void __init kernel_param_sysfs_se
+ {
+ 	struct module_kobject *mk;
+ 
+-	mk = kmalloc(sizeof(struct module_kobject), GFP_KERNEL);
+-	memset(mk, 0, sizeof(struct module_kobject));
++	mk = kcalloc(1, sizeof(struct module_kobject), GFP_KERNEL);
++	BUG_ON(!mk);
+ 
+ 	mk->mod = THIS_MODULE;
+ 	kobj_set_kset_s(mk, module_subsys);
+Index: 2.6/kernel/power/pm.c
+===================================================================
+--- 2.6.orig/kernel/power/pm.c
++++ 2.6/kernel/power/pm.c
+@@ -60,9 +60,8 @@ struct pm_dev *pm_register(pm_dev_t type
+ 			   unsigned long id,
+ 			   pm_callback callback)
+ {
+-	struct pm_dev *dev = kmalloc(sizeof(struct pm_dev), GFP_KERNEL);
++	struct pm_dev *dev = kcalloc(1, sizeof(struct pm_dev), GFP_KERNEL);
+ 	if (dev) {
+-		memset(dev, 0, sizeof(*dev));
+ 		dev->type = type;
+ 		dev->id = id;
+ 		dev->callback = callback;
+Index: 2.6/kernel/workqueue.c
+===================================================================
+--- 2.6.orig/kernel/workqueue.c
++++ 2.6/kernel/workqueue.c
+@@ -310,10 +310,9 @@ struct workqueue_struct *__create_workqu
+ 
+ 	BUG_ON(strlen(name) > 10);
+ 
+-	wq = kmalloc(sizeof(*wq), GFP_KERNEL);
++	wq = kcalloc(1, sizeof(*wq), GFP_KERNEL);
+ 	if (!wq)
+ 		return NULL;
+-	memset(wq, 0, sizeof(*wq));
+ 
+ 	wq->name = name;
+ 	/* We don't need the distraction of CPUs appearing and vanishing. */
 
---Boundary-00=_yUv8CUP3JOPYPXo--
+

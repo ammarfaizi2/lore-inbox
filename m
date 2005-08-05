@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263029AbVHEOIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263034AbVHEOLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263029AbVHEOIR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 10:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVHEOIR
+	id S263034AbVHEOLM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 10:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVHEOK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 10:08:17 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27147 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263029AbVHEOHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 10:07:52 -0400
-Date: Fri, 5 Aug 2005 16:07:48 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       George Van Tuyl <gvtlinux@xmission.com>
-Subject: Re: make modules Segfault
-Message-ID: <20050805140748.GO4029@stusta.de>
-References: <42F2E721.9020707@kegel.com> <Pine.LNX.4.61.0508050822460.20623@yvahk01.tjqt.qr>
+	Fri, 5 Aug 2005 10:10:57 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:8440 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S263031AbVHEOKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 10:10:22 -0400
+Subject: Re: lockups with netconsole on e1000 on media insertion
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, John B?ckstrand <sandos@home.se>
+In-Reply-To: <20050805135551.GQ8266@wotan.suse.de>
+References: <42F347D2.7000207@home.se.suse.lists.linux.kernel>
+	 <p73ek987gjw.fsf@bragg.suse.de>
+	 <1123249743.18332.16.camel@localhost.localdomain>
+	 <20050805135551.GQ8266@wotan.suse.de>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 05 Aug 2005 10:10:13 -0400
+Message-Id: <1123251013.18332.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508050822460.20623@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 08:23:18AM +0200, Jan Engelhardt wrote:
+On Fri, 2005-08-05 at 15:55 +0200, Andi Kleen wrote:
+> > This is fixing the symptom and is not the cure.  Unfortunately I don't
+> > have a e1000 card so I can't try a fix. But I did have a e100 card that
+> > would lock up the same way.  The problem was that netpoll_poll calls the
+> > cards netpoll routine (in e1000_main.c e1000_netpoll).  In the e100
+> > case, when the transmit buffer would fill up, the queue would go down.
+> > But the netpoll routine in the e100 code never put it back up after it
+> > was all transfered. So this would lock up the kernel when that happened.
 > 
-> >> Gnu C                  2.96
-> >
-> > Seriously, it seems like your machine is flaky.
-> > And even if it were a kernel source problem,
-> > gcc should never have an internal error.
-> > But gcc-2.96 is so old that it's not supported anymore.
+> In my case the hang happened when no cable was connected.
+
+But should come back when the cable is reconnected. 
+
+OK, I admit, it shouldn't hang in the first place.
+
 > 
-> Wasnot 2.96 the bugged one?
+> There is no way to handle this in any other way. You eventually
+> have to bail out.
+> 
+> >  
+> >  repeat:
+> > -	if(!np || !np->dev || !netif_running(np->dev)) {
+> > +	if(try-- == 0 || !np || !np->dev || !netif_running(np->dev)) {
+> > +		if (!try)
+> > +			printk(KERN_WARNING "net driver is stuck down, maybe a"
+> > +					" problem with the driver's netpoll\n");
+> 
+> ... and nobody will see that. It will not even trigger an output.
 
-It was never an official gcc release, but it's an officially supported 
-compiler for the kernel (see Documentation/Changes for details).
+Since one would be using net console right? :-)   Oops! I forgot that.
+Well it may make it to the logs, since this patch also bails out.
+That's why I think your first patch with this warning as well as a fix
+for the e1000 should be submitted.  Since the e1000 shouldn't lock up
+netpoll just because the queue was put down.
 
-> Jan Engelhardt
+Hmm, how bad is it to have a printk in a routine that is registered to
+printk?   If this does print, a "static once" variable should be added
+so that this is only printed once and not everytime it tries to print
+this message.
 
-cu
-Adrian
+-- Steve
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

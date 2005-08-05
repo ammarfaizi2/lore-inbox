@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbVHEHWC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262891AbVHEH1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbVHEHWC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 03:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbVHEHWC
+	id S262891AbVHEH1T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 03:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbVHEH1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 03:22:02 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17329 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262896AbVHEHWA (ORCPT
+	Fri, 5 Aug 2005 03:27:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41173 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262891AbVHEH1S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 03:22:00 -0400
-Date: Fri, 5 Aug 2005 00:17:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: <jamey@crl.dec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] platform-device driver for MQ11xx graphics chip
-Message-Id: <20050805001737.7bec8de7.akpm@osdl.org>
-In-Reply-To: <20050802192041.C09C5B4262@lspace.crl.dec.com>
-References: <20050802192041.C09C5B4262@lspace.crl.dec.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 5 Aug 2005 03:27:18 -0400
+Message-ID: <42F314CC.4000309@redhat.com>
+Date: Fri, 05 Aug 2005 02:27:08 -0500
+From: Mike Christie <mchristi@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux clustering <linux-cluster@redhat.com>
+CC: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: [PATCH 00/14] GFS
+References: <20050802071828.GA11217@redhat.com>	<1122968724.3247.22.camel@laptopd505.fenrus.org> <20050805071415.GC14880@redhat.com>
+In-Reply-To: <20050805071415.GC14880@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<jamey@crl.dec.com> wrote:
->
+David Teigland wrote:
+> On Tue, Aug 02, 2005 at 09:45:24AM +0200, Arjan van de Ven wrote:
 > 
-> This patch adds platform_device driver for MQ11xx system-on-chip
-> graphics chip.  This chip is used in several non-PCI ARM and MIPS
-> platforms such as the iPAQ H5550.  Two subsequent patches add
-> support for the framebuffer and USB gadget subdevices.  This patch
-> adds the toplevel driver to drivers/platform because it does not
-> provide any specific functionality (e.g., framebuffer) and it not tied
-> to a named physical bus.  In these platforms, the MQ11xx is tied
-> directly to the host bus.
+>>* Why are you using bufferheads extensively in a new filesystem?
 > 
-> ...
-> +
-> +static void
-> +mq_free (struct mediaq11xx_base *zis, u32 addr, unsigned size)
-> +{
-> +	int i, j;
-> +	u32 eaddr;
-> +	struct mq_data *mqdata = to_mq_data (zis);
-> +
-> +	size = (size + MEMBLOCK_ALIGN - 1) & ~(MEMBLOCK_ALIGN - 1);
-> +	eaddr = addr + size;
-> +
-> +	spin_lock (&mqdata->mem_lock);
+> 
+> bh's are used for metadata, the log, and journaled data which need to be
+> written at the block granularity, not page.
+> 
 
-It's unusual for a memory allocate/free function to not be IRQ-safe.  Will
-there never be a requirement that mq_free() or mq_alloc() be called from
-interrupts or softirq's?
-
-> +	spin_unlock (&mqdata->mem_lock);
-
-You've religiously used the wrong coding style throughout these patches:
-neither core kernel nor arch/arm places a space before the opening paren. 
-A little thing, but easy to get right.
-
-There are eight-spaces where tabs should be in various places too..
-
+In a scsi tree
+http://kernel.org/git/?p=linux/kernel/git/jejb/scsi-block-2.6.git;a=summary
+there is a function, bio_map_kern(), in fs.c that maps a buffer into a
+bio. It does not have to be page granularity. Can something like that be
+used in these places?

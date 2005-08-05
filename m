@@ -1,115 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVHEW24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbVHEWbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbVHEW24 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 18:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVHEW24
+	id S263147AbVHEWbr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 18:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVHEWbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 18:28:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13198 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261986AbVHEW16 (ORCPT
+	Fri, 5 Aug 2005 18:31:47 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:7854 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S263147AbVHEWbj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 18:27:58 -0400
-Date: Fri, 5 Aug 2005 15:26:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, rajesh.shah@intel.com
-Subject: Re: [PATCH] 6700/6702PXH quirk
-Message-Id: <20050805152645.60c0e8d4.akpm@osdl.org>
-In-Reply-To: <1123279513.4706.7.camel@whizzy>
-References: <1123259263.8917.9.camel@whizzy>
-	<20050805183505.GA32405@kroah.com>
-	<1123279513.4706.7.camel@whizzy>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 5 Aug 2005 18:31:39 -0400
+Date: Sat, 6 Aug 2005 00:31:33 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Oliver Neukum <oliver@neukum.org>,
+       Greg KH <greg@kroah.com>, Mitchell Blank Jr <mitch@sfgoth.com>,
+       dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
+Message-ID: <20050805223133.GL9841@khan.acc.umu.se>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Jon Smirl <jonsmirl@gmail.com>, Oliver Neukum <oliver@neukum.org>,
+	Greg KH <greg@kroah.com>, Mitchell Blank Jr <mitch@sfgoth.com>,
+	dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+References: <20050726015401.GA25015@kroah.com> <20050728190352.GA29092@kroah.com> <9e47339105072812575e567531@mail.gmail.com> <200507282310.23152.oliver@neukum.org> <9e47339105072814125d0901d9@mail.gmail.com> <20020101075339.GA467@openzaurus.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020101075339.GA467@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristen Accardi <kristen.c.accardi@intel.com> wrote:
->
-> ...
-> On the 6700/6702 PXH part, a MSI may get corrupted if an ACPI hotplug
-> driver and SHPC driver in MSI mode are used together.  This patch will
-> prevent MSI from being enabled for the SHPC.  
+On Tue, Jan 01, 2002 at 08:53:39AM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> I made this patch more generic than just shpc because I thought it was
-> possible that other devices in the system might need to add themselves
-> to the msi black list.
+> > > > New, simplified version of the sysfs whitespace strip patch...
+> > > 
+> > > Could you tell me why you don't just fail the operation if malformed
+> > > input is supplied?
+> > 
+> > Leading/trailing white space should be allowed. For example echo
+> > appends '\n' unless you know to use -n. It is easier to fix the kernel
+> > than to teach everyone to use -n.
 > 
-> diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/drivers/pci/msi.c linux-2.6.13-rc4-pxhquirk/drivers/pci/msi.c
-> --- linux-2.6.13-rc4/drivers/pci/msi.c	2005-07-28 15:44:44.000000000 -0700
-> +++ linux-2.6.13-rc4-pxhquirk/drivers/pci/msi.c	2005-08-05 11:38:00.000000000 -0700
-> @@ -38,6 +38,32 @@ int vector_irq[NR_VECTORS] = { [0 ... NR
->  u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
->  #endif
->  
-> +
-> +LIST_HEAD(msi_quirk_list);
-> +
+> Please, NO! echo -n is the right thing to do, and users will eventually learn.
+> We are not going to add such workarounds all over the kernel...
 
-Can't this have static scope?
-
-> +struct msi_quirk 
-> +{
-> +	struct list_head list;
-> +	struct pci_dev *dev;
-> +};
-
-We normally do
-
-	struct msi_quirk {
-
-> +
-> +int msi_add_quirk(struct pci_dev *dev)
-> +{
-> +	struct msi_quirk *quirk;
-> +
-> +	quirk = (struct msi_quirk *) kmalloc(sizeof(*quirk), GFP_KERNEL);
-
-kmalloc() returns void*, hence no typecast is needed.  In fact it's
-undesirable because the cast defeats all typechecking.
-
-> +	if (!quirk)
-> +		return -ENOMEM;
-> +	
-> +	INIT_LIST_HEAD(&quirk->list);
-> +	quirk->dev = dev;
-> +	list_add(&quirk->list, &msi_quirk_list);
-> +	return 0;
-> +}
-
-Does the list not need any locking?
-
-> --- linux-2.6.13-rc4/drivers/pci/quirks.c	2005-07-28 15:44:44.000000000 -0700
-> +++ linux-2.6.13-rc4-pxhquirk/drivers/pci/quirks.c	2005-08-05 11:54:15.000000000 -0700
-> @@ -21,6 +21,10 @@
->  #include <linux/acpi.h>
->  #include "pci.h"
->  
-> +
-> +void disable_msi_mode(struct pci_dev *dev, int pos, int type);
-> +int msi_add_quirk(struct pci_dev *dev);
-> +
-
-Please put these declarations in a .h file which is visible to the
-implementations and to all users.
-
-> +static void __devinit quirk_pcie_pxh(struct pci_dev *dev)
-> +{
-> +	disable_msi_mode(dev, pci_find_capability(dev, PCI_CAP_ID_MSI),
-> +					PCI_CAP_ID_MSI);
-> +	if (!msi_add_quirk(dev)) 
-> +		printk(KERN_WARNING "PCI: PXH quirk detected, disabling MSI for SHPC device\n");
-> +	else {
-> +		pci_msi_quirk = 1;
-> +		printk(KERN_WARNING "PCI: PXH quirk detected, unable to disable MSI for SHPC device, disabling MSI for all devices\n");
-> +	}
-
-Some people use 80-column xterms.   Break the strings up thusly:
-
-		printk(KERN_WARNING "PCI: PXH quirk detected, disabling "
-				"MSI for SHPC device\n");
+Ahhh, this would be so much easier if people just got used to using
+printf instead of echo when doing text output. =)
 
 
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

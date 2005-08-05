@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVHEWj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVHEWlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbVHEWj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 18:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVHEWjZ
+	id S262011AbVHEWlz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 18:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVHEWly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 18:39:25 -0400
-Received: from livid.absolutedigital.net ([66.92.46.173]:17931 "EHLO
-	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S262006AbVHEWik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 18:38:40 -0400
-Date: Fri, 5 Aug 2005 18:38:31 -0400 (EDT)
-From: Cal Peake <cp@absolutedigital.net>
-To: Andreas Steinmetz <ast@domdv.de>
-cc: Andrew Morton <akpm@osdl.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, pavel@suse.cz,
-       davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: amd64-agp vs. swsusp
-In-Reply-To: <42F34022.9040201@domdv.de>
-Message-ID: <Pine.LNX.4.61.0508051835210.28261@lancer.cnet.absolutedigital.net>
-References: <42DD67D9.60201@stud.feec.vutbr.cz> <20050804142548.5b813700.akpm@osdl.org>
- <Pine.LNX.4.61.0508041741540.4557@lancer.cnet.absolutedigital.net>
- <42F34022.9040201@domdv.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Aug 2005 18:41:54 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:52665 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261559AbVHEWkP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 18:40:15 -0400
+Subject: Re: [PATCH] 6700/6702PXH quirk
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, rajesh.shah@intel.com
+In-Reply-To: <20050805152645.60c0e8d4.akpm@osdl.org>
+References: <1123259263.8917.9.camel@whizzy>
+	 <20050805183505.GA32405@kroah.com> <1123279513.4706.7.camel@whizzy>
+	 <20050805152645.60c0e8d4.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 05 Aug 2005 15:40:03 -0700
+Message-Id: <1123281604.4706.13.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-OriginalArrivalTime: 05 Aug 2005 22:40:05.0030 (UTC) FILETIME=[9FBFE460:01C59A0E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Aug 2005, Andreas Steinmetz wrote:
+On Fri, 2005-08-05 at 15:26 -0700, Andrew Morton wrote:
+> Kristen Accardi <kristen.c.accardi@intel.com> wrote:
 
-> AFAIK it works when agp is built into the kernel. You will get problems
-> when it is built as a module. In the module case you may want to try if
-> loading the module before resuming helps.
+> > +	if (!quirk)
+> > +		return -ENOMEM;
+> > +	
+> > +	INIT_LIST_HEAD(&quirk->list);
+> > +	quirk->dev = dev;
+> > +	list_add(&quirk->list, &msi_quirk_list);
+> > +	return 0;
+> > +}
+> 
+> Does the list not need any locking?
 
-Strange. I've had it built as a module from day one and never had a 
-problem resuming.
+Actually, I'm glad you asked that question because I was wondering that
+myself.  The devices are added to the list at boot time, and after that
+time, the list will never change.  Does PCI enumeration happen on all
+processors?  I thought maybe it only happened on one.  In that case we
+don't need a lock I don't think.  
 
--cp
 
--- 
-"There are three kinds of lies: lies, damned lies, and statistics."
-                     -- Benjamin Disraeli
 

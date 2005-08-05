@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbVHEIhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262913AbVHEImN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbVHEIhE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 04:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbVHEIhD
+	id S262913AbVHEImN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 04:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbVHEImM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 04:37:03 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:64176 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262916AbVHEIes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 04:34:48 -0400
-Subject: Re: [PATCH 00/14] GFS
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: David Teigland <teigland@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-In-Reply-To: <Pine.LNX.4.61.0508051026540.26367@yvahk01.tjqt.qr>
-References: <20050802071828.GA11217@redhat.com>
-	 <1122968724.3247.22.camel@laptopd505.fenrus.org>
-	 <20050805071415.GC14880@redhat.com>
-	 <Pine.LNX.4.61.0508051026540.26367@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Fri, 05 Aug 2005 10:34:32 +0200
-Message-Id: <1123230872.3239.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 5 Aug 2005 04:42:12 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:42508 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262913AbVHEImL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 04:42:11 -0400
+To: will.dyson@gmail.com
+CC: jirislaby@gmail.com, linux-kernel@vger.kernel.org
+In-reply-to: <8e6f947205080411067f7a9e78@mail.gmail.com> (message from Will
+	Dyson on Thu, 4 Aug 2005 14:06:16 -0400)
+Subject: Re: Obsolete files in 2.6 tree
+References: <42DED9F3.4040300@gmail.com> <42F145ED.2060008@gmail.com>
+	 <8e6f9472050803214250821160@mail.gmail.com>
+	 <E1E0YrP-0000rm-00@dorka.pomaz.szeredi.hu> <8e6f947205080411067f7a9e78@mail.gmail.com>
+Message-Id: <E1E0xmB-0001gu-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 05 Aug 2005 10:41:59 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-05 at 10:28 +0200, Jan Engelhardt wrote:
-> >The gfs2_disk_hash() function and the crc table on which it's based are a
-> >part of gfs2_ondisk.h: the ondisk metadata specification.  This is a bit
-> >unusual since gfs uses a hash table on-disk for its directory structure.
-> >This header, including the hash function/table, must be included by user
-> >space programs like fsck that want to decipher a fs, and any change to the
-> >function or table would effectively make the fs corrupted.  Because of
-> >this I think it's best for gfs to keep it's own copy as part of its ondisk
-> >format spec.
+> I think you mis-understand. Mountlo seems to allow one to mount
+> (through FUSE) any filesystem image for which there is a linux kernel
+> kernel driver available. This is a very nice capability.
 > 
-> Tune the spec to use kernel and libcrc32 tables and bump the version number of 
-> the spec to e.g. GFS 2.1. That way, things transform smoothly and could go out 
-> eventually at some later date.
+> But what I speak of is to port the 100% feature-complete (and
+> well-tested) befs driver from the Haiku project's kernel to the FUSE 
+> interface. This should be a considerably easier task than porting it
+> to the linux kernel vfs interface. Among other reasons for this, parts
+> of Haiku's kernel (including their befs driver) are written in c++.
 
-afaik the tables aren't actually different. So no need to bump the spec!
+OK, thanks for the clarification.
 
+Miklos

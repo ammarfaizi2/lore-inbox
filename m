@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbVHETxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbVHETzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbVHETxI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 15:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbVHETxC
+	id S263040AbVHETzX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 15:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbVHETzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 15:53:02 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51096 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262941AbVHETwO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 15:52:14 -0400
-Date: Fri, 5 Aug 2005 15:51:23 -0400
-From: Dave Jones <davej@redhat.com>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       greg@kroah.com, rajesh.shah@intel.com
-Subject: Re: [PATCH] use bus_slot number for name
-Message-ID: <20050805195123.GN2241@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Kristen Accardi <kristen.c.accardi@intel.com>,
-	pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	greg@kroah.com, rajesh.shah@intel.com
-References: <1123269366.8917.39.camel@whizzy>
+	Fri, 5 Aug 2005 15:55:23 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:37587 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S263040AbVHETzR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 15:55:17 -0400
+Subject: [patch] fsnotify: hook on removexattr, too
+From: Robert Love <rml@novell.com>
+To: marijn ros <marijn@mad.scientist.com>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050805180739.A49DF1F50B1@ws1-2.us4.outblaze.com>
+References: <20050805180739.A49DF1F50B1@ws1-2.us4.outblaze.com>
+Content-Type: text/plain
+Date: Fri, 05 Aug 2005 15:55:15 -0400
+Message-Id: <1123271715.30486.82.camel@betsy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123269366.8917.39.camel@whizzy>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 12:16:06PM -0700, Kristen Accardi wrote:
- > For systems with multiple hotplug controllers, you need to use more than
- > just the slot number to uniquely name the slot.  Without a unique slot
- > name, the pci_hp_register() will fail.  This patch adds the bus number
- > to the name.
- > 
- > Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
- > 
- > diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/drivers/pci/hotplug/pciehp.h linux-2.6.13-rc4-shpchp-slot-name-fix/drivers/pci/hotplug/pciehp.h
- > --- linux-2.6.13-rc4/drivers/pci/hotplug/pciehp.h	2005-07-28 15:44:44.000000000 -0700
- > +++ linux-2.6.13-rc4-shpchp-slot-name-fix/drivers/pci/hotplug/pciehp.h	2005-08-04 17:57:18.000000000 -0700
- > @@ -302,7 +302,7 @@ static inline void return_resource(struc
- >  
- >  static inline void make_slot_name(char *buffer, int buffer_size, struct slot *slot)
- >  {
- > -	snprintf(buffer, buffer_size, "%d", slot->number);
- > +	snprintf(buffer, buffer_size, "%04d_%04d", slot->bus, slot->number);
- >  }
 
-Won't using..
+On Fri, 2005-08-05 at 19:07 +0100, marijn ros wrote:
 
-	snprintf(buffer, buffer_size, "%s", pci_name(slot));
+> I got wondering, why does fs_notify_xattr get called from setxattr in fs/xattr.c, but
+> not from removexattr that is below it in the same file? Both seem to make changes to
+> xattrs and both are exported as system calls.
 
-work equally as well, and also future-proof this ?
- 
-		Dave
+We should.
+
+	Robert Love
+
+
+Add fsnotify_xattr() hook to removexattr().
+
+Signed-off-by: Robert Love <rml@novell.com>
+
+ fs/xattr.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+diff -urN linux-2.6.13-rc5/fs/xattr.c linux/fs/xattr.c
+--- linux-2.6.13-rc5/fs/xattr.c	2005-08-05 15:49:17.000000000 -0400
++++ linux/fs/xattr.c	2005-08-05 15:53:45.000000000 -0400
+@@ -307,6 +307,8 @@
+ 		down(&d->d_inode->i_sem);
+ 		error = d->d_inode->i_op->removexattr(d, kname);
+ 		up(&d->d_inode->i_sem);
++		if (!error)
++			fsnotify_xattr(d);
+ 	}
+ out:
+ 	return error;
+
+

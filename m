@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVHENmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbVHENqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbVHENmp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 09:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbVHENmp
+	id S263019AbVHENqF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 09:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbVHENqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 09:42:45 -0400
-Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:2054 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S263015AbVHENmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 09:42:43 -0400
-To: vvs@sw.ru
-CC: dedekind@infradead.org, hch@lst.de, linux-kernel@vger.kernel.org
-In-reply-to: <42F36AA2.7030807@sw.ru> (message from Vasily Averin on Fri, 05
-	Aug 2005 17:33:22 +0400)
-Subject: Re: [PATCH] bugfix: two read_inode() calls without clear_inode()
- call between
-References: <42F36AA2.7030807@sw.ru>
-Message-Id: <E1E12Si-0003An-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 05 Aug 2005 15:42:12 +0200
+	Fri, 5 Aug 2005 09:46:05 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:12303 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263019AbVHENqD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 09:46:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cY95Lk0InkpFO5GuJuBf6Nvm9iWFcgXF2fRDlU6Hp5OvJdy6CQ+GU2Pk/rBYX8y8ySbsln8xMjS2s3rKV7SKWeK8b/Eh8vptF2Nh+yS6OsXijD6+3mzc/hVSjoYz9ZzTTGIwi8rup7vooykbnJ2r5J/EWUQ8yI/8HRjvR4aAcxI=
+Message-ID: <5a67a16f05080506452dcc537c@mail.gmail.com>
+Date: Fri, 5 Aug 2005 09:45:58 -0400
+From: Athul Acharya <aacharya@gmail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: Determining if the current processor is Hyperthreaded
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5a67a16f050802171478233f2f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5a67a16f05072909245ae1c44c@mail.gmail.com>
+	 <42EFB3BB.1060900@tmr.com> <5a67a16f050802171478233f2f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you please explain me, why we need to wake up somebody right 
-> before freeing an inode? It seems for me, if somebody really wait on 
-> this inode, then they have a good chance to access already freed memory.
+On 8/2/05, Athul Acharya <aacharya@gmail.com> wrote:
+> That is, I want to know whether the current cpu I (kernel code) am
+> executing on is hyperthreaded, and if so, which logical cpu represents
+> the other thread on chip.
 
-find_inode() needs to be woken up (__wait_on_freeing_inode) when an
-inode being freed is actually taken off the hash list .  And it's
-careful not to touch it after being woken up.
+Trying again, as it seems like a simple thing that really should exist
+ --  is_cpu_hyperthreaded(smp_processor_id()) -- or something similar.
+ Anyone?
 
-Miklos
-
-> diff --git a/fs/inode.c b/fs/inode.c
-> --- a/fs/inode.c
-> +++ b/fs/inode.c
-> @@ -282,6 +282,13 @@ static void dispose_list(struct list_hea
->   		if (inode->i_data.nrpages)
->   			truncate_inode_pages(&inode->i_data, 0);
->   		clear_inode(inode);
-> +
-> +		spin_lock(&inode_lock);
-> +		hlist_del_init(&inode->i_hash);
-> +		list_del_init(&inode->i_sb_list);
-> +		spin_unlock(&inode_lock);
-> +
-> +		wake_up_inode(inode);
->                  ^^^^^^^^^^^^^^^^^^^^
->   		destroy_inode(inode);
->   		nr_disposed++;
->   	}
+Athul

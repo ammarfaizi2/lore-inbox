@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVHEWPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVHEWPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVHEWPW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 18:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbVHEWNh
+	id S261992AbVHEWPX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 18:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVHEWNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 18:13:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10112 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263161AbVHEWKx (ORCPT
+	Fri, 5 Aug 2005 18:13:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28808 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261947AbVHEWL2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 18:10:53 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 Aug 2005 18:11:28 -0400
+Date: Fri, 5 Aug 2005 15:10:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gcapatcch equivalent?
+Message-Id: <20050805151017.745f4188.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0508051157590.22353@skynet>
+References: <Pine.LNX.4.58.0508051157590.22353@skynet>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: george@mvista.com
-X-Fcc: ~/Mail/linus
-Cc: Gerd Knorr <kraxel@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Re: 2.6.12: itimer_real timers don't survive execve()
- any more
-In-Reply-To: George Anzinger's message of  Friday, 5 August 2005 08:33:24 -0700 <42F386C4.2080103@mvista.com>
-X-Antipastobozoticataclysm: Bariumenemanilow
-Message-Id: <20050805221041.D574B180988@magilla.sf.frob.com>
-Date: Fri,  5 Aug 2005 15:10:41 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There are other concerns.  Let me see if I understand this.  A thread 
-> (other than the leader) can exec and we then need to change the 
-> real_timer to wake the new task which will NOT be using the same task 
-> struct.
+Dave Airlie <airlied@linux.ie> wrote:
+>
+> 
+> At KS I asked after a gcapatch command for git..
+> 
+> I've got two trees drm-2.6 and linux-2.6, linux-2.6 is latest Linus, so of
+> course a tree diff gives me all the new patches in linux-2.6 that aren't
+> in drm-2.6 which isn't what I want.. I want gcapatch....
+> 
+> I'm sure someone has one and I don't really want to care about git
+> internals :-)
 
-That's correct.  de_thread will turn the thread calling exec into the new
-leader and kill off all the other threads, including the old leader.  The
-exec'ing thread's existing task_struct is reassigned to the PID of the
-original leader.
+I do this, which mostly works:
 
-> My looking at the code shows that the thread leader can exit and then 
-> stays around as a zombi until the last thread in the group exits.  
+	MERGE_BASE=$(git-merge-base $(cat .git/refs/heads/origin ) \
+				$(cat .git/refs/heads/$patch_name))
 
-That is correct.
+	cg-diff -r $MERGE_BASE:$(cat .git/refs/heads/$patch_name) >> \
+				$PULL/$patch_name.patch
 
-> If an alarm comes during this wait I suspect it will wake this zombi and
-> cause problems.
-
-You are mistaken.  The signal code handles process signals sent when the
-leader is a zombie.  The group leader sticks around with the PID that
-matches the TGID, until there are no live threads with its TGID.  That is
-how process-wide kill can still work.
-
-
-Thanks,
-Roland
+(I'm supposed to be doing real git merges of 40 trees and let git do more
+work for me.  I'll do that when I'm feeling really, really trusting).

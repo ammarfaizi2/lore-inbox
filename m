@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262997AbVHEM16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbVHEMay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262997AbVHEM16 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 08:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbVHEM16
+	id S263000AbVHEMay (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 08:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbVHEMax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 08:27:58 -0400
-Received: from styx.suse.cz ([82.119.242.94]:45760 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S262997AbVHEM15 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 08:27:57 -0400
-Date: Fri, 5 Aug 2005 14:27:56 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Sonny Rao <sonny@burdell.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: amd74xx (nforce) driver problem ?
-Message-ID: <20050805122756.GE2484@ucw.cz>
-References: <20050801090633.GA12320@kevlar.burdell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050801090633.GA12320@kevlar.burdell.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 5 Aug 2005 08:30:53 -0400
+Received: from crl-mail-dmz.crl.hpl.hp.com ([192.58.210.9]:64228 "EHLO
+	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
+	id S263000AbVHEMav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 08:30:51 -0400
+Message-ID: <42F35BAA.1070506@hp.com>
+Date: Fri, 05 Aug 2005 08:29:30 -0400
+From: Jamey Hicks <jamey.hicks@hp.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Richard Purdie <rpurdie@rpsys.net>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jamey@handhelds.org, anpaza@mail.ru, rmk@arm.linux.org.uk
+Subject: Re: platform-device-driver-for-mq11xx-graphics-chip.patch added to
+ -mm tree
+References: <200508050719.j757J9KO032652@shell0.pdx.osdl.net> <1123228133.7649.4.camel@localhost.localdomain>
+In-Reply-To: <1123228133.7649.4.camel@localhost.localdomain>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-HPLC-MailScanner-Information: Please contact the ISP for more information
+X-HPLC-MailScanner: Found to be clean
+X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-4.9, required 5, BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 05:06:33AM -0400, Sonny Rao wrote:
-> Hi,
-> 
-> I have a system based on the Nforce2 chipset which uses the amd7xx
-> driver for it's IDE support, and I noticed that one of the drives was
-> performing very slowly.  I looked into it a bit more and it seems the
-> drive was operating as UDMA33 instead of UDMA100 for some reason.
-> 
-> The affected drive was getting about 20-25Mb/sec sequential read (dumb
-> hdparm test) while a similar drive on the other channel was getting
-> about 45-50 Mb/sec.  The drive on the other channel was operating at
-> UDMA100.  Both drives are attached using the proper 80-wire cable.
-> 
-> Kernel is 2.6.13-rc4 
-> 
-> If I go into the bios and twiddle an "IDE Master" setting from the
-> "none" to the "auto" setting then the driver operates at the expected
-> speed. 
-> 
-> 
-> I'm confused though why the driver never correctly set up that IDE
-> channel?  It claims in the kernel log that it detected the BIOS
-> borkage: 
-> 
-> NFORCE2: IDE controller at PCI slot 0000:00:09.0
-> NFORCE2: chipset revision 162
-> NFORCE2: not 100% native mode: will probe irqs later
-> NFORCE2: BIOS didn't set cable bits correctly. Enabling workaround.
-> NFORCE2: 0000:00:09.0 (rev a2) UDMA133 controller
->     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
->     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-> 
-> 
-> Shouldn't the driver set the channel to UDMA100 after it detects the BIOS
-> set up the chip improperly, or am I mistaken about this behavior?  Isn't
-> that the "workaround" or does that mean something else?
- 
-The driver simply takes the information from another register, also
-supplied by the BIOS. If you set the drive to 'none', it doesn't have
-anywhere to look, since the primary location is borked because of bad BIOS.
+Richard Purdie wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+>On Fri, 2005-08-05 at 00:18 -0700, akpm@osdl.org wrote:
+>  
+>
+>>The patch titled
+>>
+>>     platform-device driver for MQ11xx graphics chip
+>>
+>>has been added to the -mm tree.  Its filename is
+>>
+>>     platform-device-driver-for-mq11xx-graphics-chip.patch
+>>
+>> drivers/platform/.tmp_versions/mq11xx_base.mod |    2 
+>>    
+>>
+>
+>I doubt that should be there...
+>
+>  
+>
+>> drivers/platform/Kconfig                       |   23 
+>> drivers/platform/Makefile                      |    5 
+>> drivers/platform/mq11xx.h                      |  925 ++++++++++++++++
+>> drivers/platform/mq11xx_base.c                 | 1390 +++++++++++++++++++++++++
+>>    
+>>
+>
+>I'm also still wondering if drivers/mfd would be better in the long term
+>for code like this (as mentioned in various threads on LKML). That way
+>it is doesn't have to be platform device specific...
+>
+>  
+>
+I do not have a problem with moving these drivers to drivers/mfd.  I do 
+want to have a policy that says where such drivers should go.
+
+Jamey
+

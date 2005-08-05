@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVHEIEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262917AbVHEIIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbVHEIEu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 04:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbVHEICL
+	id S262917AbVHEIIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 04:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbVHEIE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 04:02:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60857 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262897AbVHEIAz (ORCPT
+	Fri, 5 Aug 2005 04:04:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56762 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262897AbVHEIDz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 04:00:55 -0400
-Date: Fri, 5 Aug 2005 00:59:32 -0700
+	Fri, 5 Aug 2005 04:03:55 -0400
+Date: Fri, 5 Aug 2005 01:02:36 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: linux-kernel@vger.kernel.org, jamey@handhelds.org, anpaza@mail.ru,
-       rmk@arm.linux.org.uk
-Subject: Re: platform-device-driver-for-mq11xx-graphics-chip.patch added to
- -mm tree
-Message-Id: <20050805005932.73721447.akpm@osdl.org>
-In-Reply-To: <1123228133.7649.4.camel@localhost.localdomain>
-References: <200508050719.j757J9KO032652@shell0.pdx.osdl.net>
-	<1123228133.7649.4.camel@localhost.localdomain>
+To: "Simon Matter" <simon.matter@invoca.ch>
+Cc: linux-kernel@vger.kernel.org, kernel-maint@redhat.com,
+       linux-raid@vger.kernel.org, dm-devel@redhat.com
+Subject: Re: File corruption on LVM2 on top of software RAID1
+Message-Id: <20050805010236.12d811ff.akpm@osdl.org>
+In-Reply-To: <34082.213.188.237.106.1123228569.squirrel@localhost>
+References: <45138.213.188.237.106.1123086677.squirrel@localhost>
+	<20050804195853.0866ade9.akpm@osdl.org>
+	<34082.213.188.237.106.1123228569.squirrel@localhost>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,30 +27,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Purdie <rpurdie@rpsys.net> wrote:
+"Simon Matter" <simon.matter@invoca.ch> wrote:
 >
-> On Fri, 2005-08-05 at 00:18 -0700, akpm@osdl.org wrote:
-> > The patch titled
-> > 
-> >      platform-device driver for MQ11xx graphics chip
-> > 
-> > has been added to the -mm tree.  Its filename is
-> > 
-> >      platform-device-driver-for-mq11xx-graphics-chip.patch
-> > 
-> >  drivers/platform/.tmp_versions/mq11xx_base.mod |    2 
-> 
-> I doubt that should be there...
+> While looking at some data corruption vulnerability reports on
+>  Securityfocus I wonder why this issue does not get any attention from
+>  distributors. I have an open bugzilla report with RedHat, have an open
+>  customer service request with RedHat, have mailed peoples directly. No
+>  real feedback.
+>  I'm now in the process of restoring intergrity of my data with the help of
+>  backups and mirrored data. Maybe I just care too much about other peoples
+>  data, but I know that this bug will corrupt files on hundreds or thousands
+>  of servers today and most people simply don't know it. Did I miss
+>  something?
 
-Zap.
+I guess the bug hit really rarely and maybe the reports were lost in the
+permanent background noise of dodgy hardware.
 
-> >  drivers/platform/Kconfig                       |   23 
-> >  drivers/platform/Makefile                      |    5 
-> >  drivers/platform/mq11xx.h                      |  925 ++++++++++++++++
-> >  drivers/platform/mq11xx_base.c                 | 1390 +++++++++++++++++++++++++
-> 
-> I'm also still wondering if drivers/mfd would be better in the long term
-> for code like this (as mentioned in various threads on LKML). That way
-> it is doesn't have to be platform device specific...
-
-That's what Russell thinks.
+We only found and fixed it last week, due to much sleuthing by Matthew
+Stapleton.  I assume vendor updates are in the pipeline.

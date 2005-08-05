@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263096AbVHETTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbVHETWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263096AbVHETTg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 15:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbVHETTW
+	id S262824AbVHETWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 15:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbVHETWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 15:19:22 -0400
-Received: from nproxy.gmail.com ([64.233.182.196]:34137 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262823AbVHETSk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 15:18:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FLNTEDKNMGh2GXuayAgpbvuC6BWLt4Ihegmd7cAHP4a1zWn+qJw8JbWITaL3pdb5h7S6B/Ym0sv8JaPk/ih7LVMpMf6kr3qmtnYOYI5rIggmHOs7ZTo/eMXA3hgNoxlVfU6+9Zbbd0A5Pk9qBch+HT3EgGs9Tv8/5UyQ9zmB+4A=
-Message-ID: <40f323d00508051218c30d7af@mail.gmail.com>
-Date: Fri, 5 Aug 2005 21:18:38 +0200
-From: Benoit Boissinot <bboissin@gmail.com>
-To: Olaf Hering <olh@suse.de>
-Subject: Re: [PATCH] implicit declaration of function `page_cache_release'
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org
-In-Reply-To: <20050805190006.GA6747@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050708150313.GA30373@suse.de>
-	 <40f323d005080511516a81a7d6@mail.gmail.com>
-	 <20050805190006.GA6747@suse.de>
+	Fri, 5 Aug 2005 15:22:07 -0400
+Received: from imap.gmx.net ([213.165.64.20]:46983 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262819AbVHETU7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 15:20:59 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] preempt-trace.patch (mono preempt-trace)
+Date: Fri, 5 Aug 2005 21:23:45 +0200
+User-Agent: KMail/1.8.2
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20050607042931.23f8f8e0.akpm@osdl.org> <200508051958.12853.dominik.karall@gmx.net> <Pine.LNX.4.61.0508051939390.6479@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0508051939390.6479@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2438131.0QWGBzcVeZ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508052123.49640.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/5/05, Olaf Hering <olh@suse.de> wrote:
->  On Fri, Aug 05, Benoit Boissinot wrote:
-> 
-> > On 7/8/05, Olaf Hering <olh@suse.de> wrote:
-> > >
-> > > In file included from include2/asm/tlb.h:31,
-> > >                  from linux-2.6.13-rc2-olh/arch/ppc64/kernel/pSeries_lpar.c:37:
-> > > linux-2.6.13-rc2-olh/include/asm-generic/tlb.h: In function `tlb_flush_mmu':
-> > > linux-2.6.13-rc2-olh/include/asm-generic/tlb.h:77: warning: implicit declaration of function `release_pages'
-> > > linux-2.6.13-rc2-olh/include/asm-generic/tlb.h: In function `tlb_remove_page':
-> > > linux-2.6.13-rc2-olh/include/asm-generic/tlb.h:117: warning: implicit declaration of function `page_cache_release'
-> > >
-> > This went in 2.6.13-rc3 (commit
-> > 542d1c88bd7f73e2e59d41b12e4a9041deea89e4), and broke sparc compilation
-> > because of the following circular dependency:
-> > asm-sparc/pgtable include linux/swap.h
-> 
-> Why does it need swap.h? Do the users of pgtable.h rely on swap.h?
-> 
-sparc is the only architecture to do that, it looks like it uses it
-for boot time linking (BTFIXUP_*). I don't know anything about sparc,
-so i can't fix it.
+--nextPart2438131.0QWGBzcVeZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-(adding sparclinux@vger.kernel.org to the cc list)
+On Friday 05 August 2005 20:46, Hugh Dickins wrote:
+> On Fri, 5 Aug 2005, Dominik Karall wrote:
+> > On Friday 05 August 2005 17:22, Ingo Molnar wrote:
+> > > please enable CONFIG_FRAME_POINTERS!
+> >
+> > I'm sorry, but I think I can't enable CONFIG_FRAME_POINTERS.
+> > Depends on: DEBUG_KERNEL && (X86 && !X86_64 || CRIS || M68K || M68KNOMMU
+> > || FRV || UML)
+> >
+> > Seems to be disabled for x86_64.
+>
+> It is disabled for x86_64, but not for any very good reason (beyond
+> reducing the test matrix).  I work with CONFIG_FRAME_POINTERS on x86_64
+> with no trouble, just add in the patch below, make oldconfig, choose
+> frame pointers and rebuild).  But I can't guarantee it'll actually
+> reveal the info Ingo and all are longing to see.
+
+With FRAME_POINTERS enabled:
+
+BUG: mono[3193] exited with nonzero preempt_count 1!
+---------------------------
+| preempt count: 00000001 ]
+| 1 level deep critical section nesting:
+----------------------------------------
+.. [<ffffffff80400a46>] .... _spin_lock+0x16/0x80
+.....[<ffffffff801ed30c>] ..   ( <= sys_semtimedop+0x28c/0x7c0)
+
+hth, let me know!
+
+dominik
+
+--nextPart2438131.0QWGBzcVeZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
+
+iQCVAwUAQvO8xQvcoSHvsHMnAQKEQwP/ViOIrZbe+i47SW4K6boQehgMuR6t9M1X
+EBKtXpBa8zQALKTmcNhtkGlrnkvq1JZxd9R0Mmc+fcegjZUDo50Qh8oZP6C9RlUp
+7dm7pqkb8PtvChY4NxF4pqllkZQLiV8BJWOpL8ZEp6hOYVNhJ+rCyvHwsGGeIMaQ
+pFpLIWlkAfc=
+=g2Xe
+-----END PGP SIGNATURE-----
+
+--nextPart2438131.0QWGBzcVeZ--

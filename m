@@ -1,73 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263073AbVHERC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVHERFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263073AbVHERC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 13:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbVHERC4
+	id S262970AbVHERFA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 13:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVHERE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 13:02:56 -0400
-Received: from imap.gmx.net ([213.165.64.20]:10134 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263073AbVHERCa (ORCPT
+	Fri, 5 Aug 2005 13:04:59 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:16856 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262979AbVHEREx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 13:02:30 -0400
-X-Authenticated: #6553809
-FCC: mailbox://creatix%40oco.net@pop.studcs.uni-sb.de/Sent
-X-Identity-Key: id1
-X-Account-Key: account1
-Date: Fri, 5 Aug 2005 19:02:19 +0200
-From: Thomas Heinz <thomasheinz@gmx.net>
-X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; uuencode=0
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: SCSI DVD-RAM partitions
-References: <42CFC3EF.2090804@gmx.net> <20050712023757.GG26128@infradead.org> <42D37DF5.6060902@gmx.net> <20050731140157.GA6173@infradead.org>
-In-Reply-To: <20050731140157.GA6173@infradead.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-X-Length: 3121
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 5 Aug 2005 13:04:53 -0400
+Subject: Re: [RFC] Demand faulting for large pages
+From: Adam Litke <agl@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, christoph@lameter.com, dwg@au1.ibm.com
+In-Reply-To: <20050805164702.GY8266@wotan.suse.de>
+References: <1123255298.3121.46.camel@localhost.localdomain>
+	 <20050805155307.GV8266@wotan.suse.de>
+	 <1123259847.3121.91.camel@localhost.localdomain>
+	 <20050805164702.GY8266@wotan.suse.de>
+Content-Type: text/plain
+Organization: IBM
+Message-Id: <1123261200.3121.104.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 05 Aug 2005 12:00:00 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508051902.20165.thomasheinz@gmx.net>
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph
-
-You wrote:
->>Ok, thanks for your valuable input. In fact, I thought about making
->>the device available both as /dev/srX and /dev/sdX at the same time
->>in order to support partitions. In my case it would even suffice to
->>make it available as /dev/sdX instead of /dev/srX.
+On Fri, 2005-08-05 at 11:47, Andi Kleen wrote:
+> On Fri, Aug 05, 2005 at 11:37:27AM -0500, Adam Litke wrote:
+> > On Fri, 2005-08-05 at 10:53, Andi Kleen wrote:
+> > > On Fri, Aug 05, 2005 at 10:21:38AM -0500, Adam Litke wrote:
+> > > > Below is a patch to implement demand faulting for huge pages.  The main
+> > > > motivation for changing from prefaulting to demand faulting is so that
+> > > > huge page allocations can follow the NUMA API.  Currently, huge pages
+> > > > are allocated round-robin from all NUMA nodes.   
+> > > 
+> > > I think matching DEFAULT is better than having a different default for
+> > > huge pages than for small pages.
+> > 
+> > I am not exactly sure what the above means.  Is 'DEFAULT' a system
+> > default numa allocation policy?
 > 
-> That doesn't make sense because sd is a very different driver from sd.
-> Besides that aliasing different dev_ts to the same underlying blockdevice
-> can't work, it's cause all sorts of aliasing problems.
+> It's one of the four numa policies: DEFAULT, PREFERED, INTERLEAVE, BIND
+> 
+> It just means allocate on the local node if possible, otherwise fall back.
+> 
+> You said you wanted INTERLEAVE by default, which i think is a bad idea.
+> It should be only optional like in all other allocations.
 
-Ok.
+I tried to say that allocations are _currently_ INTERLEAVE (aka
+round-robin) but that I want it to be configurable.  So I think we are
+in agreement here.
 
-> It would probably be better to use device-mapper than the loop device.
-> I think there's already userland partition parsing code for dm, and
-> having a simple command line tool to do that, and maybe even automatically
-> run through udev and creating /dev/sr<num>p<partition> devices would
-> be very nice to have as an almost invisible workaround.
+> > > > patch just moves the logic from hugelb_prefault() to
+> > > > hugetlb_pte_fault().
+> > > 
+> > > Are you sure you fixed get_user_pages to handle this properly? It doesn't
+> > > like it.
+> > 
+> > Unless I am missing something, the call to follow_hugetlb_page() in
+> > get_user_pages() is just an optimization.  Removing it means
+> > follow_page() will be called individually for each PAGE_SIZE page in the
+> > huge page.  We can probably do better but I didn't want to cloud this
+> > patch with that logic.
+> 
+> The problem is that get_user_pages needs to handle the case of a large
+> page not yet being faulted in properly. The SLES9 implementation did
+> some changes for this.
+> 
+> You don't change it at all, so I'm suspect it doesn't work yet.
 
-Ok, that sounds reasonable. I have not yet searched for the partition
-parsing code for dm but it should not be too hard to write this on
-one's own. However, it is not clear to me whether this would work
-automatically, i.e. insert dvd-ram medium -> udev event is triggered ->
-device nodes are created via dmsetup.
+What about:
+--- reference/mm/memory.c
++++ current/mm/memory.c
+@@ -933,11 +933,6 @@ int get_user_pages(struct task_struct *t
+ 				|| !(flags & vma->vm_flags))
+ 			return i ? : -EFAULT;
+ 
+-		if (is_vm_hugetlb_page(vma)) {
+-			i = follow_hugetlb_page(mm, vma, pages, vmas,
+-						&start, &len, i);
+-			continue;
+-		}
+ 		spin_lock(&mm->page_table_lock);
+ 		do {
+ 			struct page *page;
 
-Will there some (udev) event be triggered once a dvd-ram medium is
-inserted?
+> It's a common case - think people doing raw IO on huge pages shared memory.
 
-Moreover, some event would have to be triggered if the dvd-ram medium
-is removed in order to delete the device nodes.
+My Direct IO test seemed to work fine, but I'll give this a closer look
+to make sure follow_huge_{addr|pmd} never return a page for an unfaulted
+hugetlb page.  Thanks for your close scrutiny and comments. 
 
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 
-Regards,
-
-Thomas

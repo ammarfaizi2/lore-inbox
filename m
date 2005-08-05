@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262968AbVHEKnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262976AbVHEKpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262968AbVHEKnk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 06:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbVHEKlh
+	id S262976AbVHEKpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 06:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbVHEKnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 06:41:37 -0400
-Received: from mail.gmx.de ([213.165.64.20]:42912 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262960AbVHEKlV (ORCPT
+	Fri, 5 Aug 2005 06:43:45 -0400
+Received: from mail.gmx.net ([213.165.64.20]:53203 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262960AbVHEKmZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 06:41:21 -0400
-X-Authenticated: #1725425
-Date: Fri, 5 Aug 2005 12:40:21 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, frank.peters@comcast.net,
-       vojtech@suse.cz
-Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
-Message-Id: <20050805124021.3a2ba4f0.Ballarin.Marc@gmx.de>
-In-Reply-To: <200508042307.33880.dtor_core@ameritech.net>
-References: <20050624113404.198d254c.frank.peters@comcast.net>
-	<200508042220.27480.dtor_core@ameritech.net>
-	<20050804205441.0a90f637.akpm@osdl.org>
-	<200508042307.33880.dtor_core@ameritech.net>
-X-Mailer: Sylpheed version 2.0.0rc (GTK+ 2.6.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 5 Aug 2005 06:42:25 -0400
+Date: Fri, 5 Aug 2005 12:42:24 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-lkml@gmx.net>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: drepper@redhat.com, jakub@redhat.com, linux-kernel@vger.kernel.org,
+       bert.hubert@netherlabs.nl, michael.kerrisk@gmx.net, akpm@osdl.org
+MIME-Version: 1.0
+References: <1118835415.22181.68.camel@hades.cambridge.redhat.com>
+Subject: =?ISO-8859-1?Q?pselect()_modifying_timeout?=
+X-Priority: 3 (Normal)
+X-Authenticated: #23581172
+Message-ID: <31556.1123238544@www44.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Aug 2005 23:07:33 -0500
-Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+Hello David,
 
-> It requests BIOS to hand off control of USB which disables USB legacy emulation
-> and all troubles associated with it. We could start with -mm...
+By the way, looking at the comments to the last version of
+the pselect()/ppoll()patch, I see that the treatment of 
+the timeout argument is made dependent on the personality.  
 
-This also fixes an issue I encountered while doing power measurements:
-without uhci-hcd loaded, the system could not enter C3 state.
-This could be fixed by either loading uhci-hcd without devices attached or
-by specifying "usb-handoff".
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111883591220436&w=2
 
-So, this can also fix "silent" issues.
+I'm not sure that this is a good idea; my reasons as follows:
 
-Regards
+1. POSIX made the behaviour of pselect() explicit -- the 
+   timeout must not be modified.  The idea was to avoid the 
+   vagueness of the select() specification; it had to be vague 
+   because of existing implementations. By contrast, there were 
+   no pre-existing implementations when pselect() was specified.  
+   (By the way, although one or two posts in the earlier thread 
+   implied that pselect() has long/widely been present on 
+   some systems, this is almost certainly not true.  The only 
+   systems where I believe it is currently implemented are two that 
+   were recently Unix 03 certified: Solaris 10 and AIX (5.3?).  I 
+   know from doing quite a bit of checking that it is not present 
+   as a kernel implementation on most (all?) other systems (even
+   though it was already described by POSIX.1g and Richard 
+   Stevens 7 years ago))  
+
+   I haven't tested Solaris 10 and AIX, but I think one can be 
+   reasonably sure that they would conform to the letter of 
+   POSIX law.  Lacking any strong reason to the contrary, 
+   Linux should (IMO) too (why gratuitously introduce 
+   differences across implementations?).
+
+2. The existing (non-atomic) glibc pselect() implementation 
+   does not change the timeout argument.
+
+Please consider making Linux pselect() conform to POSIX on this 
+point.
+
+Cheers,
+
+Michael
+
+-- 
+5 GB Mailbox, 50 FreeSMS http://www.gmx.net/de/go/promail
++++ GMX - die erste Adresse für Mail, Message, More +++

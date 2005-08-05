@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263046AbVHES7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263074AbVHESxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263046AbVHES7o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 14:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbVHES7n
+	id S263074AbVHESxM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 14:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbVHESwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 14:59:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7856 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263046AbVHESyt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 14:54:49 -0400
-Date: Fri, 5 Aug 2005 11:53:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       Shaohua Li <shaohua.li@intel.com>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Subject: Re: [PATCH 2.6.13-rc5-gitNOW] msleep() cannot be used from
- interrupt
-Message-Id: <20050805115329.45889ef8.akpm@osdl.org>
-In-Reply-To: <20050805135007.GA6985@vana.vc.cvut.cz>
-References: <20050805135007.GA6985@vana.vc.cvut.cz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 5 Aug 2005 14:52:37 -0400
+Received: from nproxy.gmail.com ([64.233.182.201]:46141 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263088AbVHESvz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 14:51:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hHugt4nY8LLW/0JoXN10NqqceM4BfdNxTCSJb712XdnrfFdJ4rKzATSpvOBv0yauwAKHK/1576i8fbH/Z7okg+hQFxLbPoL5CidVxnF6pXKlFavivZiUWHDLky03Yjcp6XCs3u0QbwC0k6uq+Vte5zphEdRINv44puKAmLRq08g=
+Message-ID: <40f323d005080511516a81a7d6@mail.gmail.com>
+Date: Fri, 5 Aug 2005 20:51:51 +0200
+From: Benoit Boissinot <bboissin@gmail.com>
+To: Olaf Hering <olh@suse.de>
+Subject: Re: [PATCH] implicit declaration of function `page_cache_release'
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050708150313.GA30373@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050708150313.GA30373@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec <vandrove@vc.cvut.cz> wrote:
+On 7/8/05, Olaf Hering <olh@suse.de> wrote:
+> 
+> In file included from include2/asm/tlb.h:31,
+>                  from linux-2.6.13-rc2-olh/arch/ppc64/kernel/pSeries_lpar.c:37:
+> linux-2.6.13-rc2-olh/include/asm-generic/tlb.h: In function `tlb_flush_mmu':
+> linux-2.6.13-rc2-olh/include/asm-generic/tlb.h:77: warning: implicit declaration of function `release_pages'
+> linux-2.6.13-rc2-olh/include/asm-generic/tlb.h: In function `tlb_remove_page':
+> linux-2.6.13-rc2-olh/include/asm-generic/tlb.h:117: warning: implicit declaration of function `page_cache_release'
+> 
+This went in 2.6.13-rc3 (commit
+542d1c88bd7f73e2e59d41b12e4a9041deea89e4), and broke sparc compilation
+because of the following circular dependency:
+asm-sparc/pgtable include linux/swap.h
+linux/swap.h include now linux/pagemap.h
+linux/pagemap.h include linux/mm.h
+linux/mm.h include asm/pgtable.h
+
+I haven't found a satisfactory way to resolve this, but i think the
+patch should be removed (it removes a warning but breaks an
+architecture).
+
+Regards,
+
+Benoit Boissinot
+
+> Index: linux-2.6.13-rc2-olh/include/linux/pagemap.h
+>  ===================================================================
+> --- linux-2.6.13-rc2-olh.orig/include/linux/swap.h
+> +++ linux-2.6.13-rc2-olh/include/linux/swap.h
+> @@ -7,6 +7,7 @@
+>  #include <linux/mmzone.h>
+>  #include <linux/list.h>
+>  #include <linux/sched.h>
+> +#include <linux/pagemap.h>
+>  #include <asm/atomic.h>
+>  #include <asm/page.h>
 >
-> Since beginning of July my Opteron box was randomly crashing and being rebooted
->  by hardware watchdog.  Today it finally did it in front of me, and this patch
->  will hopefully fix it.
-> 
->  Problem is that at the end of June (28th, commit 
->  47f176fdaf8924bc83fddcf9658f2fd3ef60d573, [PATCH] Using msleep() instead of HZ) 
->  rtc_get_rtc_time was converted to use msleep() instead of busy waiting.  But
->  rtc_get_rtc_time is used by hpet_rtc_interrupt, and scheduling is not allowed
->  during interrupt.  So I'm reverting this part of original change, replacing
->  msleep() back with busy loop.
-> 
->  Original old code was busy waiting for 20ms, while on my hardware in the worst
->  case update-in-progress bit was asserted for at most 363 passes through loop
->  (on 2GHz dual Opteron), much less than even one jiffie, not even talking
->  about 20ms.  So I changed code to just wait only as long as necessary.  Otherwise
->  when RTC was set to generate 8192Hz timer, it stopped doing anything for
->  20ms (160 pulses were skipped!) from time to time, and this is rather suboptimal
->  as far as I can tell.
-
-That's all pretty sad stuff.  I guess for now we can go back to the busy
-loop.  Longer-term it would be nice if we could tune up the HPET driver in
-some manner so we can avoid this busy-wait-in-interrupt.
-
-I'm not sure who the HPET maintainer/expert is nowadays.  Robert Picco did
-the original work but I haven't seen Robert around for a long time?

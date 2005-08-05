@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262946AbVHEJMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262925AbVHEJQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262946AbVHEJMp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 05:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbVHEJKA
+	id S262925AbVHEJQf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 05:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVHEJQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 05:10:00 -0400
-Received: from ozlabs.org ([203.10.76.45]:23238 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262920AbVHEJHG (ORCPT
+	Fri, 5 Aug 2005 05:16:35 -0400
+Received: from cantor.suse.de ([195.135.220.2]:425 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262925AbVHEJQb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 05:07:06 -0400
-Date: Fri, 5 Aug 2005 19:06:40 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>, torvalds@ozlabs.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix hugepage crash on failing mmap()
-Message-ID: <20050805090640.GD2224@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, torvalds@ozlabs.org,
-	linux-kernel@vger.kernel.org
+	Fri, 5 Aug 2005 05:16:31 -0400
+Date: Fri, 5 Aug 2005 11:16:30 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: NUMA policy interface
+Message-ID: <20050805091630.GL8266@wotan.suse.de>
+References: <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net> <20050804170803.GB8266@wotan.suse.de> <Pine.LNX.4.62.0508041011590.7314@graphe.net> <20050804211445.GE8266@wotan.suse.de> <Pine.LNX.4.62.0508041416490.10150@graphe.net> <20050804214132.GF8266@wotan.suse.de> <Pine.LNX.4.62.0508041509330.10813@graphe.net> <20050804234025.GJ8266@wotan.suse.de> <Pine.LNX.4.62.0508041642130.15157@graphe.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.62.0508041642130.15157@graphe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew/Linus, please apply:
+On Thu, Aug 04, 2005 at 04:49:33PM -0700, Christoph Lameter wrote:
+> On Fri, 5 Aug 2005, Andi Kleen wrote:
+> 
+> > None of them seem very attractive to me.  I would prefer to just
+> > not support external accesses keeping things lean and fast.
+> 
+> That is a surprising statement given what we just discussed. Things 
+> are not lean and fast but weirdly screwed up. The policy layer is 
+> significantly impacted by historical contingencies rather than designed in 
+> a clean way. It cannot even deliver the functionality it was designed to 
+> deliver (see BIND).
 
-This patch fixes a crash in the hugepage code.  unmap_hugepage_area()
-was assuming that (due to prefault) PTEs must exist for all the area
-in question.  However, this may not be the case, if mmap() encounters
-an error before the prefault and calls unmap_region() to clean up any
-partial mapping.
+That seems like a unfair description to me. While things are not
+perfect they are definitely not as bad as you're trying to paint them.
 
-Depending on the hugepage configuration, this crash can be triggered
-by an unpriveleged user.
+> 
+> > Individual physical page migration is quite different from
+> > address space migration.
+> 
+> Address space migration? That is something new in this discussion. So 
+> could you explain what you mean by that? I have looked at page migration 
+> in a variety of contexts and could not see much difference.
 
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+MCE page migration just puts a physical page to somewhere else.
+memory hotplug migration does the same for multiple pages from
+different processes.
 
-Index: working-2.6/mm/hugetlb.c
-===================================================================
---- working-2.6.orig/mm/hugetlb.c	2005-08-05 18:47:10.000000000 +1000
-+++ working-2.6/mm/hugetlb.c	2005-08-05 18:58:09.000000000 +1000
-@@ -301,6 +301,7 @@
- {
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long address;
-+	pte_t *ptep;
- 	pte_t pte;
- 	struct page *page;
- 
-@@ -309,9 +310,17 @@
- 	BUG_ON(end & ~HPAGE_MASK);
- 
- 	for (address = start; address < end; address += HPAGE_SIZE) {
--		pte = huge_ptep_get_and_clear(mm, address, huge_pte_offset(mm, address));
-+		ptep = huge_pte_offset(mm, address);
-+		if (! ptep)
-+			/* This can happen on truncate, or if an
-+			 * mmap() is aborted due to an error before
-+			 * the prefault */
-+			continue;
-+
-+		pte = huge_ptep_get_and_clear(mm, address, ptep);
- 		if (pte_none(pte))
- 			continue;
-+
- 		page = pte_page(pte);
- 		put_page(page);
- 	}
+Page migration like you're asking for migrates whole processes.
 
+-Andi
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson

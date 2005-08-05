@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVHEPDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262973AbVHEPwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVHEPDM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 11:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbVHEOxB
+	id S262973AbVHEPwB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 11:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbVHEPDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 10:53:01 -0400
-Received: from graphe.net ([209.204.138.32]:56233 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S263046AbVHEOwd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 10:52:33 -0400
-Date: Fri, 5 Aug 2005 07:52:27 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Andi Kleen <ak@suse.de>
-cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: NUMA policy interface
-In-Reply-To: <20050805091630.GL8266@wotan.suse.de>
-Message-ID: <Pine.LNX.4.62.0508050750560.27054@graphe.net>
-References: <20050804142942.GY8266@wotan.suse.de> <Pine.LNX.4.62.0508040922110.6650@graphe.net>
- <20050804170803.GB8266@wotan.suse.de> <Pine.LNX.4.62.0508041011590.7314@graphe.net>
- <20050804211445.GE8266@wotan.suse.de> <Pine.LNX.4.62.0508041416490.10150@graphe.net>
- <20050804214132.GF8266@wotan.suse.de> <Pine.LNX.4.62.0508041509330.10813@graphe.net>
- <20050804234025.GJ8266@wotan.suse.de> <Pine.LNX.4.62.0508041642130.15157@graphe.net>
- <20050805091630.GL8266@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Fri, 5 Aug 2005 11:03:12 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:29390 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262481AbVHEPBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 11:01:46 -0400
+Subject: Re: [Bugme-new] [Bug 5003] New: Problem with symbios driver on
+	recent	-mm trees
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       bugme-daemon@kernel-bugs.osdl.org
+In-Reply-To: <179280000.1123252564@[10.10.2.4]>
+References: <135040000.1123216397@[10.10.2.4]>
+	 <20050804233927.2d3abb16.akpm@osdl.org> <1123251892.5003.6.camel@mulgrave>
+	 <179280000.1123252564@[10.10.2.4]>
+Content-Type: text/plain
+Date: Fri, 05 Aug 2005 10:01:26 -0500
+Message-Id: <1123254086.5003.10.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Aug 2005, Andi Kleen wrote:
+On Fri, 2005-08-05 at 07:36 -0700, Martin J. Bligh wrote:
+> Howcome it works on all mainline kernels, and not -mm then? ;-)
+> Did we fix an error path to detect failures, maybe?
 
-> > Address space migration? That is something new in this discussion. So 
-> > could you explain what you mean by that? I have looked at page migration 
-> > in a variety of contexts and could not see much difference.
-> 
-> MCE page migration just puts a physical page to somewhere else.
-> memory hotplug migration does the same for multiple pages from
-> different processes.
-> 
-> Page migration like you're asking for migrates whole processes.
+Well, OK, it might be something to do with your drives trying to
+negotiate IU and QAS.  Support for this was added to the sym2 driver but
+never verified (because no-one seemed to have drives that could do it).
 
-No I am asking for the migration of parts of a process. Hotplug migration 
-and MCE page migration do the same.
+The attached should stop the driver from negotiating these two
+parameters, if you could try it (it will produce complaints about static
+functions defined but not used, but you can ignore them).
+
+James
+
+diff --git a/drivers/scsi/sym53c8xx_2/sym_glue.c b/drivers/scsi/sym53c8xx_2/sym_glue.c
+--- a/drivers/scsi/sym53c8xx_2/sym_glue.c
++++ b/drivers/scsi/sym53c8xx_2/sym_glue.c
+@@ -2122,10 +2122,12 @@ static struct spi_function_template sym2
+ 	.show_width	= 1,
+ 	.set_dt		= sym2_set_dt,
+ 	.show_dt	= 1,
++#if 0
+ 	.set_iu		= sym2_set_iu,
+ 	.show_iu	= 1,
+ 	.set_qas	= sym2_set_qas,
+ 	.show_qas	= 1,
++#endif
+ 	.get_signalling	= sym2_get_signalling,
+ };
+ 
 
 

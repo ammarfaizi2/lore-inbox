@@ -1,103 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVHELMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbVHELmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbVHELMV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 07:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbVHELMV
+	id S262989AbVHELmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 07:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVHELmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 07:12:21 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:33510 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262980AbVHELMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 07:12:18 -0400
-Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
-From: Arjan van de Ven <arjan@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       linux-kernel@vger.kernel.org, pmarques@grupopie.com
-In-Reply-To: <Pine.LNX.4.61.0508051254010.3743@scrub.home>
-References: <1123219747.20398.1.camel@localhost>
-	 <20050804223842.2b3abeee.akpm@osdl.org>
-	 <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI>
-	 <20050804233634.1406e92a.akpm@osdl.org>
-	 <Pine.LNX.4.61.0508051132540.3743@scrub.home>
-	 <1123235219.3239.46.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0508051202520.3728@scrub.home>
-	 <1123236831.3239.55.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0508051225270.3743@scrub.home>
-	 <1123238289.3239.57.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0508051254010.3743@scrub.home>
-Content-Type: text/plain
-Date: Fri, 05 Aug 2005 13:12:04 +0200
-Message-Id: <1123240325.3239.62.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Fri, 5 Aug 2005 07:42:09 -0400
+Received: from mail.gmx.net ([213.165.64.20]:62149 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262989AbVHELmH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 07:42:07 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] preempt-trace.patch
+Date: Fri, 5 Aug 2005 13:44:54 +0200
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050607042931.23f8f8e0.akpm@osdl.org> <20050804152858.2ef2d72b.akpm@osdl.org> <20050805104819.GA20278@elte.hu>
+In-Reply-To: <20050805104819.GA20278@elte.hu>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2655351.RW4KK5tHXM";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200508051344.58848.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-05 at 12:56 +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 5 Aug 2005, Arjan van de Ven wrote:
-> 
-> > > > we've had a non-negliable amount of security holes because of this
-> > > 
-> > > So why don't we have a similiar kmalloc()?
-> > 
-> > nope kmalloc is not an array allocator
-> > 
-> > > > it makes it easy and safe. Of course you can and should check it in all
-> > > > users. Just that using a safer API is generally better than forcing
-> > > > everyone to do it themselves.
-> > > 
-> > > How exactly does this make it a "safe API"? Even if it checks for this one 
-> > > case, it still makes the user suspectible for allocating big amounts of 
-> > > unswappable memory.
-> > 
-> > 128Kb max.
-> 
-> You completely missed the point and didn't answer my questions at all... :-(
+--nextPart2655351.RW4KK5tHXM
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I found it hard to understand your question.
+On Friday 05 August 2005 12:48, Ingo Molnar wrote:
+> * Andrew Morton <akpm@osdl.org> wrote:
+> > I think Ingo was planning on coming up with some infrastructure which
+> > would allow us to debug this further.
+>
+> yeah. I've done this today and have split it out of the -RT tree, see
+> the patch below. After some exposure in -mm i'd like this feature to go
+> upstream too.
+>
+> the patch is against recent Linus trees, 2.6.13-rc4 or later should all
+> work. Dominik, could you try it and send us the new kernel logs whenever
+> you happen to hit that warning message again? (Please also enable
+> CONFIG_KALLSYMS_ALL, so that we get as much symbolic data as possible.)
 
-Maybe it helps if I give the basic bug scenario first (pseudo C)
+I tried to compile the patch on top of 2.6.13-rc4-mm1, it applied with a fe=
+w=20
+offsets, but it looked ok.
+Here is the error I get when I compiled it:
 
-void some_ioctl_func(...)
-{
-  int count, i;
-  struct foo *ptr;
+  CC      arch/x86_64/kernel/traps.o
+arch/x86_64/kernel/traps.c: In function `show_trace':
+arch/x86_64/kernel/traps.c:228: warning: implicit declaration of function=20
+`print_traces'
+arch/x86_64/kernel/traps.c:228: error: `task' undeclared (first use in this=
+=20
+function)
+arch/x86_64/kernel/traps.c:228: error: (Each undeclared identifier is repor=
+ted=20
+only once
+arch/x86_64/kernel/traps.c:228: error: for each function it appears in.)
+make[1]: *** [arch/x86_64/kernel/traps.o] Error 1
 
-  copy_from_user(&count,...);
+I took a look at the traps.c file, but couldn't find any solution, as there=
+ is=20
+no print_traces function and task variable too in this section.
 
-  ptr = kmalloc(sizeof(struct foo) * count);
+dominik
 
-  if (!ptr)
-     return -ENOMEM;
+--nextPart2655351.RW4KK5tHXM
+Content-Type: application/pgp-signature
 
-  for (i=0; i<count; i++) {
-      initialize(ptr+i);
-  }
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
 
+iQCVAwUAQvNROgvcoSHvsHMnAQIWLwP+O51sz/EyXEWjNbDHal4SuPNUepuyPpF+
+SseRJAymy41nsklYqR2Y+x2tHYusN+DwVTUb3zcn2YG4h+/A6yqQPZINzJZMu847
+GjyeuuyDV250zl6nSFAlGZJuD+b1KKni9UKFjzd0JPV+R6qvcV+4cNdxkF8Bx9Fy
+uob3j7LPOYQ=
+=vsfW
+-----END PGP SIGNATURE-----
 
-if the user picks count such that the multiplication overflows, the
-kmalloc will actually *succeed* in getting a chunk between 0 and 128Kb.
-The subsequent "fill the array up" will overwrite a LOT of kernel memory
-though.
-
-Fixing the hole of course involves checking "count" for too high a
-value. Using kcalloc() will check for this same overflow inside kcalloc
-and prevent it (eg return NULL) if one of these slips through.
-
-
+--nextPart2655351.RW4KK5tHXM--

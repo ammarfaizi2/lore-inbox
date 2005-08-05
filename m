@@ -1,40 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbVHEWN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263150AbVHEWIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263141AbVHEWN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 18:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263144AbVHEWNW
+	id S263150AbVHEWIG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 18:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbVHEWHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 18:13:22 -0400
-Received: from mail.kroah.org ([69.55.234.183]:61345 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263141AbVHEWL4 (ORCPT
+	Fri, 5 Aug 2005 18:07:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29575 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261985AbVHEWGS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 18:11:56 -0400
-Date: Fri, 5 Aug 2005 15:11:35 -0700
-From: Greg KH <greg@kroah.com>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: Dave Jones <davej@redhat.com>, pcihpd-discuss@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, rajesh.shah@intel.com
-Subject: Re: [Pcihpd-discuss] Re: [PATCH] use bus_slot number for name
-Message-ID: <20050805221135.GA3782@kroah.com>
-References: <1123269366.8917.39.camel@whizzy> <20050805195123.GN2241@redhat.com> <1123277467.8917.58.camel@whizzy>
+	Fri, 5 Aug 2005 18:06:18 -0400
+Date: Fri, 5 Aug 2005 15:05:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes.  Also some X
+ trouble.
+Message-Id: <20050805150506.703e804f.akpm@osdl.org>
+In-Reply-To: <20050805104025.GA14688@aitel.hist.no>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>
+	<20050805104025.GA14688@aitel.hist.no>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123277467.8917.58.camel@whizzy>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 02:31:07PM -0700, Kristen Accardi wrote:
-> +#define HPSLOT_NAME_SIZE BUS_ID_SIZE 
-> +static inline void pci_hp_make_slot_name(struct hotplug_slot *hpslot, struct pci_dev *pdev)
-> +{
-> +	snprintf(hpslot->name, HPSLOT_NAME_SIZE, "%s", pci_name(pdev));
-> +}
+Helge Hafting <helgehaf@aitel.hist.no> wrote:
+>
+> 2.6.13-rc5 seemed to kill a scsi disk (sdb) for me, where 2.6.13-rc4-mm1
+> have no problems with the same disk.
+> 
+> Machine: opteron running a x86-64 kernel, with built-in SATA as well as
+> a symbios scsi controller.  Two videocards running independent xservers.
+> The sdb disk is on the symbios controller.
+> 
+> 
+> Using 2.6.13-rc5 I suddenly got this in my logs:
+> 
+> Aug  3 22:06:00 tenkende-august -- MARK --
+> Aug  3 22:17:15 tenkende-august kernel: sd 0:0:0:0: ABORT operation started.
+> Aug  3 22:17:15 tenkende-august kernel: sd 0:0:0:0: ABORT operation timed-out.
+> 
+> ...
+> This "no additiomnal sense" then repeats for many screenfulls.
+> Two sdb partitions got dropped from RAID-1 as they failed, the
+> md devices got remoutned read-only.
+> 
+> I thought the disk had died - it was my oldest so it'd be reasonable.
+> Rebooting 2.6.13-rc5 did not bring the disk back - it came up useless again.
+> 
+> I switched back to 2.6.13-rc4-mm1 at this point for another reason,
+> my X display aquired a nasty tendency to go blank for no reason during work,
+> something I could fix by changing resolution baqck and forth.  X also tended to get
+> stuck for a minute now and then - a problem I haven't seen since early 2.6.
+> 
+> These troubles disappeared by going back to 2.6.13-rc4-mm1.  Even more interesting,
+> the sdb disk seems fine again.  There were no errors as I copied
+> all data to another disk, and no errors when I ran a badblocks write-test
+> (the nondestructive write test) on it. 
+> 
+> The two kernels have some config differences.  The 2.6.13-rc5 kernel
+> has ACPI+CPUFREQ configured, that the 2.6.13-rc4-mm1 doesn't have.
 
-I don't think that others can use this, as you can have multiple struct
-pci_dev for the same "slot".
+That's a pretty big difference ;)
 
-thanks,
+> ...
+> I can run more tests, but don't know what would be the most interesting.
+> rc5 without powermanagement?  rc4-mm1 with it? Or the newest git kernel?
+> Or is this the effect of some known problem?
 
-greg k-h
+The latest -git kernel (or 2.6.13-rc6 if it's there) with APCI enabled is
+the one to test, please.
+

@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVHEKIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262948AbVHEKJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbVHEKIE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 06:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbVHEKID
+	id S262948AbVHEKJb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 06:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262952AbVHEKIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 06:08:03 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:25245 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261859AbVHEKHa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 06:07:30 -0400
-Date: Fri, 5 Aug 2005 12:07:16 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       linux-kernel@vger.kernel.org, pmarques@grupopie.com
-Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
-In-Reply-To: <1123235219.3239.46.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.61.0508051202520.3728@scrub.home>
-References: <1123219747.20398.1.camel@localhost>  <20050804223842.2b3abeee.akpm@osdl.org>
-  <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI> 
- <20050804233634.1406e92a.akpm@osdl.org>  <Pine.LNX.4.61.0508051132540.3743@scrub.home>
- <1123235219.3239.46.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Aug 2005 06:08:07 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:14053 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262948AbVHEKIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 06:08:00 -0400
+Date: Fri, 5 Aug 2005 12:07:50 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Teigland <teigland@redhat.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: [PATCH 00/14] GFS
+Message-ID: <20050805100750.GA9818@wohnheim.fh-wedel.de>
+References: <20050802071828.GA11217@redhat.com> <1122968724.3247.22.camel@laptopd505.fenrus.org> <20050805071415.GC14880@redhat.com> <1123227279.3239.1.camel@laptopd505.fenrus.org> <20050805094452.GD14880@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050805094452.GD14880@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 5 August 2005 17:44:52 +0800, David Teigland wrote:
+> 
+> linux/lib/crc32table.h : crc32table_le[] is the same as our crc_32_tab[].
+> This looks like a standard that's not going to change, as you've said, so
+> including crc32table.h and getting rid of our own table would work fine.
+> 
+> Do we go a step beyond this and use say the crc32() function from
+> linux/crc32.h?  Is this _function_ as standard and unchanging as the table
+> of crcs?  In my tests it doesn't produce the same results as our
+> gfs2_disk_hash() function, even with both using the same crc table.  I
+> don't mind adopting a new function and just writing a user space
+> equivalent for the tools if it's a fixed standard.
 
-On Fri, 5 Aug 2005, Arjan van de Ven wrote:
+The function is basically set in stone.  Variants exists depending on
+how it is called.  I know of four variants, but there may be more:
 
-> kcalloc does have value, in that it's a nice api to avoid multiplication
-> overflows. Just for "1" it's indeed not the most useful API. 
+1. Initial value is 0
+2. Initial value is 0xffffffff
+a) Result is taken as-is
+b) Result is XORed with 0xffffffff
 
-This would imply a similiar kmalloc() would be useful as well.
-Second, how relevant is it for the kernel? Is that really the best place 
-to check for rogue user parameters?
+Maybe your code implements 1a, while you tried 2b with the lib/crc32.c
+function or something similar?
 
-bye, Roman
+Jörn
+
+-- 
+And spam is a useful source of entropy for /dev/random too!
+-- Jasmine Strong

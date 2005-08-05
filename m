@@ -1,184 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262888AbVHEGw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVHEHJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbVHEGw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 02:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbVHEGw5
+	id S262890AbVHEHJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 03:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVHEHJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 02:52:57 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:15512 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262888AbVHEGwg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 02:52:36 -0400
-Date: Fri, 5 Aug 2005 09:52:32 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, pmarques@grupopie.com
-Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
-In-Reply-To: <20050804233634.1406e92a.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0508050946070.27679@sbz-30.cs.Helsinki.FI>
-References: <1123219747.20398.1.camel@localhost> <20050804223842.2b3abeee.akpm@osdl.org>
- <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI>
- <20050804233634.1406e92a.akpm@osdl.org>
+	Fri, 5 Aug 2005 03:09:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46027 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262890AbVHEHJP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 03:09:15 -0400
+Date: Fri, 5 Aug 2005 15:14:15 +0800
+From: David Teigland <teigland@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: [PATCH 00/14] GFS
+Message-ID: <20050805071415.GC14880@redhat.com>
+References: <20050802071828.GA11217@redhat.com> <1122968724.3247.22.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1122968724.3247.22.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Aug 2005, Andrew Morton wrote:
-> That'll generate just as much code as simply using kcalloc(1, ...).  This
-> function should be out-of-line and EXPORT_SYMBOL()ed.  And kcalloc() can
-> call it too..
+On Tue, Aug 02, 2005 at 09:45:24AM +0200, Arjan van de Ven wrote:
 
-Yes, much better now. Thanks Andrew.
+> * +static const uint32_t crc_32_tab[] = .....
+> why do you duplicate this? The kernel has a perfectly good set of
+> generic crc32 tables/functions just fine
 
-				Pekka
+The gfs2_disk_hash() function and the crc table on which it's based are a
+part of gfs2_ondisk.h: the ondisk metadata specification.  This is a bit
+unusual since gfs uses a hash table on-disk for its directory structure.
+This header, including the hash function/table, must be included by user
+space programs like fsck that want to decipher a fs, and any change to the
+function or table would effectively make the fs corrupted.  Because of
+this I think it's best for gfs to keep it's own copy as part of its ondisk
+format spec.
 
-[PATCH] introduce kzalloc
+> * Why are you using bufferheads extensively in a new filesystem?
 
-This patch introduces a kzalloc wrapper and converts kernel/ to use it.
+bh's are used for metadata, the log, and journaled data which need to be
+written at the block granularity, not page.
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+> why do you use a rwsem and not a regular semaphore? You are aware that
+> rwsems are far more expensive than regular ones right?  How skewed is
+> the read/write ratio?
 
- include/linux/slab.h |    1 +
- kernel/intermodule.c |    3 +--
- kernel/params.c      |    4 ++--
- kernel/power/pm.c    |    3 +--
- kernel/resource.c    |    3 +--
- kernel/workqueue.c   |    3 +--
- mm/slab.c            |   19 +++++++++++++++----
- 7 files changed, 22 insertions(+), 14 deletions(-)
+Aware, yes, it's the only rwsem in gfs.  Specific skew, no, we'll have to
+measure that.
 
-Index: 2.6/kernel/resource.c
-===================================================================
---- 2.6.orig/kernel/resource.c
-+++ 2.6/kernel/resource.c
-@@ -430,10 +430,9 @@ EXPORT_SYMBOL(adjust_resource);
-  */
- struct resource * __request_region(struct resource *parent, unsigned long start, unsigned long n, const char *name)
- {
--	struct resource *res = kmalloc(sizeof(*res), GFP_KERNEL);
-+	struct resource *res = kzalloc(sizeof(*res), GFP_KERNEL);
- 
- 	if (res) {
--		memset(res, 0, sizeof(*res));
- 		res->name = name;
- 		res->start = start;
- 		res->end = start + n - 1;
-Index: 2.6/kernel/intermodule.c
-===================================================================
---- 2.6.orig/kernel/intermodule.c
-+++ 2.6/kernel/intermodule.c
-@@ -39,7 +39,7 @@ void inter_module_register(const char *i
- 	struct list_head *tmp;
- 	struct inter_module_entry *ime, *ime_new;
- 
--	if (!(ime_new = kmalloc(sizeof(*ime), GFP_KERNEL))) {
-+	if (!(ime_new = kzalloc(sizeof(*ime), GFP_KERNEL))) {
- 		/* Overloaded kernel, not fatal */
- 		printk(KERN_ERR
- 			"Aiee, inter_module_register: cannot kmalloc entry for '%s'\n",
-@@ -47,7 +47,6 @@ void inter_module_register(const char *i
- 		kmalloc_failed = 1;
- 		return;
- 	}
--	memset(ime_new, 0, sizeof(*ime_new));
- 	ime_new->im_name = im_name;
- 	ime_new->owner = owner;
- 	ime_new->userdata = userdata;
-Index: 2.6/kernel/params.c
-===================================================================
---- 2.6.orig/kernel/params.c
-+++ 2.6/kernel/params.c
-@@ -542,8 +542,8 @@ static void __init kernel_param_sysfs_se
- {
- 	struct module_kobject *mk;
- 
--	mk = kmalloc(sizeof(struct module_kobject), GFP_KERNEL);
--	memset(mk, 0, sizeof(struct module_kobject));
-+	mk = kzalloc(sizeof(struct module_kobject), GFP_KERNEL);
-+	BUG_ON(!mk);
- 
- 	mk->mod = THIS_MODULE;
- 	kobj_set_kset_s(mk, module_subsys);
-Index: 2.6/kernel/power/pm.c
-===================================================================
---- 2.6.orig/kernel/power/pm.c
-+++ 2.6/kernel/power/pm.c
-@@ -60,9 +60,8 @@ struct pm_dev *pm_register(pm_dev_t type
- 			   unsigned long id,
- 			   pm_callback callback)
- {
--	struct pm_dev *dev = kmalloc(sizeof(struct pm_dev), GFP_KERNEL);
-+	struct pm_dev *dev = kzalloc(sizeof(struct pm_dev), GFP_KERNEL);
- 	if (dev) {
--		memset(dev, 0, sizeof(*dev));
- 		dev->type = type;
- 		dev->id = id;
- 		dev->callback = callback;
-Index: 2.6/kernel/workqueue.c
-===================================================================
---- 2.6.orig/kernel/workqueue.c
-+++ 2.6/kernel/workqueue.c
-@@ -310,10 +310,9 @@ struct workqueue_struct *__create_workqu
- 
- 	BUG_ON(strlen(name) > 10);
- 
--	wq = kmalloc(sizeof(*wq), GFP_KERNEL);
-+	wq = kzalloc(sizeof(*wq), GFP_KERNEL);
- 	if (!wq)
- 		return NULL;
--	memset(wq, 0, sizeof(*wq));
- 
- 	wq->name = name;
- 	/* We don't need the distraction of CPUs appearing and vanishing. */
-Index: 2.6/include/linux/slab.h
-===================================================================
---- 2.6.orig/include/linux/slab.h
-+++ 2.6/include/linux/slab.h
-@@ -100,6 +100,7 @@ found:
- }
- 
- extern void *kcalloc(size_t, size_t, unsigned int __nocast);
-+extern void *kzalloc(size_t, unsigned int __nocast);
- extern void kfree(const void *);
- extern unsigned int ksize(const void *);
- 
-Index: 2.6/mm/slab.c
-===================================================================
---- 2.6.orig/mm/slab.c
-+++ 2.6/mm/slab.c
-@@ -2555,6 +2555,20 @@ void kmem_cache_free(kmem_cache_t *cache
- EXPORT_SYMBOL(kmem_cache_free);
- 
- /**
-+ * kzalloc - allocate memory. The memory is set to zero.
-+ * @size: how many bytes of memory are required.
-+ * @flags: the type of memory to allocate.
-+ */
-+void *kzalloc(size_t size, unsigned int __nocast flags)
-+{
-+	void *ret = kmalloc(size, flags);
-+	if (ret)
-+		memset(ret, 0, size);
-+	return ret;
-+}
-+EXPORT_SYMBOL(kzalloc);
-+
-+/**
-  * kcalloc - allocate memory for an array. The memory is set to zero.
-  * @n: number of elements.
-  * @size: element size.
-@@ -2567,10 +2581,7 @@ void *kcalloc(size_t n, size_t size, uns
- 	if (n != 0 && size > INT_MAX / n)
- 		return ret;
- 
--	ret = kmalloc(n * size, flags);
--	if (ret)
--		memset(ret, 0, n * size);
--	return ret;
-+	return kzalloc(n * size, flags);
- }
- EXPORT_SYMBOL(kcalloc);
- 
+> * +++ b/fs/gfs2/fixed_div64.h	2005-08-01 14:13:08.009808200 +0800
+> ehhhh why?
+
+I'm not sure, actually, apart from the comments:
+
+do_div: /* For ia32 we need to pull some tricks to get past various versions
+           of the compiler which do not like us using do_div in the middle
+           of large functions. */
+
+do_mod: /* Side effect free 64 bit mod operation */
+
+fs/xfs/linux-2.6/xfs_linux.h (the origin of this file) has the same thing,
+perhaps this is an old problem that's now fixed?
+
+> * int gfs2_copy2user(struct buffer_head *bh, char **buf, unsigned int offset,
+> +		   unsigned int size)
+> +{
+> +	int error;
+> +
+> +	if (bh)
+> +		error = copy_to_user(*buf, bh->b_data + offset, size);
+> +	else
+> +		error = clear_user(*buf, size);
+> 
+> that looks to be missing a few kmaps.. whats the guarantee that b_data
+> is actually, like in lowmem?
+
+This is only used in the specific case of reading a journaled-data file.
+That seems to effectively be the same as reading a buffer of fs metadata.
+
+> The diaper device is a block device within gfs that gets transparently
+> inserted between the real device the and rest of the filesystem.
+> 
+> hmmmm why not use device mapper or something? Is this really needed?
+
+This is needed for the "withdraw" feature (described in the comment) which
+is fairly important.  We'll see if dm could be used instead.
+
+Thanks,
+Dave
+

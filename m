@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbVHEPDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVHEPmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbVHEPDM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 11:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVHEOxq
+	id S261809AbVHEPmk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 11:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263067AbVHEPgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 10:53:46 -0400
-Received: from fep16.inet.fi ([194.251.242.241]:25231 "EHLO fep16.inet.fi")
-	by vger.kernel.org with ESMTP id S261817AbVHEOvf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 10:51:35 -0400
-Subject: [PATCH 5/8] PCI: convert kcalloc to kzalloc
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <ikr7js.czjdww.9wbed36gfob4o2kzq2itotq1c.beaver@cs.helsinki.fi>
-In-Reply-To: <ikr7je.odev85.el9izpk1g38nfy240a6ur3v2s.beaver@cs.helsinki.fi>
-Date: Fri, 5 Aug 2005 17:51:34 +0300
+	Fri, 5 Aug 2005 11:36:41 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8433 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263062AbVHEPfa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 11:35:30 -0400
+Message-ID: <42F386C4.2080103@mvista.com>
+Date: Fri, 05 Aug 2005 08:33:24 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gerd Knorr <kraxel@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Roland McGrath <roland@redhat.com>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Re: 2.6.12: itimer_real timers don't survive execve()
+ any more
+References: <42F28707.7060806@mvista.com> <20050804213416.1EA56180980@magilla.sf.frob.com> <20050804150251.5f4acb0a.akpm@osdl.org> <20050805084401.GA12145@bytesex>
+In-Reply-To: <20050805084401.GA12145@bytesex>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts kcalloc(1, ...) calls to use the new kzalloc() function.
+Gerd Knorr wrote:
+> On Thu, Aug 04, 2005 at 03:02:51PM -0700, Andrew Morton wrote:
+> 
+>>Roland McGrath <roland@redhat.com> wrote:
+>>
+>>>That's wrong.  It has to be done only by the last thread in the group to go.
+>>>Just revert Ingo's change.
+>>>
+>>
+>>OK..
+>>
+>>+++ 25-akpm/kernel/exit.c	Thu Aug  4 15:01:06 2005
+>>@@ -829,8 +829,10 @@ fastcall NORET_TYPE void do_exit(long co
+>>-	if (group_dead)
+>>+	if (group_dead) {
+>>+ 		del_timer_sync(&tsk->signal->real_timer);
+>> 		acct_process(code);
+>>+	}
+>>+++ 25-akpm/kernel/posix-timers.c	Thu Aug  4 15:01:06 2005
+>>@@ -1166,7 +1166,6 @@ void exit_itimers(struct signal_struct *
+>>-	del_timer_sync(&sig->real_timer);
+> 
+> 
+> That one fixes it for me.
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+There are other concerns.  Let me see if I understand this.  A thread 
+(other than the leader) can exec and we then need to change the 
+real_timer to wake the new task which will NOT be using the same task 
+struct.
 
- hotplug/sgi_hotplug.c |    2 +-
- pci-sysfs.c           |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+My looking at the code shows that the thread leader can exit and then 
+stays around as a zombi until the last thread in the group exits.  If an 
+alarm comes during this wait I suspect it will wake this zombi and cause 
+problems.  So, don't we need to also change real_timer's task when the 
+exiting task is the real_timer wake up task, assigning it to some other 
+member of the group?  Note, I don't say just if it is the group leader...
 
-Index: 2.6/drivers/pci/hotplug/sgi_hotplug.c
-===================================================================
---- 2.6.orig/drivers/pci/hotplug/sgi_hotplug.c
-+++ 2.6/drivers/pci/hotplug/sgi_hotplug.c
-@@ -142,7 +142,7 @@ static int sn_hp_slot_private_alloc(stru
- 
- 	pcibus_info = SN_PCIBUS_BUSSOFT_INFO(pci_bus);
- 
--	bss_hotplug_slot->private = kcalloc(1, sizeof(struct slot),
-+	bss_hotplug_slot->private = kzalloc(sizeof(struct slot),
- 					    GFP_KERNEL);
- 	if (!bss_hotplug_slot->private)
- 		return -ENOMEM;
-Index: 2.6/drivers/pci/pci-sysfs.c
-===================================================================
---- 2.6.orig/drivers/pci/pci-sysfs.c
-+++ 2.6/drivers/pci/pci-sysfs.c
-@@ -356,7 +356,7 @@ pci_create_resource_files(struct pci_dev
- 			continue;
- 
- 		/* allocate attribute structure, piggyback attribute name */
--		res_attr = kcalloc(1, sizeof(*res_attr) + 10, GFP_ATOMIC);
-+		res_attr = kzalloc(sizeof(*res_attr) + 10, GFP_ATOMIC);
- 		if (res_attr) {
- 			char *res_attr_name = (char *)(res_attr + 1);
- 
+Then when we finally release the signal structure, we can "del" the timer.
+
+Did I miss something here?
+> 
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

@@ -1,97 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbVHETdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263075AbVHETjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbVHETdy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 15:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbVHETb4
+	id S263075AbVHETjS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 15:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbVHETjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 15:31:56 -0400
-Received: from mailfe04.swip.net ([212.247.154.97]:28408 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S263100AbVHETaj (ORCPT
+	Fri, 5 Aug 2005 15:39:11 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:19205 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S263071AbVHETi1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 15:30:39 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Fri, 5 Aug 2005 21:30:31 +0200
-From: Alexander Nyberg <alexn@telia.com>
-To: Michael Stenzel <m.stenzel@tronix.homelinux.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] module ns558
-Message-ID: <20050805193031.GA17969@localhost.localdomain>
-References: <200508052052.42128.m.stenzel@tronix.homelinux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508052052.42128.m.stenzel@tronix.homelinux.org>
-User-Agent: Mutt/1.5.9i
+	Fri, 5 Aug 2005 15:38:27 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20050805122301.A30003@unix-os.sc.intel.com>
+References: <20050805135007.GA6985@vana.vc.cvut.cz> <20050805115329.45889ef8.akpm@osdl.org> <20050805122301.A30003@unix-os.sc.intel.com>
+X-OriginalArrivalTime: 05 Aug 2005 19:38:26.0028 (UTC) FILETIME=[3F702AC0:01C599F5]
+Content-class: urn:content-classes:message
+Subject: Re: [PATCH 2.6.13-rc5-gitNOW] msleep() cannot be used from interrupt
+Date: Fri, 5 Aug 2005 15:37:46 -0400
+Message-ID: <Pine.LNX.4.61.0508051532280.6245@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.13-rc5-gitNOW] msleep() cannot be used from interrupt
+thread-index: AcWZ9T95rhH7JIaPRT2GjRmfJiAU2g==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Venkatesh Pallipadi" <venkatesh.pallipadi@intel.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Petr Vandrovec" <vandrove@vc.cvut.cz>,
+       <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
+       "Shaohua Li" <shaohua.li@intel.com>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 08:52:41PM +0200 Michael Stenzel wrote:
 
-> Hello dear Kernel People,
-> 
-> I have a problem with my gameport, it uses the ns558 driver, the module gets 
-> loaded via hotplug/udev at boot, but the gameport gets deactivated somehow.
-> I have this Problem for a long time now, and my solution always was rmmod the 
-> module and load it again after that the gameport is working.
-> But now i have 2.6.13-rc5 with debug stuff turned on and noticed that:
+On Fri, 5 Aug 2005, Venkatesh Pallipadi wrote:
+
+> On Fri, Aug 05, 2005 at 11:53:29AM -0700, Andrew Morton wrote:
+>>
+>> That's all pretty sad stuff.  I guess for now we can go back to the busy
+>> loop.  Longer-term it would be nice if we could tune up the HPET driver in
+>> some manner so we can avoid this busy-wait-in-interrupt.
+>>
+>> I'm not sure who the HPET maintainer/expert is nowadays.  Robert Picco did
+>> the original work but I haven't seen Robert around for a long time?
 >
+> Actually there are two parts in HPET.
+> 1) Using HPET for kernel timer and RTC emulation
+> 2) HPET driver to export timers to user(/dev/hpet) and kernel drivers
+>
+> We did the part (1) for i386 and I think Andi/Vojtech did (1) for x86_64. And
+> Robert Picco did (2).
+>
+> So, using rtc_get_rtc_time() in an interrupt handler will be my code. In this
+> part we try to emulate RTC interrupt using HPET and we have to read the current
+> RTC time in the interrupt handler. I can't think of any way of not doing
+> rtc_get_rtc_time here.
+>
+> I think we should have two versions of rtc_get_rtc_time. One which does msleep,
+> that can be called from process context (in drivers/char/rtc.c) and one that
+> can be called from interrupt context (i386 and x86_64 hpet time routines). Or
+> same routine behaving differently depending on where it is called from.
+>
+> And for the hpet rtc emulation routines it should be OK even if the time is
+> slightly off and not exact. So, probably we should be able to force read
+> rtc even when update is in progress. That way we can avoid the busy loop.
+> Unless RTC returns grossly wrong time values while UIP flag is set. I need to
+> look at RTC specs to verify that.
+>
+> Thanks,
+> Venki
 
-Please take this up with the input guys, I'm guessing it shouldn't
-happen in the first place, but regarding this bug look at the bottom.
+The usual way is to read all time registers, save those values.
+Read all registers again. Do this until the two consecutive reads
+return the same values. You never have to busy-wait at all.
+When I do this, I put the values read in two arrays, I memcmp()
+them and, if not the same use memcpy() to copy new to old and
+try again.
 
-> Unable to handle kernel paging request at virtual address 6b6b6b6b
->  printing eip:
-> e0afc4ab
-> *pde = 00000000
-> Oops: 0000 [#1]
-> PREEMPT
-> Modules linked in: snd_seq_midi snd_seq_midi_event snd_seq video_buf_dvb 
-> video_buf w83627hf w83781d i2c_sensor i2c_isa snd_pcm_oss snd_mixer_oss 
-> ipt_MASQUERADE ipt_state iptable_mangle iptable_nat iptable_filter 
-> ip_conntrack_ftp ip_conntrack_irc ip_conntrack ip_tables rtc joydev analog 
-> ns558 budget s5h1420 l64781 ves1820 budget_core saa7146 ttpci_eeprom stv0299 
-> tda8083 ves1x93 dvb_core 8139too snd_via82xx gameport snd_mpu401_uart 
-> snd_rawmidi snd_seq_device via_rhine crc32 ide_scsi
-> CPU:    0
-> EIP:    0060:[<e0afc4ab>]    Not tainted VLI
-> EFLAGS: 00010282   (2.6.13-rc5-debug)
-> EIP is at ns558_exit+0x4b/0x79 [ns558]
-> eax: 6b6b6b57   ebx: 6b6b6b57   ecx: 00000000   edx: 6b6b6b6b
-> esi: 00000000   edi: 00000002   ebp: d7cfdf60   esp: d7cfdf5c
-> ds: 007b   es: 007b   ss: 0068
-> Process rmmod (pid: 3267, threadinfo=d7cfc000 task=dfc94080)
-> Stack: e0afd140 d7cfdfb4 c0146b4d 00000000 3535736e d7cf0038 c0169941 b7f43000
->        b7f42000 d7cfdfa4 c0169de5 b7f42000 b7f43000 df6a6f44 df6a61fc df17d3a4
->        df17d3d4 00000000 00cfdfb4 c0169e6a bf856ae0 b7f2917c d7cfc000 c0103889
-> Call Trace:
->  [<c010483a>] show_stack+0x7a/0x90
->  [<c01049c6>] show_registers+0x156/0x1c0
->  [<c0104c1c>] die+0x14c/0x2c0
->  [<c0118093>] do_page_fault+0x343/0x655
->  [<c010430f>] error_code+0x4f/0x54
->  [<c0146b4d>] sys_delete_module+0x14d/0x190
->  [<c0103889>] syscall_call+0x7/0xb
-> Code: 8b 43 10 e8 98 65 de ff 8b 4b 08 b8 a0 2f 46 c0 89 ca f7 da 23 53 04 e8 
-> 64 c7 62 df 89 d8 e8 5d 01 66 df 8b 53 14 8d 42 ec 89 c3 <8b> 40 14 0f 18 00 
-> 90 81 fa 20 cf af e0 75 c6 8b 1d c0 d2 af e0
-> 
 
-Please try this:
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
 
-Index: linux-2.6/drivers/input/gameport/ns558.c
-===================================================================
---- linux-2.6.orig/drivers/input/gameport/ns558.c	2005-07-31 18:10:26.000000000 +0200
-+++ linux-2.6/drivers/input/gameport/ns558.c	2005-08-05 21:20:59.000000000 +0200
-@@ -275,9 +275,9 @@
- 
- static void __exit ns558_exit(void)
- {
--	struct ns558 *ns558;
-+	struct ns558 *ns558, *safe;
- 
--	list_for_each_entry(ns558, &ns558_list, node) {
-+	list_for_each_entry_safe(ns558, safe, &ns558_list, node) {
- 		gameport_unregister_port(ns558->gameport);
- 		release_region(ns558->io & ~(ns558->size - 1), ns558->size);
- 		kfree(ns558);
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

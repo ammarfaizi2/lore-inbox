@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVHEPmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263058AbVHEPmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbVHEPmk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 11:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263067AbVHEPgl
+	id S263058AbVHEPmj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 11:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbVHEPjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 11:36:41 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:8433 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263062AbVHEPfa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 11:35:30 -0400
-Message-ID: <42F386C4.2080103@mvista.com>
-Date: Fri, 05 Aug 2005 08:33:24 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gerd Knorr <kraxel@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, Roland McGrath <roland@redhat.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Re: 2.6.12: itimer_real timers don't survive execve()
- any more
-References: <42F28707.7060806@mvista.com> <20050804213416.1EA56180980@magilla.sf.frob.com> <20050804150251.5f4acb0a.akpm@osdl.org> <20050805084401.GA12145@bytesex>
-In-Reply-To: <20050805084401.GA12145@bytesex>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Aug 2005 11:39:37 -0400
+Received: from smtp6.clb.oleane.net ([213.56.31.26]:23234 "EHLO
+	smtp6.clb.oleane.net") by vger.kernel.org with ESMTP
+	id S263056AbVHEPgr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 11:36:47 -0400
+Date: Fri, 5 Aug 2005 17:36:32 +0200
+From: Christophe Lucas <clucas@rotomalug.org>
+To: akpm@osdl.org, kernel-janitors@lists.osdl.org
+Cc: domen@coderock.org, linux-kernel@vger.kernel.org
+Message-ID: <20050805153632.GH5233@rhum.iomeda.fr>
+Mime-Version: 1.0
+Content-Disposition: inline
+X-Operating-System: Debian GNU/Linux / 2.6.13-rc3-kj (i686)
+X-Homepage: http://odie.mcom.fr/~clucas/
+X-Crypto: GnuPG/1.2.4 http://www.gnupg.org
+X-GPG-Key: http://odie.mcom.fr/~clucas/downloads/clucas-public-key.txt
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Mail-From: clucas@rotomalug.org
+Subject: [PATCH] sh64 (mm/fault.c): procfs_failure && create_proc*
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 3.1 (built mer oct 29 11:46:13 CET 2003)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
-> On Thu, Aug 04, 2005 at 03:02:51PM -0700, Andrew Morton wrote:
-> 
->>Roland McGrath <roland@redhat.com> wrote:
->>
->>>That's wrong.  It has to be done only by the last thread in the group to go.
->>>Just revert Ingo's change.
->>>
->>
->>OK..
->>
->>+++ 25-akpm/kernel/exit.c	Thu Aug  4 15:01:06 2005
->>@@ -829,8 +829,10 @@ fastcall NORET_TYPE void do_exit(long co
->>-	if (group_dead)
->>+	if (group_dead) {
->>+ 		del_timer_sync(&tsk->signal->real_timer);
->> 		acct_process(code);
->>+	}
->>+++ 25-akpm/kernel/posix-timers.c	Thu Aug  4 15:01:06 2005
->>@@ -1166,7 +1166,6 @@ void exit_itimers(struct signal_struct *
->>-	del_timer_sync(&sig->real_timer);
-> 
-> 
-> That one fixes it for me.
+description:
+audit return code of create_proc_* function is a entry in janitors
+TODO list. Audit this return and printk() when it fails, can spam a lot
+system without compiled proc support. So this patch can audit return
+code by means of procfs_failure().
 
-There are other concerns.  Let me see if I understand this.  A thread 
-(other than the leader) can exec and we then need to change the 
-real_timer to wake the new task which will NOT be using the same task 
-struct.
+Signed-off-by: Christophe Lucas <clucas@rotomalug.org>
 
-My looking at the code shows that the thread leader can exit and then 
-stays around as a zombi until the last thread in the group exits.  If an 
-alarm comes during this wait I suspect it will wake this zombi and cause 
-problems.  So, don't we need to also change real_timer's task when the 
-exiting task is the real_timer wake up task, assigning it to some other 
-member of the group?  Note, I don't say just if it is the group leader...
-
-Then when we finally release the signal structure, we can "del" the timer.
-
-Did I miss something here?
-> 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+diff -urpNX dontdiff linux-2.6.13-rc4-mm1.orig/arch/sh64/mm/fault.c linux-2.6.13-rc4-mm1/arch/sh64/mm/fault.c
+--- linux-2.6.13-rc4-mm1.orig/arch/sh64/mm/fault.c	2005-07-29 00:44:44.000000000 +0200
++++ linux-2.6.13-rc4-mm1/arch/sh64/mm/fault.c	2005-08-03 12:35:19.000000000 +0200
+@@ -592,8 +592,11 @@ tlb_proc_info(char *buf, char **start, o
+ 
+ static int __init register_proc_tlb(void)
+ {
+-  create_proc_read_entry("tlb", 0, NULL, tlb_proc_info, NULL);
+-  return 0;
++	struct proc_dir_entry* ent;
++	ent = create_proc_read_entry("tlb", 0, NULL, tlb_proc_info, NULL);
++	if (!ent)
++		procfs_failure("fault.c: Unable to create tlb /proc entry.\n");
++	return 0;
+ }
+ 
+ __initcall(register_proc_tlb);

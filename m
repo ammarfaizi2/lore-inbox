@@ -1,89 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbVHELmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262991AbVHELqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbVHELmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 07:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVHELmJ
+	id S262991AbVHELqH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 07:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbVHELqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 07:42:09 -0400
-Received: from mail.gmx.net ([213.165.64.20]:62149 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262989AbVHELmH (ORCPT
+	Fri, 5 Aug 2005 07:46:04 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:44171 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262991AbVHELqA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 07:42:07 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] preempt-trace.patch
-Date: Fri, 5 Aug 2005 13:44:54 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050607042931.23f8f8e0.akpm@osdl.org> <20050804152858.2ef2d72b.akpm@osdl.org> <20050805104819.GA20278@elte.hu>
-In-Reply-To: <20050805104819.GA20278@elte.hu>
+	Fri, 5 Aug 2005 07:46:00 -0400
+To: John =?iso-8859-1?q?B=E4ckstrand?= <sandos@home.se>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: lockups with netconsole on e1000 on media insertion
+References: <42F347D2.7000207@home.se.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 05 Aug 2005 13:45:55 +0200
+In-Reply-To: <42F347D2.7000207@home.se.suse.lists.linux.kernel>
+Message-ID: <p73ek987gjw.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2655351.RW4KK5tHXM";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508051344.58848.dominik.karall@gmx.net>
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2655351.RW4KK5tHXM
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+John Bäckstrand <sandos@home.se> writes:
 
-On Friday 05 August 2005 12:48, Ingo Molnar wrote:
-> * Andrew Morton <akpm@osdl.org> wrote:
-> > I think Ingo was planning on coming up with some infrastructure which
-> > would allow us to debug this further.
->
-> yeah. I've done this today and have split it out of the -RT tree, see
-> the patch below. After some exposure in -mm i'd like this feature to go
-> upstream too.
->
-> the patch is against recent Linus trees, 2.6.13-rc4 or later should all
-> work. Dominik, could you try it and send us the new kernel logs whenever
-> you happen to hit that warning message again? (Please also enable
-> CONFIG_KALLSYMS_ALL, so that we get as much symbolic data as possible.)
+> I've been trying to hunt down a hard lockup issue with some hardware
+> of mine, but I've possibly hit a kernel bug instead. When using
+> netconsole on my e1000, if I unplug the cable and then re-plug it, the
+> machine locks up hard. It manages to print the "link up" message on
+> the screen, but nothing after that. Now, I wonder if this is supposed
+> to be so? I tried this on 4 different configurations, 2.6.13-rc5 and
+> 2.6.12 with and without "noapic acpi=off", same result on all of
+> them. I've tried with 1 and 3 other NICs in the machine at the same
+> time.
 
-I tried to compile the patch on top of 2.6.13-rc4-mm1, it applied with a fe=
-w=20
-offsets, but it looked ok.
-Here is the error I get when I compiled it:
+I ran into the same problem some time ago on e1000. The problem was
+that if the link doesn't come up netconsole ends up waiting forever
+for it.
 
-  CC      arch/x86_64/kernel/traps.o
-arch/x86_64/kernel/traps.c: In function `show_trace':
-arch/x86_64/kernel/traps.c:228: warning: implicit declaration of function=20
-`print_traces'
-arch/x86_64/kernel/traps.c:228: error: `task' undeclared (first use in this=
-=20
-function)
-arch/x86_64/kernel/traps.c:228: error: (Each undeclared identifier is repor=
-ted=20
-only once
-arch/x86_64/kernel/traps.c:228: error: for each function it appears in.)
-make[1]: *** [arch/x86_64/kernel/traps.o] Error 1
+The patch was for 2.6.12, did a quick untested port to 2.6.13rc5.
 
-I took a look at the traps.c file, but couldn't find any solution, as there=
- is=20
-no print_traces function and task variable too in this section.
+-Andi
 
-dominik
+Only try a limited number to send packets in netpoll
 
---nextPart2655351.RW4KK5tHXM
-Content-Type: application/pgp-signature
+Avoids hangs on e1000 when link is not up.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-iQCVAwUAQvNROgvcoSHvsHMnAQIWLwP+O51sz/EyXEWjNbDHal4SuPNUepuyPpF+
-SseRJAymy41nsklYqR2Y+x2tHYusN+DwVTUb3zcn2YG4h+/A6yqQPZINzJZMu847
-GjyeuuyDV250zl6nSFAlGZJuD+b1KKni9UKFjzd0JPV+R6qvcV+4cNdxkF8Bx9Fy
-uob3j7LPOYQ=
-=vsfW
------END PGP SIGNATURE-----
-
---nextPart2655351.RW4KK5tHXM--
+Index: linux/net/core/netpoll.c
+===================================================================
+--- linux.orig/net/core/netpoll.c
++++ linux/net/core/netpoll.c
+@@ -247,9 +247,11 @@ static void netpoll_send_skb(struct netp
+ {
+ 	int status;
+ 	struct netpoll_info *npinfo;
++	/* Only try 5 times in case the link is down etc. */
++	int try = 5;
+ 
+ repeat:
+-	if(!np || !np->dev || !netif_running(np->dev)) {
++	if(try-- == 0 || !np || !np->dev || !netif_running(np->dev)) {
+ 		__kfree_skb(skb);
+ 		return;
+ 	}
+@@ -286,6 +288,9 @@ repeat:
+ 
+ 	/* transmit busy */
+ 	if(status) {
++		/* Don't count spinlock as try */
++		if (status == NETDEV_TX_LOCKED)
++			try++; 
+ 		netpoll_poll(np);
+ 		goto repeat;
+ 	}

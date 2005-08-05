@@ -1,31 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262558AbVHEOua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVHEOw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262558AbVHEOua (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 10:50:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVHEOua
+	id S262584AbVHEOw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 10:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbVHEOuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 10:50:30 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:21037 "EHLO
+	Fri, 5 Aug 2005 10:50:37 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:55081 "EHLO
 	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S262558AbVHEOtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 10:49:55 -0400
+	id S262272AbVHEOsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 10:48:14 -0400
 X-IronPort-AV: i="3.95,170,1120453200"; 
-   d="scan'208"; a="295052936:sNHT25936956"
-Date: Fri, 5 Aug 2005 14:48:19 -0500
+   d="scan'208"; a="295052019:sNHT27292134"
+Date: Fri, 5 Aug 2005 14:46:35 -0500
 From: Abhay Salunke <Abhay_Salunke@dell.com>
 To: linux-kernel@vger.kernel.org, greg@kroah.com
 Cc: akpm@osdl.org, abhay_salunke@dell.com
 Subject: [patch 2.6.13-rc5] modified firmware_class.c to support no hotplug
-Message-ID: <20050805194819.GA3445@abhays.us.dell.com>
+Message-ID: <20050805194635.GA3433@abhays.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-Oh!!Please ignore the earlier firmware_calss.c patch sent a worng one by mistake :-(
-This is the correct patch :-).
 
 Reseending the patch for firmware_class.c submitted earlier ,the patch 
 upgrades the request_firmware_nowait function to not start the hotplug 
@@ -39,9 +36,9 @@ Signed-off-by: Abhay Salunke <Abhay_Salunke@dell.com>
 
 Thanks
 Abhay
-diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.new/drivers/base/firmware_class.c
---- linux-2.6.13-rc5.orig/drivers/base/firmware_class.c	2005-08-03 18:31:24.000000000 -0500
-+++ linux-2.6.13-rc5.new/drivers/base/firmware_class.c	2005-08-04 11:48:41.000000000 -0500
+diff -uprN linux-2.6.11.11.orig/drivers/base/firmware_class.c linux-2.6.11.11.new/drivers/base/firmware_class.c
+--- linux-2.6.11.11.orig/drivers/base/firmware_class.c	2005-06-17 22:02:47.000000000 -0500
++++ linux-2.6.11.11.new/drivers/base/firmware_class.c	2005-07-12 15:40:52.000000000 -0500
 @@ -28,6 +28,7 @@ enum {
  	FW_STATUS_DONE,
  	FW_STATUS_ABORT,
@@ -50,7 +47,7 @@ diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.
  };
  
  static int loading_timeout = 10;	/* In seconds */
-@@ -344,7 +345,7 @@ error_kfree:
+@@ -334,7 +335,7 @@ error_kfree:
  
  static int
  fw_setup_class_device(struct firmware *fw, struct class_device **class_dev_p,
@@ -59,19 +56,21 @@ diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.
  {
  	struct class_device *class_dev;
  	struct firmware_priv *fw_priv;
-@@ -376,7 +377,10 @@ fw_setup_class_device(struct firmware *f
+@@ -365,8 +366,11 @@ fw_setup_class_device(struct firmware *f
+ 		       __FUNCTION__);
  		goto error_unreg;
  	}
- 
+-
 -	set_bit(FW_STATUS_READY, &fw_priv->status);
++	
 +	if (hotplug)
-+                set_bit(FW_STATUS_READY, &fw_priv->status);
-+        else
-+                set_bit(FW_STATUS_READY_NOHOTPLUG, &fw_priv->status);
++		set_bit(FW_STATUS_READY, &fw_priv->status);
++	else
++		set_bit(FW_STATUS_READY_NOHOTPLUG, &fw_priv->status);
  	*class_dev_p = class_dev;
  	goto out;
  
-@@ -386,21 +390,9 @@ out:
+@@ -376,21 +380,9 @@ out:
  	return retval;
  }
  
@@ -96,7 +95,7 @@ diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.
  {
  	struct class_device *class_dev;
  	struct firmware_priv *fw_priv;
-@@ -419,22 +411,25 @@ request_firmware(const struct firmware *
+@@ -409,22 +401,25 @@ request_firmware(const struct firmware *
  	}
  	memset(firmware, 0, sizeof (*firmware));
  
@@ -107,8 +106,14 @@ diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.
  		goto error_kfree_fw;
  
  	fw_priv = class_get_devdata(class_dev);
++	
++	if (hotplug) {
++		if (loading_timeout) {
++			fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
++			add_timer(&fw_priv->timeout);
++		}
  
--	if (loading_timeout > 0) {
+-	if (loading_timeout) {
 -		fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
 -		add_timer(&fw_priv->timeout);
 -	}
@@ -116,23 +121,18 @@ diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.
 -	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
 -	wait_for_completion(&fw_priv->completion);
 -	set_bit(FW_STATUS_DONE, &fw_priv->status);
-+	if (hotplug) {
-+		if (loading_timeout > 0) {
-+			fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
-+			add_timer(&fw_priv->timeout);
-+		}
- 
+-
 -	del_timer_sync(&fw_priv->timeout);
 +		kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
 +		wait_for_completion(&fw_priv->completion);
 +		set_bit(FW_STATUS_DONE, &fw_priv->status);
 +		del_timer_sync(&fw_priv->timeout);
-+	} else 
++	} else
 +		wait_for_completion(&fw_priv->completion);
  
  	down(&fw_lock);
  	if (!fw_priv->fw->size || test_bit(FW_STATUS_ABORT, &fw_priv->status)) {
-@@ -455,6 +450,26 @@ out:
+@@ -445,6 +440,26 @@ out:
  }
  
  /**
@@ -151,15 +151,15 @@ diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.
 +request_firmware(const struct firmware **firmware_p, const char *name,
 +                 struct device *device)
 +{
-+        int hotplug = 1;
-+        return _request_firmware(firmware_p, name, device, hotplug);
++	int hotplug = 1;
++	return _request_firmware(firmware_p, name, device, hotplug);	
 +}
 +
 +/**
   * release_firmware: - release the resource associated with a firmware image
   **/
  void
-@@ -491,6 +506,7 @@ struct firmware_work {
+@@ -481,6 +496,7 @@ struct firmware_work {
  	struct device *device;
  	void *context;
  	void (*cont)(const struct firmware *fw, void *context);
@@ -167,27 +167,42 @@ diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.
  };
  
  static int
-@@ -503,7 +519,8 @@ request_firmware_work_func(void *arg)
+@@ -493,7 +509,8 @@ request_firmware_work_func(void *arg)
  		return 0;
  	}
  	daemonize("%s/%s", "firmware", fw_work->name);
 -	request_firmware(&fw, fw_work->name, fw_work->device);
-+	_request_firmware(&fw, fw_work->name, fw_work->device,
++	_request_firmware(&fw, fw_work->name, fw_work->device, 
 +		fw_work->hotplug);
  	fw_work->cont(fw, fw_work->context);
  	release_firmware(fw);
  	module_put(fw_work->module);
-@@ -518,6 +535,9 @@ request_firmware_work_func(void *arg)
-  *	Asynchronous variant of request_firmware() for contexts where
-  *	it is not possible to sleep.
+@@ -501,23 +518,27 @@ request_firmware_work_func(void *arg)
+ 	return 0;
+ }
+ 
++
+ /**
+  * request_firmware_nowait:
   *
-+ *      @hotplug invokes hotplug event to copy the firmware image if this flag
-+ *      is non-zero else the firmware copy must be done manually.
-+ * 
-  *	@cont will be called asynchronously when the firmware request is over.
+  * Description:
+- *	Asynchronous variant of request_firmware() for contexts where
+- *	it is not possible to sleep.
++ *      Asynchronous variant of request_firmware() for contexts where
++ *      it is not possible to sleep.
++ *
++ *	@hotplug invokes hotplug event to copy the firmware image if this flag
++ *	is non-zero else the firmware copy must be done manually.
   *
-  *	@context will be passed over to @cont.
-@@ -527,7 +547,7 @@ request_firmware_work_func(void *arg)
+- *	@cont will be called asynchronously when the firmware request is over.
++ *      @cont will be called asynchronously when the firmware request is over.
+  *
+- *	@context will be passed over to @cont.
++ *      @context will be passed over to @cont.
+  *
+- *	@fw may be %NULL if firmware request fails.
++ *      @fw may be %NULL if firmware request fails.
+  *
   **/
  int
  request_firmware_nowait(
@@ -196,7 +211,7 @@ diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.
  	const char *name, struct device *device, void *context,
  	void (*cont)(const struct firmware *fw, void *context))
  {
-@@ -548,6 +568,7 @@ request_firmware_nowait(
+@@ -538,6 +559,7 @@ request_firmware_nowait(
  		.device = device,
  		.context = context,
  		.cont = cont,
@@ -204,9 +219,9 @@ diff -uprN linux-2.6.13-rc5.orig/drivers/base/firmware_class.c linux-2.6.13-rc5.
  	};
  
  	ret = kernel_thread(request_firmware_work_func, fw_work,
-diff -uprN linux-2.6.13-rc5.orig/include/linux/firmware.h linux-2.6.13-rc5.new/include/linux/firmware.h
---- linux-2.6.13-rc5.orig/include/linux/firmware.h	2005-06-17 14:48:29.000000000 -0500
-+++ linux-2.6.13-rc5.new/include/linux/firmware.h	2005-08-04 11:49:10.000000000 -0500
+diff -uprN linux-2.6.11.11.orig/include/linux/firmware.h linux-2.6.11.11.new/include/linux/firmware.h
+--- linux-2.6.11.11.orig/include/linux/firmware.h	2005-06-14 20:53:13.000000000 -0500
++++ linux-2.6.11.11.new/include/linux/firmware.h	2005-07-12 15:51:05.000000000 -0500
 @@ -3,6 +3,9 @@
  #include <linux/module.h>
  #include <linux/types.h>
@@ -217,7 +232,7 @@ diff -uprN linux-2.6.13-rc5.orig/include/linux/firmware.h linux-2.6.13-rc5.new/i
  struct firmware {
  	size_t size;
  	u8 *data;
-@@ -11,7 +14,7 @@ struct device;
+@@ -11,10 +14,9 @@ struct device;
  int request_firmware(const struct firmware **fw, const char *name,
  		     struct device *device);
  int request_firmware_nowait(
@@ -225,4 +240,7 @@ diff -uprN linux-2.6.13-rc5.orig/include/linux/firmware.h linux-2.6.13-rc5.new/i
 +	struct module *module, int hotplug,
  	const char *name, struct device *device, void *context,
  	void (*cont)(const struct firmware *fw, void *context));
- 
+-
+ void release_firmware(const struct firmware *fw);
+ void register_firmware(const char *name, const u8 *data, size_t size);
+ #endif

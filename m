@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263125AbVHEViz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263134AbVHEViz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263125AbVHEViz (ORCPT <rfc822;willy@w.ods.org>);
+	id S263134AbVHEViz (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 5 Aug 2005 17:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbVHEVf6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263110AbVHEVfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 17:35:58 -0400
-Received: from mail.kroah.org ([69.55.234.183]:32661 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263109AbVHEVdm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 17:33:42 -0400
-Date: Fri, 5 Aug 2005 14:33:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>,
-       Kristen Accardi <kristen.c.accardi@intel.com>,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       rajesh.shah@intel.com
-Subject: Re: [PATCH] use bus_slot number for name
-Message-ID: <20050805213316.GA3239@kroah.com>
-References: <1123269366.8917.39.camel@whizzy> <20050805195123.GN2241@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050805195123.GN2241@redhat.com>
-User-Agent: Mutt/1.5.8i
+	Fri, 5 Aug 2005 17:35:50 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:41921 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261912AbVHEVec (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 17:34:32 -0400
+Message-Id: <200508052133.j75LXig31835@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Adam Litke'" <agl@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Cc: <ak@suse.de>, <christoph@lameter.com>, <dwg@au1.ibm.com>
+Subject: RE: [RFC] Demand faulting for large pages
+Date: Fri, 5 Aug 2005 14:33:41 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcWZ00XQTpOmHs4TRqi/fjGiR6pjDwAL+WHA
+In-Reply-To: <1123255298.3121.46.camel@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 03:51:23PM -0400, Dave Jones wrote:
-> On Fri, Aug 05, 2005 at 12:16:06PM -0700, Kristen Accardi wrote:
->  > For systems with multiple hotplug controllers, you need to use more than
->  > just the slot number to uniquely name the slot.  Without a unique slot
->  > name, the pci_hp_register() will fail.  This patch adds the bus number
->  > to the name.
->  > 
->  > Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
->  > 
->  > diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/drivers/pci/hotplug/pciehp.h linux-2.6.13-rc4-shpchp-slot-name-fix/drivers/pci/hotplug/pciehp.h
->  > --- linux-2.6.13-rc4/drivers/pci/hotplug/pciehp.h	2005-07-28 15:44:44.000000000 -0700
->  > +++ linux-2.6.13-rc4-shpchp-slot-name-fix/drivers/pci/hotplug/pciehp.h	2005-08-04 17:57:18.000000000 -0700
->  > @@ -302,7 +302,7 @@ static inline void return_resource(struc
->  >  
->  >  static inline void make_slot_name(char *buffer, int buffer_size, struct slot *slot)
->  >  {
->  > -	snprintf(buffer, buffer_size, "%d", slot->number);
->  > +	snprintf(buffer, buffer_size, "%04d_%04d", slot->bus, slot->number);
->  >  }
-> 
-> Won't using..
-> 
-> 	snprintf(buffer, buffer_size, "%s", pci_name(slot));
+Adam Litke wrote on Friday, August 05, 2005 8:22 AM
+> +int hugetlb_pte_fault(struct mm_struct *mm, struct vm_area_struct *vma,
+> +			unsigned long address, int write_access)
+> +{
+> +	int ret = VM_FAULT_MINOR;
+> +	unsigned long idx;
+> +	pte_t *pte;
+> +	struct page *page;
+> +	struct address_space *mapping;
+> +
+> +	WARN_ON(!is_vm_hugetlb_page(vma));
 
-As Kristen already said, a slot could refer to multiple pci_dev devices,
-so I don't know how well this would really work out.
+Spurious WARN_ON.  Calls to hugetlb_pte_fault() is conditioned upon 
+if (is_vm_hugetlb_page(vma))
 
-Although you might want to put the domain in that name, if known, as
-large boxes might need that, right?
 
-thanks,
 
-greg k-h
+> +int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
+> +			unsigned long address, int write_access)
+> +{
+> +   ....
+> +	if (pte_none(*ptep))
+> +		rc = hugetlb_pte_fault(mm, vma, address, write_access);
+> +}
+
+Broken here.  Return VM_FAULT_SIGBUS when *pte is present??  Why
+can't you move all the logic into hugetlb_pte_fault and simply call
+it directly from handle_mm_fault?
+

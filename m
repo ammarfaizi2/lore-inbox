@@ -1,246 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVHEOw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVHEOzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbVHEOw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 10:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbVHEOuh
+	id S262619AbVHEOzH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 10:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVHEOx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 10:50:37 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:55081 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S262272AbVHEOsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 10:48:14 -0400
-X-IronPort-AV: i="3.95,170,1120453200"; 
-   d="scan'208"; a="295052019:sNHT27292134"
-Date: Fri, 5 Aug 2005 14:46:35 -0500
-From: Abhay Salunke <Abhay_Salunke@dell.com>
-To: linux-kernel@vger.kernel.org, greg@kroah.com
-Cc: akpm@osdl.org, abhay_salunke@dell.com
-Subject: [patch 2.6.13-rc5] modified firmware_class.c to support no hotplug
-Message-ID: <20050805194635.GA3433@abhays.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 5 Aug 2005 10:53:58 -0400
+Received: from fep17.inet.fi ([194.251.242.242]:32749 "EHLO fep17.inet.fi")
+	by vger.kernel.org with ESMTP id S262307AbVHEOuf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 10:50:35 -0400
+Subject: [PATCH 0/8] convert kcalloc to kzalloc
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <ikr7i5.scnqnt.cy0lwg6fxw1fxjszsav6l2tlz.beaver@cs.helsinki.fi>
+Date: Fri, 5 Aug 2005 17:50:31 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reseending the patch for firmware_class.c submitted earlier ,the patch 
-upgrades the request_firmware_nowait function to not start the hotplug 
-action on a firmware update.
+This patchkit converts kcalloc(1, ...) to the new kzalloc(). Andrew, please
+let me know if you don't want to pick up some of these. I will feed them to
+subsystem maintainers once kzalloc() hits Linus' tree.
 
-This patch is tested along with dell_rbu driver on i386 and x86-64 systems.
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-Andrew, could you please add this patch to the -mm tree.
-
-Signed-off-by: Abhay Salunke <Abhay_Salunke@dell.com>
-
-Thanks
-Abhay
-diff -uprN linux-2.6.11.11.orig/drivers/base/firmware_class.c linux-2.6.11.11.new/drivers/base/firmware_class.c
---- linux-2.6.11.11.orig/drivers/base/firmware_class.c	2005-06-17 22:02:47.000000000 -0500
-+++ linux-2.6.11.11.new/drivers/base/firmware_class.c	2005-07-12 15:40:52.000000000 -0500
-@@ -28,6 +28,7 @@ enum {
- 	FW_STATUS_DONE,
- 	FW_STATUS_ABORT,
- 	FW_STATUS_READY,
-+	FW_STATUS_READY_NOHOTPLUG,
- };
- 
- static int loading_timeout = 10;	/* In seconds */
-@@ -334,7 +335,7 @@ error_kfree:
- 
- static int
- fw_setup_class_device(struct firmware *fw, struct class_device **class_dev_p,
--		      const char *fw_name, struct device *device)
-+		      const char *fw_name, struct device *device, int hotplug)
- {
- 	struct class_device *class_dev;
- 	struct firmware_priv *fw_priv;
-@@ -365,8 +366,11 @@ fw_setup_class_device(struct firmware *f
- 		       __FUNCTION__);
- 		goto error_unreg;
- 	}
--
--	set_bit(FW_STATUS_READY, &fw_priv->status);
-+	
-+	if (hotplug)
-+		set_bit(FW_STATUS_READY, &fw_priv->status);
-+	else
-+		set_bit(FW_STATUS_READY_NOHOTPLUG, &fw_priv->status);
- 	*class_dev_p = class_dev;
- 	goto out;
- 
-@@ -376,21 +380,9 @@ out:
- 	return retval;
- }
- 
--/**
-- * request_firmware: - request firmware to hotplug and wait for it
-- * Description:
-- *	@firmware will be used to return a firmware image by the name
-- *	of @name for device @device.
-- *
-- *	Should be called from user context where sleeping is allowed.
-- *
-- *	@name will be use as $FIRMWARE in the hotplug environment and
-- *	should be distinctive enough not to be confused with any other
-- *	firmware image for this or any other device.
-- **/
--int
--request_firmware(const struct firmware **firmware_p, const char *name,
--		 struct device *device)
-+static int
-+_request_firmware(const struct firmware **firmware_p, const char *name,
-+		 struct device *device, int hotplug)
- {
- 	struct class_device *class_dev;
- 	struct firmware_priv *fw_priv;
-@@ -409,22 +401,25 @@ request_firmware(const struct firmware *
- 	}
- 	memset(firmware, 0, sizeof (*firmware));
- 
--	retval = fw_setup_class_device(firmware, &class_dev, name, device);
-+	retval = fw_setup_class_device(firmware, &class_dev, name, device, 
-+		hotplug);
- 	if (retval)
- 		goto error_kfree_fw;
- 
- 	fw_priv = class_get_devdata(class_dev);
-+	
-+	if (hotplug) {
-+		if (loading_timeout) {
-+			fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
-+			add_timer(&fw_priv->timeout);
-+		}
- 
--	if (loading_timeout) {
--		fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
--		add_timer(&fw_priv->timeout);
--	}
--
--	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
--	wait_for_completion(&fw_priv->completion);
--	set_bit(FW_STATUS_DONE, &fw_priv->status);
--
--	del_timer_sync(&fw_priv->timeout);
-+		kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
-+		wait_for_completion(&fw_priv->completion);
-+		set_bit(FW_STATUS_DONE, &fw_priv->status);
-+		del_timer_sync(&fw_priv->timeout);
-+	} else
-+		wait_for_completion(&fw_priv->completion);
- 
- 	down(&fw_lock);
- 	if (!fw_priv->fw->size || test_bit(FW_STATUS_ABORT, &fw_priv->status)) {
-@@ -445,6 +440,26 @@ out:
- }
- 
- /**
-+ * request_firmware: - request firmware to hotplug and wait for it
-+ * Description:
-+ *      @firmware will be used to return a firmware image by the name
-+ *      of @name for device @device.
-+ *
-+ *      Should be called from user context where sleeping is allowed.
-+ *
-+ *      @name will be use as $FIRMWARE in the hotplug environment and
-+ *      should be distinctive enough not to be confused with any other
-+ *      firmware image for this or any other device.
-+ **/
-+int
-+request_firmware(const struct firmware **firmware_p, const char *name,
-+                 struct device *device)
-+{
-+	int hotplug = 1;
-+	return _request_firmware(firmware_p, name, device, hotplug);	
-+}
-+
-+/**
-  * release_firmware: - release the resource associated with a firmware image
-  **/
- void
-@@ -481,6 +496,7 @@ struct firmware_work {
- 	struct device *device;
- 	void *context;
- 	void (*cont)(const struct firmware *fw, void *context);
-+	int hotplug;
- };
- 
- static int
-@@ -493,7 +509,8 @@ request_firmware_work_func(void *arg)
- 		return 0;
- 	}
- 	daemonize("%s/%s", "firmware", fw_work->name);
--	request_firmware(&fw, fw_work->name, fw_work->device);
-+	_request_firmware(&fw, fw_work->name, fw_work->device, 
-+		fw_work->hotplug);
- 	fw_work->cont(fw, fw_work->context);
- 	release_firmware(fw);
- 	module_put(fw_work->module);
-@@ -501,23 +518,27 @@ request_firmware_work_func(void *arg)
- 	return 0;
- }
- 
-+
- /**
-  * request_firmware_nowait:
-  *
-  * Description:
-- *	Asynchronous variant of request_firmware() for contexts where
-- *	it is not possible to sleep.
-+ *      Asynchronous variant of request_firmware() for contexts where
-+ *      it is not possible to sleep.
-+ *
-+ *	@hotplug invokes hotplug event to copy the firmware image if this flag
-+ *	is non-zero else the firmware copy must be done manually.
-  *
-- *	@cont will be called asynchronously when the firmware request is over.
-+ *      @cont will be called asynchronously when the firmware request is over.
-  *
-- *	@context will be passed over to @cont.
-+ *      @context will be passed over to @cont.
-  *
-- *	@fw may be %NULL if firmware request fails.
-+ *      @fw may be %NULL if firmware request fails.
-  *
-  **/
- int
- request_firmware_nowait(
--	struct module *module,
-+	struct module *module, int hotplug,
- 	const char *name, struct device *device, void *context,
- 	void (*cont)(const struct firmware *fw, void *context))
- {
-@@ -538,6 +559,7 @@ request_firmware_nowait(
- 		.device = device,
- 		.context = context,
- 		.cont = cont,
-+		.hotplug = hotplug,
- 	};
- 
- 	ret = kernel_thread(request_firmware_work_func, fw_work,
-diff -uprN linux-2.6.11.11.orig/include/linux/firmware.h linux-2.6.11.11.new/include/linux/firmware.h
---- linux-2.6.11.11.orig/include/linux/firmware.h	2005-06-14 20:53:13.000000000 -0500
-+++ linux-2.6.11.11.new/include/linux/firmware.h	2005-07-12 15:51:05.000000000 -0500
-@@ -3,6 +3,9 @@
- #include <linux/module.h>
- #include <linux/types.h>
- #define FIRMWARE_NAME_MAX 30 
-+#define FW_ACTION_NOHOTPLUG 0
-+#define FW_ACTION_HOTPLUG 1
-+
- struct firmware {
- 	size_t size;
- 	u8 *data;
-@@ -11,10 +14,9 @@ struct device;
- int request_firmware(const struct firmware **fw, const char *name,
- 		     struct device *device);
- int request_firmware_nowait(
--	struct module *module,
-+	struct module *module, int hotplug,
- 	const char *name, struct device *device, void *context,
- 	void (*cont)(const struct firmware *fw, void *context));
--
- void release_firmware(const struct firmware *fw);
- void register_firmware(const char *name, const u8 *data, size_t size);
- #endif
+ arch/ia64/sn/kernel/io_init.c           |    2 
+ arch/ia64/sn/kernel/tiocx.c             |    2 
+ arch/ia64/sn/pci/tioca_provider.c       |    8 +--
+ arch/ppc64/kernel/pSeries_reconfig.c    |    2 
+ drivers/block/aoe/aoedev.c              |    2 
+ drivers/char/mbcs.c                     |    2 
+ drivers/i2c/chips/isp1301_omap.c        |    2 
+ drivers/infiniband/core/sysfs.c         |    2 
+ drivers/input/gameport/emu10k1-gp.c     |    2 
+ drivers/input/gameport/fm801-gp.c       |    2 
+ drivers/input/gameport/ns558.c          |    4 -
+ drivers/input/joystick/a3d.c            |    2 
+ drivers/input/joystick/adi.c            |    2 
+ drivers/input/joystick/analog.c         |    2 
+ drivers/input/joystick/cobra.c          |    2 
+ drivers/input/joystick/db9.c            |    2 
+ drivers/input/joystick/gamecon.c        |    2 
+ drivers/input/joystick/gf2k.c           |    2 
+ drivers/input/joystick/grip.c           |    2 
+ drivers/input/joystick/grip_mp.c        |    2 
+ drivers/input/joystick/guillemot.c      |    2 
+ drivers/input/joystick/interact.c       |    2 
+ drivers/input/joystick/sidewinder.c     |    2 
+ drivers/input/joystick/tmdc.c           |    2 
+ drivers/input/joystick/turbografx.c     |    2 
+ drivers/input/keyboard/corgikbd.c       |    2 
+ drivers/input/mouse/psmouse-base.c      |    2 
+ drivers/input/serio/serport.c           |    4 -
+ drivers/pci/hotplug/sgi_hotplug.c       |    2 
+ drivers/pci/pci-sysfs.c                 |    2 
+ drivers/scsi/sata_qstor.c               |    2 
+ drivers/usb/atm/usbatm.c                |    2 
+ drivers/usb/core/hcd.c                  |    2 
+ drivers/usb/host/ehci-sched.c           |    2 
+ drivers/usb/host/isp116x-hcd.c          |    2 
+ drivers/usb/host/sl811-hcd.c            |    2 
+ drivers/usb/input/acecad.c              |    2 
+ drivers/usb/input/itmtouch.c            |    2 
+ drivers/usb/input/pid.c                 |    2 
+ fs/cifs/connect.c                       |   82 ++++++++++++++++----------------
+ fs/freevxfs/vxfs_super.c                |    2 
+ sound/arm/sa11xx-uda1341.c              |    2 
+ sound/core/control.c                    |   12 ++--
+ sound/core/control_compat.c             |    8 +--
+ sound/core/device.c                     |    2 
+ sound/core/hwdep.c                      |    2 
+ sound/core/info.c                       |    8 +--
+ sound/core/init.c                       |    4 -
+ sound/core/oss/mixer_oss.c              |   26 +++++-----
+ sound/core/oss/pcm_oss.c                |    2 
+ sound/core/oss/pcm_plugin.c             |    2 
+ sound/core/pcm.c                        |    6 +-
+ sound/core/pcm_memory.c                 |    2 
+ sound/core/pcm_native.c                 |    2 
+ sound/core/rawmidi.c                    |    6 +-
+ sound/core/seq/instr/ainstr_gf1.c       |    2 
+ sound/core/seq/instr/ainstr_iw.c        |    6 +-
+ sound/core/seq/oss/seq_oss_init.c       |    2 
+ sound/core/seq/oss/seq_oss_midi.c       |    6 +-
+ sound/core/seq/oss/seq_oss_readq.c      |    2 
+ sound/core/seq/oss/seq_oss_synth.c      |    4 -
+ sound/core/seq/oss/seq_oss_timer.c      |    2 
+ sound/core/seq/oss/seq_oss_writeq.c     |    2 
+ sound/core/seq/seq_clientmgr.c          |    2 
+ sound/core/seq/seq_device.c             |    2 
+ sound/core/seq/seq_dummy.c              |    2 
+ sound/core/seq/seq_fifo.c               |    2 
+ sound/core/seq/seq_instr.c              |    4 -
+ sound/core/seq/seq_memory.c             |    2 
+ sound/core/seq/seq_midi.c               |    2 
+ sound/core/seq/seq_midi_event.c         |    2 
+ sound/core/seq/seq_ports.c              |    4 -
+ sound/core/seq/seq_prioq.c              |    2 
+ sound/core/seq/seq_queue.c              |    2 
+ sound/core/seq/seq_system.c             |    4 -
+ sound/core/seq/seq_timer.c              |    2 
+ sound/core/seq/seq_virmidi.c            |    6 +-
+ sound/core/timer.c                      |   10 +--
+ sound/drivers/dummy.c                   |    4 -
+ sound/drivers/mpu401/mpu401_uart.c      |    2 
+ sound/drivers/mtpav.c                   |    2 
+ sound/drivers/opl3/opl3_lib.c           |    2 
+ sound/drivers/opl3/opl3_oss.c           |    2 
+ sound/drivers/opl4/opl4_lib.c           |    2 
+ sound/drivers/serial-u16550.c           |    2 
+ sound/drivers/vx/vx_core.c              |    2 
+ sound/drivers/vx/vx_pcm.c               |    2 
+ sound/i2c/cs8427.c                      |    2 
+ sound/i2c/i2c.c                         |    4 -
+ sound/i2c/l3/uda1341.c                  |    4 -
+ sound/i2c/other/ak4114.c                |    2 
+ sound/i2c/other/ak4117.c                |    2 
+ sound/i2c/tea6330t.c                    |    2 
+ sound/isa/ad1816a/ad1816a_lib.c         |    2 
+ sound/isa/ad1848/ad1848_lib.c           |    2 
+ sound/isa/cs423x/cs4231_lib.c           |    2 
+ sound/isa/es1688/es1688_lib.c           |    2 
+ sound/isa/es18xx.c                      |    2 
+ sound/isa/gus/gus_main.c                |    2 
+ sound/isa/gus/gus_mem_proc.c            |    4 -
+ sound/isa/gus/gus_pcm.c                 |    2 
+ sound/isa/opl3sa2.c                     |    2 
+ sound/isa/opti9xx/opti92x-ad1848.c      |    2 
+ sound/isa/sb/emu8000.c                  |    2 
+ sound/isa/sb/emu8000_pcm.c              |    2 
+ sound/isa/sb/sb16_csp.c                 |    2 
+ sound/isa/sb/sb_common.c                |    2 
+ sound/pci/ac97/ac97_codec.c             |    4 -
+ sound/pci/ac97/ak4531_codec.c           |    2 
+ sound/pci/ali5451/ali5451.c             |    2 
+ sound/pci/atiixp.c                      |    2 
+ sound/pci/atiixp_modem.c                |    2 
+ sound/pci/au88x0/au88x0.c               |    2 
+ sound/pci/azt3328.c                     |    2 
+ sound/pci/bt87x.c                       |    2 
+ sound/pci/ca0106/ca0106_main.c          |    6 +-
+ sound/pci/cmipci.c                      |    2 
+ sound/pci/cs4281.c                      |    2 
+ sound/pci/cs46xx/cs46xx_lib.c           |    4 -
+ sound/pci/emu10k1/emu10k1_main.c        |    2 
+ sound/pci/emu10k1/emu10k1x.c            |    6 +-
+ sound/pci/emu10k1/emufx.c               |    8 +--
+ sound/pci/emu10k1/emupcm.c              |   10 +--
+ sound/pci/emu10k1/p16v.c                |    4 -
+ sound/pci/ens1370.c                     |    2 
+ sound/pci/es1938.c                      |    2 
+ sound/pci/es1968.c                      |    6 +-
+ sound/pci/fm801.c                       |    2 
+ sound/pci/hda/hda_codec.c               |    6 +-
+ sound/pci/hda/hda_generic.c             |    4 -
+ sound/pci/hda/hda_intel.c               |    2 
+ sound/pci/hda/patch_analog.c            |    6 +-
+ sound/pci/hda/patch_cmedia.c            |    2 
+ sound/pci/hda/patch_realtek.c           |    6 +-
+ sound/pci/hda/patch_sigmatel.c          |    4 -
+ sound/pci/ice1712/aureon.c              |    2 
+ sound/pci/ice1712/ice1712.c             |    2 
+ sound/pci/ice1712/ice1724.c             |    2 
+ sound/pci/ice1712/juli.c                |    2 
+ sound/pci/ice1712/phase.c               |    4 -
+ sound/pci/ice1712/pontis.c              |    2 
+ sound/pci/intel8x0.c                    |    2 
+ sound/pci/intel8x0m.c                   |    2 
+ sound/pci/korg1212/korg1212.c           |    2 
+ sound/pci/maestro3.c                    |    2 
+ sound/pci/mixart/mixart.c               |    4 -
+ sound/pci/nm256/nm256.c                 |    2 
+ sound/pci/sonicvibes.c                  |    2 
+ sound/pci/trident/trident_main.c        |    4 -
+ sound/pci/via82xx.c                     |    2 
+ sound/pci/via82xx_modem.c               |    2 
+ sound/pci/ymfpci/ymfpci_main.c          |    6 +-
+ sound/pcmcia/pdaudiocf/pdaudiocf_core.c |    2 
+ sound/ppc/pmac.c                        |    2 
+ sound/sparc/amd7930.c                   |    2 
+ sound/sparc/cs4231.c                    |    4 -
+ sound/synth/emux/emux.c                 |    2 
+ sound/synth/emux/emux_seq.c             |    2 
+ sound/synth/emux/soundfont.c            |    8 +--
+ sound/synth/util_mem.c                  |    2 
+ sound/usb/usbaudio.c                    |    2 
+ sound/usb/usbmidi.c                     |    6 +-
+ sound/usb/usbmixer.c                    |   10 +--
+ sound/usb/usx2y/usbusx2yaudio.c         |    2 
+ 164 files changed, 294 insertions(+), 294 deletions(-)

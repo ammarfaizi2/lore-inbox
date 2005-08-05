@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262971AbVHELAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262977AbVHELDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbVHELAq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 07:00:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbVHELAp
+	id S262977AbVHELDS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 07:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbVHELDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 07:00:45 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:44956 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262971AbVHEK7f (ORCPT
+	Fri, 5 Aug 2005 07:03:17 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:47243 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S262977AbVHELCo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 06:59:35 -0400
-Date: Fri, 5 Aug 2005 11:59:30 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: linux-kernel@vger.kernel.org
-Subject: gcapatcch equivalent?
-Message-ID: <Pine.LNX.4.58.0508051157590.22353@skynet>
+	Fri, 5 Aug 2005 07:02:44 -0400
+Message-ID: <42F34734.50809@drzeus.cx>
+Date: Fri, 05 Aug 2005 13:02:12 +0200
+From: Pierre Ossman <drzeus@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.6-0.1.fc5 (X11/20050719)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Richard Purdie <rpurdie@rpsys.net>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [patch] Fix a bit/byte counting error in the MMC/SD code
+References: <1123191640.8987.68.camel@localhost.localdomain>
+In-Reply-To: <1123191640.8987.68.camel@localhost.localdomain>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard Purdie wrote:
+> This fixes what looks like a bit/byte counting error in the MMC/SD code
+> which was causing data corruption (in the -mm tree).
+> 
+> Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-At KS I asked after a gcapatch command for git..
+Ooops... Must have been late in the evening. Sorry about that blunder.
 
-I've got two trees drm-2.6 and linux-2.6, linux-2.6 is latest Linus, so of
-course a tree diff gives me all the new patches in linux-2.6 that aren't
-in drm-2.6 which isn't what I want.. I want gcapatch....
-
-I'm sure someone has one and I don't really want to care about git
-internals :-)
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
-
+Rgds
+Pierre

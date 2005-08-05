@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262952AbVHEKcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbVHEKdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262952AbVHEKcV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 06:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbVHEKcV
+	id S262961AbVHEKdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 06:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbVHEKdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 06:32:21 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:12552 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S262952AbVHEKcU (ORCPT
+	Fri, 5 Aug 2005 06:33:24 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:37277 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262961AbVHEKc5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 06:32:20 -0400
-Message-ID: <42F34022.9040201@domdv.de>
-Date: Fri, 05 Aug 2005 12:32:02 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050724)
-X-Accept-Language: en-us, en
+	Fri, 5 Aug 2005 06:32:57 -0400
+Date: Fri, 5 Aug 2005 12:32:53 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       linux-kernel@vger.kernel.org, pmarques@grupopie.com
+Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
+In-Reply-To: <1123236831.3239.55.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0508051225270.3743@scrub.home>
+References: <1123219747.20398.1.camel@localhost>  <20050804223842.2b3abeee.akpm@osdl.org>
+  <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI> 
+ <20050804233634.1406e92a.akpm@osdl.org>  <Pine.LNX.4.61.0508051132540.3743@scrub.home>
+  <1123235219.3239.46.camel@laptopd505.fenrus.org>  <Pine.LNX.4.61.0508051202520.3728@scrub.home>
+ <1123236831.3239.55.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Cal Peake <cp@absolutedigital.net>
-CC: Andrew Morton <akpm@osdl.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, pavel@suse.cz,
-       davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: amd64-agp vs. swsusp
-References: <42DD67D9.60201@stud.feec.vutbr.cz> <20050804142548.5b813700.akpm@osdl.org> <Pine.LNX.4.61.0508041741540.4557@lancer.cnet.absolutedigital.net>
-In-Reply-To: <Pine.LNX.4.61.0508041741540.4557@lancer.cnet.absolutedigital.net>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cal Peake wrote:
-> On Thu, 4 Aug 2005, Andrew Morton wrote:
-> 
-> 
->>Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
->>
->>>Does resuming from swsuspend work for anyone with amd64-agp loaded?
->>
->>It would seem not ;)
-> 
-> 
-> Must have missed the OP. Yes I can resume fine from swsusp with amd64-agp.
-> 
-> System is an Averatec 3270 (Mobile Sempron(K8)).
-> 
-> Not that this helps at all other than confirming it is possible ;)
-> 
-> -cp
-> 
+Hi,
 
-AFAIK it works when agp is built into the kernel. You will get problems
-when it is built as a module. In the module case you may want to try if
-loading the module before resuming helps.
+On Fri, 5 Aug 2005, Arjan van de Ven wrote:
 
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+> > This would imply a similiar kmalloc() would be useful as well.
+> > Second, how relevant is it for the kernel? 
+> 
+> we've had a non-negliable amount of security holes because of this
+
+So why don't we have a similiar kmalloc()?
+
+> > Is that really the best place 
+> > to check for rogue user parameters?
+> 
+> it makes it easy and safe. Of course you can and should check it in all
+> users. Just that using a safer API is generally better than forcing
+> everyone to do it themselves.
+
+How exactly does this make it a "safe API"? Even if it checks for this one 
+case, it still makes the user suspectible for allocating big amounts of 
+unswappable memory.
+
+bye, Roman

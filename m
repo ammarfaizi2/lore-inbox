@@ -1,127 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbVHEEjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262858AbVHEFQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbVHEEjE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 00:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVHEEjE
+	id S262858AbVHEFQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 01:16:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbVHEFQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 00:39:04 -0400
-Received: from smtpauth01.mail.atl.earthlink.net ([209.86.89.61]:9103 "EHLO
-	smtpauth01.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S262854AbVHEEjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 00:39:03 -0400
-To: linux-kernel@vger.kernel.org
-Subject: S3 wakeup broken by one commit
-In-Reply-To: Your message of "Thu, 04 Aug 2005 10:26:35 PDT."
-             <20050804172635.GA14144@kroah.com> 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 21.4.1
-Date: Fri, 05 Aug 2005 00:38:56 -0400
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1E0tyy-0000nz-Et@approximate.corpus.cam.ac.uk>
-X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d478819d4bc37d9c2ebfc59cfd1acdcdf69ae3dc63163ab1e6cc350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.41.6.91
+	Fri, 5 Aug 2005 01:16:29 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:58835 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262858AbVHEFQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 01:16:28 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+Date: Fri, 5 Aug 2005 15:12:18 +1000
+User-Agent: KMail/1.8.1
+Cc: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org,
+       ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com
+References: <200508031559.24704.kernel@kolivas.org> <200508031624.00319.lkml@kcore.org> <20050804150341.GA10282@ucw.cz>
+In-Reply-To: <20050804150341.GA10282@ucw.cz>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_yUv8CUP3JOPYPXo"
+Message-Id: <200508051512.18500.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> By any chance, is this patch
-> [3d3c2ae1101c1f2dff7e2f9d514769779dbd2737] causing you problems?
+--Boundary-00=_yUv8CUP3JOPYPXo
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-It wasn't that one, so I redid the bisection very carefully, and found
-the troublesome patch (I hope):
-299de0343c7d18448a69c635378342e9214b14af
+On Fri, 5 Aug 2005 01:03 am, Vojtech Pavlik wrote:
+> On Wed, Aug 03, 2005 at 04:23:59PM +0200, Jan De Luyck wrote:
+> > On Wednesday 03 August 2005 14:14, Con Kolivas wrote:
+> > > On Wed, 3 Aug 2005 21:54, Jan De Luyck wrote:
+> > > > On Wednesday 03 August 2005 07:59, Con Kolivas wrote:
+> > > > > This is the dynamic ticks patch for i386 as written by Tony Lindgen
+> > > > > <tony@atomide.com> and Tuukka Tikkanen
+> > > > > <tuukka.tikkanen@elektrobit.com>. Patch for 2.6.13-rc5
+> > > >
+> > > > Compiles and runs ok here.
+> > > >
+> > > > Is there actually any timer frequency that's advisable to set as
+> > > > maximum? (in the kernel config)
+> > >
+> > > I'd recommend 1000.
+> >
+> > Thanks. Currently the system - under X, KDE, no artsd, bottoms at around
+> > 300HZ. In total single mode with every module unloaded that I can unload
+> > it stops around 22HZ.
+> >
+> > I guess I'll have to go hunting whatever thing is causing the pollings.
+> > no timertop yet, I guess? :P
+>
+> i8042 runs a steady periodic 20Hz timer. You can make it slower to get
+> even the total low lower, and it will not affect performance under
+> normal (sane hardware) circumstances.
 
-See <http://bugzilla.kernel.org/show_bug.cgi?id=4989> for more details.
-[Basic story: IBM TP 600X, i386, booting always with acpi_sleep=s3_bios.
-With some kernels it won't wake up from S3 sleep, just sits there with
-the disk light on but no disk activity.]
+Indeed and this patch (safely tried at home but serves no useful purpose 
+really) confirms a reasonable drop without problems. After this, only fbcon 
+polls at a similar rate (HZ/5).
 
-The patch is in the kernel (as of -rc5) so if it causes a problem (it
-may not be, it may just have exposed another problem, alas), then it may
-be worth tracking down.  Otherwise S3 will never get stable.
+Of interest to those using an ondemand scaling governor, now that we have 
+timertop, I have found that the default ondemand settings lead to 
+delayed_work_timer_fn at about 140Hz and this can be dropped substantially by 
+slowing the rate of polling (and subsequently slowing the speed with which 
+the ondemand governor responds) down to <25 by
 
-Any suggestions on patches to test?  (I'll be away for a few days
-teaching but will try any experiments when I get back if I cannot get to
-them while travelling.)
+echo 100000 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/sampling_rate
 
-Here's the log entry:
+(the default is 10000 and the value is confusing as the rate goes down as you 
+increase this value).
 
-$ git log 299de0343c7d18448a69c635378342e9214b14af
-commit 299de0343c7d18448a69c635378342e9214b14af
-Author: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Date:   Wed Jun 15 18:59:27 2005 +0400
+Cheers,
+Con
 
-    [PATCH] PCI: pci_assign_unassigned_resources() on x86
-    
-    - Add sanity check for io[port,mem]_resource in setup-bus.c. These
-      resources look like "free" as they have no parents, but obviously
-      we must not touch them.
-    - In i386.c:pci_allocate_bus_resources(), if a bridge resource cannot be
-      allocated for some reason, then clear its flags. This prevents any child
-      allocations in this range, so the setup-bus code will work with a clean
-      resource sub-tree.
-    - i386.c:pcibios_enable_resources() doesn't enable bridges, as it checks
-      only resources 0-5, which looks like a clear bug to me. I suspect it
-      might break hotplug as well in some cases.
-    
-    From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-    Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+--Boundary-00=_yUv8CUP3JOPYPXo
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="i8042_slowpoll.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="i8042_slowpoll.patch"
 
-...
-
-And the diff itself:
-
-diff --git a/arch/i386/pci/common.c b/arch/i386/pci/common.c
---- a/arch/i386/pci/common.c
-+++ b/arch/i386/pci/common.c
-@@ -165,6 +165,7 @@ static int __init pcibios_init(void)
- 	if ((pci_probe & PCI_BIOS_SORT) && !(pci_probe & PCI_NO_SORT))
- 		pcibios_sort();
- #endif
-+	pci_assign_unassigned_resources();
- 	return 0;
- }
+Index: linux-2.6.13-rc5-ck2/drivers/input/serio/i8042.h
+===================================================================
+--- linux-2.6.13-rc5-ck2.orig/drivers/input/serio/i8042.h	2005-07-06 16:56:52.000000000 +1000
++++ linux-2.6.13-rc5-ck2/drivers/input/serio/i8042.h	2005-08-05 15:03:49.000000000 +1000
+@@ -44,7 +44,7 @@
+  * polling.
+  */
  
-diff --git a/arch/i386/pci/i386.c b/arch/i386/pci/i386.c
---- a/arch/i386/pci/i386.c
-+++ b/arch/i386/pci/i386.c
-@@ -106,11 +106,16 @@ static void __init pcibios_allocate_bus_
- 		if ((dev = bus->self)) {
- 			for (idx = PCI_BRIDGE_RESOURCES; idx < PCI_NUM_RESOURCES; idx++) {
- 				r = &dev->resource[idx];
--				if (!r->start)
-+				if (!r->flags)
- 					continue;
- 				pr = pci_find_parent_resource(dev, r);
--				if (!pr || request_resource(pr, r) < 0)
-+				if (!r->start || !pr || request_resource(pr, r) < 0) {
- 					printk(KERN_ERR "PCI: Cannot allocate resource region %d of bridge %s\n", idx, pci_name(dev));
-+					/* Something is wrong with the region.
-+					   Invalidate the resource to prevent child
-+					   resource allocations in this range. */
-+					r->flags = 0;
-+				}
- 			}
- 		}
- 		pcibios_allocate_bus_resources(&bus->children);
-@@ -227,7 +232,7 @@ int pcibios_enable_resources(struct pci_
+-#define I8042_POLL_PERIOD	HZ/20
++#define I8042_POLL_PERIOD	HZ/5
  
- 	pci_read_config_word(dev, PCI_COMMAND, &cmd);
- 	old_cmd = cmd;
--	for(idx=0; idx<6; idx++) {
-+	for(idx = 0; idx < PCI_NUM_RESOURCES; idx++) {
- 		/* Only set up the requested stuff */
- 		if (!(mask & (1<<idx)))
- 			continue;
-diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
---- a/drivers/pci/setup-bus.c
-+++ b/drivers/pci/setup-bus.c
-@@ -273,6 +273,8 @@ find_free_bus_resource(struct pci_bus *b
- 
- 	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
- 		r = bus->resource[i];
-+		if (r == &ioport_resource || r == &iomem_resource)
-+			continue;
- 		if (r && (r->flags & type_mask) == type && !r->parent)
- 			return r;
- 	}
+ /*
+  * Status register bits.
 
+--Boundary-00=_yUv8CUP3JOPYPXo--

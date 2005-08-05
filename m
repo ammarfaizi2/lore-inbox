@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263030AbVHEN4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbVHEN7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263030AbVHEN4v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 09:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVHEN4u
+	id S263024AbVHEN7J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 09:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVHEN7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 09:56:50 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59544 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S263025AbVHENzx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 09:55:53 -0400
-Date: Fri, 5 Aug 2005 15:55:51 +0200
-From: Andi Kleen <ak@suse.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       John B?ckstrand <sandos@home.se>
-Subject: Re: lockups with netconsole on e1000 on media insertion
-Message-ID: <20050805135551.GQ8266@wotan.suse.de>
-References: <42F347D2.7000207@home.se.suse.lists.linux.kernel> <p73ek987gjw.fsf@bragg.suse.de> <1123249743.18332.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123249743.18332.16.camel@localhost.localdomain>
+	Fri, 5 Aug 2005 09:59:04 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:50697 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S263024AbVHEN5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 09:57:46 -0400
+To: jirislaby@gmail.com
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <42F3617E.9040808@gmail.com> (message from Jiri Slaby on Fri, 05
+	Aug 2005 14:54:22 +0200)
+Subject: Re: [BUG] sunrpc as module and bad proc/sys link count
+References: <42F3617E.9040808@gmail.com>
+Message-Id: <E1E12hX-0003Cd-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 05 Aug 2005 15:57:31 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is fixing the symptom and is not the cure.  Unfortunately I don't
-> have a e1000 card so I can't try a fix. But I did have a e100 card that
-> would lock up the same way.  The problem was that netpoll_poll calls the
-> cards netpoll routine (in e1000_main.c e1000_netpoll).  In the e100
-> case, when the transmit buffer would fill up, the queue would go down.
-> But the netpoll routine in the e100 code never put it back up after it
-> was all transfered. So this would lock up the kernel when that happened.
+> When sunrpc is as module, sysctl adds to proc fs proc/sys/sunrpc, adds 1 
+> to number of proc/sys link (see later), but when it's ls-ed, there is 
+> still old count.
 
-In my case the hang happened when no cable was connected.
+Does this patch solve it?
 
-There is no way to handle this in any other way. You eventually
-have to bail out.
-
->  
->  repeat:
-> -	if(!np || !np->dev || !netif_running(np->dev)) {
-> +	if(try-- == 0 || !np || !np->dev || !netif_running(np->dev)) {
-> +		if (!try)
-> +			printk(KERN_WARNING "net driver is stuck down, maybe a"
-> +					" problem with the driver's netpoll\n");
-
-... and nobody will see that. It will not even trigger an output.
-
--Andi
-
+Index: linux/fs/proc/generic.c
+===================================================================
+--- linux.orig/fs/proc/generic.c	2005-07-27 12:29:23.000000000 +0200
++++ linux/fs/proc/generic.c	2005-08-05 15:54:35.000000000 +0200
+@@ -249,6 +249,18 @@ out:
+ 	return error;
+ }
+ 
++static int proc_getattr(struct vfsmount *mnt, struct dentry *dentry,
++			struct kstat *stat)
++{
++	struct inode *inode = dentry->d_inode;
++	struct proc_dir_entry *de = PROC_I(inode)->pde;
++	if (de && de->nlink)
++		inode->i_nlink = de->nlink;
++	
++	generic_fillattr(inode, stat);
++	return 0;
++}
++
+ static struct inode_operations proc_file_inode_operations = {
+ 	.setattr	= proc_notify_change,
+ };
+@@ -475,6 +487,7 @@ static struct file_operations proc_dir_o
+  */
+ static struct inode_operations proc_dir_inode_operations = {
+ 	.lookup		= proc_lookup,
++	.getattr	= proc_getattr,
+ 	.setattr	= proc_notify_change,
+ };
+ 

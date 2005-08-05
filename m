@@ -1,39 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262978AbVHELFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVHELMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262978AbVHELFh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 07:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbVHELFg
+	id S262980AbVHELMV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 07:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbVHELMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 07:05:36 -0400
-Received: from smtp.bredband2.net ([82.209.166.4]:4630 "EHLO
-	smtp.bredband2.net") by vger.kernel.org with ESMTP id S262972AbVHELEw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 07:04:52 -0400
-Message-ID: <42F347D2.7000207@home.se>
-Date: Fri, 05 Aug 2005 13:04:50 +0200
-From: =?ISO-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: lockups with netconsole on e1000 on media insertion
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 5 Aug 2005 07:12:21 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:33510 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262980AbVHELMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 07:12:18 -0400
+Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
+From: Arjan van de Ven <arjan@infradead.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       linux-kernel@vger.kernel.org, pmarques@grupopie.com
+In-Reply-To: <Pine.LNX.4.61.0508051254010.3743@scrub.home>
+References: <1123219747.20398.1.camel@localhost>
+	 <20050804223842.2b3abeee.akpm@osdl.org>
+	 <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI>
+	 <20050804233634.1406e92a.akpm@osdl.org>
+	 <Pine.LNX.4.61.0508051132540.3743@scrub.home>
+	 <1123235219.3239.46.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0508051202520.3728@scrub.home>
+	 <1123236831.3239.55.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0508051225270.3743@scrub.home>
+	 <1123238289.3239.57.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0508051254010.3743@scrub.home>
+Content-Type: text/plain
+Date: Fri, 05 Aug 2005 13:12:04 +0200
+Message-Id: <1123240325.3239.62.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been trying to hunt down a hard lockup issue with some hardware of 
-mine, but I've possibly hit a kernel bug instead. When using netconsole 
-on my e1000, if I unplug the cable and then re-plug it, the machine 
-locks up hard. It manages to print the "link up" message on the screen, 
-but nothing after that. Now, I wonder if this is supposed to be so? I 
-tried this on 4 different configurations, 2.6.13-rc5 and 2.6.12 with and 
-without "noapic acpi=off", same result on all of them. I've tried with 1 
-and 3 other NICs in the machine at the same time.
+On Fri, 2005-08-05 at 12:56 +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Fri, 5 Aug 2005, Arjan van de Ven wrote:
+> 
+> > > > we've had a non-negliable amount of security holes because of this
+> > > 
+> > > So why don't we have a similiar kmalloc()?
+> > 
+> > nope kmalloc is not an array allocator
+> > 
+> > > > it makes it easy and safe. Of course you can and should check it in all
+> > > > users. Just that using a safer API is generally better than forcing
+> > > > everyone to do it themselves.
+> > > 
+> > > How exactly does this make it a "safe API"? Even if it checks for this one 
+> > > case, it still makes the user suspectible for allocating big amounts of 
+> > > unswappable memory.
+> > 
+> > 128Kb max.
+> 
+> You completely missed the point and didn't answer my questions at all... :-(
 
-It seems to be working fine on other NICs, such as rtl8139 and 3c59x. 
-Any ideas on how to debug this further? (Btw, is there an easy way of 
-"inserting" dmesg messages manually?)
+I found it hard to understand your question.
 
----
-John Bäckstrand
+Maybe it helps if I give the basic bug scenario first (pseudo C)
+
+void some_ioctl_func(...)
+{
+  int count, i;
+  struct foo *ptr;
+
+  copy_from_user(&count,...);
+
+  ptr = kmalloc(sizeof(struct foo) * count);
+
+  if (!ptr)
+     return -ENOMEM;
+
+  for (i=0; i<count; i++) {
+      initialize(ptr+i);
+  }
+}
+
+
+if the user picks count such that the multiplication overflows, the
+kmalloc will actually *succeed* in getting a chunk between 0 and 128Kb.
+The subsequent "fill the array up" will overwrite a LOT of kernel memory
+though.
+
+Fixing the hole of course involves checking "count" for too high a
+value. Using kcalloc() will check for this same overflow inside kcalloc
+and prevent it (eg return NULL) if one of these slips through.
+
+

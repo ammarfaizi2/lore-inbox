@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVHEAJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVHEAMC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbVHEAJX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Aug 2005 20:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbVHEAJX
+	id S262788AbVHEAMC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Aug 2005 20:12:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbVHEAMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Aug 2005 20:09:23 -0400
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:3554 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262787AbVHEAJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Aug 2005 20:09:21 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] no-idle-hz aka dynamic ticks-2
-Date: Fri, 5 Aug 2005 10:05:27 +1000
-User-Agent: KMail/1.8.1
-Cc: kernel list <linux-kernel@vger.kernel.org>
-References: <200508022225.31429.kernel@kolivas.org> <20050803210915.GA11196@elf.ucw.cz> <200508051002.17344.kernel@kolivas.org>
-In-Reply-To: <200508051002.17344.kernel@kolivas.org>
+	Thu, 4 Aug 2005 20:12:02 -0400
+Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:49566 "EHLO
+	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262788AbVHEAL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Aug 2005 20:11:59 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508051005.27162.kernel@kolivas.org>
+Message-ID: <17138.44726.845760.992792@wombat.chubb.wattle.id.au>
+Date: Fri, 5 Aug 2005 10:11:34 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Clemens Koller <clemens.koller@anagramm.de>,
+       LKML List <linux-kernel@vger.kernel.org>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: How to get the physical page addresses from a kernel virtual	address for DMA SG List?
+In-Reply-To: <1123163846.12009.15.camel@localhost.localdomain>
+References: <42F20CEC.60206@anagramm.de>
+	<Pine.LNX.4.61.0508040900300.3410@chaos.analogic.com>
+	<42F21A86.8030408@anagramm.de>
+	<1123163846.12009.15.camel@localhost.localdomain>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Aug 2005 10:02 am, Con Kolivas wrote:
-> On Thu, 4 Aug 2005 07:09 am, Pavel Machek wrote:
-> > Hi!
-> >
-> > > > > As promised, here is an updated patch for the newly released
-> > > > > 2.6.13-rc5. Boots and runs fine on P4HT (SMP+SMT kernel) built with
-> > > > > gcc 4.0.1.
-> > > >
-> > > > Doesn't compile for me w/ gcc 3.4.4:
-> > >
-> > > Thanks for the report. Tiny change required. Here is a respun patch.
-> >
-> > I'm not sure if you added them, but...
-> >
-> >   CC      arch/i386/kernel/timers/timer_tsc.o
-> > arch/i386/kernel/timers/timer_tsc.c: In function `mark_offset_tsc':
-> > arch/i386/kernel/timers/timer_tsc.c:345: warning: `lost' might be used
-> > uninitialized in this function arch/i386/kernel/timers/timer_tsc.c:345:
-> > warning: `delay' might be used uninitialized in this function
-> > arch/i386/kernel/timers/timer_tsc.c:347: warning: `count' might be used
-> > uninitialized in this function
->
-> Indeed the goto will bypass the setting of these variables and they will be
-> uninitialised. Will fix with next version, thanks.
+You may want to take a look at the user-mode driver infrastructure
+patches, which do almost exactly what you're trying to do.
 
-Looking yet further into this, if it gotos monotonic_base it will return 
-without using any of these variables so it's a harmless warning but we may as 
-well initialise them to quieten it.
+Get them from
+http://www.gelato.unsw.edu.au/cgi-bin/viewcvs.cgi/cvs/kernel/usrdrivers/kernel-2.6.12-rc3/
 
-Cheers,
-Con
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

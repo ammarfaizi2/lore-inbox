@@ -1,95 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262809AbVHESHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVHESK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262809AbVHESHy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 14:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVHESHx
+	id S261858AbVHESK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 14:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbVHESIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 14:07:53 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:60223 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262751AbVHESHc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 14:07:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kBaj4WZ5lpUI9C0S4gl029r+y4zYfzonWjg3wNi1ClkRbtEg/21wV57fpj3ZvKgwSeJKD+ZdFWFwWAWsmM70MhFi0Iv4EYMEB4Puix0Gv/yU65iu8ippTvpOcvmZ61LgqqVy9FckyRO0+vGEHHMS70L5FMCOk0M2BJgJbBg5n0o=
-Message-ID: <86802c4405080511079d01532@mail.gmail.com>
-Date: Fri, 5 Aug 2005 11:07:27 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: mthca and LinuxBIOS
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <86802c440508051103500f6942@mail.gmail.com>
+	Fri, 5 Aug 2005 14:08:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58523 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261858AbVHESHC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 14:07:02 -0400
+Date: Fri, 5 Aug 2005 11:05:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: dominik.karall@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re: [patch] preempt-trace.patch (mono preempt-trace)
+Message-Id: <20050805110532.55428af7.akpm@osdl.org>
+In-Reply-To: <20050805152245.GA12650@elte.hu>
+References: <20050607042931.23f8f8e0.akpm@osdl.org>
+	<20050804152858.2ef2d72b.akpm@osdl.org>
+	<20050805104819.GA20278@elte.hu>
+	<200508051626.56910.dominik.karall@gmx.net>
+	<20050805152245.GA12650@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
-	 <52u0i6b9an.fsf_-_@cisco.com>
-	 <86802c44050804093374aca360@mail.gmail.com> <52mznxacbp.fsf@cisco.com>
-	 <86802c4405080410236ba59619@mail.gmail.com>
-	 <86802c4405080411013b60382c@mail.gmail.com> <521x59a6tb.fsf@cisco.com>
-	 <86802c440508041230143354c2@mail.gmail.com> <52slxp6o5b.fsf@cisco.com>
-	 <86802c440508051103500f6942@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ps.
-some kernel pci code patch broke sth yesterday night.
-it mask out bit [32-39]
-ib_mthca 0000:04:00.0: profile[ 0]--10/20 @ 0x        e0000000 (size 0x 4000000)
-ib_mthca 0000:04:00.0: profile[ 1]-- 0/16 @ 0x        e4000000 (size 0x 1000000)
-ib_mthca 0000:04:00.0: profile[ 2]-- 7/18 @ 0x        e5000000 (size 0x  800000)
-ib_mthca 0000:04:00.0: profile[ 3]-- 9/17 @ 0x        e5800000 (size 0x  800000)
-ib_mthca 0000:04:00.0: profile[ 4]-- 3/16 @ 0x        e6000000 (size 0x  400000)
-ib_mthca 0000:04:00.0: profile[ 5]-- 4/16 @ 0x        e6400000 (size 0x  200000)
-ib_mthca 0000:04:00.0: profile[ 6]--12/15 @ 0x        e6600000 (size 0x  100000)
-ib_mthca 0000:04:00.0: profile[ 7]-- 8/13 @ 0x        e6700000 (size 0x   80000)
-ib_mthca 0000:04:00.0: profile[ 8]--11/11 @ 0x        e6780000 (size 0x   10000)
-ib_mthca 0000:04:00.0: profile[ 9]-- 6/ 5 @ 0x        e6790000 (size
-0x     800)
-
-YH 
-
-On 8/5/05, yhlu <yhlu.kernel@gmail.com> wrote:
-> You are right. CONG_SPECIAL_QP
-> 
-> ib_mthca: Mellanox InfiniBand HCA driver v0.06 (June 23, 2005)
-> ib_mthca: Initializing Mellanox Technologies MT25208 InfiniHost III Ex
-> (Tavor compatibility mode) (0000:04:00.0)
-> ib_mthca 0000:04:00.0: FW version 000400060002, max commands 64
-> ib_mthca 0000:04:00.0: FW size 6143 KB (start fcefa00000, end fcefffffff)
-> ib_mthca 0000:04:00.0: HCA memory size 262143 KB (start fce0000000,
-> end fcefffffff)
-> ib_mthca 0000:04:00.0: Max QPs: 16777216, reserved QPs: 1024, entry size: 256
-> ib_mthca 0000:04:00.0: Max CQs: 16777216, reserved CQs: 128, entry size: 64
-> ib_mthca 0000:04:00.0: Max EQs: 64, reserved EQs: 1, entry size: 64
-> ib_mthca 0000:04:00.0: reserved MPTs: 16, reserved MTTs: 16
-> ib_mthca 0000:04:00.0: Max PDs: 16777216, reserved PDs: 0, reserved UARs: 1
-> ib_mthca 0000:04:00.0: Max QP/MCG: 16777216, reserved MGMs: 0
-> ib_mthca 0000:04:00.0: Flags: 00370347
-> ib_mthca 0000:04:00.0: profile[ 0]--10/20 @ 0x      fce0000000 (size 0x 4000000)
-> ib_mthca 0000:04:00.0: profile[ 1]-- 0/16 @ 0x      fce4000000 (size 0x 1000000)
-> ib_mthca 0000:04:00.0: profile[ 2]-- 7/18 @ 0x      fce5000000 (size 0x  800000)
-> ib_mthca 0000:04:00.0: profile[ 3]-- 9/17 @ 0x      fce5800000 (size 0x  800000)
-> ib_mthca 0000:04:00.0: profile[ 4]-- 3/16 @ 0x      fce6000000 (size 0x  400000)
-> ib_mthca 0000:04:00.0: profile[ 5]-- 4/16 @ 0x      fce6400000 (size 0x  200000)
-> ib_mthca 0000:04:00.0: profile[ 6]--12/15 @ 0x      fce6600000 (size 0x  100000)
-> ib_mthca 0000:04:00.0: profile[ 7]-- 8/13 @ 0x      fce6700000 (size 0x   80000)
-> ib_mthca 0000:04:00.0: profile[ 8]--11/11 @ 0x      fce6780000 (size 0x   10000)
-> ib_mthca 0000:04:00.0: profile[ 9]-- 6/ 5 @ 0x      fce6790000 (size 0x     800)
-> ib_mthca 0000:04:00.0: HCA memory: allocated 106050 KB/256000 KB
-> (149950 KB free)
-> ib_mthca 0000:04:00.0: Allocated EQ 1 with 65536 entries
-> ib_mthca 0000:04:00.0: Allocated EQ 2 with 128 entries
-> ib_mthca 0000:04:00.0: Allocated EQ 3 with 128 entries
-> ib_mthca 0000:04:00.0: Setting mask 00000000000f43fe for eqn 2
-> ib_mthca 0000:04:00.0: Setting mask 0000000000000400 for eqn 3
-> ib_mthca 0000:04:00.0: NOP command IRQ test passed
-> ib_mthca 0000:04:00.0: mthca_init_qp_table: mthca_CONF_SPECIAL_QP
-> failed for 0/1024 (-16)
-> ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
-> ib_mthca 0000:04:00.0: Clearing mask 00000000000f43fe for eqn 2
-> ib_mthca 0000:04:00.0: Clearing mask 0000000000000400 for eqn 3
-> ib_mthca: probe of 0000:04:00.0 failed with error -16
+Ingo Molnar <mingo@elte.hu> wrote:
 >
+> 
+> * Dominik Karall <dominik.karall@gmx.net> wrote:
+> 
+> > BUG: mono[10011] exited with nonzero preempt_count 1!
+> > ---------------------------
+> > | preempt count: 00000001 ]
+> > | 1 level deep critical section nesting:
+> > ----------------------------------------
+> > .. [<ffffffff803f791e>] .... _spin_lock+0xe/0x70
+> > .....[<0000000000000000>] ..   ( <= 0x0)
+> > 
+> > If there is anything I should test, let me know!
+
+Thanks, Dominik.
+
+> please enable CONFIG_FRAME_POINTERS!
+
+Seems a bit tricky.  Wouldn't it be best if enabling CONFIG_DEBUG_PREEMPT
+autoselected CONFIG_KALLSYMS_ALL, CONFIG_FRAME_POINTER and whatever else
+we need?
+
+

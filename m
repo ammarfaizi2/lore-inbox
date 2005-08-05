@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVHEQBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbVHEPz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262296AbVHEQBB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 12:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbVHEP6i
+	id S262628AbVHEPz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 11:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbVHEPxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 11:58:38 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:65433 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262296AbVHEP4g (ORCPT
+	Fri, 5 Aug 2005 11:53:52 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:15528 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262447AbVHEPxI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 11:56:36 -0400
-Date: Fri, 5 Aug 2005 17:58:29 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, karim@opersys.com,
-       prasadav@us.ibm.com
-Subject: Re: [-mm patch] relayfs: add read() support
-Message-ID: <20050805155826.GT5561@suse.de>
-References: <17138.53203.430849.147593@tut.ibm.com> <20050805144926.GS5561@suse.de> <17139.32831.571021.34524@tut.ibm.com>
+	Fri, 5 Aug 2005 11:53:08 -0400
+Date: Fri, 5 Aug 2005 17:53:07 +0200
+From: Andi Kleen <ak@suse.de>
+To: Adam Litke <agl@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, christoph@lameter.com,
+       dwg@au1.ibm.com
+Subject: Re: [RFC] Demand faulting for large pages
+Message-ID: <20050805155307.GV8266@wotan.suse.de>
+References: <1123255298.3121.46.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17139.32831.571021.34524@tut.ibm.com>
+In-Reply-To: <1123255298.3121.46.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05 2005, Tom Zanussi wrote:
-> Jens Axboe writes:
->  > On Thu, Aug 04 2005, Tom Zanussi wrote:
->  > > At the kernel summit, there was some discussion of relayfs and the
->  > > consensus was that it didn't make sense for relayfs to not implement
->  > > read().  So here's a read implementation...
->  > 
->  > It needs a few fixes to actually compile without errors. This works for
->  > me, just tested with the block tracing stuff, works a charm!
+On Fri, Aug 05, 2005 at 10:21:38AM -0500, Adam Litke wrote:
+> Below is a patch to implement demand faulting for huge pages.  The main
+> motivation for changing from prefaulting to demand faulting is so that
+> huge page allocations can follow the NUMA API.  Currently, huge pages
+> are allocated round-robin from all NUMA nodes.   
+
+I think matching DEFAULT is better than having a different default for
+huge pages than for small pages.
+
+In general more programs are happy with local memory than remote memory.
+
+Also it makes it consistent.
+
 > 
-> Great, glad to hear it!  I should have noted in the posting, though,
-> that you should first apply the 'API cleanup' patch, in which case you
-> shouldn't get the compile errors.
+> The default behavior in SLES9 for i386 is to use demand faulting with
+> NUMA policy-aware allocations.  To my knowledge, this continues to work
 
-Ah, I see. The API is also much cleaner than what I looked at a few
-months ago (even before the cleanup).
+Not sure what you're trying to say here. All allocations are NUMA policy aware.
 
-Andrew, can you merge it pretty please?
+> well in practice.  Thanks to consolidated hugetlb code, switching the
+> behavior requires changing only one fault handler.  The bulk of the
+> patch just moves the logic from hugelb_prefault() to
+> hugetlb_pte_fault().
 
--- 
-Jens Axboe
+Are you sure you fixed get_user_pages to handle this properly? It doesn't
+like it.
 
+-Andi

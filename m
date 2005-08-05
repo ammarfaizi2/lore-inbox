@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263080AbVHETTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263096AbVHETTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263080AbVHETTS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 15:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbVHETRS
+	id S263096AbVHETTg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 15:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbVHETTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 15:17:18 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:48304 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263080AbVHETQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 15:16:15 -0400
-Subject: [PATCH] use bus_slot number for name
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Cc: greg@kroah.com, rajesh.shah@intel.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 05 Aug 2005 12:16:06 -0700
-Message-Id: <1123269366.8917.39.camel@whizzy>
+	Fri, 5 Aug 2005 15:19:22 -0400
+Received: from nproxy.gmail.com ([64.233.182.196]:34137 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262823AbVHETSk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 15:18:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FLNTEDKNMGh2GXuayAgpbvuC6BWLt4Ihegmd7cAHP4a1zWn+qJw8JbWITaL3pdb5h7S6B/Ym0sv8JaPk/ih7LVMpMf6kr3qmtnYOYI5rIggmHOs7ZTo/eMXA3hgNoxlVfU6+9Zbbd0A5Pk9qBch+HT3EgGs9Tv8/5UyQ9zmB+4A=
+Message-ID: <40f323d00508051218c30d7af@mail.gmail.com>
+Date: Fri, 5 Aug 2005 21:18:38 +0200
+From: Benoit Boissinot <bboissin@gmail.com>
+To: Olaf Hering <olh@suse.de>
+Subject: Re: [PATCH] implicit declaration of function `page_cache_release'
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       sparclinux@vger.kernel.org
+In-Reply-To: <20050805190006.GA6747@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-X-OriginalArrivalTime: 05 Aug 2005 19:16:07.0271 (UTC) FILETIME=[217A0F70:01C599F2]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050708150313.GA30373@suse.de>
+	 <40f323d005080511516a81a7d6@mail.gmail.com>
+	 <20050805190006.GA6747@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For systems with multiple hotplug controllers, you need to use more than
-just the slot number to uniquely name the slot.  Without a unique slot
-name, the pci_hp_register() will fail.  This patch adds the bus number
-to the name.
+On 8/5/05, Olaf Hering <olh@suse.de> wrote:
+>  On Fri, Aug 05, Benoit Boissinot wrote:
+> 
+> > On 7/8/05, Olaf Hering <olh@suse.de> wrote:
+> > >
+> > > In file included from include2/asm/tlb.h:31,
+> > >                  from linux-2.6.13-rc2-olh/arch/ppc64/kernel/pSeries_lpar.c:37:
+> > > linux-2.6.13-rc2-olh/include/asm-generic/tlb.h: In function `tlb_flush_mmu':
+> > > linux-2.6.13-rc2-olh/include/asm-generic/tlb.h:77: warning: implicit declaration of function `release_pages'
+> > > linux-2.6.13-rc2-olh/include/asm-generic/tlb.h: In function `tlb_remove_page':
+> > > linux-2.6.13-rc2-olh/include/asm-generic/tlb.h:117: warning: implicit declaration of function `page_cache_release'
+> > >
+> > This went in 2.6.13-rc3 (commit
+> > 542d1c88bd7f73e2e59d41b12e4a9041deea89e4), and broke sparc compilation
+> > because of the following circular dependency:
+> > asm-sparc/pgtable include linux/swap.h
+> 
+> Why does it need swap.h? Do the users of pgtable.h rely on swap.h?
+> 
+sparc is the only architecture to do that, it looks like it uses it
+for boot time linking (BTFIXUP_*). I don't know anything about sparc,
+so i can't fix it.
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-
-diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/drivers/pci/hotplug/pciehp.h linux-2.6.13-rc4-shpchp-slot-name-fix/drivers/pci/hotplug/pciehp.h
---- linux-2.6.13-rc4/drivers/pci/hotplug/pciehp.h	2005-07-28 15:44:44.000000000 -0700
-+++ linux-2.6.13-rc4-shpchp-slot-name-fix/drivers/pci/hotplug/pciehp.h	2005-08-04 17:57:18.000000000 -0700
-@@ -302,7 +302,7 @@ static inline void return_resource(struc
- 
- static inline void make_slot_name(char *buffer, int buffer_size, struct slot *slot)
- {
--	snprintf(buffer, buffer_size, "%d", slot->number);
-+	snprintf(buffer, buffer_size, "%04d_%04d", slot->bus, slot->number);
- }
- 
- enum php_ctlr_type {
-diff -uprN -X linux-2.6.13-rc4/Documentation/dontdiff linux-2.6.13-rc4/drivers/pci/hotplug/shpchp.h linux-2.6.13-rc4-shpchp-slot-name-fix/drivers/pci/hotplug/shpchp.h
---- linux-2.6.13-rc4/drivers/pci/hotplug/shpchp.h	2005-07-28 15:44:44.000000000 -0700
-+++ linux-2.6.13-rc4-shpchp-slot-name-fix/drivers/pci/hotplug/shpchp.h	2005-08-04 17:57:18.000000000 -0700
-@@ -46,7 +46,7 @@ extern int shpchp_poll_mode;
- extern int shpchp_poll_time;
- extern int shpchp_debug;
- 
--/*#define dbg(format, arg...) do { if (shpchp_debug) printk(KERN_DEBUG "%s: " format, MY_NAME , ## arg); } while (0)*/
-+/* #define dbg(format, arg...) do { if (shpchp_debug) printk(KERN_DEBUG "%s: " format, MY_NAME , ## arg); } while (0) */
- #define dbg(format, arg...) do { if (shpchp_debug) printk("%s: " format, MY_NAME , ## arg); } while (0)
- #define err(format, arg...) printk(KERN_ERR "%s: " format, MY_NAME , ## arg)
- #define info(format, arg...) printk(KERN_INFO "%s: " format, MY_NAME , ## arg)
-@@ -411,7 +411,7 @@ static inline void return_resource(struc
- 
- static inline void make_slot_name(char *buffer, int buffer_size, struct slot *slot)
- {
--	snprintf(buffer, buffer_size, "%d", slot->number);
-+	snprintf(buffer, buffer_size, "%04d_%04d", slot->bus, slot->number);
- }
- 
- enum php_ctlr_type {
-
+(adding sparclinux@vger.kernel.org to the cc list)

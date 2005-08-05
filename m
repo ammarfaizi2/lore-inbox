@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262959AbVHEKX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262964AbVHEK0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262959AbVHEKX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 06:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbVHEKXo
+	id S262964AbVHEK0l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 06:26:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbVHEK0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 06:23:44 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:6151 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S262959AbVHEKWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 06:22:44 -0400
-Message-ID: <42F33DF0.6030901@cantab.net>
-Date: Fri, 05 Aug 2005 11:22:40 +0100
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel status, 4 Aug 2005
-References: <20050805020729.50146221.akpm@osdl.org>
-In-Reply-To: <20050805020729.50146221.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Aug 2005 10:34:22.0671 (UTC) FILETIME=[3E7B2DF0:01C599A9]
+	Fri, 5 Aug 2005 06:26:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17870 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262964AbVHEK0d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 06:26:33 -0400
+Date: Fri, 5 Aug 2005 18:31:38 +0800
+From: David Teigland <teigland@redhat.com>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: [PATCH 00/14] GFS
+Message-ID: <20050805103138.GE14880@redhat.com>
+References: <20050802071828.GA11217@redhat.com> <1122968724.3247.22.camel@laptopd505.fenrus.org> <20050805071415.GC14880@redhat.com> <1123227279.3239.1.camel@laptopd505.fenrus.org> <20050805094452.GD14880@redhat.com> <20050805100750.GA9818@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050805100750.GA9818@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Fri, Aug 05, 2005 at 12:07:50PM +0200, J?rn Engel wrote:
+> On Fri, 5 August 2005 17:44:52 +0800, David Teigland wrote:
+> > Do we go a step beyond this and use say the crc32() function from
+> > linux/crc32.h?  Is this _function_ as standard and unchanging as the table
+> > of crcs?  In my tests it doesn't produce the same results as our
+> > gfs2_disk_hash() function, even with both using the same crc table.  I
+> > don't mind adopting a new function and just writing a user space
+> > equivalent for the tools if it's a fixed standard.
 > 
-> Status of subsystem trees:
+> The function is basically set in stone.  Variants exists depending on
+> how it is called.  I know of four variants, but there may be more:
 > 
->   3190002    git-acpi.patch
->   68299      git-alsa.patch
+> 1. Initial value is 0
+> 2. Initial value is 0xffffffff
+> a) Result is taken as-is
+> b) Result is XORed with 0xffffffff
+> 
+> Maybe your code implements 1a, while you tried 2b with the lib/crc32.c
+> function or something similar?
 
-What are these numbers?
-
-David Vrabel
+You're right, initial value 0xffffffff and xor result with 0xffffffff
+matches the results from our function.  Great, we can get rid of
+gfs2_disk_hash() and use crc32() directly.
+Thanks,
+Dave
 

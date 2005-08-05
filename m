@@ -1,117 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVHERlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVHERsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262966AbVHERlk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 13:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262777AbVHERlj
+	id S262839AbVHERsP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 13:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVHERsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 13:41:39 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:64474 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S262966AbVHERli (ORCPT
+	Fri, 5 Aug 2005 13:48:15 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:24802 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S263046AbVHERsN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 13:41:38 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Marcel Selhorst <selhorst@crypto.rub.de>
-Subject: Re: [PATCH] tpm_infineon: Support for new TPM 1.2 and PNPACPI
-Date: Fri, 5 Aug 2005 11:41:34 -0600
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kylene Jo Hall <kjhall@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>
-References: <42F1EE69.4000108@crypto.rub.de>
-In-Reply-To: <42F1EE69.4000108@crypto.rub.de>
+	Fri, 5 Aug 2005 13:48:13 -0400
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: [PATCH] VM: add vm.free_node_memory sysctl
+Date: Fri, 5 Aug 2005 12:45:58 -0500
+User-Agent: KMail/1.8
+cc: "Martin Hicks" <mort@sgi.com>, "Ingo Molnar" <mingo@elte.hu>,
+       "Linux MM" <linux-mm@kvack.org>, "Andrew Morton" <akpm@osdl.org>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20050801113913.GA7000@elte.hu>
+ <200508031459.22834.raybry@mpdtxmail.amd.com>
+ <20050803200808.GE8266@wotan.suse.de>
+In-Reply-To: <20050803200808.GE8266@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Message-ID: <200508051245.59528.raybry@mpdtxmail.amd.com>
+X-WSS-ID: 6EED79811UW7642043-01-01
 Content-Disposition: inline
-Message-Id: <200508051141.34121.bjorn.helgaas@hp.com>
+Content-Type: text/plain;
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 August 2005 4:31 am, Marcel Selhorst wrote:
-> This patch includes support for the new Infineon Trusted Platform Module
-> SLB 9635 TT 1.2 and does further include ACPI-support for both chip versions
-> (SLD 9630 TT 1.1 and SLB9635 TT 1.2). Since the ioports and configuration
-> registers are not correctly set on some machines, the configuration is now
-> done via PNPACPI, which reads out the correct values out of the DSDT-table.
-> Note that you have to have CONFIG_PNP, CONFIG_ACPI_BUS and CONFIG_PNPACPI
-> enabled to run this driver (assuming that mainbaords including a TPM do have
-> the need for ACPI anyway).
+On Wednesday 03 August 2005 15:08, Andi Kleen wrote:
 
-> +++ linux-new/drivers/char/tpm/tpm_infineon.c	2005-08-04 12:19:47.000000000 +0200
-> ...
-> +#include <acpi/acpi_bus.h>
+> >
+> > Hmmm.... What happens if there are already mapped pages (e. g. mapped in
+> > the sense that pages are mapped into an address space) on the node and
+> > you want to allocate some more, but can't because the node is full of
+> > clean page cache pages?   Then one would have to set the memhog argument
+> > to the right thing to
+>
 
-You shouldn't need acpi_bus.h anymore, since you're using PNP.
+> If you have a bind policy in the memory grabbing program then the standard
+> try_to_free_pages should DTRT. That is because we generated a custom zone
+> list only containing nodes in that zone and the zone reclaim only looks
+> into those.
+>
 
-> +/* These values will be filled after ACPI-call */
+It may depend on what your definition of DTRT is here.  :-)
 
-You're not using ACPI anymore.
+As I understand things, if we have a node that has some mapped memory 
+allocated, and if one starts up a numactl -bind node memhog nodesize-slop so 
+as to clear some clean page cache pages from that node, then unless the 
+"slop" is sized in proportion to the amount of mapped memory used on the 
+node, then the existing mapped memory will get swapped out in order to 
+satisfy the new request.  In addition, clean page-cache pages will get 
+discarded.  I think what Martin and I would prefer to see is an interface 
+that allows one to just get rid of the clean page cache (or at least enough 
+of it) so that additional mapped page allocations will occur locally to the 
+node without causing swapping.
 
-> +static const struct pnp_device_id tpm_pnp_tbl[] = {
-> +	/* Infineon TPMs */
-> +	{"IFX0101", 0},
-> +	{"IFX0102", 0},
-> +	{"", 0}
-> +};
+AFAIK, the number of mapped pages on the node is not exported to user space 
+(by, for example, /sys).   So there is no good way to size the "slop" to 
+allow for an existing allocation.  If there was, then using a bound memory 
+hog would likely be a reasonable replacement for Martin's syscall to release 
+all free page cache, at least for small to medium sized sized systems.
 
-I get the impression from other drivers (though I admit it's out
-of my area), that in general, you should use MODULE_DEVICE_TABLE()
-to export this table.
+> With prefered or other policies it's different though, in that cases
+> t_t_f_p will also look into other nodes because the policy is not binding.
+>
+> That said it might be probably possible to even make non bind policies more
+> aggressive at freeing in the current node before looking into other nodes.
+> I think the zone balancing has been mostly tuned on non NUMA systems, so
+> some improvements might be possible here.
+>
+> Most people don't use BIND and changing the default policies like this
+> might give NUMA systems a better "out of the box" experience.  However this
+> memory balance is very subtle code and easy to break, so this would need
+> some care.
+>
 
-> +static int __devinit tpm_inf_acpi_probe(struct pnp_dev *dev,
-> +					const struct pnp_device_id *dev_id)
+Of course!
 
-Should be tpm_inf_pnp_probe() or similar.
+> I don't think sysctls or new syscalls are the way to go here though.
+>
 
-> +	TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
+The reason we ended up with a sysctl/syscall (to control the aggressiveness 
+with which __alloc_pages will try to free page cache before spilling) is that 
+deciding whether or not  to spend the effort to free up page cache pages on 
+the local node before  spilling is a workload dependent optimization.   For 
+an HPC application it is  typically worth the effort to try to free local 
+node page cache before spilling off node because the program will run 
+sufficiently long to make the improvement due to getting local storage 
+dominates the extra cost of doing the page allocation.   For file server 
+workloads, for example, it is typically important to minimize the time to do 
+the page allocation; if it turns out to be on a remote node it really doesn't 
+matter that much.   So it seems to me that we need some way for the 
+application to tell the system which approach it prefers based on the type of 
+workload it is -- hence the sysctl or syscall approach.
 
-Thanks for using PNP and getting rid of the usage of
-TPM_ADDR.  Now if we could just get the atml and nsc
-folks to do the same thing, we could nuke both TPM_ADDR
-and TPM_SUPERIO_ADDR.
+> -Andi
 
->  static int __devinit tpm_inf_probe(struct pci_dev *pci_dev,
->  				   const struct pci_device_id *pci_id)
->  {
-> @@ -353,64 +384,99 @@ static int __devinit tpm_inf_probe(struc
->  	int vendorid[2];
->  	int version[2];
->  	int productid[2];
-> +	char chipname[20];
-> 
->  	if (pci_enable_device(pci_dev))
->  		return -EIO;
+-- 
+Ray Bryant
+AMD Performance Labs                   Austin, Tx
+512-602-0038 (o)                 512-507-7807 (c)
 
-Usually people just return what pci_enable_device() returned.
-
->  	dev_info(&pci_dev->dev, "LPC-bus found at 0x%x\n", pci_id->device);
-> 
-> +	/* read IO-ports from ACPI */
-> +	pnp_register_driver(&tpm_inf_pnp);
-> +	pnp_unregister_driver(&tpm_inf_pnp);
-
-This is kind of a weird mixture of a PCI device & driver (the
-LPC bus?) and a PNP device & driver (the TPM device).  Can there
-be things other than the TPM on the LPC bus?  Should the LPC
-part be split into a separate driver somehow?
-
-I see "LPC" in the atml and nsc drivers as well -- is it
-conceivable that the TPMs and LPCs could be mixed-and-matched
-someday?  If so, you'd definitely want to split the LPC and
-TPM drivers.
-
-> +	switch ((productid[0] << 8) | productid[1]) {
-> +	case 6:
-> +		sprintf(chipname, " (SLD 9630 TT 1.1)");
-> +		break;
-> +	case 11:
-> +		sprintf(chipname, " (SLB 9635 TT 1.2)");
-> +		break;
-> +	default:
-> +		sprintf(chipname, " (unknown chip)");
-> +		break;
-> +	}
-> +	chipname[19] = 0;
-
-Just use "snprintf(chipname, sizeof(chipname), ...)", which null-
-terminates the string for you.

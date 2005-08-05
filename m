@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVHEWzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVHEW6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbVHEWzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 18:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVHEWxT
+	id S262012AbVHEW6K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 18:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVHEW6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 18:53:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58006 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262022AbVHEWwn (ORCPT
+	Fri, 5 Aug 2005 18:58:10 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7345 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262016AbVHEW5j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 18:52:43 -0400
-Date: Fri, 5 Aug 2005 15:51:31 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 5 Aug 2005 18:57:39 -0400
+Date: Fri, 5 Aug 2005 15:57:12 -0700
+From: Greg KH <greg@kroah.com>
 To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, rajesh.shah@intel.com
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       rajesh.shah@intel.com
 Subject: Re: [PATCH] 6700/6702PXH quirk
-Message-Id: <20050805155131.7e3fdcf7.akpm@osdl.org>
-In-Reply-To: <1123281604.4706.13.camel@whizzy>
-References: <1123259263.8917.9.camel@whizzy>
-	<20050805183505.GA32405@kroah.com>
-	<1123279513.4706.7.camel@whizzy>
-	<20050805152645.60c0e8d4.akpm@osdl.org>
-	<1123281604.4706.13.camel@whizzy>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Message-ID: <20050805225712.GD3782@kroah.com>
+References: <1123259263.8917.9.camel@whizzy> <20050805183505.GA32405@kroah.com> <1123279513.4706.7.camel@whizzy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1123279513.4706.7.camel@whizzy>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristen Accardi <kristen.c.accardi@intel.com> wrote:
->
-> On Fri, 2005-08-05 at 15:26 -0700, Andrew Morton wrote:
-> > Kristen Accardi <kristen.c.accardi@intel.com> wrote:
-> 
-> > > +	if (!quirk)
-> > > +		return -ENOMEM;
-> > > +	
-> > > +	INIT_LIST_HEAD(&quirk->list);
-> > > +	quirk->dev = dev;
-> > > +	list_add(&quirk->list, &msi_quirk_list);
-> > > +	return 0;
-> > > +}
-> > 
-> > Does the list not need any locking?
-> 
-> Actually, I'm glad you asked that question because I was wondering that
-> myself.  The devices are added to the list at boot time, and after that
-> time, the list will never change.  Does PCI enumeration happen on all
-> processors?  I thought maybe it only happened on one.  In that case we
-> don't need a lock I don't think.  
-> 
+On Fri, Aug 05, 2005 at 03:05:13PM -0700, Kristen Accardi wrote:
+> +int msi_add_quirk(struct pci_dev *dev)
+> +{
+> +	struct msi_quirk *quirk;
+> +
+> +	quirk = (struct msi_quirk *) kmalloc(sizeof(*quirk), GFP_KERNEL);
+> +	if (!quirk)
+> +		return -ENOMEM;
+> +	
+> +	INIT_LIST_HEAD(&quirk->list);
+> +	quirk->dev = dev;
 
-do_basic_setup() is called after SMP is up and running.  do_basic_setup()
-calls driver_init() and most of the initcalls.  Plus there's kernel
-preemption.
+You just messed up the reference counting of this device :(
 
-So yup, I think you need locking..
+Anyway, Jeff is right, add another bit field.
+
+thanks,
+
+greg k-h

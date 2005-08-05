@@ -1,60 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVHEXU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVHEXXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbVHEXU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 19:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVHEXU2
+	id S262041AbVHEXXT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 19:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVHEXXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 19:20:28 -0400
-Received: from waste.org ([216.27.176.166]:13710 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262013AbVHEXUZ (ORCPT
+	Fri, 5 Aug 2005 19:23:19 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:1251 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262041AbVHEXXS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 19:20:25 -0400
-Date: Fri, 5 Aug 2005 16:20:15 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Andi Kleen <ak@suse.de>
-Cc: John B?ckstrand <sandos@home.se>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: lockups with netconsole on e1000 on media insertion
-Message-ID: <20050805232015.GX8074@waste.org>
-References: <42F347D2.7000207@home.se.suse.lists.linux.kernel> <p73ek987gjw.fsf@bragg.suse.de> <20050805201215.GG7425@waste.org> <20050805215650.GH8266@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050805215650.GH8266@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
+	Fri, 5 Aug 2005 19:23:18 -0400
+Message-ID: <42F3F669.2080101@us.ibm.com>
+Date: Fri, 05 Aug 2005 16:29:45 -0700
+From: Darren Hart <dvhltc@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "lkml, " <linux-kernel@vger.kernel.org>
+CC: "Piggin, Nick" <piggin@cyberone.com.au>,
+       "Bligh, Martin" <mjbligh@us.ibm.com>,
+       "Dobson, Matt" <colpatch@us.ibm.com>
+Subject: sched_domains SD_BALANCE_FORK and sched_balance_self
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 11:56:50PM +0200, Andi Kleen wrote:
-> > I still don't like this fix. Yes, you're right, it should eventually
-> > give up. But here it gives up way too easily - 5 could easily
-> > translate to 5 microseconds. This is analogous to giving up on serial
-> > transmit if CTS is down for 5 loops.
-> > 
-> > I'd be much happier if there were some udelay or the like in here so
-> > that we're not giving up on such a short timeframe.
-> 
-> Problem is that it could translate to a long aggregate delay
-> e.g. when the kernel tries to dump the backlog after console_init.
-> That is why I made the delay so short.
+First off, apologies for not reviewing this code at 2.6.12-mm2, I was 
+tied up with other things.  I have some concerns as to the intent vs. 
+actual implementation of SD_BALANCE_FORK and the sched_balance_fork() 
+routine.
 
-But why are we in a hurry to dump the backlog on the floor? Why are we
-worrying about the performance of netpoll without the cable plugged in
-at all? We shouldn't be optimizing the data loss case.
+ARCHS=i386,x86_64,ia64
 
-My primary concern here is that the loop have a non-negligible extent
-in time. 5 loops is effectively equal to none. I'd be very surprised
-if it was even enough for deglitching.
+First, iirc SD_NODE_INIT initializes the sched_domain that contains all 
+the cpus in the system in node groups (with the exception of ia64 and 
+the allnodes domain).  Correct?
 
-With serial console, we do polled I/O that runs at the serial rate -
-milliseconds per line of output.
+SD_NODE_INIT for $ARCHS contains SD_BALANCE_FORK, and no other SD_*_INIT 
+routines do.  This seems strange to me as it would seem more appropriate 
+to balance within a node on fork as to not have to access the duplicated 
+mm across nodes.  If we are going to use SD_BALANCE_FORK, wouldn't it 
+make sense to push it down the sched_domain hierarchy to the SD_CPU_INIT 
+level?
 
-> Longer delay would be possible, but then it would need some logic
-> to detect down links and don't delay on them and then retry later etc. 
-> Would be all far more complicated.
+And now to sched_balance_self().  As I understand it the purpose of this 
+method is to choose the "best" cpu to start a task on.  It seems to me 
+that the best CPU for a forked process would be an idle CPU on the same 
+node as the parent in order to stay close to it's memory.  Failing this, 
+  we may need to move to other nodes if they are idle enough to warrant 
+the move across node boundaries.  Thoughts?
 
-I think we could probably have subsequent failures be much shorter
-without too much added complexity. But I'm not sure it matters.
+For the comments below, flag = SD_BALANCE_FORK.
+
+static int sched_balance_self(int cpu, int flag)
+{
+         struct task_struct *t = current;
+         struct sched_domain *tmp, *sd = NULL;
+
+         for_each_domain(cpu, tmp)
+                 if (tmp->flags & flag)
+                         sd = tmp;
+
+This jumps to the highest level domain that supports SD_BALANCE_FORK 
+which are the domains created with SD_NODE_INIT, so we look at all the 
+CPUs on the system first rather than those local to the parent's node.
+
+
+
+         while (sd) {
+                 cpumask_t span;
+                 struct sched_group *group;
+                 int new_cpu;
+                 int weight;
+
+                 span = sd->span;
+                 group = find_idlest_group(sd, t, cpu);
+                 if (!group)
+                         goto nextlevel;
+
+                 new_cpu = find_idlest_cpu(group, cpu);
+                 if (new_cpu == -1 || new_cpu == cpu)
+                         goto nextlevel;
+
+                 /* Now try balancing at a lower domain level */
+                 cpu = new_cpu;
+nextlevel:
+                 sd = NULL;
+                 weight = cpus_weight(span);
+                 for_each_domain(cpu, tmp) {
+                         if (weight <= cpus_weight(tmp->span))
+                                 break;
+                         if (tmp->flags & flag)
+                                 sd = tmp;
+                 }
+
+If I am reading it right, this for_each_domain will exit immediately if 
+jumped to via nextlevel and will only do any work if a new cpu is found 
+to run on (which is fair sense there is no need to keep looking if the 
+whole system doesn't have a better place for us to go).  If a new cpu 
+_is_ assigned though, for_each_domain will start with the lowest level 
+domain - which always has the smallest cpus_weight doesn't it?  If so, 
+won't the (weight <= cpu...) condition always equate to true, ending the 
+loop at the first domain?  If so, then that last loop doesn't do 
+anything at all, ever.  If I am misreading this fragment, could someone 
+please correct my thinking?
+
+
+                 /* while loop will break here if sd == NULL */
+         }
+
+         return cpu;
+}
+
+
+So it seems to me that we should first look at the cpus on the local 
+domain for SD_BALANCE_FORK.  SD_BALANCE_EXEC tasks however have a 
+minimal mm and could probably be put on whichever cpu/group is the most 
+idle, regardless of node.  Thoughts?
+
+
+Thanks,
+
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Darren Hart
+IBM Linux Technology Center
+Linux Kernel Team
+Phone: 503 578 3185
+   T/L: 775 3185

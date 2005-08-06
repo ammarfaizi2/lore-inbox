@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVHFAwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVHFA55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbVHFAwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 20:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVHFAwQ
+	id S262227AbVHFA55 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 20:57:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVHFA54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 20:52:16 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:40186 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262122AbVHFAwP
+	Fri, 5 Aug 2005 20:57:56 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:53739 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262227AbVHFA5z convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 20:52:15 -0400
-Message-ID: <42F40940.9040607@mvista.com>
-Date: Fri, 05 Aug 2005 17:50:08 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roland McGrath <roland@redhat.com>
-CC: Gerd Knorr <kraxel@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Re: 2.6.12: itimer_real timers don't survive execve()
- any more
-References: <20050805221041.D574B180988@magilla.sf.frob.com>
-In-Reply-To: <20050805221041.D574B180988@magilla.sf.frob.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Aug 2005 20:57:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EOiFykebHlBrGPhpSS1FTI/oX60hiTvErhvvg54piKx+hIc4THWngfaLKJBtf7IngpqY1IcwLdbUYgf3J3Hks/87Q4Z6CxactpoDp5Kurs2UVHrT9qnyMXpt6XzBiq7Zu9fulwJqz4qC6eOn/sfarNDJ5xr6LidDZyOO35aAZ0o=
+Message-ID: <86802c44050805175757f6ff6a@mail.gmail.com>
+Date: Fri, 5 Aug 2005 17:57:55 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: Roland Dreier <rolandd@cisco.com>
+Subject: Re: mthca and LinuxBIOS
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <86802c440508051103500f6942@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
+	 <52u0i6b9an.fsf_-_@cisco.com>
+	 <86802c44050804093374aca360@mail.gmail.com> <52mznxacbp.fsf@cisco.com>
+	 <86802c4405080410236ba59619@mail.gmail.com>
+	 <86802c4405080411013b60382c@mail.gmail.com> <521x59a6tb.fsf@cisco.com>
+	 <86802c440508041230143354c2@mail.gmail.com> <52slxp6o5b.fsf@cisco.com>
+	 <86802c440508051103500f6942@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath wrote:
->>There are other concerns.  Let me see if I understand this.  A thread 
->>(other than the leader) can exec and we then need to change the 
->>real_timer to wake the new task which will NOT be using the same task 
->>struct.
-> 
-> 
-> That's correct.  de_thread will turn the thread calling exec into the new
-> leader and kill off all the other threads, including the old leader.  The
-> exec'ing thread's existing task_struct is reassigned to the PID of the
-> original leader.
-> 
-> 
->>My looking at the code shows that the thread leader can exit and then 
->>stays around as a zombi until the last thread in the group exits.  
-> 
-> 
-> That is correct.
-> 
-> 
->>If an alarm comes during this wait I suspect it will wake this zombi and
->>cause problems.
-> 
-> 
-> You are mistaken.  The signal code handles process signals sent when the
-> leader is a zombie.  The group leader sticks around with the PID that
-> matches the TGID, until there are no live threads with its TGID.  That is
-> how process-wide kill can still work.
+Roland,
 
-Yes, I see, traced through the signal delivery.  So Linus' patch as well 
-as the regression of Ingo's will fix all of this.  Right?
+what is the -16 mean?
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+is it
+        /* Attempt to modify a QP/EE which is not in the presumed state: */
+        MTHCA_CMD_STAT_BAD_QPEE_STATE = 0x10,
+
+YH
+
+On 8/5/05, yhlu <yhlu.kernel@gmail.com> wrote:
+> You are right. CONG_SPECIAL_QP
+> 
+> ib_mthca: Mellanox InfiniBand HCA driver v0.06 (June 23, 2005)
+> ib_mthca: Initializing Mellanox Technologies MT25208 InfiniHost III Ex
+> (Tavor compatibility mode) (0000:04:00.0)
+> ib_mthca 0000:04:00.0: FW version 000400060002, max commands 64
+> ib_mthca 0000:04:00.0: FW size 6143 KB (start fcefa00000, end fcefffffff)
+> ib_mthca 0000:04:00.0: HCA memory size 262143 KB (start fce0000000,
+> end fcefffffff)
+> ib_mthca 0000:04:00.0: Max QPs: 16777216, reserved QPs: 1024, entry size: 256
+> ib_mthca 0000:04:00.0: Max CQs: 16777216, reserved CQs: 128, entry size: 64
+> ib_mthca 0000:04:00.0: Max EQs: 64, reserved EQs: 1, entry size: 64
+> ib_mthca 0000:04:00.0: reserved MPTs: 16, reserved MTTs: 16
+> ib_mthca 0000:04:00.0: Max PDs: 16777216, reserved PDs: 0, reserved UARs: 1
+> ib_mthca 0000:04:00.0: Max QP/MCG: 16777216, reserved MGMs: 0
+> ib_mthca 0000:04:00.0: Flags: 00370347
+> ib_mthca 0000:04:00.0: profile[ 0]--10/20 @ 0x      fce0000000 (size 0x 4000000)
+> ib_mthca 0000:04:00.0: profile[ 1]-- 0/16 @ 0x      fce4000000 (size 0x 1000000)
+> ib_mthca 0000:04:00.0: profile[ 2]-- 7/18 @ 0x      fce5000000 (size 0x  800000)
+> ib_mthca 0000:04:00.0: profile[ 3]-- 9/17 @ 0x      fce5800000 (size 0x  800000)
+> ib_mthca 0000:04:00.0: profile[ 4]-- 3/16 @ 0x      fce6000000 (size 0x  400000)
+> ib_mthca 0000:04:00.0: profile[ 5]-- 4/16 @ 0x      fce6400000 (size 0x  200000)
+> ib_mthca 0000:04:00.0: profile[ 6]--12/15 @ 0x      fce6600000 (size 0x  100000)
+> ib_mthca 0000:04:00.0: profile[ 7]-- 8/13 @ 0x      fce6700000 (size 0x   80000)
+> ib_mthca 0000:04:00.0: profile[ 8]--11/11 @ 0x      fce6780000 (size 0x   10000)
+> ib_mthca 0000:04:00.0: profile[ 9]-- 6/ 5 @ 0x      fce6790000 (size 0x     800)
+> ib_mthca 0000:04:00.0: HCA memory: allocated 106050 KB/256000 KB
+> (149950 KB free)
+> ib_mthca 0000:04:00.0: Allocated EQ 1 with 65536 entries
+> ib_mthca 0000:04:00.0: Allocated EQ 2 with 128 entries
+> ib_mthca 0000:04:00.0: Allocated EQ 3 with 128 entries
+> ib_mthca 0000:04:00.0: Setting mask 00000000000f43fe for eqn 2
+> ib_mthca 0000:04:00.0: Setting mask 0000000000000400 for eqn 3
+> ib_mthca 0000:04:00.0: NOP command IRQ test passed
+> ib_mthca 0000:04:00.0: mthca_init_qp_table: mthca_CONF_SPECIAL_QP
+> failed for 0/1024 (-16)
+> ib_mthca 0000:04:00.0: Failed to initialize queue pair table, aborting.
+> ib_mthca 0000:04:00.0: Clearing mask 00000000000f43fe for eqn 2
+> ib_mthca 0000:04:00.0: Clearing mask 0000000000000400 for eqn 3
+> ib_mthca: probe of 0000:04:00.0 failed with error -16
+>

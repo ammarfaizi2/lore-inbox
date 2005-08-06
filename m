@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVHFHWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbVHFHZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbVHFHWt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 03:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVHFHU1
+	id S262408AbVHFHZE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 03:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVHFHXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 03:20:27 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:14355 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262343AbVHFHTS
+	Sat, 6 Aug 2005 03:23:36 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:2308 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262408AbVHFHWi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 03:19:18 -0400
-Message-ID: <42F4643E.4030402@vmware.com>
-Date: Sat, 06 Aug 2005 00:18:22 -0700
+	Sat, 6 Aug 2005 03:22:38 -0400
+Message-ID: <42F46506.4030304@vmware.com>
+Date: Sat, 06 Aug 2005 00:21:42 -0700
 From: Zachary Amsden <zach@vmware.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
@@ -18,191 +18,135 @@ MIME-Version: 1.0
 To: akpm@osdl.org, chrisw@osdl.org, linux-kernel@vger.kernel.org,
        davej@codemonkey.org.uk, hpa@zytor.com, Riley@Williams.Name,
        pratap@vmware.com, zach@vmware.com, chrisl@vmware.com
-Subject: [PATCH] 5/8 Move descriptor table management into the sub-arch layer
+Subject: [PATCH] 7/8 Create accessors that allow the i386 kernel to run at
+ CPLs 0-2
 Content-Type: multipart/mixed;
- boundary="------------080906090507010704040608"
-X-OriginalArrivalTime: 06 Aug 2005 07:18:40.0280 (UTC) FILETIME=[11E24180:01C59A57]
+ boundary="------------020003000907070501050409"
+X-OriginalArrivalTime: 06 Aug 2005 07:22:00.0921 (UTC) FILETIME=[8979A490:01C59A57]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080906090507010704040608
+--------------020003000907070501050409
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
---------------080906090507010704040608
+--------------020003000907070501050409
 Content-Type: text/plain;
- name="subarch-desc"
+ name="subarch-segment"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="subarch-desc"
+ filename="subarch-segment"
 
-i386 Transparent paravirtualization subarch patch #5
+i386 Transparent paravirtualization subarch patch #7.
 
-This change encapsulates descriptor and task register management.
+These changes allow a sub-architecture to change the notion of privilege
+by running the kernel at CPL 0, 1, or 2.  The make_kernel_segment() macro
+can be redefined by a subarchitecture to change the RPL on kernel segments
+to the appropriate value, and the tests user_mode() and user_mode_vm()
+may be similarly overridden.
+
+Changes to the assembly code are required to fully support this, and
+provided in a separate patch.
 
 Diffs against: 2.6.13-rc4-mm1
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.13/include/asm-i386/desc.h
+Index: linux-2.6.13/arch/i386/kernel/process.c
 ===================================================================
---- linux-2.6.13.orig/include/asm-i386/desc.h	2005-08-03 16:24:09.000000000 -0700
-+++ linux-2.6.13/include/asm-i386/desc.h	2005-08-03 16:31:40.000000000 -0700
-@@ -27,19 +27,6 @@
+--- linux-2.6.13.orig/arch/i386/kernel/process.c	2005-08-03 23:37:25.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/process.c	2005-08-04 10:04:42.000000000 -0700
+@@ -356,7 +356,7 @@
+ 	regs.xes = __USER_DS;
+ 	regs.orig_eax = -1;
+ 	regs.eip = (unsigned long) kernel_thread_helper;
+-	regs.xcs = __KERNEL_CS;
++	regs.xcs = make_kernel_segment(__KERNEL_CS);
+ 	regs.eflags = X86_EFLAGS_IF | X86_EFLAGS_SF | X86_EFLAGS_PF | 0x2;
  
- extern struct Xgt_desc_struct idt_descr, cpu_gdt_descr[NR_CPUS];
- 
--#define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
--#define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
--
--#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
--#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
--#define load_tr(tr) __asm__ __volatile("ltr %0"::"mr" (tr))
--#define load_ldt(ldt) __asm__ __volatile("lldt %0"::"mr" (ldt))
--
--#define store_gdt(dtr) __asm__ ("sgdt %0":"=m" (*dtr))
--#define store_idt(dtr) __asm__ ("sidt %0":"=m" (*dtr))
--#define store_tr(tr) __asm__ ("str %0":"=mr" (tr))
--#define store_ldt(ldt) __asm__ ("sldt %0":"=mr" (ldt))
--
- /*
-  * This is the ldt that every process will get unless we need
-  * something other than this.
-@@ -58,19 +45,10 @@
- 	"rorl $16,%1" \
- 	: "=m"(*(n)) : "q" (addr), "r"(n), "ir"(limit), "i"(type))
- 
--static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, void *addr)
--{
--	_set_tssldt_desc(&per_cpu(cpu_gdt_table, cpu)[entry], (int)addr,
--		offsetof(struct tss_struct, __cacheline_filler) - 1, 0x89);
--}
-+#include <mach_desc.h>
- 
- #define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
- 
--static inline void set_ldt_desc(unsigned int cpu, void *addr, unsigned int size)
--{
--	_set_tssldt_desc(&per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_LDT], (int)addr, ((size << 3)-1), 0x82);
--}
--
- #define LDT_entry_a(info) \
- 	((((info)->base_addr & 0x0000ffff) << 16) | ((info)->limit & 0x0ffff))
- 
-@@ -96,24 +74,6 @@
- 	(info)->seg_not_present	== 1	&& \
- 	(info)->useable		== 0	)
- 
--static inline void write_ldt_entry(void *ldt, int entry, __u32 entry_a, __u32 entry_b)
--{
--	__u32 *lp = (__u32 *)((char *)ldt + entry*8);
--	*lp = entry_a;
--	*(lp+1) = entry_b;
--}
--
--#if TLS_SIZE != 24
--# error update this code.
--#endif
--
--static inline void load_TLS(struct thread_struct *t, unsigned int cpu)
--{
--#define C(i) per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_TLS_MIN + i] = t->tls_array[i]
--	C(0); C(1); C(2);
--#undef C
--}
--
- static inline void clear_LDT(void)
- {
- 	int cpu = get_cpu();
-Index: linux-2.6.13/include/asm-i386/mach-default/mach_desc.h
+ 	/* Ok, create the new process.. */
+Index: linux-2.6.13/arch/i386/kernel/traps.c
 ===================================================================
---- linux-2.6.13.orig/include/asm-i386/mach-default/mach_desc.h	2005-08-03 16:31:40.000000000 -0700
-+++ linux-2.6.13/include/asm-i386/mach-default/mach_desc.h	2005-08-03 16:32:52.000000000 -0700
-@@ -0,0 +1,83 @@
+--- linux-2.6.13.orig/arch/i386/kernel/traps.c	2005-08-03 23:36:46.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/traps.c	2005-08-04 10:04:42.000000000 -0700
+@@ -1025,10 +1025,10 @@
+ 	memcpy((void *)(stack_bot + iret_frame16_off), &regs->eip, 20);
+ 	/* fill in the switch pointers */
+ 	switch16_ptr[0] = (regs->esp & 0xffff0000) | iret_frame16_off;
+-	switch16_ptr[1] = __ESPFIX_SS;
++	switch16_ptr[1] = make_kernel_segment(__ESPFIX_SS);
+ 	switch32_ptr[0] = (unsigned long)stk + sizeof(struct pt_regs) +
+ 		8 - CPU_16BIT_STACK_SIZE;
+-	switch32_ptr[1] = __KERNEL_DS;
++	switch32_ptr[1] = make_kernel_segment(__KERNEL_DS);
+ }
+ 
+ fastcall unsigned char * fixup_x86_bogus_stack(unsigned short sp)
+Index: linux-2.6.13/include/asm-i386/ptrace.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/ptrace.h	2005-08-03 23:36:46.000000000 -0700
++++ linux-2.6.13/include/asm-i386/ptrace.h	2005-08-04 10:04:42.000000000 -0700
+@@ -57,25 +57,11 @@
+ #ifdef __KERNEL__
+ 
+ #include <asm/vm86.h>
++#include <mach_segment.h>
+ 
+ struct task_struct;
+ extern void send_sigtrap(struct task_struct *tsk, struct pt_regs *regs, int error_code);
+ 
+-/*
+- * user_mode_vm(regs) determines whether a register set came from user mode.
+- * This is true if V8086 mode was enabled OR if the register set was from
+- * protected mode with RPL-3 CS value.  This tricky test checks that with
+- * one comparison.  Many places in the kernel can bypass this full check
+- * if they have already ruled out V8086 mode, so user_mode(regs) can be used.
+- */
+-static inline int user_mode(struct pt_regs *regs)
+-{
+-	return (regs->xcs & 3) != 0;
+-}
+-static inline int user_mode_vm(struct pt_regs *regs)
+-{
+-	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
+-}
+ #define instruction_pointer(regs) ((regs)->eip)
+ #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
+ extern unsigned long profile_pc(struct pt_regs *regs);
+Index: linux-2.6.13/include/asm-i386/mach-default/mach_segment.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/mach-default/mach_segment.h	2005-08-04 10:04:42.000000000 -0700
++++ linux-2.6.13/include/asm-i386/mach-default/mach_segment.h	2005-08-04 10:05:17.000000000 -0700
+@@ -0,0 +1,28 @@
 +/*
-+ * Copyright (C) 2005, VMware, Inc.
-+ * Copyright (C) 1992-2004, Linus Torvalds and authors
++ * include/asm-i386/mach-default/mach_segment.h
 + *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
++ * user_mode macros moved from include/asm-i386/ptrace.h 08/05
 + */
 +
-+#ifndef __MACH_DESC_H
-+#define __MACH_DESC_H
++#ifndef __MACH_SEGMENT_H
++#define __MACH_SEGMENT_H
 +
-+#define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
-+#define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
-+
-+#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
-+#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
-+#define load_tr(tr) __asm__ __volatile("ltr %0"::"mr" (tr))
-+#define load_ldt(ldt) __asm__ __volatile("lldt %0"::"mr" (ldt))
-+
-+#define store_gdt(dtr) __asm__ ("sgdt %0":"=m" (*dtr))
-+#define store_idt(dtr) __asm__ ("sidt %0":"=m" (*dtr))
-+#define store_tr(tr) __asm__ ("str %0":"=mr" (tr))
-+#define store_ldt(ldt) __asm__ ("sldt %0":"=mr" (ldt))
-+
-+static inline unsigned int get_TR_desc(void)
++/*
++ * user_mode_vm(regs) determines whether a register set came from user mode.
++ * This is true if V8086 mode was enabled OR if the register set was from
++ * protected mode with RPL-3 CS value.  This tricky test checks that with
++ * one comparison.  Many places in the kernel can bypass this full check
++ * if they have already ruled out V8086 mode, so user_mode(regs) can be used.
++ */
++static inline int user_mode(struct pt_regs *regs)
 +{
-+	unsigned int tr;
-+	__asm__ ("str %w0":"=q" (tr));
-+	return tr;
++	return (regs->xcs & 3) != 0;
++}
++static inline int user_mode_vm(struct pt_regs *regs)
++{
++	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
 +}
 +
-+static inline unsigned int get_LDT_desc(void)
-+{
-+	unsigned int ldt;
-+	__asm__ ("sldt %w0":"=q" (ldt));
-+	return ldt;
-+}
-+
-+static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, void *addr)
-+{
-+	_set_tssldt_desc(&per_cpu(cpu_gdt_table, cpu)[entry], (int)addr,
-+		offsetof(struct tss_struct, __cacheline_filler) - 1, 0x89);
-+}
-+
-+static inline void set_ldt_desc(unsigned int cpu, void *addr, unsigned int size)
-+{
-+	_set_tssldt_desc(&per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_LDT], (int)addr, ((size << 3)-1), 0x82);
-+}
-+
-+static inline void write_ldt_entry(void *ldt, int entry, __u32 entry_a, __u32 entry_b)
-+{
-+	__u32 *lp = (__u32 *)((char *)ldt + entry*8);
-+	*lp = entry_a;
-+	*(lp+1) = entry_b;
-+}
-+
-+#if TLS_SIZE != 24
-+# error update this code.
-+#endif
-+
-+static inline void load_TLS(struct thread_struct *t, unsigned int cpu)
-+{
-+#define C(i) per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_TLS_MIN + i] = t->tls_array[i]
-+	C(0); C(1); C(2);
-+#undef C
-+}
++#define make_kernel_segment(seg)	(seg)
 +
 +#endif
 
---------------080906090507010704040608--
+--------------020003000907070501050409--

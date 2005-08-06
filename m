@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVHFVaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVHFVcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVHFVaS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 17:30:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVHFVaS
+	id S261274AbVHFVcB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 17:32:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVHFVcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 17:30:18 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:25749 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261240AbVHFVaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 17:30:16 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [PATCH] ARCH_HAS_IRQ_PER_CPU avoids dead code in __do_IRQ()
-Date: Sat, 6 Aug 2005 23:28:50 +0200
-User-Agent: KMail/1.7.2
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <200508061814.31719.annabellesgarden@yahoo.de>
-In-Reply-To: <200508061814.31719.annabellesgarden@yahoo.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1894358.lfxHAMAbR9";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508062329.05081.ioe-lkml@rameria.de>
+	Sat, 6 Aug 2005 17:32:00 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:40471 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261274AbVHFVb4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 17:31:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XRgCCXmnHhPA8Ip3kQ99CA/YlOZ9gSuzPJdktY2qb46rVSyXo6BXsRZku0RR5DNoBcSb3Bcmj3Eo03j5n1dMdt0svO4TarVT8mKqKLslaw1/3k/4+4yFbG+tjZslCEMP97+UXWN9jqOqKGMjIhWMoa3irDP0y0jpBHD54QhHbB0=
+Message-ID: <5a67a16f05080614317944c976@mail.gmail.com>
+Date: Sat, 6 Aug 2005 17:31:55 -0400
+From: Athul Acharya <aacharya@gmail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: Determining if the current processor is Hyperthreaded
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5a67a16f05080506452dcc537c@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5a67a16f05072909245ae1c44c@mail.gmail.com>
+	 <42EFB3BB.1060900@tmr.com> <5a67a16f050802171478233f2f@mail.gmail.com>
+	 <5a67a16f05080506452dcc537c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1894358.lfxHAMAbR9
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 8/5/05, Athul Acharya <aacharya@gmail.com> wrote:
+> On 8/2/05, Athul Acharya <aacharya@gmail.com> wrote:
+> > That is, I want to know whether the current cpu I (kernel code) am
+> > executing on is hyperthreaded, and if so, which logical cpu represents
+> > the other thread on chip.
+> 
+> Trying again, as it seems like a simple thing that really should exist
+>  --  is_cpu_hyperthreaded(smp_processor_id()) -- or something similar.
+>  Anyone?
 
-Hi Karsten,
+Is anyone receiving this?  I should've mentioned in subsequent mails
+(I did in the original) that I'm not subscribed so any replies need to
+be cc'd to me :)
 
-On Saturday 06 August 2005 18:14, Karsten Wiese wrote:
-> From: Karsten Wiese <annabellesgarden@yahoo.de>
->=20
-> IRQ_PER_CPU is not used by all architectures.
-> To avoid dead code generation in __do_IRQ()
-> this patch introduces the macro ARCH_HAS_IRQ_PER_CPU.
->=20
-> ARCH_HAS_IRQ_PER_CPU is defined by architectures using
-> IRQ_PER_CPU in their
-> 	include/asm_ARCH/irq.h
-> file.
-
-Why not the other way around?
-
-Just define IRQ_PER_CPU to 0 on architectures not needing it and
-add a FAT comment there, that this disables it. Or make it a config option.
-
-Then just leave the code as is and let GCC optimize the dead code
-away without any changes in the C file. It works, I just checked it ;-)
-
-
-Regards
-
-Ingo Oeser
-
-
---nextPart1894358.lfxHAMAbR9
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC9SuhU56oYWuOrkARAtftAKDC5uhT9NCud3LG7MfH4xTRHJUxvACgznFM
-/J8Wc7c3PPxSXcDrg+ugr1o=
-=N8SW
------END PGP SIGNATURE-----
-
---nextPart1894358.lfxHAMAbR9--
+Athul

@@ -1,49 +1,39 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbVHAOgu (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 1 Aug 2005 10:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVHAOgu
+	id S263446AbVHFTjE (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 6 Aug 2005 15:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbVHFTjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 10:36:50 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:10134 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S262086AbVHAOgr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 10:36:47 -0400
-Message-Id: <200508011436.j71EaZdC015662@zeus2.kernel.org>
-From: "'SPOKEN ENGLISH' INGILIZCE DILI EGITIM MERKEZI" 
-	<spokenenglishtr@gmail.com>
-Reply-To: spokenenglishtr@gmail.com
-To: linux-fsdevel@vger.kernel.org
-Date: Mon, 1 Aug 2005 17:36:55 +0300
-Subject: INGILIZCE EGITIMI YENI DONEMIMIZ HAKKINDA
-X-Priority: 1
-X-Mailer: Microsoft Outlook Express 5.00.2919.7000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-3
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Sat, 6 Aug 2005 15:39:04 -0400
+Received: from [61.141.250.125] ([61.141.250.125]:33555 "HELO 202.96.154.15")
+	by vger.kernel.org with SMTP id S263440AbVHFTjC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 15:39:02 -0400
+Message-ID: <9837t@mx.seed.net.tw>
+From: sz5WvTS@seed.net.tw
+To: WW8EqLtqHmw@party.seed.net.tw
+Subject: =?ISO-8859-1?Q?=20=C1=A6-=CC=EC=B5=D8=B2=FA=D3=AA=CF=FA=CF=B5=CD?= =?ISO-8859-1?Q?=B3=D7?=
+	=?ISO-8859-1?Q?=EE=D0=C2=CD=C6=B3=F6,=D3=C5=BB=DD=CF=FA=CA=DB?=
+	=?ISO-8859-1?Q?...?=
+Content-Type: text/plain;
+Content-Transfer-Encoding: Quoted-Printable
+X-Priority: 3
+X-MSMail-Priority: Normal
+Date: Sat, 6 Aug 2005 15:39:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262094AbVHAOgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S263446AbVHFTjE@vger.kernel.org>
 
- SPOKEN ENGLISH   INGILIZCE DILI EGITIM MERKEZI
-Amerikali egitmenlerle birlikte yuksek egitim performansiyla
-1/4 ZAMANDA   1/4 UCRETE  Kalip Ezberlemeden Egitim sistemimizle  tanis=
-manizi =F6neriyoruz...
-     Konusmanizi  gelistirerek Ingilizcenize ak=FDcilik  kazandirmanin =
- yani sira, Ingiliz ve Amerikan aksanlarina
- asina olarak anlama kapasitenizi art=FDrmak i=E7in konusma siniflarina=
-  katilabilirsiniz.Her seviye ve egitim d=FCzeyi=20
-i=E7in bizi mutlaka arayiniz...
-    Egitim kurumumuz size gerekli =E7=F6z=FCm imkanlari sunacaktir.
-      Bilgi icin Bizi Arayin  ,,
-0212 244 90 00 dan   yada =20
-spokenenglishtr.com-dan bize ulasabilirsiniz.
-      Saygilarimizla
-  'SPOKEN ENGLISH'  INGILIZCE DILI EGITIM MERKEZI
+=D4=DA=CF=DF=B2=E2=CA=D4=B5=D8=D6=B7:  http://ltsoft.88ip.cn/dc.htm
+
+=CB=E6=D7=C5=BC=C6=CB=E3=BB=FA=BC=BC=CA=F5=B5=C4=B7=A2=D5=B9=BA=CD=C6=E4=D4=DA=C9=CC=D2=B5=C9=CF=B5=C4=B9=E3=B7=BA=D3=A6=D3=C3=A3=AC=C0=FB=D3=C3=BC=BC=CA=F5=CA=D6=B6=CE=CA=B5=CF=D6=B7=BF=B2=FA=C6=F3=D2=B5=D3=AA=CF=FA=D2=B5=CE=F1=B9=DC=C0=ED=B5=C4=D0=C5=CF=A2=BB=AF=A1=A2=B9=E6=B7=B6=BB=AF=BA=CD=CF=D6=B4=FA=BB=AF=D2=D1=BE=AD=D6=F0=BD=A5=CE=AA=B8=F7=B7=A2=D5=B9=C9=CC=C8=CF=CA=B6=BA=CD=D6=D8=CA=D3.
+
+=C1=A6=CC=EC=C8=ED=BC=FE=C6=BE=BD=E8=C6=E4=D4=DA=B7=BF=B5=D8=B2=FA=D0=D0=D2=B5=B6=E0=CF=EE=BD=E2=BE=F6=B7=BD=B0=B8=B5=C4=CC=E1=B9=A9=BA=CD=CA=B5=CA=A9=BE=AD=D1=E9=A3=AC=D5=EB=B6=D4=C4=BF=C7=B0=CE=D2=B9=FA=B7=BF=B5=D8=B2=FA=D0=D0=D2=B5=D3=AA=CF=FA=B9=DC=C0=ED=B5=C4=CF=D6=D7=B4=A3=AC=BD=E1=BA=CF=B8=F7=B8=F6=B7=BF=B5=D8=B2=FA=B9=AB=CB=BE=CF=D6=D3=D0=B5=C4=C8=ED=D3=B2=BC=FE=CD=B6=D7=CA=CB=AE=C6=BD=A3=AC=BE=AD=B9=FD=D3=EB=B8=F7=B4=F3=B7=BF=B5=D8=B2=FA=D2=B5=D6=AA=C3=FB=B5=A5=CE=BB=B5=C4=C3=DC=C7=D0=BA=CF=D7=F7=A3=AC=D4=DA=B9=FA=C4=DA=C2=CA=CF=C8=CD=C6=B3=F6=C1=CB=CD=EA=C8=AB=BB=F9=D3=DA=E4=AF=C0=C0=C6=F7=B5=C4=B5=DA=C8=FD=B4=FA=CA=DB=C2=A5=B9=DC=C0=ED=C8=ED=BC=FE--=C1=A6=CC=EC=B7=BF=B2=FA=D3=AA=CF=FA=B9=DC=C0=ED=CF=B5=CD=B3=A3=AC=C4=BF=C7=B0=B8=C3=CF=B5=CD=B3=D2=D1=BE=AD=D4=DA=CA=AE=D3=E0=B8=F6=C2=A5=C5=CC=CF=EE=C4=BF=B5=C4=CF=FA=CA=DB=B9=DC=C0=ED=D6=AE=D6=D0=B3=C9=B9=A6=D3=A6=D3=C3=B2=A2=B5=C3=B5=BD=C1=CB=B9=E3=B7=BA=BA=C3=C6=C0=A1=A3 
+
+=B8=C3=CF=B5=CD=B3=B2=C9=D3=C3=C1=CB=BF=E7=B5=D8=D3=F2=B5=C4B/S=A3=A8=E4=AF=C0=C0=C6=F7/=B7=FE=CE=F1=C6=F7=A3=A9=BD=E1=B9=B9=C9=E8=BC=C6=A3=AC=C8=AB=C3=E6=D6=A7=B3=D6=D2=C6=B6=AF=B0=EC=B9=AB=BC=B0=D2=EC=B5=D8=D4=B6=B3=CC=B0=EC=B9=AB=A3=AC=B7=FB=BA=CF=B7=BF=B2=FA=B9=AB=CB=BE=D7=DC=B2=BF=D3=EB=CA=DB=C2=A5=B4=A6=B7=D6=C0=EB=B5=C4=CA=B5=BC=CA=C7=E9=BF=F6=A1=A3=CF=B5=CD=B3=B0=FC=C0=A8=CF=EE=C4=BF=B9=DC=C0=ED=A1=A2=BE=F6=B2=DF=B9=DC=C0=ED=A1=A2=CF=FA=CA=DB=B9=DC=C0=ED=A1=A2=B2=C6=CE=F1=B9=DC=C0=ED=A1=A2=BF=CD=BB=A7=B9=D8=CF=B5=B9=DC=C0=ED=A1=A2=B9=E3=B8=E6=D3=AA=CF=FA=B9=DC=C0=ED=A1=A2=B0=EC=B9=AB=B9=DC=C0=ED=A1=A2=CA=DB=BA=F3=B7=FE=CE=F1=B9=DC=C0=ED=A1=A2=CD=B3=BC=C6=B1=A8=B1=ED=B5=C8=BE=C5=B4=F3=B9=A6=C4=DC=C4=A3=BF=E9=A3=AC=BB=F9=B1=BE=BA=AD=B8=C7=C1=CB=B7=BF=B2=FA=C6=F3=D2=B5=B5=C4=B8=F7=B8=F6=D6=B0=C4=DC=B2=BF=C3=C5=B5=C4=D6=F7=D2=AA=B9=A4=D7=F7=A1=A3
+
+=B8=C3=CF=B5=CD=B3=B5=C4=C8=AB=C3=E6=CD=C6=B9=E3=BA=CD=CA=B5=CA=A9=A3=AC=B1=D8=BD=AB=CA=B9=B7=BF=B2=FA=C6=F3=D2=B5=B5=C4=D3=AA=CF=FA=B9=DC=C0=ED=CB=AE=C6=BD=CC=E1=B8=DF=B5=BD=D2=BB=B8=F6=C8=AB=D0=C2=B5=C4=B2=E3=B4=CE=A1=A3
 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+=C1=AA=CF=B5=A3=BA0 8 6 - 7 5 5 - 6 1 3 2 5 2 1 5   =C0=EE=CF=C8=C9=FA litao@ltsoft.org   QQ=D4=DA=CF=DF:17133845
+
+

@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVHFKno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262498AbVHFL3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbVHFKno (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 06:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbVHFKno
+	id S262498AbVHFL3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 07:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVHFL3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 06:43:44 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:10419 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262116AbVHFKnn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 06:43:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UXq4Vl6IcKq2y5z6BTJ8bQj8HZ9y68gG0UvUQ2ZomNOsXSuTSre1+jBzBm5Hc4Po+nFaNMwQDW9/zR8FDNZDPXzKr8O+49aFlnjNQ/oHa4c3Oj7Ln83vxN6nnga8Lj1SQoJV5uJXZMPQK2n+pcfBDqnFt5hgPzMwc2ugFUZFZjo=
-Message-ID: <9a874849050806034360978b8d@mail.gmail.com>
-Date: Sat, 6 Aug 2005 12:43:43 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Simon Morgan <sjmorgan@gmail.com>
-Subject: Re: Outdated Sangoma Drivers
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <de63970c05080602496c2c8b11@mail.gmail.com>
+	Sat, 6 Aug 2005 07:29:24 -0400
+Received: from mx2.suse.de ([195.135.220.15]:39852 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262114AbVHFL3W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 07:29:22 -0400
+Date: Sat, 6 Aug 2005 13:29:14 +0200
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@suse.de>, Matt Mackall <mpm@selenic.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       John B?ckstrand <sandos@home.se>, davem@davemloft.net
+Subject: Re: [PATCH] netpoll can lock up on low memory.
+Message-ID: <20050806112913.GK8266@wotan.suse.de>
+References: <42F347D2.7000207@home.se.suse.lists.linux.kernel> <p73ek987gjw.fsf@bragg.suse.de> <1123249743.18332.16.camel@localhost.localdomain> <20050805135551.GQ8266@wotan.suse.de> <1123251013.18332.28.camel@localhost.localdomain> <20050805141426.GU8266@wotan.suse.de> <1123252591.18332.45.camel@localhost.localdomain> <20050805200156.GF7425@waste.org> <20050805212610.GA8266@wotan.suse.de> <20050806074503.GA5914@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <de63970c05080602496c2c8b11@mail.gmail.com>
+In-Reply-To: <20050806074503.GA5914@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/6/05, Simon Morgan <sjmorgan@gmail.com> wrote:
-> Hi,
+On Sat, Aug 06, 2005 at 09:45:03AM +0200, Ingo Molnar wrote:
 > 
-> I couldn't help noticing that the Sangoma drivers distributed with the
-> current kernel are slightly out of date and was wondering whether there
-> was any reason for this?
+> * Andi Kleen <ak@suse.de> wrote:
 > 
-Probably nobody has taken the time to do a diff between the kernel's
-current version and the the one distributed by sangoma.
+> > On Fri, Aug 05, 2005 at 01:01:57PM -0700, Matt Mackall wrote:
+> > > The netpoll philosophy is to assume that its traffic is an absolute
+> > > priority - it is better to potentially hang trying to deliver a panic
+> > > message than to give up and crash silently.
+> > 
+> > That would be ok if netpoll was only used to deliver panics. But it is 
+> > not. It delivers all messages, and you cannot hang the kernel during 
+> > that. Actually even for panics it is wrong, because often it is more 
+> > important to reboot in a panic than (with a panic timeout) to actually 
+> > deliver the panic. That's needed e.g. in a failover cluster.
+> 
+> without going into the merits of this discussion, reliable failover 
+> clusters must include (and do include) an external ability to cut power.  
+> No amount of in-kernel logic will prevent the kernel from hanging, given 
+> a bad enough kernel bug.
 
-If someone (hint hint) was to do a diff, clean it up to ensure it
-matches kernel CodingStyle and standards and then send it in along
-with a description of the changes made and why they make sense, what
-bugs it fixes etc, then that person could probably get such a diff
-merged.
+Ok, true, but we should do a best effort.
+
+> 
+> So the right question is not 'can we prevent the kernel from hanging, 
+> ever' (we cannot), but 'which change makes it less likely for the kernel 
+> to hang'. (and, obviously: assuming all other kernel components are 
+> functioning per specification, netpoll itself most not hang :-)
+> 
+> even a plain printk to VGA can hang in certain kernel crashes. Netpoll 
+> is more complex and thus has more exposure to hangs. E.g. netpoll relies 
+> on the network driver to correctly recycle skbs within a bound amount of 
+> time. If the network driver leaks skbs, it's game over for netpoll.
+
+I don't think we even need to think about such rare cases,
+until the easy cases ("everything hangs when the cable is pulled") 
+are not fixed.
+
+> [ i'd prefer a hang over nondeterministic behavior, and e.g. losing 
+>   console messages is sure nondeterministic behavior. What if the 
+>   console message is "WARNING: the box has just been broken into"? ]
+
+That just makes netconsole useless in production. If it causes frequenet
+hangs people will not use it.
 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> 
+> we could do one thing (see the patch below): i think it would be useful 
+> to fill up the netlogging skb queue straight at initialization time.  
+> Especially if netpoll is used for dumping alone, the system might not be 
+> in a situation to fill up the queue at the point of crash, so better be 
+> a bit more prepared and keep the pipeline filled.
+
+You're solving a completely different issue here?
+
+-Andi
+

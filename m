@@ -1,56 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVHFA0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVHFA2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVHFA0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 20:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVHFA0Q
+	id S262170AbVHFA2f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 20:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVHFA2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 20:26:16 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:49600 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262172AbVHFA0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 20:26:06 -0400
-Date: Sat, 6 Aug 2005 02:26:03 +0200
-From: benoit.boissinot@ens-lyon.fr
-To: schwidefsky@de.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: fix invalid kmalloc flags
-Message-ID: <20050806002603.GA29515@ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Fri, 5 Aug 2005 20:28:34 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:37137 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262170AbVHFA2V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 20:28:21 -0400
+Date: Fri, 5 Aug 2005 17:26:06 -0700
+From: zach@vmware.com
+Message-Id: <200508060026.j760Q6FT025108@zach-dev.vmware.com>
+To: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk, hpa@zytor.com,
+       linux-kernel@vger.kernel.org, pavel@suse.cz, pratap@vmware.com,
+       Riley@Williams.Name, zach@vmware.com
+Subject: [PATCH 1/1] i386 Encapsulate copying of pgd entries
+X-OriginalArrivalTime: 06 Aug 2005 00:27:08.0702 (UTC) FILETIME=[948E73E0:01C59A1D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch fixes the compilation (defconfig) of s390:
+Add a clone operation for pgd updates.
 
-arch/s390/mm/built-in.o(.text+0x152c): In function `query_segment_type':
-extmem.c: undefined reference to `__your_kmalloc_flags_are_not_valid'
-arch/s390/mm/built-in.o(.text+0x19ec): In function `segment_load':
-: undefined reference to `__your_kmalloc_flags_are_not_valid'
+This helps complete the encapsulation of updates to page tables (or pages
+about to become page tables) into accessor functions rather than using
+memcpy() to duplicate them.  This is both generally good for consistency
+and also necessary for running in a hypervisor which requires explicit
+updates to page table entries.
 
+The new function is:
 
-Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-
---- a/arch/s390/mm/extmem.c	2005-08-06 01:32:56.000000000 +0200
-+++ b/arch/s390/mm/extmem.c	2005-07-31 17:46:36.000000000 +0200
-@@ -172,8 +172,8 @@ dcss_diag_translate_rc (int vm_rc) {
- static int
- query_segment_type (struct dcss_segment *seg)
- {
--	struct qin64  *qin = kmalloc (sizeof(struct qin64), GFP_DMA);
--	struct qout64 *qout = kmalloc (sizeof(struct qout64), GFP_DMA);
-+	struct qin64  *qin = kmalloc (sizeof(struct qin64), GFP_DMA|GFP_KERNEL);
-+	struct qout64 *qout = kmalloc (sizeof(struct qout64), GFP_DMA|GFP_KERNEL);
+clone_pgd_range(pgd_t *dst, pgd_t *src, int count);
  
- 	int diag_cc, rc, i;
- 	unsigned long dummy, vmrc;
-@@ -332,7 +332,7 @@ static int
- __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long *end)
+   dst - pointer to pgd range anwhere on a pgd page
+   src - ""
+   count - the number of pgds to copy.
+
+   dst and src can be on the same page, but the range must not overlap
+   and must not cross a page boundary.
+
+Note that I ommitted using this call to copy pgd entries into the
+software suspend page root, since this is not technically a live paging
+structure, rather it is used on resume from suspend.  CC'ing Pavel in case
+he has any feedback on this.
+
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Index: linux-2.6.13/arch/i386/mm/pgtable.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/mm/pgtable.c	2005-08-04 12:02:10.000000000 -0700
++++ linux-2.6.13/arch/i386/mm/pgtable.c	2005-08-05 17:13:29.000000000 -0700
+@@ -207,19 +207,18 @@
  {
- 	struct dcss_segment *seg = kmalloc(sizeof(struct dcss_segment),
--			GFP_DMA);
-+			GFP_DMA|GFP_KERNEL);
- 	int dcss_command, rc, diag_cc;
+ 	unsigned long flags;
  
- 	if (seg == NULL) {
++	memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
+ 	if (PTRS_PER_PMD == 1)
+ 		spin_lock_irqsave(&pgd_lock, flags);
+ 
+-	memcpy((pgd_t *)pgd + USER_PTRS_PER_PGD,
++	clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
+ 			swapper_pg_dir + USER_PTRS_PER_PGD,
+-			(PTRS_PER_PGD - USER_PTRS_PER_PGD) * sizeof(pgd_t));
+-
++			KERNEL_PGD_PTRS);
+ 	if (PTRS_PER_PMD > 1)
+ 		return;
+ 
+ 	pgd_list_add(pgd);
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+-	memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
+ }
+ 
+ /* never called when PTRS_PER_PMD > 1 */
+Index: linux-2.6.13/arch/i386/kernel/smpboot.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/smpboot.c	2005-08-04 12:02:10.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/smpboot.c	2005-08-04 13:15:45.000000000 -0700
+@@ -1017,8 +1017,8 @@
+ 	tsc_sync_disabled = 1;
+ 
+ 	/* init low mem mapping */
+-	memcpy(swapper_pg_dir, swapper_pg_dir + USER_PGD_PTRS,
+-			sizeof(swapper_pg_dir[0]) * KERNEL_PGD_PTRS);
++	clone_pgd_range(swapper_pg_dir, swapper_pg_dir + USER_PGD_PTRS,
++			KERNEL_PGD_PTRS);
+ 	flush_tlb_all();
+ 	schedule_work(&task);
+ 	wait_for_completion(&done);
+Index: linux-2.6.13/include/asm-i386/pgtable.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/pgtable.h	2005-08-04 12:02:10.000000000 -0700
++++ linux-2.6.13/include/asm-i386/pgtable.h	2005-08-05 17:12:33.000000000 -0700
+@@ -276,6 +276,21 @@
+ }
+ 
+ /*
++ * clone_pgd_range(pgd_t *dst, pgd_t *src, int count);
++ *
++ *  dst - pointer to pgd range anwhere on a pgd page
++ *  src - ""
++ *  count - the number of pgds to copy.
++ *
++ * dst and src can be on the same page, but the range must not overlap,
++ * and must not cross a page boundary.
++ */
++static inline void clone_pgd_range(pgd_t *dst, pgd_t *src, int count)
++{
++       memcpy(dst, src, count * sizeof(pgd_t));
++}
++
++/*
+  * Macro to mark a page protection value as "uncacheable".  On processors which do not support
+  * it, this is a no-op.
+  */

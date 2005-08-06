@@ -1,95 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263200AbVHFOfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVHFOy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263200AbVHFOfA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 10:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbVHFOfA
+	id S261335AbVHFOy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 10:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVHFOy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 10:35:00 -0400
-Received: from lucidpixels.com ([66.45.37.187]:903 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S263200AbVHFOe7 (ORCPT
+	Sat, 6 Aug 2005 10:54:28 -0400
+Received: from THUNK.ORG ([69.25.196.29]:28851 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261335AbVHFOy0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 10:34:59 -0400
-Date: Sat, 6 Aug 2005 10:34:55 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.xx - NFSv3 vs. Samba Data Transfer Semantics
-Message-ID: <Pine.LNX.4.63.0508061017150.19178@p34>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 6 Aug 2005 10:54:26 -0400
+Date: Sat, 6 Aug 2005 10:54:18 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com, ck@vds.kolivas.org
+Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
+Message-ID: <20050806145418.GA16523@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+	tony@atomide.com, tuukka.tikkanen@elektrobit.com,
+	ck@vds.kolivas.org
+References: <200508021443.55429.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508021443.55429.kernel@kolivas.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have three machines with the same motherboard and gigabit ethernet, ABIT 
-IC7-G.
+On Tue, Aug 02, 2005 at 02:43:55PM +1000, Con Kolivas wrote:
+> This is a code reordered version of the dynamic ticks patch from Tony Lindgen 
+> and Tuukka Tikkanen - sorry about spamming your mail boxes with this, but 
+> thanks for the code. There is significant renewed interest by the lkml 
+> audience for such a feature which is why I'm butchering your code (sorry 
+> again if you don't like me doing this). The only real difference between your 
+> code and this patch is moving the #ifdef'd code out of code paths and putting 
+> it into dyn-tick specific files. 
+> 
+> This has slightly more build fixes than the last one I posted and boots and 
+> runs fine on my laptop. So far at absolute idle it appears this pentiumM 1.7 
+> is claiming to have _25%_ more battery life. I'll need to investigate further 
+> to see the real power savings. 
 
-Two are Linux (Debian)
-One is Windows 2000.
+Hi Con,
 
-When I copy 100 gigabytes from a Windows 2000 PC to either one of my Linux 
-machines, I get a *SUSTAINED* transfer rate of 40-50MB/s over gigabit. 
-Sustained meaning, when I watch gkrellm, eth0 never dips below 40MB/s.
+I had a chance to try out your patch (2.6.13-rc4-dtck-2.patch) and
+using either the APIC or PIT timer, if dynamic tick is enabled, on my
+laptop, this kicks up the bus mastering activity enough so that the
+processor doesn't have a chance to enter the C4 state, and stays stuck
+at C2.  As a result, enabling dynamic tick _increases_ power
+consumption by 20% on my T40 laptop (1.6 MHz Pentium M).  I monitored
+power utilization using pmstats-0.2, and used
+/proc/acpi/processor/CPU/power to monitor bus mastering activity and the CPU C-states.
 
-When I copy 100 gigabytes from one Linux box to the other over NFS, I see 
-all sorts of weirdness, 64MB/s for a few seconds, then 40MB/s, then 
-10-30MB/s, then 0MB/s for 2-3 seconds then 7MB/s, it goes all over the 
-place.  I have tried different (r|w)sizes without any conclusive results, 
-they do not seem to make much of a difference.
+As soon as I disabled dynamic tick using:
 
-A few examples, copy an ~800MB file to a Linux box:
+	echo 0 > /sys/devices/system/timer/timer0/dyn_tick_state
 
-TCP/FTP:
+The number of ticks went up to 1024, bus mastering activity dropped to
+zero, and the processor entered C4 state, and power utilization
+dropped by 20%.
 
-226 65.484 seconds (measured here), 11.98 Mbytes per second
-822514728 bytes received in 65.48 secs (12266.2 kB/s)
+When I enabled dynamic tick using:
 
-UDP/NFSv3:
+	echo 1 > /sys/devices/system/timer/timer0/dyn_tick_state
 
-0.15user 12.00system 0:26.22elapsed 46%CPU (0avgtext+0avgdata 
-0maxresident)k0inputs+0outputs (0major+148minor)pagefaults 0swaps
+The number of ticks dropped down to 60-70 HZ, bus mastering activity
+jumpped up to being almost always active, and the processor stayed
+stuck at C2 state, and power utilization climbed back up by 20%.
 
-0.14user 13.96system 0:28.31elapsed 49%CPU (0avgtext+0avgdata 
-0maxresident)k0inputs+0outputs (0major+148minor)pagefaults 0swaps
+This was on a completely idle, freshly booted machine, without X
+running and just a console login.
 
-UDP/Samba, Win2K->Linux box:
-
-$ date +%s
-1123338368
-$ date +%s
-1123338399
-1123338399 - 1123338368
-31 seconds
-
-I suppose NFS makes up for it bursting at such high speeds, but in some 
-cases, a constant data rate is preferred.  Are there any methods to 
-duplicate the way Samba works to NFS?  When NFS transfers are taking 
-place, watching gkrellm, I see 64MB/s for a few seconds then it goes to 0 
-as the disk (hda) continues to write for 3-4 seconds, this continues on 
-and off.  With Samba and the W2K box pushing the data, it is more of a 
-consistent stream with very few delays that are found with NFS.
-
-I am using the Intel e1000 driver for gigabit:
-0000:02:01.0 Ethernet controller: Intel Corp. 82547GI Gigabit Ethernet
-Controller.
-
-I *do* have the NAPI option enabled for the driver on both Linux machines.
-[*]   Use Rx Polling (NAPI)
-
-Samba Config:
-# Increase overall throughput of samba.
-socket options = IPTOS_LOWDELAY TCP_NODELAY SO_SNDBUF=32768 SO_RCVBUF=8192
-# Set max xmit size.
-max xmit = 8192
-
-NFS Config/fstab Entry:
-machine:/mount  /local/mount  nfs rw,hard,intr,nfsvers=3 0 0
-
-I am using XFS filesystems on both Linux machines.  The drives are 7200RPM 
-Seagate HDDs with either 2MB or 8MB of cache.
-
-Are there any 'tweaks' or 'hacks' to make NFS behave more like Samba or 
-just to tune it in general that are not commonly known or found on google?
-
-Thanks,
-
-Justin.
+						- Ted

@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVHFAhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVHFAi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbVHFAhL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 20:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVHFAhL
+	id S262204AbVHFAi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 20:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVHFAi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 20:37:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43739 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261818AbVHFAhJ (ORCPT
+	Fri, 5 Aug 2005 20:38:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11194 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262172AbVHFAhv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 20:37:09 -0400
-Date: Fri, 5 Aug 2005 17:36:45 -0700
-From: Greg KH <greg@kroah.com>
-To: jt <jt@jtholmes.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 stalls Andrew M. req this extended dmesg dump
-Message-ID: <20050806003645.GB5370@kroah.com>
-References: <42EBB9CD.7090706@jtholmes.com> <20050730125238.327be97c.akpm@osdl.org> <20050731043710.GA18532@kroah.com> <42EE251D.40505@jtholmes.com>
+	Fri, 5 Aug 2005 20:37:51 -0400
+Date: Fri, 5 Aug 2005 17:36:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: benoit.boissinot@ens-lyon.fr
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>
+Subject: Re: [PATCH] s390: fix invalid kmalloc flags
+Message-Id: <20050805173629.78f3a0e6.akpm@osdl.org>
+In-Reply-To: <20050806002603.GA29515@ens-lyon.fr>
+References: <20050806002603.GA29515@ens-lyon.fr>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42EE251D.40505@jtholmes.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 09:35:25AM -0400, jt wrote:
-> Greg KH wrote:
+benoit.boissinot@ens-lyon.fr wrote:
+>
+> The following patch fixes the compilation (defconfig) of s390:
 > 
-> >On Sat, Jul 30, 2005 at 12:52:38PM -0700, Andrew Morton wrote:
-> > 
-> >
-> >>udev is doing stuff.
-> >>
-> >>   
-> >>
-> >>>[   40.691350] c16b1f40 00000082 c0115ff9 00000000 c1601530 bfd67d94 
-> >>>c1601530 00000000 [   40.691544]        c1384e80 c1384520 00000000 
-> >>>0000122d 8cc9bc6a 00000008 c1601530 c1601020 [   40.695744]        
-> >>>c1601144 00000000 00000246 c16010c8 00000004 fffffe00 c1601020 c0121343 
-> >>>[   40.699932] Call Trace:
-> >>>[   40.708026]  [<c0115ff9>] do_page_fault+0x1a9/0x57a
-> >>>[   40.712230]  [<c0121343>] do_wait+0x313/0x3a0
-> >>>[   40.716403]  [<c0119940>] default_wake_function+0x0/0x10
-> >>>[   40.720663]  [<c0119940>] default_wake_function+0x0/0x10
-> >>>[   40.724858]  [<c0121479>] sys_wait4+0x29/0x30
-> >>>[   40.729039]  [<c0103f99>] syscall_call+0x7/0xb
-> >>>[   40.733255] udev          S 00000000     0  1443    795               
-> >>>(NOTLB)
-> >>>     
-> >>>
-> >>And it's sleeping for some reason.
-> >>   
-> >>
-> >
-> >Yes, older versions of udev (< 058) can work _really slow_ with 2.6.12.
-> >Please upgrade your version of udev and see if that solves the issue or
-> >not.
-> >
-> >thanks,
-> >
-> >greg k-h
-> >
-> >
-> > 
-> >
-> Interseting results.
-> I loaded udev 64
-> and hotplug ng 002
+>  arch/s390/mm/built-in.o(.text+0x152c): In function `query_segment_type':
+>  extmem.c: undefined reference to `__your_kmalloc_flags_are_not_valid'
+>  arch/s390/mm/built-in.o(.text+0x19ec): In function `segment_load':
+>  : undefined reference to `__your_kmalloc_flags_are_not_valid'
+> 
+> 
+>  Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+> 
+>  --- a/arch/s390/mm/extmem.c	2005-08-06 01:32:56.000000000 +0200
+>  +++ b/arch/s390/mm/extmem.c	2005-07-31 17:46:36.000000000 +0200
+>  @@ -172,8 +172,8 @@ dcss_diag_translate_rc (int vm_rc) {
+>   static int
+>   query_segment_type (struct dcss_segment *seg)
+>   {
+>  -	struct qin64  *qin = kmalloc (sizeof(struct qin64), GFP_DMA);
+>  -	struct qout64 *qout = kmalloc (sizeof(struct qout64), GFP_DMA);
+>  +	struct qin64  *qin = kmalloc (sizeof(struct qin64), GFP_DMA|GFP_KERNEL);
+>  +	struct qout64 *qout = kmalloc (sizeof(struct qout64), GFP_DMA|GFP_KERNEL);
 
-Heh, I wouldn't recommend hotplug-ng on anyone, it's out of date, and
-really not needed at all.
+No, GFP_DMA should work OK.  Except GFP_DMA doesn't have __GFP_VALID set. 
+It's strange that this didn't get noticed earlier.
 
-How about if you boot with a static /dev?  Do you still have boot issues
-with that?
-
-thanks,
-
-greg k-h
+Ben, was there a reason for not giving GFP_DMA the treatment?

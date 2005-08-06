@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVHFFZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVHFF1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVHFFZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 01:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVHFFZ7
+	id S261598AbVHFF1M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 01:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVHFF1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 01:25:59 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:26323 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S261448AbVHFFZ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 01:25:58 -0400
-Date: Fri, 5 Aug 2005 22:29:21 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Greg KH <gregkh@suse.de>
-Cc: yhlu <yhlu.kernel@gmail.com>,
-       Dominik Brodowski <linux@dominikbrodowski.net>, linville@tuxdriver.com,
-       openib-general@openib.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Subject: Re: [openib-general] Re: mthca and LinuxBIOS
-Message-ID: <20050806052921.GC27352@esmail.cup.hp.com>
-References: <86802c4405080511079d01532@mail.gmail.com> <52psss5k1x.fsf@cisco.com> <86802c44050805112661d889aa@mail.gmail.com> <86802c4405080512254b9cd496@mail.gmail.com> <86802c4405080512451cdcae48@mail.gmail.com> <86802c44050805132853070f1@mail.gmail.com> <Pine.LNX.4.58.0508051335440.3258@g5.osdl.org> <20050805220015.GA3524@suse.de> <86802c4405080515257ddaa8d2@mail.gmail.com> <20050805230300.GA4363@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050805230300.GA4363@suse.de>
-User-Agent: Mutt/1.5.9i
+	Sat, 6 Aug 2005 01:27:12 -0400
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:43161 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261598AbVHFF00 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 01:26:26 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Interbench 0.28
+Date: Sat, 6 Aug 2005 15:26:06 +1000
+User-Agent: KMail/1.8.2
+Cc: ck list <ck@vds.kolivas.org>, Peter Williams <pwil3058@bigpond.net.au>,
+       Jake Moilanen <moilanen@austin.ibm.com>,
+       Gabriel Devenyi <ace@staticwave.ca>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3787280.KNnV6928yt";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508061526.11088.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 04:03:00PM -0700, Greg KH wrote:
-...
-> > yesterday, someone add pci_restore_bars...., that will call
-> > pci_update_resource, and it will overwirte upper 32 bit of BAR2 and
-> > BAR4 of IB card.
-> 
-> Hm, perhaps that change should not do this?
-> 
-> Dominik, care to weigh in here?  That was your patch...
+--nextPart3787280.KNnV6928yt
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Was the origin of this patch the following thread started
-by John Linville:
-	http://lkml.org/lkml/2005/6/23/257
+Interbench is a benchmark application is designed to benchmark interactivit=
+y=20
+in Linux.
 
-I pointed out it would have issues with 64-bit BARs.
-And I suggested some solutions to JohnL's patch here:
-	http://lkml.org/lkml/2005/7/2/14
+Direct download link:
+http://ck.kolivas.org/apps/interbench/interbench-0.28.tar.bz2
 
-In any case same issues apply to pci_update_resource().
+Web page:
+http://interbench.kolivas.org
 
-grant
+Release early, release often they say...
+
+Changes:
+Yet more floating point fixes mostly coutesy of Peter Williams - Thanks!
+
+Cheers,
+Con
+
+--nextPart3787280.KNnV6928yt
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC9EnzZUg7+tp6mRURAtmhAJ9+ChsRIOn73C7OU/cLZ+NwlLkNxQCeL/qd
+80edlSxgmFuXNDVGIPGEwus=
+=rKEn
+-----END PGP SIGNATURE-----
+
+--nextPart3787280.KNnV6928yt--

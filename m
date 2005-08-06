@@ -1,118 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbVHFVBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVHFVHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263555AbVHFVBD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 17:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbVHFVBD
+	id S261248AbVHFVHa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 17:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbVHFVH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 17:01:03 -0400
-Received: from lixom.net ([66.141.50.11]:28611 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S263555AbVHFVBB (ORCPT
+	Sat, 6 Aug 2005 17:07:29 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:53008 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261248AbVHFVH1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 17:01:01 -0400
-Date: Sat, 6 Aug 2005 15:59:30 -0500
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] Add rdinit parameter to pick early userspace init
-Message-ID: <20050806205930.GA7163@austin.ibm.com>
+	Sat, 6 Aug 2005 17:07:27 -0400
+Subject: Re: [PATCH] Export handle_mm_fault to modules.
+From: Stelian Pop <stelian@popies.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Olof Johansson <olof@lixom.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0508051642360.3258@g5.osdl.org>
+References: <1123278912.8224.2.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0508051558520.3258@g5.osdl.org>
+	 <20050805232530.GA8791@austin.ibm.com>
+	 <Pine.LNX.4.58.0508051642360.3258@g5.osdl.org>
+Content-Type: text/plain; charset=utf-8
+Date: Sat, 06 Aug 2005 23:07:14 +0200
+Message-Id: <1123362434.4635.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: Olof Johansson <olof@lixom.net>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Le vendredi 05 août 2005 à 16:43 -0700, Linus Torvalds a écrit :
+> 
+> On Fri, 5 Aug 2005, Olof Johansson wrote:
+> >
+> > On Fri, Aug 05, 2005 at 04:02:13PM -0700, Linus Torvalds wrote:
+> > 
+> > > The only thing that has ever exported it afaik is
+> > > 
+> > > 	arch/ppc/kernel/ppc_ksyms.c:EXPORT_SYMBOL(handle_mm_fault); /* For MOL */
+> > > 
+> > > and that looks pretty suspicious too (what is MOL, and regardless, 
+> > > shouldn't it be an EXPORT_SYMBOL_GPL?).
+> > 
+> > Mac-on-Linux, see http://www.maconlinux.org/. Run MacOS in a virtualized
+> > machine under Linux (or the other way around). It's GPL.
+> 
+> Ok. Then I suspect the right patch is this one. Stelian, can you verify?
 
-This would be for -mm until 2.6.14 opens, I suppose:
+I confirm, it works perfectly.
 
-Since early userspace was added, there's no way to override which init
-to run from it. Some people tack on an extra cpio archive with a link
-from /init depending on what they want to run, but that's sometimes
-impractical.
+Stelian.
 
-Changing the "init=" to also override the early userspace isn't feasible,
-since it is still used to indicate what init to run from disk when early
-userspace has completed doing whatever it's doing (i.e. load filesystem
-modules and drivers).
+> 
+> 		Linus
+> ---
+> diff --git a/arch/ppc/kernel/ppc_ksyms.c b/arch/ppc/kernel/ppc_ksyms.c
+> --- a/arch/ppc/kernel/ppc_ksyms.c
+> +++ b/arch/ppc/kernel/ppc_ksyms.c
+> @@ -324,7 +324,7 @@ EXPORT_SYMBOL(__res);
+>  
+>  EXPORT_SYMBOL(next_mmu_context);
+>  EXPORT_SYMBOL(set_context);
+> -EXPORT_SYMBOL(handle_mm_fault); /* For MOL */
+> +EXPORT_SYMBOL_GPL(__handle_mm_fault); /* For MOL */
+>  EXPORT_SYMBOL(disarm_decr);
+>  #ifdef CONFIG_PPC_STD_MMU
+>  extern long mol_trampoline;
+> 
+-- 
+Stelian Pop <stelian@popies.net>
 
-Instead, introduce "rdinit=" and make it override the default "/init"
-if specified.
-
-Signed-off-by: Olof Johansson <olof@lixom.net>
-
-Index: 2.6/init/main.c
-===================================================================
---- 2.6.orig/init/main.c	2005-08-03 19:53:46.000000000 -0500
-+++ 2.6/init/main.c	2005-08-06 11:11:49.000000000 -0500
-@@ -123,6 +123,7 @@ extern void softirq_init(void);
- char saved_command_line[COMMAND_LINE_SIZE];
- 
- static char *execute_command;
-+static char *ramdisk_execute_command;
- 
- /* Setup configured maximum number of CPUs to activate */
- static unsigned int max_cpus = NR_CPUS;
-@@ -297,6 +298,18 @@ static int __init init_setup(char *str)
- }
- __setup("init=", init_setup);
- 
-+static int __init rdinit_setup(char *str)
-+{
-+	unsigned int i;
-+
-+	ramdisk_execute_command = str;
-+	/* See "auto" comment in init_setup */
-+	for (i = 1; i < MAX_INIT_ARGS; i++)
-+		argv_init[i] = NULL;
-+	return 1;
-+}
-+__setup("rdinit=", rdinit_setup);
-+
- extern void setup_arch(char **);
- 
- #ifndef CONFIG_SMP
-@@ -680,10 +693,14 @@ static int init(void * unused)
- 	 * check if there is an early userspace init.  If yes, let it do all
- 	 * the work
- 	 */
--	if (sys_access((const char __user *) "/init", 0) == 0)
--		execute_command = "/init";
--	else
-+
-+	if (!ramdisk_execute_command)
-+		ramdisk_execute_command = "/init";
-+
-+	if (sys_access((const char __user *) ramdisk_execute_command, 0) != 0) {
-+		ramdisk_execute_command = NULL;
- 		prepare_namespace();
-+	}
- 
- 	/*
- 	 * Ok, we have completed the initial bootup, and
-@@ -708,6 +725,9 @@ static int init(void * unused)
- 	 * trying to recover a really broken machine.
- 	 */
- 
-+	if (ramdisk_execute_command)
-+		run_init_process(ramdisk_execute_command);
-+
- 	if (execute_command)
- 		run_init_process(execute_command);
- 
-Index: 2.6/Documentation/kernel-parameters.txt
-===================================================================
---- 2.6.orig/Documentation/kernel-parameters.txt	2005-08-03 19:53:08.000000000 -0500
-+++ 2.6/Documentation/kernel-parameters.txt	2005-08-06 11:11:49.000000000 -0500
-@@ -1169,6 +1169,11 @@ running once the system is up.
- 			New name for the ramdisk parameter.
- 			See Documentation/ramdisk.txt.
- 
-+	rdinit=		[KNL]
-+			Format: <full_path>
-+			Run specified binary instead of /init from the ramdisk,
-+			used for early userspace startup. See initrd.
-+
- 	reboot=		[BUGS=IA-32,BUGS=ARM,BUGS=IA-64] Rebooting mode
- 			Format: <reboot_mode>[,<reboot_mode2>[,...]]
- 			See arch/*/kernel/reboot.c.

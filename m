@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVHFE4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVHFFAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbVHFE4J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 00:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbVHFE4I
+	id S262135AbVHFFAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 01:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbVHFFAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 00:56:08 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:47631 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262076AbVHFE4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 00:56:07 -0400
-Date: Sat, 6 Aug 2005 06:38:26 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: bdupree@techfinesse.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Build Issue for 2.4.31 on Alpha AXP Cabriolet Variant
-Message-ID: <20050806043826.GB20363@alpha.home.local>
-References: <32825.67.173.156.207.1123274299.squirrel@67.173.156.207>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 6 Aug 2005 01:00:09 -0400
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:6337 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262135AbVHFFAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 01:00:07 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Gabriel Devenyi <ace@staticwave.ca>
+Subject: Re: [ck] [ANNOUNCE] Interbench 0.27
+Date: Sat, 6 Aug 2005 14:59:58 +1000
+User-Agent: KMail/1.8.2
+Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org
+References: <200508031758.31246.kernel@kolivas.org> <42F207BE.40609@staticwave.ca> <200508052337.55270.ace@staticwave.ca>
+In-Reply-To: <200508052337.55270.ace@staticwave.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <32825.67.173.156.207.1123274299.squirrel@67.173.156.207>
-User-Agent: Mutt/1.4i
+Message-Id: <200508061459.58945.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 03:38:19PM -0500, bdupree@techfinesse.com wrote:
-(...) 
-> Anyhow, a simple one line fix to the arch/alpha/kernel/Makefile solves
-> this problem (patch file is attached). I've also attached the config file
-> I used for the build, as well as the boot messages from the kernel built
-> after the patch was applied.
+On Sat, 6 Aug 2005 13:37, Gabriel Devenyi wrote:
+> After conducting some further research I've determined that cool n quiet
+> has no effect on this "bug" if you can call it that. With the system
+> running in init 1, and cool n quiet disabled in the bios, a sleep(N>0)
+> results in the run_time value afterwards always being nearly the same value
+> of ~995000 on my athlon64, similarly, my server an athlon-tbird, which
+> definitely has no power saving features, hovers at ~1496000
 
-Thanks Bill for the patch, I'll merge it into hotfix 4 which I'll
-probably release on next week (no urgent fix needed yet). My DS10
-(21264) already builds and runs plain 2.4.31 fine, because it does
-not use ns87312.
+We know that sleep(1) doesn't give us accurate sleep of 1 second, only close 
+to it limited by Hz, schedule_timeout and how busy the kernel otherwise is.
 
-> And yes, I'm happily writing this email on my ancient Alpha box from
-> within Mozilla, on a KDE 3.3 desktop, running atop that patched 2.4.31
-> kernel. And while this old Alpha may not be the fastest 64-bit computer on
-> the block, it's still usable!
+> Obviously since these values are nowhere near 10000, the loops_per_ms
+> benchmark runs forever, has anyone seen/read about sleep on amd machines
+> doing something odd? Can anyone else with an amd machine confirm this
+> behavior? Con: should we attempt to get the attention of LKML to see why
+> amd chips act differently?
 
-Those boxes are wonderful. Mine serves as a gigabit fileserver at
-only 466 MHz :-)
+None of that matters because the timing is done during a non sleep period 
+using the real time clock:
 
-Thanks,
-Willy
+	start_time = get_nsecs(&myts);
+	burn_loops(loops);
+	run_time = get_nsecs(&myts) - start_time;
 
+So the time spent in sleep(1) should be irrelevant to the timing of 
+loops_per_ms. Something else is happening to the cpu _during_ the sleep that 
+makes the next lot of loops take a different length of time. That's the bit I 
+haven't been able to figure out.
+
+Cheers,
+Con

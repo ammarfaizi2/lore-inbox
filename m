@@ -1,75 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263622AbVHFWIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263605AbVHFWUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263622AbVHFWIF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 18:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbVHFWIF
+	id S263605AbVHFWUx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 18:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263621AbVHFWUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 18:08:05 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:62682 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261310AbVHFWID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 18:08:03 -0400
-Subject: RE: As of 2.6.13-rc1 Fusion-MPT very slow
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-Cc: "Moore, Eric Dean" <Eric.Moore@lsil.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0508062058200.27998@praktifix.dwd.de>
-References: <91888D455306F94EBD4D168954A9457C035CB64A@nacos172.co.lsil.com>
-	 <Pine.LNX.4.61.0508011537250.23481@praktifix.dwd.de>
-	 <1123350790.5092.2.camel@mulgrave>
-	 <Pine.LNX.4.61.0508062058200.27998@praktifix.dwd.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Sat, 06 Aug 2005 17:07:43 -0500
-Message-Id: <1123366064.5102.3.camel@mulgrave>
+	Sat, 6 Aug 2005 18:20:53 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:42401 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263605AbVHFWUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 18:20:51 -0400
+Subject: Re: DRM VIA driver on Unichrome Pro K8M800
+From: Lee Revell <rlrevell@joe-job.com>
+To: Joris van Rantwijk <jvrantwijk@xs4all.nl>
+Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050806192647.GA11937@xs4all.nl>
+References: <fa.f66affe.52avgq@ifi.uio.no>
+	 <20050806192647.GA11937@xs4all.nl>
+Content-Type: text/plain
+Date: Sat, 06 Aug 2005 18:20:50 -0400
+Message-Id: <1123366850.14113.18.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.3.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-06 at 21:12 +0000, Holger Kiehl wrote:
-> I tried from 2.6.13-rc2-mm2 up to 2.6.13-rc4-mm1 and always get the following
-> error when applying this patch:
+On Sat, 2005-08-06 at 21:26 +0200, Joris van Rantwijk wrote:
+> Hello David,
 > 
->       CC      drivers/message/fusion/mptbase.o
->       CC      drivers/message/fusion/mptscsih.o
->       CC      drivers/message/fusion/mptspi.o
->     drivers/message/fusion/mptspi.c: In function â..mptspi_target_allocâ..:
->     drivers/message/fusion/mptspi.c:113: error: invalid storage class for function â..mptspi_write_offsetâ..
->     drivers/message/fusion/mptspi.c:114: error: invalid storage class for function â..mptspi_write_widthâ..
->     drivers/message/fusion/mptspi.c:131: warning: implicit declaration of function â..mptspi_write_widthâ..
->     drivers/message/fusion/mptspi.c: At top level:
->     drivers/message/fusion/mptspi.c:453: warning: conflicting types for â..mptspi_write_widthâ..
->     drivers/message/fusion/mptspi.c:453: error: static declaration of â..mptspi_write_widthâ.. follows non-static declaration
->     drivers/message/fusion/mptspi.c:131: error: previous implicit declaration of â..mptspi_write_widthâ.. was here
+> I noticed you guided the VIA DRM driver into linux-2.6.13-rc3. Are you
+> the right person to send questions/problems/patches about this driver?
+> 
+> I am trying to get it to run on my Unichrome Pro K8M800 chipset and
+> it finally seems to be working (a bit) now.
 
-This lot are all gcc-4 being silly about a declaration, as you noticed.
-Still, there's no reason not to make the static functions declared at
-the top of the file.
+FWIW, this is working great with my CLE266 chipset.
 
->     drivers/message/fusion/mptspi.c:505: error: unknown field â..get_hold_mcsâ.. specified in initializer
->     drivers/message/fusion/mptspi.c:505: warning: excess elements in struct initializer
->     drivers/message/fusion/mptspi.c:505: warning: (near initialization for â..mptspi_transport_functionsâ..)
->     drivers/message/fusion/mptspi.c:506: error: unknown field â..set_hold_mcsâ.. specified in initializer
->     drivers/message/fusion/mptspi.c:506: warning: excess elements in struct initializer
->     drivers/message/fusion/mptspi.c:506: warning: (near initialization for â..mptspi_transport_functionsâ..)
->     drivers/message/fusion/mptspi.c:507: error: unknown field â..show_hold_mcsâ.. specified in initializer
->     drivers/message/fusion/mptspi.c:507: warning: excess elements in struct initializer
->     drivers/message/fusion/mptspi.c:507: warning: (near initialization for â..mptspi_transport_functionsâ..)
+[drm] Initialized drm 1.0.0 20040925
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKA] -> GSI 11 (level, low) -> IRQ 11
+[drm] Initialized via 2.6.3 20050523 on minor 0: VIA Technologies, Inc. VT8623 [Apollo CLE266] integrated CastleRock graphics
+agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
+agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
 
-This is actually because -mm is slightly behind the scsi-misc tree.  It
-looks like the hold_mcs parameters haven't propagated into the -mm tree
-yet.  You should be able to correct this by cutting these three lines:
-
-	.get_hold_mcs	= mptspi_read_parameters,
-	.set_hold_mcs	= mptspi_write_hold_mcs,
-	.show_hold_mcs	= 1,
-
-Out of the code at lines 505-507.  You'll get a warning about
-mptspi_write_hold_mcs() being defined but not used which you can ignore.
-
-James
-
+Lee
 

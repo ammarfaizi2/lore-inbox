@@ -1,101 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263164AbVHFFHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVHFFLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263164AbVHFFHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 01:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbVHFFHD
+	id S262316AbVHFFLN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 01:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbVHFFLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 01:07:03 -0400
-Received: from digitalimplant.org ([64.62.235.95]:59109 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S263164AbVHFFHC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 01:07:02 -0400
-Date: Fri, 5 Aug 2005 22:06:49 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Nigel Cunningham <ncunningham@cyclades.com>
-cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [PATCH] Workqueue freezer support.
-In-Reply-To: <1123243967.3266.2.camel@localhost>
-Message-ID: <Pine.LNX.4.50.0508052148280.19501-100000@monsoon.he.net>
-References: <1121923059.2936.224.camel@localhost> 
- <Pine.LNX.4.50.0507211221550.12779-100000@monsoon.he.net>
- <1123243967.3266.2.camel@localhost>
+	Sat, 6 Aug 2005 01:11:13 -0400
+Received: from rwcrmhc13.comcast.net ([216.148.227.118]:54223 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262316AbVHFFLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 01:11:10 -0400
+Message-ID: <42F44671.8050706@temple.edu>
+Date: Sat, 06 Aug 2005 01:11:13 -0400
+From: Nick Sillik <n.sillik@temple.edu>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alejandro Cabrera <alex@electrica.cujae.edu.cu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: About Linux Device Drivers
+References: <42F3C9AE.3040406@electrica.cujae.edu.cu>
+In-Reply-To: <42F3C9AE.3040406@electrica.cujae.edu.cu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alejandro Cabrera wrote:
 
-On Fri, 5 Aug 2005, Nigel Cunningham wrote:
-
-> Hi.
+> Hi
+> I'm new in the list and I'm interested in lkm, I have the Linux Device 
+> Drivers 2ed. And I use the 2.6.8-2 kernel, and the modules that I 
+> create I don't test in my workstation. Exist any way to run the 
+> examples exposed in this book over my kernel or I need the LDD 3ed ????
+> thx for your patient
+> Alejandro
 >
-> I finally found some time to finish this off. I don't really like the
-> end result - the macros looked clearer to me - but here goes. If it
-> looks okay, I'll seek sign offs from each of the affected driver
-> maintainers and from Ingo. Anyone else?
-
-What are your feelings about this: http://lwn.net/Articles/145417/ ?
-
-It seems like a cleaner way to do things. How would these patches change
-if that were merged?
-
-Concerning the patch specifically:
-
-> diff -ruNp 400-workthreads.patch-old/include/linux/kthread.h 400-workthreads.patch-new/include/linux/kthread.h
-> --- 400-workthreads.patch-old/include/linux/kthread.h	2004-11-03 21:51:12.000000000 +1100
-> +++ 400-workthreads.patch-new/include/linux/kthread.h	2005-08-03 11:52:01.000000000 +1000
-> @@ -23,10 +23,20 @@
->   *
->   * Returns a task_struct or ERR_PTR(-ENOMEM).
->   */
-> +struct task_struct *__kthread_create(int (*threadfn)(void *data),
-> +				   void *data,
-> +				   unsigned long freezer_flags,
-> +				   const char namefmt[],
-> +				   va_list * args);
-> +
-
-When comparing this to this:
-
-> diff -ruNp 400-workthreads.patch-old/include/linux/workqueue.h 400-workthreads.patch-new/include/linux/workqueue.h
-> --- 400-workthreads.patch-old/include/linux/workqueue.h	2005-06-20 11:47:30.000000000 +1000
-> +++ 400-workthreads.patch-new/include/linux/workqueue.h	2005-08-03 11:49:34.000000000 +1000
-> @@ -51,9 +51,12 @@ struct work_struct {
->  	} while (0)
 >
->  extern struct workqueue_struct *__create_workqueue(const char *name,
-> -						    int singlethread);
-> -#define create_workqueue(name) __create_workqueue((name), 0)
-> -#define create_singlethread_workqueue(name) __create_workqueue((name), 1)
-> +						    int singlethread,
-> +						    unsigned long freezer_flag);
-> +#define create_workqueue(name) __create_workqueue((name), 0, 0)
-> +#define create_nofreeze_workqueue(name) __create_workqueue((name), 0, PF_NOFREEZE)
-> +#define create_singlethread_workqueue(name) __create_workqueue((name), 1, 0)
-> +#define create_nofreeze_singlethread_workqueue(name) __create_workqueue((name), 1, PF_NOFREEZE)
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-And to this:
+The second edition of Linux Device Drivers is specific
+to 2.4.x (and possibly 2.2.x) kernels. The third edition will
+work with the 2.6 kernel. Luckily it is also released under
+Creative Commons. Take a look at the PDFs here:
+http://lwn.net/Kernel/LDD3/
 
-
->  static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
-> -						   int cpu)
-> +						   int cpu,
-> +						   unsigned long freezer_flags)
->  {
-
-There is a slight discrepancy in the API changes. Obviously, we don't want
-to change every caller of create_workqueue() to support this. But, perhaps
-you could standardize the handling of the freezer flags (by e.g. creating
-a separate _nofreeze version for each).
-
-Also, functions that take a va_list parameter pass the structure (array)
-rather than the pointer. See the definition of vprintk() in
-include/linux/kernel.h for an example.
-
-
-Thanks,
-
-
-	Pat
+Enjoy!
+Nick Sillik
+n.sillik@temple.edu

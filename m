@@ -1,126 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263382AbVHFS3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263395AbVHFSch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263382AbVHFS3y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 14:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbVHFS3y
+	id S263395AbVHFSch (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 14:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbVHFSce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 14:29:54 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:61967 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S263382AbVHFS3x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 14:29:53 -0400
-Message-ID: <42F5016A.2020900@vmware.com>
-Date: Sat, 06 Aug 2005 11:28:58 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Sat, 6 Aug 2005 14:32:34 -0400
+Received: from imap.gmx.net ([213.165.64.20]:35460 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263395AbVHFScc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 14:32:32 -0400
+X-Authenticated: #1700068
+From: Torsten Foertsch <torsten.foertsch@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Problem with smaps in 2.6.13-rc4-mm1
+Date: Sat, 6 Aug 2005 20:29:49 +0200
+User-Agent: KMail/1.7.1
+References: <200508060915.28277.torsten.foertsch@gmx.net>
+In-Reply-To: <200508060915.28277.torsten.foertsch@gmx.net>
+Cc: Mauricio Lin <mauriciolin@gmail.com>, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@redhat.com>, Chris Wright <chrisw@osdl.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>
-Subject: Re: [PATCH] 8/8 Create MMU 2/3 level accessors in the sub-arch layer
-  (i386)
-References: <42F46558.9010202@vmware.com.suse.lists.linux.kernel> <p73wtmz1ekk.fsf@bragg.suse.de> <20050806115619.GA1560@infradead.org> <20050806115836.GN8266@wotan.suse.de> <20050806120141.GA1827@infradead.org>
-In-Reply-To: <20050806120141.GA1827@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart187234337.1eqtHDluMX";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Aug 2005 18:29:40.0953 (UTC) FILETIME=[CF1D6C90:01C59AB4]
+Message-Id: <200508062029.55699.torsten.foertsch@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+--nextPart187234337.1eqtHDluMX
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_eGQ9C6rYQanurGC"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->On Sat, Aug 06, 2005 at 01:58:36PM +0200, Andi Kleen wrote:
->  
+--Boundary-01=_eGQ9C6rYQanurGC
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+On Saturday 06 August 2005 09:15, Torsten Foertsch wrote:
+> when trying out smaps I have encountered the following problem:
+> > cat /proc/$P/smaps | diff - /proc/$P/smaps
 >
->>>>I think that patch is really ugly - it makes hacking VM on i386
->>>>even more painful than it already is because the convolutes the file
->>>>structure even more. Hope it is not applied.
->>>>        
->>>>
->>>Especially as there's been no user shown for it, similar to all the other
->>>ugly patches from vmware.
->>>      
->>>
->>Well, some of it can be counted as cleanup or even tuning like the excellent
->>switch_to patch. But not that one and some of the more intrusive patches.
->>    
->>
+> 239,241c239,241
+> < bfbaf000-bfbc4000 rw-p bfbaf000 00:00 0          [stack]
+> < Size:                84 kB
+> < Rss:                 24 kB
+> ---
 >
->Yeah, I said ugly ones specificly.  There's been some nice previous ones,
->but most in this series (all the move of stuff to subarches) are rather
->horrible and lack lots of explanation.
->  
+> > b7fc4000-b7fc6000 rwxp 00015000 08:02 12558      /lib/ld-2.3.4.so
+> > Size:                 8 kB
+> > Rss:                  8 kB
 >
+> 245c245
+> < Private_Dirty:       24 kB
+> ---
+>
+> > Private_Dirty:        8 kB
 
-All of my previous patches have been aimed at fixing bugs, improving 
-performance, reliability and maintinability of the i386 architecture.  
-If you found something that didn't fit one of those categories in my 
-previous patches, then it is either not well enough explained or perhaps 
-inadvertently slipped through from one of my more radical trees - or it 
-could be a bug.
+The problem occures because show_smap calls first show_map and then prints =
+its=20
+additional information to the seq_file. show_map checks if all it has to=20
+print fits into the buffer and if yes marks the current vma as written. Whi=
+le=20
+that is correct for show_map it is not for show_smap. Here the vma should b=
+e=20
+marked as written only after the additional information is also written.
 
-There is a simple explanation for all of this series.  The goal is to 
-move all privileged instructions, sensitive instructions, and privilege 
-awareness into a layer where it can be overridden by new code without 
-disrupting the default architecture.  On x86, there are a lot of 
-instructions - popf, iret, sgdt, and others which behave differently 
-under different privilege levels, but do not trap.  These architectural 
-features must be redefined by any architecture which virtualizes the 
-x86, be it Xen, UML, or an alternative approach.  Similarly, certain 
-privileged processor data structures (page tables, descriptor tables) 
-must be protected and accessed in a different manner if one is to 
-utilize the principles of paravirtualization to achieve high performance 
-inside of a virtual machine.  I believe this series of patches is one 
-almost clean solution to this.  There are obvious problems with the MMU 
-patch, and I'm still trying to come up with a way to properly address that.
+The attached patch cures the problem. It moves the functionality of the=20
+show_map function to a new function show_map_internal that is called with a=
+n=20
+additional struct mem_size_stats* argument. Then show_map calls=20
+show_map_internal with NULL as struct mem_size_stats* whereas show_smap cal=
+ls=20
+it with a real pointer. Now the final
 
-That said, I am definitely seeking any feedback you have on how to 
-achieve this goal while being as clean and maintainable as possible - if 
-the Linux community is indeed interested in adopting a 
-paravirtualization approach.  Looking from the most general view 
-possible, there are a couple of ways to do this in Linux:
+	if (m->count < m->size)  /* vma is copied successfully */
+		m->version =3D (vma !=3D get_gate_vma(task))? vma->vm_start: 0;
 
-1) Create a new architecture.  This is the UML approach, and while it 
-has been successful there, it is difficult to maintain closeness to the 
-hardware architecture without introducing a maintenance burden.  This 
-closeness is desirable if one is to achieve high performance and take 
-advantage of more processor specific features.
+is done only if the whole entry fits into the buffer.
 
-2) Use the sub-architecture strategy of x86.  This approach has a 
-relatively small set of code movement to allow a new virtualized 
-sub-architecture to redefine the privileged and sensitive operations of 
-the processor, as well as to implement easily defined architectural 
-hints which employ higher level virtualization strategies.
+Torsten
 
-3) Use #ifdef'd include/asm-i386 header files.  While workable, this has 
-flaws - it is ugly, and it causes the hypervisor header files to sneak 
-into include/asm-i386 rather rapidly destroying maintainability for the 
-native code.  This has been attempted before, but if someone were to 
-send those patches to LKML, I would expect them to be rapidly tarred and 
-feathered.
+--Boundary-01=_eGQ9C6rYQanurGC
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="show_map_internal.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="show_map_internal.patch"
 
-4) Clone entire asm-i386 header files and replace them using an include 
-path, potentially in the sub-architecture level.  While this avoids any 
-diffs at all to the native asm-i386 headers, it needlessly duplicates a 
-lot of code, and this creates a greater maintenance burden for 
-somebody.  Who that body is can be determined later, but this creates a 
-lot of extra work for that unfortunate person that is wasted time that 
-could easily be spent bettering Linux!
+=2D-- linux-2.6.13-rc4-mm1/fs/proc/task_mmu.c~	2005-08-03 12:48:35.00000000=
+0 +0200
++++ linux-2.6.13-rc4-mm1/fs/proc/task_mmu.c	2005-08-06 18:43:11.160005664 +=
+0200
+@@ -92,7 +92,16 @@
+ 	seq_printf(m, "%*c", len, ' ');
+ }
+=20
+=2Dstatic int show_map(struct seq_file *m, void *v)
++struct mem_size_stats
++{
++	unsigned long resident;
++	unsigned long shared_clean;
++	unsigned long shared_dirty;
++	unsigned long private_clean;
++	unsigned long private_dirty;
++};
++
++static int show_map_internal(struct seq_file *m, void *v, struct mem_size_=
+stats *mss)
+ {
+ 	struct task_struct *task =3D m->private;
+ 	struct vm_area_struct *vma =3D v;
+@@ -146,19 +155,31 @@
+ 		}
+ 	}
+ 	seq_putc(m, '\n');
++
++	if (mss)
++		seq_printf(m,
++			   "Size:          %8lu kB\n"
++			   "Rss:           %8lu kB\n"
++			   "Shared_Clean:  %8lu kB\n"
++			   "Shared_Dirty:  %8lu kB\n"
++			   "Private_Clean: %8lu kB\n"
++			   "Private_Dirty: %8lu kB\n",
++			   (vma->vm_end - vma->vm_start) >> 10,
++			   mss->resident >> 10,
++			   mss->shared_clean  >> 10,
++			   mss->shared_dirty  >> 10,
++			   mss->private_clean >> 10,
++			   mss->private_dirty >> 10);
++
+ 	if (m->count < m->size)  /* vma is copied successfully */
+ 		m->version =3D (vma !=3D get_gate_vma(task))? vma->vm_start: 0;
+ 	return 0;
+ }
+=20
+=2Dstruct mem_size_stats
++static int show_map(struct seq_file *m, void *v)
+ {
+=2D	unsigned long resident;
+=2D	unsigned long shared_clean;
+=2D	unsigned long shared_dirty;
+=2D	unsigned long private_clean;
+=2D	unsigned long private_dirty;
+=2D};
++	return show_map_internal(m, v, 0);
++}
+=20
+ static void smaps_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
+ 				unsigned long addr, unsigned long end,
+@@ -248,33 +269,17 @@
+ {
+ 	struct vm_area_struct *vma =3D v;
+ 	struct mm_struct *mm =3D vma->vm_mm;
+=2D	unsigned long vma_len =3D (vma->vm_end - vma->vm_start);
+ 	struct mem_size_stats mss;
+=20
+ 	memset(&mss, 0, sizeof mss);
+=20
+=2D	show_map(m, v);
+=2D
+ 	if (mm) {
+ 		spin_lock(&mm->page_table_lock);
+ 		smaps_pgd_range(vma, vma->vm_start, vma->vm_end, &mss);
+ 		spin_unlock(&mm->page_table_lock);
+ 	}
+=20
+=2D	seq_printf(m,
+=2D		   "Size:          %8lu kB\n"
+=2D		   "Rss:           %8lu kB\n"
+=2D		   "Shared_Clean:  %8lu kB\n"
+=2D		   "Shared_Dirty:  %8lu kB\n"
+=2D		   "Private_Clean: %8lu kB\n"
+=2D		   "Private_Dirty: %8lu kB\n",
+=2D		   vma_len >> 10,
+=2D		   mss.resident >> 10,
+=2D		   mss.shared_clean  >> 10,
+=2D		   mss.shared_dirty  >> 10,
+=2D		   mss.private_clean >> 10,
+=2D		   mss.private_dirty >> 10);
+=2D	return 0;
++	return show_map_internal(m, v, &mss);
+ }
+=20
+ static void *m_start(struct seq_file *m, loff_t *pos)
+@@ -288,7 +293,7 @@
+ 	/*
+ 	 * We remember last_addr rather than next_addr to hit with
+ 	 * mmap_cache most of the time. We have zero last_addr at
+=2D	 * the begining and also after lseek. We will have -1 last_addr
++	 * the beginning and also after lseek. We will have -1 last_addr
+ 	 * after the end of the vmas.
+ 	 */
+=20
 
-5) Use the HAVE_SUBARCH_PTE_ACCESSOR type approach (similar to the way 
-generic optimizable PTE operations are defined in asm-generic).  I have 
-not yet investigated the feasibility of this type of approach, but it 
-seems workable.  At least for the MMU patch, some combination of this 
-and other techniques might help make things a lot cleaner.
+--Boundary-01=_eGQ9C6rYQanurGC--
 
-Do you have ideas?  I'm open to all suggestions here.  The only goal I 
-have is to make high performance virtualization support in Linux the 
-least disruptive event possible for all parties.  Although I'm a bit 
-biased towards i386 from a coding point of view, some of these ideas can 
-cross architecture boundaries as well, so I'm open to feedback from all 
-parties.
+--nextPart187234337.1eqtHDluMX
+Content-Type: application/pgp-signature
 
-Thanks,
-Zach
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBC9QGjwicyCTir8T4RAgmEAJ4w6ArjjriiOd9rfauKg/T9AjpPugCbBCVG
+EWgzKLHk230QJuzWZqsqAt8=
+=In8Z
+-----END PGP SIGNATURE-----
+
+--nextPart187234337.1eqtHDluMX--

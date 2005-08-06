@@ -1,72 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263133AbVHFCgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263148AbVHFCjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263133AbVHFCgN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 22:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbVHFCgM
+	id S263148AbVHFCjh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 22:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbVHFCje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 22:36:12 -0400
-Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:14176 "HELO
-	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S263133AbVHFCgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 22:36:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:Subject:From:To:Cc:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=dRZWLJwSGo9+ADhCvbd8zWyabQP9B+FO02p5qjxQ8QavQgGi9sk11TXefN8Aq7hbBuLQ/XXVAuK+yWY/tyh6TDjQ5fNOkMmbz9Dcxdjv5VU3jxF+MsbI19YauByf4njvOtVFvFkAWcR3s7eJl1PiiIEFqwReAXv/TjjdWdg3Dd0=  ;
-Subject: 
-From: "James C. Georgas" <jgeorgas@rogers.com>
+	Fri, 5 Aug 2005 22:39:34 -0400
+Received: from smtp.enter.net ([216.193.128.24]:49166 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S263148AbVHFCjc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 22:39:32 -0400
+From: "D. ShadowWolf" <dhazelton@enter.net>
 To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@redhat.com>
-Content-Type: text/plain
-Date: Fri, 05 Aug 2005 22:36:06 -0400
-Message-Id: <1123295768.17282.29.camel@Tachyon.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Subject: Re: About Linux Device Drivers
+Date: Fri, 5 Aug 2005 22:43:39 -0400
+User-Agent: KMail/1.7.2
+References: <42F3C9AE.3040406@electrica.cujae.edu.cu> <1123295169.4984.7.camel@localhost.localdomain>
+In-Reply-To: <1123295169.4984.7.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1388161.BngHrN7djn";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200508052243.44732.dhazelton@enter.net>
+X-Virus-Checker-Version: Enter.Net Virus Scanner 1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch lets this header stand alone, since I can never remember
-which other headers to include, or in which order.
+--nextPart1388161.BngHrN7djn
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_cPC9CtElBMjivJT"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The three #include lines define the types: kobject, list_head and dev_t,
-which are used in the cdev structure.
+--Boundary-01=_cPC9CtElBMjivJT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The forward declaration of struct inode is to quiet the following
-compiler warning when including only cdev.h in my file:
+On Friday 05 August 2005 22:26, Alejandro Bonilla Beeche wrote:
+> On Fri, 2005-08-05 at 22:18 +0200, Alejandro Cabrera wrote:
+> > Hi
+> > I'm new in the list and I'm interested in lkm, I have the Linux Device
+> > Drivers 2ed. And I use the 2.6.8-2 kernel, and the modules that I create
+> > I don't test in my workstation. Exist any way to run the examples
+> > exposed in this book over my kernel or I need the LDD 3ed ????
+> > thx for your patient
+> > Alejandro
+>
+> Alejandro,
+>
+>  I don't understand anything. What is the problem that you are
+> experiencing, or is this some type of question?
+>
+>  If this is a question with your distribution, please contact the best
+> mailing list that applies for your problem with the Distribution.
 
-include/linux/cdev.h:30: warning: its scope is only this definition or
-declaration, which is probably not what you want
+It appears he's interested in writing modules for the Linux Kernel and has=
+=20
+been using the book 'Linux Device Drivers, Second Edition' as a reference,=
+=20
+but none of the examples in the book are compiling for him. As he's stated,=
+=20
+he's running kernel 2.6.8-2.
 
-I'm not sure, but I think it's saying that I'm declaring a new struct,
-which will not be the same as the real struct inode if it is #included
-later, because of the scope rules.
+He wants to know if there is any way to make the examples in that book work=
+ or=20
+if he has to go pick up the new version of that book.  I've not seen the=20
+books examples myself, and I'm just trying to get up to speed on the kernel=
+=20
+internals myself so I can't answer his question.
 
-(oh yeah, this is my first patch to the list; did I get the format
-right?)
+Hope the interpretation of his somewhat broken english helps :)
 
-BEGIN PATCH:
+DRH
 
-diff -Nru linux-2.6.12.4/include/linux/cdev.h linux/include/linux/cdev.h
---- linux-2.6.12.4/include/linux/cdev.h 2005-08-05 03:04:37.000000000
--0400
-+++ linux/include/linux/cdev.h  2005-08-05 21:41:39.000000000 -0400
-@@ -2,6 +2,12 @@
- #define _LINUX_CDEV_H
- #ifdef __KERNEL__
+--Boundary-01=_cPC9CtElBMjivJT
+Content-Type: application/pgp-keys;
+  name="OpenPGP key 0xA6992F96300F159086FF28208F8280BB8B00C32A"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename=0xA6992F96300F159086FF28208F8280BB8B00C32A.asc
 
-+#include <linux/kobject.h>
-+#include <linux/list.h>
-+#include <linux/types.h>
-+
-+struct inode;
-+
- struct cdev {
-        struct kobject kobj;
-        struct module *owner;
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.2.7 (GNU/Linux)
 
+mQGiBEJS3C0RBADeLmOaFYR40Pd/n86pPD10DYJIiSuEEJJAovJI/E3kjYgKnom0
+CmwPa9oEXf4B3FMVcqB0ksKrhA8ECVsNRwO91+LObFczyc59XBgYDScn9h9t+lu4
+IZTObcR1SnQ/I+YdeJpd12ZcuLAnQ3EGl9+7bBOJgr4JcwM6Idixtg92kwCg4vhj
+97BpUqPSk6cwD4LMRoqzABcEAJPZdEpYDwrXiy5aQx8ax+CbdfJX+XhxVcOrqzoI
+8TS7yZPcE1rszCANpCb6xg7TReWyIOu+FQvfzLg5e7Cl2XtVC66RDgdlTBy/pjnX
+fxIOIW5Hl+cVaWLBJ2tdAOIiyGPrKC/uTyY/N+4iQTsQK2l/yxc3fOgEN0g9AY9a
+GSkHBACmX6awLcrdnxY0p2J/OmRtT4oOWcbq5TUchM9SzPLLIatGZEs7jUal9OYo
+ZzmRPjElgM4koF7TTB+71FTUaqVGd0smJVKfJ1nVp6nefxOI6MH/v8/4j7Bvtb1Y
+Ypkrxt+R8WWUI1L19yEDp55rvzqIkkLtmJZP/QJg2e7zxTYYi7Q5RGFuaWVsIFIu
+IEhhemVsdG9uIChUaGUgU2hhZG93V29sZikgPGRoYXplbHRvbkBlbnRlci5uZXQ+
+iF4EExECAB4FAkJS3C0CGwMGCwkIBwMCAxUCAwMWAgECHgECF4AACgkQj4KAu4sA
+wyoRwwCeN+PEM8jpxxpxiG4dGyXNwTZBtNkAoKAtdOgeK66+zPEtJFanUeFe6lRX
+uQENBEJS3DoQBACfejnq7GSJ7g8nL669pXDVFFrabOaiIC4sH0FgqbK+Oewm4h77
+Ir5QL9SsHWvYSBYxnCODvR7zHv8HefWgJ4duC66b8PCXY/qcmxhRhYtdEssx/ncm
+BhNXlPPvsyPT/e7PdZkDv7dJuVtVJrLVVeSniz+3KBIIYb395B+yhzjPLwAEDQP9
+HFlaX9Duyg8c+RFhqStVrIluy7ZTg8pGjF2KLPsCmcSVzVLLhplF1M6Fs1CSgwRe
+OCDRWPFohcaSxPIwIdlS0h2HOnWziPVpzh4HWylbtC6cZYg7dpgaDlJA00ikUlyj
+6/bxwNwBuVoNSegIe0mN+xAIsvXM2TLuY1fFYcmeRxmISQQYEQIACQUCQlLcOgIb
+DAAKCRCPgoC7iwDDKsoRAJwKJETliGVgcCSTMd7sq/WMOe9VAgCgxq4MRqWBvPWY
+fPs99FjiIC8asFc=
+=vwF/
+-----END PGP PUBLIC KEY BLOCK-----
 
+--Boundary-01=_cPC9CtElBMjivJT--
 
--- 
-James C. Georgas <jgeorgas@rogers.com>
+--nextPart1388161.BngHrN7djn
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+
+iD8DBQBC9CPgj4KAu4sAwyoRAodMAJ43i3/iYllfFYPotbIN21UmB16JkwCgopv8
+K2CyxWieSc67oaqbVAlYM78=
+=167F
+-----END PGP SIGNATURE-----
+
+--nextPart1388161.BngHrN7djn--

@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263158AbVHFCwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVHFDTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263158AbVHFCwy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 22:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbVHFCwy
+	id S262021AbVHFDTH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 23:19:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbVHFDTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 22:52:54 -0400
-Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:20073 "HELO
-	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S263158AbVHFCwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 22:52:53 -0400
+	Fri, 5 Aug 2005 23:19:06 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:4845 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262021AbVHFDTF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 23:19:05 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=uiab1ZhYdpAeEH3hR3EesB6JMVTBTmjB18QWO54Pni/vm2R2kmjMAAMXSREP11PPUG/kg8zk3A/qK5otM/mULracTBfCww8ICUztxbU0NI7u+cyfIg85Vkp23fAjYLaeWYTBV5W5MXKG2e5NcLIq8JALZM/hreF8LIIzRdE3y9w=  ;
-Subject: Inclusion order patch
-From: "James C. Georgas" <jgeorgas@rogers.com>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@redhat.com>
-In-Reply-To: <1123295768.17282.29.camel@Tachyon.home>
-References: <1123295768.17282.29.camel@Tachyon.home>
-Content-Type: text/plain
-Date: Fri, 05 Aug 2005 22:52:49 -0400
-Message-Id: <1123296769.17282.36.camel@Tachyon.home>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IedcZ1WclxuF0FoXSOEfsWI/r8TFg59XlW/ogpity/QyN5No8Tkys5OA2QoSJC6lLeRB1bS940zoazcZdyraaBkFxggvgMcqzFp3F4HEDNtxr4ygd3n6VuWLte19WsiN3pJk6cTTzzkY20W0/vMP7bA/OtYJhtJQTn4c+ZyqUO4=
+Message-ID: <1e62d13705080520194ac11b1f@mail.gmail.com>
+Date: Sat, 6 Aug 2005 08:19:05 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+To: "D. ShadowWolf" <dhazelton@enter.net>
+Subject: Re: About Linux Device Drivers
+Cc: linux-kernel@vger.kernel.org, alex@electrica.cujae.edu.cu
+In-Reply-To: <200508052243.44732.dhazelton@enter.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42F3C9AE.3040406@electrica.cujae.edu.cu>
+	 <1123295169.4984.7.camel@localhost.localdomain>
+	 <200508052243.44732.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Excuse me for reposting this. I forgot the subject line. hehe.
+On 8/6/05, D. ShadowWolf <dhazelton@enter.net> wrote:
+> > On Fri, 2005-08-05 at 22:18 +0200, Alejandro Cabrera wrote:
+> > > Hi
+> > > I'm new in the list and I'm interested in lkm, I have the Linux Device
+> > > Drivers 2ed. And I use the 2.6.8-2 kernel, and the modules that I create
+> > > I don't test in my workstation. Exist any way to run the examples
+> > > exposed in this book over my kernel or I need the LDD 3ed ????
+> > > thx for your patient
+> > > Alejandro
+> >
+> 
+> It appears he's interested in writing modules for the Linux Kernel and has
+> been using the book 'Linux Device Drivers, Second Edition' as a reference,
+> but none of the examples in the book are compiling for him. As he's stated,
+> he's running kernel 2.6.8-2.
+> 
+> He wants to know if there is any way to make the examples in that book work or
+> if he has to go pick up the new version of that book.  I've not seen the
+> books examples myself, and I'm just trying to get up to speed on the kernel
+> internals myself so I can't answer his question.
+> 
+> Hope the interpretation of his somewhat broken english helps :)
+> 
 
-This patch lets this header stand alone, since I can never remember
-which other headers to include, or in which order.
-
-The three #include lines define the types: kobject, list_head and dev_t,
-which are used in the cdev structure.
-
-The forward declaration of struct inode is to quiet the following
-compiler warning when including only cdev.h in my file:
-
-include/linux/cdev.h:30: warning: `struct inode' declared inside parameter list
-include/linux/cdev.h:30: warning: its scope is only this definition or
-declaration, which is probably not what you want
-
-I'm not sure, but I think it's saying that I'm declaring a new struct,
-which will not be the same as the real struct inode if it is #included
-later, because of the scope rules.
-
-(oh yeah, this is my first patch to the list; did I get the format
-right?)
-
-BEGIN PATCH:
-
-diff -Nru linux-2.6.12.4/include/linux/cdev.h linux/include/linux/cdev.h
---- linux-2.6.12.4/include/linux/cdev.h 2005-08-05 03:04:37.000000000
--0400
-+++ linux/include/linux/cdev.h  2005-08-05 21:41:39.000000000 -0400
-@@ -2,6 +2,12 @@
- #define _LINUX_CDEV_H
- #ifdef __KERNEL__
-
-+#include <linux/kobject.h>
-+#include <linux/list.h>
-+#include <linux/types.h>
-+
-+struct inode;
-+
- struct cdev {
-        struct kobject kobj;
-        struct module *owner;
-
-
+If ShadowWolf interpretation of Alejandro's question is right and
+Alejandro trying to run the LDD2 books examples on 2.6.8-2 then they
+won't work on 2.6.x kernel or not even compile
+successfully............ That LDD2 book is for 2.2 and 2.4 kernel
+series and LDD3 is for 2.6 series, so go for LDD3 for your 2.6.x
+kernel ..........
 
 -- 
-James C. Georgas <jgeorgas@rogers.com>
-
+Fawad Lateef

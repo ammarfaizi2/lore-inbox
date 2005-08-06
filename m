@@ -1,63 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVHFAWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVHFAY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVHFAWM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 20:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVHFAWM
+	id S262091AbVHFAY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 20:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVHFAYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 20:22:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8375 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261334AbVHFAWK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 20:22:10 -0400
-Date: Fri, 5 Aug 2005 17:22:06 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com
-Subject: Re: [PATCH, experimental] i386 Allow the fixmap to be relocated at boot time
-Message-ID: <20050806002206.GZ7762@shell0.pdx.osdl.net>
-References: <42F3F61F.30305@vmware.com> <20050805234655.GY7762@shell0.pdx.osdl.net> <42F3FFBA.3040009@vmware.com>
+	Fri, 5 Aug 2005 20:24:18 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:10897 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262091AbVHFAYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 20:24:10 -0400
+Subject: Re: [PATCH] netpoll can lock up on low memory.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, John B?ckstrand <sandos@home.se>
+In-Reply-To: <20050805212808.GV8074@waste.org>
+References: <42F347D2.7000207@home.se.suse.lists.linux.kernel>
+	 <p73ek987gjw.fsf@bragg.suse.de>
+	 <1123249743.18332.16.camel@localhost.localdomain>
+	 <20050805135551.GQ8266@wotan.suse.de>
+	 <1123251013.18332.28.camel@localhost.localdomain>
+	 <20050805141426.GU8266@wotan.suse.de>
+	 <1123252591.18332.45.camel@localhost.localdomain>
+	 <20050805200156.GF7425@waste.org>
+	 <1123275420.18332.81.camel@localhost.localdomain>
+	 <20050805212808.GV8074@waste.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 05 Aug 2005 20:23:55 -0400
+Message-Id: <1123287835.18332.110.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42F3FFBA.3040009@vmware.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> Your patch looks good, although the minimal change to subarch is to 
-> merely have __FIXADDR_TOP defined by the sub-architecture.  Is there any 
-> additional benefit to moving the fixmaps into the subarch - i.e. moving 
-> subarch-specific pieces out of mach-default?
-
-As you've identified, so subarch can put whatever wonky junk
-it needs in there.
-
-> I guess there is.  For example include/asm-i386/mach-visws/mach_fixmap.h 
-> could do this:
+On Fri, 2005-08-05 at 14:28 -0700, Matt Mackall wrote:
 > 
-> #define SUBARCH_FIXMAPS \
->        FIX_CO_CPU,     /* Cobalt timer */ \
->        FIX_CO_APIC,    /* Cobalt APIC Redirection Table */ \
->        FIX_LI_PCIA,    /* Lithium PCI Bridge A */ \
->        FIX_LI_PCIB,    /* Lithium PCI Bridge B */
+> Netpoll generally must assume it won't get a second chance, as it's
+> being called by things like oops() and panic() and used by things like
+> kgdb. If netpoll fails, the box is dead anyway.
 > 
-> Then include/asm-i386/fixmap.h includes <mach_fixmap.h>, for which the 
-> default is an empty define for SUBARCH_FIXMAPS.
 
-nice.
+But it is also being called by every printk in the kernel. What happens
+when the printk that causes this lock up is not a panic but just some
+info print.  One would use netconsole when they turn on more verbose
+printing, to keep the output fast, right?  So if the system gets a
+little memory tight, but not to the point of failing, this will cause a
+lock up and no one would know why. 
 
-> Also, it seems reasonable that people may want to poke holes in high 
-> linear space for other hypervisor projects, research, or performance 
-> reasons without having to build a custom sub-architecture just for 
-> that.  So I think there is some benefit to making the hole size a 
-> general configurable option (with defaults depending on the sub-arch you 
-> select).
+If you need to really get the data out, then the design should be
+changed.  Have some return value showing the failure, check for
+oops_in_progress or whatever, and try again after turning interrupts
+back on, and getting to a point where the system can free up memory
+(write to swap, etc).  Just a busy loop without ever getting a skb is
+just bad.
 
-It needs to have tangible value for in-tree code.  Seems worthwhile to
-play with it a bit though.
+> > > The netpoll philosophy is to assume that its traffic is an absolute
+> > > priority - it is better to potentially hang trying to deliver a panic
+> > > message than to give up and crash silently.
+> > 
+> > So even a long timeout would not do?  So you don't even get a message to
+> > the console?
+> 
+> In general, there's no way to measure time here. And if we're
+> using netconsole, what makes you think there's any other console?
 
-thanks,
--chris
+Why assume that there isn't another console?  The screen may be used
+with netconsole, you just lose whatever has been scrolled too far.
+
+> 
+> > > > Also, as Andi told me, the printk here would probably not show up
+> > > > anyway if this happens with netconsole.
+> > > 
+> > > That's fine. But in fact, it does show up occassionally - I've seen
+> > > it.
+> > 
+> > Then maybe what Andi told me is not true ;-)
+> > 
+> > Oh, and did your machine crash when you saw it?  Have you seen it with
+> > the e1000 driver?
+> 
+> No and no. Most of my own testing is done with tg3.
+> 
+
+If you saw the message and the system didn't crash, then that's proof
+that if the driver is not working properly, you would have lock up the
+system, and the system was _not_ in a state that it _had_ to get the
+message out.
+
+-- Steve
+
+

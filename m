@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVHFK0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVHFK3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVHFK0q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 06:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVHFK0q
+	id S262079AbVHFK3U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 06:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVHFK3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 06:26:46 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:21344 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261207AbVHFK0p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 06:26:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=RKkBVaBJQ3n2ON52oB2Q+F9hAoxW3sgMSaYC3GduwU14VwAE2K10UjF9N1UGQKsUAWLrcde4s8omsVFYa2cnpUDkAM5O6xWP7MRm6dDe6ePb7qVJA2VdbOzQ8Kj++5q3xsW2sEx0vuQS5JkV86WdHoB2Vrplp6Qu8W77nXlaZPs=
-Message-ID: <42F49037.9030206@gmail.com>
-Date: Sat, 06 Aug 2005 12:25:59 +0200
-From: Henrik Kretzschmar <trash4henni@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Xin Zhao <uszhaoxin@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Any access control mechanism that allow exceptions?
-References: <4ae3c1405080600082ef440c8@mail.gmail.com>
-In-Reply-To: <4ae3c1405080600082ef440c8@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Aug 2005 06:29:20 -0400
+Received: from h01.hostsharing.net ([212.42.230.152]:35772 "EHLO
+	pima.hostsharing.net") by vger.kernel.org with ESMTP
+	id S262079AbVHFK3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 06:29:18 -0400
+Date: Sat, 6 Aug 2005 12:28:53 +0200
+From: Elimar Riesebieter <riesebie@lxtec.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.13-rc5-git4 __handle_mm_fault
+Message-ID: <20050806102853.GA5083@aragorn.home.lxtec.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: LXTEC
+X-gnupg-key-fingerprint: BE65 85E4 4867 7E9B 1F2A  B2CE DC88 3C6E C54F 7FB0
+User-Agent: mutt-ng/devel-20050730 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xin Zhao wrote:
-> Hi,
-> 
-> I want to lock down a directory to be read-only, say, /etc, for system
-> security. Unfortunately, some valid system tools might need to
-> create/modified files like "/etc/dhclient-eth0.conf".  To avoid
-> disrupting the normal running of those tools, I might have to allow
-> certain files to be created under /etc.
-> 
-> Is there any way that allows me to specify what files are allowed to
-> be created while locking down the whole directory at most of the time?
-> 
-> I think of adding an exception list as extend attributes of Ext3
-> filesystem, and changes the Ext3 filesystem to enforce the policy. But
-> this method looks awful.
-> 
-> Any elegant way to achieve this goal? 
-> 
-> Thanks
-> 
-> xin
+Hi,
 
-What about symbolic links to a writable directory?
+tried to build mol-modules on my powerbook:
+  MODPOST
+*** Warning: "__handle_mm_fault"
+[/usr/src/modules/mol/src/kmod/Linux/../build/mol.ko] undefined!
 
-Henni
+please cc me as I am not subscribed.
+
+THX
+Elimar
+
+-- 
+  On the keyboard of life you have always
+  to keep a finger at the escape key;-)

@@ -1,103 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263157AbVHFCtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263158AbVHFCwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbVHFCtA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 22:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbVHFCrw
+	id S263158AbVHFCwy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 22:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbVHFCwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 22:47:52 -0400
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:53221 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263157AbVHFCrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 22:47:47 -0400
-From: Con Kolivas <kernel@kolivas.org>
+	Fri, 5 Aug 2005 22:52:54 -0400
+Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:20073 "HELO
+	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S263158AbVHFCwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 22:52:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=uiab1ZhYdpAeEH3hR3EesB6JMVTBTmjB18QWO54Pni/vm2R2kmjMAAMXSREP11PPUG/kg8zk3A/qK5otM/mULracTBfCww8ICUztxbU0NI7u+cyfIg85Vkp23fAjYLaeWYTBV5W5MXKG2e5NcLIq8JALZM/hreF8LIIzRdE3y9w=  ;
+Subject: Inclusion order patch
+From: "James C. Georgas" <jgeorgas@rogers.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.12-ck5
-Date: Sat, 6 Aug 2005 12:47:42 +1000
-User-Agent: KMail/1.8.2
-Cc: ck list <ck@vds.kolivas.org>
-MIME-Version: 1.0
-X-Length: 1967
-Content-Type: multipart/signed;
-  boundary="nextPart2885353.uccQbEKtDJ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Cc: Alan Cox <alan@redhat.com>
+In-Reply-To: <1123295768.17282.29.camel@Tachyon.home>
+References: <1123295768.17282.29.camel@Tachyon.home>
+Content-Type: text/plain
+Date: Fri, 05 Aug 2005 22:52:49 -0400
+Message-Id: <1123296769.17282.36.camel@Tachyon.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508061247.44391.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2885353.uccQbEKtDJ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Excuse me for reposting this. I forgot the subject line. hehe.
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck* patch is aimed at th=
-e=20
-desktop and ck*-server is available with more emphasis on serverspace.
+This patch lets this header stand alone, since I can never remember
+which other headers to include, or in which order.
 
-Apply to 2.6.12 (This includes all patches in 2.6.12.4):
-http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck5/patch-2.6.12-ck5.bz2
-or for server version:
-http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck5/patch-2.6.12-ck5-server=
-=2Ebz2
+The three #include lines define the types: kobject, list_head and dev_t,
+which are used in the cdev structure.
 
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
+The forward declaration of struct inode is to quiet the following
+compiler warning when including only cdev.h in my file:
 
+include/linux/cdev.h:30: warning: `struct inode' declared inside parameter list
+include/linux/cdev.h:30: warning: its scope is only this definition or
+declaration, which is probably not what you want
 
-Changes since 2.6.12-ck4:
-=2Dschedbatch2.8.diff
-+schedbatch2.9.diff
-A rare stall on hyperthreading was addressed and now batch tasks suspend=20
-properly.
+I'm not sure, but I think it's saying that I'm declaring a new struct,
+which will not be the same as the real struct inode if it is #included
+later, because of the scope rules.
 
-=2Dschediso2.12.diff
-SCHED_ISO was dropped entirely. It broke in ck4, and there is now a decent=
-=20
-defacto standard for unprivileged realtime in mainline kernel with realtime=
-=20
-RLIMITS so I'm supporting the use of that instead.
+(oh yeah, this is my first patch to the list; did I get the format
+right?)
 
-=2Disobatch_ionice2.diff
-+batch_ionice.diff
-Remove check for SCHED_ISO
+BEGIN PATCH:
 
-=2DHZ-864.diff
-It seems there were far more areas of the kernel not ready for this Hz valu=
-e=20
-than I could have anticipated much to my dismay even though all code should=
-=20
-be written in a HZ neutral fashion. Return normal -ck to HZ=3D1000 and chan=
-ge=20
-ck-server to HZ=3D100.
+diff -Nru linux-2.6.12.4/include/linux/cdev.h linux/include/linux/cdev.h
+--- linux-2.6.12.4/include/linux/cdev.h 2005-08-05 03:04:37.000000000
+-0400
++++ linux/include/linux/cdev.h  2005-08-05 21:41:39.000000000 -0400
+@@ -2,6 +2,12 @@
+ #define _LINUX_CDEV_H
+ #ifdef __KERNEL__
 
-=2Dpatch-2.6.12.3
-+patch-2.6.12.4.bz2
-Latest stable series
-
-=2D2612ck4-version.diff
-+2612ck5-version.diff
-Version update.
++#include <linux/kobject.h>
++#include <linux/list.h>
++#include <linux/types.h>
++
++struct inode;
++
+ struct cdev {
+        struct kobject kobj;
+        struct module *owner;
 
 
-Cheers,
-Con
 
---nextPart2885353.uccQbEKtDJ
-Content-Type: application/pgp-signature
+-- 
+James C. Georgas <jgeorgas@rogers.com>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC9CTQZUg7+tp6mRURAk1SAJwOKWKDnOeFowimzxHEn1j8WfRhAwCcCWSW
-l0rxeMxuoq5oBj4UdLQNpkg=
-=LTLW
------END PGP SIGNATURE-----
-
---nextPart2885353.uccQbEKtDJ--

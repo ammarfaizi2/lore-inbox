@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbVHFJux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVHFJ5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262042AbVHFJux (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 05:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVHFJuw
+	id S261959AbVHFJ5y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 05:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVHFJ5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 05:50:52 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:30864 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261959AbVHFJtj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 05:49:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=jCskpUdsTsLByYdDFQz9Rwl1NYcQ2y2edY/SrDYLd8U/vFHSV+y1zkPPTUXtpOcHGhnliVWTFphckgopirKmzseNyW4w8Nicp59AaaLQh52uoApyDW+XnfDCmtieDLQjKxiv7/NjaQEPJD0to9Kcpy+aqkqTTf3Chz+K9Wn6eTc=
-Message-ID: <de63970c05080602496c2c8b11@mail.gmail.com>
-Date: Sat, 6 Aug 2005 10:49:33 +0100
-From: Simon Morgan <sjmorgan@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Outdated Sangoma Drivers
+	Sat, 6 Aug 2005 05:57:54 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:24228 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262049AbVHFJ5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 05:57:51 -0400
+Subject: Re: [PATCH] netpoll can lock up on low memory.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mpm@selenic.com, ak@suse.de, akpm@osdl.org, mingo@elte.hu,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org, sandos@home.se
+In-Reply-To: <20050806.024636.28814830.davem@davemloft.net>
+References: <1123287835.18332.110.camel@localhost.localdomain>
+	 <20050806015310.GA8074@waste.org>
+	 <1123295548.18332.126.camel@localhost.localdomain>
+	 <20050806.024636.28814830.davem@davemloft.net>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Sat, 06 Aug 2005 05:57:20 -0400
+Message-Id: <1123322240.18332.131.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2005-08-06 at 02:46 -0700, David S. Miller wrote:
+> Can you guys stop peeing your pants over this, put aside
+> your differences, and work on a mutually acceptable fix
+> for these bugs?
+> 
+> Much appreciated, thanks :-)
 
-I couldn't help noticing that the Sangoma drivers distributed with the
-current kernel are slightly out of date and was wondering whether there
-was any reason for this?
+In my last email, I stated that this discussion seems to have
+demonstrated that the e1000 driver's netpoll is indeed broken, and needs
+to be fixed.  I submitted eariler a patch for this, but it's untested
+and someone who owns an e1000 needs to try it.
 
-For example the kernel copy of sdla.c was last updated Mar 20, 2001 while
-the version contained in the drivers distributed on sangoma.com[1] was
-last updated Dec 15. 2003.
+As for all the netpoll issues, I'm satisfied with whatever you guys
+decide.  But I've seen lots of problems posted over the netpoll and
+e1000, where people send in patches that do everything but fix the
+e1000, and that's where I chimed in.
 
-[1] ftp://ftp.sangoma.com/linux/current_wanpipe/
+Thank you, my pants are dry now :-)
+
+-- Steve
+
+

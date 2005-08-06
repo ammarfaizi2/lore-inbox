@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVHFBa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVHFBh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbVHFBa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 21:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVHFBa0
+	id S262302AbVHFBh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 21:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbVHFBh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 21:30:26 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:21168 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S261893AbVHFBaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 21:30:23 -0400
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: mthca and LinuxBIOS
-X-Message-Flag: Warning: May contain useful information
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com>
-	<52u0i6b9an.fsf_-_@cisco.com>
-	<86802c44050804093374aca360@mail.gmail.com> <52mznxacbp.fsf@cisco.com>
-	<86802c4405080410236ba59619@mail.gmail.com>
-	<86802c4405080411013b60382c@mail.gmail.com> <521x59a6tb.fsf@cisco.com>
-	<86802c440508041230143354c2@mail.gmail.com> <52slxp6o5b.fsf@cisco.com>
-	<86802c440508051103500f6942@mail.gmail.com>
-	<86802c44050805175757f6ff6a@mail.gmail.com>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Fri, 05 Aug 2005 18:30:07 -0700
-In-Reply-To: <86802c44050805175757f6ff6a@mail.gmail.com> (yhlu's message of
- "Fri, 5 Aug 2005 17:57:55 -0700")
-Message-ID: <52hde36ee8.fsf@cisco.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Fri, 5 Aug 2005 21:37:26 -0400
+Received: from smtp.istop.com ([66.11.167.126]:452 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261862AbVHFBhY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 21:37:24 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: lockups with netconsole on e1000 on media insertion
+Date: Sat, 6 Aug 2005 11:37:25 +1000
+User-Agent: KMail/1.7.2
+Cc: Andi Kleen <ak@suse.de>, John B?ckstrand <sandos@home.se>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <42F347D2.7000207@home.se.suse.lists.linux.kernel> <20050805235122.GI8266@wotan.suse.de> <20050806012219.GZ8074@waste.org>
+In-Reply-To: <20050806012219.GZ8074@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 06 Aug 2005 01:30:19.0365 (UTC) FILETIME=[67F7B950:01C59A26]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508061137.26281.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    yhlu> Roland, what is the -16 mean?
+On Saturday 06 August 2005 11:22, Matt Mackall wrote:
+> On Sat, Aug 06, 2005 at 01:51:22AM +0200, Andi Kleen wrote:
+> > > But why are we in a hurry to dump the backlog on the floor? Why are we
+> > > worrying about the performance of netpoll without the cable plugged in
+> > > at all? We shouldn't be optimizing the data loss case.
+> >
+> > Because a system shouldn't stall for minutes (or forever like right now)
+> > at boot just because the network cable isn't plugged in.
+>
+> Using netconsole without a network cable could well be classified as a
+> serious configuration error.
 
-    yhlu> is it /* Attempt to modify a QP/EE which is not in the
-    yhlu> presumed state: */ MTHCA_CMD_STAT_BAD_QPEE_STATE = 0x10,
+But please don't.  An OS that slows to a crawl or crashes because a cable 
+isn't plugged in an OS that deserves to be ridiculed.  Silly timeouts on boot 
+are scary and a waste of user's time.
 
-No, -16 is just -EBUSY.  You could put a printk in event_timeout() in
-mthca_cmd.c to make sure, but I'm pretty sure that's where it's coming
-from.  In other words we issue the CONF_SPECIAL_QP firmware command
-and don't ever get a response back from the HCA.
+Regards,
 
- - R.
+Daniel

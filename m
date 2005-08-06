@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVHFJ5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVHFK0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVHFJ5y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 05:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVHFJ5y
+	id S261207AbVHFK0q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 06:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVHFK0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 05:57:54 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:24228 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262049AbVHFJ5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 05:57:51 -0400
-Subject: Re: [PATCH] netpoll can lock up on low memory.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: mpm@selenic.com, ak@suse.de, akpm@osdl.org, mingo@elte.hu,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org, sandos@home.se
-In-Reply-To: <20050806.024636.28814830.davem@davemloft.net>
-References: <1123287835.18332.110.camel@localhost.localdomain>
-	 <20050806015310.GA8074@waste.org>
-	 <1123295548.18332.126.camel@localhost.localdomain>
-	 <20050806.024636.28814830.davem@davemloft.net>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sat, 06 Aug 2005 05:57:20 -0400
-Message-Id: <1123322240.18332.131.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sat, 6 Aug 2005 06:26:46 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:21344 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261207AbVHFK0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 06:26:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=RKkBVaBJQ3n2ON52oB2Q+F9hAoxW3sgMSaYC3GduwU14VwAE2K10UjF9N1UGQKsUAWLrcde4s8omsVFYa2cnpUDkAM5O6xWP7MRm6dDe6ePb7qVJA2VdbOzQ8Kj++5q3xsW2sEx0vuQS5JkV86WdHoB2Vrplp6Qu8W77nXlaZPs=
+Message-ID: <42F49037.9030206@gmail.com>
+Date: Sat, 06 Aug 2005 12:25:59 +0200
+From: Henrik Kretzschmar <trash4henni@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Xin Zhao <uszhaoxin@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Any access control mechanism that allow exceptions?
+References: <4ae3c1405080600082ef440c8@mail.gmail.com>
+In-Reply-To: <4ae3c1405080600082ef440c8@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-06 at 02:46 -0700, David S. Miller wrote:
-> Can you guys stop peeing your pants over this, put aside
-> your differences, and work on a mutually acceptable fix
-> for these bugs?
+Xin Zhao wrote:
+> Hi,
 > 
-> Much appreciated, thanks :-)
+> I want to lock down a directory to be read-only, say, /etc, for system
+> security. Unfortunately, some valid system tools might need to
+> create/modified files like "/etc/dhclient-eth0.conf".  To avoid
+> disrupting the normal running of those tools, I might have to allow
+> certain files to be created under /etc.
+> 
+> Is there any way that allows me to specify what files are allowed to
+> be created while locking down the whole directory at most of the time?
+> 
+> I think of adding an exception list as extend attributes of Ext3
+> filesystem, and changes the Ext3 filesystem to enforce the policy. But
+> this method looks awful.
+> 
+> Any elegant way to achieve this goal? 
+> 
+> Thanks
+> 
+> xin
 
-In my last email, I stated that this discussion seems to have
-demonstrated that the e1000 driver's netpoll is indeed broken, and needs
-to be fixed.  I submitted eariler a patch for this, but it's untested
-and someone who owns an e1000 needs to try it.
+What about symbolic links to a writable directory?
 
-As for all the netpoll issues, I'm satisfied with whatever you guys
-decide.  But I've seen lots of problems posted over the netpoll and
-e1000, where people send in patches that do everything but fix the
-e1000, and that's where I chimed in.
-
-Thank you, my pants are dry now :-)
-
--- Steve
-
-
+Henni

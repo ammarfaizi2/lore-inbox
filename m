@@ -1,55 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbVHFCrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263157AbVHFCtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbVHFCrv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 22:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbVHFCrv
+	id S263157AbVHFCtA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 22:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbVHFCrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 22:47:51 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:46577 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263154AbVHFCrp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 22:47:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Uq0VodGPqw3lgM2t6wJmgTC6VF+47mILkvk6lzRjL4pBCAMhRI7TjXY2REhe1Wkrh5DJ/Kdyh2iQyfO4CFNVz7OGyVb5Xp3r8KLqdSoKfPDKShaLDtCews5XQq7JlS9nmQ4XNWeF2Uw5+pQCljPQ5csposba8GH40+D9+4W9Suc=
-Message-ID: <86802c44050805194779379932@mail.gmail.com>
-Date: Fri, 5 Aug 2005 19:47:41 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: mthca and LinuxBIOS
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <52hde36ee8.fsf@cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com> <52mznxacbp.fsf@cisco.com>
-	 <86802c4405080410236ba59619@mail.gmail.com>
-	 <86802c4405080411013b60382c@mail.gmail.com> <521x59a6tb.fsf@cisco.com>
-	 <86802c440508041230143354c2@mail.gmail.com> <52slxp6o5b.fsf@cisco.com>
-	 <86802c440508051103500f6942@mail.gmail.com>
-	 <86802c44050805175757f6ff6a@mail.gmail.com> <52hde36ee8.fsf@cisco.com>
+	Fri, 5 Aug 2005 22:47:52 -0400
+Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:53221 "EHLO
+	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263157AbVHFCrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 22:47:47 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12-ck5
+Date: Sat, 6 Aug 2005 12:47:42 +1000
+User-Agent: KMail/1.8.2
+Cc: ck list <ck@vds.kolivas.org>
+MIME-Version: 1.0
+X-Length: 1967
+Content-Type: multipart/signed;
+  boundary="nextPart2885353.uccQbEKtDJ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508061247.44391.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I remember last year when I used IBGOLD 0.5 with PCI-X IB card, it
-seems that it could support 64 bit pref mem.
+--nextPart2885353.uccQbEKtDJ
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I will try IBGOLD 1.7 .....
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck* patch is aimed at th=
+e=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
-YH
+Apply to 2.6.12 (This includes all patches in 2.6.12.4):
+http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck5/patch-2.6.12-ck5.bz2
+or for server version:
+http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck5/patch-2.6.12-ck5-server=
+=2Ebz2
 
-On 8/5/05, Roland Dreier <rolandd@cisco.com> wrote:
->    yhlu> Roland, what is the -16 mean?
-> 
->    yhlu> is it /* Attempt to modify a QP/EE which is not in the
->    yhlu> presumed state: */ MTHCA_CMD_STAT_BAD_QPEE_STATE = 0x10,
-> 
-> No, -16 is just -EBUSY.  You could put a printk in event_timeout() in
-> mthca_cmd.c to make sure, but I'm pretty sure that's where it's coming
-> from.  In other words we issue the CONF_SPECIAL_QP firmware command
-> and don't ever get a response back from the HCA.
-> 
->  - R.
->
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
+
+
+Changes since 2.6.12-ck4:
+=2Dschedbatch2.8.diff
++schedbatch2.9.diff
+A rare stall on hyperthreading was addressed and now batch tasks suspend=20
+properly.
+
+=2Dschediso2.12.diff
+SCHED_ISO was dropped entirely. It broke in ck4, and there is now a decent=
+=20
+defacto standard for unprivileged realtime in mainline kernel with realtime=
+=20
+RLIMITS so I'm supporting the use of that instead.
+
+=2Disobatch_ionice2.diff
++batch_ionice.diff
+Remove check for SCHED_ISO
+
+=2DHZ-864.diff
+It seems there were far more areas of the kernel not ready for this Hz valu=
+e=20
+than I could have anticipated much to my dismay even though all code should=
+=20
+be written in a HZ neutral fashion. Return normal -ck to HZ=3D1000 and chan=
+ge=20
+ck-server to HZ=3D100.
+
+=2Dpatch-2.6.12.3
++patch-2.6.12.4.bz2
+Latest stable series
+
+=2D2612ck4-version.diff
++2612ck5-version.diff
+Version update.
+
+
+Cheers,
+Con
+
+--nextPart2885353.uccQbEKtDJ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC9CTQZUg7+tp6mRURAk1SAJwOKWKDnOeFowimzxHEn1j8WfRhAwCcCWSW
+l0rxeMxuoq5oBj4UdLQNpkg=
+=LTLW
+-----END PGP SIGNATURE-----
+
+--nextPart2885353.uccQbEKtDJ--

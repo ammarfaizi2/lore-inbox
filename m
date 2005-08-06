@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVHFMSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVHFMTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261633AbVHFMSL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 08:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbVHFMSL
+	id S262425AbVHFMTS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 08:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVHFMTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 08:18:11 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:60387 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261633AbVHFMSK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 08:18:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
-        b=WTJDMys4Z8Kk9bib2PdYAQGfSu9DQykVbWLlX4oXqkY1kqbMFs0GboicqvNO3xkG4aVt9vCAYlkTco/Rt7DVzBr6tIAfFljyWcXBmanVrZBxYNe0HTKCIEZ6YEh0ltemHG9i+6u9iqhaL1pqoIpKR6WQNBScXgcthP+eN+G4G9c=
-Message-ID: <42F4C6E8.1050605@gmail.com>
-Date: Sat, 06 Aug 2005 14:19:20 +0000
-From: Luca Falavigna <dktrkranz@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: it, it-it, en-us, en
+	Sat, 6 Aug 2005 08:19:17 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:60801 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262425AbVHFMTD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 08:19:03 -0400
+Message-ID: <42F4AABA.1000205@gmail.com>
+Date: Sat, 06 Aug 2005 14:19:06 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: rdunlap@osdl.org, fastboot@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kexec and frame buffer
-References: <42F219B3.6090502@gmail.com> <m17jf1zgnz.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m17jf1zgnz.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Simon Morgan <sjmorgan@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Outdated Sangoma Drivers
+References: <de63970c05080602496c2c8b11@mail.gmail.com> <9a874849050806034360978b8d@mail.gmail.com>
+In-Reply-To: <9a874849050806034360978b8d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Jesper Juhl napsal(a):
 
-Eric W. Biederman ha scritto:
-> So without doing passing --real-mode the vga= parameter currently
-> cannot work.  The vga= parameter is processed by vga.S which
-> make BIOS calls and we bypass all of the BIOS calls.
-Actually that file is video.S
+>On 8/6/05, Simon Morgan <sjmorgan@gmail.com> wrote:
+>  
+>
+>>Hi,
+>>
+>>I couldn't help noticing that the Sangoma drivers distributed with the
+>>current kernel are slightly out of date and was wondering whether there
+>>was any reason for this?
+>>
+>>    
+>>
+>Probably nobody has taken the time to do a diff between the kernel's
+>current version and the the one distributed by sangoma.
+>
+>If someone (hint hint) was to do a diff, clean it up to ensure it
+>matches kernel CodingStyle and standards and then send it in along
+>with a description of the changes made and why they make sense, what
+>bugs it fixes etc, then that person could probably get such a diff
+>merged.
+>  
+>
+I'll try to get in that.
 
-> So you can try with the --real-mode option and you have
-> a chance of the code working.  Or you can figure out which
-> information video.S passes to the kernel figure out how
-> to get that same information out of a running kernel
-> and then /sbin/kexec can be tweaked to pass the current
-> video mode.  Changing frame buffer modes shouldn't work
-> but you should at least be able to preserve the existing
-> ones.
-I tried to pass --real-mode flag to kexec but my virtual machine doesn't like
-it. When I launch kexec -e, it tells me: "A strange behaviour occourred which
-crashed virtual machine". I'll dig source code ASAP to figure out this matter.
-Meanwhile I'm going to follow your advice to inspect video.S in order to track
-down something useful.
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 
-Regards,
-- --
-					Luca
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQEVAwUBQvTG5czkDT3RfMB6AQJY8Qf9HucRMCCAvta/pAs1CakqwJs5bZo4uJUu
-3tat7+24I57mDmj+2IGe7qLO9W9ctCyVJStHTMCpjYq0qF7TA9VZSsU3ip1h9/IG
-HnCzozUGpd3yrNsrs3v0fvinQ1z2UtrOY8lxCUISchI3Ho43KnPDoAV2mfT+eEcP
-pN/lUz6Z/Jb0YbNS9Z352bqs+JtuxHzX1pVD4uH4X+Dkua3kAde5C0bwP9K+O15A
-//qlXb4AJErv6I5+Q/RxCDAn4TtVJCcdoA9Sp84ZH8jnxiYkg2coijvwFHLLvPD/
-bK49QyD5QHmsVC3x/pIefd3qPEOphbNPE7AlN86X8B4i8lI6jr2x3g==
-=YhUC
------END PGP SIGNATURE-----

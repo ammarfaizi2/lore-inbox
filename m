@@ -1,115 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVHFA2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVHFAbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbVHFA2f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 20:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVHFA2e
+	id S262180AbVHFAbK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 20:31:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVHFAbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 20:28:34 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:37137 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262170AbVHFA2V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 20:28:21 -0400
-Date: Fri, 5 Aug 2005 17:26:06 -0700
-From: zach@vmware.com
-Message-Id: <200508060026.j760Q6FT025108@zach-dev.vmware.com>
-To: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk, hpa@zytor.com,
-       linux-kernel@vger.kernel.org, pavel@suse.cz, pratap@vmware.com,
-       Riley@Williams.Name, zach@vmware.com
-Subject: [PATCH 1/1] i386 Encapsulate copying of pgd entries
-X-OriginalArrivalTime: 06 Aug 2005 00:27:08.0702 (UTC) FILETIME=[948E73E0:01C59A1D]
+	Fri, 5 Aug 2005 20:31:10 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:29611 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262199AbVHFAan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 20:30:43 -0400
+Subject: Re: [PATCH] netpoll can lock up on low memory.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, John B?ckstrand <sandos@home.se>,
+       davem@davemloft.net
+In-Reply-To: <20050805212610.GA8266@wotan.suse.de>
+References: <42F347D2.7000207@home.se.suse.lists.linux.kernel>
+	 <p73ek987gjw.fsf@bragg.suse.de>
+	 <1123249743.18332.16.camel@localhost.localdomain>
+	 <20050805135551.GQ8266@wotan.suse.de>
+	 <1123251013.18332.28.camel@localhost.localdomain>
+	 <20050805141426.GU8266@wotan.suse.de>
+	 <1123252591.18332.45.camel@localhost.localdomain>
+	 <20050805200156.GF7425@waste.org>  <20050805212610.GA8266@wotan.suse.de>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 05 Aug 2005 20:30:21 -0400
+Message-Id: <1123288221.18332.114.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a clone operation for pgd updates.
+On Fri, 2005-08-05 at 23:26 +0200, Andi Kleen wrote:
 
-This helps complete the encapsulation of updates to page tables (or pages
-about to become page tables) into accessor functions rather than using
-memcpy() to duplicate them.  This is both generally good for consistency
-and also necessary for running in a hypervisor which requires explicit
-updates to page table entries.
+> I suspect Steven's patch for the e1000 is needed in addition to
+> handle different cases too.
+> 
 
-The new function is:
+I haven't tested it. Someone with a e1000 must see if it works. I
+submitted the e100 fix that had the same problem, but I would feel
+better if the patch I sent for the e1000 actually got tested.
 
-clone_pgd_range(pgd_t *dst, pgd_t *src, int count);
- 
-   dst - pointer to pgd range anwhere on a pgd page
-   src - ""
-   count - the number of pgds to copy.
+To test, one would setup a box with the e1000 and netconsole. Run with
+something doing several printks (possible using sysrq-t or such), and
+then unplug the cable (without Andi's patch) and replug it back in. If
+the patch worked, the system would hang while the cable was detached,
+but come back shortly after the cable was plugged back in.
 
-   dst and src can be on the same page, but the range must not overlap
-   and must not cross a page boundary.
+-- Steve
 
-Note that I ommitted using this call to copy pgd entries into the
-software suspend page root, since this is not technically a live paging
-structure, rather it is used on resume from suspend.  CC'ing Pavel in case
-he has any feedback on this.
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.13/arch/i386/mm/pgtable.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/mm/pgtable.c	2005-08-04 12:02:10.000000000 -0700
-+++ linux-2.6.13/arch/i386/mm/pgtable.c	2005-08-05 17:13:29.000000000 -0700
-@@ -207,19 +207,18 @@
- {
- 	unsigned long flags;
- 
-+	memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
- 	if (PTRS_PER_PMD == 1)
- 		spin_lock_irqsave(&pgd_lock, flags);
- 
--	memcpy((pgd_t *)pgd + USER_PTRS_PER_PGD,
-+	clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
- 			swapper_pg_dir + USER_PTRS_PER_PGD,
--			(PTRS_PER_PGD - USER_PTRS_PER_PGD) * sizeof(pgd_t));
--
-+			KERNEL_PGD_PTRS);
- 	if (PTRS_PER_PMD > 1)
- 		return;
- 
- 	pgd_list_add(pgd);
- 	spin_unlock_irqrestore(&pgd_lock, flags);
--	memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
- }
- 
- /* never called when PTRS_PER_PMD > 1 */
-Index: linux-2.6.13/arch/i386/kernel/smpboot.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/smpboot.c	2005-08-04 12:02:10.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/smpboot.c	2005-08-04 13:15:45.000000000 -0700
-@@ -1017,8 +1017,8 @@
- 	tsc_sync_disabled = 1;
- 
- 	/* init low mem mapping */
--	memcpy(swapper_pg_dir, swapper_pg_dir + USER_PGD_PTRS,
--			sizeof(swapper_pg_dir[0]) * KERNEL_PGD_PTRS);
-+	clone_pgd_range(swapper_pg_dir, swapper_pg_dir + USER_PGD_PTRS,
-+			KERNEL_PGD_PTRS);
- 	flush_tlb_all();
- 	schedule_work(&task);
- 	wait_for_completion(&done);
-Index: linux-2.6.13/include/asm-i386/pgtable.h
-===================================================================
---- linux-2.6.13.orig/include/asm-i386/pgtable.h	2005-08-04 12:02:10.000000000 -0700
-+++ linux-2.6.13/include/asm-i386/pgtable.h	2005-08-05 17:12:33.000000000 -0700
-@@ -276,6 +276,21 @@
- }
- 
- /*
-+ * clone_pgd_range(pgd_t *dst, pgd_t *src, int count);
-+ *
-+ *  dst - pointer to pgd range anwhere on a pgd page
-+ *  src - ""
-+ *  count - the number of pgds to copy.
-+ *
-+ * dst and src can be on the same page, but the range must not overlap,
-+ * and must not cross a page boundary.
-+ */
-+static inline void clone_pgd_range(pgd_t *dst, pgd_t *src, int count)
-+{
-+       memcpy(dst, src, count * sizeof(pgd_t));
-+}
-+
-+/*
-  * Macro to mark a page protection value as "uncacheable".  On processors which do not support
-  * it, this is a no-op.
-  */

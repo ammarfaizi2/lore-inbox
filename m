@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVHFJtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbVHFJux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbVHFJtf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 05:49:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVHFJtd
+	id S262042AbVHFJux (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 05:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVHFJuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 05:49:33 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:20369 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261351AbVHFJtc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 05:49:32 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
-Date: Sat, 6 Aug 2005 11:39:27 +0200
-User-Agent: KMail/1.8
-Cc: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
-       Mitchell Blank Jr <mitch@sfgoth.com>, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org
-References: <20050726015401.GA25015@kroah.com> <200508052207.49270.oliver@neukum.org> <9e47339105080513335e2674fa@mail.gmail.com>
-In-Reply-To: <9e47339105080513335e2674fa@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Aug 2005 05:50:52 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:30864 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261959AbVHFJtj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 05:49:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=jCskpUdsTsLByYdDFQz9Rwl1NYcQ2y2edY/SrDYLd8U/vFHSV+y1zkPPTUXtpOcHGhnliVWTFphckgopirKmzseNyW4w8Nicp59AaaLQh52uoApyDW+XnfDCmtieDLQjKxiv7/NjaQEPJD0to9Kcpy+aqkqTTf3Chz+K9Wn6eTc=
+Message-ID: <de63970c05080602496c2c8b11@mail.gmail.com>
+Date: Sat, 6 Aug 2005 10:49:33 +0100
+From: Simon Morgan <sjmorgan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Outdated Sangoma Drivers
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200508061139.27249.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> > Stupid users are not a reason for kernel bloat.
-> 
-> You have a very wrapped sense of kernel bloat. This is nine lines of
-> code whose absence is guaranteed to generate a bunch of bug reports.
+I couldn't help noticing that the Sangoma drivers distributed with the
+current kernel are slightly out of date and was wondering whether there
+was any reason for this?
 
-They are supposed to be present, but not in the kernel.
+For example the kernel copy of sdla.c was last updated Mar 20, 2001 while
+the version contained in the drivers distributed on sangoma.com[1] was
+last updated Dec 15. 2003.
 
-> Not having it is also causing various implementers to implement
-> attribute processing differently. Some are stripping white space in
-> their implementations and some are not. If you want to attack kernel
-> bloat there are much more productive areas.
-
-If somebody is stripping whitespace in the kernel, find and destroy.
- 
-> If whitespace cleanup is rejected I believe we should eliminate text
-> based sysfs attributes in general and make them all binary. I'll
-> probably remove the fbdev sysfs interface because I don't want to deal
-> with the bug reports reporting the same problem over and over.
-
-You are seeing this wrong. The problem is not binary vs. text.
-If binary were the problem we'd have a generic ioctl tool that takes
-arguments in any number format you'd want. The problem is untyped
-data. ASCII-strings without leading or trailing whitespece is a clearly
-defined datatype. Requiring a tool ensuring this format is met or care
-is used if other tools are used is perfectly in order. The kernel does
-not guess what an input is supposed to mean. Anything else is bloat.
-
-	Regards
-		Oliver
+[1] ftp://ftp.sangoma.com/linux/current_wanpipe/

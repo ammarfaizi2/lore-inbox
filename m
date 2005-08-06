@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbVHFEba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVHFE4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbVHFEba (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 00:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbVHFEba
+	id S262076AbVHFE4J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 00:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbVHFE4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 00:31:30 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:41382 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S263163AbVHFEb2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 00:31:28 -0400
-Date: Fri, 5 Aug 2005 21:33:54 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Grant Grundler <iod00d@hp.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org, linville@tuxdriver.com,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       yhlu <yhlu.kernel@gmail.com>
-Subject: Re: [openib-general] Re: mthca and LinuxBIOS
-Message-ID: <20050806043354.GA27352@esmail.cup.hp.com>
-References: <86802c4405080511079d01532@mail.gmail.com> <52psss5k1x.fsf@cisco.com> <86802c44050805112661d889aa@mail.gmail.com> <86802c4405080512254b9cd496@mail.gmail.com> <86802c4405080512451cdcae48@mail.gmail.com> <86802c44050805132853070f1@mail.gmail.com> <Pine.LNX.4.58.0508051335440.3258@g5.osdl.org> <20050805220015.GA3524@suse.de> <Pine.LNX.4.58.0508051602350.3258@g5.osdl.org> <20050805235937.GK25121@esmail.cup.hp.com>
+	Sat, 6 Aug 2005 00:56:08 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:47631 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262076AbVHFE4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 00:56:07 -0400
+Date: Sat, 6 Aug 2005 06:38:26 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: bdupree@techfinesse.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Build Issue for 2.4.31 on Alpha AXP Cabriolet Variant
+Message-ID: <20050806043826.GB20363@alpha.home.local>
+References: <32825.67.173.156.207.1123274299.squirrel@67.173.156.207>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050805235937.GK25121@esmail.cup.hp.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <32825.67.173.156.207.1123274299.squirrel@67.173.156.207>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 04:59:37PM -0700, Grant Grundler wrote:
-> ISTR making comments before about the offending patch on linux-pci mailing
-> list.  Is this the same patch that assumes pci_dev->resource[i] == BAR[i] ?
+On Fri, Aug 05, 2005 at 03:38:19PM -0500, bdupree@techfinesse.com wrote:
+(...) 
+> Anyhow, a simple one line fix to the arch/alpha/kernel/Makefile solves
+> this problem (patch file is attached). I've also attached the config file
+> I used for the build, as well as the boot messages from the kernel built
+> after the patch was applied.
 
-I meant the patch assume 1:1 for pci_dev->resource[i] and BAR[i].
-not that the two are equivalent.
+Thanks Bill for the patch, I'll merge it into hotfix 4 which I'll
+probably release on next week (no urgent fix needed yet). My DS10
+(21264) already builds and runs plain 2.4.31 fine, because it does
+not use ns87312.
 
-grant
+> And yes, I'm happily writing this email on my ancient Alpha box from
+> within Mozilla, on a KDE 3.3 desktop, running atop that patched 2.4.31
+> kernel. And while this old Alpha may not be the fastest 64-bit computer on
+> the block, it's still usable!
+
+Those boxes are wonderful. Mine serves as a gigabit fileserver at
+only 466 MHz :-)
+
+Thanks,
+Willy
+

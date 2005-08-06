@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVHFHLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVHFHOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbVHFHLg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 03:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVHFHLg
+	id S262058AbVHFHOI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 03:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVHFHOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 03:11:36 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:2579 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262020AbVHFHLe
+	Sat, 6 Aug 2005 03:14:08 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:5395 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262058AbVHFHOG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 03:11:34 -0400
-Message-ID: <42F4626D.1000401@vmware.com>
-Date: Sat, 06 Aug 2005 00:10:37 -0700
+	Sat, 6 Aug 2005 03:14:06 -0400
+Message-ID: <42F46307.606@vmware.com>
+Date: Sat, 06 Aug 2005 00:13:11 -0700
 From: Zachary Amsden <zach@vmware.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
@@ -18,181 +18,360 @@ MIME-Version: 1.0
 To: akpm@osdl.org, chrisw@osdl.org, linux-kernel@vger.kernel.org,
        davej@codemonkey.org.uk, hpa@zytor.com, Riley@Williams.Name,
        pratap@vmware.com, zach@vmware.com, chrisl@vmware.com
-Subject: [PATCH 1/8] Move MSR accessors into the sub-arch layer
+Subject: [PATCH 2/8] Move privileged processor operations to the subarch layer
 Content-Type: multipart/mixed;
- boundary="------------050905070607020008020301"
-X-OriginalArrivalTime: 06 Aug 2005 07:10:55.0398 (UTC) FILETIME=[FCCAE460:01C59A55]
+ boundary="------------010800070104020100040001"
+X-OriginalArrivalTime: 06 Aug 2005 07:13:27.0718 (UTC) FILETIME=[57951460:01C59A56]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050905070607020008020301
+--------------010800070104020100040001
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
---------------050905070607020008020301
+--------------010800070104020100040001
 Content-Type: text/plain;
- name="subarch-msr"
+ name="subarch-processor"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="subarch-msr"
+ filename="subarch-processor"
 
-i386 Transparent Paravirtualization Subarch Patch #1
+i386 Transparent Paravirtualization Subarch Patch #2
 
-This change encapsulates MSR register accessors and moves them into the
-sub-architecture layer.  The goal is a clean, uniform interface that may
-be redefined on new sub-architectures of i386.
+This change encapsulates CPUID and debug register accessors and moves
+them into the sub-architecture layer. 
 
 Diffs against: linux-2.6.13-rc4-mm1
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.13/include/asm-i386/msr.h
+Index: linux-2.6.13/include/asm-i386/processor.h
 ===================================================================
---- linux-2.6.13.orig/include/asm-i386/msr.h	2005-08-02 17:08:58.000000000 -0700
-+++ linux-2.6.13/include/asm-i386/msr.h	2005-08-02 17:13:43.000000000 -0700
-@@ -1,22 +1,14 @@
- #ifndef __ASM_MSR_H
- #define __ASM_MSR_H
+--- linux-2.6.13.orig/include/asm-i386/processor.h	2005-08-04 13:42:38.000000000 -0700
++++ linux-2.6.13/include/asm-i386/processor.h	2005-08-04 14:16:59.000000000 -0700
+@@ -132,77 +132,6 @@
+ #define X86_EFLAGS_VIP	0x00100000 /* Virtual Interrupt Pending */
+ #define X86_EFLAGS_ID	0x00200000 /* CPUID detection flag */
  
-+#include <mach_msr.h>
-+
+-/*
+- * Generic CPUID function
+- * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
+- * resulting in stale register contents being returned.
+- */
+-static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
+-{
+-	__asm__("cpuid"
+-		: "=a" (*eax),
+-		  "=b" (*ebx),
+-		  "=c" (*ecx),
+-		  "=d" (*edx)
+-		: "0" (op), "c"(0));
+-}
+-
+-/* Some CPUID calls want 'count' to be placed in ecx */
+-static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
+-	       	int *edx)
+-{
+-	__asm__("cpuid"
+-		: "=a" (*eax),
+-		  "=b" (*ebx),
+-		  "=c" (*ecx),
+-		  "=d" (*edx)
+-		: "0" (op), "c" (count));
+-}
+-
+-/*
+- * CPUID functions returning a single datum
+- */
+-static inline unsigned int cpuid_eax(unsigned int op)
+-{
+-	unsigned int eax;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax)
+-		: "0" (op)
+-		: "bx", "cx", "dx");
+-	return eax;
+-}
+-static inline unsigned int cpuid_ebx(unsigned int op)
+-{
+-	unsigned int eax, ebx;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax), "=b" (ebx)
+-		: "0" (op)
+-		: "cx", "dx" );
+-	return ebx;
+-}
+-static inline unsigned int cpuid_ecx(unsigned int op)
+-{
+-	unsigned int eax, ecx;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax), "=c" (ecx)
+-		: "0" (op)
+-		: "bx", "dx" );
+-	return ecx;
+-}
+-static inline unsigned int cpuid_edx(unsigned int op)
+-{
+-	unsigned int eax, edx;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax), "=d" (edx)
+-		: "0" (op)
+-		: "bx", "cx");
+-	return edx;
+-}
+-
+ #define load_cr3(pgdir) write_cr3(__pa(pgdir))
+ 
  /*
-  * Access to machine-specific registers (available on 586 and better only)
-  * Note: the rd* operations modify the parameters directly (without using
-  * pointer indirection), this allows gcc to optimize better
+@@ -221,32 +150,6 @@
+ #define X86_CR4_OSXMMEXCPT	0x0400	/* enable unmasked SSE exceptions */
+ 
+ /*
+- * Save the cr4 feature set we're using (ie
+- * Pentium 4MB enable and PPro Global page
+- * enable), so that any CPU's that boot up
+- * after us can get the correct flags.
+- */
+-extern unsigned long mmu_cr4_features;
+-
+-static inline void set_in_cr4 (unsigned long mask)
+-{
+-	unsigned cr4;
+-	mmu_cr4_features |= mask;
+-	cr4 = read_cr4();
+-	cr4 |= mask;
+-	write_cr4(cr4);
+-}
+-
+-static inline void clear_in_cr4 (unsigned long mask)
+-{
+-	unsigned cr4;
+-	mmu_cr4_features &= ~mask;
+-	cr4 = read_cr4();
+-	cr4 &= ~mask;
+-	write_cr4(cr4);
+-}
+-
+-/*
+  *      NSC/Cyrix CPU configuration register indexes
   */
  
--#define rdmsr(msr,val1,val2) \
--	__asm__ __volatile__("rdmsr" \
--			  : "=a" (val1), "=d" (val2) \
--			  : "c" (msr))
--
--#define wrmsr(msr,val1,val2) \
--	__asm__ __volatile__("wrmsr" \
--			  : /* no outputs */ \
--			  : "c" (msr), "a" (val1), "d" (val2))
--
- #define rdmsrl(msr,val) do { \
- 	unsigned long l__,h__; \
- 	rdmsr (msr, l__, h__);  \
-@@ -32,52 +24,6 @@
- 	wrmsr (msr, lo, hi);
+@@ -483,16 +386,6 @@
+ 	.io_bitmap	= { [ 0 ... IO_BITMAP_LONGS] = ~0 },		\
  }
  
--/* wrmsr with exception handling */
--#define wrmsr_safe(msr,a,b) ({ int ret__;						\
--	asm volatile("2: wrmsr ; xorl %0,%0\n"						\
--		     "1:\n\t"								\
--		     ".section .fixup,\"ax\"\n\t"					\
--		     "3:  movl %4,%0 ; jmp 1b\n\t"					\
--		     ".previous\n\t"							\
-- 		     ".section __ex_table,\"a\"\n"					\
--		     "   .align 4\n\t"							\
--		     "   .long 	2b,3b\n\t"						\
--		     ".previous"							\
--		     : "=a" (ret__)							\
--		     : "c" (msr), "0" (a), "d" (b), "i" (-EFAULT));\
--	ret__; })
+-static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
+-{
+-	tss->esp0 = thread->esp0;
+-	/* This can only happen when SEP is enabled, no need to test "SEP"arately */
+-	if (unlikely(tss->ss1 != thread->sysenter_cs)) {
+-		tss->ss1 = thread->sysenter_cs;
+-		wrmsr(MSR_IA32_SYSENTER_CS, thread->sysenter_cs, 0);
+-	}
+-}
 -
--/* rdmsr with exception handling */
--#define rdmsr_safe(msr,a,b) ({ int ret__;						\
--	asm volatile("2: rdmsr ; xorl %0,%0\n"						\
--		     "1:\n\t"								\
--		     ".section .fixup,\"ax\"\n\t"					\
--		     "3:  movl %4,%0 ; jmp 1b\n\t"					\
--		     ".previous\n\t"							\
-- 		     ".section __ex_table,\"a\"\n"					\
--		     "   .align 4\n\t"							\
--		     "   .long 	2b,3b\n\t"						\
--		     ".previous"							\
--		     : "=r" (ret__), "=a" (*(a)), "=d" (*(b))				\
--		     : "c" (msr), "i" (-EFAULT));\
--	ret__; })
+ #define start_thread(regs, new_eip, new_esp) do {		\
+ 	__asm__("movl %0,%%fs ; movl %0,%%gs": :"r" (0));	\
+ 	set_fs(USER_DS);					\
+@@ -504,33 +397,6 @@
+ 	regs->esp = new_esp;					\
+ } while (0)
+ 
+-/*
+- * These special macros can be used to get or set a debugging register
+- */
+-#define get_debugreg(var, register)				\
+-		__asm__("movl %%db" #register ", %0"		\
+-			:"=r" (var))
+-#define set_debugreg(value, register)			\
+-		__asm__("movl %0,%%db" #register		\
+-			: /* no output */			\
+-			:"r" (value))
 -
--#define rdtsc(low,high) \
--     __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
+-/*
+- * Set IOPL bits in EFLAGS from given mask
+- */
+-static inline void set_iopl_mask(unsigned mask)
+-{
+-	unsigned int reg;
+-	__asm__ __volatile__ ("pushfl;"
+-			      "popl %0;"
+-			      "andl %1, %0;"
+-			      "orl %2, %0;"
+-			      "pushl %0;"
+-			      "popfl"
+-				: "=&r" (reg)
+-				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
+-}
 -
--#define rdtscl(low) \
--     __asm__ __volatile__("rdtsc" : "=a" (low) : : "edx")
--
--#define rdtscll(val) \
--     __asm__ __volatile__("rdtsc" : "=A" (val))
--
--#define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
--
--#define rdpmc(counter,low,high) \
--     __asm__ __volatile__("rdpmc" \
--			  : "=a" (low), "=d" (high) \
--			  : "c" (counter))
--
- /* symbolic names for some interesting MSRs */
- /* Intel defined MSRs. */
- #define MSR_IA32_P5_MC_ADDR		0
-Index: linux-2.6.13/include/asm-i386/mach-default/mach_msr.h
+ /* Forward declaration, a strange C thing */
+ struct task_struct;
+ struct mm_struct;
+@@ -606,6 +472,34 @@
+ /* '6' because it used to be for P6 only (but now covers Pentium 4 as well) */
+ #define MICROCODE_IOCFREE	_IO('6',0)
+ 
++#include <mach_processor.h>
++
++/*
++ * Save the cr4 feature set we're using (ie
++ * Pentium 4MB enable and PPro Global page
++ * enable), so that any CPU's that boot up
++ * after us can get the correct flags.
++ */
++extern unsigned long mmu_cr4_features;
++
++static inline void set_in_cr4 (unsigned long mask)
++{
++	unsigned cr4;
++	mmu_cr4_features |= mask;
++	cr4 = read_cr4();
++	cr4 |= mask;
++	write_cr4(cr4);
++}
++
++static inline void clear_in_cr4 (unsigned long mask)
++{
++	unsigned cr4;
++	mmu_cr4_features &= ~mask;
++	cr4 = read_cr4();
++	cr4 &= ~mask;
++	write_cr4(cr4);
++}
++
+ /* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
+ static inline void rep_nop(void)
+ {
+Index: linux-2.6.13/include/asm-i386/mach-default/mach_processor.h
 ===================================================================
---- linux-2.6.13.orig/include/asm-i386/mach-default/mach_msr.h	2005-08-02 17:12:02.000000000 -0700
-+++ linux-2.6.13/include/asm-i386/mach-default/mach_msr.h	2005-08-02 17:14:11.000000000 -0700
-@@ -0,0 +1,60 @@
-+#ifndef MACH_MSR_H
-+#define MACH_MSR_H
+--- linux-2.6.13.orig/include/asm-i386/mach-default/mach_processor.h	2005-08-04 14:02:01.000000000 -0700
++++ linux-2.6.13/include/asm-i386/mach-default/mach_processor.h	2005-08-04 14:08:15.000000000 -0700
+@@ -0,0 +1,121 @@
++/*
++ * include/asm-i386/mach-default/mach_processor.h
++ *
++ * Copyright (C) 1994 Linus Torvalds
++ *
++ * Moved from include/asm-i386/processor.h 08/05
++ */
 +
-+#define rdmsr(msr,val1,val2) \
-+	__asm__ __volatile__("rdmsr" \
-+			  : "=a" (val1), "=d" (val2) \
-+			  : "c" (msr))
++#ifndef _MACH_PROCESSOR_H
++#define _MACH_PROCESSOR_H
 +
-+#define wrmsr(msr,val1,val2) \
-+	__asm__ __volatile__("wrmsr" \
-+			  : /* no outputs */ \
-+			  : "c" (msr), "a" (val1), "d" (val2))
++/*
++ * Generic CPUID function
++ * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
++ * resulting in stale register contents being returned.
++ */
++static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
++{
++	__asm__("cpuid"
++		: "=a" (*eax),
++		  "=b" (*ebx),
++		  "=c" (*ecx),
++		  "=d" (*edx)
++		: "0" (op), "c"(0));
++}
 +
-+/* wrmsr with exception handling */
-+#define wrmsr_safe(msr,a,b) ({ int ret__;						\
-+	asm volatile("2: wrmsr ; xorl %0,%0\n"						\
-+		     "1:\n\t"								\
-+		     ".section .fixup,\"ax\"\n\t"					\
-+		     "3:  movl %4,%0 ; jmp 1b\n\t"					\
-+		     ".previous\n\t"							\
-+ 		     ".section __ex_table,\"a\"\n"					\
-+		     "   .align 4\n\t"							\
-+		     "   .long 	2b,3b\n\t"						\
-+		     ".previous"							\
-+		     : "=a" (ret__)							\
-+		     : "c" (msr), "0" (a), "d" (b), "i" (-EFAULT));\
-+	ret__; })
++/* Some CPUID calls want 'count' to be placed in ecx */
++static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
++	       	int *edx)
++{
++	__asm__("cpuid"
++		: "=a" (*eax),
++		  "=b" (*ebx),
++		  "=c" (*ecx),
++		  "=d" (*edx)
++		: "0" (op), "c" (count));
++}
 +
-+/* rdmsr with exception handling */
-+#define rdmsr_safe(msr,a,b) ({ int ret__;						\
-+	asm volatile("2: rdmsr ; xorl %0,%0\n"						\
-+		     "1:\n\t"								\
-+		     ".section .fixup,\"ax\"\n\t"					\
-+		     "3:  movl %4,%0 ; jmp 1b\n\t"					\
-+		     ".previous\n\t"							\
-+ 		     ".section __ex_table,\"a\"\n"					\
-+		     "   .align 4\n\t"							\
-+		     "   .long 	2b,3b\n\t"						\
-+		     ".previous"							\
-+		     : "=r" (ret__), "=a" (*(a)), "=d" (*(b))				\
-+		     : "c" (msr), "i" (-EFAULT));\
-+	ret__; })
++/*
++ * CPUID functions returning a single datum
++ */
++static inline unsigned int cpuid_eax(unsigned int op)
++{
++	unsigned int eax;
 +
-+#define rdtsc(low,high) \
-+     __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
++	__asm__("cpuid"
++		: "=a" (eax)
++		: "0" (op)
++		: "bx", "cx", "dx");
++	return eax;
++}
++static inline unsigned int cpuid_ebx(unsigned int op)
++{
++	unsigned int eax, ebx;
 +
-+#define rdtscl(low) \
-+     __asm__ __volatile__("rdtsc" : "=a" (low) : : "edx")
++	__asm__("cpuid"
++		: "=a" (eax), "=b" (ebx)
++		: "0" (op)
++		: "cx", "dx" );
++	return ebx;
++}
 +
-+#define rdtscll(val) \
-+     __asm__ __volatile__("rdtsc" : "=A" (val))
++static inline unsigned int cpuid_ecx(unsigned int op)
++{
++	unsigned int eax, ecx;
 +
-+#define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
++	__asm__("cpuid"
++		: "=a" (eax), "=c" (ecx)
++		: "0" (op)
++		: "bx", "dx" );
++	return ecx;
++}
++static inline unsigned int cpuid_edx(unsigned int op)
++{
++	unsigned int eax, edx;
 +
-+#define rdpmc(counter,low,high) \
-+     __asm__ __volatile__("rdpmc" \
-+			  : "=a" (low), "=d" (high) \
-+			  : "c" (counter))
++	__asm__("cpuid"
++		: "=a" (eax), "=d" (edx)
++		: "0" (op)
++		: "bx", "cx");
++	return edx;
++}
++
++/*
++ * These special macros can be used to get or set a debugging register
++ */
++#define get_debugreg(var, register)				\
++		__asm__("movl %%db" #register ", %0"		\
++			:"=r" (var))
++#define set_debugreg(value, register)			\
++		__asm__("movl %0,%%db" #register		\
++			: /* no output */			\
++			:"r" (value))
++
++static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
++{
++	tss->esp0 = thread->esp0;
++	/* This can only happen when SEP is enabled, no need to test "SEP"arately */
++	if (unlikely(tss->ss1 != thread->sysenter_cs)) {
++		tss->ss1 = thread->sysenter_cs;
++		wrmsr(MSR_IA32_SYSENTER_CS, thread->sysenter_cs, 0);
++	}
++}
++
++/*
++ * Set IOPL bits in EFLAGS from given mask
++ */
++static inline void set_iopl_mask(unsigned mask)
++{
++	unsigned int reg;
++	__asm__ __volatile__ ("pushfl;"
++			      "popl %0;"
++			      "andl %1, %0;"
++			      "orl %2, %0;"
++			      "pushl %0;"
++			      "popfl"
++				: "=&r" (reg)
++				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
++}
 +
 +#endif
 
---------------050905070607020008020301--
+--------------010800070104020100040001--

@@ -1,95 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVHFAY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVHFA0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262091AbVHFAY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Aug 2005 20:24:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVHFAYS
+	id S262167AbVHFA0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Aug 2005 20:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVHFA0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Aug 2005 20:24:18 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:10897 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262091AbVHFAYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Aug 2005 20:24:10 -0400
-Subject: Re: [PATCH] netpoll can lock up on low memory.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, John B?ckstrand <sandos@home.se>
-In-Reply-To: <20050805212808.GV8074@waste.org>
-References: <42F347D2.7000207@home.se.suse.lists.linux.kernel>
-	 <p73ek987gjw.fsf@bragg.suse.de>
-	 <1123249743.18332.16.camel@localhost.localdomain>
-	 <20050805135551.GQ8266@wotan.suse.de>
-	 <1123251013.18332.28.camel@localhost.localdomain>
-	 <20050805141426.GU8266@wotan.suse.de>
-	 <1123252591.18332.45.camel@localhost.localdomain>
-	 <20050805200156.GF7425@waste.org>
-	 <1123275420.18332.81.camel@localhost.localdomain>
-	 <20050805212808.GV8074@waste.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 05 Aug 2005 20:23:55 -0400
-Message-Id: <1123287835.18332.110.camel@localhost.localdomain>
+	Fri, 5 Aug 2005 20:26:16 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:49600 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S262172AbVHFA0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Aug 2005 20:26:06 -0400
+Date: Sat, 6 Aug 2005 02:26:03 +0200
+From: benoit.boissinot@ens-lyon.fr
+To: schwidefsky@de.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] s390: fix invalid kmalloc flags
+Message-ID: <20050806002603.GA29515@ens-lyon.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-05 at 14:28 -0700, Matt Mackall wrote:
-> 
-> Netpoll generally must assume it won't get a second chance, as it's
-> being called by things like oops() and panic() and used by things like
-> kgdb. If netpoll fails, the box is dead anyway.
-> 
+The following patch fixes the compilation (defconfig) of s390:
 
-But it is also being called by every printk in the kernel. What happens
-when the printk that causes this lock up is not a panic but just some
-info print.  One would use netconsole when they turn on more verbose
-printing, to keep the output fast, right?  So if the system gets a
-little memory tight, but not to the point of failing, this will cause a
-lock up and no one would know why. 
-
-If you need to really get the data out, then the design should be
-changed.  Have some return value showing the failure, check for
-oops_in_progress or whatever, and try again after turning interrupts
-back on, and getting to a point where the system can free up memory
-(write to swap, etc).  Just a busy loop without ever getting a skb is
-just bad.
-
-> > > The netpoll philosophy is to assume that its traffic is an absolute
-> > > priority - it is better to potentially hang trying to deliver a panic
-> > > message than to give up and crash silently.
-> > 
-> > So even a long timeout would not do?  So you don't even get a message to
-> > the console?
-> 
-> In general, there's no way to measure time here. And if we're
-> using netconsole, what makes you think there's any other console?
-
-Why assume that there isn't another console?  The screen may be used
-with netconsole, you just lose whatever has been scrolled too far.
-
-> 
-> > > > Also, as Andi told me, the printk here would probably not show up
-> > > > anyway if this happens with netconsole.
-> > > 
-> > > That's fine. But in fact, it does show up occassionally - I've seen
-> > > it.
-> > 
-> > Then maybe what Andi told me is not true ;-)
-> > 
-> > Oh, and did your machine crash when you saw it?  Have you seen it with
-> > the e1000 driver?
-> 
-> No and no. Most of my own testing is done with tg3.
-> 
-
-If you saw the message and the system didn't crash, then that's proof
-that if the driver is not working properly, you would have lock up the
-system, and the system was _not_ in a state that it _had_ to get the
-message out.
-
--- Steve
+arch/s390/mm/built-in.o(.text+0x152c): In function `query_segment_type':
+extmem.c: undefined reference to `__your_kmalloc_flags_are_not_valid'
+arch/s390/mm/built-in.o(.text+0x19ec): In function `segment_load':
+: undefined reference to `__your_kmalloc_flags_are_not_valid'
 
 
+Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+
+--- a/arch/s390/mm/extmem.c	2005-08-06 01:32:56.000000000 +0200
++++ b/arch/s390/mm/extmem.c	2005-07-31 17:46:36.000000000 +0200
+@@ -172,8 +172,8 @@ dcss_diag_translate_rc (int vm_rc) {
+ static int
+ query_segment_type (struct dcss_segment *seg)
+ {
+-	struct qin64  *qin = kmalloc (sizeof(struct qin64), GFP_DMA);
+-	struct qout64 *qout = kmalloc (sizeof(struct qout64), GFP_DMA);
++	struct qin64  *qin = kmalloc (sizeof(struct qin64), GFP_DMA|GFP_KERNEL);
++	struct qout64 *qout = kmalloc (sizeof(struct qout64), GFP_DMA|GFP_KERNEL);
+ 
+ 	int diag_cc, rc, i;
+ 	unsigned long dummy, vmrc;
+@@ -332,7 +332,7 @@ static int
+ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long *end)
+ {
+ 	struct dcss_segment *seg = kmalloc(sizeof(struct dcss_segment),
+-			GFP_DMA);
++			GFP_DMA|GFP_KERNEL);
+ 	int dcss_command, rc, diag_cc;
+ 
+ 	if (seg == NULL) {

@@ -1,87 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263174AbVHFPC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263202AbVHFPJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263174AbVHFPC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 11:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbVHFPCg
+	id S263202AbVHFPJs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 11:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbVHFPJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 11:02:36 -0400
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:51433 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263162AbVHFPB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 11:01:28 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
-Date: Sun, 7 Aug 2005 01:00:54 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, tony@atomide.com,
-       tuukka.tikkanen@elektrobit.com, ck@vds.kolivas.org
-References: <200508021443.55429.kernel@kolivas.org> <20050806145418.GA16523@thunk.org>
-In-Reply-To: <20050806145418.GA16523@thunk.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Aug 2005 11:09:48 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34828 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263202AbVHFPJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 11:09:47 -0400
+Date: Sat, 6 Aug 2005 17:09:40 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       pmarques@grupopie.com
+Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
+Message-ID: <20050806150940.GT4029@stusta.de>
+References: <1123219747.20398.1.camel@localhost> <20050804223842.2b3abeee.akpm@osdl.org> <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI> <20050804233634.1406e92a.akpm@osdl.org> <Pine.LNX.4.58.0508050946070.27679@sbz-30.cs.Helsinki.FI>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508070100.55319.kernel@kolivas.org>
+In-Reply-To: <Pine.LNX.4.58.0508050946070.27679@sbz-30.cs.Helsinki.FI>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Aug 2005 00:54, Theodore Ts'o wrote:
-> On Tue, Aug 02, 2005 at 02:43:55PM +1000, Con Kolivas wrote:
-> > This is a code reordered version of the dynamic ticks patch from Tony
-> > Lindgen and Tuukka Tikkanen - sorry about spamming your mail boxes with
-> > this, but thanks for the code. There is significant renewed interest by
-> > the lkml audience for such a feature which is why I'm butchering your
-> > code (sorry again if you don't like me doing this). The only real
-> > difference between your code and this patch is moving the #ifdef'd code
-> > out of code paths and putting it into dyn-tick specific files.
-> >
-> > This has slightly more build fixes than the last one I posted and boots
-> > and runs fine on my laptop. So far at absolute idle it appears this
-> > pentiumM 1.7 is claiming to have _25%_ more battery life. I'll need to
-> > investigate further to see the real power savings.
->
-> Hi Con,
->
-> I had a chance to try out your patch (2.6.13-rc4-dtck-2.patch) and
-> using either the APIC or PIT timer, if dynamic tick is enabled, on my
-> laptop, this kicks up the bus mastering activity enough so that the
-> processor doesn't have a chance to enter the C4 state, and stays stuck
-> at C2.  As a result, enabling dynamic tick _increases_ power
-> consumption by 20% on my T40 laptop (1.6 MHz Pentium M). 
+On Fri, Aug 05, 2005 at 09:52:32AM +0300, Pekka J Enberg wrote:
+>...
+> --- 2.6.orig/mm/slab.c
+> +++ 2.6/mm/slab.c
+> @@ -2555,6 +2555,20 @@ void kmem_cache_free(kmem_cache_t *cache
+>  EXPORT_SYMBOL(kmem_cache_free);
+>  
+>  /**
+> + * kzalloc - allocate memory. The memory is set to zero.
+> + * @size: how many bytes of memory are required.
+> + * @flags: the type of memory to allocate.
+> + */
+> +void *kzalloc(size_t size, unsigned int __nocast flags)
+> +{
+> +	void *ret = kmalloc(size, flags);
+> +	if (ret)
+> +		memset(ret, 0, size);
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL(kzalloc);
+> +
+> +/**
+>   * kcalloc - allocate memory for an array. The memory is set to zero.
+>   * @n: number of elements.
+>   * @size: element size.
+> @@ -2567,10 +2581,7 @@ void *kcalloc(size_t n, size_t size, uns
+>  	if (n != 0 && size > INT_MAX / n)
+>  		return ret;
+>  
+> -	ret = kmalloc(n * size, flags);
+> -	if (ret)
+> -		memset(ret, 0, n * size);
+> -	return ret;
+> +	return kzalloc(n * size, flags);
+>  }
+>  EXPORT_SYMBOL(kcalloc);
 
-Lovely! (not)
 
-> I monitored 
-> power utilization using pmstats-0.2, and used
-> /proc/acpi/processor/CPU/power to monitor bus mastering activity and the
-> CPU C-states.
->
-> As soon as I disabled dynamic tick using:
->
-> 	echo 0 > /sys/devices/system/timer/timer0/dyn_tick_state
->
-> The number of ticks went up to 1024, bus mastering activity dropped to
-> zero, and the processor entered C4 state, and power utilization
-> dropped by 20%.
->
-> When I enabled dynamic tick using:
->
-> 	echo 1 > /sys/devices/system/timer/timer0/dyn_tick_state
->
-> The number of ticks dropped down to 60-70 HZ, bus mastering activity
-> jumpped up to being almost always active,
+Looking at how few is left from kcalloc, can't we make it a
+"static inline" function in slab.h?
 
-Anyone know why this would happen?
+This would optimize nicely for all of the users where the first or even 
+the first two parameters are constant at compile-time and shouldn't do 
+much harm for the other users.
 
-> and the processor stayed 
-> stuck at C2 state, and power utilization climbed back up by 20%.
->
-> This was on a completely idle, freshly booted machine, without X
-> running and just a console login.
+As a side effect, the difference between kcalloc(1, ...) and kzalloc() 
+would become a coding style question without any effect on the generated 
+code.
 
-Thanks for testing.
+cu
+Adrian
 
-Cheers,
-Con
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

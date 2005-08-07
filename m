@@ -1,65 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753088AbVHGXXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753092AbVHGXYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753088AbVHGXXp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 19:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753091AbVHGXXp
+	id S1753092AbVHGXYk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 19:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753093AbVHGXYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 19:23:45 -0400
-Received: from dvhart.com ([64.146.134.43]:129 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1753086AbVHGXXp (ORCPT
+	Sun, 7 Aug 2005 19:24:40 -0400
+Received: from mail.autoweb.net ([198.172.237.26]:11937 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S1753091AbVHGXYj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 19:23:45 -0400
-Date: Sun, 07 Aug 2005 16:23:47 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm3
-Message-ID: <373880000.1123457027@[10.10.2.4]>
-In-Reply-To: <36680000.1123042889@[10.10.2.4]>
-References: <20050728025840.0596b9cb.akpm@osdl.org><159960000.1122616883@[10.10.2.4]> <20050728231029.0c0026bc.akpm@osdl.org> <30040000.1123031853@[10.10.2.4]> <36680000.1123042889@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 7 Aug 2005 19:24:39 -0400
+Message-ID: <42F69832.2030404@michonline.com>
+Date: Sun, 07 Aug 2005 19:24:34 -0400
+From: Ryan Anderson <ryan@michonline.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alexander Nyberg <alexn@telia.com>
+CC: Andrew Morton <akpm@osdl.org>, Robert Love <rml@novell.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops in 2.6.13-rc5-git-current (0d317fb72fe3cf0f611608cf3a3015bbe6cd2a66)
+References: <20050807035630.GA5271@mythryan2.michonline.com> <20050807200814.GA2464@localhost.localdomain>
+In-Reply-To: <20050807200814.GA2464@localhost.localdomain>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Alexander Nyberg wrote:
+> (akpm: a fix for this needs to go into 2.6.13, inotify + nfs 
+> trivially oopses otherwise, even if inotify isn't actively used)
 
---"Martin J. Bligh" <mbligh@mbligh.org> wrote (on Tuesday, August 02, 2005 21:21:30 -0700):
+This patch seems to have fixed it for me.
 
-> --"Martin J. Bligh" <mbligh@mbligh.org> wrote (on Tuesday, August 02, 2005 18:17:33 -0700):
->> --Andrew Morton <akpm@osdl.org> wrote (on Thursday, July 28, 2005 23:10:29 -0700):
->> 
->>> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
->>>> 
->>>> NUMA-Q boxes are still crashing on boot with -mm BTW. Is the thing we 
->>>> identified earlier with the sched patches ...
->>>> 
->>>> http://test.kernel.org/9398/debug/console.log
->>> 
->>> Oh, thanks.  That's about 8,349 bugs ago and I'd forgotten.
->>> 
->>>> Works with mainline still (including -rc4) ... hopefully those patches 
->>>> aren't on their way upstream anytime soon ;-)
->>> 
->>> Well can you identify the offending patch(es)?  If so, I'll exterminate them.
->> 
->> scheduler-cache-hot-autodetect.patch, I think.
->> 
->> will double-check.
+I upgraded to fdbd22dad31982b64a4e663fd056a8a7cfac9607 and applied this
+patch on top of it, and I can't retrigger the oops.  (It seemed rather
+easy to hit on the other kernel)
+
+So, I guess:
+
+Seems-to-fix-it: Ryan Anderson <ryan@michoneline.com>
+
+> It looks like the following sequence is done in the wrong order.
+> When vfs_unlink() is called from sys_unlink() it has taken a ref
+> on the inode and sys_unlink() does the last iput() but when called
+> from other callsites vfs_unlink() might do the last iput() and
+> free inode, so inotify_inode_queue_event() will receive an already
+> freed object and dereference an already freed object.
 > 
-> Yup, backing out that one patch definitely fixes it. There was an earlier
-> thread with Ingo about doing some possible debug on it, but to be honest,
-> I haven't had time to play much beyond the initial ideas we tried.
+> Signed-off-by: Alexander Nyberg <alexn@telia.com>
+> 
+> Index: mm/fs/namei.c
+> ===================================================================
+> --- mm.orig/fs/namei.c	2005-08-07 12:06:16.000000000 +0200
+> +++ mm/fs/namei.c	2005-08-07 18:17:20.000000000 +0200
+> @@ -1869,8 +1869,8 @@
+>  	/* We don't d_delete() NFS sillyrenamed files--they still exist. */
+>  	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED)) {
+>  		struct inode *inode = dentry->d_inode;
+> -		d_delete(dentry);
+>  		fsnotify_unlink(dentry, inode, dir);
+> +		d_delete(dentry);
+>  	}
+>  
+>  	return error;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Still broken in 2.6.13-rc5-mm1, any chance you could back this one out
-until it gets fixed? that way I can still test with that platform (plus
-it'll stop it from getting accidentally merged ;-))
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Thanks,
-
-M.
-
+iD8DBQFC9pgyfhVDhkBuUKURAjbSAKCavd7s4zdk/uce1TZ0CX018RGRmgCfXWFI
+XjAPhBcEoLyJDWnjk9oI+XI=
+=NMc4
+-----END PGP SIGNATURE-----

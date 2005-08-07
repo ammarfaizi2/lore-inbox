@@ -1,101 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbVHGMRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbVHGMbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbVHGMRT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 08:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVHGMRT
+	id S1751292AbVHGMbt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 08:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbVHGMbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 08:17:19 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:28939 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751214AbVHGMRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 08:17:19 -0400
-Message-ID: <42F5FB9A.5000708@vmware.com>
-Date: Sun, 07 Aug 2005 05:16:26 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>
-Subject: [PATCH] x86_64 Avoid some atomic operations during address space
- destruction
-Content-Type: multipart/mixed;
- boundary="------------020002040000070901020104"
-X-OriginalArrivalTime: 07 Aug 2005 12:16:45.0906 (UTC) FILETIME=[E0F5F320:01C59B49]
+	Sun, 7 Aug 2005 08:31:48 -0400
+Received: from modeemi.modeemi.cs.tut.fi ([130.230.72.134]:30139 "EHLO
+	modeemi.modeemi.cs.tut.fi") by vger.kernel.org with ESMTP
+	id S1751292AbVHGMbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 08:31:48 -0400
+Date: Sun, 7 Aug 2005 15:31:45 +0300
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] net/ipv4 debug cleanup, kernel 2.6.13-rc5
+Message-ID: <20050807123145.GJ27323@jolt.modeemi.cs.tut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+From: shd@modeemi.cs.tut.fi (Heikki Orsila)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020002040000070901020104
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Here's a small patch to cleanup NETDEBUG() use in net/ipv4/ for Linux 
+kernel 2.6.13-rc5. Also weird use of indentation is changed in some
+places.
 
-This turned out to be a huge win on 32-bit i386 in PAE mode, but it is 
-likely not as significant on x86_64; I don't know because I haven't 
-actually measured the cost.  I don't have 64-bit hardware that I have 
-the luxury of rebooting right now, so this patch is untested, but if 
-someone wants to try this out, it might actually show a measurable win 
-on fork/exit.  I lost my cycle count measurement diffs, but I don't 
-think they would apply cleanly to x86_64 anyways.  This patch at least 
-looks good, and compiles cleanly on 2.6.13-rc5-mm1, thus passing some 
-level of testing.
+Signed-off-by: Heikki Orsila <heikki.orsila@iki.fi>
 
-Also, it might show reduced latency on pre-emptible kernels during heavy 
-fork/exit activity, possibly allowing ZAP_BLOCK_SIZE to be raised for 
-some architectures (I measured a ~30-50% reduction in cycle timings for 
-zap_pte_range on i386 with CONFIG_PREEMPT with the analogous patch).
-
-Zach
-
---------------020002040000070901020104
-Content-Type: text/plain;
- name="x86_64-pte-destruction"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x86_64-pte-destruction"
-
-Any architecture that has hardware updated A/D bits that require
-synchronization against other processors during PTE operations
-can benefit from doing non-atomic PTE updates during address space
-destruction.  Originally done on i386, now ported to x86_64.
-
-Doing a read/write pair instead of an xchg() operation saves the
-implicit lock, which turns out to be a big win on 32-bit (esp w PAE).
-
-Diffs-against: 2.6.13-rc5-mm1
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.13-rc5-mm1/include/asm-x86_64/pgtable.h
-===================================================================
---- linux-2.6.13-rc5-mm1.orig/include/asm-x86_64/pgtable.h	2005-08-07 04:56:37.000000000 -0700
-+++ linux-2.6.13-rc5-mm1/include/asm-x86_64/pgtable.h	2005-08-07 04:59:18.601856096 -0700
-@@ -104,6 +104,19 @@
- ((unsigned long) __va(pud_val(pud) & PHYSICAL_PAGE_MASK))
+---
+diff -urp linux-2.6.13-rc5-org/net/ipv4/icmp.c linux-2.6.13-rc5/net/ipv4/icmp.c
+--- linux-2.6.13-rc5-org/net/ipv4/icmp.c	2005-08-02 07:45:48.000000000 +0300
++++ linux-2.6.13-rc5/net/ipv4/icmp.c	2005-08-07 15:10:42.000000000 +0300
+@@ -936,8 +936,7 @@ int icmp_rcv(struct sk_buff *skb)
+ 	case CHECKSUM_HW:
+ 		if (!(u16)csum_fold(skb->csum))
+ 			break;
+-		NETDEBUG(if (net_ratelimit())
+-				printk(KERN_DEBUG "icmp v4 hw csum failure\n"));
++		LIMIT_NETDEBUG(printk(KERN_DEBUG "icmp v4 hw csum failure\n"));
+ 	case CHECKSUM_NONE:
+ 		if ((u16)csum_fold(skb_checksum(skb, 0, skb->len, 0)))
+ 			goto error;
+diff -urp linux-2.6.13-rc5-org/net/ipv4/ip_fragment.c linux-2.6.13-rc5/net/ipv4/ip_fragment.c
+--- linux-2.6.13-rc5-org/net/ipv4/ip_fragment.c	2005-08-02 07:45:48.000000000 +0300
++++ linux-2.6.13-rc5/net/ipv4/ip_fragment.c	2005-08-07 15:15:05.000000000 +0300
+@@ -377,7 +377,7 @@ static struct ipq *ip_frag_create(unsign
+ 	return ip_frag_intern(hash, qp);
  
- #define ptep_get_and_clear(mm,addr,xp)	__pte(xchg(&(xp)->pte, 0))
-+
-+static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm, unsigned long addr, pte_t *ptep, int full)
-+{
-+	pte_t pte;
-+	if (full) {
-+		pte = *ptep;
-+		*ptep = __pte(0);
-+	} else {
-+		pte = ptep_get_and_clear(mm, addr, ptep);
-+	}
-+	return pte;
-+}
-+
- #define pte_same(a, b)		((a).pte == (b).pte)
+ out_nomem:
+-	NETDEBUG(if (net_ratelimit()) printk(KERN_ERR "ip_frag_create: no memory left !\n"));
++	LIMIT_NETDEBUG(printk(KERN_ERR "ip_frag_create: no memory left !\n"));
+ 	return NULL;
+ }
  
- #define PMD_SIZE	(1UL << PMD_SHIFT)
-@@ -433,6 +446,7 @@
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
- #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
-+#define __HAVE_ARCH_PTEP_GET_AND_CLEAR_FULL
- #define __HAVE_ARCH_PTEP_SET_WRPROTECT
- #define __HAVE_ARCH_PTE_SAME
- #include <asm-generic/pgtable.h>
+@@ -625,10 +625,8 @@ static struct sk_buff *ip_frag_reasm(str
+ 	return head;
+ 
+ out_nomem:
+- 	NETDEBUG(if (net_ratelimit())
+-	         printk(KERN_ERR 
+-			"IP: queue_glue: no memory for gluing queue %p\n",
+-			qp));
++ 	LIMIT_NETDEBUG(printk(KERN_ERR "IP: queue_glue: no memory for gluing "
++			      "queue %p\n", qp));
+ 	goto out_fail;
+ out_oversize:
+ 	if (net_ratelimit())
+diff -urp linux-2.6.13-rc5-org/net/ipv4/tcp_ipv4.c linux-2.6.13-rc5/net/ipv4/tcp_ipv4.c
+--- linux-2.6.13-rc5-org/net/ipv4/tcp_ipv4.c	2005-08-02 07:45:48.000000000 +0300
++++ linux-2.6.13-rc5/net/ipv4/tcp_ipv4.c	2005-08-07 15:03:28.000000000 +0300
+@@ -1494,12 +1494,11 @@ int tcp_v4_conn_request(struct sock *sk,
+ 			 * to destinations, already remembered
+ 			 * to the moment of synflood.
+ 			 */
+-			NETDEBUG(if (net_ratelimit()) \
+-					printk(KERN_DEBUG "TCP: drop open "
+-							  "request from %u.%u."
+-							  "%u.%u/%u\n", \
+-					       NIPQUAD(saddr),
+-					       ntohs(skb->h.th->source)));
++			LIMIT_NETDEBUG(printk(KERN_DEBUG "TCP: drop open "
++					      "request from %u.%u."
++					      "%u.%u/%u\n",
++					      NIPQUAD(saddr),
++					      ntohs(skb->h.th->source)));
+ 			dst_release(dst);
+ 			goto drop_and_free;
+ 		}
+@@ -1627,8 +1626,7 @@ static int tcp_v4_checksum_init(struct s
+ 				  skb->nh.iph->daddr, skb->csum))
+ 			return 0;
+ 
+-		NETDEBUG(if (net_ratelimit())
+-				printk(KERN_DEBUG "hw tcp v4 csum failed\n"));
++		LIMIT_NETDEBUG(printk(KERN_DEBUG "hw tcp v4 csum failed\n"));
+ 		skb->ip_summed = CHECKSUM_NONE;
+ 	}
+ 	if (skb->len <= 76) {
+diff -urp linux-2.6.13-rc5-org/net/ipv4/udp.c linux-2.6.13-rc5/net/ipv4/udp.c
+--- linux-2.6.13-rc5-org/net/ipv4/udp.c	2005-08-02 07:45:48.000000000 +0300
++++ linux-2.6.13-rc5/net/ipv4/udp.c	2005-08-07 15:16:57.000000000 +0300
+@@ -628,7 +628,7 @@ back_from_confirm:
+ 		/* ... which is an evident application bug. --ANK */
+ 		release_sock(sk);
+ 
+-		NETDEBUG(if (net_ratelimit()) printk(KERN_DEBUG "udp cork app bug 2\n"));
++		LIMIT_NETDEBUG(printk(KERN_DEBUG "udp cork app bug 2\n"));
+ 		err = -EINVAL;
+ 		goto out;
+ 	}
+@@ -693,7 +693,7 @@ static int udp_sendpage(struct sock *sk,
+ 	if (unlikely(!up->pending)) {
+ 		release_sock(sk);
+ 
+-		NETDEBUG(if (net_ratelimit()) printk(KERN_DEBUG "udp cork app bug 3\n"));
++		LIMIT_NETDEBUG(printk(KERN_DEBUG "udp cork app bug 3\n"));
+ 		return -EINVAL;
+ 	}
+ 
+@@ -1102,7 +1102,7 @@ static int udp_checksum_init(struct sk_b
+ 		skb->ip_summed = CHECKSUM_UNNECESSARY;
+ 		if (!udp_check(uh, ulen, saddr, daddr, skb->csum))
+ 			return 0;
+-		NETDEBUG(if (net_ratelimit()) printk(KERN_DEBUG "udp v4 hw csum failure.\n"));
++		LIMIT_NETDEBUG(printk(KERN_DEBUG "udp v4 hw csum failure.\n"));
+ 		skb->ip_summed = CHECKSUM_NONE;
+ 	}
+ 	if (skb->ip_summed != CHECKSUM_UNNECESSARY)
+@@ -1181,14 +1181,13 @@ int udp_rcv(struct sk_buff *skb)
+ 	return(0);
+ 
+ short_packet:
+-	NETDEBUG(if (net_ratelimit())
+-		printk(KERN_DEBUG "UDP: short packet: From %u.%u.%u.%u:%u %d/%d to %u.%u.%u.%u:%u\n",
+-			NIPQUAD(saddr),
+-			ntohs(uh->source),
+-			ulen,
+-			len,
+-			NIPQUAD(daddr),
+-			ntohs(uh->dest)));
++	LIMIT_NETDEBUG(printk(KERN_DEBUG "UDP: short packet: From %u.%u.%u.%u:%u %d/%d to %u.%u.%u.%u:%u\n",
++			      NIPQUAD(saddr),
++			      ntohs(uh->source),
++			      ulen,
++			      len,
++			      NIPQUAD(daddr),
++			      ntohs(uh->dest)));
+ no_header:
+ 	UDP_INC_STATS_BH(UDP_MIB_INERRORS);
+ 	kfree_skb(skb);
+@@ -1199,13 +1198,12 @@ csum_error:
+ 	 * RFC1122: OK.  Discards the bad packet silently (as far as 
+ 	 * the network is concerned, anyway) as per 4.1.3.4 (MUST). 
+ 	 */
+-	NETDEBUG(if (net_ratelimit())
+-		 printk(KERN_DEBUG "UDP: bad checksum. From %d.%d.%d.%d:%d to %d.%d.%d.%d:%d ulen %d\n",
+-			NIPQUAD(saddr),
+-			ntohs(uh->source),
+-			NIPQUAD(daddr),
+-			ntohs(uh->dest),
+-			ulen));
++	LIMIT_NETDEBUG(printk(KERN_DEBUG "UDP: bad checksum. From %d.%d.%d.%d:%d to %d.%d.%d.%d:%d ulen %d\n",
++			      NIPQUAD(saddr),
++			      ntohs(uh->source),
++			      NIPQUAD(daddr),
++			      ntohs(uh->dest),
++			      ulen));
+ drop:
+ 	UDP_INC_STATS_BH(UDP_MIB_INERRORS);
+ 	kfree_skb(skb);
 
---------------020002040000070901020104--
+

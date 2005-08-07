@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752555AbVHGS6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752568AbVHGTDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752555AbVHGS6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 14:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752567AbVHGS6X
+	id S1752568AbVHGTDP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 15:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752576AbVHGTDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 14:58:23 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:970 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1752555AbVHGS6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 14:58:23 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: christos gentsis <christos_gentsis@yahoo.co.uk>
-Subject: Re: Logitech Quickcam Express USB Address Aquisition Issues
-Date: Sun, 7 Aug 2005 19:58:22 +0100
-User-Agent: KMail/1.8.1
-Cc: Chris White <chriswhite@gentoo.org>, linux-kernel@vger.kernel.org
-References: <20050807160222.0c4ee412@localhost> <1123414600.14724.3.camel@linux.site> <200508071954.10618.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200508071954.10618.s0348365@sms.ed.ac.uk>
+	Sun, 7 Aug 2005 15:03:15 -0400
+Received: from dvhart.com ([64.146.134.43]:59520 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1752568AbVHGTDO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 15:03:14 -0400
+Date: Sun, 07 Aug 2005 12:03:17 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] get rid of warning in aic7770.c:aic7770_config()
+Message-ID: <255920000.1123441397@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200508071958.22477.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 Aug 2005 19:54, Alistair John Strachan wrote:
-> On Sunday 07 Aug 2005 12:36, christos gentsis wrote:
-> [snip]
->
-> > > I searched up google a bit and recieved some warnings about acpi
-> > > causing problems, so I disabled that, but was still unsucessful in
-> > > getting that to work.  Please let me know if any other information is
-> > > required. Thanks ahead of time.
-> > >
-> > > Chris White
-> >
-> > does the drivers for the Phillips web cams come back to the kernel?
-> > because i thought that it was taken out...
-> >
-> > http://www.smcc.demon.nl/webcam/
-> >
-> > check this site and see if your cam was one of the cams that supported
-> > from the driver that discontinue... so if is supported by this driver,
-> > download and install it... it works i try it with my cam ;)
->
-> The in-kernel pwc driver doesn't work for me either. I highly recommend you
-> try the above if this turns out to not be a hardware fault.
+Get rid of unused variable warning:
 
-Sorry, I didn't even check the link. Try the driver from:
+	drivers/scsi/aic7xxx/aic7770.c: In function `aic7770_config':
+	drivers/scsi/aic7xxx/aic7770.c:129: warning: unused variable `l'
 
-http://www.saillard.org/linux/pwc/
+Not used anywhere in the function, even under ifdef. Delete.
 
-Which seems to work better.
+diff -aurpN -X /home/fletch/.diff.exclude virgin/drivers/scsi/aic7xxx/aic7770.c aic_warning/drivers/scsi/aic7xxx/aic7770.c
+--- virgin/drivers/scsi/aic7xxx/aic7770.c	2005-08-07 09:15:41.000000000 -0700
++++ aic_warning/drivers/scsi/aic7xxx/aic7770.c	2005-08-07 11:58:41.000000000 -0700
+@@ -126,7 +126,6 @@ aic7770_find_device(uint32_t id)
+ int
+ aic7770_config(struct ahc_softc *ahc, struct aic7770_identity *entry, u_int io)
+ {
+-	u_long	l;
+ 	int	error;
+ 	int	have_seeprom;
+ 	u_int	hostconf;
 
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752568AbVHGTDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752583AbVHGTDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752568AbVHGTDP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 15:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752576AbVHGTDP
+	id S1752583AbVHGTDe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 15:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752578AbVHGTDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 15:03:15 -0400
-Received: from dvhart.com ([64.146.134.43]:59520 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1752568AbVHGTDO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 15:03:14 -0400
-Date: Sun, 07 Aug 2005 12:03:17 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] get rid of warning in aic7770.c:aic7770_config()
-Message-ID: <255920000.1123441397@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Sun, 7 Aug 2005 15:03:21 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23246 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1752576AbVHGTDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 15:03:17 -0400
+Date: Sun, 7 Aug 2005 21:00:17 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: zach@vmware.com
+Cc: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk, hpa@zytor.com,
+       linux-kernel@vger.kernel.org, pavel@suse.cz, pratap@vmware.com,
+       Riley@Williams.Name
+Subject: Re: [PATCH 1/1] i386 Encapsulate copying of pgd entries
+Message-ID: <20050807190017.GE1024@openzaurus.ucw.cz>
+References: <200508060026.j760Q6FT025108@zach-dev.vmware.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <200508060026.j760Q6FT025108@zach-dev.vmware.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get rid of unused variable warning:
+Hi!
 
-	drivers/scsi/aic7xxx/aic7770.c: In function `aic7770_config':
-	drivers/scsi/aic7xxx/aic7770.c:129: warning: unused variable `l'
+> This helps complete the encapsulation of updates to page tables (or pages
+> about to become page tables) into accessor functions rather than using
+> memcpy() to duplicate them.  This is both generally good for consistency
+> and also necessary for running in a hypervisor which requires explicit
+> updates to page table entries.
 
-Not used anywhere in the function, even under ifdef. Delete.
-
-diff -aurpN -X /home/fletch/.diff.exclude virgin/drivers/scsi/aic7xxx/aic7770.c aic_warning/drivers/scsi/aic7xxx/aic7770.c
---- virgin/drivers/scsi/aic7xxx/aic7770.c	2005-08-07 09:15:41.000000000 -0700
-+++ aic_warning/drivers/scsi/aic7xxx/aic7770.c	2005-08-07 11:58:41.000000000 -0700
-@@ -126,7 +126,6 @@ aic7770_find_device(uint32_t id)
- int
- aic7770_config(struct ahc_softc *ahc, struct aic7770_identity *entry, u_int io)
- {
--	u_long	l;
- 	int	error;
- 	int	have_seeprom;
- 	u_int	hostconf;
+Hmm, I'm not sure if this kind of hypervisor can reasonably work with swsusp;
+swsusp is just copying memory, it does not know which part of memory are page tables.
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

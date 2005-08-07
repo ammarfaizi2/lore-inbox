@@ -1,27 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753092AbVHGXYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753067AbVHGXr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753092AbVHGXYk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 19:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753093AbVHGXYk
+	id S1753067AbVHGXr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 19:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753125AbVHGXr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 19:24:40 -0400
-Received: from mail.autoweb.net ([198.172.237.26]:11937 "EHLO mail.autoweb.net")
-	by vger.kernel.org with ESMTP id S1753091AbVHGXYj (ORCPT
+	Sun, 7 Aug 2005 19:47:59 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:468 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1753067AbVHGXr6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 19:24:39 -0400
-Message-ID: <42F69832.2030404@michonline.com>
-Date: Sun, 07 Aug 2005 19:24:34 -0400
-From: Ryan Anderson <ryan@michonline.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Sun, 7 Aug 2005 19:47:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=b8jouwLU+Ut67Y1jw5JnVdaUjJZdrFLzS87KElzH45zId37bYKAAtW8PF/tar0ehcNN0WExjFsYFE4rf9Xn89TqoUkyI1Tl53CqBBP/u98C1UEFul/fsJhZllBzhhyRJ7yDXhi1Fw0A/nNPRrY4APxwb6yGpeoMrOjXTSmM3OJk=
+Message-ID: <42F6266B.8000704@gmail.com>
+Date: Sun, 07 Aug 2005 15:19:07 +0000
+From: Luca Falavigna <dktrkranz@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-To: Alexander Nyberg <alexn@telia.com>
-CC: Andrew Morton <akpm@osdl.org>, Robert Love <rml@novell.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in 2.6.13-rc5-git-current (0d317fb72fe3cf0f611608cf3a3015bbe6cd2a66)
-References: <20050807035630.GA5271@mythryan2.michonline.com> <20050807200814.GA2464@localhost.localdomain>
-In-Reply-To: <20050807200814.GA2464@localhost.localdomain>
-X-Enigmail-Version: 0.91.0.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: rddunlap@osdl.org, fastboot@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kexec and frame buffer
+References: <42F219B3.6090502@gmail.com>	<m17jf1zgnz.fsf@ebiederm.dsl.xmission.com>	<42F4C6E8.1050605@gmail.com> <m13bpnyppq.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m13bpnyppq.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,55 +35,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Alexander Nyberg wrote:
-> (akpm: a fix for this needs to go into 2.6.13, inotify + nfs 
-> trivially oopses otherwise, even if inotify isn't actively used)
+Eric W. Biederman ha scritto:
+> Anyway I believe you also want to look at include/linux/tty.h
+> at the screen_info structure.  I believe that is where
+> all of that information is passed.
+I noticed. Maybe if we fill struct x86_linux_param_header with some values
+obtained from struct screen_info, we should be able to "score that mid-court
+prayer" ;)
 
-This patch seems to have fixed it for me.
+>>I tried to pass --real-mode flag to kexec but my virtual machine doesn't like
+>>it. When I launch kexec -e, it tells me: "A strange behaviour occourred which
+>>crashed virtual machine".
+>
+>
+> Cool.  I haven't used that code in a long time but it is pretty
+> trivial code to switches to real mode so I don't really doubt it :)
+Added to my list-of-things-to-do-after-holydays :)
 
-I upgraded to fdbd22dad31982b64a4e663fd056a8a7cfac9607 and applied this
-patch on top of it, and I can't retrigger the oops.  (It seemed rather
-easy to hit on the other kernel)
-
-So, I guess:
-
-Seems-to-fix-it: Ryan Anderson <ryan@michoneline.com>
-
-> It looks like the following sequence is done in the wrong order.
-> When vfs_unlink() is called from sys_unlink() it has taken a ref
-> on the inode and sys_unlink() does the last iput() but when called
-> from other callsites vfs_unlink() might do the last iput() and
-> free inode, so inotify_inode_queue_event() will receive an already
-> freed object and dereference an already freed object.
-> 
-> Signed-off-by: Alexander Nyberg <alexn@telia.com>
-> 
-> Index: mm/fs/namei.c
-> ===================================================================
-> --- mm.orig/fs/namei.c	2005-08-07 12:06:16.000000000 +0200
-> +++ mm/fs/namei.c	2005-08-07 18:17:20.000000000 +0200
-> @@ -1869,8 +1869,8 @@
->  	/* We don't d_delete() NFS sillyrenamed files--they still exist. */
->  	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED)) {
->  		struct inode *inode = dentry->d_inode;
-> -		d_delete(dentry);
->  		fsnotify_unlink(dentry, inode, dir);
-> +		d_delete(dentry);
->  	}
->  
->  	return error;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+Regards,
+- --
+					Luca
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFC9pgyfhVDhkBuUKURAjbSAKCavd7s4zdk/uce1TZ0CX018RGRmgCfXWFI
-XjAPhBcEoLyJDWnjk9oI+XI=
-=NMc4
+iQEVAwUBQvYmaszkDT3RfMB6AQLPMQf/W3HZbJj50rxI1LOHyw0hhcQZji+gU68R
+E88xmgbL1fuiQqdqD1vp3gG7uDf9jjE+TjNMQ1qgZr01xHUjV13Jq8e9Lu75S+RZ
+JgiYJxFKGY/ctl9oFgEraU9Qje1b18dTmYh5G4xfZLNjUFUM1uQowV6CSPLVRadv
+ucmzduDrqwRBQgN9vSrWPoLio8nbT5ZjxLjaY1z3P3EYXoBs9LLx1bjzLmR7/cVe
+MP3/BM61CLqflOG9G+ck9yD2RIYnLhvNHDBKt1X+oP+U/iSkzse3XEM/YVny6/3d
+zAYy8m66o2bPnj/vNcBbroxANTdiXJce8QWayk9a69c26DmjOLnYrQ==
+=iPn6
 -----END PGP SIGNATURE-----
+

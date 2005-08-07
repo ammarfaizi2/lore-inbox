@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbVHGHzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbVHGIko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbVHGHzw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 03:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbVHGHzw
+	id S1751287AbVHGIko (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 04:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbVHGIko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 03:55:52 -0400
-Received: from gate.crashing.org ([63.228.1.57]:49874 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751222AbVHGHzw (ORCPT
+	Sun, 7 Aug 2005 04:40:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2744 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751287AbVHGIkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 03:55:52 -0400
-Subject: Re: Regression: radeonfb: No synchronisation on CRT with
-	linux-2.6.13-rc5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.58.0508051935570.2326@be1.lrz>
-References: <Pine.LNX.4.58.0508040103100.2220@be1.lrz>
-	 <1123195493.30257.75.camel@gaston>
-	 <Pine.LNX.4.58.0508051935570.2326@be1.lrz>
-Content-Type: text/plain
-Date: Sun, 07 Aug 2005 09:51:07 +0200
-Message-Id: <1123401069.30257.102.camel@gaston>
+	Sun, 7 Aug 2005 04:40:43 -0400
+Date: Sun, 7 Aug 2005 01:40:31 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Chris White <chriswhite@gentoo.org>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: Logitech Quickcam Express USB Address Aquisition Issues
+Message-Id: <20050807014031.42c39fe3.zaitcev@redhat.com>
+In-Reply-To: <mailman.1123400700.14696.linux-kernel2news@redhat.com>
+References: <20050807160222.0c4ee412@localhost>
+	<20050807003639.0aa1d9b3.akpm@osdl.org>
+	<mailman.1123400700.14696.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-05 at 19:38 +0200, Bodo Eggert wrote:
-> On Fri, 5 Aug 2005, Benjamin Herrenschmidt wrote:
+On Sun, 7 Aug 2005 16:11:12 +0900, Chris White <chriswhite@gentoo.org> wrote:
+
+> > Did it work OK under a previous kernel version?  If so, which?
 > 
-> > On Fri, 2005-08-05 at 00:03 +0200, Bodo Eggert wrote:
-> > > My CRT is out of sync after radeonfb from 2.6.13-rc5 is initialized. 
-> > > 2.6.12 does not show this behaviour.
-> > 
-> > I'm out of town at the moment, could you maybe diff radeonfb between
-> > working & non-working and CC me the diff ? I don't have my work stuff at
-> > hand not my kernel images so...
-> 
-> There were no changes in radeonfb.c, but I could trace to to 
-> CONFIG_PREEMPT. With _NONE, it works as expected.
+> I haven't attempted that, but I'll probably give a 2.6.9/2.4 series
+> kernel a shot later on tommorow night.
 
-Ah ! Interesting... I don't see why PREEMPT would affect radeonfb
-though ... Can you try something like wrapper radeon_write_mode() with
-preempt_disable()/preempt_enable() and tell me if it makes a
-difference ?
+Does that thing work with Windows?
 
-Ben.
+I strongly suspect that it's simply broken at this point.
 
-
+-- Pete

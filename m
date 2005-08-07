@@ -1,86 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752671AbVHGUIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752677AbVHGUOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752671AbVHGUIT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 16:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752672AbVHGUIT
+	id S1752677AbVHGUOp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 16:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752679AbVHGUOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 16:08:19 -0400
-Received: from mailfe15.swip.net ([212.247.155.193]:5874 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1752671AbVHGUIS (ORCPT
+	Sun, 7 Aug 2005 16:14:44 -0400
+Received: from hockin.org ([66.35.79.110]:9432 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S1752677AbVHGUOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 16:08:18 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Sun, 7 Aug 2005 22:08:14 +0200
-From: Alexander Nyberg <alexn@telia.com>
-To: Ryan Anderson <ryan@michonline.com>, Andrew Morton <akpm@osdl.org>,
-       Robert Love <rml@novell.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in 2.6.13-rc5-git-current (0d317fb72fe3cf0f611608cf3a3015bbe6cd2a66)
-Message-ID: <20050807200814.GA2464@localhost.localdomain>
-References: <20050807035630.GA5271@mythryan2.michonline.com>
+	Sun, 7 Aug 2005 16:14:44 -0400
+Date: Sun, 7 Aug 2005 13:14:38 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: Erick Turnquist <jhujhiti@gmail.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Lost Ticks on x86_64
+Message-ID: <20050807201438.GA4936@hockin.org>
+References: <5348b8ba050806204453392f7f@mail.gmail.com.suse.lists.linux.kernel> <p73mznuc732.fsf@bragg.suse.de> <20050807174811.GA31006@hockin.org> <5348b8ba050807114616f84ee6@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050807035630.GA5271@mythryan2.michonline.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <5348b8ba050807114616f84ee6@mail.gmail.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unable to handle kernel paging request at virtual address 6b6b6b6b
->  printing eip:
-> c0188d15
-> *pde = 00000000
-> Oops: 0000 [#1]
-> PREEMPT 
-> CPU:    0
-> EIP:    0060:[inotify_inode_queue_event+85/336]    Not tainted VLI
-> EFLAGS: 00010206   (2.6.13-rc5-g0d317fb7) 
-> EIP is at inotify_inode_queue_event+0x55/0x150
-> eax: 6b6b6b6b   ebx: 6b6b6b63   ecx: 00000000   edx: 00000066
-> esi: c3effe34   edi: ce8c76ac   ebp: d4bb864c   esp: d8655eb0
-> ds: 007b   es: 007b   ss: 0068
-> Process nfsd (pid: 3750, threadinfo=d8654000 task=d6155020)
-> Stack: 00000286 00000286 00000000 00000400 d4bb8760 d4bb8768 00000000 c3effe34 
->        ce8c76ac d4bb864c c0170626 00000000 c3effe34 d6608ad4 db74b17c c3effe34 
->        e0cfe9a4 00000013 e0d01b34 c0dd91b4 ce8c76ac ffffc000 d66092dc d66093c4 
-> Call Trace:
->  [vfs_unlink+358/560] vfs_unlink+0x166/0x230
->  [pg0+544348580/1067586560] nfsd_unlink+0x104/0x230 [nfsd]
->  [pg0+544361268/1067586560] nfsd_cache_lookup+0x1c4/0x3c0 [nfsd]
->  [pg0+544371728/1067586560] nfsd3_proc_remove+0x80/0xc0 [nfsd]
->  [pg0+544381018/1067586560] nfs3svc_decode_diropargs+0x8a/0x100 [nfsd]
->  [pg0+544380880/1067586560] nfs3svc_decode_diropargs+0x0/0x100 [nfsd]
->  [pg0+544321698/1067586560] nfsd_dispatch+0x82/0x1f0 [nfsd]
->  [svc_authenticate+112/336] svc_authenticate+0x70/0x150
->  [svc_process+960/1648] svc_process+0x3c0/0x670
->  [pg0+544323105/1067586560] nfsd+0x1a1/0x350 [nfsd]
->  [ret_from_fork+6/20] ret_from_fork+0x6/0x14
->  [pg0+544322688/1067586560] nfsd+0x0/0x350 [nfsd]
->  [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+On Sun, Aug 07, 2005 at 02:46:50PM -0400, Erick Turnquist wrote:
+> > Some BIOSes do not lock SMM, and you *could* turn it off at the chipset
+> > level.
+> 
+> I don't see anything about SMM in my BIOS configuration even with the
+> advanced options enabled... Turning it off at the chipset level sounds
+> like a hardware hack - is it?
 
-(akpm: a fix for this needs to go into 2.6.13, inotify + nfs 
-trivially oopses otherwise, even if inotify isn't actively used)
-
-It looks like the following sequence is done in the wrong order.
-When vfs_unlink() is called from sys_unlink() it has taken a ref
-on the inode and sys_unlink() does the last iput() but when called
-from other callsites vfs_unlink() might do the last iput() and
-free inode, so inotify_inode_queue_event() will receive an already
-freed object and dereference an already freed object.
-
-Signed-off-by: Alexander Nyberg <alexn@telia.com>
-
-Index: mm/fs/namei.c
-===================================================================
---- mm.orig/fs/namei.c	2005-08-07 12:06:16.000000000 +0200
-+++ mm/fs/namei.c	2005-08-07 18:17:20.000000000 +0200
-@@ -1869,8 +1869,8 @@
- 	/* We don't d_delete() NFS sillyrenamed files--they still exist. */
- 	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED)) {
- 		struct inode *inode = dentry->d_inode;
--		d_delete(dentry);
- 		fsnotify_unlink(dentry, inode, dir);
-+		d_delete(dentry);
- 	}
- 
- 	return error;
+No, it's usually just a PCI register you can change.  Depends on your
+chipset, though.

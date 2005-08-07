@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVHGBLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVHGCZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVHGBLy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 21:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVHGBJj
+	id S1750752AbVHGCZv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 22:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVHGCZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 21:09:39 -0400
-Received: from fsmlabs.com ([168.103.115.128]:14310 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261402AbVHGBHT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 21:07:19 -0400
-Date: Sat, 6 Aug 2005 19:13:00 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] i386: Per node IDT
-In-Reply-To: <42D28DE4.B5B17853@tv-sign.ru>
-Message-ID: <Pine.LNX.4.61.0508061906050.470@montezuma.fsmlabs.com>
-References: <42D26604.66A75939@tv-sign.ru> <Pine.LNX.4.61.0507110747480.16055@montezuma.fsmlabs.com>
- <42D285CD.CF9389F8@tv-sign.ru> <42D28DE4.B5B17853@tv-sign.ru>
+	Sat, 6 Aug 2005 22:25:51 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:10447 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750752AbVHGCZu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 22:25:50 -0400
+Message-ID: <42F57104.5090208@zytor.com>
+Date: Sat, 06 Aug 2005 19:25:08 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Wright <chrisw@osdl.org>
+CC: Zachary Amsden <zach@vmware.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, davej@codemonkey.org.uk,
+       Riley@Williams.Name, pratap@vmware.com, chrisl@vmware.com
+Subject: Re: [PATCH 1/8] Move MSR accessors into the sub-arch layer
+References: <42F4626D.1000401@vmware.com> <20050807010247.GF7762@shell0.pdx.osdl.net>
+In-Reply-To: <20050807010247.GF7762@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Jul 2005, Oleg Nesterov wrote:
-
-> Oleg Nesterov wrote:
-> > 
-> > Probably it makes sense to change it to
-> >         pushl $vector - 0xFFFF - 1
-> > 
+Chris Wright wrote:
+> * Zachary Amsden (zach@vmware.com) wrote:
 > 
-> Please note that entry.S:BUILD_INTERRUPT() also does this trick:
-> 	pushl $nr-256;
+>>i386 Transparent Paravirtualization Subarch Patch #1
+>>
+>>This change encapsulates MSR register accessors and moves them into the
+>>sub-architecture layer.  The goal is a clean, uniform interface that may
+>>be redefined on new sub-architectures of i386.
 > 
-> so it should be changed as well.
+> I currently have nothing analgous for Xen, but this one looks sane.
 
-I was making these changes and noticed that those were for the various SMP 
-interrupts so they are real vectors. These will always remain within the 
-256 range.
+I would like to strongly request one addition, however: please make it 
+so that a subarchitecture which is still a hardware architecture doesn't 
+have to redefine all of these every time.
 
-	Zwane
-
+	-hpa

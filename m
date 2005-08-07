@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVHGJYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbVHGJdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbVHGJYD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 05:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVHGJYD
+	id S1751350AbVHGJdk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 05:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbVHGJdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 05:24:03 -0400
-Received: from smtp3.nextra.sk ([195.168.1.142]:56068 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S1751340AbVHGJYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 05:24:03 -0400
-Message-ID: <42F5D32C.3010400@rainbow-software.org>
-Date: Sun, 07 Aug 2005 11:23:56 +0200
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris White <chriswhite@gentoo.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Logitech Quickcam Express USB Address Aquisition Issues
-References: <20050807160222.0c4ee412@localhost>
-In-Reply-To: <20050807160222.0c4ee412@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Aug 2005 05:33:40 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:13465 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751350AbVHGJdj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 05:33:39 -0400
+Date: Sun, 7 Aug 2005 11:41:29 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes.  Also some X trouble.
+Message-ID: <20050807094129.GA10857@aitel.hist.no>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <20050805104025.GA14688@aitel.hist.no> <20050805150506.703e804f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050805150506.703e804f.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris White wrote:
-  > As far as the host goes, I have the following USB hosts:
+On Fri, Aug 05, 2005 at 03:05:06PM -0700, Andrew Morton wrote:
+> Helge Hafting <helgehaf@aitel.hist.no> wrote:
+[...]
+> > The two kernels have some config differences.  The 2.6.13-rc5 kernel
+> > has ACPI+CPUFREQ configured, that the 2.6.13-rc4-mm1 doesn't have.
 > 
-> 0000:00:11.0 USB Controller: NEC Corporation USB (rev 43)
-> 0000:00:11.1 USB Controller: NEC Corporation USB (rev 43)
-> 0000:00:11.2 USB Controller: NEC Corporation USB 2.0 (rev 04)
+> That's a pretty big difference ;)
 > 
-> The first is my builtin Intel USB controller, the second is one belkin USB 1.0 card, and another 2.0 card.  I've tried it in all three just to verify one of my hosts wasn't broken.  Considering my printer works with it, as well as my scanner, I'm sort of thinking that's not an issue.
-It looks like one add-on USB 2.0 card with NEC chip which is backward 
-compatible with USB 1.0. No Intel here.
+Sure.
+> > ...
+> > I can run more tests, but don't know what would be the most interesting.
+> > rc5 without powermanagement?  rc4-mm1 with it? Or the newest git kernel?
+> > Or is this the effect of some known problem?
+> 
+> The latest -git kernel (or 2.6.13-rc6 if it's there) with APCI enabled is
+> the one to test, please.
+> 
+I tried 2.6.13-rc5-git4, with and without ACPI. They seem to behave
+identical:
 
--- 
-Ondrej Zary
+I haven't seen any more disk trouble, but one of my X displays go black
+now and then, forcing me to do a display resize to get it back.  This
+does not happen at all with 2.6.13-rc4-mm1.
+
+The display that goes black uses the evdev protocol to read the
+second keyboard which is not connected to any tty.  That is a very
+new option which could have its own issues, but there where no problems 
+in rc4-mm1. It is annoying enough that I don't want to run rc5 for
+anything but tests.
+
+Helge Hafting

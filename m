@@ -1,96 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752712AbVHGUre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752701AbVHGUix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752712AbVHGUre (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 16:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752713AbVHGUre
+	id S1752701AbVHGUix (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 16:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752702AbVHGUix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 16:47:34 -0400
-Received: from mail.gmx.de ([213.165.64.20]:37517 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752712AbVHGUrd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 16:47:33 -0400
-X-Authenticated: #3439220
-From: Martin Maurer <martinmaurer@gmx.at>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: Fw: Re: Elitegroup K7S5A + usb_storage problem
-Date: Sun, 7 Aug 2005 22:47:40 +0200
-User-Agent: KMail/1.7.2
-Cc: martin.maurer@email.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, PeteZaitcev <zaitcev@redhat.com>
-References: <Pine.LNX.4.44L0.0508071400290.32668-100000@netrider.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0508071400290.32668-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2327875.BEcikRRQI1";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sun, 7 Aug 2005 16:38:53 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:22178 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1752701AbVHGUiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 16:38:52 -0400
+Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
+From: Lee Revell <rlrevell@joe-job.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
+References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
+Content-Type: text/plain
+Date: Sun, 07 Aug 2005 16:38:49 -0400
+Message-Id: <1123447130.12766.35.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.6.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508072247.43916.martinmaurer@gmx.at>
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2327875.BEcikRRQI1
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, 2005-08-07 at 11:47 -0700, Linus Torvalds wrote:
+> James and gang found the aic7xxx slowdown that happened after 2.6.12, and 
+> we'd like to get particular testing that it's fixed, so if you have a 
+> relevant machine, please do test this.
+> 
+> There are other fixes too, a number of them reverting (at least for now)  
+> patches that people had problems with. In general, anybody who has
+> reported regressions since 2.6.12, please re-test with -rc6 and report
+> back (even if, or perhaps _particularly_ if, no change to the regression).
 
-On Sunday, 7. August 2005 20:08, Alan Stern wrote:
-> On Sun, 7 Aug 2005 martin.maurer@email.de wrote:
-> > Hi Alan,
-> >
-> > no. the stick doesn't have a write protection switch.
-> > Once when i tried to copy a file to the mp3 player i got a new file the=
-re
-> > on remount, but it consisted of incorrect data. (so writing seemed to be
-> > possible and just went wrong) (in that case the fat seemed to be damaged
-> > after i had tried this, so that windows wasn't able to read it correctly
-> > any more.
-> > (formatting from the mp3 players menu helped)
->
-> Well, perhaps the device isn't consistently writing data to the
-> correct locations.
->
-> > greetings
-> > Martin
-> >
-> > PS: just as an info - i sent a usbmon trace to Pete Zaitcev today, shou=
-ld
-> > I send it to you too?
->
-> Pete is quite as competent at solving this kind of problem as I am.  And
-> he knows the ub driver much better, so I'm happy to bow out and let him
-> worry about it!  :-)
->
-> Just out of curiosity, if you plug the player into a Windows system
-> without installing any special drivers first, will Windows be able to read
-> and write files okay?  If it can, a USB packet trace may give Pete a clue
-> as to where to look.
-as far as i recall i didnt install any special drivers for my win 2k and wi=
-n=20
-xp systems. (i got this mp3 player quite a while now...)
-How would I do such an packet trace ?
+It looks like CONFIG_4KSTACKS has gone away (IOW 8K stacks are no longer
+an option).  But now I get this ominous warning when I compile
+ndiswrapper:
+
+*** WARNING: Kernel seems to have 4K size stack option (CONFIG_4KSTACKS)
+removed; many Windows drivers will need at least 8K size stacks. You
+should read wiki about 4K size stack issue. Don't complain about crashes
+until you resolve this
+
+As ndiswrapper seems to be the only option for many wireless chipsets,
+this certainly looks like it will lead to regressions.
+
+Why was this option removed?  It's pretty clear that lots of out of tree
+drivers still require it.
+
+Lee
 
 
->
-> Alan Stern
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
---nextPart2327875.BEcikRRQI1
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC9nNvXHsqb5Up6wURAnBpAJ9SoMfqnDuLF4yNima/HKa/bRmXcgCfYFSB
-F3dORvr5I5anSkCWCXnrwYg=
-=LJ0Z
------END PGP SIGNATURE-----
-
---nextPart2327875.BEcikRRQI1--

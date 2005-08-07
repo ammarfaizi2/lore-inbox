@@ -1,116 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752193AbVHGPnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752203AbVHGPqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752193AbVHGPnD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 11:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752192AbVHGPnD
+	id S1752203AbVHGPqt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 11:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752210AbVHGPqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 11:43:03 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27396 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1752190AbVHGPnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 11:43:02 -0400
-Date: Sun, 7 Aug 2005 17:43:00 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
-Subject: [-mm patch] more vr4181 removal
-Message-ID: <20050807154300.GC3513@stusta.de>
-References: <20050807014214.45968af3.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 Aug 2005 11:46:49 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:30131 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1752203AbVHGPqs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 11:46:48 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [PATCH] 6700/6702PXH quirk
+Date: Sun, 7 Aug 2005 18:46:29 +0300
+User-Agent: KMail/1.5.4
+Cc: Greg KH <greg@kroah.com>, Kristen Accardi <kristen.c.accardi@intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       rajesh.shah@intel.com, akpm@osdl.org, torvalds@osdl.org
+References: <1123259263.8917.9.camel@whizzy> <20050806085013.GA17747@parcelfarce.linux.theplanet.co.uk> <20050806155755.GA17136@havoc.gtf.org>
+In-Reply-To: <20050806155755.GA17136@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050807014214.45968af3.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200508071846.29292.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 07, 2005 at 01:42:14AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.13-rc4-mm1:
->...
-> +mips-remove-vr4181-support.patch
->...
->  MIPS stuff
->...
+On Saturday 06 August 2005 18:57, Jeff Garzik wrote:
+> On Sat, Aug 06, 2005 at 09:50:13AM +0100, Matthew Wilcox wrote:
+> > On Fri, Aug 05, 2005 at 11:34:55PM -0400, Jeff Garzik wrote:
+> > > FWIW, compilers generate AWFUL code for bitfields.  Bitfields are
+> > > really tough to do optimally, whereas bit flags ["unsigned int flags &
+> > > bitmask"] are the familiar ints and longs that the compiler is well
+> > > tuned to optimize.
+> > 
+> > I'm sure the GCC developers would appreciate a good bug report with a
+> > test-case that generates worse code.  If you don't want to mess with their
+> > bug tracking system, just send me a test case and I'll add it for you.
+> 
+> Its an order-of-complexity issue.  No matter how hard you try,
+> bitfields will -always- be tougher to optimize, than machine ints.
+> 
+> Bitfields are weirdly-sized, weirdly-aligned integers.  A simple look at
+> the generated asm from gcc on ARM or MIPS demonstrates the explosion of
+> code that can sometimes occur, versus a simple 'and' test of a machine
+> int and a mask.  x86 is a tiny bit better, but still more expensive to
+> do bitfields than machine ints.
 
+But we are talking about one-bit field here:
 
++šššššššunsigned intššššno_msi:1; š šššš/* device may not use msi */
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- arch/mips/Kconfig            |   12 +-----------
- arch/mips/Makefile           |    7 -------
- arch/mips/kernel/cpu-probe.c |    6 ------
- 3 files changed, 1 insertion(+), 24 deletions(-)
-
---- linux-2.6.13-rc5-mm1-full/arch/mips/Kconfig.old	2005-08-07 17:31:12.000000000 +0200
-+++ linux-2.6.13-rc5-mm1-full/arch/mips/Kconfig	2005-08-07 17:32:04.000000000 +0200
-@@ -445,11 +445,6 @@
- 	depends on DDB5477
- 	default 0
- 
--config NEC_OSPREY
--	bool "Support for NEC Osprey board"
--	select DMA_NONCOHERENT
--	select IRQ_CPU
--
- config SGI_IP22
- 	bool "Support for SGI IP22 (Indy/Indigo2)"
- 	select ARC
-@@ -974,7 +969,7 @@
- 
- config CPU_LITTLE_ENDIAN
- 	bool "Generate little endian code"
--	default y if ACER_PICA_61 || CASIO_E55 || DDB5074 || DDB5476 || DDB5477 || MACH_DECSTATION || IBM_WORKPAD || LASAT || MIPS_COBALT || MIPS_ITE8172 || MIPS_IVR || SOC_AU1X00 || NEC_OSPREY || OLIVETTI_M700 || SNI_RM200_PCI || VICTOR_MPC30X || ZAO_CAPCELLA
-+	default y if ACER_PICA_61 || CASIO_E55 || DDB5074 || DDB5476 || DDB5477 || MACH_DECSTATION || IBM_WORKPAD || LASAT || MIPS_COBALT || MIPS_ITE8172 || MIPS_IVR || SOC_AU1X00 || OLIVETTI_M700 || SNI_RM200_PCI || VICTOR_MPC30X || ZAO_CAPCELLA
- 	default n if MIPS_EV64120 || MIPS_EV96100 || MOMENCO_OCELOT || MOMENCO_OCELOT_G || SGI_IP22 || SGI_IP27 || SGI_IP32 || TOSHIBA_JMR3927
- 	help
- 	  Some MIPS machines can be configured for either little or big endian
-@@ -1091,11 +1086,6 @@
- config HAVE_STD_PC_SERIAL_PORT
- 	bool
- 
--config VR4181
--	bool
--	depends on NEC_OSPREY
--	default y
--
- config ARC_CONSOLE
- 	bool "ARC console support"
- 	depends on SGI_IP22 || SNI_RM200_PCI
---- linux-2.6.13-rc5-mm1-full/arch/mips/Makefile.old	2005-08-07 17:32:19.000000000 +0200
-+++ linux-2.6.13-rc5-mm1-full/arch/mips/Makefile	2005-08-07 17:32:30.000000000 +0200
-@@ -469,13 +469,6 @@
- load-$(CONFIG_LASAT)		+= 0xffffffff80000000
- 
- #
--# NEC Osprey (vr4181) board
--#
--core-$(CONFIG_NEC_OSPREY)	+= arch/mips/vr4181/common/ \
--				   arch/mips/vr4181/osprey/
--load-$(CONFIG_NEC_OSPREY)	+= 0xffffffff80002000
--
--#
- # Common VR41xx
- #
- core-$(CONFIG_MACH_VR41XX)	+= arch/mips/vr41xx/common/
---- linux-2.6.13-rc5-mm1-full/arch/mips/kernel/cpu-probe.c.old	2005-08-07 17:32:45.000000000 +0200
-+++ linux-2.6.13-rc5-mm1-full/arch/mips/kernel/cpu-probe.c	2005-08-07 17:33:46.000000000 +0200
-@@ -229,15 +229,9 @@
- 		break;
- 	case PRID_IMP_VR41XX:
- 		switch (c->processor_id & 0xf0) {
--#ifndef CONFIG_VR4181
- 		case PRID_REV_VR4111:
- 			c->cputype = CPU_VR4111;
- 			break;
--#else
--		case PRID_REV_VR4181:
--			c->cputype = CPU_VR4181;
--			break;
--#endif
- 		case PRID_REV_VR4121:
- 			c->cputype = CPU_VR4121;
- 			break;
+If _this_ isn't optimized nicely into ANDs, ORs, etc, then
+bug report is in order and gcc should be fixed.
+--
+vda
 

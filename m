@@ -1,154 +1,230 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752325AbVHGQsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752339AbVHGQyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752325AbVHGQsK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 12:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752326AbVHGQsJ
+	id S1752339AbVHGQyL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 12:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752340AbVHGQyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 12:48:09 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:35564 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S1752321AbVHGQsJ (ORCPT
+	Sun, 7 Aug 2005 12:54:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39810 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752338AbVHGQyK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 12:48:09 -0400
-Date: Sun, 7 Aug 2005 18:48:24 +0200
-From: andrea gelmini <andrea.gelmini@linux.it>
-To: linux-kernel@vger.kernel.org
-Subject: DMA problem with kernel >2.6.10
-Message-ID: <20050807164824.GA3312@gelma.net>
+	Sun, 7 Aug 2005 12:54:10 -0400
+Date: Sun, 7 Aug 2005 09:52:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marcel Selhorst <selhorst@crypto.rub.de>
+Cc: torvalds@osdl.org, kjhall@us.ibm.com, castet.matthieu@free.fr,
+       alex.williamson@hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tpm_infineon: Bugfix in PNPACPI-handling
+Message-Id: <20050807095232.1d7c8384.akpm@osdl.org>
+In-Reply-To: <42F5F768.3000204@crypto.rub.de>
+References: <42F5F768.3000204@crypto.rub.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.10
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-	I'm trying to figure out the reason of my laptop problem.
-	I beg your help to find the right way to debug it (I mean,
-	I don't want to flood the mailing list with useless details,
-	and so on).
-	Well, let's try...
-	
-	Hardware: Toshiba Satellite P20 (P4-3200 MHz, 512MB RAM) [1]
-	Software: Debian Unstable
-	GCC: 3.4.5 [2]
-	Memtest86+: v.1.60 (stress tools, CPU/RAM and so on, are all happy)
-	Problem: with kernel <=2.6.10 everything is all right...
-	but with any kernel released after 2.6.10 (pre, rc, stable, mm, and
-	so on), I've got this:
+Marcel Selhorst <selhorst@crypto.rub.de> wrote:
+>
+> 
+>  This patch corrects the PNP-handling inside the tpm-driver
+>  and some minor coding style bugs.
 
-hda: dma_timer_expiry: dma status == 0x21
-hda: DMA timeout error
-hda: dma timeout error: status=0xd0 { Busy }
+But the patch adds lots of new coding style bugs!
 
-ide: failed opcode was: unknown
-hda: DMA disabled
-ide0: reset: success
-Losing too many ticks!
-TSC cannot be used as a timesource.
-Possible reasons for this are:
-  You're running with Speedstep,
-  You don't have DMA enabled for your hard disk (see hdparm),
-  Incorrect TSC synchronization on an SMP system (see dmesg).
-Falling back to a sane timesource now.
-hda: dma_timer_expiry: dma status == 0x21
-hda: DMA timeout error
-hda: dma timeout error: status=0xd0 { Busy }
+> ...
+>  @@ -356,24 +356,26 @@ static const struct pnp_device_id tpm_pn
+>   	{"IFX0102", 0},
+>   	{"", 0}
+>   };
+>  +MODULE_DEVICE_TABLE(pnp, tpm_pnp_tbl);
+> 
+>  -static int __devinit tpm_inf_acpi_probe(struct pnp_dev *dev,
+>  +static int __devinit tpm_inf_pnp_probe(struct pnp_dev *dev,
+>   					const struct pnp_device_id *dev_id)
+>   {
+>  -	TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
+>  -	TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
+>  -	tpm_inf.base = pnp_port_start(dev, 1);
+>  -	dev_info(&dev->dev, "Found %s with ID %s\n",
+>  +	if (pnp_port_valid(dev, 0)) {
+>  +	    TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
+>  +	    TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
+>  +	    tpm_inf.base = pnp_port_start(dev, 1);
+>  +	    dev_info(&dev->dev, "Found %s with ID %s\n",
+>   		 dev->name, dev_id->id);
 
-ide: failed opcode was: unknown
-hda: DMA disabled
-ide0: reset: success
-	
-	after a stress activity of the hd (I can achieve this by unrar big
-	files, or using 'iozone -A').
-	I wanna make it clear: with 2.6.10, HD can work for days without
-	rest/poweroff/reboot.
-	It's enough to switch to another kernel >2.6.10 to have the
-	problem.
-	With some kernel, system simply freeze, with other it survive and
-	gives the DMA notice. Anyway, when it happens, I've got a big filesystem
-	corruption (I tried both ext2 and ext3).
-	It happen quickly if I do also something like this:
-	
-	cd /proc/sys/vm
-	echo 100 > dirty_background_ratio
-	echo 1000000 > dirty_expire_centisecs
-	echo 100 > dirty_ratio
-	echo 1000000 > dirty_writeback_centisecs
-	
-	It could be useful to apply all 2.6.11 patch to 2.6.10 *but* the
-	IDE layer?
-	
-	Or, which are really useful information about it?
+We use hard tabs for indentation at eight columns each, not four-spaces.
 
-Thanks a lot for your time and work,
-Andrea
+Fixed-up version:
 
----
 
-[1] Sorry, I didn't find an official homepage. anyway:
-(lspci)
-0000:00:00.0 Host bridge: Intel Corp. 82865G/PE/P DRAM Controller/Host-Hub Interface (rev 02)
-0000:00:01.0 PCI bridge: Intel Corp. 82865G/PE/P PCI to AGP Controller (rev 02)
-0000:00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #1 (rev 02)
-0000:00:1d.1 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #2 (rev 02)
-0000:00:1d.2 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02)
-0000:00:1d.3 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #4 (rev 02)
-0000:00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
-0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev c2)
-0000:00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Bridge (rev 02)
-0000:00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) Ultra ATA 100 Storage Controller (rev 02)
-0000:00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
-0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller (rev 02)
-0000:00:1f.6 Modem: Intel Corp. 82801EB/ER (ICH5/ICH5R) AC'97 Modem Controller (rev 02)
-0000:01:00.0 VGA compatible controller: nVidia Corporation NV34M [GeForce FX Go 5200] (rev a1)
-0000:02:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000 Controller (PHY/Link)
-0000:02:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd.  RTL-8139/8139C/8139C+ (rev 10)
-0000:02:04.0 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support (rev 32)
-0000:02:04.1 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support (rev 32)
-0000:02:06.0 System peripheral: Toshiba America Info Systems SD TypA Controller (rev 03)
-
-(dmidecode)
-                Vendor: TOSHIBA
-                Version: V1.20
-                Release Date: 06/24/2003
-                Address: 0xE4DF0
-                Runtime Size: 111120 bytes
-                ROM Size: 512 kB
-		Handle 0x0001
-        DMI type 1, 25 bytes.
-        System Information
-                Manufacturer: TOSHIBA
-                Product Name: Satellite P20
-        Processor Information
-                Socket Designation: NWD
-                Type: Central Processor
-                Family: Pentium 4
-                Manufacturer: Intel
-                ID: 29 0F 00 00 FF FB EB BF
-                Signature: Type 0, Family 15, Model 2, Stepping 9
-        DMI type 6, 12 bytes.
-        Memory Module Information
-                Socket Designation: M1
-                Bank Connections: 0 1
-                Current Speed: Unknown
-                Type: DIMM SDRAM
-                Installed Size: 256 MB (Double-bank Connection)
-                Enabled Size: 256 MB (Double-bank Connection)
-                Error Status: OK
-        DMI type 6, 12 bytes.
-        Memory Module Information
-                Socket Designation: M2
-                Bank Connections: 4 5
-                Current Speed: Unknown
-                Type: DIMM SDRAM
-                Installed Size: 256 MB (Double-bank Connection)
-                Enabled Size: 256 MB (Double-bank Connection)
-                Error Status: OK
-
-[2]
-Reading specs from /usr/lib/gcc/i486-linux-gnu/3.4.5/specs
-Configured with: ../src/configure -v --enable-languages=c,c++,java,f77,pascal,objc,ada,treelang --prefix=/usr --libexecdir=/usr/lib --with-gxx-include-dir=/usr/include/c++/3.4 --enable-shared --with-system-zlib --enable-nls --without-included-gettext --program-suffix=-3.4 --enable-__cxa_atexit --enable-libstdcxx-allocator=mt --enable-clocale=gnu --enable-libstdcxx-debug --enable-java-gc=boehm --enable-java-awt=gtk --disable-werror i486-linux-gnu
-Thread model: posix
-gcc version 3.4.5 20050706 (prerelease) (Debian 3.4.4-5)
+diff -puN drivers/char/tpm/tpm_infineon.c~tpm_infineon-bugfix-in-pnpacpi-handling drivers/char/tpm/tpm_infineon.c
+--- devel/drivers/char/tpm/tpm_infineon.c~tpm_infineon-bugfix-in-pnpacpi-handling	2005-08-07 09:50:06.000000000 -0700
++++ devel-akpm/drivers/char/tpm/tpm_infineon.c	2005-08-07 09:51:50.000000000 -0700
+@@ -14,7 +14,6 @@
+  * License.
+  */
+ 
+-#include <acpi/acpi_bus.h>
+ #include <linux/pnp.h>
+ #include "tpm.h"
+ 
+@@ -29,9 +28,10 @@
+ #define	TPM_MAX_TRIES		5000
+ #define	TPM_INFINEON_DEV_VEN_VALUE	0x15D1
+ 
+-/* These values will be filled after ACPI-call */
++/* These values will be filled after PnP-call */
+ static int TPM_INF_DATA = 0;
+ static int TPM_INF_ADDR = 0;
++static int pnp_registered = 0;
+ 
+ /* TPM header definitions */
+ enum infineon_tpm_header {
+@@ -356,24 +356,26 @@ static const struct pnp_device_id tpm_pn
+ 	{"IFX0102", 0},
+ 	{"", 0}
+ };
++MODULE_DEVICE_TABLE(pnp, tpm_pnp_tbl);
+ 
+-static int __devinit tpm_inf_acpi_probe(struct pnp_dev *dev,
++static int __devinit tpm_inf_pnp_probe(struct pnp_dev *dev,
+ 					const struct pnp_device_id *dev_id)
+ {
+-	TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
+-	TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
+-	tpm_inf.base = pnp_port_start(dev, 1);
+-	dev_info(&dev->dev, "Found %s with ID %s\n",
+-		 dev->name, dev_id->id);
+-	if (!((tpm_inf.base >> 8) & 0xff))
+-		tpm_inf.base = 0;
+-	return 0;
++	if (pnp_port_valid(dev, 0)) {
++		TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
++		TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
++		tpm_inf.base = pnp_port_start(dev, 1);
++		dev_info(&dev->dev, "Found %s with ID %s\n",
++		dev->name, dev_id->id);
++		return 0;
++	}
++	return -ENODEV;
+ }
+ 
+ static struct pnp_driver tpm_inf_pnp = {
+ 	.name = "tpm_inf_pnp",
+ 	.id_table = tpm_pnp_tbl,
+-	.probe = tpm_inf_acpi_probe,
++	.probe = tpm_inf_pnp_probe,
+ };
+ 
+ static int __devinit tpm_inf_probe(struct pci_dev *pci_dev,
+@@ -386,19 +388,30 @@ static int __devinit tpm_inf_probe(struc
+ 	int productid[2];
+ 	char chipname[20];
+ 
+-	if (pci_enable_device(pci_dev))
+-		return -EIO;
++	rc = pci_enable_device(pci_dev);
++	if (rc)
++		return rc;
+ 
+ 	dev_info(&pci_dev->dev, "LPC-bus found at 0x%x\n", pci_id->device);
+ 
+-	/* read IO-ports from ACPI */
+-	pnp_register_driver(&tpm_inf_pnp);
+-	pnp_unregister_driver(&tpm_inf_pnp);
++	/* read IO-ports from PnP */
++	rc = pnp_register_driver(&tpm_inf_pnp);
++	if (rc < 0) {
++		dev_err(&pci_dev->dev,
++			"Error %x from pnp_register_driver!\n",rc);
++		goto error2;
++	}
++	if (!rc) {
++		dev_info(&pci_dev->dev, "No Infineon TPM found!\n");
++		goto error;
++	} else {
++		pnp_registered = 1;
++	}
+ 
+ 	/* Make sure, we have received valid config ports */
+ 	if (!TPM_INF_ADDR) {
+-		pci_disable_device(pci_dev);
+-		return -EIO;
++		dev_err(&pci_dev->dev, "No valid IO-ports received!\n");
++		goto error;
+ 	}
+ 
+ 	/* query chip for its vendor, its version number a.s.o. */
+@@ -418,23 +431,21 @@ static int __devinit tpm_inf_probe(struc
+ 
+ 	switch ((productid[0] << 8) | productid[1]) {
+ 	case 6:
+-		sprintf(chipname, " (SLD 9630 TT 1.1)");
++		snprintf(chipname, sizeof(chipname), " (SLD 9630 TT 1.1)");
+ 		break;
+ 	case 11:
+-		sprintf(chipname, " (SLB 9635 TT 1.2)");
++		snprintf(chipname, sizeof(chipname), " (SLB 9635 TT 1.2)");
+ 		break;
+ 	default:
+-		sprintf(chipname, " (unknown chip)");
++		snprintf(chipname, sizeof(chipname), " (unknown chip)");
+ 		break;
+ 	}
+-	chipname[19] = 0;
+ 
+ 	if ((vendorid[0] << 8 | vendorid[1]) == (TPM_INFINEON_DEV_VEN_VALUE)) {
+ 
+ 		if (tpm_inf.base == 0) {
+ 			dev_err(&pci_dev->dev, "No IO-ports found!\n");
+-			pci_disable_device(pci_dev);
+-			return -EIO;
++			goto error;
+ 		}
+ 		/* configure TPM with IO-ports */
+ 		outb(IOLIMH, TPM_INF_ADDR);
+@@ -452,8 +463,7 @@ static int __devinit tpm_inf_probe(struc
+ 			dev_err(&pci_dev->dev,
+ 				"Could not set IO-ports to %04x\n",
+ 				tpm_inf.base);
+-			pci_disable_device(pci_dev);
+-			return -EIO;
++			goto error;
+ 		}
+ 
+ 		/* activate register */
+@@ -479,14 +489,16 @@ static int __devinit tpm_inf_probe(struc
+ 			 productid[0], productid[1], chipname);
+ 
+ 		rc = tpm_register_hardware(pci_dev, &tpm_inf);
+-		if (rc < 0) {
+-			pci_disable_device(pci_dev);
+-			return -ENODEV;
+-		}
++		if (rc < 0)
++			goto error;
+ 		return 0;
+ 	} else {
+ 		dev_info(&pci_dev->dev, "No Infineon TPM found!\n");
++error:
++		pnp_unregister_driver(&tpm_inf_pnp);
++error2:
+ 		pci_disable_device(pci_dev);
++		pnp_registered = 0;
+ 		return -ENODEV;
+ 	}
+ }
+@@ -521,6 +533,8 @@ static int __init init_inf(void)
+ 
+ static void __exit cleanup_inf(void)
+ {
++	if (pnp_registered)
++		pnp_unregister_driver(&tpm_inf_pnp);
+ 	pci_unregister_driver(&inf_pci_driver);
+ }
+ 
+_
 

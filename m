@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753124AbVHGXoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753125AbVHGXxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753124AbVHGXoO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 19:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753125AbVHGXoO
+	id S1753125AbVHGXxV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 19:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753043AbVHGXxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 19:44:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24533 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753124AbVHGXoN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 19:44:13 -0400
-Date: Sun, 7 Aug 2005 16:44:11 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] abstract out bits of ldt.c
-Message-ID: <20050807234411.GE7991@shell0.pdx.osdl.net>
-References: <372830000.1123456808@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 Aug 2005 19:53:21 -0400
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:6615 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1752860AbVHGXxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 19:53:20 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: vatsa@in.ibm.com
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
+Date: Mon, 8 Aug 2005 09:51:25 +1000
+User-Agent: KMail/1.8.2
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com,
+       george@mvista.com, Andrew Morton <akpm@osdl.org>
+References: <200508031559.24704.kernel@kolivas.org> <200508071512.22668.kernel@kolivas.org> <20050807165833.GA13918@in.ibm.com>
+In-Reply-To: <20050807165833.GA13918@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <372830000.1123456808@[10.10.2.4]>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200508080951.26433.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Martin J. Bligh (mbligh@mbligh.org) wrote:
-> Starting on the work to merge xen cleanly as a subarch.
-> Introduce make_pages_readonly and make_pages_writable where appropriate 
-> for Xen, defined as a no-op on other subarches. Same for 
+On Mon, 8 Aug 2005 02:58, Srivatsa Vaddagiri wrote:
+> On Sun, Aug 07, 2005 at 03:12:21PM +1000, Con Kolivas wrote:
+> > Respin of the dynamic ticks patch for i386 by Tony Lindgen and Tuukka
+> > Tikkanen with further code cleanups. Are were there yet?
+>
+> Con,
+> 	I am afraid until SMP correctness is resolved, then this is not
+> in a position to go in (unless you want to enable it only for UP, which
+> I think should not be our target). I am working on making this work
+> correctly on SMP systems. Hopefully I will post a patch soon.
 
-Maybe this is a bad name, since make_pages_readonly/writable has
-intutitive meaning, and then is non-inutitively a no-op (for default).
+> Will keep you posted of my progress with dynamic tick patch.
 
-thanks,
--chris
+Great! I wasn't sure what time frame you meant when you last posted. I won't 
+do anything more, leaving this patch as it is, and pass the baton to you.
+
+Cheers,
+Con

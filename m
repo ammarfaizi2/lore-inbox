@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbVHGLjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751751AbVHGL4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751473AbVHGLjI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 07:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbVHGLjI
+	id S1751751AbVHGL4M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 07:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751753AbVHGL4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 07:39:08 -0400
-Received: from rly-ip03.mx.aol.com ([64.12.138.7]:4309 "EHLO
-	rly-ip03.mx.aol.com") by vger.kernel.org with ESMTP
-	id S1751473AbVHGLjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 07:39:07 -0400
-Subject: Re: Logitech Quickcam Express USB Address Aquisition Issues
-From: christos gentsis <christos_gentsis@yahoo.co.uk>
-To: Chris White <chriswhite@gentoo.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050807160222.0c4ee412@localhost>
-References: <20050807160222.0c4ee412@localhost>
-Content-Type: text/plain
-Date: Sun, 07 Aug 2005 12:36:40 +0100
-Message-Id: <1123414600.14724.3.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Sun, 7 Aug 2005 07:56:11 -0400
+Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:7807 "HELO
+	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751751AbVHGL4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 07:56:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=x2FO0FjHRqqXp0wqmjhrdpLJ4LelkZUYiDrmBCnivGLtgEcfW7rqW/IjP43imV+W60Zt7gPPPmAe+vsQSOlZ9D2D21P5hox6QkS/4QlnC7BGG4PDscT8mvZc/tZdlb9TPaV1uVN6s5ryGAzUZ6StvPa2RhQg73CH0yAunLv1HXA=  ;
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Subject: Re: [PATCH] ARCH_HAS_IRQ_PER_CPU avoids dead code in __do_IRQ()
+Date: Sun, 7 Aug 2005 13:56:07 +0200
+User-Agent: KMail/1.8.1
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <200508061814.31719.annabellesgarden@yahoo.de> <200508071225.21825.annabellesgarden@yahoo.de> <200508071307.26221.ioe-lkml@rameria.de>
+In-Reply-To: <200508071307.26221.ioe-lkml@rameria.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-AOL-IP: 195.93.24.101
+Content-Disposition: inline
+Message-Id: <200508071356.07139.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-08-07 at 16:02 +0900, Chris White wrote:
-> [Pre Note: please CC me all responses, thanks]
-> 
-> Currently, I have a Logitech Quickcam Express webcamera.  Unfortunately, it seems to have issues getting assigned an address.  I quote the following from dmesg:
-> 
-> usb 1-1.1: new full speed USB device using ehci_hcd and address 11
-> usb 1-1.1: device descriptor read/64, error -32
-> usb 1-1.1: device descriptor read/64, error -32
-> usb 1-1.1: new full speed USB device using ehci_hcd and address 12
-> usb 1-1.1: device descriptor read/64, error -32
-> usb 1-1.1: device descriptor read/64, error -32
-> usb 1-1.1: new full speed USB device using ehci_hcd and address 13
-> usb 1-1.1: device not accepting address 13, error -32
-> usb 1-1.1: new full speed USB device using ehci_hcd and address 14
-> usb 1-1.1: device not accepting address 14, error -32
-> 
-> As far as the host goes, I have the following USB hosts:
-> 
-> 0000:00:11.0 USB Controller: NEC Corporation USB (rev 43)
-> 0000:00:11.1 USB Controller: NEC Corporation USB (rev 43)
-> 0000:00:11.2 USB Controller: NEC Corporation USB 2.0 (rev 04)
-> 
-> The first is my builtin Intel USB controller, the second is one belkin USB 1.0 card, and another 2.0 card.  I've tried it in all three just to verify one of my hosts wasn't broken.  Considering my printer works with it, as well as my scanner, I'm sort of thinking that's not an issue.
-> 
-> I searched up google a bit and recieved some warnings about acpi causing problems, so I disabled that, but was still unsucessful in getting that to work.  Please let me know if any other information is required.  Thanks ahead of time.
-> 
-> Chris White
+Am Sonntag, 7. August 2005 13:07 schrieb Ingo Oeser:
+> Last argument: Many kernel developers -- including Linus -- 
+> don't like "#if" in C files and prefer them in headers. 
+> Their reasons might be similiar to my own.
 
-does the drivers for the Phillips web cams come back to the kernel?
-because i thought that it was taken out... 
+What about writing
+	if(CHECK_IRQ_PER_CPU(desc->status)) {
+		...
+	}
+in __do_IRQ(),
+and
+	#if defined(ARCH_HAS_IRQ_PER_CPU)
+		#define IRQ_PER_CPU	256	/* IRQ is per CPU */
+		#define CHECK_IRQ_PER_CPU(var) ((var) & IRQ_PER_CPU)
+	#else
+		#define CHECK_IRQ_PER_CPU(var) 0
+	#endif
+in "include/linux/irq.h" then?
 
-http://www.smcc.demon.nl/webcam/
+   Gruesse,
+   Karsten
 
-check this site and see if your cam was one of the cams that supported
-from the driver that discontinue... so if is supported by this driver,
-download and install it... it works i try it with my cam ;)
+	
 
-
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

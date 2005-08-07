@@ -1,72 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVHGDFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbVHGD36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbVHGDFk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 23:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVHGDFk
+	id S1750797AbVHGD36 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 23:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVHGD36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 23:05:40 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:20912 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750775AbVHGDFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 23:05:39 -0400
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption,
-	-RT-2.6.13-rc4-V0.7.52-01]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-In-Reply-To: <20050805105943.GA24994@elte.hu>
-References: <1123186583.12009.32.camel@localhost.localdomain>
-	 <20050805105943.GA24994@elte.hu>
-Content-Type: text/plain
-Date: Sat, 06 Aug 2005 23:05:35 -0400
-Message-Id: <1123383935.17039.6.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.6.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Aug 2005 23:29:58 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:59243 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750797AbVHGD35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 23:29:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
+  b=s0sSLBblw3IklOwdOrkrFnlCGQiAzbLYCjJ0KtiZ7c9ry8PdwTBuIrbWy04EGneq6Bd1tDnT25JyvTwKNjXsvKegx0ROPQiOQUOlvhLipEfJpYQxs83JSh7IaE7lO/+Dm6Suk8bcBXLQNEhR+GnU+ZNwppH277vUYAkLUyWtSBE=  ;
+Message-ID: <42F5802F.3050500@yahoo.com.au>
+Date: Sun, 07 Aug 2005 13:29:51 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: [patch 1/2] mm: remap ZERO_PAGE mappings
+References: <42F57FCA.9040805@yahoo.com.au>
+In-Reply-To: <42F57FCA.9040805@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------030508080500010800060405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zOn Fri, 2005-08-05 at 12:59 +0200, Ingo Molnar wrote:
-> ok, looks good - i've applied it and released the -52-14 PREEMPT_RT 
-> patch.
-> 
+This is a multi-part message in MIME format.
+--------------030508080500010800060405
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Does not compile if RCU stats are enabled but torture test disabled.
+1/2
 
-Lee
+I think this is already in -mm (and can probably go
+into 2.6.14). Included here for completeness.
 
---- linux-2.6.13-rc4/fs/proc/proc_misc.c.orig	2005-08-06 22:59:46.000000000 -0400
-+++ linux-2.6.13-rc4/fs/proc/proc_misc.c	2005-08-06 23:04:42.000000000 -0400
-@@ -654,6 +654,7 @@
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
- 
-+#ifdef CONFIG_RCU_TORTURE_TEST
- int rcu_read_proc_torture_writer(char *page, char **start, off_t off,
- 			         int count, int *eof, void *data)
- {
-@@ -683,6 +684,7 @@
- 	len = rcu_read_proc_torture_stats_data(page);
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
-+#endif /* #ifdef CONFIG_RCU_TORTURE_TEST */
- #endif /* #ifdef CONFIG_RCU_STATS */
- 
- void __init proc_misc_init(void)
-@@ -712,9 +714,11 @@
- 		{"rcugp",	rcu_read_proc_gp},
- 		{"rcuptrs",	rcu_read_proc_ptrs},
- 		{"rcuctrs",	rcu_read_proc_ctrs},
-+#ifdef CONFIG_RCU_TORTURE_TEST
- 		{"rcutw",	rcu_read_proc_torture_writer},
- 		{"rcutr",	rcu_read_proc_torture_reader},
- 		{"rcuts",	rcu_read_proc_torture_stats},
-+#endif /* #ifdef CONFIG_RCU_TORTURE_TEST */
- #endif /* #ifdef CONFIG_RCU_STATS */
- 		{NULL,}
- 	};
+-- 
+SUSE Labs, Novell Inc.
 
 
-Lee
+--------------030508080500010800060405
+Content-Type: text/plain;
+ name="mm-remap-ZERO_PAGE-mappings.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mm-remap-ZERO_PAGE-mappings.patch"
 
+Remap ZERO_PAGE ptes when remapping memory. This is currently just an
+optimisation for MIPS, which is the only architecture with multiple
+zero pages - it now retains the mapping it needs for good cache performance,
+and as well do_wp_page is now able to always correctly detect and
+optimise zero page COW faults.
+
+This change is required in order to be able to detect whether a pte
+points to a ZERO_PAGE using only its (pte, vaddr) pair.
+
+Signed-off-by: Nick Piggin <npiggin@suse.de>
+
+Index: linux-2.6/mm/mremap.c
+===================================================================
+--- linux-2.6.orig/mm/mremap.c
++++ linux-2.6/mm/mremap.c
+@@ -141,6 +141,10 @@ move_one_page(struct vm_area_struct *vma
+ 			if (dst) {
+ 				pte_t pte;
+ 				pte = ptep_clear_flush(vma, old_addr, src);
++				/* ZERO_PAGE can be dependant on virtual addr */
++				if (pfn_valid(pte_pfn(pte)) &&
++					pte_page(pte) == ZERO_PAGE(old_addr))
++					pte = pte_wrprotect(mk_pte(ZERO_PAGE(new_addr), new_vma->vm_page_prot));
+ 				set_pte_at(mm, new_addr, dst, pte);
+ 			} else
+ 				error = -ENOMEM;
+
+--------------030508080500010800060405--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

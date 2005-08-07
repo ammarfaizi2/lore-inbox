@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbVHGKZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbVHGKkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbVHGKZL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 06:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVHGKZL
+	id S1751449AbVHGKkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 06:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbVHGKkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 06:25:11 -0400
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:43173 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751425AbVHGKZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 06:25:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
-  b=r/Cl0ty9g/FgjFh7oNT4oD79MAKxz74yIJ/u/nDo/VxY7IGZulNzhoMNvSpcQ4V4QGyy3e8gbHSoyT4ijQyhv7HcZRCrr1Nca3I1gFn6t+5x4nD4SpEzG4dVE30KEd4tYRR8d0ll2DjD84Qf4N+Skz+keEsy36HmchW9dphI/sA=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Subject: Re: [PATCH] ARCH_HAS_IRQ_PER_CPU avoids dead code in __do_IRQ()
-Date: Sun, 7 Aug 2005 12:25:21 +0200
-User-Agent: KMail/1.8.1
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <200508061814.31719.annabellesgarden@yahoo.de> <200508062329.05081.ioe-lkml@rameria.de>
-In-Reply-To: <200508062329.05081.ioe-lkml@rameria.de>
+	Sun, 7 Aug 2005 06:40:09 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:63751 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751449AbVHGKkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 06:40:08 -0400
+Message-ID: <42F5E4D4.4080700@vmware.com>
+Date: Sun, 07 Aug 2005 03:39:16 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200508071225.21825.annabellesgarden@yahoo.de>
-Content-Type: text/plain;
-  charset="utf-8"
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, ak@suse.de, linux-kernel@vger.kernel.org,
+       riel@redhat.com, chrisw@osdl.org, pratap@vmware.com
+Subject: Re: [PATCH] 8/8 Create MMU 2/3 level accessors in the sub-arch layer
+ (i386)
+References: <42F46558.9010202@vmware.com.suse.lists.linux.kernel>	<p73wtmz1ekk.fsf@bragg.suse.de>	<20050806115619.GA1560@infradead.org>	<20050806115836.GN8266@wotan.suse.de>	<20050806120141.GA1827@infradead.org>	<42F5016A.2020900@vmware.com> <20050806155832.28f77c37.akpm@osdl.org>
+In-Reply-To: <20050806155832.28f77c37.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Aug 2005 10:39:31.0860 (UTC) FILETIME=[4B992D40:01C59B3C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 6. August 2005 23:28 schrieb Ingo Oeser:
-> Hi Karsten,
-> 
-> On Saturday 06 August 2005 18:14, Karsten Wiese wrote:
-> > From: Karsten Wiese <annabellesgarden@yahoo.de>
-> > 
-> > IRQ_PER_CPU is not used by all architectures.
-> > To avoid dead code generation in __do_IRQ()
-> > this patch introduces the macro ARCH_HAS_IRQ_PER_CPU.
-> > 
-> > ARCH_HAS_IRQ_PER_CPU is defined by architectures using
-> > IRQ_PER_CPU in their
-> > 	include/asm_ARCH/irq.h
-> > file.
-> 
-> Why not the other way around?
-> 
-> Just define IRQ_PER_CPU to 0 on architectures not needing it and
-> add a FAT comment there, that this disables it. Or make it a config option.
-> 
-> Then just leave the code as is and let GCC optimize the dead code
-> away without any changes in the C file. It works, I just checked it ;-)
-> 
-With my proposal the
-	#if defined(ARCH_HAS_IRQ_PER_CPU)
-	....
-	#endif
-lets readers of __do_IRQ() immediately grasp:
- "this block might not be compiled / depends an ARCH"
-And you'll get compile error's using IRQ_PER_CPU on ie i386,
-letting you immediately know,
-that you've got to change something to be able to use IRQ_PER_CPU.
+Andrew Morton wrote:
 
-That are advantages I think.
-Otherwise your proposal is ok for me too.
+>Zachary Amsden <zach@vmware.com> wrote:
+>  
+>
+>>>Yeah, I said ugly ones specificly.  There's been some nice previous ones,
+>>>      
+>>>
+>> >but most in this series (all the move of stuff to subarches) are rather
+>> >horrible and lack lots of explanation.
+>> >  
+>> >
+>>
+>> All of my previous patches have been aimed at fixing bugs, improving 
+>> performance, reliability and maintinability of the i386 architecture.  
+>>    
+>>
+>
+>Yup, with one or two semi-exceptions, all the patches up to this series
+>seem to be good general cleanups - certainly it's good to move all those
+>open-coded asm statements into single-site inlines and macros: people keep
+>on screwing them up.
+>
+>We do need to wake the Xen poeple up, make sure that these changes suit
+>them as well, or at least don't screw them over (hard to see how it could
+>though).
+>  
+>
 
-   Regards,
-   Karsten
+This patch in particular is still quite controversial.  I know at least 
+Andi has objections (quite valid) to the way PAE/non-PAE was dissected, 
+and I would definitely like to address these concerns.  Although I have 
+no objection to you committing it to the mm tree right now, please be 
+advised that Chris Wright and I will have to converge quite a bit on 
+this patch, and will likely be doing a substantial amount of rework here 
+to work out Xen compatibilty issues as well as general cleanliness.  If 
+it is more convenient for you to live without that churn, by all means 
+feel free to, and we can update the patch once everyone is happy.
 
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+Zach

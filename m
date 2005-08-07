@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752480AbVHGSCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752481AbVHGSH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752480AbVHGSCO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 14:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752481AbVHGSCO
+	id S1752481AbVHGSH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 14:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752492AbVHGSH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 14:02:14 -0400
-Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:60420 "EHLO
-	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1752480AbVHGSCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 14:02:14 -0400
-Message-ID: <42F64C9F.602@xs4all.nl>
-Date: Sun, 07 Aug 2005 20:02:07 +0200
-From: Udo van den Heuvel <udovdh@xs4all.nl>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Sun, 7 Aug 2005 14:07:57 -0400
+Received: from dvhart.com ([64.146.134.43]:57472 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1752481AbVHGSH5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 14:07:57 -0400
+Date: Sun, 07 Aug 2005 11:07:59 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: EXPORT_SYMBOL generates "is deprecated" noise
+Message-ID: <251790000.1123438079@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: VIA Rhine ethernet driver bug (reprise)
-X-Enigmail-Version: 0.92.0.0
-OpenPGP: id=8300CC02
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I'm getting lots of errors like this nowadays:
 
-In january of this year I mentioned a problem with the Linux kernel
-driver for VIA Rhine ethernet chips. (see http://lkml.org/lkml/2005/1/15/47)
-In the mean time this bug was reproduced quite a number of times on my
-Fedora Core 3 (then)/4 (now) box (a VIA CL6000).
+drivers/serial/8250.c:2651: warning: `register_serial' is deprecated 
+(declared at drivers/serial/8250.c:2607)
 
-An alternative driver by VIA was used (with kernel 2.6.1x,
-http://www.viaarena.com/downloads/Source/rhinefet.tgz); this VIA driver
-did not have the Oversized ethernet frame bug but consumes quite a lot
-of CPU when transfering a steady stream of a few 1000 KB/S, so it is no
-good solution.
+Which is just: "EXPORT_SYMBOL(register_serial);"
 
-Since the ethernet connection goes down due to this bug I think I can
-mark the bug as critical. The bug is still present in 2.6.12.
-The maintainer of the driver cannot fix the bug. Who can?
+Sorry, but that's just compile-time noise, not anything useful.
+Warning on real usages of it might be handy (we can go fix the users)
+but not EXPORT_SYMBOL - we can't kill the export until the function
+goes away. The more noise we have, the harder it is to see real errors 
+and warnings.
 
-Please post here and/or email me with your thoughts about a solution,
-ways of fixing the bug. Would a small reward help?
+I took a quick poke around, but can't see what generates this stuff.
+What is doing these checks, and can we please make an exception for
+EXPORT_SYMBOL (and EXPORT_SYMBOL_GPL) somehow?
 
-Kind regards,
-Udo
+M.
 

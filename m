@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752766AbVHGVPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752770AbVHGVUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752766AbVHGVPL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 17:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752767AbVHGVPL
+	id S1752770AbVHGVUt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 17:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752772AbVHGVUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 17:15:11 -0400
-Received: from mailfe06.swip.net ([212.247.154.161]:15281 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1752766AbVHGVPK (ORCPT
+	Sun, 7 Aug 2005 17:20:49 -0400
+Received: from mailfe07.swip.net ([212.247.154.193]:29627 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S1752770AbVHGVUt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 17:15:10 -0400
+	Sun, 7 Aug 2005 17:20:49 -0400
 X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Sun, 7 Aug 2005 23:15:05 +0200
+Date: Sun, 7 Aug 2005 23:20:46 +0200
 From: Alexander Nyberg <alexn@telia.com>
-To: JG <jg@cms.ac>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: sluggish/very slow usb mouse on hp nx6110 notebook => acpi problem
-Message-ID: <20050807211505.GA1864@localhost.localdomain>
-References: <20050805195243.4e9df3de@x90.0x4a47.net> <20050805205651.2cd22f1b@x90.0x4a47.net>
+To: Martin Braun <mbraun@uni-hd.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops with 2.6.13-rc5 on webserver with raid
+Message-ID: <20050807212046.GB1864@localhost.localdomain>
+References: <42F336CF.7020001@uni-hd.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050805205651.2cd22f1b@x90.0x4a47.net>
+In-Reply-To: <42F336CF.7020001@uni-hd.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 08:56:51PM +0200 JG wrote:
+On Fri, Aug 05, 2005 at 11:52:15AM +0200 Martin Braun wrote:
 
-> hm, i currently have "acpi=off noacpi noapic reboot=b" as kernel
-> parameter.
+> Hi,
 > 
-> if i remove the acpi stuff and enable acpi, the usb mouse works fine..
-> but after some time (5-10min) the kacpid process goes havoc and eats
-> all cpu and the whole system is unresponsive- that's the reason i added
-> those acpi=off parameters the first time when installing gentoo..
+> I've been trying to upgrade kernel to 2.6.13-rc5. The server boots
+> normally w/o errors, but after while (from 5 minutes up to 2 hours) the
+> Kernel hangs (no keyboard input possible). As I am a newbie I cannot
+> figure out who will be concerned with this error.
+
+Please don't run ksymoops on 2.6 kernels, it makes the output look
+weird and isn't necessary anymore.
+
 > 
-> i tested with gentoo-2.6.12-r7 and vanilla-2.6.13rc5
-> 
+> >>EIP; c0324afd <tcp_tso_should_defer+fd/110>   <=====
+>
 
-Indicates a bug in kacpid or similar. Could you make sure you compile in
-"Magic SysRq key" under "Kernel Hacking" and boot the vanilla-2.6.13-rc6
-(some recent acpi changes have gone in) and then wait for kacpid
-to go nuts and do
-
-Alt+Sysrq+t 4 times and then run 'dmesg -s 100000 > logfile' and
-send logfile over here so that we can see what kacpid is up to.
-
-If the box becomes so unresponsive you can't extract the log information
-it would be good if you could use either network console 
-Documentation/networking/netconsole.txt or serial console at
-Documentation/serial-console.txt, both require an extra computer
-though...
+Should be fixed in 2.6.13-rc6, if problem persists please report back.

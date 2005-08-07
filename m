@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752599AbVHGTPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752597AbVHGTRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752599AbVHGTPs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 15:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752597AbVHGTPs
+	id S1752597AbVHGTRh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 15:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752602AbVHGTRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 15:15:48 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19474 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1752599AbVHGTPr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 15:15:47 -0400
-Date: Sun, 7 Aug 2005 20:15:42 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
+	Sun, 7 Aug 2005 15:17:37 -0400
+Received: from dvhart.com ([64.146.134.43]:61056 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1752597AbVHGTRg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 15:17:36 -0400
+Date: Sun, 07 Aug 2005 12:17:38 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: EXPORT_SYMBOL generates "is deprecated" noise
-Message-ID: <20050807201541.D22977@flint.arm.linux.org.uk>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@mbligh.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <251790000.1123438079@[10.10.2.4]>
-Mime-Version: 1.0
+Subject: [PATCH] remove warning about e1000_suspend
+Message-ID: <256850000.1123442258@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <251790000.1123438079@[10.10.2.4]>; from mbligh@mbligh.org on Sun, Aug 07, 2005 at 11:07:59AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 07, 2005 at 11:07:59AM -0700, Martin J. Bligh wrote:
-> I'm getting lots of errors like this nowadays:
-> 
-> drivers/serial/8250.c:2651: warning: `register_serial' is deprecated 
-> (declared at drivers/serial/8250.c:2607)
-> 
-> Which is just: "EXPORT_SYMBOL(register_serial);"
-> 
-> Sorry, but that's just compile-time noise, not anything useful.
-> Warning on real usages of it might be handy (we can go fix the users)
-> but not EXPORT_SYMBOL - we can't kill the export until the function
-> goes away. The more noise we have, the harder it is to see real errors 
-> and warnings.
+e1000_suspend is only used under #ifdef CONFIG_PM. Move the declaration
+of it to be the same way, just like e1000_resume, otherwise gcc whines 
+on compile. I offer as evidence:
 
-I don't know why I bother with __deprecated - I haven't seen much
-evidence of the users of these functions being cleaned up, so I
-think we might as well just delete the functions and _force_ people
-to fix their code.  That unfortunately seems to be the only way to
-get things done in this day and age, which is rather sad if that's
-what it takes to kick people into action.
+	static struct pci_driver e1000_driver = {
+ 	       .name     = e1000_driver_name,
+ 	      .id_table = e1000_pci_tbl,
+  	      .probe    = e1000_probe,
+  	      .remove   = __devexit_p(e1000_remove),
+ 	      /* Power Managment Hooks */
+	#ifdef CONFIG_PM
+ 	       .suspend  = e1000_suspend,
+ 	       .resume   = e1000_resume
+	#endif
+	};
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+diff -aurpN -X /home/fletch/.diff.exclude virgin/drivers/net/e1000/e1000_main.c e1000_suspend/drivers/net/e1000/e1000_main.c
+--- virgin/drivers/net/e1000/e1000_main.c	2005-08-07 09:15:36.000000000 -0700
++++ e1000_suspend/drivers/net/e1000/e1000_main.c	2005-08-07 12:10:42.000000000 -0700
+@@ -162,8 +162,8 @@ static void e1000_vlan_rx_add_vid(struct
+ static void e1000_vlan_rx_kill_vid(struct net_device *netdev, uint16_t vid);
+ static void e1000_restore_vlan(struct e1000_adapter *adapter);
+ 
+-static int e1000_suspend(struct pci_dev *pdev, uint32_t state);
+ #ifdef CONFIG_PM
++static int e1000_suspend(struct pci_dev *pdev, uint32_t state);
+ static int e1000_resume(struct pci_dev *pdev);
+ #endif
+ 
+@@ -3641,6 +3641,7 @@ e1000_set_spd_dplx(struct e1000_adapter 
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM
+ static int
+ e1000_suspend(struct pci_dev *pdev, uint32_t state)
+ {
+@@ -3733,7 +3734,6 @@ e1000_suspend(struct pci_dev *pdev, uint
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM
+ static int
+ e1000_resume(struct pci_dev *pdev)
+ {
+

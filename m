@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbVHGKzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbVHGLEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbVHGKzg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 06:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbVHGKzg
+	id S1751501AbVHGLEg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 07:04:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbVHGLEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 06:55:36 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:22536 "EHLO
+	Sun, 7 Aug 2005 07:04:36 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:31752 "EHLO
 	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751479AbVHGKzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 06:55:35 -0400
-Message-ID: <42F5E86C.5000105@vmware.com>
-Date: Sun, 07 Aug 2005 03:54:36 -0700
+	id S1751501AbVHGLEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 07:04:35 -0400
+Message-ID: <42F5EA8F.2010406@vmware.com>
+Date: Sun, 07 Aug 2005 04:03:43 -0700
 From: Zachary Amsden <zach@vmware.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Chris Wright <chrisw@osdl.org>
 Cc: linux-kernel@vger.kernel.org, pratap@vmware.com, chrisl@vmware.com
-Subject: Re: [PATCH 2/8] Move privileged processor operations to the subarch
+Subject: Re: [PATCH] 5/8 Move descriptor table management into the sub-arch
  layer
-References: <42F46307.606@vmware.com> <20050807010615.GG7762@shell0.pdx.osdl.net>
-In-Reply-To: <20050807010615.GG7762@shell0.pdx.osdl.net>
+References: <42F4643E.4030402@vmware.com> <20050807011043.GJ7762@shell0.pdx.osdl.net>
+In-Reply-To: <20050807011043.GJ7762@shell0.pdx.osdl.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Aug 2005 10:54:53.0015 (UTC) FILETIME=[70A64670:01C59B3E]
+X-OriginalArrivalTime: 07 Aug 2005 11:04:00.0765 (UTC) FILETIME=[B7224AD0:01C59B3F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -32,82 +32,88 @@ Chris Wright wrote:
 >* Zachary Amsden (zach@vmware.com) wrote:
 >  
 >
->>i386 Transparent Paravirtualization Subarch Patch #2
->>
->>This change encapsulates CPUID and debug register accessors and moves
->>them into the sub-architecture layer. 
+>>This change encapsulates descriptor and task register management.
 >>    
 >>
 >
->This one looks to be a superset of Xen version:
+>These will need some merging together, will take a stab tomorrow.
 >
 >
->@@ -453,6 +441,7 @@ struct thread_struct {
-> 	unsigned long		v86flags, v86mask, saved_esp0;
-> 	unsigned int		saved_fs, saved_gs;
-> /* IO permissions */
->+	unsigned long	io_pl;
+>--- linux-2.6.12-xen0-arch.orig/include/asm-i386/desc.h
+>+++ linux-2.6.12-xen0-arch/include/asm-i386/desc.h
+>@@ -14,9 +14,6 @@
+>
+> static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, void *addr)
+> {
+>-	_set_tssldt_desc(&per_cpu(cpu_gdt_table, cpu)[entry], (int)addr,
+>+	_set_tssldt_desc(&get_cpu_gdt_table(cpu)[entry], (int)addr,
 >  
 >
 
-We also added an iopl field to the thread struct; this was committed to 
--rc4-mm1:
+What is Xen doing for the GDT on SMP?  Does Xen have 16 pages of GDT per 
+CPU?
 
-The patch titled
-
-     x86: make IOPL explicit
-
-has been added to the -mm tree.  Its filename is
-
-     x86-make-iopl-explicit.patch
-
-
-diff -puN include/asm-i386/processor.h~x86-make-iopl-explicit include/asm-i386/processor.h
---- devel/include/asm-i386/processor.h~x86-make-iopl-explicit	2005-08-03 23:11:31.000000000 -0700
-+++ devel-akpm/include/asm-i386/processor.h	2005-08-03 23:12:06.000000000 -0700
-@@ -420,6 +420,7 @@ struct tss_struct {
- 	 * Cache the current maximum and the last task that used the bitmap:
- 	 */
- 	unsigned long io_bitmap_max;
-+ 	unsigned long	iopl;
- 	struct thread_struct *io_bitmap_owner;
- 	/*
-
-
-
-> 	unsigned long	*io_bitmap_ptr;
-> /* max allowed port in the bitmap, in bytes: */
-> 	unsigned long	io_bitmap_max;
->@@ -487,6 +476,7 @@ static inline void load_esp0(struct tss_
-> 		tss->ss1 = thread->sysenter_cs;
-> 		wrmsr(MSR_IA32_SYSENTER_CS, thread->sysenter_cs, 0);
-> 	}
->+	mach_load_esp0(tss, thread);
+>+++ linux-2.6.12-xen0-arch/include/asm-i386/mach-default/mach_desc.h
+>@@ -0,0 +1,57 @@
+>+#ifndef __ASM_MACH_DESC_H
+>+#define __ASM_MACH_DESC_H
+>+
+>+extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
+>+DECLARE_PER_CPU(struct desc_struct, cpu_gdt_table[GDT_ENTRIES]);
+>+#define get_cpu_gdt_table(_cpu) per_cpu(cpu_gdt_table, cpu)
+>+
+>+#define _set_tssldt_desc(n,addr,limit,type) \
+>+__asm__ __volatile__ ("movw %w3,0(%2)\n\t" \
+>+	"movw %%ax,2(%2)\n\t" \
+>+	"rorl $16,%%eax\n\t" \
+>+	"movb %%al,4(%2)\n\t" \
+>+	"movb %4,5(%2)\n\t" \
+>+	"movb $0,6(%2)\n\t" \
+>+	"movb %%ah,7(%2)\n\t" \
+>+	"rorl $16,%%eax" \
+>+	: "=m"(*(n)) : "a" (addr), "r"(n), "ir"(limit), "i"(type))
 >  
 >
 
-I moved the entire load_esp0() function to the subarch layer.  We used 
-to have a mach_load_esp0(tss, thread) type function.  Either way is 
-acceptable - I sort of prefer your way, but I was concerned that Xen 
-would not want to support the stashing of the v8086 sysenter CS value in 
-ss1 (because Xen might not want to shadow the TSS, but use the real one, 
-which implies ss1 is the real kernel segment).  I am sort of less 
-concerned with this now, because I think that shadowing the TSS is a 
-really good idea for many reasons, and I believe Xen does this anyway.
+This actually doesn't need to move into sub-arch.  You can redefine the 
+call sites (set_ldt_desc / set_tss_desc) to operate on stack (implicit 
+register) values instead and then notify the hypervisor about GDT 
+updates.  Course, which way is cleaner looks still TBD.
 
-In general, a hypervisor must be aware of two things on kernel stack 
-updates = kernel ESP is essential, but kernel SS is also needed if the 
-kernel uses alternate stacks.  The hypervisor need not know the TSS 
-pointer itself, since it is either implicit (through TR), or not 
-required at all (pure hypercall to update the shadow stack).
+>+static inline void clear_LDT(void)
+>+{
+>+	int cpu = get_cpu();
+>+
+>+	set_ldt_desc(cpu, &default_ldt[0], 5);
+>+	load_LDT_desc();
+>+	put_cpu();
+>+}
+>+
+>+/*
+>+ * load one particular LDT into the current CPU
+>+ */
+>+static inline void load_LDT_nolock(mm_context_t *pc, int cpu)
+>+{
+>+	void *segments = pc->ldt;
+>+	int count = pc->size;
+>+
+>+	if (likely(!count)) {
+>+		segments = &default_ldt[0];
+>+		count = 5;
+>+	}
+>+		
+>+	set_ldt_desc(cpu, segments, count);
+>+	load_LDT_desc();
+>+}
+>+
+>+#endif
+>  
+>
 
-What to you think of :
+These two don't actually need to move into sub-arch ; they can call 
+functions that have already moved.
 
-include/asm-i386/mach-default/mach_processor.h:
-#define mach_update_esp(ss, esp)  /* nop */
-
-include/asm-i386/processor.h, in load_esp0():
-
-mach_update_esp0(KERNEL_SS, thread->esp0);
+So far looks like we are pretty much on the same page, with mostly 
+cosmetic differences.
 
 Zach

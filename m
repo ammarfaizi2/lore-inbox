@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbVHGNTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbVHGNJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbVHGNTE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 09:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbVHGNTE
+	id S1751392AbVHGNJo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 09:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbVHGNJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 09:19:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2574 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751504AbVHGNTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 09:19:04 -0400
-Date: Sun, 7 Aug 2005 14:18:58 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] fix warning in sa1100fb.c
-Message-ID: <20050807141858.A22977@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20050730143551.GI1830@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050730143551.GI1830@elf.ucw.cz>; from pavel@ucw.cz on Sat, Jul 30, 2005 at 04:35:51PM +0200
+	Sun, 7 Aug 2005 09:09:44 -0400
+Received: from srvlinux1gt.gualaclosures.com.mx ([201.134.68.194]:52634 "HELO
+	hotmail.com") by vger.kernel.org with SMTP id S1751392AbVHGNJn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 09:09:43 -0400
+Message-ID: <63E4A963.7DEAF7B@hotmail.com>
+Date: Sun, 07 Aug 2005 16:37:19 -0400
+From: <wementor@hotmail.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.7) Gecko/20011221
+MIME-Version: 1.0
+To: <linux-kernel@vger.kernel.org>
+Subject: Want real sign_ups now
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 30, 2005 at 04:35:51PM +0200, Pavel Machek wrote:
-> Fix compile-time warning in sa1100fb.c
+Would you like 20 "paid4sign_ups" this week?
 
-I think it makes sense to change this to an inline function.  Thanks
-for pointing this out.
+There are many people like you getting 20+
+sign_ups each week right now.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Would you like to join them? I can show you.
+
+Find out how others are getting more than 20
+"paid4sign.ups" today -
+
+Email_me at: charlottenorton@isp-q.com
+Please type "show_me" in the subject line.
+
+I will send you details as fast as I can.
+
+If I have infringed your privacy please email me
+with >>d<< in the email message and it will be
+automatically done.
+
+Thanks a lot Charlotte
+

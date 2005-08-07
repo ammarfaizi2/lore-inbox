@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVHGCrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbVHGCvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbVHGCrK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 22:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbVHGCrK
+	id S1750773AbVHGCvp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 22:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVHGCvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 22:47:10 -0400
-Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:26256 "HELO
-	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750768AbVHGCrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 22:47:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=ksf9KPQoZJbTg4vZhJEP0oynNA6enf1SvacsITCdyQtbNFgPpAhDaS1c1v2uzxeGNOkkTwPb6vcssTb/Et2wInnIJrZ4HViX54xZe8mA9zmt1TQB8uuYvYTB2zqPqabvwwqydrtN1WMi+9+1l2cES4KZO3zmcZTa82pJyRljN/I=  ;
-Subject: Re: Freeing a dynamic struct cdev
-From: "James C. Georgas" <jgeorgas@rogers.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
+	Sat, 6 Aug 2005 22:51:44 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:3007 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750773AbVHGCvo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Aug 2005 22:51:44 -0400
+Date: Sun, 7 Aug 2005 12:51:22 +1000
+From: Greg Banks <gnb@sgi.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050806155958.5f3092bc.rdunlap@xenotime.net>
-References: <1123334776.29913.3.camel@Tachyon.home>
-	 <20050806122108.4a458c68.rdunlap@xenotime.net>
-	 <1123356380.13845.2.camel@Tachyon.home>
-	 <20050806122849.452290e2.rdunlap@xenotime.net>
-	 <1123362724.13845.11.camel@Tachyon.home>
-	 <20050806155958.5f3092bc.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Sat, 06 Aug 2005 22:47:04 -0400
-Message-Id: <1123382825.15705.18.camel@Tachyon.home>
+Subject: Re: Kernel 2.6.xx - NFSv3 vs. Samba Data Transfer Semantics
+Message-ID: <20050807025121.GA26391@sgi.com>
+References: <Pine.LNX.4.63.0508061017150.19178@p34>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0508061017150.19178@p34>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I really blew it with that last post:
+On Sat, Aug 06, 2005 at 10:34:55AM -0400, Justin Piszcz wrote:
+> UDP/NFSv3:
 
-> 
-> cdev_add() calls:
-> 	kobj_map()
-> 	kobject_get() [indirectly]
-> 
+Don't use UDP.  It won't help you with this problem, but use TCP.
 
-This is wrong. When I first looked at it, I saw:
+> UDP/Samba, Win2K->Linux box:
+  ^^^
+That would be a surprise.
 
-cdev_add() -> kobj_map() -> exact_lock() -> cdev_get() -> kobject_get()
+>   When NFS transfers are taking 
+> place, watching gkrellm, I see 64MB/s for a few seconds then it goes to 0 
+> as the disk (hda) continues to write for 3-4 seconds, this continues on 
+> and off.  
 
-but exact_lock() isn't called here; it is only passed as a function
-pointer to kobj_map(), and so calling cdev_add() does /not/ increment
-the reference count of the struct cdev.
+It's instructive to watch the server's disk traffic on a graph with the
+same timescale as the network traffic.
 
-I guess what threw me for a loop here was that I was expecting separate
-functions: one to undo cdev_add() and one to undo cdev_alloc(), but
-cdev_del() accomplishes both tasks in one function, with the
-kobj_unmap() part having no effect, if the cdev is not mapped at the
-time of the call.
+> I am using XFS filesystems on both Linux machines.  The drives are 7200RPM 
+> Seagate HDDs with either 2MB or 8MB of cache.
 
+With a single drive, your transfer rate is going to be disk limited 
+to probably 40-50 MB/s anyway.
+
+> Are there any 'tweaks' or 'hacks' to make NFS behave more like Samba or 
+
+The 'async' export option.  RTFM before you use it.
+
+Greg.
 -- 
-James C. Georgas <jgeorgas@rogers.com>
-
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

@@ -1,28 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752172AbVHGPOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752187AbVHGPdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752172AbVHGPOr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 11:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752173AbVHGPOq
+	id S1752187AbVHGPdi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 11:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752188AbVHGPdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 11:14:46 -0400
-Received: from mx1.rowland.org ([192.131.102.7]:26885 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1752172AbVHGPOq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 11:14:46 -0400
-Date: Sun, 7 Aug 2005 11:14:45 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Martin Maurer <martinmaurer@gmx.at>
-cc: Pete Zaitcev <zaitcev@redhat.com>, <akpm@osdl.org>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Re: Elitegroup K7S5A + usb_storage problem
-In-Reply-To: <200508070222.57340.martinmaurer@gmx.at>
-Message-ID: <Pine.LNX.4.44L0.0508071112470.28316-100000@netrider.rowland.org>
+	Sun, 7 Aug 2005 11:33:38 -0400
+Received: from fmmailgate07.web.de ([217.72.192.248]:65435 "EHLO
+	fmmailgate07.web.de") by vger.kernel.org with ESMTP
+	id S1752194AbVHGPdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 11:33:37 -0400
+Date: Sun, 07 Aug 2005 17:32:51 +0200
+Message-Id: <816070633@web.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: martin.maurer@email.de
+To: Martin Maurer <martinmaurer@gmx.at>,
+       Alan Stern <stern@rowland.harvard.edu>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, PeteZaitcev <zaitcev@redhat.com>
+Subject: Re: Fw: Re: Elitegroup K7S5A + usb_storage problem
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+Hi Alan,
+
+no. the stick doesn't have a write protection switch.
+Once when i tried to copy a file to the mp3 player i got a new file there on remount,
+but it consisted of incorrect data. (so writing seemed to be possible and just went wrong)
+(in that case the fat seemed to be damaged after i had tried this, so that windows wasn't 
+able to read it correctly any more.
+(formatting from the mp3 players menu helped)
+
+greetings
+Martin
+
+PS: just as an info - i sent a usbmon trace to Pete Zaitcev today, should I send it to you too? 
+
+Alan Stern <stern@rowland.harvard.edu> schrieb am 07.08.05 17:14:52:
 On Sun, 7 Aug 2005, Martin Maurer wrote:
 
 > Hi Pete,
@@ -44,4 +61,6 @@ It sounds as though the device isn't actually carrying out the write
 operations.  Is it write-protected?
 
 Alan Stern
+
+
 

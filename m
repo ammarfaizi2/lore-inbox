@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751763AbVHGMCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbVHGMRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751763AbVHGMCc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 08:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbVHGMCb
+	id S1751214AbVHGMRT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 08:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVHGMRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 08:02:31 -0400
-Received: from jay.exetel.com.au ([220.233.0.8]:29903 "EHLO jay.exetel.com.au")
-	by vger.kernel.org with ESMTP id S1751762AbVHGMCb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 08:02:31 -0400
-Date: Sun, 7 Aug 2005 22:02:08 +1000
-To: John B?ckstrand <sandos@home.se>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, akpm@osdl.org
-Subject: Re: assertion (cnt <= tp->packets_out) failed
-Message-ID: <20050807120208.GA3739@gondor.apana.org.au>
-References: <42F38B67.5040308@home.se> <20050805.093208.74729918.davem@davemloft.net> <20050806022435.GB12862@gondor.apana.org.au> <20050806075717.GA18104@gondor.apana.org.au> <42F4A7DD.70905@home.se>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="zhXaljGHf11kAtnf"
-Content-Disposition: inline
-In-Reply-To: <42F4A7DD.70905@home.se>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sun, 7 Aug 2005 08:17:19 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:28939 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751214AbVHGMRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 08:17:19 -0400
+Message-ID: <42F5FB9A.5000708@vmware.com>
+Date: Sun, 07 Aug 2005 05:16:26 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>
+Subject: [PATCH] x86_64 Avoid some atomic operations during address space
+ destruction
+Content-Type: multipart/mixed;
+ boundary="------------020002040000070901020104"
+X-OriginalArrivalTime: 07 Aug 2005 12:16:45.0906 (UTC) FILETIME=[E0F5F320:01C59B49]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020002040000070901020104
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This turned out to be a huge win on 32-bit i386 in PAE mode, but it is 
+likely not as significant on x86_64; I don't know because I haven't 
+actually measured the cost.  I don't have 64-bit hardware that I have 
+the luxury of rebooting right now, so this patch is untested, but if 
+someone wants to try this out, it might actually show a measurable win 
+on fork/exit.  I lost my cycle count measurement diffs, but I don't 
+think they would apply cleanly to x86_64 anyways.  This patch at least 
+looks good, and compiles cleanly on 2.6.13-rc5-mm1, thus passing some 
+level of testing.
 
-On Sat, Aug 06, 2005 at 02:06:53PM +0200, John B?ckstrand wrote:
-> 
-> Yes, I have no other patches in, so if it was not in -RC5, I was not 
-> running it.
+Also, it might show reduced latency on pre-emptible kernels during heavy 
+fork/exit activity, possibly allowing ZAP_BLOCK_SIZE to be raised for 
+some architectures (I measured a ~30-50% reduction in cycle timings for 
+zap_pte_range on i386 with CONFIG_PREEMPT with the analogous patch).
 
-OK having looked at it briefly I have a hunch that it may be the
-fackets_out issue (when the effective MSS is reduced tcp_tso_acked
-may increase fackets_out) I referred to in another thread.
+Zach
 
-However, I'd like to be more certain as to whether this is the
-cause before we do anything.  So please apply this patch and
-attempt to reproduce the problem.  It should give us more info
-which may help in pin-pointing the problem.
+--------------020002040000070901020104
+Content-Type: text/plain;
+ name="x86_64-pte-destruction"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x86_64-pte-destruction"
 
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Any architecture that has hardware updated A/D bits that require
+synchronization against other processors during PTE operations
+can benefit from doing non-atomic PTE updates during address space
+destruction.  Originally done on i386, now ported to x86_64.
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
+Doing a read/write pair instead of an xchg() operation saves the
+implicit lock, which turns out to be a big win on 32-bit (esp w PAE).
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -1474,6 +1474,10 @@ static void tcp_mark_head_lost(struct so
- 	int cnt = packets;
+Diffs-against: 2.6.13-rc5-mm1
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Index: linux-2.6.13-rc5-mm1/include/asm-x86_64/pgtable.h
+===================================================================
+--- linux-2.6.13-rc5-mm1.orig/include/asm-x86_64/pgtable.h	2005-08-07 04:56:37.000000000 -0700
++++ linux-2.6.13-rc5-mm1/include/asm-x86_64/pgtable.h	2005-08-07 04:59:18.601856096 -0700
+@@ -104,6 +104,19 @@
+ ((unsigned long) __va(pud_val(pud) & PHYSICAL_PAGE_MASK))
  
- 	BUG_TRAP(cnt <= tp->packets_out);
-+	if (unlikely(cnt <= tp->packets_out)) {
-+		printk("packets_out = %d, fackets_out = %d, reordering = %d, sack_ok = 0x%x, mss_cache=%d\n", tp->packets_out, tp->fackets_out, tp->reordering, tp->rx_opt.sack_ok, tp->mss_cache);
-+		dump_stack();
+ #define ptep_get_and_clear(mm,addr,xp)	__pte(xchg(&(xp)->pte, 0))
++
++static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm, unsigned long addr, pte_t *ptep, int full)
++{
++	pte_t pte;
++	if (full) {
++		pte = *ptep;
++		*ptep = __pte(0);
++	} else {
++		pte = ptep_get_and_clear(mm, addr, ptep);
 +	}
++	return pte;
++}
++
+ #define pte_same(a, b)		((a).pte == (b).pte)
  
- 	sk_stream_for_retrans_queue(skb, sk) {
- 		cnt -= tcp_skb_pcount(skb);
+ #define PMD_SIZE	(1UL << PMD_SHIFT)
+@@ -433,6 +446,7 @@
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
+ #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
++#define __HAVE_ARCH_PTEP_GET_AND_CLEAR_FULL
+ #define __HAVE_ARCH_PTEP_SET_WRPROTECT
+ #define __HAVE_ARCH_PTE_SAME
+ #include <asm-generic/pgtable.h>
 
---zhXaljGHf11kAtnf--
+--------------020002040000070901020104--

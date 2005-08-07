@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752765AbVHGVOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752766AbVHGVPL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752765AbVHGVOz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 17:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752766AbVHGVOy
+	id S1752766AbVHGVPL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 17:15:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752767AbVHGVPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 17:14:54 -0400
-Received: from MailBox.iNES.RO ([80.86.96.21]:48596 "EHLO mailbox.ines.ro")
-	by vger.kernel.org with ESMTP id S1752765AbVHGVOy (ORCPT
+	Sun, 7 Aug 2005 17:15:11 -0400
+Received: from mailfe06.swip.net ([212.247.154.161]:15281 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S1752766AbVHGVPK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 17:14:54 -0400
-Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
-From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-To: luming.yu@intel.com, Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
-References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
-Content-Type: text/plain; charset=UTF-8
-Organization: iNES Group
-Date: Mon, 08 Aug 2005 00:14:43 +0300
-Message-Id: <1123449283.2549.12.camel@localhost>
+	Sun, 7 Aug 2005 17:15:10 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Date: Sun, 7 Aug 2005 23:15:05 +0200
+From: Alexander Nyberg <alexn@telia.com>
+To: JG <jg@cms.ac>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: sluggish/very slow usb mouse on hp nx6110 notebook => acpi problem
+Message-ID: <20050807211505.GA1864@localhost.localdomain>
+References: <20050805195243.4e9df3de@x90.0x4a47.net> <20050805205651.2cd22f1b@x90.0x4a47.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-7) 
-Content-Transfer-Encoding: 8bit
-X-BitDefender-Scanner: Clean, Agent: BitDefender Milter 1.6.2 on MailBox.iNES.RO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050805205651.2cd22f1b@x90.0x4a47.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-În data de Du, 07-08-2005 la 11:47 -0700, Linus Torvalds a scris:
-> Luming Yu:
->   [ACPI] revert Embedded Controller to polling-mode by default (ala 2.6.12)
->   [ACPI] CONFIG_ACPI_HOTKEY is now "n" by default
+On Fri, Aug 05, 2005 at 08:56:51PM +0200 JG wrote:
 
-IMHO you really need then to make acpi_specific_hotkey the default or at
-least mention it in the release notes or you'll have tons of people
-screaming that the specific module does not work anymore.
-I found out about it after my toshiba_acpi module stopped working and I
-noticed a small change in the development acpi tree documentation
-mentioning acpi_specific_hotkey ...
+> hm, i currently have "acpi=off noacpi noapic reboot=b" as kernel
+> parameter.
+> 
+> if i remove the acpi stuff and enable acpi, the usb mouse works fine..
+> but after some time (5-10min) the kacpid process goes havoc and eats
+> all cpu and the whole system is unresponsive- that's the reason i added
+> those acpi=off parameters the first time when installing gentoo..
+> 
+> i tested with gentoo-2.6.12-r7 and vanilla-2.6.13rc5
+> 
 
--- 
-Cioby
+Indicates a bug in kacpid or similar. Could you make sure you compile in
+"Magic SysRq key" under "Kernel Hacking" and boot the vanilla-2.6.13-rc6
+(some recent acpi changes have gone in) and then wait for kacpid
+to go nuts and do
 
+Alt+Sysrq+t 4 times and then run 'dmesg -s 100000 > logfile' and
+send logfile over here so that we can see what kacpid is up to.
 
+If the box becomes so unresponsive you can't extract the log information
+it would be good if you could use either network console 
+Documentation/networking/netconsole.txt or serial console at
+Documentation/serial-console.txt, both require an extra computer
+though...

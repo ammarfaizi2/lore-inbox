@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752787AbVHGVbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752824AbVHGVkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752787AbVHGVbH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 17:31:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752790AbVHGVbG
+	id S1752824AbVHGVkz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 17:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752826AbVHGVkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 17:31:06 -0400
-Received: from jay.exetel.com.au ([220.233.0.8]:5344 "EHLO jay.exetel.com.au")
-	by vger.kernel.org with ESMTP id S1752787AbVHGVbG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 17:31:06 -0400
-Date: Mon, 8 Aug 2005 07:30:23 +1000
-To: John B?ckstrand <sandos@home.se>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, akpm@osdl.org
-Subject: Re: assertion (cnt <= tp->packets_out) failed
-Message-ID: <20050807213023.GA20342@gondor.apana.org.au>
-References: <42F38B67.5040308@home.se> <20050805.093208.74729918.davem@davemloft.net> <20050806022435.GB12862@gondor.apana.org.au> <20050806075717.GA18104@gondor.apana.org.au> <42F60BE3.6040301@home.se>
+	Sun, 7 Aug 2005 17:40:55 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:42034 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752823AbVHGVky convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 17:40:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Kdt4OFj+HPgKst2Kr5Etz1GX5sOiZVdPbH75LD2yVvagJIcbRpeOvGVtL1oNHELOiVO2rtQk0mpSVpb/CqWVCwlAOjWsdXeyWGqVw+J9lptuH8iVsbQAdTcl4sAPkE1Bh7GmpX4aPB1Imm7pzYbv2q9HjupfBgBeTwx5vTbw+n8=
+Message-ID: <7aaed09105080714402bcbddc6@mail.gmail.com>
+Date: Sun, 7 Aug 2005 23:40:53 +0200
+From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
+To: Patrick McHardy <kaber@trash.net>
+Subject: Re: 2.6.13-rc4-mm1: iptables DROP crashes the computer
+Cc: Adrian Bunk <bunk@stusta.de>, linux <linux-kernel@vger.kernel.org>,
+       netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org,
+       discuss@x86-64.org
+In-Reply-To: <42F65513.3080409@trash.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <42F60BE3.6040301@home.se>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+References: <7aaed091050807100843454603@mail.gmail.com>
+	 <7aaed09105080710121bba1b5b@mail.gmail.com>
+	 <20050807172333.GF3513@stusta.de> <42F65513.3080409@trash.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 07, 2005 at 03:25:55PM +0200, John B?ckstrand wrote:
+On 07/08/05, Patrick McHardy <kaber@trash.net> wrote:
+> Could be related to the refcnt underflow with conntrack event
+> notifications enabled. If you have CONFIG_IP_NF_CONNTRACK_EVENTS
+> enabled please try this patch.
 > 
-> [148475.651000] ------------[ cut here ]------------
-> [148475.651050] kernel BUG at net/ipv4/tcp_output.c:918!
 
-Yes, as Andrew said, this bug should be fixed in the latest git tree.
-So please test with that plus the debugging patch to see if you can
-reproduce the assertion again.
+I can confirm that that patch solved my problems, thank you :)
 
-Thanks,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Mvh / Best regards
+Espen Fjellvær Olsen
+espenfjo@gmail.com
+Norway

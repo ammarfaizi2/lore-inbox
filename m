@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752461AbVHGRqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752465AbVHGRsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752461AbVHGRqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 13:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752462AbVHGRqJ
+	id S1752465AbVHGRsX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 13:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752467AbVHGRsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 13:46:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21391 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752461AbVHGRqI (ORCPT
+	Sun, 7 Aug 2005 13:48:22 -0400
+Received: from hockin.org ([66.35.79.110]:31447 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S1752465AbVHGRsW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 13:46:08 -0400
-Date: Sun, 7 Aug 2005 10:43:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Raymond Lai <raymond.kk.lai@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org,
-       alsa-devel@lists.sourceforge.net, linux-audio-dev@music.columbia.edu
-Subject: Re: any update on the pcmcia bug blocking Audigy2 notebook sound
- card driver development
-Message-Id: <20050807104332.320aec48.akpm@osdl.org>
-In-Reply-To: <1ed860e3050807084449b0daac@mail.gmail.com>
-References: <1ed860e3050807084449b0daac@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 7 Aug 2005 13:48:22 -0400
+Date: Sun, 7 Aug 2005 10:48:11 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Erick Turnquist <jhujhiti@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Lost Ticks on x86_64
+Message-ID: <20050807174811.GA31006@hockin.org>
+References: <5348b8ba050806204453392f7f@mail.gmail.com.suse.lists.linux.kernel> <p73mznuc732.fsf@bragg.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73mznuc732.fsf@bragg.suse.de>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raymond Lai <raymond.kk.lai@gmail.com> wrote:
->
-> Hi all,
+On Sun, Aug 07, 2005 at 01:36:01PM +0200, Andi Kleen wrote:
+> Erick Turnquist <jhujhiti@gmail.com> writes:
 > 
-> I remember there's a kernel pcmcia bug preventing the development for 
-> the Audigy2 pcmcia notebook sound card driver. 
+> > Hi, I'm running an Athlon64 X2 4400+ (a dual core model) with an
+> > nVidia GeForce 6800 Ultra on a Gigabyte GA-K8NXP-SLI motherboard and
+> > getting nasty messages like these in my dmesg:
+> > 
+> > warning: many lost ticks.
+> > Your time source seems to be instable or some driver is hogging interupts
+> > rip default_idle+0x20/0x30
 > 
-> See http://www.alsa-project.org/alsa-doc/index.php?vendor=vendor-Creative_Labs#matrix
+> It's most likely bad SMM code in the BIOS that blocks the CPU too long
+> and is triggered in idle. You can verify that by using idle=poll
+> (not recommended for production, just for testing) and see if it goes away.
 > 
-> Is there any new updates on the situation? Has the bug been fixed? or
-> anyone working on it?
-> 
+> No way to fix this, but you can work around it with very new kernels
+> by compiling with a lower HZ than 1000.
 
-Is it related to http://bugzilla.kernel.org/show_bug.cgi?id=4788 ?
+Some BIOSes do not lock SMM, and you *could* turn it off at the chipset
+level.

@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752559AbVHGSyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752555AbVHGS6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752559AbVHGSyy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 14:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752558AbVHGSyx
+	id S1752555AbVHGS6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 14:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752567AbVHGS6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 14:54:53 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59853 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1752559AbVHGSyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 14:54:52 -0400
-Date: Sun, 7 Aug 2005 20:50:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@ucw.cz>,
-       Greg KH <greg@kroah.com>, Mitchell Blank Jr <mitch@sfgoth.com>,
-       dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
-Message-ID: <20050807185037.GC1024@openzaurus.ucw.cz>
-References: <20050726015401.GA25015@kroah.com> <200508052020.13568.oliver@neukum.org> <9e47339105080511474d89ee8a@mail.gmail.com> <200508052207.49270.oliver@neukum.org> <9e47339105080513335e2674fa@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 Aug 2005 14:58:23 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:970 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1752555AbVHGS6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 14:58:23 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: christos gentsis <christos_gentsis@yahoo.co.uk>
+Subject: Re: Logitech Quickcam Express USB Address Aquisition Issues
+Date: Sun, 7 Aug 2005 19:58:22 +0100
+User-Agent: KMail/1.8.1
+Cc: Chris White <chriswhite@gentoo.org>, linux-kernel@vger.kernel.org
+References: <20050807160222.0c4ee412@localhost> <1123414600.14724.3.camel@linux.site> <200508071954.10618.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200508071954.10618.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <9e47339105080513335e2674fa@mail.gmail.com>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200508071958.22477.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sunday 07 Aug 2005 19:54, Alistair John Strachan wrote:
+> On Sunday 07 Aug 2005 12:36, christos gentsis wrote:
+> [snip]
+>
+> > > I searched up google a bit and recieved some warnings about acpi
+> > > causing problems, so I disabled that, but was still unsucessful in
+> > > getting that to work.  Please let me know if any other information is
+> > > required. Thanks ahead of time.
+> > >
+> > > Chris White
+> >
+> > does the drivers for the Phillips web cams come back to the kernel?
+> > because i thought that it was taken out...
+> >
+> > http://www.smcc.demon.nl/webcam/
+> >
+> > check this site and see if your cam was one of the cams that supported
+> > from the driver that discontinue... so if is supported by this driver,
+> > download and install it... it works i try it with my cam ;)
+>
+> The in-kernel pwc driver doesn't work for me either. I highly recommend you
+> try the above if this turns out to not be a hardware fault.
 
-> > > If we are going back to needing helper scripts then I should just
-> > > remove the entire sysfs graphics interface and switch back to using
-> > > ioctls and a helper app. Of could no one can ever find the helper app
-> > > or remember how it works. I thought one of the main reasons behind the
-> > > sysfs interface was to eliminate these helper apps.
-> > 
-> > The point is that you _can_ do it with echo, not that it is _easy_.
-> > Nor is sysfs a solution in any case.
-> > 
-> > > Without doing whitespace cleanup there is a 100% probability that this
-> > > will generate bug reports. I know this for a fact because I am already
-> > > getting them.
-> > 
-> > Stupid users are not a reason for kernel bloat.
-> 
-> You have a very wrapped sense of kernel bloat. This is nine lines of
-> code whose absence is guaranteed to generate a bunch of bug reports.
-> Not having it is also causing various implementers to implement
-> attribute processing differently. Some are stripping white space in
-> their implementations and some are not. If you want to attack kernel
+Sorry, I didn't even check the link. Try the driver from:
 
-Can you point place where we do strip whitespace in kernel sysfs handlers?
-				Pavel
+http://www.saillard.org/linux/pwc/
+
+Which seems to work better.
+
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Cheers,
+Alistair.
 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,230 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752339AbVHGQyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752349AbVHGQ54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752339AbVHGQyL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 12:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752340AbVHGQyL
+	id S1752349AbVHGQ54 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 12:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752352AbVHGQ54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 12:54:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39810 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752338AbVHGQyK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 12:54:10 -0400
-Date: Sun, 7 Aug 2005 09:52:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcel Selhorst <selhorst@crypto.rub.de>
-Cc: torvalds@osdl.org, kjhall@us.ibm.com, castet.matthieu@free.fr,
-       alex.williamson@hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tpm_infineon: Bugfix in PNPACPI-handling
-Message-Id: <20050807095232.1d7c8384.akpm@osdl.org>
-In-Reply-To: <42F5F768.3000204@crypto.rub.de>
-References: <42F5F768.3000204@crypto.rub.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 7 Aug 2005 12:57:56 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:49608 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752348AbVHGQ54
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 12:57:56 -0400
+Date: Sun, 7 Aug 2005 22:28:33 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com,
+       george@mvista.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
+Message-ID: <20050807165833.GA13918@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <200508031559.24704.kernel@kolivas.org> <200508060239.41646.kernel@kolivas.org> <20050806174739.GU4029@stusta.de> <200508071512.22668.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508071512.22668.kernel@kolivas.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcel Selhorst <selhorst@crypto.rub.de> wrote:
->
-> 
->  This patch corrects the PNP-handling inside the tpm-driver
->  and some minor coding style bugs.
+On Sun, Aug 07, 2005 at 03:12:21PM +1000, Con Kolivas wrote:
+> Respin of the dynamic ticks patch for i386 by Tony Lindgen and Tuukka Tikkanen 
+> with further code cleanups. Are were there yet?
 
-But the patch adds lots of new coding style bugs!
+Con,
+	I am afraid until SMP correctness is resolved, then this is not
+in a position to go in (unless you want to enable it only for UP, which
+I think should not be our target). I am working on making this work 
+correctly on SMP systems. Hopefully I will post a patch soon.
 
-> ...
->  @@ -356,24 +356,26 @@ static const struct pnp_device_id tpm_pn
->   	{"IFX0102", 0},
->   	{"", 0}
->   };
->  +MODULE_DEVICE_TABLE(pnp, tpm_pnp_tbl);
-> 
->  -static int __devinit tpm_inf_acpi_probe(struct pnp_dev *dev,
->  +static int __devinit tpm_inf_pnp_probe(struct pnp_dev *dev,
->   					const struct pnp_device_id *dev_id)
->   {
->  -	TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
->  -	TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
->  -	tpm_inf.base = pnp_port_start(dev, 1);
->  -	dev_info(&dev->dev, "Found %s with ID %s\n",
->  +	if (pnp_port_valid(dev, 0)) {
->  +	    TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
->  +	    TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
->  +	    tpm_inf.base = pnp_port_start(dev, 1);
->  +	    dev_info(&dev->dev, "Found %s with ID %s\n",
->   		 dev->name, dev_id->id);
+Another observation I have made regarding dynamic tick patch is that PIT is 
+being reprogrammed whenever the CPUs are coming out of sleep state (because of 
+an interrupt say). This can happen at any arbitary time, not necessarily on 
+jiffy boundaries. As a result, there will be an offset between when jiffy 
+interrupts will now occur vs when they would have originally occured had PIT 
+never been stopped. Not sure if having this offset is good, but atleast one 
+necessary change that I foresee if zeroing delay_at_last_interrupt when 
+disabling dynamic tick.  For that matter, it may be easier to disable the PIT 
+timer by just masking PIT interrupts (instead of changing its mode).
 
-We use hard tabs for indentation at eight columns each, not four-spaces.
-
-Fixed-up version:
+Will keep you posted of my progress with dynamic tick patch.
 
 
-diff -puN drivers/char/tpm/tpm_infineon.c~tpm_infineon-bugfix-in-pnpacpi-handling drivers/char/tpm/tpm_infineon.c
---- devel/drivers/char/tpm/tpm_infineon.c~tpm_infineon-bugfix-in-pnpacpi-handling	2005-08-07 09:50:06.000000000 -0700
-+++ devel-akpm/drivers/char/tpm/tpm_infineon.c	2005-08-07 09:51:50.000000000 -0700
-@@ -14,7 +14,6 @@
-  * License.
-  */
- 
--#include <acpi/acpi_bus.h>
- #include <linux/pnp.h>
- #include "tpm.h"
- 
-@@ -29,9 +28,10 @@
- #define	TPM_MAX_TRIES		5000
- #define	TPM_INFINEON_DEV_VEN_VALUE	0x15D1
- 
--/* These values will be filled after ACPI-call */
-+/* These values will be filled after PnP-call */
- static int TPM_INF_DATA = 0;
- static int TPM_INF_ADDR = 0;
-+static int pnp_registered = 0;
- 
- /* TPM header definitions */
- enum infineon_tpm_header {
-@@ -356,24 +356,26 @@ static const struct pnp_device_id tpm_pn
- 	{"IFX0102", 0},
- 	{"", 0}
- };
-+MODULE_DEVICE_TABLE(pnp, tpm_pnp_tbl);
- 
--static int __devinit tpm_inf_acpi_probe(struct pnp_dev *dev,
-+static int __devinit tpm_inf_pnp_probe(struct pnp_dev *dev,
- 					const struct pnp_device_id *dev_id)
- {
--	TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
--	TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
--	tpm_inf.base = pnp_port_start(dev, 1);
--	dev_info(&dev->dev, "Found %s with ID %s\n",
--		 dev->name, dev_id->id);
--	if (!((tpm_inf.base >> 8) & 0xff))
--		tpm_inf.base = 0;
--	return 0;
-+	if (pnp_port_valid(dev, 0)) {
-+		TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
-+		TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
-+		tpm_inf.base = pnp_port_start(dev, 1);
-+		dev_info(&dev->dev, "Found %s with ID %s\n",
-+		dev->name, dev_id->id);
-+		return 0;
-+	}
-+	return -ENODEV;
- }
- 
- static struct pnp_driver tpm_inf_pnp = {
- 	.name = "tpm_inf_pnp",
- 	.id_table = tpm_pnp_tbl,
--	.probe = tpm_inf_acpi_probe,
-+	.probe = tpm_inf_pnp_probe,
- };
- 
- static int __devinit tpm_inf_probe(struct pci_dev *pci_dev,
-@@ -386,19 +388,30 @@ static int __devinit tpm_inf_probe(struc
- 	int productid[2];
- 	char chipname[20];
- 
--	if (pci_enable_device(pci_dev))
--		return -EIO;
-+	rc = pci_enable_device(pci_dev);
-+	if (rc)
-+		return rc;
- 
- 	dev_info(&pci_dev->dev, "LPC-bus found at 0x%x\n", pci_id->device);
- 
--	/* read IO-ports from ACPI */
--	pnp_register_driver(&tpm_inf_pnp);
--	pnp_unregister_driver(&tpm_inf_pnp);
-+	/* read IO-ports from PnP */
-+	rc = pnp_register_driver(&tpm_inf_pnp);
-+	if (rc < 0) {
-+		dev_err(&pci_dev->dev,
-+			"Error %x from pnp_register_driver!\n",rc);
-+		goto error2;
-+	}
-+	if (!rc) {
-+		dev_info(&pci_dev->dev, "No Infineon TPM found!\n");
-+		goto error;
-+	} else {
-+		pnp_registered = 1;
-+	}
- 
- 	/* Make sure, we have received valid config ports */
- 	if (!TPM_INF_ADDR) {
--		pci_disable_device(pci_dev);
--		return -EIO;
-+		dev_err(&pci_dev->dev, "No valid IO-ports received!\n");
-+		goto error;
- 	}
- 
- 	/* query chip for its vendor, its version number a.s.o. */
-@@ -418,23 +431,21 @@ static int __devinit tpm_inf_probe(struc
- 
- 	switch ((productid[0] << 8) | productid[1]) {
- 	case 6:
--		sprintf(chipname, " (SLD 9630 TT 1.1)");
-+		snprintf(chipname, sizeof(chipname), " (SLD 9630 TT 1.1)");
- 		break;
- 	case 11:
--		sprintf(chipname, " (SLB 9635 TT 1.2)");
-+		snprintf(chipname, sizeof(chipname), " (SLB 9635 TT 1.2)");
- 		break;
- 	default:
--		sprintf(chipname, " (unknown chip)");
-+		snprintf(chipname, sizeof(chipname), " (unknown chip)");
- 		break;
- 	}
--	chipname[19] = 0;
- 
- 	if ((vendorid[0] << 8 | vendorid[1]) == (TPM_INFINEON_DEV_VEN_VALUE)) {
- 
- 		if (tpm_inf.base == 0) {
- 			dev_err(&pci_dev->dev, "No IO-ports found!\n");
--			pci_disable_device(pci_dev);
--			return -EIO;
-+			goto error;
- 		}
- 		/* configure TPM with IO-ports */
- 		outb(IOLIMH, TPM_INF_ADDR);
-@@ -452,8 +463,7 @@ static int __devinit tpm_inf_probe(struc
- 			dev_err(&pci_dev->dev,
- 				"Could not set IO-ports to %04x\n",
- 				tpm_inf.base);
--			pci_disable_device(pci_dev);
--			return -EIO;
-+			goto error;
- 		}
- 
- 		/* activate register */
-@@ -479,14 +489,16 @@ static int __devinit tpm_inf_probe(struc
- 			 productid[0], productid[1], chipname);
- 
- 		rc = tpm_register_hardware(pci_dev, &tpm_inf);
--		if (rc < 0) {
--			pci_disable_device(pci_dev);
--			return -ENODEV;
--		}
-+		if (rc < 0)
-+			goto error;
- 		return 0;
- 	} else {
- 		dev_info(&pci_dev->dev, "No Infineon TPM found!\n");
-+error:
-+		pnp_unregister_driver(&tpm_inf_pnp);
-+error2:
- 		pci_disable_device(pci_dev);
-+		pnp_registered = 0;
- 		return -ENODEV;
- 	}
- }
-@@ -521,6 +533,8 @@ static int __init init_inf(void)
- 
- static void __exit cleanup_inf(void)
- {
-+	if (pnp_registered)
-+		pnp_unregister_driver(&tpm_inf_pnp);
- 	pci_unregister_driver(&inf_pci_driver);
- }
- 
-_
+-- 
 
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

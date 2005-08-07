@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752777AbVHGVYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752787AbVHGVbH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752777AbVHGVYe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 17:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752778AbVHGVYe
+	id S1752787AbVHGVbH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 17:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752790AbVHGVbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 17:24:34 -0400
-Received: from hockin.org ([66.35.79.110]:30168 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S1752777AbVHGVYd (ORCPT
+	Sun, 7 Aug 2005 17:31:06 -0400
+Received: from jay.exetel.com.au ([220.233.0.8]:5344 "EHLO jay.exetel.com.au")
+	by vger.kernel.org with ESMTP id S1752787AbVHGVbG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 17:24:33 -0400
-Date: Sun, 7 Aug 2005 14:24:25 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andi Kleen <ak@suse.de>, Erick Turnquist <jhujhiti@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Lost Ticks on x86_64
-Message-ID: <20050807212425.GA7926@hockin.org>
-References: <5348b8ba050806204453392f7f@mail.gmail.com.suse.lists.linux.kernel> <p73mznuc732.fsf@bragg.suse.de> <1123440679.12766.5.camel@mindpipe>
+	Sun, 7 Aug 2005 17:31:06 -0400
+Date: Mon, 8 Aug 2005 07:30:23 +1000
+To: John B?ckstrand <sandos@home.se>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, akpm@osdl.org
+Subject: Re: assertion (cnt <= tp->packets_out) failed
+Message-ID: <20050807213023.GA20342@gondor.apana.org.au>
+References: <42F38B67.5040308@home.se> <20050805.093208.74729918.davem@davemloft.net> <20050806022435.GB12862@gondor.apana.org.au> <20050806075717.GA18104@gondor.apana.org.au> <42F60BE3.6040301@home.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1123440679.12766.5.camel@mindpipe>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <42F60BE3.6040301@home.se>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 07, 2005 at 02:51:19PM -0400, Lee Revell wrote:
-> > It's most likely bad SMM code in the BIOS that blocks the CPU too long
-> > and is triggered in idle. You can verify that by using idle=poll
-> > (not recommended for production, just for testing) and see if it goes away.
-> > 
+On Sun, Aug 07, 2005 at 03:25:55PM +0200, John B?ckstrand wrote:
 > 
-> WTF, since when do *desktops* use SMM?  Are you telling me that we have
-> to worry about these stupid ACPI/SMM hardware bugs on the desktop too?
+> [148475.651000] ------------[ cut here ]------------
+> [148475.651050] kernel BUG at net/ipv4/tcp_output.c:918!
 
-SMM is how BIOSes do legacy support (which stops at OS-handover).  It's
-also how some BIOSes do ECC reporting and logging.
+Yes, as Andrew said, this bug should be fixed in the latest git tree.
+So please test with that plus the debugging patch to see if you can
+reproduce the assertion again.
 
-We just do pci tweaks to turn it off in the OS.
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

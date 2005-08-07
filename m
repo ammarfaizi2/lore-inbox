@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752859AbVHGVx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752834AbVHGVxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752859AbVHGVx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 17:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752860AbVHGVx7
+	id S1752834AbVHGVxH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 17:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752857AbVHGVxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 17:53:59 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:36600 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752859AbVHGVx6 (ORCPT
+	Sun, 7 Aug 2005 17:53:07 -0400
+Received: from gate.crashing.org ([63.228.1.57]:54998 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1752834AbVHGVxG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 17:53:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=BmMdWjeJeoICfjxfjL8Q6OwGPlPVuU5wOXYHjnRYeIQiQ3miMOrFbOSkybaQRGadGPABqfIMMUyev19CZ2QqmeWZz6niV9qaBuvI6fD3vSu840V4NjiYrUhIpJW/gVARCPfnZc/zW5ZbKS9E1ueCSo69PYZ+VXehv6CJjW4EyAk=
-Message-ID: <42F682AE.2010803@gmail.com>
-Date: Sun, 07 Aug 2005 17:52:46 -0400
-From: Keenan Pepper <keenanpepper@gmail.com>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: synchronize_rcu vs. rcu_barrier
-References: <42F66E81.2020807@gmail.com>
-In-Reply-To: <42F66E81.2020807@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 7 Aug 2005 17:53:06 -0400
+Subject: Re: Regression: radeonfb: No synchronisation on CRT with
+	linux-2.6.13-rc5
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, LKML <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.58.0508071921540.3495@be1.lrz>
+References: <Pine.LNX.4.58.0508040103100.2220@be1.lrz>
+	 <1123195493.30257.75.camel@gaston>
+	 <Pine.LNX.4.58.0508051935570.2326@be1.lrz>
+	 <1123401069.30257.102.camel@gaston>
+	 <3EF2003B-12DF-4EBB-B304-59614AEFAA09@mac.com>
+	 <Pine.LNX.4.58.0508071921540.3495@be1.lrz>
+Content-Type: text/plain
+Date: Sun, 07 Aug 2005 23:48:08 +0200
+Message-Id: <1123451289.30257.118.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What's the difference between synchronize_rcu() and rcu_barrier() (new 
-> function used only by reiser4 code)? From the scant documentation it 
-> seems like they do the same thing.
+On Sun, 2005-08-07 at 19:25 +0200, Bodo Eggert wrote:
+> On Sun, 7 Aug 2005, Kyle Moffett wrote:
+> > On Aug 7, 2005, at 03:51:07, Benjamin Herrenschmidt wrote:
+> 
+> > > Ah ! Interesting... I don't see why PREEMPT would affect radeonfb
+> > > though ... Can you try something like wrapper radeon_write_mode() with
+> > > preempt_disable()/preempt_enable() and tell me if it makes a
+> > > difference ?
+> 
+> Did not help. The values used to initialize the mode seem to be wrong.
+> Copying the aty directory from 2.6.12 did not help, too.
 
-I'm now happily running 2.6.13-rc4-rt-v0.7.52-14-reiser4 which I compiled by adding
+I don't see how PREEMPT could have any impact there unless you are
+experiencing memory corruption... or one of those panels that have so
+subtle timing issues that they sometimes don't sync depending on how
+many flies you have in your room....
 
-#define rcu_barrier synchronize_rcu
+Ben.
 
-so there must not be that much difference =) (at least on UP, that is).
 
-Keenan

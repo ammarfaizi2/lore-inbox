@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVHGBNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVHGBLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbVHGBNm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Aug 2005 21:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVHGBMO
+	id S261413AbVHGBLy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Aug 2005 21:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVHGBJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Aug 2005 21:12:14 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:19928 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261402AbVHGBK4 (ORCPT
+	Sat, 6 Aug 2005 21:09:39 -0400
+Received: from fsmlabs.com ([168.103.115.128]:14310 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261402AbVHGBHT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Aug 2005 21:10:56 -0400
-Date: Sun, 7 Aug 2005 02:10:54 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Joris van Rantwijk <jvrantwijk@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: DRM VIA driver on Unichrome Pro K8M800
-In-Reply-To: <1123376611.17039.1.camel@mindpipe>
-Message-ID: <Pine.LNX.4.58.0508070209280.30320@skynet>
-References: <fa.f66affe.52avgq@ifi.uio.no>  <20050806192647.GA11937@xs4all.nl>
-  <1123366850.14113.18.camel@mindpipe> <1123376611.17039.1.camel@mindpipe>
+	Sat, 6 Aug 2005 21:07:19 -0400
+Date: Sat, 6 Aug 2005 19:13:00 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] i386: Per node IDT
+In-Reply-To: <42D28DE4.B5B17853@tv-sign.ru>
+Message-ID: <Pine.LNX.4.61.0508061906050.470@montezuma.fsmlabs.com>
+References: <42D26604.66A75939@tv-sign.ru> <Pine.LNX.4.61.0507110747480.16055@montezuma.fsmlabs.com>
+ <42D285CD.CF9389F8@tv-sign.ru> <42D28DE4.B5B17853@tv-sign.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 11 Jul 2005, Oleg Nesterov wrote:
 
-> > FWIW, this is working great with my CLE266 chipset.
->
-> Actually I take this back.  The xscreensaver demos all work but I tried
-> ppracer and the course looks OK but Tux is invisible.
+> Oleg Nesterov wrote:
+> > 
+> > Probably it makes sense to change it to
+> >         pushl $vector - 0xFFFF - 1
+> > 
+> 
+> Please note that entry.S:BUILD_INTERRUPT() also does this trick:
+> 	pushl $nr-256;
+> 
+> so it should be changed as well.
 
-that's a secret feature to get him past closed source drivers ;-)
+I was making these changes and noticed that those were for the various SMP 
+interrupts so they are real vectors. These will always remain within the 
+256 range.
 
-on the other hand I've no idea what might be wrong.. but my guess would be
-the userspace Mesa driver not the DRM.... ask on dri-devel or logs a bug
-on bugs.freedesktop.org
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
+	Zwane
 

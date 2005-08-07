@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752770AbVHGVUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752777AbVHGVYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752770AbVHGVUt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 17:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752772AbVHGVUt
+	id S1752777AbVHGVYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 17:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752778AbVHGVYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 17:20:49 -0400
-Received: from mailfe07.swip.net ([212.247.154.193]:29627 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1752770AbVHGVUt (ORCPT
+	Sun, 7 Aug 2005 17:24:34 -0400
+Received: from hockin.org ([66.35.79.110]:30168 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S1752777AbVHGVYd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 17:20:49 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Sun, 7 Aug 2005 23:20:46 +0200
-From: Alexander Nyberg <alexn@telia.com>
-To: Martin Braun <mbraun@uni-hd.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops with 2.6.13-rc5 on webserver with raid
-Message-ID: <20050807212046.GB1864@localhost.localdomain>
-References: <42F336CF.7020001@uni-hd.de>
+	Sun, 7 Aug 2005 17:24:33 -0400
+Date: Sun, 7 Aug 2005 14:24:25 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andi Kleen <ak@suse.de>, Erick Turnquist <jhujhiti@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Lost Ticks on x86_64
+Message-ID: <20050807212425.GA7926@hockin.org>
+References: <5348b8ba050806204453392f7f@mail.gmail.com.suse.lists.linux.kernel> <p73mznuc732.fsf@bragg.suse.de> <1123440679.12766.5.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42F336CF.7020001@uni-hd.de>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1123440679.12766.5.camel@mindpipe>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 11:52:15AM +0200 Martin Braun wrote:
-
-> Hi,
+On Sun, Aug 07, 2005 at 02:51:19PM -0400, Lee Revell wrote:
+> > It's most likely bad SMM code in the BIOS that blocks the CPU too long
+> > and is triggered in idle. You can verify that by using idle=poll
+> > (not recommended for production, just for testing) and see if it goes away.
+> > 
 > 
-> I've been trying to upgrade kernel to 2.6.13-rc5. The server boots
-> normally w/o errors, but after while (from 5 minutes up to 2 hours) the
-> Kernel hangs (no keyboard input possible). As I am a newbie I cannot
-> figure out who will be concerned with this error.
+> WTF, since when do *desktops* use SMM?  Are you telling me that we have
+> to worry about these stupid ACPI/SMM hardware bugs on the desktop too?
 
-Please don't run ksymoops on 2.6 kernels, it makes the output look
-weird and isn't necessary anymore.
+SMM is how BIOSes do legacy support (which stops at OS-handover).  It's
+also how some BIOSes do ECC reporting and logging.
 
-> 
-> >>EIP; c0324afd <tcp_tso_should_defer+fd/110>   <=====
->
-
-Should be fixed in 2.6.13-rc6, if problem persists please report back.
+We just do pci tweaks to turn it off in the OS.

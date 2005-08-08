@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVHHII4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbVHHIRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbVHHII4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 04:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVHHII4
+	id S1750758AbVHHIRo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 04:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbVHHIRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 04:08:56 -0400
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:10732 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S1750728AbVHHIIz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 04:08:55 -0400
-Date: Mon, 8 Aug 2005 11:08:51 +0300
-From: Paul Mundt <lethal@linux-sh.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, rc@rc0.org.uk,
-       linuxsh-shmedia-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] arch/sh64/Kconfig: doesn't need it's own LOG_BUF_SHIFT
-Message-ID: <20050808080851.GD22245@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	rc@rc0.org.uk, linuxsh-shmedia-dev@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20050807215803.GA4006@stusta.de>
+	Mon, 8 Aug 2005 04:17:44 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:50920 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750758AbVHHIRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 04:17:44 -0400
+Subject: Re: Highmemory Problem with RHEL3 .... 2.4.21-5.ELsmp
+From: Arjan van de Ven <arjan@infradead.org>
+To: Fawad Lateef <fawadlateef@gmail.com>
+Cc: linux-kernel@vger.kernel.org, nhorman@redhat.com
+In-Reply-To: <1e62d137050807205047daf9e0@mail.gmail.com>
+References: <1e62d137050807205047daf9e0@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 08 Aug 2005 10:17:35 +0200
+Message-Id: <1123489056.3245.28.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kVXhAStRUZ/+rrGn"
-Content-Disposition: inline
-In-Reply-To: <20050807215803.GA4006@stusta.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-08-08 at 08:50 +0500, Fawad Lateef wrote:
+> Hello,
+> 
+> I m facing a problem in RHEL3 (2.4.21-5.ELsmp) kernel while using
+> kmap_atomic on the pages reserved at the boot time !!!!
+> 
+> At the boot time I reserved pages above 2GB for later use by my module
+> ..... And when I was using those reserved pages through kmap_atomic
+> system hangs; although kmap_atomic successfully returns me the virtual
+> address but when I use that virtual address like in memcpy the system
+> hangs .....
 
---kVXhAStRUZ/+rrGn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+1) you probably should use RH support for this
+2) you forgot to attach your sourcecode / URL to that, including the
+   full source of your module.
 
-On Sun, Aug 07, 2005 at 11:58:03PM +0200, Adrian Bunk wrote:
-> The LOG_BUF_SHIFT from lib/Kconfig.debug is sufficient.
->=20
-Yes, looks good, thanks.
 
---kVXhAStRUZ/+rrGn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFC9xMT1K+teJFxZ9wRAk6GAJ9WbvenSmzQoi0Qa9dUsvIGbMUhqACfWMtX
-0YabcnBXLB0dtr+Lvmf5v/A=
-=NAUe
------END PGP SIGNATURE-----
-
---kVXhAStRUZ/+rrGn--

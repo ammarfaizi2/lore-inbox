@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVHHRmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVHHRny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbVHHRmh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVHHRmh
+	id S932153AbVHHRny (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVHHRny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:42:37 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:9398 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S932148AbVHHRmg (ORCPT
+	Mon, 8 Aug 2005 13:43:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61063 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932149AbVHHRnx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:42:36 -0400
-Message-ID: <42F7998D.8030606@zabbo.net>
-Date: Mon, 08 Aug 2005 10:42:37 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <greg@kroah.com>, Kristen Accardi <kristen.c.accardi@intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 6700/6702PXH quirk
-References: <1123259263.8917.9.camel@whizzy> <20050805183505.GA32405@kroah.com> <1123279513.4706.7.camel@whizzy> <20050805225712.GD3782@kroah.com> <20050806033455.GA23679@havoc.gtf.org>
-In-Reply-To: <20050806033455.GA23679@havoc.gtf.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 8 Aug 2005 13:43:53 -0400
+Date: Mon, 8 Aug 2005 10:42:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: ak@muc.de, ashok.raj@intel.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.6.13-rc5-mm1 doesnt boot on x86_64
+Message-Id: <20050808104206.42a51477.akpm@osdl.org>
+In-Reply-To: <1123522409.5019.0.camel@mulgrave>
+References: <20050808094818.A17579@unix-os.sc.intel.com>
+	<20050808171126.GA32092@muc.de>
+	<1123522409.5019.0.camel@mulgrave>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-
-> <pedantic>
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
+>
+> On Mon, 2005-08-08 at 19:11 +0200, Andi Kleen wrote:
+> > Looks like a SCSI problem. The machine has an Adaptec SCSI adapter, right?
 > 
-> FWIW, compilers generate AWFUL code for bitfields.  Bitfields are
-> really tough to do optimally, whereas bit flags ["unsigned int flags &
-> bitmask"] are the familiar ints and longs that the compiler is well
-> tuned to optimize.
+> The traceback looks pretty meaningless.
+> 
+> What was happening on the machine before this.  i.e. was it booting up,
+> in which case can we have the prior dmesg file; or was the aic79xxx
+> driver being removed?
+> 
 
-I wouldn't have chosen the micro-optimization argument against bitfields
-because people who use them as booleans will be more than willing to
-trade minuscule performance degredation in non-critical paths for
-heaping piles of legibility:
+-mm has extra list_head debugging goodies.  I'd be suspecting a list_head
+corruption detected somewhere under spi_release_transport().
 
-	if (!foo->enabled)
-	if (!(foo->flags & FOO_FLAG_ENABLED)
 
-No, I would have chosen the maintenance risk of forgetting that they're
-really 1 bit wide scalars which truncate on assignment.
+--- 25/include/linux/list.h~list_del-debug	2005-03-08 11:40:27.000000000 -0800
++++ 25-akpm/include/linux/list.h	2005-03-08 11:40:49.000000000 -0800
+@@ -5,7 +5,9 @@
+ 
+ #include <linux/stddef.h>
+ #include <linux/prefetch.h>
++#include <linux/kernel.h>
+ #include <asm/system.h>
++#include <asm/bug.h>
+ 
+ /*
+  * These are non-NULL pointers that will result in page faults
+@@ -160,6 +162,8 @@ static inline void __list_del(struct lis
+  */
+ static inline void list_del(struct list_head *entry)
+ {
++	BUG_ON(entry->prev->next != entry);
++	BUG_ON(entry->next->prev != entry);
+ 	__list_del(entry->prev, entry->next);
+ 	entry->next = LIST_POISON1;
+ 	entry->prev = LIST_POISON2;
+_
 
-	struct foo {
-		unsigned enabled:1;
-	};
-
-	int some_thing_is_enabled(thing) {
-		return thing->whatever & some_high_bit;
-	}
-
-	foo->enabled = some_thing_is_enabled()
-
-Requiring people to remember that they want !!() around assignments
-seems much more dangerous.  They'll get left out to "optimize" current
-behaviour, leaving land mines in the tree for future maintainers.
-
-- z

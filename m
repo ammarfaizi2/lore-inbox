@@ -1,79 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVHHNwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbVHHN5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbVHHNwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 09:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbVHHNwZ
+	id S1750901AbVHHN5U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 09:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbVHHN5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 09:52:25 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:43725 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750828AbVHHNwY convert rfc822-to-8bit
+	Mon, 8 Aug 2005 09:57:19 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:39231 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1750900AbVHHN5T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 09:52:24 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: EXPORT_SYMBOL generates "is deprecated" noise
-Date: Mon, 8 Aug 2005 15:46:22 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <251790000.1123438079@[10.10.2.4]> <253710000.1123439204@[10.10.2.4]>
-In-Reply-To: <253710000.1123439204@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Mon, 8 Aug 2005 09:57:19 -0400
+Date: Mon, 8 Aug 2005 15:59:36 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Cc: klibc@zytor.com
+Subject: [PATCH - RFC] Move initramfs configuration to "General setup"
+Message-ID: <20050808135936.GA9057@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508081546.23125.arnd@arndb.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sünndag 07 August 2005 20:26, Martin J. Bligh wrote:
-> Oh, I'm being an idiot and looking at the wrong tree. It's __deprecated,
-> but I still can't think of a clean way to locally undefine that for
-> just EXPORT_SYMBOL.
+At present the configuration items for initramfs is located in:
+Device drivers | Block Drivers | xxx
 
-We could in theory create a new EXPORT_SYMBOL variant that does not
-reference the symbol directly. This does a little less compile-time
-checks but helps reduce the noise. The big advantage of this
-would be that we could once again build kernels with -Werror on
-developer machines.
+This is maybe not the most natural place to have it.
+So with the following patch it is moved below "General setup",
+and relevant config items are collected in a file with a new
+home in usr/.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+The original reason why I looked into this is the upcoming merge of klibc
+and I missed a good place to include the KLIBC relevant config options.
+With the Kconfig file added to usr/ is will be a simple menuconfig
+in here for all the KLIBC relevant config options.
 
-diff --git a/include/linux/module.h b/include/linux/module.h
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -182,21 +182,26 @@ void *__symbol_get_gpl(const char *symbo
- #endif
+Any comments?
+
+	Sam
+
+diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
+--- a/drivers/block/Kconfig
++++ b/drivers/block/Kconfig
+@@ -408,48 +408,6 @@ config BLK_DEV_INITRD
+ 	  "real" root file system, etc. See <file:Documentation/initrd.txt>
+ 	  for details.
  
- /* For every exported symbol, place a struct in the __ksymtab section */
--#define __EXPORT_SYMBOL(sym, sec)				\
--	__CRC_SYMBOL(sym, sec)					\
--	static const char __kstrtab_##sym[]			\
-+#define __EXPORT_SYMBOL(name, sym, sec)				\
-+	__CRC_SYMBOL(name, sec)					\
-+	static const char __kstrtab_##name[]			\
- 	__attribute__((section("__ksymtab_strings")))		\
--	= MODULE_SYMBOL_PREFIX #sym;                    	\
--	static const struct kernel_symbol __ksymtab_##sym	\
-+	= MODULE_SYMBOL_PREFIX #name;                    	\
-+	static const struct kernel_symbol __ksymtab_##name	\
- 	__attribute_used__					\
- 	__attribute__((section("__ksymtab" sec), unused))	\
--	= { (unsigned long)&sym, __kstrtab_##sym }
-+	= { (unsigned long)&sym, __kstrtab_##name }
+-config INITRAMFS_SOURCE
+-	string "Initramfs source file(s)"
+-	default ""
+-	help
+-	  This can be either a single cpio archive with a .cpio suffix or a
+-	  space-separated list of directories and files for building the
+-	  initramfs image.  A cpio archive should contain a filesystem archive
+-	  to be used as an initramfs image.  Directories should contain a
+-	  filesystem layout to be included in the initramfs image.  Files
+-	  should contain entries according to the format described by the
+-	  "usr/gen_init_cpio" program in the kernel tree.
+-
+-	  When multiple directories and files are specified then the
+-	  initramfs image will be the aggregate of all of them.
+-
+-	  See <file:Documentation/early-userspace/README for more details.
+-
+-	  If you are not sure, leave it blank.
+-
+-config INITRAMFS_ROOT_UID
+-	int "User ID to map to 0 (user root)"
+-	depends on INITRAMFS_SOURCE!=""
+-	default "0"
+-	help
+-	  This setting is only meaningful if the INITRAMFS_SOURCE is
+-	  contains a directory.  Setting this user ID (UID) to something
+-	  other than "0" will cause all files owned by that UID to be
+-	  owned by user root in the initial ramdisk image.
+-
+-	  If you are not sure, leave it set to "0".
+-
+-config INITRAMFS_ROOT_GID
+-	int "Group ID to map to 0 (group root)"
+-	depends on INITRAMFS_SOURCE!=""
+-	default "0"
+-	help
+-	  This setting is only meaningful if the INITRAMFS_SOURCE is
+-	  contains a directory.  Setting this group ID (GID) to something
+-	  other than "0" will cause all files owned by that GID to be
+-	  owned by group root in the initial ramdisk image.
+-
+-	  If you are not sure, leave it set to "0".
  
- #define EXPORT_SYMBOL(sym)					\
--	__EXPORT_SYMBOL(sym, "")
-+	__EXPORT_SYMBOL(sym, sym, "")
+ #XXX - it makes sense to enable this only for 32-bit subarch's, not for x86_64
+ #for instance.
+diff --git a/init/Kconfig b/init/Kconfig
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -238,6 +238,8 @@ config CPUSETS
  
- #define EXPORT_SYMBOL_GPL(sym)					\
--	__EXPORT_SYMBOL(sym, "_gpl")
-+	__EXPORT_SYMBOL(sym, sym, "_gpl")
+ 	  Say N if unsure.
+ 
++source "usr/Kconfig"
 +
-+#define EXPORT_DEPRECATED_SYMBOL(sym)				\
-+	extern void __deprecated_ ## sym 			\
-+			__attribute__((alias(#sym)));		\
-+	__EXPORT_SYMBOL(sym, __deprecated_ ## sym, "_gpl")
- 
- #endif
- 
+ menuconfig EMBEDDED
+ 	bool "Configure standard kernel features (for small systems)"
+ 	help
+diff --git a/usr/Kconfig b/usr/Kconfig
+new file mode 100644
+--- /dev/null
++++ b/usr/Kconfig
+@@ -0,0 +1,46 @@
++#
++# Configuration for initramfs
++#
++
++config INITRAMFS_SOURCE
++	string "Initramfs source file(s)"
++	default ""
++	help
++	  This can be either a single cpio archive with a .cpio suffix or a
++	  space-separated list of directories and files for building the
++	  initramfs image.  A cpio archive should contain a filesystem archive
++	  to be used as an initramfs image.  Directories should contain a
++	  filesystem layout to be included in the initramfs image.  Files
++	  should contain entries according to the format described by the
++	  "usr/gen_init_cpio" program in the kernel tree.
++
++	  When multiple directories and files are specified then the
++	  initramfs image will be the aggregate of all of them.
++
++	  See <file:Documentation/early-userspace/README for more details.
++
++	  If you are not sure, leave it blank.
++
++config INITRAMFS_ROOT_UID
++	int "User ID to map to 0 (user root)"
++	depends on INITRAMFS_SOURCE!=""
++	default "0"
++	help
++	  This setting is only meaningful if the INITRAMFS_SOURCE is
++	  contains a directory.  Setting this user ID (UID) to something
++	  other than "0" will cause all files owned by that UID to be
++	  owned by user root in the initial ramdisk image.
++
++	  If you are not sure, leave it set to "0".
++
++config INITRAMFS_ROOT_GID
++	int "Group ID to map to 0 (group root)"
++	depends on INITRAMFS_SOURCE!=""
++	default "0"
++	help
++	  This setting is only meaningful if the INITRAMFS_SOURCE is
++	  contains a directory.  Setting this group ID (GID) to something
++	  other than "0" will cause all files owned by that GID to be
++	  owned by group root in the initial ramdisk image.
++
++	  If you are not sure, leave it set to "0".

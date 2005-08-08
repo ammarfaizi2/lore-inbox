@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVHHOZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVHHO3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbVHHOZp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 10:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVHHOZp
+	id S932080AbVHHO3V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 10:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVHHO3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 10:25:45 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21389 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932078AbVHHOZo (ORCPT
+	Mon, 8 Aug 2005 10:29:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:65461 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932080AbVHHO3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 10:25:44 -0400
-Date: Mon, 8 Aug 2005 16:24:24 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Zachary Amsden <zach@vmware.com>
-Cc: akpm@osdl.org, chrisw@osdl.org, linux-kernel@vger.kernel.org,
-       davej@codemonkey.org.uk, hpa@zytor.com, Riley@Williams.Name,
-       pratap@vmware.com, chrisl@vmware.com
-Subject: Re: [PATCH] 5/8 Move descriptor table management into the sub-arch layer
-Message-ID: <20050808142424.GA1913@elf.ucw.cz>
-References: <42F4643E.4030402@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42F4643E.4030402@vmware.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 8 Aug 2005 10:29:21 -0400
+Date: Mon, 8 Aug 2005 10:29:08 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Update my contact info
+Message-ID: <Lynx.SEL.4.62.0508081028020.17575@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Please apply.
 
+---
 
-> i386 Transparent paravirtualization subarch patch #5
-> 
-> This change encapsulates descriptor and task register management.
-> 
-> Diffs against: 2.6.13-rc4-mm1
-> 
-> Signed-off-by: Zachary Amsden <zach@vmware.com>
-> Index: linux-2.6.13/include/asm-i386/desc.h
-> ===================================================================
-> --- linux-2.6.13.orig/include/asm-i386/desc.h	2005-08-03 16:24:09.000000000 -0700
-> +++ linux-2.6.13/include/asm-i386/desc.h	2005-08-03 16:31:40.000000000 -0700
-> @@ -27,19 +27,6 @@
->  
->  extern struct Xgt_desc_struct idt_descr, cpu_gdt_descr[NR_CPUS];
->  
-> -#define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
-> -#define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
+diff -urN a/CREDITS b/CREDITS
+--- a/CREDITS	2005-08-07 14:18:56.000000000 -0400
++++ b/CREDITS	2005-08-08 10:03:56.000000000 -0400
+@@ -2380,8 +2380,8 @@
+ D: bug fixes, documentation, minor hackery
+ 
+ N: James Morris
+-E: jmorris@redhat.com
+-W: http://www.intercode.com.au/jmorris/
++E: jmorris@namei.org
++W: http://namei.org/
+ D: Netfilter, Linux Security Modules (LSM), SELinux, IPSec,
+ D: Crypto API, general networking, miscellaneous.
+ S: PO Box 707
+diff -urN a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS	2005-08-07 14:18:56.000000000 -0400
++++ b/MAINTAINERS	2005-08-08 10:04:04.000000000 -0400
+@@ -1658,7 +1658,7 @@
+ P:	Pekka Savola (ipv6)
+ M:	pekkas@netcore.fi
+ P:	James Morris
+-M:	jmorris@redhat.com
++M:	jmorris@namei.org
+ P:	Hideaki YOSHIFUJI
+ M:	yoshfuji@linux-ipv6.org
+ P:	Patrick McHardy
+@@ -2047,7 +2047,7 @@
+ P:	Stephen Smalley
+ M:	sds@epoch.ncsc.mil
+ P:	James Morris
+-M:	jmorris@redhat.com
++M:	jmorris@namei.org
+ L:	linux-kernel@vger.kernel.org (kernel issues)
+ L: 	selinux@tycho.nsa.gov (general discussion)
+ W:	http://www.nsa.gov/selinux
 
-Is not asm volatile (no underscores) enough?
-
-> -#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
-> -#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
-
-Eh, I think volatile should be either "volatile" or "__volatile__",
-but you not "__volatile".
-
--- 
-if you have sharp zaurus hardware you don't need... you know my address

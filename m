@@ -1,332 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVHHUVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbVHHUWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbVHHUVx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 16:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVHHUVx
+	id S932260AbVHHUWV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 16:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbVHHUWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 16:21:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4019 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932258AbVHHUVw (ORCPT
+	Mon, 8 Aug 2005 16:22:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34227 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932260AbVHHUWS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 16:21:52 -0400
-Message-Id: <20050808202110.744344000@jumble.boston.redhat.com>
+	Mon, 8 Aug 2005 16:22:18 -0400
+Message-Id: <20050808202111.144010000@jumble.boston.redhat.com>
 References: <20050808201416.450491000@jumble.boston.redhat.com>
-Date: Mon, 08 Aug 2005 16:14:17 -0400
+Date: Mon, 08 Aug 2005 16:14:18 -0400
 From: Rik van Riel <riel@redhat.com>
 To: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [RFC 1/3] non-resident page tracking
-Content-Disposition: inline; filename=nonresident
+Subject: [RFC 2/3] non-resident page tracking
+Content-Disposition: inline; filename=nonresident-stats
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Track non-resident pages through a simple hashing scheme.  This way
-the space overhead is limited to 1 u32 per page, or 0.1% space overhead
-and lookups are one cache miss.
+Prints a histogram of refaults in /proc/refaults.  This allows somebody
+to estimate how much more memory a memory starved system would need to
+run better.  
 
-Aside from seeing whether or not a page was recently evicted, we can
-also take a reasonable guess at how many other pages were evicted since
-this page was evicted.
+It can also help with the evaluation of page replacement algorithms,
+since the algorithm that would need the least amount of extra memory
+to fit a workload can be identified.
 
 Signed-off-by: Rik van Riel <riel@redhat.com>
 
-Index: linux-2.6.12-vm/include/linux/swap.h
+Index: linux-2.6.12-vm/fs/proc/proc_misc.c
 ===================================================================
---- linux-2.6.12-vm.orig/include/linux/swap.h
-+++ linux-2.6.12-vm/include/linux/swap.h
-@@ -153,6 +153,11 @@ extern void out_of_memory(unsigned int _
- /* linux/mm/memory.c */
- extern void swapin_readahead(swp_entry_t, unsigned long, struct vm_area_struct *);
+--- linux-2.6.12-vm.orig/fs/proc/proc_misc.c
++++ linux-2.6.12-vm/fs/proc/proc_misc.c
+@@ -219,6 +219,20 @@ static struct file_operations fragmentat
+ 	.release	= seq_release,
+ };
  
-+/* linux/mm/nonresident.c */
-+extern int remember_page(struct address_space *, unsigned long);
-+extern int recently_evicted(struct address_space *, unsigned long);
-+extern void init_nonresident(void);
++extern struct seq_operations refaults_op;
++static int refaults_open(struct inode *inode, struct file *file)
++{
++	(void)inode;
++	return seq_open(file, &refaults_op);
++}
 +
- /* linux/mm/page_alloc.c */
- extern unsigned long totalram_pages;
- extern unsigned long totalhigh_pages;
-@@ -288,6 +293,11 @@ static inline swp_entry_t get_swap_page(
- #define grab_swap_token()  do { } while(0)
- #define has_swap_token(x) 0
- 
-+/* linux/mm/nonresident.c */
-+#define init_nonresident()	do { } while (0)
-+#define remember_page(x,y)	0
-+#define recently_evicted(x,y)	0
++static struct file_operations refaults_file_operations = {
++	.open		= refaults_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= seq_release,
++};
 +
- #endif /* CONFIG_SWAP */
- #endif /* __KERNEL__*/
- #endif /* _LINUX_SWAP_H */
-Index: linux-2.6.12-vm/init/main.c
-===================================================================
---- linux-2.6.12-vm.orig/init/main.c
-+++ linux-2.6.12-vm/init/main.c
-@@ -47,6 +47,7 @@
- #include <linux/rmap.h>
- #include <linux/mempolicy.h>
- #include <linux/key.h>
-+#include <linux/swap.h>
- 
- #include <asm/io.h>
- #include <asm/bugs.h>
-@@ -488,6 +489,7 @@ asmlinkage void __init start_kernel(void
- 	}
- #endif
- 	vfs_caches_init_early();
-+	init_nonresident();
- 	mem_init();
- 	kmem_cache_init();
- 	numa_policy_init();
-Index: linux-2.6.12-vm/mm/Makefile
-===================================================================
---- linux-2.6.12-vm.orig/mm/Makefile
-+++ linux-2.6.12-vm/mm/Makefile
-@@ -12,7 +12,8 @@ obj-y			:= bootmem.o filemap.o mempool.o
- 			   readahead.o slab.o swap.o truncate.o vmscan.o \
- 			   prio_tree.o $(mmu-y)
- 
--obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
-+obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o \
-+			   nonresident.o
- obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
- obj-$(CONFIG_NUMA) 	+= mempolicy.o
- obj-$(CONFIG_SHMEM) += shmem.o
+ static int version_read_proc(char *page, char **start, off_t off,
+ 				 int count, int *eof, void *data)
+ {
+@@ -588,6 +602,7 @@ void __init proc_misc_init(void)
+ 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
+ 	create_seq_entry("slabinfo",S_IWUSR|S_IRUGO,&proc_slabinfo_operations);
+ 	create_seq_entry("buddyinfo",S_IRUGO, &fragmentation_file_operations);
++	create_seq_entry("refaults",S_IRUGO, &refaults_file_operations);
+ 	create_seq_entry("vmstat",S_IRUGO, &proc_vmstat_file_operations);
+ 	create_seq_entry("diskstats", 0, &proc_diskstats_operations);
+ #ifdef CONFIG_MODULES
 Index: linux-2.6.12-vm/mm/nonresident.c
 ===================================================================
---- /dev/null
+--- linux-2.6.12-vm.orig/mm/nonresident.c
 +++ linux-2.6.12-vm/mm/nonresident.c
-@@ -0,0 +1,157 @@
-+/*
-+ * mm/nonresident.c
-+ * (C) 2004,2005 Red Hat, Inc
-+ * Written by Rik van Riel <riel@redhat.com>
-+ * Released under the GPL, see the file COPYING for details.
-+ *
-+ * Keeps track of whether a non-resident page was recently evicted
-+ * and should be immediately promoted to the active list. This also
-+ * helps automatically tune the inactive target.
-+ *
-+ * The pageout code stores a recently evicted page in this cache
-+ * by calling remember_page(mapping/mm, index/vaddr, generation)
-+ * and can look it up in the cache by calling recently_evicted()
-+ * with the same arguments.
-+ *
-+ * Note that there is no way to invalidate pages after eg. truncate
-+ * or exit, we let the pages fall out of the non-resident set through
-+ * normal replacement.
-+ */
-+#include <linux/mm.h>
-+#include <linux/cache.h>
-+#include <linux/spinlock.h>
-+#include <linux/bootmem.h>
-+#include <linux/hash.h>
-+#include <linux/prefetch.h>
-+#include <linux/kernel.h>
-+
-+/* Number of non-resident pages per hash bucket */
-+#define NUM_NR ((L1_CACHE_BYTES - sizeof(atomic_t))/sizeof(u32))
-+
-+struct nr_bucket
-+{
-+	atomic_t hand;
-+	u32 page[NUM_NR];
-+} ____cacheline_aligned;
-+
-+/* The non-resident page hash table. */
-+static struct nr_bucket * nonres_table;
-+static unsigned int nonres_shift;
-+static unsigned int nonres_mask;
-+
-+struct nr_bucket * nr_hash(void * mapping, unsigned long index)
-+{
-+	unsigned long bucket;
-+	unsigned long hash;
-+
-+	hash = hash_ptr(mapping, BITS_PER_LONG);
-+	hash = 37 * hash + hash_long(index, BITS_PER_LONG);
-+	bucket = hash & nonres_mask;
-+
-+	return nonres_table + bucket;
-+}
-+
-+static u32 nr_cookie(struct address_space * mapping, unsigned long index)
-+{
-+	unsigned long cookie = hash_ptr(mapping, BITS_PER_LONG);
-+	cookie = 37 * cookie + hash_long(index, BITS_PER_LONG);
-+
-+	if (mapping->host) {
-+		cookie = 37 * cookie + hash_long(mapping->host->i_ino, BITS_PER_LONG);
-+	}
-+
-+	return (u32)(cookie >> (BITS_PER_LONG - 32));
-+}
-+
-+int recently_evicted(struct address_space * mapping, unsigned long index)
-+{
-+	struct nr_bucket * nr_bucket;
-+	int distance;
-+	u32 wanted;
-+	int i;
-+
-+	prefetch(mapping->host);
-+	nr_bucket = nr_hash(mapping, index);
-+
-+	prefetch(nr_bucket);
-+	wanted = nr_cookie(mapping, index);
-+
-+	for (i = 0; i < NUM_NR; i++) {
-+		if (nr_bucket->page[i] == wanted) {
-+			nr_bucket->page[i] = 0;
-+			/* Return the distance between entry and clock hand. */
-+			distance = atomic_read(&nr_bucket->hand) + NUM_NR - i;
-+			distance = (distance % NUM_NR) + 1;
-+			return distance * (1 << nonres_shift);
-+		}
-+	}
-+
-+	return -1;
-+}
-+
-+int remember_page(struct address_space * mapping, unsigned long index)
-+{
-+	struct nr_bucket * nr_bucket;
-+	u32 nrpage;
-+	int i;
-+
-+	prefetch(mapping->host);
-+	nr_bucket = nr_hash(mapping, index);
-+
-+	prefetchw(nr_bucket);
-+	nrpage = nr_cookie(mapping, index);
-+
-+	/* Atomically find the next array index. */
-+	preempt_disable();
-+  retry:
-+	i = atomic_inc_return(&nr_bucket->hand);
-+	if (unlikely(i >= NUM_NR)) {
-+		if (i == NUM_NR)
-+			atomic_set(&nr_bucket->hand, -1);
-+		goto retry;
-+	}
-+	preempt_enable();
-+
-+	/* Statistics may want to know whether the entry was in use. */
-+	return xchg(&nr_bucket->page[i], nrpage);
-+}
-+
-+/*
-+ * For interactive workloads, we remember about as many non-resident pages
-+ * as we have actual memory pages.  For server workloads with large inter-
-+ * reference distances we could benefit from remembering more.
-+ */
-+static __initdata unsigned long nonresident_factor = 1;
-+void __init init_nonresident(void)
-+{
-+	int target;
-+	int i;
-+
-+	/*
-+	 * Calculate the non-resident hash bucket target. Use a power of
-+	 * two for the division because alloc_large_system_hash rounds up.
-+	 */
-+	target = nr_all_pages * nonresident_factor;
-+	target /= (sizeof(struct nr_bucket) / sizeof(u32));
-+
-+	nonres_table = alloc_large_system_hash("Non-resident page tracking",
-+					sizeof(struct nr_bucket),
-+					target,
-+					0,
-+					HASH_EARLY | HASH_HIGHMEM,
-+					&nonres_shift,
-+					&nonres_mask,
-+					0);
-+
-+	for (i = 0; i < (1 << nonres_shift); i++)
-+		atomic_set(&nonres_table[i].hand, 0);
-+}
-+
-+static int __init set_nonresident_factor(char * str)
-+{
-+	if (!str)
-+		return 0;
-+	nonresident_factor = simple_strtoul(str, &str, 0);
-+	return 1;
-+}
-+__setup("nonresident_factor=", set_nonresident_factor);
-Index: linux-2.6.12-vm/mm/vmscan.c
-===================================================================
---- linux-2.6.12-vm.orig/mm/vmscan.c
-+++ linux-2.6.12-vm/mm/vmscan.c
-@@ -509,6 +509,7 @@ static int shrink_list(struct list_head 
- #ifdef CONFIG_SWAP
- 		if (PageSwapCache(page)) {
- 			swp_entry_t swap = { .val = page->private };
-+			remember_page(&swapper_space, page->private);
- 			__delete_from_swap_cache(page);
- 			write_unlock_irq(&mapping->tree_lock);
- 			swap_free(swap);
-@@ -517,6 +518,7 @@ static int shrink_list(struct list_head 
- 		}
- #endif /* CONFIG_SWAP */
+@@ -24,6 +24,7 @@
+ #include <linux/hash.h>
+ #include <linux/prefetch.h>
+ #include <linux/kernel.h>
++#include <linux/percpu.h>
  
-+		remember_page(page->mapping, page->index);
- 		__remove_from_page_cache(page);
- 		write_unlock_irq(&mapping->tree_lock);
- 		__put_page(page);
-Index: linux-2.6.12-vm/mm/filemap.c
-===================================================================
---- linux-2.6.12-vm.orig/mm/filemap.c
-+++ linux-2.6.12-vm/mm/filemap.c
-@@ -400,8 +400,13 @@ int add_to_page_cache_lru(struct page *p
- 				pgoff_t offset, int gfp_mask)
- {
- 	int ret = add_to_page_cache(page, mapping, offset, gfp_mask);
--	if (ret == 0)
--		lru_cache_add(page);
-+	int activate = recently_evicted(mapping, offset);
-+	if (ret == 0) {
-+		if (activate >= 0)
-+			lru_cache_add_active(page);
-+		else
-+			lru_cache_add(page);
-+	}
- 	return ret;
+ /* Number of non-resident pages per hash bucket */
+ #define NUM_NR ((L1_CACHE_BYTES - sizeof(atomic_t))/sizeof(u32))
+@@ -34,6 +35,9 @@ struct nr_bucket
+ 	u32 page[NUM_NR];
+ } ____cacheline_aligned;
+ 
++/* Histogram for non-resident refault hits. [NUM_NR] means "not found". */
++DEFINE_PER_CPU(unsigned long[NUM_NR+1], refault_histogram);
++
+ /* The non-resident page hash table. */
+ static struct nr_bucket * nonres_table;
+ static unsigned int nonres_shift;
+@@ -81,11 +85,14 @@ int recently_evicted(struct address_spac
+ 			nr_bucket->page[i] = 0;
+ 			/* Return the distance between entry and clock hand. */
+ 			distance = atomic_read(&nr_bucket->hand) + NUM_NR - i;
+-			distance = (distance % NUM_NR) + 1;
+-			return distance * (1 << nonres_shift);
++			distance = distance % NUM_NR;
++			__get_cpu_var(refault_histogram)[distance]++;
++			return (distance + 1) * (1 << nonres_shift);
+ 		}
+ 	}
+ 
++	/* If this page was evicted, it was longer ago than our history. */
++	__get_cpu_var(refault_histogram)[NUM_NR]++;
+ 	return -1;
  }
  
-Index: linux-2.6.12-vm/mm/swap_state.c
-===================================================================
---- linux-2.6.12-vm.orig/mm/swap_state.c
-+++ linux-2.6.12-vm/mm/swap_state.c
-@@ -323,6 +323,7 @@ struct page *read_swap_cache_async(swp_e
- 			struct vm_area_struct *vma, unsigned long addr)
- {
- 	struct page *found_page, *new_page = NULL;
-+	int activate;
- 	int err;
- 
- 	do {
-@@ -344,6 +345,8 @@ struct page *read_swap_cache_async(swp_e
- 				break;		/* Out of memory */
- 		}
- 
-+		activate = recently_evicted(&swapper_space, entry.val);
+@@ -155,3 +162,68 @@ static int __init set_nonresident_factor
+ 	return 1;
+ }
+ __setup("nonresident_factor=", set_nonresident_factor);
 +
- 		/*
- 		 * Associate the page with swap entry in the swap cache.
- 		 * May fail (-ENOENT) if swap entry has been freed since
-@@ -359,7 +362,10 @@ struct page *read_swap_cache_async(swp_e
- 			/*
- 			 * Initiate read into locked page and return.
- 			 */
--			lru_cache_add_active(new_page);
-+			if (activate >= 0)
-+				lru_cache_add_active(new_page);
-+			else
-+				lru_cache_add(new_page);
- 			swap_readpage(NULL, new_page);
- 			return new_page;
- 		}
++#ifdef CONFIG_PROC_FS
++
++#include <linux/seq_file.h>
++
++static void *frag_start(struct seq_file *m, loff_t *pos)
++{
++	if (*pos < 0 || *pos > NUM_NR)
++		return NULL;
++
++	m->private = (unsigned long)*pos;
++
++	return pos;
++}
++
++static void *frag_next(struct seq_file *m, void *arg, loff_t *pos)
++{
++	if (*pos < NUM_NR) {
++		(*pos)++;
++		(unsigned long)m->private++;
++		return pos;
++	}
++	return NULL;
++}
++
++static void frag_stop(struct seq_file *m, void *arg)
++{
++}
++
++unsigned long get_refault_stat(unsigned long index)
++{
++	unsigned long total = 0;
++	int cpu;
++
++	for (cpu = first_cpu(cpu_online_map); cpu < NR_CPUS; cpu++) {
++		total += per_cpu(refault_histogram, cpu)[index];
++	}
++	return total;
++}
++
++static int frag_show(struct seq_file *m, void *arg)
++{
++	unsigned long index = (unsigned long)m->private;
++	unsigned long upper = ((unsigned long)index + 1) << nonres_shift;
++	unsigned long lower = (unsigned long)index << nonres_shift;
++	unsigned long hits = get_refault_stat(index);
++
++	if (index == 0)
++		seq_printf(m, "     Refault distance          Hits\n");
++
++	if (index < NUM_NR)
++		seq_printf(m, "%9lu - %9lu     %9lu\n", lower, upper, hits);
++	else
++		seq_printf(m, " New/Beyond %9lu     %9lu\n", lower, hits);
++
++	return 0;
++}
++
++struct seq_operations refaults_op = {
++	.start  = frag_start,
++	.next   = frag_next,
++	.stop   = frag_stop,
++	.show   = frag_show,
++};
++#endif /* CONFIG_PROCFS */
 
 --
 -- 

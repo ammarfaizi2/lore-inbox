@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVHHSDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVHHSKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbVHHSDP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 14:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVHHSDP
+	id S932147AbVHHSKB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 14:10:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVHHSKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 14:03:15 -0400
-Received: from carbon.deepthought.org ([66.180.175.50]:54198 "EHLO
-	carbon.deepthought.org") by vger.kernel.org with ESMTP
-	id S932164AbVHHSDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 14:03:14 -0400
-Date: Mon, 8 Aug 2005 14:03:12 -0400
-From: Martin Murray <mmurray@deepthought.org>
-To: Jesse Barnes <jesse.barnes@intel.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ata_piix hang in 2.6.13-rc5
-Message-ID: <20050808180311.GA5878@deepthought.org>
-References: <200508081020.48945.jesse.barnes@intel.com>
+	Mon, 8 Aug 2005 14:10:01 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:51620 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932147AbVHHSKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 14:10:00 -0400
+Subject: Re: Lost Ticks on x86_64
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Tim Hockin <thockin@hockin.org>, Erick Turnquist <jhujhiti@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050808120125.GD19170@wotan.suse.de>
+References: <5348b8ba050806204453392f7f@mail.gmail.com.suse.lists.linux.kernel>
+	 <p73mznuc732.fsf@bragg.suse.de> <20050807174811.GA31006@hockin.org>
+	 <20050808120125.GD19170@wotan.suse.de>
+Content-Type: text/plain
+Date: Mon, 08 Aug 2005 14:09:58 -0400
+Message-Id: <1123524598.15269.29.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508081020.48945.jesse.barnes@intel.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For what its worth, I'm seeing the same thing on a 2.6.13-rc5 machine
-with sata_nv on an x86_64 machine. I can get around it by using noapic.
-I initially assumed it was some ACPI or IRQ issue, but my box hangs at
-the exact same place, right after announcing the first device.
+On Mon, 2005-08-08 at 14:01 +0200, Andi Kleen wrote:
+> > Some BIOSes do not lock SMM, and you *could* turn it off at the chipset
+> > level.
+> 
+> Doing so would be wasteful though. Both AMD and Intel CPUs need SMM code
+> for the deeper C* sleep states.
+> 
 
-Try booting with noapic.
+Wouldn't it be useful for !CONFIG_PM?  Many multimedia users run this
+way because they want their machines running full speed all the time
+(they need the horsepower, plus frequency scaling interferes with the
+TSC based timing used by JACK ) and because ACPI has a history of
+causing nasty latency blips.
 
--Martin
+Lee
 
-* Jesse Barnes <jesse.barnes@intel.com> [050808 13:21]:
-> I recently tried to upgrade an ICH5 based box I have to see if a PCI 
-> resource allocation bug went away, but was stymied by the fact that 
-> recent kernels (2.6.12 from Fedora and 2.6.13-rc5) hang when ata_piix 
-> probes for drives.  The last messages I get are these:
-> 
-> Loading ata_piix.ko module
-> ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 177
-> ata1: SATA max UDMA/133 cmd 0xC800 ctl 0xC482 bmdma 0xC000 irq 177
-> ata2: SATA max UDMA/133 cmd 0xC400 ctl 0xC082 bmdma 0xC008 irq 177
-> ata1: SATA port has no device.
-> scsi0: ata_piix
-> ata2: dev 0 ata, max UDMA/133, 312581808 sectors, lba48
-> <hang>
-> 
-> Is this a known problem?  Is there anything in particular I should try?
-> 
-> Thanks,
-> Jesse
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

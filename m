@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbVHHRrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbVHHRsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbVHHRrX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVHHRrX
+	id S932158AbVHHRsW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVHHRsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:47:23 -0400
-Received: from florence.buici.com ([206.124.142.26]:49877 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S932155AbVHHRrW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:47:22 -0400
-Date: Mon, 8 Aug 2005 10:47:21 -0700
-From: Marc Singer <elf@buici.com>
-To: Marcel Holtmann <marcel@holtmann.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] spi
-Message-ID: <20050808174721.GA2853@buici.com>
-References: <1121025679.3008.10.camel@spirit> <1123492338.4762.96.camel@diimka.dev.rtsoft.ru> <20050808145544.GB6478@kroah.com> <1123522536.7751.51.camel@pegasus>
+	Mon, 8 Aug 2005 13:48:22 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:30370 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932158AbVHHRsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 13:48:21 -0400
+Subject: Re: Wireless support
+From: Lee Revell <rlrevell@joe-job.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: abonilla@linuxwireless.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200508080931.59084.vda@ilport.com.ua>
+References: <1123442554.12766.17.camel@mindpipe>
+	 <1123461574.4920.6.camel@localhost.localdomain>
+	 <200508080931.59084.vda@ilport.com.ua>
+Content-Type: text/plain
+Date: Mon, 08 Aug 2005 13:48:17 -0400
+Message-Id: <1123523298.15269.18.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123522536.7751.51.camel@pegasus>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 07:35:36PM +0200, Marcel Holtmann wrote:
-> > > +	if (NULL == dev || NULL == driver) {
+On Mon, 2005-08-08 at 09:31 +0300, Denis Vlasenko wrote:
+> On Monday 08 August 2005 03:39, Alejandro Bonilla Beeche wrote:
+> > On Sun, 2005-08-07 at 15:22 -0400, Lee Revell wrote:
+> > > Is the Linksys WUSB 54GS wireless adapter (FCCID Q87-WUSB54GS)
+> > > supported?
 > > 
-> > Put the variable on the left side, gcc will complain if you incorrectly
-> > put a "=" instead of a "==" here, which is all that you are defending
-> > against with this style.
+> > Normally, linksys doesn't care much about Linux and they won't even
+> > release info for a driver. Yeah, they have some open info for the WRT's
+> > but the adapters are normally usable with ndiswrapper or Linuxant
+> > driver.
 > 
-> I think in this case the preferred way is
-> 
-> 	if (!dev || !driver) {
-> 
+> The more I read this, the more I think about usefulness of blacklisting
+> ndiswrapper.
 
-That's not a guaranteed equivalence in the C standard.  Null pointers
-may not be zero.  I don't think we have any targets that work this
-way, however there is nothing wrong with explicitly testing for NULL.
+What's your reasoning?  The technical aspect of the argument is obvious
+(incompatible with 4K stacks) but the political side seems insolvable.
+Wouldn't this leave thousands of users with non working hardware?
+
+Lee 
+

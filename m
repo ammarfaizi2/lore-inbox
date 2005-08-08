@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVHHTyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbVHHTym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbVHHTyd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 15:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVHHTyd
+	id S932244AbVHHTym (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 15:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVHHTym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 15:54:33 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1274 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932243AbVHHTyc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 15:54:32 -0400
-Subject: Re: [patch] IPV4 spinlock_casting
-From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: dwalker@mvista.com, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050808090659.GA11879@elte.hu>
-References: <1123466661.20677.14.camel@localhost.localdomain>
-	 <20050808090457.GA11771@elte.hu>  <20050808090659.GA11879@elte.hu>
-Content-Type: text/plain
-Date: Mon, 08 Aug 2005 12:54:25 -0700
-Message-Id: <1123530866.20053.12.camel@imap.mvista.com>
+	Mon, 8 Aug 2005 15:54:42 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:32485
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932244AbVHHTyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 15:54:41 -0400
+Date: Mon, 08 Aug 2005 12:54:32 -0700 (PDT)
+Message-Id: <20050808.125432.74747546.davem@davemloft.net>
+To: greg@kroah.com
+Cc: torvalds@osdl.org, ralf@linux-mips.org, linux-kernel@vger.kernel.org,
+       linville@redhat.com
+Subject: Re: pci_update_resource() getting called on sparc64
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050808194249.GA6729@kroah.com>
+References: <20050808160846.GA7710@kroah.com>
+	<20050808.123209.59463259.davem@davemloft.net>
+	<20050808194249.GA6729@kroah.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-08 at 11:06 +0200, Ingo Molnar wrote:
-> 
-> it just occured to me that !PREEMPT_RT builds would be affected by the
-> #else branch, so i committed the build fix below into -52-15.
-> 
->         Ingo
-> 
+From: Greg KH <greg@kroah.com>
+Date: Mon, 8 Aug 2005 12:42:49 -0700
 
-That fixes it. Thanks
+> Linus, can you just revert that changeset for now?  That will sove
+> David's problem, and I'll work on getting this patch working properly
+> for after 2.6.13 is out.
 
-Sven
+Agreed.
 
-> Index: linux/net/ipv4/route.c
-> ===================================================================
-> --- linux.orig/net/ipv4/route.c
-> +++ linux/net/ipv4/route.c
-> @@ -231,7 +231,7 @@ static spinlock_t   *rt_hash_locks;
->                         spin_lock_init(&rt_hash_locks[i]); \
->                 }
->  #else
-> -# define rt_hash_lock_addr(slot) NULL
-> +# define rt_hash_lock_addr(slot) ((spinlock_t *)NULL)
->  # define rt_hash_lock_init()
->  #endif
->  
-> 
+I even have a patch I'll submit to you which will get sparc64
+converted over to using drivers/pci/setup-res.c so that none
+of this kind of non-sense will occur in the future.
 
+> Hm, how do you revert a git patch?
+
+"patch -p1 -R" the patch, then use a changelog like:
+
+[PCI]: Revert $(SHA1)
+
+The $(SHA1) even shows up in gitk as a hyperlink so you can
+see the original changeset and assosciated changelog entry
+by just clicking on it.

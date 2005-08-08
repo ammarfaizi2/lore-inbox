@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbVHHRRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVHHRVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbVHHRRw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVHHRRw
+	id S932125AbVHHRVD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:21:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVHHRVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:17:52 -0400
-Received: from 213-229-38-18.static.adsl-line.inode.at ([213.229.38.18]:32184
-	"HELO home.winischhofer.net") by vger.kernel.org with SMTP
-	id S932121AbVHHRRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:17:52 -0400
-Message-ID: <42F79415.2020709@winischhofer.net>
-Date: Mon, 08 Aug 2005 19:19:17 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Mon, 8 Aug 2005 13:21:02 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:17385 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932122AbVHHRVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 13:21:02 -0400
+From: Jesse Barnes <jesse.barnes@intel.com>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: ata_piix hang in 2.6.13-rc5
+Date: Mon, 8 Aug 2005 10:20:48 -0700
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] drivers/video/sis/ macros for old kernels removal
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508081020.48945.jesse.barnes@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I recently tried to upgrade an ICH5 based box I have to see if a PCI 
+resource allocation bug went away, but was stymied by the fact that 
+recent kernels (2.6.12 from Fedora and 2.6.13-rc5) hang when ata_piix 
+probes for drives.  The last messages I get are these:
 
-Arjan van de Ven wrote:
-> On Mon, 2005-08-08 at 17:23 +0200, Jiri Slaby wrote:
-> > Jiri Slaby napsal(a):
-> >
->>> This patch removes some #ifs, which controls kernel version (2.4 or
->>> like), so the code could be removed with the macros.
->>> linux/version.h inclusions also removed.
->>
->> Sorry, this was bad idea. X includes some of these file, doesn't it?
->
-> X can't depend on the version of the kernel anyway; the "version" in
-> version.h has no relation with the running kernel anyway (or with the
-> version of the kernel that will be used to run the X binaries on)
+Loading ata_piix.ko module
+ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 177
+ata1: SATA max UDMA/133 cmd 0xC800 ctl 0xC482 bmdma 0xC000 irq 177
+ata2: SATA max UDMA/133 cmd 0xC400 ctl 0xC082 bmdma 0xC008 irq 177
+ata1: SATA port has no device.
+scsi0: ata_piix
+ata2: dev 0 ata, max UDMA/133, 312581808 sectors, lba48
+<hang>
 
+Is this a known problem?  Is there anything in particular I should try?
 
-No good idea anyway. X does, of course, not "include" these files, but
-they are reused. I don't want to maintain two different versions of the
-files.
+Thanks,
+Jesse
 
-Furthermore, I have a quite big sisfb update in the queue which I intend
-to submit after 2.6.13 is out. It, amongst others, removes a lot of 2.4
-related stuff.
-
-It's best to leave it alone for now.
-
-Thomas
-
-- --
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          http://www.winischhofer.net/
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFC95QVzydIRAktyUcRAkrHAJ98HUOIk7LjHQKWhgMVQqqaiH4mQACePYeG
-Xl3yGGJeINOsgTT2FOdpQI8=
-=aItr
------END PGP SIGNATURE-----

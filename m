@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbVHHNgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbVHHNhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbVHHNgy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 09:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbVHHNgy
+	id S1750873AbVHHNhi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 09:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVHHNhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 09:36:54 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:31966 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750871AbVHHNgx (ORCPT
+	Mon, 8 Aug 2005 09:37:38 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:1248 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750873AbVHHNhi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 09:36:53 -0400
-Date: Mon, 8 Aug 2005 09:36:40 -0400 (Eastern Daylight Time)
-From: Janak Desai <janak@us.ibm.com>
-To: viro@parcelfarce.linux.theplanet.co.uk, sds@tycho.nsa.gov,
-       linuxram@us.ibm.com, ericvh@gmail.com, dwalsh@redhat.com,
-       jmorris@redhat.com, akpm@osdl.org, torvalds@osdl.org, gh@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] New system call, unshare
-Message-ID: <Pine.WNT.4.63.0508080933330.3668@IBM-AIP3070F3AM>
-X-X-Sender: janak@imap.linux.ibm.com
+	Mon, 8 Aug 2005 09:37:38 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Hiroki Kaminaga <kaminaga@sm.sony.co.jp>
+Subject: Re: [HELP] How to get address of module
+Date: Mon, 8 Aug 2005 15:30:53 +0200
+User-Agent: KMail/1.7.2
+Cc: sfr@canb.auug.org.au, linux-kernel@vger.kernel.org
+References: <20050808.204022.30161255.kaminaga@sm.sony.co.jp> <20050808214822.531ee849.sfr@canb.auug.org.au> <20050808.210645.78734846.kaminaga@sm.sony.co.jp>
+In-Reply-To: <20050808.210645.78734846.kaminaga@sm.sony.co.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200508081530.54180.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maandag 08 August 2005 14:06, Hiroki Kaminaga wrote:
 
+> If the cause is in some insmod'ed module, then I would like to get
+> info of that module. If I get the address of that module, I can get
+> info such as symbol name defined by that module, etc. Then I could say
+> in module mmm, at func fff, at addr xxx, there is segfault.
 
-[PATCH 2/2] unshare system call: System Call setup for i386 arch
+You can do all that with module_address_lookup() using the KALLSYMS
+infrastructure.
 
-Signed-off-by: Janak Desai
-
-
- arch/i386/kernel/syscall_table.S |    1 +
- include/asm-i386/unistd.h        |    3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
-
-
-
-diff -Naurp 2.6.13-rc5-mm1/arch/i386/kernel/syscall_table.S 2.6.13-rc5-mm1+unshare/arch/i386/kernel/syscall_table.S
---- 2.6.13-rc5-mm1/arch/i386/kernel/syscall_table.S	2005-08-07 15:33:07.000000000 +0000
-+++ 2.6.13-rc5-mm1+unshare/arch/i386/kernel/syscall_table.S	2005-08-07 18:35:57.000000000 +0000
-@@ -300,3 +300,4 @@ ENTRY(sys_call_table)
- 	.long sys_vperfctr_control
- 	.long sys_vperfctr_write
- 	.long sys_vperfctr_read
-+	.long sys_unshare		/* 300 */
-diff -Naurp 2.6.13-rc5-mm1/include/asm-i386/unistd.h 2.6.13-rc5-mm1+unshare/include/asm-i386/unistd.h
---- 2.6.13-rc5-mm1/include/asm-i386/unistd.h	2005-08-07 15:33:40.000000000 +0000
-+++ 2.6.13-rc5-mm1+unshare/include/asm-i386/unistd.h	2005-08-07 18:36:37.000000000 +0000
-@@ -305,8 +305,9 @@
- #define __NR_vperfctr_control	(__NR_vperfctr_open+1)
- #define __NR_vperfctr_write	(__NR_vperfctr_open+2)
- #define __NR_vperfctr_read	(__NR_vperfctr_open+3)
-+#define __NR_unshare		300
- 
--#define NR_syscalls 300
-+#define NR_syscalls 301
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
-
+	Arnd <><

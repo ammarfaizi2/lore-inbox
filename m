@@ -1,133 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVHHRzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVHHR47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbVHHRzi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVHHRzi
+	id S932162AbVHHR47 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbVHHR47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:55:38 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1525 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932164AbVHHRzg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:55:36 -0400
-Message-ID: <42F79C7D.5060406@mvista.com>
-Date: Mon, 08 Aug 2005 10:55:09 -0700
-From: Mark Bellon <mbellon@mvista.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH]  PPC64: large INITRD causes kernel not to boot
-References: <42E97236.6080404@mvista.com> <42EA6580.9010204@mvista.com>
-In-Reply-To: <42EA6580.9010204@mvista.com>
-Content-Type: multipart/mixed;
- boundary="------------060200030206080105020103"
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 8 Aug 2005 13:56:59 -0400
+Received: from fed1rmmtao04.cox.net ([68.230.241.35]:28819 "EHLO
+	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S932162AbVHHR46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 13:56:58 -0400
+Date: Mon, 8 Aug 2005 10:56:57 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Keith Owens <kaos@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       amitkale@linsyssoft.com
+Subject: Re: [patch 07/15] Basic x86_64 support
+Message-ID: <20050808175657.GA3187@smtp.west.cox.net>
+References: <20050804123900.GR8266@wotan.suse.de> <7681.1123375682@ocs3.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7681.1123375682@ocs3.ocs.com.au>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 07, 2005 at 10:48:02AM +1000, Keith Owens wrote:
+> On Thu, 4 Aug 2005 14:39:00 +0200, 
+> Andi Kleen <ak@suse.de> wrote:
+> >> > That doesn't make much sense here. tasklet will only run when interrupts
+> >> > are enabled, and that is much later. You could move it to there.
+> >> 
+> >> Where?  Keep in mind it's really only x86_64 that isn't able to break
+> >> sooner.
+> >
+> >The local_irq_enable() call in init/main.c:start_kernel()
+> >
+> >If you want to run gdb earlier you need to do it without a tasklet.
+> >
+> >> > > --- linux-2.6.13-rc3/include/asm-x86_64/hw_irq.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
+> >> > > +++ linux-2.6.13-rc3-trini/include/asm-x86_64/hw_irq.h	2005-07-29 13:19:10.000000000 -0700
+> >> > > @@ -55,6 +55,7 @@ struct hw_interrupt_type;
+> >> > >  #define TASK_MIGRATION_VECTOR	0xfb
+> >> > >  #define CALL_FUNCTION_VECTOR	0xfa
+> >> > >  #define KDB_VECTOR	0xf9
+> >> > > +#define KGDB_VECTOR	0xf8
+> >> > 
+> >> > I already allocated these vectors for something else.
+> >> 
+> >> Is there another we can use?  Just following what looked to be the
+> >> logical order.
+> >
+> >How about you use KDB_VECTOR and rename it to DEBUG_VECTOR
+> >and then just check if kgdb is currently active? 
+> >
+> >KDB can do the same.
+> >
+> >I changed the assignment in my tree like this:
+> >
+> >#define SPURIOUS_APIC_VECTOR    0xff
+> >#define ERROR_APIC_VECTOR       0xfe
+> >#define RESCHEDULE_VECTOR       0xfd
+> >#define CALL_FUNCTION_VECTOR    0xfc
+> >#define KDB_VECTOR              0xfb    /* reserved for KDB */
+> >#define THERMAL_APIC_VECTOR     0xfa
+> >/* 0xf9 free */
+> >#define INVALIDATE_TLB_VECTOR_END       0xf8
+> >#define INVALIDATE_TLB_VECTOR_START     0xf0    /* f0-f8 used for TLB flush */
+> 
+> Don't call it {KDB,KGDB,DEBUG}_VECTOR, call it NMI_VECTOR, which is
+> what it really is.  default_do_nmi() determines if the nmi is due to a
+> debugger or some other event.  That requires the debuggers to record if
+> they are expecting their own nmi, putting all the load on the
+> debuggers, where it belongs.
+> 
+> IOW, add NMI_VECTOR to the base code, then add debugger support on top of
+> NMI_VECTOR.
 
-This is a multi-part message in MIME format.
---------------060200030206080105020103
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Works for me.  I'll post something vs 2.6.13-rc6 later today hopefully
+that does the rename.
 
-In PPC64 there are number of problems in arch/ppc64/boot/main.c that 
-prevent a kernel from making use of a large (greater than ~16MB) INITRD. 
-This is 64 bit architecture and really large INITRD images should be 
-possible.
-
-Simply put the existing code has a fixed reservation (claim) address and 
-once the kernel plus initrd image are large enough to pass this address 
-all sorts of bad things occur. The fix is the dynamically establish the 
-first claim address above the loaded kernel plus initrd (plus some 
-"padding" and rounding)
-
-mark
-
-Signed-off-by: Mark Bellon <mbellon@mvista.com>
-
-
---------------060200030206080105020103
-Content-Type: text/x-patch;
- name="common_initrd.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="common_initrd.patch"
-
-Index: linux-2.6.12.3/arch/ppc64/boot/main.c
-===================================================================
---- linux-2.6.12.3.orig/arch/ppc64/boot/main.c
-+++ linux-2.6.12.3/arch/ppc64/boot/main.c
-@@ -22,7 +22,7 @@
- extern void printf(const char *fmt, ...);
- extern int sprintf(char *buf, const char *fmt, ...);
- void gunzip(void *, int, unsigned char *, int *);
--void *claim(unsigned int, unsigned int, unsigned int);
-+void *claim(unsigned long, unsigned long, unsigned long);
- void flush_cache(void *, unsigned long);
- void pause(void);
- extern void exit(void);
-@@ -31,9 +31,8 @@
- void *memmove(void *dest, const void *src, unsigned long n);
- void *memcpy(void *dest, const void *src, unsigned long n);
- 
--/* Value picked to match that used by yaboot */
--#define PROG_START	0x01400000
--#define RAM_END		(256<<20) // Fixme: use OF */
-+#define	ONE_MB		0x100000
-+#define RAM_END		(512<<20) // Fixme: use OF */
- 
- char *avail_ram;
- char *begin_avail, *end_avail;
-@@ -75,13 +74,13 @@
- 
- #define DEBUG
- 
--static unsigned long claim_base = PROG_START;
-+static unsigned long claim_base;
- 
- static unsigned long try_claim(unsigned long size)
- {
- 	unsigned long addr = 0;
- 
--	for(; claim_base < RAM_END; claim_base += 0x100000) {
-+	for(; claim_base < RAM_END; claim_base += ONE_MB) {
- #ifdef DEBUG
- 		printf("    trying: 0x%08lx\n\r", claim_base);
- #endif
-@@ -112,7 +111,23 @@
- 	if (getprop(chosen_handle, "stdin", &stdin, sizeof(stdin)) != 4)
- 		exit();
- 
--	printf("zImage starting: loaded at 0x%x\n\r", (unsigned)_start);
-+	printf("zImage starting: loaded at 0x%lx\n\r", (unsigned long)_start);
-+
-+	/*
-+	 * The first available claim_base must be "out of the way" -
-+	 * well above _start + kernel_size + initrd + overhead.
-+	 */
-+
-+	claim_base = ((unsigned long) _start) +
-+				((unsigned long) vmlinux_filesize) +
-+				(unsigned long)(_initrd_end - _initrd_start) +
-+				ONE_MB;
-+
-+	/*
-+	 * Now round up the claim_base to a nice 1 MB boundary.
-+	 */
-+
-+	claim_base = ((claim_base + ONE_MB - 1) / ONE_MB) * ONE_MB;
- 
- 	/*
- 	 * Now we try to claim some memory for the kernel itself
-@@ -122,7 +137,7 @@
- 	 * size... In practice we add 1Mb, that is enough, but we should really
- 	 * consider fixing the Makefile to put a _raw_ kernel in there !
- 	 */
--	vmlinux_memsize += 0x100000;
-+	vmlinux_memsize += ONE_MB;
- 	printf("Allocating 0x%lx bytes for kernel ...\n\r", vmlinux_memsize);
- 	vmlinux.addr = try_claim(vmlinux_memsize);
- 	if (vmlinux.addr == 0) {
-
---------------060200030206080105020103--
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVHHRhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbVHHRkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbVHHRhz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbVHHRhz
+	id S932143AbVHHRkT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVHHRkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:37:55 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:5018 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S932139AbVHHRhx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:37:53 -0400
-Date: Mon, 8 Aug 2005 13:37:48 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Carlos Pardo <Carlos.Pardo@siliconimage.com>
-Cc: Tejun Heo <htejun@gmail.com>, Edward Falk <efalk@google.com>,
-       linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Raymond Liu <Raymond.Liu@siliconimage.com>
-Subject: Re: [PATCH linux-2.6.13-rc3] SATA: rewritten sil24 driver
-Message-ID: <20050808173748.GA22580@havoc.gtf.org>
-References: <2E9B8131C44AF746B1E06BF9B15A434B045D7F93@zima.siliconimage.com>
+	Mon, 8 Aug 2005 13:40:19 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:53660 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932143AbVHHRkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 13:40:18 -0400
+Date: Mon, 8 Aug 2005 10:39:24 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Andi Kleen <ak@muc.de>, Ashok Raj <ashok.raj@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: 2.6.13-rc5-mm1 doesnt boot on x86_64
+Message-ID: <20050808103924.A18250@unix-os.sc.intel.com>
+References: <20050808094818.A17579@unix-os.sc.intel.com> <20050808171126.GA32092@muc.de> <1123522409.5019.0.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2E9B8131C44AF746B1E06BF9B15A434B045D7F93@zima.siliconimage.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1123522409.5019.0.camel@mulgrave>; from James.Bottomley@SteelEye.com on Mon, Aug 08, 2005 at 12:33:29PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 10:31:45AM -0700, Carlos Pardo wrote:
-> One question. Do the open source driver support pass-through commands ? if so, how ? If you do not support it, are you planning to implement pass-through commands sometime in the future ?
+On Mon, Aug 08, 2005 at 12:33:29PM -0500, James Bottomley wrote:
+> On Mon, 2005-08-08 at 19:11 +0200, Andi Kleen wrote:
+> > Looks like a SCSI problem. The machine has an Adaptec SCSI adapter, right?
+> 
+> The traceback looks pretty meaningless.
+> 
+> What was happening on the machine before this.  i.e. was it booting up,
+> in which case can we have the prior dmesg file; or was the aic79xxx
+> driver being removed?
 
-I don't know about sata_sil24 in particular.  In general, there is a
-patch in the "libata-dev.git" repository that supports ATA passthru, and
-this is scheduled to be merged into the main 2.6.x kernel as soon as
-some bugs are fixed.
+I can get the trace again, but basically the system was booting. 
 
-sata_sil24 definitely needs to support this ATA passthru feature.
+AIC_7XXX was defined in defconfig, but my system doesnt have it. Seems like
+the senario was the driver tried to probe, found nothing, and tries
+to de-reg resulting in the BUG().
 
-As implemented, each SATA driver is simply a generic ATA command engine,
-for any command.  struct ata_taskfile (linux/ata.h) has a field that
-indicates the command protocol used for command delivery (pio, dma,
-no-data, etc.).  Each driver should execute ATA commands based on the
-specified ATA protocol.
+I will try to get the recompile and entire dmesg log in the meantime.
+> 
+> James
+> 
+> 
 
-	Jeff
-
-
-
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

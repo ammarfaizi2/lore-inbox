@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVHHKln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVHHKoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbVHHKln (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 06:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbVHHKln
+	id S1750790AbVHHKoE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 06:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVHHKoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 06:41:43 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:30081 "EHLO
+	Mon, 8 Aug 2005 06:44:04 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:57263 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750757AbVHHKlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 06:41:42 -0400
-Message-ID: <42F736EF.9090506@gmail.com>
-Date: Mon, 08 Aug 2005 12:41:51 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: dmitry pervushin <dpervushin@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] spi
-References: <1121025679.3008.10.camel@spirit> <1123492338.4762.96.camel@diimka.dev.rtsoft.ru>
-In-Reply-To: <1123492338.4762.96.camel@diimka.dev.rtsoft.ru>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	id S1750790AbVHHKoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 06:44:04 -0400
+Subject: Re: pselect() modifying timeout
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Kerrisk <mtk-lkml@gmx.net>
+Cc: David Woodhouse <dwmw2@infradead.org>, drepper@redhat.com,
+       jakub@redhat.com, linux-kernel@vger.kernel.org,
+       bert.hubert@netherlabs.nl, michael.kerrisk@gmx.net, akpm@osdl.org
+In-Reply-To: <31556.1123238544@www44.gmx.net>
+References: <1118835415.22181.68.camel@hades.cambridge.redhat.com>
+	 <31556.1123238544@www44.gmx.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 08 Aug 2005 12:10:12 +0100
+Message-Id: <1123499412.28681.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dmitry pervushin napsal(a):
+On Gwe, 2005-08-05 at 12:42 +0200, Michael Kerrisk wrote:
+> 1. POSIX made the behaviour of pselect() explicit -- the 
+>    timeout must not be modified.  The idea was to avoid the 
+>    vagueness of the select() specification; it had to be vague 
+>    because of existing implementations. By contrast, there were 
 
->Index: linux-2.6.10/drivers/spi/Makefile
->===================================================================
->--- linux-2.6.10.orig/drivers/spi/Makefile	1970-01-01 00:00:00.000000000 +0000
->+++ linux-2.6.10/drivers/spi/Makefile	2005-07-15 06:57:39.000000000 +0000
->@@ -0,0 +1,12 @@
->+#
->+# Makefile for the kernel spi bus driver.
->+#
->+
->+obj-$(CONFIG_SPI) += spi-core.o helpers.o
->  
->
-But where are helpers?
+Unfortunately it made the wrong choice with pselect, as Linux select
+experience has shown the modified timeout is *very* useful data to some
+applications. So the patch is better than the POSUX behaviour. The
+library can wrap it to provide the poorer standards compliant API while
+not stopping people using the better one for Linux specific apps.
+

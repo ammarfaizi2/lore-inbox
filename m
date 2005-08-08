@@ -1,122 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVHHNvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVHHNwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbVHHNvC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 09:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVHHNvC
+	id S1750899AbVHHNwT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 09:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbVHHNwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 09:51:02 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:40666 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1750871AbVHHNvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 09:51:01 -0400
-Message-ID: <42F7634B.2000504@m1k.net>
-Date: Mon, 08 Aug 2005 09:51:07 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Mon, 8 Aug 2005 09:52:19 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:43784 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1750896AbVHHNwS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 09:52:18 -0400
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       LKML <linux-kernel@vger.kernel.org>, linux-dvb-maintainer@linuxtv.org,
-       Mac Michaels <wmichaels1@earthlink.net>
-Subject: Re: [PATCH] DVB: lgdt330x frontend: some bug fixes & add lgdt3303
- support
-References: <42F6A294.90300@linuxtv.org> <1123504387.17427.9.camel@localhost>
-In-Reply-To: <1123504387.17427.9.camel@localhost>
-Content-Type: multipart/mixed;
- boundary="------------050601000606040809020405"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20050808.204022.30161255.kaminaga@sm.sony.co.jp>
+References: <20050808.204022.30161255.kaminaga@sm.sony.co.jp>
+X-OriginalArrivalTime: 08 Aug 2005 13:52:16.0655 (UTC) FILETIME=[632A99F0:01C59C20]
+Content-class: urn:content-classes:message
+Subject: Re: [HELP] How to get address of module
+Date: Mon, 8 Aug 2005 09:51:25 -0400
+Message-ID: <Pine.LNX.4.61.0508080931130.18723@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [HELP] How to get address of module
+thread-index: AcWcIGM0k0IKAlsPS8+afMjq3hLtwQ==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Hiroki Kaminaga" <kaminaga@sm.sony.co.jp>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050601000606040809020405
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Mauro Carvalho Chehab wrote:
+On Mon, 8 Aug 2005, Hiroki Kaminaga wrote:
 
->	This should't be applied to 2.6.13. It does contain a hack at V4L code,
->since mute_tda9887 is implemented outside tda9887.c module and could
->potentially cause troubles since there are some work to provide it on a
->correct way.
->  
 >
-This patch removes the tda9887 stuff from lgdt330x.c.
+> Hi!
+>
+> I'm looking for *nice* way to get address of loaded module in 2.6.
+> I'd like to know the address from driver.
+>
+> In 2.4, I wrote something like this:
+>
+> * * *
+>
+> (in kernel src)
+> --- kernel/module.c
+> +++ kernel/module.c
+>
+> struct module *module_list = &kernel_module;
+>
+> + struct module *get_module_queue(void)
+> + {
+> +         return module_list;
+> + }
+> +
+> +
+>
+> ... and in driver, I wrote:
+>
+>        mod = get_module_queue();
+>        while (mod->next) {
+>                if (strcmp(mod->name, name) == 0)
+>                        return (unsigned long)(mod + 1);
+>                mod = mod->next;
+>        }
+>        return 0;
+>
+> * * *
+>
+> I am now using 2.6 kernel. The choice I can think of is
+>
+> 1) make linux-2.6/kernel/module.c:find_module(const char *name)
+>   global func, not static, and use this func.
+>
+> 2) use linux-2.6/kernel/module.c:module_kallsyms_lookup_name(const char *name)
+>   and somehow get return value from module_get_kallsym(...)
+>
+> choice 1) doesn't sound nice since it changes static func -> global
+> func, but cost of getting module address is low. On the other hand,
+> choice 2) will not modify kernel src, which sounds nice, but costs more,
+> and I'm not sure this method works.
+>
+> Any advice?!
+>
+>
+> HK.
 
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+What do you want the address of in your driver? Do you want the
+address of its various entry points (hint, the stuff you put
+into the "struct file_operations"), or its startup code, module_init(),
+exit code, module_exit(), etc.
+
+These are can all be obtained using conventional 'C' syntax. You
+don't need to search some list somehere. You driver isn't just
+put somewhere en-masse. The code is in the .text segment, relocated
+to exist in allocated memory. The data sections are also relocated
+to different sections of allocated memory.
+
+You get the address of a function by referencing its name:
+
+static int ioctl(struct inode *inp, struct file *fp, size_t cmd, unsigned long
+arg)
+{
+     unsigned long val;
+     switch(cmd)
+    {
+     case GET_ADDRESS_OF_IOCTL:
+         val = (unsigned long) ioctl;
+         if(put_user(val, (unsigned long *)arg))
+             return -EFAULT
+         break;
+     case ETC:
+    }
+
+Your driver probably has many functions, therefore it has many
+addresses. It's not just a single "module" somewhere.
 
 
 
---------------050601000606040809020405
-Content-Type: text/plain;
- name="lgdt330x-remove-tda9887.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lgdt330x-remove-tda9887.patch"
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
 
- linux/drivers/media/dvb/frontends/lgdt330x.c |   35 -------------------
- 1 files changed, 35 deletions(-)
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-diff -u linux-2.6.13/drivers/media/dvb/frontends/lgdt330x.c linux/drivers/media/dvb/frontends/lgdt330x.c
---- linux-2.6.13/drivers/media/dvb/frontends/lgdt330x.c	2005-08-08 09:46:25.000000000 +0000
-+++ linux/drivers/media/dvb/frontends/lgdt330x.c	2005-08-08 09:48:24.000000000 +0000
-@@ -172,38 +172,6 @@
- 	}
- }
- 
--#ifdef MUTE_TDA9887
--static int i2c_write_ntsc_demod (struct lgdt330x_state* state, u8 buf[2])
--{
--	struct i2c_msg msg =
--		{ .addr = 0x43,
--		  .flags = 0, 
--		  .buf = buf,
--		  .len = 2 };
--	int err;
--
--	if ((err = i2c_transfer(state->i2c, &msg, 1)) != 1) {
--			printk(KERN_WARNING "lgdt330x: %s error (addr %02x <- %02x, err = %i)\n", __FUNCTION__, msg.buf[0], msg.buf[1], err);
--		if (err < 0)
--			return err;
--		else
--			return -EREMOTEIO;
--	}
--	return 0;
--}
--
--static void fiddle_with_ntsc_if_demod(struct lgdt330x_state* state)
--{
--	// Experimental code
--	u8 buf0[] = {0x00, 0x20};
--	u8 buf1[] = {0x01, 0x00};
--	u8 buf2[] = {0x02, 0x00};
--
--	i2c_write_ntsc_demod(state, buf0);
--	i2c_write_ntsc_demod(state, buf1);
--	i2c_write_ntsc_demod(state, buf2);
--}
--#endif
- 
- static int lgdt330x_init(struct dvb_frontend* fe)
- {
-@@ -267,9 +235,6 @@
- 		chip_name = "LGDT3303";
- 		err = i2c_write_demod_bytes(state, lgdt3303_init_data, 
- 									sizeof(lgdt3303_init_data));
--#ifdef MUTE_TDA9887
--		fiddle_with_ntsc_if_demod(state);
--#endif
-   		break;
- 	default:
- 		chip_name = "undefined";
-
---------------050601000606040809020405--
+Thank you.

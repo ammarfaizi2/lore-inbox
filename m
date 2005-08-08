@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753210AbVHHBcC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753215AbVHHBgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753210AbVHHBcC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 21:32:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753212AbVHHBcC
+	id S1753215AbVHHBgO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 21:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753216AbVHHBgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 21:32:02 -0400
-Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:39629 "EHLO
-	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1753210AbVHHBcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 21:32:02 -0400
+	Sun, 7 Aug 2005 21:36:14 -0400
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:49537 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1753215AbVHHBgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 21:36:14 -0400
 From: Con Kolivas <kernel@kolivas.org>
-To: ncunningham@cyclades.com
-Subject: Re: [linux-pm] [PATCH] Workqueue freezer support.
-Date: Mon, 8 Aug 2005 11:27:47 +1000
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
+Date: Mon, 8 Aug 2005 11:30:23 +1000
 User-Agent: KMail/1.8.1
-Cc: Patrick Mochel <mochel@digitalimplant.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1121923059.2936.224.camel@localhost> <Pine.LNX.4.50.0508052148280.19501-100000@monsoon.he.net> <1123462015.3969.98.camel@localhost>
-In-Reply-To: <1123462015.3969.98.camel@localhost>
+Cc: vatsa@in.ibm.com, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com, george@mvista.com,
+       Andrew Morton <akpm@osdl.org>
+References: <200508031559.24704.kernel@kolivas.org> <200508080951.26433.kernel@kolivas.org> <C845464B-FE91-4845-BE7A-3995B663396D@mac.com>
+In-Reply-To: <C845464B-FE91-4845-BE7A-3995B663396D@mac.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-6"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200508081127.48432.kernel@kolivas.org>
+Message-Id: <200508081130.23636.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Aug 2005 10:46 am, Nigel Cunningham wrote:
-> Hi.
->
-> Sorry for the slow response. Busy still.
->
-> On Sat, 2005-08-06 at 15:06, Patrick Mochel wrote:
-> > On Fri, 5 Aug 2005, Nigel Cunningham wrote:
-> > > Hi.
-> > >
-> > > I finally found some time to finish this off. I don't really like the
-> > > end result - the macros looked clearer to me - but here goes. If it
-> > > looks okay, I'll seek sign offs from each of the affected driver
-> > > maintainers and from Ingo. Anyone else?
+On Mon, 8 Aug 2005 11:20 am, Kyle Moffett wrote:
+> On Aug 7, 2005, at 19:51:25, Con Kolivas wrote:
+> > On Mon, 8 Aug 2005 02:58, Srivatsa Vaddagiri wrote:
+> >> Con,
+> >>     I am afraid until SMP correctness is resolved, then this is not
+> >> in a position to go in (unless you want to enable it only for UP,
+> >> which
+> >> I think should not be our target). I am working on making this work
+> >> correctly on SMP systems. Hopefully I will post a patch soon.
 > >
-> > What are your feelings about this: http://lwn.net/Articles/145417/ ?
+> > Great! I wasn't sure what time frame you meant when you last
+> > posted. I won't
+> > do anything more, leaving this patch as it is, and pass the baton
+> > to you.
 >
-> I'm sure it could work, but I do worry a little about the possibilities
-> for exploits. It seems to me that if someone can get root, they an
-> insmod a module that could schedule any kind of work via any process.
-> Tracing that sort of security hole could be intractable. Christoph, is
-> that something you've considered/have thoughts on? Perhaps I'm just
-> being paranoid :>
+> I'm curious what has happened to the PPC side of the patch.  IIRC,
+> someone
+> was working on such a port, but it seems to have been lost along the way
+> at some point.  Is there any additional information on that patch?
 
-If someone gets root access it means you're already exploited.
+Tony said he had it lying around somewhere and needed to find time to dust it 
+off and get it up to speed.
 
 Cheers,
 Con

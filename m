@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVHHLmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbVHHLpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbVHHLmB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 07:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVHHLmB
+	id S1750802AbVHHLpH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 07:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVHHLpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 07:42:01 -0400
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:2641 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750827AbVHHLmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 07:42:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=sVk7qxZ66SZpjKJThMNkkkgkGKyCc0anUbAbJVq/8ecoepbpcuH/kM+qOniNvhMvWtN9htZkFnLDtlPRj3ttbKN2Jm2PmN37y5yoXyXfo9TaY/aYG0HqLbw5F4w80BWP8ezAretvMjI91C4JSzI7AWJyZ4MdmDHUO0xp+uwB/1Q=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
+	Mon, 8 Aug 2005 07:45:07 -0400
+Received: from NS8.Sony.CO.JP ([137.153.0.33]:36595 "EHLO ns8.sony.co.jp")
+	by vger.kernel.org with ESMTP id S1750802AbVHHLpH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 07:45:07 -0400
+Date: Mon, 08 Aug 2005 20:40:22 +0900 (JST)
+Message-Id: <20050808.204022.30161255.kaminaga@sm.sony.co.jp>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Typofix_i82559_to_i8259
-Date: Mon, 8 Aug 2005 13:41:41 +0200
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Subject: [HELP] How to get address of module
+From: Hiroki Kaminaga <kaminaga@sm.sony.co.jp>
+X-Mailer: Mew version 4.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508081341.41409.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The legacy PIC's name is "i8259".
 
-Signed-off-by: Karsten Wiese <annabellesgarden@yahoo.de>
+Hi!
+
+I'm looking for *nice* way to get address of loaded module in 2.6.
+I'd like to know the address from driver.
+
+In 2.4, I wrote something like this:
+
+ * * *
+
+(in kernel src)
+--- kernel/module.c
++++ kernel/module.c
+
+struct module *module_list = &kernel_module;
+
++ struct module *get_module_queue(void)
++ {
++         return module_list;
++ }
++ 
++ 
+
+... and in driver, I wrote:
+            
+        mod = get_module_queue();
+        while (mod->next) {
+                if (strcmp(mod->name, name) == 0)
+                        return (unsigned long)(mod + 1);
+                mod = mod->next;
+        }
+        return 0;
+
+ * * *
+
+I am now using 2.6 kernel. The choice I can think of is
+
+1) make linux-2.6/kernel/module.c:find_module(const char *name)
+   global func, not static, and use this func.
+
+2) use linux-2.6/kernel/module.c:module_kallsyms_lookup_name(const char *name)
+   and somehow get return value from module_get_kallsym(...)
+
+choice 1) doesn't sound nice since it changes static func -> global
+func, but cost of getting module address is low. On the other hand,
+choice 2) will not modify kernel src, which sounds nice, but costs more,
+and I'm not sure this method works.
+
+Any advice?!
 
 
-diff -upr linux-2.6.13-rc6/arch/i386/kernel/io_apic.c linux-2.6.13/arch/i386/kernel/io_apic.c
---- linux-2.6.13-rc6/arch/i386/kernel/io_apic.c	2005-08-08 11:46:00.000000000 +0200
-+++ linux-2.6.13/arch/i386/kernel/io_apic.c	2005-08-08 13:24:52.000000000 +0200
-@@ -1641,9 +1641,9 @@ void disable_IO_APIC(void)
- 	clear_IO_APIC();
- 
- 	/*
--	 * If the i82559 is routed through an IOAPIC
-+	 * If the i8259 is routed through an IOAPIC
- 	 * Put that IOAPIC in virtual wire mode
--	 * so legacy interrups can be delivered.
-+	 * so legacy interrupts can be delivered.
- 	 */
- 	pin = find_isa_irq_pin(0, mp_ExtINT);
- 	if (pin != -1) {
-diff -upr linux-2.6.13-rc6/arch/x86_64/kernel/io_apic.c linux-2.6.13/arch/x86_64/kernel/io_apic.c
---- linux-2.6.13-rc6/arch/x86_64/kernel/io_apic.c	2005-08-08 11:46:01.000000000 +0200
-+++ linux-2.6.13/arch/x86_64/kernel/io_apic.c	2005-08-08 13:25:09.000000000 +0200
-@@ -1138,9 +1138,9 @@ void disable_IO_APIC(void)
- 	clear_IO_APIC();
- 
- 	/*
--	 * If the i82559 is routed through an IOAPIC
-+	 * If the i8259 is routed through an IOAPIC
- 	 * Put that IOAPIC in virtual wire mode
--	 * so legacy interrups can be delivered.
-+	 * so legacy interrupts can be delivered.
- 	 */
- 	pin = find_isa_irq_pin(0, mp_ExtINT);
- 	if (pin != -1) {
-
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+HK.
+--

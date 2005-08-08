@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753224AbVHHBka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753226AbVHHBrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753224AbVHHBka (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 21:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753225AbVHHBka
+	id S1753226AbVHHBrT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 21:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753230AbVHHBrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 21:40:30 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27400 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1753223AbVHHBk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 21:40:29 -0400
-Date: Mon, 8 Aug 2005 03:40:27 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       Achim Leubner <achim_leubner@adaptec.com>
-Subject: Re: [PATCH C&C] gdth: remove GDTIOCTL_OSVERS
-Message-ID: <20050808014027.GI4006@stusta.de>
-References: <20050807222829.GA20558@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 Aug 2005 21:47:18 -0400
+Received: from mail.tor.primus.ca ([216.254.136.21]:17043 "EHLO
+	smtp-05.primus.ca") by vger.kernel.org with ESMTP id S1753226AbVHHBrS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 21:47:18 -0400
+From: Gabriel Devenyi <ace@staticwave.ca>
+To: ck@vds.kolivas.org
+Subject: Re: [ck] Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
+Date: Sun, 7 Aug 2005 21:45:21 -0400
+User-Agent: KMail/1.8.2
+Cc: Con Kolivas <kernel@kolivas.org>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Andrew Morton <akpm@osdl.org>, vatsa@in.ibm.com, tony@atomide.com,
+       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
+       tuukka.tikkanen@elektrobit.com, george@mvista.com
+References: <200508031559.24704.kernel@kolivas.org> <C845464B-FE91-4845-BE7A-3995B663396D@mac.com> <200508081130.23636.kernel@kolivas.org>
+In-Reply-To: <200508081130.23636.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050807222829.GA20558@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200508072145.22203.ace@staticwave.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 02:28:29AM +0400, Alexey Dobriyan wrote:
+Along the same lines, is there an x86_64 patch around?
 
->...
-> --- linux-vanilla/drivers/scsi/gdth.c	2005-08-08 02:16:47.000000000 +0400
-> +++ linux-gdth/drivers/scsi/gdth.c	2005-08-08 02:19:59.000000000 +0400
-> @@ -5411,18 +5411,6 @@ static int gdth_ioctl(struct inode *inod
->                  return -EFAULT;
->          break;
->        }
-> -      
-> -      case GDTIOCTL_OSVERS:
-> -      { 
-> -        gdth_ioctl_osvers osv; 
-> -
-> -        osv.version = (unchar)(LINUX_VERSION_CODE >> 16);
-> -        osv.subversion = (unchar)(LINUX_VERSION_CODE >> 8);
-> -        osv.revision = (ushort)(LINUX_VERSION_CODE & 0xff);
-> -        if (copy_to_user(argp, &osv, sizeof(gdth_ioctl_osvers)))
-> -                return -EFAULT;
-> -        break;
-> -      }
->...
-
-Not that I'd like this, but you know that this is a userspace-visible 
-change?
-
-cu
-Adrian
+On August 07, 2005 21:30, Con Kolivas wrote:
+> On Mon, 8 Aug 2005 11:20 am, Kyle Moffett wrote:
+> > On Aug 7, 2005, at 19:51:25, Con Kolivas wrote:
+> > > On Mon, 8 Aug 2005 02:58, Srivatsa Vaddagiri wrote:
+> > >> Con,
+> > >>     I am afraid until SMP correctness is resolved, then this is not
+> > >> in a position to go in (unless you want to enable it only for UP,
+> > >> which
+> > >> I think should not be our target). I am working on making this work
+> > >> correctly on SMP systems. Hopefully I will post a patch soon.
+> > >
+> > > Great! I wasn't sure what time frame you meant when you last
+> > > posted. I won't
+> > > do anything more, leaving this patch as it is, and pass the baton
+> > > to you.
+> >
+> > I'm curious what has happened to the PPC side of the patch.  IIRC,
+> > someone
+> > was working on such a port, but it seems to have been lost along the way
+> > at some point.  Is there any additional information on that patch?
+>
+> Tony said he had it lying around somewhere and needed to find time to dust
+> it off and get it up to speed.
+>
+> Cheers,
+> Con
+> _______________________________________________
+> ck@vds.kolivas.org
+> ck mailing list. Please reply-to-all when posting.
+> If replying to an email please reply below the original message.
+> http://bhhdoa.org.au/mailman/listinfo/ck
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Gabriel Devenyi
+ace@staticwave.ca

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVHHVz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVHHWAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbVHHVz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 17:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVHHVz5
+	id S932282AbVHHWAI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 18:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVHHWAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 17:55:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5086 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932280AbVHHVz4 (ORCPT
+	Mon, 8 Aug 2005 18:00:08 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:23312 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932282AbVHHWAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 17:55:56 -0400
-Date: Mon, 8 Aug 2005 14:54:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       hugh@veritas.com, torvalds@osdl.org, andrea@suse.de,
-       benh@kernel.crashing.org
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-Message-Id: <20050808145430.15394c3c.akpm@osdl.org>
-In-Reply-To: <200508090724.30962.phillips@arcor.de>
-References: <42F57FCA.9040805@yahoo.com.au>
-	<200508090710.00637.phillips@arcor.de>
-	<200508090724.30962.phillips@arcor.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 8 Aug 2005 18:00:07 -0400
+Date: Mon, 8 Aug 2005 17:59:21 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: greg@kroah.com, torvalds@osdl.org, ralf@linux-mips.org,
+       linux-kernel@vger.kernel.org, linville@redhat.com
+Subject: Re: pci_update_resource() getting called on sparc64
+Message-ID: <20050808215920.GA9387@tuxdriver.com>
+Mail-Followup-To: "David S. Miller" <davem@davemloft.net>, greg@kroah.com,
+	torvalds@osdl.org, ralf@linux-mips.org,
+	linux-kernel@vger.kernel.org, linville@redhat.com
+References: <20050808.123209.59463259.davem@davemloft.net> <20050808194249.GA6729@kroah.com> <20050808213842.GA9010@tuxdriver.com> <20050808.144347.78712074.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050808.144347.78712074.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@arcor.de> wrote:
->
-> 'Scuse me:
+On Mon, Aug 08, 2005 at 02:43:47PM -0700, David S. Miller wrote:
+> From: "John W. Linville" <linville@tuxdriver.com>
+> Date: Mon, 8 Aug 2005 17:38:43 -0400
 > 
-> On Tuesday 09 August 2005 07:09, Daniel Phillips wrote:
-> > Suggestion for your next act:
+> > So, w/ Dave's patch for Sparc64 to use setup-res.c, does the patch
+> > stay?  Is there anything else I need to do?
 > 
-> ...kill PG_checked please :)  Or at least keep it from spreading.
-> 
+> The plan is to revert your patch for 2.6.13, and then put it
+> back in with my (invasive at this point in the 2.6.13 development
+> cycle) sparc64 patch on top.
 
-It already spread - ext3 is using it and I think reiser4.  I thought I had
-a patch to rename it to PG_misc1 or somesuch, but no.  It's mandate becomes
-"filesystem-specific page flag".
+Cool...thanks for clarifying!
 
+Let me know if I can be helpful...
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

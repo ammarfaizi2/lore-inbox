@@ -1,154 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVHHLTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVHHLU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVHHLTl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 07:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbVHHLTl
+	id S1750822AbVHHLU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 07:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVHHLU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 07:19:41 -0400
-Received: from mailfe06.swip.net ([212.247.154.161]:21225 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1750756AbVHHLTl (ORCPT
+	Mon, 8 Aug 2005 07:20:28 -0400
+Received: from spirit.analogic.com ([208.224.221.4]:18444 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1750822AbVHHLU2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 07:19:41 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Mon, 8 Aug 2005 13:19:36 +0200
-From: Alexander Nyberg <alexn@telia.com>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CHECK_IRQ_PER_CPU() to avoid dead code in __do_IRQ()
-Message-ID: <20050808111936.GA1393@localhost.localdomain>
-References: <200508081250.05673.annabellesgarden@yahoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508081250.05673.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.5.9i
+	Mon, 8 Aug 2005 07:20:28 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20050805214954.GA25533@minerva.local.lan>
+References: <20050805192628.GA24706@minerva.local.lan> <Pine.LNX.4.61.0508051538390.6245@chaos.analogic.com> <20050805214954.GA25533@minerva.local.lan>
+X-OriginalArrivalTime: 08 Aug 2005 11:20:26.0040 (UTC) FILETIME=[2CD11380:01C59C0B]
+Content-class: urn:content-classes:message
+Subject: Re: local DDOS? Kernel panic when accessing /proc/ioports
+Date: Mon, 8 Aug 2005 07:19:34 -0400
+Message-ID: <Pine.LNX.4.61.0508080715200.18119@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: local DDOS? Kernel panic when accessing /proc/ioports
+thread-index: AcWcCyzYOg6XeX7tQDCqXHPWYe8pMw==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Martin Loschwitz" <madkiss@madkiss.org>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> IRQ_PER_CPU is not used by all architectures.
-> This patch introduces the macros
-> ARCH_HAS_IRQ_PER_CPU and CHECK_IRQ_PER_CPU() to avoid the generation of
-> dead code in __do_IRQ().
-> 
-> ARCH_HAS_IRQ_PER_CPU is defined by architectures using
-> IRQ_PER_CPU in their
->         include/asm_ARCH/irq.h
-> file.
-> 
-> Through grepping the tree I found the following
-> architectures currently use IRQ_PER_CPU:
-> 
->         cris, ia64, ppc, ppc64 and parisc. 
-> 
 
-There are many places where one could replace run-time tests with 
-#ifdef's but it makes reading more difficult (and in longer terms
-maintainence). Have you benchmarked any workload that benefits 
-from this?
+On Fri, 5 Aug 2005, Martin Loschwitz wrote:
 
-> 
-> diff -upr linux-2.6.13-rc6/include/asm-cris/irq.h linux-2.6.13/include/asm-cris/irq.h
-> --- linux-2.6.13-rc6/include/asm-cris/irq.h	2005-08-08 11:46:10.000000000 +0200
-> +++ linux-2.6.13/include/asm-cris/irq.h	2005-08-08 11:41:12.000000000 +0200
-> @@ -1,6 +1,11 @@
->  #ifndef _ASM_IRQ_H
->  #define _ASM_IRQ_H
->  
-> +/*
-> + * IRQ line status macro IRQ_PER_CPU is used
-> + */
-> +#define ARCH_HAS_IRQ_PER_CPU
-> +
->  #include <asm/arch/irq.h>
->  
->  extern __inline__ int irq_canonicalize(int irq)
-> diff -upr linux-2.6.13-rc6/include/asm-ia64/irq.h linux-2.6.13/include/asm-ia64/irq.h
-> --- linux-2.6.13-rc6/include/asm-ia64/irq.h	2005-03-02 08:38:33.000000000 +0100
-> +++ linux-2.6.13/include/asm-ia64/irq.h	2005-08-06 18:06:53.000000000 +0200
-> @@ -14,6 +14,11 @@
->  #define NR_IRQS		256
->  #define NR_IRQ_VECTORS	NR_IRQS
->  
-> +/*
-> + * IRQ line status macro IRQ_PER_CPU is used
-> + */
-> +#define ARCH_HAS_IRQ_PER_CPU
-> +
->  static __inline__ int
->  irq_canonicalize (int irq)
->  {
-> diff -upr linux-2.6.13-rc6/include/asm-parisc/irq.h linux-2.6.13/include/asm-parisc/irq.h
-> --- linux-2.6.13-rc6/include/asm-parisc/irq.h	2005-08-08 11:45:26.000000000 +0200
-> +++ linux-2.6.13/include/asm-parisc/irq.h	2005-08-06 18:05:22.000000000 +0200
-> @@ -26,6 +26,11 @@
->  
->  #define NR_IRQS		(CPU_IRQ_MAX + 1)
->  
-> +/*
-> + * IRQ line status macro IRQ_PER_CPU is used
-> + */
-> +#define ARCH_HAS_IRQ_PER_CPU
-> +
->  static __inline__ int irq_canonicalize(int irq)
->  {
->  	return (irq == 2) ? 9 : irq;
-> diff -upr linux-2.6.13-rc6/include/asm-ppc/irq.h linux-2.6.13/include/asm-ppc/irq.h
-> --- linux-2.6.13-rc6/include/asm-ppc/irq.h	2005-08-08 11:46:10.000000000 +0200
-> +++ linux-2.6.13/include/asm-ppc/irq.h	2005-08-08 11:41:14.000000000 +0200
-> @@ -19,6 +19,11 @@
->  #define IRQ_POLARITY_POSITIVE	0x2	/* high level or low->high edge */
->  #define IRQ_POLARITY_NEGATIVE	0x0	/* low level or high->low edge */
->  
-> +/*
-> + * IRQ line status macro IRQ_PER_CPU is used
-> + */
-> +#define ARCH_HAS_IRQ_PER_CPU
-> +
->  #if defined(CONFIG_40x)
->  #include <asm/ibm4xx.h>
->  
-> diff -upr linux-2.6.13-rc6/include/asm-ppc64/irq.h linux-2.6.13/include/asm-ppc64/irq.h
-> --- linux-2.6.13-rc6/include/asm-ppc64/irq.h	2005-03-02 08:38:33.000000000 +0100
-> +++ linux-2.6.13/include/asm-ppc64/irq.h	2005-08-06 18:06:58.000000000 +0200
-> @@ -33,6 +33,11 @@
->  #define IRQ_POLARITY_POSITIVE	0x2	/* high level or low->high edge */
->  #define IRQ_POLARITY_NEGATIVE	0x0	/* low level or high->low edge */
->  
-> +/*
-> + * IRQ line status macro IRQ_PER_CPU is used
-> + */
-> +#define ARCH_HAS_IRQ_PER_CPU
-> +
->  #define get_irq_desc(irq) (&irq_desc[(irq)])
->  
->  /* Define a way to iterate across irqs. */
-> diff -upr linux-2.6.13-rc6/include/linux/irq.h linux-2.6.13/include/linux/irq.h
-> --- linux-2.6.13-rc6/include/linux/irq.h	2005-08-08 11:46:10.000000000 +0200
-> +++ linux-2.6.13/include/linux/irq.h	2005-08-08 11:55:11.000000000 +0200
-> @@ -32,7 +32,12 @@
->  #define IRQ_WAITING	32	/* IRQ not yet seen - for autodetection */
->  #define IRQ_LEVEL	64	/* IRQ level triggered */
->  #define IRQ_MASKED	128	/* IRQ masked - shouldn't be seen again */
-> -#define IRQ_PER_CPU	256	/* IRQ is per CPU */
-> +#if defined(ARCH_HAS_IRQ_PER_CPU)
-> +# define IRQ_PER_CPU	256	/* IRQ is per CPU */
-> +# define CHECK_IRQ_PER_CPU(var) ((var) & IRQ_PER_CPU)
-> +#else
-> +# define CHECK_IRQ_PER_CPU(var) 0
-> +#endif
->  
->  /*
->   * Interrupt controller descriptor. This is all we need
-> diff -upr linux-2.6.13-rc6/kernel/irq/handle.c linux-2.6.13/kernel/irq/handle.c
-> --- linux-2.6.13-rc6/kernel/irq/handle.c	2005-08-08 11:46:11.000000000 +0200
-> +++ linux-2.6.13/kernel/irq/handle.c	2005-08-08 11:53:00.000000000 +0200
-> @@ -111,7 +111,7 @@ fastcall unsigned int __do_IRQ(unsigned 
->  	unsigned int status;
->  
->  	kstat_this_cpu.irqs[irq]++;
-> -	if (desc->status & IRQ_PER_CPU) {
-> +	if (CHECK_IRQ_PER_CPU(desc->status)) {
->  		irqreturn_t action_ret;
->  
->  		/*
+> On Fri, Aug 05, 2005 at 03:40:26PM -0400, linux-os (Dick Johnson) wrote:
+>>
+>> On Fri, 5 Aug 2005, Martin Loschwitz wrote:
+>>
+>>> Hi folks,
+>>>
+>>> I just ran into the following problem: Having updated my box to 2.6.12.3,
+>>> I tried to start YaST2 and noticed a kernel panic (see below). Some quick
+>>> debugging brought the result that the kernel crashes while some user (not
+>>> even root ...) tries to access /proc/ioports. Is this a known problem and
+>>> if so, is a fix available?
+>>>
+>>> Ooops and ksymoops-output is attached.
+>>>
+>>
+>> This can happen if a module is unloaded that doesn't free its
+>> resources! Been there, done that.
+>>
+>
+> "This can happen" is not an acceptable explanation, I think. Modules should
+
+Of course it is. You find the module that isn't freeing it's
+resources, fix it, and you don't get the panic when you access
+/proc/ioports. It's really that simple.
+
+Thinking that modules shouldn't be able to kill the kernel isn't
+goint to help. Everything that runs inside the kernel has the
+necessary priviliges to destroy anything in the kernel.
+
+> not be able to kill the kernel -- apart from that, I can trigger the bug in
+> the very early "ash-system" that KNOPPIX provides. At that time, the modules
+> listed below were the only ones loaded -- no others, and I am also sure that
+> until that point, no modules were unloaded.
+>
+> sbp2 ohci1394 usb_storage ub ehci_hcd usbcore
+>
+> --
+>  .''`.   Martin Loschwitz           Debian GNU/Linux developer
+> : :'  :  madkiss@madkiss.org        madkiss@debian.org
+> `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
+>   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

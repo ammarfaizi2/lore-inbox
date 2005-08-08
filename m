@@ -1,66 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVHHXKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVHHXKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbVHHXKN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 19:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbVHHXKM
+	id S932348AbVHHXKy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 19:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbVHHXKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 19:10:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23694 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932347AbVHHXKL (ORCPT
+	Mon, 8 Aug 2005 19:10:53 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:8901 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S932348AbVHHXKx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 19:10:11 -0400
-Date: Mon, 8 Aug 2005 16:08:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to reclaim inode pages on demand
-Message-Id: <20050808160844.04d1f7ac.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0508081650160.26013@skynet>
-References: <Pine.LNX.4.58.0508081650160.26013@skynet>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 8 Aug 2005 19:10:53 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Sonny Rao <sonny@burdell.org>, rdunlap@xenotime.net, miles.lane@gmail.com,
+       airlied@gmail.com, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: OOPS in 2.6.13-rc1-mm1 -- EIP is at sysfs_release+0x49/0xb0 
+In-reply-to: Your message of "Mon, 08 Aug 2005 10:44:04 MST."
+             <20050808104404.11846951.akpm@osdl.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 09 Aug 2005 09:09:57 +1000
+Message-ID: <19267.1123542597@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman <mel@csn.ul.ie> wrote:
+On Mon, 8 Aug 2005 10:44:04 -0700, 
+Andrew Morton <akpm@osdl.org> wrote:
+>Sonny Rao <sonny@burdell.org> wrote:
+>> Modules linked in: cpufreq_userspace cpufreq_stats freq_table cpufreq_powersave 
+>> cpufreq_ondemand cpufreq_conservative ipv6 video thermal processor hotkey fan co
+>> ntainer button battery ac nfs lockd sunrpc af_packet tg3 ohci_hcd usbcore generi
+>> c serverworks i2c_piix4 i2c_core sworks_agp agpgart pcspkr rtc floppy tsdev dm_m
+>> od parport_pc lp parport ide_generic ide_disk ide_cd cdrom ide_core unix
+>> CPU:    0
+>> EIP:    0060:[<c01a8bcc>]    Not tainted VLI
+>> EFLAGS: 00010246   (2.6.13-rc4-mm1) 
+>> EIP is at sysfs_release+0x4c/0xb0
+>> eax: 762f7373   ebx: 762f7373   ecx: 00000001   edx: ef3c5000
+>> esi: f596a188   edi: f21fecc0   ebp: ef3c5f3c   esp: ef3c5f2c
+>> ds: 007b   es: 007b   ss: 0068
+>> Process udev (pid: 11843, threadinfo=ef3c5000 task=ef78e550)
+>> Stack: f596a188 00000010 f762d580 c21bc944 ef3c5f68 c0166cea c21bc944 f762d580 
+>>        00000000 00000000 c2137980 ec7e9748 f762d580 dcae7300 00000000 ef3c5f78 
+>>        c0166aeb f762d580 f762d580 ef3c5f94 c01650ab f762d580 dcae7300 dcae7300 
+>> Call Trace:
+>>  [<c010401f>] show_stack+0x7f/0xa0
+>>  [<c01041d4>] show_registers+0x164/0x1d0
+>>  [<c0104422>] die+0x122/0x1c0
+>>  [<c030db1e>] do_page_fault+0x2ce/0x600
+>>  [<c0103ccb>] error_code+0x4f/0x54
+>>  [<c0166cea>] __fput+0x1da/0x1f0
+>>  [<c0166aeb>] fput+0x2b/0x50
+>>  [<c01650ab>] filp_close+0x4b/0x80
+>>  [<c016514e>] sys_close+0x6e/0x90
+>>  [<c010312f>] sysenter_past_esp+0x54/0x75
+>> Code: 85 f6 8b 40 14 8b 58 04 74 08 89 34 24 e8 0d 97 04 00 85 db 74 38 b8 01 00
+>>  00 00 e8 af 18 f7 ff e8 4a e5 04 00 c1 e0 07 8d 04 18 <ff> 88 00 01 00 00 83 3b
+>>  02 74 49 b8 01 00 00 00 e8 cf 18 f7 ff 
+>>  <6>note: udev[11843] exited with preempt_count 1
+>> Using generic hotkey driver
+>> ibm_acpi: acpi_evalf(DHKC, d, ...) failed: 4097
+>> ibm_acpi: `enable,0xffff' invalid for parameter `hotkey'
+>> toshiba_acpi: Unknown parameter `hotkeys_over_acpi'
+>> apm: BIOS not found.
+>> 
+>> Let me see if I can reproduce this on either 2.6.13-rc4 or  2.6.13-rc6 
+>> 
+>> Machine is an IBM x335 (dual P4), and I'm not using any framebuffer
+>> stuff. 
+>> 
 >
-> Hi,
-> 
-> I am working on a direct reclaim strategy to free up large blocks of
-> contiguous pages. The part I have is working fine, but I am finding a
-> hundreds of pages that are being used for inodes that I need to reclaim. I
-> tried purging the inode lists using a variation of prune_icache() but it
-> is not working out.
-> 
-> Given a struct page, that one knows is an inode, can anyone suggest the
-> best way to find the inode using it and free it?
+>Keith, does this look like the use-after-free which you've been hitting?
 
-Simple answer: invalidate_mapping_pages(page->mapping, start, end).
-
-Problem: races.  If you pick a random page up off the LRU and start playing
-with its mapping, what stops that mapping from getting freed under your
-feet?
-
-If the caller has a ref on the inode (say, you came in via a syscall
-against an fd) then fine.
-
-But if you picked the page up off the LRU then to avoid super-rare oopses
-you'll need to pin the address_space somehow.  One way is to
-
-a) lock the page, which pins the address_space.
-
-b) check that page->mapping is still non-NULL.  Bale if it is.
-
-c) bump page->mapping->host->i_count
-
-d) unlock the page
-
-e) diddle away with the address_space.
-
-f) iput() the inode.
-
-But beware that iput() can do a *ton* of stuff, so you need to be not
-holding any locks and to not be called from any fancy contexts.
+It is certainly in the same place, freeing the data that is chained off
+sd->s_element.  This oops does not show any memory poisoning, but I am
+guessing that the kernel was not compiled with slab debugging.  On
+balance, it looks like the same problem.
 

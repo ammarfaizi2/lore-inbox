@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVHHQCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVHHQIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbVHHQCO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 12:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVHHQCO
+	id S932096AbVHHQIg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 12:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbVHHQIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 12:02:14 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6566 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932095AbVHHQCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 12:02:14 -0400
-Date: Mon, 8 Aug 2005 18:02:05 +0200
-From: Jan Kara <jack@suse.cz>
-To: Mark Bellon <mbellon@mvista.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH]  (TAKE 3) disk quotas fail when /etc/mtab is symlinked to /proc/mounts
-Message-ID: <20050808160205.GC8831@atrey.karlin.mff.cuni.cz>
-References: <42E97236.6080404@mvista.com> <42EA6580.9010204@mvista.com> <42EAA7C8.5010206@mvista.com>
+	Mon, 8 Aug 2005 12:08:35 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:60085 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932096AbVHHQIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 12:08:35 -0400
+Date: Mon, 8 Aug 2005 18:08:38 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to reclaim inode pages on demand
+Message-ID: <20050808160838.GB17978@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.58.0508081650160.26013@skynet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <42EAA7C8.5010206@mvista.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0508081650160.26013@skynet>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On Mon, 8 August 2005 16:52:52 +0100, Mel Gorman wrote:
+> 
+> I am working on a direct reclaim strategy to free up large blocks of
+> contiguous pages. The part I have is working fine, but I am finding a
+> hundreds of pages that are being used for inodes that I need to reclaim. I
+> tried purging the inode lists using a variation of prune_icache() but it
+> is not working out.
+> 
+> Given a struct page, that one knows is an inode, can anyone suggest the
+> best way to find the inode using it and free it?
 
-  so I returned back and looked at the patch. It's fine. I only suggest
-changing of the message:
-> +			printk(KERN_ERR
-> +				"EXT3-fs: old and new quota format mixing.\n");
-  As a user is not mixing the old and the new quota format but the
-journaled and the unjournaled quota...
+A struct page ain't an inode.  So I'm assuming you mean something like
+"giving a struct page that is known to be part of the inode slab
+cache".
 
-								Honza
+In that case, you have to decide how intimate you want the slab code
+and your page/inode reclaim code to be.  You could use slab structures
+to find out the (ofs,len) tupel of contained structures, cast those
+to a struct inode and then continue.  Whether you actually want that,
+depends on your moral standards.
+
+Jörn
 
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+I don't understand it. Nobody does.
+-- Richard P. Feynman

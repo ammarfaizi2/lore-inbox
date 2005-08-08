@@ -1,91 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVHHVJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVHHVJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbVHHVJX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 17:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVHHVJX
+	id S932234AbVHHVJr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 17:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVHHVJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 17:09:23 -0400
-Received: from web30311.mail.mud.yahoo.com ([68.142.201.229]:55721 "HELO
-	web30311.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932233AbVHHVJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 17:09:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=QIwYesOj9XEXoE76MywzmzUsfVFaLvSZqi1//rNWw8Zp5tvZsJBq/KqmE5l3z5wrW6SJtRG8pMEV9f7Uew/seb7+d0if9CcTn3Pz6/WH55nWqWR16jTKJlMBGaMnT/0at8+0wboi+xECpoQprruZcAqc5r1iTqq59aD/90kQoRg=  ;
-Message-ID: <20050808210908.1672.qmail@web30311.mail.mud.yahoo.com>
-Date: Mon, 8 Aug 2005 22:09:08 +0100 (BST)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: Re: Where is place of arch independed companion chips?
-To: Richard Purdie <rpurdie@rpsys.net>, Greg KH <gregkh@suse.de>
-Cc: Jamey Hicks <jamey.hicks@hp.com>, Andrey Volkov <avolkov@varma-el.com>,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <1123019379.7782.86.camel@localhost.localdomain>
+	Mon, 8 Aug 2005 17:09:47 -0400
+Received: from smtp.istop.com ([66.11.167.126]:19431 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S932234AbVHHVJq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 17:09:46 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+Date: Tue, 9 Aug 2005 07:09:59 +1000
+User-Agent: KMail/1.7.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <42F57FCA.9040805@yahoo.com.au>
+In-Reply-To: <42F57FCA.9040805@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508090710.00637.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 07 August 2005 13:28, Nick Piggin wrote:
+> Hi,
+>
+> I'll be looking to send these off to Andrew after 2.6.14 opens,
+> with the aim of having them merged by 2.6.15 hopefully.
+>
+> It doesn't look like they'll be able to easily free up a page
+> flag for 2 reasons. First, PageReserved will probably be kept
+> around for at least one release. Second, swsusp and some arch
+> code (ioremap) wants to know about struct pages that don't point
+> to valid RAM - currently they use PageReserved, but we'll probably
+> just introduce a PageValidRAM or something when PageReserved goes.
+>
+> I believe this makes memory management cleaner and easier to
+> understand.
 
---- Richard Purdie <rpurdie@rpsys.net> wrote:
+Agreed, I've always looked askance at that particular page flag.  (Suggestion 
+for your next act: 
 
-> On Mon, 2005-08-01 at 11:13 -0700, Greg KH wrote:
-> > > Good question.  I was about to submit a patch
-> that created 
-> > > drivers/platform because the toplevel driver for
-> MQ11xx is a 
-> > > platform_device driver.  Any thoughts on this?
-> > 
-> > drivers/platform sounds good to me.
-> 
-> In another thread (about the ucb1x00) we came up
-> with the idea of
-> drivers/mfd (mfd = multi function devices).
-> 
-> The core and platform specific parts would live here
-> with suitable clear
-> naming and the subsection specific parts that were
-> separable would live
-> in the appropriate place within the kernel.
-> 
-> Just another idea to add to the mix and removes the
-> dilemma of a
-> multifunction device with isn't platform based...
+> My other reason behind this is that the lockless 
+> pagecache patches needs it for sane page refcounting.
+>
+> If anyone has an issue with the patches or my merge plan, let's
+> get some discussion going.
 
-This is where my sugguestion on the ucb1x00 comess in
-(although it seems to have ot lost as I have had no
-reply :-( ). To repeat myself:
+You forgot to mention what replaces PageReserved: the VM_RESERVED vma flag, 
+which is now added to the whole zap_pte call chain.  A slight efficiency win?  
+Anyway, it looks like forward progress because some inner loops are a little 
+straighter.  I've always wondered what PG_reserved was actually doing, and 
+now I know: compensating for the missing vma parameter in the zap call 
+chains.
 
-I was thinking of something like driver/bus into which
-we might also be able to put the I2C and LL3 buses.
-The only problem is that this might leave some parts
-of the multi function chip homeless (if they can't
-find a home in other subsystems).
+Why don't you pass the vma in zap_details?  For that matter, why are addr and 
+end still passed down the zap chain when zap_details appears to duplicate 
+that information?  OK, it is because zap_details is NULL in about twice as 
+many places as it carries data.  But since the details parameter is already 
+there, would it not make sense to press it into service to slim down those 
+parameter lists a little?
 
-I need to do more homework ;-), but
-I think we need a bus driver (I need to see what the
-bus subsystem offers) (IP block specific,
-platform and arch independent), a core driver to
-register busses and clients, and client drivers.
+What stops swsusp from also using the vma flag?  Why does swsusp need both 
+PG_reserved and PG_nosave?
 
-Mark
+Is there automated testing planned for this one?  It looks right as closely as 
+I've read, but it tickles an awful lot of code.
 
+Regards,
 
-> 
-> Richard
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-
-		
-___________________________________________________________ 
-To help you stay safe and secure online, we've developed the all new Yahoo! Security Centre. http://uk.security.yahoo.com
+Daniel

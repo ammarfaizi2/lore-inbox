@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVHHVFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbVHHVF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbVHHVFP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 17:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbVHHVFO
+	id S932229AbVHHVF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 17:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbVHHVF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 17:05:14 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:2716 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S932230AbVHHVFN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 17:05:13 -0400
-Date: Mon, 8 Aug 2005 14:02:31 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: perfctr-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: new perfmon2 kernel patch available
-Message-ID: <20050808210230.GA13092@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
+	Mon, 8 Aug 2005 17:05:28 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:63759 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932229AbVHHVF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 17:05:28 -0400
+Date: Mon, 8 Aug 2005 23:05:24 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, pmarques@grupopie.com
+Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
+Message-ID: <20050808210524.GK4006@stusta.de>
+References: <1123219747.20398.1.camel@localhost> <20050804223842.2b3abeee.akpm@osdl.org> <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI> <20050804233634.1406e92a.akpm@osdl.org> <Pine.LNX.4.58.0508050946070.27679@sbz-30.cs.Helsinki.FI> <20050806150940.GT4029@stusta.de> <s5hacjs68mu.wl%tiwai@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+In-Reply-To: <s5hacjs68mu.wl%tiwai@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Aug 08, 2005 at 12:11:21PM +0200, Takashi Iwai wrote:
+> At Sat, 6 Aug 2005 17:09:40 +0200,
+> Adrian Bunk wrote:
+> > 
+> > 
+> > Looking at how few is left from kcalloc, can't we make it a
+> > "static inline" function in slab.h?
+> > 
+> > This would optimize nicely for all of the users where the first or even 
+> > the first two parameters are constant at compile-time and shouldn't do 
+> > much harm for the other users.
+> > 
+> > As a side effect, the difference between kcalloc(1, ...) and kzalloc() 
+> > would become a coding style question without any effect on the generated 
+> > code.
+> 
+> How about to use __builtin_constant_p() like kmalloc?
+> The code readability would be worsen, though...
 
-I have released a new version of the perfmon2  kernel patch
-along with a new version of the libpfm user library.
+Where should this make any difference?
 
-The kernel patch is relative to 2.6.13-rc4-mm1. You need to
-apply Andrew Morton's -mm1 to rc4.
+If the function is "static inline", gcc can e.g. always determine at 
+compile-time that 1 >= 0 can never be false and therefore optimize it 
+away.
 
-This new release includes:
-	- update to newer kernel
-	- code  reformatting to fit kernel coding style
-	- switch from single system call to multi syscalls
-	- some more cleanups of macros vs. inline
+> Takashi
 
-The patch has been tested on IA-64, Pentium M (with Local APIC)
-and X86-64. I have updated the PPC64 but could not test it.
-
-The new version of libpfm is required to exploit the new multi
-system call interface. Older versions (incl. 3.2-050701) will
-not work. Note that on IA-64, older applications using the
-single syscall interface are still supported. At this point,
-I have not yet updated the specification document to reflect
-the switch to multiple system calls.
-
-
-You can download the two packages from our new SourceForget.net
-project site (still under construction). The new kernel
-patch and libpfm are dated 050805.
-
-		http://www.sf.net/projects/perfmon2
-
-Comments welcome.
+cu
+Adrian
 
 -- 
--Stephane
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

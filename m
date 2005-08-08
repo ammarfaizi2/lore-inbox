@@ -1,76 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVHHVJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVHHVMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbVHHVJU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 17:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVHHVJU
+	id S932235AbVHHVMp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 17:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVHHVMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 17:09:20 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:14332 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932231AbVHHVJT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 17:09:19 -0400
-Message-ID: <42F7C9F9.7000505@mvista.com>
-Date: Mon, 08 Aug 2005 14:09:13 -0700
-From: Dave Jiang <djiang@mvista.com>
-Organization: MontaVista Software, Inc.
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: x86_64 frame pointer via thread context
-References: <42F3EC97.2060906@mvista.com.suse.lists.linux.kernel> <p73slxn1dry.fsf@bragg.suse.de> <42F7A609.5030502@mvista.com> <42F7BB2C.6070004@vc.cvut.cz> <42F7BE4A.6030709@mvista.com> <42F7C01E.4020108@vc.cvut.cz>
-In-Reply-To: <42F7C01E.4020108@vc.cvut.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Aug 2005 17:12:45 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:28678 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S932235AbVHHVMp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 17:12:45 -0400
+Date: Mon, 8 Aug 2005 23:12:41 +0200
+From: David Madore <david.madore@ens.fr>
+To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+Subject: understanding Linux capabilities brokenness
+Message-ID: <20050808211241.GA22446@clipper.ens.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Mon, 08 Aug 2005 23:12:42 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
->>> Replace call to sleep() with busy loop.  Glibc's sleep() uses %ebp for
->>> its own data, so when you interrupt sleep(), you get rbp=(unsigned 
->>> int)-1,
->>> as rbp really contains 0x0000.0000.ffff.ffff when nanosleep() syscall
->>> is issued.
->>>                                 Petr
->>  From what I understand, when you signal a thread, the signal handler 
->> executes in the thread context and not the main process context. So 
->> therefore the rbp would be the thread's copy and not the one that 
->> sleep() just modified. So whatever sleep does to the main process 
->> context, there shouldn't be any effect on the thread context.... Also, 
->> what can I call to allow the threads to run? sleep() allows me to run 
->> the other threads. Busy wait does not.....
-> 
-> 
-> I do not understand.  You call sleep() from both threads you spawn
-> (as well from main), so both threads are always interrupted in the
-> sleep(2).  Load your process to the debugger...
-> 
-> #0  tb_sig_handler (sig=33, info=0x407ff2f0, ucontext=0x407ff1c0) at 
-> ttest1.c:26
-> #1  <signal handler called>
-> #2  0x00002aaaaad81335 in nanosleep () from /lib/libc.so.6
-> #3  0x00002aaaaad811a5 in sleep () from /lib/libc.so.6
-> #4  0x0000000000400871 in test_thread1 (arg=0x0) at ttest1.c:40
-> #5  0x00002aaaaabc6b55 in start_thread () from /lib/libpthread.so.0
-> #6  0x00002aaaaada87f0 in clone () from /lib/libc.so.6
+Hi.
 
-Ooops, you are right. I forgot about those ones in the threads. Yes you 
-are right. Once the sleep goes away rBP displays the correct values. Is 
-this issue due to glibc or because of the toolchain? I do not have this 
-issues on 32bit x86.... I would assume that the reason it works on 
-Mandrake is due to the toolchain they use versus other distros? The 
-toolchain determines which registers to use and the 
--fno-omit-frame-pointer did not prevent some of them from clobbering rbp?
+Like many people[#1][#2], I have found out that the Linux capability
+handling utilities are non-functional, and cannot be repaired because
+the kernel deliberately cripples capabilities (they are reset on every
+call to execve()).  I have found that various people[#1][#2] have
+proposed patches to restore working capabilities.  However, the matter
+seems rather complicted and I would like to understand the full story.
+Hours of Google-grepping through the lkml archives has not helped me
+very much, so I hope someone can get the history straight.
+
+I understand that Linux capabilities first appared seven or eight
+years ago, and in 2000-06 there was a serious fault discovered which
+caused a local root exploit through the use of the sendmail problem.
+Rading [#3] and [#4], I understand that the problem was this:
+
+  When sendmail is invoked by a non-root user, it attempts to drop its
+  root privileges (which it has because the binary is installed suid)
+  by calling setuid(getuid()), which, due to the stupidity of
+  traditional Unix semantics enshrined in the POSIX/SUS standards,
+  operates differently according to whether the process has
+  "appropriate privileges" (in which case it sets all its UIDs to its
+  real UID) or not (in which case it preserves the saved UID); now
+  under Linux, "appropriate privileges" is defined[#5] as possessing
+  the CAP_SETUID capability.  So if a non-root user manages to execute
+  sendmail without the CAP_SETUID capability, the setuid(getuid())
+  call will fail (or rather, not perform as expected), and the genie
+  is out of the bottle.
+
+However, what I do not understand is precisely _how_ one gets a
+sendmail process without CAP_SETUID: for that is the heart of the
+problem, and that is where the bug really was.  But [#3] and [#4] are
+very obscure (and I found nothing conclusive in lkml archives).  I
+understand that the problem lies in some combination of the
+inheritable capability set and the CAP_SETPCAP capability, but I don't
+see what that combination is.  Certainly removing capabilities from
+the inheritable set should not prevent suid root programs from having
+them reinstated (in the language of [#6], the suid root bit should
+correspond to a full forced set of capabilities), so I don't see what
+that has to do with it, and CAP_SETPCAP indeed allows to remove
+capabilities from a given process but I don't see how the user could
+gain that capability (and indeed if he can then we can expect him to
+gain all capabilities very rapidly).
+
+Can someone describe very accurately what the problem was?  And why
+was it "fixed"[#7] by completely disabling capability inheritance and
+also by disabling the CAP_SETPCAP capability?  In other words, suppose
+I restore CAP_SETPCAP on my system and/or make capabilities fully
+inheritable on execve() (that is, just take the logical AND of the
+permitted set with the inheritable set, except if the executed program
+is suid root, in which case all three sets - permitted, effective and
+inheritable - are set to full): what is the security problem in this?
+
+Assuming I want to make capabilities inheritable, is there a
+recommended patch for doing so?  Alexander Nyberg's patch in [#1]
+looks good to me (at least, it seems to do exactly what I want), but
+how well has it been tested?  Is this something that might eventually
+make its way into the official kernel, or is this a no-goer?  Also, if
+the author happens to read this, I'd like an explanation on the "Is
+this a root task that did seteuid before execve? if so it wanted its
+effective permissions dropped" comment in cap_bprm_apply_creds().
+
+Thanks!
 
 -- 
-Dave
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )
 
-------------------------------------------------------
-Dave Jiang
-Software Engineer          Phone: (480) 517-0372
-MontaVista Software, Inc.    Fax: (480) 517-0262
-2141 E Broadway Rd, St 108   Web: www.mvista.com
-Tempe, AZ  85282          mailto:djiang@mvista.com
-------------------------------------------------------
+[#1] <URL: http://groups-beta.google.com/group/fa.linux.kernel/browse_thread/thread/f76dcb9447a77c34 >
 
+[#2] <URL: http://groups-beta.google.com/group/fa.linux.kernel/browse_thread/thread/4366e557a75a933d >
+
+[#3] <URL: http://www.cs.berkeley.edu/~daw/papers/setuid-usenix02.pdf >
+
+[#4] <URL: http://www.sendmail.org/sendmail.8.10.1.LINUX-SECURITY.txt >
+
+[#5] I tend to think that the behavior of setuid() is wrong in the
+first place, that is, setuid(getuid()) should also change the saved
+UID as soon as the effective UID is zero, even if CAP_SETUID is not
+set, to make sure that traditional Unix semantics are observed.  (More
+recent, capability-aware, programs will use setresuid() anyway.)  But
+that is rather beside the point.
+
+[#6] <URL: http://ftp.kernel.org/pub/linux/libs/security/linux-privs/kernel-2.4/capfaq-0.2.txt >
+
+[#7] I wanted to find exactly on which kernel version the changes took
+place.  Unfortunately, <URL: http://lxr.linux.no/ > only has major
+versions, the 2.2.15->2.2.16 patch is very hard to read, and I have
+neither the patience nor the bandwidth to unpack entire kernel trees
+on my PC to unravel the full history...

@@ -1,83 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbVHHMdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVHHMiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750845AbVHHMdN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 08:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbVHHMdM
+	id S1750846AbVHHMiY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 08:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVHHMiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 08:33:12 -0400
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:35798 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S1750845AbVHHMdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 08:33:12 -0400
-Subject: Re: [PATCH] DVB: lgdt330x frontend: some bug fixes & add lgdt3303
-	support
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Michael Krufky <mkrufky@linuxtv.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       linux-dvb-maintainer@linuxtv.org,
-       Mac Michaels <wmichaels1@earthlink.net>,
-       Michael Krufky <mkrufky@m1k.net>
-In-Reply-To: <42F6A294.90300@linuxtv.org>
-References: <42F6A294.90300@linuxtv.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 08 Aug 2005 09:33:06 -0300
-Message-Id: <1123504387.17427.9.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3-5mdk 
-Content-Transfer-Encoding: 8bit
+	Mon, 8 Aug 2005 08:38:23 -0400
+Received: from wormhole-tele2.se.axis.com ([193.13.178.170]:12003 "EHLO
+	wormhole.se.axis.com") by vger.kernel.org with ESMTP
+	id S1750847AbVHHMiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 08:38:23 -0400
+Message-ID: <1123504568.42f751b890ba2@webmail-unix.se.axis.com>
+Date: Mon,  8 Aug 2005 14:36:08 +0200
+From: starvik@axis.com
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, dev-etrax@axis.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] arch/cris/Kconfig.debug: use lib/Kconfig.debug
+References: <20050807220005.GC4006@stusta.de>
+In-Reply-To: <20050807220005.GC4006@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 212.181.50.183
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	This should't be applied to 2.6.13. It does contain a hack at V4L code,
-since mute_tda9887 is implemented outside tda9887.c module and could
-potentially cause troubles since there are some work to provide it on a
-correct way.
-	 It should be applied to -mm and go to mainstream only after provided a
-correct implementation.
+Acked-by: Mikael Starvik <starvik@axis.com>
 
-Mkrufky,
-	Please avoid trying to submit yet experimental patches to mainstream.
-
-Mauro.
-
-Em Dom, 2005-08-07 às 20:08 -0400, Michael Krufky escreveu:
-> For 2.6.13, if possible.  Patch generated against 2.6.13-rc6
+> This patch converts arch/cris/Kconfig.debug to using lib/Kconfig.debug.
 > 
-> anexo documento em texto simples (lgdt330x-structure-update.patch)
+> This should fix a compile error in 2.6.13-rc4 caused by a missing 
+> CONFIG_LOG_BUF_SHIFT definition.
+> 
+> While I was editing this file, I also converted some spaces to tabs.
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+> This patch was already sent on:
+> - 31 Jul 2005
+> 
+>  arch/cris/Kconfig.debug |   31 ++++++++++---------------------
+>  1 files changed, 10 insertions(+), 21 deletions(-)
+> 
+> --- linux-2.6.13-rc4-mm1/arch/cris/Kconfig.debug.old	2005-07-31
+> 18:29:15.000000000 +0200
+> +++ linux-2.6.13-rc4-mm1/arch/cris/Kconfig.debug	2005-07-31
+> 18:32:15.000000000 +0200
+> @@ -5,10 +5,13 @@
+>  	bool "Kernel profiling support"
+>  
+>  config SYSTEM_PROFILER
+> -        bool "System profiling support"
+> +	bool "System profiling support"
+> +
+> +source "lib/Kconfig.debug"
+>  
+>  config ETRAX_KGDB
+>  	bool "Use kernel GDB debugger"
+> +	depends on DEBUG_KERNEL
+>  	---help---
+>  	  The CRIS version of gdb can be used to remotely debug a running
+>  	  Linux kernel via the serial debug port.  Provided you have gdb-cris
+> @@ -22,25 +25,11 @@
+>  	  this option is turned on!
+>  
+>  
+> -config DEBUG_INFO
+> -        bool "Compile the kernel with debug info"
+> -        help
+> -          If you say Y here the resulting kernel image will include
+> -          debugging info resulting in a larger kernel image.
+> -          Say Y here only if you plan to use gdb to debug the kernel.
+> -          If you don't debug the kernel, you can say N.
+> -
+> -config FRAME_POINTER
+> -        bool "Compile the kernel with frame pointers"
+> -        help
+> -          If you say Y here the resulting kernel image will be slightly
+> larger
+> -          and slower, but it will give very useful debugging information.
+> -          If you don't debug the kernel, you can say N, but we may not be
+> able
+> -          to solve problems without frame pointers.
+> -
+>  config DEBUG_NMI_OOPS
+> -       bool "NMI causes oops printout"
+> -       help
+> -         If the system locks up without any debug information you can say Y
+> -         here to make it possible to dump an OOPS with an external NMI.
+> +	bool "NMI causes oops printout"
+> +	depends on DEBUG_KERNEL
+> +	help
+> +	  If the system locks up without any debug information you can say Y
+> +	  here to make it possible to dump an OOPS with an external NMI.
+> +
+>  endmenu
+> 
 
-> diff -u linux-2.6.13/drivers/media/dvb/frontends/lgdt330x.c linux/drivers/media/dvb/frontends/lgdt330x.c
-> +
-> +#ifdef MUTE_TDA9887
-> +static int i2c_write_ntsc_demod (struct lgdt330x_state* state, u8 buf[2])
-> +{
-> +	struct i2c_msg msg =
-> +		{ .addr = 0x43,
-> +		  .flags = 0, 
-> +		  .buf = buf,
-> +		  .len = 2 };
-> +	int err;
-> +
-> +	if ((err = i2c_transfer(state->i2c, &msg, 1)) != 1) {
-> +			printk(KERN_WARNING "lgdt330x: %s error (addr %02x <- %02x, err = %i)\n", __FUNCTION__, msg.buf[0], msg.buf[1], err);
-> +		if (err < 0)
-> +			return err;
-> +		else
-> +			return -EREMOTEIO;
-> +	}
-> +	return 0;
-> +}
-> +
-> +static void fiddle_with_ntsc_if_demod(struct lgdt330x_state* state)
-> +{
-> +	// Experimental code
-> +	u8 buf0[] = {0x00, 0x20};
-> +	u8 buf1[] = {0x01, 0x00};
-> +	u8 buf2[] = {0x02, 0x00};
-> +
-> +	i2c_write_ntsc_demod(state, buf0);
-> +	i2c_write_ntsc_demod(state, buf1);
-> +	i2c_write_ntsc_demod(state, buf2);
-> +}
-> +#endif
 
 
+
+-------------------------------------------------
+This mail sent through IMP: http://horde.org/imp/

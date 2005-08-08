@@ -1,101 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVHHKSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVHHKUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbVHHKSr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 06:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVHHKSr
+	id S1750805AbVHHKUa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 06:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVHHKUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 06:18:47 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:15747 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750804AbVHHKSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 06:18:47 -0400
-References: <20050802071828.GA11217@redhat.com>
-            <84144f0205080223445375c907@mail.gmail.com>
-            <20050808095747.GD13951@redhat.com>
-In-Reply-To: <20050808095747.GD13951@redhat.com>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: David Teigland <teigland@redhat.com>
-Cc: Pekka Enberg <penberg@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: GFS
-Date: Mon, 08 Aug 2005 13:18:45 +0300
+	Mon, 8 Aug 2005 06:20:30 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:927 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750805AbVHHKUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 06:20:30 -0400
+Date: Mon, 8 Aug 2005 12:20:22 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: David Teigland <teigland@redhat.com>, Pekka Enberg <penberg@gmail.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 00/14] GFS
+Message-ID: <20050808102022.GA17978@wohnheim.fh-wedel.de>
+References: <20050802071828.GA11217@redhat.com> <84144f0205080223445375c907@mail.gmail.com> <20050808095747.GD13951@redhat.com> <1123495525.3245.36.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42F73185.00006260@courier.cs.helsinki.fi>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1123495525.3245.36.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Teigland writes:
-> > > +#define RETRY_MALLOC(do_this, until_this) \
-> > > +for (;;) { \
-> > > +     { do_this; } \
-> > > +     if (until_this) \
-> > > +             break; \
-> > > +     if (time_after_eq(jiffies, gfs2_malloc_warning + 5 * HZ)) { \
-> > > +             printk("GFS2: out of memory: %s, %u\n", __FILE__, __LINE__); \
-> > > +             gfs2_malloc_warning = jiffies; \
-> > > +     } \
-> > > +     yield(); \
-> > > +}
+On Mon, 8 August 2005 12:05:25 +0200, Arjan van de Ven wrote:
+> On Mon, 2005-08-08 at 17:57 +0800, David Teigland wrote:
+> > > 
+> > > Please drop the extra braces.
 > > 
-> > Please drop this. 
+> > Here and elsewhere we try to keep unused stuff off the stack.  Are you
+> > suggesting that we're being overly cautious, or do you just dislike the
+> > way it looks?
 > 
-> Done in the spot that could deal with an error, but there are three other
-> places that still need it.
+> nice theory. In practice gcc 3.x still adds up all the stack space
+> anyway and as long as gcc 3.x is a supported kernel compiler, you can't
+> depend on this. Also.. please favor readability. gcc is getting smarter
+> about stack use nowadays, and {}'s shouldn't be needed to help it, it
+> tracks liveness of variables already.
 
-Which places are those? I only see these: 
+Plus, you don't have to guess about stack usage.  Run "make
+checkstack" or, better yet, run the objdump of fs/gfs/built-in.o
+through the perl script.
 
-gfs2-02.patch:+ RETRY_MALLOC(ip = kmem_cache_alloc(gfs2_inode_cachep, 
-GFP_KERNEL), ip);
-gfs2-02.patch-+ gfs2_memory_add(ip);
-gfs2-02.patch-+ memset(ip, 0, sizeof(struct gfs2_inode));
-gfs2-02.patch-+
-gfs2-02.patch-+ ip->i_num = *inum;
-gfs2-02.patch-+ 
+Jörn
 
- -> GFP_NOFAIL. 
-
-gfs2-02.patch:+         RETRY_MALLOC(page = 
-grab_cache_page(aspace->i_mapping, index),
-gfs2-02.patch-+                      page);
-gfs2-02.patch-+ } else {
-gfs2-02.patch-+         page = find_lock_page(aspace->i_mapping, index);
-gfs2-02.patch-+         if (!page)
-gfs2-02.patch-+                 return NULL; 
-
-I think you can set aspace->flags to GFP_NOFAIL but why can't you return 
-NULL here on failure like you do for find_lock_page()? 
-
-gfs2-02.patch:+ RETRY_MALLOC(bd = kmem_cache_alloc(gfs2_bufdata_cachep, 
-GFP_KERNEL),
-gfs2-02.patch-+              bd);
-gfs2-02.patch-+ gfs2_memory_add(bd);
-gfs2-02.patch-+ atomic_inc(&gl->gl_sbd->sd_bufdata_count);
-gfs2-02.patch-+
-gfs2-02.patch-+ memset(bd, 0, sizeof(struct gfs2_bufdata)); 
-
- -> GFP_NOFAIL 
-
-gfs2-08.patch:+ RETRY_MALLOC(gm = kmalloc(sizeof(struct gfs2_memory), 
-GFP_KERNEL), gm);
-gfs2-08.patch-+ gm->gm_data = data;
-gfs2-08.patch-+ gm->gm_file = file;
-gfs2-08.patch-+ gm->gm_line = line;
-gfs2-08.patch-+
-gfs2-08.patch-+ spin_lock(&memory_lock); 
-
- -> GFP_NOFAIL 
-
-gfs2-10.patch:+         RETRY_MALLOC(new_gh = gfs2_holder_get(gl, state,
-gfs2-10.patch-+                                               LM_FLAG_TRY |
-gfs2-10.patch-+                                               
-GL_NEVER_RECURSE),
-gfs2-10.patch-+                      new_gh);
-gfs2-10.patch-+         set_bit(HIF_DEMOTE, &new_gh->gh_iflags);
-gfs2-10.patch-+         set_bit(HIF_DEALLOC, &new_gh->gh_iflags); 
-
-gfs2_holder_get uses kmalloc which can use GFP_NOFAIL. 
-
-                Pekka 
-
+-- 
+It's just what we asked for, but not what we want!
+-- anonymous

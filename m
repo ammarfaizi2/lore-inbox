@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVHHR31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVHHRdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbVHHR31 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVHHR31
+	id S932132AbVHHRdL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVHHRdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:29:27 -0400
-Received: from siimage.com ([12.24.47.101]:54287 "EHLO mail.siimage.com")
-	by vger.kernel.org with ESMTP id S932098AbVHHR3Z convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:29:25 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH linux-2.6.13-rc3] SATA: rewritten sil24 driver
-Date: Mon, 8 Aug 2005 10:31:45 -0700
-Message-ID: <2E9B8131C44AF746B1E06BF9B15A434B045D7F93@zima.siliconimage.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH linux-2.6.13-rc3] SATA: rewritten sil24 driver
-thread-index: AcWY0f0ZBOJ05AWfQjGgC0iOJ/wcwwDbJBQw
-From: "Carlos Pardo" <Carlos.Pardo@siliconimage.com>
-To: "Tejun Heo" <htejun@gmail.com>, "Edward Falk" <efalk@google.com>
-Cc: <linux-ide@vger.kernel.org>, "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Jeff Garzik" <jgarzik@pobox.com>,
-       "Raymond Liu" <Raymond.Liu@siliconimage.com>
+	Mon, 8 Aug 2005 13:33:11 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22703
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932132AbVHHRdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 13:33:10 -0400
+Date: Mon, 08 Aug 2005 10:33:04 -0700 (PDT)
+Message-Id: <20050808.103304.55507512.davem@davemloft.net>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, linville@redhat.com, torvalds@osdl.org
+Subject: Re: pci_update_resource() getting called on sparc64
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050808144439.GA6478@kroah.com>
+References: <20050808.071211.74753610.davem@davemloft.net>
+	<20050808144439.GA6478@kroah.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff, et al -
+From: Greg KH <greg@kroah.com>
+Date: Mon, 8 Aug 2005 07:44:40 -0700
 
-One question. Do the open source driver support pass-through commands ? if so, how ? If you do not support it, are you planning to implement pass-through commands sometime in the future ?
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=43c34735524d5b1c9b9e5d63b49dd4c1b394bde4
+> 
+> Although in glancing at it, it might not be the reason...
 
-Carlos
+No, that isn't it.
 
+Perhaps it was one of those changes that Linus was doing
+to deal with interrupt setting restoration after resume?

@@ -1,54 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVHHWYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVHHW2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbVHHWYs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 18:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVHHWYs
+	id S932300AbVHHW2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 18:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVHHW2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 18:24:48 -0400
-Received: from mail.kroah.org ([69.55.234.183]:44243 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932294AbVHHWYr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 18:24:47 -0400
-Date: Mon, 8 Aug 2005 15:24:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Horst Schirmeier <horst@schirmeier.com>
-Cc: gregkh@suse.de, trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13-rc3-git9] pl2303: pl2303_update_line_status data length fix
-Message-ID: <20050808222423.GA4550@kroah.com>
-References: <20050728133220.GJ25889@quickstop.soohrt.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050728133220.GJ25889@quickstop.soohrt.org>
-User-Agent: Mutt/1.5.8i
+	Mon, 8 Aug 2005 18:28:16 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:60164 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932297AbVHHW2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 18:28:16 -0400
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [RFC] atomic open(..., O_CREAT | ...)
+Message-Id: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 09 Aug 2005 00:27:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 03:32:20PM +0200, Horst Schirmeier wrote:
-> Minimum data length must be UART_STATE + 1, as data[UART_STATE] is being
-> accessed for the new line_state. Although PL-2303 hardware is not
-> expected to send data with exactly UART_STATE length, this keeps it on
-> the safe side.
-> 
-> Signed-off-by: Horst Schirmeier <horst@schirmeier.com>
-> ---
-> 
-> --- linux-2.6.13-rc3-git9/drivers/usb/serial/pl2303.c.orig	2005-07-28 14:42:58.000000000 +0200
-> +++ linux-2.6.13-rc3-git9/drivers/usb/serial/pl2303.c	2005-07-28 14:43:16.000000000 +0200
-> @@ -826,7 +826,7 @@ static void pl2303_update_line_status(st
->  	struct pl2303_private *priv = usb_get_serial_port_data(port);
->  	unsigned long flags;
->  	u8 status_idx = UART_STATE;
-> -	u8 length = UART_STATE;
-> +	u8 length = UART_STATE + 1;
+I'd like to make my filesystem be able to do file creation and opening
+atomically.  This is needed for filesystems which cannot separate
+checking open permission from the actual open operation.
 
-"safe side" yes, but this will just prevent any line changes from going
-back to the user, right?
+Usually any filesystem served from userspace by an unprivileged (no
+CAP_DAC_OVERRIDE) process will be such (ftp, sftp, etc.).
 
-Hm, how is this working at all, it looks like we overflow the buffer...
+With nameidata->intent.open.* it is possible to do the actual open
+from ->lookup() or ->create().  However there's no easy way to
+associate the 'struct file *' returned by dentry_open() with the
+filesystem's private file object.  Also if there's some error after
+the file has been opened but before a successful return of the file
+pointer, the filesystem has no way to know that it should destroy the
+private file object.
 
-Have you tested this change?
+The following patch makes this possible through a new file pointer
+field in the open intent data, through which the filesystem can pass
+an opened file to be returned by filp_open().
 
-thanks,
+The filesystem can call dentry_open() from ->lookup() or ->create(),
+and it in with it's private file data.  If there's an error the file
+can be properly destroyed through f_op->release().
 
-greg k-h
+There's one question on which I'm not sure what is the best solution:
+
+The filesystem needs to know whether it's f_op->open() method was
+called from lookup/create, or from the filp_open(), because in the
+first case it need not do anything (the private file object will be
+created outside dentry_open()), but in the second case it must
+actually prepare the private file object.
+
+Two solutions come to mind:
+
+  1) pass a special open flag to dentry_open() which will be passed on
+     to f_op->open() in filp->f_flags
+
+  2) create a new 'dentry_open_noopen()' variant, which doesn't call
+     f_op->open()
+
+Does one sound better?  Or something else?
+
+Comments are welcome.
+
+Thanks,
+Miklos
+
+Index: linux/include/linux/namei.h
+===================================================================
+--- linux.orig/include/linux/namei.h	2005-06-17 21:48:29.000000000 +0200
++++ linux/include/linux/namei.h	2005-08-06 17:12:55.000000000 +0200
+@@ -8,6 +8,10 @@ struct vfsmount;
+ struct open_intent {
+ 	int	flags;
+ 	int	create_mode;
++	int	orig_flags;
++
++	/* Fs may want to do dentry_open() in ->lookup(), or in ->create() */
++	struct file *file;
+ };
+ 
+ enum { MAX_NESTED_LINKS = 5 };
+Index: linux/fs/open.c
+===================================================================
+--- linux.orig/fs/open.c	2005-08-06 12:34:14.000000000 +0200
++++ linux/fs/open.c	2005-08-08 13:03:08.000000000 +0200
+@@ -762,9 +762,22 @@ struct file *filp_open(const char * file
+ 	if (namei_flags & O_TRUNC)
+ 		namei_flags |= 2;
+ 
++	/* Fill in the open() intent data */
++	nd.intent.open.flags = namei_flags;
++	nd.intent.open.create_mode = mode;
++	nd.intent.open.orig_flags = flags;
++	nd.intent.open.file = NULL;
++
+ 	error = open_namei(filename, namei_flags, mode, &nd);
+-	if (!error)
+-		return dentry_open(nd.dentry, nd.mnt, flags);
++	if (!error) {
++		if (nd.intent.open.file)
++			return nd.intent.open.file;
++		else 
++			return dentry_open(nd.dentry, nd.mnt, flags);
++	}
++
++	if (nd.intent.open.file && !IS_ERR(nd.intent.open.file))
++		fput(nd.intent.open.file);
+ 
+ 	return ERR_PTR(error);
+ }
+Index: linux/fs/namei.c
+===================================================================
+--- linux.orig/fs/namei.c	2005-08-06 12:35:59.000000000 +0200
++++ linux/fs/namei.c	2005-08-06 17:12:55.000000000 +0200
+@@ -1423,10 +1423,6 @@ int open_namei(const char * pathname, in
+ 	if (flag & O_APPEND)
+ 		acc_mode |= MAY_APPEND;
+ 
+-	/* Fill in the open() intent data */
+-	nd->intent.open.flags = flag;
+-	nd->intent.open.create_mode = mode;
+-
+ 	/*
+ 	 * The simplest case - just a plain lookup.
+ 	 */

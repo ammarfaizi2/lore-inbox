@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbVHHWbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbVHHWbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbVHHWbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 18:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVHHWbM
+	id S932318AbVHHWbl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 18:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVHHWbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 18:31:12 -0400
-Received: from coderock.org ([193.77.147.115]:30851 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S932301AbVHHWah (ORCPT
+	Mon, 8 Aug 2005 18:31:21 -0400
+Received: from coderock.org ([193.77.147.115]:40579 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S932305AbVHHWbJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 18:30:37 -0400
-Message-Id: <20050808223024.861461000@homer>
+	Mon, 8 Aug 2005 18:31:09 -0400
+Message-Id: <20050808223054.376836000@homer>
 References: <20050808222936.090422000@homer>
-Date: Tue, 09 Aug 2005 00:29:40 +0200
+Date: Tue, 09 Aug 2005 00:29:50 +0200
 From: domen@coderock.org
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Maximilian Attems <janitor@sternwelten.at>,
-       domen@coderock.org
-Subject: [patch 04/16] fs/namespace.c: list_for_each_entry
-Content-Disposition: inline; filename=list-for-each-entry-fs_namespace.patch
+Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Maximilian Attems <janitor@sternwelten.at>, domen@coderock.org
+Subject: [patch 14/16] net/tms380tr: replace direct assignment with set_current_state()
+Content-Disposition: inline; filename=set_current_state-drivers_net_tokenring_tms380tr.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Domen Puncer <domen@coderock.org>
+From: Nishanth Aravamudan <nacc@us.ibm.com>
 
 
 
-Make code more readable with list_for_each_entry.
+Use set_current_state() instead of direct assignment of
+current->state.
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
- namespace.c |    4 +---
- 1 files changed, 1 insertion(+), 3 deletions(-)
+ tms380tr.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Index: quilt/fs/namespace.c
+Index: quilt/drivers/net/tokenring/tms380tr.c
 ===================================================================
---- quilt.orig/fs/namespace.c
-+++ quilt/fs/namespace.c
-@@ -537,7 +537,6 @@ lives_below_in_same_fs(struct dentry *d,
- static struct vfsmount *copy_tree(struct vfsmount *mnt, struct dentry *dentry)
- {
- 	struct vfsmount *res, *p, *q, *r, *s;
--	struct list_head *h;
- 	struct nameidata nd;
- 
- 	res = q = clone_mnt(mnt, dentry);
-@@ -546,8 +545,7 @@ static struct vfsmount *copy_tree(struct
- 	q->mnt_mountpoint = mnt->mnt_mountpoint;
- 
- 	p = mnt;
--	for (h = mnt->mnt_mounts.next; h != &mnt->mnt_mounts; h = h->next) {
--		r = list_entry(h, struct vfsmount, mnt_child);
-+	list_for_each_entry(r, &mnt->mnt_mounts, mnt_child) {
- 		if (!lives_below_in_same_fs(r->mnt_mountpoint, dentry))
- 			continue;
- 
+--- quilt.orig/drivers/net/tokenring/tms380tr.c
++++ quilt/drivers/net/tokenring/tms380tr.c
+@@ -1244,7 +1244,7 @@ void tms380tr_wait(unsigned long time)
+ 	
+ 	tmp = jiffies + time/(1000000/HZ);
+ 	do {
+-  		current->state 		= TASK_INTERRUPTIBLE;
++		set_current_state(TASK_INTERRUPTIBLE);
+ 		tmp = schedule_timeout(tmp);
+ 	} while(time_after(tmp, jiffies));
+ #else
 
 --

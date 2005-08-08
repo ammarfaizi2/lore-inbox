@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbVHHUGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVHHUKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbVHHUGH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 16:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVHHUGG
+	id S932203AbVHHUKr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 16:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVHHUKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 16:06:06 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:4277 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S932251AbVHHUGF (ORCPT
+	Mon, 8 Aug 2005 16:10:47 -0400
+Received: from mail.suse.de ([195.135.220.2]:52406 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932203AbVHHUKr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 16:06:05 -0400
-Message-ID: <42F7BB2C.6070004@vc.cvut.cz>
-Date: Mon, 08 Aug 2005 22:06:04 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jiang <djiang@mvista.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: x86_64 frame pointer via thread context
-References: <42F3EC97.2060906@mvista.com.suse.lists.linux.kernel> <p73slxn1dry.fsf@bragg.suse.de> <42F7A609.5030502@mvista.com>
-In-Reply-To: <42F7A609.5030502@mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Aug 2005 16:10:47 -0400
+Date: Mon, 8 Aug 2005 22:10:46 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] add MODULE_ALIAS for x86_64 aes
+Message-ID: <20050808201046.GB15425@suse.de>
+References: <20050808173336.GA11503@suse.de> <20050808105109.5e3168fc.akpm@osdl.org> <20050808175520.GA12150@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20050808175520.GA12150@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jiang wrote:
-> Andi Kleen wrote:
-> 
->> Dave Jiang <djiang@mvista.com> writes:
->>
->>> Am I doing something wrong, or is this intended to be this way on
->>> x86_64, or is something incorrect in the kernel? This method works
->>> fine on i386. Thanks for any help!
->>
->>
->>
->> I just tested your program on SLES9 with updated kernel and RBP
->> looks correct to me. Probably something is wrong with your user space
->> includes or your compiler.
->>
->> -Andi
-> 
-> 
-> I revised the app a little so that it would allow the threads to start, 
-> thus should prevent rBP w/ all 0's showing up. Below are some of results 
-> that I've gotten from various different distros and platforms. As you 
-> can see, the f's shows up on most of them, including Suse 9.2. The only 
-> one showed up looking ok is the Mandrake/Mandriva distro. I'm not sure 
-> how different SLES9 is from Suse9.2....
+ On Mon, Aug 08, Olaf Hering wrote:
 
-Replace call to sleep() with busy loop.  Glibc's sleep() uses %ebp for
-its own data, so when you interrupt sleep(), you get rbp=(unsigned int)-1,
-as rbp really contains 0x0000.0000.ffff.ffff when nanosleep() syscall
-is issued.
-								Petr
+>  On Mon, Aug 08, Andrew Morton wrote:
+> 
+> > Olaf Hering <olh@suse.de> wrote:
+> > >
+> > > 
+> > > modprobe aes does not work on x86_64. i386 has a similar line,
+> > > this could be the right fix. Would be nice to have in 2.6.13 final.
+> > > 
+> > 
+> > What do you mean by "this could be the right fix"?  Did it work?
+> 
+> I cant test it due to lack of hardware. Will find someone who does.
+> modprobe aes is done by openswan, works on ppc, i386, but not on x86_64.
+
+This works, tested it. modprobe -v aes
+insmod /lib/modules/2.6.13-rc6-3-default/kernel/arch/x86_64/crypto/aes-x86_64.ko 
 

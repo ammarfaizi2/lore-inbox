@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbVHHXjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVHHXpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbVHHXjp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 19:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVHHXjo
+	id S932362AbVHHXpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 19:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVHHXpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 19:39:44 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:29125 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932349AbVHHXjo (ORCPT
+	Mon, 8 Aug 2005 19:45:16 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:22176
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S932362AbVHHXpP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 19:39:44 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Tom Rini <trini@kernel.crashing.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/1] x86_64: Rename KDB_VECTOR to DEBUGGER_VECTOR 
-In-reply-to: Your message of "Tue, 09 Aug 2005 01:16:37 +0200."
-             <20050808231637.GA21576@wotan.suse.de> 
+	Mon, 8 Aug 2005 19:45:15 -0400
+Subject: Re: Wireless support
+From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+Reply-To: abonilla@linuxwireless.org
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, "'Andreas Steinmetz'" <ast@domdv.de>,
+       "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Denis Vlasenko'" <vda@ilport.com.ua>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050808232957.GR4006@stusta.de>
+References: <005501c59c4a$f6210800$a20cc60a@amer.sykes.com>
+	 <1123528018.15269.44.camel@mindpipe>  <20050808232957.GR4006@stusta.de>
+Content-Type: text/plain
+Date: Mon, 08 Aug 2005 17:43:57 -0600
+Message-Id: <1123544638.5331.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 09 Aug 2005 09:39:16 +1000
-Message-ID: <20021.1123544356@ocs3.ocs.com.au>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Aug 2005 01:16:37 +0200, 
-Andi Kleen <ak@suse.de> wrote:
->On Tue, Aug 09, 2005 at 09:14:52AM +1000, Keith Owens wrote:
->> On Mon, 8 Aug 2005 21:28:50 +0200, 
->> Andi Kleen <ak@suse.de> wrote:
->> >On Mon, Aug 08, 2005 at 12:27:10PM -0700, Tom Rini wrote:
->> >>  {
->> >>  	unsigned int icr =  APIC_DM_FIXED | shortcut | vector | dest;
->> >> -	if (vector == KDB_VECTOR)
->> >> +	if (vector == NMI_VECTOR)
->> >>  		icr = (icr & (~APIC_VECTOR_MASK)) | APIC_DM_NMI;
->> >
->> >That if () should be removed since it's useless.
->> >Can you do that please?
->> 
->> Why is 'if ()' useless?  Remove the if test and all ipis get sent as
->> NMI, we definitely do not want that.
->
->The if () with its following line. The same result can be gotten
->by passing suitable arguments.
+On Tue, 2005-08-09 at 01:29 +0200, Adrian Bunk wrote:
+> On Mon, Aug 08, 2005 at 03:06:58PM -0400, Lee Revell wrote:
+> > On Mon, 2005-08-08 at 12:56 -0600, Alejandro Bonilla wrote:
+> With NdisWrapper, the hardware manufacturer can say:
+>   "Our hardware is supported through the open source NdisWrapper."
 
-Arguments to what?  The path for sending the NMI_VECTOR is
-send_IPI_allbutself -> {cluster,flat,physflat}_send_IPI_allbutself ->
-{__send_IPI_shortcut, physflat_send_IPI_mask, cluster_send_IPI_mask} ->
-send_IPI_mask_sequence -> __prepare_ICR.
+ "...I have a dream, were all OEM's will sell their systems and allow
+you to choose from your preffered Distro" just like you do when it makes
+you choose between XP Home or Professional.
 
-Pushing the check for NMI_VECTOR any higher than __prepare_ICR needs
-multiple tests for NMI_VECTOR.
+Since I am a Linux user and moved from M$, I have a commandment, which
+is, Thou Shalt not buy hardware from people that don't care about Linux.
+
+So far, I'm looking for a video card manufacturer that is *good* and
+that has Open Source drivers. But this is another story, and this only
+me being too crazy. ;-)
+
+Anyway, ndiswrapper is good, but is a "workaround" for hardware
+manufacturers.
+
+.Alejandro
 

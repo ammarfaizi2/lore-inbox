@@ -1,72 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753152AbVHHAlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753161AbVHHArB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753152AbVHHAlp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 20:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753153AbVHHAlp
+	id S1753161AbVHHArB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 20:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753159AbVHHArA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 20:41:45 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:9862 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1753152AbVHHAlo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 20:41:44 -0400
-Subject: Re: [PATCH] abstract out bits of ldt.c
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <372830000.1123456808@[10.10.2.4]>
-References: <372830000.1123456808@[10.10.2.4]>
+	Sun, 7 Aug 2005 20:47:00 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:41611 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S1753161AbVHHAq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 20:46:59 -0400
+Subject: Re: [linux-pm] [PATCH] Workqueue freezer support.
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Patrick Mochel <mochel@digitalimplant.org>,
+       Christoph Lameter <christoph@lameter.com>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0508052148280.19501-100000@monsoon.he.net>
+References: <1121923059.2936.224.camel@localhost>
+	 <Pine.LNX.4.50.0507211221550.12779-100000@monsoon.he.net>
+	 <1123243967.3266.2.camel@localhost>
+	 <Pine.LNX.4.50.0508052148280.19501-100000@monsoon.he.net>
 Content-Type: text/plain
-Date: Mon, 08 Aug 2005 01:41:36 -0700
-Message-Id: <1123490496.10337.12.camel@localhost>
+Organization: Cycades
+Message-Id: <1123462015.3969.98.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 08 Aug 2005 10:46:55 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-08-07 at 16:20 -0700, Martin J. Bligh wrote: 
-> Starting on the work to merge xen cleanly as a subarch.
-> Introduce make_pages_readonly and make_pages_writable where appropriate 
-> for Xen, defined as a no-op on other subarches. Same for 
-> add_context_to_unpinned and del_context_from_unpinned.
-> Abstract out install_ldt_entry()
-... 
->  		cpumask_t mask;
->  		preempt_disable();
-> +		make_pages_readonly(pc->ldt, (pc->size * LDT_ENTRY_SIZE) / 
-> +								PAGE_SIZE);
->  		load_LDT(pc);
->  		mask = cpumask_of_cpu(smp_processor_id());
->  		if (!cpus_equal(current->mm->cpu_vm_mask, mask))
->  			smp_call_function(flush_ldt, NULL, 1, 1);
->  		preempt_enable();
->  #else
-> +		make_pages_readonly(pc->ldt, (pc->size * LDT_ENTRY_SIZE) / 
-> +								PAGE_SIZE);
+Hi.
 
-You do that (size * LDT_ENTRY_SIZE / PAGE_SIZE) operation an awfully
-large number of times.  Could you consider introducing a little helper,
-say ldt_size_pages()?  
+Sorry for the slow response. Busy still.
 
-Or, could you have a helper like make_ldt_readonly()?  You don't have to
-export it, just use it in that one file.
+On Sat, 2005-08-06 at 15:06, Patrick Mochel wrote:
+> On Fri, 5 Aug 2005, Nigel Cunningham wrote:
+> 
+> > Hi.
+> >
+> > I finally found some time to finish this off. I don't really like the
+> > end result - the macros looked clearer to me - but here goes. If it
+> > looks okay, I'll seek sign offs from each of the affected driver
+> > maintainers and from Ingo. Anyone else?
+> 
+> What are your feelings about this: http://lwn.net/Articles/145417/ ?
 
-> This will do have no effect whatsover on platforms other than xen.
-...
-> +       memset(&mm->context, 0, sizeof(mm->context));
->         init_MUTEX(&mm->context.sem);
-> -       mm->context.size = 0;
+I'm sure it could work, but I do worry a little about the possibilities
+for exploits. It seems to me that if someone can get root, they an
+insmod a module that could schedule any kind of work via any process.
+Tracing that sort of security hole could be intractable. Christoph, is
+that something you've considered/have thoughts on? Perhaps I'm just
+being paranoid :>
 
-Could you please explain what this is for?  It doesn't appear to be part
-of the abstraction.  
+> It seems like a cleaner way to do things. How would these patches change
+> if that were merged?
 
-Every call path I can see to init_new_context() is immediately preceded
-by mm_alloc(), which memsets the entire mm.  The context is a direct
-member of mm_struct, and should be zeroed along with the mm_alloc()
-memset.  So, this seems a bit superfluous.
+We would still need some way to mark which threads to freeze, so we'd
+still need the same sort of thing as far as kthread_run etc goes.
 
-In any future patches that you might post, please do one thing per
-patch, it makes them much easier to audit.
+We'd also still mark unfreezable threads with NOFREEZE and not mark
+other threads, so no change there.
 
--- Dave
+The first substantial change I can see would be switching from
+try_to_freeze to try_todo_list (could this be 'run_todo_list'? Try
+implies failure is possible - if it is possible, why do we ignore
+whether it fails?).
+
+The second substantial change would be in the area of the refrigeration
+code itself, ala Christoph's patch.
+
+One more question regarding Christoph's patch - would it be worth moving
+the refrigerator related code from sched.h to a separate file? We
+already have so many things that depend on sched.h, and this will add
+more. It will also make maintenance less painful because you won't have
+to recompile everything that depends on sched.h when all you did was
+modify (say) freezing().
+
+> Concerning the patch specifically:
+> 
+> > diff -ruNp 400-workthreads.patch-old/include/linux/kthread.h 400-workthreads.patch-new/include/linux/kthread.h
+> > --- 400-workthreads.patch-old/include/linux/kthread.h	2004-11-03 21:51:12.000000000 +1100
+> > +++ 400-workthreads.patch-new/include/linux/kthread.h	2005-08-03 11:52:01.000000000 +1000
+> > @@ -23,10 +23,20 @@
+> >   *
+> >   * Returns a task_struct or ERR_PTR(-ENOMEM).
+> >   */
+> > +struct task_struct *__kthread_create(int (*threadfn)(void *data),
+> > +				   void *data,
+> > +				   unsigned long freezer_flags,
+> > +				   const char namefmt[],
+> > +				   va_list * args);
+> > +
+> 
+> When comparing this to this:
+> 
+> > diff -ruNp 400-workthreads.patch-old/include/linux/workqueue.h 400-workthreads.patch-new/include/linux/workqueue.h
+> > --- 400-workthreads.patch-old/include/linux/workqueue.h	2005-06-20 11:47:30.000000000 +1000
+> > +++ 400-workthreads.patch-new/include/linux/workqueue.h	2005-08-03 11:49:34.000000000 +1000
+> > @@ -51,9 +51,12 @@ struct work_struct {
+> >  	} while (0)
+> >
+> >  extern struct workqueue_struct *__create_workqueue(const char *name,
+> > -						    int singlethread);
+> > -#define create_workqueue(name) __create_workqueue((name), 0)
+> > -#define create_singlethread_workqueue(name) __create_workqueue((name), 1)
+> > +						    int singlethread,
+> > +						    unsigned long freezer_flag);
+> > +#define create_workqueue(name) __create_workqueue((name), 0, 0)
+> > +#define create_nofreeze_workqueue(name) __create_workqueue((name), 0, PF_NOFREEZE)
+> > +#define create_singlethread_workqueue(name) __create_workqueue((name), 1, 0)
+> > +#define create_nofreeze_singlethread_workqueue(name) __create_workqueue((name), 1, PF_NOFREEZE)
+> 
+> And to this:
+> 
+> 
+> >  static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
+> > -						   int cpu)
+> > +						   int cpu,
+> > +						   unsigned long freezer_flags)
+> >  {
+> 
+> There is a slight discrepancy in the API changes. Obviously, we don't want
+> to change every caller of create_workqueue() to support this. But, perhaps
+> you could standardize the handling of the freezer flags (by e.g. creating
+> a separate _nofreeze version for each).
+
+Missed that one, sorry.
+
+> Also, functions that take a va_list parameter pass the structure (array)
+> rather than the pointer. See the definition of vprintk() in
+> include/linux/kernel.h for an example.
+
+Thanks for the pointer.
+
+Nigel
+
+> 
+> Thanks,
+> 
+> 
+> 	Pat
+> 
+> ______________________________________________________________________
+> _______________________________________________
+> linux-pm mailing list
+> linux-pm@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/linux-pm
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
 

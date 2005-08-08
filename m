@@ -1,43 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVHHMV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbVHHMdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbVHHMV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 08:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVHHMV2
+	id S1750845AbVHHMdN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 08:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbVHHMdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 08:21:28 -0400
-Received: from [194.90.237.34] ([194.90.237.34]:62309 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP
-	id S1750842AbVHHMV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 08:21:28 -0400
-Date: Mon, 8 Aug 2005 15:21:52 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH 1/2] [IB/cm]: Correct CM port redirect reject codes
-Message-ID: <20050808122152.GU15300@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20057281331.dR47KhjBsU48JfGE@cisco.com> <20057281331.7vqhiAJ1Yc0um2je@cisco.com> <86802c44050803175873fb0569@mail.gmail.com> <20050804064223.GT15300@mellanox.co.il> <86802c4405080411227bce41f7@mail.gmail.com>
+	Mon, 8 Aug 2005 08:33:12 -0400
+Received: from smtp1.brturbo.com.br ([200.199.201.163]:35798 "EHLO
+	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S1750845AbVHHMdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 08:33:12 -0400
+Subject: Re: [PATCH] DVB: lgdt330x frontend: some bug fixes & add lgdt3303
+	support
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Michael Krufky <mkrufky@linuxtv.org>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       linux-dvb-maintainer@linuxtv.org,
+       Mac Michaels <wmichaels1@earthlink.net>,
+       Michael Krufky <mkrufky@m1k.net>
+In-Reply-To: <42F6A294.90300@linuxtv.org>
+References: <42F6A294.90300@linuxtv.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 08 Aug 2005 09:33:06 -0300
+Message-Id: <1123504387.17427.9.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c4405080411227bce41f7@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3-5mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. yhlu <yhlu.kernel@gmail.com>:
-> On 8/3/05, Michael S. Tsirkin <mst@mellanox.co.il> wrote:
-> > Quoting yhlu <yhlu.kernel@gmail.com>:
-> > > Subject: Re: [PATCH 1/2] [IB/cm]: Correct CM port redirect reject codes
-> > >
-> > > Roland,
-> > >
-> > > In LinuxBIOS, If I enable the prefmem64 to use real 64 range. the IB
-> > > driver in Kernel can not be loaded.
+	This should't be applied to 2.6.13. It does contain a hack at V4L code,
+since mute_tda9887 is implemented outside tda9887.c module and could
+potentially cause troubles since there are some work to provide it on a
+correct way.
+	 It should be applied to -mm and go to mainstream only after provided a
+correct implementation.
 
-Could you please test with latest firmware 4.7.0?
-Thanks,
+Mkrufky,
+	Please avoid trying to submit yet experimental patches to mainstream.
 
--- 
-MST
+Mauro.
+
+Em Dom, 2005-08-07 às 20:08 -0400, Michael Krufky escreveu:
+> For 2.6.13, if possible.  Patch generated against 2.6.13-rc6
+> 
+> anexo documento em texto simples (lgdt330x-structure-update.patch)
+
+> diff -u linux-2.6.13/drivers/media/dvb/frontends/lgdt330x.c linux/drivers/media/dvb/frontends/lgdt330x.c
+> +
+> +#ifdef MUTE_TDA9887
+> +static int i2c_write_ntsc_demod (struct lgdt330x_state* state, u8 buf[2])
+> +{
+> +	struct i2c_msg msg =
+> +		{ .addr = 0x43,
+> +		  .flags = 0, 
+> +		  .buf = buf,
+> +		  .len = 2 };
+> +	int err;
+> +
+> +	if ((err = i2c_transfer(state->i2c, &msg, 1)) != 1) {
+> +			printk(KERN_WARNING "lgdt330x: %s error (addr %02x <- %02x, err = %i)\n", __FUNCTION__, msg.buf[0], msg.buf[1], err);
+> +		if (err < 0)
+> +			return err;
+> +		else
+> +			return -EREMOTEIO;
+> +	}
+> +	return 0;
+> +}
+> +
+> +static void fiddle_with_ntsc_if_demod(struct lgdt330x_state* state)
+> +{
+> +	// Experimental code
+> +	u8 buf0[] = {0x00, 0x20};
+> +	u8 buf1[] = {0x01, 0x00};
+> +	u8 buf2[] = {0x02, 0x00};
+> +
+> +	i2c_write_ntsc_demod(state, buf0);
+> +	i2c_write_ntsc_demod(state, buf1);
+> +	i2c_write_ntsc_demod(state, buf2);
+> +}
+> +#endif
+
+

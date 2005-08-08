@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752651AbVHHBQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753171AbVHHBUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752651AbVHHBQG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 21:16:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753189AbVHHBQG
+	id S1753171AbVHHBUy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 21:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753191AbVHHBUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 21:16:06 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:59917 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1752651AbVHHBQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 21:16:06 -0400
-Message-ID: <42F6B254.2090404@vmware.com>
-Date: Sun, 07 Aug 2005 18:16:04 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel@vger.kernel.org, Pratap Subrahmanyam <pratap@vmware.com>,
-       virtualization@lists.osdl.org
-Subject: Re: [PATCH] abstract out bits of ldt.c
-References: <372830000.1123456808@[10.10.2.4]> <20050807234411.GE7991@shell0.pdx.osdl.net> <374910000.1123459025@[10.10.2.4]> <20050807174129.20c7202f.akpm@osdl.org> <20050808004645.GT7762@shell0.pdx.osdl.net> <42F6AF8E.60107@vmware.com> <20050808010828.GU7762@shell0.pdx.osdl.net>
-In-Reply-To: <20050808010828.GU7762@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 7 Aug 2005 21:20:53 -0400
+Received: from smtpout.mac.com ([17.250.248.89]:63477 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1753171AbVHHBUx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 21:20:53 -0400
+In-Reply-To: <200508080951.26433.kernel@kolivas.org>
+References: <200508031559.24704.kernel@kolivas.org> <200508071512.22668.kernel@kolivas.org> <20050807165833.GA13918@in.ibm.com> <200508080951.26433.kernel@kolivas.org>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <C845464B-FE91-4845-BE7A-3995B663396D@mac.com>
+Cc: vatsa@in.ibm.com, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com, george@mvista.com,
+       Andrew Morton <akpm@osdl.org>
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Aug 2005 01:16:03.0375 (UTC) FILETIME=[BE9583F0:01C59BB6]
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
+Date: Sun, 7 Aug 2005 21:20:46 -0400
+To: Con Kolivas <kernel@kolivas.org>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
+On Aug 7, 2005, at 19:51:25, Con Kolivas wrote:
+> On Mon, 8 Aug 2005 02:58, Srivatsa Vaddagiri wrote:
+>> Con,
+>>     I am afraid until SMP correctness is resolved, then this is not
+>> in a position to go in (unless you want to enable it only for UP,  
+>> which
+>> I think should not be our target). I am working on making this work
+>> correctly on SMP systems. Hopefully I will post a patch soon.
+>
+> Great! I wasn't sure what time frame you meant when you last  
+> posted. I won't
+> do anything more, leaving this patch as it is, and pass the baton  
+> to you.
 
->* Zachary Amsden (zach@vmware.com) wrote:
->  
->
->>Does Xen assume page aligned descriptor tables?  I assume from this 
->>    
->>
->
->Yes.
->
->  
->
->>patch and snippets I have gathered from others, that is a yes, and other 
->>things here imply that DT pages are not shadowed.  If so, Xen itself 
->>must have live segments in the GDT pages, so how do you allocate space 
->>for the per-CPU GDT pages on SMP?
->>    
->>
->
->early during boot.
->  
->
+I'm curious what has happened to the PPC side of the patch.  IIRC,  
+someone
+was working on such a port, but it seems to have been lost along the way
+at some point.  Is there any additional information on that patch?
 
-Doesn't that require 16 pages per CPU?  That seems excessive to impose 
-on a native build.  Perhaps we could get away with 1 page per CPU for 
-the GDT on native boots and bump that up to 16 if compiling for a 
-virtualized sub-architecture - i.e. move GDT to a page aligned struct 
-for native (doesn't cost too much), and give it MACH_GDT_PAGES of space 
-which is defined by the sub-architecture.
+Cheers,
+Kyle Moffett
 
-Let's take this thread over to virtualization@lists.osdl.org as well.
+--
+Unix was not designed to stop people from doing stupid things,  
+because that
+would also stop them from doing clever things.
+   -- Doug Gwyn
 
-Zach
+

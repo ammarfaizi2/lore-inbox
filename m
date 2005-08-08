@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVHHRwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVHHRxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbVHHRwn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbVHHRwn
+	id S932161AbVHHRxB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbVHHRxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:52:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45963 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932159AbVHHRwm (ORCPT
+	Mon, 8 Aug 2005 13:53:01 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:24502 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S932165AbVHHRxA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:52:42 -0400
-Date: Mon, 8 Aug 2005 10:51:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] add MODULE_ALIAS for x86_64 aes
-Message-Id: <20050808105109.5e3168fc.akpm@osdl.org>
-In-Reply-To: <20050808173336.GA11503@suse.de>
-References: <20050808173336.GA11503@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 8 Aug 2005 13:53:00 -0400
+Message-ID: <42F79BFE.4010707@zabbo.net>
+Date: Mon, 08 Aug 2005 10:53:02 -0700
+From: Zach Brown <zab@zabbo.net>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+Cc: jgarzik@pobox.com, greg@kroah.com, kristen.c.accardi@intel.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 6700/6702PXH quirk
+References: <20050805225712.GD3782@kroah.com>	<20050806033455.GA23679@havoc.gtf.org>	<42F7998D.8030606@zabbo.net> <20050808.104530.85410060.davem@davemloft.net>
+In-Reply-To: <20050808.104530.85410060.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering <olh@suse.de> wrote:
->
-> 
-> modprobe aes does not work on x86_64. i386 has a similar line,
-> this could be the right fix. Would be nice to have in 2.6.13 final.
-> 
 
-What do you mean by "this could be the right fix"?  Did it work?
+> You can hide the "complexity" of the second line behind
+> macros.  And this is what is done in most places.
 
-> 
-> Index: linux-2.6.13-rc6-aes/arch/x86_64/crypto/aes.c
-> ===================================================================
-> --- linux-2.6.13-rc6-aes.orig/arch/x86_64/crypto/aes.c
-> +++ linux-2.6.13-rc6-aes/arch/x86_64/crypto/aes.c
-> @@ -322,3 +322,4 @@ module_exit(aes_fini);
->  
->  MODULE_DESCRIPTION("Rijndael (AES) Cipher Algorithm");
->  MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("aes");
+oh, I agree.  My only point is that if the *only* argument against
+bitfields is that they're inefficient (insert vague hand-waving) then
+people will happily decide to live with that inefficiency.  I'm all for
+macros that are both efficient *and* abstract away the risk of getting
+open-coding wrong.
+
+- z

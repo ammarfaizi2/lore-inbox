@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVHHWej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVHHWfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVHHWej (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 18:34:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVHHWeb
+	id S932315AbVHHWfX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 18:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVHHWbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 18:34:31 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:53443 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S932319AbVHHWeM (ORCPT
+	Mon, 8 Aug 2005 18:31:09 -0400
+Received: from coderock.org ([193.77.147.115]:34691 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S932305AbVHHWat (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 18:34:12 -0400
-Message-ID: <42F7DDE2.8020403@vc.cvut.cz>
-Date: Tue, 09 Aug 2005 00:34:10 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Phil Oester <kernel@linuxace.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12->2.6.13-rc6 SMT changes -- intentional?
-References: <20050808222146.GA7123@linuxace.com>
-In-Reply-To: <20050808222146.GA7123@linuxace.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Aug 2005 18:30:49 -0400
+Message-Id: <20050808223030.935446000@homer>
+References: <20050808222936.090422000@homer>
+Date: Tue, 09 Aug 2005 00:29:44 +0200
+From: domen@coderock.org
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Maximilian Attems <janitor@sternwelten.at>,
+       domen@coderock.org
+Subject: [patch 08/16] tulip/de4x5: list_for_each
+Content-Disposition: inline; filename=list-for-each-drivers_net_tulip_de4x5.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phil Oester wrote:
-> Just booted a box on 2.6.13-rc6, and noticed that it now only reports
-> a single processor, whereas on 2.6.12.4 it reports two.  While there
-> is only one physical processor, I wonder if this change was intentional,
-> since I can't find anything in the changelog about SMT changes.
-> 
-> Below is dmesg output from each kernel.
-> 
-> Phil
-> 
-> DMI 2.3 present.
-> ACPI: RSDP (v000 DELL                                  ) @ 0x000fec00
-> ACPI: RSDT (v001 DELL    GX280   0x00000007 ASL  0x00000061) @ 0x000fcc04
-> ACPI: FADT (v001 DELL    GX280   0x00000007 ASL  0x00000061) @ 0x000fcc44
-> ACPI: SSDT (v001   DELL    st_ex 0x00001000 MSFT 0x0100000d) @ 0xfffd3468
-> ACPI: MADT (v001 DELL    GX280   0x00000007 ASL  0x00000061) @ 0x000fccb8
-> ACPI: BOOT (v001 DELL    GX280   0x00000007 ASL  0x00000061) @ 0x000fcd2a
-> ACPI: ASF! (v016 DELL    GX280   0x00000007 ASL  0x00000061) @ 0x000fcd52
-> ACPI: MCFG (v001 DELL    GX280   0x00000007 ASL  0x00000061) @ 0x000fcdb9
-> ACPI: HPET (v001 DELL    GX280   0x00000007 ASL  0x00000061) @ 0x000fcdf7
-> ACPI: DSDT (v001   DELL    dt_ex 0x00001000 MSFT 0x0100000d) @ 0x00000000
+From: Domen Puncer <domen@coderock.org>
 
-> ********************************************
-> 
-> DMI 2.3 present.
-> Intel MultiProcessor Specification v1.4
->     Virtual Wire compatibility mode.
 
-It looks like that ACPI is gone...  Can you recheck your .config that
-you still have ACPI enabled?
-							Petr
 
+s/for/list_for_each/
+
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+ de4x5.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: quilt/drivers/net/tulip/de4x5.c
+===================================================================
+--- quilt.orig/drivers/net/tulip/de4x5.c
++++ quilt/drivers/net/tulip/de4x5.c
+@@ -2144,9 +2144,9 @@ srom_search(struct net_device *dev, stru
+     u_long iobase = 0;                     /* Clear upper 32 bits in Alphas */
+     int i, j, cfrv;
+     struct de4x5_private *lp = netdev_priv(dev);
+-    struct list_head *walk = &pdev->bus_list;
++    struct list_head *walk;
+ 
+-    for (walk = walk->next; walk != &pdev->bus_list; walk = walk->next) {
++    list_for_each(walk, &pdev->bus_list) {
+ 	struct pci_dev *this_dev = pci_dev_b(walk);
+ 
+ 	/* Skip the pci_bus list entry */
+
+--

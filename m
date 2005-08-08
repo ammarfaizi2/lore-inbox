@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753186AbVHHBOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752651AbVHHBQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753186AbVHHBOG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 21:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753188AbVHHBOF
+	id S1752651AbVHHBQG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 21:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753189AbVHHBQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 21:14:05 -0400
-Received: from smtpout.mac.com ([17.250.248.89]:4851 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1753186AbVHHBOF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 21:14:05 -0400
-In-Reply-To: <1123431219.30257.115.camel@gaston>
-References: <Pine.LNX.4.58.0508040103100.2220@be1.lrz> <1123195493.30257.75.camel@gaston> <Pine.LNX.4.58.0508051935570.2326@be1.lrz> <1123401069.30257.102.camel@gaston> <3EF2003B-12DF-4EBB-B304-59614AEFAA09@mac.com> <1123431219.30257.115.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <96358AEB-784F-444E-A0BA-04AD920284B3@mac.com>
-Cc: Bodo Eggert <7eggert@gmx.de>, LKML <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net
+	Sun, 7 Aug 2005 21:16:06 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:59917 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1752651AbVHHBQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 21:16:06 -0400
+Message-ID: <42F6B254.2090404@vmware.com>
+Date: Sun, 07 Aug 2005 18:16:04 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org, Pratap Subrahmanyam <pratap@vmware.com>,
+       virtualization@lists.osdl.org
+Subject: Re: [PATCH] abstract out bits of ldt.c
+References: <372830000.1123456808@[10.10.2.4]> <20050807234411.GE7991@shell0.pdx.osdl.net> <374910000.1123459025@[10.10.2.4]> <20050807174129.20c7202f.akpm@osdl.org> <20050808004645.GT7762@shell0.pdx.osdl.net> <42F6AF8E.60107@vmware.com> <20050808010828.GU7762@shell0.pdx.osdl.net>
+In-Reply-To: <20050808010828.GU7762@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Regression: radeonfb: No synchronisation on CRT with linux-2.6.13-rc5
-Date: Sun, 7 Aug 2005 21:13:54 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.733)
+X-OriginalArrivalTime: 08 Aug 2005 01:16:03.0375 (UTC) FILETIME=[BE9583F0:01C59BB6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 7, 2005, at 12:13:38, Benjamin Herrenschmidt wrote:
->> I've got an LCD, and on mine
->> it looks like every third pixel-line gets shifted about 32-64  
->> pixels to
->> the left, and they move with display refresh.  My guess is that
->> something is interrupting radeonfb during a critical time in display
->> syncing and forcing the video card to wait too far into the next line
->> before sending pixels.
+Chris Wright wrote:
+
+>* Zachary Amsden (zach@vmware.com) wrote:
+>  
 >
-> radeonfb is mostly inactive after it has setup the framebuffer and
-> unless you actually draw something, in which case, accel code is  
-> called.
+>>Does Xen assume page aligned descriptor tables?  I assume from this 
+>>    
+>>
 >
-> _However_ there is an unrelated problem with some panels, including  
-> some
-> of the 17": The panel doesn't always "sync" properly. This seem to be
-> related to some subtle timing issue in the LVDS code but I don't know
-> exactly what yet. You can usually get it back by repeately turning the
-> backlight all the way down (which shuts the panel off) and back up  
-> until
-> it "catches".
+>Yes.
+>
+>  
+>
+>>patch and snippets I have gathered from others, that is a yes, and other 
+>>things here imply that DT pages are not shadowed.  If so, Xen itself 
+>>must have live segments in the GDT pages, so how do you allocate space 
+>>for the per-CPU GDT pages on SMP?
+>>    
+>>
+>
+>early during boot.
+>  
+>
 
-Hmm.  This doesn't really fit as my issues are very reproducible.  The
-behaviour under stock Debian 2.6.8 is identical during reboots and after
-fblevel 0 ; sleep X ; fblevel 15.  Likewise, stock 2.6.11, 2.6.12.4, and
-2.6.13-rc5, although I'm just getting back to testing things.
+Doesn't that require 16 pages per CPU?  That seems excessive to impose 
+on a native build.  Perhaps we could get away with 1 page per CPU for 
+the GDT on native boots and bump that up to 16 if compiling for a 
+virtualized sub-architecture - i.e. move GDT to a page aligned struct 
+for native (doesn't cost too much), and give it MACH_GDT_PAGES of space 
+which is defined by the sub-architecture.
 
-Cheers,
-Kyle Moffett
+Let's take this thread over to virtualization@lists.osdl.org as well.
 
---
-There are two ways of constructing a software design. One way is to  
-make it so
-simple that there are obviously no deficiencies. And the other way is  
-to make
-it so complicated that there are no obvious deficiencies.  The first  
-method is
-far more difficult.
-   -- C.A.R. Hoare
-
-
+Zach

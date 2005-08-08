@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVHHUEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbVHHUGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbVHHUEo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 16:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVHHUEo
+	id S932251AbVHHUGH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 16:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVHHUGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 16:04:44 -0400
-Received: from mail.kroah.org ([69.55.234.183]:64911 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932200AbVHHUEo (ORCPT
+	Mon, 8 Aug 2005 16:06:06 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:4277 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S932251AbVHHUGF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 16:04:44 -0400
-Date: Mon, 8 Aug 2005 13:02:52 -0700
-From: Greg KH <greg@kroah.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: torvalds@osdl.org, ralf@linux-mips.org, linux-kernel@vger.kernel.org,
-       linville@redhat.com
-Subject: Re: pci_update_resource() getting called on sparc64
-Message-ID: <20050808200251.GA2046@kroah.com>
-References: <20050808160846.GA7710@kroah.com> <20050808.123209.59463259.davem@davemloft.net> <20050808194249.GA6729@kroah.com> <20050808.125432.74747546.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050808.125432.74747546.davem@davemloft.net>
-User-Agent: Mutt/1.5.8i
+	Mon, 8 Aug 2005 16:06:05 -0400
+Message-ID: <42F7BB2C.6070004@vc.cvut.cz>
+Date: Mon, 08 Aug 2005 22:06:04 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jiang <djiang@mvista.com>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: x86_64 frame pointer via thread context
+References: <42F3EC97.2060906@mvista.com.suse.lists.linux.kernel> <p73slxn1dry.fsf@bragg.suse.de> <42F7A609.5030502@mvista.com>
+In-Reply-To: <42F7A609.5030502@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 12:54:32PM -0700, David S. Miller wrote:
-> From: Greg KH <greg@kroah.com>
-> Date: Mon, 8 Aug 2005 12:42:49 -0700
+Dave Jiang wrote:
+> Andi Kleen wrote:
 > 
-> > Linus, can you just revert that changeset for now?  That will sove
-> > David's problem, and I'll work on getting this patch working properly
-> > for after 2.6.13 is out.
+>> Dave Jiang <djiang@mvista.com> writes:
+>>
+>>> Am I doing something wrong, or is this intended to be this way on
+>>> x86_64, or is something incorrect in the kernel? This method works
+>>> fine on i386. Thanks for any help!
+>>
+>>
+>>
+>> I just tested your program on SLES9 with updated kernel and RBP
+>> looks correct to me. Probably something is wrong with your user space
+>> includes or your compiler.
+>>
+>> -Andi
 > 
-> Agreed.
 > 
-> I even have a patch I'll submit to you which will get sparc64
-> converted over to using drivers/pci/setup-res.c so that none
-> of this kind of non-sense will occur in the future.
+> I revised the app a little so that it would allow the threads to start, 
+> thus should prevent rBP w/ all 0's showing up. Below are some of results 
+> that I've gotten from various different distros and platforms. As you 
+> can see, the f's shows up on most of them, including Suse 9.2. The only 
+> one showed up looking ok is the Mandrake/Mandriva distro. I'm not sure 
+> how different SLES9 is from Suse9.2....
 
-That sounds even better.
+Replace call to sleep() with busy loop.  Glibc's sleep() uses %ebp for
+its own data, so when you interrupt sleep(), you get rbp=(unsigned int)-1,
+as rbp really contains 0x0000.0000.ffff.ffff when nanosleep() syscall
+is issued.
+								Petr
 
-thanks,
-
-greg k-h

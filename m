@@ -1,69 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbVHHXz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVHIAAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbVHHXz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 19:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVHHXz3
+	id S932368AbVHIAAm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 20:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVHIAAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 19:55:29 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:49545 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932369AbVHHXz2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 19:55:28 -0400
-Date: Tue, 9 Aug 2005 01:55:16 +0200
-Message-Id: <200508082355.j78NtGNS029681@wscnet.wsc.cz>
-Subject: [PATCH -mm] removes pci_find_device from i6300esb.c
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-reply-to: <42F73523.80205@gmail.com>
+	Mon, 8 Aug 2005 20:00:42 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:55215
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S932368AbVHIAAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 20:00:42 -0400
+Date: Mon, 8 Aug 2005 19:59:07 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Keith Owens <kaos@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, rdunlap@xenotime.net, miles.lane@gmail.com,
+       airlied@gmail.com, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: OOPS in 2.6.13-rc1-mm1 -- EIP is at sysfs_release+0x49/0xb0
+Message-ID: <20050808235907.GA1850@kevlar.burdell.org>
+References: <20050808104404.11846951.akpm@osdl.org> <19267.1123542597@ocs3.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <19267.1123542597@ocs3.ocs.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes pci_find_device to pci_get_device (encapsulated in
-for_each_pci_dev) in i6300esb watchdog card with appropriate adding pci_dev_put.
+On Tue, Aug 09, 2005 at 09:09:57AM +1000, Keith Owens wrote:
+> On Mon, 8 Aug 2005 10:44:04 -0700, 
+> Andrew Morton <akpm@osdl.org> wrote:
+> >Sonny Rao <sonny@burdell.org> wrote:
+> >> Modules linked in: cpufreq_userspace cpufreq_stats freq_table cpufreq_powersave 
+> >> cpufreq_ondemand cpufreq_conservative ipv6 video thermal processor hotkey fan co
+> >> ntainer button battery ac nfs lockd sunrpc af_packet tg3 ohci_hcd usbcore generi
+> >> c serverworks i2c_piix4 i2c_core sworks_agp agpgart pcspkr rtc floppy tsdev dm_m
+> >> od parport_pc lp parport ide_generic ide_disk ide_cd cdrom ide_core unix
+> >> CPU:    0
+> >> EIP:    0060:[<c01a8bcc>]    Not tainted VLI
+> >> EFLAGS: 00010246   (2.6.13-rc4-mm1) 
+> >> EIP is at sysfs_release+0x4c/0xb0
+> >> eax: 762f7373   ebx: 762f7373   ecx: 00000001   edx: ef3c5000
+> >> esi: f596a188   edi: f21fecc0   ebp: ef3c5f3c   esp: ef3c5f2c
+> >> ds: 007b   es: 007b   ss: 0068
+> >> Process udev (pid: 11843, threadinfo=ef3c5000 task=ef78e550)
+> >> Stack: f596a188 00000010 f762d580 c21bc944 ef3c5f68 c0166cea c21bc944 f762d580 
+> >>        00000000 00000000 c2137980 ec7e9748 f762d580 dcae7300 00000000 ef3c5f78 
+> >>        c0166aeb f762d580 f762d580 ef3c5f94 c01650ab f762d580 dcae7300 dcae7300 
+> >> Call Trace:
+> >>  [<c010401f>] show_stack+0x7f/0xa0
+> >>  [<c01041d4>] show_registers+0x164/0x1d0
+> >>  [<c0104422>] die+0x122/0x1c0
+> >>  [<c030db1e>] do_page_fault+0x2ce/0x600
+> >>  [<c0103ccb>] error_code+0x4f/0x54
+> >>  [<c0166cea>] __fput+0x1da/0x1f0
+> >>  [<c0166aeb>] fput+0x2b/0x50
+> >>  [<c01650ab>] filp_close+0x4b/0x80
+> >>  [<c016514e>] sys_close+0x6e/0x90
+> >>  [<c010312f>] sysenter_past_esp+0x54/0x75
+> >> Code: 85 f6 8b 40 14 8b 58 04 74 08 89 34 24 e8 0d 97 04 00 85 db 74 38 b8 01 00
+> >>  00 00 e8 af 18 f7 ff e8 4a e5 04 00 c1 e0 07 8d 04 18 <ff> 88 00 01 00 00 83 3b
+> >>  02 74 49 b8 01 00 00 00 e8 cf 18 f7 ff 
+> >>  <6>note: udev[11843] exited with preempt_count 1
+> >> Using generic hotkey driver
+> >> ibm_acpi: acpi_evalf(DHKC, d, ...) failed: 4097
+> >> ibm_acpi: `enable,0xffff' invalid for parameter `hotkey'
+> >> toshiba_acpi: Unknown parameter `hotkeys_over_acpi'
+> >> apm: BIOS not found.
+> >> 
+> >> Let me see if I can reproduce this on either 2.6.13-rc4 or  2.6.13-rc6 
+> >> 
+> >> Machine is an IBM x335 (dual P4), and I'm not using any framebuffer
+> >> stuff. 
+> >> 
+> >
+> >Keith, does this look like the use-after-free which you've been hitting?
+> 
+> It is certainly in the same place, freeing the data that is chained off
+> sd->s_element.  This oops does not show any memory poisoning, but I am
+> guessing that the kernel was not compiled with slab debugging.  On
+> balance, it looks like the same problem.
 
-Generated in 2.6.13-rc5-mm1 kernel version.
-
-Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
-
-diff --git a/drivers/char/watchdog/i6300esb.c b/drivers/char/watchdog/i6300esb.c
---- a/drivers/char/watchdog/i6300esb.c
-+++ b/drivers/char/watchdog/i6300esb.c
-@@ -368,12 +368,11 @@ static unsigned char __init esb_getdevic
-          *      Find the PCI device
-          */
- 
--        while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+        for_each_pci_dev(dev)
-                 if (pci_match_id(esb_pci_tbl, dev)) {
-                         esb_pci = dev;
-                         break;
-                 }
--        }
- 
-         if (esb_pci) {
-         	if (pci_enable_device(esb_pci)) {
-@@ -430,6 +429,7 @@ err_release:
- 		pci_release_region(esb_pci, 0);
- err_disable:
- 		pci_disable_device(esb_pci);
-+		pci_dev_put(esb_pci);
- 	}
- out:
- 	return 0;
-@@ -481,6 +481,7 @@ err_unmap:
- 	pci_release_region(esb_pci, 0);
- /* err_disable: */
- 	pci_disable_device(esb_pci);
-+	pci_dev_put(esb_pci);
- /* out: */
-         return ret;
- }
-@@ -497,6 +498,7 @@ static void __exit watchdog_cleanup (voi
- 	iounmap(BASEADDR);
- 	pci_release_region(esb_pci, 0);
- 	pci_disable_device(esb_pci);
-+	pci_dev_put(esb_pci);
- }
- 
- module_init(watchdog_init);
+You are correct; I didn't have slab debugging on.

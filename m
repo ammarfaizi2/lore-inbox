@@ -1,72 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVHHWb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbVHHWcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbVHHWb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 18:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbVHHWbs
+	id S932323AbVHHWcn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 18:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVHHWcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 18:31:48 -0400
-Received: from coderock.org ([193.77.147.115]:44419 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S932308AbVHHWbV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 18:31:21 -0400
-Message-Id: <20050808223032.262613000@homer>
-References: <20050808222936.090422000@homer>
-Date: Tue, 09 Aug 2005 00:29:45 +0200
-From: domen@coderock.org
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Michael Veeck <michael.veeck@gmx.net>,
-       Maximilian Attems <janitor@sternwelten.at>, domen@coderock.org
-Subject: [patch 09/16] sh: bigsur/io: minmax-removal
-Content-Disposition: inline; filename=min-max-arch_sh_boards_bigsur_io.patch
+	Mon, 8 Aug 2005 18:32:23 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:38928 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932314AbVHHWcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 18:32:12 -0400
+Date: Tue, 9 Aug 2005 00:32:09 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Haninger <ahaning@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       "Adam J. Richter" <adam@yggdrasil.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling module-init-tools versions after v3.0
+Message-ID: <20050808223209.GL4006@stusta.de>
+References: <105c793f050808150810784ef3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <105c793f050808150810784ef3@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Veeck <michael.veeck@gmx.net>
+On Mon, Aug 08, 2005 at 06:08:57PM -0400, Andrew Haninger wrote:
+
+> Hello.
 
 
+Hi Andrew,
 
-Patch removes unnecessary min/max macros and changes
-calls to use kernel.h macros instead.
 
-Signed-off-by: Michael Veeck <michael.veeck@gmx.net>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
- io.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
+> I'm trying to upgrade one of my machines to module-init-tools-3.2-pre8
+> so that I can better assist a driver developer in debugging some
+> issues with the OPL3SA2 driver from ALSA.
+> 
+> The machine is currently running a slightly-modified Slackware 9.1
+> distribution (I've updated several packages to support the 2.6 kernel
+> and other upgrades since the first install). I currently have
+> module-init-tools 3.0 installed but I'd like to install version
+> 3.2-pre8.
+> 
+> The problem is that compiling module-init-tools versions after 3.0
+> seem require docbook-utils (the compile fails on a docbook2man
+> operation) to be installed and docbook-utils requires jade which will
+> not compile. I found one jade package called jade-1.2.1 (from '98 or
+> '99) which will not compile. I tried openjade, but it does not seem to
+> work when compiling docbook-tools (I made a symlink from the openjade
+> binary to "jade").
+> 
+> Is there some other package that I'm overlooking that's required to
+> get docbook-utils installed?  If not, how have other people compiled
+> and installed newer versions of module-init-tools?
 
-Index: quilt/arch/sh/boards/bigsur/io.c
-===================================================================
---- quilt.orig/arch/sh/boards/bigsur/io.c
-+++ quilt/arch/sh/boards/bigsur/io.c
-@@ -37,10 +37,6 @@ static u8 bigsur_iomap_lo_shift[BIGSUR_I
- static u32 bigsur_iomap_hi[BIGSUR_IOMAP_HI_NMAP];
- static u8 bigsur_iomap_hi_shift[BIGSUR_IOMAP_HI_NMAP];
- 
--#ifndef MAX
--#define MAX(a,b)    ((a)>(b)?(a):(b))
--#endif
--
- void bigsur_port_map(u32 baseport, u32 nports, u32 addr, u8 shift)
- {
- 	u32 port, endport = baseport + nports;
-@@ -57,7 +53,7 @@ void bigsur_port_map(u32 baseport, u32 n
- 	    	addr += (1<<(BIGSUR_IOMAP_LO_SHIFT));
- 	}
- 
--	for (port = MAX(baseport, BIGSUR_IOMAP_LO_THRESH) ;
-+	for (port = max_t(u32, baseport, BIGSUR_IOMAP_LO_THRESH);
- 	     port < endport && port < BIGSUR_IOMAP_HI_THRESH ;
- 	     port += (1<<BIGSUR_IOMAP_HI_SHIFT)) {
- 	    	pr_debug("    maphi[0x%x] = 0x%08x\n", port, addr);
-@@ -80,7 +76,7 @@ void bigsur_port_unmap(u32 baseport, u32
- 		bigsur_iomap_lo[port>>BIGSUR_IOMAP_LO_SHIFT] = 0;
- 	}
- 
--	for (port = MAX(baseport, BIGSUR_IOMAP_LO_THRESH) ;
-+	for (port = max_t(u32, baseport, BIGSUR_IOMAP_LO_THRESH);
- 	     port < endport && port < BIGSUR_IOMAP_HI_THRESH ;
- 	     port += (1<<BIGSUR_IOMAP_HI_SHIFT)) {
- 		bigsur_iomap_hi[port>>BIGSUR_IOMAP_HI_SHIFT] = 0;
 
---
+Workaround:
+
+Remove the
+
+  man_MANS = $(MAN5) $(MAN8)
+
+line in Makefile.in before running configure.
+
+
+But this could be better handled in module-init-tools.
+
+
+> Thanks.
+> 
+> -Andy
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

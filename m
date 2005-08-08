@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVHHVhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVHHVj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbVHHVhd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 17:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbVHHVhd
+	id S932273AbVHHVj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 17:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVHHVjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 17:37:33 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:12160 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S932268AbVHHVhc (ORCPT
+	Mon, 8 Aug 2005 17:39:25 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:13072 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932273AbVHHVjZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 17:37:32 -0400
-Message-ID: <42F7D08E.9070508@colorfullife.com>
-Date: Mon, 08 Aug 2005 23:37:18 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.5.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [SLAB] __builtin_return_address use without FRAME_POINTER causes
- boot failure
-References: <Pine.LNX.4.62.0508081353170.28612@graphe.net>
-In-Reply-To: <Pine.LNX.4.62.0508081353170.28612@graphe.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Aug 2005 17:39:25 -0400
+Date: Mon, 8 Aug 2005 17:38:43 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Greg KH <greg@kroah.com>
+Cc: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org,
+       ralf@linux-mips.org, linux-kernel@vger.kernel.org, linville@redhat.com
+Subject: Re: pci_update_resource() getting called on sparc64
+Message-ID: <20050808213842.GA9010@tuxdriver.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	"David S. Miller" <davem@davemloft.net>, torvalds@osdl.org,
+	ralf@linux-mips.org, linux-kernel@vger.kernel.org,
+	linville@redhat.com
+References: <20050808.103304.55507512.davem@davemloft.net> <Pine.LNX.4.58.0508081131540.3258@g5.osdl.org> <20050808160846.GA7710@kroah.com> <20050808.123209.59463259.davem@davemloft.net> <20050808194249.GA6729@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050808194249.GA6729@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
+On Mon, Aug 08, 2005 at 12:42:49PM -0700, Greg KH wrote:
+> On Mon, Aug 08, 2005 at 12:32:09PM -0700, David S. Miller wrote:
 
->I kept getting boot failures in the slab allocator. The failure goes 
->away if one is setting CONFIG_FRAME_POINTER. Seems that 
->CONFIG_DEBUG_SLAB implies the use of __buildin_return_address() which 
->needs the framepointer.
->
->  
->
-Very odd. __builtin_return_address(1) needs frame pointers, but slab 
-only uses __builtin_return_addresse(0), which should always work.
+> > And lo' and behold, we find the answer in the PCI probing code.
+> > It initializes every PCI device's PCI power state to "unknown":
+> >  
+> > 	/* "Unknown power state" */
+> > 	dev->current_state = 4;
+> > 
+> > and thus makes this test ">= D3hot" pass in the pci_set_power_state()
+> > code.
+> 
+> Crap, gotta love >= checks on enumerated types...
 
---
-    Manfred
+The "dev->current_state = 4" is what prompted the ">= D3hot" in the
+first place... :-)
+
+I had seen a patch from earlier this year that changed the probing
+code to actually get the power state from the device (and added a
+pci_get_power_state API).  I don't know why that never got merged,
+but since it didn't I had to account for the case of the power state
+being unknown (i.e dev->current_state == 4).
+
+So, w/ Dave's patch for Sparc64 to use setup-res.c, does the patch
+stay?  Is there anything else I need to do?
+
+Thanks,
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

@@ -1,84 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVHHVCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVHHVFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbVHHVCP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 17:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbVHHVCP
+	id S932232AbVHHVFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 17:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbVHHVFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 17:02:15 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:12160 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S932227AbVHHVCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 17:02:15 -0400
-Message-ID: <42F7C853.90901@ammasso.com>
-Date: Mon, 08 Aug 2005 16:02:11 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Reply-To: linux-kernel@vger.kernel.org
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en, en-gb
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Question about multiple modules talking to one adapter
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Aug 2005 17:05:14 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:2716 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S932230AbVHHVFN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 17:05:13 -0400
+Date: Mon, 8 Aug 2005 14:02:31 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: perfctr-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: new perfmon2 kernel patch available
+Message-ID: <20050808210230.GA13092@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-We have a PCI adapter that supports three different APIs / interfaces.  The adapter is an
-OpenIB device, a regular 10GB ethernet Netdev device, and there's also a proprietary
-interface called CCIL that we invented.  The CCIL interface is really just a bunch of
-custom IOCtls.
+I have released a new version of the perfmon2  kernel patch
+along with a new version of the libpfm user library.
 
-The problem we have is that our adapter appears as just one PCI device, so it has one
-memory buffer and one IRQ.  All three interfaces need access to adapter memory and need an
-ISR.
+The kernel patch is relative to 2.6.13-rc4-mm1. You need to
+apply Andrew Morton's -mm1 to rc4.
 
-We're going to have a separate module for each interface.  For simplicity sake, I'll call
-these openib.ko, netdev.ko, and ccil.ko.  openib.ko will be in the drivers/inifiniband
-directory. netdev.ko will be in the drivers/network directory.  I don't know yet where
-we'll put ccil.ko.
+This new release includes:
+	- update to newer kernel
+	- code  reformatting to fit kernel coding style
+	- switch from single system call to multi syscalls
+	- some more cleanups of macros vs. inline
 
-The way I see it, there are four different ways to implement these drivers, and I would
-like to know which method the Linux community would prefer:
+The patch has been tested on IA-64, Pentium M (with Local APIC)
+and X86-64. I have updated the PPC64 but could not test it.
 
-1) Each driver registers its own ISR and has its own mapping the adapter memory.  This is
-the simplest approach, but the problem is that every time an ISR is called, it does a read
-across the PCI bus to determine whether the interrupt is for it.  Believe it or not, this
-is actually pretty expensive in terms of performance.  If anyone has an idea on how to
-cleanly solve that particular problem, then this is the approach we'll take.  Otherwise,
-we'd rather do implement one of the other two methods.
+The new version of libpfm is required to exploit the new multi
+system call interface. Older versions (incl. 3.2-050701) will
+not work. Note that on IA-64, older applications using the
+single syscall interface are still supported. At this point,
+I have not yet updated the specification document to reflect
+the switch to multiple system calls.
 
-2) Create a single driver which does nothing but register an ISR and map the kernel
-memory.  Let's call this the CRM driver.  The other three drivers can then use XXXXXX to
-provide callbacks for the ISR and obtain the address of the mapping.  The ISR will then
-query the adapter and call the appropriate callback.
 
-3) A variation on #2: Instead of having a separate driver with the CRM code, one of the
-three modules will have that code.  The other two modules will then have a dependency on
-that first module.  The problem is that I don't know which of the three modules should
-have the CRM.  Plus, this creates an artificial dependency.
+You can download the two packages from our new SourceForget.net
+project site (still under construction). The new kernel
+patch and libpfm are dated 050805.
 
-4) Another variation on #2: Each module has a copy of the CRM code, but only the CRM in
-the first module that's loaded is used.  As each module loads, it tries to find one of the
-other two modules.  If it does find one of the other modules, it uses that other module's
-CRM instead of its own.  Otherwise, it exports its own CRM entry points.
+		http://www.sf.net/projects/perfmon2
 
-Thanks.
+Comments welcome.
 
 -- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
-
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
-
---
-Kernelnewbies: Help each other learn about the Linux kernel.
-Archive:       http://mail.nl.linux.org/kernelnewbies/
-FAQ:           http://kernelnewbies.org/faq/
-
-
+-Stephane

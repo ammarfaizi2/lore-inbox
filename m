@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVHHHS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVHHHUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbVHHHS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 03:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVHHHS2
+	id S1750745AbVHHHUL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 03:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVHHHUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 03:18:28 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:22499 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750741AbVHHHS1 (ORCPT
+	Mon, 8 Aug 2005 03:20:11 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:34275 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750745AbVHHHUK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 03:18:27 -0400
-Date: Mon, 8 Aug 2005 09:18:19 +0200 (MEST)
+	Mon, 8 Aug 2005 03:20:10 -0400
+Date: Mon, 8 Aug 2005 09:20:06 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "James C. Georgas" <jgeorgas@rogers.com>
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
-Subject: Re: Inclusion order patch
-In-Reply-To: <1123296769.17282.36.camel@Tachyon.home>
-Message-ID: <Pine.LNX.4.61.0508080914450.18088@yvahk01.tjqt.qr>
-References: <1123295768.17282.29.camel@Tachyon.home> <1123296769.17282.36.camel@Tachyon.home>
+To: Xin Zhao <uszhaoxin@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Any access control mechanism that allow exceptions?
+In-Reply-To: <4ae3c1405080600082ef440c8@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0508080918500.18088@yvahk01.tjqt.qr>
+References: <4ae3c1405080600082ef440c8@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->This patch lets this header stand alone, since I can never remember
->which other headers to include, or in which order.
-
-I have seen the same in a lot of other places. For some self-baked patch, I 
-added <linux/security.h> to the front of includes and promptly got flooded 
-with warnings.
-
-IMO, every H (and every C) file should have all the includes that are 
-necessary to get at enums, structs, etc. even if other H files do this.
-I'd volunteer to do this. What's LKMLs and the big guys' opinion?
-
->@@ -2,6 +2,12 @@
-> #define _LINUX_CDEV_H
-> #ifdef __KERNEL__
+>Hi,
 >
->+#include <linux/kobject.h>
->+#include <linux/list.h>
->+#include <linux/types.h>
->+
->+struct inode;
+>I want to lock down a directory to be read-only, say, /etc, for system
+>security. Unfortunately, some valid system tools might need to
+>create/modified files like "/etc/dhclient-eth0.conf".  To avoid
+>disrupting the normal running of those tools, I might have to allow
+>certain files to be created under /etc.
 
-+ struct module;
+read-only-by-root is not enough?
 
->+
-> struct cdev {
->        struct kobject kobj;
->        struct module *owner;
+*mumble* unionfs could help you in part.
+
 
 
 Jan Engelhardt

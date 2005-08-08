@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVHHWdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbVHHWdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932322AbVHHWdI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 18:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVHHWco
+	id S932320AbVHHWdG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 18:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbVHHWcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 18:32:44 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:14600 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S932322AbVHHWcj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 18:32:39 -0400
-Date: Tue, 9 Aug 2005 00:32:38 +0200
-From: David Madore <david.madore@ens.fr>
-To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: understanding Linux capabilities brokenness
-Message-ID: <20050808223238.GA523@clipper.ens.fr>
-References: <20050808211241.GA22446@clipper.ens.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050808211241.GA22446@clipper.ens.fr>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Tue, 09 Aug 2005 00:32:38 +0200 (CEST)
+	Mon, 8 Aug 2005 18:32:47 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:50086 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932320AbVHHWc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 18:32:29 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: [PATCH] Posix file attribute support on VFAT
+To: Hiroyuki Machida <machida@sm.sony.co.jp>, hirofumi@mail.parknet.co.jp,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 09 Aug 2005 00:32:18 +0200
+References: <4zfoZ-5u4-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1E2GAN-0003Pj-2l@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for replying to myself...
+Hiroyuki Machida <machida@sm.sony.co.jp> wrote:
 
-On Mon, Aug 08, 2005 at 09:13:06PM +0000, David Madore wrote:
-> However, what I do not understand is precisely _how_ one gets a
-> sendmail process without CAP_SETUID: for that is the heart of the
-> problem, and that is where the bug really was.  But [#3] and [#4] are
-> very obscure (and I found nothing conclusive in lkml archives).  I
-> understand that the problem lies in some combination of the
-> inheritable capability set and the CAP_SETPCAP capability, but I don't
-> see what that combination is.  Certainly removing capabilities from
-> the inheritable set should not prevent suid root programs from having
-> them reinstated (in the language of [#6], the suid root bit should
-> correspond to a full forced set of capabilities), so I don't see what
-> that has to do with it, and CAP_SETPCAP indeed allows to remove
-> capabilities from a given process but I don't see how the user could
-> gain that capability (and indeed if he can then we can expect him to
-> gain all capabilities very rapidly).
+> For newly created and/or modified files/dirs, system can utilize
+> full posix attributes, because memory resident inode storage can
+> hold those. After umount-mount cycle, system may lose some
+> attributes to preserve VFAT format.
 
-After some more intensive Googling, I found the answer in the archives
-of the linux-privs-discuss mailing-list (whose existence I did not
-know of):
+Inodes may be reclaimed, therefore you might also lose some attributes at
+runtime. For your users, that will look like a heisenbug. A similar bug
+has been reported for procfs. Is your implementation affected?
 
-<URL:
-http://sourceforge.net/mailarchive/forum.php?thread_id=1588083&forum_id=25120
- >
+> - Special file
+>         To distinguish special files, look if this fat dir entry 
+>         has ATTR_SYS, first. If it has ATTR_SYS, then check
+>         1st. LSB bit in ctime_cs, refered as "special file flag".
+>         If set,  this file is created under VFAT with "posix_attr". 
+>         Look up TYPE field to decide special file type.
+>         This spcial file detection mothod has some flaw to make
+>         potential confusion. E.g. some system file created under
+>         dos/win may be treated as special file.  However in most case,
+>         user don't create system file under dos/win.
 
-The explanation from the sendmail team was incorrect: CAP_SETPCAP is a
-red herring, it's only about CAP_SETUID, the implementation of the
-inheritable set was broken in that it controlled not only capabilities
-automatically passed across execve() but also those _gained_ by suid
-root programs (contrary to the claim in the sendmail analysis) and,
-worse, instead of failing on execve() when the program could not gain
-privileges, it proceeded with the capabilities missing.  Hence the
-catastrophic failure.
-
-This does not tell me, then, why CAP_SETPCAP was globally disabled by
-default, nor why passing of capabilities across execve() was entirely
-removed instead of being fixed.
+You can add additional magic, e.g.: nodes must be empty, except for symlinks
+which must be not larger than 4KB (current PATH_MAX?). This will get rid
+of io.sys, logo.sys etc.\. If you want to be really sure, prepend a magic
+code to the on-disk representation of symlinks.
 
 -- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

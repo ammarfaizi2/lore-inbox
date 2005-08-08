@@ -1,39 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbVHHXTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbVHHXVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbVHHXTq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 19:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVHHXTq
+	id S932356AbVHHXVb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 19:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVHHXVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 19:19:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43154 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932355AbVHHXTp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 19:19:45 -0400
-Date: Mon, 8 Aug 2005 16:18:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: <art@usfltd.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..-deadlock
-Message-Id: <20050808161813.7047197c.akpm@osdl.org>
-In-Reply-To: <200508081245.AA36831876@usfltd.com>
-References: <200508081245.AA36831876@usfltd.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 8 Aug 2005 19:21:31 -0400
+Received: from quickstop.soohrt.org ([81.2.155.147]:44185 "EHLO
+	quickstop.soohrt.org") by vger.kernel.org with ESMTP
+	id S932356AbVHHXVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 19:21:30 -0400
+Date: Tue, 9 Aug 2005 01:04:01 +0200
+From: Horst Schirmeier <horst@schirmeier.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2.6.13-rc3-git9] pl2303: pl2303_update_line_status data length fix
+Message-ID: <20050808230401.GR20932@quickstop.soohrt.org>
+References: <20050728133220.GJ25889@quickstop.soohrt.org> <20050808222423.GA4550@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XMM+kVNHGkMezEqK"
+Content-Disposition: inline
+In-Reply-To: <20050808222423.GA4550@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"art" <art@usfltd.com> wrote:
->
-> kernel 2.6.13-rc1-git7 to 2.6.13-rc5 transfer 72MB/s on aha19160 with 15k
-> rpm seagate with reiserfs3 but possible deadlock in heavy IO - rsync
-> ~50000-small files from /mnt/seagate15k/a to /mnt/seagate15k/b ends in
-> middle with deadlock of rsync (3 instances), pdflush, and gam_server all
-> of them in uninteruptible state -- root cannot kill this deadlocked
-> uninterruptibles, so reboot by reset
 
-Please ensure that CONFIG_MAGIC_SYSRQ=y amd that /proc/sysrq is 1 and when
-the deadlock happens, do ALT-SYSRQ-T or `echo t > /proc/sysrq-trigger' then
-get us the output of `dmesg -s 1000000', thanks.
+--XMM+kVNHGkMezEqK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, 08 Aug 2005, Greg KH wrote:
+> On Thu, Jul 28, 2005 at 03:32:20PM +0200, Horst Schirmeier wrote:
+> > Minimum data length must be UART_STATE + 1, as data[UART_STATE] is being
+> > accessed for the new line_state. Although PL-2303 hardware is not
+> > expected to send data with exactly UART_STATE length, this keeps it on
+> > the safe side.
+> >=20
+> > Signed-off-by: Horst Schirmeier <horst@schirmeier.com>
+> > ---
+> >=20
+> > --- linux-2.6.13-rc3-git9/drivers/usb/serial/pl2303.c.orig	2005-07-28 1=
+4:42:58.000000000 +0200
+> > +++ linux-2.6.13-rc3-git9/drivers/usb/serial/pl2303.c	2005-07-28 14:43:=
+16.000000000 +0200
+> > @@ -826,7 +826,7 @@ static void pl2303_update_line_status(st
+> >  	struct pl2303_private *priv =3D usb_get_serial_port_data(port);
+> >  	unsigned long flags;
+> >  	u8 status_idx =3D UART_STATE;
+> > -	u8 length =3D UART_STATE;
+> > +	u8 length =3D UART_STATE + 1;
+>=20
+> "safe side" yes, but this will just prevent any line changes from going
+> back to the user, right?
+
+IMHO not, no. The PL-2303 interrupt IN endpoint has a 10 bytes FIFO and
+(as far as I've observed from the type_1 model) always sends packets
+with exactly this size. The UART_STATE is located at offset 0x08,
+therefore the minimum packet length we need is 0x09 (UART_STATE + 1).
+
+Here are the two different byte sequences from that endpoint I picked
+up; the first with a terminal on the serial end, the second without one
+(both times using the patched pl2303 module with debug=3D1):
+
+a1 20 00 00 00 00 02 00 00 00
+a1 20 00 00 00 00 02 00 82 00
+
+Note the UART_STATE byte with the DSR and CTS bits set in the second
+case.
+
+> Hm, how is this working at all, it looks like we overflow the buffer...
+
+In the unlikely case that some weird hardware sends a packet with
+exactly UART_STATE (8) bytes length, yes, we do. Normal PL-2303 hardware
+_should_ cause no trouble, as it always sends 10 bytes (at least my
+hardware does), therefore my side note "this keeps it on the safe side".
+
+> Have you tested this change?
+
+Yes, I have.
+
+> thanks,
+>=20
+> greg k-h
+
+Kind regards,
+ Horst
+
+--=20
+PGP-Key 0xD40E0E7A
+
+--XMM+kVNHGkMezEqK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC9+ThB6mkGNQODnoRAiseAJwNjBSJKKcHXh4CUDZXgI/CDx5MDwCg3ciq
+ri0TTVstNnoq5YNvXo/fpbE=
+=UmHC
+-----END PGP SIGNATURE-----
+
+--XMM+kVNHGkMezEqK--

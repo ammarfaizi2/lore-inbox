@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753226AbVHHBrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753249AbVHHCOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753226AbVHHBrT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 21:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753230AbVHHBrS
+	id S1753249AbVHHCOU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 22:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753250AbVHHCOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 21:47:18 -0400
-Received: from mail.tor.primus.ca ([216.254.136.21]:17043 "EHLO
-	smtp-05.primus.ca") by vger.kernel.org with ESMTP id S1753226AbVHHBrS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 21:47:18 -0400
-From: Gabriel Devenyi <ace@staticwave.ca>
-To: ck@vds.kolivas.org
-Subject: Re: [ck] Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
-Date: Sun, 7 Aug 2005 21:45:21 -0400
-User-Agent: KMail/1.8.2
-Cc: Con Kolivas <kernel@kolivas.org>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Andrew Morton <akpm@osdl.org>, vatsa@in.ibm.com, tony@atomide.com,
-       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
-       tuukka.tikkanen@elektrobit.com, george@mvista.com
-References: <200508031559.24704.kernel@kolivas.org> <C845464B-FE91-4845-BE7A-3995B663396D@mac.com> <200508081130.23636.kernel@kolivas.org>
-In-Reply-To: <200508081130.23636.kernel@kolivas.org>
+	Sun, 7 Aug 2005 22:14:20 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:57357 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S1753249AbVHHCOU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 22:14:20 -0400
+Message-ID: <42F6BFAB.4010807@tuxrocks.com>
+Date: Sun, 07 Aug 2005 20:12:59 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [Patch] i386: build.c: Write out larger system size to bootsector
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508072145.22203.ace@staticwave.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Along the same lines, is there an x86_64 patch around?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On August 07, 2005 21:30, Con Kolivas wrote:
-> On Mon, 8 Aug 2005 11:20 am, Kyle Moffett wrote:
-> > On Aug 7, 2005, at 19:51:25, Con Kolivas wrote:
-> > > On Mon, 8 Aug 2005 02:58, Srivatsa Vaddagiri wrote:
-> > >> Con,
-> > >>     I am afraid until SMP correctness is resolved, then this is not
-> > >> in a position to go in (unless you want to enable it only for UP,
-> > >> which
-> > >> I think should not be our target). I am working on making this work
-> > >> correctly on SMP systems. Hopefully I will post a patch soon.
-> > >
-> > > Great! I wasn't sure what time frame you meant when you last
-> > > posted. I won't
-> > > do anything more, leaving this patch as it is, and pass the baton
-> > > to you.
-> >
-> > I'm curious what has happened to the PPC side of the patch.  IIRC,
-> > someone
-> > was working on such a port, but it seems to have been lost along the way
-> > at some point.  Is there any additional information on that patch?
->
-> Tony said he had it lying around somewhere and needed to find time to dust
-> it off and get it up to speed.
->
-> Cheers,
-> Con
-> _______________________________________________
-> ck@vds.kolivas.org
-> ck mailing list. Please reply-to-all when posting.
-> If replying to an email please reply below the original message.
-> http://bhhdoa.org.au/mailman/listinfo/ck
+This patch allows build.c to write out the full system size to the bootsector for system sizes larger than about 1 MB (1048560 bytes) by using another byte (a 4th byte would allow system sizes larger than 268 MB).
 
--- 
-Gabriel Devenyi
-ace@staticwave.ca
+Signed-off-by: Frank Sorenson <frank@tuxrocks.com>
+
+- --- a/arch/i386/boot/tools/build.c	2005-08-07 18:08:29.000000000 -0600
++++ b/arch/i386/boot/tools/build.c	2005-08-07 18:09:51.000000000 -0600
+@@ -177,7 +177,8 @@
+ 		die("Output: seek failed");
+ 	buf[0] = (sys_size & 0xff);
+ 	buf[1] = ((sys_size >> 8) & 0xff);
+- -	if (write(1, buf, 2) != 2)
++	buf[2] = ((sys_size >> 16) & 0xff);
++	if (write(1, buf, 3) != 3)
+ 		die("Write of image length failed");
+ 
+ 	return 0;					    /* Everything is OK */
+
+
+
+Frank
+- -- 
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFC9r+raI0dwg4A47wRAtXCAKCm3f2Afx/SC5H+6HJz2JzM9cA1ZQCgjMbg
+qt7Rmo23aWfG1cvsZrcsQvA=
+=0iHd
+-----END PGP SIGNATURE-----

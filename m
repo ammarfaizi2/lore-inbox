@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVHHO3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbVHHOb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbVHHO3V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 10:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVHHO3V
+	id S1750894AbVHHOb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 10:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbVHHOb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 10:29:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65461 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932080AbVHHO3V (ORCPT
+	Mon, 8 Aug 2005 10:31:57 -0400
+Received: from mx1.suse.de ([195.135.220.2]:62430 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750893AbVHHOb4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 10:29:21 -0400
-Date: Mon, 8 Aug 2005 10:29:08 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Update my contact info
-Message-ID: <Lynx.SEL.4.62.0508081028020.17575@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Aug 2005 10:31:56 -0400
+Date: Mon, 8 Aug 2005 16:31:51 +0200
+From: Olaf Hering <olh@suse.de>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Sam Ravnborg <sam@ravnborg.org>, klibc@zytor.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [klibc] Re: [PATCH - RFC] Move initramfs configuration to "General setup"
+Message-ID: <20050808143151.GA6332@suse.de>
+References: <20050808135936.GA9057@mars.ravnborg.org> <Pine.LNX.4.63.0508081610400.29195@alpha.polcom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0508081610400.29195@alpha.polcom.net>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please apply.
+ On Mon, Aug 08, Grzegorz Kulewski wrote:
 
----
+> >From my recent experiments it looks like in order to be able to use 
+> initramfs not compiled into the kernel image but loaded from separate file 
+> by GRUB or LILO one must also build initrd into the kernel.
 
-diff -urN a/CREDITS b/CREDITS
---- a/CREDITS	2005-08-07 14:18:56.000000000 -0400
-+++ b/CREDITS	2005-08-08 10:03:56.000000000 -0400
-@@ -2380,8 +2380,8 @@
- D: bug fixes, documentation, minor hackery
- 
- N: James Morris
--E: jmorris@redhat.com
--W: http://www.intercode.com.au/jmorris/
-+E: jmorris@namei.org
-+W: http://namei.org/
- D: Netfilter, Linux Security Modules (LSM), SELinux, IPSec,
- D: Crypto API, general networking, miscellaneous.
- S: PO Box 707
-diff -urN a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS	2005-08-07 14:18:56.000000000 -0400
-+++ b/MAINTAINERS	2005-08-08 10:04:04.000000000 -0400
-@@ -1658,7 +1658,7 @@
- P:	Pekka Savola (ipv6)
- M:	pekkas@netcore.fi
- P:	James Morris
--M:	jmorris@redhat.com
-+M:	jmorris@namei.org
- P:	Hideaki YOSHIFUJI
- M:	yoshfuji@linux-ipv6.org
- P:	Patrick McHardy
-@@ -2047,7 +2047,7 @@
- P:	Stephen Smalley
- M:	sds@epoch.ncsc.mil
- P:	James Morris
--M:	jmorris@redhat.com
-+M:	jmorris@namei.org
- L:	linux-kernel@vger.kernel.org (kernel issues)
- L: 	selinux@tycho.nsa.gov (general discussion)
- W:	http://www.nsa.gov/selinux
-
+The file passed from the bootloader to the kernel, which is later
+eventually recognized as an initrd, can be everything. But the kernel
+code to deal with the memory range containing the file is behind
+CONFIG_BLK_DEV_INITRD. The new config options should depend on
+BLK_DEV_INITRD

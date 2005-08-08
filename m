@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbVHHPkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbVHHPs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750942AbVHHPkP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 11:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbVHHPkP
+	id S932090AbVHHPs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 11:48:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbVHHPs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 11:40:15 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:31826 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750941AbVHHPkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 11:40:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
-  b=4FqtpCZ7vvsyAKEt50CsKDRBQ/04iwZDRW8UcJxenUB9AHxOkO7u3w0nxAgi55/BDZnvl8XDpQZeVSY8XNiVKVkPGtSxbccGB9wmvdYBxatdylBviUiWyRdFtMeRmbkRmnEHpE7nBCVXCBMGM4as5yxezDIvoClnRNNG5HlisBo=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Alexander Nyberg <alexn@telia.com>
-Subject: Re: [PATCH] CHECK_IRQ_PER_CPU() to avoid dead code in __do_IRQ()
-Date: Mon, 8 Aug 2005 17:36:10 +0200
-User-Agent: KMail/1.8.1
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <200508081250.05673.annabellesgarden@yahoo.de> <20050808111936.GA1393@localhost.localdomain>
-In-Reply-To: <20050808111936.GA1393@localhost.localdomain>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200508081736.10690.annabellesgarden@yahoo.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 8 Aug 2005 11:48:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:8390 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932090AbVHHPs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 11:48:27 -0400
+Subject: Re: [PATCH] drivers/video/sis/ macros for old kernels removal
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42F778E2.2000602@gmail.com>
+References: <42F775F6.8090600@gmail.com>  <42F778E2.2000602@gmail.com>
+Content-Type: text/plain
+Date: Mon, 08 Aug 2005 17:48:15 +0200
+Message-Id: <1123516096.3245.46.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 8. August 2005 13:19 schrieb Alexander Nyberg:
+On Mon, 2005-08-08 at 17:23 +0200, Jiri Slaby wrote:
+> Jiri Slaby napsal(a):
 > 
-> There are many places where one could replace run-time tests with 
-> #ifdef's but it makes reading more difficult (and in longer terms
-> maintainence). Have you benchmarked any workload that benefits 
-> from this?
+> > This patch removes some #ifs, which controls kernel version (2.4 or 
+> > like), so the code could be removed with the macros.
+> > linux/version.h inclusions also removed.
+> 
+> Sorry, this was bad idea. X includes some of these file, doesn't it?
 
-Performance gain is small, but measurable: 0,02%
-Tested on an Atlon64 running at 1000MHz.
-I took this value from 9 runs (each with/without the patch) of 
-	$ time lame x.wav
-where each took about 1 minute.
-3000 Interrupts/s were generated at the time by running
-	$ jackd -R -dalsa -p64 -n2
+X can't depend on the version of the kernel anyway; the "version" in
+version.h has no relation with the running kernel anyway (or with the
+version of the kernel that will be used to run the X binaries on)
 
-0,02% really isn't that much....but Athlon64 is better than P4
-with branch predictions, I think.
-
-Erm... ok, I won't insist on having this patch applied ;-) 
-
-   Karsten
-
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

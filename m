@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVHHRdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbVHHRdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbVHHRdL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVHHRdL
+	id S932134AbVHHRdj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVHHRdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:33:11 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22703
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932132AbVHHRdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:33:10 -0400
-Date: Mon, 08 Aug 2005 10:33:04 -0700 (PDT)
-Message-Id: <20050808.103304.55507512.davem@davemloft.net>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, linville@redhat.com, torvalds@osdl.org
-Subject: Re: pci_update_resource() getting called on sparc64
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050808144439.GA6478@kroah.com>
-References: <20050808.071211.74753610.davem@davemloft.net>
-	<20050808144439.GA6478@kroah.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 8 Aug 2005 13:33:39 -0400
+Received: from mx1.suse.de ([195.135.220.2]:51095 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932134AbVHHRdi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 13:33:38 -0400
+Date: Mon, 8 Aug 2005 19:33:36 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Andreas Kleen <ak@suse.de>
+Subject: [PATCH] add MODULE_ALIAS for x86_64 aes
+Message-ID: <20050808173336.GA11503@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg KH <greg@kroah.com>
-Date: Mon, 8 Aug 2005 07:44:40 -0700
 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=43c34735524d5b1c9b9e5d63b49dd4c1b394bde4
-> 
-> Although in glancing at it, it might not be the reason...
+modprobe aes does not work on x86_64. i386 has a similar line,
+this could be the right fix. Would be nice to have in 2.6.13 final.
 
-No, that isn't it.
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-Perhaps it was one of those changes that Linus was doing
-to deal with interrupt setting restoration after resume?
+ arch/x86_64/crypto/aes.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+Index: linux-2.6.13-rc6-aes/arch/x86_64/crypto/aes.c
+===================================================================
+--- linux-2.6.13-rc6-aes.orig/arch/x86_64/crypto/aes.c
++++ linux-2.6.13-rc6-aes/arch/x86_64/crypto/aes.c
+@@ -322,3 +322,4 @@ module_exit(aes_fini);
+ 
+ MODULE_DESCRIPTION("Rijndael (AES) Cipher Algorithm");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("aes");

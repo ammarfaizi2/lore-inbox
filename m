@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVHHGjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVHHGxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbVHHGjw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 02:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVHHGjv
+	id S1750726AbVHHGxd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 02:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVHHGxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 02:39:51 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:25219 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750722AbVHHGjv (ORCPT
+	Mon, 8 Aug 2005 02:53:33 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:62393 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750726AbVHHGxd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 02:39:51 -0400
-Date: Mon, 8 Aug 2005 08:39:39 +0200 (MEST)
+	Mon, 8 Aug 2005 02:53:33 -0400
+Date: Mon, 8 Aug 2005 08:53:09 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: lab liscs <liscs.lab@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is it a process?
-In-Reply-To: <1123255059.18332.54.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0508080838260.18088@yvahk01.tjqt.qr>
-References: <1132fcd6050805060216a03fb6@mail.gmail.com>
- <1123255059.18332.54.camel@localhost.localdomain>
+To: Martin Loschwitz <madkiss@madkiss.org>
+cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: local DDOS? Kernel panic when accessing /proc/ioports
+In-Reply-To: <20050805214954.GA25533@minerva.local.lan>
+Message-ID: <Pine.LNX.4.61.0508080851120.18088@yvahk01.tjqt.qr>
+References: <20050805192628.GA24706@minerva.local.lan>
+ <Pine.LNX.4.61.0508051538390.6245@chaos.analogic.com>
+ <20050805214954.GA25533@minerva.local.lan>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> when linux kernel receives a packet from the netcard and the forwards it .
->> the process can be viewed as a kernel process ?
->> and if this process can be interrupted ?
->
->When a packet is received from the kernel, this is first done by an
->interrupt handler to just get the packet. Then the rest (forwarding) is
+>>> I just ran into the following problem: Having updated my box to 2.6.12.3,
+>>> I tried to start YaST2 and noticed a kernel panic (see below). Some quick
 
-Do you mean forwarding from NIC to kernel space, or already the iptables 
-FORWARD chain? What about packets destined for the local machine that just hit 
-INPUT?
+Hm I always have a slack feeling that vanilla does not play hand in hand with 
+SUSE. (E.g.: showconsole)
 
->done by a tasklet. This tasklet can be run either by the softirqd (a
->kernel thread) or at certain locations in the kernel. So this is not a
+>>> Ooops and ksymoops-output is attached.
 
-What is the name of this tasklet? ksoftirqd shows up in "ps", but no childs 
-for it.
+ksymoops not needed for 2.6.
+
+>> Been there, done that.
+
+"...[and] threw it out"
+
 
 
 Jan Engelhardt

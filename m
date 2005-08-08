@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVHHLgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVHHLfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbVHHLgj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 07:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVHHLgj
+	id S1750824AbVHHLfm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 07:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVHHLfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 07:36:39 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:40844 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1750823AbVHHLgi (ORCPT
+	Mon, 8 Aug 2005 07:35:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32685 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750824AbVHHLfm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 07:36:38 -0400
-Date: Mon, 8 Aug 2005 15:21:53 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: New asynchronous crypto subsystem [acrypto] release.
-Message-ID: <20050808112153.GA13638@2ka.mipt.ru>
+	Mon, 8 Aug 2005 07:35:42 -0400
+Date: Mon, 8 Aug 2005 19:39:10 +0800
+From: David Teigland <teigland@redhat.com>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+Cc: Pekka Enberg <penberg@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: GFS
+Message-ID: <20050808113910.GF13951@redhat.com>
+References: <20050802071828.GA11217@redhat.com> <84144f0205080223445375c907@mail.gmail.com> <20050808095747.GD13951@redhat.com> <courier.42F73185.00006260@courier.cs.helsinki.fi> <20050808105613.GE13951@redhat.com> <courier.42F73AB3.00006AEE@courier.cs.helsinki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 08 Aug 2005 15:21:54 +0400 (MSD)
+In-Reply-To: <courier.42F73AB3.00006AEE@courier.cs.helsinki.fi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm pleased to announce new acrypto release.
-It now supports nice scatterlist walkers, usage can be found in
-async_provider.c [bridge to the sync API].
-By design acrypto provides whole scatterlists array to the
-driver so it can optimize it's processing.
+On Mon, Aug 08, 2005 at 01:57:55PM +0300, Pekka J Enberg wrote:
+> David Teigland writes:
+> >> but why can't you return NULL here on failure like you do for
+> >> find_lock_page()?  
+> >
+> >because create is set
+> 
+> Yes, but looking at (some of the) top-level callers, there's no real reason 
+> why create must not fail. Am I missing something here?
 
-This is _probably_ the last release, due to starting asynchronous
-development based on top of existing SW/TFM crypto stack,
-but work is not completely stopped, it just goes into the shadow.
+I'll trace the callers back farther and see about dealing with errors.
 
-As usual, archive is available at
-http://tservice.net.ru/~s0mbre/archive/acrypto
+> >> gfs2-02.patch:+ RETRY_MALLOC(bd = kmem_cache_alloc(gfs2_bufdata_cachep, 
+> 
+> It is passed to the page allocator just like with kmalloc() which uses 
+> __cache_alloc() too. 
 
-Acrypto page can be found at
-http://tservice.net.ru/~s0mbre/?section=projects&item=acrypto
+Yes, I read it wrongly, looks like NOFAIL should work fine.  I think we
+can get rid of the RETRY macro entirely.
+Thanks,
+Dave
 
-Archive contains acrypto subsystem itself, driver for HIFN 795x cards, 
-driver for SuperCrypt CE99C003B chip, driver for VIA padlock engine, 
-port of the existing HW RNG for AMD/Intel/VIA to acrypto,
-asynchronous crypto provider based on SW stack for AES, and 
-asynchronous IPsec support for in-kernel IPsec engine and it's 
-binding to acrypto.
-
--- 
-	Evgeniy Polyakov

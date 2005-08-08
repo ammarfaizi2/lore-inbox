@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVHHWbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbVHHWfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbVHHWbR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 18:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVHHWbK
+	id S932295AbVHHWfY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 18:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbVHHWbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 18:31:10 -0400
-Received: from coderock.org ([193.77.147.115]:32643 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S932303AbVHHWak (ORCPT
+	Mon, 8 Aug 2005 18:31:07 -0400
+Received: from coderock.org ([193.77.147.115]:35459 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S932308AbVHHWau (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 18:30:40 -0400
-Message-Id: <20050808223028.714862000@homer>
+	Mon, 8 Aug 2005 18:30:50 -0400
+Message-Id: <20050808223022.129463000@homer>
 References: <20050808222936.090422000@homer>
-Date: Tue, 09 Aug 2005 00:29:42 +0200
+Date: Tue, 09 Aug 2005 00:29:39 +0200
 From: domen@coderock.org
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Maximilian Attems <janitor@sternwelten.at>, domen@coderock.org
-Subject: [patch 06/16] ide-tape: replace schedule_timeout() with msleep()
-Content-Disposition: inline; filename=msleep-drivers_ide_ide-tape.patch
+Cc: linux-kernel@vger.kernel.org, Maximilian Attems <janitor@sternwelten.at>,
+       domen@coderock.org
+Subject: [patch 03/16] jffs/intrep: list_for_each_entry
+Content-Disposition: inline; filename=list-for-each-entry-fs_jffs_intrep.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nishanth Aravamudan <nacc@us.ibm.com>
+From: Domen Puncer <domen@coderock.org>
 
 
 
-Uses msleep() instead of schedule_timeout() to guarantee
-the task delays at least the desired time amount.
+Use list_for_each_entry to make code more readable.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Domen Puncer <domen@coderock.org>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
- ide-tape.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+ intrep.c |   22 +++++++++-------------
+ 1 files changed, 9 insertions(+), 13 deletions(-)
 
-Index: quilt/drivers/ide/ide-tape.c
+Index: quilt/fs/jffs/intrep.c
 ===================================================================
---- quilt.orig/drivers/ide/ide-tape.c
-+++ quilt/drivers/ide/ide-tape.c
-@@ -2903,8 +2903,7 @@ static int idetape_wait_ready(ide_drive_
- 		} else if (!(tape->sense_key == 2 && tape->asc == 4 &&
- 			     (tape->ascq == 1 || tape->ascq == 8)))
- 			return -EIO;
--		current->state = TASK_INTERRUPTIBLE;
--  		schedule_timeout(HZ / 10);
-+		msleep(100);
- 	}
- 	return -EIO;
- }
+--- quilt.orig/fs/jffs/intrep.c
++++ quilt/fs/jffs/intrep.c
+@@ -1701,12 +1701,10 @@ jffs_find_file(struct jffs_control *c, _
+ {
+ 	struct jffs_file *f;
+ 	int i = ino % c->hash_len;
+-	struct list_head *tmp;
+ 
+ 	D3(printk("jffs_find_file(): ino: %u\n", ino));
+ 
+-	for (tmp = c->hash[i].next; tmp != &c->hash[i]; tmp = tmp->next) {
+-		f = list_entry(tmp, struct jffs_file, hash);
++	list_for_each_entry(f, &c->hash[i], hash) {
+ 		if (ino != f->ino)
+ 			continue;
+ 		D3(printk("jffs_find_file(): Found file with ino "
+@@ -2102,13 +2100,12 @@ jffs_foreach_file(struct jffs_control *c
+ 	int result = 0;
+ 
+ 	for (pos = 0; pos < c->hash_len; pos++) {
+-		struct list_head *p, *next;
+-		for (p = c->hash[pos].next; p != &c->hash[pos]; p = next) {
+-			/* We need a reference to the next file in the
+-			   list because `func' might remove the current
+-			   file `f'.  */
+-			next = p->next;
+-			r = func(list_entry(p, struct jffs_file, hash));
++		struct jffs_file *f, *next;
++
++		/* We must do _safe, because 'func' might remove the
++		   current file 'f' from the list.  */
++		list_for_each_entry_safe(f, next, &c->hash[pos], hash) {
++			r = func(f);
+ 			if (r < 0)
+ 				return r;
+ 			result += r;
+@@ -2613,9 +2610,8 @@ jffs_print_hash_table(struct jffs_contro
+ 
+ 	printk("JFFS: Dumping the file system's hash table...\n");
+ 	for (i = 0; i < c->hash_len; i++) {
+-		struct list_head *p;
+-		for (p = c->hash[i].next; p != &c->hash[i]; p = p->next) {
+-			struct jffs_file *f=list_entry(p,struct jffs_file,hash);
++		struct jffs_file *f;
++		list_for_each_entry(f, &c->hash[i], hash) {
+ 			printk("*** c->hash[%u]: \"%s\" "
+ 			       "(ino: %u, pino: %u)\n",
+ 			       i, (f->name ? f->name : ""),
 
 --

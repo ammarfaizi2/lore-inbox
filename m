@@ -1,46 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVHHRpr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVHHRps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVHHRpr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVHHRpq
+	id S932154AbVHHRps (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVHHRps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:45:46 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:52194
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932152AbVHHRpp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:45:45 -0400
-Date: Mon, 08 Aug 2005 10:45:30 -0700 (PDT)
-Message-Id: <20050808.104530.85410060.davem@davemloft.net>
-To: zab@zabbo.net
-Cc: jgarzik@pobox.com, greg@kroah.com, kristen.c.accardi@intel.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 6700/6702PXH quirk
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <42F7998D.8030606@zabbo.net>
-References: <20050805225712.GD3782@kroah.com>
-	<20050806033455.GA23679@havoc.gtf.org>
-	<42F7998D.8030606@zabbo.net>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 8 Aug 2005 13:45:48 -0400
+Received: from dude3.usprocom.net ([69.222.0.8]:23812 "EHLO usfltd.com")
+	by vger.kernel.org with ESMTP id S932155AbVHHRpr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 13:45:47 -0400
+Date: Mon,  8 Aug 2005 12:45:54 -0500
+Message-Id: <200508081245.AA36831876@usfltd.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+From: "art" <art@usfltd.com>
+Reply-To: <art@usfltd.com>
+To: <linux-kernel@vger.kernel.org>
+CC: <torvalds@osdl.org>
+Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..-deadlock
+X-Mailer: <IMail v8.05>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zach Brown <zab@zabbo.net>
-Date: Mon, 08 Aug 2005 10:42:37 -0700
+kernel 2.6.13-rc1-git7 to 2.6.13-rc5 transfer 72MB/s on aha19160 with 15k rpm seagate with reiserfs3 but possible deadlock in heavy IO - rsync ~50000-small files from /mnt/seagate15k/a to /mnt/seagate15k/b ends in middle with deadlock of rsync (3 instances), pdflush, and gam_server all of them in uninteruptible state -- root cannot kill this deadlocked uninterruptibles, so reboot by reset
 
-> 	if (!foo->enabled)
-> 	if (!(foo->flags & FOO_FLAG_ENABLED)
+art@usfltd.com
 
-You can hide the "complexity" of the second line behind
-macros.  And this is what is done in most places.
-
-Alternatively, you can use the existing bitops interfaces,
-and in that case you define bit numbers only then use the
-bitops.h interfaces to do all the work (probably the __set_bit()
-et al. non-atomic variants in this case).
-
-Really, I think it's worth it.  I absolutely refuse to put sets of
-boolean states into C bitfields or even worse integer members.
-Just define a u32 bitmask and be done with it.

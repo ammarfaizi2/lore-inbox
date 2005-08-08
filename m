@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVHHRPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVHHRQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbVHHRPn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVHHRPn
+	id S932120AbVHHRQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbVHHRQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:15:43 -0400
-Received: from graphe.net ([209.204.138.32]:43930 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S932119AbVHHRPn (ORCPT
+	Mon, 8 Aug 2005 13:16:28 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24222 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932120AbVHHRQ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:15:43 -0400
-Date: Mon, 8 Aug 2005 10:15:32 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Richard Purdie <rpurdie@rpsys.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       linux-arm@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm3
-In-Reply-To: <20050808181004.B12788@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.62.0508081014100.20322@graphe.net>
-References: <1122933133.7648.141.camel@localhost.localdomain>
- <Pine.LNX.4.62.0508011517300.8498@graphe.net> <1122937261.7648.151.camel@localhost.localdomain>
- <Pine.LNX.4.62.0508031716001.24733@graphe.net> <1123154825.8987.33.camel@localhost.localdomain>
- <Pine.LNX.4.62.0508040703300.3277@graphe.net> <1123166252.8987.50.camel@localhost.localdomain>
- <Pine.LNX.4.62.0508050817060.28659@graphe.net> <1123422275.7800.24.camel@localhost.localdomain>
- <Pine.LNX.4.62.0508080945100.19665@graphe.net> <20050808181004.B12788@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Mon, 8 Aug 2005 13:16:27 -0400
+Date: Mon, 8 Aug 2005 07:44:40 -0700
+From: Greg KH <greg@kroah.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, linville@redhat.com, torvalds@osdl.org
+Subject: Re: pci_update_resource() getting called on sparc64
+Message-ID: <20050808144439.GA6478@kroah.com>
+References: <20050808.071211.74753610.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050808.071211.74753610.davem@davemloft.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Aug 2005, Russell King wrote:
+On Mon, Aug 08, 2005 at 07:12:11AM -0700, David S. Miller wrote:
+> 
+> Some recent change last week causes pci_update_resource()
+> to be invoked on sparc64 now, and this is why my workstation
+> couldn't cleanly boot into current 2.6.13 when I tried to
+> remotely try out some new kernels while I was in the UK.
+> 
+> This thing is supposed to only be invoked if you support
+> power management, and therefore we made it just BUG() on
+> sparc64.
+> 
+> But some change last week causes it to be invoked when
+> the radeonfb driver registers a device, and that's why
+> my workstation failed to boot up current 2.6.13 kernels.
+> 
+> pci_restore_bars() is the only invoker of pci_update_resource()
+> and that should only be invoked by pci_set_power_state() if
+> the local variable "need_restore" is set, which occurs if
+> 
+> 	if (dev->current_state >= PCI_D3hot) {
+> 		if (!(pmcsr & PCI_PM_CTRL_NO_SOFT_RESET))
+> 			need_restore = 1;
+> 
+> and I don't see how that can happen to my radeon which is
+> fully operational when the kernel boots and the radeon device
+> is registered.
+> 
+> I'm tempted to just make pci_update_resource() not BUG() any
+> longer, but that definitely feels like the wrong way to fix
+> this.  And in any event, I'd like to get this fixed before
+> 2.6.13 goes out the door.
+> 
+> Does anyone have a clue what change made last week could have
+> made this start happening?
 
-> ARM doesn't have cmpxchg nor does it have hardware access nor dirty
-> bits.  They're simulated in software.
+Perhaps this patch:
+  http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=43c34735524d5b1c9b9e5d63b49dd4c1b394bde4
 
-Even the cmpxchg is simulated.
+Although in glancing at it, it might not be the reason...
 
-> What's the problem you're trying to solve?
+thanks,
 
-A hang when starting X on ARM with rc4-mm1 which contains the page fault 
-patches. But I have no access to the platform.
+greg k-h

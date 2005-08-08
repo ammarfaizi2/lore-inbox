@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbVHHNJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbVHHNLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbVHHNJN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 09:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbVHHNJN
+	id S1750866AbVHHNLz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 09:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVHHNLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 09:09:13 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:29371 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750859AbVHHNJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 09:09:13 -0400
-Subject: Re: I can not  build a new kernel image with a assembly module
-From: Arjan van de Ven <arjan@infradead.org>
-To: mhb <badrpayam@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050808130246.58431.qmail@web60517.mail.yahoo.com>
-References: <20050808130246.58431.qmail@web60517.mail.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 08 Aug 2005 15:09:05 +0200
-Message-Id: <1123506545.3245.41.camel@laptopd505.fenrus.org>
+	Mon, 8 Aug 2005 09:11:55 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:38526 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750863AbVHHNLy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 09:11:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=E8mrI2TfcnO49M9HmotqQkKckvJlUq2zJE5gWafupfVH96XuzKHV1M30m/VI7uBldtYtVyPVW4yWBzioE5iWlTI4v8uUjuP/SQZac199lqktzeyIZDTkHrbiezBIs1y9vApaSUq1xMoTYkXLL9x6dsEnzO3YH+Mmb6s/NM+LYPg=
+Message-ID: <5edf7fc905080806117df1ab32@mail.gmail.com>
+Date: Mon, 8 Aug 2005 18:41:53 +0530
+From: Kedar Sovani <kedars@gmail.com>
+To: rusty@rustcorp.com.au, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kedars@gmail.com
+Subject: Unreliable Guide to Locking - Addition?
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-08 at 06:02 -0700, mhb wrote:
-> Hi
-> 
-> I had added an assembly program to the networking
-> section of kernel linux 2.2.16 without any problem.
-> But when I add it to kerenel 2.4.1 I could build that
-> kernel, but I faced with kernel panic error when I
-> boot
-> system with new builded image. I use the following
-> Make file to build It in the 2.4.1 kernel. 
+Hi Rusty,
 
-2.4.1 is OLD and really crappy
+          I was going through the splendidly written document,
+"Unreliable Guide to Locking". I thought of something that should be
+mentioned in the section "Using Atomic Operations For The Reference
+Count" (link : http://www.kernel.org/pub/linux/kernel/people/rusty/kernel-locking/x352.html#EXAMPLES-REFCNT-ATOMIC)
 
-also you forgot to attach the sourcecode of your file.
+I guess, probably the section should also mention that 
+"
+There is one race condition while using atomic_t, which is as follows :
 
+* The refcount of the object is "1".
 
+* Process A tries to perform atomic_dec_and_test(), gets "0" and hence
+performs a kfree() on the object.
+
+* Process B tries to perform atomic_inc() on the object.
+
+* It may so happen that the atomic_inc() of Process B is called after
+atomic_dec_and_test(), but before the kfree() call, which is a race
+condition.
+
+Usually, this race condition is avoided as:
+    when the last atomic_dec_and_test() (the last == the one which
+returns 0) is being called on the object, the object is usually not
+accessible to others (list_del()) and hence the  simultaneous
+atomic_inc() call never occurs.
+"
+
+Do you think this race condition should be included in the document?
+
+Thanks,
+Kedar.

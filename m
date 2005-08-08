@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVHHVyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVHHVz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVHHVyE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 17:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVHHVyE
+	id S932280AbVHHVz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 17:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVHHVz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 17:54:04 -0400
-Received: from mailfe07.swip.net ([212.247.154.193]:925 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S932280AbVHHVyD (ORCPT
+	Mon, 8 Aug 2005 17:55:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5086 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932280AbVHHVz4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 17:54:03 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Mon, 8 Aug 2005 23:53:53 +0200
-From: Alexander Nyberg <alexn@telia.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Christoph Lameter <christoph@lameter.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [SLAB] __builtin_return_address use without FRAME_POINTER causes boot failure
-Message-ID: <20050808215353.GA26384@localhost.localdomain>
-References: <Pine.LNX.4.62.0508081353170.28612@graphe.net> <42F7D08E.9070508@colorfullife.com>
+	Mon, 8 Aug 2005 17:55:56 -0400
+Date: Mon, 8 Aug 2005 14:54:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       hugh@veritas.com, torvalds@osdl.org, andrea@suse.de,
+       benh@kernel.crashing.org
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+Message-Id: <20050808145430.15394c3c.akpm@osdl.org>
+In-Reply-To: <200508090724.30962.phillips@arcor.de>
+References: <42F57FCA.9040805@yahoo.com.au>
+	<200508090710.00637.phillips@arcor.de>
+	<200508090724.30962.phillips@arcor.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42F7D08E.9070508@colorfullife.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 11:37:18PM +0200 Manfred Spraul wrote:
-
-> Christoph Lameter wrote:
+Daniel Phillips <phillips@arcor.de> wrote:
+>
+> 'Scuse me:
 > 
-> >I kept getting boot failures in the slab allocator. The failure goes 
-> >away if one is setting CONFIG_FRAME_POINTER. Seems that 
-> >CONFIG_DEBUG_SLAB implies the use of __buildin_return_address() which 
-> >needs the framepointer.
-> >
-> > 
-> >
-> Very odd. __builtin_return_address(1) needs frame pointers, but slab 
-> only uses __builtin_return_addresse(0), which should always work.
+> On Tuesday 09 August 2005 07:09, Daniel Phillips wrote:
+> > Suggestion for your next act:
+> 
+> ...kill PG_checked please :)  Or at least keep it from spreading.
 > 
 
-My fault, I introduced a debugging patch (i think i cc'ed you on it)
-which used __builtin_return_address([12]) to save traces of who the
-caller of an object is.
+It already spread - ext3 is using it and I think reiser4.  I thought I had
+a patch to rename it to PG_misc1 or somesuch, but no.  It's mandate becomes
+"filesystem-specific page flag".
+

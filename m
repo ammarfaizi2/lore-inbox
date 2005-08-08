@@ -1,41 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbVHHJnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVHHJxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbVHHJnI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 05:43:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVHHJnH
+	id S1750787AbVHHJxa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 05:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbVHHJxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 05:43:07 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31913 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750784AbVHHJnH (ORCPT
+	Mon, 8 Aug 2005 05:53:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22729 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750787AbVHHJx3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 05:43:07 -0400
-Date: Mon, 8 Aug 2005 11:43:01 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 2/4] Task notifier against mm: Implement todo list in task_struct
-Message-ID: <20050808094301.GA1784@elf.ucw.cz>
-References: <Pine.LNX.4.62.0507291328170.5304@graphe.net> <Pine.LNX.4.62.0507291332100.5304@graphe.net> <20050730112241.GA1830@elf.ucw.cz> <Pine.LNX.4.62.0507300843100.24809@graphe.net> <20050730161007.GA1885@elf.ucw.cz> <Pine.LNX.4.62.0507300916170.25259@graphe.net> <20050730162223.GB1885@elf.ucw.cz> <Pine.LNX.4.62.0508011141440.5458@graphe.net>
+	Mon, 8 Aug 2005 05:53:29 -0400
+Date: Mon, 8 Aug 2005 17:57:47 +0800
+From: David Teigland <teigland@redhat.com>
+To: Pekka Enberg <penberg@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 00/14] GFS
+Message-ID: <20050808095747.GD13951@redhat.com>
+References: <20050802071828.GA11217@redhat.com> <84144f0205080223445375c907@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0508011141440.5458@graphe.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <84144f0205080223445375c907@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Aug 03, 2005 at 09:44:06AM +0300, Pekka Enberg wrote:
 
-> Got a new suspend patchsset at 
+> > +uint32_t gfs2_hash(const void *data, unsigned int len)
+> > +{
+> > +     uint32_t h = 0x811C9DC5;
+> > +     h = hash_more_internal(data, len, h);
+> > +     return h;
+> > +}
 > 
-> ftp://ftp.kernel.org:/pub/linux/kernel/people/christoph/suspend/2.6.13-rc4-mm1
-> 
-> Check the series file for the sequence of patches.
+> Is there a reason why you cannot use <linux/hash.h> or <linux/jhash.h>?
 
-Something still goes very wrong after first resume. It seems to work
-ok for few seconds, then console switch takes 10 seconds to react and
-cursor stops blinking, and then it is dead.
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+See gfs2_hash_more() and comment; we hash discontiguous regions.
+
+> > +#define RETRY_MALLOC(do_this, until_this) \
+> > +for (;;) { \
+> > +     { do_this; } \
+> > +     if (until_this) \
+> > +             break; \
+> > +     if (time_after_eq(jiffies, gfs2_malloc_warning + 5 * HZ)) { \
+> > +             printk("GFS2: out of memory: %s, %u\n", __FILE__, __LINE__); \
+> > +             gfs2_malloc_warning = jiffies; \
+> > +     } \
+> > +     yield(); \
+> > +}
+> 
+> Please drop this.
+
+Done in the spot that could deal with an error, but there are three other
+places that still need it.
+
+> > +static int ea_set_i(struct gfs2_inode *ip, struct gfs2_ea_request *er,
+> > +                 struct gfs2_ea_location *el)
+> > +{
+> > +     {
+> > +             struct ea_set es;
+> > +             int error;
+> > +
+> > +             memset(&es, 0, sizeof(struct ea_set));
+> > +             es.es_er = er;
+> > +             es.es_el = el;
+> > +
+> > +             error = ea_foreach(ip, ea_set_simple, &es);
+> > +             if (error > 0)
+> > +                     return 0;
+> > +             if (error)
+> > +                     return error;
+> > +     }
+> > +     {
+> > +             unsigned int blks = 2;
+> > +             if (!(ip->i_di.di_flags & GFS2_DIF_EA_INDIRECT))
+> > +                     blks++;
+> > +             if (GFS2_EAREQ_SIZE_STUFFED(er) > ip->i_sbd->sd_jbsize)
+> > +                     blks += DIV_RU(er->er_data_len,
+> > +                                    ip->i_sbd->sd_jbsize);
+> > +
+> > +             return ea_alloc_skeleton(ip, er, blks, ea_set_block, el);
+> > +     }
+> 
+> Please drop the extra braces.
+
+Here and elsewhere we try to keep unused stuff off the stack.  Are you
+suggesting that we're being overly cautious, or do you just dislike the
+way it looks?
+
+Thanks,
+Dave
+

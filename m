@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753219AbVHHBiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753224AbVHHBka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753219AbVHHBiH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Aug 2005 21:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753221AbVHHBiH
+	id S1753224AbVHHBka (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Aug 2005 21:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753225AbVHHBka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 21:38:07 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:49323 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S1753219AbVHHBiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 21:38:06 -0400
-Subject: Re: [linux-pm] [PATCH] Workqueue freezer support.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Patrick Mochel <mochel@digitalimplant.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200508081127.48432.kernel@kolivas.org>
-References: <1121923059.2936.224.camel@localhost>
-	 <Pine.LNX.4.50.0508052148280.19501-100000@monsoon.he.net>
-	 <1123462015.3969.98.camel@localhost>
-	 <200508081127.48432.kernel@kolivas.org>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1123465087.3969.152.camel@localhost>
+	Sun, 7 Aug 2005 21:40:30 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27400 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1753223AbVHHBk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Aug 2005 21:40:29 -0400
+Date: Mon, 8 Aug 2005 03:40:27 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Achim Leubner <achim_leubner@adaptec.com>
+Subject: Re: [PATCH C&C] gdth: remove GDTIOCTL_OSVERS
+Message-ID: <20050808014027.GI4006@stusta.de>
+References: <20050807222829.GA20558@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 08 Aug 2005 11:38:07 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050807222829.GA20558@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, Aug 08, 2005 at 02:28:29AM +0400, Alexey Dobriyan wrote:
 
-On Mon, 2005-08-08 at 11:27, Con Kolivas wrote:
-> On Mon, 8 Aug 2005 10:46 am, Nigel Cunningham wrote:
-> > Hi.
-> >
-> > Sorry for the slow response. Busy still.
-> >
-> > On Sat, 2005-08-06 at 15:06, Patrick Mochel wrote:
-> > > On Fri, 5 Aug 2005, Nigel Cunningham wrote:
-> > > > Hi.
-> > > >
-> > > > I finally found some time to finish this off. I don't really like the
-> > > > end result - the macros looked clearer to me - but here goes. If it
-> > > > looks okay, I'll seek sign offs from each of the affected driver
-> > > > maintainers and from Ingo. Anyone else?
-> > >
-> > > What are your feelings about this: http://lwn.net/Articles/145417/ ?
-> >
-> > I'm sure it could work, but I do worry a little about the possibilities
-> > for exploits. It seems to me that if someone can get root, they an
-> > insmod a module that could schedule any kind of work via any process.
-> > Tracing that sort of security hole could be intractable. Christoph, is
-> > that something you've considered/have thoughts on? Perhaps I'm just
-> > being paranoid :>
-> 
-> If someone gets root access it means you're already exploited.
+>...
+> --- linux-vanilla/drivers/scsi/gdth.c	2005-08-08 02:16:47.000000000 +0400
+> +++ linux-gdth/drivers/scsi/gdth.c	2005-08-08 02:19:59.000000000 +0400
+> @@ -5411,18 +5411,6 @@ static int gdth_ioctl(struct inode *inod
+>                  return -EFAULT;
+>          break;
+>        }
+> -      
+> -      case GDTIOCTL_OSVERS:
+> -      { 
+> -        gdth_ioctl_osvers osv; 
+> -
+> -        osv.version = (unchar)(LINUX_VERSION_CODE >> 16);
+> -        osv.subversion = (unchar)(LINUX_VERSION_CODE >> 8);
+> -        osv.revision = (ushort)(LINUX_VERSION_CODE & 0xff);
+> -        if (copy_to_user(argp, &osv, sizeof(gdth_ioctl_osvers)))
+> -                return -EFAULT;
+> -        break;
+> -      }
+>...
 
-Yeah, true. Ok. Lame thought :>
+Not that I'd like this, but you know that this is a userspace-visible 
+change?
 
-Nigel
+cu
+Adrian
 
-> Cheers,
-> Con
 -- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

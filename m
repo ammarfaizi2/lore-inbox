@@ -1,105 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVHHGQC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVHHGWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbVHHGQC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 02:16:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVHHGQC
+	id S1750737AbVHHGWG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 02:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbVHHGWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 02:16:02 -0400
-Received: from dvhart.com ([64.146.134.43]:8321 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1750736AbVHHGQC (ORCPT
+	Mon, 8 Aug 2005 02:22:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38822 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750737AbVHHGWF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 02:16:02 -0400
-Date: Sun, 07 Aug 2005 23:16:07 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Nikhil Dharashivkar <nikhildharashivkar@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove warning about e1000_suspend
-Message-ID: <394740000.1123481766@[10.10.2.4]>
-In-Reply-To: <17db6d3a05080723096ec26531@mail.gmail.com>
-References: <256850000.1123442258@10.10.2.4> <17db6d3a05080723096ec26531@mail.gmail.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 8 Aug 2005 02:22:05 -0400
+Date: Mon, 8 Aug 2005 14:26:36 +0800
+From: David Teigland <teigland@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: [PATCH 00/14] GFS
+Message-ID: <20050808062636.GB13951@redhat.com>
+References: <20050802071828.GA11217@redhat.com> <1122968724.3247.22.camel@laptopd505.fenrus.org> <20050805071415.GC14880@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20050805071415.GC14880@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 05, 2005 at 03:14:15PM +0800, David Teigland wrote:
+> On Tue, Aug 02, 2005 at 09:45:24AM +0200, Arjan van de Ven wrote:
 
-
---Nikhil Dharashivkar <nikhildharashivkar@gmail.com> wrote (on Monday, August 08, 2005 11:39:07 +0530):
-
-> Hi Martin,
->     But e1000_notify_reboot () function calls this e1000_suspend()
-> function irrespective of  CONFIG_FM is defined or not. So according to
-> your soution, what if CONFIG_FM is not defined.
-
-Odd. I wonder why I get a warning then. Hmmmm ....
-
-M.
-
-> On 8/8/05, Martin J. Bligh <mbligh@mbligh.org> wrote:
->> e1000_suspend is only used under #ifdef CONFIG_PM. Move the declaration
->> of it to be the same way, just like e1000_resume, otherwise gcc whines
->> on compile. I offer as evidence:
->> 
->>         static struct pci_driver e1000_driver = {
->>                .name     = e1000_driver_name,
->>               .id_table = e1000_pci_tbl,
->>               .probe    = e1000_probe,
->>               .remove   = __devexit_p(e1000_remove),
->>               /* Power Managment Hooks */
->>         # ifdef CONFIG_PM
->>                .suspend  = e1000_suspend,
->>                .resume   = e1000_resume
->>         # endif
->>         };
->> 
->> 
->> diff -aurpN -X /home/fletch/.diff.exclude virgin/drivers/net/e1000/e1000_main.c e1000_suspend/drivers/net/e1000/e1000_main.c
->> --- virgin/drivers/net/e1000/e1000_main.c       2005-08-07 09:15:36.000000000 -0700
->> +++ e1000_suspend/drivers/net/e1000/e1000_main.c        2005-08-07 12:10:42.000000000 -0700
->> @@ -162,8 +162,8 @@ static void e1000_vlan_rx_add_vid(struct
->>  static void e1000_vlan_rx_kill_vid(struct net_device *netdev, uint16_t vid);
->>  static void e1000_restore_vlan(struct e1000_adapter *adapter);
->> 
->> -static int e1000_suspend(struct pci_dev *pdev, uint32_t state);
->>  # ifdef CONFIG_PM
->> +static int e1000_suspend(struct pci_dev *pdev, uint32_t state);
->>  static int e1000_resume(struct pci_dev *pdev);
->>  # endif
->> 
->> @@ -3641,6 +3641,7 @@ e1000_set_spd_dplx(struct e1000_adapter
->>         return 0;
->>  }
->> 
->> +#ifdef CONFIG_PM
->>  static int
->>  e1000_suspend(struct pci_dev *pdev, uint32_t state)
->>  {
->> @@ -3733,7 +3734,6 @@ e1000_suspend(struct pci_dev *pdev, uint
->>         return 0;
->>  }
->> 
->> -#ifdef CONFIG_PM
->>  static int
->>  e1000_resume(struct pci_dev *pdev)
->>  {
->> 
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->> 
+> > * +++ b/fs/gfs2/fixed_div64.h	2005-08-01 14:13:08.009808200 +0800
+> > ehhhh why?
 > 
+> I'm not sure, actually, apart from the comments:
 > 
-> -- 
-> Thanks and Regards,
->          Nikhil.
+> do_div: /* For ia32 we need to pull some tricks to get past various versions
+>            of the compiler which do not like us using do_div in the middle
+>            of large functions. */
 > 
+> do_mod: /* Side effect free 64 bit mod operation */
 > 
-> 
+> fs/xfs/linux-2.6/xfs_linux.h (the origin of this file) has the same thing,
+> perhaps this is an old problem that's now fixed?
 
+I've looked into getting rid of these:
+
+- The existing do_div() works fine for me with 64 bit numerators, so I'll
+  get rid of the "fixed" version.
+
+- The "fixed" do_mod() seems to be the only way to do 64 bit modulus.
+  It would be great if I was wrong about that...
+
+Thanks,
+Dave
 

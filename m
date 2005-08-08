@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVHHR1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVHHR2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbVHHR1y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVHHR1y
+	id S932135AbVHHR2P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbVHHR2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:27:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38017 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932129AbVHHR1x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:27:53 -0400
-Date: Mon, 8 Aug 2005 10:25:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: dipankar@in.ibm.com
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org, hugh@veritas.com
-Subject: Re: Fw: two 2.6.13-rc3-mm3 oddities
-Message-Id: <20050808102559.131bf839.akpm@osdl.org>
-In-Reply-To: <20050808164636.GA6153@in.ibm.com>
-References: <20050803095644.78b58cb4.akpm@osdl.org>
-	<20050808140536.GC4558@in.ibm.com>
-	<42F788F8.1000001@colorfullife.com>
-	<20050808164636.GA6153@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 8 Aug 2005 13:28:14 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:35817 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932130AbVHHR2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 13:28:04 -0400
+Date: Mon, 8 Aug 2005 10:27:19 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, linux-scsi@vger.kernel.org
+Subject: Re: 2.6.13-rc5-mm1 doesnt boot on x86_64
+Message-ID: <20050808102719.A18087@unix-os.sc.intel.com>
+References: <20050808094818.A17579@unix-os.sc.intel.com> <20050808171126.GA32092@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050808171126.GA32092@muc.de>; from ak@muc.de on Mon, Aug 08, 2005 at 07:11:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma <dipankar@in.ibm.com> wrote:
->
-> On Mon, Aug 08, 2005 at 06:31:52PM +0200, Manfred Spraul wrote:
-> > Dipankar Sarma wrote:
+On Mon, Aug 08, 2005 at 07:11:26PM +0200, Andi Kleen wrote:
+> On Mon, Aug 08, 2005 at 09:48:19AM -0700, Ashok Raj wrote:
+> > Folks,
 > > 
-> > >Hugh, could you please try this with the experimental patch below ?
-> > >Manfred, is it safe to decrement nr_files in file_free()
-> > >instead of the destructor ? I can't see any problem.
-> > >
-> > > 
-> > >
-> > The ctor/dtor are only called when new objects are created, not on every 
-> > kmem_cache_alloc/kmem_cache_free. Thus I would expect that the counter 
-> > becomes negative on builds without CONFIG_DEBUG_SLAB.
-> > Thus increase in the ctor and decrease in file_free() is the wrong 
-> > thing. If you want to move the decrease from the dtor to file_free, then 
-> > you must move the increase, too.
-> > But: IIRC the counters were moved to the ctor/dtor for performance 
-> > reasons, I'd guess mbligh ran into cache line trashing on the 
-> > filp_count_lock spinlock with reaim or something like that.
+> > Iam getting this on the recent 2.6.12-rc5-mm1 kernel built with defconfig. 
+> > 
+> > Cheers,
+> > Ashok Raj
+> > 
+> > ----------- [cut here ] --------- [please bite here ] ---------
+> > Kernel BUG at "include/linux/list.h":165
+> > invalid operand: 0000 [1] SMP
+> > CPU 2
+> > Modules linked in:
+> > Pid: 1, comm: swapper Not tainted 2.6.13-rc5-mm1
+> > RIP: 0010:[<ffffffff802b9ef4>] <ffffffff802b9ef4>{attribute_container_unregist}RSP: 0018:ffff8100bfb63f00  EFLAGS: 00010283
+> > RAX: ffff8100bfbd4c58 RBX: ffff8100bfbd4c00 RCX: ffffffff804e6600
+> > RDX: 0000000000200200 RSI: 0000000000000000 RDI: ffffffff804e6600
+> > RBP: 0000000000000000 R08: ffff8100bfbd4c48 R09: 0000000000000020
+> > R10: 0000000000000000 R11: ffffffff8019baa0 R12: ffffffff80100190
+> > R13: 00000000ffffffff R14: 0000ffffffff8010 R15: ffffffff80627fb0
+> > FS:  0000000000000000(0000) GS:ffffffff80616980(0000) knlGS:0000000000000000
+> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> > CR2: 0000000000000000 CR3: 0000000000101000 CR4: 00000000000006e0
+> > Process swapper (pid: 1, threadinfo ffff8100bfb62000, task ffff8100bfb614d0)
+> > Stack: ffffffff8032643d 0000000000000000 ffffffff8064499f ffffffff80100190
+> >        ffffffff80651288 0000000000000000 ffffffff8010b249 0000000000000246
+> >        0000000000020800 ffffffff804ae180
+> > Call Trace:<ffffffff8032643d>{spi_release_transport+13} <ffffffff8064499f>{ahd}       <ffffffff8010b249>{init+505} <ffffffff8010e896>{child_rip+8}
+> >        <ffffffff8010b050>{init+0} <ffffffff8010e88e>{child_rip+0}
 > 
-> Ah, so the whole idea was to inc/dec nr_files less often so
-> that we reduce contention on filp_count_lock, right ? This however
-> causes skews nr_files by the size of the slab array, AFAICS.
-> Since we check nr_files before we allocate files from slab, the
-> check seems inaccurate.
-> 
-> Anyway, I guess, I need to look at scaling the file counting
-> first.
+> Looks like a SCSI problem. The machine has an Adaptec SCSI adapter, right?
 
-Something like vm_acct_memory() or percpu_counter would suit.
+Yep, its adaptec problem
+
+Actually i dont need AIX7XXX, since my system requires only CONFIG_FUSION.
+I turned that option off, and it seems to boot fine now.
+
+Ashok
+
+
+> 
+> -AndI
+> > 
+> > 
+> > Code: 0f 0b a3 e1 d9 44 80 ff ff ff ff c2 a5 00 49 8b 00 4c 39 40
+> > RIP <ffffffff802b9ef4>{attribute_container_unregister+52} RSP <ffff8100bfb63f0> <0>Kernel panic - not syncing: Attempted to kill init!
+> > 
+
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

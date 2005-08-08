@@ -1,177 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbVHHNQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbVHHNUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbVHHNQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 09:16:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVHHNQ6
+	id S1750864AbVHHNUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 09:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVHHNUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 09:16:58 -0400
-Received: from web30307.mail.mud.yahoo.com ([68.142.200.100]:22169 "HELO
-	web30307.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750874AbVHHNQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 09:16:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=eZ/ao3UvD1Hc2oZIWLAh0g5Hy/ildEHJ2EA+8M4GOilDooGhH2mc7Mn4qD/C5mHS3UV0Zfdb43BMGL9yerOxCJw1Ck2Zp924THxVbMXO7b2Wol3NwGkNNmG0uC6elZnT7RdSY7HCjTpGYwnYjHe/SmqzWRnnjhgmhKQpCLSZMN8=  ;
-Message-ID: <20050808131655.22499.qmail@web30307.mail.mud.yahoo.com>
-Date: Mon, 8 Aug 2005 14:16:54 +0100 (BST)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: Re: [PATCH] spi
-To: dmitry pervushin <dpervushin@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1123492338.4762.96.camel@diimka.dev.rtsoft.ru>
+	Mon, 8 Aug 2005 09:20:09 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:64633 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1750862AbVHHNUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 09:20:08 -0400
+Message-ID: <42F75C0D.3030409@linuxtv.org>
+Date: Mon, 08 Aug 2005 09:20:13 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       linux-dvb-maintainer@linuxtv.org,
+       Mac Michaels <wmichaels1@earthlink.net>
+Subject: Re: [PATCH] DVB: lgdt330x frontend: some bug fixes & add lgdt3303
+ support
+References: <42F6A294.90300@linuxtv.org> <1123504387.17427.9.camel@localhost>
+In-Reply-To: <1123504387.17427.9.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mauro Carvalho Chehab wrote:
 
---- dmitry pervushin <dpervushin@gmail.com> wrote:
+>	This should't be applied to 2.6.13. It does contain a hack at V4L code,
+>since mute_tda9887 is implemented outside tda9887.c module and could
+>potentially cause troubles since there are some work to provide it on a
+>correct way.
+>	 It should be applied to -mm and go to mainstream only after provided a
+>correct implementation.
+>
+>Mkrufky,
+>	Please avoid trying to submit yet experimental patches to mainstream.
+>
+>Mauro.
+>
+Mauro-
 
-> Hello all, 
-> 
-> 
-> Here is the spi core patch (slightly redesigned
-> again). Now it operates
-> with three abstractions:
-> a) the spi bus, which is registered in system and is
-> resposible for
-> general things like registering devices on it,
-> handling PM events for
-> entire bus, providing bus-wide operations;
-> b) the spi device, which is responsible for
-> interactions between the
-> device and the bus (selecting/deselecting device)
-> and PM events for the
-> specifi device;
-> c) the driver, which is attached to spi devices and
-> (possibly) provide
-> interface to the upper level like block device
-> interface. The spi-dev is
-> the good starting point for people who does not want
-> anything but simple
-> character device access.
-> The new abstraction is the spi bus, which
-> functionality was represented
-> by spi_device structure.
-> 
-> Especially for Greg K-H: yes, I ran this code
-> through sparse :), thank
-> you.
-> 
+Please calm down... This is a newer version of the frontend module.  It 
+is DVB code, not v4l.  The new frontend module contains the MUTE_TDA9887 
+hack, however, the code is disabled.  The new DVB frontend module has 
+some bugfixes.  This is NOT experimental code.  It has been testing in 
+cvs for the past month and Mac and I have verified that this code works, 
+and is a significant improvement over current lgdt330x code in -linus 
+tree.  I did NOT send the v4l stuff to Andrew.  FusionHDTV5 Gold DVB 
+mode is still disabled in cx88-cards.c.  THIS UPDATE IS A BUGFIX.
 
-Please can we have an example client driver as it
-would aid understanding :-). But in the mean time.
+Mac and I have been testing this new frontend module for the past few 
+weeks.  After Mac's latest changes to the lgdt330x module, it is now 
+ready to go upstream.  This module provides better quality digital tv 
+reception, and adds support for LGDT3303.  There is no reason this 
+cannot go to 2.6.13.  It is Andrew's choice of whether he wishes to fwd 
+to Linus or not.
 
--= snip =-
+The tda9887 stuff is disabled inside the code with #ifdefs.
 
-+/**
-+ * spi_add_adapter - register a new SPI bus adapter
-+ * @spidev: spi_device structure for the registering
-adapter
-+ *
-+ * Make the adapter available for use by clients
-using name 
-adap->name.
-+ * The adap->adapters list is initialised by this
-function.
-+ *
-+ * Returns error code ( 0 on success ) ;
-+ */
-+struct spi_bus* spi_bus_find( char* id )
-+{
-+	struct bus_type* the_bus = find_bus( id );
-+
-+	return the_bus ? container_of( the_bus, struct
-spi_bus, the_bus ) : 
-NULL;
-+}
+Mauro, please do not intercept my patches to Andrew about DVB stuff.  I 
+have not kept you informed about Mac's DVB stuff because you are v4l 
+maintainer. (not dvb maintainer).  Mac and I have worked very hard on 
+this.  Most of our correspondence have been short little emails and we 
+have been communicating in pvt emails, rather than using the list. These 
+patches for the new lgdt330x have been tested by many DViCO users, using 
+the cvs-tree-merging scripts.   I have discussed these code changes with 
+Johannes, and he is happy for me to handle the hybrid patches like 
+this.  It is very important that the changes made to the lgdt330x module 
+be countered by equivalent changes in cx88-dvb.c
 
-Eh? The comment is for spi_add_adapter but the
-function is spi_bus_find! Where is spi_add_adapter?
+Once again, this is NOT an "experimental patch," and THIS is the correct 
+implementation for lgdt330x stuff.....  The tda9887 stuff can be removed 
+later on.  It is harmless right now, as the tda9887 code is disabled by 
+ifdefs anyway.  It would be best for the new lgdt330x module to be 
+merged into 2.6.13, because the interface is no longer compatable with 
+older lgdt330x interface.
 
--= snip =-
+Thank you.
 
+-- 
+Michael Krufky
 
-+/**
-+ * spi_del_adapter - unregister a SPI bus adapter
-+ * @dev: spi_device structure to unregister
-+ *
-+ * Remove an adapter from the list of available SPI
-Bus adapters.
-+ *
-+ * Returns error code (0 on success);
-+ */
-+
-+void spi_device_del(struct spi_device *dev)
-+{
-+	device_unregister(&dev->dev);
-+}
-
-Eh? The comment is for spi_del_adapter but the
-function is spi_device_del! Where is spi_del_adapter?
-
--= snip =-
-
-+/**
-+ * spi_transfer - transfer information on an SPI bus
-+ * @adap: adapter structure to perform transfer on
-+ * @msgs: array of spi_msg structures describing
-transfer
-+ * @num: number of spi_msg structures
-+ *
-+ * Transfer the specified messages to/from a device
-on the SPI bus.
-+ *
-+ * Returns number of messages successfully
-transferred, otherwise 
-negative
-+ * error code.
-+ */
-+int spi_transfer(struct spi_device *dev, struct
-spi_msg msgs[], int 
-num)
-+{
-+	int ret = -ENOSYS;
-+	struct spi_bus* bus;
-+
-+	bus = TO_SPI_BUS( dev->dev.bus );
-+
-+	if (bus->xfer) {
-+		down( &dev->lock );
-+		ret = bus->xfer(bus, dev, msgs, num, 0);
-+		up(&dev->lock);
-+	}
-+	return ret;
-+}
-
-Surely this should be locked with bus lock?
-
--= snip =-
-
-Some other comments:
-1) I think you need to fix some of your comments
-especially those describing how the interfaces work.
-2) I take it spi adaptor drivers now use
-spi_bus_register/spi_bus_unregister?
-3) Different clients on one bus will want to run at
-different speeds, how will you handle this?
-3) This subsystem can only handle small transfers like
-I2C. SPI peripherals like SPI Ethernet devices will
-have to do lots of large transfers and with your
-current subsystem the device will be forced to wait
-until its transfer has finished (as well as other
-clients) when it might have other important work to
-do.
-
-Best Regards,
-
-Mark
-
-
-	
-	
-		
-___________________________________________________________ 
-Yahoo! Messenger - NEW crystal clear PC to PC calling worldwide with voicemail http://uk.messenger.yahoo.com

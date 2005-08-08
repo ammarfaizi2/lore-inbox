@@ -1,67 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbVHHFuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbVHHGJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbVHHFuh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 01:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVHHFug
+	id S1750733AbVHHGJL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 02:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbVHHGJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 01:50:36 -0400
-Received: from dvhart.com ([64.146.134.43]:6273 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1750729AbVHHFug (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 01:50:36 -0400
-Date: Sun, 07 Aug 2005 22:50:34 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Wireless support
-Message-ID: <392810000.1123480234@[10.10.2.4]>
-In-Reply-To: <1123444566.12766.23.camel@mindpipe>
-References: <1123442554.12766.17.camel@mindpipe> <1123444566.12766.23.camel@mindpipe>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Aug 2005 02:09:11 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:2913 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750733AbVHHGJK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 02:09:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Qborlv8D6DoSFhF+sulOSXGGHiGfncLasEyf5UIcdc8FUourhMsBr9pjCqQqTkSRx+TB8qDVLNusa1reAoutAZ27wqUybzRrREdR2qG2DaZvnkO/1yo/D0Om2cLuj1lqCkpMnc/6l4RxjdF6vL61imqZuGGFB5MCwJMMj4E/keQ=
+Message-ID: <17db6d3a05080723096ec26531@mail.gmail.com>
+Date: Mon, 8 Aug 2005 11:39:07 +0530
+From: Nikhil Dharashivkar <nikhildharashivkar@gmail.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: [PATCH] remove warning about e1000_suspend
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <256850000.1123442258@10.10.2.4>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <256850000.1123442258@10.10.2.4>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Martin,
+    But e1000_notify_reboot () function calls this e1000_suspend()
+function irrespective of  CONFIG_FM is defined or not. So according to
+your soution, what if CONFIG_FM is not defined.
 
-
---Lee Revell <rlrevell@joe-job.com> wrote (on Sunday, August 07, 2005 15:56:06 -0400):
-
-> On Sun, 2005-08-07 at 15:22 -0400, Lee Revell wrote:
->> Is the Linksys WUSB 54GS wireless adapter (FCCID Q87-WUSB54GS)
->> supported?
->> 
+On 8/8/05, Martin J. Bligh <mbligh@mbligh.org> wrote:
+> e1000_suspend is only used under #ifdef CONFIG_PM. Move the declaration
+> of it to be the same way, just like e1000_resume, otherwise gcc whines
+> on compile. I offer as evidence:
 > 
-> Wow, Google has really declined in quality.  I got zero hits for
-> "Linksys WUSB 54G linux".  Then I found this page on my own.
+>         static struct pci_driver e1000_driver = {
+>                .name     = e1000_driver_name,
+>               .id_table = e1000_pci_tbl,
+>               .probe    = e1000_probe,
+>               .remove   = __devexit_p(e1000_remove),
+>               /* Power Managment Hooks */
+>         #ifdef CONFIG_PM
+>                .suspend  = e1000_suspend,
+>                .resume   = e1000_resume
+>         #endif
+>         };
 > 
-> (from http://ndiswrapper.sourceforge.net/mediawiki/index.php/List)
 > 
-> Card: Linksys #[WUSB54G], 802.11b/g, USB 2.0 -- [link here|List#WUSB54G] 
->       * Chipset: Prism54
->       * usbid: 5041:2234
->       * Driver: Linksys Windows XP driver
->         http://www.linksys.com/download/default.asp
->       * Other: Works smoothly, of course ;) - this is the device the USB
->         extension was originally developed for. WEP is running, WPA is
->         supported using wpa_supplicant 0.2.5. No problems with both 1.1
->         and 2.0 host controllers. As with many other USB devices, no
->         success with 2.4 kernels so far. Try to use 2.6.7 or better.
->         There is a native driver for Prism54 that is working on USB
->         support. View its status at Prism54.org
+> diff -aurpN -X /home/fletch/.diff.exclude virgin/drivers/net/e1000/e1000_main.c e1000_suspend/drivers/net/e1000/e1000_main.c
+> --- virgin/drivers/net/e1000/e1000_main.c       2005-08-07 09:15:36.000000000 -0700
+> +++ e1000_suspend/drivers/net/e1000/e1000_main.c        2005-08-07 12:10:42.000000000 -0700
+> @@ -162,8 +162,8 @@ static void e1000_vlan_rx_add_vid(struct
+>  static void e1000_vlan_rx_kill_vid(struct net_device *netdev, uint16_t vid);
+>  static void e1000_restore_vlan(struct e1000_adapter *adapter);
 > 
-> Sorry for the WOB.  And if anyone from Google is reading, WTF?
+> -static int e1000_suspend(struct pci_dev *pdev, uint32_t state);
+>  #ifdef CONFIG_PM
+> +static int e1000_suspend(struct pci_dev *pdev, uint32_t state);
+>  static int e1000_resume(struct pci_dev *pdev);
+>  #endif
+> 
+> @@ -3641,6 +3641,7 @@ e1000_set_spd_dplx(struct e1000_adapter
+>         return 0;
+>  }
+> 
+> +#ifdef CONFIG_PM
+>  static int
+>  e1000_suspend(struct pci_dev *pdev, uint32_t state)
+>  {
+> @@ -3733,7 +3734,6 @@ e1000_suspend(struct pci_dev *pdev, uint
+>         return 0;
+>  }
+> 
+> -#ifdef CONFIG_PM
+>  static int
+>  e1000_resume(struct pci_dev *pdev)
+>  {
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-It doesn't actually say it works on Linux. Perhaps you wanted 
-mysticgooglepsychic.com? ;-) 
 
-I don't think it is reasonable to expect google to know what ndiswrapper 
-is ... or perhaps it just has a taste filter installed? ;-)
-
-M.
-
-
-
+-- 
+Thanks and Regards,
+         Nikhil.

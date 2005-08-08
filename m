@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVHHItV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVHHI4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbVHHItV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 04:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVHHItV
+	id S1750766AbVHHI4N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 04:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbVHHI4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 04:49:21 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:9165 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750763AbVHHItU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 04:49:20 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Export handle_mm_fault to modules.
-Date: Mon, 8 Aug 2005 10:44:10 +0200
-User-Agent: KMail/1.7.2
-Cc: Olof Johansson <olof@lixom.net>, Stelian Pop <stelian@popies.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1123278912.8224.2.camel@localhost.localdomain> <20050805232530.GA8791@austin.ibm.com> <Pine.LNX.4.58.0508051642360.3258@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0508051642360.3258@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Mon, 8 Aug 2005 04:56:13 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:41346 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S1750766AbVHHI4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 04:56:12 -0400
+Date: Mon, 8 Aug 2005 12:55:54 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [patch] VIA VT8235 PCI quirk
+Message-ID: <20050808125554.A6318@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508081044.10875.arnd@arndb.de>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sünnavend 06 August 2005 01:43, Linus Torvalds wrote:
-> diff --git a/arch/ppc/kernel/ppc_ksyms.c b/arch/ppc/kernel/ppc_ksyms.c
-> --- a/arch/ppc/kernel/ppc_ksyms.c
-> +++ b/arch/ppc/kernel/ppc_ksyms.c
-> @@ -324,7 +324,7 @@ EXPORT_SYMBOL(__res);
->  
->  EXPORT_SYMBOL(next_mmu_context);
->  EXPORT_SYMBOL(set_context);
-> -EXPORT_SYMBOL(handle_mm_fault); /* For MOL */
-> +EXPORT_SYMBOL_GPL(__handle_mm_fault); /* For MOL */
->  EXPORT_SYMBOL(disarm_decr);
->  #ifdef CONFIG_PPC_STD_MMU
->  extern long mol_trampoline;
+Like many other southbridges from different manufacturers, VIA VT8235
+chip has two non-standard BARs for power management and SMBus
+registers (see the datasheet at http://www.via.com.tw).
+This new quirk routine fixes boot problem with 2.6.13-rc2/rc6 kernels
+on Targa Visionary 811 Athlon64 laptop, as reported by
+Mikael Pettersson <mikpe@csd.uu.se>.
 
-We will need the same export on ppc64 for managing SPEs on the
-Cell processor. My current patch removes the export on ppc
-and adds a global (*_GPL) one. Should I rather have another
-architecture specific export in ppc64?
+Signed-off-by: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 
-	Arnd <><
+--- 2.6.13-rc6/drivers/pci/quirks.c	Sun Aug  7 12:07:40 2005
++++ linux/drivers/pci/quirks.c	Sun Aug  7 14:37:14 2005
+@@ -373,6 +373,25 @@ static void __devinit quirk_vt82c686_acp
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_4,	quirk_vt82c686_acpi );
+ 
++/*
++ * VIA VT8235 ISA Bridge: Two IO regions pointed to by words at
++ *	0x88 (128 bytes of power management registers)
++ *	0xd0 (16 bytes of SMB registers)
++ */
++static void __devinit quirk_vt8235_acpi(struct pci_dev *dev)
++{
++	u16 pm, smb;
++
++	pci_read_config_word(dev, 0x88, &pm);
++	pm &= PCI_BASE_ADDRESS_IO_MASK;
++	quirk_io_region(dev, pm, 128, PCI_BRIDGE_RESOURCES);
++
++	pci_read_config_word(dev, 0xd0, &smb);
++	smb &= PCI_BASE_ADDRESS_IO_MASK;
++	quirk_io_region(dev, smb, 16, PCI_BRIDGE_RESOURCES + 1);
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8235,	quirk_vt8235_acpi);
++
+ 
+ #ifdef CONFIG_X86_IO_APIC 
+ 

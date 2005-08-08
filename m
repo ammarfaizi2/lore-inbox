@@ -1,85 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVHHO1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVHHOZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbVHHO1A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 10:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVHHO1A
+	id S932078AbVHHOZp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 10:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVHHOZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 10:27:00 -0400
-Received: from no-dns-yet.demon.co.uk ([195.173.84.2]:26128 "EHLO
-	monitor.bluefinger.com") by vger.kernel.org with ESMTP
-	id S932081AbVHHO07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 10:26:59 -0400
-From: Thomas Chiverton <thomas.chiverton@bluefinger.com>
-To: linux-kernel@vger.kernel.org
-Subject: cifs kernel module and MS DFS shares [2.6.12-1.1411_FC4]
-Date: Mon, 8 Aug 2005 15:26:55 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Aug 2005 10:25:45 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21389 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932078AbVHHOZo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 10:25:44 -0400
+Date: Mon, 8 Aug 2005 16:24:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Zachary Amsden <zach@vmware.com>
+Cc: akpm@osdl.org, chrisw@osdl.org, linux-kernel@vger.kernel.org,
+       davej@codemonkey.org.uk, hpa@zytor.com, Riley@Williams.Name,
+       pratap@vmware.com, chrisl@vmware.com
+Subject: Re: [PATCH] 5/8 Move descriptor table management into the sub-arch layer
+Message-ID: <20050808142424.GA1913@elf.ucw.cz>
+References: <42F4643E.4030402@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508081526.55555@moveAlongNothingToSeeHere>
+In-Reply-To: <42F4643E.4030402@vmware.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I was referred here by Thomas Anders over on the Samba list, as apparently 
-it's the cifs kernel module at fault ?).
+Hi!
 
-I am having problems mounting a DFS share using mount.cifs, even though it 
-works in smbclient fine.
-After mounting, each top-level directory contains a copy of the top level 
-directory.
-Turning up debug and verbose don't seem to help. Any ideas ?
 
-I can mount non-DFS shares from the same CIFS server fine.
+> i386 Transparent paravirtualization subarch patch #5
+> 
+> This change encapsulates descriptor and task register management.
+> 
+> Diffs against: 2.6.13-rc4-mm1
+> 
+> Signed-off-by: Zachary Amsden <zach@vmware.com>
+> Index: linux-2.6.13/include/asm-i386/desc.h
+> ===================================================================
+> --- linux-2.6.13.orig/include/asm-i386/desc.h	2005-08-03 16:24:09.000000000 -0700
+> +++ linux-2.6.13/include/asm-i386/desc.h	2005-08-03 16:31:40.000000000 -0700
+> @@ -27,19 +27,6 @@
+>  
+>  extern struct Xgt_desc_struct idt_descr, cpu_gdt_descr[NR_CPUS];
+>  
+> -#define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
+> -#define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
 
-[tom@charles-compaq@1306 /home/tom/Projects/gbb-core-app ]
-  smbclient //exchsvr/dfs -U tchiverton -W BLUEFINGER
-Password:
-Domain=[BLUEFINGER] OS=[Windows Server 2003 3790 Service Pack 1] 
-Server=[Windows Server 2003 5.2]
-smb: \> ls
-  .                                   D        0  Sun Aug  7 16:06:52 2005
-  ..                                  D        0  Sun Aug  7 16:06:52 2005
-  Applications                        D        0  Sun Aug  7 16:06:52 2005
-  Common                              D        0  Sun Aug  7 13:54:40 2005
-  Consultants                         D        0  Sun Aug  7 14:01:50 2005
-  Directors                           D        0  Sun Aug  7 14:06:19 2005
-  Engineering                         D        0  Sun Aug  7 13:57:48 2005
-  Finance                             D        0  Sun Aug  7 13:53:59 2005
-  Management                          D        0  Sun Aug  7 10:37:01 2005
-  Software Development                D        0  Sun Aug  7 13:58:54 2005
-  Version                             D        0  Sun Aug  7 14:04:56 2005
-  WinTA Data                          D        0  Sun Aug  7 14:10:29 2005
+Is not asm volatile (no underscores) enough?
 
-                44955 blocks of size 2097152. 25934 blocks available
-smb: \> cd Consultants
-smb: \Consultants\> ls
-  .                                   D        0  Wed Aug  3 11:51:57 2005
-  ..                                  D        0  Sun Aug  7 12:19:03 2005
-  NO                                  D        0  Thu Nov 18 10:35:49 2004
-  EEZ Course                          D        0  Wed Mar 23 13:48:54 2005
-  BlueFinger Software Library         D        0  Tue Jul  5 13:39:32 2005
-  IM                                  D        0  Wed Aug  3 13:19:30 2005
+> -#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
+> -#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
 
-                55995 blocks of size 1048576. 9499 blocks available
-smb: \Consultants\> exit
+Eh, I think volatile should be either "volatile" or "__volatile__",
+but you not "__volatile".
 
-Great ! So now...
-
-[root@charles-compaq gbb_domain]#  mount.cifs //exchsvr/dfs /mnt/dfs/ -o 
-user=tchiverton,domain=BLUEFINGER
-Password:
-[root@charles-compaq gbb_domain]#  ls /mnt/dfs/
-Applications  Consultants  Engineering  Management            Version
-Common        Directors    Finance      Software Development  WinTA Data
-[root@charles-compaq gbb_domain]# ls /mnt/dfs/Consultants/
-Applications  Consultants  Engineering  Management            Version
-Common        Directors    Finance      Software Development  WinTA Data
-[root@charles-compaq gbb_domain]#      
-
-Bah :-(
 -- 
-
-Tom Chiverton 
-Advanced ColdFusion Programmer
+if you have sharp zaurus hardware you don't need... you know my address

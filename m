@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVHHEeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVHHFUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVHHEeh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 00:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVHHEeh
+	id S1750727AbVHHFUF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 01:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVHHFUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 00:34:37 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:33512 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750720AbVHHEeg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 00:34:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ANBDhzXHHkJ6xmDUYFxO7xJnRdYKn8Ns1FajjrHprdCeSQlvhygT+0xSLV6nCxcyq8yL19dSt7cKisVCYUaK//vdPT1cMt39LKobrQt8GIcVb0f6K3SV+nk2/ss+51wl3QlGpWQW7ydc68oBT0q8xuIKtUDfflX7AMAZEXe9dbA=
-Message-ID: <29495f1d05080721346c17d299@mail.gmail.com>
-Date: Sun, 7 Aug 2005 21:34:36 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
+	Mon, 8 Aug 2005 01:20:05 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:12554 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750727AbVHHFUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 01:20:05 -0400
+Message-ID: <42F6EB73.3030104@vmware.com>
+Date: Sun, 07 Aug 2005 22:19:47 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Fawad Lateef <fawadlateef@gmail.com>
-Subject: Re: Highmemory Problem with RHEL3 .... 2.4.21-5.ELsmp
 Cc: linux-kernel@vger.kernel.org, nhorman@redhat.com
-In-Reply-To: <1e62d137050807205047daf9e0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Subject: Re: Highmemory Problem with RHEL3 .... 2.4.21-5.ELsmp
 References: <1e62d137050807205047daf9e0@mail.gmail.com>
+In-Reply-To: <1e62d137050807205047daf9e0@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Aug 2005 05:19:04.0843 (UTC) FILETIME=[B1D0F5B0:01C59BD8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/7/05, Fawad Lateef <fawadlateef@gmail.com> wrote:
-> Hello,
-> 
-> I m facing a problem in RHEL3 (2.4.21-5.ELsmp) kernel while using
-> kmap_atomic on the pages reserved at the boot time !!!!
+Fawad Lateef wrote:
 
-Unless you can reproduce this in a current kernel.org kernel
-(2.6.13-rc6), then you probably should contact RedHat for support.
+>Hello,
+>
+>I m facing a problem in RHEL3 (2.4.21-5.ELsmp) kernel while using
+>kmap_atomic on the pages reserved at the boot time !!!!
+>
+>At the boot time I reserved pages above 2GB for later use by my module
+>..... And when I was using those reserved pages through kmap_atomic
+>system hangs; although kmap_atomic successfully returns me the virtual
+>address but when I use that virtual address like in memcpy the system
+>hangs .....
+>
+>I m unable to findout why it is happening in RHEL3 kernel !!!! Plz
+>help me in this regard ....
+>  
+>
 
-Thanks,
-Nish
+IIRC 2.4.21 has some highmem bugs that have since been fixed.  But, it 
+sounds like you might be doing something quite unusual.  Code would 
+definitely give people a better idea of what might be wrong.  You should 
+definitely consider moving to 2.6 to get a better response.
+
+Zach

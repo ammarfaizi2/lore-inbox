@@ -1,28 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVHHRps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVHHRqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbVHHRps (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 13:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVHHRps
+	id S932107AbVHHRqN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 13:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVHHRqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 13:45:48 -0400
-Received: from dude3.usprocom.net ([69.222.0.8]:23812 "EHLO usfltd.com")
-	by vger.kernel.org with ESMTP id S932155AbVHHRpr (ORCPT
+	Mon, 8 Aug 2005 13:46:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61832 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932107AbVHHRqF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 13:45:47 -0400
-Date: Mon,  8 Aug 2005 12:45:54 -0500
-Message-Id: <200508081245.AA36831876@usfltd.com>
+	Mon, 8 Aug 2005 13:46:05 -0400
+Date: Mon, 8 Aug 2005 10:44:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sonny Rao <sonny@burdell.org>
+Cc: rdunlap@xenotime.net, miles.lane@gmail.com, airlied@gmail.com,
+       linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>,
+       Greg KH <greg@kroah.com>
+Subject: Re: OOPS in 2.6.13-rc1-mm1 -- EIP is at sysfs_release+0x49/0xb0
+Message-Id: <20050808104404.11846951.akpm@osdl.org>
+In-Reply-To: <20050808165352.GA20622@kevlar.burdell.org>
+References: <a44ae5cd05070301417531fac2@mail.gmail.com>
+	<21d7e9970507070331107831c6@mail.gmail.com>
+	<1121055986.10029.9.camel@localhost.localdomain>
+	<21d7e99705071300173ae0c39b@mail.gmail.com>
+	<a44ae5cd05071307546d3f8f9e@mail.gmail.com>
+	<20050713124215.77a6a6a1.rdunlap@xenotime.net>
+	<20050808165352.GA20622@kevlar.burdell.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: "art" <art@usfltd.com>
-Reply-To: <art@usfltd.com>
-To: <linux-kernel@vger.kernel.org>
-CC: <torvalds@osdl.org>
-Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..-deadlock
-X-Mailer: <IMail v8.05>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel 2.6.13-rc1-git7 to 2.6.13-rc5 transfer 72MB/s on aha19160 with 15k rpm seagate with reiserfs3 but possible deadlock in heavy IO - rsync ~50000-small files from /mnt/seagate15k/a to /mnt/seagate15k/b ends in middle with deadlock of rsync (3 instances), pdflush, and gam_server all of them in uninteruptible state -- root cannot kill this deadlocked uninterruptibles, so reboot by reset
+Sonny Rao <sonny@burdell.org> wrote:
+>
+> On Wed, Jul 13, 2005 at 12:42:15PM -0700, randy_dunlap wrote:
+> > On Wed, 13 Jul 2005 09:54:10 -0500 Miles Lane wrote:
+> > 
+> > > On 7/13/05, Dave Airlie <airlied@gmail.com> wrote:
+> > > > > Thanks Dave,
+> > > > >
+> > > > > I switched to the i915 kernel driver and still got the OOPS.
+> > > > > I also continue to get the overlapping mtrr message.  I am currently
+> > > > > testing 2.6.13-rc2-git3.  I have tried to run strace with hald, but
+> > > > > cannot reproduce the problem this way.  I am not sure I am invoking the
+> > > > > command corrently.  I have written to the hal developers, but have not
+> > > > > received a response yet.  Here's the current output:
+> > > > >
+> > > > 
+> > > > Can you try and see if you apply the patch from
+> > > > 
+> > > > http://lkml.org/lkml/2005/7/8/257
+> > > > 
+> > > > It should apply to your kernel.. I cannot get this to happen on my
+> > > > system... the mtrr overlaps are just vesafb setting up the mtrrs, you
+> > > > might try without vesafb...
+> > > 
+> > > I will try booting without vesafb enabled.
+> > > 
+> > > I get an error building with the patch applied to 2.6.13-rc2-git3:
+> > > 
+> > > arch/i386/kernel/built-in.o(.text+0x4010): In function `die':
+> > > arch/i386/kernel/traps.c:343: undefined reference to `last_sysfs_name'
+> > > make: *** [.tmp_vmlinux1] Error 1
+> > 
+> > Miles,
+> > Here is an updated version of the patch that builds for me.
+> > (uses last_sysfs_file instead of last_sysfs_name)
+> 
+> I think I was able to reproduce this same bug on 2.6.13-rc4-mm1,
+> here's the output (w/ apologies for long lines):
+> 
+> Unable to handle kernel paging request at virtual address 762f7473
+>  printing eip:
+> c01a8bcc
+> *pde = 00000000
+> Oops: 0002 [#1]
+> PREEMPT SMP DEBUG_PAGEALLOC
+> last sysfs file: /class/vc/vcs5/dev
 
-art@usfltd.com
+gotcha.
+
+> Modules linked in: cpufreq_userspace cpufreq_stats freq_table cpufreq_powersave 
+> cpufreq_ondemand cpufreq_conservative ipv6 video thermal processor hotkey fan co
+> ntainer button battery ac nfs lockd sunrpc af_packet tg3 ohci_hcd usbcore generi
+> c serverworks i2c_piix4 i2c_core sworks_agp agpgart pcspkr rtc floppy tsdev dm_m
+> od parport_pc lp parport ide_generic ide_disk ide_cd cdrom ide_core unix
+> CPU:    0
+> EIP:    0060:[<c01a8bcc>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.13-rc4-mm1) 
+> EIP is at sysfs_release+0x4c/0xb0
+> eax: 762f7373   ebx: 762f7373   ecx: 00000001   edx: ef3c5000
+> esi: f596a188   edi: f21fecc0   ebp: ef3c5f3c   esp: ef3c5f2c
+> ds: 007b   es: 007b   ss: 0068
+> Process udev (pid: 11843, threadinfo=ef3c5000 task=ef78e550)
+> Stack: f596a188 00000010 f762d580 c21bc944 ef3c5f68 c0166cea c21bc944 f762d580 
+>        00000000 00000000 c2137980 ec7e9748 f762d580 dcae7300 00000000 ef3c5f78 
+>        c0166aeb f762d580 f762d580 ef3c5f94 c01650ab f762d580 dcae7300 dcae7300 
+> Call Trace:
+>  [<c010401f>] show_stack+0x7f/0xa0
+>  [<c01041d4>] show_registers+0x164/0x1d0
+>  [<c0104422>] die+0x122/0x1c0
+>  [<c030db1e>] do_page_fault+0x2ce/0x600
+>  [<c0103ccb>] error_code+0x4f/0x54
+>  [<c0166cea>] __fput+0x1da/0x1f0
+>  [<c0166aeb>] fput+0x2b/0x50
+>  [<c01650ab>] filp_close+0x4b/0x80
+>  [<c016514e>] sys_close+0x6e/0x90
+>  [<c010312f>] sysenter_past_esp+0x54/0x75
+> Code: 85 f6 8b 40 14 8b 58 04 74 08 89 34 24 e8 0d 97 04 00 85 db 74 38 b8 01 00
+>  00 00 e8 af 18 f7 ff e8 4a e5 04 00 c1 e0 07 8d 04 18 <ff> 88 00 01 00 00 83 3b
+>  02 74 49 b8 01 00 00 00 e8 cf 18 f7 ff 
+>  <6>note: udev[11843] exited with preempt_count 1
+> Using generic hotkey driver
+> ibm_acpi: acpi_evalf(DHKC, d, ...) failed: 4097
+> ibm_acpi: `enable,0xffff' invalid for parameter `hotkey'
+> toshiba_acpi: Unknown parameter `hotkeys_over_acpi'
+> apm: BIOS not found.
+> 
+> Let me see if I can reproduce this on either 2.6.13-rc4 or  2.6.13-rc6 
+> 
+> Machine is an IBM x335 (dual P4), and I'm not using any framebuffer
+> stuff. 
+> 
+
+Keith, does this look like the use-after-free which you've been hitting?
 

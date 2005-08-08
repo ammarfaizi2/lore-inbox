@@ -1,106 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbVHHXVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVHHXaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbVHHXVb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 19:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVHHXVb
+	id S932359AbVHHXaB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 19:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVHHXaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 19:21:31 -0400
-Received: from quickstop.soohrt.org ([81.2.155.147]:44185 "EHLO
-	quickstop.soohrt.org") by vger.kernel.org with ESMTP
-	id S932356AbVHHXVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 19:21:30 -0400
-Date: Tue, 9 Aug 2005 01:04:01 +0200
-From: Horst Schirmeier <horst@schirmeier.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6.13-rc3-git9] pl2303: pl2303_update_line_status data length fix
-Message-ID: <20050808230401.GR20932@quickstop.soohrt.org>
-References: <20050728133220.GJ25889@quickstop.soohrt.org> <20050808222423.GA4550@kroah.com>
+	Mon, 8 Aug 2005 19:30:01 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2321 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932359AbVHHXaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 19:30:00 -0400
+Date: Tue, 9 Aug 2005 01:29:57 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: abonilla@linuxwireless.org, "'Andreas Steinmetz'" <ast@domdv.de>,
+       "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Denis Vlasenko'" <vda@ilport.com.ua>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: Wireless support
+Message-ID: <20050808232957.GR4006@stusta.de>
+References: <005501c59c4a$f6210800$a20cc60a@amer.sykes.com> <1123528018.15269.44.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XMM+kVNHGkMezEqK"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050808222423.GA4550@kroah.com>
+In-Reply-To: <1123528018.15269.44.camel@mindpipe>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 08, 2005 at 03:06:58PM -0400, Lee Revell wrote:
+> On Mon, 2005-08-08 at 12:56 -0600, Alejandro Bonilla wrote:
+> > Again, the point is that ndiswrapper is a great project, but people
+> > uses it for the leftovers! We *shouldn't* buy leftovers or from Manuf
+> > that don't care about Linux.
+> 
+> If you are always speccing out new systems then of course, but in the
+> real world I have some customers who need to dual boot and ideally it
+> would work on their existing hardware.  Linux is a harder sell if people
+> need to replace a lot of their gear.
 
---XMM+kVNHGkMezEqK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+That's the advantage of such drivers.
 
-On Mon, 08 Aug 2005, Greg KH wrote:
-> On Thu, Jul 28, 2005 at 03:32:20PM +0200, Horst Schirmeier wrote:
-> > Minimum data length must be UART_STATE + 1, as data[UART_STATE] is being
-> > accessed for the new line_state. Although PL-2303 hardware is not
-> > expected to send data with exactly UART_STATE length, this keeps it on
-> > the safe side.
-> >=20
-> > Signed-off-by: Horst Schirmeier <horst@schirmeier.com>
-> > ---
-> >=20
-> > --- linux-2.6.13-rc3-git9/drivers/usb/serial/pl2303.c.orig	2005-07-28 1=
-4:42:58.000000000 +0200
-> > +++ linux-2.6.13-rc3-git9/drivers/usb/serial/pl2303.c	2005-07-28 14:43:=
-16.000000000 +0200
-> > @@ -826,7 +826,7 @@ static void pl2303_update_line_status(st
-> >  	struct pl2303_private *priv =3D usb_get_serial_port_data(port);
-> >  	unsigned long flags;
-> >  	u8 status_idx =3D UART_STATE;
-> > -	u8 length =3D UART_STATE;
-> > +	u8 length =3D UART_STATE + 1;
->=20
-> "safe side" yes, but this will just prevent any line changes from going
-> back to the user, right?
+I see at least two disadvantages:
 
-IMHO not, no. The PL-2303 interrupt IN endpoint has a 10 bytes FIFO and
-(as far as I've observed from the type_1 model) always sends packets
-with exactly this size. The UART_STATE is located at offset 0x08,
-therefore the minimum packet length we need is 0x09 (UART_STATE + 1).
+First, it doesn't encourage hardware manufacturers to support open 
+source development.
 
-Here are the two different byte sequences from that endpoint I picked
-up; the first with a terminal on the serial end, the second without one
-(both times using the patched pl2303 module with debug=3D1):
+Linux has only a small market share, but it's slowly growing.
 
-a1 20 00 00 00 00 02 00 00 00
-a1 20 00 00 00 00 02 00 82 00
+Linux driver support does sometimes influence the decision which 
+hardware to buy.
 
-Note the UART_STATE byte with the DSR and CTS bits set in the second
-case.
+With NdisWrapper, the hardware manufacturer can say:
+  "Our hardware is supported through the open source NdisWrapper."
 
-> Hm, how is this working at all, it looks like we overflow the buffer...
+Without NdisWrapper, they will sometimes hear that people did choose to 
+buy hardware from a different hardware manufacturer that has a Linux 
+driver. This can make the hardware manufacturer more friendly towards 
+open source development (e.g. by providing hardware specs).
 
-In the unlikely case that some weird hardware sends a packet with
-exactly UART_STATE (8) bytes length, yes, we do. Normal PL-2303 hardware
-_should_ cause no trouble, as it always sends 10 bytes (at least my
-hardware does), therefore my side note "this keeps it on the safe side".
+Secondly, binary-only drivers have an impact on the stability of the 
+Linux kernel.
 
-> Have you tested this change?
+E.g. during the last years the nvidia has produced relatively many 
+kernel crashes - and I doubt that binary-only drivers for Windows are 
+much better in this respect.
 
-Yes, I have.
+The users only see their kernel crashing blaming the Linux kernel and 
+harming the reputation of the stability of Linux.
 
-> thanks,
->=20
-> greg k-h
+> Lee
 
-Kind regards,
- Horst
+cu
+Adrian
 
---=20
-PGP-Key 0xD40E0E7A
+-- 
 
---XMM+kVNHGkMezEqK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFC9+ThB6mkGNQODnoRAiseAJwNjBSJKKcHXh4CUDZXgI/CDx5MDwCg3ciq
-ri0TTVstNnoq5YNvXo/fpbE=
-=UmHC
------END PGP SIGNATURE-----
-
---XMM+kVNHGkMezEqK--

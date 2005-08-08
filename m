@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbVHHNeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbVHHNgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbVHHNeI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 09:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbVHHNeH
+	id S1750886AbVHHNgy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 09:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbVHHNgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 09:34:07 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:8634 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750867AbVHHNeH (ORCPT
+	Mon, 8 Aug 2005 09:36:54 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:31966 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750871AbVHHNgx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 09:34:07 -0400
-Date: Mon, 8 Aug 2005 09:33:11 -0400 (Eastern Daylight Time)
+	Mon, 8 Aug 2005 09:36:53 -0400
+Date: Mon, 8 Aug 2005 09:36:40 -0400 (Eastern Daylight Time)
 From: Janak Desai <janak@us.ibm.com>
 To: viro@parcelfarce.linux.theplanet.co.uk, sds@tycho.nsa.gov,
        linuxram@us.ibm.com, ericvh@gmail.com, dwalsh@redhat.com,
        jmorris@redhat.com, akpm@osdl.org, torvalds@osdl.org, gh@us.ibm.com,
        linux-fsdevel@vger.kernel.org
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] New system call, unshare
-Message-ID: <Pine.WNT.4.63.0508080928480.3668@IBM-AIP3070F3AM>
+Subject: [PATCH 2/2] New system call, unshare
+Message-ID: <Pine.WNT.4.63.0508080933330.3668@IBM-AIP3070F3AM>
 X-X-Sender: janak@imap.linux.ibm.com
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
@@ -26,250 +26,37 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-[PATCH 1/2] unshare system call: System Call handler function sys_unshare
+[PATCH 2/2] unshare system call: System Call setup for i386 arch
 
 Signed-off-by: Janak Desai
 
 
+ arch/i386/kernel/syscall_table.S |    1 +
+ include/asm-i386/unistd.h        |    3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
- fork.c |  202 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 files changed, 196 insertions(+), 6 deletions(-)
 
 
-
-diff -Naurp 2.6.13-rc5-mm1/kernel/fork.c 2.6.13-rc5-mm1+unshare/kernel/fork.c
---- 2.6.13-rc5-mm1/kernel/fork.c	2005-08-07 15:33:45.000000000 +0000
-+++ 2.6.13-rc5-mm1+unshare/kernel/fork.c	2005-08-07 19:03:49.000000000 +0000
-@@ -57,6 +57,17 @@ int nr_threads; 		/* The idle threads do
+diff -Naurp 2.6.13-rc5-mm1/arch/i386/kernel/syscall_table.S 2.6.13-rc5-mm1+unshare/arch/i386/kernel/syscall_table.S
+--- 2.6.13-rc5-mm1/arch/i386/kernel/syscall_table.S	2005-08-07 15:33:07.000000000 +0000
++++ 2.6.13-rc5-mm1+unshare/arch/i386/kernel/syscall_table.S	2005-08-07 18:35:57.000000000 +0000
+@@ -300,3 +300,4 @@ ENTRY(sys_call_table)
+ 	.long sys_vperfctr_control
+ 	.long sys_vperfctr_write
+ 	.long sys_vperfctr_read
++	.long sys_unshare		/* 300 */
+diff -Naurp 2.6.13-rc5-mm1/include/asm-i386/unistd.h 2.6.13-rc5-mm1+unshare/include/asm-i386/unistd.h
+--- 2.6.13-rc5-mm1/include/asm-i386/unistd.h	2005-08-07 15:33:40.000000000 +0000
++++ 2.6.13-rc5-mm1+unshare/include/asm-i386/unistd.h	2005-08-07 18:36:37.000000000 +0000
+@@ -305,8 +305,9 @@
+ #define __NR_vperfctr_control	(__NR_vperfctr_open+1)
+ #define __NR_vperfctr_write	(__NR_vperfctr_open+2)
+ #define __NR_vperfctr_read	(__NR_vperfctr_open+3)
++#define __NR_unshare		300
  
- int max_threads;		/* tunable limit on nr_threads */
+-#define NR_syscalls 300
++#define NR_syscalls 301
  
-+/*
-+ * mm_copy gets called from clone or unshare system calls. When called
-+ * from clone, mm_struct may be shared depending on the clone flags
-+ * argument, however, when called from the unshare system call, a private
-+ * copy of mm_struct is made.
-+ */
-+enum mm_copy_share {
-+	MAY_SHARE,
-+	UNSHARE,
-+};
-+
- DEFINE_PER_CPU(unsigned long, process_counts) = 0;
- 
-  __cacheline_aligned DEFINE_RWLOCK(tasklist_lock);  /* outer */
-@@ -447,16 +458,26 @@ void mm_release(struct task_struct *tsk,
- 	}
- }
- 
--static int copy_mm(unsigned long clone_flags, struct task_struct * tsk)
-+static int copy_mm(unsigned long clone_flags, struct task_struct * tsk,
-+			enum mm_copy_share copy_share_action)
- {
- 	struct mm_struct * mm, *oldmm;
- 	int retval;
- 
--	tsk->min_flt = tsk->maj_flt = 0;
--	tsk->nvcsw = tsk->nivcsw = 0;
-+	/*
-+	 * If the process memory is being duplicated as part of the
-+	 * unshare system call, we are working with the current process
-+	 * and not a newly allocated task strucutre, and should not
-+	 * zero out fault info, context switch counts, mm and active_mm
-+	 * fields.
-+	 */
-+	if (copy_share_action == MAY_SHARE) {
-+		tsk->min_flt = tsk->maj_flt = 0;
-+		tsk->nvcsw = tsk->nivcsw = 0;
- 
--	tsk->mm = NULL;
--	tsk->active_mm = NULL;
-+		tsk->mm = NULL;
-+		tsk->active_mm = NULL;
-+	}
- 
- 	/*
- 	 * Are we cloning a kernel thread?
-@@ -973,7 +994,7 @@ static task_t *copy_process(unsigned lon
- 		goto bad_fork_cleanup_fs;
- 	if ((retval = copy_signal(clone_flags, p)))
- 		goto bad_fork_cleanup_sighand;
--	if ((retval = copy_mm(clone_flags, p)))
-+	if ((retval = copy_mm(clone_flags, p, MAY_SHARE)))
- 		goto bad_fork_cleanup_signal;
- 	if ((retval = copy_keys(clone_flags, p)))
- 		goto bad_fork_cleanup_mm;
-@@ -1288,3 +1309,172 @@ void __init proc_caches_init(void)
- 			sizeof(struct mm_struct), 0,
- 			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
- }
-+
-+/*
-+ * unshare_mm is called from the unshare system call handler function to
-+ * make a private copy of the mm_struct structure. It calls copy_mm with
-+ * CLONE_VM flag cleard, to ensure that a private copy of mm_struct is made,
-+ * and with mm_copy_share enum set to UNSHARE, to ensure that copy_mm
-+ * does not clear fault info, context switch counts, mm and active_mm
-+ * fields of the mm_struct.
-+ */
-+static int unshare_mm(unsigned long unshare_flags, struct task_struct *tsk)
-+{
-+	int retval = 0;
-+	struct mm_struct *mm = tsk->mm;
-+
-+	/*
-+	 * If the virtual memory is being shared, make a private
-+	 * copy and disassociate the process from the shared virtual
-+	 * memory.
-+	 */
-+	if (atomic_read(&mm->mm_users) > 1) {
-+		retval = copy_mm((unshare_flags & ~CLONE_VM), tsk, UNSHARE);
-+
-+		/*
-+		 * If copy_mm was successful, decrement the number of users
-+		 * on the original, shared, mm_struct.
-+		 */
-+		if (!retval)
-+			atomic_dec(&mm->mm_users);
-+	}
-+	return retval;
-+}
-+
-+/*
-+ * unshare_sighand is called from the unshare system call handler function to
-+ * make a private copy of the sighand_struct structure. It calls copy_sighand
-+ * with CLONE_SIGHAND cleared to ensure that a new signal handler structure
-+ * is cloned from the current shared one.
-+ */
-+static int unshare_sighand(unsigned long unshare_flags, struct task_struct *tsk)
-+{
-+	int retval = 0;
-+	struct sighand_struct *sighand = tsk->sighand;
-+
-+	/*
-+	 * If the signal handlers are being shared, make a private
-+	 * copy and disassociate the process from the shared signal
-+	 * handlers.
-+	 */
-+	if (atomic_read(&sighand->count) > 1) {
-+		retval = copy_sighand((unshare_flags & ~CLONE_SIGHAND), tsk);
-+
-+		/*
-+		 * If copy_sighand was successful, decrement the use count
-+		 * on the original, shared, sighand_struct.
-+		 */
-+		if (!retval)
-+			atomic_dec(&sighand->count);
-+	}
-+	return retval;
-+}
-+
-+/*
-+ * unshare_namespace is called from the unshare system call handler
-+ * function to make a private copy of the current shared namespace. It
-+ * calls copy_namespace with CLONE_NEWNS set to ensure that a new
-+ * namespace is cloned from the current namespace.
-+ */
-+static int unshare_namespace(struct task_struct *tsk)
-+{
-+	int retval = 0;
-+	struct namespace *namespace = tsk->namespace;
-+
-+	/*
-+	 * If the namespace is being shared, make a private copy
-+	 * and disassociate the process from the shared namespace.
-+	 */
-+	if (atomic_read(&namespace->count) > 1) {
-+		retval = copy_namespace(CLONE_NEWNS, tsk);
-+
-+		/*
-+		 * If copy_namespace was successful, decrement the use count
-+		 * on the original, shared, namespace struct.
-+		 */
-+		if (!retval)
-+			atomic_dec(&namespace->count);
-+	}
-+	return retval;
-+}
-+
-+/*
-+ * unshare allows a process to 'unshare' part of the process
-+ * context which was originally shared using clone.
-+ */
-+asmlinkage long sys_unshare(unsigned long unshare_flags)
-+{
-+	struct task_struct *tsk = current;
-+	int retval = 0;
-+	struct namespace *namespace;
-+	struct mm_struct *mm;
-+	struct sighand_struct *sighand;
-+
-+	if (unshare_flags & ~(CLONE_NEWNS | CLONE_VM | CLONE_SIGHAND))
-+		goto bad_unshare_invalid_val;
-+
-+	/*
-+	 * Shared signal handlers imply shared VM, so if CLONE_SIGHAND is
-+	 * set, CLONE_VM must also be set in the system call argument.
-+	 */
-+	if ((unshare_flags & CLONE_SIGHAND) && !(unshare_flags & CLONE_VM))
-+		goto bad_unshare_invalid_val;
-+
-+	task_lock(tsk);
-+	namespace = tsk->namespace;
-+	mm = tsk->mm;
-+	sighand = tsk->sighand;
-+
-+	if (unshare_flags & CLONE_VM) {
-+		retval = unshare_mm(unshare_flags, tsk);
-+		if (retval)
-+			goto unshare_unlock_task;
-+		else if (unshare_flags & CLONE_SIGHAND) {
-+			retval = unshare_sighand(unshare_flags, tsk);
-+			if (retval)
-+				goto bad_unshare_cleanup_mm;
-+		}
-+	}
-+
-+	if (unshare_flags & CLONE_NEWNS) {
-+		retval = unshare_namespace(tsk);
-+		if (retval)
-+			goto bad_unshare_cleanup_sighand;
-+	}
-+
-+unshare_unlock_task:
-+	task_unlock(tsk);
-+
-+unshare_out:
-+	return retval;
-+
-+bad_unshare_cleanup_sighand:
-+	/*
-+	 * If signal handlers were unshared (private copy was made),
-+	 * clean them up (delete the private copy) and restore
-+	 * the task to point to the old, shared, value.
-+	 */
-+	if (unshare_flags & CLONE_SIGHAND) {
-+		exit_sighand(tsk);
-+		tsk->sighand = sighand;
-+		atomic_inc(&sighand->count);
-+	}
-+
-+bad_unshare_cleanup_mm:
-+	/*
-+	 * If mm struct was unshared (private copy was made),
-+	 * clean it up (delete the private copy) and restore
-+	 * the task to point to the old, shared, value.
-+	 */
-+	if (unshare_flags & CLONE_VM) {
-+		if (tsk->mm)
-+			mmput(tsk->mm);
-+		tsk->mm = mm;
-+		atomic_inc(&mm->mm_users);
-+	}
-+	goto unshare_unlock_task;
-+
-+bad_unshare_invalid_val:
-+	retval = -EINVAL;
-+	goto unshare_out;
-+}
+ /*
+  * user-visible error numbers are in the range -1 - -128: see
 

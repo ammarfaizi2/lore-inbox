@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbVHHOsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbVHHOwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbVHHOsO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 10:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbVHHOsO
+	id S1750919AbVHHOwO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 10:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbVHHOwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 10:48:14 -0400
-Received: from smtp4.brturbo.com.br ([200.199.201.180]:51376 "EHLO
-	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S1750916AbVHHOsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 10:48:14 -0400
-Subject: Re: [PATCH] DVB: lgdt330x frontend: some bug fixes & add lgdt3303
-	support
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Michael Krufky <mkrufky@linuxtv.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       linux-dvb-maintainer@linuxtv.org,
-       Mac Michaels <wmichaels1@earthlink.net>
-In-Reply-To: <42F75C0D.3030409@linuxtv.org>
-References: <42F6A294.90300@linuxtv.org>
-	 <1123504387.17427.9.camel@localhost>  <42F75C0D.3030409@linuxtv.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 08 Aug 2005 11:47:47 -0300
-Message-Id: <1123512467.4879.50.camel@localhost>
+	Mon, 8 Aug 2005 10:52:14 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:43393 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S1750918AbVHHOwN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 10:52:13 -0400
+Date: Mon, 8 Aug 2005 16:53:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>,
+       LKML <linux-kernel@vger.kernel.org>, Daniel Walker <dwalker@mvista.com>
+Subject: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-16
+Message-ID: <20050808145301.GA19369@elte.hu>
+References: <1123186583.12009.32.camel@localhost.localdomain> <20050805105943.GA24994@elte.hu> <1123383935.17039.6.camel@mindpipe> <20050808144216.GA1307@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3-5mdk 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050808144216.GA1307@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Seg, 2005-08-08 às 09:20 -0400, Michael Krufky escreveu:
-> Mauro Carvalho Chehab wrote:
-> The tda9887 stuff is disabled inside the code with #ifdefs.
-	Ok, you removed on your latest patch.
->  Most of our correspondence have been short little emails and we 
-> have been communicating in pvt emails, rather than using the list. 
-	Please, use V4L and DVB lists for these discussions, since we all have
-something to collaborate.
-> Thank you.
-> 
-Cheers, 
-Mauro.
 
+* Paul E. McKenney <paulmck@us.ibm.com> wrote:
+
+>  Updated RCU-only portion of the patch included below, applies to 
+> 2.6.13-rc4. [...]
+
+thanks - i've put it into the -RT tree and have released the -52-16 
+patch, which can be downloaded from the usual place:
+
+    http://redhat.com/~mingo/realtime-preempt/
+
+to build a -V0.7.52-16 tree, the following patches should to be applied:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
+   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc4.bz2
+   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.13-rc4-RT-V0.7.52-16
+
+	Ingo

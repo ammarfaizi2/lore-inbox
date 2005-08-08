@@ -1,96 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVHHNqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVHHNvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbVHHNqf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 09:46:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVHHNqf
+	id S1750885AbVHHNvC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 09:51:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVHHNvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 09:46:35 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21145 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750888AbVHHNqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 09:46:34 -0400
-Date: Mon, 8 Aug 2005 15:46:26 +0200
-From: Jan Kara <jack@suse.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fs/Kconfig: quota help text updates
-Message-ID: <20050808134626.GB7541@atrey.karlin.mff.cuni.cz>
-References: <20050806132254.GS4029@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050806132254.GS4029@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 8 Aug 2005 09:51:02 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:40666 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1750871AbVHHNvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 09:51:01 -0400
+Message-ID: <42F7634B.2000504@m1k.net>
+Date: Mon, 08 Aug 2005 09:51:07 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       LKML <linux-kernel@vger.kernel.org>, linux-dvb-maintainer@linuxtv.org,
+       Mac Michaels <wmichaels1@earthlink.net>
+Subject: Re: [PATCH] DVB: lgdt330x frontend: some bug fixes & add lgdt3303
+ support
+References: <42F6A294.90300@linuxtv.org> <1123504387.17427.9.camel@localhost>
+In-Reply-To: <1123504387.17427.9.camel@localhost>
+Content-Type: multipart/mixed;
+ boundary="------------050601000606040809020405"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Looks fine. Giving CC to Andrew to queue it for inclusion. Andrew,
-can you please also add
+This is a multi-part message in MIME format.
+--------------050601000606040809020405
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-  Signed-off-by: Jan Kara <jack@suse.cz>
+Mauro Carvalho Chehab wrote:
 
-							Thanks
-								Honza
+>	This should't be applied to 2.6.13. It does contain a hack at V4L code,
+>since mute_tda9887 is implemented outside tda9887.c module and could
+>potentially cause troubles since there are some work to provide it on a
+>correct way.
+>  
+>
+This patch removes the tda9887 stuff from lgdt330x.c.
+
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 
 
-> This patch contains the following updates to the help texts:
-> - QUOTA: most people will get the quota utilities from their 
->          distribution, and if not the mini-HOWTO will tell them
-> - QFMT_V2: quota utilities 3.01 are no longer recent, they are now 
->            ancient
->            and 3.01 is lower than the minimal version documented in
->            Documentation/Changes
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  fs/Kconfig |    9 +++------
->  1 files changed, 3 insertions(+), 6 deletions(-)
-> 
-> --- linux-2.6.13-rc4-mm1-full/fs/Kconfig.old	2005-08-06 15:13:43.000000000 +0200
-> +++ linux-2.6.13-rc4-mm1-full/fs/Kconfig	2005-08-06 15:14:59.000000000 +0200
-> @@ -405,18 +405,16 @@
->  config QUOTA
->  	bool "Quota support"
->  	help
->  	  If you say Y here, you will be able to set per user limits for disk
->  	  usage (also called disk quotas). Currently, it works for the
->  	  ext2, ext3, and reiserfs file system. ext3 also supports journalled
->  	  quotas for which you don't need to run quotacheck(8) after an unclean
-> -	  shutdown. You need additional software in order to use quota support
-> -	  (you can download sources from
-> -	  <http://www.sf.net/projects/linuxquota/>). For further details, read
-> -	  the Quota mini-HOWTO, available from
-> +	  shutdown.
-> +	  For further details, read the Quota mini-HOWTO, available from
->  	  <http://www.tldp.org/docs.html#howto>, or the documentation provided
->  	  with the quota tools. Probably the quota support is only useful for
->  	  multi user systems. If unsure, say N.
->  
->  config QFMT_V1
->  	tristate "Old quota format support"
->  	depends on QUOTA
-> @@ -426,16 +424,15 @@
->  	  format say Y here.
->  
->  config QFMT_V2
->  	tristate "Quota format v2 support"
->  	depends on QUOTA
->  	help
->  	  This quota format allows using quotas with 32-bit UIDs/GIDs. If you
-> -	  need this functionality say Y here. Note that you will need recent
-> -	  quota utilities (>= 3.01) for new quota format with this kernel.
-> +	  need this functionality say Y here.
->  
->  config QUOTACTL
->  	bool
->  	depends on XFS_QUOTA || QUOTA
->  	default y
->  
->  config DNOTIFY
-> 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+
+--------------050601000606040809020405
+Content-Type: text/plain;
+ name="lgdt330x-remove-tda9887.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="lgdt330x-remove-tda9887.patch"
+
+ linux/drivers/media/dvb/frontends/lgdt330x.c |   35 -------------------
+ 1 files changed, 35 deletions(-)
+
+diff -u linux-2.6.13/drivers/media/dvb/frontends/lgdt330x.c linux/drivers/media/dvb/frontends/lgdt330x.c
+--- linux-2.6.13/drivers/media/dvb/frontends/lgdt330x.c	2005-08-08 09:46:25.000000000 +0000
++++ linux/drivers/media/dvb/frontends/lgdt330x.c	2005-08-08 09:48:24.000000000 +0000
+@@ -172,38 +172,6 @@
+ 	}
+ }
+ 
+-#ifdef MUTE_TDA9887
+-static int i2c_write_ntsc_demod (struct lgdt330x_state* state, u8 buf[2])
+-{
+-	struct i2c_msg msg =
+-		{ .addr = 0x43,
+-		  .flags = 0, 
+-		  .buf = buf,
+-		  .len = 2 };
+-	int err;
+-
+-	if ((err = i2c_transfer(state->i2c, &msg, 1)) != 1) {
+-			printk(KERN_WARNING "lgdt330x: %s error (addr %02x <- %02x, err = %i)\n", __FUNCTION__, msg.buf[0], msg.buf[1], err);
+-		if (err < 0)
+-			return err;
+-		else
+-			return -EREMOTEIO;
+-	}
+-	return 0;
+-}
+-
+-static void fiddle_with_ntsc_if_demod(struct lgdt330x_state* state)
+-{
+-	// Experimental code
+-	u8 buf0[] = {0x00, 0x20};
+-	u8 buf1[] = {0x01, 0x00};
+-	u8 buf2[] = {0x02, 0x00};
+-
+-	i2c_write_ntsc_demod(state, buf0);
+-	i2c_write_ntsc_demod(state, buf1);
+-	i2c_write_ntsc_demod(state, buf2);
+-}
+-#endif
+ 
+ static int lgdt330x_init(struct dvb_frontend* fe)
+ {
+@@ -267,9 +235,6 @@
+ 		chip_name = "LGDT3303";
+ 		err = i2c_write_demod_bytes(state, lgdt3303_init_data, 
+ 									sizeof(lgdt3303_init_data));
+-#ifdef MUTE_TDA9887
+-		fiddle_with_ntsc_if_demod(state);
+-#endif
+   		break;
+ 	default:
+ 		chip_name = "undefined";
+
+--------------050601000606040809020405--

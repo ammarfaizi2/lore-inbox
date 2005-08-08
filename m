@@ -1,124 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVHHW2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVHHW3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbVHHW2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 18:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVHHW2Q
+	id S932296AbVHHW3S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 18:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVHHW3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 18:28:16 -0400
-Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:60164 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932297AbVHHW2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 18:28:16 -0400
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [RFC] atomic open(..., O_CREAT | ...)
-Message-Id: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 09 Aug 2005 00:27:56 +0200
+	Mon, 8 Aug 2005 18:29:18 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:40863 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S932296AbVHHW3R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 18:29:17 -0400
+Message-ID: <42F7DCBB.3000607@vc.cvut.cz>
+Date: Tue, 09 Aug 2005 00:29:15 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jiang <djiang@mvista.com>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: x86_64 frame pointer via thread context
+References: <42F3EC97.2060906@mvista.com.suse.lists.linux.kernel> <p73slxn1dry.fsf@bragg.suse.de> <42F7A609.5030502@mvista.com> <42F7BB2C.6070004@vc.cvut.cz> <42F7BE4A.6030709@mvista.com> <42F7C01E.4020108@vc.cvut.cz> <42F7C9F9.7000505@mvista.com>
+In-Reply-To: <42F7C9F9.7000505@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to make my filesystem be able to do file creation and opening
-atomically.  This is needed for filesystems which cannot separate
-checking open permission from the actual open operation.
+Dave Jiang wrote:
+> Petr Vandrovec wrote:
+>> #0  tb_sig_handler (sig=33, info=0x407ff2f0, ucontext=0x407ff1c0) at 
+>> ttest1.c:26
+>> #1  <signal handler called>
+>> #2  0x00002aaaaad81335 in nanosleep () from /lib/libc.so.6
+>> #3  0x00002aaaaad811a5 in sleep () from /lib/libc.so.6
+>> #4  0x0000000000400871 in test_thread1 (arg=0x0) at ttest1.c:40
+>> #5  0x00002aaaaabc6b55 in start_thread () from /lib/libpthread.so.0
+>> #6  0x00002aaaaada87f0 in clone () from /lib/libc.so.6
+> 
+> 
+> Ooops, you are right. I forgot about those ones in the threads. Yes you 
+> are right. Once the sleep goes away rBP displays the correct values. Is 
+> this issue due to glibc or because of the toolchain? I do not have this 
+> issues on 32bit x86.... I would assume that the reason it works on 
+> Mandrake is due to the toolchain they use versus other distros? The 
+> toolchain determines which registers to use and the 
+> -fno-omit-frame-pointer did not prevent some of them from clobbering rbp?
 
-Usually any filesystem served from userspace by an unprivileged (no
-CAP_DAC_OVERRIDE) process will be such (ftp, sftp, etc.).
+You are building only your application with -fno-omit-frame-pointer,
+libraries you are using are just used as is.  On 32bit x86 it works
+as -O2 on x86 does not imply -fomit-frame-pointer, as frame pointer
+is required (well, was) for debugging.  On x86-64 frame pointer is
+not needed for debugging as it was always using DWARF debug info,
+and so -O2 on x86-64 implies -fomit-frame-pointer.  Due to this most
+of libraries you'll find on your 64bit system are built without frame
+pointer.  Mandrake either explicitly asks for -fno-omit-frame-pointer,
+or maybe their glibc is just sufficiently different that their sleep()
+does not need %rbp for sleep().
 
-With nameidata->intent.open.* it is possible to do the actual open
-from ->lookup() or ->create().  However there's no easy way to
-associate the 'struct file *' returned by dentry_open() with the
-filesystem's private file object.  Also if there's some error after
-the file has been opened but before a successful return of the file
-pointer, the filesystem has no way to know that it should destroy the
-private file object.
+Loading their glibc to the debugger and inspecting sleep & nanosleep
+will reveal whether %rbp is just unchanged by these (and so it works
+due to luck), or whether their sleep uses pushq %rbp; movq %rsp,%rbp
+- in which case they built glibc with frame pointers for no apparent
+reason.
 
-The following patch makes this possible through a new file pointer
-field in the open intent data, through which the filesystem can pass
-an opened file to be returned by filp_open().
+You must use debugging informations to get stacktrace on x86-64.
+Blindly following %rbp does not work on this architecture (and lot
+of others).
+							Petr
 
-The filesystem can call dentry_open() from ->lookup() or ->create(),
-and it in with it's private file data.  If there's an error the file
-can be properly destroyed through f_op->release().
-
-There's one question on which I'm not sure what is the best solution:
-
-The filesystem needs to know whether it's f_op->open() method was
-called from lookup/create, or from the filp_open(), because in the
-first case it need not do anything (the private file object will be
-created outside dentry_open()), but in the second case it must
-actually prepare the private file object.
-
-Two solutions come to mind:
-
-  1) pass a special open flag to dentry_open() which will be passed on
-     to f_op->open() in filp->f_flags
-
-  2) create a new 'dentry_open_noopen()' variant, which doesn't call
-     f_op->open()
-
-Does one sound better?  Or something else?
-
-Comments are welcome.
-
-Thanks,
-Miklos
-
-Index: linux/include/linux/namei.h
-===================================================================
---- linux.orig/include/linux/namei.h	2005-06-17 21:48:29.000000000 +0200
-+++ linux/include/linux/namei.h	2005-08-06 17:12:55.000000000 +0200
-@@ -8,6 +8,10 @@ struct vfsmount;
- struct open_intent {
- 	int	flags;
- 	int	create_mode;
-+	int	orig_flags;
-+
-+	/* Fs may want to do dentry_open() in ->lookup(), or in ->create() */
-+	struct file *file;
- };
- 
- enum { MAX_NESTED_LINKS = 5 };
-Index: linux/fs/open.c
-===================================================================
---- linux.orig/fs/open.c	2005-08-06 12:34:14.000000000 +0200
-+++ linux/fs/open.c	2005-08-08 13:03:08.000000000 +0200
-@@ -762,9 +762,22 @@ struct file *filp_open(const char * file
- 	if (namei_flags & O_TRUNC)
- 		namei_flags |= 2;
- 
-+	/* Fill in the open() intent data */
-+	nd.intent.open.flags = namei_flags;
-+	nd.intent.open.create_mode = mode;
-+	nd.intent.open.orig_flags = flags;
-+	nd.intent.open.file = NULL;
-+
- 	error = open_namei(filename, namei_flags, mode, &nd);
--	if (!error)
--		return dentry_open(nd.dentry, nd.mnt, flags);
-+	if (!error) {
-+		if (nd.intent.open.file)
-+			return nd.intent.open.file;
-+		else 
-+			return dentry_open(nd.dentry, nd.mnt, flags);
-+	}
-+
-+	if (nd.intent.open.file && !IS_ERR(nd.intent.open.file))
-+		fput(nd.intent.open.file);
- 
- 	return ERR_PTR(error);
- }
-Index: linux/fs/namei.c
-===================================================================
---- linux.orig/fs/namei.c	2005-08-06 12:35:59.000000000 +0200
-+++ linux/fs/namei.c	2005-08-06 17:12:55.000000000 +0200
-@@ -1423,10 +1423,6 @@ int open_namei(const char * pathname, in
- 	if (flag & O_APPEND)
- 		acc_mode |= MAY_APPEND;
- 
--	/* Fill in the open() intent data */
--	nd->intent.open.flags = flag;
--	nd->intent.open.create_mode = mode;
--
- 	/*
- 	 * The simplest case - just a plain lookup.
- 	 */

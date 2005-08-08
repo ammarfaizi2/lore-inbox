@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVHHG0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVHHG2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbVHHG0J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 02:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbVHHG0J
+	id S1750739AbVHHG2x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 02:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVHHG2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 02:26:09 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:17573 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750738AbVHHG0I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 02:26:08 -0400
-Date: Mon, 8 Aug 2005 08:25:19 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Pekka J Enberg <penberg@cs.Helsinki.FI>, linux-kernel@vger.kernel.org,
-       pmarques@grupopie.com
-Subject: Re: [PATCH] kernel: use kcalloc instead kmalloc/memset
-In-Reply-To: <Pine.LNX.4.61.0508060151330.3728@scrub.home>
-Message-ID: <Pine.LNX.4.61.0508080824500.18088@yvahk01.tjqt.qr>
-References: <1123219747.20398.1.camel@localhost>  <20050804223842.2b3abeee.akpm@osdl.org>
-  <Pine.LNX.4.58.0508050925370.27151@sbz-30.cs.Helsinki.FI> 
- <20050804233634.1406e92a.akpm@osdl.org>  <Pine.LNX.4.61.0508051132540.3743@scrub.home>
-  <1123235219.3239.46.camel@laptopd505.fenrus.org>  <Pine.LNX.4.61.0508051202520.3728@scrub.home>
-  <1123236831.3239.55.camel@laptopd505.fenrus.org>  <Pine.LNX.4.61.0508051225270.3743@scrub.home>
-  <1123238289.3239.57.camel@laptopd505.fenrus.org>  <Pine.LNX.4.61.0508051254010.3743@scrub.home>
- <1123240325.3239.62.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0508060151330.3728@scrub.home>
+	Mon, 8 Aug 2005 02:28:53 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:4042 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1750739AbVHHG2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 02:28:53 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Russell King <rmk+lkml@arm.linux.org.uk>,
+       "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: EXPORT_SYMBOL generates "is deprecated" noise
+Date: Mon, 8 Aug 2005 09:28:31 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <251790000.1123438079@[10.10.2.4]> <20050807201541.D22977@flint.arm.linux.org.uk>
+In-Reply-To: <20050807201541.D22977@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508080928.31605.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 07 August 2005 22:15, Russell King wrote:
+> On Sun, Aug 07, 2005 at 11:07:59AM -0700, Martin J. Bligh wrote:
+> > I'm getting lots of errors like this nowadays:
+> > 
+> > drivers/serial/8250.c:2651: warning: `register_serial' is deprecated 
+> > (declared at drivers/serial/8250.c:2607)
+> > 
+> > Which is just: "EXPORT_SYMBOL(register_serial);"
+> > 
+> > Sorry, but that's just compile-time noise, not anything useful.
+> > Warning on real usages of it might be handy (we can go fix the users)
+> > but not EXPORT_SYMBOL - we can't kill the export until the function
+> > goes away. The more noise we have, the harder it is to see real errors 
+> > and warnings.
+> 
+> I don't know why I bother with __deprecated - I haven't seen much
+> evidence of the users of these functions being cleaned up, so I
+> think we might as well just delete the functions and _force_ people
+> to fix their code.  That unfortunately seems to be the only way to
+> get things done in this day and age, which is rather sad if that's
+> what it takes to kick people into action.
 
->What prevents a rogue user to call this function a number of times to 
->waste resources?
+Was it ever different?
+--
+vda
 
-Sorry to jump in, but wasting resources is a different matter than 
-overwriting kernel memory.
-
-
-
-Jan Engelhardt
--- 

@@ -1,108 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVHHMiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbVHHM7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbVHHMiY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 08:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVHHMiX
+	id S1750852AbVHHM7J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 08:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbVHHM7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 08:38:23 -0400
-Received: from wormhole-tele2.se.axis.com ([193.13.178.170]:12003 "EHLO
-	wormhole.se.axis.com") by vger.kernel.org with ESMTP
-	id S1750847AbVHHMiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 08:38:23 -0400
-Message-ID: <1123504568.42f751b890ba2@webmail-unix.se.axis.com>
-Date: Mon,  8 Aug 2005 14:36:08 +0200
-From: starvik@axis.com
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, dev-etrax@axis.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] arch/cris/Kconfig.debug: use lib/Kconfig.debug
-References: <20050807220005.GC4006@stusta.de>
-In-Reply-To: <20050807220005.GC4006@stusta.de>
+	Mon, 8 Aug 2005 08:59:09 -0400
+Received: from mxsf19.cluster1.charter.net ([209.225.28.219]:38054 "EHLO
+	mxsf19.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1750850AbVHHM7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 08:59:09 -0400
+X-IronPort-AV: i="3.95,173,1120449600"; 
+   d="scan'208"; a="1372963455:sNHT35693202"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 212.181.50.183
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17143.22296.579197.917371@smtp.charter.net>
+Date: Mon, 8 Aug 2005 08:59:04 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
+In-Reply-To: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
+References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Acked-by: Mikael Starvik <starvik@axis.com>
 
-> This patch converts arch/cris/Kconfig.debug to using lib/Kconfig.debug.
-> 
-> This should fix a compile error in 2.6.13-rc4 caused by a missing 
-> CONFIG_LOG_BUF_SHIFT definition.
-> 
-> While I was editing this file, I also converted some spaces to tabs.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
-> This patch was already sent on:
-> - 31 Jul 2005
-> 
->  arch/cris/Kconfig.debug |   31 ++++++++++---------------------
->  1 files changed, 10 insertions(+), 21 deletions(-)
-> 
-> --- linux-2.6.13-rc4-mm1/arch/cris/Kconfig.debug.old	2005-07-31
-> 18:29:15.000000000 +0200
-> +++ linux-2.6.13-rc4-mm1/arch/cris/Kconfig.debug	2005-07-31
-> 18:32:15.000000000 +0200
-> @@ -5,10 +5,13 @@
->  	bool "Kernel profiling support"
->  
->  config SYSTEM_PROFILER
-> -        bool "System profiling support"
-> +	bool "System profiling support"
-> +
-> +source "lib/Kconfig.debug"
->  
->  config ETRAX_KGDB
->  	bool "Use kernel GDB debugger"
-> +	depends on DEBUG_KERNEL
->  	---help---
->  	  The CRIS version of gdb can be used to remotely debug a running
->  	  Linux kernel via the serial debug port.  Provided you have gdb-cris
-> @@ -22,25 +25,11 @@
->  	  this option is turned on!
->  
->  
-> -config DEBUG_INFO
-> -        bool "Compile the kernel with debug info"
-> -        help
-> -          If you say Y here the resulting kernel image will include
-> -          debugging info resulting in a larger kernel image.
-> -          Say Y here only if you plan to use gdb to debug the kernel.
-> -          If you don't debug the kernel, you can say N.
-> -
-> -config FRAME_POINTER
-> -        bool "Compile the kernel with frame pointers"
-> -        help
-> -          If you say Y here the resulting kernel image will be slightly
-> larger
-> -          and slower, but it will give very useful debugging information.
-> -          If you don't debug the kernel, you can say N, but we may not be
-> able
-> -          to solve problems without frame pointers.
-> -
->  config DEBUG_NMI_OOPS
-> -       bool "NMI causes oops printout"
-> -       help
-> -         If the system locks up without any debug information you can say Y
-> -         here to make it possible to dump an OOPS with an external NMI.
-> +	bool "NMI causes oops printout"
-> +	depends on DEBUG_KERNEL
-> +	help
-> +	  If the system locks up without any debug information you can say Y
-> +	  here to make it possible to dump an OOPS with an external NMI.
-> +
->  endmenu
-> 
+Linus> James and gang found the aic7xxx slowdown that happened after
+Linus> 2.6.12, and we'd like to get particular testing that it's
+Linus> fixed, so if you have a relevant machine, please do test this.
 
+This might explain why my DLT7000 has been dropping off the bus at
+times and requiring a full reboot and/or power cycle of the drive to
+get it back working again. 
 
+More details once I've compiled and re-loaded using this.
 
-
--------------------------------------------------
-This mail sent through IMP: http://horde.org/imp/
+John

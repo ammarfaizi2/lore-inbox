@@ -1,82 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVHHXaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbVHHXjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbVHHXaB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 19:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVHHXaB
+	id S932349AbVHHXjp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 19:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVHHXjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 19:30:01 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2321 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932359AbVHHXaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 19:30:00 -0400
-Date: Tue, 9 Aug 2005 01:29:57 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: abonilla@linuxwireless.org, "'Andreas Steinmetz'" <ast@domdv.de>,
-       "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'Denis Vlasenko'" <vda@ilport.com.ua>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: Wireless support
-Message-ID: <20050808232957.GR4006@stusta.de>
-References: <005501c59c4a$f6210800$a20cc60a@amer.sykes.com> <1123528018.15269.44.camel@mindpipe>
+	Mon, 8 Aug 2005 19:39:44 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:29125 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S932349AbVHHXjo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 19:39:44 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Tom Rini <trini@kernel.crashing.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/1] x86_64: Rename KDB_VECTOR to DEBUGGER_VECTOR 
+In-reply-to: Your message of "Tue, 09 Aug 2005 01:16:37 +0200."
+             <20050808231637.GA21576@wotan.suse.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123528018.15269.44.camel@mindpipe>
-User-Agent: Mutt/1.5.9i
+Date: Tue, 09 Aug 2005 09:39:16 +1000
+Message-ID: <20021.1123544356@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 03:06:58PM -0400, Lee Revell wrote:
-> On Mon, 2005-08-08 at 12:56 -0600, Alejandro Bonilla wrote:
-> > Again, the point is that ndiswrapper is a great project, but people
-> > uses it for the leftovers! We *shouldn't* buy leftovers or from Manuf
-> > that don't care about Linux.
-> 
-> If you are always speccing out new systems then of course, but in the
-> real world I have some customers who need to dual boot and ideally it
-> would work on their existing hardware.  Linux is a harder sell if people
-> need to replace a lot of their gear.
+On Tue, 9 Aug 2005 01:16:37 +0200, 
+Andi Kleen <ak@suse.de> wrote:
+>On Tue, Aug 09, 2005 at 09:14:52AM +1000, Keith Owens wrote:
+>> On Mon, 8 Aug 2005 21:28:50 +0200, 
+>> Andi Kleen <ak@suse.de> wrote:
+>> >On Mon, Aug 08, 2005 at 12:27:10PM -0700, Tom Rini wrote:
+>> >>  {
+>> >>  	unsigned int icr =  APIC_DM_FIXED | shortcut | vector | dest;
+>> >> -	if (vector == KDB_VECTOR)
+>> >> +	if (vector == NMI_VECTOR)
+>> >>  		icr = (icr & (~APIC_VECTOR_MASK)) | APIC_DM_NMI;
+>> >
+>> >That if () should be removed since it's useless.
+>> >Can you do that please?
+>> 
+>> Why is 'if ()' useless?  Remove the if test and all ipis get sent as
+>> NMI, we definitely do not want that.
+>
+>The if () with its following line. The same result can be gotten
+>by passing suitable arguments.
 
-That's the advantage of such drivers.
+Arguments to what?  The path for sending the NMI_VECTOR is
+send_IPI_allbutself -> {cluster,flat,physflat}_send_IPI_allbutself ->
+{__send_IPI_shortcut, physflat_send_IPI_mask, cluster_send_IPI_mask} ->
+send_IPI_mask_sequence -> __prepare_ICR.
 
-I see at least two disadvantages:
-
-First, it doesn't encourage hardware manufacturers to support open 
-source development.
-
-Linux has only a small market share, but it's slowly growing.
-
-Linux driver support does sometimes influence the decision which 
-hardware to buy.
-
-With NdisWrapper, the hardware manufacturer can say:
-  "Our hardware is supported through the open source NdisWrapper."
-
-Without NdisWrapper, they will sometimes hear that people did choose to 
-buy hardware from a different hardware manufacturer that has a Linux 
-driver. This can make the hardware manufacturer more friendly towards 
-open source development (e.g. by providing hardware specs).
-
-Secondly, binary-only drivers have an impact on the stability of the 
-Linux kernel.
-
-E.g. during the last years the nvidia has produced relatively many 
-kernel crashes - and I doubt that binary-only drivers for Windows are 
-much better in this respect.
-
-The users only see their kernel crashing blaming the Linux kernel and 
-harming the reputation of the stability of Linux.
-
-> Lee
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Pushing the check for NMI_VECTOR any higher than __prepare_ICR needs
+multiple tests for NMI_VECTOR.
 

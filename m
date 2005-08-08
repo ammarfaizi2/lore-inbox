@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbVHHO5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVHHO7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750926AbVHHO5p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 10:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVHHO5p
+	id S1750930AbVHHO7e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 10:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbVHHO7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 10:57:45 -0400
-Received: from alpha.polcom.net ([217.79.151.115]:60353 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S1750926AbVHHO5o (ORCPT
+	Mon, 8 Aug 2005 10:59:34 -0400
+Received: from news.cistron.nl ([62.216.30.38]:37091 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S1750925AbVHHO7d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 10:57:44 -0400
-Date: Mon, 8 Aug 2005 16:57:37 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Olaf Hering <olh@suse.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>, klibc@zytor.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [klibc] Re: [PATCH - RFC] Move initramfs configuration to "General
- setup"
-In-Reply-To: <20050808143151.GA6332@suse.de>
-Message-ID: <Pine.LNX.4.63.0508081654280.29195@alpha.polcom.net>
-References: <20050808135936.GA9057@mars.ravnborg.org>
- <Pine.LNX.4.63.0508081610400.29195@alpha.polcom.net> <20050808143151.GA6332@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 8 Aug 2005 10:59:33 -0400
+From: dth@picard.cistron.nl (Danny ter Haar)
+Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes.  Also some X trouble.
+Date: Mon, 8 Aug 2005 14:59:27 +0000 (UTC)
+Organization: Cistron
+Message-ID: <dd7s0f$ktg$1@news.cistron.nl>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <dd5f2j$fj7$1@news.cistron.nl> <42F7419E.3060905@aitel.hist.no> <dd7ibs$8vm$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1123513167 21424 62.216.30.70 (8 Aug 2005 14:59:27 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@picard.cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Aug 2005, Olaf Hering wrote:
+I <dth@picard.cistron.nl> wrote:
+>rc6 [KNOCK WOOD] seems to work just (so far)
 
-> On Mon, Aug 08, Grzegorz Kulewski wrote:
->
->>> From my recent experiments it looks like in order to be able to use
->> initramfs not compiled into the kernel image but loaded from separate file
->> by GRUB or LILO one must also build initrd into the kernel.
->
-> The file passed from the bootloader to the kernel, which is later
-> eventually recognized as an initrd, can be everything. But the kernel
-> code to deal with the memory range containing the file is behind
-> CONFIG_BLK_DEV_INITRD. The new config options should depend on
-> BLK_DEV_INITRD
+It barfed after 18 hours:
 
-[ Depend or select? ]
+scsi1:0:14:0: Attempting to abort cmd ffff810038f6dd40: 0x2a 0x0 0x3
+0x91 0x45 0x10 0x0 0x0 0x1 0x0
+scsi1: At time of recovery, card was not paused
+>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+scsi1: Dumping Card State at program address 0x13 Mode 0x11
+Card was paused
 
-So this code should be separated from initrd and put in some other place 
-and depend on initrd || initramfs.
+I will followup on linus's announcement with more details.
 
->From what I saw reading the code initrd is much more than this code so why 
-keep it together?
+Danny
 
-
-Thanks,
-
-Grzegorz Kulewski

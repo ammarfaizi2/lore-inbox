@@ -1,100 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVHHPQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbVHHPUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbVHHPQU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 11:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbVHHPQU
+	id S1750906AbVHHPUd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 11:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbVHHPUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 11:16:20 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:45900 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750753AbVHHPQT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 11:16:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m3SZ1aKJ+tEyTWr/8Dfwwuprrhqm3/RMQKThIVVcwVBCLRZZ4XBeFjDtMlwkD5Jvh2xm7NItSHXz09qwu+BaSpT/qkX5fCqS/x5Q9xcdiwELYUTtnTk6KmhqhBy4vu6TwMu18eXWiAM9OVMRgULgDzJYFz1pUf8uzAzS4ZgNero=
-Message-ID: <9268368b05080808167189591b@mail.gmail.com>
-Date: Mon, 8 Aug 2005 11:16:16 -0400
-From: Daniel Petrini <d.pensator@gmail.com>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
-Cc: Con Kolivas <kernel@kolivas.org>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, vatsa@in.ibm.com, ck@vds.kolivas.org,
-       tony@atomide.com, tuukka.tikkanen@elektrobit.com, george@mvista.com,
+	Mon, 8 Aug 2005 11:20:33 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:17308 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750887AbVHHPUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 11:20:32 -0400
+X-ORBL: [67.117.73.34]
+Date: Mon, 8 Aug 2005 08:20:08 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+       ck@vds.kolivas.org, tuukka.tikkanen@elektrobit.com, george@mvista.com,
        Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050808150829.GW22838@vanheusden.com>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+Message-ID: <20050808152008.GI28070@atomide.com>
+References: <200508031559.24704.kernel@kolivas.org> <20050805123754.GA1262@in.ibm.com> <20050808072600.GE28070@atomide.com> <20050808145421.GB4738@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200508031559.24704.kernel@kolivas.org>
-	 <200508060239.41646.kernel@kolivas.org>
-	 <20050806174739.GU4029@stusta.de>
-	 <200508071512.22668.kernel@kolivas.org>
-	 <20050808150829.GW22838@vanheusden.com>
+In-Reply-To: <20050808145421.GB4738@in.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folkert,
+* Srivatsa Vaddagiri <vatsa@in.ibm.com> [050808 07:53]:
+> On Mon, Aug 08, 2005 at 12:26:01AM -0700, Tony Lindgren wrote:
+> > Good point, and it would be nice to have it resolved for systems that support
+> > idling individual CPUs. The current setup was done because when I was tinkering
+> > with the amd76x_pm patch a while a back, I noticed that idling the cpu
+> > disconnects all cpus from the bus. (As far as I remember)
+> > So this may need to be configured depending on the system.
+> 
+> What do you mean by "idling" a cpu? Is it reprogramming the timer source
+> to skip ticks? Or putting the cpu actually in some low-power state?
+> And what do you mean by "disconnect all CPUs from the bus"? Is it
+> the system bus? And what happens if the CPUs are disconnected from
+> the bus like this while it is executing?
 
-Yes, there are some utilities. You can use pmstats-0.2 (look for the
-link in past messages) or timertop (sent some minutes ago in LKML).
-Regards,
-Daniel
+As far as I remember enabling AMD stop grant disconnects all cpus. This
+means the system won't be able to do any work until the dyntick timer
+interrupt wakes up the system.
 
-On 8/8/05, Folkert van Heusden <folkert@vanheusden.com> wrote:
-> Are there any tools for checking the current number of ticks?
-> I currently do:
-> #!/bin/sh
-> 
-> S1=`cat /proc/interrupts | grep "^  0: " | awk '{ print $2; }'`
-> sleep 1
-> S2=`cat /proc/interrupts | grep "^  0: " | awk '{ print $2; }'`
-> echo $((S2-S1))
-> 
-> But that gives me output like this on a quiet system with only firefox,
-> a couple of gnometerms and a bittorrent downloader values like:
-> folkert@ehm:~$ for i in `seq 1 10` ; do ./ticks ; done
-> 566
-> 511
-> 630
-> 501
-> 522
-> 533
-> 503
-> 516
-> 518
-> 515
-> which I find quiet high, aren't they?
-> 
-> 
-> On Sun, Aug 07, 2005 at 03:12:21PM +1000, Con Kolivas wrote:
-> > Respin of the dynamic ticks patch for i386 by Tony Lindgen and Tuukka Tikkanen
-> > with further code cleanups. Are were there yet?
-> >
-> > Cheers,
-> > Con
-> > ---
-> >
-> >
-> 
-> 
-> Folkert van Heusden
-> 
-> --
-> Auto te koop, zie: http://www.vanheusden.com/daihatsu.php
-> --------------------------------------------------------------------
-> Get your PGP/GPG key signed at www.biglumber.com!
-> --------------------------------------------------------------------
-> Phone: +31-6-41278122, PGP-key: 1F28D8AE
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Both requirements (idling all CPUs together vs individually) I think
+> will make the patch more complex.  Are such systems (which require having to 
+> idle all CPUs together) pretty common that we have to care about?!
 
+Probably all AMD SMP based systems? Somebody with better knowledge should
+verify this.
 
--- 
-10LE - Linux
-INdT - Manaus - Brazil
+> > > - All CPUs seem to cut off the same number of ticks (dyn_tick->skip). Isn't
+> > >   this wrong, considering that the timer list is per-CPU? This will cause
+> > >   some timers to be serviced much later than usual.
+> > 
+> > Yes if it's done on per-CPU basis. In the current setup the first interrupt
+> > will kick the system off the dyn-tick state and the timers get checked again.
+> 
+> But that may be too late on some CPUs. If dyn_tick->skip = 100, all
+> CPUs skip 100 ticks. However some CPUs may have timers that need to be
+> service much before that.
+
+Not in the current case, as the system is completely idle until some
+interrupt wakes up the system. Of course it would be different if you make
+it per-CPU.
+
+> > > - The fact that dyn_tick_state is global and accessed from all CPUs
+> > >   is probably a scalability concern, especially if we allow the ticks
+> > >   to be cut off on per-CPU basis.
+> > 
+> > >From idling devices point of view, we still need some global variable I
+> > believe. How else would you be able to tell all devices that the whole
+> > system does not have any timers for next 2 seconds?
+> 
+> Why would anyone want to know that? Moreover, when we enable this
+> per-CPU, the no-timer-interval is also distributed across CPUs.
+
+Well we need to be able to do various things in the idle loop depending on
+the length of the estimated sleep. For example, if next_timer_interrupt is
+2 jiffies away, we cannot do much. But if next_timer_interrupt is 2 seconds
+away, we can idle pretty much all devices.
+
+> > But in any case on P4 systems the APIC timer is not the bottleneck as
+> > stopping or reprogramming PIT also kills APIC. (This does not happen on P3
+> > systems). So the bottleneck most likely is the length of PIT.
+> 
+> On these systems, do you disabled APIC (dyntick=noapic)?
+
+Yeah. It only seems to work on P3 systems.
+
+> > HRT + VST depend on APIC only, and does not use next_timer_interrupt().
+> 
+> AFAIK, it supports pm timer too and yes it has its own implementation
+> of next_timer_interrupt, which makes it more work for merging. 
+> At this point, looks like dyn-tick is gaining more momentum and is 
+> more likely a candidate for merging. I will send out my SMP-support
+> changes to dynamic tick soon.
+
+Cool :) Sounds like SMP and HPET are about the only things that still need
+work. Or can somebody think of anything else?
+
+> > You may also want to check out the ARM implementation as it does not have
+> > the issues listed above, which are mostly x86 specific issues.
+> 
+> Thanks for the pointer. Will look at it.
+
+OK
+
+Tony

@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVHHSiD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbVHHSkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbVHHSiD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 14:38:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVHHSiC
+	id S932177AbVHHSkm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 14:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVHHSkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 14:38:02 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:23491 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932182AbVHHSiC convert rfc822-to-8bit (ORCPT
+	Mon, 8 Aug 2005 14:40:42 -0400
+Received: from mail.kroah.org ([69.55.234.183]:29636 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932177AbVHHSkm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 14:38:02 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
-Date: Mon, 8 Aug 2005 11:37:37 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB600565DD73@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
-Thread-Index: AcWb6XvlRtGvZEylTeGK8ENeObfkRgAXmnEg
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Stefan Seyfried" <seife@suse.de>, "Con Kolivas" <kernel@kolivas.org>,
-       "Thomas Renninger" <trenn@suse.de>
-Cc: <tony@atomide.com>, <ck@vds.kolivas.org>, <tuukka.tikkanen@elektrobit.com>,
-       <linux-kernel@vger.kernel.org>, <tytso@mit.edu>
-X-OriginalArrivalTime: 08 Aug 2005 18:37:38.0939 (UTC) FILETIME=[40D7CCB0:01C59C48]
+	Mon, 8 Aug 2005 14:40:42 -0400
+Date: Mon, 8 Aug 2005 09:08:46 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>, ralf@linux-mips.org
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       linville@redhat.com
+Subject: Re: pci_update_resource() getting called on sparc64
+Message-ID: <20050808160846.GA7710@kroah.com>
+References: <20050808.071211.74753610.davem@davemloft.net> <20050808144439.GA6478@kroah.com> <20050808.103304.55507512.davem@davemloft.net> <Pine.LNX.4.58.0508081131540.3258@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0508081131540.3258@g5.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->Stefan Seyfried
->Sent: Sunday, August 07, 2005 10:43 PM
->To: Con Kolivas
->Cc: tony@atomide.com; ck@vds.kolivas.org; 
->tuukka.tikkanen@elektrobit.com; linux-kernel@vger.kernel.org; 
->tytso@mit.edu
->Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
->
->Con Kolivas wrote:
->
->>> When I enabled dynamic tick using:
->>>
->>> 	echo 1 > /sys/devices/system/timer/timer0/dyn_tick_state
->>>
->>> The number of ticks dropped down to 60-70 HZ, bus mastering activity
->>> jumpped up to being almost always active,
->> 
->> Anyone know why this would happen?
->
->This is just a guess, without any actual code-reading:
->Maybe the C-state decision process just relies on being called every
->tick, so "after X ticks with no BM activity, go to next deeper 
->C state".
->As long as 1000 ticks per second are coming in, everything is fine and
->we enter C[n+1] after X miliseconds without BM activity. Now if there
->are only 60-70 ticks per second, you never get X ticks without BM
->activity so you never go deeper than C2.
->
->Just a guess.
+On Mon, Aug 08, 2005 at 11:32:41AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 8 Aug 2005, David S. Miller wrote:
+> >
+> > From: Greg KH <greg@kroah.com>
+> > Date: Mon, 8 Aug 2005 07:44:40 -0700
+> > 
+> > > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=43c34735524d5b1c9b9e5d63b49dd4c1b394bde4
+> > > 
+> > > Although in glancing at it, it might not be the reason...
+> > 
+> > No, that isn't it.
+> > 
+> > Perhaps it was one of those changes that Linus was doing
+> > to deal with interrupt setting restoration after resume?
+> 
+> Not likely.
+> 
+> Sounds like fec59a711eef002d4ef9eb8de09dd0a26986eb77, which came in 
+> through Greg. I'm surprised Greg didn't pick up on that one.
 
-That is correct. The C-state policy right now looks at jiffies to decide
-on which C-state to go to (instead of absolute time).
-This patch from Thomas should help with respect to going to proper 
-C-state in presence of dynamic tick.
-http://lkml.org/lkml/2005/4/19/96
+I didn't pick up on that one, as David acked it a while ago :)
 
-Thanks,
-Venki
+{sigh}  I only pushed that one as Ralf insisted that he needed it for
+some of his hardware and that there wasn't any bad side-affects.  Ralf,
+any objections to removing this for 2.6.13?
+
+thanks,
+
+greg k-h

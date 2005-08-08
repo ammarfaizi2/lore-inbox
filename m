@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVHHWae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbVHHWbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbVHHWae (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 18:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbVHHWae
+	id S932303AbVHHWbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 18:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVHHWbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 18:30:34 -0400
-Received: from coderock.org ([193.77.147.115]:28547 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S932302AbVHHWad (ORCPT
+	Mon, 8 Aug 2005 18:31:12 -0400
+Received: from coderock.org ([193.77.147.115]:30851 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S932301AbVHHWah (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 18:30:33 -0400
-Message-Id: <20050808223020.035914000@homer>
+	Mon, 8 Aug 2005 18:30:37 -0400
+Message-Id: <20050808223024.861461000@homer>
 References: <20050808222936.090422000@homer>
-Date: Tue, 09 Aug 2005 00:29:38 +0200
+Date: Tue, 09 Aug 2005 00:29:40 +0200
 From: domen@coderock.org
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, Maximilian Attems <janitor@sternwelten.at>,
        domen@coderock.org
-Subject: [patch 02/16] net/ppp-generic: list_for_each_entry
-Content-Disposition: inline; filename=list-for-each-entry-drivers_net_ppp_generic.patch
+Subject: [patch 04/16] fs/namespace.c: list_for_each_entry
+Content-Disposition: inline; filename=list-for-each-entry-fs_namespace.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -31,76 +31,30 @@ Signed-off-by: Domen Puncer <domen@coderock.org>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
- ppp_generic.c |   21 ++++++---------------
- 1 files changed, 6 insertions(+), 15 deletions(-)
+ namespace.c |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
 
-Index: quilt/drivers/net/ppp_generic.c
+Index: quilt/fs/namespace.c
 ===================================================================
---- quilt.orig/drivers/net/ppp_generic.c
-+++ quilt/drivers/net/ppp_generic.c
-@@ -1232,8 +1232,7 @@ static int ppp_mp_explode(struct ppp *pp
- 	navail = 0;	/* total # of usable channels (not deregistered) */
- 	hdrlen = (ppp->flags & SC_MP_XSHORTSEQ)? MPHDRLEN_SSN: MPHDRLEN;
- 	i = 0;
--	list = &ppp->channels;
--	while ((list = list->next) != &ppp->channels) {
-+	list_for_each(list, &ppp->channels) {
- 		pch = list_entry(list, struct channel, clist);
- 		navail += pch->avail = (pch->chan != NULL);
- 		if (pch->avail) {
-@@ -1731,7 +1730,7 @@ static void
- ppp_receive_mp_frame(struct ppp *ppp, struct sk_buff *skb, struct channel *pch)
+--- quilt.orig/fs/namespace.c
++++ quilt/fs/namespace.c
+@@ -537,7 +537,6 @@ lives_below_in_same_fs(struct dentry *d,
+ static struct vfsmount *copy_tree(struct vfsmount *mnt, struct dentry *dentry)
  {
- 	u32 mask, seq;
--	struct list_head *l;
-+	struct channel *ch;
- 	int mphdrlen = (ppp->flags & SC_MP_SHORTSEQ)? MPHDRLEN_SSN: MPHDRLEN;
+ 	struct vfsmount *res, *p, *q, *r, *s;
+-	struct list_head *h;
+ 	struct nameidata nd;
  
- 	if (!pskb_may_pull(skb, mphdrlen) || ppp->mrru == 0)
-@@ -1785,8 +1784,7 @@ ppp_receive_mp_frame(struct ppp *ppp, st
- 	 * The list of channels can't change because we have the receive
- 	 * side of the ppp unit locked.
- 	 */
--	for (l = ppp->channels.next; l != &ppp->channels; l = l->next) {
--		struct channel *ch = list_entry(l, struct channel, clist);
-+	list_for_each_entry(ch, &ppp->channels, clist) {
- 		if (seq_before(ch->lastseq, seq))
- 			seq = ch->lastseq;
- 	}
-@@ -2272,10 +2270,8 @@ static struct compressor_entry *
- find_comp_entry(int proto)
- {
- 	struct compressor_entry *ce;
--	struct list_head *list = &compressor_list;
+ 	res = q = clone_mnt(mnt, dentry);
+@@ -546,8 +545,7 @@ static struct vfsmount *copy_tree(struct
+ 	q->mnt_mountpoint = mnt->mnt_mountpoint;
  
--	while ((list = list->next) != &compressor_list) {
--		ce = list_entry(list, struct compressor_entry, list);
-+	list_for_each_entry(ce, &compressor_list, list) {
- 		if (ce->comp->compress_proto == proto)
- 			return ce;
- 	}
-@@ -2541,20 +2537,15 @@ static struct channel *
- ppp_find_channel(int unit)
- {
- 	struct channel *pch;
--	struct list_head *list;
+ 	p = mnt;
+-	for (h = mnt->mnt_mounts.next; h != &mnt->mnt_mounts; h = h->next) {
+-		r = list_entry(h, struct vfsmount, mnt_child);
++	list_for_each_entry(r, &mnt->mnt_mounts, mnt_child) {
+ 		if (!lives_below_in_same_fs(r->mnt_mountpoint, dentry))
+ 			continue;
  
--	list = &new_channels;
--	while ((list = list->next) != &new_channels) {
--		pch = list_entry(list, struct channel, list);
-+	list_for_each_entry(pch, &new_channels, list) {
- 		if (pch->file.index == unit) {
- 			list_del(&pch->list);
- 			list_add(&pch->list, &all_channels);
- 			return pch;
- 		}
- 	}
--	list = &all_channels;
--	while ((list = list->next) != &all_channels) {
--		pch = list_entry(list, struct channel, list);
-+	list_for_each_entry(pch, &all_channels, list) {
- 		if (pch->file.index == unit)
- 			return pch;
- 	}
 
 --

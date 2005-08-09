@@ -1,61 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVHITjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbVHITkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbVHITjg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 15:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVHITjg
+	id S932272AbVHITkb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 15:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVHITkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 15:39:36 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:32251 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932249AbVHITjg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 15:39:36 -0400
-Message-ID: <42F905DA.4070308@mvista.com>
-Date: Tue, 09 Aug 2005 12:36:58 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Con Kolivas <kernel@kolivas.org>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
-       tuukka.tikkanen@elektrobit.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
-References: <200508031559.24704.kernel@kolivas.org> <200508060239.41646.kernel@kolivas.org> <20050806174739.GU4029@stusta.de> <200508071512.22668.kernel@kolivas.org> <20050807165833.GA13918@in.ibm.com>
-In-Reply-To: <20050807165833.GA13918@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Aug 2005 15:40:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6416 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932272AbVHITka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 15:40:30 -0400
+Date: Tue, 9 Aug 2005 20:40:17 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: ncunningham@cyclades.com, Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+Message-ID: <20050809204016.A29945@flint.arm.linux.org.uk>
+Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
+	ncunningham@cyclades.com, Daniel Phillips <phillips@arcor.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Memory Management <linux-mm@kvack.org>,
+	Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <42F57FCA.9040805@yahoo.com.au> <200508090710.00637.phillips@arcor.de> <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au> <20050809080853.A25492@flint.arm.linux.org.uk> <42F8777A.2090609@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42F8777A.2090609@yahoo.com.au>; from nickpiggin@yahoo.com.au on Tue, Aug 09, 2005 at 07:29:30PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> On Sun, Aug 07, 2005 at 03:12:21PM +1000, Con Kolivas wrote:
+On Tue, Aug 09, 2005 at 07:29:30PM +1000, Nick Piggin wrote:
+> Russell King wrote:
+> > The usage of "valid ram" here is confusing - that's not what PageReserved
+> > is all about.  It's about valid RAM which is managed by method other
+> > than the usual page counting.  Non-reserved RAM is also valid RAM, but
+> > is managed by the kernel in the usual way.
 > 
->>Respin of the dynamic ticks patch for i386 by Tony Lindgen and Tuukka Tikkanen 
->>with further code cleanups. Are were there yet?
+> Well that is one usage of the PageReserved flag. That one tends
+> to be easily covered by VM_RESERVED (ie. it is no longer used that
+> way after the patches).
 > 
-> 
-> Con,
-> 	I am afraid until SMP correctness is resolved, then this is not
-> in a position to go in (unless you want to enable it only for UP, which
-> I think should not be our target). I am working on making this work 
-> correctly on SMP systems. Hopefully I will post a patch soon.
-> 
-> Another observation I have made regarding dynamic tick patch is that PIT is 
-> being reprogrammed whenever the CPUs are coming out of sleep state (because of 
-> an interrupt say). This can happen at any arbitary time, not necessarily on 
-> jiffy boundaries. As a result, there will be an offset between when jiffy 
-> interrupts will now occur vs when they would have originally occured had PIT 
-> never been stopped. Not sure if having this offset is good, but atleast one 
-> necessary change that I foresee if zeroing delay_at_last_interrupt when 
-> disabling dynamic tick.  For that matter, it may be easier to disable the PIT 
-> timer by just masking PIT interrupts (instead of changing its mode).
+> The remaining problem is, in fact, these "other" uses of PageReserved.
+> One usage definitely appears to be "is this page valid RAM?".
 
-IMNOHO, this is the ONLY way to keep proper time.  As soon as you 
-reprogram the PIT you have lost track of the time.
+Hmm, that sounds like an architecture specific extension above the
+basic requirements.
 
-My VST patch just turns masks the interrupt.
+> > The former is available for remap_pfn_range and ioremap, the latter is
+> > not.
+> 
+> I thought ioremap was attempting to avoid remapping physical
+> RAM with that check. All drivers I have looked at which allocate
+> physical memory then SetPageReserved the pages use remap_pfn_range
+> but I admit that's not a huge number (that I have looked at).
+
+They do this because:
+
+1. they want to control when this RAM is freed.
+2. remap_pfn_range refuses to map RAM that isn't marked reserved.
+
+To put it another way, they fiddle with the reserved bit because
+that's what the current interfaces forces upon them.  I would
+dearly like that to go away though.
+
+> > On the other hand, the validity of an apparant RAM address can only be
+> > tested using its pfn with pfn_valid().
+> 
+> I'm fairly sure that's not the case on i386 at least. I think
+> pfn_valid will be true if the pfn points to a struct page.
+> See arch/i386/mm/init.c:one_highpage_init()
+
+This sounds like i386 is doing something which is a superset of the
+base requirements, which is an architecture specific extension.  No
+problem with that, but that's i386 folk's problem. 8)
+
+Ok, but I still disagree with replacing something called reserved
+with something which leads one to believe that it's intended for
+checking whether a struct page is "valid" RAM or not when there's
+other interfaces which are supposed to be used for that.
+
+I wonder if we can optimise out the useless "valid" RAM checks
+on architectures which don't require this insanity...
+
 -- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

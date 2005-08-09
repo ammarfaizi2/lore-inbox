@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVHISos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVHISuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVHISos (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 14:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVHISos
+	id S1750765AbVHISuK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 14:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbVHISuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 14:44:48 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:25259 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750734AbVHISor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 14:44:47 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: my kernel sometimes did a crash, but no panic
-To: klasyk99@poczta.onet.pl, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 09 Aug 2005 20:44:31 +0200
-References: <4zEQ3-7Le-21@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Tue, 9 Aug 2005 14:50:10 -0400
+Received: from fsmlabs.com ([168.103.115.128]:2542 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1750765AbVHISuJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 14:50:09 -0400
+Date: Tue, 9 Aug 2005 12:56:10 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Update email addresses for Zwane
+Message-ID: <Pine.LNX.4.61.0508091254530.23938@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1E2Z5U-0004ji-Nt@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Klasyk <klasyk99@poczta.onet.pl> wrote:
+Some folks have been emailing me and having trouble due to these stale 
+addresses;
 
-> my kernel sometimes did a crash, but no panic
-> Keyboard hunged up :(
-> Network were working and I can log in. Without the keybord - it
-> generally worked.
-> 
-> In logs:
-> for example:
-> 
-> Aug  6 15:30:02 o kernel: Unable to handle kernel NULL pointer
-> dereference at virtual address 00
-> 000000
-> Aug  6 15:30:02 o kernel:  printing eip:
-> Aug  6 15:30:02 o kernel: c026b0d9
-> Aug  6 15:30:02 o kernel: *pde = 3588d001
-> Aug  6 15:30:02 o kernel: Oops: 0000 [#1]
-> Aug  6 15:30:02 o kernel: Modules linked in: ip_nat_irc
-[...]
-> 4 ieee1394 loop via-agp bt878 tuner tvaudio bttv video-buf
-                                              ^^^^
-It's probably the same problem I had.
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 
-There is a recent patch enabling the no_overlay=1 parameter and some PCI
-quirks to autotune this option. Please try that and, if your board isn't
-autodetected, the lspci -vvv output and the exact name of your MB chipset.
-
-I temporarily uploaded the patch to
-http://7eggert.dyndns.org/l/scratch/v4l_bttv_no_overlay_linus.patch
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Index: linux-2.6.13-rc5-mm1/CREDITS
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.13-rc5-mm1/CREDITS,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 CREDITS
+--- linux-2.6.13-rc5-mm1/CREDITS	7 Aug 2005 21:37:45 -0000	1.1.1.1
++++ linux-2.6.13-rc5-mm1/CREDITS	9 Aug 2005 18:54:21 -0000
+@@ -2423,8 +2423,7 @@ S: Toronto, Ontario
+ S: Canada
+ 
+ N: Zwane Mwaikambo
+-E: zwane@linuxpower.ca
+-W: http://function.linuxpower.ca
++E: zwane@arm.linux.org.uk
+ D: Various driver hacking
+ D: Lowlevel x86 kernel hacking
+ D: General debugging
+Index: linux-2.6.13-rc5-mm1/MAINTAINERS
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.13-rc5-mm1/MAINTAINERS,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 MAINTAINERS
+--- linux-2.6.13-rc5-mm1/MAINTAINERS	7 Aug 2005 21:37:45 -0000	1.1.1.1
++++ linux-2.6.13-rc5-mm1/MAINTAINERS	9 Aug 2005 18:53:53 -0000
+@@ -1762,7 +1762,7 @@ S:	Maintained
+ 
+ OPL3-SA2, SA3, and SAx DRIVER
+ P:	Zwane Mwaikambo
+-M:	zwane@commfireservices.com
++M:	zwane@arm.linux.org.uk
+ L:	linux-sound@vger.kernel.org
+ S:	Maintained
+ 
+@@ -2017,7 +2017,7 @@ S:	Maintained
+ 
+ SC1200 WDT DRIVER
+ P:	Zwane Mwaikambo
+-M:	zwane@commfireservices.com
++M:	zwane@arm.linux.org.uk
+ S:	Maintained
+ 
+ SCHEDULER

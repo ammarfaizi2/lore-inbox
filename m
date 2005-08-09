@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVHIIQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbVHIIZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbVHIIQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 04:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVHIIQ4
+	id S932456AbVHIIZo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 04:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVHIIZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 04:16:56 -0400
-Received: from 203-217-29-35.perm.iinet.net.au ([203.217.29.35]:14275 "EHLO
-	anu.rimspace.net") by vger.kernel.org with ESMTP id S932456AbVHIIQ4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 04:16:56 -0400
-From: Daniel Pittman <daniel@rimspace.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Adaptec AHA-2940U2W "Data Parity Error Dectected" messages
-In-Reply-To: <1123572475.27813.2.camel@mindpipe> (Lee Revell's message of
-	"Tue, 09 Aug 2005 03:27:54 -0400")
-References: <878xzbr2zw.fsf@rimspace.net> <1123572475.27813.2.camel@mindpipe>
-Date: Tue, 09 Aug 2005 18:16:46 +1000
-Message-ID: <871x53r0cx.fsf@rimspace.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.5-b21 (corn, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Aug 2005 04:25:43 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:44998 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932456AbVHIIZn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 04:25:43 -0400
+Date: Tue, 9 Aug 2005 01:25:31 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Simon.Derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpuset release ABBA deadlock fix
+Message-Id: <20050809012531.67cab661.pj@sgi.com>
+In-Reply-To: <20050808232558.7173fdd7.akpm@osdl.org>
+References: <20050808223722.22843.86768.sendpatchset@jackhammer.engr.sgi.com>
+	<20050808232558.7173fdd7.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> writes:
-> On Tue, 2005-08-09 at 17:19 +1000, Daniel Pittman wrote:
->> I recently installed a SCSI tape drive and Adaptec AHA-2940U2W SCSI
->> controller into my server to run backups.
->> 
->> Since then, the driver issues these warnings on a semi-regular basis
->> while the drive is busy:
->> 
->> Aug  9 17:00:26 anu kernel: scsi0: Data Parity Error Detected during address or write data phase
->> Aug  9 17:00:26 anu kernel: scsi0: PCI error Interrupt at seqaddr = 0x8
->
-> Make sure the hardware is all installed correctly.  Check that the card
-> is fully seated, or try it in another PCI slot.  
+Andrew asked:
+> So..  Is this 2.6.13-safe?
 
-Thanks.  I will take the server down shortly and give that a shot.
+I think it is safe for 2.6.13.  However it's not a big deal either way
+to me.
 
-> Also check your cabling and termination.
+> > +	(void) call_usermodehelper(argv[0], argv, envp, 0);
+> 
+> ick.  Why the cast?
 
-Could SCSI cabling and/or termination cause the card to report *PCI*
-errors, or am I misunderstanding these messages?
+Oops - my userland coding style, not my kernel coding style.
 
-I guess that the fact that the "PCI" bit kept showing up in them is
-what confuses me.  I didn't except a SCSI card to report PCI bus issues
-through the Linux driver, and since it claimed to be a victim, not a
-cause, I didn't know quite how to trace the problem down...
+You are welcome to kill the cast, or ask me to resend, as you like.
 
-Thanks,
-      Daniel
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

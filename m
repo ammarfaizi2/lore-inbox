@@ -1,104 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbVHINei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbVHINgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932538AbVHINei (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 09:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbVHINeh
+	id S932540AbVHINgu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 09:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVHINgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 09:34:37 -0400
-Received: from pat.uio.no ([129.240.130.16]:46330 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932538AbVHINeg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 09:34:36 -0400
-Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu>
-References: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
-	 <1123541926.8249.8.camel@lade.trondhjem.org>
-	 <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 09:34:20 -0400
-Message-Id: <1123594460.8245.15.camel@lade.trondhjem.org>
+	Tue, 9 Aug 2005 09:36:50 -0400
+Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:53673 "EHLO
+	mail.zmailer.org") by vger.kernel.org with ESMTP id S932540AbVHINgt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 09:36:49 -0400
+Date: Tue, 9 Aug 2005 16:36:47 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: Soft lockup in e100 driver ?
+Message-ID: <20050809133647.GK22165@mea-ext.zmailer.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.505, required 12,
-	autolearn=disabled, AWL 2.31, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 09.08.2005 Klokka 09:46 (+0200) skreiv Miklos Szeredi:
-> > We've already got a patch that does this, and that I'm queueing up for
-> > inclusion.
-> 
-> Cool!
-> 
-> > http://client.linux-nfs.org/Linux-2.6.x/2.6.12/linux-2.6.12-63-open_file_intents.dif
-> 
-> Comments:
-> 
-> >  /*
-> > + * Open intents have to release any file pointer that was allocated
-> > + * but not used by the VFS.
-> > + */
-> > +void path_release_open_intent(struct nameidata *nd)
-> > +{
-> > +	if ((nd->flags & LOOKUP_OPEN) && nd->intent.open.file != NULL) {
-> > +		fput(nd->intent.open.file);
-> 
-> I think you should consider adding this:
-> 
-> +		if (!IS_ERR(nd->intent.open.file))
-> +			fput(nd->intent.open.file);
-> 
-> so the filesystem can delay returning the error from the open
-> operation until the other errors have been sorted out by the lookup
-> code.
+Running very recent Fedora Core Development kernel I can following
+soft-oops..   ( 2.6.12-1.1455_FC5smp )
 
-Intents are meant as optimisations, not replacements for existing
-operations. I'm therefore not really comfortable about having them
-return errors at all.
 
-> > +		nd->intent.open.file = NULL;
-> 
-> Why is this NULL assignment needed?  nd will not be used after this.
-> 
-> > +	}
-> > +	path_release(nd);
-> > +}
-> > +
-> > 
+e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
+BUG: soft lockup detected on CPU#0!
 
-It could be dropped. The reason for putting it in is that some parts of
-the VFS may restart a path walk operation if it fails (see for instance
-the ESTALE handling).
+Pid: 10743, comm:             ifconfig
+EIP: 0060:[<f88bf2f9>] CPU: 0
+EIP is at e100_clean_cbs+0x2f/0x12b [e100]
+ EFLAGS: 00000293    Not tainted  (2.6.12-1.1455_FC5smp)
+EAX: 495c7c2b EBX: 495c7c2b ECX: f6c311a0 EDX: 00000000
+ESI: 00000040 EDI: f6c30000 EBP: f71a4b20 DS: 007b ES: 007b
+CR0: 8005003b CR2: 0804a544 CR3: 01e9cd80 CR4: 000006f0
+ [<f88c0708>] e100_down+0x66/0x9a [e100]
+ [<f88c1623>] e100_close+0xa/0xd [e100]
+ [<c02b7adb>] dev_close+0x40/0x7e
+ [<c02b8f59>] dev_change_flags+0x46/0xf5
+ [<c02f76b3>] devinet_ioctl+0x564/0x5df
+ [<c02af22c>] sock_ioctl+0xc3/0x250
+ [<c02af169>] sock_ioctl+0x0/0x250
+ [<c01762ef>] do_ioctl+0x1f/0x6d
+ [<c017648f>] vfs_ioctl+0x50/0x1c6
+ [<c0176662>] sys_ioctl+0x5d/0x6f
+ [<c010394d>] syscall_call+0x7/0xb
+ [<c014473f>] softlockup_tick+0x6f/0x80
+ [<c01085b8>] timer_interrupt+0x2d/0x75
+ [<c01448dd>] handle_IRQ_event+0x2e/0x5a
+ [<c01449cb>] __do_IRQ+0xc2/0x127
+ [<c0105f7e>] do_IRQ+0x4e/0x86
+ =======================
+ [<c01160cc>] smp_apic_timer_interrupt+0xc1/0xca
+ [<c0104382>] common_interrupt+0x1a/0x20
+ [<f88bf2f9>] e100_clean_cbs+0x2f/0x12b [e100]
+ [<f88c0708>] e100_down+0x66/0x9a [e100]
+ [<f88c1623>] e100_close+0xa/0xd [e100]
+ [<c02b7adb>] dev_close+0x40/0x7e
+ [<c02b8f59>] dev_change_flags+0x46/0xf5
+ [<c02f76b3>] devinet_ioctl+0x564/0x5df
+ [<c02af22c>] sock_ioctl+0xc3/0x250
+ [<c02af169>] sock_ioctl+0x0/0x250
+ [<c01762ef>] do_ioctl+0x1f/0x6d
+ [<c017648f>] vfs_ioctl+0x50/0x1c6
+ [<c0176662>] sys_ioctl+0x5d/0x6f
+ [<c010394d>] syscall_call+0x7/0xb
 
-> > As for the "orig flags" thing. What is the point of that?
-> 
-> dentry_open() needs the original open flags, not the transformed ones
-> stored in intent.open.flags.
-> 
-> The behavior is slightly strange, since filp_open() calculates
-> namei_flags (which gets stored in intent.open.flags) so that an
-> O_ACCMODE of 3 is transformed into FMODE_READ | FMODE_WRITE.
-> 
-> But dentry_open() calculates filp->f_mode, so that O_ACCMODE of 3 is
-> transformed into zero.
-> 
-> This means that the (undocumented) access mode of 3 will require
-> read-write permission, but will allow neither read() nor write() on
-> the opened file.
-> 
-> If we want to keep this behavior, then the orig_flags field is needed.
 
-Why do we want to keep this behaviour? It is undocumented, it is
-non-posix, and it appears to do nothing you cannot do with the existing
-access() call.
 
-Are there any applications using it? If so, which ones, and why?
+Preconditions for this are:
 
-Cheers,
-  Trond
-
+- E100 card stopped working for some reason (no idea why, it just
+  does sometimes at this oldish 2x P-III machine)
+- There are active datastreams running in and out
+  (around 0.2 Mbps out, multiple megabits in.)
+- Commanding then "ifconfig eth0 down" results in what feels like 
+  system freezing, but it does recover in about 30-60 seconds
+  (it takes long enough for me to sweat bullets...)
+- While in freeze state, keyboard can go crazy, but mouse does
+  respond, as well as tvtime shows bt848 captured live video.

@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVHIAlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVHIAnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbVHIAlG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 20:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVHIAlG
+	id S932390AbVHIAnn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 20:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVHIAnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 20:41:06 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25361 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932271AbVHIAlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 20:41:04 -0400
-Date: Tue, 9 Aug 2005 02:41:00 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jiri Slaby <jirislaby@gmail.com>, jgarzik@pobox.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org
-Subject: [-mm patch] SIS190 must select MII
-Message-ID: <20050809004100.GS4006@stusta.de>
-References: <42F7F837.6080800@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42F7F837.6080800@gmail.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 8 Aug 2005 20:43:43 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:14024 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932390AbVHIAnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 20:43:43 -0400
+Message-ID: <42F7FD5E.6000107@gentoo.org>
+Date: Tue, 09 Aug 2005 01:48:30 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, mog.johnny@gmx.net
+Subject: irqpoll causing some breakage?
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 02:26:31AM +0200, Jiri Slaby wrote:
-> Hello, i find out this problem:
-> #make O=../bu allmodconfig
-> ...
-> #make O=../bu all
-> ...
->  LD      .tmp_vmlinux1
-> drivers/built-in.o(.text+0x63c87): In function `sis190_get_settings':
-> /l/latest/xxx/drivers/net/sis190.c:1656: undefined reference to 
-> `mii_ethtool_gset'
->...
+Hi,
 
-Obvious bug in git-netdev-sis190.patch, fix below.
+I recently added the irqpoll patch to Gentoo's 2.6.12 kernels, using this patch:
 
-cu
-Adrian
+http://dev.gentoo.org/~dsd/genpatches/trunk/2.6.12/2700_irqpoll.patch
 
+Since then, I've had a few reports of minor breakage, but this is the first 
+one I've been able to get full info on.
 
-<--  snip  -->
+Hans-Christian Armingeon (on CC) owns a a combined USB keyboard-mouse, which 
+is broken when the irqpoll patch is applied.
 
+input: USB HID v1.00 Keyboard [Cherry GmbH Cherry Slim Line Trackball 
+Keyboard] on usb-0000:00:10.0-1
+input: USB HID v1.00 Mouse [Cherry GmbH Cherry Slim Line Trackball Keyboard] 
+on usb-0000:00:10.0-1
 
-SIS190 must select MII since it's using it.
+After the irqpoll patch has been applied, the mouse does not work (the 
+keyboard works fine..!). This is without the irqpoll/irqfixup parameters, 
+although adding them does not help either. No errors appear, as far as I can see.
 
-While I was editing the Kconfig entry, I also converted the spaces to 
-tabs.
+The problem also exists in an unpatched 2.6.13_rc6.
 
+dmesg here: https://bugs.gentoo.org/attachment.cgi?id=65470
+full bug: https://bugs.gentoo.org/show_bug.cgi?id=101463
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I realise that this is probably not enough information to make any sense out 
+of! Please let me know how we can help further.
 
---- linux-2.6.13-rc5-mm1-full/drivers/net/Kconfig.old	2005-08-09 02:32:14.000000000 +0200
-+++ linux-2.6.13-rc5-mm1-full/drivers/net/Kconfig	2005-08-09 02:33:12.000000000 +0200
-@@ -1924,14 +1924,15 @@
- 	  If in doubt, say Y.
- 
- config SIS190
--      tristate "SiS190 gigabit ethernet support"
--      depends on PCI
--      select CRC32
--      ---help---
--        Say Y here if you have a SiS 190 PCI Gigabit Ethernet adapter.
-+	tristate "SiS190 gigabit ethernet support"
-+	depends on PCI
-+	select CRC32
-+	select MII
-+	---help---
-+	  Say Y here if you have a SiS 190 PCI Gigabit Ethernet adapter.
- 
--        To compile this driver as a module, choose M here: the module
--        will be called sis190.  This is recommended.
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called sis190.  This is recommended.
- 
- config SKGE
- 	tristate "New SysKonnect GigaEthernet support (EXPERIMENTAL)"
-
+Thanks,
+Daniel

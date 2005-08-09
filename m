@@ -1,103 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbVHIC53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVHIDLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbVHIC53 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 22:57:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbVHIC53
+	id S932429AbVHIDLD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 23:11:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbVHIDLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 22:57:29 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:15862 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932426AbVHIC53
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 22:57:29 -0400
-Date: Mon, 8 Aug 2005 19:57:27 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-To: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
-       cpufreq@lists.linux.org.uk
-Subject: PowerOP 3/3: Intel Centrino cpufreq integration
-Message-ID: <20050809025727.GD25064@slurryseal.ddns.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Aug 2005 23:11:02 -0400
+Received: from pop-cowbird.atl.sa.earthlink.net ([207.69.195.68]:7086 "EHLO
+	pop-cowbird.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S932429AbVHIDLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 23:11:00 -0400
+From: Mac Michaels <wmichaels1@earthlink.net>
+To: Michael Krufky <mkrufky@linuxtv.org>
+Subject: Re: [PATCH] DVB: lgdt330x frontend: some bug fixes & add lgdt3303 support
+Date: Mon, 8 Aug 2005 22:10:25 -0500
+User-Agent: KMail/1.8.1
+Cc: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       linux-dvb-maintainer@linuxtv.org
+References: <42F6A294.90300@linuxtv.org> <1123504387.17427.9.camel@localhost> <42F75C0D.3030409@linuxtv.org>
+In-Reply-To: <42F75C0D.3030409@linuxtv.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200508082210.26007.wmichaels1@earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A minimal example of modifying cpufreq to use PowerOP for reading and
-writing power parameters on Intel Centrino platforms.  It would be
-possible to move voltage table lookups to the PowerOP layer.
+I am not attached to the experimental code. If it goes away 
+my feelings will not be hurt. It was put there so I can 
+easily tell an early adopter how to make the noise go away.
 
+-- Mac
 
-Index: linux-2.6.12/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
-===================================================================
---- linux-2.6.12.orig/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2005-08-04 19:49:29.000000000 +0000
-+++ linux-2.6.12/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2005-08-05 01:21:45.000000000 +0000
-@@ -24,6 +24,7 @@
- #include <linux/config.h>
- #include <linux/delay.h>
- #include <linux/compiler.h>
-+#include <linux/powerop.h>
- 
- #ifdef CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI
- #include <linux/acpi.h>
-@@ -322,29 +323,21 @@
- /* Return the current CPU frequency in kHz */
- static unsigned int get_cur_freq(unsigned int cpu)
- {
--	unsigned l, h;
--	unsigned clock_freq;
-+	struct powerop_point point;
-+	unsigned clock_freq = 0;
- 	cpumask_t saved_mask;
-	
- 	saved_mask = current->cpus_allowed;
- 	set_cpus_allowed(current, cpumask_of_cpu(cpu));
- 	if (smp_processor_id() != cpu)
- 		return 0;
- 
--	rdmsr(MSR_IA32_PERF_STATUS, l, h);
--	clock_freq = extract_clock(l, cpu, 0);
-+	if (powerop_get_point(&point))
-+		goto out;
- 
--	if (unlikely(clock_freq == 0)) {
--		/*
--		 * On some CPUs, we can see transient MSR values (which are
--		 * not present in _PSS), while CPU is doing some automatic
--		 * P-state transition (like TM2). Get the last freq set 
--		 * in PERF_CTL.
--		 */
--		rdmsr(MSR_IA32_PERF_CTL, l, h);
--		clock_freq = extract_clock(l, cpu, 1);
--	}
-+	clock_freq = point.param[POWEROP_CPU + cpu] * 1000;
- 
-+out:
- 	set_cpus_allowed(current, saved_mask);
- 	return clock_freq;
- }
-@@ -610,6 +603,7 @@
- 	unsigned int	msr, oldmsr, h, cpu = policy->cpu;
- 	struct cpufreq_freqs	freqs;
- 	cpumask_t		saved_mask;
-+	struct powerop_point	point;
- 	int			retval;
- 
- 	if (centrino_model[cpu] == NULL)
-@@ -650,14 +644,9 @@
- 
- 	cpufreq_notify_transition(&freqs, CPUFREQ_PRECHANGE);
- 
--	/* all but 16 LSB are "reserved", so treat them with
--	   care */
--	oldmsr &= ~0xffff;
--	msr &= 0xffff;
--	oldmsr |= msr;
--
--	wrmsr(MSR_IA32_PERF_CTL, oldmsr, h);
--
-+	point.param[POWEROP_CPU + cpu] = ((msr >> 8) & 0xff) * 100;
-+	point.param[POWEROP_V + cpu] = ((msr & 0xff) * 16) + 700;
-+	powerop_set_point(&point);
- 	cpufreq_notify_transition(&freqs, CPUFREQ_POSTCHANGE);
- 
- 	retval = 0;
+On Monday 08 August 2005 08:20 am, Michael Krufky wrote:
+> Mauro Carvalho Chehab wrote:
+> >	This should't be applied to 2.6.13. It does contain a
+> > hack at V4L code, since mute_tda9887 is implemented
+> > outside tda9887.c module and could potentially cause
+> > troubles since there are some work to provide it on a
+> > correct way.
+> >	 It should be applied to -mm and go to mainstream only
+> > after provided a correct implementation.
+> >
+> >Mkrufky,
+> >	Please avoid trying to submit yet experimental patches
+> > to mainstream.
+> >
+> >Mauro.
+>
+> Mauro-
+>
+> Please calm down... This is a newer version of the
+> frontend module.  It is DVB code, not v4l.  The new
+> frontend module contains the MUTE_TDA9887 hack, however,
+> the code is disabled.  The new DVB frontend module has
+> some bugfixes.  This is NOT experimental code.  It has
+> been testing in cvs for the past month and Mac and I have
+> verified that this code works, and is a significant
+> improvement over current lgdt330x code in -linus tree.  I
+> did NOT send the v4l stuff to Andrew.  FusionHDTV5 Gold
+> DVB mode is still disabled in cx88-cards.c.  THIS UPDATE
+> IS A BUGFIX.
+>
+> Mac and I have been testing this new frontend module for
+> the past few weeks.  After Mac's latest changes to the
+> lgdt330x module, it is now ready to go upstream.  This
+> module provides better quality digital tv reception, and
+> adds support for LGDT3303.  There is no reason this
+> cannot go to 2.6.13.  It is Andrew's choice of whether he
+> wishes to fwd to Linus or not.
+>
+> The tda9887 stuff is disabled inside the code with
+> #ifdefs.
+>
+> Mauro, please do not intercept my patches to Andrew about
+> DVB stuff.  I have not kept you informed about Mac's DVB
+> stuff because you are v4l maintainer. (not dvb
+> maintainer).  Mac and I have worked very hard on this. 
+> Most of our correspondence have been short little emails
+> and we have been communicating in pvt emails, rather than
+> using the list. These patches for the new lgdt330x have
+> been tested by many DViCO users, using the
+> cvs-tree-merging scripts.   I have discussed these code
+> changes with Johannes, and he is happy for me to handle
+> the hybrid patches like this.  It is very important that
+> the changes made to the lgdt330x module be countered by
+> equivalent changes in cx88-dvb.c
+>
+> Once again, this is NOT an "experimental patch," and THIS
+> is the correct implementation for lgdt330x stuff..... 
+> The tda9887 stuff can be removed later on.  It is
+> harmless right now, as the tda9887 code is disabled by
+> ifdefs anyway.  It would be best for the new lgdt330x
+> module to be merged into 2.6.13, because the interface is
+> no longer compatable with older lgdt330x interface.
+>
+> Thank you.

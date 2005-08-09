@@ -1,33 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbVHIG4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbVHIHHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbVHIG4r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 02:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVHIG4q
+	id S932404AbVHIHHA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 03:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVHIHHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 02:56:46 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:11405 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S932407AbVHIG4q (ORCPT
+	Tue, 9 Aug 2005 03:07:00 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:30676 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932404AbVHIHG7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 02:56:46 -0400
-Message-ID: <42F85491.5090407@drzeus.cx>
-Date: Tue, 09 Aug 2005 09:00:33 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-3 (X11/20050806)
-X-Accept-Language: en-us, en
+	Tue, 9 Aug 2005 03:06:59 -0400
+Date: Tue, 9 Aug 2005 09:06:43 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpuset release ABBA deadlock fix
+In-Reply-To: <20050808232558.7173fdd7.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0508090902350.1805@yvahk01.tjqt.qr>
+References: <20050808223722.22843.86768.sendpatchset@jackhammer.engr.sgi.com>
+ <20050808232558.7173fdd7.akpm@osdl.org>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Documentation maintainer?
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Who should be cc:d for document additions? It's a brand new document,
-not updates to an existing one. I sent it out without any cc at all
-(Subject: [PATCH] ISA DMA API documentation) which got some attention,
-but not from anyone with the possibility to commit it would seem.
 
-Rgds
-Pierre
+>> +	(void) call_usermodehelper(argv[0], argv, envp, 0);
+>
+>ick.  Why the cast?
+
+Because K&R (also the 2nd ed) does it.
+Unfortunately, K&R is always recommended as a book, and apparently
+many readers therefore get addicted to casts. Hell, you even see
+it [unnecessary casts] in today's books.
+
+
+
+Jan Engelhardt
+-- 

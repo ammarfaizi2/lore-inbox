@@ -1,192 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVHIQGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVHIQHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbVHIQGY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 12:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVHIQGX
+	id S964850AbVHIQHG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 12:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbVHIQHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 12:06:23 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:47272 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S964845AbVHIQGX (ORCPT
+	Tue, 9 Aug 2005 12:07:05 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:55246 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964850AbVHIQHD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 12:06:23 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.13-rc5] rewrite drivers/scsi/cpqfcTScontrol.c::CpqTsGetSFQEntry
-Date: Tue, 9 Aug 2005 18:06:43 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-scsi@vger.kernel.org, James Bottomley <James.Bottomley@steeleye.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-References: <200508051202.07091@bilbo.math.uni-mannheim.de>
-In-Reply-To: <200508051202.07091@bilbo.math.uni-mannheim.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Aug 2005 12:07:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=uS0YcT3Ez3DsiWWa5D3r8RFNPTxpyalD5QjABsz+x4XDVhFFikvHlHjBCCMPFI85hGF/FG1Z8RCuQyKS7KXPh2YurTp7+viflksZjRsjq5DODWnw6tXhVWfuCRUREJhaYFZ0jMEMYU67mGL6CK0Adz8s7fWi1NZRDtD6UheDMrQ=
+Date: Wed, 10 Aug 2005 00:06:41 +0800
+From: lepton <ytht.net@gmail.com>
+To: jdike@addtoit.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Why don't register a d_delete function for externfs_dentry_ops in 2.4 kernel?
+Message-ID: <20050809160641.GA4946@gsy2.lepton.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508091806.45341@bilbo.math.uni-mannheim.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch applies on top of my previous one that removed the whitespace
-bloat.
+Hi!
+	I read about code of linux-2.4.31/arch/um/fs/hostfs/externfs.c
 
-This patch now fixes the type horror in CpqTsGetSFQEntry():
--the destination buffer is now void* instead of ULONG*
--the offset is now done by a int (former ULONG) variable and not
- adding bytes to the pointer address
--the last argument is not int, not boolean
--the second argument is compared to ULONG but is USHORT. And one (of two)
- callers passes a ULONG casted to USHORT. Use ULONG instead.
--remove some of the comments
--don't use argument names in functions forward declaration: they don't match
- the actual names anyway
+	I found you have defined a function named exterfs_d_delete, but
+	you don't register this function in externfs_dentry_ops.
 
-While I'm at it, I fixed the coding style of this function. The rest of the
-file is is still horror, but this no excuse for not fixing this function.
+	This behavior is diffrent from the hostfs code in 2.6 kernel
 
-This shrinks the file by another 500 bytes and should not make any difference
-in function.
+	It will lead to some strange problem like this:
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+	on guest UML box:  ls -l /tmp/nonexist  ( the result is "file not
+	found", it is correct)
 
---- 2.6.13-rc6/drivers/scsi/cpqfcTScontrol.c	2005-08-09 17:39:49.000000000 +0200
-+++ b/drivers/scsi/cpqfcTScontrol.c	2005-08-09 17:49:41.000000000 +0200
-@@ -52,8 +52,7 @@
- //#define IMQ_DEBUG 1
- 
- static void fcParseLinkStatusCounters(TACHYON * fcChip);
--static void CpqTsGetSFQEntry(TACHYON * fcChip,
--	      USHORT pi, ULONG * buffr, BOOLEAN UpdateChip);
-+static void CpqTsGetSFQEntry(TACHYON *, ULONG, void*, int);
- 
- static void
- cpqfc_free_dma_consistent(CPQFCHBA *cpqfcHBAdata)
-@@ -562,12 +561,11 @@ static int PeekIMQEntry( PTACHYON fcChip
-           TachFCHDR_GCMND* fchs;
- #error This is too much stack
-           ULONG ulFibreFrame[2048/4];  // max DWORDS in incoming FC Frame
--	  USHORT SFQpi = (USHORT)(fcChip->IMQ->QEntry[CI].word[0] & 0x0fffL);
-+	  ULONG SFQpi = (fcChip->IMQ->QEntry[CI].word[0] & 0x0fffL);
- 
- 	  CpqTsGetSFQEntry( fcChip,
-             SFQpi,        // SFQ producer ndx
--	    ulFibreFrame, // contiguous dest. buffer
--	    FALSE);       // DON'T update chip--this is a "lookahead"
-+		ulFibreFrame, 0);	// DON'T update chip--this is a "lookahead"
- 
- 	  fchs = (TachFCHDR_GCMND*)&ulFibreFrame;
-           if( fchs->pl[0] == ELS_LILP_FRAME)
-@@ -875,8 +873,8 @@ int CpqTsProcessIMQEntry(void *host)
-           // clears SFQ entry from Tachyon buffer; copies to contiguous ulBuff
-       CpqTsGetSFQEntry(
-         fcChip,                  // i.e. this Device Object
--        (USHORT)fcChip->SFQ->producerIndex,  // SFQ producer ndx
--        ulFibreFrame, TRUE);    // contiguous destination buffer, update chip
-+		fcChip->SFQ->producerIndex,  // SFQ producer ndx
-+		ulFibreFrame, 1);    // contiguous destination buffer, update chip
- 
-         // analyze the incoming frame outside the INT handler...
-         // (i.e., Worker)
-@@ -1739,57 +1737,54 @@ int CpqTsDestroyTachLiteQues( void *pHBA
-   return iStatus;     // non-zero (failed) if any memory not freed
- }
- 
--// The SFQ is an array with SFQ_LEN length, each element (QEntry)
--// with eight 32-bit words.  TachLite places incoming FC frames (i.e.
--// a valid FC frame with our AL_PA ) in contiguous SFQ entries
--// and sends a completion message telling the host where the frame is
--// in the que.
--// This function copies the current (or oldest not-yet-processed) QEntry to
--// a caller's contiguous buffer and updates the Tachyon chip's consumer index
--//
--// NOTE:
--//   An FC frame may consume one or many SFQ entries.  We know the total
--//   length from the completion message.  The caller passes a buffer large
--//   enough for the complete message (max 2k).
--
--static void CpqTsGetSFQEntry(
--         PTACHYON fcChip,
--         USHORT producerNdx,
--         ULONG *ulDestPtr,            // contiguous destination buffer
--	 BOOLEAN UpdateChip)
-+/**
-+ * CpqTsGetSFQEntry
-+ * @dest: contiguous destination buffer
-+ *
-+ *The SFQ is an array with SFQ_LEN length, each element (QEntry)
-+ * with eight 32-bit words.  TachLite places incoming FC frames (i.e.
-+ * a valid FC frame with our AL_PA ) in contiguous SFQ entries
-+ * and sends a completion message telling the host where the frame is
-+ * in the queue.
-+ * This function copies the current (or oldest not-yet-processed) QEntry to
-+ * a caller's contiguous buffer and updates the Tachyon chip's consumer index
-+ *
-+ * NOTE:
-+ *   An FC frame may consume one or many SFQ entries.  We know the total
-+ *   length from the completion message.  The caller passes a buffer large
-+ *   enough for the complete message (max 2k).
-+ */
-+static void
-+CpqTsGetSFQEntry(PTACHYON fcChip, ULONG producerNdx, void *ulDestPtr,
-+	int UpdateChip)
- {
--  ULONG total_bytes=0;
--  ULONG consumerIndex = fcChip->SFQ->consumerIndex;
--
--				// check passed copy of SFQ producer index -
--				// is a new message waiting for us?
--				// equal indexes means SFS is copied
-+	int total_bytes = 0;
-+	ULONG consumerIndex = fcChip->SFQ->consumerIndex;
- 
--  while( producerNdx != consumerIndex )
--  {                             // need to process message
--    total_bytes += 64;   // maintain count to prevent writing past buffer
--                   // don't allow copies over Fibre Channel defined length!
--    if( total_bytes <= 2048 )
--    {
--      memcpy(ulDestPtr,
--              &fcChip->SFQ->QEntry[consumerIndex],
--              64 );  // each SFQ entry is 64 bytes
--      ulDestPtr += 16;   // advance pointer to next 64 byte block
--    }
--		         // Tachyon is producing,
--                         // and we are consuming
--
--    if( ++consumerIndex >= SFQ_LEN)// check for rollover
--      consumerIndex = 0L;        // reset it
--  }
-+	/* check passed copy of SFQ producer index -
-+	 * is a new message waiting for us?
-+	 * equal indexes means SFS is copied */
-+
-+	while (producerNdx != consumerIndex) {
-+		/* need to process message */
-+		if(total_bytes < 2048) {
-+			memcpy(ulDestPtr + total_bytes,
-+				&fcChip->SFQ->QEntry[consumerIndex], 64);
-+		}
-+		/* each SFQ entry is 64 bytes */
-+		total_bytes += 64;
-+
-+		/* check for rollover */
-+		if(++consumerIndex >= SFQ_LEN)
-+			consumerIndex = 0;
-+	}
- 
--  // if specified, update the Tachlite chip ConsumerIndex...
--  if( UpdateChip )
--  {
--    fcChip->SFQ->consumerIndex = consumerIndex;
--    writel( fcChip->SFQ->consumerIndex,
--      fcChip->Registers.SFQconsumerIndex.address);
--  }
-+	/* if specified, update the Tachlite chip ConsumerIndex */
-+	if(UpdateChip) {
-+		fcChip->SFQ->consumerIndex = consumerIndex;
-+		writel(fcChip->SFQ->consumerIndex,
-+			fcChip->Registers.SFQconsumerIndex.address);
-+	}
- }
- 
- // TachLite routinely freezes it's core ques - Outbound FIFO, Inbound FIFO,
+	IN the directory of host os: touch ..../tmp/nonexist
+
+	on guest UML box again: ls -l /tmp/nonexist ( the result keeps "file
+	not found",  a incorrect negative dcache hit)
+
+	I don't kown why 2.4 kernel have not fixed it.
+
+	What do you think about it?
+
+	Thanks

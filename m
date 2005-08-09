@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbVHIQIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbVHIQIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbVHIQIF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 12:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVHIQIE
+	id S964848AbVHIQIM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 12:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbVHIQIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 12:08:04 -0400
-Received: from pat.uio.no ([129.240.130.16]:58559 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S964855AbVHIQIB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 12:08:01 -0400
-Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Bryan Henderson <hbryan@us.ibm.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Miklos Szeredi <miklos@szeredi.hu>
-In-Reply-To: <OF8B842185.9331BF0D-ON88257058.0054CAEE-88257058.0056B6B6@us.ibm.com>
-References: <OF8B842185.9331BF0D-ON88257058.0054CAEE-88257058.0056B6B6@us.ibm.com>
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 12:07:41 -0400
-Message-Id: <1123603661.8245.78.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Tue, 9 Aug 2005 12:08:12 -0400
+Received: from mail-red.bigfish.com ([216.148.222.61]:41321 "EHLO
+	mail24-red-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S964848AbVHIQIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 12:08:10 -0400
+X-BigFish: V
+Message-ID: <42F8D4C5.2090800@am.sony.com>
+Date: Tue, 09 Aug 2005 09:07:33 -0700
+From: Geoff Levand <geoffrey.levand@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Todd Poynor <tpoynor@mvista.com>
+CC: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
+       cpufreq@lists.linux.org.uk
+Subject: Re: [linux-pm] PowerOP 1/3: PowerOP core
+References: <20050809025157.GB25064@slurryseal.ddns.mvista.com>
+In-Reply-To: <20050809025157.GB25064@slurryseal.ddns.mvista.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.425, required 12,
-	autolearn=disabled, AWL 2.39, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 09.08.2005 Klokka 08:47 (-0700) skreiv Bryan Henderson:
-> >Intents are meant as optimisations, not replacements for existing
-> >operations. I'm therefore not really comfortable about having them
-> >return errors at all.
-> 
-> That's true of normal intents, but not what are called intents here.  A 
-> normal intent merely expresses an intent, and it can be totally ignored 
-> without harm to correctness.  But these "intents" were designed to be 
-> responded to by actually performing the foreshadowed operation now - 
-> irreversibly.
-> 
-> Linux needs an atomic lookup/open/create in order to participate in a 
-> shared filesystem and provide a POSIX interface (where shared filesystem 
-> means a filesystem that is simultaneously accessed by something besides 
-> the Linux system in question).  Some operating systems do this simply with 
-> a VFS lookup/open/create function.  Linux does it with this intents 
-> interface.
-> 
-> It's hard to merge the concepts in code or in one's mind, which is why 
-> we're here now.  A filesystem driver that needs to do atomic 
-> lookup/open/create has to bend over backwards to split the operation 
-> across the three filesystem driver calls that Linux wants to make.
-> 
-> I've always preferred just to have a new inode operation for 
-> lookup/open/create (mirroring the POSIX open operation, used for all opens 
-> if available), but if enough arguments to lookup can do it, that's 
-> practically as good.  But that means returning final status from lookup, 
-> and not under any circumstance proceeding to create or open when the 
-> filesystem driver has said the entire operation is complete.
+Todd Poynor wrote:
+...
+> ===================================================================
+> --- linux-2.6.12.orig/include/linux/powerop.h	1970-01-01
+> 00:00:00.000000000 +0000
+> +++ linux-2.6.12/include/linux/powerop.h	2005-08-03
+> 01:10:55.000000000 +0000
+> @@ -0,0 +1,36 @@
+> +/*
+> + * PowerOP core definitions
+> + *
+> + * Author: Todd Poynor <tpoynor@mvista.com>
+> + *
+> + * 2005 (c) MontaVista Software, Inc. This file is licensed under
+> + * the terms of the GNU General Public License version 2. This program
+> + * is licensed "as is" without any warranty of any kind, whether
+> express
+> + * or implied.
+> + */
+> +
+> +#ifndef __POWEROP_H__
+> +#define __POWEROP_H__
+> +
+> +#include <linux/kobject.h>
+> +#include <asm/powerop.h>
+> +
+> +struct powerop_point {
+> +	int param[POWEROP_DRIVER_MAX_PARAMS];
+> +};
 
-Have you looked at how we're dealing with this in NFSv4?
+I'm wondering if anything could be gained by having the whole 
+struct powerop_point defined in asm/powerop.h, and treat it as an 
+opaque structure at this level.  That way, things other than just 
+ints could be passed between the policy manager and the backend, 
+although I guess that breaks the beauty of the simplicity and would 
+complicate the sys-fs interface, etc.  I'm interested to hear your 
+comments.
 
-Cheers,
-  Trond
+Another point is that a policy manager would need to poll the system 
+and/or get events and then act.  Your powerop work here only provides 
+a (one way) piece of the final action.  Any comments regarding a more 
+general interface?
+
+-Geoff
+
 

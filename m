@@ -1,76 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVHILXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbVHILty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbVHILXv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 07:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVHILXv
+	id S932523AbVHILty (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 07:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbVHILty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 07:23:51 -0400
-Received: from silver.veritas.com ([143.127.12.111]:53326 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932518AbVHILXu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 07:23:50 -0400
-Date: Tue, 9 Aug 2005 12:25:36 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Daniel Phillips <phillips@arcor.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-In-Reply-To: <1123577509.30257.173.camel@gaston>
-Message-ID: <Pine.LNX.4.61.0508091215490.11660@goblin.wat.veritas.com>
-References: <42F57FCA.9040805@yahoo.com.au>  <200508090710.00637.phillips@arcor.de>
-  <42F7F5AE.6070403@yahoo.com.au> <1123577509.30257.173.camel@gaston>
+	Tue, 9 Aug 2005 07:49:54 -0400
+Received: from gate.corvil.net ([213.94.219.177]:6920 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S932523AbVHILty (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 07:49:54 -0400
+Message-ID: <42F897B2.9090404@draigBrady.com>
+Date: Tue, 09 Aug 2005 12:46:58 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Aug 2005 11:23:50.0463 (UTC) FILETIME=[D1134CF0:01C59CD4]
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OT] util-linux 2.13-pre1
+References: <20050802230751.GB4029@stusta.de>
+In-Reply-To: <20050802230751.GB4029@stusta.de>
+Content-Type: multipart/mixed;
+ boundary="------------030903010301080400030704"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Aug 2005, Benjamin Herrenschmidt wrote:
-> > 
-> > What we don't have is something to indicate the page does not point
-> > to valid ram.
-> 
-> I have no problem keeping PG_reserved for that, and _ONLY_ for that.
+This is a multi-part message in MIME format.
+--------------030903010301080400030704
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Yes, if a table won't suffice.
+Adrian Bunk wrote:
+> util-linux 2.13-pre1 is available at
+>   ftp://ftp.kernel.org/pub/linux/utils/util-linux/testing/util-linux-2.13-pre1.tar.gz
 
-> (though i'd rather see it renamed then).
+You missed my fixes to cal to fix a possible crash bug
+for certain terminal types, and to fix date alignment
+issues for certain dates. I've rediffed the attached
+patched against 2.13-pre1.
 
-Definitely.
+Also schedutils build is breaking on redhat 9.
+This really is messy but should be handled.
+http://mail.linux.ie/pipermail/ilug/2004-November/019784.html
+API changes in same minor version of glibc should just not happen.
 
-> I'm just afraid by doing so,
-> some drivers will jump in the gap and abuse it again...
+-- 
+Pa'draig Brady - http://www.pixelbeat.org
+--
 
-I don't think that was abuse, it was just playing by the silly rules
-remap_pfn_range and ioremap demanded.
+--------------030903010301080400030704
+Content-Type: application/x-texinfo;
+ name="cal-2.13-pre1-highlight.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cal-2.13-pre1-highlight.diff"
 
-> Also, we should
-> make sure we kill the "trick" of refcounting only in one direction.
+--- cal.c	2005-08-01 20:41:02.000000000 +0000
++++ cal-pb.c	2005-08-09 11:21:15.000000000 +0000
+@@ -87,9 +87,13 @@
+      putp(s);
+ }
+ 
+-static char *
++static const char *
+ my_tgetstr(char *s, char *ss) {
+-     return tigetstr(ss);
++     const char* ret = tigetstr(ss);
++     if (!ret || ret==(char*)-1)
++         return "";
++     else
++         return ret;
+ }
+ 
+ #elif defined(HAVE_LIBTERMCAP)
+@@ -110,9 +114,13 @@
+      tputs (s, 1, putchar);
+ }
+ 
+-static char *
++static const char *
+ my_tgetstr(char *s, char *ss) {
+-     return tgetstr(s, &strbuf);
++     const char* ret = tgetstr(s, &strbuf);
++     if (!ret)
++         return "";
++     else
++         return ret;
+ }
+ 
+ #endif
+@@ -225,6 +233,7 @@
+ char * ascii_day(char *, int);
+ void center_str(const char* src, char* dest, size_t dest_size, int width);
+ void center(const char *, int, int);
++int strlen_terminal(const char* s);
+ void day_array(int, int, int, int *);
+ int day_in_week(int, int, int);
+ int day_in_year(int, int, int);
+@@ -498,10 +507,18 @@
+ 	for (i = 0; i < 2; i++)
+ 		printf("%s  %s  %s\n", out_prev.s[i], out_curm.s[i], out_next.s[i]);
+ 	for (i = 2; i < FMT_ST_LINES; i++) {
++		int width1,width2,width3;
++		width1=width2=width3=width;
++#if defined(HAVE_NCURSES) || defined(HAVE_LIBTERMCAP)
++		/* adjust width to allow for non printable characters */
++		width1+=strlen(out_prev.s[i])-strlen_terminal(out_prev.s[i]);
++		width2+=strlen(out_curm.s[i])-strlen_terminal(out_curm.s[i]);
++		width3+=strlen(out_next.s[i])-strlen_terminal(out_next.s[i]);
++#endif
+ 		snprintf(lineout, SIZE(lineout), "%-*s  %-*s  %-*s\n",
+-		       width, out_prev.s[i],
+-		       width, out_curm.s[i],
+-		       width, out_next.s[i]);
++		       width1, out_prev.s[i],
++		       width2, out_curm.s[i],
++		       width3, out_next.s[i]);
+ #if defined(HAVE_NCURSES) || defined(HAVE_LIBTERMCAP)
+ 		my_putstring(lineout);
+ #else
+@@ -773,6 +790,15 @@
+ 		(void)printf("%*s", separate, "");
+ }
+ 
++int
++strlen_terminal(const char* s)
++{
++	if (Senter && Senter[0])
++		if (strstr(s,Senter))
++			return strlen(s) - strlen(Senter) - strlen(Sexit);
++	return strlen(s);
++}
++
+ void
+ usage()
+ {
 
-Very hard to find anyone to disagree with you on that!
-
-> Either we refcount both (but do nothing, or maybe just BUG_ON if the
-> page is "reserved" -> not valid RAM), or we don't refcount at all.
-
-We do what's most efficient for the core.  Which I think is refcount
-both ways regardless, since these "page"s are exceptional, and the
-majority really do need refcounting.
-
-> For things like Cell, We'll really end up needing struct page covering
-> the SPUs for example. That is not valid RAM, shouldn't be refcounted,
-
-But you don't mind if they are refcounted, do you?
-Just so long as they start out from 1 so never get freed.
-
-> but we need to be able to have nopage() returning these etc...
-
-You'll actually be needing nopage() on them?  That idea has come up
-before, it's not out of the question (though I think wli suggested
-we ought rather to change the nopage interface if so), but it's a
-different topic from the current removal of PageReserved anyway.
-
-Hugh
+--------------030903010301080400030704--

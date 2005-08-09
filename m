@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVHIOi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbVHIOj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVHIOi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 10:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbVHIOi5
+	id S964791AbVHIOj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 10:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbVHIOj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 10:38:57 -0400
-Received: from dvhart.com ([64.146.134.43]:41089 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S964789AbVHIOi5 (ORCPT
+	Tue, 9 Aug 2005 10:39:29 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:27431 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S964791AbVHIOj2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 10:38:57 -0400
-Date: Tue, 09 Aug 2005 07:38:52 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: ncunningham@cyclades.com, Daniel Phillips <phillips@arcor.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-Message-ID: <523240000.1123598289@[10.10.2.4]>
-In-Reply-To: <20050809080853.A25492@flint.arm.linux.org.uk>
-References: <42F57FCA.9040805@yahoo.com.au> <200508090710.00637.phillips@arcor.de> <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au> <20050809080853.A25492@flint.arm.linux.org.uk>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 9 Aug 2005 10:39:28 -0400
+Date: Tue, 9 Aug 2005 16:39:24 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: VGER news
+Message-ID: <20050809143924.GC28539@harddisk-recovery.com>
+References: <20050809141217.GL22165@mea-ext.zmailer.org> <Pine.LNX.4.61.0508091630160.23577@yvahk01.tjqt.qr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0508091630160.23577@yvahk01.tjqt.qr>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Russell King <rmk+lkml@arm.linux.org.uk> wrote (on Tuesday, August 09, 2005 08:08:53 +0100):
-
-> On Tue, Aug 09, 2005 at 02:59:53PM +1000, Nick Piggin wrote:
->> That would work for swsusp, but there are other users that want to
->> know if a struct page is valid ram (eg. ioremap), so in that case
->> swsusp would not be able to mess with the flag.
+On Tue, Aug 09, 2005 at 04:33:47PM +0200, Jan Engelhardt wrote:
 > 
-> The usage of "valid ram" here is confusing - that's not what PageReserved
-> is all about.  It's about valid RAM which is managed by method other
-> than the usual page counting.  Non-reserved RAM is also valid RAM, but
-> is managed by the kernel in the usual way.
+> >Folks at Dell have donated a new machine to be VGER, and
+> >folks at RedHat have installed it into co-location facility
+> >with 1000Mbps network connection into the machine.
 > 
-> The former is available for remap_pfn_range and ioremap, the latter is
-> not.
+> May 24 2004 on kernel.org:
+>   ISC has upgraded our outbound connection to 1000 Mbit/s. Thanks!
+
+That's www and ftp.kernel.org, the archive server.
+
+> So you have 2000 Mbps now?
+
+No, this time vger.kernel.org (the mailing list server) got an 1000
+Mbit/s connection.
+
+> >This update got considerable performance increase into the
+> >machine for our list loads.  In terms of Bogomips around 7-8,
+> >but for actual loads nearly twice as much.
 > 
-> On the other hand, the validity of an apparant RAM address can only be
-> tested using its pfn with pfn_valid().
-> 
-> Can we straighten out the terminology so it's less confusing please?
+> Wow, that's a lot of bogomips. That's just a little faster than my 386 
+> (running 2.6.13-rc1): http://jengelh.hopto.org/GFX0/proc386.jpg
 
-pfn_valid() doesn't tell you it's RAM or not - it tells you whether you
-have a backing struct page for that address. Could be an IO mapped device,
-a small memory hole, whatever.
+Matti is talking about an increase, which implies a difference.
 
-M.
 
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

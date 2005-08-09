@@ -1,66 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbVHIV74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbVHIWCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964991AbVHIV74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 17:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbVHIV74
+	id S964992AbVHIWCv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 18:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbVHIWCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 17:59:56 -0400
-Received: from mail.kroah.org ([69.55.234.183]:59067 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964991AbVHIV74 (ORCPT
+	Tue, 9 Aug 2005 18:02:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32670 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964992AbVHIWCv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 17:59:56 -0400
-Date: Tue, 9 Aug 2005 14:56:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] removes pci_find_device from i6300esb.c
-Message-ID: <20050809215638.GC22683@kroah.com>
-References: <42F73523.80205@gmail.com> <200508082355.j78NtGNS029681@wscnet.wsc.cz> <20050808233429.36e6ebd5.akpm@osdl.org> <42F87730.5030804@gmail.com>
+	Tue, 9 Aug 2005 18:02:51 -0400
+Date: Tue, 9 Aug 2005 15:01:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kumar Gala <galak@freescale.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org,
+       msm@freescale.com
+Subject: Re: [PATCH] ppc32: Added support for the Book-E style Watchdog
+ Timer
+Message-Id: <20050809150131.7eac43ad.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0508091530060.10161@nylon.am.freescale.net>
+References: <Pine.LNX.4.61.0508091530060.10161@nylon.am.freescale.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42F87730.5030804@gmail.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 11:28:16AM +0200, Jiri Slaby wrote:
-> Andrew Morton napsal(a):
+Kumar Gala <galak@freescale.com> wrote:
+>
+> PowerPC 40x and Book-E processors support a watchdog timer at the processor
+> core level.  The timer has implementation dependent timeout frequencies
+> that can be configured by software. 
 > 
-> >Jiri Slaby <jirislaby@gmail.com> wrote:
-> > 
-> >
-> >>--- a/drivers/char/watchdog/i6300esb.c
-> >>+++ b/drivers/char/watchdog/i6300esb.c
-> >>@@ -368,12 +368,11 @@ static unsigned char __init esb_getdevic
-> >>          *      Find the PCI device
-> >>          */
-> >> 
-> >>-        while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != 
-> >>NULL) {
-> >>+        for_each_pci_dev(dev)
-> >>                 if (pci_match_id(esb_pci_tbl, dev)) {
-> >>                         esb_pci = dev;
-> >>                         break;
-> >>                 }
-> >>-        }
-> >> 
-> >>         if (esb_pci) {
-> >>         	if (pci_enable_device(esb_pci)) {
-> >>@@ -430,6 +429,7 @@ err_release:
-> >> 		pci_release_region(esb_pci, 0);
-> >> err_disable:
-> >> 		pci_disable_device(esb_pci);
-> >>+		pci_dev_put(esb_pci);
-> >>   
-> >>
-> >
-> >That doesn't look right.  Each iteration of for_each_pci_dev() needs a
-> >pci_dev_put(), not just the final one.
+> One the first Watchdog timeout we get a critical exception.  It is left
+> to board specific code to determine what should happen at this point.  If
+> nothing is done and another timeout period expires the processor may
+> attempt to reset the machine.
+> 
+> Command line parameters:
+>   wdt=0 : disable watchdog (default)
+>   wdt=1 : enable watchdog
+> 
+>   wdt_period=N : N sets the value of the Watchdog Timer Period.
+> 
+>   The Watchdog Timer Period meaning is implementation specific. Check
+>   User Manual for the processor for more details.
+> 
+> This patch is based off of work done by Takeharu Kato.
+> 
+> ...
+> 
+> +#ifdef CONFIG_BOOKE_WDT
+> +/* Checks wdt=x and wdt_period=xx command-line option */
+> +int __init early_parse_wdt(char *p)
+> +{
+> +	extern u32 wdt_enable;
+> +
+> +	if (p && strncmp(p, "0", 1) != 0)
+> +	       wdt_enable = 1;
+> +
+> +	return 0;
+> +}
+> +early_param("wdt", early_parse_wdt);
+> +
+> +int __init early_parse_wdt_period (char *p)
+> +{
+> +	extern u32 wdt_period;
+> +
+> +	if (p)
+> +		wdt_period = simple_strtoul(p, NULL, 0);
+> +
+> +	return 0;
+> +}
 
-Not true, see the documentation for pci_get_device(), it's only required
-if you break out of the loop.
 
-thanks,
+Would prefer to see the declaration of wdt_period in a header file, please.
 
-greg k-h
+But beware that wdt_enable() is already a static symbol in a couple of
+watchdog drivers.  It might be best to rename the ppc global to something
+less generic-sounding while you're there.

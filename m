@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbVHIJAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVHIJDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbVHIJAF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 05:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVHIJAF
+	id S932472AbVHIJDd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 05:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVHIJDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 05:00:05 -0400
-Received: from gate.crashing.org ([63.228.1.57]:48101 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932473AbVHIJAD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 05:00:03 -0400
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, ncunningham@cyclades.com,
-       Daniel Phillips <phillips@arcor.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <20050809080853.A25492@flint.arm.linux.org.uk>
-References: <42F57FCA.9040805@yahoo.com.au>
-	 <200508090710.00637.phillips@arcor.de>
-	 <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au>
-	 <20050809080853.A25492@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 10:53:49 +0200
-Message-Id: <1123577631.30257.175.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 9 Aug 2005 05:03:32 -0400
+Received: from ws6-1.us4.outblaze.com ([205.158.62.196]:15846 "HELO
+	ws6-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S932458AbVHIJDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 05:03:32 -0400
+Message-ID: <42F8715C.4000404@bakke.com>
+Date: Tue, 09 Aug 2005 11:03:24 +0200
+From: Dag Bakke <dag@bakke.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Enabling PCMCIA serial ports without pcmciautils/pcmcia_cs in 2.6?
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am building a small root fs for an embedded target.
+(Soekris 4521, which is an SC520 + yenta-compatible cardbus bridge)
 
-> Can we straighten out the terminology so it's less confusing please?
+Basing my system on kernel, uclibc and busybox, I can build a very lean, 
+clean and compact root fs with a minimum of effort. (gentoo-embedded rocks!)
 
-Well, RAM that isn't managed by standard page counting could be
-considered a some sort of weird MMIO :) 
+But getting my 4port serial pcmcia card enabled appears to require 
+various stuff to be installed, just to get the card initialised: 
+pcmcia_cs (or alternatively pcmciautils for 2.6.13), hotplug, pciutils, 
+usbutils, libusb, sysfsutils(?).
 
-Ben.
+Is this really necessary? I'd guess that serial cards are some of the 
+simpler pcmcia targets to enable? (I could be very wrong..)
+Anyone got an idea about alternative solutions, or can state the minimum 
+binaries/files I need to enable this card? (Advantech COMpad-32/85B-4)
 
+
+----
+Dag B
 

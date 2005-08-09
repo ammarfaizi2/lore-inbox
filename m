@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVHIIJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVHIIQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbVHIIJo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 04:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVHIIJo
+	id S932466AbVHIIQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 04:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVHIIQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 04:09:44 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:60065 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932464AbVHIIJn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 04:09:43 -0400
-Date: Tue, 9 Aug 2005 10:09:22 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: James Morris <jmorris@namei.org>
-cc: "Theodore Ts'o" <tytso@mit.edu>,
-       David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>,
-       linux-kernel@vger.kernel.org
-Subject: Re: understanding Linux capabilities brokenness
-In-Reply-To: <Pine.LNX.4.63.0508090044400.20178@excalibur.intercode>
-Message-ID: <Pine.LNX.4.61.0508090822000.1805@yvahk01.tjqt.qr>
-References: <20050808211241.GA22446@clipper.ens.fr> <20050808223238.GA523@clipper.ens.fr>
- <dd8r9s$eqn$1@taverner.CS.Berkeley.EDU> <20050809015048.GA14204@thunk.org>
- <Pine.LNX.4.63.0508090044400.20178@excalibur.intercode>
+	Tue, 9 Aug 2005 04:16:56 -0400
+Received: from 203-217-29-35.perm.iinet.net.au ([203.217.29.35]:14275 "EHLO
+	anu.rimspace.net") by vger.kernel.org with ESMTP id S932456AbVHIIQ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 04:16:56 -0400
+From: Daniel Pittman <daniel@rimspace.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec AHA-2940U2W "Data Parity Error Dectected" messages
+In-Reply-To: <1123572475.27813.2.camel@mindpipe> (Lee Revell's message of
+	"Tue, 09 Aug 2005 03:27:54 -0400")
+References: <878xzbr2zw.fsf@rimspace.net> <1123572475.27813.2.camel@mindpipe>
+Date: Tue, 09 Aug 2005 18:16:46 +1000
+Message-ID: <871x53r0cx.fsf@rimspace.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.5-b21 (corn, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Lee Revell <rlrevell@joe-job.com> writes:
+> On Tue, 2005-08-09 at 17:19 +1000, Daniel Pittman wrote:
+>> I recently installed a SCSI tape drive and Adaptec AHA-2940U2W SCSI
+>> controller into my server to run backups.
+>> 
+>> Since then, the driver issues these warnings on a semi-regular basis
+>> while the drive is busy:
+>> 
+>> Aug  9 17:00:26 anu kernel: scsi0: Data Parity Error Detected during address or write data phase
+>> Aug  9 17:00:26 anu kernel: scsi0: PCI error Interrupt at seqaddr = 0x8
+>
+> Make sure the hardware is all installed correctly.  Check that the card
+> is fully seated, or try it in another PCI slot.  
 
+Thanks.  I will take the server down shortly and give that a shot.
 
-Ts'o wrote:
->since _obviously_ when root calls setuid(), it never fails, right?
+> Also check your cabling and termination.
 
-Well this really depends on how privileged a certain root user (think of 
-SELinux and others) is.
+Could SCSI cabling and/or termination cause the card to report *PCI*
+errors, or am I misunderstanding these messages?
 
->(2) There was some debate about whether or not this method was the              
-course of wisdom,
+I guess that the fact that the "PCI" bit kept showing up in them is
+what confuses me.  I didn't except a SCSI card to report PCI bus issues
+through the Linux driver, and since it claimed to be a victim, not a
+cause, I didn't know quite how to trace the problem down...
 
-James Morris wrote:
->Should we be thinking about deprecating and removing capabilities from 
->Linux?
-
-My one half says no. But it needs reworking. Just look what I had to do 
-with the linux source code in order to get this
-< ftp://ftp.gwdg.de/linux/misc/suser-jengelh/multiadm-1.0.tbz2 > to work as 
-intended - I had to poke really hard on caps stuff to get this module done.
-
-And my other half says yes, because it's ironically to give a user all caps 
-and then limit a certain user's permissions using LSM hook functions. So in 
-effect, if you wanted root accounts of varying powers, all of them would need 
-some - or even all - caps so that the code flow can reach the security_*() 
-functions at all, because capable() is done before security_*(). So to get to 
-security_*(), caps must be enabled, which turns a
-
-	if(!capable(CAP_DAC_OVERRIDE)) return;
-
-into, effectively,
-
-	if(0) return;
-
-With regard to _this_, I think it would be best to kill the cap checks, and 
-let a security_* function handle it, in the style of "security/traditional.c".
-
-
-Jan Engelhardt
--- 
+Thanks,
+      Daniel

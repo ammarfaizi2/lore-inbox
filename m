@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbVHIH17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbVHIHdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbVHIH17 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 03:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVHIH17
+	id S932451AbVHIHdV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 03:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVHIHdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 03:27:59 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:11236 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932403AbVHIH16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 03:27:58 -0400
-Subject: Re: Adaptec AHA-2940U2W "Data Parity Error Dectected" messages
-From: Lee Revell <rlrevell@joe-job.com>
-To: Daniel Pittman <daniel@rimspace.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <878xzbr2zw.fsf@rimspace.net>
-References: <878xzbr2zw.fsf@rimspace.net>
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 03:27:54 -0400
-Message-Id: <1123572475.27813.2.camel@mindpipe>
+	Tue, 9 Aug 2005 03:33:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63688 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932451AbVHIHdU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 03:33:20 -0400
+Date: Tue, 9 Aug 2005 00:32:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
+       cpufreq@lists.linux.org.uk
+Subject: Re: PowerOP 1/3: PowerOP core
+Message-ID: <20050809073234.GB13203@kroah.com>
+References: <20050809025157.GB25064@slurryseal.ddns.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050809025157.GB25064@slurryseal.ddns.mvista.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-09 at 17:19 +1000, Daniel Pittman wrote:
-> I recently installed a SCSI tape drive and Adaptec AHA-2940U2W SCSI
-> controller into my server to run backups.
-> 
-> Since then, the driver issues these warnings on a semi-regular basis
-> while the drive is busy:
-> 
-> Aug  9 17:00:26 anu kernel: scsi0: Data Parity Error Detected during address or write data phase
-> Aug  9 17:00:26 anu kernel: scsi0: PCI error Interrupt at seqaddr = 0x8
+On Mon, Aug 08, 2005 at 07:51:57PM -0700, Todd Poynor wrote:
+> +static void powerop_kobj_release(struct kobject *kobj)
+> +{
+> +	return;
+> +}
 
-Make sure the hardware is all installed correctly.  Check that the card
-is fully seated, or try it in another PCI slot.  Also check your cabling
-and termination.
+Hint, if your release function is just a noop like this, your code is
+wrong.  The kernel requires you to have a release function for a reason.
+Please fix it.
 
-Lee
+> +struct powerop_param_attribute {
+> +	int index;
+> +        struct attribute        attr;
+> +};
 
+space vs. tab issue.
+
+> +static ssize_t
+> +powerop_param_attr_show(struct kobject * kobj, struct attribute * attr,
+> +			char * buf)
+> +{
+> +	struct powerop_param_attribute * param_attr = to_param_attr(attr);
+> +	struct powerop_point point;
+> +	ssize_t ret = 0;
+> +
+> +	if ((ret = powerop_get_point(&point)) == 0)
+> +		ret = sprintf(buf, "%d\n", point.param[param_attr->index]);
+
+Please break this up into 3 lines instead of 2 to make it easier to read
+and maintain over time.
+
+You do this in other places too, please fix them too.
+
+thanks,
+
+greg k-h

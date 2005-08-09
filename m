@@ -1,93 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbVHIRyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbVHIRyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932560AbVHIRyf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 13:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVHIRyf
+	id S932564AbVHIRyx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 13:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbVHIRyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 13:54:35 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:49542 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S932560AbVHIRyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 13:54:35 -0400
-Date: Tue, 9 Aug 2005 10:54:34 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Marc Singer <elf@buici.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] spi
-Message-ID: <20050809175434.GA23389@hexapodia.org>
+	Tue, 9 Aug 2005 13:54:53 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:21448 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932562AbVHIRyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 13:54:52 -0400
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal (version
+	2)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: gregkh@suse.de, NAGANO Daisuke <breeze.nagano@nifty.ne.jp>,
+       alan@lxorguk.ukuu.org.uk, sailer@ife.ee.ethz.ch,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zaitcev@yahoo.com,
+       Christoph Eckert <ce@christeck.de>,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20050809174906.GA4006@stusta.de>
+References: <20050729153226.GE3563@stusta.de>
+	 <1123607633.5601.7.camel@mindpipe>  <20050809174906.GA4006@stusta.de>
+Content-Type: text/plain
+Date: Tue, 09 Aug 2005 13:54:48 -0400
+Message-Id: <1123610089.8210.7.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050808174721.GA2853@buici.com>
-User-Agent: Mutt/1.4.2i
+X-Mailer: Evolution 2.3.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 10:47:21AM -0700, Marc Singer wrote:
-> On Mon, Aug 08, 2005 at 07:35:36PM +0200, Marcel Holtmann wrote:
-> > > > +	if (NULL == dev || NULL == driver) {
-> > > 
-> > > Put the variable on the left side, gcc will complain if you incorrectly
-> > > put a "=" instead of a "==" here, which is all that you are defending
-> > > against with this style.
-> > 
-> > I think in this case the preferred way is
-> > 
-> > 	if (!dev || !driver) {
-> > 
+On Tue, 2005-08-09 at 19:49 +0200, Adrian Bunk wrote:
+> I'd deprecate them without moving them.
 > 
-> That's not a guaranteed equivalence in the C standard.  Null pointers
-> may not be zero.  I don't think we have any targets that work this
-> way, however there is nothing wrong with explicitly testing for NULL.
 
-False.  The expression  "!x" is precisely equivalent to "x==0", no
-matter what the type of x is. [1]  And furthermore, NULL==0. [2]
-Ergo, "NULL == dev" and "!dev" are defined to be equivalent.
+OK, I think that will still be slightly confusing becuase it comes
+before Sound in the kernel config, but maybe the deprecated part will
+make people think twice.
 
-What you're confused about is that the *representation* of a null
-pointer constant does not necessarily have to be all-bits-zero.  That
-is, the following code fragment might print something on a
-standard-compliant C implementation:
+I think we should at least label these clearly as part of OSS.  Users at
+least seem to know that mixing OSS and ALSA modules is bad.
 
-	void *a = 0; unsigned char *p = (unsigned char *)&a;
-	int i;
-	for(i=0; i<sizeof(a); i++)
-		if(p[i] != 0) printf("p[%d] = %02x!\n", i, p[i]);
+> I'll send a patch unless someone tells that any functionality of these
+> drivers is lacking in ALSA. 
 
-That does not change the fact that the source-code fragment "NULL" is
-defined to be equivalent to the source-code fragment "0".  Simply the
-compiler must do whatever trickery necessary to ensure the correct
-values get generated in the object code for my above hypothetical
-architecture when I say "void *a = 0;".
+OK.  I'm almost positive there is no functionality missing, there have
+not been any reports of people needing to use the OSS driver on any of
+the ALSA lists.
 
-This is very similar to how floating point is handled in the abstract
-machine definition of the standard.  Consider a weird FP implementation
-where 0.0 has a not-all-bits-zero representation, and change 'a' in my
-example above to type 'double'.  Just because 0.0 is stored as the bit
-pattern 0x8000000000000000 does not mean that I have to write something
-other than "double a = 0;"!
+Lee 
 
-And furthermore, all of this was well-understood in the C89 standard;
-it's not new in the C99 standard, although there are some
-clarifications.
-
-[1] ISO/IEC 9899:1999 6.5.3.3 Unary arithmetic operators
-
-  (5) The result of the logical negation operator ! is 0 if the value of
-  its operand compares unequal to 0, 1 if the value of its operand
-  compares equal to 0. The result has type int.  The expression !E is
-  equivalent to (0==E).
-
-[2] ISO/IEC 9899:1999 7.17
-
-  The following types and macros are defined in the standard header
-  <stddef.h>.  ...
-         NULL
-  which expands to an implementation-defined null pointer constant...
-
- and 6.3.2.3 Pointers
-  (3) An integer constant expression with the value 0, or such an
-  expression cast to type void *, is called a null pointer constant.
-
--andy

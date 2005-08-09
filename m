@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVHIA55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVHIBMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbVHIA55 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 20:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVHIA55
+	id S932395AbVHIBMr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 21:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVHIBMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 20:57:57 -0400
-Received: from graphe.net ([209.204.138.32]:2993 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S932397AbVHIA55 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 20:57:57 -0400
-Date: Mon, 8 Aug 2005 17:57:48 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Richard Purdie <rpurdie@rpsys.net>
-cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm3
-In-Reply-To: <1123539152.7716.25.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0508081753520.31697@graphe.net>
-References: <20050728025840.0596b9cb.akpm@osdl.org> 
- <1122860603.7626.32.camel@localhost.localdomain>  <Pine.LNX.4.62.0508010908530.3546@graphe.net>
-  <1122926537.7648.105.camel@localhost.localdomain> 
- <Pine.LNX.4.62.0508011335090.7011@graphe.net>  <1122930474.7648.119.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508011414480.7574@graphe.net>  <1122931637.7648.125.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508011438010.7888@graphe.net>  <1122933133.7648.141.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508011517300.8498@graphe.net>  <1122937261.7648.151.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508031716001.24733@graphe.net>  <1123154825.8987.33.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508040703300.3277@graphe.net>  <1123166252.8987.50.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508050817060.28659@graphe.net>  <1123422275.7800.24.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508080945100.19665@graphe.net> <1123539152.7716.25.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Mon, 8 Aug 2005 21:12:47 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:35275 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932395AbVHIBMq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 21:12:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YvogMOvELcMv8tid5Ooi+V4+h/e/FjmmIctLIPU/RfgMcuFXT+zzdqvflVMAjt8g9LD7BBKqCc56XnK0Htnv0Th+DH/6WXDdLmwz8UniKr1BSByBxiLabGaZUAdaxT4UzGsSLgkYRpLsD0+vDnieyKB4AXaclO6/AV1GVYafb8c=
+Message-ID: <105c793f0508081812353a07d3@mail.gmail.com>
+Date: Mon, 8 Aug 2005 21:12:45 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: Compiling module-init-tools versions after v3.0
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       "Adam J. Richter" <adam@yggdrasil.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050808223209.GL4006@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <105c793f050808150810784ef3@mail.gmail.com>
+	 <20050808223209.GL4006@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Aug 2005, Richard Purdie wrote:
+On 8/8/05, Adrian Bunk <bunk@stusta.de> wrote:
+> Workaround:
+> 
+> Remove the
+> 
+>   man_MANS = $(MAN5) $(MAN8)
+> 
+> line in Makefile.in before running configure.
 
-> The following patch (against -mm) cleared the problem up but I'm not
-> sure how correct it is:
+On 8/8/05, Ken Moffat <ken@kenmoffat.uklinux.net> wrote:
+>  per LFS (http://www.linuxfromscratch.org/lfs/) make DOCBOOKTOMAN=""
+> (or look at BLFS for the gory details of docbook)
 
-Almost. The new entry needs to be made dirty. new_entry is already made 
-young. entry is not.
+Thank you both. Both of those workarounds seem to work for now.
 
----
+> But this could be better handled in module-init-tools.
+Here's hoping it will be once 3.2 is released.
 
-Set dirty bit correctly in handle_pte_fault
+Thanks again.
 
-new_entry is used for the new pte entry. handle_mm_fault must dirty
-new_entry and not "entry". entry is only used for comparison. The current
-version does not set the dirty bit.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.13-rc4/mm/memory.c
-===================================================================
---- linux-2.6.13-rc4.orig/mm/memory.c	2005-08-03 17:15:22.000000000 -0700
-+++ linux-2.6.13-rc4/mm/memory.c	2005-08-08 17:54:53.000000000 -0700
-@@ -2091,7 +2091,7 @@
- 			return do_wp_page(mm, vma, address, pte, pmd, entry);
- #endif
- 		}
--		entry = pte_mkdirty(entry);
-+		new_entry = pte_mkdirty(new_entry);
- 	}
- 
- 	/*
+-Andy

@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbVHIRFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVHIRJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbVHIRFe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 13:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbVHIRFe
+	id S964891AbVHIRJr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 13:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbVHIRJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 13:05:34 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:47232 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S964886AbVHIRFd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 13:05:33 -0400
-Message-ID: <42F8E243.2060505@colorfullife.com>
-Date: Tue, 09 Aug 2005 19:05:07 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.5.1
+	Tue, 9 Aug 2005 13:09:46 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:15385 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964891AbVHIRJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 13:09:46 -0400
+Message-ID: <42F8E3E3.1010201@gentoo.org>
+Date: Tue, 09 Aug 2005 18:12:03 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alexander Nyberg <alexn@telia.com>
-CC: Christoph Lameter <christoph@lameter.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [SLAB] __builtin_return_address use without FRAME_POINTER causes
- boot failure
-References: <Pine.LNX.4.62.0508081353170.28612@graphe.net> <42F7D08E.9070508@colorfullife.com> <20050808215353.GA26384@localhost.localdomain>
-In-Reply-To: <20050808215353.GA26384@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, mog.johnny@gmx.net
+Subject: Re: irqpoll causing some breakage?
+References: <42F7FD5E.6000107@gentoo.org> <1123605419.15600.35.camel@localhost.localdomain>
+In-Reply-To: <1123605419.15600.35.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg wrote:
+Alan Cox wrote:
+> Without the parameters it has exactly zero effect on the operation of
+> the kernel, the algorithms and the behaviour. So something odd is afoot
+> if its causing gentoo breakages.
 
->My fault, I introduced a debugging patch (i think i cc'ed you on it)
->which used __builtin_return_address([12]) to save traces of who the
->caller of an object is.
->  
->
-Ups. I still have your original mail in my inbox.
-The correct way is check the whole stack and store all pointers that are 
-in kernel_text_address(). See store_stack_info() in mm/slab.c.
+Thats what I thought, yet it seems to be the difference between mouse and no 
+mouse in this case.
 
---
-    Manfred
+Strange. We'll try a different compiler.
+
+Thanks.
+Daniel

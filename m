@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbVHIL46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbVHIMMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbVHIL46 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 07:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbVHIL46
+	id S932514AbVHIMMN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 08:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVHIMMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 07:56:58 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:37296 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S932524AbVHIL45 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 07:56:57 -0400
-Subject: RE: HOW to handle partitions on SD Card in the driver?
-Date: Tue, 9 Aug 2005 17:26:52 +0530
+	Tue, 9 Aug 2005 08:12:12 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:7072 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932514AbVHIMMM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 08:12:12 -0400
+Message-ID: <42F89F79.1060103@aitel.hist.no>
+Date: Tue, 09 Aug 2005 14:20:09 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <C349E772C72290419567CFD84C26E01709FE8F@mail.esn.co.in>
-Content-class: urn:content-classes:message
-X-MS-Has-Attach: 
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: HOW to handle partitions on SD Card in the driver?
-Thread-Index: AcWcSqIay08w1FSrR8y8Yc5/rq3T9wAjPHbw
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
+To: Dave Airlie <airlied@gmail.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes. Also some X trouble.
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>	 <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com>
+In-Reply-To: <21d7e99705080503515e3045d5@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Russell,
+Dave Airlie wrote:
 
-This driver I am specking about is in the maintenance phase and it is
-fully developed.
-I am registering it as a BLOCK driver and it works fine.
-
-Do we need to use the interfaces provided in driver/mmc to support the
-SD/MMC partition support in the driver?
-
-If so, Can you give a brief note on how to use them?
-
-Give you give me access to a document or some stuff that gives me idea
-about rendering partition support on these Block devices.
-
-Thanks & Regards,
-Mukund Jampala
-
-
-
->-----Original Message-----
->From: Russell King [mailto:rmk@arm.linux.org.uk] On Behalf Of Russell
-King
->Sent: Tuesday, August 09, 2005 12:24 AM
->To: Mukund JB.
->Cc: linux-kernel@vger.kernel.org
->Subject: Re: HOW to handle partitions on SD Card in the driver?
 >
->On Fri, Aug 05, 2005 at 11:30:43AM +0530, Mukund JB. wrote:
->> I have problem with my new driver that tired to support the
-partitions
->> support on SD cards.
+>     I switched back to 2.6.13-rc4-mm1 at this point for another reason,
+>     my X display aquired a nasty tendency to go blank for no reason
+>     during work,
+>     something I could fix by changing resolution baqck and forth.  X
+>     also tended to get
+>     stuck for a minute now and then - a problem I haven't seen since
+>     early 2.6.
 >
->Have you thought about using the generic mmc layer in drivers/mmc with
->the SD patches which are available in the -mm kernels?
 >
->We don't want two MMC/SD subsystems in the kernel.
 >
->--
->Russell King
-> Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-> maintainer of:  2.6 Serial core
+> which head the radeon or MGA or both?
+
+The radeon 9200SE-pci gets stuck.  The MGA-agp seems to be fine. I have 
+compiled
+dri support for both, but I can't use it at the moment.  I think that is
+caused by having ubuntu's xorg installed on debian.  I needed xorg
+in order to run an xserver that doesn't use any tty - this way I can use
+two keyboards and have two simultaneous users. Debians xorg wasn't ready
+at the moment. The setup is fine with 2.6.13-rc4-mm1 x86-64, no problems 
+there.
+
+Helge Hafting

@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVHIAnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVHIAsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbVHIAnn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 20:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVHIAnn
+	id S932388AbVHIAsg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 20:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbVHIAsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 20:43:43 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:14024 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932390AbVHIAnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 20:43:43 -0400
-Message-ID: <42F7FD5E.6000107@gentoo.org>
-Date: Tue, 09 Aug 2005 01:48:30 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, mog.johnny@gmx.net
-Subject: irqpoll causing some breakage?
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Mon, 8 Aug 2005 20:48:36 -0400
+Received: from NS6.Sony.CO.JP ([137.153.0.32]:7835 "EHLO ns6.sony.co.jp")
+	by vger.kernel.org with ESMTP id S932388AbVHIAsf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 20:48:35 -0400
+Date: Tue, 09 Aug 2005 09:43:49 +0900 (JST)
+Message-Id: <20050809.094349.112599262.kaminaga@sm.sony.co.jp>
+To: arnd@arndb.de
+Cc: sfr@canb.auug.org.au, linux-kernel@vger.kernel.org, kaminaga@sm.sony.co.jp
+Subject: Re: [HELP] How to get address of module
+From: Hiroki Kaminaga <kaminaga@sm.sony.co.jp>
+In-Reply-To: <200508081530.54180.arnd@arndb.de>
+References: <20050808214822.531ee849.sfr@canb.auug.org.au>
+	<20050808.210645.78734846.kaminaga@sm.sony.co.jp>
+	<200508081530.54180.arnd@arndb.de>
+X-Mailer: Mew version 4.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [HELP] How to get address of module
+Date: Mon, 8 Aug 2005 15:30:53 +0200
 
-I recently added the irqpoll patch to Gentoo's 2.6.12 kernels, using this patch:
+> You can do all that with module_address_lookup() using the KALLSYMS
+> infrastructure.
 
-http://dev.gentoo.org/~dsd/genpatches/trunk/2.6.12/2700_irqpoll.patch
+Thank you.
 
-Since then, I've had a few reports of minor breakage, but this is the first 
-one I've been able to get full info on.
+What I wanted is: given the segfault address, I would like to 
 
-Hans-Christian Armingeon (on CC) owns a a combined USB keyboard-mouse, which 
-is broken when the irqpoll patch is applied.
+1) get which module it is in
+2) in that module, within which function it segfaulted
 
-input: USB HID v1.00 Keyboard [Cherry GmbH Cherry Slim Line Trackball 
-Keyboard] on usb-0000:00:10.0-1
-input: USB HID v1.00 Mouse [Cherry GmbH Cherry Slim Line Trackball Keyboard] 
-on usb-0000:00:10.0-1
+module_address_lookup would do!
 
-After the irqpoll patch has been applied, the mouse does not work (the 
-keyboard works fine..!). This is without the irqpoll/irqfixup parameters, 
-although adding them does not help either. No errors appear, as far as I can see.
-
-The problem also exists in an unpatched 2.6.13_rc6.
-
-dmesg here: https://bugs.gentoo.org/attachment.cgi?id=65470
-full bug: https://bugs.gentoo.org/show_bug.cgi?id=101463
-
-I realise that this is probably not enough information to make any sense out 
-of! Please let me know how we can help further.
-
-Thanks,
-Daniel
+HK.
+--

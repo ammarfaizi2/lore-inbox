@@ -1,77 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbVHIJti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVHIJtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbVHIJti (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 05:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVHIJti
+	id S932491AbVHIJtF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 05:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVHIJtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 05:49:38 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:42941 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932492AbVHIJth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 05:49:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=mweHJAKTcVBe4QeKKU5H4kfdSCbMUMDEm5nH5hrU30Moh/tUTvoIZ3EiiqLqwb0eWU1KB77QaMHGHXm2q1Jqo0KexNj/qLJMBgKuahsJZs5X7ntV4vIGF7zo/yHIRrByVPtBJSZGmYfWGAgjoqICSWeHwA/bc4qnfm88BOB3oFc=  ;
-Message-ID: <42F87C24.4080000@yahoo.com.au>
-Date: Tue, 09 Aug 2005 19:49:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+	Tue, 9 Aug 2005 05:49:05 -0400
+Received: from ws6-4.us4.outblaze.com ([205.158.62.107]:2233 "HELO
+	ws6-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S932491AbVHIJtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 05:49:04 -0400
+Message-ID: <42F87C0D.2020405@bakke.com>
+Date: Tue, 09 Aug 2005 11:49:01 +0200
+From: Dag Bakke <dag@bakke.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Daniel Phillips <phillips@arcor.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-References: <42F57FCA.9040805@yahoo.com.au>	 <200508090710.00637.phillips@arcor.de>  <42F7F5AE.6070403@yahoo.com.au> <1123577509.30257.173.camel@gaston>
-In-Reply-To: <1123577509.30257.173.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Enabling PCMCIA serial ports without pcmciautils/pcmcia_cs in
+ 2.6?
+References: <42F8715C.4000404@bakke.com> <20050809101842.B4026@flint.arm.linux.org.uk> <42F878D3.80302@bakke.com>
+In-Reply-To: <42F878D3.80302@bakke.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+Dag Bakke wrote:
 
-> 
-> I have no problem keeping PG_reserved for that, and _ONLY_ for that.
-> (though i'd rather see it renamed then). I'm just afraid by doing so,
-> some drivers will jump in the gap and abuse it again...
+> Russell King wrote:
+>
+>> On Tue, Aug 09, 2005 at 11:03:24AM +0200, Dag Bakke wrote:
+>>  
+>>
+>>> Is this really necessary? I'd guess that serial cards are some of 
+>>> the simpler pcmcia targets to enable? (I could be very wrong..)
+>>> Anyone got an idea about alternative solutions, or can state the 
+>>> minimum binaries/files I need to enable this card? (Advantech 
+>>> COMpad-32/85B-4)
+>>>   
+>>
+>>
+>> Have you tried just running up a really recent kernel (eg, 2.6.13-rc6)
+>> with PCMCIA and serial (including PCMCIA serial support) built in,
+>> plugging the card in, and seeing what happens?
+>>
+>>  
+>>
+> Yes. I get no message in dmesg indicating that the ports are detected.
 
-Sure it would be renamed (better yet may be a slower page_is_valid()
-that doesn't need to use a flag).
+Unless I fire up cardmgr, that is.
 
-There is always the possibility for driver abuse, I guess... however
-as it is now, the tree is basically past the critical mass of self
-perpetuation (ie. cut-n-paste). So getting rid of that should certianly
-help get things cleaner.
-
-> Also, we should
-> make sure we kill the "trick" of refcounting only in one direction.
-> Either we refcount both (but do nothing, or maybe just BUG_ON if the
-> page is "reserved" -> not valid RAM), or we don't refcount at all.
-> 
-
-Yep, that's done. Actually having a BUG_ON PageReserved in the refcount
-functions isn't a bad idea for the initial merge, and should help allay
-my fears that I might have introduced refcount leaks on PageReserved
-pages.
-
-> For things like Cell, We'll really end up needing struct page covering
-> the SPUs for example. That is not valid RAM, shouldn't be refcounted,
-> but we need to be able to have nopage() returning these etc...
+> Testing on a laptop (not the actual target):
+>
+> toolbox-2 ~ # uname -a
+> Linux toolbox-2 2.6.13-rc6 #2 Mon Aug 8 16:05:25 CEST 2005 i686 
+> Pentium III (Coppermine) GenuineIntel GNU/Linux
+>
+> toolbox-2 ~ # zcat /proc/config.gz | egrep -i 'serial|pcmcia|yenta' | 
+> grep -v ^#
+> CONFIG_PCMCIA=y
+> CONFIG_PCMCIA_LOAD_CIS=y
+> CONFIG_PCMCIA_IOCTL=y
+> CONFIG_YENTA=y
+> CONFIG_PCMCIA_PROBE=y
+> CONFIG_NET_PCMCIA=y
+> CONFIG_PCMCIA_3C589=m
+> CONFIG_PCMCIA_3C574=m
+> CONFIG_SERIAL_8250=y
+> CONFIG_SERIAL_8250_CONSOLE=y
+> CONFIG_SERIAL_8250_CS=y
+> CONFIG_SERIAL_8250_NR_UARTS=8
+> CONFIG_SERIAL_8250_EXTENDED=y
+> CONFIG_SERIAL_8250_MANY_PORTS=y
+> CONFIG_SERIAL_8250_SHARE_IRQ=y
+> CONFIG_SERIAL_8250_FOURPORT=y
+> CONFIG_SERIAL_CORE=y
+> CONFIG_SERIAL_CORE_CONSOLE=y
+>
+>
+> toolbox-2 ~ # /etc/init.d/pcmcia start
+> * PCMCIA support detected.
+> * Starting pcmcia ...
+> cardmgr[7718]: watching 2 
+> sockets                                                                                     
+> [ ok ]
+> toolbox-2 ~ # dmesg | tail
+> [ 6992.630199] cs: IO port probe 0x800-0x8ff: clean.
+> [ 6992.630671] cs: IO port probe 0x100-0x4ff: excluding 0x4d0-0x4d7
+> [ 6992.631927] cs: IO port probe 0x100-0x4ff: excluding 0x4d0-0x4d7
+> [ 6992.633248] cs: IO port probe 0xa00-0xaff: clean.
+> [ 6992.633656] cs: IO port probe 0xa00-0xaff: clean.
+> [ 6992.638071] cs: memory probe 0xa0000000-0xa0ffffff: clean.
+> [ 6992.692737] ttyS1 at I/O 0x240 (irq = 5) is a 16550A
+> [ 6992.695578] ttyS2 at I/O 0x248 (irq = 5) is a 16550A
+> [ 6992.698237] ttyS3 at I/O 0x250 (irq = 5) is a 16550A
+> [ 6992.700924] ttyS4 at I/O 0x258 (irq = 5) is a 16550A
+>
 >
 
-In that case, remap_pfn_range should take care of it for you by
-setting the VM_RESERVED flag on the vma.
-
-Swsusp is the main "is valid ram" user I have in mind here. It
-wants to know whether or not it should save and restore the
-memory of a given `struct page`.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

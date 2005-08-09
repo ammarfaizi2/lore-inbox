@@ -1,40 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbVHIQRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbVHIQ1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbVHIQRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 12:17:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbVHIQRZ
+	id S964861AbVHIQ1G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 12:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbVHIQ1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 12:17:25 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:56521 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S964859AbVHIQRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 12:17:24 -0400
-Subject: Re: irqpoll causing some breakage?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hans-Christian Armingeon <mog.johnny@gmx.net>
-Cc: Daniel Drake <dsd@gentoo.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200508091057.22712.mog.johnny@gmx.net>
-References: <42F7FD5E.6000107@gentoo.org>
-	 <200508091057.22712.mog.johnny@gmx.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 09 Aug 2005 17:44:03 +0100
-Message-Id: <1123605844.15600.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Tue, 9 Aug 2005 12:27:06 -0400
+Received: from graphe.net ([209.204.138.32]:33195 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S964861AbVHIQ1F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 12:27:05 -0400
+Date: Tue, 9 Aug 2005 09:27:03 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: linux-kernel@vger.kernel.org, b.zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] ide-disk oopses on boot
+In-Reply-To: <20050809132725.GA20397@vana.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.62.0508090926150.12719@graphe.net>
+References: <20050809132725.GA20397@vana.vc.cvut.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-08-09 at 10:57 +0200, Hans-Christian Armingeon wrote:
-> PortA --- Keyboard with integrated mouse
-> PortB --- Hub
-> HubPortA --- Mouse
-> HubPortA --- Trackball
-> 
-> The mice don't work, when I plug them directly into Port A or B .
-> 
-> The keyboard works ervery time.
+On Tue, 9 Aug 2005, Petr Vandrovec wrote:
 
-Then its not irqpoll related because the keyboard and mouse are using
-the same IRQ in some of the cases you describe.
+>   Problem is that pci_dev may be NULL - and it is NULL for example with
+> kernel I've just built, with amd IDE driver built as a module while with
+> ide-disk built into the kernel.
 
+Yes that was discussed extensively by Andi and me and finally fixed by 
+Kiran's patch in 2.6.13-rc6.

@@ -1,54 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbVHIXHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVHIXIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbVHIXHM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 19:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbVHIXHM
+	id S1750965AbVHIXIe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 19:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbVHIXIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 19:07:12 -0400
-Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:36527
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S1750957AbVHIXHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 19:07:11 -0400
-Date: Tue, 9 Aug 2005 19:05:30 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: Phil Dier <phil@icglink.com>
-Cc: linux-kernel@vger.kernel.org, ziggy <ziggy@icglink.com>,
-       Scott Holdren <scott@icglink.com>, Jack Massari <jack@icglink.com>
-Subject: Re: Dual 2.8ghz xeon, software raid, lvm, jfs
-Message-ID: <20050809230530.GA22211@kevlar.burdell.org>
-References: <20050809094456.3feca1ef.phil@icglink.com>
+	Tue, 9 Aug 2005 19:08:34 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:41415 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750962AbVHIXId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 19:08:33 -0400
+Date: Tue, 9 Aug 2005 16:08:13 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, steiner@sgi.com,
+       dvhltc@us.ibm.com, mbligh@mbligh.org
+Subject: allow the load to grow upto its cpu_power (was Re: [Patch] don't kick ALB in the presence of pinned task)
+Message-ID: <20050809160813.B1938@unix-os.sc.intel.com>
+References: <20050801174221.B11610@unix-os.sc.intel.com> <20050802092717.GB20978@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050809094456.3feca1ef.phil@icglink.com>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050802092717.GB20978@elte.hu>; from mingo@elte.hu on Tue, Aug 02, 2005 at 11:27:17AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 09:44:56AM -0500, Phil Dier wrote:
-> Hi,
+On Tue, Aug 02, 2005 at 11:27:17AM +0200, Ingo Molnar wrote:
 > 
-> I have 2 identical dual 2.8ghz xeon machines with 4gb ram, using
-> software raid 10 with lvm layered on top, formatted with JFS (though
-> at this point any filesystem with online resizing support will do). I
-> have the boxes stable using 2.6.10, and they pass my stress test. I was
-> trying to update to 2.6.12 so I can use the new ionice utility, but I'm
-> experiencing oopses again. Can someone take a look at my info and give
-> me an idea of what is causing my problems. I'm willing to test patches
-> if anyone cares to work with me on a fix.  All the details can be found
-> here:
+> * Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
 > 
-> http://www.icglink.com/cluster-debug-2.6.12.3.html
+> > Jack Steiner brought this issue at my OLS talk.
+> > 
+> > Take a scenario where two tasks are pinned to two HT threads in a physical
+> > package. Idle packages in the system will keep kicking migration_thread
+> > on the busy package with out any success.
+> > 
+> > We will run into similar scenarios in the presence of CMP/NUMA.
+> > 
+> > Patch appended.
+> > 
+> > Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 > 
-> Please CC me on replies, as I am not subscribed to l-k.
+> nice catch!
 > 
-> Thanks for your help.
+> fine for -mm, but i dont think we need this fix in 2.6.13, as the effect 
+> of the bug is an extra context-switch per 'CPU goes idle' event, in this 
+> very specific (and arguably broken) task binding scenario.
 
-Generally on lkml, you want to post at least the output of an oops or
-panic into your post.
+No. This is not a broken scenario. Its possible in NUMA case aswell.
 
-Now, try running 2.6.13-rc6 and see if it fixes your problem, IIRC
-there have been a number of changes to the MPT driver between those two
-kernel versions.
+For example, lets take two nodes each having two physical packages. And
+assume that there are two tasks and both of them are on (may or may n't be
+pinned) two packages in node-0
 
-Sonny
+Todays load balance will detect that there is an imbalance between the
+two nodes and will try to distribute the load between the nodes.
+
+In general, we should allow the load of a group to grow upto its cpu_power
+and stop preventing these costly movements.
+
+Appended patch will fix this. I have done limited testing of this patch.
+Guys with big NUMA boxes, please give this patch a try. 
+
+--
+
+When the system is lightly loaded, don't bother about the average load.
+In this case, allow the load of a sched group to grow upto its cpu_power.
+
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+
+--- linux-2.6.13-rc5/kernel/sched.c~	2005-08-09 13:30:19.067072328 -0700
++++ linux-2.6.13-rc5/kernel/sched.c	2005-08-09 14:39:08.363323880 -0700
+@@ -1932,9 +1932,23 @@
+ 		group = group->next;
+ 	} while (group != sd->groups);
+ 
+-	if (!busiest || this_load >= max_load)
++	if (!busiest || this_load >= max_load || max_load <= SCHED_LOAD_SCALE)
+ 		goto out_balanced;
+ 
++	/* When the system is lightly loaded, don't bother about
++	 * the average load. Just make sure all the sched groups
++	 * are with in their capacities (i.e., load <= group's cpu_power)
++	 */
++	if (total_load <= total_pwr) {
++		if (this_load >= SCHED_LOAD_SCALE)
++			goto out_balanced;
++
++		*imbalance = min((max_load - SCHED_LOAD_SCALE) * busiest->cpu_power,
++				 (SCHED_LOAD_SCALE - this_load) * this->cpu_power) / SCHED_LOAD_SCALE;
++
++		goto fix_imbalance;
++	}
++
+ 	avg_load = (SCHED_LOAD_SCALE * total_load) / total_pwr;
+ 
+ 	if (this_load >= avg_load ||
+@@ -1957,6 +1971,7 @@
+ 				(avg_load - this_load) * this->cpu_power)
+ 			/ SCHED_LOAD_SCALE;
+ 
++fix_imbalance:
+ 	if (*imbalance < SCHED_LOAD_SCALE) {
+ 		unsigned long pwr_now = 0, pwr_move = 0;
+ 		unsigned long tmp;

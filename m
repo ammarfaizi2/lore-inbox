@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbVHIO7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVHIPQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbVHIO7n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 10:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbVHIO7n
+	id S964819AbVHIPQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 11:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVHIPQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 10:59:43 -0400
-Received: from dvhart.com ([64.146.134.43]:42881 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S964814AbVHIO7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 10:59:41 -0400
-Date: Tue, 09 Aug 2005 07:59:42 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       bugme-daemon@kernel-bugs.osdl.org
-Subject: Re: [Bugme-new] [Bug 5003] New: Problem with symbios driver	on	recent	-mm trees
-Message-ID: <531000000.1123599581@[10.10.2.4]>
-In-Reply-To: <1123597604.5170.10.camel@mulgrave>
-References: <135040000.1123216397@[10.10.2.4]> <20050804233927.2d3abb16.akpm@osdl.org> <1123251892.5003.6.camel@mulgrave> <179280000.1123252564@[10.10.2.4]> <1123254086.5003.10.camel@mulgrave> <453380000.1123562466@[10.10.2.4]> <1123597604.5170.10.camel@mulgrave>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Aug 2005 11:16:28 -0400
+Received: from butter.kernelcode.com ([216.254.126.222]:63503 "HELO
+	butter.kernelcode.com") by vger.kernel.org with SMTP
+	id S964817AbVHIPQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 11:16:27 -0400
+Subject: Re: understanding Linux capabilities brokenness
+From: Christopher Warner <cwarner@kernelcode.com>
+To: James Morris <jmorris@namei.org>
+Cc: "Theodore Ts'o" <tytso@mit.edu>,
+       David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.63.0508090044400.20178@excalibur.intercode>
+References: <20050808211241.GA22446@clipper.ens.fr>
+	 <20050808223238.GA523@clipper.ens.fr>
+	 <dd8r9s$eqn$1@taverner.CS.Berkeley.EDU> <20050809015048.GA14204@thunk.org>
+	 <Pine.LNX.4.63.0508090044400.20178@excalibur.intercode>
+Content-Type: text/plain
+Date: Tue, 09 Aug 2005 11:16:33 -0400
+Message-Id: <1123600593.7622.116.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In my observer pragmatic view; yes. On many occasion, i've come to CAP
+calls only to be frustrated with the sheer disconnect of it all. It
+simply doesn't work. If it means having to break posix conformance for a
+working implementation. Then so be it.
 
+-- Christopher Warner
 
---James Bottomley <James.Bottomley@SteelEye.com> wrote (on Tuesday, August 09, 2005 09:26:44 -0500):
-
-> On Mon, 2005-08-08 at 21:41 -0700, Martin J. Bligh wrote:
->> Nope, is the same as before with this patch ....
+On Tue, 2005-08-09 at 00:46 -0400, James Morris wrote:
+> Let me play the Devil's advocate here.
 > 
-> Dear novice bug reporter,
+> Should we be thinking about deprecating and removing capabilities from 
+> Linux?
 > 
-> Thank you for taking the trouble to test this.  Unfortunately, without
-> any dmesg output, it's rather hard to tell what's going on here.  Would
-> you be so kind as to send this information so we can try to diagnose
-> what's going on.
-
-Dear novice test examiner,
-
-It's in http://test.kernel.org with everything else ;-)
-2.6.13-rc4-mm1+jejb_fix ... drills down to:
-
-http://test.kernel.org/10080/debug/console.log
-
-M.
+> 
+> - James
 

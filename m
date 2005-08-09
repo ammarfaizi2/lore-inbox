@@ -1,103 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVHISo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVHISos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbVHISo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 14:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbVHISo3
+	id S1750734AbVHISos (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 14:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVHISos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 14:44:29 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:17566 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S1750731AbVHISo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 14:44:29 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.96,93,1122847200"; 
-   d="scan'208"; a="13841757:sNHT28409128"
-Message-ID: <42F8F98B.3080908@fujitsu-siemens.com>
-Date: Tue, 09 Aug 2005 20:44:27 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Tue, 9 Aug 2005 14:44:48 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:25259 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750734AbVHISor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 14:44:47 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: my kernel sometimes did a crash, but no panic
+To: klasyk99@poczta.onet.pl, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 09 Aug 2005 20:44:31 +0200
+References: <4zEQ3-7Le-21@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-To: Robert Wilkens <robw@optonline.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Signal handling possibly wrong
-References: <42F8EB66.8020002@fujitsu-siemens.com> <1123612016.3167.3.camel@localhost.localdomain> <42F8F6CC.7090709@fujitsu-siemens.com> <1123612789.3167.9.camel@localhost.localdomain>
-In-Reply-To: <1123612789.3167.9.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1E2Z5U-0004ji-Nt@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Wilkens wrote:
-> Bodo,
+Klasyk <klasyk99@poczta.onet.pl> wrote:
+
+> my kernel sometimes did a crash, but no panic
+> Keyboard hunged up :(
+> Network were working and I can log in. Without the keybord - it
+> generally worked.
 > 
-> SA_MASK is a flag... Which you use to tell it what to do with the data
-> you've given it and/or it gets.  You gave it sa_mask (lower-case).
-> SA_NOMASK means don't use the mask -- the pseudonym (new-word) for
-> SA_NOMASK is SA_NODEFER (renamed, perhaps, because it may defer some or
-> all signals rather than throwing them away, you probably can receive the
-> waiting signals by clearing the SA_NODEFER flag on a subsequent call).
+> In logs:
+> for example:
 > 
-> If you want to take this off-list, I'm OK with that..
-> 
-> Please describe what you would expect SA_NODEFER to do in your own
-> language if you don't understand what I seem to understand.
-> 
-> -Rob
-> On Tue, 2005-08-09 at 20:32 +0200, Bodo Stroesser wrote:
-> 
+> Aug  6 15:30:02 o kernel: Unable to handle kernel NULL pointer
+> dereference at virtual address 00
+> 000000
+> Aug  6 15:30:02 o kernel:  printing eip:
+> Aug  6 15:30:02 o kernel: c026b0d9
+> Aug  6 15:30:02 o kernel: *pde = 3588d001
+> Aug  6 15:30:02 o kernel: Oops: 0000 [#1]
+> Aug  6 15:30:02 o kernel: Modules linked in: ip_nat_irc
+[...]
+> 4 ieee1394 loop via-agp bt878 tuner tvaudio bttv video-buf
+                                              ^^^^
+It's probably the same problem I had.
 
-Sorry, unfortunately you are not right. See this (from man page for sigaction):
+There is a recent patch enabling the no_overlay=1 parameter and some PCI
+quirks to autotune this option. Please try that and, if your board isn't
+autodetected, the lspci -vvv output and the exact name of your MB chipset.
 
-struct sigaction {
-                   void (*sa_handler)(int);
-                   void (*sa_sigaction)(int, siginfo_t *, void *);
-                   sigset_t sa_mask;
-                   int sa_flags;
-                   void (*sa_restorer)(void);
-               }
-
-Please read the text about element sa_mask of struct sigaction to
-understand what I'm talking about.
-
-Regards
-	Bodo
-
-
->>Robert Wilkens wrote:
->>
->>>>Kernel code blocks both "handled signal" _and_ sa_mask only if SA_NODEFER
->>>>isn't set.
->>>>
->>>>Which is the right behavior?
->>>
->>>
->>>Perhaps both?
->>>
->>>I'm novice here, but if i'm reading the man page correctly, it says:
->>>
->>>SA_NODEFER
->>>   Do not prevent the signal from being received from within
->>>   its  own  signal handler. 
->>>	(they also imply that SA_NOMASK is the old name for this,
->>>	which might make it clear what it's use is).
->>>
->>>In which case blocking (masking) when it's not set is exactly what it's
->>>supposed to do.
->>>
->>>-Rob
->>
->>Yes. That's true.
->>
->>But what about sa_mask? Description of SA_NODEFER and sa_mask both do not
->>say, that usage of sa_mask depends on SA_NODEFER.
->>But kernel only uses sa_mask, if SA_NODEFER isn't set.
->>
->>So, I think man page and kernel are not consistent.
->>
->>	Bodo
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
+I temporarily uploaded the patch to
+http://7eggert.dyndns.org/l/scratch/v4l_bttv_no_overlay_linus.patch
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

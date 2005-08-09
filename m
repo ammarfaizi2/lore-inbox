@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVHIOxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVHIOyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964807AbVHIOxY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 10:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbVHIOxY
+	id S964808AbVHIOyv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 10:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbVHIOyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 10:53:24 -0400
-Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:20926 "EHLO
-	mail.zmailer.org") by vger.kernel.org with ESMTP id S964807AbVHIOxX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 10:53:23 -0400
-Date: Tue, 9 Aug 2005 17:53:23 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VGER news
-Message-ID: <20050809145323.GO22165@mea-ext.zmailer.org>
-References: <20050809141217.GL22165@mea-ext.zmailer.org> <Pine.LNX.4.61.0508091630160.23577@yvahk01.tjqt.qr> <20050809143924.GC28539@harddisk-recovery.com>
+	Tue, 9 Aug 2005 10:54:51 -0400
+Received: from gate.crashing.org ([63.228.1.57]:40424 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964808AbVHIOyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 10:54:50 -0400
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Daniel Phillips <phillips@arcor.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <Pine.LNX.4.61.0508091548150.13674@goblin.wat.veritas.com>
+References: <42F57FCA.9040805@yahoo.com.au>
+	 <200508090710.00637.phillips@arcor.de> <42F7F5AE.6070403@yahoo.com.au>
+	 <1123577509.30257.173.camel@gaston>
+	 <Pine.LNX.4.61.0508091215490.11660@goblin.wat.veritas.com>
+	 <1123597903.30257.204.camel@gaston>
+	 <Pine.LNX.4.61.0508091548150.13674@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Tue, 09 Aug 2005 16:49:11 +0200
+Message-Id: <1123598952.30257.213.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050809143924.GC28539@harddisk-recovery.com>
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 04:39:24PM +0200, Erik Mouw wrote:
-> On Tue, Aug 09, 2005 at 04:33:47PM +0200, Jan Engelhardt wrote:
+On Tue, 2005-08-09 at 15:50 +0100, Hugh Dickins wrote:
+> On Tue, 9 Aug 2005, Benjamin Herrenschmidt wrote:
 > > 
-> > >Folks at Dell have donated a new machine to be VGER, and
-> > >folks at RedHat have installed it into co-location facility
-> > >with 1000Mbps network connection into the machine.
+> > > But you don't mind if they are refcounted, do you?
+> > > Just so long as they start out from 1 so never get freed.
 > > 
-> > May 24 2004 on kernel.org:
-> >   ISC has upgraded our outbound connection to 1000 Mbit/s. Thanks!
+> > Well, a refcounting bug would let them be freed and kaboom ... That's
+> > why a "PG_not_your_ram_dammit" bit would be useful. It could at least
+> > BUG_ON when refcount reaches 0 :)
 > 
-> That's www and ftp.kernel.org, the archive server.
+> Okay, great, let's give every struct page two refcounts,
+> so if one of them goes wrong, the other one will save us.
 
-Different location, different services.
+You are abusing here :)
 
-> > So you have 2000 Mbps now?
-> 
-> No, this time vger.kernel.org (the mailing list server) got
-> an 1000 Mbit/s connection.
-> 
-> > >This update got considerable performance increase into the
-> > >machine for our list loads.  In terms of Bogomips around 7-8,
-> > >but for actual loads nearly twice as much.
-> > 
-> > Wow, that's a lot of bogomips. That's just a little faster than my 386 
-> > (running 2.6.13-rc1): http://jengelh.hopto.org/GFX0/proc386.jpg
-> 
-> Matti is talking about an increase, which implies a difference.
+ - We already have a refcount
+ - We have a field where putting a flag isn't that much of a problem
+ - It can be difficult to get page refcounting right when dealing with
+   such things, really.
 
-In "absolute" terms about 5600 BogoMips, although all bogos are
-not quite the same...   (E.g. Coppermine -> Xeon gives a bit
-more difference than just bogos would imply.)
+In that case, we basically have an _easy_ way to trigger a useful BUG()
+in the page free path when it's a page that should never be returned to
+the pool.
 
-> Erik
+Since the "PG_not_in_ram" or whatever we call it flag might be used by
+swsusp or others, I suppose it could be useful.
 
-/Matti Aarnio
+However, I agree that if the end result is to have drivers just change
+"PG_reserved" to "PG_not_in_ram" and still be bogus, then we might just
+go all the way & drop the flag completely, only relying on the VMA
+flags.
+
+Ben.
+
+

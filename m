@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVHIUgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVHIUnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbVHIUgi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 16:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVHIUgh
+	id S964951AbVHIUnR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 16:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVHIUnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 16:36:37 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:23051 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S964944AbVHIUgh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 16:36:37 -0400
-Date: Tue, 9 Aug 2005 22:36:36 +0200
-From: David Madore <david.madore@ens.fr>
-To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: capabilities patch (v 0.1)
-Message-ID: <20050809203636.GA28313@clipper.ens.fr>
-References: <20050809052621.GA7970@clipper.ens.fr> <20050809053724.GG7991@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050809053724.GG7991@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Tue, 09 Aug 2005 22:36:36 +0200 (CEST)
+	Tue, 9 Aug 2005 16:43:17 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:25351 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S964948AbVHIUnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 16:43:16 -0400
+To: trond.myklebust@fys.uio.no
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <1123612734.8245.150.camel@lade.trondhjem.org> (message from
+	Trond Myklebust on Tue, 09 Aug 2005 14:38:54 -0400)
+Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
+References: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
+	 <1123541926.8249.8.camel@lade.trondhjem.org>
+	 <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu>
+	 <1123594460.8245.15.camel@lade.trondhjem.org>
+	 <E1E2X9A-0007Uk-00@dorka.pomaz.szeredi.hu>
+	 <1123607889.8245.107.camel@lade.trondhjem.org>
+	 <E1E2Y92-0007Zv-00@dorka.pomaz.szeredi.hu> <1123612734.8245.150.camel@lade.trondhjem.org>
+Message-Id: <E1E2aw6-0007oY-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 09 Aug 2005 22:42:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 05:37:56AM +0000, Chris Wright wrote:
-> * David Madore (david.madore@ens.fr) wrote:
-> > * Second, a much more extensive change, the patch introduces a third
-> > set of capabilities for every process, the "bounding" set.  Normally
+> > > There is quite a bit of code out there that assumes it is free to stuff
+> > > things into nd->mnt and nd->dentry. Some of it is Al Viro's code, some
+> > > of it is from other people.
+> > > For instance, the ESTALE handling will just save nd->mnt/nd->dentry
+> > > before calling __link_path_walk(), then restore + retry if the ESTALE
+> > > error comes up.
+> > 
+> > Yeah, but how is that relevant to the fact, that after
+> > path_release_*() _nothing_ will be valid in the nameidata, not
+> > nd->mnt, not nd->dentry, and not nd->intent.open.file.  So what's the
+> > point in setting it to NULL if it must never be used anyway?
 > 
-> this is not a good idea.  don't add more sets.
+> path_release() does _not_ invalidate the nameidata. Look for instance at
+> __emul_lookup_dentry(), which clearly makes use of that fact.
 
-Could you elaborate?  Why is adding sets bad?  From what I read of the
-June 2000 discussions on the linux-privs-discuss mailing-list (<URL:
-http://sourceforge.net/mailarchive/forum.php?forum_id=25120&max_rows=25&style=flat&viewmonth=200006
- >), a rather large consensus had formed around the idea that some
-kind of bounding set was a useful idea (as a matter of fact, the
-sendmail problem came essentially from the fact that some people
-wanted an inheritable set and other people wanted a bounding set, and
-the code was some mixture of the two); and it had been argued
-convincincly that it could be made POSIX compliant if that is the
-issue.  Plus, Solaris privileges also come in four sets.
+Trond, wake up!  __emul_lookup_dentry() does nothing of the sort.
+Neither does anything else.  In theory it could, but that's not a
+reason to do a confusing thing like that.
 
-If it's compatibility you're worried about, it seems to me that the
-user interface can be made so that it will still work with the old
-libcap and merely ignore the bounding set.  So full binary
-compatibility will be achieved, at least on the user level.
+> Firstly, the open_namei() flags field is not a "permissions" field. It
+> contains open mode information. The calculation of the open permissions
+> flags is done by open_namei() itself.
 
-Finally, if it's a matter of kernel policy, I seem to understand that
-my patch has a snowball's chance in hell of ever being accepted in the
-mainstream kernel (I mean, it's not as though this were new: patches
-to make capabilities work have been available ever since the sendmail
-exploit, and in five years they haven't ever been accepted, so I
-suppose there's a reason to this), so adding a fourth set of
-capabilities of my own initiative isn't going to change a thing there.
+Based on flags.  It's just a FMODE_* -> MAY_* transformation
 
-So what's the problem?
+> Secondly, what advantage is there in allowing callers of open_namei() to
+> be able to override the MAY_WRITE check when doing open(O_TRUNC)? This
+> is a calculation that should be done _once_ in order to always get it
+> right, and it should therefore be done in open_namei() together with the
+> rest of the permissions calculation.
 
->						 if you really want to
-> work on this i'll give you all the patches that have been done thus far,
-> plus a set of tests that look at all the execve, ptrace, setuid type of
-> corner cases.
+I think the _only_ caller of open_namei() is filp_open(), so this is
+not much of an issue, but yeah, you could do it that way too.
 
-Yes, I'm very interested in the test suite.
+Or you could initialize nameidata from filp_open().
 
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+Miklos

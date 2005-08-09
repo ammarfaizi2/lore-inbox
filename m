@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVHIUnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbVHIUs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbVHIUnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 16:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVHIUnR
+	id S964952AbVHIUs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 16:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVHIUs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 16:43:17 -0400
-Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:25351 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S964948AbVHIUnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 16:43:16 -0400
-To: trond.myklebust@fys.uio.no
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1123612734.8245.150.camel@lade.trondhjem.org> (message from
-	Trond Myklebust on Tue, 09 Aug 2005 14:38:54 -0400)
-Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
-References: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
-	 <1123541926.8249.8.camel@lade.trondhjem.org>
-	 <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu>
-	 <1123594460.8245.15.camel@lade.trondhjem.org>
-	 <E1E2X9A-0007Uk-00@dorka.pomaz.szeredi.hu>
-	 <1123607889.8245.107.camel@lade.trondhjem.org>
-	 <E1E2Y92-0007Zv-00@dorka.pomaz.szeredi.hu> <1123612734.8245.150.camel@lade.trondhjem.org>
-Message-Id: <E1E2aw6-0007oY-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 09 Aug 2005 22:42:58 +0200
+	Tue, 9 Aug 2005 16:48:56 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:2564 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S964952AbVHIUsz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 16:48:55 -0400
+Date: Tue, 9 Aug 2005 22:48:54 +0200
+From: David Madore <david.madore@ens.fr>
+To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+Cc: Valdis.Kletnieks@vt.edu
+Subject: Re: capabilities patch (v 0.1)
+Message-ID: <20050809204854.GA4983@clipper.ens.fr>
+References: <20050809052621.GA7970@clipper.ens.fr> <200508092028.j79KSVYW028307@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508092028.j79KSVYW028307@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Tue, 09 Aug 2005 22:48:54 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > There is quite a bit of code out there that assumes it is free to stuff
-> > > things into nd->mnt and nd->dentry. Some of it is Al Viro's code, some
-> > > of it is from other people.
-> > > For instance, the ESTALE handling will just save nd->mnt/nd->dentry
-> > > before calling __link_path_walk(), then restore + retry if the ESTALE
-> > > error comes up.
-> > 
-> > Yeah, but how is that relevant to the fact, that after
-> > path_release_*() _nothing_ will be valid in the nameidata, not
-> > nd->mnt, not nd->dentry, and not nd->intent.open.file.  So what's the
-> > point in setting it to NULL if it must never be used anyway?
+On Tue, Aug 09, 2005 at 04:28:31PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 09 Aug 2005 07:26:21 +0200, David Madore said:
+> > * Second, a much more extensive change, the patch introduces a third
+> > set of capabilities for every process, the "bounding" set.  Normally
+> > the bounding set has every capability in it
 > 
-> path_release() does _not_ invalidate the nameidata. Look for instance at
-> __emul_lookup_dentry(), which clearly makes use of that fact.
+> How is this different in semantics from the existing 'permitted' capset?
 
-Trond, wake up!  __emul_lookup_dentry() does nothing of the sort.
-Neither does anything else.  In theory it could, but that's not a
-reason to do a confusing thing like that.
+The permitted sets is a set of capabilities really available to the
+process (though they may be temporarily dropped by removing them from
+the effective set, they are still available to take back).  In
+contrast, the bounding set capabilities are not readily available to
+the process; it just means that the capabilities in question *might*
+be acquired by running a suid program (or setcap program if filesystem
+support for capabilities ever comes to Linux).
 
-> Firstly, the open_namei() flags field is not a "permissions" field. It
-> contains open mode information. The calculation of the open permissions
-> flags is done by open_namei() itself.
+Currently this is more or less an all-or-nothing process: since
+capabilities can only be acquired by running a suid program, removing
+any capability from the bounding set means the program will never be
+permitted to execute a suid program any more (execve() will fail with
+EPERM).  But maybe I'll reinstate the CAP_SETPCAP thing in some future
+version of the patch (I'm still waiting for someone to tell me what
+was wrong with CAP_SETPCAP and why it was removed), and then the
+bounding set should also prohibit capabilities being given through
+that interface.
 
-Based on flags.  It's just a FMODE_* -> MAY_* transformation
+The bottom line is: if you have some untrusted process, it might be
+wise to remove empty its bounding set, making it incapable of
+executing a suid root program and thus acquiring new capabilities.  (I
+also plan to add some normally-available-to-all capabilities such as
+"permission to fork()", "permission to exec()" and so on, and then it
+will also be useful to remove these from a process's permitted set.)
 
-> Secondly, what advantage is there in allowing callers of open_namei() to
-> be able to override the MAY_WRITE check when doing open(O_TRUNC)? This
-> is a calculation that should be done _once_ in order to always get it
-> right, and it should therefore be done in open_namei() together with the
-> rest of the permissions calculation.
+> include/linux/capabilities.h:
+> 
+> typedef struct __user_cap_data_struct {
+>         __u32 effective;
+>         __u32 permitted;
+>         __u32 inheritable;
+> } __user *cap_user_data_t;
+> 
 
-I think the _only_ caller of open_namei() is filp_open(), so this is
-not much of an issue, but yeah, you could do it that way too.
+And my patch adds a __u32 bounding to that structure.
 
-Or you could initialize nameidata from filp_open().
-
-Miklos
+-- 
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )

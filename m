@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVHIA0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVHIAaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbVHIA0U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 20:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVHIA0U
+	id S932385AbVHIAaT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 20:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVHIAaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 20:26:20 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:46721 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932387AbVHIA0T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 20:26:19 -0400
-Message-ID: <42F7F837.6080800@gmail.com>
-Date: Tue, 09 Aug 2005 02:26:31 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
+	Mon, 8 Aug 2005 20:30:19 -0400
+Received: from dsl017-059-136.wdc2.dsl.speakeasy.net ([69.17.59.136]:31876
+	"EHLO luther.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S932385AbVHIAaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 20:30:18 -0400
+Date: Mon, 8 Aug 2005 20:31:40 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.13-rc5-mm1, mii.c functions linking problem
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] Removing maintainer's bad e-mails
+Message-ID: <20050809003140.GJ7667@kurtwerks.com>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <42F69E53.40602@gmail.com> <20050808183300.GB26182@redhat.com> <20050808224917.GP4006@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050808224917.GP4006@stusta.de>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.12.3
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, i find out this problem:
-#make O=../bu allmodconfig
-...
-#make O=../bu all
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x63c87): In function `sis190_get_settings':
-/l/latest/xxx/drivers/net/sis190.c:1656: undefined reference to 
-`mii_ethtool_gset'
-drivers/built-in.o(.text+0x63c96): In function `sis190_set_settings':
-/l/latest/xxx/drivers/net/sis190.c:1663: undefined reference to 
-`mii_ethtool_sset'
-drivers/built-in.o(.text+0x63d04): In function `sis190_nway_reset':
-/l/latest/xxx/drivers/net/sis190.c:1699: undefined reference to 
-`mii_nway_restart'
-drivers/built-in.o(.text+0x63d2d): In function `sis190_ioctl':
-/l/latest/xxx/drivers/net/sis190.c:1732: undefined reference to 
-`generic_mii_ioctl'
-make[1]: *** [.tmp_vmlinux1] Error 1
-make: *** [all] Error 2
-# objdump ../bu/drivers/net/mii.o -t|grep gener
-00000018 l     O __kcrctab      00000004 __kcrctab_generic_mii_ioctl
-0000005e l     O __ksymtab_strings      00000012 __kstrtab_generic_mii_ioctl
-00000030 l     O __ksymtab      00000008 __ksymtab_generic_mii_ioctl
-131e7c56 g       *ABS*  00000000 __crc_generic_mii_ioctl
-00000635 g     F .text  00000130 generic_mii_ioctl
-#objdump ../bu/drivers/net/built-in.o -t|grep gener
-00000000         *UND*  00000000 generic_mii_ioctl
-# objdump ../bu/drivers/built-in.o -t|grep generic_mii
-00000000         *UND*  00000000 generic_mii_ioctl
-...
+On Tue, Aug 09, 2005 at 12:49:17AM +0200, Adrian Bunk took 42 lines to write:
+> On Mon, Aug 08, 2005 at 02:33:00PM -0400, Dave Jones wrote:
+> > 
+> > You may as well change the S: to unmaintained whilst
+> > you're there, it hasn't seen any updates in a long time,
+> > and still uses several out-of-date SCSI APIs.
+> 
+> Or he could completely remove the entry.
+> 
+> We don't have entries for every single unmaintained driver, and the 
+> smaller MAINTAINERS is the higher is the possibility of not missing a 
+> relevant entry when checking whom to send an email.
 
+Hmm, so if a subsystem or driver (more drivers, I should think) lacks
+an entry in MAINTAINERS, is it then reasonable to assume that it is
+unmaintained? If not, perhaps creating a separate list of unmaintained
+subsystems and/or drivers is prudent?
+
+Kurt
 -- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
-
+Don't get even -- get odd!

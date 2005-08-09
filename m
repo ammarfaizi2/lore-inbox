@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVHIPQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVHIPSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbVHIPQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 11:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVHIPQ2
+	id S964817AbVHIPSO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 11:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVHIPSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 11:16:28 -0400
-Received: from butter.kernelcode.com ([216.254.126.222]:63503 "HELO
-	butter.kernelcode.com") by vger.kernel.org with SMTP
-	id S964817AbVHIPQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 11:16:27 -0400
-Subject: Re: understanding Linux capabilities brokenness
-From: Christopher Warner <cwarner@kernelcode.com>
-To: James Morris <jmorris@namei.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-       David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.63.0508090044400.20178@excalibur.intercode>
-References: <20050808211241.GA22446@clipper.ens.fr>
-	 <20050808223238.GA523@clipper.ens.fr>
-	 <dd8r9s$eqn$1@taverner.CS.Berkeley.EDU> <20050809015048.GA14204@thunk.org>
-	 <Pine.LNX.4.63.0508090044400.20178@excalibur.intercode>
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 11:16:33 -0400
-Message-Id: <1123600593.7622.116.camel@localhost.localdomain>
+	Tue, 9 Aug 2005 11:18:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58086 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S964817AbVHIPSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 11:18:13 -0400
+Date: Tue, 9 Aug 2005 16:20:45 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: David Teigland <teigland@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: [PATCH 00/14] GFS
+Message-ID: <20050809152045.GT29811@parcelfarce.linux.theplanet.co.uk>
+References: <20050802071828.GA11217@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050802071828.GA11217@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my observer pragmatic view; yes. On many occasion, i've come to CAP
-calls only to be frustrated with the sheer disconnect of it all. It
-simply doesn't work. If it means having to break posix conformance for a
-working implementation. Then so be it.
-
--- Christopher Warner
-
-On Tue, 2005-08-09 at 00:46 -0400, James Morris wrote:
-> Let me play the Devil's advocate here.
+On Tue, Aug 02, 2005 at 03:18:28PM +0800, David Teigland wrote:
+> Hi, GFS (Global File System) is a cluster file system that we'd like to
+> see added to the kernel.  The 14 patches total about 900K so I won't send
+> them to the list unless that's requested.  Comments and suggestions are
+> welcome.  Thanks
 > 
-> Should we be thinking about deprecating and removing capabilities from 
-> Linux?
-> 
-> 
-> - James
+> http://redhat.com/~teigland/gfs2/20050801/gfs2-full.patch
+> http://redhat.com/~teigland/gfs2/20050801/broken-out/
 
+Kindly lose the "Context Dependent Pathname" crap.

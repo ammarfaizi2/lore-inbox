@@ -1,74 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbVHIAaf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVHIAlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbVHIAaf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 20:30:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVHIAaf
+	id S932271AbVHIAlG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 20:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVHIAlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 20:30:35 -0400
-Received: from NS6.Sony.CO.JP ([137.153.0.32]:24200 "EHLO ns6.sony.co.jp")
-	by vger.kernel.org with ESMTP id S932386AbVHIAae (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 20:30:34 -0400
-Message-ID: <42F7F998.7080400@sm.sony.co.jp>
-Date: Tue, 09 Aug 2005 09:32:24 +0900
-From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: 7eggert@gmx.de
-CC: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Posix file attribute support on VFAT
-References: <4zfoZ-5u4-9@gated-at.bofh.it> <E1E2GAN-0003Pj-2l@be1.lrz>
-In-Reply-To: <E1E2GAN-0003Pj-2l@be1.lrz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Aug 2005 20:41:06 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25361 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932271AbVHIAlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 20:41:04 -0400
+Date: Tue, 9 Aug 2005 02:41:00 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jiri Slaby <jirislaby@gmail.com>, jgarzik@pobox.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org
+Subject: [-mm patch] SIS190 must select MII
+Message-ID: <20050809004100.GS4006@stusta.de>
+References: <42F7F837.6080800@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42F7F837.6080800@gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert wrote:
-> Hiroyuki Machida <machida@sm.sony.co.jp> wrote:
-> 
-> 
->>For newly created and/or modified files/dirs, system can utilize
->>full posix attributes, because memory resident inode storage can
->>hold those. After umount-mount cycle, system may lose some
->>attributes to preserve VFAT format.
-> 
-> 
-> Inodes may be reclaimed, therefore you might also lose some attributes at
-> runtime. For your users, that will look like a heisenbug. A similar bug
-> has been reported for procfs. Is your implementation affected?
+On Tue, Aug 09, 2005 at 02:26:31AM +0200, Jiri Slaby wrote:
+> Hello, i find out this problem:
+> #make O=../bu allmodconfig
+> ...
+> #make O=../bu all
+> ...
+>  LD      .tmp_vmlinux1
+> drivers/built-in.o(.text+0x63c87): In function `sis190_get_settings':
+> /l/latest/xxx/drivers/net/sis190.c:1656: undefined reference to 
+> `mii_ethtool_gset'
+>...
 
-Yes.
-Thank you, pointed it out. So I need to select
-	1) restric attribute even in mamory
-or
-	2) pinn inode in memory during mount
-		(I think it's not good idea)
+Obvious bug in git-netdev-sis190.patch, fix below.
 
-I'll revise the patch with 1).
+cu
+Adrian
 
->>- Special file
->>        To distinguish special files, look if this fat dir entry 
->>        has ATTR_SYS, first. If it has ATTR_SYS, then check
->>        1st. LSB bit in ctime_cs, refered as "special file flag".
->>        If set,  this file is created under VFAT with "posix_attr". 
->>        Look up TYPE field to decide special file type.
->>        This spcial file detection mothod has some flaw to make
->>        potential confusion. E.g. some system file created under
->>        dos/win may be treated as special file.  However in most case,
->>        user don't create system file under dos/win.
-> 
-> 
-> You can add additional magic, e.g.: nodes must be empty, except for symlinks
-> which must be not larger than 4KB (current PATH_MAX?). This will get rid
-> of io.sys, logo.sys etc.\. If you want to be really sure, prepend a magic
-> code to the on-disk representation of symlinks.
 
-Please confirm my understanding.
-You sugessted that symlink should not have ATTR_SYS, to prevent
-some over 4KB files created in DOS/WIN to be treated as symlinks?
+<--  snip  -->
 
--- 
-Hiroyuki Machida		machida@sm.sony.co.jp		
-SSW Dept. HENC, Sony Corp.
+
+SIS190 must select MII since it's using it.
+
+While I was editing the Kconfig entry, I also converted the spaces to 
+tabs.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.13-rc5-mm1-full/drivers/net/Kconfig.old	2005-08-09 02:32:14.000000000 +0200
++++ linux-2.6.13-rc5-mm1-full/drivers/net/Kconfig	2005-08-09 02:33:12.000000000 +0200
+@@ -1924,14 +1924,15 @@
+ 	  If in doubt, say Y.
+ 
+ config SIS190
+-      tristate "SiS190 gigabit ethernet support"
+-      depends on PCI
+-      select CRC32
+-      ---help---
+-        Say Y here if you have a SiS 190 PCI Gigabit Ethernet adapter.
++	tristate "SiS190 gigabit ethernet support"
++	depends on PCI
++	select CRC32
++	select MII
++	---help---
++	  Say Y here if you have a SiS 190 PCI Gigabit Ethernet adapter.
+ 
+-        To compile this driver as a module, choose M here: the module
+-        will be called sis190.  This is recommended.
++	  To compile this driver as a module, choose M here: the module
++	  will be called sis190.  This is recommended.
+ 
+ config SKGE
+ 	tristate "New SysKonnect GigaEthernet support (EXPERIMENTAL)"
+

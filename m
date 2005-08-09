@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbVHIEQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVHIES7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbVHIEQW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 00:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbVHIEQW
+	id S932441AbVHIES7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 00:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVHIES7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 00:16:22 -0400
-Received: from mail24.sea5.speakeasy.net ([69.17.117.26]:4054 "EHLO
-	mail24.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932440AbVHIEQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 00:16:21 -0400
-Date: Tue, 9 Aug 2005 00:16:18 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: Olaf Hering <olh@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH] add MODULE_ALIAS for x86_64 aes
-In-Reply-To: <20050808201046.GB15425@suse.de>
-Message-ID: <Pine.LNX.4.63.0508090015230.20178@excalibur.intercode>
-References: <20050808173336.GA11503@suse.de> <20050808105109.5e3168fc.akpm@osdl.org>
- <20050808175520.GA12150@suse.de> <20050808201046.GB15425@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Aug 2005 00:18:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:57987 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932441AbVHIES7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 00:18:59 -0400
+Date: Mon, 8 Aug 2005 21:11:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pci_find_device and pci_find_slot mark as deprecated
+Message-ID: <20050809041133.GA10552@kroah.com>
+References: <42F72D4D.8030102@volny.cz> <200508082354.j78Ns1Cn028468@wscnet.wsc.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508082354.j78Ns1Cn028468@wscnet.wsc.cz>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Aug 2005, Olaf Hering wrote:
+On Tue, Aug 09, 2005 at 01:54:01AM +0200, Jiri Slaby wrote:
+> This marks these functions as deprecated not to use in latest drivers (it
+> doesn't use reference counts and the device returned by it can disappear in
+> any time).
 
->  On Mon, Aug 08, Olaf Hering wrote:
-> >  On Mon, Aug 08, Andrew Morton wrote:
-> > 
-> > > What do you mean by "this could be the right fix"?  Did it work?
-> > 
-> > I cant test it due to lack of hardware. Will find someone who does.
-> > modprobe aes is done by openswan, works on ppc, i386, but not on x86_64.
-> 
-> This works, tested it. modprobe -v aes
-> insmod /lib/modules/2.6.13-rc6-3-default/kernel/arch/x86_64/crypto/aes-x86_64.ko 
+Did you forget to send this to the PCI maintainer for some reason?
 
-It looks the same as the i386 version, so probably ok.
+Anyway, no, I don't want these functions marked this way, it's only
+going to cause build noise.  I'd much rather you, or others, send me
+patches that remove the usage of these functions so I can just delete
+them entirely.
 
-(CC'd the crypto maintainer).
+thanks,
 
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+greg k-h

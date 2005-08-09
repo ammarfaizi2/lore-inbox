@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVHIA5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVHIA55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbVHIA5E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 20:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVHIA5E
+	id S932397AbVHIA55 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 20:57:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVHIA55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 20:57:04 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32785 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932391AbVHIA5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 20:57:03 -0400
-Date: Tue, 9 Aug 2005 02:56:59 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Dave Jones <davej@redhat.com>, Jiri Slaby <jirislaby@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Rolf Eike Beer <eike-kernel@sf-tec.de>
-Subject: Re: [PATCH] Removing maintainer's bad e-mails
-Message-ID: <20050809005659.GT4006@stusta.de>
-References: <42F69E53.40602@gmail.com> <20050808183300.GB26182@redhat.com> <20050808224917.GP4006@stusta.de> <20050809003140.GJ7667@kurtwerks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050809003140.GJ7667@kurtwerks.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 8 Aug 2005 20:57:57 -0400
+Received: from graphe.net ([209.204.138.32]:2993 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S932397AbVHIA55 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 20:57:57 -0400
+Date: Mon, 8 Aug 2005 17:57:48 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Richard Purdie <rpurdie@rpsys.net>
+cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+In-Reply-To: <1123539152.7716.25.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0508081753520.31697@graphe.net>
+References: <20050728025840.0596b9cb.akpm@osdl.org> 
+ <1122860603.7626.32.camel@localhost.localdomain>  <Pine.LNX.4.62.0508010908530.3546@graphe.net>
+  <1122926537.7648.105.camel@localhost.localdomain> 
+ <Pine.LNX.4.62.0508011335090.7011@graphe.net>  <1122930474.7648.119.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508011414480.7574@graphe.net>  <1122931637.7648.125.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508011438010.7888@graphe.net>  <1122933133.7648.141.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508011517300.8498@graphe.net>  <1122937261.7648.151.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508031716001.24733@graphe.net>  <1123154825.8987.33.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508040703300.3277@graphe.net>  <1123166252.8987.50.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508050817060.28659@graphe.net>  <1123422275.7800.24.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508080945100.19665@graphe.net> <1123539152.7716.25.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 08:31:40PM -0400, Kurt Wall wrote:
-> On Tue, Aug 09, 2005 at 12:49:17AM +0200, Adrian Bunk took 42 lines to write:
-> > On Mon, Aug 08, 2005 at 02:33:00PM -0400, Dave Jones wrote:
-> > > 
-> > > You may as well change the S: to unmaintained whilst
-> > > you're there, it hasn't seen any updates in a long time,
-> > > and still uses several out-of-date SCSI APIs.
-> > 
-> > Or he could completely remove the entry.
-> > 
-> > We don't have entries for every single unmaintained driver, and the 
-> > smaller MAINTAINERS is the higher is the possibility of not missing a 
-> > relevant entry when checking whom to send an email.
-> 
-> Hmm, so if a subsystem or driver (more drivers, I should think) lacks
-> an entry in MAINTAINERS, is it then reasonable to assume that it is
-> unmaintained? If not, perhaps creating a separate list of unmaintained
-> subsystems and/or drivers is prudent?
+On Mon, 8 Aug 2005, Richard Purdie wrote:
 
-For unmaintained drivers or drivers maintained by the subsystem 
-maintainers (which can be the reason why there's no entry for this 
-driver) contact the subsystem maintainer.
+> The following patch (against -mm) cleared the problem up but I'm not
+> sure how correct it is:
 
-Unmaintained subsystems are a problem.
+Almost. The new entry needs to be made dirty. new_entry is already made 
+young. entry is not.
 
-I've already started contacting subsystem maintainers that seem to be 
-inactive, and I have some restructuring of MAINTAINERS (tree structure 
-with drivers behind subsystems) on my TODO list.
+---
 
-> Kurt
+Set dirty bit correctly in handle_pte_fault
 
-cu
-Adrian
+new_entry is used for the new pte entry. handle_mm_fault must dirty
+new_entry and not "entry". entry is only used for comparison. The current
+version does not set the dirty bit.
 
-BTW: Please don't remove people from the Cc when answering.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Index: linux-2.6.13-rc4/mm/memory.c
+===================================================================
+--- linux-2.6.13-rc4.orig/mm/memory.c	2005-08-03 17:15:22.000000000 -0700
++++ linux-2.6.13-rc4/mm/memory.c	2005-08-08 17:54:53.000000000 -0700
+@@ -2091,7 +2091,7 @@
+ 			return do_wp_page(mm, vma, address, pte, pmd, entry);
+ #endif
+ 		}
+-		entry = pte_mkdirty(entry);
++		new_entry = pte_mkdirty(new_entry);
+ 	}
+ 
+ 	/*

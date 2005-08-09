@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbVHIOdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVHIOgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbVHIOdt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 10:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbVHIOdt
+	id S964786AbVHIOgL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 10:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVHIOgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 10:33:49 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:5030 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964783AbVHIOds (ORCPT
+	Tue, 9 Aug 2005 10:36:11 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15080 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964786AbVHIOgJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 10:33:48 -0400
-Date: Tue, 9 Aug 2005 16:33:47 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VGER news
-In-Reply-To: <20050809141217.GL22165@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.61.0508091630160.23577@yvahk01.tjqt.qr>
-References: <20050809141217.GL22165@mea-ext.zmailer.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Aug 2005 10:36:09 -0400
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, ncunningham@cyclades.com,
+       Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <Pine.LNX.4.61.0508091145570.11660@goblin.wat.veritas.com>
+References: <42F57FCA.9040805@yahoo.com.au>
+	 <200508090710.00637.phillips@arcor.de>
+	 <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au>
+	 <20050809080853.A25492@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.61.0508091012480.10693@goblin.wat.veritas.com>
+	 <42F88514.9080104@yahoo.com.au>
+	 <Pine.LNX.4.61.0508091145570.11660@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Tue, 09 Aug 2005 16:28:23 +0200
+Message-Id: <1123597704.30257.200.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->Folks at Dell have donated a new machine to be VGER, and
->folks at RedHat have installed it into co-location facility
->with 1000Mbps network connection into the machine.
+> Who can tell?  rmk's mail sugggests it should work on some valid RAM.
 
-May 24 2004 on kernel.org:
-  ISC has upgraded our outbound connection to 1000 Mbit/s. Thanks!
+Not really. If I understand Russell here, that RAM has been "put aside"
+for use by fancy stuff and is de-facto out of control of the normal page
+allocator and refcounting. In this case, I see no reason why it couldn't
+be considered as MMIO and ioremap'able :)
 
-So you have 2000 Mbps now?
+> ioremap is making a similar check to the one remap_pfn_range used
+> to make; but I see no good reason for it at all.  ioremap should be
+> allowed to map whatever the caller asked, just as memset is allowed
+> to set whatever the caller asked.
 
->This update got considerable performance increase into the
->machine for our list loads.  In terms of Bogomips around 7-8,
->but for actual loads nearly twice as much.
+This is dodgy actually. memset can't be guaranteed to work on IOs or
+other non-cacheable memory (including real RAM that has been mapped
+non-cacheable, typically RAM that has been "set aside" for other uses as
+described above, wether it's for AGP, or for some weird processor DMA
+bounce buffers or whatever ..., that is RAM that is out of the normal
+kernel control).
 
-Wow, that's a lot of bogomips. That's just a little faster than my 386 
-(running 2.6.13-rc1): http://jengelh.hopto.org/GFX0/proc386.jpg
+>   It's up to the caller to get it
+> right, not for the function to demand the added reassurance of some
+> mysterious page flag being set.
+> 
+> (But in what I said earlier about VM_RESERVE making sure wrong pages
+> not freed, I was confused and confusing ioremap with remap_pfn_range.)
+> 
+> > I thought the fact that it *won't* bail out when encountering
+> > kernel text or remap_pfn_range'ed pages was only due to PG_reserved
+> > being the proverbial jack of all trades, master of none.
+> > 
+> > I could be wrong here though.
+> > 
+> > But in either case: I agree that it is probably not a great loss
+> > to remove the check, although considering it will be needed for
+> > swsusp anyway...
+> 
+> swsusp (and I think crashdump has a similar need) is a very different
+> case: it's approaching memory from the zone/mem_map end, with no(?) idea
+> of how the different pages are used: needs to save all the info while
+> avoiding those areas which would give trouble.  I can well imagine it
+> needs either a page flag or a table lookup to decide that.
+> 
+> But ioremap and remap_pfn_range are coming from drivers which (we hope)
+> know what they're mapping these particular areas for.  If it's provable
+> that the meaning which swsusp needs is equally usable for a little sanity
+> check in ioremap, okay, but I'm sceptical.
+> 
+> Hugh
 
->We did system switchover last weekend, and nobody reacted trulu
->adversely.    Probably nobody noticed it either.   :-)
->
->/Matti Aarnio
-
-Or were you missing a 'k' suffix in the bogo number <grin> + ;-)
-
-
-
-Jan Engelhardt
--- 
-| Alphagate Systems, http://alphagate.hopto.org/

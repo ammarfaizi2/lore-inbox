@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVHIOwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVHIOxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbVHIOwS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 10:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbVHIOwS
+	id S964807AbVHIOxY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 10:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbVHIOxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 10:52:18 -0400
-Received: from berkeleydata.net ([64.62.242.226]:47289 "HELO berkeleydata.net")
-	by vger.kernel.org with SMTP id S964803AbVHIOwS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 10:52:18 -0400
-Message-ID: <42F8C326.2020102@berkeleydata.net>
-Date: Tue, 09 Aug 2005 08:52:22 -0600
-From: Jonathan Ellis <jonathan@berkeleydata.net>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: datagram queue length
-References: <42F8B5EC.2090204@berkeleydata.net> <Pine.LNX.4.61.0508091037180.26280@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0508091037180.26280@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Aug 2005 10:53:24 -0400
+Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:20926 "EHLO
+	mail.zmailer.org") by vger.kernel.org with ESMTP id S964807AbVHIOxX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 10:53:23 -0400
+Date: Tue, 9 Aug 2005 17:53:23 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: VGER news
+Message-ID: <20050809145323.GO22165@mea-ext.zmailer.org>
+References: <20050809141217.GL22165@mea-ext.zmailer.org> <Pine.LNX.4.61.0508091630160.23577@yvahk01.tjqt.qr> <20050809143924.GC28539@harddisk-recovery.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050809143924.GC28539@harddisk-recovery.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
->>I seem to be running into a limit of 64 queued datagrams.  This isn't a
->>data buffer size; varying the size of the datagram makes no difference
->>in the observed queue size.  If more datagrams are sent before some are
->>read, they are silently dropped.  (By "silently," I mean, "tcpdump
->>doesn't record these as dropped packets.")
+On Tue, Aug 09, 2005 at 04:39:24PM +0200, Erik Mouw wrote:
+> On Tue, Aug 09, 2005 at 04:33:47PM +0200, Jan Engelhardt wrote:
+> > 
+> > >Folks at Dell have donated a new machine to be VGER, and
+> > >folks at RedHat have installed it into co-location facility
+> > >with 1000Mbps network connection into the machine.
+> > 
+> > May 24 2004 on kernel.org:
+> >   ISC has upgraded our outbound connection to 1000 Mbit/s. Thanks!
+> 
+> That's www and ftp.kernel.org, the archive server.
 
-> Your datagram receiver isn't keeping up with your datagram
-> transmitter. If you increase the number of datagrams that are
-> being queued, you will still encounter the same problem, but
-> after more datagrams are stored.
+Different location, different services.
 
-Right -- except that my consumer is quite fast enough in the average 
-case; it's only the worst case where it can't keep up.  Extending the 
-queue would allow it to catch up with such bursts of activity without 
-dropping requests.  The low- and mid- hanging fruit has already been 
-picked as far as consumer optimization goes; anything remaining is quite 
-high indeed.
+> > So you have 2000 Mbps now?
+> 
+> No, this time vger.kernel.org (the mailing list server) got
+> an 1000 Mbit/s connection.
+> 
+> > >This update got considerable performance increase into the
+> > >machine for our list loads.  In terms of Bogomips around 7-8,
+> > >but for actual loads nearly twice as much.
+> > 
+> > Wow, that's a lot of bogomips. That's just a little faster than my 386 
+> > (running 2.6.13-rc1): http://jengelh.hopto.org/GFX0/proc386.jpg
+> 
+> Matti is talking about an increase, which implies a difference.
 
-> In your test code, you deliberately don't receive anything
-> for 5 seconds. What do you expect?
+In "absolute" terms about 5600 BogoMips, although all bogos are
+not quite the same...   (E.g. Coppermine -> Xeon gives a bit
+more difference than just bogos would imply.)
 
-I expected to demonstrate the problem. :)
+> Erik
 
--Jonathan
+/Matti Aarnio

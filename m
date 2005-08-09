@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932556AbVHIRoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbVHIRtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932556AbVHIRoY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 13:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbVHIRoY
+	id S932559AbVHIRtM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 13:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbVHIRtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 13:44:24 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:18345 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S932556AbVHIRoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 13:44:23 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.96,92,1122847200"; 
-   d="scan'208"; a="13840042:sNHT25482412"
-Message-ID: <42F8EB66.8020002@fujitsu-siemens.com>
-Date: Tue, 09 Aug 2005 19:44:06 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Signal handling possibly wrong
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 9 Aug 2005 13:49:12 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:9993 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932558AbVHIRtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 13:49:11 -0400
+Date: Tue, 9 Aug 2005 19:49:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Lee Revell <rlrevell@joe-job.com>, gregkh@suse.de,
+       NAGANO Daisuke <breeze.nagano@nifty.ne.jp>, alan@lxorguk.ukuu.org.uk,
+       sailer@ife.ee.ethz.ch
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, perex@suse.cz,
+       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zaitcev@yahoo.com,
+       Christoph Eckert <ce@christeck.de>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal (version 2)
+Message-ID: <20050809174906.GA4006@stusta.de>
+References: <20050729153226.GE3563@stusta.de> <1123607633.5601.7.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1123607633.5601.7.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Aug 09, 2005 at 01:13:51PM -0400, Lee Revell wrote:
+> On Fri, 2005-07-29 at 17:32 +0200, Adrian Bunk wrote:
+> > This patch schedules obsolete OSS drivers (with ALSA drivers that 
+> > support the same hardware) for removal.
+> > 
+> > Scheduling the via82cxxx driver for removal was ACK'ed by Jeff Garzik.
+> > 
+> 
+> Someone on linux-audio-user just pointed out that the OSS USB audio and
+> midi modules were never deprecated, much less scheduled to be removed.
+> 
+> Maybe the best way to deprecate them is to move them to Sound -> OSS,
+> that's where they belong anyway.
 
-reading man pages for sigaction and comparing it to what kernel does
-when starting a signal handler (i386, s390, ppc and others), I think
-one of both might be wrong.
+I'd deprecate them without moving them.
 
- From man pages:
+I'll send a patch unless someone tells that any functionality of these 
+drivers is lacking in ALSA.
 
-  sa_mask gives a mask of signals which should be blocked during
-  execu­tion of the signal handler. In addition, the signal which
-  triggered the handler will be blocked, unless the SA_NODEFER or
-  SA_NOMASK flags are used.
+> Lee
 
- From arch/i386/kernel/signal.c:
+cu
+Adrian
 
-         if (ret && !(ka->sa.sa_flags & SA_NODEFER)) {
-                 spin_lock_irq(&current->sighand->siglock);
-                 sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
-                 sigaddset(&current->blocked,sig);
-                 recalc_sigpending();
-                 spin_unlock_irq(&current->sighand->siglock);
-         }
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-If I understand man pages correctly, the handled signal should be blocked
-depending on SA_NODEFER, while sa_mask should be used unconditionally to
-block additional signals.
-Kernel code blocks both "handled signal" _and_ sa_mask only if SA_NODEFER
-isn't set.
-
-Which is the right behavior?
-
-Regards
-		Bodo
-
-P.S.:
-Please CC me, I'm not on the list.

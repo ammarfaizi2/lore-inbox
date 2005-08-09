@@ -1,69 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVHISuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVHISuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbVHISuK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 14:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbVHISuK
+	id S1750782AbVHISuz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 14:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbVHISuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 14:50:10 -0400
-Received: from fsmlabs.com ([168.103.115.128]:2542 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1750765AbVHISuJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 14:50:09 -0400
-Date: Tue, 9 Aug 2005 12:56:10 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Update email addresses for Zwane
-Message-ID: <Pine.LNX.4.61.0508091254530.23938@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Aug 2005 14:50:54 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:51083 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750767AbVHISuy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 14:50:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cvcZAKheqHtXedvtMA+VKOA0UEO7Bbs9GSg0XCBDBP7B5rcW9OwQFMvIDcB0xiR1hr0QcdJtxv3tHolNAywN2pFlIMvcOQr3LJRFO9l0BW4iAkoXGMModFWCLzlQE/U13vHCSUTFofsoyhV2ONtEBBjMXHtKcTsg0puc0L6dgYA=
+Message-ID: <86802c440508091150609eecca@mail.gmail.com>
+Date: Tue, 9 Aug 2005 11:50:53 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: smbus driver for ati xpress 200m
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42F8EB66.8020002@fujitsu-siemens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42F8EB66.8020002@fujitsu-siemens.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some folks have been emailing me and having trouble due to these stale 
-addresses;
+anyone is working on add driver for ati xpress 200m?
 
-Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+without that My turion notebook, can not work read the battery status.
 
-Index: linux-2.6.13-rc5-mm1/CREDITS
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc5-mm1/CREDITS,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 CREDITS
---- linux-2.6.13-rc5-mm1/CREDITS	7 Aug 2005 21:37:45 -0000	1.1.1.1
-+++ linux-2.6.13-rc5-mm1/CREDITS	9 Aug 2005 18:54:21 -0000
-@@ -2423,8 +2423,7 @@ S: Toronto, Ontario
- S: Canada
- 
- N: Zwane Mwaikambo
--E: zwane@linuxpower.ca
--W: http://function.linuxpower.ca
-+E: zwane@arm.linux.org.uk
- D: Various driver hacking
- D: Lowlevel x86 kernel hacking
- D: General debugging
-Index: linux-2.6.13-rc5-mm1/MAINTAINERS
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc5-mm1/MAINTAINERS,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 MAINTAINERS
---- linux-2.6.13-rc5-mm1/MAINTAINERS	7 Aug 2005 21:37:45 -0000	1.1.1.1
-+++ linux-2.6.13-rc5-mm1/MAINTAINERS	9 Aug 2005 18:53:53 -0000
-@@ -1762,7 +1762,7 @@ S:	Maintained
- 
- OPL3-SA2, SA3, and SAx DRIVER
- P:	Zwane Mwaikambo
--M:	zwane@commfireservices.com
-+M:	zwane@arm.linux.org.uk
- L:	linux-sound@vger.kernel.org
- S:	Maintained
- 
-@@ -2017,7 +2017,7 @@ S:	Maintained
- 
- SC1200 WDT DRIVER
- P:	Zwane Mwaikambo
--M:	zwane@commfireservices.com
-+M:	zwane@arm.linux.org.uk
- S:	Maintained
- 
- SCHEDULER
+I guess sbs-cm need that driver in kernel.
+
+YH

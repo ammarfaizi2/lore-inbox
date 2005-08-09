@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbVHIFGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVHIFI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbVHIFGc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 01:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVHIFGc
+	id S1750744AbVHIFI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 01:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVHIFI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 01:06:32 -0400
-Received: from rwcrmhc14.comcast.net ([204.127.198.54]:59291 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750710AbVHIFGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 01:06:32 -0400
-Message-ID: <42F839DE.1020604@temple.edu>
-Date: Tue, 09 Aug 2005 01:06:38 -0400
-From: Nick Sillik <n.sillik@temple.edu>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
-X-Accept-Language: en-us, en
+	Tue, 9 Aug 2005 01:08:29 -0400
+Received: from mail28.sea5.speakeasy.net ([69.17.117.30]:17539 "EHLO
+	mail28.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750744AbVHIFI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 01:08:29 -0400
+Date: Tue, 9 Aug 2005 01:08:27 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: serue@us.ibm.com
+cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Michael Halcrow <mhalcrow@us.ibm.com>
+Subject: Re: [PATCH] seclvl: use securityfs
+In-Reply-To: <20050809004321.GA9332@sergelap.austin.ibm.com>
+Message-ID: <Pine.LNX.4.63.0508090107190.20178@excalibur.intercode>
+References: <20050809004321.GA9332@sergelap.austin.ibm.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, webmaster@kernel.org
-Subject: Changes to kernel.org website
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the following should be changed on the kernel.org web site?
+On Mon, 8 Aug 2005, serue@us.ibm.com wrote:
 
-In "New to Linux?" Section
+This looks like a nice cleanup.
 
-    Note, however, that most distributions are very large,
-    so unless you have a _very_fast_Internet_link_ you may want
-    to save yourself some hassle and purchase a CD-ROM with
-    a distribution; such CD-ROMs are available from a number
-    of vendors.
+> +
+> +	if (count < 0 || count >= PAGE_SIZE)
+> +		return -ENOMEM;
+> +	if (*ppos != 0) {
+> +		return -EINVAL;
+> +	}
 
-I don't think that "very fast internet link is a good way to describe 
-what is meant?
+Why is the first error there -ENOMEM and not -EINVAL?
 
-Maybe we should tell them how large the distrubution are (650mb and 
-more) or
-instead we could say say that we recommend above a certain bandwidth.
 
-The confusion is as follows:
-I have a good cable connection (~5mb/s) but I wouldn't consider this 
-"very fast" because
-I know of much faster connections. Would this scare me away from 
-downloading Linux
-or even using it at all? Probably.
-
-Just thought it's best to be clear.
-
-Nick Sillik
-n.sillik@temple.edu
+- James
+-- 
+James Morris
+<jmorris@namei.org>

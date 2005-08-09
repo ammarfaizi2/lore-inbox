@@ -1,44 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVHIP4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVHIP63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbVHIP4s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 11:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVHIP4r
+	id S964836AbVHIP63 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 11:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbVHIP63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 11:56:47 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:33666 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S964835AbVHIP4q (ORCPT
+	Tue, 9 Aug 2005 11:58:29 -0400
+Received: from lug-owl.de ([195.71.106.12]:15062 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S964836AbVHIP62 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 11:56:46 -0400
-Message-ID: <42F8D23D.3000505@vc.cvut.cz>
-Date: Tue, 09 Aug 2005 17:56:45 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Grzegorz Piotr Jaskiewicz <gj@kde.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: oops in VMWARE vmnet, on 2.6.12.x
-References: <200508091744.33523@gj-laptop>
-In-Reply-To: <200508091744.33523@gj-laptop>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Aug 2005 11:58:28 -0400
+Date: Tue, 9 Aug 2005 17:58:27 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] DLM must depend on IPV6 || IPV6=n
+Message-ID: <20050809155827.GD17488@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050809155001.GZ4006@stusta.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="11Y7aswkeuHtSBEs"
+Content-Disposition: inline
+In-Reply-To: <20050809155001.GZ4006@stusta.de>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Piotr Jaskiewicz wrote:
-> I know that in general no one here is interested in vmware affairs, but in 
-> hope that VMware folks are reading this list too, here's the oops:
-> It's the newest vmware5 for linux from vmware.com
 
-You must update vmnet with vmware-any-any-update93 patch
-(http://platan.vc.cvut.cz/ftp/pub/vmware).  sk_alloc() function
-changed type of its arguments, and unfortunately this causes only
-compile-time warning, which you did not notice, but resulting module crashes
-kernel as now mandatory argument is passed in as '0'.
+--11Y7aswkeuHtSBEs
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You should report problems related to the VMware at the VMware community forums,
-http://www.vmware.com/community/index.jspa.  Most of peoples on LKML does not
-care about these opensource modules.
-								Petr Vandrovec
+On Tue, 2005-08-09 17:50:01 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+> This patch fixes the following compile error with CONFIG_DLM=3Dy and=20
+> CONFIG_IPV6=3Dm:
 
+[...]
 
+> --- linux-2.6.13-rc3-mm3-modular/drivers/dlm/Kconfig.old	2005-07-30 14:07=
+:12.000000000 +0200
+> +++ linux-2.6.13-rc3-mm3-modular/drivers/dlm/Kconfig	2005-07-30 14:07:41.=
+000000000 +0200
+> @@ -3,6 +3,7 @@
+> =20
+>  config DLM
+>  	tristate "Distributed Lock Manager (DLM)"
+> +	depends on IPV6 || IPV6=3Dn
+>  	select IP_SCTP
+>  	help
+>  	A general purpose distributed lock manager for kernel or userspace
+
+Why don't you allow modular builds of both? ...or aren't the IPv6
+symbols exported?
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--11Y7aswkeuHtSBEs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC+NKjHb1edYOZ4bsRAsNkAJ9PKxGtpORjF9Nat77bWptPm8JLzgCfc+di
+ovWulggbRe4rhspF4wK+Uc8=
+=QRud
+-----END PGP SIGNATURE-----
+
+--11Y7aswkeuHtSBEs--

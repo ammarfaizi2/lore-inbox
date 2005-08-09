@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbVHIOSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbVHIOSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932549AbVHIOSO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 10:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVHIOSN
+	id S932553AbVHIOSw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 10:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbVHIOSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 10:18:13 -0400
-Received: from fsmlabs.com ([168.103.115.128]:33250 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932549AbVHIOSN (ORCPT
+	Tue, 9 Aug 2005 10:18:51 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:42653 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S932551AbVHIOSv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 10:18:13 -0400
-Date: Tue, 9 Aug 2005 08:22:53 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Tony Lindgren <tony@atomide.com>
-cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org,
-       tuukka.tikkanen@elektrobit.com, george@mvista.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
-In-Reply-To: <20050808152008.GI28070@atomide.com>
-Message-ID: <Pine.LNX.4.61.0508090818170.28588@montezuma.fsmlabs.com>
-References: <200508031559.24704.kernel@kolivas.org> <20050805123754.GA1262@in.ibm.com>
- <20050808072600.GE28070@atomide.com> <20050808145421.GB4738@in.ibm.com>
- <20050808152008.GI28070@atomide.com>
+	Tue, 9 Aug 2005 10:18:51 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Wireless support
+Date: Tue, 9 Aug 2005 16:24:16 +0200
+User-Agent: KMail/1.8.2
+Cc: Jochen Friedrich <jochen@scram.de>, Adrian Bunk <bunk@stusta.de>,
+       Lee Revell <rlrevell@joe-job.com>, abonilla@linuxwireless.org,
+       "'Andreas Steinmetz'" <ast@domdv.de>,
+       "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Denis Vlasenko'" <vda@ilport.com.ua>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+References: <005501c59c4a$f6210800$a20cc60a@amer.sykes.com> <42F872E3.3050106@scram.de> <AC074A82-2B17-485A-9BFE-090CB4EE6E44@mac.com>
+In-Reply-To: <AC074A82-2B17-485A-9BFE-090CB4EE6E44@mac.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508091624.17381.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Aug 2005, Tony Lindgren wrote:
-
-> As far as I remember enabling AMD stop grant disconnects all cpus. This
-> means the system won't be able to do any work until the dyntick timer
-> interrupt wakes up the system.
+On Tuesday, 9 of August 2005 15:52, Kyle Moffett wrote:
+> On Aug 9, 2005, at 05:09:55, Jochen Friedrich wrote:
+> > Third, both ndiswrapper and binary-only drivers only work on one  
+> > platform.
+> >
+> > E.g. broadcom has a binary-only driver for their WLAN card on  
+> > Linux, but
+> > only for mipsel (wrt54g).
+> >
+> > On Alpha or PowerPC, most WLAN equipment doesn't work under Linux,  
+> > at all.
 > 
-> > Both requirements (idling all CPUs together vs individually) I think
-> > will make the patch more complex.  Are such systems (which require having to 
-> > idle all CPUs together) pretty common that we have to care about?!
-> 
-> Probably all AMD SMP based systems? Somebody with better knowledge should
-> verify this.
+> Definitely.  I want my Airport Extreme to work!  Many users of the  
+> BCM4301 chip can get it to work (kinda) with Linux via ndiswrapper,
+> but that means they are much less likely to participate in any kind of
+> reverse engineering effort,
 
-It would be the K7 only.
+Do you know of anyone actually doing it?
 
-> > But that may be too late on some CPUs. If dyn_tick->skip = 100, all
-> > CPUs skip 100 ticks. However some CPUs may have timers that need to be
-> > service much before that.
-> 
-> Not in the current case, as the system is completely idle until some
-> interrupt wakes up the system. Of course it would be different if you make
-> it per-CPU.
+Rafael
 
-I once did a weekend version of this with SMP support and for the PIT, i 
-had the last cpu to enter idle turn reprogram the PIT. Unfortunately this 
-means waiting for all processors and isn't as effective as a result.
 
-> Well we need to be able to do various things in the idle loop depending on
-> the length of the estimated sleep. For example, if next_timer_interrupt is
-> 2 jiffies away, we cannot do much. But if next_timer_interrupt is 2 seconds
-> away, we can idle pretty much all devices.
-> 
-> > > But in any case on P4 systems the APIC timer is not the bottleneck as
-> > > stopping or reprogramming PIT also kills APIC. (This does not happen on P3
-> > > systems). So the bottleneck most likely is the length of PIT.
-> > 
-> > On these systems, do you disabled APIC (dyntick=noapic)?
-> 
-> Yeah. It only seems to work on P3 systems.
-
-Odd, does reprogramming the APIC at that point get it going again?
-
-	Zwane
-
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

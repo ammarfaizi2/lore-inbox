@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVHINFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbVHINLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbVHINFz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 09:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbVHINFz
+	id S932535AbVHINLd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 09:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVHINLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 09:05:55 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:43476 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S932533AbVHINFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 09:05:54 -0400
-Date: Tue, 9 Aug 2005 09:05:53 -0400
-To: Shaun Jackman <sjackman@gmail.com>
-Cc: debian-boot@lists.debian.org, debian-user@debian.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: SATALink Sil3112 and Linux woes
-Message-ID: <20050809130553.GE6714@csclub.uwaterloo.ca>
-References: <7f45d9390508081645c1afd1c@mail.gmail.com>
+	Tue, 9 Aug 2005 09:11:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:403 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932535AbVHINLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 09:11:33 -0400
+Subject: Re: [PATCH] 2.4.31 O_DIRECT support for ext3
+From: Arjan van de Ven <arjan@infradead.org>
+To: manoj.sharma@wipro.com
+Cc: sct@redhat.com, akpm@zip.com.au, adilger@clusterfs.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <7352E281DE2FDC4E8F29EC48AAE1668C0910CF@blr-m3-msg.wipro.com>
+References: <7352E281DE2FDC4E8F29EC48AAE1668C0910CF@blr-m3-msg.wipro.com>
+Content-Type: text/plain
+Date: Tue, 09 Aug 2005 15:11:17 +0200
+Message-Id: <1123593078.3839.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7f45d9390508081645c1afd1c@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 11:45:22PM +0000, Shaun Jackman wrote:
-> I have a Silicon Image SATALink Sil3112 PCI card connected to two 200
-> GB SATA Seagate drives.  I'm running into many problems with this
-> setup. Is this card well supported under Linux? If it's a black sheep,
-> could someone please recommend a PCI SATA card that works well?
+On Tue, 2005-08-09 at 18:35 +0530, manoj.sharma@wipro.com wrote:
+> Hi,
+> 
+> This is back-port of O_DIRECT support for ext3 from 2.6 to 2.4.31
+> kernel.
+> 
+> Any suggestions/comments ?
 
-There have certainly in the past been known problems with Sil SATA
-controllers and Seagate drives due to both doing something stupid as far
-as I understand it.  It seems this only applies to seagate drives with
-an ide to sata convert onboard rather than a true native sata drive
-(which only very resent models would be).  It also seems only the
-Sil3112 controller has a stupid assumption that upsets the seagate sata
-to ide convertor.
+why?
 
-> I am really having no luck. I would love to...
->   solve the ten-minute boot delay issue
->   replace the Sil3112 with a better supported card
->   use Knoppix to somehow fix my newly installed Debian partition
+personally I think this is way out of scope for a 2.4.x release in this
+phase of 2.4's life.
 
-Well if what I have read about Sil + Seagate is correct, you can either
-replace the drives with drives that follow the SATA standard correctly
-(WD, Maxter, etc) or you can find another supported controller chip and
-get a card using that.
+(also you wrapped your patch)
 
-I have no problem with the Sil3112A myself on an Asus board using WD
-drives.
 
-For me personally it has been simpler to avoid seagate drives than to
-avoid Sil controllers given how often they are used as onboard
-controllers on motherboards.
 
-Len Sorensen

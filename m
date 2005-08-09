@@ -1,106 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbVHIUMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbVHIUNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbVHIUMg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 16:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbVHIUMg
+	id S964909AbVHIUNI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 16:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbVHIUNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 16:12:36 -0400
-Received: from mxsf27.cluster1.charter.net ([209.225.28.227]:27561 "EHLO
-	mxsf27.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S932565AbVHIUMf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 16:12:35 -0400
-X-IronPort-AV: i="3.96,93,1122868800"; 
-   d="scan'208"; a="1423790437:sNHT17542614"
+	Tue, 9 Aug 2005 16:13:08 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:4800 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964909AbVHIUNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 16:13:06 -0400
+Date: Tue, 9 Aug 2005 22:13:00 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Bodo Eggert <7eggert@gmx.de>, LKML <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: Regression: radeonfb: No synchronisation on CRT with linux-2.6.13-rc5
+In-Reply-To: <1123489200.30257.133.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0508092140030.2096@be1.lrz>
+References: <Pine.LNX.4.58.0508040103100.2220@be1.lrz>  <1123195493.30257.75.camel@gaston>
+  <Pine.LNX.4.58.0508051935570.2326@be1.lrz>  <1123401069.30257.102.camel@gaston>
+  <3EF2003B-12DF-4EBB-B304-59614AEFAA09@mac.com>  <Pine.LNX.4.58.0508071921540.3495@be1.lrz>
+  <1123451289.30257.118.camel@gaston>  <Pine.LNX.4.58.0508080158520.7822@be1.lrz>
+ <1123489200.30257.133.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17145.3629.933024.963438@smtp.charter.net>
-Date: Tue, 9 Aug 2005 16:12:29 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: John Stoffel <john@stoffel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
-In-Reply-To: <1123617516.5170.42.camel@mulgrave>
-References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
-	<200508081954.52638.jesper.juhl@gmail.com>
-	<17145.1417.329260.524528@smtp.charter.net>
-	<1123617516.5170.42.camel@mulgrave>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "James" == James Bottomley <James.Bottomley@SteelEye.com> writes:
+On Mon, 8 Aug 2005, Benjamin Herrenschmidt wrote:
+> On Mon, 2005-08-08 at 02:06 +0200, Bodo Eggert wrote:
 
-Thank you for looking into this with me, I really appreciate it.  I'm
-kinda stumped why this suddenly started happening, but it could be
-hardware related of course...
+> > The wrong values are constant across reboots (see my first mail), and I 
+> > have a CRT.
+> > 
+> > Can you tell me where the timing values are read?
+> 
+> radeon_write_mode() programs the mode. The monitor timing infos are read
+> by the various bits of code in radeon_monitor.c
+> 
+> I'd be curious if you could identify what bit of code is misbehaving
 
-James> So basically the problem is on scsi1 with the tape device, which
-James> apparently negotiates only narrow async?
+I added preempt_*able around radeon_probe_i2c_connector, and now I get the 
+output from below and still no sync. Obviously you shouldn't msleep in 
+preempt-disabled code. I'll try voluntary preemption, but that will at 
+best hide the error.
 
-It's not a performance problem, it's a lockup problem.  I use bacula
-to make my backups using the DLT7000 as my media.  But the tape drives
-hangs, it's hung now so that I can't do my backups.
+Maybe I can mess with the msleep()s like thorndike's cat, but any success 
+will be an accident.
 
-James> What do the domain validation messages say about this device?
-James> They should be in dmesg.  I'm fairly certain that DLT tapes do
-James> better than narrow async.
+Aug  9 20:58:26 be1 __mod_timer+0xb4/0x100
+Aug  9 20:58:27 be1  [<c04019b1>] schedule_timeout+0x51/0xa0
+Aug  9 20:58:27 be1  [<c011ff60>] process_timeout+0x0/0x10
+Aug  9 20:58:27 be1  [<c012031f>] msleep+0x2f/0x40
+Aug  9 20:58:27 be1  [<c02a3aca>] radeon_probe_i2c_connector+0xaa/0x320
+Aug  9 20:58:27 be1  [<c02a1da2>] radeon_probe_screens+0x482/0x5d0
+Aug  9 20:58:27 be1  [<c0298689>] radeonfb_pci_register+0x309/0x570
+...
+Aug  9 20:58:27 be1 scheduling while atomic: swapper/0x00000001/1
+Aug  9 20:58:27 be1  [<c0400ed9>] schedule+0x589/0x640
+Aug  9 20:58:27 be1  [<c011f492>] lock_timer_base+0x32/0x70
+Aug  9 20:58:27 be1  [<c011f584>] __mod_timer+0xb4/0x100
+Aug  9 20:58:27 be1  [<c04019b1>] schedule_timeout+0x51/0xa0
+Aug  9 20:58:27 be1  [<c011ff60>] process_timeout+0x0/0x10
+Aug  9 20:58:27 be1  [<c012031f>] msleep+0x2f/0x40
+Aug  9 20:58:27 be1  [<c02a3aca>] radeon_probe_i2c_connector+0xaa/0x320
+Aug  9 20:58:27 be1  [<c02a1da2>] radeon_probe_screens+0x482/0x5d0
+Aug  9 20:58:27 be1  [<c0298689>] radeonfb_pci_register+0x309/0x570
+Aug  9 20:58:27 be1  [<c0281318>] __pci_device_probe+0x48/0x60
 
-The drive should be able to do 10MBytes/sec to the interface, the
-drive itself can only do 5Mbytes/sec to the media, but with 2:1
-compression and an 8MB buffer on the drive, it likes to be fed data as
-quickly as it can.  
 
-Here's the validation results for my two disks and tape drive:
 
-  scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-	  <Adaptec aic7890/91 Ultra2 SCSI adapter>
-	  aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
-
-   target0:0:0: asynchronous.
-    Vendor: COMPAQ    Model: HC01841729        Rev: 3208
-    Type:   Direct-Access                      ANSI SCSI revision: 02
-  scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
-   target0:0:0: Beginning Domain Validation
-   target0:0:0: wide asynchronous.
-   target0:0:0: Domain Validation skipping write tests
-   target0:0:0: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 15)
-   target0:0:0: Ending Domain Validation
-    Vendor: COMPAQ    Model: BD018222CA        Rev: B016
-    Type:   Direct-Access                      ANSI SCSI revision: 02
-   target0:0:1: asynchronous.
-  scsi0:A:1:0: Tagged Queuing enabled.  Depth 32
-   target0:0:1: Beginning Domain Validation
-   target0:0:1: wide asynchronous.
-   target0:0:1: Domain Validation skipping write tests
-   target0:0:1: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 63)
-   target0:0:1: Ending Domain Validation
-  scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-	  <Adaptec aic7880 Ultra SCSI adapter>
-	  aic7880: Ultra Wide Channel A, SCSI Id=7, 16/253 SCBs
-
-    Vendor: SUN       Model: DLT7000           Rev: 1E48
-    Type:   Sequential-Access                  ANSI SCSI revision: 02
-   target1:0:6: asynchronous.
-   target1:0:6: Beginning Domain Validation
-   target1:0:6: wide asynchronous.
-   target1:0:6: Domain Validation skipping write tests
-   target1:0:6: FAST-10 WIDE SCSI 20.0 MB/s ST (100 ns, offset 8)
-   target1:0:6: Ending Domain Validation
-  st: Version 20050501, fixed bufsize 32768, s/g segs 256
-  Attached scsi tape st0 at scsi1, channel 0, id 6, lun 0
-  st0: try direct i/o: yes (alignment 512 B), max page reachable by HBA 1048575
-  SCSI device sda: 35566000 512-byte hdwr sectors (18210 MB)
-  SCSI device sda: drive cache: write through
-  SCSI device sda: 35566000 512-byte hdwr sectors (18210 MB)
-  SCSI device sda: drive cache: write through
-   sda: sda1 sda2 sda3 sda4 < sda5 sda6 >
-  Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-  SCSI device sdb: 35565080 512-byte hdwr sectors (18209 MB)
-  SCSI device sdb: drive cache: write through
-  SCSI device sdb: 35565080 512-byte hdwr sectors (18209 MB)
-  SCSI device sdb: drive cache: write through
-   sdb: sdb1 sdb2 sdb3 sdb4 < sdb5 >
-  Attached scsi disk sdb at scsi0, channel 0, id 1, lun 0
+-- 
+It is still called paranoia when they really are out to get you.

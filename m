@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbVHIHsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbVHIHqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932457AbVHIHsA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 03:48:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVHIHsA
+	id S932459AbVHIHqb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 03:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVHIHqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 03:48:00 -0400
-Received: from sccrmhc11.comcast.net ([63.240.76.21]:37512 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932457AbVHIHsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 03:48:00 -0400
-Message-ID: <42F85FAE.4000504@comcast.net>
-Date: Tue, 09 Aug 2005 00:47:58 -0700
-From: "David C. Young" <dcy665@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: jeffw@cyte.com
-Subject: Re: amd64 cdrom access locks system
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Aug 2005 03:46:31 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:54791 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932226AbVHIHqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 03:46:30 -0400
+To: trond.myklebust@fys.uio.no
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <1123541926.8249.8.camel@lade.trondhjem.org> (message from Trond
+	Myklebust on Mon, 08 Aug 2005 18:58:46 -0400)
+Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
+References: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu> <1123541926.8249.8.camel@lade.trondhjem.org>
+Message-Id: <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 09 Aug 2005 09:46:09 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is in response to Jeff Wiegley () cyte ! com problem with amd64 and 
-ide cdrom.  I tried to contact him directly but the email bounced.  I 
-apologize in advance for using kernel list bandwidth to address this.
+> We've already got a patch that does this, and that I'm queueing up for
+> inclusion.
 
-Jeff,
+Cool!
 
-I have a amd64 running on a Asus board (K8V SE Deluxe) and I have been 
-having problems similar to your cdrom lockups.  The board has on-board 
-IDE/ATA and SATA.  I am only using two SATA drives and one DVD/CD burner 
-on the secondary IDE/ATA connector.
+> http://client.linux-nfs.org/Linux-2.6.x/2.6.12/linux-2.6.12-63-open_file_intents.dif
 
-The system lockups occurred with kde (all the time) and gnome 
-(occasionally).  I killed the haldaemon and went through 2.6.12.[0-3] 
-but I would access, or the haldaemon would access, the cdrom and 
-/dev/hdc would lock up, the system would slow down and occasionally lock 
-up (in particular during cd-burning).  I got logs full of drive busy, 
-drive opcode unknown and drive not ready followed by ATAPI resets.  The 
-situation was better but not fixed completely when I disabled the haldaemon.
+Comments:
 
-I solved my cdrom/ide problem by building a custom kernel.  I haven't 
-gone back to check all the permutations but I continued having problems 
-until I disabled scsi cdrom support.  I left generic scsi and disk 
-support on but once the scsi cdrom support was eliminated the slowdowns 
-and/or lockups went away.  I did get one error message from trying to 
-access past the end of the drive when I tried to mount a blank cd.  Past 
-that, my logs are clean of /dev/hdc problems.
+>  /*
+> + * Open intents have to release any file pointer that was allocated
+> + * but not used by the VFS.
+> + */
+> +void path_release_open_intent(struct nameidata *nd)
+> +{
+> +	if ((nd->flags & LOOKUP_OPEN) && nd->intent.open.file != NULL) {
+> +		fput(nd->intent.open.file);
 
-It seems to me that the ide-ata works fine in burning mode and the 
-generic scsi cdrom support just confuses the issue.  That is only my 
-opinion and I don't profess to be a kernel hack.  I do burn iso images 
-fairly often and my command is:
-	cdrecord dev=/dev/hdc fs=16MB -eject <filename>
+I think you should consider adding this:
 
-Also, I make sure the cpu is running at full speed instead of power 
-saving mode and I run as root for the actual burning.
++		if (!IS_ERR(nd->intent.open.file))
++			fput(nd->intent.open.file);
 
-Hope this helps,
+so the filesystem can delay returning the error from the open
+operation until the other errors have been sorted out by the lookup
+code.
 
-David
+> +		nd->intent.open.file = NULL;
+
+Why is this NULL assignment needed?  nd will not be used after this.
+
+> +	}
+> +	path_release(nd);
+> +}
+> +
+> 
+
+
+
+> As for the "orig flags" thing. What is the point of that?
+
+dentry_open() needs the original open flags, not the transformed ones
+stored in intent.open.flags.
+
+The behavior is slightly strange, since filp_open() calculates
+namei_flags (which gets stored in intent.open.flags) so that an
+O_ACCMODE of 3 is transformed into FMODE_READ | FMODE_WRITE.
+
+But dentry_open() calculates filp->f_mode, so that O_ACCMODE of 3 is
+transformed into zero.
+
+This means that the (undocumented) access mode of 3 will require
+read-write permission, but will allow neither read() nor write() on
+the opened file.
+
+If we want to keep this behavior, then the orig_flags field is needed.
+
+Thanks,
+Miklos

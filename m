@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVHIN1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbVHINgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbVHIN1d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 09:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932538AbVHIN1d
+	id S932539AbVHINgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 09:36:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbVHINgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 09:27:33 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:26287 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S932541AbVHIN1c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 09:27:32 -0400
-Date: Tue, 9 Aug 2005 15:27:26 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: christoph@lameter.com
-Cc: linux-kernel@vger.kernel.org, b.zolnierkiewicz@elka.pw.edu.pl
-Subject: [PATCH] ide-disk oopses on boot
-Message-ID: <20050809132725.GA20397@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 9 Aug 2005 09:36:16 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:63708 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932539AbVHINgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 09:36:15 -0400
+Message-Id: <200508091336.j79DaApl013291@ms-smtp-04.nyroc.rr.com>
+From: "Post Office" <postmaster@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: Mail System Error - Returned Mail
+Date: Tue, 9 Aug 2005 09:35:10 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0004_A13AA0A9.9DF13D1E"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Virus-Scan-Result: Repaired 36021 W32.Mydoom.AZ@mm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Christoph,
-  back in June your '[PATCH] NUMA aware block device control structure 
-allocation' patch went in, changing ide-disk.c's code:
-
--   g = alloc_disk(1 << PARTN_BITS);
-+   g = alloc_disk_node(1 << PARTN_BITS,
-+                       pcibus_to_node(drive->hwif->pci_dev->bus));
-
-  Problem is that pci_dev may be NULL - and it is NULL for example with
-kernel I've just built, with amd IDE driver built as a module while with
-ide-disk built into the kernel.
-
-  I think that you probably want to guard your code by 
-'if (drive->hwif->pci_dev)', as besides my silly configuration mistake 
-also ISA devices have a chance to have pci_dev NULL.  Not that there are 
-any such users if nobody hit it in the last 6 weeks...
-
-  I've just built amd IDE driver into the kernel, where it belongs anyway,
-but just in case please apply this patch...
-						Thanks,
-							Petr Vandrovec
 
 
-Signed-off-by: Petr Vandrovec <vandrove@vc.cvut.cz>
+This is a multi-part message in MIME format.
 
---- linux-2.6.13-rc6-00dd.dist/drivers/ide/ide-disk.c	2005-08-09 13:14:26.000000000 +0200
-+++ linux-2.6.13-rc6-00dd/drivers/ide/ide-disk.c	2005-08-09 15:11:51.000000000 +0200
-@@ -1219,8 +1219,12 @@
- 	if (!idkp)
- 		goto failed;
- 
--	g = alloc_disk_node(1 << PARTN_BITS,
--			pcibus_to_node(drive->hwif->pci_dev->bus));
-+	if (drive->hwif->pci_dev) {
-+		g = alloc_disk_node(1 << PARTN_BITS,
-+				pcibus_to_node(drive->hwif->pci_dev->bus));
-+	} else {
-+		g = alloc_disk(1 << PARTN_BITS);
-+	}
- 	if (!g)
- 		goto out_free_idkp;
- 
+------=_NextPart_000_0004_A13AA0A9.9DF13D1E
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+ALERT!
+
+This e-mail, in its original form, contained one or more attached files that were infected with a virus, worm, or other type of security threat. This e-mail was sent from a Road Runner IP address. As part of our continuing initiative to stop the spread of malicious viruses, Road Runner scans all outbound e-mail attachments. If a virus, worm, or other security threat is found, Road Runner cleans or deletes the infected attachments as necessary, but continues to send the original message content to the recipient. Further information on this initiative can be found at http://help.rr.com/faqs/e_mgsp.html.
+Please be advised that Road Runner does not contact the original sender of the e-mail as part of the scanning process. Road Runner recommends that if the sender is known to you, you contact them directly and advise them of their issue. If you do not know the sender, we advise you to forward this message in its entirety (including full headers) to the Road Runner Abuse Department, at abuse@rr.com.
+
+Your message could not be delivered
+
+
+------=_NextPart_000_0004_A13AA0A9.9DF13D1E
+Content-Type: text/plain;
+	name="DELETED0.TXT"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="DELETED0.TXT"
+
+ZmlsZSBhdHRhY2htZW50OiB0ZXh0LnppcA0KDQpUaGlzIGUtbWFpbCBpbiBpdHMgb3JpZ2lu
+YWwgZm9ybSBjb250YWluZWQgb25lIG9yIG1vcmUgYXR0YWNoZWQgZmlsZXMgdGhhdCB3ZXJl
+IGluZmVjdGVkIHdpdGggdGhlIFczMi5NeWRvb20uQVpAbW0gdmlydXMgb3Igd29ybS4gVGhl
+eSBoYXZlIGJlZW4gcmVtb3ZlZC4NCkZvciBtb3JlIGluZm9ybWF0aW9uIG9uIFJvYWQgUnVu
+bmVyJ3MgdmlydXMgZmlsdGVyaW5nIGluaXRpYXRpdmUsIHZpc2l0IG91ciBIZWxwICYgTWVt
+YmVyIFNlcnZpY2VzIHBhZ2VzIGF0IGh0dHA6Ly9oZWxwLnJyLmNvbSwgb3IgdGhlIHZpcnVz
+IGZpbHRlcmluZyBpbmZvcm1hdGlvbiBwYWdlIGRpcmVjdGx5IGF0IGh0dHA6Ly9oZWxwLnJy
+LmNvbS9mYXFzL2VfbWdzcC5odG1sLiANCg==
+------=_NextPart_000_0004_A13AA0A9.9DF13D1E--
 
 

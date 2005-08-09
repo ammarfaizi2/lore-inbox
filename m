@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVHIM0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbVHIM7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932528AbVHIM0i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 08:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVHIM0i
+	id S932532AbVHIM7z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 08:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbVHIM7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 08:26:38 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:37228 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932528AbVHIM0h convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 08:26:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=heiQSnFc93irnul/x6g+ddMr02eS1d0ac4sv2b2JEbv0W4bNOmVyg9zlW5P5zbAJI0lo2x9Cl2Rfn5fGBZ+uAgR9MH8G2jQAr2Jxmyo+Jg6odb+PyfickJbPKul73erJBOdyWy2swS+812cjKsAcP+Uq4jRKdQgtF+qXRil7aGo=
-Message-ID: <9a87484905080905261885f044@mail.gmail.com>
-Date: Tue, 9 Aug 2005 14:26:33 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Subject: Re: Documentation maintainer?
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <42F85491.5090407@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42F85491.5090407@drzeus.cx>
+	Tue, 9 Aug 2005 08:59:55 -0400
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:39085 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932532AbVHIM7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 08:59:54 -0400
+Date: Tue, 9 Aug 2005 14:59:47 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+cc: 7eggert@gmx.de, hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Posix file attribute support on VFAT
+In-Reply-To: <42F7F998.7080400@sm.sony.co.jp>
+Message-ID: <Pine.LNX.4.58.0508091446330.2164@be1.lrz>
+References: <4zfoZ-5u4-9@gated-at.bofh.it> <E1E2GAN-0003Pj-2l@be1.lrz>
+ <42F7F998.7080400@sm.sony.co.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/9/05, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
-> Who should be cc:d for document additions? It's a brand new document,
-> not updates to an existing one.
+On Tue, 9 Aug 2005, Machida, Hiroyuki wrote:
+> Bodo Eggert wrote:
 
-I don't think there's a central documentation maintainer as such.
+> Please confirm my understanding.
+> You sugessted that symlink should not have ATTR_SYS, to prevent
+> some over 4KB files created in DOS/WIN to be treated as symlinks?
 
-I recently submitted a brand new document myself and added Andrew
-Morton to CC since he's the overall 2.6 maintainer, and Andrew has
-been kind enough to add my document to the -mm tree for starters.
-Hopefully it'll then migrate onto mainline eventually.
+NACK, files longer than 4KB should not be symlinks, and maybe (if you're
+paranoid enough) files without a magic header should not be symlinks, too.
 
-> I sent it out without any cc at all
-> (Subject: [PATCH] ISA DMA API documentation) which got some attention,
-> but not from anyone with the possibility to commit it would seem.
-> 
-> Rgds
-> Pierre
-
+BTW: What about storing short symlinks (strlen(name)+strlen(symlink) < 200)
+in the filename as $name.modified_base64($symlink) and storing the split
+position in ctime? This would reduce the need for data blocks, which may
+be valuable on small devices.
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Keep your hands off strong drink. It can make you shoot at the tax collector
+and miss.
+	-- R.A. Heinlein

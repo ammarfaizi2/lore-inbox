@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbVHIUs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbVHIUtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbVHIUs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 16:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVHIUs4
+	id S964953AbVHIUtm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 16:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbVHIUtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 16:48:56 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:2564 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S964952AbVHIUsz (ORCPT
+	Tue, 9 Aug 2005 16:49:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55532 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964953AbVHIUtl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 16:48:55 -0400
-Date: Tue, 9 Aug 2005 22:48:54 +0200
-From: David Madore <david.madore@ens.fr>
-To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Cc: Valdis.Kletnieks@vt.edu
-Subject: Re: capabilities patch (v 0.1)
-Message-ID: <20050809204854.GA4983@clipper.ens.fr>
-References: <20050809052621.GA7970@clipper.ens.fr> <200508092028.j79KSVYW028307@turing-police.cc.vt.edu>
+	Tue, 9 Aug 2005 16:49:41 -0400
+Date: Tue, 9 Aug 2005 13:49:28 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+Subject: Re: Signal handling possibly wrong
+Message-ID: <20050809204928.GH7991@shell0.pdx.osdl.net>
+References: <42F8EB66.8020002@fujitsu-siemens.com> <1123612016.3167.3.camel@localhost.localdomain> <42F8F6CC.7090709@fujitsu-siemens.com> <1123612789.3167.9.camel@localhost.localdomain> <42F8F98B.3080908@fujitsu-siemens.com> <1123614253.3167.18.camel@localhost.localdomain> <1123615983.18332.194.camel@localhost.localdomain> <42F906EB.6060106@fujitsu-siemens.com> <1123617812.18332.199.camel@localhost.localdomain> <1123618745.18332.204.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200508092028.j79KSVYW028307@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Tue, 09 Aug 2005 22:48:54 +0200 (CEST)
+In-Reply-To: <1123618745.18332.204.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 04:28:31PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 09 Aug 2005 07:26:21 +0200, David Madore said:
-> > * Second, a much more extensive change, the patch introduces a third
-> > set of capabilities for every process, the "bounding" set.  Normally
-> > the bounding set has every capability in it
+* Steven Rostedt (rostedt@goodmis.org) wrote:
+> Where, sa_mask is _ignored_ if NODEFER is set. (I now have woken up!).
+> The attached program shows that the sa_mask is indeed ignored when
+> SA_NODEFER is set.
 > 
-> How is this different in semantics from the existing 'permitted' capset?
+> Now the real question is... Is this a bug?
 
-The permitted sets is a set of capabilities really available to the
-process (though they may be temporarily dropped by removing them from
-the effective set, they are still available to take back).  In
-contrast, the bounding set capabilities are not readily available to
-the process; it just means that the capabilities in question *might*
-be acquired by running a suid program (or setcap program if filesystem
-support for capabilities ever comes to Linux).
+That's not correct w.r.t. SUSv3.  sa_mask should be always used and
+SA_NODEFER is just whether or not to add that signal in.
 
-Currently this is more or less an all-or-nothing process: since
-capabilities can only be acquired by running a suid program, removing
-any capability from the bounding set means the program will never be
-permitted to execute a suid program any more (execve() will fail with
-EPERM).  But maybe I'll reinstate the CAP_SETPCAP thing in some future
-version of the patch (I'm still waiting for someone to tell me what
-was wrong with CAP_SETPCAP and why it was removed), and then the
-bounding set should also prohibit capabilities being given through
-that interface.
+SA_NODEFER
+    [XSI] If set and sig is caught, sig shall not be added to the thread's
+    signal mask on entry to the signal handler unless it is included in
+    sa_mask. Otherwise, sig shall always be added to the thread's signal
+    mask on entry to the signal handler.
 
-The bottom line is: if you have some untrusted process, it might be
-wise to remove empty its bounding set, making it incapable of
-executing a suid root program and thus acquiring new capabilities.  (I
-also plan to add some normally-available-to-all capabilities such as
-"permission to fork()", "permission to exec()" and so on, and then it
-will also be useful to remove these from a process's permitted set.)
+Brodo, is this what you mean?
 
-> include/linux/capabilities.h:
-> 
-> typedef struct __user_cap_data_struct {
->         __u32 effective;
->         __u32 permitted;
->         __u32 inheritable;
-> } __user *cap_user_data_t;
-> 
+thanks,
+-chris
+--
 
-And my patch adds a __u32 bounding to that structure.
+Subject: [PATCH] fix SA_NODEFER signals to honor sa_mask
 
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+When receiving SA_NODEFER signal, kernel was inapproriately not applying
+the sa_mask.  As pointed out by Brodo Stroesser.
+
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+---
+
+diff --git a/arch/i386/kernel/signal.c b/arch/i386/kernel/signal.c
+--- a/arch/i386/kernel/signal.c
++++ b/arch/i386/kernel/signal.c
+@@ -577,13 +577,12 @@ handle_signal(unsigned long sig, siginfo
+ 	else
+ 		ret = setup_frame(sig, ka, oldset, regs);
+ 
+-	if (ret && !(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (ret && !(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ 
+ 	return ret;
+ }

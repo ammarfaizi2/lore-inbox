@@ -1,67 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbVHIJ2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVHIJ3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbVHIJ2o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 05:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVHIJ2o
+	id S932483AbVHIJ3m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 05:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVHIJ3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 05:28:44 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:22918 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932482AbVHIJ2n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 05:28:43 -0400
-Message-ID: <42F87730.5030804@gmail.com>
-Date: Tue, 09 Aug 2005 11:28:16 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: cs, en-us, en
+	Tue, 9 Aug 2005 05:29:41 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:30848 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932483AbVHIJ3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 05:29:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=D2a1bNH3dwS047/gFuCLeENgJJZ0hWzjlVv9ZySkT5XCf5BaD/dG845nUvRnL8hXlF3HoRrBxVtW04s1OoWBs5xb6eXNWInMPZnro1i3DxaRRWANea9h1gan6BO3AxPxGoW/kQtWfBjas7ONCD42LDld1tOgA+1LHaM62VlIUzk=  ;
+Message-ID: <42F8777A.2090609@yahoo.com.au>
+Date: Tue, 09 Aug 2005 19:29:30 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH -mm] removes pci_find_device from i6300esb.c
-References: <42F73523.80205@gmail.com>	<200508082355.j78NtGNS029681@wscnet.wsc.cz> <20050808233429.36e6ebd5.akpm@osdl.org>
-In-Reply-To: <20050808233429.36e6ebd5.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: ncunningham@cyclades.com, Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+References: <42F57FCA.9040805@yahoo.com.au> <200508090710.00637.phillips@arcor.de> <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au> <20050809080853.A25492@flint.arm.linux.org.uk>
+In-Reply-To: <20050809080853.A25492@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton napsal(a):
+Russell King wrote:
+> On Tue, Aug 09, 2005 at 02:59:53PM +1000, Nick Piggin wrote:
+> 
+>>That would work for swsusp, but there are other users that want to
+>>know if a struct page is valid ram (eg. ioremap), so in that case
+>>swsusp would not be able to mess with the flag.
+> 
+> 
+> The usage of "valid ram" here is confusing - that's not what PageReserved
+> is all about.  It's about valid RAM which is managed by method other
+> than the usual page counting.  Non-reserved RAM is also valid RAM, but
+> is managed by the kernel in the usual way.
+> 
 
->Jiri Slaby <jirislaby@gmail.com> wrote:
->  
->
->>--- a/drivers/char/watchdog/i6300esb.c
->> +++ b/drivers/char/watchdog/i6300esb.c
->> @@ -368,12 +368,11 @@ static unsigned char __init esb_getdevic
->>           *      Find the PCI device
->>           */
->>  
->> -        while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
->> +        for_each_pci_dev(dev)
->>                  if (pci_match_id(esb_pci_tbl, dev)) {
->>                          esb_pci = dev;
->>                          break;
->>                  }
->> -        }
->>  
->>          if (esb_pci) {
->>          	if (pci_enable_device(esb_pci)) {
->> @@ -430,6 +429,7 @@ err_release:
->>  		pci_release_region(esb_pci, 0);
->>  err_disable:
->>  		pci_disable_device(esb_pci);
->> +		pci_dev_put(esb_pci);
->>    
->>
->
->That doesn't look right.  Each iteration of for_each_pci_dev() needs a
->pci_dev_put(), not just the final one.
->  
->
-But pci_get_device do it for us on pci_get_subsys, line 249, doesn't it?
+Well that is one usage of the PageReserved flag. That one tends
+to be easily covered by VM_RESERVED (ie. it is no longer used that
+way after the patches).
+
+The remaining problem is, in fact, these "other" uses of PageReserved.
+One usage definitely appears to be "is this page valid RAM?".
+
+> The former is available for remap_pfn_range and ioremap, the latter is
+> not.
+> 
+
+I thought ioremap was attempting to avoid remapping physical
+RAM with that check. All drivers I have looked at which allocate
+physical memory then SetPageReserved the pages use remap_pfn_range
+but I admit that's not a huge number (that I have looked at).
+
+> On the other hand, the validity of an apparant RAM address can only be
+> tested using its pfn with pfn_valid().
+> 
+
+I'm fairly sure that's not the case on i386 at least. I think
+pfn_valid will be true if the pfn points to a struct page.
+See arch/i386/mm/init.c:one_highpage_init()
+
+> Can we straighten out the terminology so it's less confusing please?
+> 
+
+That's what I'm aiming for. I admit it is confusing and I haven't
+looked at all drivers or architectures, so if I'm missing a vital
+clue then I wouldn't be too surprised ;)
+
+Nick
 
 -- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+SUSE Labs, Novell Inc.
 
+Send instant messages to your online friends http://au.messenger.yahoo.com 

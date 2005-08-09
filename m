@@ -1,65 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbVHIQj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVHIQkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbVHIQj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 12:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVHIQj4
+	id S964875AbVHIQkh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 12:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbVHIQkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 12:39:56 -0400
-Received: from emulex.emulex.com ([138.239.112.1]:22771 "EHLO
-	emulex.emulex.com") by vger.kernel.org with ESMTP id S964873AbVHIQjz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 12:39:55 -0400
-From: James.Smart@Emulex.Com
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Subject: FW: [PATCH] shorten workqueue name length
-Date: Tue, 9 Aug 2005 12:39:51 -0400
-Message-ID: <9BB4DECD4CFE6D43AA8EA8D768ED51C20F437F@xbl3.ma.emulex.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] shorten workqueue name length
-Thread-Index: AcWc//bIWV9qtzH+RlaHsed5EZUDrgAAL9aA
-To: <linux-kernel@vger.kernel.org>
+	Tue, 9 Aug 2005 12:40:36 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:31495 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S964874AbVHIQkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 12:40:35 -0400
+To: trond.myklebust@fys.uio.no
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <1123594460.8245.15.camel@lade.trondhjem.org> (message from Trond
+	Myklebust on Tue, 09 Aug 2005 09:34:20 -0400)
+Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
+References: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
+	 <1123541926.8249.8.camel@lade.trondhjem.org>
+	 <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu> <1123594460.8245.15.camel@lade.trondhjem.org>
+Message-Id: <E1E2X9A-0007Uk-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 09 Aug 2005 18:40:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone give some history on why the workqueue name length is
-limited to 10 characters ?  Can it be raised ? and if so to what limit ?
+> Intents are meant as optimisations, not replacements for existing
+> operations. I'm therefore not really comfortable about having them
+> return errors at all.
 
--- James S
+In my case they are not an optimization, rather the only way to
+correctly perform an open with O_CREAT.
 
------Original Message-----
-From: linux-scsi-owner@vger.kernel.org
-[mailto:linux-scsi-owner@vger.kernel.org]On Behalf Of Christoph Hellwig
-Sent: Tuesday, August 09, 2005 12:32 PM
-To: Smart, James
-Cc: linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] shorten workqueue name length
-
-
-On Tue, Aug 09, 2005 at 12:07:12PM -0400, James.Smart@Emulex.Com wrote:
-> A customer passed this fix to me...
+> > > +		nd->intent.open.file = NULL;
+> > 
+> > Why is this NULL assignment needed?  nd will not be used after this.
+> > 
+> > > +	}
+> > > +	path_release(nd);
+> > > +}
+> > > +
+> > > 
 > 
-> In a system with double-digit adapter counts, after a few
-> rmmod/insmod attempts, the system oops. It always occurs when
-> the scsi host number reaches 100.
-> 
-> What is happening is that scsi_add_host() detects a transport that
-> needs to allocate a workqueue, thus calls create_singlethread_workqueue().
-> It hits a BUG_ON() in kernel/workqueue.c:__create_workqueue() which
-> ensures the length of the name for the workqueue is 10 characters or less.
-> As the name is "scsi_wq_100", we have exceeded the 10 character max.
-> 
-> I assume there's good reason for the name to be 10 or less. So what I've
-> done is shorten the name for the workqueue. Should work until the host number
-> reaches 10000.
+> It could be dropped. The reason for putting it in is that some parts of
+> the VFS may restart a path walk operation if it fails (see for instance
+> the ESTALE handling).
 
-I'd suggest just killing that limit in workqueue.c
+If you use the nameidata after path_release_open_intent(), you're
+screwed anyway, since nd->mnt and nd->dentry have already been
+released.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If there's any chance that the path walk restart thing will invoke the
+filesystems open code twice (I doubt it), then the filesystem must
+make sure to check intent.open.file, whether it has already been set,
+and fput() it before setting it another time.
+
+> Why do we want to keep this behaviour? It is undocumented, it is
+> non-posix, and it appears to do nothing you cannot do with the existing
+> access() call.
+> 
+> Are there any applications using it? If so, which ones, and why?
+
+I have absolutely no idea. 
+
+Looking closer, there's a problem with O_TRUNC as well:
+
+	namei_flags = flags;
+	if ((namei_flags+1) & O_ACCMODE)
+		namei_flags++;
+	if (namei_flags & O_TRUNC)
+		namei_flags |= 2;
+
+So if flags is O_RDONLY|O_TRUNC, intent.open.flags will be
+FMODE_WRITE|FMODE_READ|O_TRUNC, but filp->f_mode will be FMODE_READ.
+
+This is also undocumented (or rather documented to be undefined), but
+the behavior is perfectly logical, and I can imagine some application
+relying on it.
+
+Miklos
+
+

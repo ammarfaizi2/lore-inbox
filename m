@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbVHIVTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVHIVZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964979AbVHIVTk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 17:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbVHIVTk
+	id S964981AbVHIVZs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 17:25:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVHIVZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 17:19:40 -0400
-Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:26380 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S964979AbVHIVTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 17:19:39 -0400
-To: trond.myklebust@fys.uio.no
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1123621890.8245.211.camel@lade.trondhjem.org> (message from
-	Trond Myklebust on Tue, 09 Aug 2005 17:11:30 -0400)
-Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
-References: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
-	 <1123541926.8249.8.camel@lade.trondhjem.org>
-	 <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu>
-	 <1123594460.8245.15.camel@lade.trondhjem.org>
-	 <E1E2X9A-0007Uk-00@dorka.pomaz.szeredi.hu>
-	 <1123607889.8245.107.camel@lade.trondhjem.org>
-	 <E1E2Y92-0007Zv-00@dorka.pomaz.szeredi.hu>
-	 <1123612734.8245.150.camel@lade.trondhjem.org>
-	 <E1E2aw6-0007oY-00@dorka.pomaz.szeredi.hu> <1123621890.8245.211.camel@lade.trondhjem.org>
-Message-Id: <E1E2bVT-0007tW-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 09 Aug 2005 23:19:31 +0200
+	Tue, 9 Aug 2005 17:25:48 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:28622 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964981AbVHIVZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 17:25:47 -0400
+Date: Tue, 9 Aug 2005 16:25:39 -0500
+From: Greg Howard <ghoward@sgi.com>
+X-X-Sender: ghoward@gallifrey.americas.sgi.com
+To: Christoph Hellwig <hch@lst.de>
+cc: davem@davemloft.net, LKML <linux-kernel@vger.kernel.org>,
+       Aaron Young <ayoung@sgi.com>
+Subject: Re: Standardize shutdown of the system from enviroment control
+ modules
+In-Reply-To: <20050809211003.GA29361@lst.de>
+Message-ID: <Pine.SGI.4.58.0508091619180.19699@gallifrey.americas.sgi.com>
+References: <20050809211003.GA29361@lst.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Really?
-> 
-> static int __emul_lookup_dentry(const char *name, struct nameidata *nd)
-> {
-> 		.....
-> 		if (path_walk(name, nd) == 0) {
-> 			if (nd->dentry->d_inode) {
-> 				dput(old_dentry);
-> 				mntput(old_mnt);
-> 				return 1;
-> 			}
-> 			path_release(nd);
-> 		}
-> 		nd->dentry = old_dentry;
-> 		nd->mnt = old_mnt;
-> 		nd->last = last;
-> 		nd->last_type = last_type;
-> 	}
-> 	return 1;
-> }
 
-I see what you are getting at.  But notice, that every (relevant)
-field of nameidata is reinitialized, except nd->flags, which is
-_obviously_ not changed by either path_walk() or path_release().
+On Tue, 9 Aug 2005, Christoph Hellwig wrote:
 
-So your argument doesn't hold.
+> Currently snsc_event for Altix systems sends SIGPWR to init (and abuses
+> tasklist_lock..) while the sbus drivers call execve for /sbin/shutdown
+> (which is also ugly, it should at least use call_usermodehelper)
+> With normal sysvinit both will end up the same, but I suspect the
+> shutdown variant, maybe with a sysctl to chose the exact path to call
+> would be cleaner.  What do you guys think about adding a common function
+> to do this.
 
-You basically argue, that intent.open.file must be zeroed, because
-someone might call path_release_open_intent() twice, which very
-obviously does not make any sense, unless it does some magic like the
-above (which it should not), in which case it might as well be aware,
-that it has to save/restore the intent.open.file field as well.
+Sounds reasonable to me.  I'll copy Aaron Young, who I think
+actually wrote the code to send the SIGPWR, in case he had a Good
+Reason for doing it this way.  (Aaron, if I'm remembering wrong
+and you're not the guy who wrote this, let me know...)
 
-> Currently, yes. The only caller of open_namei() is filp_open(). That was
-> not always the case previously.
-> 
-> If we think it will never be the case in the future, then there is an
-> argument for merging the two and/or making open_namei() and inlined
-> function.
+> Could you test such a patch for me?
 
-Yes, that would make sense.
+Sure.  I'll need to get hold of some hardware/firmware that will
+reproduce a critical environmental situation...  Might take a
+litte while...
 
-Miklos
+Thanks
+
+--
+Greg Howard, MTS - Core Platform SW     MS 10-1-061
+SGI - Silicon Graphics Inc.             2750 Blue Water Road
+ghoward@sgi.com                         Eagan, MN  55121
+
++--------------------------------------------------------------------+
+  "This assignment has two parts: a hard part, and an easy part.  Do
+   the easy part first; you might learn something that will help you
+   on the hard part.  Or, maybe you'll go outside for a walk before
+   you start the hard part, and get hit by a truck!"
+                                        - Dr. Jeffrey W. Smith
++--------------------------------------------------------------------+

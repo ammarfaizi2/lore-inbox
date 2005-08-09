@@ -1,90 +1,255 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbVHIXYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVHIXXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbVHIXYf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 19:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVHIXYf
+	id S932191AbVHIXXg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 19:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVHIXXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 19:24:35 -0400
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:2986 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S932286AbVHIXYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 19:24:34 -0400
-Subject: Re: [PATCH] Custom IORESOURCE Class
-From: Matthew Gilbert <mgilbert@mvista.com>
-To: Kumar Gala <kumar.gala@freescale.com>
-Cc: Adam Belay <ambx1@neo.rr.com>, Greg KH <greg@kroah.com>,
-       rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <7A8D4849-AE31-4F22-BA00-6C2B66CC833D@freescale.com>
-References: <20050808231714.GB7276@neo.rr.com>
-	 <7A8D4849-AE31-4F22-BA00-6C2B66CC833D@freescale.com>
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 16:24:39 -0700
-Message-Id: <1123629879.7951.66.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Tue, 9 Aug 2005 19:23:36 -0400
+Received: from smtp.istop.com ([66.11.167.126]:50581 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S932191AbVHIXXf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 19:23:35 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [RFC][PATCH] Rename PageChecked as PageMiscFS
+Date: Wed, 10 Aug 2005 09:23:55 +1000
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <42F57FCA.9040805@yahoo.com.au> <200508090724.30962.phillips@arcor.de> <20050808145430.15394c3c.akpm@osdl.org>
+In-Reply-To: <20050808145430.15394c3c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508100923.55749.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-08 at 23:23 -0500, Kumar Gala wrote:
-> On Aug 8, 2005, at 6:17 PM, Adam Belay wrote:
-> 
-> > On Mon, Aug 08, 2005 at 09:00:21AM -0700, Greg KH wrote:
+On Tuesday 09 August 2005 07:54, Andrew Morton wrote:
+> Daniel Phillips <phillips@arcor.de> wrote:
+> > > Suggestion for your next act:
 > >
-> >> On Mon, Aug 08, 2005 at 11:11:45AM -0700, Matthew Gilbert wrote:
-> >>
-> >>> Below is a patch that adds an additional resource class to the
-> >>>
-> > platform
-> >
-> >>> resource types. This is to support additional resources that need to
-> >>>
-> > be passed
-> >
-> >>> to drivers without overloading the existing specific types. In my
-> >>>
-> > case, I need
-> >
-> >>> to send clock information to the driver to enable power management.
-> >>>
-> >>> Signed-off-by: Matthew Gilbert <mgilbert@mvista.com>
-> >>>
-> >>
-> >> Hm, you do realize that Pat's no longer the driver core maintainer?
-> >>
-> > :)
-> >
-> >>
-> >> Anyway, Russell and Adam, any objections to this patch?
-> >>
-> >
-> > I'm not sure if I agree with this patch.  "struct resource" is used
-> > primarily for
-> > I/O resource assignment.  Although I agree we may need to add new
-> > IORESOURCE types,
-> > I'm not sure if clock data belongs here.  I don't think "start" and
-> > "end" would be
-> > useful for most platform data.  Could you provide more information  
-> > about
-> > this
-> > specific issue and resource type?  Maybe we could create a new sysfs
-> > attribute?
-> 
-> I would also like to understand more about what the need is here.  We  
-> have clock data and such but use platform_data for it.
+> > ...kill PG_checked please :)  Or at least keep it from spreading.
+>
+> It already spread - ext3 is using it and I think reiser4.  I thought I had
+> a patch to rename it to PG_misc1 or somesuch, but no.
 
-I am using IORESOURCE_MEM to pass in the base addresses of the necessary
-clock registers. I also need to pass a fractional divider clk id. The
-resource table seemed appropriate because the base addresses and the
-divider id are closely related. Its also a great framework for enabling
-varying resource lists. Currently I don't use this, but in the future I
-may. Its possible in a future board revision there may not be a
-fractional divider available. The resource framework makes querying for
-the clk id very straight forward as opposed to magic values in a struct
-I pass through platform_data. 
+How about this one?
 
-It can easily be moved to platform_data (or split between the two) if
-that is more appropriate. Thanks for the feedback. _matt
+This filesystem-specific flag needs to be prevented from escaping into other
+subsystems that might interact, such as VM.  The current usage is exclusively
+for directories, except for Reiser4, which uses it for journalling.
 
+Signed-off-by: Daniel Phillips <phillips@istop.com>
+
+diff -up --recursive 2.6.13-rc5-mm1.clean/fs/afs/dir.c 2.6.13-rc5-mm1/fs/afs/dir.c
+--- 2.6.13-rc5-mm1.clean/fs/afs/dir.c	2005-06-17 15:48:29.000000000 -0400
++++ 2.6.13-rc5-mm1/fs/afs/dir.c	2005-08-09 18:59:49.000000000 -0400
+@@ -155,11 +155,11 @@ static inline void afs_dir_check_page(st
+ 		}
+ 	}
+ 
+-	SetPageChecked(page);
++	SetPageMiscFS(page);
+ 	return;
+ 
+  error:
+-	SetPageChecked(page);
++	SetPageMiscFS(page);
+ 	SetPageError(page);
+ 
+ } /* end afs_dir_check_page() */
+@@ -193,7 +193,7 @@ static struct page *afs_dir_get_page(str
+ 		kmap(page);
+ 		if (!PageUptodate(page))
+ 			goto fail;
+-		if (!PageChecked(page))
++		if (!PageMiscFS(page))
+ 			afs_dir_check_page(dir, page);
+ 		if (PageError(page))
+ 			goto fail;
+diff -up --recursive 2.6.13-rc5-mm1.clean/fs/ext2/dir.c 2.6.13-rc5-mm1/fs/ext2/dir.c
+--- 2.6.13-rc5-mm1.clean/fs/ext2/dir.c	2005-06-17 15:48:29.000000000 -0400
++++ 2.6.13-rc5-mm1/fs/ext2/dir.c	2005-08-09 18:59:51.000000000 -0400
+@@ -112,7 +112,7 @@ static void ext2_check_page(struct page 
+ 	if (offs != limit)
+ 		goto Eend;
+ out:
+-	SetPageChecked(page);
++	SetPageMiscFS(page);
+ 	return;
+ 
+ 	/* Too bad, we had an error */
+@@ -152,7 +152,7 @@ Eend:
+ 		dir->i_ino, (page->index<<PAGE_CACHE_SHIFT)+offs,
+ 		(unsigned long) le32_to_cpu(p->inode));
+ fail:
+-	SetPageChecked(page);
++	SetPageMiscFS(page);
+ 	SetPageError(page);
+ }
+ 
+@@ -166,7 +166,7 @@ static struct page * ext2_get_page(struc
+ 		kmap(page);
+ 		if (!PageUptodate(page))
+ 			goto fail;
+-		if (!PageChecked(page))
++		if (!PageMiscFS(page))
+ 			ext2_check_page(page);
+ 		if (PageError(page))
+ 			goto fail;
+diff -up --recursive 2.6.13-rc5-mm1.clean/fs/ext3/inode.c 2.6.13-rc5-mm1/fs/ext3/inode.c
+--- 2.6.13-rc5-mm1.clean/fs/ext3/inode.c	2005-08-09 18:23:30.000000000 -0400
++++ 2.6.13-rc5-mm1/fs/ext3/inode.c	2005-08-09 18:59:53.000000000 -0400
+@@ -1369,12 +1369,12 @@ static int ext3_journalled_writepage(str
+ 		goto no_write;
+ 	}
+ 
+-	if (!page_has_buffers(page) || PageChecked(page)) {
++	if (!page_has_buffers(page) || PageMiscFS(page)) {
+ 		/*
+ 		 * It's mmapped pagecache.  Add buffers and journal it.  There
+ 		 * doesn't seem much point in redirtying the page here.
+ 		 */
+-		ClearPageChecked(page);
++		ClearPageMiscFS(page);
+ 		ret = block_prepare_write(page, 0, PAGE_CACHE_SIZE,
+ 					ext3_get_block);
+ 		if (ret != 0)
+@@ -1429,7 +1429,7 @@ static int ext3_invalidatepage(struct pa
+ 	 * If it's a full truncate we just forget about the pending dirtying
+ 	 */
+ 	if (offset == 0)
+-		ClearPageChecked(page);
++		ClearPageMiscFS(page);
+ 
+ 	return journal_invalidatepage(journal, page, offset);
+ }
+@@ -1438,7 +1438,7 @@ static int ext3_releasepage(struct page 
+ {
+ 	journal_t *journal = EXT3_JOURNAL(page->mapping->host);
+ 
+-	WARN_ON(PageChecked(page));
++	WARN_ON(PageMiscFS(page));
+ 	if (!page_has_buffers(page))
+ 		return 0;
+ 	return journal_try_to_free_buffers(journal, page, wait);
+@@ -1535,7 +1535,7 @@ out:
+  */
+ static int ext3_journalled_set_page_dirty(struct page *page)
+ {
+-	SetPageChecked(page);
++	SetPageMiscFS(page);
+ 	return __set_page_dirty_nobuffers(page);
+ }
+ 
+diff -up --recursive 2.6.13-rc5-mm1.clean/fs/freevxfs/vxfs_subr.c 2.6.13-rc5-mm1/fs/freevxfs/vxfs_subr.c
+--- 2.6.13-rc5-mm1.clean/fs/freevxfs/vxfs_subr.c	2005-08-09 18:23:11.000000000 -0400
++++ 2.6.13-rc5-mm1/fs/freevxfs/vxfs_subr.c	2005-08-09 18:59:54.000000000 -0400
+@@ -79,7 +79,7 @@ vxfs_get_page(struct address_space *mapp
+ 		kmap(pp);
+ 		if (!PageUptodate(pp))
+ 			goto fail;
+-		/** if (!PageChecked(pp)) **/
++		/** if (!PageMiscFS(pp)) **/
+ 			/** vxfs_check_page(pp); **/
+ 		if (PageError(pp))
+ 			goto fail;
+diff -up --recursive 2.6.13-rc5-mm1.clean/fs/reiser4/page_cache.c 2.6.13-rc5-mm1/fs/reiser4/page_cache.c
+--- 2.6.13-rc5-mm1.clean/fs/reiser4/page_cache.c	2005-08-09 18:23:30.000000000 -0400
++++ 2.6.13-rc5-mm1/fs/reiser4/page_cache.c	2005-08-09 18:59:58.000000000 -0400
+@@ -754,7 +754,7 @@ print_page(const char *prefix, struct pa
+ 	       page_flag_name(page, PG_lru),
+ 	       page_flag_name(page, PG_slab),
+ 
+-	       page_flag_name(page, PG_checked),
++	       page_flag_name(page, PG_miscfs),
+ 	       page_flag_name(page, PG_reserved),
+ 	       page_flag_name(page, PG_private), page_flag_name(page, PG_writeback), page_flag_name(page, PG_nosave));
+ 	if (jprivate(page) != NULL) {
+diff -up --recursive 2.6.13-rc5-mm1.clean/fs/reiserfs/inode.c 2.6.13-rc5-mm1/fs/reiserfs/inode.c
+--- 2.6.13-rc5-mm1.clean/fs/reiserfs/inode.c	2005-08-09 18:23:31.000000000 -0400
++++ 2.6.13-rc5-mm1/fs/reiserfs/inode.c	2005-08-09 19:00:02.000000000 -0400
+@@ -2347,7 +2347,7 @@ static int reiserfs_write_full_page(stru
+ 	struct buffer_head *head, *bh;
+ 	int partial = 0;
+ 	int nr = 0;
+-	int checked = PageChecked(page);
++	int checked = PageMiscFS(page);
+ 	struct reiserfs_transaction_handle th;
+ 	struct super_block *s = inode->i_sb;
+ 	int bh_per_page = PAGE_CACHE_SIZE / s->s_blocksize;
+@@ -2409,7 +2409,7 @@ static int reiserfs_write_full_page(stru
+ 	 * blocks we're going to log
+ 	 */
+ 	if (checked) {
+-		ClearPageChecked(page);
++		ClearPageMiscFS(page);
+ 		reiserfs_write_lock(s);
+ 		error = journal_begin(&th, s, bh_per_page + 1);
+ 		if (error) {
+@@ -2790,7 +2790,7 @@ static int reiserfs_invalidatepage(struc
+ 	BUG_ON(!PageLocked(page));
+ 
+ 	if (offset == 0)
+-		ClearPageChecked(page);
++		ClearPageMiscFS(page);
+ 
+ 	if (!page_has_buffers(page))
+ 		goto out;
+@@ -2829,7 +2829,7 @@ static int reiserfs_set_page_dirty(struc
+ {
+ 	struct inode *inode = page->mapping->host;
+ 	if (reiserfs_file_data_log(inode)) {
+-		SetPageChecked(page);
++		SetPageMiscFS(page);
+ 		return __set_page_dirty_nobuffers(page);
+ 	}
+ 	return __set_page_dirty_buffers(page);
+@@ -2852,7 +2852,7 @@ static int reiserfs_releasepage(struct p
+ 	struct buffer_head *bh;
+ 	int ret = 1;
+ 
+-	WARN_ON(PageChecked(page));
++	WARN_ON(PageMiscFS(page));
+ 	spin_lock(&j->j_dirty_buffers_lock);
+ 	head = page_buffers(page);
+ 	bh = head;
+diff -up --recursive 2.6.13-rc5-mm1.clean/include/linux/page-flags.h 2.6.13-rc5-mm1/include/linux/page-flags.h
+--- 2.6.13-rc5-mm1.clean/include/linux/page-flags.h	2005-08-09 18:23:31.000000000 -0400
++++ 2.6.13-rc5-mm1/include/linux/page-flags.h	2005-08-09 18:59:57.000000000 -0400
+@@ -61,7 +61,7 @@
+ #define PG_active		 6
+ #define PG_slab			 7	/* slab debug (Suparna wants this) */
+ 
+-#define PG_checked		 8	/* kill me in 2.5.<early>. */
++#define PG_miscfs		 8	/* kill me in 2.5.<early>. */
+ #define PG_fs_misc		 8
+ #define PG_arch_1		 9
+ #define PG_reserved		10
+@@ -227,9 +227,9 @@ extern void __mod_page_state(unsigned lo
+ #define PageHighMem(page)	0 /* needed to optimize away at compile time */
+ #endif
+ 
+-#define PageChecked(page)	test_bit(PG_checked, &(page)->flags)
+-#define SetPageChecked(page)	set_bit(PG_checked, &(page)->flags)
+-#define ClearPageChecked(page)	clear_bit(PG_checked, &(page)->flags)
++#define PageMiscFS(page)	test_bit(PG_miscfs, &(page)->flags)
++#define SetPageMiscFS(page)	set_bit(PG_miscfs, &(page)->flags)
++#define ClearPageMiscFS(page)	clear_bit(PG_miscfs, &(page)->flags)
+ 
+ #define PageReserved(page)	test_bit(PG_reserved, &(page)->flags)
+ #define SetPageReserved(page)	set_bit(PG_reserved, &(page)->flags)
+diff -up --recursive 2.6.13-rc5-mm1.clean/mm/page_alloc.c 2.6.13-rc5-mm1/mm/page_alloc.c
+--- 2.6.13-rc5-mm1.clean/mm/page_alloc.c	2005-08-09 18:23:31.000000000 -0400
++++ 2.6.13-rc5-mm1/mm/page_alloc.c	2005-08-09 18:59:48.000000000 -0400
+@@ -458,7 +458,7 @@ static void prep_new_page(struct page *p
+ 
+ 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
+ 			1 << PG_referenced | 1 << PG_arch_1 |
+-			1 << PG_checked | 1 << PG_mappedtodisk);
++			1 << PG_miscfs | 1 << PG_mappedtodisk);
+ 	page->private = 0;
+ 	set_page_refs(page, order);
+ 	kernel_map_pages(page, 1 << order, 1);

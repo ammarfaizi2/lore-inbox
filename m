@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbVHIHyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVHIH7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbVHIHyS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 03:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVHIHyS
+	id S932463AbVHIH7D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 03:59:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbVHIH7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 03:54:18 -0400
-Received: from burnt-tech.com ([66.98.218.53]:31451 "HELO burntmail.com")
-	by vger.kernel.org with SMTP id S932462AbVHIHyS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 03:54:18 -0400
-From: "vinay" <vinays@burntmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: vinays@burntmail.com
-Importance: Normal
-Sensitivity: Normal
-Message-ID: <W74008295030461123574049@burntmail>
-X-Mailer: Mintersoft VisualMail, Build 4.0.111601
-X-Originating-IP: [203.200.200.70]
-Date: Tue, 09 Aug 2005 07:54:09 +0000
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Tue, 9 Aug 2005 03:59:03 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:8632 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S932463AbVHIH7B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 03:59:01 -0400
+Date: Tue, 9 Aug 2005 09:59:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
+       cpufreq@lists.linux.org.uk
+Subject: Re: PowerOP 2/3: Intel Centrino support
+Message-ID: <20050809075919.GA18309@elte.hu>
+References: <20050809025419.GC25064@slurryseal.ddns.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050809025419.GC25064@slurryseal.ddns.mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
 
-I have a problem with linux kernel's Out Of Memory (OOM) killer.
-I wanted to know, is there any way that we can force OOM killer to send a signal other than SIGKILL to kill a process when ever OOM detects a system memory crunch. 
-Actually I have an application that is getting killed by OOM killer when the 
-system runs out of memory. It seems like OOM killer is sending SIGKILL to the 
-process. As SIGKILL cannot be caught by a process, my application is exiting 
-without doing proper cleanup. 
-    Is there any way that we can force OOM killer to send a signal other than
-SIGKILL ? So that my application can call the signal handler and do proper cleanup before exiting. 
+* Todd Poynor <tpoynor@mvista.com> wrote:
 
-I searched through Google and came acorss some solution -
-Like setting the capability of a process to CAP_SYS_RAWIO will force the OOM killer to send SIGTERM. I tried to set the capability of my application to CAP_SYS_RAWIO using capset() system call, but still then OOM killer is sending SIGKILL. 
+> +static int
+> +powerop_centrino_get_point(struct powerop_point *point)
+> +{
+> +	unsigned l, h;
+> +	unsigned cpu_freq;
+> +
+> +	rdmsr(MSR_IA32_PERF_STATUS, l, h);
+> +	if (unlikely((cpu_freq = ((l >> 8) & 0xff) * 100) == 0)) {
+> +		/*
+> +		 * On some CPUs, we can see transient MSR values (which are
+> +		 * not present in _PSS), while CPU is doing some automatic
+> +		 * P-state transition (like TM2). Get the last freq set 
+> +		 * in PERF_CTL.
+> +		 */
+> +		rdmsr(MSR_IA32_PERF_CTL, l, h);
+> +		cpu_freq = ((l >> 8) & 0xff) * 100;
+> +	}
+> +
+> +	point->param[POWEROP_CPU + smp_processor_id()] = cpu_freq;
+> +	point->param[POWEROP_V + smp_processor_id()] = ((l & 0xff) * 16) + 700;
+> +	return 0;
+> +}
 
-Could anybody please help me out with this problem ?
-Any pointers are welcomed.
+doesnt seem to be SMP-safe, nor PREEMPT-safe. You probably want to do 
+the locking in the highlevel functions.
 
-Thanks in advance.
-
-Vinay.
-
-
+	Ingo

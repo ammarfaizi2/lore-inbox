@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVHIJ2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbVHIJ2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbVHIJ2P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 05:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVHIJ2P
+	id S932482AbVHIJ2o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 05:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVHIJ2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 05:28:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2239 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932481AbVHIJ2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 05:28:15 -0400
-Date: Tue, 9 Aug 2005 10:28:10 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, mbligh@mbligh.org, chrisw@osdl.org,
-       linux-kernel@vger.kernel.org, zach@vmware.com, torvalds@osdl.org
-Subject: Re: [PATCH] abstract out bits of ldt.c
-Message-ID: <20050809092810.GB11397@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-	mbligh@mbligh.org, chrisw@osdl.org, linux-kernel@vger.kernel.org,
-	zach@vmware.com, torvalds@osdl.org
-References: <372830000.1123456808@[10.10.2.4]> <20050807234411.GE7991@shell0.pdx.osdl.net> <374910000.1123459025@[10.10.2.4]> <20050807174129.20c7202f.akpm@osdl.org> <20050808113014.GA15165@elte.hu> <20050808095755.23810b15.akpm@osdl.org> <20050809092317.GA20557@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050809092317.GA20557@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 9 Aug 2005 05:28:44 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:22918 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S932482AbVHIJ2n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 05:28:43 -0400
+Message-ID: <42F87730.5030804@gmail.com>
+Date: Tue, 09 Aug 2005 11:28:16 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH -mm] removes pci_find_device from i6300esb.c
+References: <42F73523.80205@gmail.com>	<200508082355.j78NtGNS029681@wscnet.wsc.cz> <20050808233429.36e6ebd5.akpm@osdl.org>
+In-Reply-To: <20050808233429.36e6ebd5.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 11:23:18AM +0200, Ingo Molnar wrote:
-> mine are mostly technical arguments. I just also wanted to vent away 
-> this slowly gathering false notion of building 'interoperability', while 
-> the only apparent goal seems to be to maximize benefits to the closed 
-> hypervisors, while allowing them to not open up their code.
+Andrew Morton napsal(a):
 
-...
+>Jiri Slaby <jirislaby@gmail.com> wrote:
+>  
+>
+>>--- a/drivers/char/watchdog/i6300esb.c
+>> +++ b/drivers/char/watchdog/i6300esb.c
+>> @@ -368,12 +368,11 @@ static unsigned char __init esb_getdevic
+>>           *      Find the PCI device
+>>           */
+>>  
+>> -        while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+>> +        for_each_pci_dev(dev)
+>>                  if (pci_match_id(esb_pci_tbl, dev)) {
+>>                          esb_pci = dev;
+>>                          break;
+>>                  }
+>> -        }
+>>  
+>>          if (esb_pci) {
+>>          	if (pci_enable_device(esb_pci)) {
+>> @@ -430,6 +429,7 @@ err_release:
+>>  		pci_release_region(esb_pci, 0);
+>>  err_disable:
+>>  		pci_disable_device(esb_pci);
+>> +		pci_dev_put(esb_pci);
+>>    
+>>
+>
+>That doesn't look right.  Each iteration of for_each_pci_dev() needs a
+>pci_dev_put(), not just the final one.
+>  
+>
+But pci_get_device do it for us on pci_get_subsys, line 249, doesn't it?
 
-I agree completely with the points you make here, but can't find the mail
-you are replying to.  Where is it coming from?
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 

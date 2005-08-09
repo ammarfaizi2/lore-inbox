@@ -1,77 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbVHIRRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVHIRS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbVHIRRP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 13:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbVHIRRP
+	id S964899AbVHIRS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 13:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVHIRS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 13:17:15 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:27602 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S964890AbVHIRRO (ORCPT
+	Tue, 9 Aug 2005 13:18:29 -0400
+Received: from pat.uio.no ([129.240.130.16]:26257 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S964896AbVHIRS2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 13:17:14 -0400
-Message-ID: <42F8E516.7020600@zabbo.net>
-Date: Tue, 09 Aug 2005 10:17:10 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: David Teigland <teigland@redhat.com>, Pekka Enberg <penberg@gmail.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com,
-       mark.fasheh@oracle.com
-Subject: Re: GFS
-References: <20050802071828.GA11217@redhat.com>	 <84144f0205080203163cab015c@mail.gmail.com>	 <20050803063644.GD9812@redhat.com>	 <courier.42F768D5.000046F2@courier.cs.helsinki.fi>	 <42F7A557.3000200@zabbo.net> <1123598983.10790.1.camel@haji.ri.fi>
-In-Reply-To: <1123598983.10790.1.camel@haji.ri.fi>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 9 Aug 2005 13:18:28 -0400
+Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1E2X9A-0007Uk-00@dorka.pomaz.szeredi.hu>
+References: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
+	 <1123541926.8249.8.camel@lade.trondhjem.org>
+	 <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu>
+	 <1123594460.8245.15.camel@lade.trondhjem.org>
+	 <E1E2X9A-0007Uk-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Tue, 09 Aug 2005 13:18:08 -0400
+Message-Id: <1123607889.8245.107.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.048, required 12,
+	autolearn=disabled, AWL 0.77, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
+ty den 09.08.2005 Klokka 18:40 (+0200) skreiv Miklos Szeredi:
+> > Intents are meant as optimisations, not replacements for existing
+> > operations. I'm therefore not really comfortable about having them
+> > return errors at all.
+> 
+> In my case they are not an optimization, rather the only way to
+> correctly perform an open with O_CREAT.
 
-> In addition, the vma walk will become an unmaintainable mess as soon
->  as someone introduces another mmap() capable fs that needs similar 
-> locking.
+How so? In NFS the only case that can be tricky is O_EXCL, and that
+simply _cannot_ be done inside nfs_lookup without confusing the VFS. 
+Instead, we always create a negative dentry, and then do the actual
+atomic exclusive create inside vfs_create().
 
-Yup, I suspect that if the core kernel ends up caring about this problem
-then the VFS will be involved in helping file systems sort the locks
-they'll acquire around IO.
+We can do the ordinary atomic open(O_CREAT) inside nfs_lookup though. If
+that fails, then we simply return the error as an ERR_PTR in the dentry
+(i.e. the lookup won't succeed).
 
-> I am not an expert so could someone please explain why this cannot be
->  done with a_ops->prepare_write and friends?
+The only case which we have that can be iffy is the case of open() on an
+existing dentry. If that fails, then we drop the dentry and force an
+uncached lookup in order to get it all right.
 
-I'll try, briefly.
+> > > > +		nd->intent.open.file = NULL;
+> > > 
+> > > Why is this NULL assignment needed?  nd will not be used after this.
+> > > 
+> > > > +	}
+> > > > +	path_release(nd);
+> > > > +}
+> > > > +
+> > > > 
+> > 
+> > It could be dropped. The reason for putting it in is that some parts of
+> > the VFS may restart a path walk operation if it fails (see for instance
+> > the ESTALE handling).
+> 
+> If you use the nameidata after path_release_open_intent(), you're
+> screwed anyway, since nd->mnt and nd->dentry have already been
+> released.
 
-Usually clustered file systems in Linux maintain data consistency for
-normal posix IO by holding DLM locks for the duration of their
-file->{read,write} methods.  A task on a node won't be able to read
-until all tasks on other nodes have finished any conflicting writes they
-might have been performing, etc, nothing surprising here.
+There is quite a bit of code out there that assumes it is free to stuff
+things into nd->mnt and nd->dentry. Some of it is Al Viro's code, some
+of it is from other people.
+For instance, the ESTALE handling will just save nd->mnt/nd->dentry
+before calling __link_path_walk(), then restore + retry if the ESTALE
+error comes up.
 
-Now say we want to extend consistency guarantees to mmap().  This boils
-down to protecting mappings with DLM locks.  Say a page is mapped for
-reading, the continued presence of that mapping is protected by holding
-a DLM lock.  If another node goes to write to that page, the read lock
-is revoked and the mapping is torn down.  These locks are acquired in
-a_ops->nopage as the task faults and tries to bring up the mapping.
+> If there's any chance that the path walk restart thing will invoke the
+> filesystems open code twice (I doubt it), then the filesystem must
+> make sure to check intent.open.file, whether it has already been set,
+> and fput() it before setting it another time.
 
-And that's the problem. Because they're acquired in ->nopage they can
-be acquired during a fault that is servicing the 'buf' argument to an
-outer file->{read,write} operation which has grabbed a lock for the
-target file. Acquiring multiple locks introduces the risk of ABBA
-deadlocks. It's trivial to construct examples of mmap(), read(), and
-write() on 2 nodes with 2 files that deadlock.
+The only user of that code is NFSv4, and we will never even try to
+allocate a file if the OPEN call returned an ESTALE.
 
-So clustered file systems in Linux (GFS, Lustre, OCFS2, (GPFS?)) all
-walk vmas in their file->{read,write} to discover mappings that belong
-to their files so that they can preemptively sort and acquire the locks
-that will be needed to cover the mappings that might be established in
-->nopage. As you point out, this both relies on the mappings not
-changing and gets very exciting when you mix files and mappings between
-file systems that are each sorting and acquiring their own DLM locks.
+> > Why do we want to keep this behaviour? It is undocumented, it is
+> > non-posix, and it appears to do nothing you cannot do with the existing
+> > access() call.
+> > 
+> > Are there any applications using it? If so, which ones, and why?
+> 
+> I have absolutely no idea. 
+> 
+> Looking closer, there's a problem with O_TRUNC as well:
+> 
+> 	namei_flags = flags;
+> 	if ((namei_flags+1) & O_ACCMODE)
+> 		namei_flags++;
+> 	if (namei_flags & O_TRUNC)
+> 		namei_flags |= 2;
+> 
+> So if flags is O_RDONLY|O_TRUNC, intent.open.flags will be
+> FMODE_WRITE|FMODE_READ|O_TRUNC, but filp->f_mode will be FMODE_READ.
 
-I brought this up with some people at the kernel summit but no one,
-including myself, considers it a high priority.  It wouldn't be too hard
-to construct a patch if people want to take a look.
+That is a bug that needs to be fixed in the intent.open.flags. We don't
+ever want to be opening the file for writing at the filesystem level
+when the user specified open for read.
 
-- z
+Cheers,
+  Trond
+

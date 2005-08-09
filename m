@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVHINwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbVHIN4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbVHINwg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 09:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbVHINwg
+	id S964779AbVHIN4J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 09:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVHIN4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 09:52:36 -0400
-Received: from smtpout.mac.com ([17.250.248.45]:8939 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964774AbVHINwf (ORCPT
+	Tue, 9 Aug 2005 09:56:04 -0400
+Received: from berkeleydata.net ([64.62.242.226]:28580 "HELO berkeleydata.net")
+	by vger.kernel.org with SMTP id S964779AbVHIN4B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 09:52:35 -0400
-In-Reply-To: <42F872E3.3050106@scram.de>
-References: <005501c59c4a$f6210800$a20cc60a@amer.sykes.com> <1123528018.15269.44.camel@mindpipe> <20050808232957.GR4006@stusta.de> <42F872E3.3050106@scram.de>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <AC074A82-2B17-485A-9BFE-090CB4EE6E44@mac.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Lee Revell <rlrevell@joe-job.com>,
-       abonilla@linuxwireless.org, "'Andreas Steinmetz'" <ast@domdv.de>,
-       "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'Denis Vlasenko'" <vda@ilport.com.ua>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+	Tue, 9 Aug 2005 09:56:01 -0400
+Message-ID: <42F8B5EC.2090204@berkeleydata.net>
+Date: Tue, 09 Aug 2005 07:55:56 -0600
+From: Jonathan Ellis <jonathan@berkeleydata.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: datagram queue length
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Wireless support
-Date: Tue, 9 Aug 2005 09:52:27 -0400
-To: Jochen Friedrich <jochen@scram.de>
-X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 9, 2005, at 05:09:55, Jochen Friedrich wrote:
-> Third, both ndiswrapper and binary-only drivers only work on one  
-> platform.
->
-> E.g. broadcom has a binary-only driver for their WLAN card on  
-> Linux, but
-> only for mipsel (wrt54g).
->
-> On Alpha or PowerPC, most WLAN equipment doesn't work under Linux,  
-> at all.
+(Posted a few days ago to c.os.l.networking; no replies there.)
 
-Definitely.  I want my Airport Extreme to work!  Many users of the  
-BCM4301
-chip can get it to work (kinda) with Linux via ndiswrapper, but that  
-means
-they are much less likely to participate in any kind of reverse  
-engineering
-effort, even if it's just testing a new driver.
+I seem to be running into a limit of 64 queued datagrams.  This isn't a
+data buffer size; varying the size of the datagram makes no difference
+in the observed queue size.  If more datagrams are sent before some are
+read, they are silently dropped.  (By "silently," I mean, "tcpdump
+doesn't record these as dropped packets.")
 
-Cheers,
-Kyle Moffett
+This only happens when the sending and receiving processes are on
+different machines, btw.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$ L++++(+ 
-++) E
-W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+ PGP+++ t+(+++) 5  
-X R?
-tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  !y?(-)
-------END GEEK CODE BLOCK------
+Can anyone tell me where this magic 64 number comes from, so I can
+increase it?
 
+Python demo attached.
 
+-Jonathan
+
+# <receive udp requests>
+# start this, then immediately start the other
+# _on another machine_
+import socket, time
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(('', 3001))
+
+time.sleep(5)
+
+while True:
+     data, client_addr = sock.recvfrom(8192)
+     print data
+
+# <separate process to send stuff>
+import socket
+
+for i in range(200):
+     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+     sock.sendto('a' * 100, 0, ('***other machine ip***', 3001))
+     sock.close()

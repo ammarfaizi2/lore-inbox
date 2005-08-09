@@ -1,110 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbVHIRvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbVHIRyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932561AbVHIRvM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 13:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVHIRvM
+	id S932560AbVHIRyf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 13:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVHIRyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 13:51:12 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:47262 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932561AbVHIRvK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 13:51:10 -0400
-Date: Tue, 9 Aug 2005 10:51:08 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Mark Gross <mgross@linux.intel.com>
-Cc: "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "Lorenzini, Mario" <mario.lorenzini@ca.kontron.com>,
-       mark.gross@intel.com
-Subject: Re: Patch of a new driver for kernel 2.4.x that need review
-Message-ID: <20050809175108.GB2766@us.ibm.com>
-References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com> <200507061414.48764.mgross@linux.intel.com> <200508080835.12431.mgross@linux.intel.com> <200508090956.27686.mgross@linux.intel.com>
+	Tue, 9 Aug 2005 13:54:35 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:49542 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S932560AbVHIRyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 13:54:35 -0400
+Date: Tue, 9 Aug 2005 10:54:34 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: Marc Singer <elf@buici.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] spi
+Message-ID: <20050809175434.GA23389@hexapodia.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200508090956.27686.mgross@linux.intel.com>
-X-Operating-System: Linux 2.6.12 (i686)
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050808174721.GA2853@buici.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09.08.2005 [09:56:27 -0700], Mark Gross wrote:
-> On Monday 08 August 2005 08:35, Mark Gross wrote:
-> > On Wednesday 06 July 2005 14:14, Mark Gross wrote:
-> > > On Wednesday 22 June 2005 08:12, Bouchard, Sebastien wrote:
-> > > > Hi,
-> > > >
-> > > > Here is a driver (only for 2.4.x) I've done to provide support
-> > > > of a hardware module (available on some ATCA board) used with
-> > > > telecom expension card on the new ATCA platform. This module
-> > > > provide redundant reference clock for telecom hardware with
-> > > > alarm handling when there is a new event (ex.: one of the ref
-> > > > clock is gone).  This char driver provide IOCTL for
-> > > > configuration of this module and interrupt handler for
-> > > > processing alarm events.
-> > > >
-> > > > I send this driver so people in this mailing list can do a
-> > > > review of the code.
-> > > >
-> > > > Please reply me directly to my email, i'm not subscribed to the
-> > > > mailing list.
-> > > >
-> > > > Thanks
-> > > > Sebastien Bouchard
-> > > > Software designer
-> > > > Kontron Canada Inc.
-> > > > <mailto:sebastien.bouchard@ca.kontron.com>
-> > > > <http://www.kontron.com/>
+On Mon, Aug 08, 2005 at 10:47:21AM -0700, Marc Singer wrote:
+> On Mon, Aug 08, 2005 at 07:35:36PM +0200, Marcel Holtmann wrote:
+> > > > +	if (NULL == dev || NULL == driver) {
 > > > 
-> > > I'm helping out a bit with the maintaining of this driver for
-> > > Sebastien.   The following is a 2.6.12 port of Sebastien's 2.4
-> > > driver.  
-> > > 
-> > > --mgross
+> > > Put the variable on the left side, gcc will complain if you incorrectly
+> > > put a "=" instead of a "==" here, which is all that you are defending
+> > > against with this style.
 > > 
-> > The following is an update to the earlier 2.6 driver that uses a
-> > sysfs interface to implement the IOCTL functions.  I put the
-> > attributes under /sys/class/misc/tlclk.
+> > I think in this case the preferred way is
 > > 
-> > I can't say I'm a believer in the "goodness" of using sysfs over the
-> > IOCTL's, as it added quite a bit of code bloat to this driver, but
-> > hay it should work well enough anyway.
+> > 	if (!dev || !driver) {
 > > 
-> > Also, note this device, is accessed / controlled via the FPGA on the
-> > ATCA, its function is to synchronize signaling hardware across
-> > blades in an ATCA Chassis.  It tends to not talk to the OS. 
-> > 
-> > Please tell me what you think :)
-> Again but with email word wrap turned off :(
-> Also fixes my miss use of kcalloc parameter list.
+> 
+> That's not a guaranteed equivalence in the C standard.  Null pointers
+> may not be zero.  I don't think we have any targets that work this
+> way, however there is nothing wrong with explicitly testing for NULL.
 
-<snip>
+False.  The expression  "!x" is precisely equivalent to "x==0", no
+matter what the type of x is. [1]  And furthermore, NULL==0. [2]
+Ergo, "NULL == dev" and "!dev" are defined to be equivalent.
 
-> diff -urN -X dontdiff linux-2.6.12.3/drivers/char/tlclk.c linux-2.6.12.3-tlclk/drivers/char/tlclk.c
-> --- linux-2.6.12.3/drivers/char/tlclk.c 1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.12.3-tlclk/drivers/char/tlclk.c 2005-08-09 09:37:58.000000000 -0700
+What you're confused about is that the *representation* of a null
+pointer constant does not necessarily have to be all-bits-zero.  That
+is, the following code fragment might print something on a
+standard-compliant C implementation:
 
-<snip>
+	void *a = 0; unsigned char *p = (unsigned char *)&a;
+	int i;
+	for(i=0; i<sizeof(a); i++)
+		if(p[i] != 0) printf("p[%d] = %02x!\n", i, p[i]);
 
-> +irqreturn_t tlclk_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+That does not change the fact that the source-code fragment "NULL" is
+defined to be equivalent to the source-code fragment "0".  Simply the
+compiler must do whatever trickery necessary to ensure the correct
+values get generated in the object code for my above hypothetical
+architecture when I say "void *a = 0;".
 
-<snip>
+This is very similar to how floating point is handled in the abstract
+machine definition of the standard.  Consider a weird FP implementation
+where 0.0 has a not-all-bits-zero representation, and change 'a' in my
+example above to type 'double'.  Just because 0.0 is stored as the bit
+pattern 0x8000000000000000 does not mean that I have to write something
+other than "double a = 0;"!
 
-> +  switchover_timer.expires = jiffies + 1; /* TIMEOUT in ~10ms */
+And furthermore, all of this was well-understood in the C89 standard;
+it's not new in the C99 standard, although there are some
+clarifications.
 
-This is not a 10 millisecond timeout, it is a 1 jiffy timeout. Yes, in
-2.4, where HZ=100 by default, or in 2.6 with CONFIG_HZ set to 100, that
-corresponds to 10 millseconds (or so ;), but not with HZ=250 or 1000. I
-think you want:
+[1] ISO/IEC 9899:1999 6.5.3.3 Unary arithmetic operators
 
-switchover_timer.expires = jiffies + msecs_to_jiffies(10);
+  (5) The result of the logical negation operator ! is 0 if the value of
+  its operand compares unequal to 0, 1 if the value of its operand
+  compares equal to 0. The result has type int.  The expression !E is
+  equivalent to (0==E).
 
-which will handle rounding correctly.
+[2] ISO/IEC 9899:1999 7.17
 
-Also, consider using TIMER_INITIALIZER() for setting these timer fields.
+  The following types and macros are defined in the standard header
+  <stddef.h>.  ...
+         NULL
+  which expands to an implementation-defined null pointer constant...
 
-<snip>
+ and 6.3.2.3 Pointers
+  (3) An integer constant expression with the value 0, or such an
+  expression cast to type void *, is called a null pointer constant.
 
-Thanks,
-Nish
+-andy

@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVHIUUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbVHIUVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbVHIUUk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 16:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbVHIUUk
+	id S964932AbVHIUVH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 16:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbVHIUVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 16:20:40 -0400
-Received: from smtpout.mac.com ([17.250.248.85]:30715 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964928AbVHIUUj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 16:20:39 -0400
-In-Reply-To: <1123600593.7622.116.camel@localhost.localdomain>
-References: <20050808211241.GA22446@clipper.ens.fr> <20050808223238.GA523@clipper.ens.fr> <dd8r9s$eqn$1@taverner.CS.Berkeley.EDU> <20050809015048.GA14204@thunk.org> <Pine.LNX.4.63.0508090044400.20178@excalibur.intercode> <1123600593.7622.116.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <BA6F2E8F-C63B-4461-85F8-37E5B0EFAD33@mac.com>
-Cc: James Morris <jmorris@namei.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: understanding Linux capabilities brokenness
-Date: Tue, 9 Aug 2005 16:20:20 -0400
-To: Christopher Warner <cwarner@kernelcode.com>
-X-Mailer: Apple Mail (2.733)
+	Tue, 9 Aug 2005 16:21:07 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:62935 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964931AbVHIUVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 16:21:06 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: capabilities patch (v 0.1)
+To: Chris Wright <chrisw@osdl.org>, David Madore <david.madore@ens.fr>,
+       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Tue, 09 Aug 2005 22:21:00 +0200
+References: <4zuQJ-20d-11@gated-at.bofh.it> <4zv0l-2b8-11@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1E2aaq-0002WB-Tj@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 9, 2005, at 11:16:33, Christopher Warner wrote:
-> In my observer pragmatic view; yes. On many occasion, i've come to CAP
-> calls only to be frustrated with the sheer disconnect of it all. It
-> simply doesn't work. If it means having to break posix conformance  
-> for a
-> working implementation. Then so be it.
->
-> On Tue, 2005-08-09 at 00:46 -0400, James Morris wrote:
->
->> Let me play the Devil's advocate here.
->>
->> Should we be thinking about deprecating and removing capabilities  
->> from
->> Linux?
+Chris Wright <chrisw@osdl.org> wrote:
+> * David Madore (david.madore@ens.fr) wrote:
 
-One brief suggestion:
+>> * Second, a much more extensive change, the patch introduces a third
+>> set of capabilities for every process, the "bounding" set.  Normally
+> 
+> this is not a good idea.  don't add more sets. if you really want to
+> work on this i'll give you all the patches that have been done thus far,
+> plus a set of tests that look at all the execve, ptrace, setuid type of
+> corner cases.
 
-A key/token interface was recently introduced that might be useful to  
-allow
-a simple new inheritance model for "capabilities", "roles",  
-"rootperms" or
-whatever other abstraction you create.
+How are you going to tell processes that may exec suid (or set-capability-)
+programs from those that aren't supposed to gain certain capabilities?
 
-Cheers,
-Kyle Moffett
-
---
-There are two ways of constructing a software design. One way is to  
-make it so
-simple that there are obviously no deficiencies. And the other way is  
-to make
-it so complicated that there are no obvious deficiencies.  The first  
-method is
-far more difficult.
-   -- C.A.R. Hoare
-
-
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

@@ -1,106 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbVHIOqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbVHIOqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbVHIOqL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 10:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVHIOqJ
+	id S964797AbVHIOqH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 10:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVHIOqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 10:46:09 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:14859 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964798AbVHIOqF convert rfc822-to-8bit (ORCPT
+	Tue, 9 Aug 2005 10:46:07 -0400
+Received: from gold.veritas.com ([143.127.12.110]:16302 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S964797AbVHIOqF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 9 Aug 2005 10:46:05 -0400
+Date: Tue, 9 Aug 2005 15:47:49 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, ncunningham@cyclades.com,
+       Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+In-Reply-To: <1123597704.30257.200.camel@gaston>
+Message-ID: <Pine.LNX.4.61.0508091542030.13674@goblin.wat.veritas.com>
+References: <42F57FCA.9040805@yahoo.com.au>  <200508090710.00637.phillips@arcor.de>
+  <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au> 
+ <20050809080853.A25492@flint.arm.linux.org.uk> 
+ <Pine.LNX.4.61.0508091012480.10693@goblin.wat.veritas.com> 
+ <42F88514.9080104@yahoo.com.au>  <Pine.LNX.4.61.0508091145570.11660@goblin.wat.veritas.com>
+ <1123597704.30257.200.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <42F8B5EC.2090204@berkeleydata.net>
-References: <42F8B5EC.2090204@berkeleydata.net>
-X-OriginalArrivalTime: 09 Aug 2005 14:46:03.0618 (UTC) FILETIME=[10FFD420:01C59CF1]
-Content-class: urn:content-classes:message
-Subject: Re: datagram queue length
-Date: Tue, 9 Aug 2005 10:45:58 -0400
-Message-ID: <Pine.LNX.4.61.0508091037180.26280@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: datagram queue length
-Thread-Index: AcWc8REHmh880yFSSUuJokaxyQXh7w==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Jonathan Ellis" <jonathan@berkeleydata.net>
-Cc: <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Aug 2005 14:46:05.0002 (UTC) FILETIME=[11D302A0:01C59CF1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 9 Aug 2005, Benjamin Herrenschmidt wrote:
+> 
+> > ioremap is making a similar check to the one remap_pfn_range used
+> > to make; but I see no good reason for it at all.  ioremap should be
+> > allowed to map whatever the caller asked, just as memset is allowed
+> > to set whatever the caller asked.
+> 
+> This is dodgy actually. memset can't be guaranteed to work on IOs or
+> other non-cacheable memory (including real RAM that has been mapped
+> non-cacheable, typically RAM that has been "set aside" for other uses as
+> described above, wether it's for AGP, or for some weird processor DMA
+> bounce buffers or whatever ..., that is RAM that is out of the normal
+> kernel control).
 
-On Tue, 9 Aug 2005, Jonathan Ellis wrote:
+That was my point: memset goes ahead without making funny little checks,
+and works or not, so I don't see why ioremap needs to make these funny
+little checks.  If the driver doesn't know what it's doing (not impossible,
+I accept), what's the likelihood that PageReserved or not will save it?
 
-> (Posted a few days ago to c.os.l.networking; no replies there.)
->
-> I seem to be running into a limit of 64 queued datagrams.  This isn't a
-> data buffer size; varying the size of the datagram makes no difference
-> in the observed queue size.  If more datagrams are sent before some are
-> read, they are silently dropped.  (By "silently," I mean, "tcpdump
-> doesn't record these as dropped packets.")
->
-> This only happens when the sending and receiving processes are on
-> different machines, btw.
->
-> Can anyone tell me where this magic 64 number comes from, so I can
-> increase it?
->
-> Python demo attached.
->
-> -Jonathan
->
-
-Your datagram receiver isn't keeping up with your datagram
-transmitter. If you increase the number of datagrams that are
-being queued, you will still encounter the same problem, but
-after more datagrams are stored. You need to either throttle
-the transmitter or speed up the receiver.
-
-In your test code, you deliberately don't receive anything
-for 5 seconds. What do you expect? You are lucky you get
-one datagram!
-
-
-> # <receive udp requests>
-> # start this, then immediately start the other
-> # _on another machine_
-> import socket, time
->
-> sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-> sock.bind(('', 3001))
->
-> time.sleep(5)
->
-> while True:
->     data, client_addr = sock.recvfrom(8192)
->     print data
->
-> # <separate process to send stuff>
-> import socket
->
-> for i in range(200):
->     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
->     sock.sendto('a' * 100, 0, ('***other machine ip***', 3001))
->     sock.close()
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Hugh

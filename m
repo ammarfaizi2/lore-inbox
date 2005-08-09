@@ -1,81 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbVHINgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVHINkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbVHINgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 09:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVHINgu
+	id S932546AbVHINkY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 09:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVHINkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 09:36:50 -0400
-Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:53673 "EHLO
-	mail.zmailer.org") by vger.kernel.org with ESMTP id S932540AbVHINgt
+	Tue, 9 Aug 2005 09:40:24 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:16420 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932546AbVHINkX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 09:36:49 -0400
-Date: Tue, 9 Aug 2005 16:36:47 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
+	Tue, 9 Aug 2005 09:40:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JSv60ayXixG6iD41Kv+WDruaNK2+S4fCE/18DRycOT+z5O51M0w+c7mt9yJYm2cbJZfb/t60YdRPi3sw7jZoPeLl8ANV0w1k1Rw939cCRV6MHgDCpfzcuQBTSH19MrYUuYcxkwNcRVnMt05xMEfjzScnLlLukKtc6slWwzJNboY=
+Message-ID: <9a87484905080906402da1455f@mail.gmail.com>
+Date: Tue, 9 Aug 2005 15:40:22 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Soft lockup in e100 driver ?
-Message-ID: <20050809133647.GK22165@mea-ext.zmailer.org>
+Subject: Re: [PATHC] remove redundant variable in sys_prctl
+Cc: Andrew Morton <akpm@osdl.org>
+In-Reply-To: <9a874849050809044575466fa1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <9a874849050809044575466fa1@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running very recent Fedora Core Development kernel I can following
-soft-oops..   ( 2.6.12-1.1455_FC5smp )
+On 8/9/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> The `sig' variable in kernel/sys.c::sys_prctl() is completely
+> redundant, we might as well get rid of it.
+> Patch below for review (also attached since gmail's webmail interface
+> will most certainly mangle the inline one).
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+> 
+> --- linux-2.6.13-rc6/kernel/sys.c~      2005-08-09 13:35:40.000000000 +0200
+> +++ linux-2.6.13-rc6/kernel/sys.c       2005-08-09 13:35:40.000000000 +0200
+> @@ -1711,7 +1711,6 @@ asmlinkage long sys_prctl(int option, un
+>                           unsigned long arg4, unsigned long arg5)
+>  {
+>         long error;
+> -       int sig;
+> 
+>         error = security_task_prctl(option, arg2, arg3, arg4, arg5);
+>         if (error)
+> @@ -1719,12 +1718,11 @@ asmlinkage long sys_prctl(int option, un
+> 
+>         switch (option) {
+>                 case PR_SET_PDEATHSIG:
+> -                       sig = arg2;
+> -                       if (!valid_signal(sig)) {
+> +                       if (!valid_signal(arg2)) {
+>                                 error = -EINVAL;
+>                                 break;
+>                         }
+> -                       current->pdeath_signal = sig;
+> +                       current->pdeath_signal = arg2;
+>                         break;
+>                 case PR_GET_PDEATHSIG:
+>                         error = put_user(current->pdeath_signal, (int
+> __user *)arg2);
+> 
+> 
 
+There is a slight difference made by this patch. since arg2 is
+'unsigned long' and sig was a 'signed int', for sufficiently large
+values the assignment to the signed int variable would have changed
+the value.  Does this matter?  I don't think it does, but it just hit
+me that it might..
 
-e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
-BUG: soft lockup detected on CPU#0!
-
-Pid: 10743, comm:             ifconfig
-EIP: 0060:[<f88bf2f9>] CPU: 0
-EIP is at e100_clean_cbs+0x2f/0x12b [e100]
- EFLAGS: 00000293    Not tainted  (2.6.12-1.1455_FC5smp)
-EAX: 495c7c2b EBX: 495c7c2b ECX: f6c311a0 EDX: 00000000
-ESI: 00000040 EDI: f6c30000 EBP: f71a4b20 DS: 007b ES: 007b
-CR0: 8005003b CR2: 0804a544 CR3: 01e9cd80 CR4: 000006f0
- [<f88c0708>] e100_down+0x66/0x9a [e100]
- [<f88c1623>] e100_close+0xa/0xd [e100]
- [<c02b7adb>] dev_close+0x40/0x7e
- [<c02b8f59>] dev_change_flags+0x46/0xf5
- [<c02f76b3>] devinet_ioctl+0x564/0x5df
- [<c02af22c>] sock_ioctl+0xc3/0x250
- [<c02af169>] sock_ioctl+0x0/0x250
- [<c01762ef>] do_ioctl+0x1f/0x6d
- [<c017648f>] vfs_ioctl+0x50/0x1c6
- [<c0176662>] sys_ioctl+0x5d/0x6f
- [<c010394d>] syscall_call+0x7/0xb
- [<c014473f>] softlockup_tick+0x6f/0x80
- [<c01085b8>] timer_interrupt+0x2d/0x75
- [<c01448dd>] handle_IRQ_event+0x2e/0x5a
- [<c01449cb>] __do_IRQ+0xc2/0x127
- [<c0105f7e>] do_IRQ+0x4e/0x86
- =======================
- [<c01160cc>] smp_apic_timer_interrupt+0xc1/0xca
- [<c0104382>] common_interrupt+0x1a/0x20
- [<f88bf2f9>] e100_clean_cbs+0x2f/0x12b [e100]
- [<f88c0708>] e100_down+0x66/0x9a [e100]
- [<f88c1623>] e100_close+0xa/0xd [e100]
- [<c02b7adb>] dev_close+0x40/0x7e
- [<c02b8f59>] dev_change_flags+0x46/0xf5
- [<c02f76b3>] devinet_ioctl+0x564/0x5df
- [<c02af22c>] sock_ioctl+0xc3/0x250
- [<c02af169>] sock_ioctl+0x0/0x250
- [<c01762ef>] do_ioctl+0x1f/0x6d
- [<c017648f>] vfs_ioctl+0x50/0x1c6
- [<c0176662>] sys_ioctl+0x5d/0x6f
- [<c010394d>] syscall_call+0x7/0xb
-
-
-
-Preconditions for this are:
-
-- E100 card stopped working for some reason (no idea why, it just
-  does sometimes at this oldish 2x P-III machine)
-- There are active datastreams running in and out
-  (around 0.2 Mbps out, multiple megabits in.)
-- Commanding then "ifconfig eth0 down" results in what feels like 
-  system freezing, but it does recover in about 30-60 seconds
-  (it takes long enough for me to sweat bullets...)
-- While in freeze state, keyboard can go crazy, but mouse does
-  respond, as well as tvtime shows bt848 captured live video.
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,92 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbVHIVLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbVHIVNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbVHIVLp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 17:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbVHIVLp
+	id S964970AbVHIVNS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 17:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVHIVNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 17:11:45 -0400
-Received: from pat.uio.no ([129.240.130.16]:48890 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S964971AbVHIVLo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 17:11:44 -0400
-Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1E2aw6-0007oY-00@dorka.pomaz.szeredi.hu>
-References: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
-	 <1123541926.8249.8.camel@lade.trondhjem.org>
-	 <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu>
-	 <1123594460.8245.15.camel@lade.trondhjem.org>
-	 <E1E2X9A-0007Uk-00@dorka.pomaz.szeredi.hu>
-	 <1123607889.8245.107.camel@lade.trondhjem.org>
-	 <E1E2Y92-0007Zv-00@dorka.pomaz.szeredi.hu>
-	 <1123612734.8245.150.camel@lade.trondhjem.org>
-	 <E1E2aw6-0007oY-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 17:11:30 -0400
-Message-Id: <1123621890.8245.211.camel@lade.trondhjem.org>
+	Tue, 9 Aug 2005 17:13:18 -0400
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:54801 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S964970AbVHIVNR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 17:13:17 -0400
+Date: Tue, 9 Aug 2005 23:13:28 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: I2C block reads with i2c-viapro: testers wanted
+Message-Id: <20050809231328.0726537b.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.524, required 12,
-	autolearn=disabled, AWL 2.29, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 09.08.2005 Klokka 22:42 (+0200) skreiv Miklos Szeredi:
+Hi all,
 
-> Trond, wake up!  __emul_lookup_dentry() does nothing of the sort.
-> Neither does anything else.  In theory it could, but that's not a
-> reason to do a confusing thing like that.
+I am implementing I2C block reads in the i2c-viapro driver, and am
+looking for testers. I was able to test on my own VT8237R chip, it works
+OK, now I'd need to know how it works on older VIA south bridges, namely
+the VT8235 and the VT82C686B. South bridges before that (VT82C686A,
+VT8233A and older) are supposed not to work according to the datasheets,
+but a confirmation would be welcome, who knows, it might simply not be
+documented.
 
-Really?
+My experimental patch follows. I have enabled the I2C block read
+function for all VIA south bridges, so that it can be tested on all
+chips. I'll restrict that after the test phase, of course.
 
-static int __emul_lookup_dentry(const char *name, struct nameidata *nd)
-{
-		.....
-		if (path_walk(name, nd) == 0) {
-			if (nd->dentry->d_inode) {
-				dput(old_dentry);
-				mntput(old_mnt);
-				return 1;
-			}
-			path_release(nd);
-		}
-		nd->dentry = old_dentry;
-		nd->mnt = old_mnt;
-		nd->last = last;
-		nd->last_type = last_type;
-	}
-	return 1;
-}
+The easiest way to test the patch is to use i2c-viapro in conjunction
+with the eeprom driver. This supposes that you do actually have a VIA
+south bridge with EEPROMs (typically SPD) on the SMBus. If not, you
+won't be able to test, sorry.
 
-Which is called by path_lookup(), which again returns success, and
-expects the user to call path_release() later.
+In order to verify whether I2C block reads work for you, just compare
+the contents of this file:
+  /sys/bus/i2c/devices/0-0050/eeprom
+before and after applying the patch (and cycling i2c-viapro, obviously).
+If it works, the contents should be identical. Note that the bus number
+(0 above) and exact address (0050 above) may change depending on the
+hardware setup.
 
-> > Firstly, the open_namei() flags field is not a "permissions" field. It
-> > contains open mode information. The calculation of the open permissions
-> > flags is done by open_namei() itself.
-> 
-> Based on flags.  It's just a FMODE_* -> MAY_* transformation
-> 
-> > Secondly, what advantage is there in allowing callers of open_namei() to
-> > be able to override the MAY_WRITE check when doing open(O_TRUNC)? This
-> > is a calculation that should be done _once_ in order to always get it
-> > right, and it should therefore be done in open_namei() together with the
-> > rest of the permissions calculation.
-> 
-> I think the _only_ caller of open_namei() is filp_open(), so this is
-> not much of an issue, but yeah, you could do it that way too.
+You can also use lm_sensors' utilities to test the I2C block read
+function: i2cdump has an I2C block mode ("i"), and even "sensors" will
+display the SPD information. If it's correct after applying the patch,
+it means that the I2C block read function is working OK for you.
 
-Currently, yes. The only caller of open_namei() is filp_open(). That was
-not always the case previously.
+On my system, the dump is down from over 2 seconds without the patch to
+below 0.2 second with the patch, which proves how efficient I2C block
+reads are and explains why I want to implement this function.
 
-If we think it will never be the case in the future, then there is an
-argument for merging the two and/or making open_namei() and inlined
-function.
+Thanks.
 
-Cheers,
-  Trond
+ drivers/i2c/busses/i2c-viapro.c |   40 ++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 38 insertions(+), 2 deletions(-)
 
+--- linux-2.6.13-rc6.orig/drivers/i2c/busses/i2c-viapro.c	2005-08-08 18:55:48.000000000 +0200
++++ linux-2.6.13-rc6/drivers/i2c/busses/i2c-viapro.c	2005-08-09 22:52:56.000000000 +0200
+@@ -88,6 +88,7 @@
+ #define VT596_BYTE_DATA  0x08
+ #define VT596_WORD_DATA  0x0C
+ #define VT596_BLOCK_DATA 0x14
++#define VT596_I2C_BLOCK_DATA	0x34
+ 
+ 
+ /* If force is set to anything different from 0, we forcibly enable the
+@@ -107,6 +108,9 @@
+ 
+ static struct i2c_adapter vt596_adapter;
+ 
++#define FEATURE_I2CBLOCK	(1<<0)
++static int vt596_features;
++
+ /* Another internally used function */
+ static int vt596_transaction(void)
+ {
+@@ -242,9 +246,21 @@
+ 		}
+ 		size = VT596_BLOCK_DATA;
+ 		break;
++	case I2C_SMBUS_I2C_BLOCK_DATA:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
++		if (read_write == I2C_SMBUS_WRITE) {
++			dev_warn(&vt596_adapter.dev,
++				 "I2C block write not supported!\n");
++			return -1;
++		}
++		outb_p(I2C_SMBUS_BLOCK_MAX, SMBHSTDAT0);
++		size = VT596_I2C_BLOCK_DATA;
++		break;
+ 	}
+ 
+-	outb_p((size & 0x1C) + (ENABLE_INT9 & 1), SMBHSTCNT);
++	outb_p((size & 0x3C) + (ENABLE_INT9 & 1), SMBHSTCNT);
+ 
+ 	if (vt596_transaction()) /* Error in transaction */
+ 		return -1;
+@@ -267,6 +283,7 @@
+ 		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
+ 		break;
+ 	case VT596_BLOCK_DATA:
++	case VT596_I2C_BLOCK_DATA:
+ 		data->block[0] = inb_p(SMBHSTDAT0);
+ 		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
+ 			data->block[0] = I2C_SMBUS_BLOCK_MAX;
+@@ -280,9 +297,15 @@
+ 
+ static u32 vt596_func(struct i2c_adapter *adapter)
+ {
+-	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
++	u32 func = I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
+ 	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
+ 	    I2C_FUNC_SMBUS_BLOCK_DATA;
++
++#if 0
++	if (vt596_features & FEATURE_I2CBLOCK)
++#endif
++		func |= I2C_FUNC_SMBUS_READ_I2C_BLOCK;
++	return func;
+ }
+ 
+ static struct i2c_algorithm smbus_algorithm = {
+@@ -391,6 +414,19 @@
+ 		vt596_pdev = NULL;
+ 	}
+ 
++	if (pdev->device == PCI_DEVICE_ID_VIA_8235
++	 || pdev->device == PCI_DEVICE_ID_VIA_8237) {
++		vt596_features |= FEATURE_I2CBLOCK;
++	} else if (pdev->device == PCI_DEVICE_ID_VIA_82C686_4) {
++		u8 rev;
++
++		/* VT82C686B (rev 0x40) does support I2C block mode, but
++		   VT82C686A (rev 0x30) doesn't. */
++		if (!pci_read_config_byte(pdev, PCI_REVISION_ID, &rev)
++		 && rev >= 0x40)
++			vt596_features |= FEATURE_I2CBLOCK;
++	}
++
+ 	/* Always return failure here.  This is to allow other drivers to bind
+ 	 * to this pci device.  We don't really want to have control over the
+ 	 * pci device, we only wanted to read as few register values from it.
+
+
+-- 
+Jean Delvare

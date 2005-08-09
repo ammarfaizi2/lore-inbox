@@ -1,55 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVHII5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVHII52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbVHII5d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 04:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVHII5d
+	id S932469AbVHII52 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 04:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbVHII52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 04:57:33 -0400
-Received: from gate.crashing.org ([63.228.1.57]:43493 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932471AbVHII5c (ORCPT
+	Tue, 9 Aug 2005 04:57:28 -0400
+Received: from pop.gmx.de ([213.165.64.20]:30616 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932469AbVHII51 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 04:57:32 -0400
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Daniel Phillips <phillips@arcor.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <42F7F5AE.6070403@yahoo.com.au>
-References: <42F57FCA.9040805@yahoo.com.au>
-	 <200508090710.00637.phillips@arcor.de>  <42F7F5AE.6070403@yahoo.com.au>
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 10:51:48 +0200
-Message-Id: <1123577509.30257.173.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 9 Aug 2005 04:57:27 -0400
+X-Authenticated: #6656014
+From: Hans-Christian Armingeon <mog.johnny@gmx.net>
+To: Daniel Drake <dsd@gentoo.org>
+Subject: Re: irqpoll causing some breakage?
+Date: Tue, 9 Aug 2005 10:57:19 +0200
+User-Agent: KMail/1.8.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+References: <42F7FD5E.6000107@gentoo.org>
+In-Reply-To: <42F7FD5E.6000107@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508091057.22712.mog.johnny@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> Basically, it was doing a whole lot of vaguely related things. It
-> was set for ZERO_PAGE pages. It was (and still is) set for struct
-> pages that don't point to valid ram. Drivers set it, hoping it will
-> do something magical for them.
+Am Dienstag 09 August 2005 02:48 schrieb Daniel Drake:
+> Hi,
 > 
-> And yes, the VM_RESERVED flag is able to replace most usages.
-> Checking (pte_page(pte) == ZERO_PAGE(addr)) picks up others.
+> I recently added the irqpoll patch to Gentoo's 2.6.12 kernels, using this patch:
 > 
-> What we don't have is something to indicate the page does not point
-> to valid ram.
+> http://dev.gentoo.org/~dsd/genpatches/trunk/2.6.12/2700_irqpoll.patch
+> 
+> Since then, I've had a few reports of minor breakage, but this is the first 
+> one I've been able to get full info on.
+> 
+> Hans-Christian Armingeon (on CC) owns a a combined USB keyboard-mouse, which 
+> is broken when the irqpoll patch is applied.
+> 
+> input: USB HID v1.00 Keyboard [Cherry GmbH Cherry Slim Line Trackball 
+> Keyboard] on usb-0000:00:10.0-1
+> input: USB HID v1.00 Mouse [Cherry GmbH Cherry Slim Line Trackball Keyboard] 
+> on usb-0000:00:10.0-1
+> 
+> After the irqpoll patch has been applied, the mouse does not work (the 
+> keyboard works fine..!). This is without the irqpoll/irqfixup parameters, 
+> although adding them does not help either. No errors appear, as far as I can see.
 
-I have no problem keeping PG_reserved for that, and _ONLY_ for that.
-(though i'd rather see it renamed then). I'm just afraid by doing so,
-some drivers will jump in the gap and abuse it again... Also, we should
-make sure we kill the "trick" of refcounting only in one direction.
-Either we refcount both (but do nothing, or maybe just BUG_ON if the
-page is "reserved" -> not valid RAM), or we don't refcount at all.
+I have two other mice, and they don't work, too.
 
-For things like Cell, We'll really end up needing struct page covering
-the SPUs for example. That is not valid RAM, shouldn't be refcounted,
-but we need to be able to have nopage() returning these etc...
+My usb Setup_
 
+PortA --- Keyboard with integrated mouse
+PortB --- Hub
+HubPortA --- Mouse
+HubPortA --- Trackball
+
+The mice don't work, when I plug them directly into Port A or B .
+
+The keyboard works ervery time.
+
+> 
+> The problem also exists in an unpatched 2.6.13_rc6.
+> 
+> dmesg here: https://bugs.gentoo.org/attachment.cgi?id=65470
+> full bug: https://bugs.gentoo.org/show_bug.cgi?id=101463
+> 
+> I realise that this is probably not enough information to make any sense out 
+> of! Please let me know how we can help further.
+
+Me too.
+
+> 
+> Thanks,
+> Daniel
+> 
+> 
+
+Thanks in advance,
+
+Johnny

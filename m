@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbVHISTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbVHISZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964915AbVHISTv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 14:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbVHISTv
+	id S964921AbVHISZt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 14:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbVHISZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 14:19:51 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.71]:17029 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S964915AbVHISTv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 14:19:51 -0400
-Subject: Help with new pcmciautils
-From: John Shillinglaw <jshillinglaw@hotpop.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 14:19:44 -0400
-Message-Id: <1123611584.10848.5.camel@Pippin>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+	Tue, 9 Aug 2005 14:25:49 -0400
+Received: from mta10.srv.hcvlny.cv.net ([167.206.4.205]:25190 "EHLO
+	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S964921AbVHISZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 14:25:48 -0400
+Date: Tue, 09 Aug 2005 14:26:56 -0400
+From: Robert Wilkens <robw@optonline.net>
+Subject: Re: Signal handling possibly wrong
+In-reply-to: <42F8EB66.8020002@fujitsu-siemens.com>
+To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1123612016.3167.3.camel@localhost.localdomain>
+MIME-version: 1.0
+X-Mailer: Evolution 2.2.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <42F8EB66.8020002@fujitsu-siemens.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> Kernel code blocks both "handled signal" _and_ sa_mask only if SA_NODEFER
+> isn't set.
+> 
+> Which is the right behavior?
 
-I have a Roland Sound Canvas SCP-55 pcmcia card ( midi synth, ports 330
-& 200 ) which I want to write an alsa driver for.
+Perhaps both?
 
-I've searched but can't find anything about how to tell the new
-pcmciautils to add the card.
+I'm novice here, but if i'm reading the man page correctly, it says:
 
-Help on pcmciautils and/or where to look for info on adding a pccard to
-it will be appreciated.
+SA_NODEFER
+   Do not prevent the signal from being received from within
+   its  own  signal handler. 
+	(they also imply that SA_NOMASK is the old name for this,
+	which might make it clear what it's use is).
 
-Thanks,
-John Shillinglaw
+In which case blocking (masking) when it's not set is exactly what it's
+supposed to do.
 
-Running a Thinkpad T20 on Gentoo with 2.6.12-gentoo-r6... 2.6.13-rc6 as
-soon as I can get ndiswrapper or my Netgear WG511 v3 to work with it...
-
+-Rob
 

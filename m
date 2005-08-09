@@ -1,255 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVHIXXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVHIXXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbVHIXXg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 19:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVHIXXg
+	id S932192AbVHIXXl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 19:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVHIXXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 19:23:36 -0400
-Received: from smtp.istop.com ([66.11.167.126]:50581 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S932191AbVHIXXf (ORCPT
+	Tue, 9 Aug 2005 19:23:41 -0400
+Received: from dvhart.com ([64.146.134.43]:62337 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S932192AbVHIXXk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 19:23:35 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [RFC][PATCH] Rename PageChecked as PageMiscFS
-Date: Wed, 10 Aug 2005 09:23:55 +1000
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <42F57FCA.9040805@yahoo.com.au> <200508090724.30962.phillips@arcor.de> <20050808145430.15394c3c.akpm@osdl.org>
-In-Reply-To: <20050808145430.15394c3c.akpm@osdl.org>
+	Tue, 9 Aug 2005 19:23:40 -0400
+Date: Tue, 09 Aug 2005 16:23:27 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       bugme-daemon@kernel-bugs.osdl.org
+Subject: Re: [Bugme-new] [Bug 5003] New: Problem with symbios	driver	on	recent	-mm trees
+Message-ID: <1200490000.1123629807@flay>
+In-Reply-To: <1123606536.5170.27.camel@mulgrave>
+References: <135040000.1123216397@[10.10.2.4]> <20050804233927.2d3abb16.akpm@osdl.org> <1123251892.5003.6.camel@mulgrave> <179280000.1123252564@[10.10.2.4]> <1123254086.5003.10.camel@mulgrave> <453380000.1123562466@[10.10.2.4]> <1123597604.5170.10.camel@mulgrave> <531000000.1123599581@[10.10.2.4]> <1123606536.5170.27.camel@mulgrave>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200508100923.55749.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 August 2005 07:54, Andrew Morton wrote:
-> Daniel Phillips <phillips@arcor.de> wrote:
-> > > Suggestion for your next act:
-> >
-> > ...kill PG_checked please :)  Or at least keep it from spreading.
->
-> It already spread - ext3 is using it and I think reiser4.  I thought I had
-> a patch to rename it to PG_misc1 or somesuch, but no.
+--On Tuesday, August 09, 2005 11:55:36 -0500 James Bottomley <James.Bottomley@SteelEye.com> wrote:
 
-How about this one?
+> On Tue, 2005-08-09 at 07:59 -0700, Martin J. Bligh wrote:
+>> Dear novice test examiner,
+>> 
+>> It's in http://test.kernel.org with everything else ;-)
+>> 2.6.13-rc4-mm1+jejb_fix ... drills down to:
+>> 
+>> http://test.kernel.org/10080/debug/console.log
+> 
+> Well, OK, apparently some novice coder made an error converting from a
+> stack allocated buffer to a kmalloc'd one in the sense handling
+> routines.
+> 
+> I think this patch should fix it (or at least restore it to the level of
+> bugginess it had before).
 
-This filesystem-specific flag needs to be prevented from escaping into other
-subsystems that might interact, such as VM.  The current usage is exclusively
-for directories, except for Reiser4, which uses it for journalling.
 
-Signed-off-by: Daniel Phillips <phillips@istop.com>
+Wheeeeeee! that fixed it. Thanks very much. Log is here if you want to
+peek at it:
 
-diff -up --recursive 2.6.13-rc5-mm1.clean/fs/afs/dir.c 2.6.13-rc5-mm1/fs/afs/dir.c
---- 2.6.13-rc5-mm1.clean/fs/afs/dir.c	2005-06-17 15:48:29.000000000 -0400
-+++ 2.6.13-rc5-mm1/fs/afs/dir.c	2005-08-09 18:59:49.000000000 -0400
-@@ -155,11 +155,11 @@ static inline void afs_dir_check_page(st
- 		}
- 	}
+
+http://test.kernel.org/10431/debug/console.log
+
+Triples all round!
+
+M.
  
--	SetPageChecked(page);
-+	SetPageMiscFS(page);
- 	return;
- 
-  error:
--	SetPageChecked(page);
-+	SetPageMiscFS(page);
- 	SetPageError(page);
- 
- } /* end afs_dir_check_page() */
-@@ -193,7 +193,7 @@ static struct page *afs_dir_get_page(str
- 		kmap(page);
- 		if (!PageUptodate(page))
- 			goto fail;
--		if (!PageChecked(page))
-+		if (!PageMiscFS(page))
- 			afs_dir_check_page(dir, page);
- 		if (PageError(page))
- 			goto fail;
-diff -up --recursive 2.6.13-rc5-mm1.clean/fs/ext2/dir.c 2.6.13-rc5-mm1/fs/ext2/dir.c
---- 2.6.13-rc5-mm1.clean/fs/ext2/dir.c	2005-06-17 15:48:29.000000000 -0400
-+++ 2.6.13-rc5-mm1/fs/ext2/dir.c	2005-08-09 18:59:51.000000000 -0400
-@@ -112,7 +112,7 @@ static void ext2_check_page(struct page 
- 	if (offs != limit)
- 		goto Eend;
- out:
--	SetPageChecked(page);
-+	SetPageMiscFS(page);
- 	return;
- 
- 	/* Too bad, we had an error */
-@@ -152,7 +152,7 @@ Eend:
- 		dir->i_ino, (page->index<<PAGE_CACHE_SHIFT)+offs,
- 		(unsigned long) le32_to_cpu(p->inode));
- fail:
--	SetPageChecked(page);
-+	SetPageMiscFS(page);
- 	SetPageError(page);
- }
- 
-@@ -166,7 +166,7 @@ static struct page * ext2_get_page(struc
- 		kmap(page);
- 		if (!PageUptodate(page))
- 			goto fail;
--		if (!PageChecked(page))
-+		if (!PageMiscFS(page))
- 			ext2_check_page(page);
- 		if (PageError(page))
- 			goto fail;
-diff -up --recursive 2.6.13-rc5-mm1.clean/fs/ext3/inode.c 2.6.13-rc5-mm1/fs/ext3/inode.c
---- 2.6.13-rc5-mm1.clean/fs/ext3/inode.c	2005-08-09 18:23:30.000000000 -0400
-+++ 2.6.13-rc5-mm1/fs/ext3/inode.c	2005-08-09 18:59:53.000000000 -0400
-@@ -1369,12 +1369,12 @@ static int ext3_journalled_writepage(str
- 		goto no_write;
- 	}
- 
--	if (!page_has_buffers(page) || PageChecked(page)) {
-+	if (!page_has_buffers(page) || PageMiscFS(page)) {
- 		/*
- 		 * It's mmapped pagecache.  Add buffers and journal it.  There
- 		 * doesn't seem much point in redirtying the page here.
- 		 */
--		ClearPageChecked(page);
-+		ClearPageMiscFS(page);
- 		ret = block_prepare_write(page, 0, PAGE_CACHE_SIZE,
- 					ext3_get_block);
- 		if (ret != 0)
-@@ -1429,7 +1429,7 @@ static int ext3_invalidatepage(struct pa
- 	 * If it's a full truncate we just forget about the pending dirtying
- 	 */
- 	if (offset == 0)
--		ClearPageChecked(page);
-+		ClearPageMiscFS(page);
- 
- 	return journal_invalidatepage(journal, page, offset);
- }
-@@ -1438,7 +1438,7 @@ static int ext3_releasepage(struct page 
- {
- 	journal_t *journal = EXT3_JOURNAL(page->mapping->host);
- 
--	WARN_ON(PageChecked(page));
-+	WARN_ON(PageMiscFS(page));
- 	if (!page_has_buffers(page))
- 		return 0;
- 	return journal_try_to_free_buffers(journal, page, wait);
-@@ -1535,7 +1535,7 @@ out:
-  */
- static int ext3_journalled_set_page_dirty(struct page *page)
- {
--	SetPageChecked(page);
-+	SetPageMiscFS(page);
- 	return __set_page_dirty_nobuffers(page);
- }
- 
-diff -up --recursive 2.6.13-rc5-mm1.clean/fs/freevxfs/vxfs_subr.c 2.6.13-rc5-mm1/fs/freevxfs/vxfs_subr.c
---- 2.6.13-rc5-mm1.clean/fs/freevxfs/vxfs_subr.c	2005-08-09 18:23:11.000000000 -0400
-+++ 2.6.13-rc5-mm1/fs/freevxfs/vxfs_subr.c	2005-08-09 18:59:54.000000000 -0400
-@@ -79,7 +79,7 @@ vxfs_get_page(struct address_space *mapp
- 		kmap(pp);
- 		if (!PageUptodate(pp))
- 			goto fail;
--		/** if (!PageChecked(pp)) **/
-+		/** if (!PageMiscFS(pp)) **/
- 			/** vxfs_check_page(pp); **/
- 		if (PageError(pp))
- 			goto fail;
-diff -up --recursive 2.6.13-rc5-mm1.clean/fs/reiser4/page_cache.c 2.6.13-rc5-mm1/fs/reiser4/page_cache.c
---- 2.6.13-rc5-mm1.clean/fs/reiser4/page_cache.c	2005-08-09 18:23:30.000000000 -0400
-+++ 2.6.13-rc5-mm1/fs/reiser4/page_cache.c	2005-08-09 18:59:58.000000000 -0400
-@@ -754,7 +754,7 @@ print_page(const char *prefix, struct pa
- 	       page_flag_name(page, PG_lru),
- 	       page_flag_name(page, PG_slab),
- 
--	       page_flag_name(page, PG_checked),
-+	       page_flag_name(page, PG_miscfs),
- 	       page_flag_name(page, PG_reserved),
- 	       page_flag_name(page, PG_private), page_flag_name(page, PG_writeback), page_flag_name(page, PG_nosave));
- 	if (jprivate(page) != NULL) {
-diff -up --recursive 2.6.13-rc5-mm1.clean/fs/reiserfs/inode.c 2.6.13-rc5-mm1/fs/reiserfs/inode.c
---- 2.6.13-rc5-mm1.clean/fs/reiserfs/inode.c	2005-08-09 18:23:31.000000000 -0400
-+++ 2.6.13-rc5-mm1/fs/reiserfs/inode.c	2005-08-09 19:00:02.000000000 -0400
-@@ -2347,7 +2347,7 @@ static int reiserfs_write_full_page(stru
- 	struct buffer_head *head, *bh;
- 	int partial = 0;
- 	int nr = 0;
--	int checked = PageChecked(page);
-+	int checked = PageMiscFS(page);
- 	struct reiserfs_transaction_handle th;
- 	struct super_block *s = inode->i_sb;
- 	int bh_per_page = PAGE_CACHE_SIZE / s->s_blocksize;
-@@ -2409,7 +2409,7 @@ static int reiserfs_write_full_page(stru
- 	 * blocks we're going to log
- 	 */
- 	if (checked) {
--		ClearPageChecked(page);
-+		ClearPageMiscFS(page);
- 		reiserfs_write_lock(s);
- 		error = journal_begin(&th, s, bh_per_page + 1);
- 		if (error) {
-@@ -2790,7 +2790,7 @@ static int reiserfs_invalidatepage(struc
- 	BUG_ON(!PageLocked(page));
- 
- 	if (offset == 0)
--		ClearPageChecked(page);
-+		ClearPageMiscFS(page);
- 
- 	if (!page_has_buffers(page))
- 		goto out;
-@@ -2829,7 +2829,7 @@ static int reiserfs_set_page_dirty(struc
- {
- 	struct inode *inode = page->mapping->host;
- 	if (reiserfs_file_data_log(inode)) {
--		SetPageChecked(page);
-+		SetPageMiscFS(page);
- 		return __set_page_dirty_nobuffers(page);
- 	}
- 	return __set_page_dirty_buffers(page);
-@@ -2852,7 +2852,7 @@ static int reiserfs_releasepage(struct p
- 	struct buffer_head *bh;
- 	int ret = 1;
- 
--	WARN_ON(PageChecked(page));
-+	WARN_ON(PageMiscFS(page));
- 	spin_lock(&j->j_dirty_buffers_lock);
- 	head = page_buffers(page);
- 	bh = head;
-diff -up --recursive 2.6.13-rc5-mm1.clean/include/linux/page-flags.h 2.6.13-rc5-mm1/include/linux/page-flags.h
---- 2.6.13-rc5-mm1.clean/include/linux/page-flags.h	2005-08-09 18:23:31.000000000 -0400
-+++ 2.6.13-rc5-mm1/include/linux/page-flags.h	2005-08-09 18:59:57.000000000 -0400
-@@ -61,7 +61,7 @@
- #define PG_active		 6
- #define PG_slab			 7	/* slab debug (Suparna wants this) */
- 
--#define PG_checked		 8	/* kill me in 2.5.<early>. */
-+#define PG_miscfs		 8	/* kill me in 2.5.<early>. */
- #define PG_fs_misc		 8
- #define PG_arch_1		 9
- #define PG_reserved		10
-@@ -227,9 +227,9 @@ extern void __mod_page_state(unsigned lo
- #define PageHighMem(page)	0 /* needed to optimize away at compile time */
- #endif
- 
--#define PageChecked(page)	test_bit(PG_checked, &(page)->flags)
--#define SetPageChecked(page)	set_bit(PG_checked, &(page)->flags)
--#define ClearPageChecked(page)	clear_bit(PG_checked, &(page)->flags)
-+#define PageMiscFS(page)	test_bit(PG_miscfs, &(page)->flags)
-+#define SetPageMiscFS(page)	set_bit(PG_miscfs, &(page)->flags)
-+#define ClearPageMiscFS(page)	clear_bit(PG_miscfs, &(page)->flags)
- 
- #define PageReserved(page)	test_bit(PG_reserved, &(page)->flags)
- #define SetPageReserved(page)	set_bit(PG_reserved, &(page)->flags)
-diff -up --recursive 2.6.13-rc5-mm1.clean/mm/page_alloc.c 2.6.13-rc5-mm1/mm/page_alloc.c
---- 2.6.13-rc5-mm1.clean/mm/page_alloc.c	2005-08-09 18:23:31.000000000 -0400
-+++ 2.6.13-rc5-mm1/mm/page_alloc.c	2005-08-09 18:59:48.000000000 -0400
-@@ -458,7 +458,7 @@ static void prep_new_page(struct page *p
- 
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
- 			1 << PG_referenced | 1 << PG_arch_1 |
--			1 << PG_checked | 1 << PG_mappedtodisk);
-+			1 << PG_miscfs | 1 << PG_mappedtodisk);
- 	page->private = 0;
- 	set_page_refs(page, order);
- 	kernel_map_pages(page, 1 << order, 1);
+> James
+> 
+> diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+> --- a/drivers/scsi/scsi_lib.c
+> +++ b/drivers/scsi/scsi_lib.c
+> @@ -342,12 +342,12 @@ int scsi_execute_req(struct scsi_device 
+>  		sense = kmalloc(SCSI_SENSE_BUFFERSIZE, GFP_KERNEL);
+>  		if (!sense)
+>  			return DRIVER_ERROR << 24;
+> -		memset(sense, 0, sizeof(*sense));
+> +		memset(sense, 0, SCSI_SENSE_BUFFERSIZE);
+>  	}
+>  	result = scsi_execute(sdev, cmd, data_direction, buffer, bufflen,
+>  				  sense, timeout, retries, 0);
+>  	if (sshdr)
+> -		scsi_normalize_sense(sense, sizeof(*sense), sshdr);
+> +		scsi_normalize_sense(sense, SCSI_SENSE_BUFFERSIZE, sshdr);
+>  
+>  	kfree(sense);
+>  	return result;
+> 
+> 
+> 
+> 
+
+

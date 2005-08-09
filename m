@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVHIPSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbVHIPYB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbVHIPSO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 11:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVHIPSO
+	id S964818AbVHIPYB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 11:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbVHIPYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 11:18:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58086 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S964817AbVHIPSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 11:18:13 -0400
-Date: Tue, 9 Aug 2005 16:20:45 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: David Teigland <teigland@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: [PATCH 00/14] GFS
-Message-ID: <20050809152045.GT29811@parcelfarce.linux.theplanet.co.uk>
-References: <20050802071828.GA11217@redhat.com>
+	Tue, 9 Aug 2005 11:24:01 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:49348 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964818AbVHIPYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 11:24:00 -0400
+Subject: Re: Soft lockup in e100 driver ?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1123599524.30101.7.camel@mindpipe>
+References: <20050809133647.GK22165@mea-ext.zmailer.org>
+	 <1123599524.30101.7.camel@mindpipe>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 09 Aug 2005 11:23:49 -0400
+Message-Id: <1123601029.18332.162.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050802071828.GA11217@redhat.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02, 2005 at 03:18:28PM +0800, David Teigland wrote:
-> Hi, GFS (Global File System) is a cluster file system that we'd like to
-> see added to the kernel.  The 14 patches total about 900K so I won't send
-> them to the list unless that's requested.  Comments and suggestions are
-> welcome.  Thanks
+On Tue, 2005-08-09 at 10:58 -0400, Lee Revell wrote:
+> On Tue, 2005-08-09 at 16:36 +0300, Matti Aarnio wrote:
+> > Running very recent Fedora Core Development kernel I can following
+> > soft-oops..   ( 2.6.12-1.1455_FC5smp )
+> > 
+> > 
+> > e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
+> > BUG: soft lockup detected on CPU#0!
 > 
-> http://redhat.com/~teigland/gfs2/20050801/gfs2-full.patch
-> http://redhat.com/~teigland/gfs2/20050801/broken-out/
+> Could this be a false positive?  It's suspicious that the soft lockup
+> detector was just merged to mainline then you got this.
 
-Kindly lose the "Context Dependent Pathname" crap.
+I just downloaded 2.6.13-rc6-git and I don't see the merge of the soft
+lockup code.  Is this a Fedora thing?  If so, could someone point me to
+a link to download this Fedora kernel. I'm currently using Debian.
+
+-- Steve
+
+

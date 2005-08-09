@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVHIVhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVHIVsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbVHIVhE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 17:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVHIVhE
+	id S964903AbVHIVsI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 17:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbVHIVsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 17:37:04 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:18052 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932286AbVHIVhD (ORCPT
+	Tue, 9 Aug 2005 17:48:08 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:39179 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S964903AbVHIVsH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 17:37:03 -0400
-From: Aaron Young <ayoung@google.engr.sgi.com>
-Message-Id: <200508092136.OAA13698@google.engr.sgi.com>
-Subject: Re: Standardize shutdown of the system from enviroment control
-To: ghoward@sgi.com (Greg Howard)
-Date: Tue, 9 Aug 2005 14:36:53 -0700 (PDT)
-Cc: hch@lst.de (Christoph Hellwig), davem@davemloft.net,
-       linux-kernel@vger.kernel.org (LKML), ayoung@sgi.com (Aaron Young)
-In-Reply-To: <Pine.SGI.4.58.0508091619180.19699@gallifrey.americas.sgi.com> from "Greg Howard" at Aug 09, 2005 04:25:39 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Aug 2005 17:48:07 -0400
+Date: Tue, 9 Aug 2005 23:48:06 +0200
+From: David Madore <david.madore@ens.fr>
+To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+Cc: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: capabilities patch (v 0.1)
+Message-ID: <20050809214806.GA2288@clipper.ens.fr>
+References: <4zuQJ-20d-11@gated-at.bofh.it> <4zv0l-2b8-11@gated-at.bofh.it> <E1E2aaq-0002WB-Tj@be1.lrz> <20050809205206.GW7762@shell0.pdx.osdl.net> <Pine.LNX.4.58.0508092259570.9779@be1.lrz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0508092259570.9779@be1.lrz>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Tue, 09 Aug 2005 23:48:06 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 
-> On Tue, 9 Aug 2005, Christoph Hellwig wrote:
-> 
-> > Currently snsc_event for Altix systems sends SIGPWR to init (and abuses
-> > tasklist_lock..) while the sbus drivers call execve for /sbin/shutdown
-> > (which is also ugly, it should at least use call_usermodehelper)
-> > With normal sysvinit both will end up the same, but I suspect the
-> > shutdown variant, maybe with a sysctl to chose the exact path to call
-> > would be cleaner.  What do you guys think about adding a common function
-> > to do this.
-> 
-> Sounds reasonable to me.  I'll copy Aaron Young, who I think
-> actually wrote the code to send the SIGPWR, in case he had a Good
-> Reason for doing it this way.  (Aaron, if I'm remembering wrong
-> and you're not the guy who wrote this, let me know...)
+On Tue, Aug 09, 2005 at 11:36:00PM +0200, Bodo Eggert wrote:
+> 1) I wouldn't want an exploited service to gain any privileges, even by
+>    chaining userspace exploits (e.g. exec sendmail < exploitstring).  For
+>    most services, I'd like CAP_EXEC being unset (but it doesn't exist).
 
-  Yep, that was me. I couldn't really find a better way to do it at
-  the time. An 'execve shutdown' probably would have been better in retrospect
-  because I think sending SIGPWR to init doesn't always shutdown the machine.
-  It depends on how some config files are setup (inittab, powerfail).
-  I'd rather not depend on any config files and just force a shutdown/poweroff.
+I intend to add a couple of capabilities which are normally available
+to all user processes, including capability to exec(), capability to
+fork() and a couple of others (maybe a capability to perform any kind
+of write operation, but that seems a bit more difficult to implement).
+So keep an eye open[#] for future versions of my patch.
 
-> 
-> > Could you test such a patch for me?
-> 
-> Sure.  I'll need to get hold of some hardware/firmware that will
-> reproduce a critical environmental situation...  Might take a
-> litte while...
+-- 
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )
 
- Testing should be easy - on a Deskside Prism system, just hit the
- power button while up at Linux.
+[#] On the other hand, I have a strong tendency not to finish anything
+I start :-( so maybe this is all just vaporware.

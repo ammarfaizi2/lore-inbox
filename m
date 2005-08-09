@@ -1,65 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbVHISgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVHISiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbVHISgA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 14:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbVHISgA
+	id S1750709AbVHISiz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 14:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbVHISiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 14:36:00 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:7876 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964902AbVHISgA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 14:36:00 -0400
-References: <20050802071828.GA11217@redhat.com>
-            <84144f0205080203163cab015c@mail.gmail.com>
-            <20050803063644.GD9812@redhat.com>
-            <courier.42F768D5.000046F2@courier.cs.helsinki.fi>
-            <42F7A557.3000200@zabbo.net>
-            <1123598983.10790.1.camel@haji.ri.fi>
-            <42F8E516.7020600@zabbo.net>
-In-Reply-To: <42F8E516.7020600@zabbo.net>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Zach Brown <zab@zabbo.net>
-Cc: David Teigland <teigland@redhat.com>, Pekka Enberg <penberg@gmail.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com,
-       mark.fasheh@oracle.com
-Subject: Re: GFS
-Date: Tue, 09 Aug 2005 21:35:58 +0300
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42F8F78E.0000257A@courier.cs.helsinki.fi>
+	Tue, 9 Aug 2005 14:38:55 -0400
+Received: from mta5.srv.hcvlny.cv.net ([167.206.4.200]:43825 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S1750709AbVHISiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 14:38:54 -0400
+Date: Tue, 09 Aug 2005 14:39:49 -0400
+From: Robert Wilkens <robw@optonline.net>
+Subject: Re: Signal handling possibly wrong
+In-reply-to: <42F8F6CC.7090709@fujitsu-siemens.com>
+To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1123612789.3167.9.camel@localhost.localdomain>
+MIME-version: 1.0
+X-Mailer: Evolution 2.2.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <42F8EB66.8020002@fujitsu-siemens.com>
+ <1123612016.3167.3.camel@localhost.localdomain>
+ <42F8F6CC.7090709@fujitsu-siemens.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Zach, 
+Bodo,
 
-Zach Brown writes:
-> I'll try, briefly.
+SA_MASK is a flag... Which you use to tell it what to do with the data
+you've given it and/or it gets.  You gave it sa_mask (lower-case).
+SA_NOMASK means don't use the mask -- the pseudonym (new-word) for
+SA_NOMASK is SA_NODEFER (renamed, perhaps, because it may defer some or
+all signals rather than throwing them away, you probably can receive the
+waiting signals by clearing the SA_NODEFER flag on a subsequent call).
 
-Thanks for the excellent explanation. 
+If you want to take this off-list, I'm OK with that..
 
-Zach Brown writes:
-> And that's the problem. Because they're acquired in ->nopage they can
-> be acquired during a fault that is servicing the 'buf' argument to an
-> outer file->{read,write} operation which has grabbed a lock for the
-> target file. Acquiring multiple locks introduces the risk of ABBA
-> deadlocks. It's trivial to construct examples of mmap(), read(), and
-> write() on 2 nodes with 2 files that deadlock.
+Please describe what you would expect SA_NODEFER to do in your own
+language if you don't understand what I seem to understand.
 
-But couldn't we use make_pages_present() to figure which locks we need, sort 
-them, and then grab them? 
-
-Zach Brown writes:
-> I brought this up with some people at the kernel summit but no one,
-> including myself, considers it a high priority.  It wouldn't be too hard
-> to construct a patch if people want to take a look.
-
-I guess it's not a problem as long as the kernel has zero or one cluster 
-filesystems that support mmap(). After we have two or more, we have a 
-problem. 
-
-The GFS2 vma walk needs fixing anyway, I think, as it can lead to buffer 
-overflow (if we have more locks during the second walk). 
-
-               Pekka 
+-Rob
+On Tue, 2005-08-09 at 20:32 +0200, Bodo Stroesser wrote:
+> Robert Wilkens wrote:
+> >>Kernel code blocks both "handled signal" _and_ sa_mask only if SA_NODEFER
+> >>isn't set.
+> >>
+> >>Which is the right behavior?
+> > 
+> > 
+> > Perhaps both?
+> > 
+> > I'm novice here, but if i'm reading the man page correctly, it says:
+> > 
+> > SA_NODEFER
+> >    Do not prevent the signal from being received from within
+> >    its  own  signal handler. 
+> > 	(they also imply that SA_NOMASK is the old name for this,
+> > 	which might make it clear what it's use is).
+> > 
+> > In which case blocking (masking) when it's not set is exactly what it's
+> > supposed to do.
+> > 
+> > -Rob
+> 
+> Yes. That's true.
+> 
+> But what about sa_mask? Description of SA_NODEFER and sa_mask both do not
+> say, that usage of sa_mask depends on SA_NODEFER.
+> But kernel only uses sa_mask, if SA_NODEFER isn't set.
+> 
+> So, I think man page and kernel are not consistent.
+> 
+> 	Bodo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

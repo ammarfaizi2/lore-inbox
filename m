@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVHITP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVHITSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbVHITP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 15:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVHITP3
+	id S932187AbVHITSz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 15:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbVHITSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 15:15:29 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:29763 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932174AbVHITP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 15:15:28 -0400
-Subject: Re: [RFC 1/3] non-resident page tracking
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Rik van Riel <riel@redhat.com>
-In-Reply-To: <20050809182517.GA20644@dmt.cnet>
-References: <20050808201416.450491000@jumble.boston.redhat.com>
-	 <20050808202110.744344000@jumble.boston.redhat.com>
-	 <20050809182517.GA20644@dmt.cnet>
-Content-Type: text/plain
-Date: Tue, 09 Aug 2005 21:15:26 +0200
-Message-Id: <1123614926.17222.19.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 9 Aug 2005 15:18:55 -0400
+Received: from smtp.istop.com ([66.11.167.126]:45194 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S932187AbVHITSy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 15:18:54 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+Date: Wed, 10 Aug 2005 05:19:13 +1000
+User-Agent: KMail/1.7.2
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
+References: <42F57FCA.9040805@yahoo.com.au> <1123577509.30257.173.camel@gaston> <42F87C24.4080000@yahoo.com.au>
+In-Reply-To: <42F87C24.4080000@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508100519.14462.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-09 at 15:25 -0300, Marcelo Tosatti wrote:
-> Hi Rik,
-> 
-> Two hopefully useful comments:
-> 
-> i) ARC and its variants requires additional information about page
-> replacement (namely whether the page has been reclaimed from the L1 or
-> L2 lists).
-> 
-> How costly would it be to add this information to the hash table?
-> 
-I've been thinking on reserving another word in the cache-line and use
-that as a bit-array to keep that information; the only problems with
-that would be atomicy of the {bucket,bit} tuple and very large
-cachelines where NUM_NR > 32.
+On Tuesday 09 August 2005 19:49, Nick Piggin wrote:
+> Benjamin Herrenschmidt wrote:
+> > I have no problem keeping PG_reserved for that, and _ONLY_ for that.
+> > (though i'd rather see it renamed then). I'm just afraid by doing so,
+> > some drivers will jump in the gap and abuse it again...
+>
+> Sure it would be renamed (better yet may be a slower page_is_valid()
+> that doesn't need to use a flag).
 
-> ii) From my reading of the patch, the provided "distance" information is
-> relative to each hash bucket. I'm unable to understand the distance metric
-> being useful if measured per-hash-bucket instead of globally?
+Right!  This is the correct time to wrap all remaining users (that use the 
+newly-mandated valid page sense) in an inline or macro.  And this patch set 
+should change the flag name, because it quietly changes the rules.  I think 
+you need a 3/3 that drops the other shoe.
 
-The assumption is that IFF the hash function has good distribution
-properties the per bucket distance is a good approximation of
-(distance >> nonres_shift).
+Regards,
 
-> 
-> PS: Since remember_page() is always called with the zone->lru_lock held,
-> the preempt_disable/enable pair is unecessary at the moment... still, 
-> might be better to leave it there for safety reasons.
-> 
-
-There being multiple zones; owning zone->lru_lock does not guarantee
-uniqueness on the remember_page() path as its a global structure.
-
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
-
+Daniel

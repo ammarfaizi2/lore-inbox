@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbVHIWU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbVHIWUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbVHIWU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 18:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbVHIWU2
+	id S965004AbVHIWUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 18:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbVHIWUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 18:20:28 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:27616 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S965006AbVHIWU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 18:20:27 -0400
-Message-ID: <42F92C3E.4070803@gentoo.org>
-Date: Tue, 09 Aug 2005 23:20:46 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
-X-Accept-Language: en-us, en
+	Tue, 9 Aug 2005 18:20:09 -0400
+Received: from dvhart.com ([64.146.134.43]:59777 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S965004AbVHIWUH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 18:20:07 -0400
+Date: Tue, 09 Aug 2005 15:19:58 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Darren Hart <dvhltc@us.ibm.com>
+Cc: "lkml," <linux-kernel@vger.kernel.org>,
+       "Piggin, Nick" <piggin@cyberone.com.au>,
+       "Dobson, Matt" <colpatch@us.ibm.com>, nickpiggin@yahoo.com.au,
+       mingo@elte.hu
+Subject: Re: sched_domains SD_BALANCE_FORK and sched_balance_self
+Message-ID: <1187700000.1123625998@flay>
+In-Reply-To: <20050809150331.A1938@unix-os.sc.intel.com>
+References: <42F3F669.2080101@us.ibm.com> <20050809150331.A1938@unix-os.sc.intel.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, mog.johnny@gmx.net
-Subject: Re: irqpoll causing some breakage?
-References: <42F7FD5E.6000107@gentoo.org>	 <1123605419.15600.35.camel@localhost.localdomain>	 <42F8E3E3.1010201@gentoo.org> <1123625697.19543.4.camel@localhost.localdomain>
-In-Reply-To: <1123625697.19543.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> What do the other reports look like ?
+
+
+--On Tuesday, August 09, 2005 15:03:32 -0700 "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+
+> On Fri, Aug 05, 2005 at 04:29:45PM -0700, Darren Hart wrote:
+>> I have some concerns as to the intent vs.  actual implementation of 
+>> SD_BALANCE_FORK and the sched_balance_fork() routine.
 > 
+> Intent and implementation match. Problem is with the intent ;-)
+> 
+> This has the intent info.
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=147cbb4bbe991452698f0772d8292f22825710ba
+> 
+> To solve these issues, we need to make the sched domain and its parameters
+> CMP aware. And dynamically we need to adjust these parameters based
+> on the system properties.
 
-Here's one:
+Can you explain the purpose of doing balance on both fork and exec?
+The reason we did it at exec time is that it's much cheaper to do 
+than at fork - you have very, very little state to deal with. The vast 
+majority of things that fork will exec immediately thereafter.
 
-http://forums.gentoo.org/viewtopic-t-361718-highlight-irqpoll.html
+Balance on clone make some sort of sense, since you know they're not
+going to exec afterwards. We've thrashed through this many times before
+and decided that unless there was an explicit hint from userspace,
+balance on fork was not a good thing to do in the general case. Not only
+based on a large range of testing, but also previous experience from other
+Unix's. What new data came forth to change this?
 
-This possibly suggests that the irqpoll patch actually caused a "nobody cared" 
-which wasn't there previously. (Now that I have looked closer at the patch, I 
-realise how unlikely this is, but this was my reaction at the time!)
+>> It seems to me that the best CPU for a forked process would be an idle 
+>> CPU on the same  node as the parent in order to stay close to it's memory.  
+>> Failing this, we may need to move to other nodes if they are idle enough 
+>> to warrant the move across node boundaries.  Thoughts?
+> 
+> We can choose the leastly loaded CPU in the home node and we can let the
+> load balance to move it to other nodes if there is an imbalance.
 
-I had another report like that by email (another network adapter, "nobody 
-cared" message appeared which wasn't there before). The revision difference 
-was even smaller and again irqpoll was my suspect. But he never responded to 
-my request to test reverting the irqpoll patch and file a bug. I'll dig up the 
-email and send a reminder.
+Is that what it's actually doing now? That's not what Nick told me at
+Kernel Summit, but is the correct thing to do for clone, I think.
+ 
+> For exec, we can have the SD_BALANCE_EXEC for all the sched domains, which
+> is the case today.
 
-Given that I haven't been able to pinpoint irqpoll as the cause of these, I 
-don't think you should worry about them at this stage. The only interesting 
-one at the moment is the keyboard/mouse thing...
-
-Daniel
+Yup.
+ 
+M.

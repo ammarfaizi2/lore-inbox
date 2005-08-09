@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVHIAxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVHIA5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbVHIAxB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 20:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVHIAxA
+	id S932391AbVHIA5E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 20:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVHIA5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 20:53:00 -0400
-Received: from NS6.Sony.CO.JP ([137.153.0.32]:30111 "EHLO ns6.sony.co.jp")
-	by vger.kernel.org with ESMTP id S932392AbVHIAxA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 20:53:00 -0400
-Date: Tue, 09 Aug 2005 09:48:14 +0900 (JST)
-Message-Id: <20050809.094814.48829802.kaminaga@sm.sony.co.jp>
-To: linux-os@analogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [HELP] How to get address of module
-From: Hiroki Kaminaga <kaminaga@sm.sony.co.jp>
-In-Reply-To: <Pine.LNX.4.61.0508080931130.18723@chaos.analogic.com>
-References: <20050808.204022.30161255.kaminaga@sm.sony.co.jp>
-	<Pine.LNX.4.61.0508080931130.18723@chaos.analogic.com>
-X-Mailer: Mew version 4.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+	Mon, 8 Aug 2005 20:57:04 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32785 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932391AbVHIA5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 20:57:03 -0400
+Date: Tue, 9 Aug 2005 02:56:59 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Dave Jones <davej@redhat.com>, Jiri Slaby <jirislaby@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Rolf Eike Beer <eike-kernel@sf-tec.de>
+Subject: Re: [PATCH] Removing maintainer's bad e-mails
+Message-ID: <20050809005659.GT4006@stusta.de>
+References: <42F69E53.40602@gmail.com> <20050808183300.GB26182@redhat.com> <20050808224917.GP4006@stusta.de> <20050809003140.GJ7667@kurtwerks.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050809003140.GJ7667@kurtwerks.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Subject: Re: [HELP] How to get address of module
-Date: Mon, 8 Aug 2005 09:51:25 -0400
-
-> What do you want the address of in your driver? Do you want the
-> address of its various entry points (hint, the stuff you put
-> into the "struct file_operations"), or its startup code, module_init(),
-> exit code, module_exit(), etc.
+On Mon, Aug 08, 2005 at 08:31:40PM -0400, Kurt Wall wrote:
+> On Tue, Aug 09, 2005 at 12:49:17AM +0200, Adrian Bunk took 42 lines to write:
+> > On Mon, Aug 08, 2005 at 02:33:00PM -0400, Dave Jones wrote:
+> > > 
+> > > You may as well change the S: to unmaintained whilst
+> > > you're there, it hasn't seen any updates in a long time,
+> > > and still uses several out-of-date SCSI APIs.
+> > 
+> > Or he could completely remove the entry.
+> > 
+> > We don't have entries for every single unmaintained driver, and the 
+> > smaller MAINTAINERS is the higher is the possibility of not missing a 
+> > relevant entry when checking whom to send an email.
 > 
-> These are can all be obtained using conventional 'C' syntax. You
-> don't need to search some list somehere. You driver isn't just
-> put somewhere en-masse. The code is in the .text segment, relocated
-> to exist in allocated memory. The data sections are also relocated
-> to different sections of allocated memory.
-> 
-> You get the address of a function by referencing its name:
-> 
-> static int ioctl(struct inode *inp, struct file *fp, size_t cmd, unsigned long
-> arg)
-> {
->      unsigned long val;
->      switch(cmd)
->     {
->      case GET_ADDRESS_OF_IOCTL:
->          val = (unsigned long) ioctl;
->          if(put_user(val, (unsigned long *)arg))
->              return -EFAULT
->          break;
->      case ETC:
->     }
-> 
-> Your driver probably has many functions, therefore it has many
-> addresses. It's not just a single "module" somewhere.
+> Hmm, so if a subsystem or driver (more drivers, I should think) lacks
+> an entry in MAINTAINERS, is it then reasonable to assume that it is
+> unmaintained? If not, perhaps creating a separate list of unmaintained
+> subsystems and/or drivers is prudent?
 
-Thank you.
+For unmaintained drivers or drivers maintained by the subsystem 
+maintainers (which can be the reason why there's no entry for this 
+driver) contact the subsystem maintainer.
 
-What I wanted is: given the segfault address, I would like to 
+Unmaintained subsystems are a problem.
 
-1) get which module it is in
-2) in that module, within which function it segfaulted
+I've already started contacting subsystem maintainers that seem to be 
+inactive, and I have some restructuring of MAINTAINERS (tree structure 
+with drivers behind subsystems) on my TODO list.
 
-module_address_lookup() would do!
+> Kurt
 
-HK.
---
+cu
+Adrian
+
+BTW: Please don't remove people from the Cc when answering.
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

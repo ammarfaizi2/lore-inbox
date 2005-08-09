@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbVHIVFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVHIVGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbVHIVFi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 17:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVHIVFh
+	id S964969AbVHIVGU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 17:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVHIVGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 17:05:37 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:48399 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S964940AbVHIVFQ (ORCPT
+	Tue, 9 Aug 2005 17:06:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38534 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964969AbVHIVGT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 17:05:16 -0400
-Date: Tue, 9 Aug 2005 23:05:05 +0200
-From: David Madore <david.madore@ens.fr>
-To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Cc: 7eggert@gmx.de, Chris Wright <chrisw@osdl.org>
-Subject: Re: capabilities patch (v 0.1)
-Message-ID: <20050809210505.GA16404@clipper.ens.fr>
-References: <4zuQJ-20d-11@gated-at.bofh.it> <4zv0l-2b8-11@gated-at.bofh.it> <E1E2aaq-0002WB-Tj@be1.lrz> <20050809205206.GW7762@shell0.pdx.osdl.net>
+	Tue, 9 Aug 2005 17:06:19 -0400
+Date: Tue, 9 Aug 2005 14:06:06 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+Subject: Re: [PATCH] Fix i386 signal handling of NODEFER, should not affect sa_mask (was: Re: Signal handling possibly wrong)
+Message-ID: <20050809210606.GX7762@shell0.pdx.osdl.net>
+References: <42F8F6CC.7090709@fujitsu-siemens.com> <1123612789.3167.9.camel@localhost.localdomain> <42F8F98B.3080908@fujitsu-siemens.com> <1123614253.3167.18.camel@localhost.localdomain> <1123615983.18332.194.camel@localhost.localdomain> <42F906EB.6060106@fujitsu-siemens.com> <1123617812.18332.199.camel@localhost.localdomain> <1123618745.18332.204.camel@localhost.localdomain> <20050809204928.GH7991@shell0.pdx.osdl.net> <1123621223.9553.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050809205206.GW7762@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Tue, 09 Aug 2005 23:05:06 +0200 (CEST)
+In-Reply-To: <1123621223.9553.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 01:52:06PM -0700, Chris Wright wrote:
-> * Bodo Eggert (harvested.in.lkml@7eggert.dyndns.org) wrote:
-> > How are you going to tell processes that may exec suid (or set-capability-)
-> > programs from those that aren't supposed to gain certain capabilities?
-> 
-> typically you'd expect exec suid will reset to full caps.
+* Steven Rostedt (rostedt@goodmis.org) wrote:
+> Hmm, I think you want this patch. You still need to check the return of
+> setting up the frames.
 
-suid exec _must_ reset to full caps or we have the sendmail disaster
-again.  However, that is _if_ execve() succeeds.  It is quite possible
-that execve() should fail, and that is precisely what my patch does:
-if a process has bounded capabilities, it _may not_ exec suid.
-
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+Indeed, I noticecd just after I sent, and sent an updated patch.
+Thanks Steve!

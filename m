@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVHIVgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVHIVhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbVHIVgO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 17:36:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVHIVgO
+	id S932417AbVHIVhE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 17:37:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVHIVhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 17:36:14 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:48026 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750783AbVHIVgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 17:36:13 -0400
-Date: Tue, 9 Aug 2005 23:36:00 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Chris Wright <chrisw@osdl.org>
-cc: 7eggert@gmx.de, David Madore <david.madore@ens.fr>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: capabilities patch (v 0.1)
-In-Reply-To: <20050809205206.GW7762@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.58.0508092259570.9779@be1.lrz>
-References: <4zuQJ-20d-11@gated-at.bofh.it> <4zv0l-2b8-11@gated-at.bofh.it>
- <E1E2aaq-0002WB-Tj@be1.lrz> <20050809205206.GW7762@shell0.pdx.osdl.net>
+	Tue, 9 Aug 2005 17:37:04 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:18052 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932286AbVHIVhD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 17:37:03 -0400
+From: Aaron Young <ayoung@google.engr.sgi.com>
+Message-Id: <200508092136.OAA13698@google.engr.sgi.com>
+Subject: Re: Standardize shutdown of the system from enviroment control
+To: ghoward@sgi.com (Greg Howard)
+Date: Tue, 9 Aug 2005 14:36:53 -0700 (PDT)
+Cc: hch@lst.de (Christoph Hellwig), davem@davemloft.net,
+       linux-kernel@vger.kernel.org (LKML), ayoung@sgi.com (Aaron Young)
+In-Reply-To: <Pine.SGI.4.58.0508091619180.19699@gallifrey.americas.sgi.com> from "Greg Howard" at Aug 09, 2005 04:25:39 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Aug 2005, Chris Wright wrote:
-> * Bodo Eggert (harvested.in.lkml@7eggert.dyndns.org) wrote:
-> > Chris Wright <chrisw@osdl.org> wrote:
-> > > * David Madore (david.madore@ens.fr) wrote:
-
-> > >> * Second, a much more extensive change, the patch introduces a third
-> > >> set of capabilities for every process, the "bounding" set.  Normally
-> > > 
-> > > this is not a good idea.  don't add more sets. if you really want to
-> > > work on this i'll give you all the patches that have been done thus far,
-> > > plus a set of tests that look at all the execve, ptrace, setuid type of
-> > > corner cases.
-> > 
-> > How are you going to tell processes that may exec suid (or set-capability-)
-> > programs from those that aren't supposed to gain certain capabilities?
 > 
-> typically you'd expect exec suid will reset to full caps.
+> 
+> On Tue, 9 Aug 2005, Christoph Hellwig wrote:
+> 
+> > Currently snsc_event for Altix systems sends SIGPWR to init (and abuses
+> > tasklist_lock..) while the sbus drivers call execve for /sbin/shutdown
+> > (which is also ugly, it should at least use call_usermodehelper)
+> > With normal sysvinit both will end up the same, but I suspect the
+> > shutdown variant, maybe with a sysctl to chose the exact path to call
+> > would be cleaner.  What do you guys think about adding a common function
+> > to do this.
+> 
+> Sounds reasonable to me.  I'll copy Aaron Young, who I think
+> actually wrote the code to send the SIGPWR, in case he had a Good
+> Reason for doing it this way.  (Aaron, if I'm remembering wrong
+> and you're not the guy who wrote this, let me know...)
 
-ACK, but
+  Yep, that was me. I couldn't really find a better way to do it at
+  the time. An 'execve shutdown' probably would have been better in retrospect
+  because I think sending SIGPWR to init doesn't always shutdown the machine.
+  It depends on how some config files are setup (inittab, powerfail).
+  I'd rather not depend on any config files and just force a shutdown/poweroff.
 
-1) I wouldn't want an exploited service to gain any privileges, even by
-   chaining userspace exploits (e.g. exec sendmail < exploitstring).  For
-   most services, I'd like CAP_EXEC being unset (but it doesn't exist).
+> 
+> > Could you test such a patch for me?
+> 
+> Sure.  I'll need to get hold of some hardware/firmware that will
+> reproduce a critical environmental situation...  Might take a
+> litte while...
 
-2) There are environments (linux-vserver.org) which limit root to a subset
-   of capabilities. I think they might use that feature, too. Off cause a
-   simple "suid bit" == "all capabilities" scheme won't work there.
-
--- 
-"Just because you are paranoid, do'nt mean they're not after you."
-	-- K.Cobain
+ Testing should be easy - on a Deskside Prism system, just hit the
+ power button while up at Linux.

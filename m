@@ -1,45 +1,33 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbVHGKiJ (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 7 Aug 2005 06:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbVHGKiJ
+	id S932330AbVHITqj (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 9 Aug 2005 15:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVHITqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Aug 2005 06:38:09 -0400
-Received: from 251.Red-217-126-55.pooles.rima-tde.net ([217.126.55.251]:6627
-	"HELO yhaoo.com") by vger.kernel.org with SMTP id S1751447AbVHGKiI
+	Tue, 9 Aug 2005 15:46:39 -0400
+Received: from celik.net.tr ([212.45.75.89]:31503 "EHLO kmail.celiknet.com")
+	by vger.kernel.org with ESMTP id S932330AbVHITqi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Aug 2005 06:38:08 -0400
-Message-ID: <EBB74115.3A51FB9@yhaoo.com>
-Date: Sat, 06 Aug 2005 23:22:22 +1000
-From: <mentoring1122@yhaoo.com>
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+	Tue, 9 Aug 2005 15:46:38 -0400
+Message-ID: <4117-22005829194633155@adnan>
+From: "Cocuk Geleceki" <cocukdunyasi64@yahoo.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: 07 Cok Gec olabilir
+Date: Tue, 9 Aug 2005 22:46:33 +0300
 MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>
-Subject: Let us mentor you at "zero cost"
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=windows-1254
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751447AbVHGKiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932330AbVHITqj@vger.kernel.org>
 
-Would you like 20 "paid4sign_ups" this week?
+Okul Oncesi Couk ve Anne Baba Egitimi
+Okul Oncesi Cocuklar Ic=FDn Haz=FDrlanmis Odullu CD'leri Gordunuzmu?
 
-There are many people like you getting 20+
-sign_ups each week right now.
+	http://www.cocukdunyasi.net
 
-Would you like to join them? I can show you.
-
-Find out how others are getting more than 20
-"paid4sign.ups" today -
-
-Email_me at: charlottenorton@isp-q.com
-Please type "show_me" in the subject line.
-
-I will send you details as fast as I can.
-
-If I have infringed your privacy please email me
-with >>d<< in the email message and it will be
-automatically done.
-
-Thanks a lot Charlotte
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

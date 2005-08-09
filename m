@@ -1,96 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbVHIRPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbVHIRPc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbVHIRPF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 13:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbVHIRPF
+	id S964894AbVHIRPc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 13:15:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbVHIRPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 13:15:05 -0400
-Received: from [193.151.93.131] ([193.151.93.131]:39183 "EHLO
-	reptilian.maxnet.nu") by vger.kernel.org with ESMTP id S964889AbVHIRPE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 13:15:04 -0400
-From: Thomas Habets <thomas@habets.pp.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Kernels Out Of Memoy(OOM) killer Problem ?
-Date: Tue, 9 Aug 2005 19:14:20 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au, torvalds@osdl.org
-References: <42F8720D.4060300@picsearch.com> <200508091655.50383.thomas@habets.pp.se> <1123605588.15600.37.camel@localhost.localdomain>
-In-Reply-To: <1123605588.15600.37.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 9 Aug 2005 13:15:32 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:29110 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964894AbVHIRPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 13:15:30 -0400
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal (version
+	2)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, perex@suse.cz,
+       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zaitcev@yahoo.com, Christoph Eckert <ce@christeck.de>
+In-Reply-To: <20050729153226.GE3563@stusta.de>
+References: <20050729153226.GE3563@stusta.de>
+Content-Type: text/plain
+Date: Tue, 09 Aug 2005 13:13:51 -0400
+Message-Id: <1123607633.5601.7.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.6.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508091914.21302.thomas@habets.pp.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary: Patch removes incorrect documentation. Correct documentation
-already exists in tree.
+On Fri, 2005-07-29 at 17:32 +0200, Adrian Bunk wrote:
+> This patch schedules obsolete OSS drivers (with ALSA drivers that 
+> support the same hardware) for removal.
+> 
+> Scheduling the via82cxxx driver for removal was ACK'ed by Jeff Garzik.
+> 
 
-Once upon a midnight dreary, Alan Cox pondered, weak and weary:
-> > > 0 - overcommit except if something is obviously silly
-> > > 1 - overcommit always (some scientific workloads)
-> > > 2 - don't overcommit (databases etc)
-> > Exactly. Which is what the code and D/sysctl/vm.txt say, and why the
-> > description in D/filesystems/proc.txt is a lying POS that needs to be
-> > *shining blue led in everyones eyes* Exterminated before more people are
-> > sucked into its world of lies.
-> Please submit a patch to fix it
+Someone on linux-audio-user just pointed out that the OSS USB audio and
+midi modules were never deprecated, much less scheduled to be removed.
 
-...
-Kind of what I did (and changed the subject line to include PATCH). Albeit as an attachment.
-This time I fought with my mail client and won. See below sig.
+Maybe the best way to deprecate them is to move them to Sound -> OSS,
+that's where they belong anyway.
 
-I found no maintainer for the documentation, did I forget to CC someone?
+Lee
 
----------
-typedef struct me_s {
-  char name[]      = { "Thomas Habets" };
-  char email[]     = { "thomas@habets.pp.se" };
-  char kernel[]    = { "Linux" };
-  char *pgpKey[]   = { "http://www.habets.pp.se/pubkey.txt" };
-  char pgp[] = { "A8A3 D1DD 4AE0 8467 7FDE  0945 286A E90A AD48 E854" };
-  char coolcmd[]   = { "echo '. ./_&. ./_'>_;. ./_" };
-} me_t;
+On Tue, 2005-08-09 at 18:42 +0200, Christoph Eckert wrote: 
+> > Recompile the kernel with USB audio support.
+> 
+> Please ensure that you *disable* => Devioce drivers => USB => 
+> USB audio and USB Midi.
+> 
+> Both are OSS modules and caused a lot of trouble here when 
+> used in conjunction with the ALSA module
+> 
+> => Sound => ALSA => USB devices => USB Audio/MIDI driver
+> 
+> 
+> BTW: OSS is marked as deprecated, but not the two OSS modules 
+> mentioned above. Couldn't this get set or at least some info 
+> that these modules belong to OSS?
 
-
-diff -uprN linux-2.6.12.4.orig/CREDITS linux-2.6.12.4/CREDITS
---- linux-2.6.12.4.orig/CREDITS 2005-08-05 09:04:37.000000000 +0200
-+++ linux-2.6.12.4/CREDITS      2005-08-09 11:21:53.000000000 +0200
-@@ -1267,6 +1267,12 @@ E: ehaase@inf.fu-berlin.de
- W: http://www.inf.fu-berlin.de/~ehaase
- D: Driver for the Commodore A2232 serial board
- 
-+N: Thomas Habets
-+E: thomas@habets.pp.se
-+W: http://www.habets.pp.se/
-+D: Reader of code, slayer of wrongful documentation
-+P: 1024D/AD48E854 A8A3 D1DD 4AE0 8467 7FDE  0945 286A E90A AD48 E854
-+
- N: Bruno Haible
- E: haible@ma2s2.mathematik.uni-karlsruhe.de
- D: SysV FS, shm swapping, memory management fixes
-diff -uprN linux-2.6.12.4.orig/Documentation/filesystems/proc.txt linux-2.6.12.4/Documentation/filesystems/proc.txt
---- linux-2.6.12.4.orig/Documentation/filesystems/proc.txt      2005-08-05 09:04:37.000000000 +0200
-+++ linux-2.6.12.4/Documentation/filesystems/proc.txt   2005-08-09 11:16:13.000000000 +0200
-@@ -1240,16 +1240,7 @@ swap-intensive.
- overcommit_memory
- -----------------
- 
--This file  contains  one  value.  The following algorithm is used to decide if
--there's enough  memory:  if  the  value of overcommit_memory is positive, then
--there's always  enough  memory. This is a useful feature, since programs often
--malloc() huge  amounts  of  memory 'just in case', while they only use a small
--part of  it.  Leaving  this value at 0 will lead to the failure of such a huge
--malloc(), when in fact the system has enough memory for the program to run.
--
--On the  other  hand,  enabling this feature can cause you to run out of memory
--and thrash the system to death, so large and/or important servers will want to
--set this value to 0.
-+See Documentation/sysctl/vm.txt.
- 
- nr_hugepages and hugetlb_shm_group
- ----------------------------------
 

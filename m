@@ -1,99 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVHIBww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbVHICBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbVHIBww (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 21:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbVHIBww
+	id S932406AbVHICBq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 22:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbVHICBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 21:52:52 -0400
-Received: from thunk.org ([69.25.196.29]:46800 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932402AbVHIBwv (ORCPT
+	Mon, 8 Aug 2005 22:01:46 -0400
+Received: from graphe.net ([209.204.138.32]:47549 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S932406AbVHICBp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 21:52:51 -0400
-Date: Mon, 8 Aug 2005 21:50:48 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: understanding Linux capabilities brokenness
-Message-ID: <20050809015048.GA14204@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>,
-	linux-kernel@vger.kernel.org
-References: <20050808211241.GA22446@clipper.ens.fr> <20050808223238.GA523@clipper.ens.fr> <dd8r9s$eqn$1@taverner.CS.Berkeley.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dd8r9s$eqn$1@taverner.CS.Berkeley.EDU>
-User-Agent: Mutt/1.5.9i
+	Mon, 8 Aug 2005 22:01:45 -0400
+Date: Mon, 8 Aug 2005 19:01:37 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Nigel Cunningham <ncunningham@cyclades.com>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/4] Task notifier: Implement todo list in task_struct
+In-Reply-To: <1123551167.9451.5.camel@localhost>
+Message-ID: <Pine.LNX.4.62.0508081858040.32489@graphe.net>
+References: <200507260340.j6Q3eoGh029135@shell0.pdx.osdl.net> 
+ <Pine.LNX.4.62.0507272018060.11863@graphe.net>  <20050728074116.GF6529@elf.ucw.cz>
+  <Pine.LNX.4.62.0507280804310.23907@graphe.net>  <20050728193433.GA1856@elf.ucw.cz>
+  <Pine.LNX.4.62.0507281251040.12675@graphe.net>  <Pine.LNX.4.62.0507281254380.12781@graphe.net>
+  <20050728212715.GA2783@elf.ucw.cz> <20050728213254.GA1844@elf.ucw.cz> 
+ <Pine.LNX.4.62.0507281456240.14677@graphe.net> <1123551167.9451.5.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 11:53:33PM +0000, David Wagner wrote:
-> David Madore  wrote:
-> >This does not tell me, then, why CAP_SETPCAP was globally disabled by
-> >default, nor why passing of capabilities across execve() was entirely
-> >removed instead of being fixed.
+On Tue, 9 Aug 2005, Nigel Cunningham wrote:
+
+> Just to let you know that I have it working with Suspend2. One thing I
+> am concerned about is that we still need a way of determining whether a
+> process has been signalled but not yet frozen. At the moment you just
+> check p->todo, but if/when other functionality begins to use the todo
+> list, this will be unreliable.
 > 
-> I do not know of any good reason.  Perhaps the few folks who knew enough
-> to fix it properly didn't feel like bothering; it beats me.
-> 
-> Messing with capabilities is scary.  As far as I can tell, there never was
-> any coherent "design" to the semantics of POSIX capabilities in Linux.
-> It's had a little bit of a feeling of a muddle of accumulated gunk,
-> so unless you understand it really well, it's hard to know what any
-> changes you make are safe.  This may have scared people away from fixing
-> it "the right way".  But if you're volunteering to do the analysis and
-> figure out how to fix it, I say, sounds good to me.
 
-The POSIX specification for capabilities requires filesystem support,
-so that each executables can be marked with three capability sets ---
-which indicate which capabilities are asserted when the executable
-starts, which capabilities the executable is allowed to request, and
-which capabilities the executable is allowed to inherit from its
-parent process.  This effectively takes a single setuid bit and splits
-it into a hundred-odd bits.  
+No it wont. A process that has notifications to process should do that 
+before being put into the freezer. Only after the notification list is 
+empty will the process be notified and as long as the notification is 
+pending no second notification should happen.
 
-This was never implemented for a number of reasons.  (1) When the
-capabilities support was first merged, extended attributes support
-wasn't in any of the filesystems currently integrated, which is a
-prerequisite for storing the capability masks on a per-file basis.
-(2) There was some debate about whether or not this method was the
-course of wisdom, which has probably decreased the enthusiasm for
-actually doing the remaining bits of work.
+> I'm happy to supply the patches I'm using if you want to compare. (I
+> retained the other freezer improvements, so it wouldn't just be bug
+> fixes against your patches).
 
-The basic concern with this is that usability experts have shown that
-most users have trouble with the 12 bits of the Unix permissions
-model.  Splitting a single setuid bit into 100-odd bits makes the
-manageability problem much, much harder.  Note that many some setuid
-programs don't necessarily check error returns, and sometimes turning
-off permissions can sometimes open up vulnerabilities.
+I am not sure how to sort that out. I guess post the current patches that 
+you got and then we see how to continue from there.
 
-(For example, this wasn't directly related to POSIX capaibilities, but
-way back when, one version of Ultrix caused setuid() to return EPERM
-if the uid was greater than 32,000 decimal.  This was probably caused
-by a clueless library implementor implement some specification which
-stated that the uid had to be less than 32k.  We discovered this
-problem at MIT Project Athena when users with uid's above 32,000 would
-get root privileges when they logged in, because /bin/login at the
-time didn't check the error returns of setuid(), since _obviously_
-when root calls setuid(), it never fails, right?)
-
-Another problem with the POSIX capabilities is that most of the
-programs that system administrators run to look for setuid programs
-will miss programs that have capabilities encoded in extended
-attributes.  This problem could be fixed by requiring the setuid bit
-to be set before paying attention to the capability EA's; but this
-could lead to surprising results if the filesystem is mounted on a
-system that doesn't use filesystem capabilities at all.
-
-Yet another issue is that the POSIX capabilities model means that a
-default executable, such as gcc for example, is not allowed to inherit
-_any_ capabilities, even if it is run from a setuid root shell.  This
-is good from a security point of view, since it means that people
-can't get in trouble by doing silly things like typing
-"./configure;make" as root and expect any of the build tools to have
-override arbitrary file controls.  The bad news is that system
-administrators aren't particularly happy when their own private tools
-have to especially marked to allow them to run with elevated
-privileges.
-
-						- Ted

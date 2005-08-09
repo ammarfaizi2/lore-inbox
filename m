@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVHIHJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbVHIHJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbVHIHJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 03:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVHIHJ7
+	id S932412AbVHIHJL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 03:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVHIHJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 03:09:59 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:2432 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932415AbVHIHJ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 03:09:58 -0400
-Date: Tue, 9 Aug 2005 09:09:19 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Hiroki Kaminaga <kaminaga@sm.sony.co.jp>
-cc: arnd@arndb.de, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org
-Subject: Re: [HELP] How to get address of module
-In-Reply-To: <20050809.094349.112599262.kaminaga@sm.sony.co.jp>
-Message-ID: <Pine.LNX.4.61.0508090907580.1805@yvahk01.tjqt.qr>
-References: <20050808214822.531ee849.sfr@canb.auug.org.au>
- <20050808.210645.78734846.kaminaga@sm.sony.co.jp> <200508081530.54180.arnd@arndb.de>
- <20050809.094349.112599262.kaminaga@sm.sony.co.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Aug 2005 03:09:11 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36620 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932412AbVHIHJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 03:09:10 -0400
+Date: Tue, 9 Aug 2005 08:08:53 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: ncunningham@cyclades.com, Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+Message-ID: <20050809080853.A25492@flint.arm.linux.org.uk>
+Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
+	ncunningham@cyclades.com, Daniel Phillips <phillips@arcor.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Memory Management <linux-mm@kvack.org>,
+	Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <42F57FCA.9040805@yahoo.com.au> <200508090710.00637.phillips@arcor.de> <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42F83849.9090107@yahoo.com.au>; from nickpiggin@yahoo.com.au on Tue, Aug 09, 2005 at 02:59:53PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 09, 2005 at 02:59:53PM +1000, Nick Piggin wrote:
+> That would work for swsusp, but there are other users that want to
+> know if a struct page is valid ram (eg. ioremap), so in that case
+> swsusp would not be able to mess with the flag.
 
->What I wanted is: given the segfault address, I would like to 
->
->1) get which module it is in
->2) in that module, within which function it segfaulted
->
->module_address_lookup would do!
+The usage of "valid ram" here is confusing - that's not what PageReserved
+is all about.  It's about valid RAM which is managed by method other
+than the usual page counting.  Non-reserved RAM is also valid RAM, but
+is managed by the kernel in the usual way.
 
-If a kernel oopses or similar, it already prints where it faulted:
+The former is available for remap_pfn_range and ioremap, the latter is
+not.
 
-  EIP is at schedule_timeout+0x1234/abcde
+On the other hand, the validity of an apparant RAM address can only be
+tested using its pfn with pfn_valid().
 
-If you have the EIP, you can look at /proc/modules to find the module, and 
-then use "nm" to find the function. Note that inlining makes "nm" and 
-objdumpers less effective.
+Can we straighten out the terminology so it's less confusing please?
 
-
-
-Jan Engelhardt
 -- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

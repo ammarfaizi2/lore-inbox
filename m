@@ -1,112 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbVHIVAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVHIVFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbVHIVAe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 17:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbVHIVAe
+	id S964965AbVHIVFK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 17:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbVHIVFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 17:00:34 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:15532 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964964AbVHIVAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 17:00:34 -0400
-Subject: [PATCH] Fix i386 signal handling of NODEFER, should not affect
-	sa_mask (was: Re: Signal handling possibly wrong)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
-In-Reply-To: <20050809204928.GH7991@shell0.pdx.osdl.net>
-References: <42F8EB66.8020002@fujitsu-siemens.com>
-	 <1123612016.3167.3.camel@localhost.localdomain>
-	 <42F8F6CC.7090709@fujitsu-siemens.com>
-	 <1123612789.3167.9.camel@localhost.localdomain>
-	 <42F8F98B.3080908@fujitsu-siemens.com>
-	 <1123614253.3167.18.camel@localhost.localdomain>
-	 <1123615983.18332.194.camel@localhost.localdomain>
-	 <42F906EB.6060106@fujitsu-siemens.com>
-	 <1123617812.18332.199.camel@localhost.localdomain>
-	 <1123618745.18332.204.camel@localhost.localdomain>
-	 <20050809204928.GH7991@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 09 Aug 2005 17:00:23 -0400
-Message-Id: <1123621223.9553.4.camel@localhost.localdomain>
+	Tue, 9 Aug 2005 17:05:10 -0400
+Received: from verein.lst.de ([213.95.11.210]:12966 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S964965AbVHIVFJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 17:05:09 -0400
+Date: Tue, 9 Aug 2005 23:04:46 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: neilb@cse.unsw.edu.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] use kthread infrastructure in md
+Message-ID: <20050809210446.GA29308@lst.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-09 at 13:49 -0700, Chris Wright wrote:
-
-> 
-> SA_NODEFER
->     [XSI] If set and sig is caught, sig shall not be added to the thread's
->     signal mask on entry to the signal handler unless it is included in
->     sa_mask. Otherwise, sig shall always be added to the thread's signal
->     mask on entry to the signal handler.
-> 
-> Brodo, is this what you mean?
-> 
-> thanks,
-> -chris
-> --
-> 
-> Subject: [PATCH] fix SA_NODEFER signals to honor sa_mask
-> 
-> When receiving SA_NODEFER signal, kernel was inapproriately not applying
-> the sa_mask.  As pointed out by Brodo Stroesser.
-> 
-> Signed-off-by: Chris Wright <chrisw@osdl.org>
-> ---
-> 
-> diff --git a/arch/i386/kernel/signal.c b/arch/i386/kernel/signal.c
-> --- a/arch/i386/kernel/signal.c
-> +++ b/arch/i386/kernel/signal.c
-> @@ -577,13 +577,12 @@ handle_signal(unsigned long sig, siginfo
->  	else
->  		ret = setup_frame(sig, ka, oldset, regs);
->  
-> -	if (ret && !(ka->sa.sa_flags & SA_NODEFER)) {
-> -		spin_lock_irq(&current->sighand->siglock);
-> -		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
-> +	spin_lock_irq(&current->sighand->siglock);
-> +	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
-> +	if (ret && !(ka->sa.sa_flags & SA_NODEFER))
->  		sigaddset(&current->blocked,sig);
-> -		recalc_sigpending();
-> -		spin_unlock_irq(&current->sighand->siglock);
-> -	}
-> +	recalc_sigpending();
-> +	spin_unlock_irq(&current->sighand->siglock);
->  
->  	return ret;
->  }
+Switch MD to use the kthread infrastructure, to simplify the code and
+get rid of tasklist_lock abuse in md_unregister_thread.  Long-term I
+wonder whether workqueues wouldn't be a better choice than the
+MD-specific thread wrappers for the lowlevel drivers.
 
 
-Hmm, I think you want this patch. You still need to check the return of
-setting up the frames.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
--- Steve
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
---- linux-2.6.13-rc6-git1/arch/i386/kernel/signal.c.orig	2005-08-09 16:54:36.000000000 -0400
-+++ linux-2.6.13-rc6-git1/arch/i386/kernel/signal.c	2005-08-09 16:55:24.000000000 -0400
-@@ -577,10 +577,11 @@ handle_signal(unsigned long sig, siginfo
- 	else
- 		ret = setup_frame(sig, ka, oldset, regs);
+Index: linux-2.6/drivers/md/md.c
+===================================================================
+--- linux-2.6.orig/drivers/md/md.c	2005-08-09 19:28:16.000000000 +0200
++++ linux-2.6/drivers/md/md.c	2005-08-09 20:17:21.000000000 +0200
+@@ -34,6 +34,7 @@
  
--	if (ret && !(ka->sa.sa_flags & SA_NODEFER)) {
-+	if (ret) {
- 		spin_lock_irq(&current->sighand->siglock);
- 		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
--		sigaddset(&current->blocked,sig);
-+		if (!(ka->sa.sa_flags & SA_NODEFER))
-+			sigaddset(&current->blocked,sig);
- 		recalc_sigpending();
- 		spin_unlock_irq(&current->sighand->siglock);
+ #include <linux/module.h>
+ #include <linux/config.h>
++#include <linux/kthread.h>
+ #include <linux/linkage.h>
+ #include <linux/raid/md.h>
+ #include <linux/raid/bitmap.h>
+@@ -2947,18 +2948,6 @@
+ {
+ 	mdk_thread_t *thread = arg;
+ 
+-	lock_kernel();
+-
+-	/*
+-	 * Detach thread
+-	 */
+-
+-	daemonize(thread->name, mdname(thread->mddev));
+-
+-	current->exit_signal = SIGCHLD;
+-	allow_signal(SIGKILL);
+-	thread->tsk = current;
+-
+ 	/*
+ 	 * md_thread is a 'system-thread', it's priority should be very
+ 	 * high. We avoid resource deadlocks individually in each
+@@ -2970,10 +2959,9 @@
+ 	 * bdflush, otherwise bdflush will deadlock if there are too
+ 	 * many dirty RAID5 blocks.
+ 	 */
+-	unlock_kernel();
+ 
+ 	complete(thread->event);
+-	while (thread->run) {
++	while (!kthread_should_stop()) {
+ 		void (*run)(mddev_t *);
+ 
+ 		wait_event_interruptible_timeout(thread->wqueue,
+@@ -2986,11 +2974,8 @@
+ 		run = thread->run;
+ 		if (run)
+ 			run(thread->mddev);
+-
+-		if (signal_pending(current))
+-			flush_signals(current);
  	}
-
-
+-	complete(thread->event);
++
+ 	return 0;
+ }
+ 
+@@ -3007,11 +2992,9 @@
+ 				 const char *name)
+ {
+ 	mdk_thread_t *thread;
+-	int ret;
+ 	struct completion event;
+ 
+-	thread = (mdk_thread_t *) kmalloc
+-				(sizeof(mdk_thread_t), GFP_KERNEL);
++	thread = kmalloc(sizeof(mdk_thread_t), GFP_KERNEL);
+ 	if (!thread)
+ 		return NULL;
+ 
+@@ -3024,8 +3007,8 @@
+ 	thread->mddev = mddev;
+ 	thread->name = name;
+ 	thread->timeout = MAX_SCHEDULE_TIMEOUT;
+-	ret = kernel_thread(md_thread, thread, 0);
+-	if (ret < 0) {
++	thread->tsk = kthread_run(md_thread, thread, mdname(thread->mddev));
++	if (IS_ERR(thread->tsk)) {
+ 		kfree(thread);
+ 		return NULL;
+ 	}
+@@ -3035,21 +3018,9 @@
+ 
+ void md_unregister_thread(mdk_thread_t *thread)
+ {
+-	struct completion event;
+-
+-	init_completion(&event);
+-
+-	thread->event = &event;
+-
+-	/* As soon as ->run is set to NULL, the task could disappear,
+-	 * so we need to hold tasklist_lock until we have sent the signal
+-	 */
+ 	dprintk("interrupting MD-thread pid %d\n", thread->tsk->pid);
+-	read_lock(&tasklist_lock);
+-	thread->run = NULL;
+-	send_sig(SIGKILL, thread->tsk, 1);
+-	read_unlock(&tasklist_lock);
+-	wait_for_completion(&event);
++
++	kthread_stop(thread->tsk);
+ 	kfree(thread);
+ }
+ 

@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbVHIKTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbVHIK1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbVHIKTN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 06:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbVHIKTN
+	id S932508AbVHIK1n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 06:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbVHIK1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 06:19:13 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:13208 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S932506AbVHIKTN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 06:19:13 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-Date: Tue, 9 Aug 2005 12:24:36 +0200
-User-Agent: KMail/1.8.2
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, ncunningham@cyclades.com,
+	Tue, 9 Aug 2005 06:27:43 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:938 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932508AbVHIK1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 06:27:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ej7c8pPjLYQjkxaAUswm39uvi4Wr/f/LwShfvk9ileOjggr17x7170TuSU/t4cqet6KuvGD6BZfQzBwxQNx7seqmtajKQro3EgwmEsFAEQ3QEfMnDO/kqZ5BukSDyX9MXPKhEmd86stO/duNOB4xGHgRgh31WRaT8t0A87CVP18=  ;
+Message-ID: <42F88514.9080104@yahoo.com.au>
+Date: Tue, 09 Aug 2005 20:27:32 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, ncunningham@cyclades.com,
        Daniel Phillips <phillips@arcor.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <42F57FCA.9040805@yahoo.com.au> <1123576719.3839.13.camel@laptopd505.fenrus.org> <42F877FF.9000803@yahoo.com.au>
-In-Reply-To: <42F877FF.9000803@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+References: <42F57FCA.9040805@yahoo.com.au> <200508090710.00637.phillips@arcor.de> <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au> <20050809080853.A25492@flint.arm.linux.org.uk> <Pine.LNX.4.61.0508091012480.10693@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0508091012480.10693@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508091224.37668.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 9 of August 2005 11:31, Nick Piggin wrote:
-> Arjan van de Ven wrote:
-> > On Tue, 2005-08-09 at 08:08 +0100, Russell King wrote:
-> 
-> >>Can we straighten out the terminology so it's less confusing please?
-> >>
-> > 
-> > 
-> > and..... can we make a general page_is_ram() function that does what it
-> > says? on x86 it can go via the e820 table, other architectures can do
-> > whatever they need....
-> > 
-> 
-> That would be very helpful. That should cover the remaining (ab)users
-> of PageReserved.
-> 
-> It would probably be fastest to implement this with a page flag,
-> however if swsusp and ioremap are the only users then it shouldn't
-> be a problem to go through slower lookups (and this would remove the
-> need for the PageValidRAM flag that I had worried about earlier).
+Hugh Dickins wrote:
 
-I think swsusp can be modified to use PageNosave only and everything
-that is not to be touched by swsusp should be marked as no-save.
+> 
+> You're right (though I imagine might sometimes be holes rather than RAM).
+> 
 
-Greets,
-Rafael
+Yep. These holes are what I have in mind, and random other things
+like the !(bad_ppro && page_kills_ppro(pfn)) check.
 
+[...]
+
+> I think Nick is treating the "use" of PageReserved in ioremap much too
+> reverentially.  Fine to leave its removal from there to a later stage,
+> but why shouldn't that also be removed?
+> 
+
+Well, as far as I had been able to gather, ioremap is trying to
+ensure it does indeed only hit one of these holes, and not valid
+RAM. I thought the fact that it *won't* bail out when encountering
+kernel text or remap_pfn_range'ed pages was only due to PG_reserved
+being the proverbial jack of all trades, master of none.
+
+I could be wrong here though.
+
+But in either case: I agree that it is probably not a great loss
+to remove the check, although considering it will be needed for
+swsusp anyway...
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

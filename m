@@ -1,102 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVHIBma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVHIBww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbVHIBma (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Aug 2005 21:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbVHIBma
+	id S932402AbVHIBww (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Aug 2005 21:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbVHIBww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Aug 2005 21:42:30 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:19472 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932401AbVHIBm3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Aug 2005 21:42:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gpyuIjJzeeJaL0mO0EdRJu8NVbQ4CSD/F6hom9lcRd6q5hYnHL0GMy+Gdx1bMmcrt4ldy7vQte7ZXfNzCX0q4GsUNhT9Vx+rvd3IThdecmpHtF3poItCKjNQ07kXj8qidWqZJaftYLTRzthOLuvdLoZiRWdGiLQppTSbpaeGOoE=
-Message-ID: <3aa654a40508081842250b2be4@mail.gmail.com>
-Date: Mon, 8 Aug 2005 18:42:28 -0700
-From: Avuton Olrich <avuton@gmail.com>
-To: Shaun Jackman <sjackman@gmail.com>
-Subject: Re: SATALink Sil3112 and Linux woes
-Cc: debian-boot@lists.debian.org, debian-user@debian.org,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <7f45d9390508081645c1afd1c@mail.gmail.com>
+	Mon, 8 Aug 2005 21:52:52 -0400
+Received: from thunk.org ([69.25.196.29]:46800 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932402AbVHIBwv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Aug 2005 21:52:51 -0400
+Date: Mon, 8 Aug 2005 21:50:48 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: understanding Linux capabilities brokenness
+Message-ID: <20050809015048.GA14204@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>,
+	linux-kernel@vger.kernel.org
+References: <20050808211241.GA22446@clipper.ens.fr> <20050808223238.GA523@clipper.ens.fr> <dd8r9s$eqn$1@taverner.CS.Berkeley.EDU>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <7f45d9390508081645c1afd1c@mail.gmail.com>
+In-Reply-To: <dd8r9s$eqn$1@taverner.CS.Berkeley.EDU>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/8/05, Shaun Jackman <sjackman@gmail.com> wrote:
-> setup. Is this card well supported under Linux? If it's a black sheep,
-> could someone please recommend a PCI SATA card that works well?
+On Mon, Aug 08, 2005 at 11:53:33PM +0000, David Wagner wrote:
+> David Madore  wrote:
+> >This does not tell me, then, why CAP_SETPCAP was globally disabled by
+> >default, nor why passing of capabilities across execve() was entirely
+> >removed instead of being fixed.
+> 
+> I do not know of any good reason.  Perhaps the few folks who knew enough
+> to fix it properly didn't feel like bothering; it beats me.
+> 
+> Messing with capabilities is scary.  As far as I can tell, there never was
+> any coherent "design" to the semantics of POSIX capabilities in Linux.
+> It's had a little bit of a feeling of a muddle of accumulated gunk,
+> so unless you understand it really well, it's hard to know what any
+> changes you make are safe.  This may have scared people away from fixing
+> it "the right way".  But if you're volunteering to do the analysis and
+> figure out how to fix it, I say, sounds good to me.
 
-I have onboard SATALink Sil3112 (on my Asus A7N8X) and it's worked
-fine (libata and non).
+The POSIX specification for capabilities requires filesystem support,
+so that each executables can be marked with three capability sets ---
+which indicate which capabilities are asserted when the executable
+starts, which capabilities the executable is allowed to request, and
+which capabilities the executable is allowed to inherit from its
+parent process.  This effectively takes a single setuid bit and splits
+it into a hundred-odd bits.  
 
-> First off, every 2.6 kernel I've tried distributed with Debian and
-> Knoppix stalls for about ten minutes immediately after booting and
-> without displaying anything. After waiting the ten minutes, the boot
+This was never implemented for a number of reasons.  (1) When the
+capabilities support was first merged, extended attributes support
+wasn't in any of the filesystems currently integrated, which is a
+prerequisite for storing the capability masks on a per-file basis.
+(2) There was some debate about whether or not this method was the
+course of wisdom, which has probably decreased the enthusiasm for
+actually doing the remaining bits of work.
 
-2.6 kernel works fine with my 2 160gb drives in a linear RAID,
-although I'm not sure what the issue might be.
+The basic concern with this is that usability experts have shown that
+most users have trouble with the 12 bits of the Unix permissions
+model.  Splitting a single setuid bit into 100-odd bits makes the
+manageability problem much, much harder.  Note that many some setuid
+programs don't necessarily check error returns, and sometimes turning
+off permissions can sometimes open up vulnerabilities.
 
-My dmesg:
-Aug  8 16:01:21 rocket [4294675.305000] libata version 1.11 loaded.
-Aug  8 16:01:21 rocket [4294675.305000] sata_sil version 0.9
-Aug  8 16:01:21 rocket [4294675.306000] ACPI: PCI Interrupt Link
-[APC3] enabled at IRQ 18
-Aug  8 16:01:21 rocket [4294675.306000] ACPI: PCI Interrupt
-0000:01:0b.0[A] -> Link [APC3] -> GSI 18 (level, high) -> IRQ 19
-Aug  8 16:01:21 rocket [4294675.306000] ata1: SATA max UDMA/100 cmd
-0xF8804080 ctl 0xF880408A bmdma 0xF8804000 irq 19
-Aug  8 16:01:21 rocket [4294675.306000] ata2: SATA max UDMA/100 cmd
-0xF88040C0 ctl 0xF88040CA bmdma 0xF8804008 irq 19
-Aug  8 16:01:21 rocket [4294675.661000] ata1: dev 0 cfg 49:2f00
-82:7c6b 83:7f09 84:4003 85:7c69 86:3e01 87:4003 88:207f
-Aug  8 16:01:21 rocket [4294675.661000] ata1: dev 0 ATA-7, max
-UDMA/133, 320173056 sectors: LBA48
-Aug  8 16:01:21 rocket [4294675.661000] ata1: dev 0 configured for UDMA/100
-Aug  8 16:01:21 rocket [4294675.661000] scsi0 : sata_sil
-Aug  8 16:01:21 rocket [4294676.016000] ata2: dev 0 cfg 49:2f00
-82:7c6b 83:7f09 84:4003 85:7c69 86:3e01 87:4003 88:207f
-Aug  8 16:01:21 rocket [4294676.016000] ata2: dev 0 ATA-7, max
-UDMA/133, 320173056 sectors: LBA48
-Aug  8 16:01:21 rocket [4294676.016000] ata2: dev 0 configured for UDMA/100
-Aug  8 16:01:21 rocket [4294676.016000] scsi1 : sata_sil
-Aug  8 16:01:21 rocket [4294676.016000]   Vendor: ATA       Model:
-Maxtor 6Y160M0    Rev: YAR5
-Aug  8 16:01:21 rocket [4294676.016000]   Type:   Direct-Access       
-              ANSI SCSI revision: 05
-Aug  8 16:01:21 rocket [4294676.017000]   Vendor: ATA       Model:
-Maxtor 6Y160M0    Rev: YAR5
-Aug  8 16:01:21 rocket [4294676.017000]   Type:   Direct-Access       
-              ANSI SCSI revision: 05
-Aug  8 16:01:21 rocket [4294676.018000] SCSI device sda: 320173056
-512-byte hdwr sectors (163929 MB)
-Aug  8 16:01:21 rocket [4294676.018000] SCSI device sda: drive cache: write back
-Aug  8 16:01:21 rocket [4294676.018000] SCSI device sda: 320173056
-512-byte hdwr sectors (163929 MB)
-Aug  8 16:01:21 rocket [4294676.018000] SCSI device sda: drive cache: write back
-Aug  8 16:01:21 rocket [4294676.018000]  sda: sda1
-Aug  8 16:01:21 rocket [4294676.041000] Attached scsi disk sda at
-scsi0, channel 0, id 0, lun 0
-Aug  8 16:01:21 rocket [4294676.041000] SCSI device sdb: 320173056
-512-byte hdwr sectors (163929 MB)
-Aug  8 16:01:21 rocket [4294676.041000] SCSI device sdb: drive cache: write back
-Aug  8 16:01:21 rocket [4294676.041000] SCSI device sdb: 320173056
-512-byte hdwr sectors (163929 MB)
-Aug  8 16:01:21 rocket [4294676.041000] SCSI device sdb: drive cache: write back
-Aug  8 16:01:21 rocket [4294676.041000]  sdb: sdb1
-Aug  8 16:01:21 rocket [4294676.061000] Attached scsi disk sdb at
-scsi1, channel 0, id 0, lun 0
-Aug  8 16:01:21 rocket [4294676.061000] Attached scsi generic sg0 at
-scsi0, channel 0, id 0, lun 0,  type 0
-Aug  8 16:01:21 rocket [4294676.061000] Attached scsi generic sg1 at
-scsi1, channel 0, id 0, lun 0,  type 0
+(For example, this wasn't directly related to POSIX capaibilities, but
+way back when, one version of Ultrix caused setuid() to return EPERM
+if the uid was greater than 32,000 decimal.  This was probably caused
+by a clueless library implementor implement some specification which
+stated that the uid had to be less than 32k.  We discovered this
+problem at MIT Project Athena when users with uid's above 32,000 would
+get root privileges when they logged in, because /bin/login at the
+time didn't check the error returns of setuid(), since _obviously_
+when root calls setuid(), it never fails, right?)
 
-avuton
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Another problem with the POSIX capabilities is that most of the
+programs that system administrators run to look for setuid programs
+will miss programs that have capabilities encoded in extended
+attributes.  This problem could be fixed by requiring the setuid bit
+to be set before paying attention to the capability EA's; but this
+could lead to surprising results if the filesystem is mounted on a
+system that doesn't use filesystem capabilities at all.
+
+Yet another issue is that the POSIX capabilities model means that a
+default executable, such as gcc for example, is not allowed to inherit
+_any_ capabilities, even if it is run from a setuid root shell.  This
+is good from a security point of view, since it means that people
+can't get in trouble by doing silly things like typing
+"./configure;make" as root and expect any of the build tools to have
+override arbitrary file controls.  The bad news is that system
+administrators aren't particularly happy when their own private tools
+have to especially marked to allow them to run with elevated
+privileges.
+
+						- Ted

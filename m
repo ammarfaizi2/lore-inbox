@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbVHIIi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVHII5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbVHIIi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 04:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbVHIIi6
+	id S932471AbVHII5d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 04:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVHII5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 04:38:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:10655 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932465AbVHIIi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 04:38:58 -0400
+	Tue, 9 Aug 2005 04:57:33 -0400
+Received: from gate.crashing.org ([63.228.1.57]:43493 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932471AbVHII5c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 04:57:32 -0400
 Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-From: Arjan van de Ven <arjan@infradead.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, ncunningham@cyclades.com,
-       Daniel Phillips <phillips@arcor.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Daniel Phillips <phillips@arcor.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
        Linux Memory Management <linux-mm@kvack.org>,
        Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-In-Reply-To: <20050809080853.A25492@flint.arm.linux.org.uk>
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <42F7F5AE.6070403@yahoo.com.au>
 References: <42F57FCA.9040805@yahoo.com.au>
-	 <200508090710.00637.phillips@arcor.de>
-	 <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au>
-	 <20050809080853.A25492@flint.arm.linux.org.uk>
+	 <200508090710.00637.phillips@arcor.de>  <42F7F5AE.6070403@yahoo.com.au>
 Content-Type: text/plain
-Date: Tue, 09 Aug 2005 10:38:39 +0200
-Message-Id: <1123576719.3839.13.camel@laptopd505.fenrus.org>
+Date: Tue, 09 Aug 2005 10:51:48 +0200
+Message-Id: <1123577509.30257.173.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-09 at 08:08 +0100, Russell King wrote:
-> On Tue, Aug 09, 2005 at 02:59:53PM +1000, Nick Piggin wrote:
-> > That would work for swsusp, but there are other users that want to
-> > know if a struct page is valid ram (eg. ioremap), so in that case
-> > swsusp would not be able to mess with the flag.
-> 
-> The usage of "valid ram" here is confusing - that's not what PageReserved
-> is all about.  It's about valid RAM which is managed by method other
-> than the usual page counting.  Non-reserved RAM is also valid RAM, but
-> is managed by the kernel in the usual way.
-> 
-> The former is available for remap_pfn_range and ioremap, the latter is
-> not.
-> 
-> On the other hand, the validity of an apparant RAM address can only be
-> tested using its pfn with pfn_valid().
-> 
-> Can we straighten out the terminology so it's less confusing please?
-> 
 
-and..... can we make a general page_is_ram() function that does what it
-says? on x86 it can go via the e820 table, other architectures can do
-whatever they need....
+
+> Basically, it was doing a whole lot of vaguely related things. It
+> was set for ZERO_PAGE pages. It was (and still is) set for struct
+> pages that don't point to valid ram. Drivers set it, hoping it will
+> do something magical for them.
+> 
+> And yes, the VM_RESERVED flag is able to replace most usages.
+> Checking (pte_page(pte) == ZERO_PAGE(addr)) picks up others.
+> 
+> What we don't have is something to indicate the page does not point
+> to valid ram.
+
+I have no problem keeping PG_reserved for that, and _ONLY_ for that.
+(though i'd rather see it renamed then). I'm just afraid by doing so,
+some drivers will jump in the gap and abuse it again... Also, we should
+make sure we kill the "trick" of refcounting only in one direction.
+Either we refcount both (but do nothing, or maybe just BUG_ON if the
+page is "reserved" -> not valid RAM), or we don't refcount at all.
+
+For things like Cell, We'll really end up needing struct page covering
+the SPUs for example. That is not valid RAM, shouldn't be refcounted,
+but we need to be able to have nopage() returning these etc...
 

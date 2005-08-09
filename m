@@ -1,101 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbVHIRo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932556AbVHIRoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbVHIRo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 13:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbVHIRo2
+	id S932556AbVHIRoY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 13:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbVHIRoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 13:44:28 -0400
-Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:49156 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932557AbVHIRo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 13:44:27 -0400
-To: trond.myklebust@fys.uio.no
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1123607889.8245.107.camel@lade.trondhjem.org> (message from
-	Trond Myklebust on Tue, 09 Aug 2005 13:18:08 -0400)
-Subject: Re: [RFC] atomic open(..., O_CREAT | ...)
-References: <E1E2G68-0006H2-00@dorka.pomaz.szeredi.hu>
-	 <1123541926.8249.8.camel@lade.trondhjem.org>
-	 <E1E2OoL-0006xQ-00@dorka.pomaz.szeredi.hu>
-	 <1123594460.8245.15.camel@lade.trondhjem.org>
-	 <E1E2X9A-0007Uk-00@dorka.pomaz.szeredi.hu> <1123607889.8245.107.camel@lade.trondhjem.org>
-Message-Id: <E1E2Y92-0007Zv-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 09 Aug 2005 19:44:08 +0200
+	Tue, 9 Aug 2005 13:44:24 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:18345 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S932556AbVHIRoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 13:44:23 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.96,92,1122847200"; 
+   d="scan'208"; a="13840042:sNHT25482412"
+Message-ID: <42F8EB66.8020002@fujitsu-siemens.com>
+Date: Tue, 09 Aug 2005 19:44:06 +0200
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Signal handling possibly wrong
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > > +		nd->intent.open.file = NULL;
-> > > > 
-> > > > Why is this NULL assignment needed?  nd will not be used after this.
-> > > > 
-> > > > > +	}
-> > > > > +	path_release(nd);
-> > > > > +}
-> > > > > +
-> > > > > 
-> > > 
-> > > It could be dropped. The reason for putting it in is that some parts of
-> > > the VFS may restart a path walk operation if it fails (see for instance
-> > > the ESTALE handling).
-> > 
-> > If you use the nameidata after path_release_open_intent(), you're
-> > screwed anyway, since nd->mnt and nd->dentry have already been
-> > released.
-> 
-> There is quite a bit of code out there that assumes it is free to stuff
-> things into nd->mnt and nd->dentry. Some of it is Al Viro's code, some
-> of it is from other people.
-> For instance, the ESTALE handling will just save nd->mnt/nd->dentry
-> before calling __link_path_walk(), then restore + retry if the ESTALE
-> error comes up.
+Hi,
 
-Yeah, but how is that relevant to the fact, that after
-path_release_*() _nothing_ will be valid in the nameidata, not
-nd->mnt, not nd->dentry, and not nd->intent.open.file.  So what's the
-point in setting it to NULL if it must never be used anyway?
+reading man pages for sigaction and comparing it to what kernel does
+when starting a signal handler (i386, s390, ppc and others), I think
+one of both might be wrong.
 
-> > If there's any chance that the path walk restart thing will invoke the
-> > filesystems open code twice (I doubt it), then the filesystem must
-> > make sure to check intent.open.file, whether it has already been set,
-> > and fput() it before setting it another time.
-> 
-> The only user of that code is NFSv4, and we will never even try to
-> allocate a file if the OPEN call returned an ESTALE.
+ From man pages:
 
-That's why I doubted that this is an issue.
+  sa_mask gives a mask of signals which should be blocked during
+  execu­tion of the signal handler. In addition, the signal which
+  triggered the handler will be blocked, unless the SA_NODEFER or
+  SA_NOMASK flags are used.
 
-> > > Why do we want to keep this behaviour? It is undocumented, it is
-> > > non-posix, and it appears to do nothing you cannot do with the existing
-> > > access() call.
-> > > 
-> > > Are there any applications using it? If so, which ones, and why?
-> > 
-> > I have absolutely no idea. 
-> > 
-> > Looking closer, there's a problem with O_TRUNC as well:
-> > 
-> > 	namei_flags = flags;
-> > 	if ((namei_flags+1) & O_ACCMODE)
-> > 		namei_flags++;
-> > 	if (namei_flags & O_TRUNC)
-> > 		namei_flags |= 2;
-> > 
-> > So if flags is O_RDONLY|O_TRUNC, intent.open.flags will be
-> > FMODE_WRITE|FMODE_READ|O_TRUNC, but filp->f_mode will be FMODE_READ.
-> 
-> That is a bug that needs to be fixed in the intent.open.flags. We don't
-> ever want to be opening the file for writing at the filesystem level
-> when the user specified open for read.
+ From arch/i386/kernel/signal.c:
 
-No, it's being opened for read.  The namei_flags (and hence
-intent.open.flags) will have FMODE_WRITE, so that the permission is
-checked for write.
-
-So I thing the bug is not in the calculation of namei_flags, rather
-the fact that intent.open.flags is set to namei_flags, rather than the
-original open flags.  
-
-Miklos
+         if (ret && !(ka->sa.sa_flags & SA_NODEFER)) {
+                 spin_lock_irq(&current->sighand->siglock);
+                 sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
+                 sigaddset(&current->blocked,sig);
+                 recalc_sigpending();
+                 spin_unlock_irq(&current->sighand->siglock);
+         }
 
 
+If I understand man pages correctly, the handled signal should be blocked
+depending on SA_NODEFER, while sa_mask should be used unconditionally to
+block additional signals.
+Kernel code blocks both "handled signal" _and_ sa_mask only if SA_NODEFER
+isn't set.
+
+Which is the right behavior?
+
+Regards
+		Bodo
+
+P.S.:
+Please CC me, I'm not on the list.

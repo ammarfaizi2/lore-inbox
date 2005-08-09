@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbVHIMMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbVHIML0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932514AbVHIMMN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 08:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVHIMMM
+	id S932505AbVHIML0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 08:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVHIML0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 08:12:12 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:7072 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932514AbVHIMMM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 08:12:12 -0400
-Message-ID: <42F89F79.1060103@aitel.hist.no>
-Date: Tue, 09 Aug 2005 14:20:09 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Tue, 9 Aug 2005 08:11:26 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:54448 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S932505AbVHIMLZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 08:11:25 -0400
+Subject: RE: Unable to mount the SD card formatted using the DIGITAL CAMREA on Linux box
+Date: Tue, 9 Aug 2005 17:41:25 +0530
 MIME-Version: 1.0
-To: Dave Airlie <airlied@gmail.com>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes. Also some X trouble.
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>	 <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com>
-In-Reply-To: <21d7e99705080503515e3045d5@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <C349E772C72290419567CFD84C26E01709FE9C@mail.esn.co.in>
+Content-class: urn:content-classes:message
+X-MS-Has-Attach: 
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-TNEF-Correlator: 
+Thread-Topic: Unable to mount the SD card formatted using the DIGITAL CAMREA on Linux box
+Thread-Index: AcWUQ5eUBWmJXYK1SQ6wxXaIm8pJawIlntBA
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>,
+       "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie wrote:
+Dear all,
 
->
->     I switched back to 2.6.13-rc4-mm1 at this point for another reason,
->     my X display aquired a nasty tendency to go blank for no reason
->     during work,
->     something I could fix by changing resolution baqck and forth.  X
->     also tended to get
->     stuck for a minute now and then - a problem I haven't seen since
->     early 2.6.
->
->
->
-> which head the radeon or MGA or both?
+No, the TI PCI 7x21 provides IDE like interface.
+However, that is NOT the point here?
 
-The radeon 9200SE-pci gets stuck.  The MGA-agp seems to be fine. I have 
-compiled
-dri support for both, but I can't use it at the moment.  I think that is
-caused by having ubuntu's xorg installed on debian.  I needed xorg
-in order to run an xserver that doesn't use any tty - this way I can use
-two keyboards and have two simultaneous users. Debians xorg wasn't ready
-at the moment. The setup is fine with 2.6.13-rc4-mm1 x86-64, no problems 
-there.
+I just want to know what could be the problem in mounting a SD card
+Formatted in the camera while it is mounting on windows (same HW).
 
-Helge Hafting
+Regards,
+Mukund Jampala
+
+>> Execute linux `fdisk` on the device. You may find that the
+>> ID byte is wrong.
+>>
+>> Also, why do you need a special block device driver? The SanDisk
+>> and CompacFlash devices should look like IDE drives.
+>
+>SD usually is secure digital (MMC compatible somewhat I believe).  It
+>does not provide IDE unlike CompactFlash.  SD uses a serial interface
+if
+>I remember correctly.
+>
+>Len Sorensen
+
+
+
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbVHIOtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVHIOwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbVHIOtF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 10:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbVHIOtE
+	id S964803AbVHIOwS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 10:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbVHIOwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 10:49:04 -0400
-Received: from gold.veritas.com ([143.127.12.110]:49326 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S964799AbVHIOtD (ORCPT
+	Tue, 9 Aug 2005 10:52:18 -0400
+Received: from berkeleydata.net ([64.62.242.226]:47289 "HELO berkeleydata.net")
+	by vger.kernel.org with SMTP id S964803AbVHIOwS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 10:49:03 -0400
-Date: Tue, 9 Aug 2005 15:50:47 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Daniel Phillips <phillips@arcor.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-In-Reply-To: <1123597903.30257.204.camel@gaston>
-Message-ID: <Pine.LNX.4.61.0508091548150.13674@goblin.wat.veritas.com>
-References: <42F57FCA.9040805@yahoo.com.au>  <200508090710.00637.phillips@arcor.de>
- <42F7F5AE.6070403@yahoo.com.au>  <1123577509.30257.173.camel@gaston> 
- <Pine.LNX.4.61.0508091215490.11660@goblin.wat.veritas.com>
- <1123597903.30257.204.camel@gaston>
+	Tue, 9 Aug 2005 10:52:18 -0400
+Message-ID: <42F8C326.2020102@berkeleydata.net>
+Date: Tue, 09 Aug 2005 08:52:22 -0600
+From: Jonathan Ellis <jonathan@berkeleydata.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Aug 2005 14:49:03.0057 (UTC) FILETIME=[7BF40C10:01C59CF1]
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: datagram queue length
+References: <42F8B5EC.2090204@berkeleydata.net> <Pine.LNX.4.61.0508091037180.26280@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0508091037180.26280@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Aug 2005, Benjamin Herrenschmidt wrote:
-> 
-> > But you don't mind if they are refcounted, do you?
-> > Just so long as they start out from 1 so never get freed.
-> 
-> Well, a refcounting bug would let them be freed and kaboom ... That's
-> why a "PG_not_your_ram_dammit" bit would be useful. It could at least
-> BUG_ON when refcount reaches 0 :)
+linux-os (Dick Johnson) wrote:
+>>I seem to be running into a limit of 64 queued datagrams.  This isn't a
+>>data buffer size; varying the size of the datagram makes no difference
+>>in the observed queue size.  If more datagrams are sent before some are
+>>read, they are silently dropped.  (By "silently," I mean, "tcpdump
+>>doesn't record these as dropped packets.")
 
-Okay, great, let's give every struct page two refcounts,
-so if one of them goes wrong, the other one will save us.
+> Your datagram receiver isn't keeping up with your datagram
+> transmitter. If you increase the number of datagrams that are
+> being queued, you will still encounter the same problem, but
+> after more datagrams are stored.
 
-Hugh
+Right -- except that my consumer is quite fast enough in the average 
+case; it's only the worst case where it can't keep up.  Extending the 
+queue would allow it to catch up with such bursts of activity without 
+dropping requests.  The low- and mid- hanging fruit has already been 
+picked as far as consumer optimization goes; anything remaining is quite 
+high indeed.
+
+> In your test code, you deliberately don't receive anything
+> for 5 seconds. What do you expect?
+
+I expected to demonstrate the problem. :)
+
+-Jonathan

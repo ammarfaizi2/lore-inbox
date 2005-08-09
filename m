@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVHIHwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbVHIHyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbVHIHwP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 03:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVHIHwP
+	id S932462AbVHIHyS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 03:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVHIHyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 03:52:15 -0400
-Received: from burnt-tech.com ([66.98.218.53]:53722 "HELO burntmail.com")
-	by vger.kernel.org with SMTP id S932460AbVHIHwO convert rfc822-to-8bit
+	Tue, 9 Aug 2005 03:54:18 -0400
+Received: from burnt-tech.com ([66.98.218.53]:31451 "HELO burntmail.com")
+	by vger.kernel.org with SMTP id S932462AbVHIHyS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 03:52:14 -0400
+	Tue, 9 Aug 2005 03:54:18 -0400
 From: "vinay" <vinays@burntmail.com>
 To: linux-kernel@vger.kernel.org
+Cc: vinays@burntmail.com
 Importance: Normal
 Sensitivity: Normal
-Message-ID: <W727852995526691123573922@burntmail>
+Message-ID: <W74008295030461123574049@burntmail>
 X-Mailer: Mintersoft VisualMail, Build 4.0.111601
 X-Originating-IP: [203.200.200.70]
-Date: Tue, 09 Aug 2005 07:52:02 +0000
-Subject: Kernels Out Of Memoy(OOM) killer Problem ?
+Date: Tue, 09 Aug 2005 07:54:09 +0000
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT

@@ -1,89 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbVHIK6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbVHILNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbVHIK6e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 06:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVHIK6e
+	id S932515AbVHILNg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 07:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVHILNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 06:58:34 -0400
-Received: from kalyani.insilicasemi.com ([203.145.179.171]:3228 "EHLO
-	kalyani.insilicasemi.com") by vger.kernel.org with ESMTP
-	id S932511AbVHIK6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 06:58:34 -0400
-From: "Sudheer" <rsud@insilica.com>
-To: "'raja'" <vnagaraju@effigent.net>, <linux-kernel@vger.kernel.org>
-Subject: RE: query...
-Date: Tue, 9 Aug 2005 16:28:13 +0530
-Message-ID: <025101c59cd1$412419b0$2f08a8c0@varuna>
+	Tue, 9 Aug 2005 07:13:36 -0400
+Received: from silver.veritas.com ([143.127.12.111]:38221 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932515AbVHILNf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 07:13:35 -0400
+Date: Tue, 9 Aug 2005 12:15:19 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>, ncunningham@cyclades.com,
+       Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+In-Reply-To: <42F88514.9080104@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0508091145570.11660@goblin.wat.veritas.com>
+References: <42F57FCA.9040805@yahoo.com.au> <200508090710.00637.phillips@arcor.de>
+ <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au>
+ <20050809080853.A25492@flint.arm.linux.org.uk>
+ <Pine.LNX.4.61.0508091012480.10693@goblin.wat.veritas.com>
+ <42F88514.9080104@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <42F8855E.7070306@effigent.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Aug 2005 11:13:33.0369 (UTC) FILETIME=[61423A90:01C59CD3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First -> you hit the wrong ML
-Second -> The message queue exists and the permissions specified by
-oflag are denied, or the message queue does not exist and permission to
-create the message queue is denied
+On Tue, 9 Aug 2005, Nick Piggin wrote:
+> Hugh Dickins wrote:
+> > I think Nick is treating the "use" of PageReserved in ioremap much too
+> > reverentially.  Fine to leave its removal from there to a later stage,
+> > but why shouldn't that also be removed?
+> 
+> Well, as far as I had been able to gather, ioremap is trying to
+> ensure it does indeed only hit one of these holes, and not valid
+> RAM.
 
+Who can tell?  rmk's mail sugggests it should work on some valid RAM.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of raja
-Sent: Tuesday, August 09, 2005 3:59 PM
-To: linux-kernel@vger.kernel.org
-Subject: query...
+ioremap is making a similar check to the one remap_pfn_range used
+to make; but I see no good reason for it at all.  ioremap should be
+allowed to map whatever the caller asked, just as memset is allowed
+to set whatever the caller asked.  It's up to the caller to get it
+right, not for the function to demand the added reassurance of some
+mysterious page flag being set.
 
-   Hi,
-      I am Creating a posix message queue using the following code.
+(But in what I said earlier about VM_RESERVE making sure wrong pages
+not freed, I was confused and confusing ioremap with remap_pfn_range.)
 
+> I thought the fact that it *won't* bail out when encountering
+> kernel text or remap_pfn_range'ed pages was only due to PG_reserved
+> being the proverbial jack of all trades, master of none.
+> 
+> I could be wrong here though.
+> 
+> But in either case: I agree that it is probably not a great loss
+> to remove the check, although considering it will be needed for
+> swsusp anyway...
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <mqueue.h>
-#include <errno.h>
-#include <string.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+swsusp (and I think crashdump has a similar need) is a very different
+case: it's approaching memory from the zone/mem_map end, with no(?) idea
+of how the different pages are used: needs to save all the info while
+avoiding those areas which would give trouble.  I can well imagine it
+needs either a page flag or a table lookup to decide that.
 
-int main(int argc,char *argv[])
-{
-    mqd_t mq_des;
-    mq_des = mq_open(argv[1],O_CREAT | O_RDWR | O_EXCL,S_IRUSR | S_IWUSR
+But ioremap and remap_pfn_range are coming from drivers which (we hope)
+know what they're mapping these particular areas for.  If it's provable
+that the meaning which swsusp needs is equally usable for a little sanity
+check in ioremap, okay, but I'm sceptical.
 
-| S_IRGRP | S_IROTH , NULL);
-    if(mq_des < 0)
-    {
-        printf("Unable To Create MsgQ\n");
-        perror("mq_open");
-        return mq_des;
-    }
-    printf("MsgQ is Opened With Descriptor : %d\n",mq_des);
-    return mq_des;
-}
-
-
-and I after compiling I am giving
-
-./a.out /root/Desktop/msgq1
-
-
-But It is giving as unable to create message queue and showing error as
-'permission denied'
-
-Would you please help me.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Hugh

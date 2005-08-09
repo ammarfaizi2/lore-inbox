@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVHITN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVHITP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbVHITN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 15:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbVHITN4
+	id S932174AbVHITP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 15:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVHITP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 15:13:56 -0400
-Received: from smtp.istop.com ([66.11.167.126]:37770 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S932127AbVHITN4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 15:13:56 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-Date: Wed, 10 Aug 2005 05:14:13 +1000
-User-Agent: KMail/1.7.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-References: <42F57FCA.9040805@yahoo.com.au> <200508090710.00637.phillips@arcor.de> <42F7F5AE.6070403@yahoo.com.au>
-In-Reply-To: <42F7F5AE.6070403@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 9 Aug 2005 15:15:29 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:29763 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932174AbVHITP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 15:15:28 -0400
+Subject: Re: [RFC 1/3] non-resident page tracking
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Rik van Riel <riel@redhat.com>
+In-Reply-To: <20050809182517.GA20644@dmt.cnet>
+References: <20050808201416.450491000@jumble.boston.redhat.com>
+	 <20050808202110.744344000@jumble.boston.redhat.com>
+	 <20050809182517.GA20644@dmt.cnet>
+Content-Type: text/plain
+Date: Tue, 09 Aug 2005 21:15:26 +0200
+Message-Id: <1123614926.17222.19.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508100514.13672.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 August 2005 10:15, Nick Piggin wrote:
-> Daniel Phillips wrote:
-> > Why don't you pass the vma in zap_details?  For that matter, why are addr
-> > and end still passed down the zap chain when zap_details appears to
-> > duplicate that information?  OK, it is because zap_details is NULL in
-> > about twice as many places as it carries data.  But since the details
-> > parameter is already there, would it not make sense to press it into
-> > service to slim down those parameter lists a little?
->
-> Possibly. I initially did it that way, but it ended up fattening
-> paths that don't use details.
+On Tue, 2005-08-09 at 15:25 -0300, Marcelo Tosatti wrote:
+> Hi Rik,
+> 
+> Two hopefully useful comments:
+> 
+> i) ARC and its variants requires additional information about page
+> replacement (namely whether the page has been reclaimed from the L1 or
+> L2 lists).
+> 
+> How costly would it be to add this information to the hash table?
+> 
+I've been thinking on reserving another word in the cache-line and use
+that as a bit-array to keep that information; the only problems with
+that would be atomicy of the {bucket,bit} tuple and very large
+cachelines where NUM_NR > 32.
 
-It should not, it only affects, hmm, less than 10 places, each at the 
-beginning of a massive call chain, e.g., in madvise_dontneed:
+> ii) From my reading of the patch, the provided "distance" information is
+> relative to each hash bucket. I'm unable to understand the distance metric
+> being useful if measured per-hash-bucket instead of globally?
 
--	zap_page_range(vma, start, end - start, NULL);
-+	zap_page_range(start, end - start, &(struct zap){ .vma = vma });
+The assumption is that IFF the hash function has good distribution
+properties the per bucket distance is a good approximation of
+(distance >> nonres_shift).
 
-> And this way is less intrusive.
+> 
+> PS: Since remember_page() is always called with the zone->lru_lock held,
+> the preempt_disable/enable pair is unecessary at the moment... still, 
+> might be better to leave it there for safety reasons.
+> 
 
-Nearly the same I think, and makes forward progress in controlling this 
-middle-aged belly roll of an internal API.
+There being multiple zones; owning zone->lru_lock does not guarantee
+uniqueness on the remember_page() path as its a global structure.
 
-Regards,
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-Daniel

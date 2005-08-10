@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVHJM7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVHJNHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbVHJM7O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 08:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbVHJM7O
+	id S965093AbVHJNHW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 09:07:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965095AbVHJNHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 08:59:14 -0400
-Received: from poup.poupinou.org ([195.101.94.96]:14117 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S965089AbVHJM7O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 08:59:14 -0400
-Date: Wed, 10 Aug 2005 14:58:48 +0200
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Todd Poynor <tpoynor@mvista.com>, cpufreq@lists.linux.org.uk,
-       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: PowerOP 2/3: Intel Centrino support
-Message-ID: <20050810125848.GM852@poupinou.org>
-References: <20050809025419.GC25064@slurryseal.ddns.mvista.com> <20050810100133.GA1945@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050810100133.GA1945@elf.ucw.cz>
-User-Agent: Mutt/1.5.9i
-From: Bruno Ducrot <ducrot@poupinou.org>
+	Wed, 10 Aug 2005 09:07:22 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:59107 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S965093AbVHJNHV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 09:07:21 -0400
+Date: Wed, 10 Aug 2005 06:07:09 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linus Torvalds <torvalds@osdl.org>, kiran@scalex86.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix ide-disk.c oops caused by hwif == NULL
+In-Reply-To: <Pine.LNX.4.62.0508101310300.18940@numbat.sonytel.be>
+Message-ID: <Pine.LNX.4.62.0508100604020.12126@schroedinger.engr.sgi.com>
+References: <200508100459.j7A4xTn7016128@hera.kernel.org>
+ <Pine.LNX.4.62.0508101310300.18940@numbat.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 10, 2005 at 12:01:33PM +0200, Pavel Machek wrote:
-> Hi!
+On Wed, 10 Aug 2005, Geert Uytterhoeven wrote:
+
+> On Tue, 9 Aug 2005, Linux Kernel Mailing List wrote:
+> > tree 518f62158f0923573decb8f072ac7282fb7575cb
+> > parent aeb3f76350e78aba90653b563de6677b442d21d6
+> > author Christoph Lameter <christoph@lameter.com> Wed, 10 Aug 2005 09:59:21 -0700
+> > committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 10 Aug 2005 10:21:31 -0700
+> > 
+> > [PATCH] Fix ide-disk.c oops caused by hwif == NULL
 > 
-> > Minimal PowerOP support for Intel Enhanced Speedstep "Centrino"
-> > notebooks.  These systems run at an operating point comprised of a cpu
-> > frequency and a core voltage.  The voltage could be set from the values
-> > recommended in the datasheets if left unspecified (-1) in the operating
-> > point, as cpufreq does.
-> 
-> Eh? I thought these are handled okay by cpufreq already? What is
-> advantage of this over cpufreq?
+> How can this patch fix that? It still dereferences hwif without checking for a
+> NULL pointer.
 
-ATM I'm wondering what are the pro for those patches wrt current cpufreq
-infrastructure (especially cpufreq's notion of notifiers).
+Correct. So we need to indeed go back to a version that does check for 
+NULL that I initially proposed.
 
-I still don't find a good one but I'm surely missing something obvious.
-
--- 
-Bruno Ducrot
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+Index: linux-2.6/include/linux/ide.h
+===================================================================
+--- linux-2.6.orig/include/linux/ide.h	2005-08-09 19:47:14.000000000 -0700
++++ linux-2.6/include/linux/ide.h	2005-08-10 06:05:44.000000000 -0700
+@@ -1503,7 +1503,7 @@
+ 
+ static inline int hwif_to_node(ide_hwif_t *hwif)
+ {
+-	if (hwif->pci_dev)
++	if (hwif && hwif->pci_dev)
+ 		return pcibus_to_node(hwif->pci_dev->bus);
+ 	else
+ 		/* Add ways to determine the node of other busses here */

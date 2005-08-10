@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbVHJVux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbVHJVu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbVHJVux (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 17:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbVHJVux
+	id S1030290AbVHJVu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 17:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbVHJVu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 17:50:53 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:36879 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
-	id S1030291AbVHJVuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 17:50:52 -0400
-Date: Wed, 10 Aug 2005 23:50:32 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with usb-storage and /dev/sd?
-Message-ID: <20050810215032.GA27982@irc.pl>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050810192243.GA620@DervishD>
+	Wed, 10 Aug 2005 17:50:29 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56285 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030290AbVHJVu2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 17:50:28 -0400
+Date: Wed, 10 Aug 2005 23:50:22 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+Message-ID: <20050810215022.GA2465@elf.ucw.cz>
+References: <42F57FCA.9040805@yahoo.com.au> <1123577509.30257.173.camel@gaston> <42F87C24.4080000@yahoo.com.au> <200508100522.51297.phillips@arcor.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050810192243.GA620@DervishD>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200508100522.51297.phillips@arcor.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > Swsusp is the main "is valid ram" user I have in mind here. It
+> > wants to know whether or not it should save and restore the
+> > memory of a given `struct page`.
+> 
+> Why can't it follow the rmap chain?
 
-On Wed, Aug 10, 2005 at 09:22:43PM +0200, DervishD wrote:
->     If I plug my MP3 player (USB), the usb-storage module assigns it
-> device /dev/sda, which is right because I have it configured as such
-> in my /etc/fstab. Well, another day, another boot and I plug my USB
-> memory stick, and usb-storage assigns it device /dev/sda, quite cool
-> because I have it configured as such in my /etc/fstab, too.
->=20
->     The problem is that if I plug my USB memory, unplug it and plug
-> my MP3 player, it gets /dev/sdb this time, not /dev/sda. The mess is
-> even greater if I plug my card reader, which has four LUN's...
+It is walking physical memory, not memory managment chains. I need
+something like:
 
- That's what udev is for. Example rule to give my memory stick
-persistent name:
+static int saveable(struct zone * zone, unsigned long * zone_pfn)
+{
+        unsigned long pfn = *zone_pfn + zone->zone_start_pfn;
+        struct page * page;
 
-BUS=3D"usb", SYSFS_serial=3D"5B4B06010122", NAME=3D"pendriveZDZ%n", GROUP=
-=3D"floppy", MODE=3D"0662", RUN+=3D "/sbin/udev_run_hotplugd"
+        if (!pfn_valid(pfn))
+                return 0;
 
- Go figure how to udev-enable your distribution.
+        page = pfn_to_page(pfn);
+        BUG_ON(PageReserved(page) && PageNosave(page));
+        if (PageNosave(page))
+                return 0;
+        if (PageReserved(page) && pfn_is_nosave(pfn)) {
+                pr_debug("[nosave pfn 0x%lx]", pfn);
+                return 0;
+        }
+        if (PageNosaveFree(page))
+                return 0;
 
---=20
-Tomasz Torcz               "Never underestimate the bandwidth of a station
-zdzichu@irc.-nie.spam-.pl    wagon filled with backup tapes." -- Jim Gray
-
-
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
-
-iD8DBQFC+naoThhlKowQALQRAg0UAJwLBTNn1lAi3FfkpPA7O00NhWfexgCeJ0Jg
-etNj+nS9++CDOb6+9i+CMvI=
-=SHBe
------END PGP SIGNATURE-----
-
---HcAYCG3uE/tztfnV--
+        return 1;
+}
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

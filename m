@@ -1,102 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbVHJShc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965247AbVHJShm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030184AbVHJShc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 14:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965256AbVHJShc
+	id S965247AbVHJShm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 14:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965256AbVHJShm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 14:37:32 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:5793 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965247AbVHJShb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 14:37:31 -0400
-Message-ID: <42FA4963.5060507@pobox.com>
-Date: Wed, 10 Aug 2005 14:37:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [git patches] 2.6.x libata fixes
-Content-Type: multipart/mixed;
- boundary="------------070305070007070704000300"
-X-Spam-Score: 0.0 (/)
+	Wed, 10 Aug 2005 14:37:42 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:53263 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S965247AbVHJShl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 14:37:41 -0400
+Date: Wed, 10 Aug 2005 20:17:13 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, Olya Briginets <bolya@ukrpost.net>
+Subject: Re: [PATCH] 2.4.31: fix isofs mount options parser
+Message-ID: <20050810181713.GA28147@alpha.home.local>
+References: <20050810124654.GV9857@kmv.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050810124654.GV9857@kmv.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070305070007070704000300
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello Andrey,
 
-Please pull from the 'upstream-fixes' branch of
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+On Wed, Aug 10, 2005 at 04:46:54PM +0400, Andrey J. Melnikoff (TEMHOTA) wrote:
+> 
+> Hello Marcelo, LKML.
+> 
+> Attached patch fix this whatings from gcc-3.4 and allow user mount
+> isofs with "session" and "sbsector" options. Without this patch, gcc-3.4
+> optimizer always return zero.
 
-to obtain the two fixes described in the attached diffstat/changelog/patch.
+It should not, or it's a bug, because the first test (ivalue < 0) is false,
+so the second one (ivalue > 99) must be evaluated before returning anything.
 
+You patch is not the correct way to fix it either, because simple_strtoul()
+is defined as unsigned long. So with your patch, very large values of ivalue
+will be converted to negative and checked as invalid. In fact, you should have
+changed the ivalue type to unsigned long, and removed the (ivalue < 0) test.
 
---------------070305070007070704000300
-Content-Type: text/plain;
- name="libata-dev.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libata-dev.txt"
+Please repost it fixed, I should have time to merge it into the next hotfix.
 
- drivers/scsi/libata-scsi.c |    1 +
- drivers/scsi/sata_sx4.c    |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
-
-
-
-commit 42517438f9c1011a03e49a542cba32ac5a80dd8e
-Author: Tejun Heo <htejun@gmail.com>
-Date:   Wed Aug 10 13:38:27 2005 -0400
-
-    libata: fix EH-related lockup by properly cleaning EH command list
-    
-    Yet another hack due to the fact that libata is the only user of SCSI's
-    ->eh_strategy_handler() hook.
-
-commit fae009847c9ea3d668bbee21ce1d76764eca5039
-Author: Tejun Heo <htejun@gmail.com>
-Date:   Sun Aug 7 14:53:40 2005 +0900
-
-    [PATCH] sata: fix sata_sx4 dma_prep to not use sg->length
-    
-     sata_sx4 directly references sg->length to calculate total_len in
-    pdc20621_dma_prep().  This is incorrect as dma_map_sg() could have
-    merged multiple sg's into one and, in such case, sg->length doesn't
-    reflect true size of the entry.  This patch makes it use
-    sg_dma_len(sg).
-    
-    Signed-off-by: Tejun Heo <htejun@gmail.com>
-    Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+Thanks,
+Willy
 
 
+> 
+> --- cut ---
+> inode.c: In function `parse_options':
+> inode.c:341: warning: comparison of unsigned expression < 0 is always false
+> inode.c:347: warning: comparison of unsigned expression < 0 is always false
+> --- cut ---
+> 
+> Signed-of-by: Andrey Melnikoff <temnota@kmv.ru>
+> 
+> --- linux-2.4.31/fs/isofs/inode.c~old	2005-08-10 16:18:48.000000000 +0400
+> +++ linux-2.4.31/fs/isofs/inode.c	2005-08-10 16:19:11.000000000 +0400
+> @@ -337,13 +337,13 @@
+>  		}
+>  		if (!strcmp(this_char,"session") && value) {
+>  			char * vpnt = value;
+> -			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+> +			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+>  			if(ivalue < 0 || ivalue >99) return 0;
+>  			popt->session=ivalue+1;
+>  		}
+>  		if (!strcmp(this_char,"sbsector") && value) {
+>  			char * vpnt = value;
+> -			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+> +			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+>  			if(ivalue < 0 || ivalue >660*512) return 0;
+>  			popt->sbsector=ivalue;
+>  		}
+> 
+> -- 
+>  Best regards, TEMHOTA-RIPN aka MJA13-RIPE
+>  System Administrator. mailto:temnota@kmv.ru
+> 
 
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -385,6 +385,7 @@ int ata_scsi_error(struct Scsi_Host *hos
- 	 * appropriate place
- 	 */
- 	host->host_failed--;
-+	INIT_LIST_HEAD(&host->eh_cmd_q);
- 
- 	DPRINTK("EXIT\n");
- 	return 0;
-diff --git a/drivers/scsi/sata_sx4.c b/drivers/scsi/sata_sx4.c
---- a/drivers/scsi/sata_sx4.c
-+++ b/drivers/scsi/sata_sx4.c
-@@ -468,7 +468,7 @@ static void pdc20621_dma_prep(struct ata
- 	for (i = 0; i < last; i++) {
- 		buf[idx++] = cpu_to_le32(sg_dma_address(&sg[i]));
- 		buf[idx++] = cpu_to_le32(sg_dma_len(&sg[i]));
--		total_len += sg[i].length;
-+		total_len += sg_dma_len(&sg[i]);
- 	}
- 	buf[idx - 1] |= cpu_to_le32(ATA_PRD_EOT);
- 	sgt_len = idx * 4;
+> --- linux-2.4.31/fs/isofs/inode.c~old	2005-08-10 16:18:48.000000000 +0400
+> +++ linux-2.4.31/fs/isofs/inode.c	2005-08-10 16:19:11.000000000 +0400
+> @@ -337,13 +337,13 @@
+>  		}
+>  		if (!strcmp(this_char,"session") && value) {
+>  			char * vpnt = value;
+> -			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+> +			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+>  			if(ivalue < 0 || ivalue >99) return 0;
+>  			popt->session=ivalue+1;
+>  		}
+>  		if (!strcmp(this_char,"sbsector") && value) {
+>  			char * vpnt = value;
+> -			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+> +			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+>  			if(ivalue < 0 || ivalue >660*512) return 0;
+>  			popt->sbsector=ivalue;
+>  		}
 
---------------070305070007070704000300--

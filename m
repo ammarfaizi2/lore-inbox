@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVHJNGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbVHJNI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965092AbVHJNGg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 09:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVHJNGg
+	id S965095AbVHJNI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 09:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbVHJNI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 09:06:36 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23770 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965092AbVHJNGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 09:06:35 -0400
-Date: Wed, 10 Aug 2005 15:06:27 +0200
-From: Jan Kara <jack@suse.cz>
-To: Guillaume Pelat <guillaume.pelat@winch-hebergement.net>
-Cc: "Vladimir V. Saveliev" <vs@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs 3.6 + quota enabled, crash on delete (or maybe truncate)
-Message-ID: <20050810130627.GF22112@atrey.karlin.mff.cuni.cz>
-References: <42F27161.2020702@winch-hebergement.net> <42F33379.5030804@namesys.com> <42F91FC2.3010305@winch-hebergement.net>
+	Wed, 10 Aug 2005 09:08:26 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58792 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965095AbVHJNIZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 09:08:25 -0400
+Date: Wed, 10 Aug 2005 15:08:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-pm@osdl.org,
+       Martin =?utf-8?Q?MOKREJ=C5=A0?= <mmokrejs@ribosome.natur.cuni.cz>,
+       Zlatko Calusic <zlatko.calusic@iskon.hr>,
+       =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@24x7linux.com>,
+       john@illhostit.com, sjordet@gmail.com, fastboot@lists.osdl.org,
+       linux-kernel@24x7linux.com, ncunningham@cyclades.com,
+       Greg KH <greg@kroah.com>
+Subject: Re: FYI: device_suspend(...) in kernel_power_off().
+Message-ID: <20050810130803.GA2004@elf.ucw.cz>
+References: <42F121CD.5070903@ribosome.natur.cuni.cz> <20050803200514.3ddb8195.akpm@osdl.org> <20050805140837.GA5556@localhost> <42F52AC5.1060109@ribosome.natur.cuni.cz> <m1hde2xy74.fsf@ebiederm.dsl.xmission.com> <m13bplykt3.fsf_-_@ebiederm.dsl.xmission.com> <20050807190222.GF1024@openzaurus.ucw.cz> <m1u0i1wmvr.fsf@ebiederm.dsl.xmission.com> <20050807211104.GE3100@elf.ucw.cz> <m1pssnvx84.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="oC1+HKm2/end4ao3"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42F91FC2.3010305@winch-hebergement.net>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <m1pssnvx84.fsf@ebiederm.dsl.xmission.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---oC1+HKm2/end4ao3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> >> > Code is not ready now => it can never be fixed? Thats quite a strange
+> >> > conclusion to make.
+> >> 
+> >> It seems there is an fundamental incompatibility with ACPI power off.
+> >> As best as I can tell the normal case of device_suspend(PMSG_SUSPEND)
+> >> works reasonably well in 2.6.x.
+> >
+> > Powerdown is going to have the same problems as the powerdown at the
+> > end of suspend-to-disk. Can you ask people reporting broken shutdown
+> > to try suspend-to-disk?
+> 
+> Everyone I know of who is affected has been copied on this thread.
+> However your request is just nonsense.  There is a device_resume in
+> the code before we get to the device_shutdown so there should be no
+> effect at all.  Are we looking at the same kernel?
 
-  Hi,
+Sorry, my fault. kernel/power/disk.c:power_down(): it calls
+device_shutdown even in PM_DISK_PLATFORM case. I thought it would do
+device_suspend() to enable drivers doing something more clever.
 
-> I just applied the patch submitted by Jan Kara:
-> http://bugzilla.kernel.org/show_bug.cgi?id=4771#c3
-> I dont know yet if it solves the problem :)
-  I actually should cure your problem but can have some unexpected
-sideffects. Please try an attached patch (it's the new one I posted 
-to bugzilla) - that should be a better fix.
-
-								Honza
+So only missing piece of puzzle seems to be making sure disks are
+properly spinned down in device_shutdown... and even that seems to be
+there, not sure why it was broken before.
+								Pavel
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
-
---oC1+HKm2/end4ao3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="reiser-2.6.13-rc6-create_fix.diff"
-
-Initialize key object ID in inode so that we don't try to remove the inode
-when we fail on some checks even before we manage to allocate something.
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.13-rc6/fs/reiserfs/namei.c linux-2.6.13-rc6-reiser_create_fix/fs/reiserfs/namei.c
---- linux-2.6.13-rc6/fs/reiserfs/namei.c	2005-08-12 10:39:25.000000000 +0200
-+++ linux-2.6.13-rc6-reiser_create_fix/fs/reiserfs/namei.c	2005-08-12 10:39:07.000000000 +0200
-@@ -593,6 +593,9 @@ static int new_inode_init(struct inode *
- 	 */
- 	inode->i_uid = current->fsuid;
- 	inode->i_mode = mode;
-+	/* Make inode invalid - just in case we are going to drop it before
-+	 * the initialization happens */
-+	INODE_PKEY(inode)->k_objectid = 0;
- 
- 	if (dir->i_mode & S_ISGID) {
- 		inode->i_gid = dir->i_gid;
-
---oC1+HKm2/end4ao3--
+if you have sharp zaurus hardware you don't need... you know my address

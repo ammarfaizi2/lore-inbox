@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVHJS7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbVHJTDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbVHJS7v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 14:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVHJS7v
+	id S1030201AbVHJTDS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 15:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbVHJTDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 14:59:51 -0400
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:42798 "EHLO
-	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
-	id S1030193AbVHJS7u convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 14:59:50 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 10 Aug 2005 15:03:18 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:39950 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030201AbVHJTDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 15:03:17 -0400
+Message-ID: <42FA5094.4010702@tmr.com>
+Date: Wed, 10 Aug 2005 15:08:04 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: NCQ support NVidia NForce4 (CK804) SATAII
-Date: Wed, 10 Aug 2005 11:59:48 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E5@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: NCQ support NVidia NForce4 (CK804) SATAII
-Thread-Index: AcWd2YFZuc18eub+QG6Y9oXjVCG5vgAAyZwg
-From: "Allen Martin" <AMartin@nvidia.com>
-To: "Michael Thonke" <iogl64nx@gmail.com>, "Jeff Garzik" <jgarzik@pobox.com>
-Cc: "linux mailing-list" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Aug 2005 18:59:48.0250 (UTC) FILETIME=[AE000FA0:01C59DDD]
+Newsgroups: gmane.linux.kernel
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <20050730100658.GB1942@elf.ucw.cz>
+In-Reply-To: <20050730100658.GB1942@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Ask NVIDIA.  They are the only company that gives me -zero- 
-> > information on their SATA controllers.
+Pavel Machek wrote:
+> Hi!
 > 
-> I thought of that.. *sigh*
-
-NVIDIA won't be documenting nForce4 SATA controllers, so Linux NCQ
-support for nForce4 is unlikely.  I'm hoping this will change with
-future products.
-
-> > As such, there are -zero- plans for NCQ on NVIDIA 
-> controllers at this 
-> > time.
 > 
-> Could it be possible to make reverse engeneering? I think they should 
-> work as the SATA-IO SATAII specification says.
+>>I was finally able to get C3 state working. It seems that my BIOS is
+>>leaving USB controllers in an active state(?). Without any USB drivers
+>>loaded, C3 is not possible. With drivers loaded, but no device plugged
+>>in C3 works fine. Kernel is 2.6.13-rc3-mm3 + acpi-sbs.
+>>
+>>With working C3 there are indeed differences:
+>>
+>>Voltage is 16.5 V
+>>
+>>HZ=100:  ~460 mA => 7.59 W
+>>HZ=250:  ~468 mA => 7.72 W
+>>HZ=1000: ~494 mA => 8.15 W
+> 
+> 
+> 0.55W difference, wow. And that's 7% difference to overall system
+> consumption.
 
-The SATA-IO SATA-II specification says nothing about host controller
-implementations.  Intel documents a host controller implemetnation in
-the AHCI specification which is becoming an industry standard, but
-nForce4 SATA is not AHCI.
+But it's totally meaning less isn't it? Disable the USB, there goes the 
+kb/mouse, turn off the LCD you can't see anything, spin down the disk, 
+you can't do i/o, and run the CPU in idle so you can't DO anything.
 
--Allen
+At that point you might as well turn it off and save 100%.

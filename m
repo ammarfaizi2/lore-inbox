@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbVHJO7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbVHJO5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965140AbVHJO7O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 10:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbVHJO7O
+	id S965138AbVHJO5U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 10:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965145AbVHJO5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 10:59:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27087 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S965140AbVHJO7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 10:59:13 -0400
-Date: Wed, 10 Aug 2005 16:01:54 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       greg@kroah.com, rajesh.shah@intel.com
-Subject: Re: [Pcihpd-discuss] [PATCH] use bus_slot number for name
-Message-ID: <20050810150154.GB16724@parcelfarce.linux.theplanet.co.uk>
-References: <1123269366.8917.39.camel@whizzy>
+	Wed, 10 Aug 2005 10:57:20 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:22520 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S965138AbVHJO5T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 10:57:19 -0400
+Subject: Re: BUG: Real-Time Preemption 2.6.13-rc5-RT-V0.7.52-16
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Burgess <aab@cichlid.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050810115214.GA26108@elte.hu>
+References: <200508092158.j79LwlmM010246@cichlid.com>
+	 <1123633588.13135.27.camel@dhcp153.mvista.com>
+	 <20050810115214.GA26108@elte.hu>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 07:54:50 -0700
+Message-Id: <1123685690.19139.9.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123269366.8917.39.camel@whizzy>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 05, 2005 at 12:16:06PM -0700, Kristen Accardi wrote:
-> For systems with multiple hotplug controllers, you need to use more than
-> just the slot number to uniquely name the slot.  Without a unique slot
-> name, the pci_hp_register() will fail.  This patch adds the bus number
-> to the name.
+On Wed, 2005-08-10 at 13:52 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> > This may fix the warning , but I doubt it does anything for any hangs..
+> > 
+> > --- linux-2.6.12.orig/drivers/usb/core/hcd.c    2005-08-09 22:41:18.000000000 +0000
+> > +++ linux-2.6.12/drivers/usb/core/hcd.c 2005-08-10 00:23:16.000000000 +0000
+> > @@ -540,8 +540,7 @@ void usb_hcd_poll_rh_status(struct usb_h
+> >         if (length > 0) {
+> > 
+> >                 /* try to complete the status urb */
+> > -               local_irq_save (flags);
+> > -               spin_lock(&hcd_root_hub_lock);
+> > +               spin_lock_irqsave(&hcd_root_hub_lock, flags);
+> >                 urb = hcd->status_urb;
+> >                 if (urb) {
+> >                         spin_lock(&urb->lock);
+> 
+> what -RT tree is this against? This change is already in the -16 tree.
 
-That doesn't make much sense.  The slot number should at least be unique
-to the chassis, if not to the whole machine.  HP's large machines with
-multiple cabinets encode the cabinet number in the return from _SUN.
-It ends up as something like 80103 for a large machine while still being
-merely slot 3 for the smaller machines.
 
-IOW, I think this is a firmware bug which needs to be fixed there.
+Not the latest .. If this change is in -16 , then what's disabling
+interrupts ? Must something like this only deeper, I guess.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Daniel
+

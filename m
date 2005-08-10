@@ -1,94 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbVHJXHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbVHJXNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932581AbVHJXHb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 19:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbVHJXHb
+	id S932594AbVHJXNn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 19:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbVHJXNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 19:07:31 -0400
-Received: from mail.possibilityforge.com ([209.33.206.30]:8521 "EHLO
-	possibilityforge.com") by vger.kernel.org with ESMTP
-	id S932581AbVHJXHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 19:07:30 -0400
-Message-ID: <42FA88A8.8030205@possibilityforge.com>
-Date: Wed, 10 Aug 2005 17:07:20 -0600
-From: Jon Scottorn <jscottorn@possibilityforge.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+	Wed, 10 Aug 2005 19:13:43 -0400
+Received: from n1.cetrtapot.si ([212.30.80.17]:23793 "EHLO n1.cetrtapot.si")
+	by vger.kernel.org with ESMTP id S932595AbVHJXNm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 19:13:42 -0400
+Message-ID: <42FA89FE.9050101@cetrtapot.si>
+Date: Thu, 11 Aug 2005 01:13:02 +0200
+From: Hinko Kocevar <hinko.kocevar@cetrtapot.si>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic 2.6.12.4
-References: <006701c59de5$146f0960$a20cc60a@amer.sykes.com> <1273120000.1123714485@flay>
-In-Reply-To: <1273120000.1123714485@flay>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: I2C block reads with i2c-viapro: testers wanted
+References: <20050809231328.0726537b.khali@linux-fr.org>	<42FA6406.4030901@cetrtapot.si> <20050810230633.0cb8737b.khali@linux-fr.org>
+In-Reply-To: <20050810230633.0cb8737b.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -102.6
-X-Spam-Report: Spam detection software, running on the system "mail.possibilityforge.com", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Sorry, I actually figured it out. I had the adaptec i2o
-	driver built in the kernel along with the i2o items in the main driver
-	list and they were conflicting with each other. I removed the i2o items
-	from the main list and now everything works good. [...] 
-	Content analysis details:   (-102.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-100 USER_IN_WHITELIST      From: address is in the user's white-list
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	0.0 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I actually figured it out.
+Jean Delvare wrote:
+> 
+> Could you try running "i2cdump 0 0x50" and "i2cdump 0 0x50 i" (with the
+> patch still applied), and compare both the outputs and the time each
+> command takes? You should see similar outputs, but the second command
+> should be magnitudes faster. This would confirm that the I2C block mode
+> works as intended on your VT8233 chip.
 
-I had the adaptec i2o driver built in the kernel along with the i2o
-items in the main driver list and they were conflicting with each
-other.  I removed the i2o items from the main list and now everything
-works good.
+Hmm, not really. Here it takes 6 seconds for the first test nad about 5 seconds 
+for the second test (I just read the WARNING - need to substract 5s from the 
+results...).
 
-Thanks,
+noa xtrm # time i2cdump 0 0x50
+No size specified (using byte-data access)
+   WARNING! This program can confuse your I2C bus, cause data loss and worse!
+   I will probe file /dev/i2c-0, address 0x50, mode byte
+   You have five seconds to reconsider and press CTRL-C!
 
-Jon
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+00: 80 08 07 0d 09 02 40 00 04 75 75 00 82 10 00 01    ??????@.?uu.??.?
+10: 0e 04 0c 01 02 20 00 a0 75 00 00 50 3c 50 2d 20    ????? .?u..P<P-
+20: 90 90 50 50 00 00 00 00 00 00 00 00 00 00 00 00    ??PP............
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 a7    ...............?
+40: ce 00 00 00 00 00 00 00 01 4d 34 20 37 30 4c 33    ?.......?M4 70L3
+50: 32 32 34 44 54 30 2d 43 42 30 20 30 44 02 51 45    224DT0-CB0 0D?QE
+60: 0b c8 db 00 4c 39 41 37 43 33 4e 00 00 00 00 00    ???.L9A7C3N.....
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+80: 00 20 12 02 22 07 ff ff ff ff ff 18 04 16 ff ff    . ??"?.....???..
+90: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+a0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+b0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+c0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+d0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+e0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+f0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
 
-Martin J. Bligh wrote:
+real	0m6.033s
+user	0m0.000s
+sys	0m0.004s
+noa xtrm # time i2cdump 0 0x50 i
+   WARNING! This program can confuse your I2C bus, cause data loss and worse!
+   I will probe file /dev/i2c-0, address 0x50, mode i2c block
+   You have five seconds to reconsider and press CTRL-C!
 
->--On Wednesday, August 10, 2005 13:52:45 -0600 Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
->
->  
->
->>>I am trying a custom 2.6.8 kernel now, and here is my
->>>2.6.12.4 .config file.
->>>Let me know what you think.
->>>      
->>>
->>I don't know much about Kernel Panics. I hope that someone that knows could
->>take a look, but so far, it looks like you need to be running Sid to have
->>this working propperly.
->>
->>Please try 2.6.8, I'm almost sure that it should work.
->>
->>And anyway, this ML is not really a user support list, try asking in a
->>debian mailing list, if they think that it's something wrong with the
->>kernel, then come back and let us know.
->>    
->>
->
->Kernel panics are fine, though you really need to give us the whole thing.
->Make sure you run it through ksymoops, or have CONFIG_KKALLSYMS or whatever
->it's called turned on.
->
->adpt_isr is in drivers/scsi/dpt_i2o.c, so you have some SCSI driver
->problem, I presume?
->
->M.
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+00: 80 08 07 0d 09 02 40 00 04 75 75 00 82 10 00 01    ??????@.?uu.??.?
+10: 0e 04 0c 01 02 20 00 a0 75 00 00 50 3c 50 2d 20    ????? .?u..P<P-
+20: 90 90 50 50 00 00 00 00 00 00 00 00 00 00 00 00    ??PP............
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 a7    ...............?
+40: ce 00 00 00 00 00 00 00 01 4d 34 20 37 30 4c 33    ?.......?M4 70L3
+50: 32 32 34 44 54 30 2d 43 42 30 20 30 44 02 51 45    224DT0-CB0 0D?QE
+60: 0b c8 db 00 4c 39 41 37 43 33 4e 00 00 00 00 00    ???.L9A7C3N.....
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+80: 00 20 12 02 22 07 ff ff ff ff ff 18 04 16 ff ff    . ??"?.....???..
+90: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+a0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+b0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+c0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+d0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+e0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+f0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+
+real	0m5.174s
+user	0m0.001s
+sys	0m0.002s
+
+while simple cat takes a lot less time:
+noa xtrm # time dd if=/sys/bus/i2c/devices/0-0050/eeprom bs=4 | hexdump -C
+00000000  80 08 07 0d 09 02 40 00  04 75 75 00 82 10 00 01  |......@..uu.....|
+00000010  0e 04 0c 01 02 20 00 a0  75 00 00 50 3c 50 2d 20  |..... ..u..P<P- |
+00000020  90 90 50 50 00 00 00 00  00 00 00 00 00 00 00 00  |..PP............|
+00000030  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 a7  |................|
+00000040  ce 00 00 00 00 00 00 00  01 4d 34 20 37 30 4c 33  |.........M4 70L3|
+00000050  32 32 34 44 54 30 2d 43  42 30 20 30 44 02 51 45  |224DT0-CB0 0D.QE|
+00000060  0b c8 db 00 4c 39 41 37  43 33 4e 00 00 00 00 00  |....L9A7C3N.....|
+00000070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000080  00 20 12 02 22 07 ff ff  ff ff ff 18 04 16 ff ff  |. .."...........|
+00000090  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  |................|
+*
+64+0 zapisov na vhodu
+64+0 zapisov na izhodu
+00000100
+
+real	0m0.600s
+user	0m0.002s
+sys	0m0.005s
+
+It seems pretty fast in all cases (i2cdump, i2cdump block and cat) and results 
+are close too (taing WARNING delay into account).
+
+regards,
+hinko k
+-- 
+..because under Linux "if something is possible in principle,
+then it is already implemented or somebody is working on it".
+
+					--LKI

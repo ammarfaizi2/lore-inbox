@@ -1,68 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbVHJTzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbVHJTw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbVHJTzG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 15:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbVHJTzF
+	id S1030210AbVHJTw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 15:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbVHJTw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 15:55:05 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:52748 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1030215AbVHJTzE convert rfc822-to-8bit (ORCPT
+	Wed, 10 Aug 2005 15:52:57 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:16878
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1030210AbVHJTw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 15:55:04 -0400
+	Wed, 10 Aug 2005 15:52:56 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Jon Scottorn'" <jscottorn@possibilityforge.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel panic 2.6.12.4
+Date: Wed, 10 Aug 2005 13:52:45 -0600
+Message-ID: <006701c59de5$146f0960$a20cc60a@amer.sykes.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 10 Aug 2005 19:55:02.0878 (UTC) FILETIME=[65AC27E0:01C59DE5]
-Content-class: urn:content-classes:message
-Subject: CCITT-CRC16 in kernel
-Date: Wed, 10 Aug 2005 15:54:52 -0400
-Message-ID: <Pine.LNX.4.61.0508101549280.10525@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CCITT-CRC16 in kernel
-Thread-Index: AcWd5WXBp/Iq+LlzRTWWC0p/BzN0BQ==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <42FA575A.9040307@possibilityforge.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I am trying a custom 2.6.8 kernel now, and here is my
+> 2.6.12.4 .config file.
+> Let me know what you think.
 
-Hello CRC Wizards,
+I don't know much about Kernel Panics. I hope that someone that knows could
+take a look, but so far, it looks like you need to be running Sid to have
+this working propperly.
 
-I am trying to use ../linux-2.6.12/lib/crc_citt in a driver.
-Basically, it doesn't return anything that closely resembles
-the CCIT-16 CRC. I note that drivers that use it expect it
-to return 0xf0b8 if it performs the CRC of something that
-has the CRC appended (weird).
+Please try 2.6.8, I'm almost sure that it should work.
 
-Does anybody know what the CRC of a known string is supposed
-to be? I have documentation that states that the CCITT CRC-16
-of "123456789" is supposed to be 0xe5cc and "A" is supposed
-to be 0x9479. The kernel one doesn't do this. In fact, I
-haven't found anything on the net that returns the "correct"
-value regardless of how it's initialized or how it's mucked
-with after the CRC (well I could just set the CRC to 0 and
-add the correct number). Anyway, how do I use the crc_citt
-in the kernel? I've grepped through some drivers that use
-it and they all seem to check the result against some
-magic rather than performing the CRC of data, but not the
-CRC, then comparing it to the CRC. One should not have
-to use magic to verify a CRC, one should just perform
-a CRC on the data, but not the CRC, then compare the result
-with the CRC. Am I missing something here?
+And anyway, this ML is not really a user support list, try asking in a
+debian mailing list, if they think that it's something wrong with the
+kernel, then come back and let us know.
 
+.Alejandro
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+>
+> Alejandro Bonilla wrote:
+>
+> >>Hi,
+> >>
+> >>   I am in need of some help!
+> >>I have installed Debian which has 2.6.8-2 kernel on it.
+> After a fresh
+> >>install I downloaded the 2.6.12.4 kernel and went to upgrade.  After
+> >>making the necessary changes in menuconfig I rebuilt the kernel and
+> >>install it.  It boots up until I get:
+> >>Modules linked in:
+> >>CPU:       0
+> >>EIP:         0060:[c026d55d]   Not tainted VLI
+> >>EFLAGS: 00010006    (2.6.12.4)
+> >>EIP is at adpt_isr+0x178/0x1f5
+> >>.......
+> >>Cut out for space and time as I am typeing it all in.
+> >>........
+> >><0>Kernel panic - not syncing: Fatal exception in interrupt
+> >>
+> >>Any help would be greatly appreciated.
+> >>I have been messing with this issue for the past 3 days now.  I have
+> >>tried 2.6.11, 2.6.11.11, 2.6.12, 2.6.12.3, 2.6.12.4 and all of those
+> >>kernels end up with the same problem.
+> >>
+> >>Thanks in advance.
+> >>
+> >>Jon
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

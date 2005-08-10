@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbVHJPZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbVHJPXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965157AbVHJPZl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 11:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbVHJPZl
+	id S965156AbVHJPXO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 11:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbVHJPXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 11:25:41 -0400
-Received: from silver.veritas.com ([143.127.12.111]:33384 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S965157AbVHJPZk
+	Wed, 10 Aug 2005 11:23:14 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:3824 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S965156AbVHJPXN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 11:25:40 -0400
-Date: Wed, 10 Aug 2005 16:27:31 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Gleb Natapov <glebn@voltaire.com>
-cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH repost] PROT_DONTCOPY: ifiniband
- uverbs fork support
-In-Reply-To: <20050810132611.GP16361@minantech.com>
-Message-ID: <Pine.LNX.4.61.0508101623480.4525@goblin.wat.veritas.com>
-References: <20050719165542.GB16028@mellanox.co.il> <20050725171928.GC12206@mellanox.co.il>
- <Pine.LNX.4.61.0507261312460.16985@goblin.wat.veritas.com>
- <20050726133553.GA22276@mellanox.co.il> <Pine.LNX.4.61.0508091759050.14886@goblin.wat.veritas.com>
- <20050810083943.GM16361@minantech.com> <Pine.LNX.4.61.0508101412530.3153@goblin.wat.veritas.com>
- <20050810132611.GP16361@minantech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Aug 2005 15:25:38.0358 (UTC) FILETIME=[C2DE2560:01C59DBF]
+	Wed, 10 Aug 2005 11:23:13 -0400
+Subject: Re: BUG: Real-Time Preemption 2.6.13-rc5-RT-V0.7.52-16
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Burgess <aab@cichlid.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050810115214.GA26108@elte.hu>
+References: <200508092158.j79LwlmM010246@cichlid.com>
+	 <1123633588.13135.27.camel@dhcp153.mvista.com>
+	 <20050810115214.GA26108@elte.hu>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 08:21:38 -0700
+Message-Id: <1123687304.19139.22.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Aug 2005, Gleb Natapov wrote:
-> On Wed, Aug 10, 2005 at 02:22:40PM +0100, Hugh Dickins wrote:
-> > 
-> > Your stack example is a good one: if we end up setting VM_DONTCOPY on
-> > the user stack, then I don't think fork's child will get very far without
-> > hitting a SIGSEGV.
+On Wed, 2005-08-10 at 13:52 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
 > 
-> I know, but I prefer child SIGSEGV than silent data corruption.
+> > This may fix the warning , but I doubt it does anything for any hangs..
+> > 
+> > --- linux-2.6.12.orig/drivers/usb/core/hcd.c    2005-08-09 22:41:18.000000000 +0000
+> > +++ linux-2.6.12/drivers/usb/core/hcd.c 2005-08-10 00:23:16.000000000 +0000
+> > @@ -540,8 +540,7 @@ void usb_hcd_poll_rh_status(struct usb_h
+> >         if (length > 0) {
+> > 
+> >                 /* try to complete the status urb */
+> > -               local_irq_save (flags);
+> > -               spin_lock(&hcd_root_hub_lock);
+> > +               spin_lock_irqsave(&hcd_root_hub_lock, flags);
+> >                 urb = hcd->status_urb;
+> >                 if (urb) {
+> >                         spin_lock(&urb->lock);
+> 
+> what -RT tree is this against? This change is already in the -16 tree.
 
-Most people will share your preference, but neither is satisfactory.
+It looks like it in the same function, only further down. The patch
+above didn't add a "local_irq_save" , but there is one added in -16
+around usb_hcd_giveback_urb()  .. 
 
-> In most cases child will exec immediately after fork so no problem
-> in this case.
+Daniel
 
-In most(?) cases it won't even be able to exec before the SIGSEGV.
-
-Hugh

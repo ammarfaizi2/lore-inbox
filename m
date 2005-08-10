@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965185AbVHJQW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbVHJQ13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965185AbVHJQW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 12:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVHJQW5
+	id S965189AbVHJQ13 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 12:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbVHJQ12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 12:22:57 -0400
-Received: from pop.gmx.de ([213.165.64.20]:34967 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965173AbVHJQW4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 12:22:56 -0400
-Date: Wed, 10 Aug 2005 18:22:54 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+	Wed, 10 Aug 2005 12:27:28 -0400
+Received: from mxsf10.cluster1.charter.net ([209.225.28.210]:33685 "EHLO
+	mxsf10.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S965189AbVHJQ11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 12:27:27 -0400
+X-IronPort-AV: i="3.96,97,1122868800"; 
+   d="scan'208"; a="1424047886:sNHT15746624"
 MIME-Version: 1.0
-References: <11855.1123690475@www37.gmx.net>
-Subject: =?ISO-8859-1?Q?Re:_Signal_handling_possibly_wrong?=
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <23304.1123690974@www36.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17146.10987.646530.492808@smtp.charter.net>
+Date: Wed, 10 Aug 2005 12:27:23 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: John Stoffel <john@stoffel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
+In-Reply-To: <1123688778.5134.3.camel@mulgrave>
+References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
+	<200508081954.52638.jesper.juhl@gmail.com>
+	<17145.1417.329260.524528@smtp.charter.net>
+	<1123617516.5170.42.camel@mulgrave>
+	<17145.3629.933024.963438@smtp.charter.net>
+	<1123635010.5170.75.camel@mulgrave>
+	<17146.7454.818003.464185@smtp.charter.net>
+	<1123688778.5134.3.camel@mulgrave>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Steven Rostedt (rostedt@goodmis.org) wrote:
-> > Where, sa_mask is _ignored_ if NODEFER is set. (I now have woken up!).
-> > The attached program shows that the sa_mask is indeed ignored when
-> > SA_NODEFER is set.
-> > 
-> > Now the real question is... Is this a bug?
-> 
-> That's not correct w.r.t. SUSv3.  sa_mask should be always used and
-> SA_NODEFER is just whether or not to add that signal in.
 
-Yes.
+James> Well, I suspect the tape is hanging the bus, from which no card
+James> can recover.
 
-> SA_NODEFER
->     [XSI] If set and sig is caught, sig shall not be added to the 
->     thread's
->     signal mask on entry to the signal handler unless it is included in
->     sa_mask. Otherwise, sig shall always be added to the thread's signal
->     mask on entry to the signal handler.
+Blech, not going to be fun to fix this sucker.
 
-It's amazing that this non-conformance was never spotted before.
-It seems to go all the way back to kernel 1.0 (when the flag
-was known as SA_NOMASK).
+James> Just to test this, can you try sending a bus reset with sgutils (from
+James> the debain package sg3-utils):
 
-I'll get something into the manual pages under BUGS.
+James> sg_reset -b /dev/sg3
 
-Cheers,
+James> Then remove and re-add the device with
 
-Michael
+James> echo scsi remove-single-device 1 0 6 0 > /proc/scsi/scsi
+James> echo scsi add-single-device 1 0 6 0 > /proc/scsi/scsi
 
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+James> And see if that brings it back.  If it doesn't I'm afraid the
+James> tape has the bus locked and nothing can free it.
 
-Want to help with man page maintenance?  Grab the latest
-tarball at ftp://ftp.win.tue.nl/pub/linux-local/manpages/
-and grep the source files for 'FIXME'.
+It didn't bring it back, but I'm also not at home to look at the
+device either.  Bummers.  I'll play around with this some more and get
+back to people when I can.
+
+Should I be moving back to 2.6.13-rc6 to get the speedup on /dev/sda
+anyway?  Since my OS partitions are on SCSI.

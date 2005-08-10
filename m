@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbVHJU31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbVHJUb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbVHJU31 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 16:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbVHJU31
+	id S1030257AbVHJUb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 16:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbVHJUb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 16:29:27 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:51368 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030254AbVHJU31 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 16:29:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PyDQCUD3qz2uixOnjRyyooF1zzRVMlrtCStqAB2S0TUCzGWfZkaYOGRd7wD8vWm9jrWzu9VtnWcVtJARl8ixjkjt3M0LTENyM+oyYYJyp199sNJYYLCZmef1td8RktBub1/cuwKn0tkrSZd3PoZkN/lNaBgWfb78+uFMFeJArN0=
-Message-ID: <60f2b0dc05081013296a0a7938@mail.gmail.com>
-Date: Wed, 10 Aug 2005 22:29:26 +0200
-From: Olivier Fourdan <fourdan@gmail.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: PATCH: Assume PM Timer to be reliable on broken board/BIOS
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42E6C86F.3010503@shaw.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4uGpt-2Y3-15@gated-at.bofh.it> <42E6C86F.3010503@shaw.ca>
+	Wed, 10 Aug 2005 16:31:57 -0400
+Received: from n1.cetrtapot.si ([212.30.80.17]:32493 "EHLO n1.cetrtapot.si")
+	by vger.kernel.org with ESMTP id S1030257AbVHJUb4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 16:31:56 -0400
+Message-ID: <42FA6406.4030901@cetrtapot.si>
+Date: Wed, 10 Aug 2005 22:31:02 +0200
+From: Hinko Kocevar <hinko.kocevar@cetrtapot.si>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: I2C block reads with i2c-viapro: testers wanted
+References: <20050809231328.0726537b.khali@linux-fr.org>
+In-Reply-To: <20050809231328.0726537b.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/27/05, Robert Hancock <hancockr@shaw.ca> wrote:
-> > In a nutshell, sometimes, the PIT/TSC timer runs 3x too fast [1]. That
-> > causes many issues, including DMA errors, MCE, and clock running way too
-> > fast (making the laptop unusable for any software development). So far,
-> > no BIOS update was able to fix the issue for me.
+Jean Delvare wrote:
+
+> The easiest way to test the patch is to use i2c-viapro in conjunction
+> with the eeprom driver. This supposes that you do actually have a VIA
+> south bridge with EEPROMs (typically SPD) on the SMBus. If not, you
+> won't be able to test, sorry.
 > 
-> Shouldn't this be looked into further rather than adding this
-> workaround? Surely Windows is using the PIT as well, so there must be
-> some way to get it to behave properly..
+> In order to verify whether I2C block reads work for you, just compare
+> the contents of this file:
+>   /sys/bus/i2c/devices/0-0050/eeprom
 
-Sorry for the late follow up. Well, the timer management in Windows
-depends on the HAL used. By default, it's the ACPI HAL that is used in
-this laptop.
+I've tested your patch on gericom X5 with VIA chipset and it works fine 
+without/with your patch (no diff in eeprom contents). Here is the lspci info:
 
-I did re-install Windows by forcing the "Standard PC"  HAL in Windows
-XP installation and, without ACPI, Windows exhibits the exact same
-problem as Linux or any other system: The clock runs 3 times too fast
-in Windows too...
+noa linux # lspci
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8753 [P4X266 AGP] (rev 01)
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266 AGP]
+0000:00:03.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus 
+Controller (rev 02)
+0000:00:07.0 USB Controller: VIA Technologies, Inc. USB (rev 50)
+0000:00:07.1 USB Controller: VIA Technologies, Inc. USB (rev 50)
+0000:00:07.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 51)
+0000:00:0a.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host 
+Controller (rev 46)
+0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+0000:00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus 
+Master IDE (rev 06)
+0000:00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 23)
+0000:00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 23)
+0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 
+Audio Controller (rev 30)
+0000:00:11.6 Communication controller: VIA Technologies, Inc. Intel 537 [AC97 
+Modem] (rev 70)
+0000:00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 70)
+0000:01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 440 
+Go 64M] (rev a3)
 
-So my guess is that the HAL ACPI in Windows does more or less the same
-thing that does my patch (updated, available here:
-http://www.xfce.org/~olivier/r3000), it calibrates the PIT timer based
-on the ACPI (PM) timer.
+regards,
+hinko k
 
-Cheers,
-Olivier.
+-- 
+..because under Linux "if something is possible in principle,
+then it is already implemented or somebody is working on it".
+
+					--LKI

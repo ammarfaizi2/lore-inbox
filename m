@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbVHJHqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbVHJHyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbVHJHqv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 03:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbVHJHqv
+	id S965040AbVHJHyk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 03:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbVHJHyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 03:46:51 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:35784 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S965036AbVHJHqu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 03:46:50 -0400
-X-ORBL: [67.117.73.34]
-Date: Wed, 10 Aug 2005 00:46:34 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org,
-       tuukka.tikkanen@elektrobit.com, george@mvista.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
-Message-ID: <20050810074634.GA4140@atomide.com>
-References: <200508031559.24704.kernel@kolivas.org> <20050805123754.GA1262@in.ibm.com> <20050808072600.GE28070@atomide.com> <20050808145421.GB4738@in.ibm.com> <20050808152008.GI28070@atomide.com> <Pine.LNX.4.61.0508090818170.28588@montezuma.fsmlabs.com>
+	Wed, 10 Aug 2005 03:54:40 -0400
+Received: from modeemi.modeemi.cs.tut.fi ([130.230.72.134]:62081 "EHLO
+	modeemi.modeemi.cs.tut.fi") by vger.kernel.org with ESMTP
+	id S965040AbVHJHyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 03:54:40 -0400
+Date: Wed, 10 Aug 2005 10:54:36 +0300
+To: Patrick McHardy <kaber@trash.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] net/ipv4 debug cleanup, kernel 2.6.13-rc5
+Message-ID: <20050810075436.GW27323@jolt.modeemi.cs.tut.fi>
+References: <20050807123145.GJ27323@jolt.modeemi.cs.tut.fi> <42F953CE.305@trash.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508090818170.28588@montezuma.fsmlabs.com>
+In-Reply-To: <42F953CE.305@trash.net>
 User-Agent: Mutt/1.5.6+20040907i
+From: shd@modeemi.cs.tut.fi (Heikki Orsila)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zwane Mwaikambo <zwane@arm.linux.org.uk> [050809 07:17]:
-> On Mon, 8 Aug 2005, Tony Lindgren wrote:
-> 
-> > As far as I remember enabling AMD stop grant disconnects all cpus. This
-> > means the system won't be able to do any work until the dyntick timer
-> > interrupt wakes up the system.
-> > 
-> > > Both requirements (idling all CPUs together vs individually) I think
-> > > will make the patch more complex.  Are such systems (which require having to 
-> > > idle all CPUs together) pretty common that we have to care about?!
-> > 
-> > Probably all AMD SMP based systems? Somebody with better knowledge should
-> > verify this.
-> 
-> It would be the K7 only.
+On Wed, Aug 10, 2005 at 03:09:34AM +0200, Patrick McHardy wrote:
+> These macros always looked a bit ugly to me, with your cleanup there
+> isn't a single spot left where we require them to accept code as
+> argument, so how about we change them to pure printk wrappers?
 
-OK, still quite a few systems.
+Sounds like a good idea.
 
-> > > But that may be too late on some CPUs. If dyn_tick->skip = 100, all
-> > > CPUs skip 100 ticks. However some CPUs may have timers that need to be
-> > > service much before that.
-> > 
-> > Not in the current case, as the system is completely idle until some
-> > interrupt wakes up the system. Of course it would be different if you make
-> > it per-CPU.
-> 
-> I once did a weekend version of this with SMP support and for the PIT, i 
-> had the last cpu to enter idle turn reprogram the PIT. Unfortunately this 
-> means waiting for all processors and isn't as effective as a result.
-> 
-> > Well we need to be able to do various things in the idle loop depending on
-> > the length of the estimated sleep. For example, if next_timer_interrupt is
-> > 2 jiffies away, we cannot do much. But if next_timer_interrupt is 2 seconds
-> > away, we can idle pretty much all devices.
-> > 
-> > > > But in any case on P4 systems the APIC timer is not the bottleneck as
-> > > > stopping or reprogramming PIT also kills APIC. (This does not happen on P3
-> > > > systems). So the bottleneck most likely is the length of PIT.
-> > > 
-> > > On these systems, do you disabled APIC (dyntick=noapic)?
-> > 
-> > Yeah. It only seems to work on P3 systems.
-> 
-> Odd, does reprogramming the APIC at that point get it going again?
-
-Hmmm, might be worth trying.
-
-Tony
+-- 
+Heikki Orsila			Barbie's law:
+heikki.orsila@iki.fi		"Math is hard, let's go shopping!"
+http://www.iki.fi/shd

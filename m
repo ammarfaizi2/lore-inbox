@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbVHJT31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbVHJTba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030213AbVHJT31 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 15:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbVHJT31
+	id S1030214AbVHJTba (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 15:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbVHJTba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 15:29:27 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:23010 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1030213AbVHJT31
+	Wed, 10 Aug 2005 15:31:30 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:26779 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S1030214AbVHJTb3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 15:29:27 -0400
-Subject: [patch] add inotify & ioprio syscalls to ARM
-From: Robert Love <rml@novell.com>
-To: rmk@arm.linux.org.uk
-Cc: The Cutch <ttb@tentacle.dhs.org>, Mr Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 10 Aug 2005 15:29:27 -0400
-Message-Id: <1123702167.23297.4.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Aug 2005 15:31:29 -0400
+Date: Wed, 10 Aug 2005 11:25:00 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@www.fnordora.org
+To: Brad Tilley <rtilley@vt.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: These guys can't spell Linux ;)
+In-Reply-To: <1123697051.4129.8.camel@athop1.ath.vt.edu>
+Message-ID: <Pine.LNX.4.44.0508101122550.24932-100000@www.fnordora.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell,
+On Wed, 10 Aug 2005, Brad Tilley wrote:
 
-Hey.  Attached patch adds the syscall stubs for the inotify and ioprio
-system calls to ARM.
+> http://eng.cowon.com/product/iAUDIOU2/feature.html
+> 
+> Mac and Lynux OS
+> Use Mac or Lynux? No problem!! 
+> iAUDIO U2 is available to be used on Mac or Lynux OS.
 
-	Robert Love
+Maybe it is a version of Linux that uses Lynx as a front end. (Kind of 
+like pinfo.)
 
+Do Debian developers now have to use apt-git?
 
-Signed-off-by: Robert Love <rml@novell.com>
+Sorry. Need more coffee...
 
- arch/arm/kernel/calls.S  |    6 ++++++
- include/asm-arm/unistd.h |    5 +++++
- 2 files changed, 11 insertions(+)
-
-diff -urN linux-2.6.13-rc6/arch/arm/kernel/calls.S linux/arch/arm/kernel/calls.S
---- linux-2.6.13-rc6/arch/arm/kernel/calls.S	2005-06-17 15:48:29.000000000 -0400
-+++ linux/arch/arm/kernel/calls.S	2005-08-10 15:26:10.000000000 -0400
-@@ -327,6 +327,12 @@
- /* 310 */	.long	sys_request_key
- 		.long	sys_keyctl
- 		.long	sys_semtimedop
-+/* vserver */	.long	sys_ni_syscall
-+		.long	sys_ioprio_set
-+/* 315 */	.long	sys_ioprio_get
-+		.long	sys_inotify_init
-+		.long	sys_inotify_add_watch
-+		.long	sys_inotify_rm_watch
- __syscall_end:
- 
- 		.rept	NR_syscalls - (__syscall_end - __syscall_start) / 4
-diff -urN linux-2.6.13-rc6/include/asm-arm/unistd.h linux/include/asm-arm/unistd.h
---- linux-2.6.13-rc6/include/asm-arm/unistd.h	2005-06-17 15:48:29.000000000 -0400
-+++ linux/include/asm-arm/unistd.h	2005-08-10 15:26:08.000000000 -0400
-@@ -350,6 +350,11 @@
- #endif
- 
- #define __NR_vserver			(__NR_SYSCALL_BASE+313)
-+#define __NR_ioprio_set			(__NR_SYSCALL_BASE+314)
-+#define __NR_ioprio_get			(__NR_SYSCALL_BASE+315)
-+#define __NR_inotify_init		(__NR_SYSCALL_BASE+316)
-+#define __NR_inotify_add_watch		(__NR_SYSCALL_BASE+317)
-+#define __NR_inotify_rm_watch		(__NR_SYSCALL_BASE+318)
- 
- /*
-  * The following SWIs are ARM private.
-
+-- 
+Q: Why do programmers confuse Halloween and Christmas?
+A: Because OCT 31 == DEC 25.
 

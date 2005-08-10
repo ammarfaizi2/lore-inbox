@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbVHJN6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbVHJOEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbVHJN6z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 09:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbVHJN6z
+	id S965116AbVHJOEp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 10:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbVHJOEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 09:58:55 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:14757 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965114AbVHJN6y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 09:58:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j1O4sS+i3rMA9BQntUZJ7DbrhP3wF43c4/2fE8dJcDEw+NLu+AmcwLtcvxToAOaw18bXCrRAEziUHd7tFgHt7ehd04qe0vhq6SlKGQdWVRxL+hljlB6lPpKIvW5kvF2LKoOZawb0gyb4ErhUT+vNwYWF3Dxg1/+e5xP02dAsr0I=
-Message-ID: <9268368b05081006585ca7a415@mail.gmail.com>
-Date: Wed, 10 Aug 2005 09:58:49 -0400
-From: Daniel Petrini <d.pensator@gmail.com>
-To: Todd Poynor <tpoynor@mvista.com>
-Subject: Re: [linux-pm] PowerOP 1/3: PowerOP core
-Cc: Geoff Levand <geoffrey.levand@am.sony.com>, cpufreq@lists.linux.org.uk,
-       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <42F94B68.6060107@mvista.com>
+	Wed, 10 Aug 2005 10:04:45 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:45492 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965116AbVHJOEo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 10:04:44 -0400
+Date: Wed, 10 Aug 2005 19:35:28 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: George Anzinger <george@mvista.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
+Message-ID: <20050810140528.GA20893@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <200508031559.24704.kernel@kolivas.org> <200508060239.41646.kernel@kolivas.org> <20050806174739.GU4029@stusta.de> <200508071512.22668.kernel@kolivas.org> <20050807165833.GA13918@in.ibm.com> <42F905DA.4070308@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050809025157.GB25064@slurryseal.ddns.mvista.com>
-	 <42F8D4C5.2090800@am.sony.com> <42F94B68.6060107@mvista.com>
+In-Reply-To: <42F905DA.4070308@mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If these general ideas of arbitrary platform power parameters and
-> operating points are deemed worthy of continued consideration, I'll
-> propose what I view is the next step: interfaces to create and activate
-> operating points from userspace.
-> 
-> At that point it should be possible to write power policy management
-> applications for systems that can benefit from this generalized notion
-> of operating points: create the operating points that match the system
-> usage models (in the case of many embedded systems, the system is some
-> mode with different power/performance characteristics such as audio
-> playback vs. mobile phone call in progress) and power needs (e.g., low
-> battery strength vs. high strength) and activate operating points based
-> on events received (new app running, low battery warning, etc.).
-> 
-> Any opinions on all that?  Thanks,
-> 
-> --
-> Todd
+On Tue, Aug 09, 2005 at 12:36:58PM -0700, George Anzinger wrote:
+> IMNOHO, this is the ONLY way to keep proper time.  As soon as you 
+> reprogram the PIT you have lost track of the time.
 
-Hi,
+George,
+	Can't TSC (or equivalent) serve as a backup while PIT is disabled,
+especially considering that we disable PIT only for short duration 
+in practice (few seconds maybe) _and_ that we don't have HRT support yet?
 
-I'd like to have an idea of how the powerop would evolve to address:
-
-a) exporting all operating points to sysfs - that would be useful for
-a policy manager in user space, or the user policy will already be
-aware of the ops?
-
-b) Constraints: if I would like to change to a op and such a
-transition is not allowed in hardware, what part of the software will
-test it? The set/get powerop functions, the higher layers or even some
-lower layer (don't know if expected) ?
-
-thanks,
-
-Daniel
 -- 
-10LE - Linux
-INdT - Manaus - Brazil
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

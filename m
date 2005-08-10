@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbVHJAJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbVHJAJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbVHJAJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 20:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbVHJAJu
+	id S1750985AbVHJAJu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 20:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVHJAJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Tue, 9 Aug 2005 20:09:50 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:16263 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1750982AbVHJAJi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 20:09:38 -0400
-Date: Wed, 10 Aug 2005 02:09:39 +0200
-Message-Id: <200508100009.j7A09dhS003704@wscnet.wsc.cz>
-In-reply-to: <20050809233744.GA24343@kroah.com>
-Subject: [PATCH 2/2] removes pci_find_device from parport_pc.c
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:28811 "EHLO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S1750985AbVHJAJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 20:09:45 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Christoph Hellwig <hch@lst.de>
+Date: Wed, 10 Aug 2005 10:09:39 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17145.17859.563739.562389@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use kthread infrastructure in md
+In-Reply-To: message from Christoph Hellwig on Tuesday August 9
+References: <20050809210446.GA29308@lst.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Andrew has added this into his tree yet.]
+On Tuesday August 9, hch@lst.de wrote:
+> Switch MD to use the kthread infrastructure, to simplify the code and
+> get rid of tasklist_lock abuse in md_unregister_thread.  Long-term I
+> wonder whether workqueues wouldn't be a better choice than the
+> MD-specific thread wrappers for the lowlevel drivers.
+> 
 
-This patch changes pci_find_device to pci_get_device (encapsulated in
-for_each_pci_dev).
+Thanks.  This is definitely a step in the right direction.   However
+I think it still needs a bit of work.
+The old md_unregister_thread sent a signal to the thread so that if it
+was in 'wait_event_interruptible_timeout', that call would complete.
+However I cannot see how the new md_unregister_thread will interrupt
+the wait_event_interruptible_timeout.
+I'll look into it..
 
-Generated in 2.6.13-rc5-mm1 kernel version.
 
-Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
-
-diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
---- a/drivers/parport/parport_pc.c
-+++ b/drivers/parport/parport_pc.c
-@@ -3007,7 +3007,7 @@ static int __init parport_pc_init_superi
- 	struct pci_dev *pdev = NULL;
- 	int ret = 0;
- 
--	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL) {
-+	for_each_pci_dev(pdev) {
- 		id = pci_match_id(parport_pc_pci_tbl, pdev);
- 		if (id == NULL || id->driver_data >= last_sio)
- 			continue;
+Thanks,
+NeilBrown

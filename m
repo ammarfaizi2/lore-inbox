@@ -1,45 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVHJEsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbVHJFpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbVHJEsb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 00:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbVHJEsb
+	id S965010AbVHJFpX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 01:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbVHJFpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 00:48:31 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:25278 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964954AbVHJEsa
+	Wed, 10 Aug 2005 01:45:22 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:44698 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S964995AbVHJFpV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 00:48:30 -0400
-References: <20050802071828.GA11217@redhat.com>
-            <84144f0205080203163cab015c@mail.gmail.com>
-            <20050803063644.GD9812@redhat.com>
-            <courier.42F768D5.000046F2@courier.cs.helsinki.fi>
-            <42F7A557.3000200@zabbo.net>
-            <1123598983.10790.1.camel@haji.ri.fi>
-            <42F8E516.7020600@zabbo.net>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-Cc: Zach Brown <zab@zabbo.net>, David Teigland <teigland@redhat.com>,
-       Pekka Enberg <penberg@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-cluster@redhat.com,
-       mark.fasheh@oracle.com
-Subject: Re: GFS
-Date: Wed, 10 Aug 2005 07:48:29 +0300
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
+	Wed, 10 Aug 2005 01:45:21 -0400
+Message-ID: <42F9946E.2040609@ext.bull.net>
+Date: Wed, 10 Aug 2005 07:45:18 +0200
+From: Frederic TEMPORELLI <frederic.temporelli@ext.bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: fr-fr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Cc: Frederic TEMPORELLI <frederic.temporelli@ext.bull.net>
+Subject: Re: kernel workqueue -max name length
+References: <42F8AE91.9030708@ext.bull.net>
+In-Reply-To: <42F8AE91.9030708@ext.bull.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 10/08/2005 07:57:41,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 10/08/2005 07:57:42,
+	Serialize complete at 10/08/2005 07:57:42
 Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42F9871D.000051DB@courier.cs.helsinki.fi>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown writes:
-> But couldn't we use make_pages_present() to figure which locks we need, 
-> sort them, and then grab them?
+Hi,
 
-Doh, obviously we can't as nopage() needs to bring the page in. Sorry about 
-that. 
 
-I also thought of another failure case for the vma walk. When a thread uses 
-userspace memcpy() between two clusterfs mmap'd regions instead of write() 
-or read(). 
+any explanation about the 10 chars limit for kernel workqueue name ?
 
-              Pekka 
+
+another question: why is the name length test managed by BUG_ON ?
+returning a NULL workqueue is done in the next test (failed kmalloc for wq)...
+
+Anyway, this can explain some issues when loading some SCSI drivers modules.
+
+
+hope that somebody knows...
+
+
+Frederic TEMPORELLI wrote:
+> Hello,
+> 
+> 
+> When creating a workqueue, workqueue name is limited to 10 chars
+> (kernel/workqueue.c , function is __create_workqueue, test is done in a 
+> BUG_ON).
+> 
+> Why has this length be limited to 10 chars ?
+> Can I safely increase this max length (13 chars should be enough...) ?
+> 
+> 
+> 
+> Some comments about these questions:
+> 
+> In SCSI layer, HBA kernel ID is incremented after each modprobe/rmmod.
+> 
+> Then, when a scsi driver is managing a working queue and HBA kernel ID 
+> is greater than 99 (let's assume that you have modprobe/rmmod the scsi 
+> driver to get this ID to 99, or you may have play with 'scsi_debug' 
+> module), an oops is generated when loading again the driver (and the 
+> driver is frozen).
+> 
+> This is because working queue name format is "scsi_wq_%d" 
+> (drivers/scsi/hosts.c , function scsi_add_host, %d is the HBA ID), and 
+> so working queue name length is greater than 10 chars when HBA kernel ID 
+> is > 99...
+> 
+> 
+> Best regards
+> 
+> 
+
+
+-- 
+Frederic TEMPORELLI
+

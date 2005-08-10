@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbVHJXsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbVHJXtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbVHJXsU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 19:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVHJXsU
+	id S964821AbVHJXtK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 19:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbVHJXtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 19:48:20 -0400
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:3990 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964815AbVHJXsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 19:48:19 -0400
+	Wed, 10 Aug 2005 19:49:10 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:41682 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S964821AbVHJXtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 19:49:09 -0400
+Message-ID: <42FA926E.5070901@google.com>
+Date: Wed, 10 Aug 2005 16:49:02 -0700
+From: Mike Waychison <mikew@google.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+CC: YhLu <YhLu@tyan.com>, Peter Buckingham <peter@pantasys.com>,
+       linux-kernel@vger.kernel.org,
+       "'discuss@x86-64.org'" <discuss@x86-64.org>
+Subject: Re: [discuss] Re: 2.6.13-rc2 with dual way dual core ck804 MB
+References: <3174569B9743D511922F00A0C94314230AF97867@TYANWEB> <42FA8A4B.4090408@google.com> <20050810232614.GC27628@wotan.suse.de>
+In-Reply-To: <20050810232614.GC27628@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17146.37443.505736.147373@wombat.chubb.wattle.id.au>
-Date: Thu, 11 Aug 2005 09:48:19 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: fcntl(F_GETLEASE) semantics??
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+> On Wed, Aug 10, 2005 at 04:14:19PM -0700, Mike Waychison wrote:
+> 
+>>YhLu wrote:
+>>
+>>>andi,
+>>>
+>>>please refer the patch, it will move cpu_set(, cpu_callin_map) from
+>>>smi_callin to start_secondary.
+>>
+>>
+>>This patch fixes an apparent race / lockup on our 2-way dual cores (when 
+>>applied against 2.6.12.3).  The machine was locking up after 
+>>"Initializing CPU#2".
+> 
+> 
+> The real solution for this issue is the smp_call_function_single patch from Eric
+> that I reposted yesterday. Yh's patch just changed the timing slightly.
+> 
+> 
 
-Hi,
-	The LTP test fcntl23 is failing.  It does, in essence, 
-	fd = open(xxx, O_RDWR|O_CREAT, 0777);
-	if (fcntl(fd, F_SETLEASE, F_RDLCK) == -1)
-	   fail;
+Indeed.
 
-fcntl always returns EAGAIN here.  The manual page says that a read
-lease causes notification when `another process' opens the file for
-writing or truncates it.  The kernel implements `any process'
-(including the current one).
+I had a report here that the smp_call_function_single patch wasn't 
+fixing our problem.  I just tried it myself and it appears to also fix 
+the problem.
 
-Which semantics are correct?  Personally I think that what the kernel
-implements is correct (you can't get a read lease unsless there are no
-writers _at_ _all_)
+Thanks,
 
-
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+Mike Waychison

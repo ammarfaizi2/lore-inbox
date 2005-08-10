@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbVHJXqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbVHJXsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932610AbVHJXqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 19:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbVHJXqT
+	id S964815AbVHJXsU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 19:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVHJXsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 19:46:19 -0400
-Received: from graphe.net ([209.204.138.32]:35241 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S932610AbVHJXqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 19:46:19 -0400
-Date: Wed, 10 Aug 2005 16:46:16 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       kiran@scalex86.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: [PATCH] ide-disk oopses on boot
-In-Reply-To: <1123686298.28913.5.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0508101645460.24056@graphe.net>
-References: <20050809132725.GA20397@vana.vc.cvut.cz> 
- <Pine.LNX.4.62.0508090926150.12719@graphe.net>  <42F92A1F.9040901@vc.cvut.cz>
-  <Pine.LNX.4.62.0508091953270.30717@graphe.net> <1123686298.28913.5.camel@localhost.localdomain>
+	Wed, 10 Aug 2005 19:48:20 -0400
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:3990 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S964815AbVHJXsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 19:48:19 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.4
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17146.37443.505736.147373@wombat.chubb.wattle.id.au>
+Date: Thu, 11 Aug 2005 09:48:19 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: fcntl(F_GETLEASE) semantics??
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Aug 2005, Alan Cox wrote:
 
-> On Maw, 2005-08-09 at 19:59 -0700, Christoph Lameter wrote:
-> > Yes you are right there is one additional place where pcibus_to_node is 
-> > used with the hwif that we did not cover. This better go into 2.6.13.
-> 
-> drive->hwif is not permitted to be NULL. Please work back and fix the
-> actual bug.
+Hi,
+	The LTP test fcntl23 is failing.  It does, in essence, 
+	fd = open(xxx, O_RDWR|O_CREAT, 0777);
+	if (fcntl(fd, F_SETLEASE, F_RDLCK) == -1)
+	   fail;
 
-The actual bug was fixed. The description was wrong. We are not checking 
-hwif but hwif->pci_dev.
- 
+fcntl always returns EAGAIN here.  The manual page says that a read
+lease causes notification when `another process' opens the file for
+writing or truncates it.  The kernel implements `any process'
+(including the current one).
+
+Which semantics are correct?  Personally I think that what the kernel
+implements is correct (you can't get a read lease unsless there are no
+writers _at_ _all_)
+
+
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

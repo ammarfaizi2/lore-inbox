@@ -1,84 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbVHJGpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbVHJGrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbVHJGpE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 02:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965021AbVHJGpE
+	id S965021AbVHJGrR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 02:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbVHJGrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 02:45:04 -0400
-Received: from mx2.suse.de ([195.135.220.15]:64444 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965019AbVHJGpC (ORCPT
+	Wed, 10 Aug 2005 02:47:17 -0400
+Received: from smtpout.mac.com ([17.250.248.44]:56805 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S965021AbVHJGrQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 02:45:02 -0400
-Message-ID: <42F9A264.5030006@suse.de>
-Date: Wed, 10 Aug 2005 08:44:52 +0200
-From: Thomas Renninger <trenn@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050621
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Stefan Seyfried <seife@suse.de>, Con Kolivas <kernel@kolivas.org>,
-       tony@atomide.com, ck@vds.kolivas.org, tuukka.tikkanen@elektrobit.com,
-       linux-kernel@vger.kernel.org, tytso@mit.edu
-Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
-References: <88056F38E9E48644A0F562A38C64FB600565DD73@scsmsx403.amr.corp.intel.com>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB600565DD73@scsmsx403.amr.corp.intel.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Aug 2005 02:47:16 -0400
+In-Reply-To: <1123654250.3217.5.camel@laptopd505.fenrus.org>
+References: <17145.23098.798473.364481@cargo.ozlabs.ibm.com> <1123654250.3217.5.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <11FC83FD-AAF5-49A0-9C89-1AFB9FC55B2E@mac.com>
+Cc: Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, linas@austin.ibm.com
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC/PATCH] Add pci_walk_bus function to PCI core
+Date: Wed, 10 Aug 2005 02:47:03 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:
->>-----Original Message-----
->>From: linux-kernel-owner@vger.kernel.org 
->>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->>Stefan Seyfried
->>Sent: Sunday, August 07, 2005 10:43 PM
->>To: Con Kolivas
->>Cc: tony@atomide.com; ck@vds.kolivas.org; 
->>tuukka.tikkanen@elektrobit.com; linux-kernel@vger.kernel.org; 
->>tytso@mit.edu
->>Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
+On Aug 10, 2005, at 02:10:49, Arjan van de Ven wrote:
+> On Wed, 2005-08-10 at 11:36 +1000, Paul Mackerras wrote:
+>
+>> Greg,
 >>
->>Con Kolivas wrote:
+>> Any comments on this patch?  Would you be amenable to it going in  
+>> post
+>> 2.6.13?
 >>
->>>>When I enabled dynamic tick using:
->>>>
->>>>	echo 1 > /sys/devices/system/timer/timer0/dyn_tick_state
->>>>
->>>>The number of ticks dropped down to 60-70 HZ, bus mastering activity
->>>>jumpped up to being almost always active,
->>>Anyone know why this would happen?
->>This is just a guess, without any actual code-reading:
->>Maybe the C-state decision process just relies on being called every
->>tick, so "after X ticks with no BM activity, go to next deeper 
->>C state".
->>As long as 1000 ticks per second are coming in, everything is fine and
->>we enter C[n+1] after X miliseconds without BM activity. Now if there
->>are only 60-70 ticks per second, you never get X ticks without BM
->>activity so you never go deeper than C2.
->>
->>Just a guess.
-> 
-> That is correct. The C-state policy right now looks at jiffies to decide
-> on which C-state to go to (instead of absolute time).
-> This patch from Thomas should help with respect to going to proper 
-> C-state in presence of dynamic tick.
-> http://lkml.org/lkml/2005/4/19/96
-> 
-My patch considered only the average last idle times and the average last bus master
-activities.
-It could happen that C3/C4 comes in too fast (not waiting long enough for bus master
-activity to settle down) which could result in failed transitions or misfunctionality
-of bus master devices.
-However, it worked on my machine and I could gain a lot of power savings.
-But be prepared that your WLAN card, USB peripherie or others might behave strangely or even that
-the machine freezes (if, it should freeze quite fast if idle).
-I plan to have a look at x86 and x86_64 dynamic tick patches again and rewrite the C-state
-patch, soon.
-Any hints on updated dyn-tick patches/projects crawling around are appreciated.
+>> The PCI error recovery infrastructure needs to be able to contact all
+>> the drivers affected by a PCI error event, which may mean traversing
+>> all the devices under a given PCI-PCI bridge.  This patch adds a
+>> function to the PCI core that traverses all the PCI devices on a PCI
+>> bus and under any PCI-PCI bridges on that bus (recursively),  
+>> calling a
+>> given function for each device.
+>
+> is there a way to avoid the recursion somehow? Recursion is "not fun"
+> stack usage wise, esp if you have really deep hierarchies....
 
-Thanks,
+Hmm, it looks like PCI error recovery wants breadth-first recursion, so
+you should be able to do some sort of tail-recursion or something.  If
+only one error-recovery action on a given subtree can be going at a  
+time,
+you should be able to add an "error_recovery" linked-list to the device
+structure and do something like this:
 
-   Thomas
+void recover(...) {
+     struct list_head recovery_list = LIST_HEAD_INIT(recovery_list);
+     list_add(&dev->error_recovery, &recovery_list);
+
+     while(!list_empty(&recovery_list)) {
+         struct some_device_type *dev =
+             list_entry(recovery_list->next, struct some_device_type,  
+error_recovery);
+
+         dev->some_recovery_function(dev, [...]);
+
+         list_del(&dev->error_recovery);
+     }
+}
+
+Then each PCI-PCI bridge's some_recovery_function could do this:
+
+void some_recovery_function(struct some_device_type *dev, [...]) {
+     struct some_device_type *child;
+
+     actually_do_my_recovery();
+
+     list_for_each_entry(child, dev->some_pci_subdev_list,  
+some_pci_list) {
+         if (needs_recovery(child))
+             list_add_tail(&child->error_recovery,&dev->error_recovery);
+     }
+}
+
+With such an arrangement, the callstack is as shallow as possible:
+
+recover
+     some_recovery_function
+         actually_do_my_recovery
+         needs_recovery
+     childs_recovery_function
+     [...]
+
+If you can have multiple simultaneous error-recovery actions per  
+subtree,
+that wouldn't properly work unless they were exclusive-blocking, IE:
+an error recovery action triggers an error on a subtree which must
+recover itself.  In that case, with some extra state saved in the  
+recover
+function and passed to the "some_recovery_function", you could allow the
+other recovery to continue before resuming.
+
+If you can have two CPUs recovering the same device tree, I'd be  
+inclined
+to wonder what kind of strange errors you're causing on the PCI bus :-D,
+and I'd be interested in an example of how that could work in any  
+sane way.
+
+Cheers,
+Kyle Moffett
+
+--
+Premature optimization is the root of all evil in programming
+   -- C.A.R. Hoare
+
+
+

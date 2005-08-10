@@ -1,93 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbVHJPkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbVHJPnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965163AbVHJPkX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 11:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVHJPkX
+	id S965165AbVHJPnL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 11:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965166AbVHJPnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 11:40:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34514 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965163AbVHJPkX (ORCPT
+	Wed, 10 Aug 2005 11:43:11 -0400
+Received: from smtpout.mac.com ([17.250.248.70]:25288 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S965165AbVHJPnJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 11:40:23 -0400
-From: David Howells <dhowells@redhat.com>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: Boot failure with slab debugging patch
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
-Date: Wed, 10 Aug 2005 16:40:09 +0100
-Message-ID: <15113.1123688409@warthog.cambridge.redhat.com>
+	Wed, 10 Aug 2005 11:43:09 -0400
+In-Reply-To: <20050810132626.GC4954@null.msp.redhat.com>
+References: <20050809152045.GT29811@parcelfarce.linux.theplanet.co.uk> <20050810070309.GA2415@infradead.org> <20050810103041.GB4634@marowsky-bree.de> <20050810103256.GA6127@infradead.org> <20050810103424.GC4634@marowsky-bree.de> <20050810105450.GA6519@infradead.org> <20050810110259.GE4634@marowsky-bree.de> <20050810110511.GA6728@infradead.org> <20050810110917.GG4634@marowsky-bree.de> <20050810111110.GA6878@infradead.org> <20050810132626.GC4954@null.msp.redhat.com>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F0B76E9F-6B4F-4984-A540-F431500F9B96@mac.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Lars Marowsky-Bree <lmb@suse.de>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       David Teigland <teigland@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [Linux-cluster] Re: [PATCH 00/14] GFS
+Date: Wed, 10 Aug 2005 11:43:02 -0400
+To: AJ Lewis <alewis@redhat.com>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Aug 10, 2005, at 09:26:26, AJ Lewis wrote:
+> On Wed, Aug 10, 2005 at 12:11:10PM +0100, Christoph Hellwig wrote:
+>
+>> On Wed, Aug 10, 2005 at 01:09:17PM +0200, Lars Marowsky-Bree wrote:
+>>
+>>> So for every directory hierarchy on a shared filesystem, each  
+>>> user needs
+>>> to have the complete list of bindmounts needed, and automatically  
+>>> resync
+>>> that across all nodes when a new one is added or removed? And  
+>>> then have
+>>> that executed by root, because a regular user can't?
+>>
+>> Do it in an initscripts and let users simply not do it, they  
+>> shouldn't
+>> even know what kind of filesystem they are on.
+>
+> I'm just thinking of a 100-node cluster that has different mounts  
+> on different
+> nodes, and trying to update the bind mounts in a sane and efficient  
+> manner
+> without clobbering the various mount setups.  Ouch.
 
-Hi Andrew,
+How about something like the following:
+     cpslink()      => Create a Context Dependent Symlink
+     readcpslink()  => Return the Context Dependent path data
+     readlink()     => Return the path of the Context Dependent  
+Symlink as it
+                       would be evaluated in the current context,  
+basically as a
+                       normal symlink.
+     lstat()        => Return information on the Context Dependent  
+Symlink in
+                       the same format as a regular symlink.
+     unlink()       => Delete the Context Dependent Symlink.
 
-This patch in 2.6.13-rc5-mm1:
+You would need an extra userspace tool that understands cpslink/ 
+readcpslink to
+create and get information on the links for now, but ls and ln could  
+eventually
+be updated, and until then the would provide sane behavior.  Perhaps  
+this
+should be extended into a new API for some of the strange things several
+filesystems want to do in the VFS:
+     extlink()      => Create an extended filesystem link (with type  
+specified)
+     readextlink()  => Return the path (and type) for the link
 
-	slab-leak-detector-give-longer-traces.patch
+The filesystem could define how each type of link acts with respect  
+to other
+syscalls.  OpenAFS could use extlink() instead of their symlink magic  
+for
+adjusting the AFS volume hierarchy.  The new in-kernel AFS client  
+could use it
+in similar fashion (It has no method to adjust hierarchy, because  
+it's still
+read-only).  GFS could use it for their Context Dependent Symlinks.   
+Since it
+would pass the type in as well, it would be possible to use it for  
+different
+kinds of links on the same filesystem.
 
-Causes the kernel to die with an oops on my test box during boot (see
-attached), just about here, I think:
+Cheers,
+Kyle Moffett
 
-	static void inline *
-	cache_alloc_debugcheck_after(kmem_cache_t *cachep,
-				unsigned int __nocast flags, void *objp, void *caller)
-	{
-		if (!objp)	
-			return objp;
-		if (cachep->flags & SLAB_POISON) {
-	#ifdef CONFIG_DEBUG_PAGEALLOC
-			if ((cachep->objsize % PAGE_SIZE) == 0 && OFF_SLAB(cachep))
-				kernel_map_pages(virt_to_page(objp), cachep->objsize/PAGE_SIZE, 1);
-			else
-				check_poison_obj(cachep, objp);
-	#else
-			check_poison_obj(cachep, objp);
-	#endif
-			poison_obj(cachep, objp, POISON_INUSE);
-		}
-		if (cachep->flags & SLAB_STORE_USER) {
-			*dbg_userword1(cachep, objp) = caller; /* address(0) */
-			*dbg_userword2(cachep, objp) = __builtin_return_address(1);
---->			*dbg_userword3(cachep, objp) = __builtin_return_address(2);
-		}
-
-
-Shortly after the call instruction to dbg_userword3().
-
-Repealing that patch permits the kernel to work again.
-
-David
+--
+Simple things should be simple and complex things should be possible
+   -- Alan Kay
 
 
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
-Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Memory: 126088k/131072k available (2167k kernel code, 4476k reserved, 587k data, 188k init, 0k highmem)
-Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Unable to handle kernel paging request at virtual address fdf000e6
- printing eip:
-c014a766
-*pde = 00000000
-Oops: 0000 [#1]
-SMP
-last sysfs file:
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c014a766>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.13-rc5-mm1)
-EIP is at kmem_cache_alloc+0x146/0x230
-eax: c115c568   ebx: 0000005a   ecx: 00000054   edx: fdf000e2
-esi: c115c518   edi: c115f080   ebp: c03b3fa0   esp: c03b3f7c
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=c03b2000 task=c0360c60)
-Stack: c115f080 c115c518 0000005a 00000000 00000001 c03c4cdb c03669bc 800000d0
-       c115c4ec 00000009 c03c4cdb c115f080 800000d0 00000000 80046800 00000000
-       00000000 c03b2000 00000080 00000001 00000001 00000000 00099100 c03aa800
-Call Trace:
- [<c03c4cdb>] kmem_cache_init+0x2eb/0x420
- [<c03c4cdb>] kmem_cache_init+0x2eb/0x420
- [<c03b49a2>] start_kernel+0xf2/0x190
- [<c03b43b0>] unknown_bootoption+0x0/0x1f0
-Code: ff 8b 55 f0 89 10 89 74 24 04 89 3c 24 e8 83 d6 ff ff 8b 55 00 8b 52 04 89 10 89 74 24 04 89 3c 24 e8 3f d6 ff ff 8b 55 00 8b 12 <8b> 52 04 89 10 8b 47 1c f6 c4 04 0f 84 21 ff ff ff 89 f6 8d bc
- <0>Kernel panic - not syncing: Attempted to kill the idle task!
+

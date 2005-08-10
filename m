@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbVHJNPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbVHJNUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbVHJNPu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 09:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbVHJNPu
+	id S965099AbVHJNUs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 09:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVHJNUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 09:15:50 -0400
-Received: from extgw-uk.mips.com ([62.254.210.129]:27660 "EHLO
-	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
-	id S965098AbVHJNPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 09:15:50 -0400
-Date: Wed, 10 Aug 2005 14:15:29 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH] consolidate sys_ptrace
-Message-ID: <20050810131529.GB2840@linux-mips.org>
-References: <20050810080057.GA5295@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050810080057.GA5295@lst.de>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 10 Aug 2005 09:20:48 -0400
+Received: from silver.veritas.com ([143.127.12.111]:59728 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S965099AbVHJNUr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 09:20:47 -0400
+Date: Wed, 10 Aug 2005 14:22:40 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Gleb Natapov <glebn@voltaire.com>
+cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH repost] PROT_DONTCOPY: ifiniband
+ uverbs fork support
+In-Reply-To: <20050810083943.GM16361@minantech.com>
+Message-ID: <Pine.LNX.4.61.0508101412530.3153@goblin.wat.veritas.com>
+References: <20050719165542.GB16028@mellanox.co.il> <20050725171928.GC12206@mellanox.co.il>
+ <Pine.LNX.4.61.0507261312460.16985@goblin.wat.veritas.com>
+ <20050726133553.GA22276@mellanox.co.il> <Pine.LNX.4.61.0508091759050.14886@goblin.wat.veritas.com>
+ <20050810083943.GM16361@minantech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 10 Aug 2005 13:20:46.0928 (UTC) FILETIME=[51A0A500:01C59DAE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 10, 2005 at 10:00:57AM +0200, Christoph Hellwig wrote:
-
-> The sys_ptrace boilerplate code (everything outside the big switch
-> statement for the arch-specific requests) is shared by most
-> architectures.  This patch moves it to kernel/ptrace.c and leaves the
-> arch-specific code as arch_ptrace.
+On Wed, 10 Aug 2005, Gleb Natapov wrote:
+> On Tue, Aug 09, 2005 at 07:13:33PM +0100, Hugh Dickins wrote:
+> > Even more I'd prefer one of these two solutions below, which sidestep
+> > that uncleanliness - but both of these would be in mmap only, no clean
+> > way to change afterwards (except by munmap or mmap MAP_FIXED):
+> > 
+> > 1.  Use the standard mmap(NULL, len, PROT_READ|PROT_WRITE,
+> >     MAP_SHARED|MAP_ANONYMOUS, -1, 0) which gives you a memory object
+> >     shared with children, so write-protection and COW won't come into it.
+> > 
+> > or if there's good reason why that's no good,
+> > 
+> > 2.  Define a MAP_DONTCOPY to mmap: we have a fine tradition of MAP_flags
+> >     to achieve this or that effect, adding one more would be cleaner than
+> >     now corrupting mprotect or madvise.
 > 
-> Some architectures have a too different ptrace so we have to exclude
-> them: alpha, ia64, m32r, parisc, sparc, sparc64.  They continue to
-> keep their implementations.  For sh64 I had to add a sh64_ptrace wrapper
-> because it does some initialization on the first call.  For um I removed
-> an ifdefed SUBARCH_PTRACE_SPECIAL block, but SUBARCH_PTRACE_SPECIAL
-> isn't defined anywhere in the tree.
-> 
-> Only tested on ppc32 so far.
+> They are both relying on the way user allocates memory for RDMA. The idea
+> behind Michael's propose it to let library (MPI for instance) to tell to the
+> kernel that the pages are used for RDMA and it is not safe to copy them now. 
+> The pages may be anywhere in the process address space bss, text, stack
+> whatever.
 
-MIPS bits looking good.
+That's a nice aim, but I don't think it can quite be done in the face of
+the fork issue - one way or another, we have to change the behaviour of a
+forked RDMA area slightly, which might interfere with common assumptions.
 
-  Ralf
+Your stack example is a good one: if we end up setting VM_DONTCOPY on
+the user stack, then I don't think fork's child will get very far without
+hitting a SIGSEGV.
+
+Hugh

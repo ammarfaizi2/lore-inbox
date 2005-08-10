@@ -1,139 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbVHJOZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbVHJO2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965126AbVHJOZM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 10:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbVHJOZM
+	id S965130AbVHJO2X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 10:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbVHJO2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 10:25:12 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:10651 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965126AbVHJOZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 10:25:11 -0400
-Subject: Re: Skbuff problem - kernel BUG ???
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Schaffer Roland <roland.schaffer@siemens.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <AE99B7B733E1BB49B019CAA0F806D7A7014BF9C8@nets13ka.ww300.siemens.net>
-References: <AE99B7B733E1BB49B019CAA0F806D7A7014BF9C8@nets13ka.ww300.siemens.net>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 10 Aug 2005 10:24:48 -0400
-Message-Id: <1123683888.5340.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Aug 2005 10:28:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6815 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965130AbVHJO2X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 10:28:23 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200508102334.43662.phillips@arcor.de> 
+References: <200508102334.43662.phillips@arcor.de>  <20050808145430.15394c3c.akpm@osdl.org> <200508090724.30962.phillips@arcor.de> <31567.1123679613@warthog.cambridge.redhat.com> 
+To: Daniel Phillips <phillips@arcor.de>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, hugh@veritas.com
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
+Date: Wed, 10 Aug 2005 15:27:52 +0100
+Message-ID: <21701.1123684072@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roland,
+Daniel Phillips <phillips@arcor.de> wrote:
 
+> > An extra page flag beyond PG_uptodate, PG_lock and PG_writeback is
+> > required to make readpage through the cache non-synchronous.
 
-On Wed, 2005-08-10 at 15:27 +0200, Schaffer Roland wrote:
-> Hello all!
-> 
-> I write a kernel module (metadrv) to send a frame over the ethernet; I
-> use sk_buff's to do this.
-> Metadrv enslaves the NICs eth0 and eth1 and is something like the
-> linux-bonding-driver.
+Sorry, I meant to say "filesystem cache": FS-Cache/CacheFS.
 
-Since you are writing your own driver, you will need to send more
-information or the code of the drive itself. Since it is hard to debug
-something that you can't see.
+> Interesting, have you got a pointer to a full explanation?  Is this about aio?
 
-> 
-> The skb I got has to be changed slightly. I want to send it out on a
-> DIFFERENT NIC, thus I change the DEVICE of the skb and the MAC adresses
-> of the frame.
-> For test-purpose (due to not working;) I DROPPED the MAC-modification
-> code temporarily: nothing changed at all!
+No, it's nothing to do with AIO. This is to do with using local disk to cache
+network filesystems and other relatively slow devices.
 
-So you wrote a driver that reads from one NIC and writes it out to the
-other?
+What happens is this:
 
-> 
-> NOW WHATS GOING ON:
-> The code below works a few times, but suddenly it crashes with:
-> 
-> kernel BUG at skbuff.c:329!
+ (1) readpage() is issued against NFS (for example).
 
-You also need to tell us which kernel version you are using, since
-2.6.12.2 has skbuff.c:329 as such:
+ (2) NFS consults the local cache, and finds the page isn't available there.
 
----
-    325 struct sk_buff *skb_clone(struct sk_buff *skb, int gfp_mask)
-    326 {
-    327         struct sk_buff *n = kmem_cache_alloc(skbuff_head_cache, gfp_mask        );
-    328
-    329         if (!n)
-    330                 return NULL;
-    331
----
+ (3) NFS reads the page from the server.
 
-So I'm not seeing a bug on this kernel.
+ (4) NFS sets PG_fs_misc and tells the cache to store the page.
 
+ (5) NFS sets PG_uptodate and unlocks the page.
 
-> 
-> "it works a few times"  means: it does not report an error,
-> dev_queue_xmit() returns 0, but the frames cannot be seen on copper by a
-> sniffer running on a different host. This happen 4 or 5 times, then the
-> kernel BUG appears. I am afraid that those 4 or 5 frames are NOT sent
-> although claimed so by dev_queue_xmit().
-> Ah: NO, there is NO firewall, NO traffic shaping and NO other
-> packet/frame dumper stuff running.
+Some time later, the cache finishes writing the page to disk:
 
-It's been a little while since I had to deal with the network code, but
-IIRC, the packets being received are not set up the same as packets
-going out.  There may be some things that you need to look at in
-dev_queue_xmit to see if things are looking good or not.
+ (6) The cache calls NFS to say that it's finished writing the page.
 
-> 
-> The frame carries an IP-Packet, payload: UDP-packet, ports 67 or 68
-> 
-> When I copy the skb using skb_copy() the kernel crashes immediately.
-> When I do this with ARP-Packets skb_copy() works very well. 
+ (7) NFS calls end_page_fs_misc() - which clears PG_fs_misc - to indicate to
+     any waiters that the page can now be written to.
 
-Looking at skb_copy, it determines the size of the packet using
-skb->end, skb->head and skb->data_len.  I'm not sure the driver updates
-all these fields.  Where are you calling these functions? from the
-driver?  The driver may need to touch up the skb before doing anything
-else.  As the packet goes up higher in the stack, these fields may be
-updated later on.
+Now: any PTEs set up to point to this page start life read-only. If they're
+part of a shared-writable mapping, then the MMU will generate a WP fault when
+someone attempts to write to the page through that mapping:
 
-> 
-> What else did I try?
-> --------------------
-> 1) skb_copy() -> kernel crash
+ (a) do_wp_page() gets called.
 
-skb probably not set up correctly.
+ (b) do_wp_page() sees that the page's host has registered an interest in
+     knowing that the page is becoming writable:
 
-> 2) making my own skb and sending it -> does not crash, dev_queue_xmit()
-> claims to send but does not
+	vm_operations_struct::page_mkwrite()
 
-Have you set up skb correctly? Look at all what dev_queue_xmit does,
-right down to the wire, and see if there's something missing.
+ (c) do_wp_page() calls out to the filesystem.
 
-> 3) modifying the original skb -> kernel BUG happens
+ (d) NFS sees the page is wanting to become writable and waits for the
+     PG_fs_misc flag to become cleared.
 
-Where else is this skb being used, and how did you modify it? It will
-get freed by the network stack code, but is it ready to do that?
+ (e) NFS returns to the caller and things proceed as normal.
 
-> 
-> If you have any idea how an skb can be sent over an other device or if
-> you know what I do wrong, please let me know!!!
-> 
-> Technical Data:
-> ---------------
-> System: Linux sb1-1 2.4.20_mvlcge31-mpcbl0001_V2.0.8-omm #1 SMP Mi Aug 3
-> 15:15:31 CEST 2005 i686 unknown
-> Vendor/Version: MontaVista-Linux Carrier-Grade-Edition 3.1
-> gcc: 3.2.3
-> CPU: 2 x Xeon 1.6(HT)
-> Networkdriver: e1000 (compiled into kernel)
+Doing this permits the cache state to be more predictable in the event of
+power loss because we know that userspace won't have scribbled on this page
+whilst the cache was trying to write it to disk.
 
-OK, you did mention the kernel, but this is a MontaVista kernel and I
-have no idea what they did to it.
-
-
--- Steve
-
-
+David

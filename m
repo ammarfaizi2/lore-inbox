@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965120AbVHJOdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbVHJOiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965120AbVHJOdb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 10:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbVHJOdb
+	id S965133AbVHJOiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 10:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbVHJOiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 10:33:31 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:57064 "EHLO
+	Wed, 10 Aug 2005 10:38:24 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:10378 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S965120AbVHJOdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 10:33:31 -0400
-Subject: Re: [PATCH] Fix ide-disk.c oops caused by hwif == NULL
+	id S965133AbVHJOiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 10:38:24 -0400
+Subject: Re: [PATCH] ide-disk oopses on boot
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linus Torvalds <torvalds@osdl.org>, kiran@scalex86.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0508100604020.12126@schroedinger.engr.sgi.com>
-References: <200508100459.j7A4xTn7016128@hera.kernel.org>
-	 <Pine.LNX.4.62.0508101310300.18940@numbat.sonytel.be>
-	 <Pine.LNX.4.62.0508100604020.12126@schroedinger.engr.sgi.com>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       kiran@scalex86.org, torvalds@osdl.org, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.62.0508091953270.30717@graphe.net>
+References: <20050809132725.GA20397@vana.vc.cvut.cz>
+	 <Pine.LNX.4.62.0508090926150.12719@graphe.net>
+	 <42F92A1F.9040901@vc.cvut.cz>
+	 <Pine.LNX.4.62.0508091953270.30717@graphe.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Wed, 10 Aug 2005 15:59:57 +0100
-Message-Id: <1123685998.28913.3.camel@localhost.localdomain>
+Date: Wed, 10 Aug 2005 16:04:57 +0100
+Message-Id: <1123686298.28913.5.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-08-10 at 06:07 -0700, Christoph Lameter wrote:
-> Correct. So we need to indeed go back to a version that does check for 
-> NULL that I initially proposed.
+On Maw, 2005-08-09 at 19:59 -0700, Christoph Lameter wrote:
+> Yes you are right there is one additional place where pcibus_to_node is 
+> used with the hwif that we did not cover. This better go into 2.6.13.
 
-No, you need to fix the caller. "hwif_to_node(NULL)" is a nonsense
-operation rather like strlen(NULL). The caller need to be fixed.
+drive->hwif is not permitted to be NULL. Please work back and fix the
+actual bug.
+
+> 
 

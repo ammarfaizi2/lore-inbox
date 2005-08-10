@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbVHJH1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbVHJH2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965029AbVHJH1I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 03:27:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbVHJH1I
+	id S965030AbVHJH2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 03:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbVHJH2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 03:27:08 -0400
-Received: from ns2.suse.de ([195.135.220.15]:8129 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965029AbVHJH1H (ORCPT
+	Wed, 10 Aug 2005 03:28:24 -0400
+Received: from ozlabs.org ([203.10.76.45]:50839 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965030AbVHJH2X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 03:27:07 -0400
-Date: Wed, 10 Aug 2005 09:27:05 +0200
-From: Andi Kleen <ak@suse.de>
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: smbus driver for ati xpress 200m
-Message-ID: <20050810072705.GH19772@wotan.suse.de>
-References: <42F8EB66.8020002@fujitsu-siemens.com> <86802c440508091150609eecca@mail.gmail.com> <20050809225756.GA19772@wotan.suse.de> <86802c4405080919514772d1c@mail.gmail.com>
-Mime-Version: 1.0
+	Wed, 10 Aug 2005 03:28:23 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c4405080919514772d1c@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <17145.44403.945337.623306@cargo.ozlabs.ibm.com>
+Date: Wed, 10 Aug 2005 17:32:03 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linas@austin.ibm.com
+Subject: Re: [RFC/PATCH] Add pci_walk_bus function to PCI core
+In-Reply-To: <1123654250.3217.5.camel@laptopd505.fenrus.org>
+References: <17145.23098.798473.364481@cargo.ozlabs.ibm.com>
+	<1123654250.3217.5.camel@laptopd505.fenrus.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 07:51:53PM -0700, yhlu wrote:
-> yhlunb:/proc/acpi/battery/BAT1 # cat info
-> present:                 yes
-> design capacity:         4800 mAh
-> last full capacity:      4435 mAh
-> battery technology:      rechargeable
-> design voltage:          14800 mV
-> design capacity warning: 300 mAh
-> design capacity low:     132 mAh
-> capacity granularity 1:  32 mAh
-> capacity granularity 2:  32 mAh
-> model number:            ZF02
-> serial number:           836
-> battery type:            LION
-> OEM info:                SIMPLO
-> yhlunb:/proc/acpi/battery/BAT1 # cat state
-> present:                 yes
-> ERROR: Unable to read battery status
+Arjan van de Ven writes:
 
-Contact the ACPI people then. They like getting their reports 
-in http://bugzilla.kernel.org
+> is there a way to avoid the recursion somehow? Recursion is "not fun"
+> stack usage wise, esp if you have really deep hierarchies....
 
--Andi
+Yes, since we have pointers up the tree as well as down, it should in
+fact be easy.  I'll hack something up.
+
+Paul.

@@ -1,362 +1,309 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbVHJUKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbVHJULH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030247AbVHJUKh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 16:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbVHJUJ6
+	id S1030249AbVHJULH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 16:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbVHJUKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 16:09:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23189 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030249AbVHJUJx (ORCPT
+	Wed, 10 Aug 2005 16:10:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29333 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030249AbVHJUJ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 16:09:53 -0400
-Message-Id: <20050810200943.809832000@jumble.boston.redhat.com>
+	Wed, 10 Aug 2005 16:09:59 -0400
+Message-Id: <20050810200942.697388000@jumble.boston.redhat.com>
 References: <20050810200216.644997000@jumble.boston.redhat.com>
-Date: Wed, 10 Aug 2005 16:02:20 -0400
+Date: Wed, 10 Aug 2005 16:02:17 -0400
 From: Rik van Riel <riel@redhat.com>
 To: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH/RFT 4/5] CLOCK-Pro page replacement
-Content-Disposition: inline; filename=clockpro
+Subject: [PATCH/RFT 1/5] CLOCK-Pro page replacement
+Content-Disposition: inline; filename=nonresident
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement an approximation to Song Jiang's CLOCK-Pro page replacement
-algorithm.  The algorithm has been extended to handle multiple memory
-zones and, consequently, needed some changes in the active page limit
-readjustment.
+Track non-resident pages through a simple hashing scheme.  This way
+the space overhead is limited to 1 u32 per page, or 0.1% space overhead
+and lookups are one cache miss.
 
-TODO:
- - verify that things work as expected
- - figure out where to put new anonymous pages
-
-More information can be found at:
- - http://www.cs.wm.edu/hpcs/WWW/HTML/publications/abs05-3.html
- - http://linux-mm.org/wiki/ClockProApproximation
+Aside from seeing whether or not a page was recently evicted, we can
+also take a reasonable guess at how many other pages were evicted since
+this page was evicted.
 
 Signed-off-by: Rik van Riel <riel@redhat.com>
 
-Index: linux-2.6.12-vm/include/linux/mmzone.h
-===================================================================
---- linux-2.6.12-vm.orig/include/linux/mmzone.h
-+++ linux-2.6.12-vm/include/linux/mmzone.h
-@@ -143,6 +143,8 @@ struct zone {
- 	unsigned long		nr_inactive;
- 	unsigned long		pages_scanned;	   /* since last reclaim */
- 	int			all_unreclaimable; /* All pages pinned */
-+	unsigned long		active_limit;
-+	unsigned long		active_scanned;
- 
- 	/*
- 	 * prev_priority holds the scanning priority for this zone.  It is
 Index: linux-2.6.12-vm/include/linux/swap.h
 ===================================================================
 --- linux-2.6.12-vm.orig/include/linux/swap.h
 +++ linux-2.6.12-vm/include/linux/swap.h
-@@ -154,10 +154,15 @@ extern void out_of_memory(unsigned int _
+@@ -153,6 +153,11 @@ extern void out_of_memory(unsigned int _
+ /* linux/mm/memory.c */
  extern void swapin_readahead(swp_entry_t, unsigned long, struct vm_area_struct *);
  
- /* linux/mm/nonresident.c */
--extern int remember_page(struct address_space *, unsigned long);
-+extern int do_remember_page(struct address_space *, unsigned long);
- extern int recently_evicted(struct address_space *, unsigned long);
- extern void init_nonresident(void);
- 
-+/* linux/mm/clockpro.c */
-+extern void remember_page(struct page *, struct address_space *, unsigned long);
-+extern int page_is_hot(struct page *, struct address_space *, unsigned long);
-+DECLARE_PER_CPU(unsigned long, evicted_pages);
++/* linux/mm/nonresident.c */
++extern int remember_page(struct address_space *, unsigned long);
++extern int recently_evicted(struct address_space *, unsigned long);
++extern void init_nonresident(void);
 +
  /* linux/mm/page_alloc.c */
  extern unsigned long totalram_pages;
  extern unsigned long totalhigh_pages;
-@@ -298,6 +303,9 @@ static inline swp_entry_t get_swap_page(
- #define remember_page(x,y)	0
- #define recently_evicted(x,y)	0
+@@ -288,6 +293,11 @@ static inline swp_entry_t get_swap_page(
+ #define grab_swap_token()  do { } while(0)
+ #define has_swap_token(x) 0
  
-+/* linux/mm/clockpro.c */
-+#define page_is_hot(x,y,z)	0
++/* linux/mm/nonresident.c */
++#define init_nonresident()	do { } while (0)
++#define remember_page(x,y)	0
++#define recently_evicted(x,y)	0
 +
  #endif /* CONFIG_SWAP */
  #endif /* __KERNEL__*/
  #endif /* _LINUX_SWAP_H */
+Index: linux-2.6.12-vm/init/main.c
+===================================================================
+--- linux-2.6.12-vm.orig/init/main.c
++++ linux-2.6.12-vm/init/main.c
+@@ -47,6 +47,7 @@
+ #include <linux/rmap.h>
+ #include <linux/mempolicy.h>
+ #include <linux/key.h>
++#include <linux/swap.h>
+ 
+ #include <asm/io.h>
+ #include <asm/bugs.h>
+@@ -488,6 +489,7 @@ asmlinkage void __init start_kernel(void
+ 	}
+ #endif
+ 	vfs_caches_init_early();
++	init_nonresident();
+ 	mem_init();
+ 	kmem_cache_init();
+ 	numa_policy_init();
 Index: linux-2.6.12-vm/mm/Makefile
 ===================================================================
 --- linux-2.6.12-vm.orig/mm/Makefile
 +++ linux-2.6.12-vm/mm/Makefile
-@@ -13,7 +13,7 @@ obj-y			:= bootmem.o filemap.o mempool.o
+@@ -12,7 +12,8 @@ obj-y			:= bootmem.o filemap.o mempool.o
+ 			   readahead.o slab.o swap.o truncate.o vmscan.o \
  			   prio_tree.o $(mmu-y)
  
- obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o \
--			   nonresident.o
-+			   nonresident.o clockpro.o
+-obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
++obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o \
++			   nonresident.o
  obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
  obj-$(CONFIG_NUMA) 	+= mempolicy.o
  obj-$(CONFIG_SHMEM) += shmem.o
-Index: linux-2.6.12-vm/mm/clockpro.c
+Index: linux-2.6.12-vm/mm/nonresident.c
 ===================================================================
 --- /dev/null
-+++ linux-2.6.12-vm/mm/clockpro.c
-@@ -0,0 +1,102 @@
++++ linux-2.6.12-vm/mm/nonresident.c
+@@ -0,0 +1,162 @@
 +/*
-+ * mm/clockpro.c
-+ * (C) 2005 Red Hat, Inc
++ * mm/nonresident.c
++ * (C) 2004,2005 Red Hat, Inc
 + * Written by Rik van Riel <riel@redhat.com>
 + * Released under the GPL, see the file COPYING for details.
 + *
-+ * Helper functions to implement CLOCK-Pro page replacement policy.
-+ * For details see: http://linux-mm.org/wiki/AdvancedPageReplacement
++ * Keeps track of whether a non-resident page was recently evicted
++ * and should be immediately promoted to the active list. This also
++ * helps automatically tune the inactive target.
++ *
++ * The pageout code stores a recently evicted page in this cache
++ * by calling remember_page(mapping/mm, index/vaddr, generation)
++ * and can look it up in the cache by calling recently_evicted()
++ * with the same arguments.
++ *
++ * Note that there is no way to invalidate pages after eg. truncate
++ * or exit, we let the pages fall out of the non-resident set through
++ * normal replacement.
 + */
 +#include <linux/mm.h>
-+#include <linux/mmzone.h>
-+#include <linux/swap.h>
++#include <linux/cache.h>
++#include <linux/spinlock.h>
++#include <linux/bootmem.h>
++#include <linux/hash.h>
++#include <linux/prefetch.h>
++#include <linux/kernel.h>
 +
-+DEFINE_PER_CPU(unsigned long, evicted_pages);
-+static unsigned long get_evicted(void)
++/* Number of non-resident pages per hash bucket. Never smaller than 15. */
++#if (L1_CACHE_BYTES < 64)
++#define NR_BUCKET_BYTES 64
++#else
++#define NR_BUCKET_BYTES L1_CACHE_BYTES
++#endif
++#define NUM_NR ((NR_BUCKET_BYTES - sizeof(atomic_t))/sizeof(u32))
++
++struct nr_bucket
 +{
-+	unsigned long total = 0;
-+	int cpu;
++	atomic_t hand;
++	u32 page[NUM_NR];
++} ____cacheline_aligned;
 +
-+	for (cpu = first_cpu(cpu_online_map); cpu < NR_CPUS; cpu++)
-+		total += per_cpu(evicted_pages, cpu);
++/* The non-resident page hash table. */
++static struct nr_bucket * nonres_table;
++static unsigned int nonres_shift;
++static unsigned int nonres_mask;
 +
-+	return total;
++struct nr_bucket * nr_hash(void * mapping, unsigned long index)
++{
++	unsigned long bucket;
++	unsigned long hash;
++
++	hash = hash_ptr(mapping, BITS_PER_LONG);
++	hash = 37 * hash + hash_long(index, BITS_PER_LONG);
++	bucket = hash & nonres_mask;
++
++	return nonres_table + bucket;
 +}
 +
-+static unsigned long estimate_pageable_memory(void)
++static u32 nr_cookie(struct address_space * mapping, unsigned long index)
 +{
-+	static unsigned long next_check;
-+	static unsigned long total;
-+	unsigned long active, inactive, free;
++	unsigned long cookie = hash_ptr(mapping, BITS_PER_LONG);
++	cookie = 37 * cookie + hash_long(index, BITS_PER_LONG);
 +
-+	if (time_after(jiffies, next_check)) {
-+		get_zone_counts(&active, &inactive, &free);
-+		total = active + inactive + free;
-+		next_check = jiffies + HZ/10;
++	if (mapping->host) {
++		cookie = 37 * cookie + hash_long(mapping->host->i_ino, BITS_PER_LONG);
 +	}
 +
-+	return total;
++	return (u32)(cookie >> (BITS_PER_LONG - 32));
 +}
 +
-+static void decay_clockpro_variables(void)
++int recently_evicted(struct address_space * mapping, unsigned long index)
 +{
-+	struct zone * zone;
-+	int cpu;
++	struct nr_bucket * nr_bucket;
++	int distance;
++	u32 wanted;
++	int i;
 +
-+	for (cpu = first_cpu(cpu_online_map); cpu < NR_CPUS; cpu++)
-+		per_cpu(evicted_pages, cpu) /= 2;
++	prefetch(mapping->host);
++	nr_bucket = nr_hash(mapping, index);
 +
-+	for_each_zone(zone)
-+		zone->active_scanned /= 2;
++	prefetch(nr_bucket);
++	wanted = nr_cookie(mapping, index);
++
++	for (i = 0; i < NUM_NR; i++) {
++		if (nr_bucket->page[i] == wanted) {
++			nr_bucket->page[i] = 0;
++			/* Return the distance between entry and clock hand. */
++			distance = atomic_read(&nr_bucket->hand) + NUM_NR - i;
++			distance = (distance % NUM_NR) + 1;
++			return distance * (1 << nonres_shift);
++		}
++	}
++
++	return -1;
 +}
 +
-+int page_is_hot(struct page * page, struct address_space * mapping,
-+		unsigned long index)
++int remember_page(struct address_space * mapping, unsigned long index)
 +{
-+	unsigned long long distance;
-+	unsigned long long evicted;
-+	int refault_distance;
-+	struct zone *zone;
++	struct nr_bucket * nr_bucket;
++	u32 nrpage;
++	int i;
 +
-+	/* Was the page recently evicted ? */
-+	refault_distance = recently_evicted(mapping, index);
-+	if (refault_distance < 0)
-+		return 0;
++	prefetch(mapping->host);
++	nr_bucket = nr_hash(mapping, index);
 +
-+	distance = estimate_pageable_memory() + refault_distance;
-+	evicted = get_evicted();
-+	zone = page_zone(page);
++	prefetchw(nr_bucket);
++	nrpage = nr_cookie(mapping, index);
 +
-+	/* Only consider recent history for the calculation below. */
-+	if (unlikely(evicted > distance))
-+		decay_clockpro_variables();
++	/* Atomically find the next array index. */
++	preempt_disable();
++  retry:
++	i = atomic_inc_return(&nr_bucket->hand);
++	if (unlikely(i >= NUM_NR)) {
++		if (i == NUM_NR)
++			atomic_set(&nr_bucket->hand, -1);
++		goto retry;
++	}
++	preempt_enable();
++
++	/* Statistics may want to know whether the entry was in use. */
++	return xchg(&nr_bucket->page[i], nrpage);
++}
++
++/*
++ * For interactive workloads, we remember about as many non-resident pages
++ * as we have actual memory pages.  For server workloads with large inter-
++ * reference distances we could benefit from remembering more.
++ */
++static __initdata unsigned long nonresident_factor = 1;
++void __init init_nonresident(void)
++{
++	int target;
++	int i;
 +
 +	/*
-+	 * Estimate whether the inter-reference distance of the tested
-+	 * page is smaller than the inter-reference distance of the
-+	 * oldest page on the active list.
-+	 *
-+	 *  distance        zone->nr_active
-+	 * ---------- <  ----------------------
-+	 *  evicted       zone->active_scanned
++	 * Calculate the non-resident hash bucket target. Use a power of
++	 * two for the division because alloc_large_system_hash rounds up.
 +	 */
-+	if (distance * zone->active_scanned < evicted * zone->nr_active) {
-+		if (zone->active_limit > zone->present_pages / 8)
-+			zone->active_limit--;
-+		return 1;
-+	}
++	target = nr_all_pages * nonresident_factor;
++	target /= (sizeof(struct nr_bucket) / sizeof(u32));
 +
-+	/* Increase the active limit more slowly. */
-+	if ((evicted & 1) && zone->active_limit < zone->present_pages * 7 / 8)
-+		zone->active_limit++;
-+	return 0;
++	nonres_table = alloc_large_system_hash("Non-resident page tracking",
++					sizeof(struct nr_bucket),
++					target,
++					0,
++					HASH_EARLY | HASH_HIGHMEM,
++					&nonres_shift,
++					&nonres_mask,
++					0);
++
++	for (i = 0; i < (1 << nonres_shift); i++)
++		atomic_set(&nonres_table[i].hand, 0);
 +}
 +
-+void remember_page(struct page * page, struct address_space * mapping,
-+		unsigned long index)
++static int __init set_nonresident_factor(char * str)
 +{
-+	struct zone * zone = page_zone(page);
-+	if (do_remember_page(mapping, index) && (index & 1) &&
-+			zone->active_limit < zone->present_pages * 7 / 8)
-+		zone->active_limit++;
++	if (!str)
++		return 0;
++	nonresident_factor = simple_strtoul(str, &str, 0);
++	return 1;
 +}
-Index: linux-2.6.12-vm/mm/filemap.c
-===================================================================
---- linux-2.6.12-vm.orig/mm/filemap.c
-+++ linux-2.6.12-vm/mm/filemap.c
-@@ -401,9 +401,12 @@ int add_to_page_cache_lru(struct page *p
- 				pgoff_t offset, int gfp_mask)
- {
- 	int ret = add_to_page_cache(page, mapping, offset, gfp_mask);
--	recently_evicted(mapping, offset);
--	if (ret == 0)
--		lru_cache_add(page);
-+	if (ret == 0) {
-+		if (page_is_hot(page, mapping, offset))
-+			lru_cache_add_active(page);
-+		else
-+			lru_cache_add(page);
-+	}
- 	return ret;
- }
- 
-Index: linux-2.6.12-vm/mm/nonresident.c
-===================================================================
---- linux-2.6.12-vm.orig/mm/nonresident.c
-+++ linux-2.6.12-vm/mm/nonresident.c
-@@ -25,6 +25,7 @@
- #include <linux/prefetch.h>
- #include <linux/kernel.h>
- #include <linux/percpu.h>
-+#include <linux/swap.h>
- 
- /* Number of non-resident pages per hash bucket. Never smaller than 15. */
- #if (L1_CACHE_BYTES < 64)
-@@ -101,7 +102,7 @@ int recently_evicted(struct address_spac
- 	return -1;
- }
- 
--int remember_page(struct address_space * mapping, unsigned long index)
-+int do_remember_page(struct address_space * mapping, unsigned long index)
- {
- 	struct nr_bucket * nr_bucket;
- 	u32 nrpage;
-@@ -125,6 +126,7 @@ int remember_page(struct address_space *
- 	preempt_enable();
- 
- 	/* Statistics may want to know whether the entry was in use. */
-+	__get_cpu_var(evicted_pages)++;
- 	return xchg(&nr_bucket->page[i], nrpage);
- }
- 
-Index: linux-2.6.12-vm/mm/page_alloc.c
-===================================================================
---- linux-2.6.12-vm.orig/mm/page_alloc.c
-+++ linux-2.6.12-vm/mm/page_alloc.c
-@@ -1715,6 +1715,7 @@ static void __init free_area_init_core(s
- 		zone->nr_scan_inactive = 0;
- 		zone->nr_active = 0;
- 		zone->nr_inactive = 0;
-+		zone->active_limit = zone->present_pages * 2 / 3;
- 		if (!size)
- 			continue;
- 
-Index: linux-2.6.12-vm/mm/swap_state.c
-===================================================================
---- linux-2.6.12-vm.orig/mm/swap_state.c
-+++ linux-2.6.12-vm/mm/swap_state.c
-@@ -323,6 +323,7 @@ struct page *read_swap_cache_async(swp_e
- 			struct vm_area_struct *vma, unsigned long addr)
- {
- 	struct page *found_page, *new_page = NULL;
-+	int active;
- 	int err;
- 
- 	do {
-@@ -344,7 +345,7 @@ struct page *read_swap_cache_async(swp_e
- 				break;		/* Out of memory */
- 		}
- 
--		recently_evicted(&swapper_space, entry.val);
-+		active = page_is_hot(new_page, &swapper_space, entry.val);
- 
- 		/*
- 		 * Associate the page with swap entry in the swap cache.
-@@ -361,7 +362,10 @@ struct page *read_swap_cache_async(swp_e
- 			/*
- 			 * Initiate read into locked page and return.
- 			 */
--			lru_cache_add_active(new_page);
-+			if (active) {
-+				lru_cache_add_active(new_page);
-+			} else
-+				lru_cache_add(new_page);
- 			swap_readpage(NULL, new_page);
- 			return new_page;
- 		}
++__setup("nonresident_factor=", set_nonresident_factor);
 Index: linux-2.6.12-vm/mm/vmscan.c
 ===================================================================
 --- linux-2.6.12-vm.orig/mm/vmscan.c
 +++ linux-2.6.12-vm/mm/vmscan.c
-@@ -355,12 +355,14 @@ static int shrink_list(struct list_head 
- 	while (!list_empty(page_list)) {
- 		struct address_space *mapping;
- 		struct page *page;
-+		struct zone *zone;
- 		int may_enter_fs;
- 		int referenced;
- 
- 		cond_resched();
- 
- 		page = lru_to_page(page_list);
-+		zone = page_zone(page);
- 		list_del(&page->lru);
- 
- 		if (TestSetPageLocked(page))
-@@ -492,7 +494,7 @@ static int shrink_list(struct list_head 
+@@ -509,6 +509,7 @@ static int shrink_list(struct list_head 
  #ifdef CONFIG_SWAP
  		if (PageSwapCache(page)) {
  			swp_entry_t swap = { .val = page->private };
--			remember_page(&swapper_space, page->private);
-+			remember_page(page, &swapper_space, page->private);
++			remember_page(&swapper_space, page->private);
  			__delete_from_swap_cache(page);
  			write_unlock_irq(&mapping->tree_lock);
  			swap_free(swap);
-@@ -501,7 +503,7 @@ static int shrink_list(struct list_head 
+@@ -517,6 +518,7 @@ static int shrink_list(struct list_head 
  		}
  #endif /* CONFIG_SWAP */
  
--		remember_page(page->mapping, page->index);
-+		remember_page(page, page->mapping, page->index);
++		remember_page(page->mapping, page->index);
  		__remove_from_page_cache(page);
  		write_unlock_irq(&mapping->tree_lock);
  		__put_page(page);
-@@ -684,6 +686,7 @@ refill_inactive_zone(struct zone *zone, 
- 	pgmoved = isolate_lru_pages(nr_pages, &zone->active_list,
- 				    &l_hold, &pgscanned);
- 	zone->pages_scanned += pgscanned;
-+	zone->active_scanned += pgscanned;
- 	zone->nr_active -= pgmoved;
- 	spin_unlock_irq(&zone->lru_lock);
+Index: linux-2.6.12-vm/mm/filemap.c
+===================================================================
+--- linux-2.6.12-vm.orig/mm/filemap.c
++++ linux-2.6.12-vm/mm/filemap.c
+@@ -400,6 +400,7 @@ int add_to_page_cache_lru(struct page *p
+ 				pgoff_t offset, int gfp_mask)
+ {
+ 	int ret = add_to_page_cache(page, mapping, offset, gfp_mask);
++	recently_evicted(mapping, offset);
+ 	if (ret == 0)
+ 		lru_cache_add(page);
+ 	return ret;
+Index: linux-2.6.12-vm/mm/swap_state.c
+===================================================================
+--- linux-2.6.12-vm.orig/mm/swap_state.c
++++ linux-2.6.12-vm/mm/swap_state.c
+@@ -344,6 +344,8 @@ struct page *read_swap_cache_async(swp_e
+ 				break;		/* Out of memory */
+ 		}
  
-@@ -799,10 +802,15 @@ shrink_zone(struct zone *zone, struct sc
- 	unsigned long nr_inactive;
- 
- 	/*
--	 * Add one to `nr_to_scan' just to make sure that the kernel will
--	 * slowly sift through the active list.
-+	 * Scan the active list if we have too many active pages.
-+	 * The limit is automatically adjusted through refaults
-+	 * measuring how well the VM did in the past.
- 	 */
--	zone->nr_scan_active += (zone->nr_active >> sc->priority) + 1;
-+	if (zone->nr_active > zone->active_limit)
-+		zone->nr_scan_active += zone->nr_active - zone->active_limit;
-+	else if (sc->priority < DEF_PRIORITY - 2)
-+		zone->nr_scan_active += (zone->nr_active >> sc->priority) + 1;
++		recently_evicted(&swapper_space, entry.val);
 +
- 	nr_active = zone->nr_scan_active;
- 	if (nr_active >= sc->swap_cluster_max)
- 		zone->nr_scan_active = 0;
+ 		/*
+ 		 * Associate the page with swap entry in the swap cache.
+ 		 * May fail (-ENOENT) if swap entry has been freed since
 
 --
 -- 

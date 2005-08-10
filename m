@@ -1,67 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbVHJA17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbVHJAdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbVHJA17 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 20:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVHJA17
+	id S1750991AbVHJAdr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 20:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbVHJAdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 20:27:59 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:41046 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750975AbVHJA16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 20:27:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=pGgsH2liJwo1WlQmJUW3OdO9MDa/tk6EiGm8qJyeaN3zVzqTKezWBe173ore/ebMwDIKqeATXpNIiN8rwSgsAw5BUB+voSL0PbtlEVWgVTf7dkAFK7hPdkjWatjUbFm92BPExf81y1exv+AttSIhaS56RkiiyPdFezGzEgQqQK8=  ;
-Message-ID: <42F94A00.3070504@yahoo.com.au>
-Date: Wed, 10 Aug 2005 10:27:44 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+	Tue, 9 Aug 2005 20:33:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:29938 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1750991AbVHJAdq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 20:33:46 -0400
+Message-ID: <42F94B68.6060107@mvista.com>
+Date: Tue, 09 Aug 2005 17:33:44 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 1.0+ (X11/20050531)
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       steiner@sgi.com, dvhltc@us.ibm.com, mbligh@mbligh.org
-Subject: Re: allow the load to grow upto its cpu_power (was Re: [Patch] don't
- kick ALB in the presence of pinned task)
-References: <20050801174221.B11610@unix-os.sc.intel.com> <20050802092717.GB20978@elte.hu> <20050809160813.B1938@unix-os.sc.intel.com>
-In-Reply-To: <20050809160813.B1938@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Geoff Levand <geoffrey.levand@am.sony.com>
+CC: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
+       cpufreq@lists.linux.org.uk
+Subject: Re: [linux-pm] PowerOP 1/3: PowerOP core
+References: <20050809025157.GB25064@slurryseal.ddns.mvista.com> <42F8D4C5.2090800@am.sony.com>
+In-Reply-To: <42F8D4C5.2090800@am.sony.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
+Geoff Levand wrote:
 
->For example, lets take two nodes each having two physical packages. And
->assume that there are two tasks and both of them are on (may or may n't be
->pinned) two packages in node-0
->
->Todays load balance will detect that there is an imbalance between the
->two nodes and will try to distribute the load between the nodes.
->
->In general, we should allow the load of a group to grow upto its cpu_power
->and stop preventing these costly movements.
->
->Appended patch will fix this. I have done limited testing of this patch.
->Guys with big NUMA boxes, please give this patch a try. 
->
->--
->
->When the system is lightly loaded, don't bother about the average load.
->In this case, allow the load of a sched group to grow upto its cpu_power.
->
->
+> I'm wondering if anything could be gained by having the whole 
+> struct powerop_point defined in asm/powerop.h, and treat it as an 
+> opaque structure at this level.  That way, things other than just 
+> ints could be passed between the policy manager and the backend, 
+> although I guess that breaks the beauty of the simplicity and would 
+> complicate the sys-fs interface, etc.  I'm interested to hear your 
+> comments.
 
-Yeah this makes sense. Thanks.
+Making the "operating point" data structure entirely platform-specific 
+should be OK.  There's a little value to having generic pieces handle 
+some common chores (such as the sysfs interfaces), but even for integers 
+decimal vs. hex formatting is nicer depending on the type of value. 
+Since most values that have been managed using similar interfaces thus 
+far have been flags, register values, voltages, etc. using integers has 
+worked well and nicely simplified the platform backend, but if there's a 
+need for other data types then should be doable.
 
-I think we'll only need your first line change to fix this, though.
+> Another point is that a policy manager would need to poll the system 
+> and/or get events and then act.  Your powerop work here only provides 
+> a (one way) piece of the final action.  Any comments regarding a more 
+> general interface?
 
-Your second change will break situations where a single group is very
-loaded, but it is in a domain with lots of cpu_power
-(total_load <= total_power).
+What's discussed here is probably the bottommost layer of a power 
+management software stack: to read and write the platform-specific 
+system power parameters, optionally arranged into a mutually-consistent 
+set called an "operating point".  Power policy management is a large, 
+thorny topic that I wasn't trying to tackle now.
 
-Nick
+So far as kernel-to-userspace event notification goes (assuming the 
+power policy manager is in userspace, which is certainly where I'd 
+recommend), ACPI has a procfs-based communication channel but the 
+kobject_uevent stuff looks like the way I'd go, and it's somewhere on my 
+list to come up with a patch that does that as well.
 
+If these general ideas of arbitrary platform power parameters and 
+operating points are deemed worthy of continued consideration, I'll 
+propose what I view is the next step: interfaces to create and activate 
+operating points from userspace.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+At that point it should be possible to write power policy management 
+applications for systems that can benefit from this generalized notion 
+of operating points: create the operating points that match the system 
+usage models (in the case of many embedded systems, the system is some 
+mode with different power/performance characteristics such as audio 
+playback vs. mobile phone call in progress) and power needs (e.g., low 
+battery strength vs. high strength) and activate operating points based 
+on events received (new app running, low battery warning, etc.).
+
+Any opinions on all that?  Thanks,
+
+-- 
+Todd

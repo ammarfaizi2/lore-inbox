@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbVHJQUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965185AbVHJQW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965183AbVHJQUc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 12:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbVHJQUc
+	id S965185AbVHJQW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 12:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVHJQW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 12:20:32 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:51014 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S965180AbVHJQUc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 12:20:32 -0400
-Date: Wed, 10 Aug 2005 18:23:29 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Hubert Tonneau <hubert.tonneau@fullpliant.org>, git@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel.org git web interface
-Message-ID: <20050810162329.GA8574@mars.ravnborg.org>
-References: <05BEHQE11@briare1.heliogroup.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <05BEHQE11@briare1.heliogroup.fr>
-User-Agent: Mutt/1.5.8i
+	Wed, 10 Aug 2005 12:22:57 -0400
+Received: from pop.gmx.de ([213.165.64.20]:34967 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965173AbVHJQW4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 12:22:56 -0400
+Date: Wed, 10 Aug 2005 18:22:54 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+MIME-Version: 1.0
+References: <11855.1123690475@www37.gmx.net>
+Subject: =?ISO-8859-1?Q?Re:_Signal_handling_possibly_wrong?=
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <23304.1123690974@www36.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hubert.
-git@vger.kernel.org is a better place to request this.
-So I have included them in to:
+> * Steven Rostedt (rostedt@goodmis.org) wrote:
+> > Where, sa_mask is _ignored_ if NODEFER is set. (I now have woken up!).
+> > The attached program shows that the sa_mask is indeed ignored when
+> > SA_NODEFER is set.
+> > 
+> > Now the real question is... Is this a bug?
+> 
+> That's not correct w.r.t. SUSv3.  sa_mask should be always used and
+> SA_NODEFER is just whether or not to add that signal in.
 
-	Sam
-	
-On Wed, Aug 10, 2005 at 03:59:02PM +0000, Hubert Tonneau wrote:
-> The 'V' column on http://www.kernel.org/ is very convienient to review what
-> has changed in a new kernel (files list, then simple clic diff access to the
-> selected file).
-> 
-> Now, the git changelog is also interesting (provides overall explaination),
-> but it's harder to use because the changes stream is so dense.
-> 
-> So, what would be helpfull for reviewers is the ability to view the git
-> changelog of only the changes that touch a given file.
-> I mean when we select the 'V' column, have two links per modified file,
-> one displaying the diff has it currently does, and the other displaying
-> the git changes as 'C' column does, but filtered with only changes that
-> touch the selected file.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Yes.
+
+> SA_NODEFER
+>     [XSI] If set and sig is caught, sig shall not be added to the 
+>     thread's
+>     signal mask on entry to the signal handler unless it is included in
+>     sa_mask. Otherwise, sig shall always be added to the thread's signal
+>     mask on entry to the signal handler.
+
+It's amazing that this non-conformance was never spotted before.
+It seems to go all the way back to kernel 1.0 (when the flag
+was known as SA_NOMASK).
+
+I'll get something into the manual pages under BUGS.
+
+Cheers,
+
+Michael
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  Grab the latest
+tarball at ftp://ftp.win.tue.nl/pub/linux-local/manpages/
+and grep the source files for 'FIXME'.

@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbVHJAJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbVHJAYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750985AbVHJAJu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 20:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVHJAJu
+	id S1750999AbVHJAYI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 20:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbVHJAYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 20:09:50 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:28811 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S1750985AbVHJAJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 20:09:45 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Christoph Hellwig <hch@lst.de>
-Date: Wed, 10 Aug 2005 10:09:39 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17145.17859.563739.562389@cse.unsw.edu.au>
+	Tue, 9 Aug 2005 20:24:07 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42252 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750999AbVHJAYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 20:24:07 -0400
+Date: Wed, 10 Aug 2005 02:24:01 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: spyro@f2s.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use kthread infrastructure in md
-In-Reply-To: message from Christoph Hellwig on Tuesday August 9
-References: <20050809210446.GA29308@lst.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: [2.6 patch] arm26: one -g is enough for everyone  ;-)
+Message-ID: <20050810002401.GO4006@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday August 9, hch@lst.de wrote:
-> Switch MD to use the kthread infrastructure, to simplify the code and
-> get rid of tasklist_lock abuse in md_unregister_thread.  Long-term I
-> wonder whether workqueues wouldn't be a better choice than the
-> MD-specific thread wrappers for the lowlevel drivers.
-> 
+The main Makefile is already adding -g to the CFLAGS if 
+CONFIG_DEBUG_INFO=y.
 
-Thanks.  This is definitely a step in the right direction.   However
-I think it still needs a bit of work.
-The old md_unregister_thread sent a signal to the thread so that if it
-was in 'wait_event_interruptible_timeout', that call would complete.
-However I cannot see how the new md_unregister_thread will interrupt
-the wait_event_interruptible_timeout.
-I'll look into it..
+Not that two -g would do harm, but one works as well.
 
 
-Thanks,
-NeilBrown
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.13-rc5-mm1/arch/arm26/Makefile.old	2005-08-10 02:18:56.000000000 +0200
++++ linux-2.6.13-rc5-mm1/arch/arm26/Makefile	2005-08-10 02:19:28.000000000 +0200
+@@ -17,10 +17,6 @@
+ CFLAGS		+=-fno-omit-frame-pointer -mno-sched-prolog
+ endif
+ 
+-ifeq ($(CONFIG_DEBUG_INFO),y)
+-CFLAGS		+=-g
+-endif
+-
+ CFLAGS_BOOT	:=-mapcs-26 -mcpu=arm3 -msoft-float -Uarm
+ CFLAGS		+=-mapcs-26 -mcpu=arm3 -msoft-float -Uarm
+ AFLAGS		+=-mapcs-26 -mcpu=arm3 -msoft-float

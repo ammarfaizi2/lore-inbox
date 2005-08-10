@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbVHJTDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbVHJTDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbVHJTDS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 15:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbVHJTDS
+	id S1030205AbVHJTDs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 15:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbVHJTDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 15:03:18 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:39950 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1030201AbVHJTDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 15:03:17 -0400
-Message-ID: <42FA5094.4010702@tmr.com>
-Date: Wed, 10 Aug 2005 15:08:04 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Newsgroups: gmane.linux.kernel
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <20050730100658.GB1942@elf.ucw.cz>
-In-Reply-To: <20050730100658.GB1942@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Aug 2005 15:03:47 -0400
+Received: from dsl3-63-249-67-204.cruzio.com ([63.249.67.204]:2728 "EHLO
+	cichlid.com") by vger.kernel.org with ESMTP id S1030205AbVHJTDr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 15:03:47 -0400
+Date: Wed, 10 Aug 2005 12:03:24 -0700
+From: Andrew Burgess <aab@cichlid.com>
+Message-Id: <200508101903.j7AJ3Ow6005064@cichlid.com>
+To: linux-kernel@vger.kernel.org
+Subject: Intermittant hang/reboot at startup: 2.6.13-rc6 SMP (also no mouse and usb error)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>I was finally able to get C3 state working. It seems that my BIOS is
->>leaving USB controllers in an active state(?). Without any USB drivers
->>loaded, C3 is not possible. With drivers loaded, but no device plugged
->>in C3 works fine. Kernel is 2.6.13-rc3-mm3 + acpi-sbs.
->>
->>With working C3 there are indeed differences:
->>
->>Voltage is 16.5 V
->>
->>HZ=100:  ~460 mA => 7.59 W
->>HZ=250:  ~468 mA => 7.72 W
->>HZ=1000: ~494 mA => 8.15 W
-> 
-> 
-> 0.55W difference, wow. And that's 7% difference to overall system
-> consumption.
+2.6.13rc6 SMP (single P4 HT)
 
-But it's totally meaning less isn't it? Disable the USB, there goes the 
-kb/mouse, turn off the LCD you can't see anything, spin down the disk, 
-you can't do i/o, and run the CPU in idle so you can't DO anything.
+messages:
 
-At that point you might as well turn it off and save 100%.
+...
+Aug 10 11:32:02 cichlid kernel: 3ware Storage Controller device driver for Linux v1.26.02.001.
+Aug 10 11:32:02 cichlid kernel: PCI: Found IRQ 10 for device 0000:02:06.0
+>>> Hangs here one time, rebooted itself here one time  <<<
+
+The third time it came up but I had no mouse, keyboard was ok (with the newer
+RT preempt kernels I sometimes have no keyboard either). I connected a usb
+mouse and am using the system now. (Good performance, lots of sched_fifo
+threads running well).
+
+I also get a million of these while the IOGEAR USB mouse/keyboard adapter is
+connected:
+
+Aug 10 11:50:41 cichlid kernel: drivers/usb/input/hid-core.c: input irq status -71 received
+
+Can I do anything to help debug either of these?
+
+lspci:
+
+00:00.0 Host bridge: Intel Corp. 82875P/E7210 Memory Controller Hub (rev 02)
+00:01.0 PCI bridge: Intel Corp. 82875P Processor to AGP Controller (rev 02)
+00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #1 (rev 02)
+00:1d.1 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #2 (rev 02)
+00:1d.2 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02)
+00:1d.3 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #4 (rev 02)
+00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev c2)
+00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Interface Bridge (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) IDE Controller (rev 02)
+00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) SATA Controller (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller (rev 02)
+01:00.0 VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5500] (rev a1)
+02:02.0 FireWire (IEEE 1394): Texas Instruments TSB43AB23 IEEE-1394a-2000 Controller (PHY/Link)
+02:04.0 Unknown mass storage controller: Promise Technology, Inc. PDC20267 (FastTrak100/Ultra100) (rev 02)
+02:05.0 Unknown mass storage controller: Promise Technology, Inc. PDC20267 (FastTrak100/Ultra100) (rev 02)
+02:06.0 RAID bus controller: 3ware Inc 3ware Inc 3ware 7xxx/8xxx-series PATA/SATA-RAID (rev 01)
+02:07.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
+02:07.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
+02:09.0 Multimedia audio controller: VIA Technologies Inc. ICE1712 [Envy24] PCI Multi-Channel I/O Controller (rev 02)
+
+lsusb:
+
+Bus 001 Device 013: ID 0518:0001 EzKEY Corp. 
+Bus 001 Device 012: ID 0403:6001 Future Technology Devices International, Ltd 8-bit FIFO
+Bus 001 Device 011: ID 0403:6001 Future Technology Devices International, Ltd 8-bit FIFO
+Bus 001 Device 010: ID 0403:6001 Future Technology Devices International, Ltd 8-bit FIFO
+Bus 001 Device 009: ID 07b8:420a D-Link Corp. 
+Bus 001 Device 008: ID 07e5:05c2 QPS, Inc. 
+Bus 001 Device 006: ID 04b4:6560 Cypress Semiconductor Corp. CY7C65640 USB-2.0 "TetraHub"
+Bus 001 Device 004: ID 0409:0058 NEC Corp. HighSpeed Hub
+Bus 001 Device 001: ID 0000:0000  
+

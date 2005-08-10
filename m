@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbVHJStH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965257AbVHJStz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbVHJStH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 14:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbVHJStH
+	id S965257AbVHJStz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 14:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965259AbVHJSty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 14:49:07 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:29451 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S965257AbVHJStG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 14:49:06 -0400
-Message-ID: <42FA4C45.1020304@tmr.com>
-Date: Wed, 10 Aug 2005 14:49:41 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
+	Wed, 10 Aug 2005 14:49:54 -0400
+Received: from mailfe09.tele2.fr ([212.247.155.12]:47260 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S965257AbVHJStx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 14:49:53 -0400
+X-T2-Posting-ID: g63wq726D5fsXb2UbU6LU0KOXzHnTHjCzHZ35sC2MDs=
+Message-ID: <42FA4C44.5040609@astek.fr>
+Date: Wed, 10 Aug 2005 20:49:40 +0200
+From: Frederic TEMPORELLI - astek <ftemporelli@astek.fr>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; fr; rv:1.7.3) Gecko/20040910
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: Jim Crilly <jim@why.dont.jablowme.net>
-CC: James Bruce <bruce@andrew.cmu.edu>, Lee Revell <rlrevell@joe-job.com>,
-       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <20050731220754.GE7362@voodoo>
-In-Reply-To: <20050731220754.GE7362@voodoo>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] remove name length check in a workqueue
+References: <1123683544.5093.4.camel@mulgrave>	 <Pine.LNX.4.58.0508101044110.31617@devserv.devel.redhat.com>	 <20050810100523.0075d4e8.akpm@osdl.org> <1123694672.5134.11.camel@mulgrave>	 <20050810103733.42170f27.akpm@osdl.org> <1123696466.5134.23.camel@mulgrave>
+In-Reply-To: <1123696466.5134.23.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Crilly wrote:
-> On 07/31/05 11:10:20PM +0200, Pavel Machek wrote:
-> 
->>>I really like having 250HZ as an _option_, but what I don't see is why 
->>>it should be the _default_.  I believe this is Lee's position as
->>>Last I checked, ACPI and CPU speed scaling were not enabled by default; 
->>
->>Kernel defaults are irelevant; distros change them anyway. [But we
->>probably want to enable ACPI and cpufreq by default, because that
->>matches what 99% of users will use.]
->>
-> 
-> 
-> If the kernel defaults are irrelevant, then it would make more sense to
-> leave the default HZ as 1000 and not to enable the cpufreq and ACPI in
-> order to keep with the principle of least surprise for people who do use
-> kernel.org kernels.
-> 
-> Jim.
+James Bottomley a écrit :
 
-Thank you Jim, Plauger's "law of least astonishment."
+>Well, but the other alternative is that we hit arbitrary BUG_ON() limits
+>in systems that create numbered workqueues which is rather contrary to
+>our scaleability objectives, isn't it?
+>
+>I think I'd rather the name truncation than have to respond to kernel
+>BUG()'s.  If someone really has a problem with the appearance of ps,
+>they can always increase TASK_COMM_LEN.
+>
+>  
+>
+>>We could truncate the name before adding the CPU number, but it sounds
+>>saner to just prevent anyone passing in excessively long names.  Via
+>>BUG_ON, say ;)
+>>
+>>What's the actual problem?
+>>    
+>>
+>
+>What I posted originally; the current SCSI format for a workqueue:
+>scsi_wq_%d hits the bug after the host number rises to 100, which has
+>been seen by some enterprise person with > 100 HBAs.
+>
+>The reason for this name is that the error handler thread is called
+>scsi_eh_%d; so we could rename all our threads to avoid this, but one
+>day someone will come along with a huge enough machine to hit whatever
+>limit we squeeze it down to.
+>
+>James
+>
+>  
+>
+In scsi layer (drivers/scsi/hosts.c), wq name length is limited to 
+KOBJ_NAME_LEN due to the snprintf .
+may be nice to use same limit if BUG_ON is kept... but why NULL isn't 
+returned, then ?  ;-)
 
+--
+Tempo

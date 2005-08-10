@@ -1,32 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbVHJQU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbVHJQUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965181AbVHJQU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 12:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVHJQU5
+	id S965183AbVHJQUc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 12:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbVHJQUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 12:20:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49086 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965181AbVHJQU4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 12:20:56 -0400
-Date: Wed, 10 Aug 2005 09:20:10 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Cc: Chris Wright <chrisw@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
-       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
-Subject: Re: Signal handling possibly wrong
-Message-ID: <20050810162010.GD7762@shell0.pdx.osdl.net>
-References: <42F8F6CC.7090709@fujitsu-siemens.com> <1123612789.3167.9.camel@localhost.localdomain> <42F8F98B.3080908@fujitsu-siemens.com> <1123614253.3167.18.camel@localhost.localdomain> <1123615983.18332.194.camel@localhost.localdomain> <42F906EB.6060106@fujitsu-siemens.com> <1123617812.18332.199.camel@localhost.localdomain> <1123618745.18332.204.camel@localhost.localdomain> <20050809204928.GH7991@shell0.pdx.osdl.net> <42F9C4DB.8010001@fujitsu-siemens.com>
+	Wed, 10 Aug 2005 12:20:32 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:51014 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S965180AbVHJQUc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 12:20:32 -0400
+Date: Wed, 10 Aug 2005 18:23:29 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Hubert Tonneau <hubert.tonneau@fullpliant.org>, git@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel.org git web interface
+Message-ID: <20050810162329.GA8574@mars.ravnborg.org>
+References: <05BEHQE11@briare1.heliogroup.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42F9C4DB.8010001@fujitsu-siemens.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <05BEHQE11@briare1.heliogroup.fr>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Bodo Stroesser (bstroesser@fujitsu-siemens.com) wrote:
-> BTW: would you please call me Bodo? :-)
+Hi Hubert.
+git@vger.kernel.org is a better place to request this.
+So I have included them in to:
 
-Oops, I can't read!  Sorry.
--chris
+	Sam
+	
+On Wed, Aug 10, 2005 at 03:59:02PM +0000, Hubert Tonneau wrote:
+> The 'V' column on http://www.kernel.org/ is very convienient to review what
+> has changed in a new kernel (files list, then simple clic diff access to the
+> selected file).
+> 
+> Now, the git changelog is also interesting (provides overall explaination),
+> but it's harder to use because the changes stream is so dense.
+> 
+> So, what would be helpfull for reviewers is the ability to view the git
+> changelog of only the changes that touch a given file.
+> I mean when we select the 'V' column, have two links per modified file,
+> one displaying the diff has it currently does, and the other displaying
+> the git changes as 'C' column does, but filtered with only changes that
+> touch the selected file.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965252AbVHJSSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965240AbVHJSVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965252AbVHJSSr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 14:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbVHJSSr
+	id S965240AbVHJSVG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 14:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbVHJSVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 14:18:47 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:929 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965240AbVHJSSr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 14:18:47 -0400
-Message-ID: <42FA4502.8000807@pobox.com>
-Date: Wed, 10 Aug 2005 14:18:42 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Thonke <iogl64nx@gmail.com>
-CC: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
-References: <42FA4355.7010004@gmail.com>
-In-Reply-To: <42FA4355.7010004@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Wed, 10 Aug 2005 14:21:06 -0400
+Received: from lennier.cc.vt.edu ([198.82.162.213]:44505 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S965246AbVHJSVF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 14:21:05 -0400
+Subject: Re: These guys can't spell Linux ;)
+From: Brad Tilley <rtilley@vt.edu>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1123697051.4129.8.camel@athop1.ath.vt.edu>
+References: <1123697051.4129.8.camel@athop1.ath.vt.edu>
+Content-Type: text/plain
+Organization: Virginia Tech Athletics
+Date: Wed, 10 Aug 2005 14:20:12 -0400
+Message-Id: <1123698012.4129.11.camel@athop1.ath.vt.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Thonke wrote:
-> Hello Jeff,
+On Wed, 2005-08-10 at 14:04 -0400, Brad Tilley wrote:
+> http://eng.cowon.com/product/iAUDIOU2/feature.html
 > 
-> I would like to ask what the plans/timeplan to implement NCQ support for 
-> NVidia NForce4(CK804) SATAII based chipsets? Fact is that is it possible 
-> to use NCQ with NForce4 SATAII on Windows system, I wonder why it isn't 
-> support by libata? Is there something in your git-tree? Or what are the 
-> reasons/problems behind that libata is missing NCQ support for (CK804) 
-> SATAII?
+> Mac and Lynux OS
+> Use Mac or Lynux? No problem!! 
+> iAUDIO U2 is available to be used on Mac or Lynux OS.
 
-Ask NVIDIA.  They are the only company that gives me -zero- information 
-on their SATA controllers.
-
-As such, there are -zero- plans for NCQ on NVIDIA controllers at this time.
-
-	Jeff
-
-
+Even though they can't spell it, their mp3/ogg player works flawlessly
+with Lynux ;) 
 

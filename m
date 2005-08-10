@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbVHJUb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbVHJU31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbVHJUb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 16:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbVHJUb1
+	id S1030254AbVHJU31 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 16:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbVHJU31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 16:31:27 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:37770
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030256AbVHJUb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 16:31:26 -0400
-Date: Wed, 10 Aug 2005 13:31:25 -0700 (PDT)
-Message-Id: <20050810.133125.08323684.davem@davemloft.net>
-To: riel@redhat.com
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFT 4/5] CLOCK-Pro page replacement
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050810200943.809832000@jumble.boston.redhat.com>
-References: <20050810200216.644997000@jumble.boston.redhat.com>
-	<20050810200943.809832000@jumble.boston.redhat.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 10 Aug 2005 16:29:27 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:51368 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030254AbVHJU31 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 16:29:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PyDQCUD3qz2uixOnjRyyooF1zzRVMlrtCStqAB2S0TUCzGWfZkaYOGRd7wD8vWm9jrWzu9VtnWcVtJARl8ixjkjt3M0LTENyM+oyYYJyp199sNJYYLCZmef1td8RktBub1/cuwKn0tkrSZd3PoZkN/lNaBgWfb78+uFMFeJArN0=
+Message-ID: <60f2b0dc05081013296a0a7938@mail.gmail.com>
+Date: Wed, 10 Aug 2005 22:29:26 +0200
+From: Olivier Fourdan <fourdan@gmail.com>
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: PATCH: Assume PM Timer to be reliable on broken board/BIOS
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <42E6C86F.3010503@shaw.ca>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4uGpt-2Y3-15@gated-at.bofh.it> <42E6C86F.3010503@shaw.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Rik van Riel <riel@redhat.com>
-Date: Wed, 10 Aug 2005 16:02:20 -0400
+On 7/27/05, Robert Hancock <hancockr@shaw.ca> wrote:
+> > In a nutshell, sometimes, the PIT/TSC timer runs 3x too fast [1]. That
+> > causes many issues, including DMA errors, MCE, and clock running way too
+> > fast (making the laptop unusable for any software development). So far,
+> > no BIOS update was able to fix the issue for me.
+> 
+> Shouldn't this be looked into further rather than adding this
+> workaround? Surely Windows is using the PIT as well, so there must be
+> some way to get it to behave properly..
 
-> +DEFINE_PER_CPU(unsigned long, evicted_pages);
+Sorry for the late follow up. Well, the timer management in Windows
+depends on the HAL used. By default, it's the ACPI HAL that is used in
+this laptop.
 
-DEFINE_PER_CPU() needs an explicit initializer to work
-around some bugs in gcc-2.95, wherein on some platforms
-if you let it end up as a BSS candidate it won't end up
-in the per-cpu section properly.
+I did re-install Windows by forcing the "Standard PC"  HAL in Windows
+XP installation and, without ACPI, Windows exhibits the exact same
+problem as Linux or any other system: The clock runs 3 times too fast
+in Windows too...
 
-I'm actually happy you made this mistake as it forced me
-to audit the whole current 2.6.x tree and there are few
-missing cases in there which I'll fix up and send to Linus.
-:-)
+So my guess is that the HAL ACPI in Windows does more or less the same
+thing that does my patch (updated, available here:
+http://www.xfce.org/~olivier/r3000), it calibrates the PIT timer based
+on the ACPI (PM) timer.
+
+Cheers,
+Olivier.

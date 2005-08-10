@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbVHJJ17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbVHJJeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932520AbVHJJ17 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 05:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbVHJJ17
+	id S932512AbVHJJeo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 05:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbVHJJeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 05:27:59 -0400
-Received: from [193.151.93.131] ([193.151.93.131]:3347 "EHLO
-	reptilian.maxnet.nu") by vger.kernel.org with ESMTP id S932520AbVHJJ17
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 05:27:59 -0400
-From: Thomas Habets <thomas@habets.pp.se>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: [PATCH] Kernels Out Of Memoy(OOM) killer Problem ?
-Date: Wed, 10 Aug 2005 10:31:14 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <42F8720D.4060300@picsearch.com> <200508091133.21837.thomas@habets.pp.se> <200508101113.23490.vda@ilport.com.ua>
-In-Reply-To: <200508101113.23490.vda@ilport.com.ua>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Wed, 10 Aug 2005 05:34:44 -0400
+Received: from gate.crashing.org ([63.228.1.57]:22403 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932512AbVHJJen (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 05:34:43 -0400
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, ncunningham@cyclades.com,
+       Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <20050809204100.B29945@flint.arm.linux.org.uk>
+References: <42F57FCA.9040805@yahoo.com.au>
+	 <200508090710.00637.phillips@arcor.de>
+	 <1123562392.4370.112.camel@localhost> <42F83849.9090107@yahoo.com.au>
+	 <20050809080853.A25492@flint.arm.linux.org.uk>
+	 <523240000.1123598289@[10.10.2.4]>
+	 <20050809204100.B29945@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 11:27:24 +0200
+Message-Id: <1123666046.30257.226.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508101031.14964.thomas@habets.pp.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a midnight dreary, Denis Vlasenko pondered, weak and weary:
-> Your sig is very very buggy (if interpreted as C code).
+On Tue, 2005-08-09 at 20:41 +0100, Russell King wrote:
+> On Tue, Aug 09, 2005 at 07:38:52AM -0700, Martin J. Bligh wrote:
+> > pfn_valid() doesn't tell you it's RAM or not - it tells you whether you
+> > have a backing struct page for that address. Could be an IO mapped device,
+> > a small memory hole, whatever.
+> 
+> The only things which have a struct page is RAM.  Nothing else does.
 
-*You're* buggy! [1]
+Well, not anymore :)
 
-The command in the sig fixes the code.
+With sparsemem, you can cheat now and have struct page for non-RAM, and
+this is actually useful. I want some IO space to be "context switchable"
+and thus map it with nopage() functionality, etc...
 
----------
-typedef struct me_s {
-  char name[]      = { "Thomas Habets" };
-  char email[]     = { "thomas@habets.pp.se" };
-  char kernel[]    = { "Linux" };
-  char *pgpKey[]   = { "http://www.habets.pp.se/pubkey.txt" };
-  char pgp[] = { "A8A3 D1DD 4AE0 8467 7FDE  0945 286A E90A AD48 E854" };
-  char coolcmd[]   = { "echo '. ./_&. ./_'>_;. ./_" };
-} me_t;
+Ben.
 
-[1]    :-)

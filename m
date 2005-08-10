@@ -1,36 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbVHJN2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbVHJNdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965106AbVHJN2x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 09:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbVHJN2x
+	id S965109AbVHJNdp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 09:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbVHJNdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 09:28:53 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:28127 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965106AbVHJN2w (ORCPT
+	Wed, 10 Aug 2005 09:33:45 -0400
+Received: from mail43.e.nsc.no ([193.213.115.43]:42140 "EHLO mail43.e.nsc.no")
+	by vger.kernel.org with ESMTP id S965109AbVHJNdp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 09:28:52 -0400
-Date: Wed, 10 Aug 2005 06:28:37 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linus Torvalds <torvalds@osdl.org>, kiran@scalex86.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix ide-disk.c oops caused by hwif == NULL
-In-Reply-To: <58cb370e050810061342fcd09a@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0508100626420.12307@schroedinger.engr.sgi.com>
-References: <200508100459.j7A4xTn7016128@hera.kernel.org> 
- <Pine.LNX.4.62.0508101310300.18940@numbat.sonytel.be> 
- <Pine.LNX.4.62.0508100604020.12126@schroedinger.engr.sgi.com>
- <58cb370e050810061342fcd09a@mail.gmail.com>
+	Wed, 10 Aug 2005 09:33:45 -0400
+Date: Wed, 10 Aug 2005 15:33:42 +0200
+To: linux-kernel@vger.kernel.org
+Subject: captive-ntfs FUSE support?
+From: Kristoffer <kfs1@online.no>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <op.svanygid3czpo8@myhost.localdomain>
+User-Agent: Opera M2/8.01 (Linux, build 1204)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Aug 2005, Bartlomiej Zolnierkiewicz wrote:
+captive ntfs: http://www.jankratochvil.net/project/captive/
+http://www.jankratochvil.net/project/captive/CVS.html.pl
 
-> hwif can't be NULL or something is *really* wrong
+Can someone please port cvs captive-ntfs to FUSE?
 
-Ahh.. Yes.... Not enough time to think about this email properly since I 
-need to get to the LWCE in SF. Wrong description. The oops was caused by 
-pci_dev being NULL..
+why?:
+Since LUFS is no longer maintained and FUSE is. since to use the LUFIS  
+bridge you have to install LUFS, which doesn't go into the kernel anymore  
+because it's no longer maintained, and if you did get it to go into the  
+kernel it's much more trouble than the LUFS syntax for mounting,etc. And  
+LUFS-only doesn't go into the kernel as said. Since gnome-vfs2 doesn't  
+work on / dir because of a bug. Since i want the CVS version of captive,  
+but i can't get it to compile. Since this is the only working  
+non-commercial solution to getting NTFS read/write in linux. Since the  
+developer isn't going to implement it(from his mailing list):
+
+# ...
+# > I was wondering about the status of captive, is it totally dead?
+#
+# Yes, before someone writes acceptable Free kernel and before I start to  
+make
+# some financial income on Captive again.
+#
+#
+# > If not, is there any work being done on actually porting it to fuse by  
+anyone?
+#
+# No. And definitely not by myself as FUSE is Linux kernel bound while the  
+Linux
+# kernel itself is broken by design and therefore even FUSE is broken by  
+design.
+#
+# BTW the FUSE frontend is really a trivia piece of code, its LUFS  
+counterpart is
+# 30KB after "sort -u". It would be a part of one evening to code it  
+myself but
+# it is more a psychological fun for me to watch the Famous Free Software
+# Community unable to code this tiny trivia bit of glue to run the wanted
+# project. This glue is required just because of LUFS is no longer  
+supported and
+# LUFS would need to be ported each day according to the mood of the Linux  
+kernel
+# "developers" - this other part of the Famous Free Software Community  
+f*cks up
+# the ABI+API of each Linux kernel release themselves and thus turning  
+down all
+# the people around who still belive that crap could be used for anything.  
+Really
+# funny. Unfortunately there is still nothing much better available out  
+there.
+
+And other more practical reasons for the ones who doesn't code on the  
+linux kernel for hobby/profit and nor is a programmer. I would implement  
+it myself if i knew how to code, but since i can't i'm asking you.
+
+I'm not signed-up to this list(too much mail) but am following the  
+newslist mirror. Please do CC your reply/comments to me though.
+
+Thank you.
+- KSF

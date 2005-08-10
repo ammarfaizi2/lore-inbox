@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbVHJRa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965234AbVHJRbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965229AbVHJRa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 13:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbVHJRa2
+	id S965234AbVHJRbe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 13:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbVHJRbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 13:30:28 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:19101 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S965229AbVHJRa2 convert rfc822-to-8bit (ORCPT
+	Wed, 10 Aug 2005 13:31:34 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:5279 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S965231AbVHJRbd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 13:30:28 -0400
-From: Jason Gaston <jason.d.gaston@intel.com>
-Organization: Intel Corp.
-To: jgarzik@redhat.com
-Subject: [PATCH 2.6.13-rc6 1/1] ahci: AHCI mode SATA patch for Intel ICH7-M DH
-Date: Wed, 10 Aug 2005 06:18:43 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200508100618.43236.jason.d.gaston@intel.com>
+	Wed, 10 Aug 2005 13:31:33 -0400
+From: dth@picard.cistron.nl (Danny ter Haar)
+Subject: Re: [GIT PATCH] final SCSI bug fixes before 2.6.13
+Date: Wed, 10 Aug 2005 17:31:28 +0000 (UTC)
+Organization: Cistron
+Message-ID: <ddddlg$v3v$1@news.cistron.nl>
+References: <1123689057.5134.8.camel@mulgrave>
+X-Trace: ncc1701.cistron.net 1123695088 31871 62.216.30.70 (10 Aug 2005 17:31:28 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@picard.cistron.nl (Danny ter Haar)
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+James Bottomley  <James.Bottomley@SteelEye.com> wrote:
+>This tree represents the final bug fixes, both for oopses seen by
+>various people.  One is for the dual binding of the i2o drivers and the
+>other is for an oops adding and removing devices from the lpfc and
+>qlogic fibre drivers.
+>
+>The tree is at
+>www.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
 
-This patch adds the Intel ICH7-M DH DID to the ahci.c file for AHCI mode SATA support.  This patch was built against the 2.6.13-rc6 kernel.  
-If acceptable, please apply. 
+Is this patch allready included in the 2.6.13-rc6-git1 patch ?
 
-Thanks,
+I compiled/installed that kernel now over 6 hours ago
 
-Jason Gaston
+reboot   system boot  2.6.13-rc6-git1  Wed Aug 10 13:24          (06:04)
 
-Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+Prior to that 2.6.13-rc6 crashed on me twice:
 
---- linux-2.6.13-rc6/drivers/scsi/ahci.c.orig	2005-08-10 06:06:34.993968056 -0700
-+++ linux-2.6.13-rc6/drivers/scsi/ahci.c	2005-08-10 06:09:01.614678320 -0700
-@@ -269,6 +269,8 @@
- 	  board_ahci }, /* ESB2 */
- 	{ PCI_VENDOR_ID_INTEL, 0x2683, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 	  board_ahci }, /* ESB2 */
-+	{ PCI_VENDOR_ID_INTEL, 0x27c6, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* ICH7-M DH */
- 	{ }	/* terminate list */
- };
- 
+reboot   system boot  2.6.13-rc6       Mon Aug  8 16:52 (1+20:29)
+reboot   system boot  2.6.13-rc6       Sun Aug  7 22:07 (2+15:14)
+
+Although it managed to receive 1.8 and sent 3.6TB in 24 hours!
+
+Danny
 

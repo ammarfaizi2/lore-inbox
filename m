@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVHJLMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbVHJLwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965070AbVHJLMF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 07:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVHJLME
+	id S965077AbVHJLwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 07:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbVHJLwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 07:12:04 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:39821 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S965070AbVHJLMC (ORCPT
+	Wed, 10 Aug 2005 07:52:09 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:49358 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S965077AbVHJLwI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 07:12:02 -0400
-Message-ID: <42F9E0E1.7060602@drzeus.cx>
-Date: Wed, 10 Aug 2005 13:11:29 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-3 (X11/20050806)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: netdev@vger.kernel.org
-CC: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 8139cp misses interrupts during resume
-References: <42DD3BA1.7010302@drzeus.cx> <42F21BD6.3000807@drzeus.cx>
-In-Reply-To: <42F21BD6.3000807@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Aug 2005 07:52:08 -0400
+Date: Wed, 10 Aug 2005 13:52:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Andrew Burgess <aab@cichlid.com>, linux-kernel@vger.kernel.org
+Subject: Re: BUG: Real-Time Preemption 2.6.13-rc5-RT-V0.7.52-16
+Message-ID: <20050810115214.GA26108@elte.hu>
+References: <200508092158.j79LwlmM010246@cichlid.com> <1123633588.13135.27.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1123633588.13135.27.camel@dhcp153.mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> Pierre Ossman wrote:
-> 
->>I'm having problem with the interrupt getting killed after suspend with
->>my 8139cp controller. The problem only appears if the cable is connected
->>during resume (before suspend is irrelevant) and the interface is down.
->>
->>Both suspend-to-disk and suspend-to-ram exhibit the error. dmesg from
->>suspend-to-ram included.
->>
->>I find it a bit strange that 8139cp's interrupt handler isn't included
->>when it dumps the handlers. Could this be related to the problem?
->>
-> 
-> 
-> Anyone familiar with this driver that can give me some pointers on what
-> to look for? I'd prefer not to have to learn how the entire thing works
-> just to fix one bug. :)
-> 
 
-I've gotten a bit close now at least. The problem is that the IRQ
-handler isn't registered until the device is opened (up:ed) but the
-hardware triggers interrupt even in a closed state. So either the
-hardware needs to be silenced or the handler needs to be installed earlier.
+* Daniel Walker <dwalker@mvista.com> wrote:
 
-Rgds
-Pierre
+> This may fix the warning , but I doubt it does anything for any hangs..
+> 
+> --- linux-2.6.12.orig/drivers/usb/core/hcd.c    2005-08-09 22:41:18.000000000 +0000
+> +++ linux-2.6.12/drivers/usb/core/hcd.c 2005-08-10 00:23:16.000000000 +0000
+> @@ -540,8 +540,7 @@ void usb_hcd_poll_rh_status(struct usb_h
+>         if (length > 0) {
+> 
+>                 /* try to complete the status urb */
+> -               local_irq_save (flags);
+> -               spin_lock(&hcd_root_hub_lock);
+> +               spin_lock_irqsave(&hcd_root_hub_lock, flags);
+>                 urb = hcd->status_urb;
+>                 if (urb) {
+>                         spin_lock(&urb->lock);
+
+what -RT tree is this against? This change is already in the -16 tree.
+
+	Ingo

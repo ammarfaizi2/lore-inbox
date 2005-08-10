@@ -1,51 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbVHJKbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVHJKct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965056AbVHJKbR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 06:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbVHJKbR
+	id S965062AbVHJKct (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 06:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbVHJKct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 06:31:17 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:40110 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S932543AbVHJKbR (ORCPT
+	Wed, 10 Aug 2005 06:32:49 -0400
+Received: from relay.rost.ru ([80.254.111.11]:8853 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S932543AbVHJKct (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 06:31:17 -0400
-Date: Wed, 10 Aug 2005 12:30:41 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Christoph Hellwig <hch@infradead.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       David Teigland <teigland@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: [PATCH 00/14] GFS
-Message-ID: <20050810103041.GB4634@marowsky-bree.de>
-References: <20050802071828.GA11217@redhat.com> <20050809152045.GT29811@parcelfarce.linux.theplanet.co.uk> <20050810070309.GA2415@infradead.org>
+	Wed, 10 Aug 2005 06:32:49 -0400
+Subject: [PATCH 0/5] 2.6.13-rc5-mm1, remove uneeded function
+In-Reply-To: 
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Wed, 10 Aug 2005 14:32:46 +0400
+Message-Id: <11236699661419@donpac.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050810070309.GA2415@infradead.org>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-08-10T08:03:09, Christoph Hellwig <hch@infradead.org> wrote:
 
-> > Kindly lose the "Context Dependent Pathname" crap.
-> Same for ocfs2.
+After elimination of central DMI blacklist dmi_scan_machine() function
+became a wrapper for dmi_iterate(). This patch moves some code around to
+kill unneeded function.
 
-Would a generic implementation of that higher up in the VFS be more
-acceptable?
+Signed-off-by: Andrey Panin <pazke@donpac.ru>
 
-It's not like context-dependent symlinks are an arbitary feature, but
-rather very useful in practice.
+ arch/i386/kernel/dmi_scan.c |   85 ++++++++++++++++++++------------------------
+ 1 files changed, 40 insertions(+), 45 deletions(-)
 
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+diff -urdpNX /usr/share/dontdiff linux-2.6.13-rc5-mm1.vanilla/arch/i386/kernel/dmi_scan.c linux-2.6.13-rc5-mm1/arch/i386/kernel/dmi_scan.c
+--- linux-2.6.13-rc5-mm1.vanilla/arch/i386/kernel/dmi_scan.c	2005-06-12 23:07:37.000000000 +0400
++++ linux-2.6.13-rc5-mm1/arch/i386/kernel/dmi_scan.c	2005-06-14 23:18:18.000000000 +0400
+@@ -84,49 +84,6 @@ static int __init dmi_checksum(u8 *buf)
+ 	return sum == 0;
+ }
+ 
+-static int __init dmi_iterate(void (*decode)(struct dmi_header *))
+-{
+-	u8 buf[15];
+-	char __iomem *p, *q;
+-
+-	/*
+-	 * no iounmap() for that ioremap(); it would be a no-op, but it's
+-	 * so early in setup that sucker gets confused into doing what
+-	 * it shouldn't if we actually call it.
+-	 */
+-	p = ioremap(0xF0000, 0x10000);
+-	if (p == NULL)
+-		return -1;
+-
+-	for (q = p; q < p + 0x10000; q += 16) {
+-		memcpy_fromio(buf, q, 15);
+-		if ((memcmp(buf, "_DMI_", 5) == 0) && dmi_checksum(buf)) {
+-			u16 num = (buf[13] << 8) | buf[12];
+-			u16 len = (buf[7] << 8) | buf[6];
+-			u32 base = (buf[11] << 24) | (buf[10] << 16) |
+-				   (buf[9] << 8) | buf[8];
+-
+-			/*
+-			 * DMI version 0.0 means that the real version is taken from
+-			 * the SMBIOS version, which we don't know at this point.
+-			 */
+-			if (buf[14] != 0)
+-				printk(KERN_INFO "DMI %d.%d present.\n",
+-					buf[14] >> 4, buf[14] & 0xF);
+-			else
+-				printk(KERN_INFO "DMI present.\n");
+-
+-			dmi_printk((KERN_INFO "%d structures occupying %d bytes.\n",
+-				num, len));
+-			dmi_printk((KERN_INFO "DMI table at 0x%08X.\n", base));
+-
+-			if (dmi_table(base,len, num, decode) == 0)
+-				return 0;
+-		}
+-	}
+-	return -1;
+-}
+-
+ static char *dmi_ident[DMI_STRING_MAX];
+ 
+ /*
+@@ -190,8 +147,46 @@ static void __init dmi_decode(struct dmi
+ 
+ void __init dmi_scan_machine(void)
+ {
+-	if (dmi_iterate(dmi_decode))
+-		printk(KERN_INFO "DMI not present.\n");
++	u8 buf[15];
++	char __iomem *p, *q;
++
++	/*
++	 * no iounmap() for that ioremap(); it would be a no-op, but it's
++	 * so early in setup that sucker gets confused into doing what
++	 * it shouldn't if we actually call it.
++	 */
++	p = ioremap(0xF0000, 0x10000);
++	if (p == NULL)
++		goto out;
++
++	for (q = p; q < p + 0x10000; q += 16) {
++		memcpy_fromio(buf, q, 15);
++		if ((memcmp(buf, "_DMI_", 5) == 0) && dmi_checksum(buf)) {
++			u16 num = (buf[13] << 8) | buf[12];
++			u16 len = (buf[7] << 8) | buf[6];
++			u32 base = (buf[11] << 24) | (buf[10] << 16) |
++				   (buf[9] << 8) | buf[8];
++
++			/*
++			 * DMI version 0.0 means that the real version is taken from
++			 * the SMBIOS version, which we don't know at this point.
++			 */
++			if (buf[14] != 0)
++				printk(KERN_INFO "DMI %d.%d present.\n",
++					buf[14] >> 4, buf[14] & 0xF);
++			else
++				printk(KERN_INFO "DMI present.\n");
++
++			dmi_printk((KERN_INFO "%d structures occupying %d bytes.\n",
++				num, len));
++			dmi_printk((KERN_INFO "DMI table at 0x%08X.\n", base));
++
++			if (dmi_table(base,len, num, dmi_decode) == 0)
++				return;
++		}
++	}
++
++out:	printk(KERN_INFO "DMI not present.\n");
+ }
+ 
+ 
 

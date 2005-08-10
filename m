@@ -1,211 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932596AbVHJXOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbVHJXSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932596AbVHJXOa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 19:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932597AbVHJXOa
+	id S932597AbVHJXSw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 19:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbVHJXSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 19:14:30 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:35888 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S932596AbVHJXO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 19:14:29 -0400
-Message-ID: <42FA8A4B.4090408@google.com>
-Date: Wed, 10 Aug 2005 16:14:19 -0700
-From: Mike Waychison <mikew@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
-X-Accept-Language: en-us, en
+	Wed, 10 Aug 2005 19:18:52 -0400
+Received: from smtp.istop.com ([66.11.167.126]:53938 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S932597AbVHJXSv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 19:18:51 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+Date: Thu, 11 Aug 2005 09:19:13 +1000
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, hugh@veritas.com
+References: <200508102334.43662.phillips@arcor.de> <31567.1123679613@warthog.cambridge.redhat.com> <21701.1123684072@warthog.cambridge.redhat.com>
+In-Reply-To: <21701.1123684072@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-To: YhLu <YhLu@tyan.com>
-CC: Peter Buckingham <peter@pantasys.com>, linux-kernel@vger.kernel.org,
-       "'discuss@x86-64.org'" <discuss@x86-64.org>
-Subject: Re: 2.6.13-rc2 with dual way dual core ck804 MB
-References: <3174569B9743D511922F00A0C94314230AF97867@TYANWEB>
-In-Reply-To: <3174569B9743D511922F00A0C94314230AF97867@TYANWEB>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200508110919.13897.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-YhLu wrote:
-> andi,
-> 
-> please refer the patch, it will move cpu_set(, cpu_callin_map) from
-> smi_callin to start_secondary.
+On Thursday 11 August 2005 00:27, David Howells wrote:
+> What happens is this:
+>
+>  (1) readpage() is issued against NFS (for example).
+>
+>  (2) NFS consults the local cache, and finds the page isn't available
+> there.
+>
+>  (3) NFS reads the page from the server.
+>
+>  (4) NFS sets PG_fs_misc and tells the cache to store the page.
+>
+>  (5) NFS sets PG_uptodate and unlocks the page.
+>
+> Some time later, the cache finishes writing the page to disk:
+>
+>  (6) The cache calls NFS to say that it's finished writing the page.
+>
+>  (7) NFS calls end_page_fs_misc() - which clears PG_fs_misc - to indicate
+> to any waiters that the page can now be written to.
+>
+> Now: any PTEs set up to point to this page start life read-only. If they're
+> part of a shared-writable mapping, then the MMU will generate a WP fault
+> when someone attempts to write to the page through that mapping:
+>
+>  (a) do_wp_page() gets called.
+>
+>  (b) do_wp_page() sees that the page's host has registered an interest in
+>      knowing that the page is becoming writable:
+>
+> 	vm_operations_struct::page_mkwrite()
+>
+>  (c) do_wp_page() calls out to the filesystem.
+>
+>  (d) NFS sees the page is wanting to become writable and waits for the
+>      PG_fs_misc flag to become cleared.
+>
+>  (e) NFS returns to the caller and things proceed as normal.
+>
+> Doing this permits the cache state to be more predictable in the event of
+> power loss because we know that userspace won't have scribbled on this page
+> whilst the cache was trying to write it to disk.
 
+Hi David,
 
-This patch fixes an apparent race / lockup on our 2-way dual cores (when 
-applied against 2.6.12.3).  The machine was locking up after 
-"Initializing CPU#2".
+To be honest I'm having some trouble following this through logically.  I'll 
+read through a few more times and see if that fixes the problem.  This seems 
+cluster-related, so I have an interest.
 
-Mike Waychison
+Who is using this interface?
 
-> 
-> --- /home/yhlu/xx1/linux-2.6.13-rc2/arch/x86_64/kernel/smpboot.c.orig
-> 2005-07-06 18:41:16.789767168 -0700
-> +++ /home/yhlu/xx1/linux-2.6.13-rc2/arch/x86_64/kernel/smpboot.c
-> 2005-07-06 18:45:11.923021480 -0700
-> @@ -442,7 +442,7 @@
->         /*
->          * Allow the master to continue.
->          */
-> -       cpu_set(cpuid, cpu_callin_map);
-> +//     cpu_set(cpuid, cpu_callin_map); // moved to start_secondary by yhlu
->  }
-> 
->  static inline void set_cpu_sibling_map(int cpu)
-> @@ -529,8 +529,11 @@
->         /* Wait for TSC sync to not schedule things before.
->            We still process interrupts, which could see an inconsistent
->            time in that window unfortunately. */
-> +
->         tsc_sync_wait();
-> 
-> +       cpu_set(smp_processor_id(), cpu_callin_map); // moved from
-> smp_callin by yhlu
-> +
->         cpu_idle();
->  }
-> 
-> the other solution will be change cpu_callin_map to cpu_online_map in
-> do_boot_cpu
-> 
->                 /*
->                  * allow APs to start initializing.
->                  */
->                 Dprintk("Before Callout %d.\n", cpu);
->                 cpu_set(cpu, cpu_callout_map);
->                 Dprintk("After Callout %d.\n", cpu);
-> 
->                 /*
->                  * Wait 5s total for a response
->                  */
->                 for (timeout = 0; timeout < 50000; timeout++) {
->                         if (cpu_isset(cpu, cpu_callin_map))
-> --------------------------> cpu_online_map
->                                 break;  /* It has booted */
->                         udelay(100);
->                 }
-> 
->                 if (cpu_isset(cpu, cpu_callin_map)) {
-> --------------------------------> cpu_online_map
->                         /* number CPUs logically, starting from 1 (BSP is 0)
-> */
->                         Dprintk("CPU has booted.\n");
->                 } else {
->                         boot_error = 1;
->                         if (*((volatile unsigned char
-> *)phys_to_virt(SMP_TRAMPOLINE_BASE))
->                                         == 0xA5)
->                                 /* trampoline started but...? */
->                                 printk("Stuck ??\n");
->                         else
->                                 /* trampoline code not run */
->                                 printk("Not responding.\n");
-> #if APIC_DEBUG
->                         inquire_remote_apic(apicid);
-> #endif
->                 }
-> 
-> 
-> the result will be
-> 
-> Booting processor 1/1 rip 6000 rsp ffff81013ff89f58
-> Initializing CPU#1
-> masked ExtINT on CPU#1
-> Calibrating delay using timer specific routine.. 4422.98 BogoMIPS
-> (lpj=8845965)
-> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-> CPU: L2 Cache: 1024K (64 bytes/line)
-> CPU 1(2) -> Node 0 -> Core 1
->  stepping 00
-> CPU 1: Syncing TSC to CPU 0.
-> sync_master: 1 smp_processor_id() = 00, boot_cpu_id= 00
-> sync_master: 2 smp_processor_id() = 00, boot_cpu_id= 00
-> CPU 1: synchronized TSC with CPU 0 (last diff 0 cycles, maxerr 595 cycles)
-> ---------------------> it is in right place.
-> Booting processor 2/2 rip 6000 rsp ffff81023ff1df58
-> Initializing CPU#2
-> masked ExtINT on CPU#2
-> Calibrating delay using timer specific routine.. 4422.99 BogoMIPS
-> (lpj=8845997)
-> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-> CPU: L2 Cache: 1024K (64 bytes/line)
-> CPU 2(2) -> Node 1 -> Core 0
->  stepping 00
-> CPU 2: Syncing TSC to CPU 0.
-> sync_master: 1 smp_processor_id() = 00, boot_cpu_id= 00
-> sync_master: 1 smp_processor_id() = 01, boot_cpu_id= 00
-> sync_master: 2 smp_processor_id() = 00, boot_cpu_id= 00
-> CPU 2: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 1097 cycles)
-> Booting processor 3/3 rip 6000 rsp ffff81013ff53f58
-> Initializing CPU#3
-> masked ExtINT on CPU#3
-> Calibrating delay using timer specific routine.. 4423.03 BogoMIPS
-> (lpj=8846075)
-> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-> CPU: L2 Cache: 1024K (64 bytes/line)
-> CPU 3(2) -> Node 1 -> Core 1
->  stepping 00
-> CPU 3: Syncing TSC to CPU 0.
-> sync_master: 1 smp_processor_id() = 00, boot_cpu_id= 00
-> sync_master: 1 smp_processor_id() = 01, boot_cpu_id= 00
-> sync_master: 1 smp_processor_id() = 02, boot_cpu_id= 00
-> sync_master: 2 smp_processor_id() = 00, boot_cpu_id= 00
-> CPU 3: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 1097 cycles)
-> Brought up 4 CPUs
-> 
-> 
-> 
->>-----Original Message-----
->>From: YhLu 
->>Sent: Wednesday, July 06, 2005 3:25 PM
->>To: Andi Kleen
->>Cc: Peter Buckingham; linux-kernel@vger.kernel.org
->>Subject: 2.6.13-rc2 with dual way dual core ck804 MB
->>
->>andi,
->>
->>the core1/node0 take a long while to get TSC synchronized. Is 
->>it normal?
->>i guess
->>"CPU 1: synchronized TSC with CPU 0"  should be just after 
->>"CPU 1: Syncing TSC to CPU0"
->>
->>YH
->>
->>
->>cpu 1: setting up apic clock
->>cpu 1: enabling apic timer
->>CPU 1: Syncing TSC to CPU 0.
->>CPU has booted.
->>waiting for cpu 1
->>
->>cpu 2: setting up apic clock
->>cpu 2: enabling apic timer
->>CPU 2: Syncing TSC to CPU 0.
->>CPU 2: synchronized TSC with CPU 0 (last diff -4 cycles, 
->>maxerr 1097 cycles) CPU has booted.
->>waiting for cpu 2
->>
->>cpu 3: setting up apic clock
->>cpu 3: enabling apic timer
->>CPU 3: Syncing TSC to CPU 0.
->>CPU 3: synchronized TSC with CPU 0 (last diff 1 cycles, 
->>maxerr 1087 cycles) CPU has booted.
->>waiting for cpu 3
->>
->>testing NMI watchdog ... CPU#1: NMI appears to be stuck (1->1)!
->>checking if image is initramfs...<6>CPU 1: synchronized TSC 
->>with CPU 0 (last diff 0 cycles, maxerr 595 cycles) it isn't 
->>(no cpio magic); looks like an initrd
->>
->>
->>the
->>-
->>To unsubscribe from this list: send the line "unsubscribe 
->>linux-kernel" in the body of a message to 
->>majordomo@vger.kernel.org More majordomo info at  
->>http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
+Regards,
 
+Daniel

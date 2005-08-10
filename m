@@ -1,100 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbVHJPnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVHJPqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965165AbVHJPnL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 11:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965166AbVHJPnL
+	id S965168AbVHJPqb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 11:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbVHJPqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 11:43:11 -0400
-Received: from smtpout.mac.com ([17.250.248.70]:25288 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965165AbVHJPnJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 11:43:09 -0400
-In-Reply-To: <20050810132626.GC4954@null.msp.redhat.com>
-References: <20050809152045.GT29811@parcelfarce.linux.theplanet.co.uk> <20050810070309.GA2415@infradead.org> <20050810103041.GB4634@marowsky-bree.de> <20050810103256.GA6127@infradead.org> <20050810103424.GC4634@marowsky-bree.de> <20050810105450.GA6519@infradead.org> <20050810110259.GE4634@marowsky-bree.de> <20050810110511.GA6728@infradead.org> <20050810110917.GG4634@marowsky-bree.de> <20050810111110.GA6878@infradead.org> <20050810132626.GC4954@null.msp.redhat.com>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <F0B76E9F-6B4F-4984-A540-F431500F9B96@mac.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Lars Marowsky-Bree <lmb@suse.de>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       David Teigland <teigland@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+	Wed, 10 Aug 2005 11:46:31 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:36502 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S965158AbVHJPqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 11:46:30 -0400
+Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: John Stoffel <john@stoffel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <17146.7454.818003.464185@smtp.charter.net>
+References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
+	 <200508081954.52638.jesper.juhl@gmail.com>
+	 <17145.1417.329260.524528@smtp.charter.net>
+	 <1123617516.5170.42.camel@mulgrave>
+	 <17145.3629.933024.963438@smtp.charter.net>
+	 <1123635010.5170.75.camel@mulgrave>
+	 <17146.7454.818003.464185@smtp.charter.net>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 10:46:18 -0500
+Message-Id: <1123688778.5134.3.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [Linux-cluster] Re: [PATCH 00/14] GFS
-Date: Wed, 10 Aug 2005 11:43:02 -0400
-To: AJ Lewis <alewis@redhat.com>
-X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 10, 2005, at 09:26:26, AJ Lewis wrote:
-> On Wed, Aug 10, 2005 at 12:11:10PM +0100, Christoph Hellwig wrote:
->
->> On Wed, Aug 10, 2005 at 01:09:17PM +0200, Lars Marowsky-Bree wrote:
->>
->>> So for every directory hierarchy on a shared filesystem, each  
->>> user needs
->>> to have the complete list of bindmounts needed, and automatically  
->>> resync
->>> that across all nodes when a new one is added or removed? And  
->>> then have
->>> that executed by root, because a regular user can't?
->>
->> Do it in an initscripts and let users simply not do it, they  
->> shouldn't
->> even know what kind of filesystem they are on.
->
-> I'm just thinking of a 100-node cluster that has different mounts  
-> on different
-> nodes, and trying to update the bind mounts in a sane and efficient  
-> manner
-> without clobbering the various mount setups.  Ouch.
+On Wed, 2005-08-10 at 11:28 -0400, John Stoffel wrote:
+> Is there any more info I can provide here for you?  dmesg output?
+> Here's the latest output from dmesg with the lockup of the drive,
+> which takes a power cycle to clear now.
 
-How about something like the following:
-     cpslink()      => Create a Context Dependent Symlink
-     readcpslink()  => Return the Context Dependent path data
-     readlink()     => Return the path of the Context Dependent  
-Symlink as it
-                       would be evaluated in the current context,  
-basically as a
-                       normal symlink.
-     lstat()        => Return information on the Context Dependent  
-Symlink in
-                       the same format as a regular symlink.
-     unlink()       => Delete the Context Dependent Symlink.
+Well, I suspect the tape is hanging the bus, from which no card can
+recover.
 
-You would need an extra userspace tool that understands cpslink/ 
-readcpslink to
-create and get information on the links for now, but ls and ln could  
-eventually
-be updated, and until then the would provide sane behavior.  Perhaps  
-this
-should be extended into a new API for some of the strange things several
-filesystems want to do in the VFS:
-     extlink()      => Create an extended filesystem link (with type  
-specified)
-     readextlink()  => Return the path (and type) for the link
+Just to test this, can you try sending a bus reset with sgutils (from
+the debain package sg3-utils):
 
-The filesystem could define how each type of link acts with respect  
-to other
-syscalls.  OpenAFS could use extlink() instead of their symlink magic  
-for
-adjusting the AFS volume hierarchy.  The new in-kernel AFS client  
-could use it
-in similar fashion (It has no method to adjust hierarchy, because  
-it's still
-read-only).  GFS could use it for their Context Dependent Symlinks.   
-Since it
-would pass the type in as well, it would be possible to use it for  
-different
-kinds of links on the same filesystem.
+sg_reset -b /dev/sg3
 
-Cheers,
-Kyle Moffett
+Then remove and re-add the device with
 
---
-Simple things should be simple and complex things should be possible
-   -- Alan Kay
+echo scsi remove-single-device 1 0 6 0 > /proc/scsi/scsi
+echo scsi add-single-device 1 0 6 0 > /proc/scsi/scsi
 
+And see if that brings it back.  If it doesn't I'm afraid the tape has
+the bus locked and nothing can free it.
+
+James
 
 

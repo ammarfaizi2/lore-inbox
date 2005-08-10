@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbVHJTw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVHJUAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbVHJTw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 15:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbVHJTw5
+	id S1030229AbVHJUAL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 16:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVHJUAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 15:52:57 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:16878
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1030210AbVHJTw4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 15:52:56 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: "'Jon Scottorn'" <jscottorn@possibilityforge.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel panic 2.6.12.4
-Date: Wed, 10 Aug 2005 13:52:45 -0600
-Message-ID: <006701c59de5$146f0960$a20cc60a@amer.sykes.com>
+	Wed, 10 Aug 2005 16:00:10 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:8979 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030229AbVHJUAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 16:00:09 -0400
+Message-ID: <42FA5DD7.4030901@tmr.com>
+Date: Wed, 10 Aug 2005 16:04:39 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Jim MacBaine <jmacbaine@gmail.com>
+CC: ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+References: <200508031559.24704.kernel@kolivas.org>	<200508040716.24346.kernel@kolivas.org>	<3afbacad050803152226016790@mail.gmail.com>	<200508040852.10224.kernel@kolivas.org>	<3afbacad0508032234f9af1f3@mail.gmail.com> <3afbacad05080323596b39e9eb@mail.gmail.com>
+In-Reply-To: <3afbacad05080323596b39e9eb@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <42FA575A.9040307@possibilityforge.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am trying a custom 2.6.8 kernel now, and here is my
-> 2.6.12.4 .config file.
-> Let me know what you think.
+Jim MacBaine wrote:
+> I just borrowed a power meter to see (or not to see) real effects of
+> dyntick. The difference between static 1000 HZ and dynamic HZ is much
+> less than I expected, only a very little about noise.  With dyntick
+> disabled at 1000 HZ my laptop needs 31,3 W.  With dyntick enabled I
+> get 29.8 W, the pmstats-0.2 script shows me that the system is at
+> 35-45 HZ when it is idle.
+> 
+> The power consumption difference between 250 HZ static and dyntick is
+> below the noise, so maybe hardly worth all the struggle.
 
-I don't know much about Kernel Panics. I hope that someone that knows could
-take a look, but so far, it looks like you need to be running Sid to have
-this working propperly.
+I think it's the other way round, we have the lower power without the 
+higher latency. At least as I can measure...
 
-Please try 2.6.8, I'm almost sure that it should work.
+Bravo to all concerned to get this to the testing stage!
 
-And anyway, this ML is not really a user support list, try asking in a
-debian mailing list, if they think that it's something wrong with the
-kernel, then come back and let us know.
-
-.Alejandro
-
->
-> Alejandro Bonilla wrote:
->
-> >>Hi,
-> >>
-> >>   I am in need of some help!
-> >>I have installed Debian which has 2.6.8-2 kernel on it.
-> After a fresh
-> >>install I downloaded the 2.6.12.4 kernel and went to upgrade.  After
-> >>making the necessary changes in menuconfig I rebuilt the kernel and
-> >>install it.  It boots up until I get:
-> >>Modules linked in:
-> >>CPU:       0
-> >>EIP:         0060:[c026d55d]   Not tainted VLI
-> >>EFLAGS: 00010006    (2.6.12.4)
-> >>EIP is at adpt_isr+0x178/0x1f5
-> >>.......
-> >>Cut out for space and time as I am typeing it all in.
-> >>........
-> >><0>Kernel panic - not syncing: Fatal exception in interrupt
-> >>
-> >>Any help would be greatly appreciated.
-> >>I have been messing with this issue for the past 3 days now.  I have
-> >>tried 2.6.11, 2.6.11.11, 2.6.12, 2.6.12.3, 2.6.12.4 and all of those
-> >>kernels end up with the same problem.
-> >>
-> >>Thanks in advance.
-> >>
-> >>Jon
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

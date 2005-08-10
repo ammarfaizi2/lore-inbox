@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbVHJFpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbVHJFzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965010AbVHJFpX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 01:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbVHJFpW
+	id S965011AbVHJFzA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 01:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVHJFzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 01:45:22 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:44698 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S964995AbVHJFpV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 01:45:21 -0400
-Message-ID: <42F9946E.2040609@ext.bull.net>
-Date: Wed, 10 Aug 2005 07:45:18 +0200
-From: Frederic TEMPORELLI <frederic.temporelli@ext.bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: fr-fr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Cc: Frederic TEMPORELLI <frederic.temporelli@ext.bull.net>
-Subject: Re: kernel workqueue -max name length
-References: <42F8AE91.9030708@ext.bull.net>
-In-Reply-To: <42F8AE91.9030708@ext.bull.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 10/08/2005 07:57:41,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 10/08/2005 07:57:42,
-	Serialize complete at 10/08/2005 07:57:42
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 10 Aug 2005 01:55:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14283 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965011AbVHJFy7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 01:54:59 -0400
+Date: Wed, 10 Aug 2005 13:59:45 +0800
+From: David Teigland <teigland@redhat.com>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+Cc: Pekka Enberg <penberg@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: GFS
+Message-ID: <20050810055945.GB13926@redhat.com>
+References: <20050802071828.GA11217@redhat.com> <84144f0205080203163cab015c@mail.gmail.com> <20050803063644.GD9812@redhat.com> <courier.42F768D5.000046F2@courier.cs.helsinki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <courier.42F768D5.000046F2@courier.cs.helsinki.fi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 08, 2005 at 05:14:45PM +0300, Pekka J Enberg wrote:
 
+                 if (!dumping)
+                        down_read(&mm->mmap_sem);
+> >+
+> >+             for (vma = find_vma(mm, start); vma; vma = vma->vm_next) {
+> >+                     if (end <= vma->vm_start)
+> >+                             break;
+> >+                     if (vma->vm_file &&
+> >+                         vma->vm_file->f_dentry->d_inode->i_sb == sb) {
+> >+                             num_gh++;
+> >+                     }
+> >+             }
+> >+
+> >+             ghs = kmalloc((num_gh + 1) * sizeof(struct gfs2_holder),
+> >+                           GFP_KERNEL);
+> >+             if (!ghs) {
+> >+                     if (!dumping)
+> >+                             up_read(&mm->mmap_sem);
+> >+                     return -ENOMEM;
+> >+             }
+> >+
+> >+             for (vma = find_vma(mm, start); vma; vma = vma->vm_next) {
+> 
+> Sorry if this is an obvious question but what prevents another thread from 
+> doing mmap() before we do the second walk and messing up num_gh? 
 
-any explanation about the 10 chars limit for kernel workqueue name ?
-
-
-another question: why is the name length test managed by BUG_ON ?
-returning a NULL workqueue is done in the next test (failed kmalloc for wq)...
-
-Anyway, this can explain some issues when loading some SCSI drivers modules.
-
-
-hope that somebody knows...
-
-
-Frederic TEMPORELLI wrote:
-> Hello,
-> 
-> 
-> When creating a workqueue, workqueue name is limited to 10 chars
-> (kernel/workqueue.c , function is __create_workqueue, test is done in a 
-> BUG_ON).
-> 
-> Why has this length be limited to 10 chars ?
-> Can I safely increase this max length (13 chars should be enough...) ?
-> 
-> 
-> 
-> Some comments about these questions:
-> 
-> In SCSI layer, HBA kernel ID is incremented after each modprobe/rmmod.
-> 
-> Then, when a scsi driver is managing a working queue and HBA kernel ID 
-> is greater than 99 (let's assume that you have modprobe/rmmod the scsi 
-> driver to get this ID to 99, or you may have play with 'scsi_debug' 
-> module), an oops is generated when loading again the driver (and the 
-> driver is frozen).
-> 
-> This is because working queue name format is "scsi_wq_%d" 
-> (drivers/scsi/hosts.c , function scsi_add_host, %d is the HBA ID), and 
-> so working queue name length is greater than 10 chars when HBA kernel ID 
-> is > 99...
-> 
-> 
-> Best regards
-> 
-> 
-
-
--- 
-Frederic TEMPORELLI
+mm->mmap_sem ?
 

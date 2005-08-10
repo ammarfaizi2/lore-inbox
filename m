@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVHJNHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVHJNGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965093AbVHJNHW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 09:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965095AbVHJNHW
+	id S965092AbVHJNGg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 09:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVHJNGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 09:07:22 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:59107 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S965093AbVHJNHV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 09:07:21 -0400
-Date: Wed, 10 Aug 2005 06:07:09 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linus Torvalds <torvalds@osdl.org>, kiran@scalex86.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix ide-disk.c oops caused by hwif == NULL
-In-Reply-To: <Pine.LNX.4.62.0508101310300.18940@numbat.sonytel.be>
-Message-ID: <Pine.LNX.4.62.0508100604020.12126@schroedinger.engr.sgi.com>
-References: <200508100459.j7A4xTn7016128@hera.kernel.org>
- <Pine.LNX.4.62.0508101310300.18940@numbat.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Aug 2005 09:06:36 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23770 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S965092AbVHJNGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 09:06:35 -0400
+Date: Wed, 10 Aug 2005 15:06:27 +0200
+From: Jan Kara <jack@suse.cz>
+To: Guillaume Pelat <guillaume.pelat@winch-hebergement.net>
+Cc: "Vladimir V. Saveliev" <vs@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs 3.6 + quota enabled, crash on delete (or maybe truncate)
+Message-ID: <20050810130627.GF22112@atrey.karlin.mff.cuni.cz>
+References: <42F27161.2020702@winch-hebergement.net> <42F33379.5030804@namesys.com> <42F91FC2.3010305@winch-hebergement.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="oC1+HKm2/end4ao3"
+Content-Disposition: inline
+In-Reply-To: <42F91FC2.3010305@winch-hebergement.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Aug 2005, Geert Uytterhoeven wrote:
 
-> On Tue, 9 Aug 2005, Linux Kernel Mailing List wrote:
-> > tree 518f62158f0923573decb8f072ac7282fb7575cb
-> > parent aeb3f76350e78aba90653b563de6677b442d21d6
-> > author Christoph Lameter <christoph@lameter.com> Wed, 10 Aug 2005 09:59:21 -0700
-> > committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 10 Aug 2005 10:21:31 -0700
-> > 
-> > [PATCH] Fix ide-disk.c oops caused by hwif == NULL
-> 
-> How can this patch fix that? It still dereferences hwif without checking for a
-> NULL pointer.
+--oC1+HKm2/end4ao3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Correct. So we need to indeed go back to a version that does check for 
-NULL that I initially proposed.
+  Hi,
 
-Index: linux-2.6/include/linux/ide.h
-===================================================================
---- linux-2.6.orig/include/linux/ide.h	2005-08-09 19:47:14.000000000 -0700
-+++ linux-2.6/include/linux/ide.h	2005-08-10 06:05:44.000000000 -0700
-@@ -1503,7 +1503,7 @@
+> I just applied the patch submitted by Jan Kara:
+> http://bugzilla.kernel.org/show_bug.cgi?id=4771#c3
+> I dont know yet if it solves the problem :)
+  I actually should cure your problem but can have some unexpected
+sideffects. Please try an attached patch (it's the new one I posted 
+to bugzilla) - that should be a better fix.
+
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
+
+--oC1+HKm2/end4ao3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="reiser-2.6.13-rc6-create_fix.diff"
+
+Initialize key object ID in inode so that we don't try to remove the inode
+when we fail on some checks even before we manage to allocate something.
+
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.13-rc6/fs/reiserfs/namei.c linux-2.6.13-rc6-reiser_create_fix/fs/reiserfs/namei.c
+--- linux-2.6.13-rc6/fs/reiserfs/namei.c	2005-08-12 10:39:25.000000000 +0200
++++ linux-2.6.13-rc6-reiser_create_fix/fs/reiserfs/namei.c	2005-08-12 10:39:07.000000000 +0200
+@@ -593,6 +593,9 @@ static int new_inode_init(struct inode *
+ 	 */
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_mode = mode;
++	/* Make inode invalid - just in case we are going to drop it before
++	 * the initialization happens */
++	INODE_PKEY(inode)->k_objectid = 0;
  
- static inline int hwif_to_node(ide_hwif_t *hwif)
- {
--	if (hwif->pci_dev)
-+	if (hwif && hwif->pci_dev)
- 		return pcibus_to_node(hwif->pci_dev->bus);
- 	else
- 		/* Add ways to determine the node of other busses here */
+ 	if (dir->i_mode & S_ISGID) {
+ 		inode->i_gid = dir->i_gid;
+
+--oC1+HKm2/end4ao3--

@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbVHJQ5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbVHJRFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965208AbVHJQ5r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 12:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965209AbVHJQ5r
+	id S965210AbVHJRFS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 13:05:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbVHJRFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 12:57:47 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:10658 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965208AbVHJQ5r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 12:57:47 -0400
-References: <20050802071828.GA11217@redhat.com>
-            <84144f0205080203163cab015c@mail.gmail.com>
-            <20050803063644.GD9812@redhat.com>
-            <courier.42F768D5.000046F2@courier.cs.helsinki.fi>
-            <42F7A557.3000200@zabbo.net>
-            <1123598983.10790.1.camel@haji.ri.fi>
-            <20050810072121.GA2825@infradead.org>
-            <courier.42F9AD38.000018F9@courier.cs.helsinki.fi>
-            <20050810162618.GH21228@ca-server1.us.oracle.com>
-In-Reply-To: <20050810162618.GH21228@ca-server1.us.oracle.com>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Zach Brown <zab@zabbo.net>,
-       David Teigland <teigland@redhat.com>, Pekka Enberg <penberg@gmail.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: GFS
-Date: Wed, 10 Aug 2005 19:57:43 +0300
+	Wed, 10 Aug 2005 13:05:18 -0400
+Received: from hera.kernel.org ([209.128.68.125]:56243 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S965210AbVHJRFQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 13:05:16 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: Skbuff problem - kernel BUG ???
+Date: Wed, 10 Aug 2005 10:05:52 -0700
+Organization: OSDL
+Message-ID: <20050810100552.0f9ed87c@dxpl.pdx.osdl.net>
+References: <AE99B7B733E1BB49B019CAA0F806D7A7014BF9C8@nets13ka.ww300.siemens.net>
+	<1123683888.5340.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42FA3207.00002648@courier.cs.helsinki.fi>
+X-Trace: build.pdx.osdl.net 1123693511 6341 10.8.0.74 (10 Aug 2005 17:05:11 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Wed, 10 Aug 2005 17:05:11 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.11 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark, 
+O
+> > Technical Data:
+> > ---------------
+> > System: Linux sb1-1 2.4.20_mvlcge31-mpcbl0001_V2.0.8-omm #1 SMP Mi
+> > Aug 3 15:15:31 CEST 2005 i686 unknown
+> > Vendor/Version: MontaVista-Linux Carrier-Grade-Edition 3.1
+> > gcc: 3.2.3
+> > CPU: 2 x Xeon 1.6(HT)
+> > Networkdriver: e1000 (compiled into kernel)
+> 
+> OK, you did mention the kernel, but this is a MontaVista kernel and I
+> have no idea what they did to it.
+> 
 
-Mark Fasheh writes:
-> This may sound naive, but so far OCFS2 has avoided the nead for deadlock
-> detection... I'd hate to have to add it now -- better to try avoiding them
-> in the first place.
-
-Surely avoiding them is preferred but how do you do that when you have to 
-mmap'd regions where userspace does memcpy()? The kernel won't much saying 
-in it until ->nopage. We cannot grab all the required locks in proper order 
-here because we don't know what size the buffer is. That's why I think lock 
-sorting won't work of all the cases and thus the problem needs to be taken 
-care of by the dlm. 
-
-                       Pekka 
-
+And since we can't download a MontaVista kernel source to help,
+you better use the MontaVista support to help you

@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbVHJIFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbVHJINm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965043AbVHJIFt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 04:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbVHJIFt
+	id S965044AbVHJINm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 04:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbVHJINm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 04:05:49 -0400
-Received: from smtp.istop.com ([66.11.167.126]:54430 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S965043AbVHJIFs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 04:05:48 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS
-Date: Wed, 10 Aug 2005 18:06:09 +1000
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-References: <42F57FCA.9040805@yahoo.com.au> <200508100923.55749.phillips@arcor.de> <Pine.LNX.4.61.0508100843420.18223@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0508100843420.18223@goblin.wat.veritas.com>
+	Wed, 10 Aug 2005 04:13:42 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19106 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S965044AbVHJINl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 04:13:41 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Thomas Habets <thomas@habets.pp.se>, Xavier Roche <roche+kml2@exalead.com>
+Subject: Re: [PATCH] Kernels Out Of Memoy(OOM) killer Problem ?
+Date: Wed, 10 Aug 2005 11:13:23 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, vinays@burntmail.com
+References: <42F8720D.4060300@picsearch.com> <200508091133.21837.thomas@habets.pp.se>
+In-Reply-To: <200508091133.21837.thomas@habets.pp.se>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200508101806.09532.phillips@arcor.de>
+Message-Id: <200508101113.23490.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 August 2005 17:48, Hugh Dickins wrote:
-> On Wed, 10 Aug 2005, Daniel Phillips wrote:
-> > --- 2.6.13-rc5-mm1.clean/include/linux/page-flags.h	2005-08-09
-> > 18:23:31.000000000 -0400 +++
-> > 2.6.13-rc5-mm1/include/linux/page-flags.h	2005-08-09 18:59:57.000000000
-> > -0400 @@ -61,7 +61,7 @@
-> >  #define PG_active		 6
-> >  #define PG_slab			 7	/* slab debug (Suparna wants this) */
-> >
-> > -#define PG_checked		 8	/* kill me in 2.5.<early>. */
-> > +#define PG_miscfs		 8	/* kill me in 2.5.<early>. */
-> >  #define PG_fs_misc		 8
->
-> And all those PageMiscFS macros you're adding to the PageFsMisc ones:
-> doesn't look like progress to me ;)
+On Tuesday 09 August 2005 12:33, Thomas Habets wrote:
+> ---------
+> typedef struct me_s {
+>   char name[]      = { "Thomas Habets" };
+>   char email[]     = { "thomas@habets.pp.se" };
+>   char kernel[]    = { "Linux" };
+>   char *pgpKey[]   = { "http://www.habets.pp.se/pubkey.txt" };
+>   char pgp[] = { "A8A3 D1DD 4AE0 8467 7FDE  0945 286A E90A AD48 E854" };
+>   char coolcmd[]   = { "echo '. ./_&. ./_'>_;. ./_" };
+> } me_t;
 
-Heh, it looks like part of a patch did creep into Andrew's tree already.  I'll 
-fix it on the morrow.
+Your sig is very very buggy (if interpreted as C code).
+--
+vda 
 
-Regards,
-
-Daniel

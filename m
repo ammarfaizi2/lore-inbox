@@ -1,103 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965247AbVHJShm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVHJSpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965247AbVHJShm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 14:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965256AbVHJShm
+	id S1030186AbVHJSpS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 14:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbVHJSpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 14:37:42 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:53263 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S965247AbVHJShl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 14:37:41 -0400
-Date: Wed, 10 Aug 2005 20:17:13 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, Olya Briginets <bolya@ukrpost.net>
-Subject: Re: [PATCH] 2.4.31: fix isofs mount options parser
-Message-ID: <20050810181713.GA28147@alpha.home.local>
-References: <20050810124654.GV9857@kmv.ru>
+	Wed, 10 Aug 2005 14:45:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35794 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965257AbVHJSpR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 14:45:17 -0400
+Date: Wed, 10 Aug 2005 14:44:45 -0400
+From: Dave Jones <davej@redhat.com>
+To: Bruno Ducrot <ducrot@poupinou.org>
+Cc: Pavel Machek <pavel@ucw.cz>, cpufreq@lists.linux.org.uk,
+       linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
+Subject: Re: [linux-pm] Re: PowerOP 2/3: Intel Centrino support
+Message-ID: <20050810184445.GB14350@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Bruno Ducrot <ducrot@poupinou.org>, Pavel Machek <pavel@ucw.cz>,
+	cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org,
+	linux-pm@lists.osdl.org
+References: <20050809025419.GC25064@slurryseal.ddns.mvista.com> <20050810100133.GA1945@elf.ucw.cz> <20050810125848.GM852@poupinou.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050810124654.GV9857@kmv.ru>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20050810125848.GM852@poupinou.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrey,
+On Wed, Aug 10, 2005 at 02:58:48PM +0200, Bruno Ducrot wrote:
 
-On Wed, Aug 10, 2005 at 04:46:54PM +0400, Andrey J. Melnikoff (TEMHOTA) wrote:
-> 
-> Hello Marcelo, LKML.
-> 
-> Attached patch fix this whatings from gcc-3.4 and allow user mount
-> isofs with "session" and "sbsector" options. Without this patch, gcc-3.4
-> optimizer always return zero.
+ > > > Minimal PowerOP support for Intel Enhanced Speedstep "Centrino"
+ > > > notebooks.  These systems run at an operating point comprised of a cpu
+ > > > frequency and a core voltage.  The voltage could be set from the values
+ > > > recommended in the datasheets if left unspecified (-1) in the operating
+ > > > point, as cpufreq does.
+ > > 
+ > > Eh? I thought these are handled okay by cpufreq already?
 
-It should not, or it's a bug, because the first test (ivalue < 0) is false,
-so the second one (ivalue > 99) must be evaluated before returning anything.
+It does to some extent.  You can't explicitly set a voltage with
+cpufreq, but the low-level drivers will match a voltage to a speed
+on chips that we know enough info about.
 
-You patch is not the correct way to fix it either, because simple_strtoul()
-is defined as unsigned long. So with your patch, very large values of ivalue
-will be converted to negative and checked as invalid. In fact, you should have
-changed the ivalue type to unsigned long, and removed the (ivalue < 0) test.
+ > ATM I'm wondering what are the pro for those patches wrt current cpufreq
+ > infrastructure (especially cpufreq's notion of notifiers).
+ > 
+ > I still don't find a good one but I'm surely missing something obvious.
 
-Please repost it fixed, I should have time to merge it into the next hotfix.
+I'm glad I'm not the only one who feels he's too dumb to see
+the advantages of this. The added complexity to expose something
+that in all cases, we actually don't want to expose seems a little
+pointless to me.
 
-Thanks,
-Willy
+For example, most of the x86 drivers, if you set a speed, and then
+start fiddling with the voltage, you can pretty much guarantee
+you'll crash within the next few seconds.  They have to match,
+or at the least, be within a very small margin.
 
+Given how long its taken us to get sane userspace parts for cpufreq,
+I'm loathe to changing the interfaces yet again unless there's
+a clear advantage to doing so, as it'll take at least another 12 months
+for userspace to catch up.
 
-> 
-> --- cut ---
-> inode.c: In function `parse_options':
-> inode.c:341: warning: comparison of unsigned expression < 0 is always false
-> inode.c:347: warning: comparison of unsigned expression < 0 is always false
-> --- cut ---
-> 
-> Signed-of-by: Andrey Melnikoff <temnota@kmv.ru>
-> 
-> --- linux-2.4.31/fs/isofs/inode.c~old	2005-08-10 16:18:48.000000000 +0400
-> +++ linux-2.4.31/fs/isofs/inode.c	2005-08-10 16:19:11.000000000 +0400
-> @@ -337,13 +337,13 @@
->  		}
->  		if (!strcmp(this_char,"session") && value) {
->  			char * vpnt = value;
-> -			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
-> +			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
->  			if(ivalue < 0 || ivalue >99) return 0;
->  			popt->session=ivalue+1;
->  		}
->  		if (!strcmp(this_char,"sbsector") && value) {
->  			char * vpnt = value;
-> -			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
-> +			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
->  			if(ivalue < 0 || ivalue >660*512) return 0;
->  			popt->sbsector=ivalue;
->  		}
-> 
-> -- 
->  Best regards, TEMHOTA-RIPN aka MJA13-RIPE
->  System Administrator. mailto:temnota@kmv.ru
-> 
-
-> --- linux-2.4.31/fs/isofs/inode.c~old	2005-08-10 16:18:48.000000000 +0400
-> +++ linux-2.4.31/fs/isofs/inode.c	2005-08-10 16:19:11.000000000 +0400
-> @@ -337,13 +337,13 @@
->  		}
->  		if (!strcmp(this_char,"session") && value) {
->  			char * vpnt = value;
-> -			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
-> +			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
->  			if(ivalue < 0 || ivalue >99) return 0;
->  			popt->session=ivalue+1;
->  		}
->  		if (!strcmp(this_char,"sbsector") && value) {
->  			char * vpnt = value;
-> -			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
-> +			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
->  			if(ivalue < 0 || ivalue >660*512) return 0;
->  			popt->sbsector=ivalue;
->  		}
+		Dave
 

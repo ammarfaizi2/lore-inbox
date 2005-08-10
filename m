@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965238AbVHJRyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965243AbVHJRys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965238AbVHJRyN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 13:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965239AbVHJRyN
+	id S965243AbVHJRys (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 13:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965242AbVHJRyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 13:54:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61925 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965238AbVHJRyM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 13:54:12 -0400
-Date: Wed, 10 Aug 2005 10:52:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to reclaim inode pages on demand
-Message-Id: <20050810105253.58d8bf0f.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0508101845190.11984@skynet>
-References: <Pine.LNX.4.58.0508081650160.26013@skynet>
-	<20050808160844.04d1f7ac.akpm@osdl.org>
-	<Pine.LNX.4.58.0508101730441.11984@skynet>
-	<20050810101714.147e1333.akpm@osdl.org>
-	<Pine.LNX.4.58.0508101819340.11984@skynet>
-	<20050810104044.1e0da3e6.akpm@osdl.org>
-	<Pine.LNX.4.58.0508101845190.11984@skynet>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 10 Aug 2005 13:54:47 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:59287 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S965239AbVHJRyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 13:54:46 -0400
+Subject: Re: [PATCH] remove name length check in a workqueue
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050810103733.42170f27.akpm@osdl.org>
+References: <1123683544.5093.4.camel@mulgrave>
+	 <Pine.LNX.4.58.0508101044110.31617@devserv.devel.redhat.com>
+	 <20050810100523.0075d4e8.akpm@osdl.org> <1123694672.5134.11.camel@mulgrave>
+	 <20050810103733.42170f27.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 12:54:26 -0500
+Message-Id: <1123696466.5134.23.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman <mel@csn.ul.ie> wrote:
->
-> > Well there are conditions in which mmapped file pages can get converted to
-> > anonymous pages due to truncate(), but I have a feeling that we stopped
-> > that from happening.
-> >
+On Wed, 2005-08-10 at 10:37 -0700, Andrew Morton wrote:
+> > and anyway, it doesn't have to be unique;
+> > set_task_comm just does a strlcpy from the name, so it will be truncated
+> > (same as for a binary with > 15 character name).
 > 
-> Does that also apply to when a file is unlinked rather than truncated?
+> Yup.  But it'd be fairly silly to go adding the /%d, only to have it
+> truncated off again.
 
-Yup.  unlink() does truncate if it unlinked the final link.
+Well, but the other alternative is that we hit arbitrary BUG_ON() limits
+in systems that create numbered workqueues which is rather contrary to
+our scaleability objectives, isn't it?
 
-> In case it is journalling-related, I am going to rerun the tests on an
-> ext2 filesystem over the weekend.
+I think I'd rather the name truncation than have to respond to kernel
+BUG()'s.  If someone really has a problem with the appearance of ps,
+they can always increase TASK_COMM_LEN.
 
-Good idea.
+> We could truncate the name before adding the CPU number, but it sounds
+> saner to just prevent anyone passing in excessively long names.  Via
+> BUG_ON, say ;)
+> 
+> What's the actual problem?
+
+What I posted originally; the current SCSI format for a workqueue:
+scsi_wq_%d hits the bug after the host number rises to 100, which has
+been seen by some enterprise person with > 100 HBAs.
+
+The reason for this name is that the error handler thread is called
+scsi_eh_%d; so we could rename all our threads to avoid this, but one
+day someone will come along with a huge enough machine to hit whatever
+limit we squeeze it down to.
+
+James
+
 

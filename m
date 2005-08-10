@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbVHJWyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbVHJW4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932585AbVHJWyt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 18:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVHJWys
+	id S932587AbVHJW4p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 18:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbVHJW4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 18:54:48 -0400
-Received: from dvhart.com ([64.146.134.43]:21122 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S932585AbVHJWys (ORCPT
+	Wed, 10 Aug 2005 18:56:45 -0400
+Received: from smtp.istop.com ([66.11.167.126]:24754 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S932587AbVHJW4o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 18:54:48 -0400
-Date: Wed, 10 Aug 2005 15:54:45 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: abonilla@linuxwireless.org,
-       "'Jon Scottorn'" <jscottorn@possibilityforge.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Kernel panic 2.6.12.4
-Message-ID: <1273120000.1123714485@flay>
-In-Reply-To: <006701c59de5$146f0960$a20cc60a@amer.sykes.com>
-References: <006701c59de5$146f0960$a20cc60a@amer.sykes.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Wed, 10 Aug 2005 18:56:44 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS
+Date: Thu, 11 Aug 2005 08:57:05 +1000
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Hugh Dickins <hugh@veritas.com>,
+       David Howells <dhowells@redhat.com>
+References: <42F57FCA.9040805@yahoo.com.au> <200508110823.53593.phillips@arcor.de> <1123713258.10292.109.camel@lade.trondhjem.org>
+In-Reply-To: <1123713258.10292.109.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200508110857.06539.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Trond,
 
+On Thursday 11 August 2005 08:34, Trond Myklebust wrote:
+> to den 11.08.2005 Klokka 08:23 (+1000) skreiv Daniel Phillips:
+> > Note: I have not fully audited the NFS-related colliding use of page
+> > flags bit 8, to verify that it really does not escape into VFS or MM from
+> > NFS, in fact I have misgivings about end_page_fs_misc which uses this
+> > flag but has no in-tree users to show how it is used and, hmm, isn't even
+> > _GPL.  What is up?
+>
+> What "NFS-related colliding use of page flags bit 8"?
 
---On Wednesday, August 10, 2005 13:52:45 -0600 Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
+As explained to me:
 
->> I am trying a custom 2.6.8 kernel now, and here is my
->> 2.6.12.4 .config file.
->> Let me know what you think.
-> 
-> I don't know much about Kernel Panics. I hope that someone that knows could
-> take a look, but so far, it looks like you need to be running Sid to have
-> this working propperly.
-> 
-> Please try 2.6.8, I'm almost sure that it should work.
-> 
-> And anyway, this ML is not really a user support list, try asking in a
-> debian mailing list, if they think that it's something wrong with the
-> kernel, then come back and let us know.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112368417412580&w=2
 
-Kernel panics are fine, though you really need to give us the whole thing.
-Make sure you run it through ksymoops, or have CONFIG_KKALLSYMS or whatever
-it's called turned on.
+Regards,
 
-adpt_isr is in drivers/scsi/dpt_i2o.c, so you have some SCSI driver
-problem, I presume?
-
-M.
-
+Daniel

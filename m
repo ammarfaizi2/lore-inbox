@@ -1,78 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbVHJO2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965131AbVHJObq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965130AbVHJO2X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 10:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbVHJO2X
+	id S965131AbVHJObq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 10:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbVHJObq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 10:28:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6815 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965130AbVHJO2X (ORCPT
+	Wed, 10 Aug 2005 10:31:46 -0400
+Received: from hastings.mumak.ee ([194.204.22.4]:27854 "EHLO hastings.mumak.ee")
+	by vger.kernel.org with ESMTP id S965131AbVHJObp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 10:28:23 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <200508102334.43662.phillips@arcor.de> 
-References: <200508102334.43662.phillips@arcor.de>  <20050808145430.15394c3c.akpm@osdl.org> <200508090724.30962.phillips@arcor.de> <31567.1123679613@warthog.cambridge.redhat.com> 
-To: Daniel Phillips <phillips@arcor.de>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, hugh@veritas.com
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
-Date: Wed, 10 Aug 2005 15:27:52 +0100
-Message-ID: <21701.1123684072@warthog.cambridge.redhat.com>
+	Wed, 10 Aug 2005 10:31:45 -0400
+Subject: Re: BUG: reiserfs+acl+quota deadlock
+From: Tarmo =?ISO-8859-1?Q?T=E4nav?= <tarmo@itech.ee>
+To: Jan Kara <jack@suse.cz>
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org,
+       mason@suse.com, jeffm@suse.com
+In-Reply-To: <20050810130009.GE22112@atrey.karlin.mff.cuni.cz>
+References: <1123643111.27819.23.camel@localhost>
+	 <20050810130009.GE22112@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 17:31:38 +0300
+Message-Id: <1123684298.14562.4.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@arcor.de> wrote:
+Tried the attached patch but it changed nothing, I trying to create
+a new file as a user whose quota grace time has ran out will still
+cause everything accessing the users homedir (the one with the quota)
+to hang in D state.
 
-> > An extra page flag beyond PG_uptodate, PG_lock and PG_writeback is
-> > required to make readpage through the cache non-synchronous.
+Also note that the bug I reported only exists when acl is also
+enabled (does not have to be used). And although my kernel is not
+built with debug (or reiserfs debug) support, I don't get any
+oopses or reiserfs errors.. it just hangs.
 
-Sorry, I meant to say "filesystem cache": FS-Cache/CacheFS.
 
-> Interesting, have you got a pointer to a full explanation?  Is this about aio?
+On K, 2005-08-10 at 15:00 +0200, Jan Kara wrote:
+>   Hello,
+> 
+> > I've already reported a similiar bug to the one I found now
+> > and that was fixed by:
+> > "[PATCH] reiserfs: fix deadlock in inode creation failure path w/
+> > default ACL"
+> > 
+> > This bug is similiar in effect but has some differences in how
+> > to trigger it. The end effect will be just like with the other
+> > bug that the affected directory will be unaccessible to any user
+> > or process.
+> > 
+> > So here's the way to reproduce it, as minimal as I could get it:
+> > 
+> > You need reiserfs, quota and acl support in kernel.
+> > you also need quota tools (edquota, quotaon, quotacheck), I used
+> > linuxquota 3.12.
+> > 
+> > # cd /mnt
+> > # dd if=/dev/zero of=test bs=1M count=50
+> > 50+0 records in
+> > 50+0 records out
+> > # mkreiserfs -f test >/dev/null
+> > mkreiserfs 3.6.19 (2003 www.namesys.com)
+> > 
+> > test is not a block special device
+> > Continue (y/n):y
+> > # mkdir mpoint
+> > # mount test mpoint -o loop,acl,usrquota
+> > # mkdir mpoint/user1
+> > # useradd -d /mnt/mpoint/user1 user1     # may also use existing user
+> > # chown user1 mpoint/user1
+> > # quotacheck -v mpoint                   # initializes quota file
+> > # edquota user1
+> > ---- set soft block limit to 1000, hard limit to 4000 ----
+> > # edquota -t
+> > ---- set the grace periods to something small: 1minutes ---
+> > # quotaon mpoint
+> > # ## at this point "repquota -a" should show the quota for user1
+> > # su user1
+> > # cd
+> > # ## now we are in user1 home dir as user1
+> > # cat /dev/zero > file1
+> > loop2: warning, user block quota exceeded.
+> > loop2: write failed, user block limit reached.
+> > cat: write error: No space left on device
+> > --- now we wait till the grace period expires (repquota -a) ----
+> > # cat "" > otherfile
+> > loop2: write failed, user block quota exceeded too long.
+> > ---- and it will hang forever ----
+> > # ## /mnt/mpoint can still be accessed, but /mnt/mpoint/user1 can't
+> > 
+> > 
+> > I tested this on an -mm patchset kernel (2.6.13-rc5-mm1), but I
+> > discovered the bug in my server which runs plain 2.6.12 with the
+> > patch from Jeff Mahoney for the first reiserfs+acl bug.
+> > 
+> > The main difference between the two bugs is that the first one requires
+> > the existance of a default acl, this one does not, but it does require
+> > acl to be enabled.
+>   This seems to be the same problem as bug #4771 that I've just fix. Can
+> you try attached patch please?
+>   Andrew, can you include the patch into -mm if ReiserFS guys won't object?
 
-No, it's nothing to do with AIO. This is to do with using local disk to cache
-network filesystems and other relatively slow devices.
-
-What happens is this:
-
- (1) readpage() is issued against NFS (for example).
-
- (2) NFS consults the local cache, and finds the page isn't available there.
-
- (3) NFS reads the page from the server.
-
- (4) NFS sets PG_fs_misc and tells the cache to store the page.
-
- (5) NFS sets PG_uptodate and unlocks the page.
-
-Some time later, the cache finishes writing the page to disk:
-
- (6) The cache calls NFS to say that it's finished writing the page.
-
- (7) NFS calls end_page_fs_misc() - which clears PG_fs_misc - to indicate to
-     any waiters that the page can now be written to.
-
-Now: any PTEs set up to point to this page start life read-only. If they're
-part of a shared-writable mapping, then the MMU will generate a WP fault when
-someone attempts to write to the page through that mapping:
-
- (a) do_wp_page() gets called.
-
- (b) do_wp_page() sees that the page's host has registered an interest in
-     knowing that the page is becoming writable:
-
-	vm_operations_struct::page_mkwrite()
-
- (c) do_wp_page() calls out to the filesystem.
-
- (d) NFS sees the page is wanting to become writable and waits for the
-     PG_fs_misc flag to become cleared.
-
- (e) NFS returns to the caller and things proceed as normal.
-
-Doing this permits the cache state to be more predictable in the event of
-power loss because we know that userspace won't have scribbled on this page
-whilst the cache was trying to write it to disk.
-
-David

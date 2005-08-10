@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbVHJWZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVHJWkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932578AbVHJWZg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 18:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVHJWZg
+	id S932582AbVHJWkM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 18:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVHJWkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 18:25:36 -0400
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:26514 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S932578AbVHJWZf
+	Wed, 10 Aug 2005 18:40:12 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:61181 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932582AbVHJWkL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 18:25:35 -0400
-Date: Thu, 11 Aug 2005 00:23:40 +0200 (CEST)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Jean Delvare <khali@linux-fr.org>
-cc: Hinko Kocevar <hinko.kocevar@cetrtapot.si>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>
-Subject: Re: [lm-sensors] Re: I2C block reads with i2c-viapro: testers wanted
-In-Reply-To: <20050810230633.0cb8737b.khali@linux-fr.org>
-Message-ID: <Pine.LNX.4.60.0508110022030.3532@kepler.fjfi.cvut.cz>
-References: <20050809231328.0726537b.khali@linux-fr.org> <42FA6406.4030901@cetrtapot.si>
- <20050810230633.0cb8737b.khali@linux-fr.org>
+	Wed, 10 Aug 2005 18:40:11 -0400
+Message-ID: <42FA81B9.9020801@mvista.com>
+Date: Wed, 10 Aug 2005 15:37:45 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: vatsa@in.ibm.com
+CC: Con Kolivas <kernel@kolivas.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
+References: <200508031559.24704.kernel@kolivas.org> <200508060239.41646.kernel@kolivas.org> <20050806174739.GU4029@stusta.de> <200508071512.22668.kernel@kolivas.org> <20050807165833.GA13918@in.ibm.com> <42F905DA.4070308@mvista.com> <20050810140528.GA20893@in.ibm.com>
+In-Reply-To: <20050810140528.GA20893@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 10 Aug 2005, Jean Delvare wrote:
-
-> Hi Hinko,
+Srivatsa Vaddagiri wrote:
+> On Tue, Aug 09, 2005 at 12:36:58PM -0700, George Anzinger wrote:
 > 
-> > > In order to verify whether I2C block reads work for you, just
-> > > compare the contents of this file:
-> > >   /sys/bus/i2c/devices/0-0050/eeprom
-> > 
-> > I've tested your patch on gericom X5 with VIA chipset and it works
-> > fine without/with your patch (no diff in eeprom contents).
-> > (...)
-> > 0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+>>IMNOHO, this is the ONLY way to keep proper time.  As soon as you 
+>>reprogram the PIT you have lost track of the time.
 > 
-> This is a surprising result, as the VT8233 datasheet didn't mention the
-> I2C block mode. I'll add this model to the list. This also suggests that
-> the VT8233A may support it as well - if someone could test that.
 > 
-> I have to admit I don't know exactly in which order the different south
-> bridges were designed and released by VIA. I think the following order
-> is correct:
+> George,
+> 	Can't TSC (or equivalent) serve as a backup while PIT is disabled,
+> especially considering that we disable PIT only for short duration 
+> in practice (few seconds maybe) _and_ that we don't have HRT support yet?
 > 
-> VT82C596
-> VT82C596B
-> VT82C686A
-> VT82C686B
-> VT8235
-> VT8237
-> 
-> But I don't know where the VT8231, VT8233 and VT8233A should be inserted
-> in this list. If anyone can tell me...
+I think it really depends on what you want.  If you really want to keep 
+good time, the only rock in town is the one connected to the PIT (and 
+the pmtimer).  The problem is, if you want the jiffie edge to be stable, 
+there is just now way to reprogram the PIT to get it back to where it was.
 
-I guess it's just the way it seems:
+In an old version of HRT I did a trick of loading a short count (based 
+on reading the TSC or pmtimer) and then put the LATCH count on top of 
+it.  In a correctly performing PIT, it should count down the short 
+count, interrupt, load the long count and continue from there.  Aside 
+from the machines that had BAD PITs (they reset on the load instead of 
+the expiry of the current count) there were other problems that, in the 
+end, cause loss of time (too fast, too slow, take your pick).  I also 
+found PITs that signaled that they had loaded the count (they set a 
+status bit) prior to actually loading it.  All in all, I find the PIT is 
+just an ugly beast to try to program.  On the other hand, if you want 
+regular interrupts at some fixed period, it will do this forever (give 
+or take a epoch or two;) with out touching anything after the initial 
+program set up.
 
-VT82C596
-VT82C596B
-VT82C686A
-VT82C686B
-VT8231
-VT8233
-VT8233A
-VT8235
-VT8237
+In the end, I concluded that, for the community kernel, it is really 
+best to just interrupt the irq line and leave the PIT run.  Then you use 
+the TSC or pmtimer to figure the gross loss of interrupts and leave the 
+PIT interrupt again to define the jiffie edge.  If you have other, more 
+pressing, concerns I suppose you can program the PIT, but don't expect 
+your wall clock to be as stable as it is now.
 
-Martin
-
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

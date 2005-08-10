@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVHJWCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbVHJWCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbVHJWCy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 18:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbVHJWCx
+	id S932331AbVHJWCX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 18:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVHJWCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 18:02:53 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:57546 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S932375AbVHJWCx
+	Wed, 10 Aug 2005 18:02:23 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:40178 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932331AbVHJWCW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 18:02:53 -0400
-Date: Thu, 11 Aug 2005 00:06:16 +0200
-From: DervishD <lkml@dervishd.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with usb-storage and /dev/sd?
-Message-ID: <20050810220616.GA918@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050810192243.GA620@DervishD> <20050810215032.GA27982@irc.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050810215032.GA27982@irc.pl>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 10 Aug 2005 18:02:22 -0400
+Message-ID: <42FA796A.4080205@mvista.com>
+Date: Wed, 10 Aug 2005 15:02:18 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 1.0+ (X11/20050531)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
+       cpufreq@lists.linux.org.uk
+Subject: Re: PowerOP 0/3: System power operating point management API
+References: <20050809024907.GA25064@slurryseal.ddns.mvista.com> <20050810100718.GC1945@elf.ucw.cz>
+In-Reply-To: <20050810100718.GC1945@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Tomasz :)
+Pavel Machek wrote:
+>>Depending on the ability of the hardware to make software-controlled
+>>power/performance adjustments, this may be useful to select custom
+>>voltages, bus speeds, etc. in desktop/server systems.  Various embedded
+>>systems have several parameters that can be set.  For example, an XScale
+>>PXA27x could be considered to have six basic power parameters (mainly
+>>cpu run mode and memory and bus dividers) that for the most part
+>>should
+> 
+> 
+> This scares me a bit. Is table enough to handle this? I'm afraid that
+> table will get very large on systems that allow you to do "almost
+> anything".
 
- * Tomasz Torcz <zdzichu@irc.pl> dixit:
-> On Wed, Aug 10, 2005 at 09:22:43PM +0200, DervishD wrote:
-> >     The problem is that if I plug my USB memory, unplug it and plug
-> > my MP3 player, it gets /dev/sdb this time, not /dev/sda. The mess is
-> > even greater if I plug my card reader, which has four LUN's...
->  That's what udev is for.
-
-    I know, but I use a 2.4.x kernel (which I didn't mention in my
-original message, sorry O:)), and udev needs a 2.6.x kernel, am I
-wrong?
-
->  Go figure how to udev-enable your distribution.
-
-    I have a do-it-yourself Linux box, so setting up udev is not much
-of a problem as long as the kernel supports it. If udev doesn't use
-any kernel magic (that is, it only uses /sbin/hotplug), how the heck
-does it know which /dev/sd? the *kernel* assigned to my recently
-plugged USB device? How can it influenciate which device is assigned
-*by the kernel*? I assume that it needs some magic from the kernel
-and so it only works for 2.6.x :???? In fact, if it uses sysfs, it
-still needs a 2.6.x for that, am I wrong?
-
-    I'll take a look anyway, thanks a lot for your message and help :)
-
-    Raúl Núñez de Arenas Coronado
+Exhaustive tables for all combinations of possible parameters aren't 
+expected (or practical for many systems as you note).  In practice, a 
+subset of these possible operating points are created and activated over 
+the lifetime of the system, where the subset is chosen by a system 
+designer according to the needs of the particular system.  It's a matter 
+for the higher-layer power management software to decide whether to have 
+in-kernel tables of the possible operating points (as cpufreq does for 
+various platforms) or whether to require userspace to create only the 
+ones wanted (as does DPM).  There are cpufreq patches for PXA27x 
+somewhere, for example, and in that case a subset of the supported 
+operating points (and there are still only about 16 of those even for 
+such a complicated piece of hardware) are represented in the kernel 
+tables, choosing one of the possible combinations of memory/bus/etc. 
+parameters for each unique cpu frequency.  Thanks,
 
 -- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...
+Todd

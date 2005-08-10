@@ -1,72 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbVHJSwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbVHJS6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030188AbVHJSwn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 14:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbVHJSwn
+	id S1030189AbVHJS6x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 14:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVHJS6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 14:52:43 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:16010 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030188AbVHJSwn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 14:52:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=RhhQpdIvNnOhops8cLmRWc2xCSv5eyf6TmTbcYe46jGG9hcpiHL4J0ufvyWn09vNrSsBj119URQmMV3JDoAodqRUJe8pNxR2aQBqEnpE4D4U8hVzKVd4LNqL1JEdx8OLBcML4VJcB5SzDpEzIfxBF4MN2TO7bA+5nuG9Dr+oRlU=
-Message-ID: <42FA4CED.6090701@gmail.com>
-Date: Wed, 10 Aug 2005 20:52:29 +0200
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
-X-Accept-Language: de-DE, de, en-us, en
+	Wed, 10 Aug 2005 14:58:52 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:28421 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030189AbVHJS6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 14:58:52 -0400
+Message-ID: <42FA4ECD.1070108@tmr.com>
+Date: Wed, 10 Aug 2005 15:00:29 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
-References: <42FA4355.7010004@gmail.com> <42FA4502.8000807@pobox.com>
-In-Reply-To: <42FA4502.8000807@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: Lee Revell <rlrevell@joe-job.com>
+CC: James Bruce <bruce@andrew.cmu.edu>, Marc Ballarin <Ballarin.Marc@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+References: <20050730120645.77a33a34.Ballarin.Marc@gmx.de>	 <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz>	 <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>	 <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>	 <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz>	 <1122852234.13000.27.camel@mindpipe>  <20050731232941.GG27580@elf.ucw.cz> <1122854036.13000.33.camel@mindpipe>
+In-Reply-To: <1122854036.13000.33.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik schrieb:
+Lee Revell wrote:
+> On Mon, 2005-08-01 at 01:29 +0200, Pavel Machek wrote:
+> 
+>>Hi!
+>>
+>>
+>>>>I'm pretty sure at least one distro will go with HZ<300 real soon now
+>>>>;-).
+>>>>
+>>>
+>>>Any idea what their official recommendation for people running apps that
+>>>require the 1ms sleep resolution is?  Something along the lines of "Get
+>>>bent"?
+>>
+>>So you busy wait for 1msec, big deal.
+> 
+> 
+> Which requires changing all those apps.  I thought we tried not to break
+> userspace with minor kernel version upgrades.
 
-> Ask NVIDIA.  They are the only company that gives me -zero- 
-> information on their SATA controllers.
->
-Hello again,
+Sounds like you were wrong.
 
-Jeff, did you found any informations about NForce4 SATA Controller?
-I found a Product Brief/Specification and a Blockdiagramm.
+This whole thing is silly, I'm very aware of battery life issues, but in 
+real ues we are talking about maybe 3% more battery life. People who are 
+totally anal about it will build their own kernel, or use a vendor 
+kernel with varioble tick rate, but saving <2BTU/hr is not going to let 
+anyone buy a smaller A/C unit. The computer user gives off way more than 
+that.
 
-Also found out that the CK804 supports TCQ/NCQ
-
--> snip
-
-nForce4 Ultra and nForce4 SLi can support tagged command queuing and
-native command queuing when used with SATA hard disks that support
-these features
-
--->
-
-> As such, there are -zero- plans for NCQ on NVIDIA controllers at this 
-> time.
->
->     Jeff
->
->
->
->
-If NVidia followed the SATA-IO spec than should be possible to make them 
-work with NCQ, or do I think wrong of that?
-Or isn't it possible?
-
-/Michael
-
--- 
-Michael Thonke
-IT-Systemintegrator /
-System- and Softwareanalyist
-
-
+I would leave it at 1k and push for variable tick, which should make 
+everyone happy.
+> 
+> 
+>>Some machines can't even keep time properly with HZ=1000.
+> 
+> 
+> If your workaround for broken hardware involves screwing over people
+> with good hardware, it might be the wrong workaround.
+> 
+> 
+>> Official recommendation is likely "help us
+>>with CONFIG_NO_IDLE_HZ" or "get over it".
+> 
+> 
+> IOW, "if you don't like it, get another distro, or compile your own
+> kernel".
+> 
+> Lee
+> 
 

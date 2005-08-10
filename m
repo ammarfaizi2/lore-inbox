@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbVHJHQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbVHJHVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965022AbVHJHQB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 03:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbVHJHQB
+	id S965028AbVHJHVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 03:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVHJHVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 03:16:01 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:46777 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S965022AbVHJHQA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 03:16:00 -0400
-Date: Wed, 10 Aug 2005 09:16:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       steiner@sgi.com, dvhltc@us.ibm.com, mbligh@mbligh.org
-Subject: Re: allow the load to grow upto its cpu_power (was Re: [Patch] don't kick ALB in the presence of pinned task)
-Message-ID: <20050810071608.GC21052@elte.hu>
-References: <20050801174221.B11610@unix-os.sc.intel.com> <20050802092717.GB20978@elte.hu> <20050809160813.B1938@unix-os.sc.intel.com>
+	Wed, 10 Aug 2005 03:21:54 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:29399 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965028AbVHJHVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 03:21:53 -0400
+Date: Wed, 10 Aug 2005 08:21:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Zach Brown <zab@zabbo.net>, David Teigland <teigland@redhat.com>,
+       Pekka Enberg <penberg@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com,
+       mark.fasheh@oracle.com
+Subject: Re: GFS
+Message-ID: <20050810072121.GA2825@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pekka Enberg <penberg@cs.helsinki.fi>, Zach Brown <zab@zabbo.net>,
+	David Teigland <teigland@redhat.com>,
+	Pekka Enberg <penberg@gmail.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, linux-cluster@redhat.com,
+	mark.fasheh@oracle.com
+References: <20050802071828.GA11217@redhat.com> <84144f0205080203163cab015c@mail.gmail.com> <20050803063644.GD9812@redhat.com> <courier.42F768D5.000046F2@courier.cs.helsinki.fi> <42F7A557.3000200@zabbo.net> <1123598983.10790.1.camel@haji.ri.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050809160813.B1938@unix-os.sc.intel.com>
+In-Reply-To: <1123598983.10790.1.camel@haji.ri.fi>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
-
-> On Tue, Aug 02, 2005 at 11:27:17AM +0200, Ingo Molnar wrote:
+On Tue, Aug 09, 2005 at 05:49:43PM +0300, Pekka Enberg wrote:
+> On Mon, 2005-08-08 at 11:32 -0700, Zach Brown wrote:
+> > > Sorry if this is an obvious question but what prevents another thread
+> > > from doing mmap() before we do the second walk and messing up num_gh?
 > > 
-> > * Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
-> > 
-> > > Jack Steiner brought this issue at my OLS talk.
-> > > 
-> > > Take a scenario where two tasks are pinned to two HT threads in a physical
-> > > package. Idle packages in the system will keep kicking migration_thread
-> > > on the busy package with out any success.
-> > > 
-> > > We will run into similar scenarios in the presence of CMP/NUMA.
-> > > 
-> > > Patch appended.
-> > > 
-> > > Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-> > 
-> > nice catch!
-> > 
-> > fine for -mm, but i dont think we need this fix in 2.6.13, as the effect 
-> > of the bug is an extra context-switch per 'CPU goes idle' event, in this 
-> > very specific (and arguably broken) task binding scenario.
+> > Nothing, I suspect.  OCFS2 has a problem like this, too.  It wants a way
+> > for a file system to serialize mmap/munmap/mremap during file IO.  Well,
+> > more specifically, it wants to make sure that the locks it acquired at
+> > the start of the IO really cover the buf regions that might fault during
+> > the IO.. mapping activity during the IO can wreck that.
 > 
-> No. This is not a broken scenario. Its possible in NUMA case aswell.
-> 
-> For example, lets take two nodes each having two physical packages. 
-> And assume that there are two tasks and both of them are on (may or 
-> may n't be pinned) two packages in node-0
-> 
-> Todays load balance will detect that there is an imbalance between the 
-> two nodes and will try to distribute the load between the nodes.
-> 
-> In general, we should allow the load of a group to grow upto its 
-> cpu_power and stop preventing these costly movements.
-> 
-> Appended patch will fix this. I have done limited testing of this 
-> patch. Guys with big NUMA boxes, please give this patch a try.
+> In addition, the vma walk will become an unmaintainable mess as soon as
+> someone introduces another mmap() capable fs that needs similar locking.
 
-makes sense in general - we should not try to move things around when we 
-are under-utilized. (In theory there could be heavily fluctuating 
-workloads which do not produce an above 100% average utilization, and 
-which could benefit from a perfectly even distribution of tasks - but i 
-dont think the load-balancer should care, as load-balancing is mostly a 
-"slow" mechanism.)
+We already have OCFS2 in -mm that does similar things.  I think we need
+to solve this in common code before either of them can be merged.
 
-Again, 2.6.14 stuff.
-
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo

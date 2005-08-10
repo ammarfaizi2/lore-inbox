@@ -1,100 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVHJC7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbVHJDF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbVHJC7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 22:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVHJC7Y
+	id S964905AbVHJDF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 23:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVHJDF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 22:59:24 -0400
-Received: from graphe.net ([209.204.138.32]:16316 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S964898AbVHJC7X (ORCPT
+	Tue, 9 Aug 2005 23:05:26 -0400
+Received: from hastings.mumak.ee ([194.204.22.4]:9098 "EHLO hastings.mumak.ee")
+	by vger.kernel.org with ESMTP id S964905AbVHJDFZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 22:59:23 -0400
-Date: Tue, 9 Aug 2005 19:59:21 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: linux-kernel@vger.kernel.org, kiran@scalex86.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] ide-disk oopses on boot
-In-Reply-To: <42F92A1F.9040901@vc.cvut.cz>
-Message-ID: <Pine.LNX.4.62.0508091953270.30717@graphe.net>
-References: <20050809132725.GA20397@vana.vc.cvut.cz>
- <Pine.LNX.4.62.0508090926150.12719@graphe.net> <42F92A1F.9040901@vc.cvut.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Tue, 9 Aug 2005 23:05:25 -0400
+Subject: BUG: reiserfs+acl+quota deadlock
+From: Tarmo =?ISO-8859-1?Q?T=E4nav?= <tarmo@itech.ee>
+To: linux-kernel@vger.kernel.org
+Cc: reiserfs-list@namesys.com
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 10 Aug 2005 06:05:11 +0300
+Message-Id: <1123643111.27819.23.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Aug 2005, Petr Vandrovec wrote:
+Hi,
 
-> > Yes that was discussed extensively by Andi and me and finally fixed by
-> > Kiran's patch in 2.6.13-rc6.
-> 
-> By which patch?  I hit it with post-2.6.13-rc6, exactly 2.6.13-rc6 with
-> checkin hash "commit 00dd1e433967872f3997a45d5adf35056fdf2f56".  So if it is
-> supposed to be fixed in 2.6.13-rc6, it is not.
+I've already reported a similiar bug to the one I found now
+and that was fixed by:
+"[PATCH] reiserfs: fix deadlock in inode creation failure path w/
+default ACL"
 
-Yes you are right there is one additional place where pcibus_to_node is 
-used with the hwif that we did not cover. This better go into 2.6.13.
+This bug is similiar in effect but has some differences in how
+to trigger it. The end effect will be just like with the other
+bug that the affected directory will be unaccessible to any user
+or process.
 
----
-Fix ide-disk.c oops caused by hwif == NULL
+So here's the way to reproduce it, as minimal as I could get it:
 
-1. Move hwif_to_node to ide.h
+You need reiserfs, quota and acl support in kernel.
+you also need quota tools (edquota, quotaon, quotacheck), I used
+linuxquota 3.12.
 
-2. Use hwif_to_node in ide-disk.c
+# cd /mnt
+# dd if=/dev/zero of=test bs=1M count=50
+50+0 records in
+50+0 records out
+# mkreiserfs -f test >/dev/null
+mkreiserfs 3.6.19 (2003 www.namesys.com)
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+test is not a block special device
+Continue (y/n):y
+# mkdir mpoint
+# mount test mpoint -o loop,acl,usrquota
+# mkdir mpoint/user1
+# useradd -d /mnt/mpoint/user1 user1     # may also use existing user
+# chown user1 mpoint/user1
+# quotacheck -v mpoint                   # initializes quota file
+# edquota user1
+---- set soft block limit to 1000, hard limit to 4000 ----
+# edquota -t
+---- set the grace periods to something small: 1minutes ---
+# quotaon mpoint
+# ## at this point "repquota -a" should show the quota for user1
+# su user1
+# cd
+# ## now we are in user1 home dir as user1
+# cat /dev/zero > file1
+loop2: warning, user block quota exceeded.
+loop2: write failed, user block limit reached.
+cat: write error: No space left on device
+--- now we wait till the grace period expires (repquota -a) ----
+# cat "" > otherfile
+loop2: write failed, user block quota exceeded too long.
+---- and it will hang forever ----
+# ## /mnt/mpoint can still be accessed, but /mnt/mpoint/user1 can't
 
-Index: linux-2.6/drivers/ide/ide-disk.c
-===================================================================
---- linux-2.6.orig/drivers/ide/ide-disk.c	2005-07-27 18:29:17.000000000 -0700
-+++ linux-2.6/drivers/ide/ide-disk.c	2005-08-09 19:55:03.000000000 -0700
-@@ -1220,7 +1220,7 @@
- 		goto failed;
- 
- 	g = alloc_disk_node(1 << PARTN_BITS,
--			pcibus_to_node(drive->hwif->pci_dev->bus));
-+			hwif_to_node(drive->hwif));
- 	if (!g)
- 		goto out_free_idkp;
- 
-Index: linux-2.6/drivers/ide/ide-probe.c
-===================================================================
---- linux-2.6.orig/drivers/ide/ide-probe.c	2005-08-04 15:47:15.000000000 -0700
-+++ linux-2.6/drivers/ide/ide-probe.c	2005-08-09 19:46:50.000000000 -0700
-@@ -960,15 +960,6 @@
- }
- #endif /* MAX_HWIFS > 1 */
- 
--static inline int hwif_to_node(ide_hwif_t *hwif)
--{
--	if (hwif->pci_dev)
--		return pcibus_to_node(hwif->pci_dev->bus);
--	else
--		/* Add ways to determine the node of other busses here */
--		return -1;
--}
--
- /*
-  * init request queue
-  */
-Index: linux-2.6/include/linux/ide.h
-===================================================================
---- linux-2.6.orig/include/linux/ide.h	2005-07-27 18:29:23.000000000 -0700
-+++ linux-2.6/include/linux/ide.h	2005-08-09 19:47:14.000000000 -0700
-@@ -1501,4 +1501,13 @@
- #define ide_id_has_flush_cache_ext(id)	\
- 	(((id)->cfs_enable_2 & 0x2400) == 0x2400)
- 
-+static inline int hwif_to_node(ide_hwif_t *hwif)
-+{
-+	if (hwif->pci_dev)
-+		return pcibus_to_node(hwif->pci_dev->bus);
-+	else
-+		/* Add ways to determine the node of other busses here */
-+		return -1;
-+}
-+
- #endif /* _IDE_H */
+
+I tested this on an -mm patchset kernel (2.6.13-rc5-mm1), but I
+discovered the bug in my server which runs plain 2.6.12 with the
+patch from Jeff Mahoney for the first reiserfs+acl bug.
+
+The main difference between the two bugs is that the first one requires
+the existance of a default acl, this one does not, but it does require
+acl to be enabled.
+
+
+PS. please CC, I'm not subscribed to the list
+
+-- 
+Tarmo Tänav <tarmo@itech.ee>
+

@@ -1,572 +1,493 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVHJBJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVHJBRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbVHJBJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Aug 2005 21:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVHJBJ1
+	id S1750988AbVHJBRq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Aug 2005 21:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbVHJBRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Aug 2005 21:09:27 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:59362 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S1751028AbVHJBJ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Aug 2005 21:09:26 -0400
-Message-ID: <42F953CE.305@trash.net>
-Date: Wed, 10 Aug 2005 03:09:34 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Heikki Orsila <shd@modeemi.cs.tut.fi>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] net/ipv4 debug cleanup, kernel 2.6.13-rc5
-References: <20050807123145.GJ27323@jolt.modeemi.cs.tut.fi>
-In-Reply-To: <20050807123145.GJ27323@jolt.modeemi.cs.tut.fi>
-Content-Type: multipart/mixed;
- boundary="------------000305080300080005020801"
+	Tue, 9 Aug 2005 21:17:46 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63244 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750988AbVHJBRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Aug 2005 21:17:46 -0400
+Date: Wed, 10 Aug 2005 03:17:40 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] the big Documentation/Changes change
+Message-ID: <20050810011740.GR4006@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000305080300080005020801
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+I edited Documentation/Changes:
+- remove obsolete information
+- point to feature-list-2.6.txt instead of providing similar information
+- removed the URLs of the software packages (people compiling their own
+  kernel usually know where to find the required software)
 
-Heikki Orsila wrote:
-> Here's a small patch to cleanup NETDEBUG() use in net/ipv4/ for Linux 
-> kernel 2.6.13-rc5. Also weird use of indentation is changed in some
-> places.
-> 
-> ---
-> diff -urp linux-2.6.13-rc5-org/net/ipv4/icmp.c linux-2.6.13-rc5/net/ipv4/icmp.c
-> --- linux-2.6.13-rc5-org/net/ipv4/icmp.c	2005-08-02 07:45:48.000000000 +0300
-> +++ linux-2.6.13-rc5/net/ipv4/icmp.c	2005-08-07 15:10:42.000000000 +0300
-> @@ -936,8 +936,7 @@ int icmp_rcv(struct sk_buff *skb)
->  	case CHECKSUM_HW:
->  		if (!(u16)csum_fold(skb->csum))
->  			break;
-> -		NETDEBUG(if (net_ratelimit())
-> -				printk(KERN_DEBUG "icmp v4 hw csum failure\n"));
-> +		LIMIT_NETDEBUG(printk(KERN_DEBUG "icmp v4 hw csum failure\n"));
->  	case CHECKSUM_NONE:
->  		if ((u16)csum_fold(skb_checksum(skb, 0, skb->len, 0)))
->  			goto error;
-
-These macros always looked a bit ugly to me, with your cleanup there
-isn't a single spot left where we require them to accept code as
-argument, so how about we change them to pure printk wrappers?
+The resulting file is pretty short.
 
 
---------------000305080300080005020801
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
-
-[NET]: Make NETDEBUG pure printk wrappers
-
-Signed-off-by: Patrick McHardy <kaber@trash.net>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
-commit a2db7bcdba3678fe8f67cd7d631c01a888031753
-tree 7201cec98ca35b5854daebc14e4650ff95eb8571
-parent db29e85a7ece62de1899917c1ec0ffe55cf1d3a0
-author Patrick McHardy <kaber@trash.net> Wed, 10 Aug 2005 03:08:01 +0200
-committer Patrick McHardy <kaber@trash.net> Wed, 10 Aug 2005 03:08:01 +0200
 
- include/net/sock.h     |    4 ++--
- net/ipv4/esp4.c        |   12 ++++++------
- net/ipv4/icmp.c        |   12 +++++-------
- net/ipv4/igmp.c        |    2 +-
- net/ipv4/ip_fragment.c |    6 +++---
- net/ipv4/ip_output.c   |    2 +-
- net/ipv4/ipcomp.c      |    4 ++--
- net/ipv4/tcp_ipv4.c    |   11 +++++------
- net/ipv4/udp.c         |   32 ++++++++++++++++----------------
- net/ipv6/ah6.c         |   13 ++++++-------
- net/ipv6/datagram.c    |    4 ++--
- net/ipv6/esp6.c        |    3 +--
- net/ipv6/exthdrs.c     |    8 ++++----
- net/ipv6/icmp.c        |   20 +++++++-------------
- net/ipv6/ip6_output.c  |    5 ++---
- net/ipv6/raw.c         |    3 +--
- net/ipv6/tcp_ipv6.c    |    2 +-
- net/ipv6/udp.c         |    7 +++----
- 18 files changed, 68 insertions(+), 82 deletions(-)
+ Documentation/Changes |  376 +-----------------------------------------
+ 1 files changed, 15 insertions(+), 361 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1260,8 +1260,8 @@ extern int sock_get_timestamp(struct soc
- #define NETDEBUG(x)	do { } while (0)
- #define LIMIT_NETDEBUG(x) do {} while(0)
- #else
--#define NETDEBUG(x)	do { x; } while (0)
--#define LIMIT_NETDEBUG(x) do { if (net_ratelimit()) { x; } } while(0)
-+#define NETDEBUG(fmt, args...)	printk(fmt,##args)
-+#define LIMIT_NETDEBUG(fmt, args...) do { if (net_ratelimit()) printk(fmt,##args); } while(0)
- #endif
+--- linux-2.6.13-rc5-mm1-full/Documentation/Changes.old	2005-08-10 03:01:11.000000000 +0200
++++ linux-2.6.13-rc5-mm1-full/Documentation/Changes	2005-08-10 03:12:12.000000000 +0200
+@@ -1,435 +1,89 @@
+ Intro
+ =====
  
- /*
-diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -331,8 +331,8 @@ static void esp4_err(struct sk_buff *skb
- 	x = xfrm_state_lookup((xfrm_address_t *)&iph->daddr, esph->spi, IPPROTO_ESP, AF_INET);
- 	if (!x)
- 		return;
--	NETDEBUG(printk(KERN_DEBUG "pmtu discovery on SA ESP/%08x/%08x\n",
--			ntohl(esph->spi), ntohl(iph->daddr)));
-+	NETDEBUG(KERN_DEBUG "pmtu discovery on SA ESP/%08x/%08x\n",
-+		 ntohl(esph->spi), ntohl(iph->daddr));
- 	xfrm_state_put(x);
- }
+ This document is designed to provide a list of the minimum levels of
+-software necessary to run the 2.6 kernels, as well as provide brief
+-instructions regarding any other "Gotchas" users may encounter when
+-trying life on the Bleeding Edge.  If upgrading from a pre-2.4.x
+-kernel, please consult the Changes file included with 2.4.x kernels for
+-additional information; most of that information will not be repeated
+-here.  Basically, this document assumes that your system is already
+-functional and running at least 2.4.x kernels.
++software necessary to run the 2.6 kernels.
  
-@@ -395,10 +395,10 @@ static int esp_init_state(struct xfrm_st
+ This document is originally based on my "Changes" file for 2.0.x kernels
+ and therefore owes credit to the same people as that file (Jared Mauch,
+ Axel Boldt, Alessandro Sigala, and countless other users all over the
+-'net).
++'net). Chris Ricker was the former maintainer of this file.
  
- 		if (aalg_desc->uinfo.auth.icv_fullbits/8 !=
- 		    crypto_tfm_alg_digestsize(esp->auth.tfm)) {
--			NETDEBUG(printk(KERN_INFO "ESP: %s digestsize %u != %hu\n",
--			       x->aalg->alg_name,
--			       crypto_tfm_alg_digestsize(esp->auth.tfm),
--			       aalg_desc->uinfo.auth.icv_fullbits/8));
-+			NETDEBUG(KERN_INFO "ESP: %s digestsize %u != %hu\n",
-+				 x->aalg->alg_name,
-+				 crypto_tfm_alg_digestsize(esp->auth.tfm),
-+				 aalg_desc->uinfo.auth.icv_fullbits/8);
- 			goto error;
- 		}
+-The latest revision of this document, in various formats, can always
+-be found at <http://cyberbuzz.gatech.edu/kaboom/linux/Changes-2.4/>.
+-
+-Feel free to translate this document.  If you do so, please send me a
++Feel free to translate this document.  If you do so, please send a
+ URL to your translation for inclusion in future revisions of this
+ document.
  
-diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -627,11 +627,10 @@ static void icmp_unreach(struct sk_buff 
- 			break;
- 		case ICMP_FRAG_NEEDED:
- 			if (ipv4_config.no_pmtu_disc) {
--				LIMIT_NETDEBUG(
--					printk(KERN_INFO "ICMP: %u.%u.%u.%u: "
-+				LIMIT_NETDEBUG(KERN_INFO "ICMP: %u.%u.%u.%u: "
- 							 "fragmentation needed "
- 							 "and DF set.\n",
--					       NIPQUAD(iph->daddr)));
-+					       NIPQUAD(iph->daddr));
- 			} else {
- 				info = ip_rt_frag_needed(iph,
- 						     ntohs(icmph->un.frag.mtu));
-@@ -640,10 +639,9 @@ static void icmp_unreach(struct sk_buff 
- 			}
- 			break;
- 		case ICMP_SR_FAILED:
--			LIMIT_NETDEBUG(
--				printk(KERN_INFO "ICMP: %u.%u.%u.%u: Source "
-+			LIMIT_NETDEBUG(KERN_INFO "ICMP: %u.%u.%u.%u: Source "
- 						 "Route Failed.\n",
--				       NIPQUAD(iph->daddr)));
-+				       NIPQUAD(iph->daddr));
- 			break;
- 		default:
- 			break;
-@@ -936,7 +934,7 @@ int icmp_rcv(struct sk_buff *skb)
- 	case CHECKSUM_HW:
- 		if (!(u16)csum_fold(skb->csum))
- 			break;
--		LIMIT_NETDEBUG(printk(KERN_DEBUG "icmp v4 hw csum failure\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "icmp v4 hw csum failure\n");
- 	case CHECKSUM_NONE:
- 		if ((u16)csum_fold(skb_checksum(skb, 0, skb->len, 0)))
- 			goto error;
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -904,7 +904,7 @@ int igmp_rcv(struct sk_buff *skb)
- 	case IGMP_MTRACE_RESP:
- 		break;
- 	default:
--		NETDEBUG(printk(KERN_DEBUG "New IGMP type=%d, why we do not know about it?\n", ih->type));
-+		NETDEBUG(KERN_DEBUG "New IGMP type=%d, why we do not know about it?\n", ih->type);
- 	}
- 	in_dev_put(in_dev);
- 	kfree_skb(skb);
-diff --git a/net/ipv4/ip_fragment.c b/net/ipv4/ip_fragment.c
---- a/net/ipv4/ip_fragment.c
-+++ b/net/ipv4/ip_fragment.c
-@@ -377,7 +377,7 @@ static struct ipq *ip_frag_create(unsign
- 	return ip_frag_intern(hash, qp);
+-Smotrite file <http://oblom.rnc.ru/linux/kernel/Changes.ru>, yavlyaushisya
+-russkim perevodom dannogo documenta.
+-
+-Visite <http://www2.adi.uam.es/~ender/tecnico/> para obtener la traducción
+-al español de este documento en varios formatos.
+-
+ Eine deutsche Version dieser Datei finden Sie unter
+-<http://www.stefan-winter.de/Changes-2.4.0.txt>.
+-
+-Last updated: October 29th, 2002
+-
+-Chris Ricker (kaboom@gatech.edu or chris.ricker@genetics.utah.edu).
++<http://www.stefan-winter.de/html/kernel_2_6_-_changes.html>.
  
- out_nomem:
--	LIMIT_NETDEBUG(printk(KERN_ERR "ip_frag_create: no memory left !\n"));
-+	LIMIT_NETDEBUG(KERN_ERR "ip_frag_create: no memory left !\n");
- 	return NULL;
- }
+ Current Minimal Requirements
+ ============================
  
-@@ -625,8 +625,8 @@ static struct sk_buff *ip_frag_reasm(str
- 	return head;
+ Upgrade to at *least* these software revisions before thinking you've
+ encountered a bug!  If you're unsure what version you're currently
+ running, the suggested command should tell you.
  
- out_nomem:
-- 	LIMIT_NETDEBUG(printk(KERN_ERR "IP: queue_glue: no memory for gluing "
--			      "queue %p\n", qp));
-+ 	LIMIT_NETDEBUG(KERN_ERR "IP: queue_glue: no memory for gluing "
-+			      "queue %p\n", qp);
- 	goto out_fail;
- out_oversize:
- 	if (net_ratelimit())
-diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -580,7 +580,7 @@ slow_path:
- 		 */
+-Again, keep in mind that this list assumes you are already
+-functionally running a Linux 2.4 kernel.  Also, not all tools are
+-necessary on all systems; obviously, if you don't have any ISDN
+-hardware, for example, you probably needn't concern yourself with
+-isdn4k-utils.
++Not all tools are necessary on all systems; obviously, if you don't
++have any ISDN hardware, for example, you probably needn't concern yourself
++with isdn4k-utils.
  
- 		if ((skb2 = alloc_skb(len+hlen+ll_rs, GFP_ATOMIC)) == NULL) {
--			NETDEBUG(printk(KERN_INFO "IP: frag: no memory for new fragment!\n"));
-+			NETDEBUG(KERN_INFO "IP: frag: no memory for new fragment!\n");
- 			err = -ENOMEM;
- 			goto fail;
- 		}
-diff --git a/net/ipv4/ipcomp.c b/net/ipv4/ipcomp.c
---- a/net/ipv4/ipcomp.c
-+++ b/net/ipv4/ipcomp.c
-@@ -214,8 +214,8 @@ static void ipcomp4_err(struct sk_buff *
- 	                      spi, IPPROTO_COMP, AF_INET);
- 	if (!x)
- 		return;
--	NETDEBUG(printk(KERN_DEBUG "pmtu discovery on SA IPCOMP/%08x/%u.%u.%u.%u\n",
--	       spi, NIPQUAD(iph->daddr)));
-+	NETDEBUG(KERN_DEBUG "pmtu discovery on SA IPCOMP/%08x/%u.%u.%u.%u\n",
-+		 spi, NIPQUAD(iph->daddr));
- 	xfrm_state_put(x);
- }
+ o  Gnu C                  2.95.3                  # gcc --version
+ o  Gnu make               3.79.1                  # make --version
+ o  binutils               2.12                    # ld -v
+ o  util-linux             2.10o                   # fdformat --version
+ o  module-init-tools      0.9.10                  # depmod -V
+ o  e2fsprogs              1.29                    # tune2fs
+ o  jfsutils               1.1.3                   # fsck.jfs -V
+ o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
+ o  reiser4progs           1.0.0                   # fsck.reiser4 -V
+ o  xfsprogs               2.6.0                   # xfs_db -V
+ o  pcmciautils            004
+-o  pcmcia-cs              3.1.21                  # cardmgr -V
+ o  quota-tools            3.09                    # quota -V
+ o  PPP                    2.4.0                   # pppd --version
+ o  isdn4k-utils           3.1pre1                 # isdnctrl 2>&1|grep version
+ o  nfs-utils              1.0.5                   # showmount --version
+ o  procps                 3.2.0                   # ps --version
+ o  oprofile               0.9                     # oprofiled --version
+ o  udev                   058                     # udevinfo -V
  
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1494,11 +1494,10 @@ int tcp_v4_conn_request(struct sock *sk,
- 			 * to destinations, already remembered
- 			 * to the moment of synflood.
- 			 */
--			LIMIT_NETDEBUG(printk(KERN_DEBUG "TCP: drop open "
--					      "request from %u.%u."
--					      "%u.%u/%u\n",
--					      NIPQUAD(saddr),
--					      ntohs(skb->h.th->source)));
-+			LIMIT_NETDEBUG(KERN_DEBUG "TCP: drop open "
-+				       "request from %u.%u.%u.%u/%u\n",
-+				       NIPQUAD(saddr),
-+				       ntohs(skb->h.th->source));
- 			dst_release(dst);
- 			goto drop_and_free;
- 		}
-@@ -1626,7 +1625,7 @@ static int tcp_v4_checksum_init(struct s
- 				  skb->nh.iph->daddr, skb->csum))
- 			return 0;
+-Kernel compilation
+-==================
++Notes
++=====
++
++Please read feature-list-2.6.txt for information about new features
++and changes compared to 2.4 kernels.
  
--		LIMIT_NETDEBUG(printk(KERN_DEBUG "hw tcp v4 csum failed\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "hw tcp v4 csum failed\n");
- 		skb->ip_summed = CHECKSUM_NONE;
- 	}
- 	if (skb->len <= 76) {
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -628,7 +628,7 @@ back_from_confirm:
- 		/* ... which is an evident application bug. --ANK */
- 		release_sock(sk);
+ GCC
+ ---
  
--		LIMIT_NETDEBUG(printk(KERN_DEBUG "udp cork app bug 2\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "udp cork app bug 2\n");
- 		err = -EINVAL;
- 		goto out;
- 	}
-@@ -693,7 +693,7 @@ static int udp_sendpage(struct sock *sk,
- 	if (unlikely(!up->pending)) {
- 		release_sock(sk);
+ The gcc version requirements may vary depending on the type of CPU in your
+-computer. The next paragraph applies to users of x86 CPUs, but not
+-necessarily to users of other CPUs. Users of other CPUs should obtain
+-information about their gcc version requirements from another source.
+-
+-The recommended compiler for the kernel is gcc 2.95.x (x >= 3), and it
+-should be used when you need absolute stability. You may use gcc 3.0.x
+-instead if you wish, although it may cause problems. Later versions of gcc 
+-have not received much testing for Linux kernel compilation, and there are 
+-almost certainly bugs (mainly, but not exclusively, in the kernel) that
+-will need to be fixed in order to use these compilers. In any case, using
+-pgcc instead of plain gcc is just asking for trouble.
++computer.
  
--		LIMIT_NETDEBUG(printk(KERN_DEBUG "udp cork app bug 3\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "udp cork app bug 3\n");
- 		return -EINVAL;
- 	}
+ The Red Hat gcc 2.96 compiler subtree can also be used to build this tree.
+ You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not build
+ the kernel correctly.
  
-@@ -1102,7 +1102,7 @@ static int udp_checksum_init(struct sk_b
- 		skb->ip_summed = CHECKSUM_UNNECESSARY;
- 		if (!udp_check(uh, ulen, saddr, daddr, skb->csum))
- 			return 0;
--		LIMIT_NETDEBUG(printk(KERN_DEBUG "udp v4 hw csum failure.\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "udp v4 hw csum failure.\n");
- 		skb->ip_summed = CHECKSUM_NONE;
- 	}
- 	if (skb->ip_summed != CHECKSUM_UNNECESSARY)
-@@ -1181,13 +1181,13 @@ int udp_rcv(struct sk_buff *skb)
- 	return(0);
+-In addition, please pay attention to compiler optimization.  Anything
+-greater than -O2 may not be wise.  Similarly, if you choose to use gcc-2.95.x
+-or derivatives, be sure not to use -fstrict-aliasing (which, depending on
+-your version of gcc 2.95.x, may necessitate using -fno-strict-aliasing).
+-
+-Make
+-----
+-
+-You will need Gnu make 3.79.1 or later to build the kernel.
+-
+-Binutils
+---------
+-
+-Linux on IA-32 has recently switched from using as86 to using gas for
+-assembling the 16-bit boot code, removing the need for as86 to compile
+-your kernel.  This change does, however, mean that you need a recent
+-release of binutils.
+-
+-System utilities
+-================
+-
+-Architectural changes
+----------------------
+-
+-DevFS has been obsoleted in favour of udev
+-(http://www.kernel.org/pub/linux/utils/kernel/hotplug/)
+-
+-32-bit UID support is now in place.  Have fun!
++Documentation
++-------------
  
- short_packet:
--	LIMIT_NETDEBUG(printk(KERN_DEBUG "UDP: short packet: From %u.%u.%u.%u:%u %d/%d to %u.%u.%u.%u:%u\n",
--			      NIPQUAD(saddr),
--			      ntohs(uh->source),
--			      ulen,
--			      len,
--			      NIPQUAD(daddr),
--			      ntohs(uh->dest)));
-+	LIMIT_NETDEBUG(KERN_DEBUG "UDP: short packet: From %u.%u.%u.%u:%u %d/%d to %u.%u.%u.%u:%u\n",
-+		       NIPQUAD(saddr),
-+		       ntohs(uh->source),
-+		       ulen,
-+		       len,
-+		       NIPQUAD(daddr),
-+		       ntohs(uh->dest));
- no_header:
- 	UDP_INC_STATS_BH(UDP_MIB_INERRORS);
- 	kfree_skb(skb);
-@@ -1198,12 +1198,12 @@ csum_error:
- 	 * RFC1122: OK.  Discards the bad packet silently (as far as 
- 	 * the network is concerned, anyway) as per 4.1.3.4 (MUST). 
- 	 */
--	LIMIT_NETDEBUG(printk(KERN_DEBUG "UDP: bad checksum. From %d.%d.%d.%d:%d to %d.%d.%d.%d:%d ulen %d\n",
--			      NIPQUAD(saddr),
--			      ntohs(uh->source),
--			      NIPQUAD(daddr),
--			      ntohs(uh->dest),
--			      ulen));
-+	LIMIT_NETDEBUG(KERN_DEBUG "UDP: bad checksum. From %d.%d.%d.%d:%d to %d.%d.%d.%d:%d ulen %d\n",
-+		       NIPQUAD(saddr),
-+		       ntohs(uh->source),
-+		       NIPQUAD(daddr),
-+		       ntohs(uh->dest),
-+		       ulen);
- drop:
- 	UDP_INC_STATS_BH(UDP_MIB_INERRORS);
- 	kfree_skb(skb);
-diff --git a/net/ipv6/ah6.c b/net/ipv6/ah6.c
---- a/net/ipv6/ah6.c
-+++ b/net/ipv6/ah6.c
-@@ -131,10 +131,10 @@ static int ipv6_clear_mutable_options(st
- 		case NEXTHDR_HOP:
- 		case NEXTHDR_DEST:
- 			if (!zero_out_mutable_opts(exthdr.opth)) {
--				LIMIT_NETDEBUG(printk(
-+				LIMIT_NETDEBUG(
- 					KERN_WARNING "overrun %sopts\n",
- 					nexthdr == NEXTHDR_HOP ?
--						"hop" : "dest"));
-+						"hop" : "dest");
- 				return -EINVAL;
- 			}
- 			break;
-@@ -293,8 +293,7 @@ static int ah6_input(struct xfrm_state *
- 		skb_push(skb, skb->data - skb->nh.raw);
- 		ahp->icv(ahp, skb, ah->auth_data);
- 		if (memcmp(ah->auth_data, auth_data, ahp->icv_trunc_len)) {
--			LIMIT_NETDEBUG(
--				printk(KERN_WARNING "ipsec ah authentication error\n"));
-+			LIMIT_NETDEBUG(KERN_WARNING "ipsec ah authentication error\n");
- 			x->stats.integrity_failed++;
- 			goto free_out;
- 		}
-@@ -332,9 +331,9 @@ static void ah6_err(struct sk_buff *skb,
- 	if (!x)
- 		return;
+ Linux documentation for functions is transitioning to inline
+ documentation via specially-formatted comments near their
+ definitions in the source.  These comments can be combined with the
+ SGML templates in the Documentation/DocBook directory to make DocBook
+ files, which can then be converted by DocBook stylesheets to PostScript,
+ HTML, PDF files, and several other formats.  In order to convert from
+ DocBook format to a format of your choice, you'll need to install Jade as
+ well as the desired DocBook stylesheets.
  
--	NETDEBUG(printk(KERN_DEBUG "pmtu discovery on SA AH/%08x/"
--			"%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
--	       ntohl(ah->spi), NIP6(iph->daddr)));
-+	NETDEBUG(KERN_DEBUG "pmtu discovery on SA AH/%08x/"
-+		 "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
-+		 ntohl(ah->spi), NIP6(iph->daddr));
+-Util-linux
+-----------
+-
+-New versions of util-linux provide *fdisk support for larger disks,
+-support new options to mount, recognize more supported partition
+-types, have a fdformat which works with 2.4 kernels, and similar goodies.
+-You'll probably want to upgrade.
+-
+-Ksymoops
+---------
+-
+-If the unthinkable happens and your kernel oopses, you'll need a 2.4
+-version of ksymoops to decode the report; see REPORTING-BUGS in the
+-root of the Linux source for more information.
+-
+-Module-Init-Tools
+------------------
+-
+-A new module loader is now in the kernel that requires module-init-tools
+-to use.  It is backward compatible with the 2.4.x series kernels.
+-
+-Mkinitrd
+---------
+-
+-These changes to the /lib/modules file tree layout also require that
+-mkinitrd be upgraded.
+-
+-E2fsprogs
+----------
+-
+-The latest version of e2fsprogs fixes several bugs in fsck and
+-debugfs.  Obviously, it's a good idea to upgrade.
+-
+-JFSutils
+---------
+-
+-The jfsutils package contains the utilities for the file system.
+-The following utilities are available:
+-o fsck.jfs - initiate replay of the transaction log, and check
+-  and repair a JFS formatted partition.
+-o mkfs.jfs - create a JFS formatted partition.
+-o other file system utilities are also available in this package.
+-
+-Reiserfsprogs
+--------------
+-
+-The reiserfsprogs package should be used for reiserfs-3.6.x
+-(Linux kernels 2.4.x). It is a combined package and contains working
+-versions of mkreiserfs, resize_reiserfs, debugreiserfs and
+-reiserfsck. These utils work on both i386 and alpha platforms.
+-
+-Reiser4progs
+-------------
+-
+-The reiser4progs package contains utilities for the reiser4 file system.
+-Detailed instructions are provided in the README file located at:
+-<ftp://ftp.namesys.com/pub/reiser4progs/README>.
+-
+-Xfsprogs
+---------
+-
+-The latest version of xfsprogs contains mkfs.xfs, xfs_db, and the
+-xfs_repair utilities, among others, for the XFS filesystem.  It is
+-architecture independent and any version from 2.0.0 onward should
+-work correctly with this version of the XFS kernel code (2.6.0 or
+-later is recommended, due to some significant improvements).
+-
+-PCMCIAutils
+------------
+-
+-PCMCIAutils replaces pcmcia-cs (see below). It properly sets up
+-PCMCIA sockets at system startup and loads the appropriate modules
+-for 16-bit PCMCIA devices if the kernel is modularized and the hotplug
+-subsystem is used.
+-
+ Pcmcia-cs
+ ---------
  
- 	xfrm_state_put(x);
- }
-diff --git a/net/ipv6/datagram.c b/net/ipv6/datagram.c
---- a/net/ipv6/datagram.c
-+++ b/net/ipv6/datagram.c
-@@ -588,8 +588,8 @@ int datagram_send_ctl(struct msghdr *msg
- 			break;
+ PCMCIA (PC Card) support is now partially implemented in the main
+ kernel source. The "pcmciautils" package (see above) replaces pcmcia-cs
+ for newest kernels.
  
- 		default:
--			LIMIT_NETDEBUG(
--				printk(KERN_DEBUG "invalid cmsg type: %d\n", cmsg->cmsg_type));
-+			LIMIT_NETDEBUG(KERN_DEBUG "invalid cmsg type: %d\n",
-+			               cmsg->cmsg_type);
- 			err = -EINVAL;
- 			break;
- 		};
-diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -212,8 +212,7 @@ static int esp6_input(struct xfrm_state 
+-Quota-tools
+------------
+-
+-Support for 32 bit uid's and gid's is required if you want to use
+-the newer version 2 quota format.  Quota-tools version 3.07 and
+-newer has this support.  Use the recommended version or newer
+-from the table above.
+-
+-Intel IA32 microcode
+---------------------
+-
+-A driver has been added to allow updating of Intel IA32 microcode,
+-accessible as both a devfs regular file and as a normal (misc)
+-character device.  If you are not using devfs you may need to:
+-
+-mkdir /dev/cpu
+-mknod /dev/cpu/microcode c 10 184
+-chmod 0644 /dev/cpu/microcode
+-
+-as root before you can use this.  You'll probably also want to
+-get the user-space microcode_ctl utility to use with this.
+-
+ Powertweak
+ ----------
  
- 		padlen = nexthdr[0];
- 		if (padlen+2 >= elen) {
--			LIMIT_NETDEBUG(
--				printk(KERN_WARNING "ipsec esp packet is garbage padlen=%d, elen=%d\n", padlen+2, elen));
-+			LIMIT_NETDEBUG(KERN_WARNING "ipsec esp packet is garbage padlen=%d, elen=%d\n", padlen+2, elen);
- 			ret = -EINVAL;
- 			goto out;
- 		}
-diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
---- a/net/ipv6/exthdrs.c
-+++ b/net/ipv6/exthdrs.c
-@@ -424,8 +424,8 @@ static int ipv6_hop_ra(struct sk_buff *s
- 		IP6CB(skb)->ra = optoff;
- 		return 1;
- 	}
--	LIMIT_NETDEBUG(
--		 printk(KERN_DEBUG "ipv6_hop_ra: wrong RA length %d\n", skb->nh.raw[optoff+1]));
-+	LIMIT_NETDEBUG(KERN_DEBUG "ipv6_hop_ra: wrong RA length %d\n",
-+	               skb->nh.raw[optoff+1]);
- 	kfree_skb(skb);
- 	return 0;
- }
-@@ -437,8 +437,8 @@ static int ipv6_hop_jumbo(struct sk_buff
- 	u32 pkt_len;
- 
- 	if (skb->nh.raw[optoff+1] != 4 || (optoff&3) != 2) {
--		LIMIT_NETDEBUG(
--			 printk(KERN_DEBUG "ipv6_hop_jumbo: wrong jumbo opt length/alignment %d\n", skb->nh.raw[optoff+1]));
-+		LIMIT_NETDEBUG(KERN_DEBUG "ipv6_hop_jumbo: wrong jumbo opt length/alignment %d\n",
-+		               skb->nh.raw[optoff+1]);
- 		IP6_INC_STATS_BH(IPSTATS_MIB_INHDRERRORS);
- 		goto drop;
- 	}
-diff --git a/net/ipv6/icmp.c b/net/ipv6/icmp.c
---- a/net/ipv6/icmp.c
-+++ b/net/ipv6/icmp.c
-@@ -332,8 +332,7 @@ void icmpv6_send(struct sk_buff *skb, in
- 	 *	for now we don't know that.
- 	 */
- 	if ((addr_type == IPV6_ADDR_ANY) || (addr_type & IPV6_ADDR_MULTICAST)) {
--		LIMIT_NETDEBUG(
--			printk(KERN_DEBUG "icmpv6_send: addr_any/mcast source\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "icmpv6_send: addr_any/mcast source\n");
- 		return;
- 	}
- 
-@@ -341,8 +340,7 @@ void icmpv6_send(struct sk_buff *skb, in
- 	 *	Never answer to a ICMP packet.
- 	 */
- 	if (is_ineligible(skb)) {
--		LIMIT_NETDEBUG(
--			printk(KERN_DEBUG "icmpv6_send: no reply to icmp error\n")); 
-+		LIMIT_NETDEBUG(KERN_DEBUG "icmpv6_send: no reply to icmp error\n");
- 		return;
- 	}
- 
-@@ -393,8 +391,7 @@ void icmpv6_send(struct sk_buff *skb, in
- 	len = skb->len - msg.offset;
- 	len = min_t(unsigned int, len, IPV6_MIN_MTU - sizeof(struct ipv6hdr) -sizeof(struct icmp6hdr));
- 	if (len < 0) {
--		LIMIT_NETDEBUG(
--			printk(KERN_DEBUG "icmp: len problem\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "icmp: len problem\n");
- 		goto out_dst_release;
- 	}
- 
-@@ -583,17 +580,15 @@ static int icmpv6_rcv(struct sk_buff **p
- 		skb->ip_summed = CHECKSUM_UNNECESSARY;
- 		if (csum_ipv6_magic(saddr, daddr, skb->len, IPPROTO_ICMPV6,
- 				    skb->csum)) {
--			LIMIT_NETDEBUG(
--				printk(KERN_DEBUG "ICMPv6 hw checksum failed\n"));
-+			LIMIT_NETDEBUG(KERN_DEBUG "ICMPv6 hw checksum failed\n");
- 			skb->ip_summed = CHECKSUM_NONE;
- 		}
- 	}
- 	if (skb->ip_summed == CHECKSUM_NONE) {
- 		if (csum_ipv6_magic(saddr, daddr, skb->len, IPPROTO_ICMPV6,
- 				    skb_checksum(skb, 0, skb->len, 0))) {
--			LIMIT_NETDEBUG(
--				printk(KERN_DEBUG "ICMPv6 checksum failed [%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x > %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x]\n",
--				       NIP6(*saddr), NIP6(*daddr)));
-+			LIMIT_NETDEBUG(KERN_DEBUG "ICMPv6 checksum failed [%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x > %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x]\n",
-+				       NIP6(*saddr), NIP6(*daddr));
- 			goto discard_it;
- 		}
- 	}
-@@ -669,8 +664,7 @@ static int icmpv6_rcv(struct sk_buff **p
- 		break;
- 
- 	default:
--		LIMIT_NETDEBUG(
--			printk(KERN_DEBUG "icmpv6: msg of unknown type\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "icmpv6: msg of unknown type\n");
- 
- 		/* informational */
- 		if (type & ICMPV6_INFOMSG_MASK)
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -171,8 +171,7 @@ int ip6_route_me_harder(struct sk_buff *
- 
- 	if (dst->error) {
- 		IP6_INC_STATS(IPSTATS_MIB_OUTNOROUTES);
--		LIMIT_NETDEBUG(
--			printk(KERN_DEBUG "ip6_route_me_harder: No more route.\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "ip6_route_me_harder: No more route.\n");
- 		dst_release(dst);
- 		return -EINVAL;
- 	}
-@@ -667,7 +666,7 @@ slow_path:
- 		 */
- 
- 		if ((frag = alloc_skb(len+hlen+sizeof(struct frag_hdr)+LL_RESERVED_SPACE(rt->u.dst.dev), GFP_ATOMIC)) == NULL) {
--			NETDEBUG(printk(KERN_INFO "IPv6: frag: no memory for new fragment!\n"));
-+			NETDEBUG(KERN_INFO "IPv6: frag: no memory for new fragment!\n");
- 			IP6_INC_STATS(IPSTATS_MIB_FRAGFAILS);
- 			err = -ENOMEM;
- 			goto fail;
-diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -332,8 +332,7 @@ int rawv6_rcv(struct sock *sk, struct sk
- 			if (csum_ipv6_magic(&skb->nh.ipv6h->saddr,
- 					    &skb->nh.ipv6h->daddr,
- 					    skb->len, inet->num, skb->csum)) {
--				LIMIT_NETDEBUG(
--			        printk(KERN_DEBUG "raw v6 hw csum failure.\n"));
-+				LIMIT_NETDEBUG(KERN_DEBUG "raw v6 hw csum failure.\n");
- 				skb->ip_summed = CHECKSUM_NONE;
- 			}
- 		}
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -1552,7 +1552,7 @@ static int tcp_v6_checksum_init(struct s
- 		if (!tcp_v6_check(skb->h.th,skb->len,&skb->nh.ipv6h->saddr,
- 				  &skb->nh.ipv6h->daddr,skb->csum))
- 			return 0;
--		LIMIT_NETDEBUG(printk(KERN_DEBUG "hw tcp v6 csum failed\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "hw tcp v6 csum failed\n");
- 	}
- 	if (skb->len <= 76) {
- 		if (tcp_v6_check(skb->h.th,skb->len,&skb->nh.ipv6h->saddr,
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -477,8 +477,7 @@ static int udpv6_rcv(struct sk_buff **ps
- 		/* RFC 2460 section 8.1 says that we SHOULD log
- 		   this error. Well, it is reasonable.
- 		 */
--		LIMIT_NETDEBUG(
--			printk(KERN_INFO "IPv6: udp checksum is 0\n"));
-+		LIMIT_NETDEBUG(KERN_INFO "IPv6: udp checksum is 0\n");
- 		goto discard;
- 	}
- 
-@@ -493,7 +492,7 @@ static int udpv6_rcv(struct sk_buff **ps
- 	if (skb->ip_summed==CHECKSUM_HW) {
- 		skb->ip_summed = CHECKSUM_UNNECESSARY;
- 		if (csum_ipv6_magic(saddr, daddr, ulen, IPPROTO_UDP, skb->csum)) {
--			LIMIT_NETDEBUG(printk(KERN_DEBUG "udp v6 hw csum failure.\n"));
-+			LIMIT_NETDEBUG(KERN_DEBUG "udp v6 hw csum failure.\n");
- 			skb->ip_summed = CHECKSUM_NONE;
- 		}
- 	}
-@@ -825,7 +824,7 @@ back_from_confirm:
- 		/* ... which is an evident application bug. --ANK */
- 		release_sock(sk);
- 
--		LIMIT_NETDEBUG(printk(KERN_DEBUG "udp cork app bug 2\n"));
-+		LIMIT_NETDEBUG(KERN_DEBUG "udp cork app bug 2\n");
- 		err = -EINVAL;
- 		goto out;
- 	}
-
---------------000305080300080005020801--
+ If you are running v0.1.17 or earlier, you should upgrade to
+ version v0.99.0 or higher. Running old versions may cause problems
+ with programs using shared memory.
+-
+-udev
+-----
+-udev is a userspace application for populating /dev dynamically with
+-only entries for devices actually present. udev replaces devfs.
+-
+-Networking
+-==========
+-
+-General changes
+----------------
+-
+-If you have advanced network configuration needs, you should probably
+-consider using the network tools from ip-route2.
+-
+-Packet Filter / NAT
+--------------------
+-The packet filtering and NAT code uses the same tools like the previous 2.4.x
+-kernel series (iptables).  It still includes backwards-compatibility modules
+-for 2.2.x-style ipchains and 2.0.x-style ipfwadm.
+-
+-PPP
+----
+-
+-The PPP driver has been restructured to support multilink and to
+-enable it to operate over diverse media layers.  If you use PPP,
+-upgrade pppd to at least 2.4.0.
+-
+-If you are not using devfs, you must have the device file /dev/ppp
+-which can be made by:
+-
+-mknod /dev/ppp c 108 0
+-
+-as root.
+-
+-If you use devfsd and build ppp support as modules, you will need
+-the following in your /etc/devfsd.conf file:
+-
+-LOOKUP	PPP	MODLOAD
+-
+-Isdn4k-utils
+-------------
+-
+-Due to changes in the length of the phone number field, isdn4k-utils
+-needs to be recompiled or (preferably) upgraded.
+-
+-NFS-utils
+----------
+-
+-In 2.4 and earlier kernels, the nfs server needed to know about any
+-client that expected to be able to access files via NFS.  This
+-information would be given to the kernel by "mountd" when the client
+-mounted the filesystem, or by "exportfs" at system startup.  exportfs
+-would take information about active clients from /var/lib/nfs/rmtab.
+-
+-This approach is quite fragile as it depends on rmtab being correct
+-which is not always easy, particularly when trying to implement
+-fail-over.  Even when the system is working well, rmtab suffers from
+-getting lots of old entries that never get removed.
+-
+-With 2.6 we have the option of having the kernel tell mountd when it
+-gets a request from an unknown host, and mountd can give appropriate
+-export information to the kernel.  This removes the dependency on
+-rmtab and means that the kernel only needs to know about currently
+-active clients.
+-
+-To enable this new functionality, you need to:
+-
+-  mount -t nfsd nfsd /proc/fs/nfs
+-
+-before running exportfs or mountd.  It is recommended that all NFS
+-services be protected from the internet-at-large by a firewall where
+-that is possible.
+-
+-Getting updated software
+-========================
+-
+-Kernel compilation
+-******************
+-
+-gcc 2.95.3
+-----------
+-o  <ftp://ftp.gnu.org/gnu/gcc/gcc-2.95.3.tar.gz>
+-
+-Make
+-----
+-o  <ftp://ftp.gnu.org/gnu/make/>
+-
+-Binutils
+---------
+-o  <ftp://ftp.kernel.org/pub/linux/devel/binutils/>
+-
+-System utilities
+-****************
+-
+-Util-linux
+-----------
+-o  <ftp://ftp.kernel.org/pub/linux/utils/util-linux/>
+-
+-Ksymoops
+---------
+-o  <ftp://ftp.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4/>
+-
+-Module-Init-Tools
+------------------
+-o  <ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modules/>
+-
+-Mkinitrd
+---------
+-o  <ftp://rawhide.redhat.com/pub/rawhide/SRPMS/SRPMS/>
+-
+-E2fsprogs
+----------
+-o  <http://prdownloads.sourceforge.net/e2fsprogs/e2fsprogs-1.29.tar.gz>
+-
+-JFSutils
+---------
+-o  <http://jfs.sourceforge.net/>
+-
+-Reiserfsprogs
+--------------
+-o  <http://www.namesys.com/pub/reiserfsprogs/reiserfsprogs-3.6.3.tar.gz>
+-
+-Reiser4progs
+-------------
+-o  <ftp://ftp.namesys.com/pub/reiser4progs/>
+-
+-Xfsprogs
+---------
+-o  <ftp://oss.sgi.com/projects/xfs/download/>
+-
+-Pcmciautils
+------------
+-o  <ftp://ftp.kernel.org/pub/linux/utils/kernel/pcmcia/>
+-
+-Pcmcia-cs
+----------
+-o  <http://pcmcia-cs.sourceforge.net/>
+-
+-Quota-tools
+-----------
+-o  <http://sourceforge.net/projects/linuxquota/>
+-
+-DocBook Stylesheets
+--------------------
+-o  <http://nwalsh.com/docbook/dsssl/>
+-
+-XMLTO XSLT Frontend
+--------------------
+-o  <http://cyberelk.net/tim/xmlto/>
+-
+-Intel P6 microcode
+-------------------
+-o  <http://www.urbanmyth.org/microcode/>
+-
+-Powertweak
+-----------
+-o  <http://powertweak.sourceforge.net/>
+-
+-udev
+-----
+-o <http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html>
+-
+-Networking
+-**********
+-
+-PPP
+----
+-o  <ftp://ftp.samba.org/pub/ppp/ppp-2.4.0.tar.gz>
+-
+-Isdn4k-utils
+-------------
+-o  <ftp://ftp.isdn4linux.de/pub/isdn4linux/utils/isdn4k-utils.v3.1pre1.tar.gz>
+-
+-NFS-utils
+----------
+-o  <http://sourceforge.net/project/showfiles.php?group_id=14>
+-
+-Iptables
+---------
+-o  <http://www.iptables.org/downloads.html>
+-
+-Ip-route2
+----------
+-o  <ftp://ftp.tux.org/pub/net/ip-routing/iproute2-2.2.4-now-ss991023.tar.gz>
+-
+-OProfile
+---------
+-o  <http://oprofile.sf.net/download/>
+-
+-NFS-Utils
+----------
+-o  <http://nfs.sourceforge.net/>
+-

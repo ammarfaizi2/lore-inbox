@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVHJUAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbVHJUHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbVHJUAL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 16:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVHJUAK
+	id S1030240AbVHJUHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 16:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbVHJUHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 16:00:10 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:8979 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1030229AbVHJUAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 16:00:09 -0400
-Message-ID: <42FA5DD7.4030901@tmr.com>
-Date: Wed, 10 Aug 2005 16:04:39 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jim MacBaine <jmacbaine@gmail.com>
-CC: ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
-References: <200508031559.24704.kernel@kolivas.org>	<200508040716.24346.kernel@kolivas.org>	<3afbacad050803152226016790@mail.gmail.com>	<200508040852.10224.kernel@kolivas.org>	<3afbacad0508032234f9af1f3@mail.gmail.com> <3afbacad05080323596b39e9eb@mail.gmail.com>
-In-Reply-To: <3afbacad05080323596b39e9eb@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 10 Aug 2005 16:07:09 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:41186 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S1030240AbVHJUHI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 16:07:08 -0400
+Subject: [patch] SH: inotify and ioprio syscalls
+From: Robert Love <rml@novell.com>
+To: Mr Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       The Cutch <ttb@tentacle.dhs.org>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 16:07:09 -0400
+Message-Id: <1123704429.23297.11.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim MacBaine wrote:
-> I just borrowed a power meter to see (or not to see) real effects of
-> dyntick. The difference between static 1000 HZ and dynamic HZ is much
-> less than I expected, only a very little about noise.  With dyntick
-> disabled at 1000 HZ my laptop needs 31,3 W.  With dyntick enabled I
-> get 29.8 W, the pmstats-0.2 script shows me that the system is at
-> 35-45 HZ when it is idle.
-> 
-> The power consumption difference between 250 HZ static and dyntick is
-> below the noise, so maybe hardly worth all the struggle.
+Add inotify and ioprio syscall stubs to SH.
 
-I think it's the other way round, we have the lower power without the 
-higher latency. At least as I can measure...
+	Robert Love
 
-Bravo to all concerned to get this to the testing stage!
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Signed-off-by: Robert Love <rml@novell.com>
+
+ arch/sh/kernel/entry.S  |    5 +++++
+ include/asm-sh/unistd.h |    8 +++++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff -urN linux-2.6.13-rc6-git2/arch/sh/kernel/entry.S linux/arch/sh/kernel/entry.S
+--- linux-2.6.13-rc6-git2/arch/sh/kernel/entry.S	2005-06-17 15:48:29.000000000 -0400
++++ linux/arch/sh/kernel/entry.S	2005-08-10 15:54:44.000000000 -0400
+@@ -1145,5 +1145,10 @@
+ 	.long sys_add_key		/* 285 */
+ 	.long sys_request_key
+ 	.long sys_keyctl
++	.long sys_ioprio_set
++	.long sys_ioprio_get
++	.long sys_inotify_init		/* 290 */
++	.long sys_inotify_add_watch
++	.long sys_inotify_rm_watch
+ 
+ /* End of entry.S */
+diff -urN linux-2.6.13-rc6-git2/include/asm-sh/unistd.h linux/include/asm-sh/unistd.h
+--- linux-2.6.13-rc6-git2/include/asm-sh/unistd.h	2005-06-17 15:48:29.000000000 -0400
++++ linux/include/asm-sh/unistd.h	2005-08-10 15:55:41.000000000 -0400
+@@ -295,8 +295,14 @@
+ #define __NR_add_key		285
+ #define __NR_request_key	286
+ #define __NR_keyctl		287
++#define __NR_ioprio_set		288
++#define __NR_ioprio_get		289
++#define __NR_inotify_init	290
++#define __NR_inotify_add_watch	291
++#define __NR_inotify_rm_watch	292
+ 
+-#define NR_syscalls 288
++
++#define NR_syscalls 293
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-sh/errno.h> */
+ 
+
+
+
+

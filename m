@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965248AbVHJSW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965249AbVHJS2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965248AbVHJSW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 14:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965249AbVHJSW7
+	id S965249AbVHJS2o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 14:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbVHJS2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 14:22:59 -0400
-Received: from rgminet03.oracle.com ([148.87.122.32]:57748 "EHLO
-	rgminet03.oracle.com") by vger.kernel.org with ESMTP
-	id S965248AbVHJSW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 14:22:58 -0400
-Date: Wed, 10 Aug 2005 11:21:56 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Pekka J Enberg <penberg@cs.helsinki.fi>
-Cc: Christoph Hellwig <hch@infradead.org>, Zach Brown <zab@zabbo.net>,
-       David Teigland <teigland@redhat.com>, Pekka Enberg <penberg@gmail.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: GFS
-Message-ID: <20050810182155.GI21228@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20050802071828.GA11217@redhat.com> <84144f0205080203163cab015c@mail.gmail.com> <20050803063644.GD9812@redhat.com> <courier.42F768D5.000046F2@courier.cs.helsinki.fi> <42F7A557.3000200@zabbo.net> <1123598983.10790.1.camel@haji.ri.fi> <20050810072121.GA2825@infradead.org> <courier.42F9AD38.000018F9@courier.cs.helsinki.fi> <20050810162618.GH21228@ca-server1.us.oracle.com> <courier.42FA3207.00002648@courier.cs.helsinki.fi>
+	Wed, 10 Aug 2005 14:28:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52352 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965249AbVHJS2n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 14:28:43 -0400
+Date: Wed, 10 Aug 2005 11:27:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] remove name length check in a workqueue
+Message-Id: <20050810112710.47388a55.akpm@osdl.org>
+In-Reply-To: <1123696466.5134.23.camel@mulgrave>
+References: <1123683544.5093.4.camel@mulgrave>
+	<Pine.LNX.4.58.0508101044110.31617@devserv.devel.redhat.com>
+	<20050810100523.0075d4e8.akpm@osdl.org>
+	<1123694672.5134.11.camel@mulgrave>
+	<20050810103733.42170f27.akpm@osdl.org>
+	<1123696466.5134.23.camel@mulgrave>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <courier.42FA3207.00002648@courier.cs.helsinki.fi>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 10, 2005 at 07:57:43PM +0300, Pekka J Enberg wrote:
-> Surely avoiding them is preferred but how do you do that when you have to 
-> mmap'd regions where userspace does memcpy()? The kernel won't much saying 
-> in it until ->nopage. We cannot grab all the required locks in proper order 
-> here because we don't know what size the buffer is. That's why I think lock 
-> sorting won't work of all the cases and thus the problem needs to be taken 
-> care of by the dlm. 
-Hmm, well today in OCFS2 if you're not coming from read or write, the lock
-is held only for the duration of ->nopage so I don't think we could get into
-any deadlocks for that usage.
-	--Mark
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
+>
+> On Wed, 2005-08-10 at 10:37 -0700, Andrew Morton wrote:
+> > > and anyway, it doesn't have to be unique;
+> > > set_task_comm just does a strlcpy from the name, so it will be truncated
+> > > (same as for a binary with > 15 character name).
+> > 
+> > Yup.  But it'd be fairly silly to go adding the /%d, only to have it
+> > truncated off again.
+> 
+> Well, but the other alternative is that we hit arbitrary BUG_ON() limits
+> in systems that create numbered workqueues which is rather contrary to
+> our scaleability objectives, isn't it?
 
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+Another alternative is to stop passing in such long strings ;)
+
+> > What's the actual problem?
+> 
+> What I posted originally; the current SCSI format for a workqueue:
+> scsi_wq_%d hits the bug after the host number rises to 100, which has
+> been seen by some enterprise person with > 100 HBAs.
+> 
+> The reason for this name is that the error handler thread is called
+> scsi_eh_%d; so we could rename all our threads to avoid this, but one
+> day someone will come along with a huge enough machine to hit whatever
+> limit we squeeze it down to.
+
+OK, well scsi is using single-threaded workqueues anyway.  So we could do:
+
+	if (singlethread)
+		BUG_ON(strlen(name) > sizeof(task_struct.comm) - 1);
+	else
+		BUG_ON(strlen(name) > sizeof(task_struct.comm) - 1 - 4);
+
+which gets you 10,000,000 HBAs.   Enough?
+
+Ho hum, OK, let's just kill the BUG_ON.

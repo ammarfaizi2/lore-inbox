@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbVHJNeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbVHJNej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965110AbVHJNeX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 09:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbVHJNeX
+	id S965113AbVHJNej (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 09:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbVHJNej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 09:34:23 -0400
-Received: from smtp.istop.com ([66.11.167.126]:9637 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S965110AbVHJNeW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 09:34:22 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-Date: Wed, 10 Aug 2005 23:34:42 +1000
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, hugh@veritas.com
-References: <20050808145430.15394c3c.akpm@osdl.org> <200508090724.30962.phillips@arcor.de> <31567.1123679613@warthog.cambridge.redhat.com>
-In-Reply-To: <31567.1123679613@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Aug 2005 09:34:39 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:51460 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S965111AbVHJNeh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 09:34:37 -0400
+Date: Wed, 10 Aug 2005 09:28:05 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] consolidate sys_ptrace
+Message-ID: <20050810132805.GA3821@ccure.user-mode-linux.org>
+References: <20050810080057.GA5295@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508102334.43662.phillips@arcor.de>
+In-Reply-To: <20050810080057.GA5295@lst.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 August 2005 23:13, David Howells wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> > > ...kill PG_checked please :)  Or at least keep it from spreading.
-> >
-> > It already spread - ext3 is using it and I think reiser4.  I thought I
-> > had a patch to rename it to PG_misc1 or somesuch, but no.  It's mandate
-> > becomes "filesystem-specific page flag".
->
-> You're carrying a patch to stick a flag called PG_fs_misc, but that has the
-> same value as PG_checked. An extra page flag beyond PG_uptodate, PG_lock
-> and PG_writeback is required to make readpage through the cache
-> non-synchronous.
+On Wed, Aug 10, 2005 at 10:00:57AM +0200, Christoph Hellwig wrote:
+> The sys_ptrace boilerplate code (everything outside the big switch
+> statement for the arch-specific requests) is shared by most
+> architectures.  This patch moves it to kernel/ptrace.c and leaves the
+> arch-specific code as arch_ptrace.
 
-David,
+OK for UML.
 
-Interesting, have you got a pointer to a full explanation?  Is this about aio?
-
-Regards,
-
-Daniel
+		Jeff

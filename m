@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbVHJLwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbVHJMMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965077AbVHJLwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 07:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbVHJLwJ
+	id S965079AbVHJMMz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 08:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbVHJMMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 07:52:09 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:49358 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S965077AbVHJLwI (ORCPT
+	Wed, 10 Aug 2005 08:12:55 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:12996 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S965079AbVHJMMy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 07:52:08 -0400
-Date: Wed, 10 Aug 2005 13:52:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Andrew Burgess <aab@cichlid.com>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: Real-Time Preemption 2.6.13-rc5-RT-V0.7.52-16
-Message-ID: <20050810115214.GA26108@elte.hu>
-References: <200508092158.j79LwlmM010246@cichlid.com> <1123633588.13135.27.camel@dhcp153.mvista.com>
+	Wed, 10 Aug 2005 08:12:54 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: davem@davemloft.net
+Subject: [patch 2.6.13-rc6] Export pcibios_bus_to_resource on ia64 and sparc64
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123633588.13135.27.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Date: Wed, 10 Aug 2005 22:12:33 +1000
+Message-ID: <6578.1123675953@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+IA64 gets *** Warning: "pcibios_bus_to_resource"
+[drivers/pcmcia/yenta_socket.ko] undefined!.  Trivial fix, export
+pcibios_bus_to_resource.  Also export it on sparc64, which is the only
+other architecture that defines pcibios_bus_to_resource but does not
+export it.
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+Signed-off-by: Keith Owens <kaos@sgi.com>
 
-> This may fix the warning , but I doubt it does anything for any hangs..
-> 
-> --- linux-2.6.12.orig/drivers/usb/core/hcd.c    2005-08-09 22:41:18.000000000 +0000
-> +++ linux-2.6.12/drivers/usb/core/hcd.c 2005-08-10 00:23:16.000000000 +0000
-> @@ -540,8 +540,7 @@ void usb_hcd_poll_rh_status(struct usb_h
->         if (length > 0) {
-> 
->                 /* try to complete the status urb */
-> -               local_irq_save (flags);
-> -               spin_lock(&hcd_root_hub_lock);
-> +               spin_lock_irqsave(&hcd_root_hub_lock, flags);
->                 urb = hcd->status_urb;
->                 if (urb) {
->                         spin_lock(&urb->lock);
+Index: linux/arch/ia64/pci/pci.c
+===================================================================
+--- linux.orig/arch/ia64/pci/pci.c	2005-08-08 21:57:47.415210784 +1000
++++ linux/arch/ia64/pci/pci.c	2005-08-10 22:08:01.218842356 +1000
+@@ -380,6 +380,7 @@ void pcibios_bus_to_resource(struct pci_
+ 	res->start = region->start + offset;
+ 	res->end = region->end + offset;
+ }
++EXPORT_SYMBOL(pcibios_bus_to_resource);
+ 
+ static int __devinit is_valid_resource(struct pci_dev *dev, int idx)
+ {
+Index: linux/arch/sparc64/kernel/pci.c
+===================================================================
+--- linux.orig/arch/sparc64/kernel/pci.c	2005-08-10 13:57:47.295579310 +1000
++++ linux/arch/sparc64/kernel/pci.c	2005-08-10 22:09:23.573376709 +1000
+@@ -540,6 +540,7 @@ void pcibios_bus_to_resource(struct pci_
+ 
+ 	pbm->parent->resource_adjust(pdev, res, root);
+ }
++EXPORT_SYMBOL(pcibios_bus_to_resource);
+ 
+ char * __init pcibios_setup(char *str)
+ {
 
-what -RT tree is this against? This change is already in the -16 tree.
-
-	Ingo

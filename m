@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVHJWkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbVHJWgU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932582AbVHJWkM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 18:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVHJWkM
+	id S932580AbVHJWgU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 18:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbVHJWgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 18:40:12 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:61181 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932582AbVHJWkL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 18:40:11 -0400
-Message-ID: <42FA81B9.9020801@mvista.com>
-Date: Wed, 10 Aug 2005 15:37:45 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Con Kolivas <kernel@kolivas.org>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
-       tuukka.tikkanen@elektrobit.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
-References: <200508031559.24704.kernel@kolivas.org> <200508060239.41646.kernel@kolivas.org> <20050806174739.GU4029@stusta.de> <200508071512.22668.kernel@kolivas.org> <20050807165833.GA13918@in.ibm.com> <42F905DA.4070308@mvista.com> <20050810140528.GA20893@in.ibm.com>
-In-Reply-To: <20050810140528.GA20893@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Aug 2005 18:36:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50383 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932580AbVHJWgT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 18:36:19 -0400
+Date: Wed, 10 Aug 2005 15:35:53 -0700
+From: Greg KH <greg@kroah.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Keith Owens <kaos@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc4 use after free in class_device_attr_show
+Message-ID: <20050810223552.GB6045@kroah.com>
+References: <20050802080422.GA32556@in.ibm.com> <15242.1123655211@kao2.melbourne.sgi.com> <20050810100636.GB5334@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050810100636.GB5334@in.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> On Tue, Aug 09, 2005 at 12:36:58PM -0700, George Anzinger wrote:
+On Wed, Aug 10, 2005 at 03:36:36PM +0530, Maneesh Soni wrote:
+> On Wed, Aug 10, 2005 at 04:26:51PM +1000, Keith Owens wrote:
+> > FYI, the intermittent free after use in sysfs is still there in
+> > 2.6.13-rc6.
+> > 
 > 
->>IMNOHO, this is the ONLY way to keep proper time.  As soon as you 
->>reprogram the PIT you have lost track of the time.
+> The race condition is known here. It is some thing in the upper layer. 
+> In this case "driver/base/class.c" which frees the kobject's attributes 
+> even if there are live references to kobject.
 > 
 > 
-> George,
-> 	Can't TSC (or equivalent) serve as a backup while PIT is disabled,
-> especially considering that we disable PIT only for short duration 
-> in practice (few seconds maybe) _and_ that we don't have HRT support yet?
+> open sysfs file				unregister class device
+> sysfs_open_file()			class_device_del()
+>   -> takes a ref on kobject		  -> kfree attribute struct
+>      -> accesses attributes		  -> kobject_del()
+> 					      -> kref_put()	
+> close sysfs file				  
+> sysfs_release()				    
+>   -> acesses attributes using s_element
+>   -> drops ref to kobject
 > 
-I think it really depends on what you want.  If you really want to keep 
-good time, the only rock in town is the one connected to the PIT (and 
-the pmtimer).  The problem is, if you want the jiffie edge to be stable, 
-there is just now way to reprogram the PIT to get it back to where it was.
+> Solution could be either we have reference counting for attributes also
+> or keep attributes alive till the last reference to the kobject. Both these
+> needs changes in the driver core.
+> 
+> Greg, will the following patch make sense? This postpones the kfree() of
+> devt_attr till class_dev_release() is called. 
 
-In an old version of HRT I did a trick of loading a short count (based 
-on reading the TSC or pmtimer) and then put the LATCH count on top of 
-it.  In a correctly performing PIT, it should count down the short 
-count, interrupt, load the long count and continue from there.  Aside 
-from the machines that had BAD PITs (they reset on the load instead of 
-the expiry of the current count) there were other problems that, in the 
-end, cause loss of time (too fast, too slow, take your pick).  I also 
-found PITs that signaled that they had loaded the count (they set a 
-status bit) prior to actually loading it.  All in all, I find the PIT is 
-just an ugly beast to try to program.  On the other hand, if you want 
-regular interrupts at some fixed period, it will do this forever (give 
-or take a epoch or two;) with out touching anything after the initial 
-program set up.
+Yes, that patch looks good, if you fix up the space vs. tabs issue :)
 
-In the end, I concluded that, for the community kernel, it is really 
-best to just interrupt the irq line and leave the PIT run.  Then you use 
-the TSC or pmtimer to figure the gross loss of interrupts and leave the 
-PIT interrupt again to define the jiffie edge.  If you have other, more 
-pressing, concerns I suppose you can program the PIT, but don't expect 
-your wall clock to be as stable as it is now.
+But will that really fix this race?  I was under the impression the oops
+didn't come from trying to access the devt_attr, but the sysfs s_element
+pointer?
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+> Please check this patch out, if this helps or not.
+
+I'd be interested in seeing if this fixes it.
+
+thanks,
+
+greg k-h

@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965195AbVHJQ2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965197AbVHJQdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965195AbVHJQ2v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 12:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965193AbVHJQ2v
+	id S965197AbVHJQdK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 12:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965198AbVHJQdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 12:28:51 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:532 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965195AbVHJQ2u convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 12:28:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ed7IPv4dUc1pSnKFm6iB9rHDm1NNrGfR0yYJGCG+lyEyB+5Wf5NSHWL8PWLB9djox5bCprxaCh/t+pJNIpc7xQNGnLAGkAAf9SYSmwOg9YJ0mP5dMBQGiFSBUEXvR9NmEwirPxSIIF3f/wh43Zc8xpCvXTdXHerGFYx38Y64xlo=
-Message-ID: <9e473391050810092835b3ef27@mail.gmail.com>
-Date: Wed, 10 Aug 2005 12:28:49 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Dave Airlie <airlied@linux.ie>
-Subject: Reusing the slab allocator
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 10 Aug 2005 12:33:10 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:21915 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S965197AbVHJQdJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 12:33:09 -0400
+Date: Wed, 10 Aug 2005 17:32:48 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to reclaim inode pages on demand
+In-Reply-To: <20050808160844.04d1f7ac.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0508101730441.11984@skynet>
+References: <Pine.LNX.4.58.0508081650160.26013@skynet> <20050808160844.04d1f7ac.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We need a memory manager for the VRAM on video cards. The most common
-video cards have been 2MB and 512MB memory. Is it possible to reuse
-the kernel slab allocator for managing this memory?
+On Mon, 8 Aug 2005, Andrew Morton wrote:
 
-There are a couple of other odd constraints.
-1) Some objects need to be allocated on boundaries, like 64B or even
-1KB divisible addresses.
-2) It would be best if the allocation bookkeeping data structures were
-kept in system RAM. It may not be simple to access VRAM for read/write
-of bookkeeping info. VRAM  can require slow PCI cycles or need high
-mem mappings to access.
+> Mel Gorman <mel@csn.ul.ie> wrote:
+> >
+> > Hi,
+> >
+> > I am working on a direct reclaim strategy to free up large blocks of
+> > contiguous pages. The part I have is working fine, but I am finding a
+> > hundreds of pages that are being used for inodes that I need to reclaim. I
+> > tried purging the inode lists using a variation of prune_icache() but it
+> > is not working out.
+> >
+> > Given a struct page, that one knows is an inode, can anyone suggest the
+> > best way to find the inode using it and free it?
+>
+> Simple answer: invalidate_mapping_pages(page->mapping, start, end).
+>
 
-If possible I'd rather reuse an existing manager than write a new one.
+The majority of pages I am seeing no longer have page->mapping set. Does
+this mean they are in the process of being cleared up?
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> Problem: races.  If you pick a random page up off the LRU and start playing
+> with its mapping, what stops that mapping from getting freed under your
+> feet?
+>
+
+Nothing at all, which explains why I occasionally got oops when I was
+trying to free pages with the mapping set. I am going to follow your
+suggestions and see how I get on.
+
+If it is still not working out, I will try reclaiming when the workload is
+something other than a large number of kernel compiles to see if I am on
+the right track at all.
+
+Thanks a lot

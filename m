@@ -1,36 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbVHJP7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbVHJQU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965170AbVHJP7s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 11:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965172AbVHJP7s
+	id S965181AbVHJQU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 12:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVHJQU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 11:59:48 -0400
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:5570 "HELO
-	briare1.heliogroup.fr") by vger.kernel.org with SMTP
-	id S965170AbVHJP7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 11:59:48 -0400
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: linux-kernel@vger.kernel.org
-Subject: kernel.org git web interface
-Date: Wed, 10 Aug 2005 15:59:02 GMT
-Message-ID: <05BEHQE11@briare1.heliogroup.fr>
-X-Mailer: Pliant 93
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 10 Aug 2005 12:20:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49086 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965181AbVHJQU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 12:20:56 -0400
+Date: Wed, 10 Aug 2005 09:20:10 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Cc: Chris Wright <chrisw@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+Subject: Re: Signal handling possibly wrong
+Message-ID: <20050810162010.GD7762@shell0.pdx.osdl.net>
+References: <42F8F6CC.7090709@fujitsu-siemens.com> <1123612789.3167.9.camel@localhost.localdomain> <42F8F98B.3080908@fujitsu-siemens.com> <1123614253.3167.18.camel@localhost.localdomain> <1123615983.18332.194.camel@localhost.localdomain> <42F906EB.6060106@fujitsu-siemens.com> <1123617812.18332.199.camel@localhost.localdomain> <1123618745.18332.204.camel@localhost.localdomain> <20050809204928.GH7991@shell0.pdx.osdl.net> <42F9C4DB.8010001@fujitsu-siemens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42F9C4DB.8010001@fujitsu-siemens.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 'V' column on http://www.kernel.org/ is very convienient to review what
-has changed in a new kernel (files list, then simple clic diff access to the
-selected file).
+* Bodo Stroesser (bstroesser@fujitsu-siemens.com) wrote:
+> BTW: would you please call me Bodo? :-)
 
-Now, the git changelog is also interesting (provides overall explaination),
-but it's harder to use because the changes stream is so dense.
-
-So, what would be helpfull for reviewers is the ability to view the git
-changelog of only the changes that touch a given file.
-I mean when we select the 'V' column, have two links per modified file,
-one displaying the diff has it currently does, and the other displaying
-the git changes as 'C' column does, but filtered with only changes that
-touch the selected file.
-
+Oops, I can't read!  Sorry.
+-chris

@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbVHJWCX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVHJWIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbVHJWCX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 18:02:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVHJWCX
+	id S932378AbVHJWIs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 18:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbVHJWIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 18:02:23 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:40178 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932331AbVHJWCW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 18:02:22 -0400
-Message-ID: <42FA796A.4080205@mvista.com>
-Date: Wed, 10 Aug 2005 15:02:18 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 1.0+ (X11/20050531)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
-       cpufreq@lists.linux.org.uk
-Subject: Re: PowerOP 0/3: System power operating point management API
-References: <20050809024907.GA25064@slurryseal.ddns.mvista.com> <20050810100718.GC1945@elf.ucw.cz>
-In-Reply-To: <20050810100718.GC1945@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Aug 2005 18:08:48 -0400
+Received: from rgminet03.oracle.com ([148.87.122.32]:18325 "EHLO
+	rgminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S932378AbVHJWIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 18:08:47 -0400
+Date: Wed, 10 Aug 2005 15:07:44 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+Cc: Christoph Hellwig <hch@infradead.org>, Zach Brown <zab@zabbo.net>,
+       David Teigland <teigland@redhat.com>, Pekka Enberg <penberg@gmail.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: GFS
+Message-ID: <20050810220744.GJ21228@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20050803063644.GD9812@redhat.com> <courier.42F768D5.000046F2@courier.cs.helsinki.fi> <42F7A557.3000200@zabbo.net> <1123598983.10790.1.camel@haji.ri.fi> <20050810072121.GA2825@infradead.org> <courier.42F9AD38.000018F9@courier.cs.helsinki.fi> <20050810162618.GH21228@ca-server1.us.oracle.com> <courier.42FA3207.00002648@courier.cs.helsinki.fi> <20050810182155.GI21228@ca-server1.us.oracle.com> <courier.42FA6128.000009AE@courier.cs.helsinki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <courier.42FA6128.000009AE@courier.cs.helsinki.fi>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->>Depending on the ability of the hardware to make software-controlled
->>power/performance adjustments, this may be useful to select custom
->>voltages, bus speeds, etc. in desktop/server systems.  Various embedded
->>systems have several parameters that can be set.  For example, an XScale
->>PXA27x could be considered to have six basic power parameters (mainly
->>cpu run mode and memory and bus dividers) that for the most part
->>should
-> 
-> 
-> This scares me a bit. Is table enough to handle this? I'm afraid that
-> table will get very large on systems that allow you to do "almost
-> anything".
+On Wed, Aug 10, 2005 at 11:18:48PM +0300, Pekka J Enberg wrote:
+> Aah, I see GFS2 does that too so no deadlocks here. Thanks.
+Yep, no problem :)
 
-Exhaustive tables for all combinations of possible parameters aren't 
-expected (or practical for many systems as you note).  In practice, a 
-subset of these possible operating points are created and activated over 
-the lifetime of the system, where the subset is chosen by a system 
-designer according to the needs of the particular system.  It's a matter 
-for the higher-layer power management software to decide whether to have 
-in-kernel tables of the possible operating points (as cpufreq does for 
-various platforms) or whether to require userspace to create only the 
-ones wanted (as does DPM).  There are cpufreq patches for PXA27x 
-somewhere, for example, and in that case a subset of the supported 
-operating points (and there are still only about 16 of those even for 
-such a complicated piece of hardware) are represented in the kernel 
-tables, choosing one of the possible combinations of memory/bus/etc. 
-parameters for each unique cpu frequency.  Thanks,
+> You, however, don't maintain the same level of data consistency when reads
+> and writes are from other filesystems as they use ->nopage.
+I'm not sure what you mean here...
 
--- 
-Todd
+> Fixing this requires a generic vma walk in every write() and read(), no?
+> That doesn't seem such an hot idea which brings us back to using ->nopage
+> for taking the locks (but now the deadlocks are back). 
+Yeah if you look through mmap.c in ocfs2_fill_ctxt_from_buf() we do this...
+Or am I misunderstanding what you mean?
+	--Mark
+
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbVHJXmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbVHJXqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932609AbVHJXmx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 19:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbVHJXmx
+	id S932610AbVHJXqT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 19:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbVHJXqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 19:42:53 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25864 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932609AbVHJXmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 19:42:52 -0400
-Date: Thu, 11 Aug 2005 01:42:46 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Hugh Dickins <hugh@veritas.com>,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS
-Message-ID: <20050810234246.GT4006@stusta.de>
-References: <42F57FCA.9040805@yahoo.com.au> <20050808145430.15394c3c.akpm@osdl.org> <200508110812.59986.phillips@arcor.de> <200508110823.53593.phillips@arcor.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508110823.53593.phillips@arcor.de>
-User-Agent: Mutt/1.5.9i
+	Wed, 10 Aug 2005 19:46:19 -0400
+Received: from graphe.net ([209.204.138.32]:35241 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S932610AbVHJXqT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 19:46:19 -0400
+Date: Wed, 10 Aug 2005 16:46:16 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       kiran@scalex86.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: [PATCH] ide-disk oopses on boot
+In-Reply-To: <1123686298.28913.5.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0508101645460.24056@graphe.net>
+References: <20050809132725.GA20397@vana.vc.cvut.cz> 
+ <Pine.LNX.4.62.0508090926150.12719@graphe.net>  <42F92A1F.9040901@vc.cvut.cz>
+  <Pine.LNX.4.62.0508091953270.30717@graphe.net> <1123686298.28913.5.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 08:23:53AM +1000, Daniel Phillips wrote:
-> Note: I have not fully audited the NFS-related colliding use of page flags bit 
-> 8, to verify that it really does not escape into VFS or MM from NFS, in fact 
-> I have misgivings about end_page_fs_misc which uses this flag but has no 
-> in-tree users to show how it is used and, hmm, isn't even _GPL.  What is up?
+On Wed, 10 Aug 2005, Alan Cox wrote:
+
+> On Maw, 2005-08-09 at 19:59 -0700, Christoph Lameter wrote:
+> > Yes you are right there is one additional place where pcibus_to_node is 
+> > used with the hwif that we did not cover. This better go into 2.6.13.
 > 
-> And note the wrongness tacked onto the end of page-flags.h.  I didn't do it!
+> drive->hwif is not permitted to be NULL. Please work back and fix the
+> actual bug.
 
-This is provide-a-filesystem-specific-syncable-page-bit.patch, and it's 
-only in -mm.
-
-Since this was done only for CacheFS, and Andrew dropped CacheFS from 
--mm he could drop this patch as well.
-
-> Regards,
-> 
-> Daniel
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+The actual bug was fixed. The description was wrong. We are not checking 
+hwif but hwif->pci_dev.
+ 

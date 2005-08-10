@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965245AbVHJSLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965252AbVHJSSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965245AbVHJSLq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 14:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbVHJSLq
+	id S965252AbVHJSSr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 14:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbVHJSSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 14:11:46 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:58038 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965245AbVHJSLp (ORCPT
+	Wed, 10 Aug 2005 14:18:47 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:929 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965240AbVHJSSr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 14:11:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding:from;
-        b=QX9Da6EoI1CHI9Ez9QPgzmGrlmpB56HlC7Bk+lsqmL9tSKzudYJC8G27tXYsp72MGQ6Q09a6VaP5Qq5kau7n+LV43Zp7sK2TVi7paP7O0+yigmsCKLYKoNaOlV3r4LpC61d0JyEywWxoEcqwmark8gGUN12UMJ5iER1tRnUXHfI=
-Message-ID: <42FA4355.7010004@gmail.com>
-Date: Wed, 10 Aug 2005 20:11:33 +0200
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
-X-Accept-Language: de-DE, de, en-us, en
+	Wed, 10 Aug 2005 14:18:47 -0400
+Message-ID: <42FA4502.8000807@pobox.com>
+Date: Wed, 10 Aug 2005 14:18:42 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: NCQ support NVidia NForce4 (CK804) SATAII
+To: Michael Thonke <iogl64nx@gmail.com>
+CC: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
+References: <42FA4355.7010004@gmail.com>
+In-Reply-To: <42FA4355.7010004@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Michael Thonke <iogl64nx@gmail.com>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jeff,
+Michael Thonke wrote:
+> Hello Jeff,
+> 
+> I would like to ask what the plans/timeplan to implement NCQ support for 
+> NVidia NForce4(CK804) SATAII based chipsets? Fact is that is it possible 
+> to use NCQ with NForce4 SATAII on Windows system, I wonder why it isn't 
+> support by libata? Is there something in your git-tree? Or what are the 
+> reasons/problems behind that libata is missing NCQ support for (CK804) 
+> SATAII?
 
-I would like to ask what the plans/timeplan to implement NCQ support for 
-NVidia NForce4(CK804) SATAII based chipsets? Fact is that is it possible 
-to use NCQ with NForce4 SATAII on Windows system, I wonder why it isn't 
-support by libata? Is there something in your git-tree? Or what are the 
-reasons/problems behind that libata is missing NCQ support for (CK804) 
-SATAII?
+Ask NVIDIA.  They are the only company that gives me -zero- information 
+on their SATA controllers.
 
+As such, there are -zero- plans for NCQ on NVIDIA controllers at this time.
 
-Greets and
-Best regards
-
--- 
-Michael Thonke
-IT-Systemintegrator /
-System- and Softwareanalyist
+	Jeff
 
 
 

@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbVHJNNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965094AbVHJNOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965084AbVHJNNF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 09:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbVHJNNF
+	id S965094AbVHJNOo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 09:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbVHJNOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 09:13:05 -0400
-Received: from nproxy.gmail.com ([64.233.182.196]:41144 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965084AbVHJNNE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 09:13:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cLsVFjn1f6zT+L1Vmzbyw7Pqd5a9A69kJGBG5Ep06Qywixk1lv6+YZB1QMugvlqzndjEi8NvPa9OYcBJdz210lj1Um2MgfbdQns/sWPEhtw59hN5rEJonNEu/NXt0nwUrYoxTOWjDeIFYEdMDk26YFurO4aJJySBLk02TmcdhY8=
-Message-ID: <58cb370e050810061342fcd09a@mail.gmail.com>
-Date: Wed, 10 Aug 2005 15:13:03 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [PATCH] Fix ide-disk.c oops caused by hwif == NULL
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linus Torvalds <torvalds@osdl.org>, kiran@scalex86.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0508100604020.12126@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200508100459.j7A4xTn7016128@hera.kernel.org>
-	 <Pine.LNX.4.62.0508101310300.18940@numbat.sonytel.be>
-	 <Pine.LNX.4.62.0508100604020.12126@schroedinger.engr.sgi.com>
+	Wed, 10 Aug 2005 09:14:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55000 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965094AbVHJNOo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 09:14:44 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20050808145430.15394c3c.akpm@osdl.org> 
+References: <20050808145430.15394c3c.akpm@osdl.org>  <42F57FCA.9040805@yahoo.com.au> <200508090710.00637.phillips@arcor.de> <200508090724.30962.phillips@arcor.de> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: Daniel Phillips <phillips@arcor.de>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, hugh@veritas.com,
+       torvalds@osdl.org, andrea@suse.de, benh@kernel.crashing.org
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
+Date: Wed, 10 Aug 2005 14:13:33 +0100
+Message-ID: <31567.1123679613@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NAK
+Andrew Morton <akpm@osdl.org> wrote:
 
-hwif can't be NULL or something is *really* wrong
+> > ...kill PG_checked please :)  Or at least keep it from spreading.
+> > 
+> 
+> It already spread - ext3 is using it and I think reiser4.  I thought I had
+> a patch to rename it to PG_misc1 or somesuch, but no.  It's mandate becomes
+> "filesystem-specific page flag".
 
-On 8/10/05, Christoph Lameter <clameter@engr.sgi.com> wrote:
-> On Wed, 10 Aug 2005, Geert Uytterhoeven wrote:
-> 
-> > On Tue, 9 Aug 2005, Linux Kernel Mailing List wrote:
-> > > tree 518f62158f0923573decb8f072ac7282fb7575cb
-> > > parent aeb3f76350e78aba90653b563de6677b442d21d6
-> > > author Christoph Lameter <christoph@lameter.com> Wed, 10 Aug 2005 09:59:21 -0700
-> > > committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 10 Aug 2005 10:21:31 -0700
-> > >
-> > > [PATCH] Fix ide-disk.c oops caused by hwif == NULL
-> >
-> > How can this patch fix that? It still dereferences hwif without checking for a
-> > NULL pointer.
-> 
-> Correct. So we need to indeed go back to a version that does check for
-> NULL that I initially proposed.
-> 
-> Index: linux-2.6/include/linux/ide.h
-> ===================================================================
-> --- linux-2.6.orig/include/linux/ide.h  2005-08-09 19:47:14.000000000 -0700
-> +++ linux-2.6/include/linux/ide.h       2005-08-10 06:05:44.000000000 -0700
-> @@ -1503,7 +1503,7 @@
-> 
->  static inline int hwif_to_node(ide_hwif_t *hwif)
->  {
-> -       if (hwif->pci_dev)
-> +       if (hwif && hwif->pci_dev)
->                 return pcibus_to_node(hwif->pci_dev->bus);
->         else
->                 /* Add ways to determine the node of other busses here */
+You're carrying a patch to stick a flag called PG_fs_misc, but that has the
+same value as PG_checked. An extra page flag beyond PG_uptodate, PG_lock and
+PG_writeback is required to make readpage through the cache non-synchronous.
+
+David

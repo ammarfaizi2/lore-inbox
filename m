@@ -1,58 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbVHKJvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbVHKJyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbVHKJvE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 05:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVHKJvE
+	id S964839AbVHKJyf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 05:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVHKJyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 05:51:04 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:56996 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932351AbVHKJvD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 05:51:03 -0400
-Date: Thu, 11 Aug 2005 11:54:24 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Philipp Matthias Hahn <pmhahn@titan.lahn.de>, linux-kernel@vger.kernel.org,
-       linux-dvb-maintainer@linuxtv.org
-Message-ID: <20050811095424.GA29476@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
-	linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org> <20050811064217.GB21395@titan.lahn.de>
+	Thu, 11 Aug 2005 05:54:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:62828 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932337AbVHKJye (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 05:54:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=q0ZR3kWat8fAW376RcP271Yr/FYMfOtLDhHBRZ1d4ovSQcj9LwCSpg6PVCulxuyEVVoxZvC++Uk+1gQ8Hyyly9EVZYmr0ZZ30UDO1/t1ONCUYA7xS7xQJuoCrbuiRKmbo6/wrGHa1daXLx/XXN1rWaC4dMuSxt3odq0NCiEY+a0=
+Message-ID: <bc57270905081102545e9555c1@mail.gmail.com>
+Date: Thu, 11 Aug 2005 17:54:33 +0800
+From: Michael <mikore.li@gmail.com>
+To: linux clustering <linux-cluster@redhat.com>
+Subject: Re: [Linux-cluster] GFS - updated patches
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050811081729.GB12438@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050811064217.GB21395@titan.lahn.de>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: 84.189.234.60
-Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_1603_4457653.1123754073860"
+References: <20050802071828.GA11217@redhat.com>
+	 <20050811081729.GB12438@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 Philipp Matthias Hahn wrote:
-> PS: MAINTAINTER lists http://linuxtv.org/developer/dvb.xml which is
-> dead.
+------=_Part_1603_4457653.1123754073860
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Thanks for reporting.
+Hi, Dave,
 
----
-Fix DVB URL.
+I quickly applied gfs2 and dlm patches in kernel 2.6.12.2, it passed
+compiling but has some warning log, see attachment. maybe helpful to
+you.
 
-Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
+Thanks,
 
-Index: linux-2.6.13-rc6/MAINTAINERS
-===================================================================
---- linux-2.6.13-rc6.orig/MAINTAINERS	2005-08-11 11:20:49.000000000 +0200
-+++ linux-2.6.13-rc6/MAINTAINERS	2005-08-11 11:23:18.000000000 +0200
-@@ -784,7 +784,7 @@ DVB SUBSYSTEM AND DRIVERS
- P:	LinuxTV.org Project
- M: 	linux-dvb-maintainer@linuxtv.org
- L: 	linux-dvb@linuxtv.org (subscription required)
--W:	http://linuxtv.org/developer/dvb.xml
-+W:	http://linuxtv.org/
- S:	Supported
- 
- EATA-DMA SCSI DRIVER
+Michael
+
+On 8/11/05, David Teigland <teigland@redhat.com> wrote:
+> Thanks for all the review and comments.  This is a new set of patches tha=
+t
+> incorporates the suggestions we've received.
+>=20
+> http://redhat.com/~teigland/gfs2/20050811/gfs2-full.patch
+> http://redhat.com/~teigland/gfs2/20050811/broken-out/
+>=20
+> Dave
+>=20
+> --
+> Linux-cluster mailing list
+> Linux-cluster@redhat.com
+> http://www.redhat.com/mailman/listinfo/linux-cluster
+>
+
+------=_Part_1603_4457653.1123754073860
+Content-Type: text/plain; name="gfs2_and_linux-2.6.12.2.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="gfs2_and_linux-2.6.12.2.txt"
+
+W21pY2hhZWxAbG9jYWxob3N0IGtlcm5lbC1nZnMyLWZ1bGwtMi42LjEyLjJdJCBtYWtlIFNVQkRJ
+UlM9ZnMvZ2ZzMg0KICBMRCAgICAgIGZzL2dmczIvYnVpbHQtaW4ubw0KICBDQyBbTV0gIGZzL2dm
+czIvYWNsLm8NCiAgQ0MgW01dICBmcy9nZnMyL2JpdHMubw0KICBDQyBbTV0gIGZzL2dmczIvYm1h
+cC5vDQpmcy9nZnMyL2JtYXAuYzogSW4gZnVuY3Rpb24gYGZpbmRfbWV0YXBhdGgnOg0KZnMvZ2Zz
+Mi9ibWFwLmM6MzIwOiB3YXJuaW5nOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiBg
+a3phbGxvYycNCmZzL2dmczIvYm1hcC5jOjMyMDogd2FybmluZzogYXNzaWdubWVudCBtYWtlcyBw
+b2ludGVyIGZyb20gaW50ZWdlciB3aXRob3V0IGEgY2FzdA0KICBDQyBbTV0gIGZzL2dmczIvZGFl
+bW9uLm8NCiAgQ0MgW01dICBmcy9nZnMyL2Rpci5vDQpmcy9nZnMyL2Rpci5jOiBJbiBmdW5jdGlv
+biBgbGVhZl9kZWFsbG9jJzoNCmZzL2dmczIvZGlyLmM6MTkxMDogd2FybmluZzogaW1wbGljaXQg
+ZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24gYGt6YWxsb2MnDQpmcy9nZnMyL2Rpci5jOjE5MTA6IHdh
+cm5pbmc6IGFzc2lnbm1lbnQgbWFrZXMgcG9pbnRlciBmcm9tIGludGVnZXIgd2l0aG91dCBhIGNh
+c3QNCiAgQ0MgW01dICBmcy9nZnMyL2Vhb3BzLm8NCiAgQ0MgW01dICBmcy9nZnMyL2VhdHRyLm8N
+CiAgQ0MgW01dICBmcy9nZnMyL2dsb2NrLm8NCiAgQ0MgW01dICBmcy9nZnMyL2dsb3BzLm8NCiAg
+Q0MgW01dICBmcy9nZnMyL2lub2RlLm8NCiAgQ0MgW01dICBmcy9nZnMyL2lvY3RsLm8NCiAgQ0Mg
+W01dICBmcy9nZnMyL2pkYXRhLm8NCiAgQ0MgW01dICBmcy9nZnMyL2xtLm8NCiAgQ0MgW01dICBm
+cy9nZnMyL2xvZy5vDQpmcy9nZnMyL2xvZy5jOiBJbiBmdW5jdGlvbiBgZ2ZzMl9sb2dfZ2V0X2J1
+Zic6DQpmcy9nZnMyL2xvZy5jOjM2Mzogd2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRpb24gb2Yg
+ZnVuY3Rpb24gYGt6YWxsb2MnDQpmcy9nZnMyL2xvZy5jOjM2Mzogd2FybmluZzogYXNzaWdubWVu
+dCBtYWtlcyBwb2ludGVyIGZyb20gaW50ZWdlciB3aXRob3V0IGEgY2FzdA0KZnMvZ2ZzMi9sb2cu
+YzogSW4gZnVuY3Rpb24gYGdmczJfbG9nX2Zha2VfYnVmJzoNCmZzL2dmczIvbG9nLmM6MzkzOiB3
+YXJuaW5nOiBhc3NpZ25tZW50IG1ha2VzIHBvaW50ZXIgZnJvbSBpbnRlZ2VyIHdpdGhvdXQgYSBj
+YXN0DQpmcy9nZnMyL2xvZy5jOiBJbiBmdW5jdGlvbiBgZ2ZzMl9sb2dfZmx1c2hfaSc6DQpmcy9n
+ZnMyL2xvZy5jOjUyNDogd2FybmluZzogYXNzaWdubWVudCBtYWtlcyBwb2ludGVyIGZyb20gaW50
+ZWdlciB3aXRob3V0IGEgY2FzdA0KICBDQyBbTV0gIGZzL2dmczIvbG9wcy5vDQogIENDIFtNXSAg
+ZnMvZ2ZzMi9sdmIubw0KICBDQyBbTV0gIGZzL2dmczIvbWFpbi5vDQogIENDIFtNXSAgZnMvZ2Zz
+Mi9tZXRhX2lvLm8NCiAgQ0MgW01dICBmcy9nZnMyL21vdW50Lm8NCiAgQ0MgW01dICBmcy9nZnMy
+L29uZGlzay5vDQogIENDIFtNXSAgZnMvZ2ZzMi9vcHNfYWRkcmVzcy5vDQogIENDIFtNXSAgZnMv
+Z2ZzMi9vcHNfZGVudHJ5Lm8NCiAgQ0MgW01dICBmcy9nZnMyL29wc19leHBvcnQubw0KICBDQyBb
+TV0gIGZzL2dmczIvb3BzX2ZpbGUubw0KZnMvZ2ZzMi9vcHNfZmlsZS5jOiBJbiBmdW5jdGlvbiBg
+cmVhZGRpcl9iYWQnOg0KZnMvZ2ZzMi9vcHNfZmlsZS5jOjEwNTI6IHdhcm5pbmc6IGltcGxpY2l0
+IGRlY2xhcmF0aW9uIG9mIGZ1bmN0aW9uIGBremFsbG9jJw0KZnMvZ2ZzMi9vcHNfZmlsZS5jOjEw
+NTI6IHdhcm5pbmc6IGFzc2lnbm1lbnQgbWFrZXMgcG9pbnRlciBmcm9tIGludGVnZXIgd2l0aG91
+dCBhIGNhc3QNCmZzL2dmczIvb3BzX2ZpbGUuYzogSW4gZnVuY3Rpb24gYGdmczJfb3Blbic6DQpm
+cy9nZnMyL29wc19maWxlLmM6MTIxODogd2FybmluZzogYXNzaWdubWVudCBtYWtlcyBwb2ludGVy
+IGZyb20gaW50ZWdlciB3aXRob3V0IGEgY2FzdA0KICBDQyBbTV0gIGZzL2dmczIvb3BzX2ZzdHlw
+ZS5vDQogIENDIFtNXSAgZnMvZ2ZzMi9vcHNfaW5vZGUubw0KICBDQyBbTV0gIGZzL2dmczIvb3Bz
+X3N1cGVyLm8NCiAgQ0MgW01dICBmcy9nZnMyL29wc192bS5vDQogIENDIFtNXSAgZnMvZ2ZzMi9w
+YWdlLm8NCiAgQ0MgW01dICBmcy9nZnMyL3Byb2Mubw0KICBDQyBbTV0gIGZzL2dmczIvcXVvdGEu
+bw0KZnMvZ2ZzMi9xdW90YS5jOiBJbiBmdW5jdGlvbiBgcWRfYWxsb2MnOg0KZnMvZ2ZzMi9xdW90
+YS5jOjUxOiB3YXJuaW5nOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiBga3phbGxv
+YycNCmZzL2dmczIvcXVvdGEuYzo1MTogd2FybmluZzogYXNzaWdubWVudCBtYWtlcyBwb2ludGVy
+IGZyb20gaW50ZWdlciB3aXRob3V0IGEgY2FzdA0KZnMvZ2ZzMi9xdW90YS5jOiBJbiBmdW5jdGlv
+biBgZ2ZzMl9xdW90YV9pbml0JzoNCmZzL2dmczIvcXVvdGEuYzoxMDU4OiB3YXJuaW5nOiBhc3Np
+Z25tZW50IG1ha2VzIHBvaW50ZXIgZnJvbSBpbnRlZ2VyIHdpdGhvdXQgYSBjYXN0DQogIENDIFtN
+XSAgZnMvZ2ZzMi9yZXNpemUubw0KICBDQyBbTV0gIGZzL2dmczIvcmVjb3Zlcnkubw0KICBDQyBb
+TV0gIGZzL2dmczIvcmdycC5vDQpmcy9nZnMyL3JncnAuYzogSW4gZnVuY3Rpb24gYGdmczJfcmlf
+dXBkYXRlJzoNCmZzL2dmczIvcmdycC5jOjMwMDogd2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRp
+b24gb2YgZnVuY3Rpb24gYGt6YWxsb2MnDQpmcy9nZnMyL3JncnAuYzozMDA6IHdhcm5pbmc6IGFz
+c2lnbm1lbnQgbWFrZXMgcG9pbnRlciBmcm9tIGludGVnZXIgd2l0aG91dCBhIGNhc3QNCmZzL2dm
+czIvcmdycC5jOiBJbiBmdW5jdGlvbiBgZ2ZzMl9hbGxvY19nZXQnOg0KZnMvZ2ZzMi9yZ3JwLmM6
+NTMwOiB3YXJuaW5nOiBhc3NpZ25tZW50IG1ha2VzIHBvaW50ZXIgZnJvbSBpbnRlZ2VyIHdpdGhv
+dXQgYSBjYXN0DQogIENDIFtNXSAgZnMvZ2ZzMi9zdXBlci5vDQpmcy9nZnMyL3N1cGVyLmM6IElu
+IGZ1bmN0aW9uIGBnZnMyX2ppbmRleF9ob2xkJzoNCmZzL2dmczIvc3VwZXIuYzozMDY6IHdhcm5p
+bmc6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIGZ1bmN0aW9uIGBremFsbG9jJw0KZnMvZ2ZzMi9z
+dXBlci5jOjMwNjogd2FybmluZzogYXNzaWdubWVudCBtYWtlcyBwb2ludGVyIGZyb20gaW50ZWdl
+ciB3aXRob3V0IGEgY2FzdA0KICBDQyBbTV0gIGZzL2dmczIvdHJhbnMubw0KZnMvZ2ZzMi90cmFu
+cy5jOiBJbiBmdW5jdGlvbiBgZ2ZzMl90cmFuc19iZWdpbl9pJzoNCmZzL2dmczIvdHJhbnMuYzoz
+ODogd2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24gYGt6YWxsb2MnDQpm
+cy9nZnMyL3RyYW5zLmM6Mzg6IHdhcm5pbmc6IGFzc2lnbm1lbnQgbWFrZXMgcG9pbnRlciBmcm9t
+IGludGVnZXIgd2l0aG91dCBhIGNhc3QNCiAgQ0MgW01dICBmcy9nZnMyL3VubGlua2VkLm8NCmZz
+L2dmczIvdW5saW5rZWQuYzogSW4gZnVuY3Rpb24gYHVsX2FsbG9jJzoNCmZzL2dmczIvdW5saW5r
+ZWQuYzoxNTQ6IHdhcm5pbmc6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIGZ1bmN0aW9uIGBremFs
+bG9jJw0KZnMvZ2ZzMi91bmxpbmtlZC5jOjE1NDogd2FybmluZzogYXNzaWdubWVudCBtYWtlcyBw
+b2ludGVyIGZyb20gaW50ZWdlciB3aXRob3V0IGEgY2FzdA0KZnMvZ2ZzMi91bmxpbmtlZC5jOiBJ
+biBmdW5jdGlvbiBgZ2ZzMl91bmxpbmtlZF9pbml0JzoNCmZzL2dmczIvdW5saW5rZWQuYzozNDI6
+IHdhcm5pbmc6IGFzc2lnbm1lbnQgbWFrZXMgcG9pbnRlciBmcm9tIGludGVnZXIgd2l0aG91dCBh
+IGNhc3QNCiAgQ0MgW01dICBmcy9nZnMyL3V0aWwubw0KICBMRCBbTV0gIGZzL2dmczIvZ2ZzMi5v
+DQogIExEICAgICAgZnMvZ2ZzMi9sb2NraW5nL2RsbS9idWlsdC1pbi5vDQogIENDIFtNXSAgZnMv
+Z2ZzMi9sb2NraW5nL2RsbS9sb2NrLm8NCiAgQ0MgW01dICBmcy9nZnMyL2xvY2tpbmcvZGxtL21h
+aW4ubw0KICBDQyBbTV0gIGZzL2dmczIvbG9ja2luZy9kbG0vbW91bnQubw0KICBDQyBbTV0gIGZz
+L2dmczIvbG9ja2luZy9kbG0vc3lzZnMubw0KICBDQyBbTV0gIGZzL2dmczIvbG9ja2luZy9kbG0v
+dGhyZWFkLm8NCiAgTEQgW01dICBmcy9nZnMyL2xvY2tpbmcvZGxtL2xvY2tfZGxtLm8NCiAgTEQg
+ICAgICBmcy9nZnMyL2xvY2tpbmcvaGFybmVzcy9idWlsdC1pbi5vDQogIENDIFtNXSAgZnMvZ2Zz
+Mi9sb2NraW5nL2hhcm5lc3MvbWFpbi5vDQogIExEIFtNXSAgZnMvZ2ZzMi9sb2NraW5nL2hhcm5l
+c3MvbG9ja19oYXJuZXNzLm8NCiAgTEQgICAgICBmcy9nZnMyL2xvY2tpbmcvbm9sb2NrL2J1aWx0
+LWluLm8NCiAgQ0MgW01dICBmcy9nZnMyL2xvY2tpbmcvbm9sb2NrL21haW4ubw0KICBMRCBbTV0g
+IGZzL2dmczIvbG9ja2luZy9ub2xvY2svbG9ja19ub2xvY2subw0KICBCdWlsZGluZyBtb2R1bGVz
+LCBzdGFnZSAyLg0KICBNT0RQT1NUDQoqKiogV2FybmluZzogImt6YWxsb2MiIFtmcy9nZnMyL2dm
+czIua29dIHVuZGVmaW5lZCENCiAgQ0MgICAgICBmcy9nZnMyL2dmczIubW9kLm8NCiAgTEQgW01d
+ICBmcy9nZnMyL2dmczIua28NCiAgQ0MgICAgICBmcy9nZnMyL2xvY2tpbmcvZGxtL2xvY2tfZGxt
+Lm1vZC5vDQogIExEIFtNXSAgZnMvZ2ZzMi9sb2NraW5nL2RsbS9sb2NrX2RsbS5rbw0KICBDQyAg
+ICAgIGZzL2dmczIvbG9ja2luZy9oYXJuZXNzL2xvY2tfaGFybmVzcy5tb2Qubw0KICBMRCBbTV0g
+IGZzL2dmczIvbG9ja2luZy9oYXJuZXNzL2xvY2tfaGFybmVzcy5rbw0KICBDQyAgICAgIGZzL2dm
+czIvbG9ja2luZy9ub2xvY2svbG9ja19ub2xvY2subW9kLm8NCiAgTEQgW01dICBmcy9nZnMyL2xv
+Y2tpbmcvbm9sb2NrL2xvY2tfbm9sb2NrLmtv
+------=_Part_1603_4457653.1123754073860--

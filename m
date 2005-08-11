@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVHKQHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVHKQJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbVHKQHc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 12:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbVHKQHc
+	id S932243AbVHKQJX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 12:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbVHKQJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 12:07:32 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:49544 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932241AbVHKQHc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 12:07:32 -0400
-Message-ID: <42FB77A6.3050604@gmail.com>
-Date: Thu, 11 Aug 2005 18:07:02 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: hetfield666@gmail.com
-CC: "Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.13-rc6-git3 undefined reference on _mntput
-References: <42FB752D.6070101@gmail.com>
-In-Reply-To: <42FB752D.6070101@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Thu, 11 Aug 2005 12:09:22 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:56719 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932243AbVHKQJW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 12:09:22 -0400
+Subject: Re: 2.6.13-rc4-mm1: Divide by zero in find_idlest_group
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200508120127.39436.kernel@kolivas.org>
+References: <1123773675.9252.11.camel@kleikamp.austin.ibm.com>
+	 <200508120127.39436.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Thu, 11 Aug 2005 11:09:19 -0500
+Message-Id: <1123776559.32056.1.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hetfield napsal(a):
+On Fri, 2005-08-12 at 01:27 +1000, Con Kolivas wrote:
+> On Fri, 12 Aug 2005 01:21 am, Dave Kleikamp wrote:
+> > Should there be any locking around this?  Or should the value of
+> > rq->nr_running be saved to a local variable as in this untested patch?
+> 
+> Very sneaky..
+> 
+> On initial inspection your patch makes complete sense. I see no point in 
+> adding locking to this function as the accuracy is not critical. Want to give 
+> your patch a run and then push it to akpm? Thanks!
 
-> grep _mntput *
-> namei.c:        _mntput(nd->mnt);
-> namespace.c:void __mntput(struct vfsmount *mnt)
-> namespace.c:EXPORT_SYMBOL(__mntput);
->
->
->  CC      fs/namei.o
-> fs/namei.c: In function `path_release_on_umount':
-> fs/namei.c:317: warning: implicit declaration of function `_mntput'
->
->
-> ....
->
->   LD      .tmp_vmlinux1
-> fs/built-in.o: In function `path_release_on_umount':
-> : undefined reference to `_mntput'
-> make: *** [.tmp_vmlinux1] Error 1
->
->
-> seems an underscore is missing.
+Okay, I'm testing it now.  It took running overnight to hit the problem
+before, so I'll let it run until tomorrow before I push it.
 
-It seems, that there is one extra.
+> Cheers,
+> Con
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

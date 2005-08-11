@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbVHKXdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbVHKXhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbVHKXdR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 19:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbVHKXdR
+	id S1751074AbVHKXhN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 19:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVHKXhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 19:33:17 -0400
-Received: from cantor.suse.de ([195.135.220.2]:27550 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751033AbVHKXdQ (ORCPT
+	Thu, 11 Aug 2005 19:37:12 -0400
+Received: from zorg.st.net.au ([203.16.233.9]:36836 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S1751073AbVHKXhL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 19:33:16 -0400
-Date: Fri, 12 Aug 2005 01:33:02 +0200
-From: Andi Kleen <ak@suse.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>
-Subject: Re: [patch 3/8] [PATCH] x86_64: Fixing smpboot timing problem
-Message-ID: <20050811233302.GA8974@wotan.suse.de>
-References: <20050811225445.404816000@localhost.localdomain> <20050811225609.058881000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050811225609.058881000@localhost.localdomain>
+	Thu, 11 Aug 2005 19:37:11 -0400
+Message-ID: <42FBE124.30005@torque.net>
+Date: Fri, 12 Aug 2005 09:37:08 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: [Announce] sg3_utils-1.16 available
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  static void __cpuinit tsc_sync_wait(void)
->  {
->  	if (notscsync || !cpu_has_tsc)
->  		return;
-> -	printk(KERN_INFO "CPU %d: Syncing TSC to CPU %u.\n", smp_processor_id(),
-> -			boot_cpu_id);
-> -	sync_tsc();
-> +	sync_tsc(boot_cpu_id);
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I actually found a bug in this today. This should be sync_tsc(0), not sync_tsc(boot_cpu_id)
-Can you just fix it in your tree or should I submit a new patch? 
+sg3_utils is a package of command line utilities for sending
+SCSI commands to devices. This package targets the lk 2.6 and
+lk 2.4 series. In the lk 2.6 series these utilities (except
+sgp_dd) can be used with any devices that support the SG_IO
+ioctl.
 
--Andi
+This version adds sg_ident to report and set device identifiers.
+It extends various device scanning utilities beyond 256 device
+and includes bug fixes and man page improvements. See CHANGELOG
+for more information.
+
+A tarball, rpm and deb can be found on (see table 2):
+http://www.torque.net/sg
+For an overview of sg3_utils see this page:
+http://www.torque.net/sg/u_index.html
+The sg_dd utility has its own page at:
+http://www.torque.net/sg/sg_dd.html
+A changelog can be found at:
+http://www.torque.net/sg/p/sg3_utils.CHANGELOG
+
+A release announcement has been sent to freshmeat.net .
+
+Doug Gilbert
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFC++Eknayo+9E+FQIRAgQSAKCL7EirWTNuvvF3uqdN4OgnQr2bdwCdE/gY
+sq8wzUyPkd/vPr1Xc8+T+Es=
+=NU4B
+-----END PGP SIGNATURE-----

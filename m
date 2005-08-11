@@ -1,45 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbVHKOH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVHKOH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbVHKOH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 10:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbVHKOH6
+	id S1750719AbVHKOH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 10:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVHKOH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 10:07:58 -0400
-Received: from Volter-FW.ser.netvision.net.il ([212.143.107.30]:2271 "EHLO
-	taurus.voltaire.com") by vger.kernel.org with ESMTP
-	id S1750944AbVHKOH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 10:07:57 -0400
-Date: Thu, 11 Aug 2005 17:07:30 +0300
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH repost] PROT_DONTCOPY: ifiniband uverbs fork support
-Message-ID: <20050811140729.GU16361@minantech.com>
-References: <20050725171928.GC12206@mellanox.co.il> <Pine.LNX.4.61.0507261312460.16985@goblin.wat.veritas.com> <20050726133553.GA22276@mellanox.co.il> <Pine.LNX.4.61.0508091759050.14886@goblin.wat.veritas.com> <20050810083943.GM16361@minantech.com> <Pine.LNX.4.61.0508101412530.3153@goblin.wat.veritas.com> <20050810132611.GP16361@minantech.com> <Pine.LNX.4.61.0508101623480.4525@goblin.wat.veritas.com> <20050811080205.GR16361@minantech.com> <Pine.LNX.4.61.0508111446030.10888@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508111446030.10888@goblin.wat.veritas.com>
-From: glebn@voltaire.com (Gleb Natapov)
-X-OriginalArrivalTime: 11 Aug 2005 14:07:51.0969 (UTC) FILETIME=[0FE57110:01C59E7E]
+	Thu, 11 Aug 2005 10:07:28 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:27801 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750719AbVHKOH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 10:07:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=p8ton3+Ahl4X6evcHwiepHd3Ia0l5GP079mkQAKMBxFacDLmzHGPaBWEPxh8umBbikLczRdE6V/2cOqPyTuTBOtJFAWyVzAna37ty995VCYTa05rHxIWTezeB+vXieeXAT5am+wSifdhAQGWcVIqXGkFhlnOgHeP7jA/pCc2/B8=  ;
+Message-ID: <42FB5B7F.3000307@yahoo.com.au>
+Date: Fri, 12 Aug 2005 00:06:55 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pekka Enberg <penberg@gmail.com>
+CC: Paul McKenney <paul.mckenney@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/7] mm: lockless pagecache
+References: <42FB4201.7080304@yahoo.com.au> <42FB42BD.6020808@yahoo.com.au>	 <42FB42EF.1040401@yahoo.com.au> <42FB4311.2070807@yahoo.com.au>	 <42FB43A8.8060902@yahoo.com.au> <42FB43CB.5080403@yahoo.com.au>	 <42FB4454.2010601@yahoo.com.au> <84144f0205081106586eb0d5cf@mail.gmail.com>
+In-Reply-To: <84144f0205081106586eb0d5cf@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 03:04:29PM +0100, Hugh Dickins wrote:
-> On Thu, 11 Aug 2005, Gleb Natapov wrote:
-> > What about the idea that was floating around about new VM flag that will
-> > instruct kernel to copy pages belonging to the vma on fork instead of mark
-> > them as cow?
-> 
-> It's a pretty good idea, and thanks for reminding us of it.
-> 
-> It suffers from the general difficulty with fixes within get_user_pages,
-> that we need down_write(&mm->mmap_sem) to split_vma, and even just to
-> update vm_flags, whereas get_user_pages is entered with down_read.
-> 
-Why do it form get_user_pages? Lets use madvise/mprotect interface.
-Program can mrpotect(VM_COPYONFORK) address range before registering it.
+Hi Pekka,
 
---
-			Gleb.
+Pekka Enberg wrote:
+> Hi Nick,
+> 
+> On 8/11/05, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>>+unsigned find_get_pages_nonatomic(struct address_space *mapping, pgoff_t start,
+>>+                           unsigned int nr_pages, struct page **pages)
+>>+{
+>>+       unsigned int i;
+>>+       unsigned int ret;
+> 
+> 
+> Rename to nr_pages?
+> 
+> 
+>>+       unsigned int ret2;
+> 
+> 
+> Rename to ret?
+> 
+> 
+>>+
+>>+       /*
+>>+        * We do some unsightly casting to use the array first for storing
+>>+        * pointers to the page pointers, and then for the pointers to
+>>+        * the pages themselves that the caller wants.
+>>+        */
+>>+       rcu_read_lock();
+>>+       ret = radix_tree_gang_lookup_slot(&mapping->page_tree,
+>>+                               (void ***)pages, start, nr_pages);
+>>+       ret2 = 0;
+>>+       for (i = 0; i < ret; i++) {
+> 
+> 
+> Pretty please? :-)
+> 
+
+Hey that's not actually a bad idea.
+
+I was thinking about how to make that function nicer,
+but the voices in my head just kept telling me to rename
+'i' to 'ret3' ;)
+
+So, thanks!
+
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

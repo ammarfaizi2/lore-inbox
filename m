@@ -1,39 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVHKGBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVHKGOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964804AbVHKGBD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 02:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbVHKGBC
+	id S932274AbVHKGOh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 02:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVHKGOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 02:01:02 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26556 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964804AbVHKGBA (ORCPT
+	Thu, 11 Aug 2005 02:14:37 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:29667 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932274AbVHKGOg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 02:01:00 -0400
-Date: Thu, 11 Aug 2005 14:06:02 +0800
-From: David Teigland <teigland@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: [PATCH 00/14] GFS
-Message-ID: <20050811060602.GA12438@redhat.com>
-References: <20050802071828.GA11217@redhat.com> <1122968724.3247.22.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122968724.3247.22.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 11 Aug 2005 02:14:36 -0400
+Date: Thu, 11 Aug 2005 08:14:31 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VGER news
+In-Reply-To: <20050809145323.GO22165@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.61.0508110814010.28320@yvahk01.tjqt.qr>
+References: <20050809141217.GL22165@mea-ext.zmailer.org>
+ <Pine.LNX.4.61.0508091630160.23577@yvahk01.tjqt.qr>
+ <20050809143924.GC28539@harddisk-recovery.com> <20050809145323.GO22165@mea-ext.zmailer.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02, 2005 at 09:45:24AM +0200, Arjan van de Ven wrote:
 
-> * +	if (create)
-> +		down_write(&ip->i_rw_mutex);
-> +	else
-> +		down_read(&ip->i_rw_mutex);
-> 
-> why do you use a rwsem and not a regular semaphore? You are aware that
-> rwsems are far more expensive than regular ones right?  How skewed is
-> the read/write ratio?
+>In "absolute" terms about 5600 BogoMips, although all bogos are
+>not quite the same...   (E.g. Coppermine -> Xeon gives a bit
+>more difference than just bogos would imply.)
 
-Rough tests show around 4/1, that high or low?
+Would dhry- and whetstones be more accurate across CPUs?
+
 

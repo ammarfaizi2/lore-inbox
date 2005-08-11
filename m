@@ -1,157 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVHKSQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVHKSRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbVHKSQt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 14:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbVHKSQt
+	id S932319AbVHKSRc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 14:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbVHKSRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 14:16:49 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:29355 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932342AbVHKSQs (ORCPT
+	Thu, 11 Aug 2005 14:17:32 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:54260 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932344AbVHKSRb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 14:16:48 -0400
-Date: Thu, 11 Aug 2005 23:42:35 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, rusty@au1.ibm.com, bmark@us.ibm.com
-Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
-Message-ID: <20050811181235.GE4546@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050810171145.GA1945@us.ibm.com> <20050811171451.GA5108@infradead.org> <20050811180044.GD4546@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050811180044.GD4546@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 11 Aug 2005 14:17:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=WEi324ev4/CGr6V1R7d3V3hpXof5oZ+o+lIZ9Gwj0l2/eOjFozGSSfMZyiQp7RuvfXzwGcVlBi0jjw7mtS7M/J0dfV5STNABE0TDxW+KPqrZDtT6B6hfoZcS6HxqojCxevNiVmyFfS8Dkp8YkbOaiyol0XG37dIqvvu+W4wROwA=
+Message-ID: <42FB9625.2070708@gmail.com>
+Date: Thu, 11 Aug 2005 20:17:09 +0200
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+CC: Jeff Garzik <jgarzik@pobox.com>, Lee Revell <rlrevell@joe-job.com>,
+       lgb@lgb.hu, Allen Martin <AMartin@nvidia.com>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
+References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com> <20050811070943.GB8025@vega.lgb.hu> <1123765523.32375.10.camel@mindpipe> <42FB6C27.1010408@gmail.com> <42FB88F8.7040807@pobox.com> <42FB8D04.8050006@gmail.com> <20050811180418.GK31019@csclub.uwaterloo.ca>
+In-Reply-To: <20050811180418.GK31019@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 11:30:44PM +0530, Dipankar Sarma wrote:
-> When I worked on this last (a year or so ago), it seemed that I would
-> need to put a number of additional structures under RCU control.
-> It would be better to gradually move it towards RCU rather than
-> trying make all the readers lock-free.
+Lennart Sorensen schrieb:
 
-Just for reference, this was my tasks-rcu patch. 2.6.0-test2, no less :)
-I was interested in get_pid_list() at that time. IIRC, I tested it with
-lots of top running along with other tests.
+>On Thu, Aug 11, 2005 at 07:38:12PM +0200, Michael Thonke wrote:
+>  
+>
+>>I have a ASUS A8V Deluxe too, and can't use the AMD X2 processor on 
+>>it...this is a feature..right?
+>>Supposed to run with DualCore but don't post..hm.
+>>    
+>>
+>
+>Well according to Asus you can if you run BIOS 1013 or 1014 on the
+>board.  Any less and it won't boot.
+>  
+>
+What they say is escapist - far away..
 
-Thanks
-Dipankar
+>Now I certainly can't try it given I don't have such a CPU.
+>
+>  
+>
+Well, don't go to holiday and spend the money for this genial CPU.
+
+>>My SATA II devices. Get not regonized from the VIA SATA 
+>>controller...this bug is known.
+>>So I want to use my HDD's I bought ...why should I set my SATA II device 
+>>to be SATA I.
+>>    
+>>
+>
+>So a SATA II drive doesn't work at all?
+>  
+>
+Jep. On VIA chipsets..it would be to flacky to say SATA II drives 
+doesn't work at all.
+But its like the Smart-Table and what vendors implement and who did the 
+interpretation of specs:-) It's like a fairy tale..the hardware fairy tale.
+
+>  
+>
+>>Is also a feature of VIA Chipsets, right?
+>>
+>>"It's not a bug, hey let's say is a feature."
+>>    
+>>
+>
+>Common practice it seems.
+>  
+>
+"Wouldn't be the would in there, the world would be boring."
+
+>Len Sorensen
+>
+>  
+>
+Michael
+
+-- 
+Michael Thonke
+IT-Systemintegrator /
+System- and Softwareanalyist
 
 
-Incremental patch to do lockfree traversal of the task list using
-RCU. For now it just does one of the costlies ones in /proc.
 
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
-
-
- fs/exec.c             |    1 +
- fs/proc/base.c        |    5 +++--
- include/linux/sched.h |   21 ++++++++++++++++-----
- 3 files changed, 20 insertions(+), 7 deletions(-)
-
-diff -puN fs/exec.c~tasks-rcu fs/exec.c
---- linux-2.6.0-test2-ds/fs/exec.c~tasks-rcu	2003-08-04 21:48:38.000000000 +0530
-+++ linux-2.6.0-test2-ds-dipankar/fs/exec.c	2003-08-04 21:49:26.000000000 +0530
-@@ -676,6 +676,7 @@ static inline int de_thread(struct task_
- 
- 		list_del(&current->tasks);
- 		list_add_tail(&current->tasks, &init_task.tasks);
-+		list_add_tail_rcu(&current->tasks, &init_task.tasks);
- 		current->exit_signal = SIGCHLD;
- 		state = leader->state;
- 
-diff -puN fs/proc/base.c~tasks-rcu fs/proc/base.c
---- linux-2.6.0-test2-ds/fs/proc/base.c~tasks-rcu	2003-08-04 21:48:38.000000000 +0530
-+++ linux-2.6.0-test2-ds-dipankar/fs/proc/base.c	2003-08-04 21:49:59.000000000 +0530
-@@ -32,6 +32,7 @@
- #include <linux/mount.h>
- #include <linux/security.h>
- #include <linux/ptrace.h>
-+#include <linux/rcupdate.h>
- 
- /*
-  * For hysterical raisins we keep the same inumbers as in the old procfs.
-@@ -1403,7 +1404,7 @@ static int get_pid_list(int index, unsig
- 	int nr_pids = 0;
- 
- 	index--;
--	read_lock(&tasklist_lock);
-+	rcu_read_lock();
- 	for_each_process(p) {
- 		int pid = p->pid;
- 		if (!pid_alive(p))
-@@ -1415,7 +1416,7 @@ static int get_pid_list(int index, unsig
- 		if (nr_pids >= PROC_MAXPIDS)
- 			break;
- 	}
--	read_unlock(&tasklist_lock);
-+	rcu_read_unlock();
- 	return nr_pids;
- }
- 
-diff -puN include/linux/sched.h~tasks-rcu include/linux/sched.h
---- linux-2.6.0-test2-ds/include/linux/sched.h~tasks-rcu	2003-08-04 21:48:38.000000000 +0530
-+++ linux-2.6.0-test2-ds-dipankar/include/linux/sched.h	2003-08-04 21:54:58.000000000 +0530
-@@ -28,6 +28,7 @@
- #include <linux/completion.h>
- #include <linux/pid.h>
- #include <linux/percpu.h>
-+#include <linux/rcupdate.h>
- 
- struct exec_domain;
- 
-@@ -456,13 +457,23 @@ struct task_struct {
- 	struct io_context *io_context;
- 
- 	unsigned long ptrace_message;
-+	struct rcu_head rcu;
- 	siginfo_t *last_siginfo; /* For ptrace use.  */
- };
- 
- extern void __put_task_struct(struct task_struct *tsk);
- #define get_task_struct(tsk) do { atomic_inc(&(tsk)->usage); } while(0)
--#define put_task_struct(tsk) \
--do { if (atomic_dec_and_test(&(tsk)->usage)) __put_task_struct(tsk); } while(0)
-+static void put_task_struct_rcu(struct rcu_head *rcu)
-+{
-+	struct task_struct *tsk = container_of(rcu, struct task_struct, rcu);
-+	__put_task_struct(tsk);
-+}
-+static inline void put_task_struct(struct task_struct *tsk)
-+{
-+	if (atomic_dec_and_test(&tsk->usage))
-+		call_rcu(&tsk->rcu, put_task_struct_rcu);
-+}
-+
- 
- /*
-  * Per process flags
-@@ -675,13 +686,13 @@ extern void wait_task_inactive(task_t * 
- 
- #define REMOVE_LINKS(p) do {					\
- 	if (thread_group_leader(p))				\
--		list_del_init(&(p)->tasks);			\
-+		list_del_rcu(&(p)->tasks);			\
- 	remove_parent(p);					\
- 	} while (0)
- 
- #define SET_LINKS(p) do {					\
- 	if (thread_group_leader(p))				\
--		list_add_tail(&(p)->tasks,&init_task.tasks);	\
-+		list_add_tail_rcu(&(p)->tasks,&init_task.tasks);	\
- 	add_parent(p, (p)->parent);				\
- 	} while (0)
- 
-@@ -689,7 +700,7 @@ extern void wait_task_inactive(task_t * 
- #define prev_task(p)	list_entry((p)->tasks.prev, struct task_struct, tasks)
- 
- #define for_each_process(p) \
--	for (p = &init_task ; (p = next_task(p)) != &init_task ; )
-+	for (p = &init_task ; (p = next_task(p)),({ read_barrier_depends(); 0;}),p != &init_task ; )
- 
- /*
-  * Careful: do_each_thread/while_each_thread is a double loop so
-
-_

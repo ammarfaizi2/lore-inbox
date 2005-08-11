@@ -1,53 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbVHKSYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVHKSaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932346AbVHKSYd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 14:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbVHKSYd
+	id S932347AbVHKSaa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 14:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbVHKSaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 14:24:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:16609 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932346AbVHKSYc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 14:24:32 -0400
-Date: Thu, 11 Aug 2005 11:24:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Patrick Mochel <mochel@digitalimplant.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Don't use a klist for drivers' set-of-devices
-Message-ID: <20050811182423.GC15803@kroah.com>
-References: <Pine.LNX.4.44L0.0508101637360.4467-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Aug 2005 14:30:30 -0400
+Received: from mail.linicks.net ([217.204.244.146]:3591 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S932347AbVHKSaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 14:30:30 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [lm-sensors] Re: I2C block reads with i2c-viapro: testers wanted
+Date: Thu, 11 Aug 2005 19:30:27 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0508101637360.4467-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200508111930.27935.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 10, 2005 at 04:56:08PM -0400, Alan Stern wrote:
-> Greg and Pat:
+>> This is a surprising result, as the VT8233 datasheet didn't mention the
+>> I2C block mode. I'll add this model to the list. This also suggests that
+>> the VT8233A may support it as well - if someone could test that.
+>> 
+>> I have to admit I don't know exactly in which order the different south
+>> bridges were designed and released by VIA. I think the following order
+>> is correct:
+>> 
+>> VT82C596
+>> VT82C596B
+>> VT82C686A
+>> VT82C686B
+>> VT8235
+>> VT8237
+>> 
+>> But I don't know where the VT8231, VT8233 and VT8233A should be inserted
+>> in this list. If anyone can tell me...
 > 
-> This patch (as536) simplifies the driver-model core by replacing the klist 
-> used to store the set of devices bound to a driver with a regular list 
-> protected by a mutex.  It turns out that even with a klist, there are too 
-> many opportunities for races for the list to be used safely by more than 
-> one thread at a time.  And given that only one thread uses the list at any 
-> moment, there's no need to add all the extra overhead of making it a 
-> klist.
+> I guess it's just the way it seems:
+> 
+> VT82C596
+> VT82C596B
+> VT82C686A
+> VT82C686B
+> VT8231
+> VT8233
+> VT8233A
+> VT8235
+> VT8237
 
-Hm, but that was the whole reason to go to a klist in the first place.
+I have a VIA board, and remember when I config'ed I2C I was a bit confused 
+with what I have - I guessed logically in the end that VT82C686 _became_ 
+VT82C686A _after_ VT82C686B was released.  It all seems to work OK though.
 
-> This version of the patch addresses the concerns raised earlier by Pat:  
-> the list and mutex have been given more succinct names, and the obscure
-> special-case code in device_attach has been replaced with a FIXME comment.  
-> Note that the new iterators in driver.c could easily be changed to use
-> list_for_each_entry_safe and list_for_each_entry, if the functions didn't
-> offer the feature of starting in the middle of the list.  If no callers
-> use that feature, it should be removed.
+bash-2.05b# lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 
+22)
+00:07.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 10)
+00:07.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] 
+(rev 10)
+00:07.3 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] 
+(rev 10)
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 
+30)
+00:09.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 
+78)
+00:0f.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
+00:0f.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 
+07)
+01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX 440] 
+(rev a3)
 
-Pat, any opinions on this patch?
+I am OK for testing the patch if you need.
 
-thanks,
+Nick
 
-greg k-h
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

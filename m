@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbVHKMdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVHKMha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbVHKMdT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 08:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVHKMdT
+	id S932374AbVHKMha (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 08:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVHKMha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 08:33:19 -0400
-Received: from jay.exetel.com.au ([220.233.0.8]:57287 "EHLO jay.exetel.com.au")
-	by vger.kernel.org with ESMTP id S1030282AbVHKMdS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 08:33:18 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: master@sectorb.msk.ru (Vladimir B. Savkin)
-Subject: Re: 2.6.13-rc5 panic with tg3, e1000, vlan, tso
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <20050811114835.GB3543@tentacle.sectorb.msk.ru>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1E3CFD-0005ZN-00@gondolin.me.apana.org.au>
-Date: Thu, 11 Aug 2005 22:33:11 +1000
+	Thu, 11 Aug 2005 08:37:30 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:421 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932374AbVHKMh3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 08:37:29 -0400
+References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
+            <20050811064217.GB21395@titan.lahn.de>
+In-Reply-To: <20050811064217.GB21395@titan.lahn.de>
+From: hunold@linuxtv.org
+To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-dvb-maintainer@linuxtv.org
+Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
+Date: Thu, 11 Aug 2005 14:37:20 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1E3CJE-0001NJ-PH@allen.werkleitz.de>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Scanned: No (on allen.werkleitz.de); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir B. Savkin <master@sectorb.msk.ru> wrote:
-> 
-> Today my gateway crashed.
-> I wrote down crash info on a paper.
-> It's not complete since only last 25 lines were shown,
-> but complete stackdump is here (I omitted hexadecimal values).
-> 
-> Call Trace: <IRQ>
->    tcp_write_xmit+318
+Hello Philipp, 
 
-This should be fixed in rc6.  Please give that a go.
+> I got the following OOPS from running "alevtd -F -d -v /dev/vbi0" with
+> my Siemens-DVB-C on a Dual-i686-600. I'm able to reproduce this even
+> running a 2.6.12-rc6 without the nvidia module tainting the kernel.
 
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+So you're using the analog tuner of the card to watch analog cable tv and 
+want to decode teletext from the vbi, right? 
+
+Can you tell me the last kernel version that worked for you? 
+
+>
+> ...
+> kernel BUG at drivers/media/common/saa7146_video.c:741!
+
+739         fmt = format_by_fourcc(dev,fh->video_fmt.pixelformat);
+740         /* we need to have a valid format set here */
+741         BUG_ON(NULL == fmt); 
+
+This sanity check is failing. Apparently the software managed
+to select a pixelformat that cannot be translated to a "saa7146 format". 
+
+Puh, I wrote this long ago. ;-) IIRC this should not be possible (ie. the 
+driver should reject the unknown pixelformat in the configuring stage). 
+
+Did you update the alevt package? Perhaps it's now doing this differently 
+and it would fail with older kernels as well, which have worked before. 
+
+We will probably have to debug this on a very low level. 
+
+Regards
+Michael. 
+

@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbVHKAn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbVHKBOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbVHKAn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 20:43:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbVHKAn2
+	id S1750964AbVHKBOX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 21:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbVHKBOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 20:43:28 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:36010 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030185AbVHKAn1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 20:43:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oA3Pq4PACDwSozLDtknfmEY3GQ1B7qKxfkCJ5ZpVnT4Y43s1GwAHdn0WLfChf14N2MZorJyohDs8OLucv/nO5FSYnwzU0WfkngF+ij09TjsrvD/RRrxxtInG68qLnqwSQraS75720ySWJo7+m0Nzna37cKULeHf/oA+q3viBDUM=
-Message-ID: <86802c440508101743783588df@mail.gmail.com>
-Date: Wed, 10 Aug 2005 17:43:23 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [discuss] Re: 2.6.13-rc2 with dual way dual core ck804 MB
-Cc: Mike Waychison <mikew@google.com>, YhLu <YhLu@tyan.com>,
-       Peter Buckingham <peter@pantasys.com>, linux-kernel@vger.kernel.org,
-       "discuss@x86-64.org" <discuss@x86-64.org>
-In-Reply-To: <20050811002841.GE8974@wotan.suse.de>
+	Wed, 10 Aug 2005 21:14:22 -0400
+Received: from pat.uio.no ([129.240.130.16]:14812 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750961AbVHKBOW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 21:14:22 -0400
+Subject: Re: fcntl(F_GETLEASE) semantics??
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17146.37443.505736.147373@wombat.chubb.wattle.id.au>
+References: <17146.37443.505736.147373@wombat.chubb.wattle.id.au>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 21:14:08 -0400
+Message-Id: <1123722848.8242.11.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <3174569B9743D511922F00A0C94314230AF97867@TYANWEB>
-	 <42FA8A4B.4090408@google.com> <20050810232614.GC27628@wotan.suse.de>
-	 <86802c4405081016421db9baa5@mail.gmail.com>
-	 <20050811000430.GD8974@wotan.suse.de>
-	 <86802c4405081017174c22dcd5@mail.gmail.com>
-	 <86802c440508101723d4aadef@mail.gmail.com>
-	 <20050811002841.GE8974@wotan.suse.de>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.569, required 12,
+	autolearn=disabled, AWL 2.24, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I mean more aggressive
-
-static void __init smp_init(void)
-{
-        unsigned int i;
-
-        /* FIXME: This should be done in userspace --RR */
-        for_each_present_cpu(i) {
-                if (num_online_cpus() >= max_cpus)
-                        break;
-                if (!cpu_online(i))
-                        cpu_up(i);
-        }
-
-
-let cpu_up take one array instead of one int.
-
-So  in do_boot_cpu() of smpboot.c
-                /*
-                 * Wait 5s total for a response
-                 */
-                for (timeout = 0; timeout < 50000; timeout++) {
-                        if (cpu_isset(cpu, cpu_callin_map))
-                                break;  /* It has booted */
-                        udelay(100);
-                }
-
-could wait all be cpu_callin_map is set.
-
-then we can spare more time.
-
-YH
-
-
-On 8/10/05, Andi Kleen <ak@suse.de> wrote:
-> On Wed, Aug 10, 2005 at 05:23:31PM -0700, yhlu wrote:
-> > I wonder if you can make the bsp can start the APs callin in the same
-> > time, and make it asynchronous, So you make spare 2s or more.
+to den 11.08.2005 Klokka 09:48 (+1000) skreiv Peter Chubb:
+> Hi,
+> 	The LTP test fcntl23 is failing.  It does, in essence, 
+> 	fd = open(xxx, O_RDWR|O_CREAT, 0777);
+> 	if (fcntl(fd, F_SETLEASE, F_RDLCK) == -1)
+> 	   fail;
 > 
-> The setting of cpu_callin_map in the AP could be moved earlier yes.
-> But it's not entirely trivial because there are some races to consider.
+> fcntl always returns EAGAIN here.  The manual page says that a read
+> lease causes notification when `another process' opens the file for
+> writing or truncates it.  The kernel implements `any process'
+> (including the current one).
 > 
-> And the 1s quiet period on the AP could be probably also reduced
-> on modern systems. I doubt it is needed on Xeons or Opterons.
-> 
-> -Andi
->
+> Which semantics are correct?  Personally I think that what the kernel
+> implements is correct (you can't get a read lease unsless there are no
+> writers _at_ _all_)
+
+A read lease should mean that there are no writers at all.
+
+If we were to allow the current process to open for write, then that
+would still mean that nobody else can get a lease. In effect you have
+been granted a lease with exclusive semantics (i.e. a write lease). You
+might as well request that instead of pretending it is a read lease.
+
+Cheers,
+  Trond
+

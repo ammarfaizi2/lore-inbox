@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbVHKIMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVHKIOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030221AbVHKIMm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 04:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbVHKIMm
+	id S1030202AbVHKIOR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 04:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVHKIOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 04:12:42 -0400
-Received: from NS4.Sony.CO.JP ([137.153.0.44]:3011 "EHLO ns4.sony.co.jp")
-	by vger.kernel.org with ESMTP id S1030219AbVHKIMl (ORCPT
+	Thu, 11 Aug 2005 04:14:17 -0400
+Received: from mail.gmx.de ([213.165.64.20]:62951 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932290AbVHKIOR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 04:12:41 -0400
-Date: Thu, 11 Aug 2005 17:07:50 +0900 (JST)
-Message-Id: <20050811.170750.26993208.kaminaga@sm.sony.co.jp>
-To: rusty@rustcorp.com.au, adam@yggdrasil.com
-Cc: linux-kernel@vger.kernel.org
-From: Hiroki Kaminaga <kaminaga@sm.sony.co.jp>
-X-Mailer: Mew version 4.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Multipart/Mixed;
- boundary="--Next_Part(Thu_Aug_11_17_07_50_2005_223)--"
+	Thu, 11 Aug 2005 04:14:17 -0400
+Date: Thu, 11 Aug 2005 10:14:15 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-lkml@gmx.net>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: trond.myklebust@fys.uio.no, peterc@gelato.unsw.edu.au,
+       linux-kernel@vger.kernel.org, sfr@canb.auug.org.au,
+       michael.kerrisk@gmx.net
+MIME-Version: 1.0
+References: <17146.43490.8672.13906@wombat.chubb.wattle.id.au>
+Subject: =?ISO-8859-1?Q?Re:_fcntl(F_GETLEASE)_semantics=3F=3F?=
+X-Priority: 3 (Normal)
+X-Authenticated: #23581172
+Message-ID: <19888.1123748055@www44.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----Next_Part(Thu_Aug_11_17_07_50_2005_223)--
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+> Von: Peter Chubb <peterc@gelato.unsw.edu.au>
+> 
+> >>>>> "Trond" == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+> 
+> Trond> to den 11.08.2005 Klokka 09:48 (+1000) skreiv Peter Chubb:
+> >> Hi, The LTP test fcntl23 is failing.  It does, in essence, fd =
+> >> open(xxx, O_RDWR|O_CREAT, 0777); if (fcntl(fd, F_SETLEASE, F_RDLCK)
+> >> == -1) fail;
+> >> 
+> >> fcntl always returns EAGAIN here.  The manual page says that a read
+> >> lease causes notification when `another process' opens the file for
+> >> writing or truncates it.  The kernel implements `any process'
+> >> (including the current one).
+> >> 
+> >> Which semantics are correct?  Personally I think that what the
+> >> kernel implements is correct (you can't get a read lease unsless
+> >> there are no writers _at_ _all_)
+> 
+> Trond> A read lease should mean that there are no writers at all.
+> 
+> Trond> If we were to allow the current process to open for write, then
+> Trond> that would still mean that nobody else can get a lease. In
+> Trond> effect you have been granted a lease with exclusive semantics
+> Trond> (i.e. a write lease). You might as well request that instead of
+> Trond> pretending it is a read lease.
+> 
+> So the manual page is wrong.  Fine.
 
-Hi,
+No.  The behavior in Linux recently, and arbitrarily (IMO) changed:
 
-I don't know if this is a bug, but on kernel src code, `-' and `,' is
-substituted to `_' in scripts/Makefile.lib but, in latest
-module-init-tools-3.2-pre9, only `-' is handled, but not ','.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111502547506310&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111755426027086&w=2
 
-Attached is the patch for this problem against module-init-tools.
+One of the developers of the file leases mechanism seems to have 
+agreed that this change should not have occurred:
 
-Regards,
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111512619520116&w=2
 
-HK.
---
-----Next_Part(Thu_Aug_11_17_07_50_2005_223)--
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="module-init-tools.patch"
+but the suggested patch did not (yet) make its way into the kernel.
 
-diff -uNrp module-init-tools-3.2-pre9-orig/rmmod.c module-init-tools-3.2-pre9/rmmod.c
---- module-init-tools-3.2-pre9-orig/rmmod.c	Wed Feb 25 16:10:51 2004
-+++ module-init-tools-3.2-pre9/rmmod.c	Thu Aug 11 16:50:32 2005
-@@ -165,6 +165,8 @@ static void filename2modname(char *modna
- 	for (i = 0; afterslash[i] && afterslash[i] != '.'; i++) {
- 		if (afterslash[i] == '-')
- 			modname[i] = '_';
-+		else if (afterslash[i] == ',')
-+			modname[i] = '_';
- 		else
- 			modname[i] = afterslash[i];
- 	}
+Stephen -- what is your take on this now?
 
-----Next_Part(Thu_Aug_11_17_07_50_2005_223)----
+Cheers,
+
+Michael
+
+-- 
+GMX DSL = Maximale Leistung zum minimalen Preis!
+2000 MB nur 2,99, Flatrate ab 4,99 Euro/Monat: http://www.gmx.net/de/go/dsl

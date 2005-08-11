@@ -1,68 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVHKQ4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVHKQ5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbVHKQ4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 12:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVHKQ4Y
+	id S1751125AbVHKQ5t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 12:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVHKQ5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 12:56:24 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:15624 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751122AbVHKQ4X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 12:56:23 -0400
-Date: Thu, 11 Aug 2005 18:56:51 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Hinko Kocevar <hinko.kocevar@cetrtapot.si>
-Cc: LM Sensors <lm-sensors@lm-sensors.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: I2C block reads with i2c-viapro: testers wanted
-Message-Id: <20050811185651.0ca4cd96.khali@linux-fr.org>
-In-Reply-To: <42FA89FE.9050101@cetrtapot.si>
-References: <20050809231328.0726537b.khali@linux-fr.org>
-	<42FA6406.4030901@cetrtapot.si>
-	<20050810230633.0cb8737b.khali@linux-fr.org>
-	<42FA89FE.9050101@cetrtapot.si>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 11 Aug 2005 12:57:49 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:24711 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751125AbVHKQ5s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 12:57:48 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Bolke de Bruin <bdbruin@aub.nl>
+Subject: Re: Kernel 2.6.5 - Compaq Fibre Channel 64-bit/66Mhz HBA
+Date: Thu, 11 Aug 2005 18:58:38 +0200
+User-Agent: KMail/1.8.2
+References: <42FB72DE.8000703@aub.nl> <200508111819.45325@bilbo.math.uni-mannheim.de> <42FB7FC2.10405@aub.nl>
+In-Reply-To: <42FB7FC2.10405@aub.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2568067.pnqs2RUrGK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200508111858.45153@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hinko,
+--nextPart2568067.pnqs2RUrGK
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> > Could you try running "i2cdump 0 0x50" and "i2cdump 0 0x50 i" (with
-> > the patch still applied), and compare both the outputs and the time
-> > each command takes? You should see similar outputs, but the second
-> > command should be magnitudes faster. This would confirm that the I2C
-> > block mode works as intended on your VT8233 chip.
-> 
-> Hmm, not really. Here it takes 6 seconds for the first test nad about
-> 5 seconds  for the second test (I just read the WARNING - need to
-> substract 5s from the  results...).
+Am Donnerstag, 11. August 2005 18:41 schrieben Sie:
+>>arrays allocated by the driver eat 2kB each, so a stack overflow is very
+>>likely. Even with 8kB stack it is still not impossible. Using the version
+>>from 2.6.5 will not be a very good idea I think, it's likely to crash your
+>>machine one day.
+>>
+>:-(
+>:
+>>The right solution would be fixing the driver to use kmalloc()/kfree() wh=
+en
+>> he really needs the memory. There was a patch only a few days ago that
+>> tried to do that, but it was not really well done and would have crashed.
+>> If you are really interested in I can do such a patch. The code of this
+>> driver sucks universes through nanotubes, but one day someone _will_ have
+>> to start cleaning this up.
+>
+>Define: really interested
+>
+>So, probably we are really interested. Though there are a couple of caveat=
+s:
+>
+>- Testing can be done only very limited. We have only one raid array
+>available and it is in production
 
-With a recent version of i2cdump (2.8.8 or later), you can use the -y
-flag, which will skip this delay. This is very convenient for timing
-tests.
+If whatever I do will go wrong you'll see it very fast. Then you can't rece=
+ive=20
+data ;)
 
-That being said...
+>- Servers are not in yet, but will been in the next couple of weeks
+>- As Arjan noted the kernel will be "some vendor 2.6.5". More precisely
+>sles9 or rhle 3. This is dictated by the setup of informix 10 on those
+>machines, we are stuck with that unfortunately. To be really interesting
+>a patch should be backportable to 2.6.5 (or the equivalent rh kernel).
 
-> noa xtrm # time i2cdump 0 0x50
-> (...)
-> real	0m6.033s
-> (...)
-> noa xtrm # time i2cdump 0 0x50 i
-> (...)
-> real	0m5.174s
+This should be rather simple. Just use their kernel sources, copy the files=
+=20
+from a newer kernel in and rebuild the module.
 
-This is 1.033s down to 0.174s. This is just great, I2C block reads work
-and allow faster dumps, as expected.
+>- I am currently investigating if other controllers are able to support
+>this raid array and are supported. If so it might be a better idea to
+>use those
 
-> while simple cat takes a lot less time:
-> noa xtrm # time dd if=/sys/bus/i2c/devices/0-0050/eeprom bs=4
+Yes, if you find some which have a driver that smells less it would be a go=
+od=20
+idea to use them.
 
-This goes through the eeprom driver, which has an internal cache, so the
-results are not suitable for timing comparisons.
+>- We are willing to offer something in exchange. This ranges from 24
+>bottles of beer of your choice to something else. The something else
+>part needs to be discussed, but the beer part I can be held responsible
+>for :-)
 
-Thanks a lot for the testing again :)
--- 
-Jean Delvare
+*g* I'll remind you ;)
+
+Eike
+
+--nextPart2568067.pnqs2RUrGK
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBC+4PFXKSJPmm5/E4RAlrEAJ98J0dZRUpoH6KJi+1hmx1/X6n4tACfS80y
+lgNGVnoDiPCIQDaUoEDnLDQ=
+=kQYW
+-----END PGP SIGNATURE-----
+
+--nextPart2568067.pnqs2RUrGK--

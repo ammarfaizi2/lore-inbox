@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbVHKW54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVHKW5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbVHKW54 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 18:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVHKW54
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 18:57:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6276 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932523AbVHKW5y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932533AbVHKW5y (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 11 Aug 2005 18:57:54 -0400
-Message-Id: <20050811225626.233013000@localhost.localdomain>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbVHKW5y
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 11 Aug 2005 18:57:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3972 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932468AbVHKW5w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 18:57:52 -0400
+Message-Id: <20050811225637.538357000@localhost.localdomain>
 References: <20050811225445.404816000@localhost.localdomain>
-Date: Thu, 11 Aug 2005 15:54:49 -0700
+Date: Thu, 11 Aug 2005 15:54:52 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,103 +19,55 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Tim Yamin <plasmaroo@gentoo.org>, Tavis Ormandy <taviso@gentoo.org>,
-       Chris Wright <chrisw@osdl.org>
-Subject: [patch 4/8] [PATCH] Update in-kernel zlib routines
-Content-Disposition: inline; filename=linux-zlib-fixes.patch
+       David Howells <dhowells@redhat.com>, Chris Wright <chrisw@osdl.org>
+Subject: [patch 7/8] CAN-2005-2099 Destruction of failed keyring oopses
+Content-Disposition: inline; filename=failed-keyring-oops.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any  objections, please let us know.
 ------------------
 
+properly is destroyed without oopsing [CAN-2005-2099].
 
-a) http://sources.redhat.com/ml/bug-gnu-utils/1999-06/msg00183.html
-b) http://bugs.gentoo.org/show_bug.cgi?id=94584
+The problem occurs in three stages:
 
-Signed-off-by: Tim Yamin <plasmaroo@gentoo.org>
-Signed-off-by: Tavis Ormandy <taviso@gentoo.org>
+ (1) The key allocator initialises the type-specific data to all zeroes. In
+     the case of a keyring, this will become a link in the keyring name list
+     when the keyring is instantiated.
+
+ (2) If a user (any user) attempts to add a keyring with anything other than
+     an empty payload, the keyring instantiation function will fail with an
+     error and won't add the keyring to the name list.
+
+ (3) The keyring's destructor then sees that the keyring has a description
+     (name) and tries to remove the keyring from the name list, which oopses
+     because the link pointers are both zero.
+
+This bug permits any user to take down a box trivially.
+
+Signed-Off-By: David Howells <dhowells@redhat.com>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 ---
- arch/ppc64/boot/zlib.c      |    3 ++-
- lib/inflate.c               |   16 +++++++++-------
- lib/zlib_inflate/inftrees.c |    2 +-
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ security/keys/keyring.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.12.y/lib/inflate.c
+Index: linux-2.6.12.y/security/keys/keyring.c
 ===================================================================
---- linux-2.6.12.y.orig/lib/inflate.c
-+++ linux-2.6.12.y/lib/inflate.c
-@@ -326,7 +326,7 @@ DEBG("huft1 ");
-   {
-     *t = (struct huft *)NULL;
-     *m = 0;
--    return 0;
-+    return 2;
-   }
+--- linux-2.6.12.y.orig/security/keys/keyring.c
++++ linux-2.6.12.y/security/keys/keyring.c
+@@ -188,7 +188,11 @@ static void keyring_destroy(struct key *
  
- DEBG("huft2 ");
-@@ -374,6 +374,7 @@ DEBG("huft5 ");
-     if ((j = *p++) != 0)
-       v[x[j]++] = i;
-   } while (++i < n);
-+  n = x[g];                   /* set n to length of v */
+ 	if (keyring->description) {
+ 		write_lock(&keyring_name_lock);
+-		list_del(&keyring->type_data.link);
++
++		if (keyring->type_data.link.next != NULL &&
++		    !list_empty(&keyring->type_data.link))
++			list_del(&keyring->type_data.link);
++
+ 		write_unlock(&keyring_name_lock);
+ 	}
  
- DEBG("h6 ");
- 
-@@ -410,12 +411,13 @@ DEBG1("1 ");
- DEBG1("2 ");
-           f -= a + 1;           /* deduct codes from patterns left */
-           xp = c + k;
--          while (++j < z)       /* try smaller tables up to z bits */
--          {
--            if ((f <<= 1) <= *++xp)
--              break;            /* enough codes to use up j bits */
--            f -= *xp;           /* else deduct codes from patterns */
--          }
-+          if (j < z)
-+            while (++j < z)       /* try smaller tables up to z bits */
-+            {
-+              if ((f <<= 1) <= *++xp)
-+                break;            /* enough codes to use up j bits */
-+              f -= *xp;           /* else deduct codes from patterns */
-+            }
-         }
- DEBG1("3 ");
-         z = 1 << j;             /* table entries for j-bit table */
-Index: linux-2.6.12.y/lib/zlib_inflate/inftrees.c
-===================================================================
---- linux-2.6.12.y.orig/lib/zlib_inflate/inftrees.c
-+++ linux-2.6.12.y/lib/zlib_inflate/inftrees.c
-@@ -141,7 +141,7 @@ static int huft_build(
-   {
-     *t = NULL;
-     *m = 0;
--    return Z_OK;
-+    return Z_DATA_ERROR;
-   }
- 
- 
-Index: linux-2.6.12.y/arch/ppc64/boot/zlib.c
-===================================================================
---- linux-2.6.12.y.orig/arch/ppc64/boot/zlib.c
-+++ linux-2.6.12.y/arch/ppc64/boot/zlib.c
-@@ -1307,7 +1307,7 @@ local int huft_build(
-   {
-     *t = (inflate_huft *)Z_NULL;
-     *m = 0;
--    return Z_OK;
-+    return Z_DATA_ERROR;
-   }
- 
- 
-@@ -1351,6 +1351,7 @@ local int huft_build(
-     if ((j = *p++) != 0)
-       v[x[j]++] = i;
-   } while (++i < n);
-+  n = x[g];			/* set n to length of v */
- 
- 
-   /* Generate the Huffman codes and for each, make the table entries */
 
 --

@@ -1,87 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVHKOL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbVHKOMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbVHKOL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 10:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVHKOL7
+	id S1750941AbVHKOMz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 10:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbVHKOMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 10:11:59 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:3295 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750867AbVHKOL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 10:11:58 -0400
-Date: Thu, 11 Aug 2005 10:51:00 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
-In-reply-to: <E1E3CJE-0001NJ-PH@allen.werkleitz.de>
-To: linux-kernel@vger.kernel.org
-Message-id: <200508111051.01067.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
- <20050811064217.GB21395@titan.lahn.de> <E1E3CJE-0001NJ-PH@allen.werkleitz.de>
-User-Agent: KMail/1.7
+	Thu, 11 Aug 2005 10:12:54 -0400
+Received: from pat.uio.no ([129.240.130.16]:60857 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750941AbVHKOMx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 10:12:53 -0400
+Subject: Re: fcntl(F GETLEASE) semantics??
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Michael Kerrisk <mtk-lkml@gmx.net>
+Cc: peterc@gelato.unsw.edu.au, linux-kernel@vger.kernel.org,
+       sfr@canb.auug.org.au, matthew@wil.cx, michael.kerrisk@gmx.net
+In-Reply-To: <1123769192.8251.75.camel@lade.trondhjem.org>
+References: <1123764552.8251.43.camel@lade.trondhjem.org>
+	 <994.1123766559@www9.gmx.net> <1123769192.8251.75.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Thu, 11 Aug 2005 10:12:31 -0400
+Message-Id: <1123769551.8251.80.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.459, required 12,
+	autolearn=disabled, AWL 2.35, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 August 2005 08:37, hunold@linuxtv.org wrote:
->Hello Philipp,
->
->> I got the following OOPS from running "alevtd -F -d -v /dev/vbi0"
->> with my Siemens-DVB-C on a Dual-i686-600. I'm able to reproduce
->> this even running a 2.6.12-rc6 without the nvidia module tainting
->> the kernel.
->
->So you're using the analog tuner of the card to watch analog cable
-> tv and want to decode teletext from the vbi, right?
+to den 11.08.2005 Klokka 10:06 (-0400) skreiv Trond Myklebust:
 
-Yes, and I can also report that teletext decoding has ceased to work
-here.  But I'm not sure what kernel version killed it.  Currently
-running 2.6.13-rc6.  But my card is cx88 based, a pcHDTV-3000.  But
-attempting to switch it on/off doesn't seem to generate any output
-indicating it failed, it just Doesn't Work(TM)
+> The NFSv4 spec explicitly states that
+> 
+>   When a client has a read open delegation, it may not make any changes
+>   to the contents or attributes of the file but it is assured that no
+>   other client may do so.  When a client has a write open delegation,
+>   it may modify the file data since no other client will be accessing
+>   the file's data.  The client holding a write delegation may only
+>   affect file attributes which are intimately connected with the file
+>   data:  size, time_modify, change.
+> 
+> so NFSv4 cannot currently support this behaviour. If CIFS supports it,
+> then maybe we have a case for going to the IETF and asking for a
+> clarification to implement the same behaviour in NFSv4.
 
->Can you tell me the last kernel version that worked for you?
->
->> ...
->> kernel BUG at drivers/media/common/saa7146_video.c:741!
->
->739         fmt = format_by_fourcc(dev,fh->video_fmt.pixelformat);
->740         /* we need to have a valid format set here */
->741         BUG_ON(NULL == fmt);
->
->This sanity check is failing. Apparently the software managed
->to select a pixelformat that cannot be translated to a "saa7146
-> format".
->
->Puh, I wrote this long ago. ;-) IIRC this should not be possible
-> (ie. the driver should reject the unknown pixelformat in the
-> configuring stage).
->
->Did you update the alevt package? Perhaps it's now doing this
-> differently and it would fail with older kernels as well, which
-> have worked before.
->
->We will probably have to debug this on a very low level.
->
->Regards
->Michael.
->
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Note: I'm not saying that this means we _must_ implement the current
+behaviour in leases. If CIFS allows the server to hand out read oplocks
+when the client opened the file with a write share, then NFSv4 can
+simply deal with the difference in semantics by just never requesting a
+read lease in that situation.
+That said, if CIFS has the same semantics as NFSv4, then why allow the
+aberrant case?
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Cheers,
+  Trond
 

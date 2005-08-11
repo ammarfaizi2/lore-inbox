@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbVHKPjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbVHKPlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbVHKPjN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 11:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVHKPjN
+	id S1751068AbVHKPlN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 11:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVHKPlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 11:39:13 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:41599 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751068AbVHKPjL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 11:39:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=WVNwDot99DCP/jv9FsjrNkYz7oXO+3cMbYmWT086ZzVkLY7wCGj6qL8hdHnDQlWuR3pJTNKWOjiq4t/5F2AymKq3emtwJRTc6mnjtNWrWH+j/6K8Yvu8EklwPu/63RhwSv16Y5kGikn89vx8aZ35l7042PrZzOaPqx3sOt3d1JU=
-Date: Thu, 11 Aug 2005 17:39:03 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: Michael Thonke <iogl64nx@gmail.com>
-Cc: rlrevell@joe-job.com, lgb@lgb.hu, AMartin@nvidia.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
-Message-Id: <20050811173903.e2eaa9ed.diegocg@gmail.com>
-In-Reply-To: <42FB6C27.1010408@gmail.com>
-References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com>
-	<20050811070943.GB8025@vega.lgb.hu>
-	<1123765523.32375.10.camel@mindpipe>
-	<42FB6C27.1010408@gmail.com>
-X-Mailer: Sylpheed version 2.1.0 (GTK+ 2.6.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 11 Aug 2005 11:41:13 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:20230 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751068AbVHKPlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 11:41:12 -0400
+Message-ID: <42FB7196.8000408@vmware.com>
+Date: Thu, 11 Aug 2005 08:41:10 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: n l <walking.to.remember@gmail.com>
+Cc: Giuliano Pochini <pochini@denise.shiny.it>, linux-kernel@vger.kernel.org
+Subject: Re: why the interrupt handler should be marked "static" for it is
+ never called directly from another file.
+References: <6b5347dc05081101334c1a6e3c@mail.gmail.com>	 <Pine.LNX.4.58.0508111049010.5385@denise.shiny.it> <6b5347dc0508110203345af854@mail.gmail.com>
+In-Reply-To: <6b5347dc0508110203345af854@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Aug 2005 15:40:56.0391 (UTC) FILETIME=[10789D70:01C59E8B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 11 Aug 2005 17:17:59 +0200,
-Michael Thonke <iogl64nx@gmail.com> escribió:
+n l wrote:
 
-> There is no other way to use a nearly good chipset for AMD64 cpus.
-> Via's chipsets are really buggy not acceptable, so what else ULi/Ali who 
-> cares where to buy?
+>I see, if a function in a module is not marked by static ,it can be
+>accessed by any other function in kernel, while , using a static can
+>avoid it .
+>
+>thanks a lot !!
+>
+>
+>2005/8/11, Giuliano Pochini <pochini@denise.shiny.it>:
+>  
+>
+>>On Thu, 11 Aug 2005, n l wrote:
+>>
+>>    
+>>
+>>>could you explain its reason for using static ?
+>>>      
+>>>
+>>Anything which is never referenced from another file should be
+>>static in order to keep namespace pollution low.
+>>
 
+There is actually another very good reason as well.  By marking 
+functions static, you are telling the compiler that they may be only 
+used in that file.  This allows the compiler to remove unused functions, 
+which would be left in if implicitly declared "extern" by omitting the 
+static.
 
-HP, Sun & friends seem to use AMD chipsets (AMD64 has a serious lack of 
-support from "serious" chipset makers - many people do argue
-that the nvidias are far from being "good" chipsets) and they seem to
-support linux, but it's not easy to find motherboards for amd64 cpus
-with amd chipsets on them. Good chipsets seems to be one of
-the reasons why some people keeps buying intel...
+Zach

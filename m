@@ -1,34 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVHKIMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbVHKIMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbVHKIMH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 04:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbVHKIMH
+	id S1030221AbVHKIMm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 04:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbVHKIMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 04:12:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46286 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932287AbVHKIMG (ORCPT
+	Thu, 11 Aug 2005 04:12:42 -0400
+Received: from NS4.Sony.CO.JP ([137.153.0.44]:3011 "EHLO ns4.sony.co.jp")
+	by vger.kernel.org with ESMTP id S1030219AbVHKIMl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 04:12:06 -0400
-Date: Thu, 11 Aug 2005 16:17:29 +0800
-From: David Teigland <teigland@redhat.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: linux-cluster@redhat.com
-Subject: GFS - updated patches
-Message-ID: <20050811081729.GB12438@redhat.com>
-References: <20050802071828.GA11217@redhat.com>
+	Thu, 11 Aug 2005 04:12:41 -0400
+Date: Thu, 11 Aug 2005 17:07:50 +0900 (JST)
+Message-Id: <20050811.170750.26993208.kaminaga@sm.sony.co.jp>
+To: rusty@rustcorp.com.au, adam@yggdrasil.com
+Cc: linux-kernel@vger.kernel.org
+From: Hiroki Kaminaga <kaminaga@sm.sony.co.jp>
+X-Mailer: Mew version 4.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050802071828.GA11217@redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: Multipart/Mixed;
+ boundary="--Next_Part(Thu_Aug_11_17_07_50_2005_223)--"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for all the review and comments.  This is a new set of patches that
-incorporates the suggestions we've received.
+----Next_Part(Thu_Aug_11_17_07_50_2005_223)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-http://redhat.com/~teigland/gfs2/20050811/gfs2-full.patch
-http://redhat.com/~teigland/gfs2/20050811/broken-out/
+Hi,
 
-Dave
+I don't know if this is a bug, but on kernel src code, `-' and `,' is
+substituted to `_' in scripts/Makefile.lib but, in latest
+module-init-tools-3.2-pre9, only `-' is handled, but not ','.
 
+Attached is the patch for this problem against module-init-tools.
+
+Regards,
+
+HK.
+--
+----Next_Part(Thu_Aug_11_17_07_50_2005_223)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="module-init-tools.patch"
+
+diff -uNrp module-init-tools-3.2-pre9-orig/rmmod.c module-init-tools-3.2-pre9/rmmod.c
+--- module-init-tools-3.2-pre9-orig/rmmod.c	Wed Feb 25 16:10:51 2004
++++ module-init-tools-3.2-pre9/rmmod.c	Thu Aug 11 16:50:32 2005
+@@ -165,6 +165,8 @@ static void filename2modname(char *modna
+ 	for (i = 0; afterslash[i] && afterslash[i] != '.'; i++) {
+ 		if (afterslash[i] == '-')
+ 			modname[i] = '_';
++		else if (afterslash[i] == ',')
++			modname[i] = '_';
+ 		else
+ 			modname[i] = afterslash[i];
+ 	}
+
+----Next_Part(Thu_Aug_11_17_07_50_2005_223)----

@@ -1,97 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVHKSRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVHKSRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVHKSRc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 14:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbVHKSRc
+	id S932344AbVHKSRi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 14:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbVHKSRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 14:17:32 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:54260 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932344AbVHKSRb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 14:17:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=WEi324ev4/CGr6V1R7d3V3hpXof5oZ+o+lIZ9Gwj0l2/eOjFozGSSfMZyiQp7RuvfXzwGcVlBi0jjw7mtS7M/J0dfV5STNABE0TDxW+KPqrZDtT6B6hfoZcS6HxqojCxevNiVmyFfS8Dkp8YkbOaiyol0XG37dIqvvu+W4wROwA=
-Message-ID: <42FB9625.2070708@gmail.com>
-Date: Thu, 11 Aug 2005 20:17:09 +0200
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Jeff Garzik <jgarzik@pobox.com>, Lee Revell <rlrevell@joe-job.com>,
-       lgb@lgb.hu, Allen Martin <AMartin@nvidia.com>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
-References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com> <20050811070943.GB8025@vega.lgb.hu> <1123765523.32375.10.camel@mindpipe> <42FB6C27.1010408@gmail.com> <42FB88F8.7040807@pobox.com> <42FB8D04.8050006@gmail.com> <20050811180418.GK31019@csclub.uwaterloo.ca>
-In-Reply-To: <20050811180418.GK31019@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 11 Aug 2005 14:17:38 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:20664 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932344AbVHKSRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 14:17:37 -0400
+Subject: Re: Need help in understanding x86 syscall
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Coywolf Qi Hunt <coywolf@gmail.com>, 7eggert@gmx.de,
+       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <42FB91FA.7070104@vmware.com>
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
+	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
+	 <1123770661.17269.59.camel@localhost.localdomain>
+	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
+	 <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
+	 <1123775508.17269.64.camel@localhost.localdomain>
+	 <1123777184.17269.67.camel@localhost.localdomain>
+	 <2cd57c90050811093112a57982@mail.gmail.com>
+	 <2cd57c9005081109597b18cc54@mail.gmail.com>
+	 <Pine.LNX.4.61.0508111310180.15153@chaos.analogic.com>
+	 <1123781187.17269.77.camel@localhost.localdomain>
+	 <1123781639.17269.83.camel@localhost.localdomain>
+	 <42FB91FA.7070104@vmware.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 11 Aug 2005 14:17:28 -0400
+Message-Id: <1123784248.17269.93.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen schrieb:
+On Thu, 2005-08-11 at 10:59 -0700, Zachary Amsden wrote:
+> 
+> zach-dev2:~ $ ldd /bin/ls
+>         linux-gate.so.1 =>  (0xffffe000)
 
->On Thu, Aug 11, 2005 at 07:38:12PM +0200, Michael Thonke wrote:
->  
->
->>I have a ASUS A8V Deluxe too, and can't use the AMD X2 processor on 
->>it...this is a feature..right?
->>Supposed to run with DualCore but don't post..hm.
->>    
->>
->
->Well according to Asus you can if you run BIOS 1013 or 1014 on the
->board.  Any less and it won't boot.
->  
->
-What they say is escapist - far away..
+OHHH! So THAT is what linux-gate is used for! Thanks, I've been really
+confused by that.
 
->Now I certainly can't try it given I don't have such a CPU.
->
->  
->
-Well, don't go to holiday and spend the money for this genial CPU.
+> 
+> This is the vsyscall entry point, which gets linked by ld into all 
+> processes.  It is a kernel page which is visible to user space, and is 
+> rewritten to support sysenter if indeed that instruction is available.  
+> Glibc has fixed entry points to this page.  Here is a view of the system 
+> call entry point on a machine which supports sysenter:
+> 
+> (gdb) break _init
+> Breakpoint 1 at 0x8049522
+> (gdb) run
+> Starting program: /bin/ls
+> (no debugging symbols found)...[Thread debugging using libthread_db enabled]
+> [New Thread 1075283616 (LWP 5328)]
+> [Switching to Thread 1075283616 (LWP 5328)]
+> 
+> Breakpoint 1, 0x08049522 in _init ()
+> (gdb) x/10i 0xffffe400
+> 0xffffe400:     push   %ecx
+> 0xffffe401:     push   %edx
+> 0xffffe402:     push   %ebp
+> 0xffffe403:     mov    %esp,%ebp
+> 0xffffe405:     sysenter
+> 0xffffe407:     nop   
+> 0xffffe408:     nop   
+> 0xffffe409:     nop   
+> 0xffffe40a:     nop   
+> 0xffffe40b:     nop   
+> 
 
->>My SATA II devices. Get not regonized from the VIA SATA 
->>controller...this bug is known.
->>So I want to use my HDD's I bought ...why should I set my SATA II device 
->>to be SATA I.
->>    
->>
->
->So a SATA II drive doesn't work at all?
->  
->
-Jep. On VIA chipsets..it would be to flacky to say SATA II drives 
-doesn't work at all.
-But its like the Smart-Table and what vendors implement and who did the 
-interpretation of specs:-) It's like a fairy tale..the hardware fairy tale.
+OK, I get the same on my machine.
 
->  
->
->>Is also a feature of VIA Chipsets, right?
->>
->>"It's not a bug, hey let's say is a feature."
->>    
->>
->
->Common practice it seems.
->  
->
-"Wouldn't be the would in there, the world would be boring."
+> On a machine that does not support sysenter, this will give you:
+> 
+> int $0x80
+> ret
+> 
+> The int $0x80 system calls are still fully supported by a sysenter 
+> capable kernel, since it must run older binaries and potentially support 
+> syscalls during early boot up before it is known that sysenter is supported.
 
->Len Sorensen
->
->  
->
-Michael
+Now is the latest glibc using this.  Since I put in a ud2 op in my
+sysenter_entry code, which is not triggered, as well as an objdump of
+libc.so shows a bunch of int 0x80 calls.
 
--- 
-Michael Thonke
-IT-Systemintegrator /
-System- and Softwareanalyist
-
+-- Steve
 
 

@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030271AbVHKLQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbVHKLOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030271AbVHKLQU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 07:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbVHKLQU
+	id S1030268AbVHKLOA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 07:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbVHKLOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 07:16:20 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:25014 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S1030271AbVHKLQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 07:16:20 -0400
-Message-ID: <42FB3381.3010809@grupopie.com>
-Date: Thu, 11 Aug 2005 12:16:17 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Thu, 11 Aug 2005 07:14:00 -0400
+Received: from heisenberg.zen.co.uk ([212.23.3.141]:44986 "EHLO
+	heisenberg.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1030268AbVHKLOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 07:14:00 -0400
+Message-ID: <42FB3295.5020200@dresco.co.uk>
+Date: Thu, 11 Aug 2005 12:12:21 +0100
+From: Jon Escombe <lists@dresco.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: kai.germaschewski@gmx.de, kai@germaschewski.name,
-       linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH] do not save thousands of useless symbols in KALLSYMS
- kernels
-References: <200508111403.39708.vda@ilport.com.ua>
-In-Reply-To: <200508111403.39708.vda@ilport.com.ua>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: hdaps-devel@lists.sourceforge.net
+Subject: IBM HDAPS - how to freeze i/o?
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Hops: 1
+X-Originating-Heisenberg-IP: [82.68.23.174]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> Sample of my kernel's mostly useless symbols
-> (starting_with:# of symbols):
-> 
-> __func__: 624
-> __vendorstr_: 1760
-> __pci_fixup_PCI_: 116
-> __ksymtab_: 2597
-> __kstrtab_: 2597
-> __kcrctab_: 2597
-> __initcall_: 236
-> __devicestr_: 4686
-> __devices_: 1760
-> Total: 16973
-> Lines in System.map: 39735
-> 
-> Excluding them from in-kernel symbol table saves ~300kb:
-> 
->    text    data     bss     dec     hex filename
-> 4337710 1054414  259296 5651420  563bdc vmlinux.carrier1 - w/o KALLSYMS
-> 4342068 1296046  259296 5897410  59fcc2 vmlinux - with KALLSYMS+patch
-> 4341948 1607634  259296 6208878  5ebd6e vmlinux.carrier - with KALLSYMS
->         ^^^^^^^
 
-Hummm.... these symbols should only go in if you config KALLSYMS_ALL. 
-Are you sure your configuration doesn't have KALLSYMS_ALL enabled?
+The HDAPS (IBM ThinkPad Hard Disk Active Protection System) project 
+currently has working code to read the accelerometer data, and to park 
+the hard disk.
+However, we're going to need a way to keep the disk idle following the 
+park command, as any subsequent command reaching the disk may reactivate 
+the drive before it's safe to resume.
 
-If it does, it seems like the correct behavior to include all symbols if 
-you specified that you wanted _all_ symbols :)
+Is there any mechanism available in the kernel to 'freeze' the i/o queue?
 
-By the way, there is a completely different version of 
-scripts/kallsyms.c in -mm that you might want to look at. It will 
-probably go in after 2.6.13 is out.
+Thanks,
+Jon.
 
--- 
-Paulo Marques - www.grupopie.com
 
-It is a mistake to think you can solve any major problems
-just with potatoes.
-Douglas Adams
+______________________________________________________________
+Email via Mailtraq4Free from Enstar (www.mailtraqdirect.co.uk)

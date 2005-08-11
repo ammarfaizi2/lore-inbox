@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbVHKRSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVHKRSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbVHKRSH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 13:18:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbVHKRSH
+	id S1751133AbVHKRSb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 13:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVHKRSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 13:18:07 -0400
-Received: from smtpout.mac.com ([17.250.248.83]:27124 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751132AbVHKRSG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 13:18:06 -0400
-In-Reply-To: <Pine.LNX.4.61.0508111256440.15112@chaos.analogic.com>
-References: <20050811144457.2598.qmail@science.horizon.com> <Pine.LNX.4.61.0508111058580.14789@chaos.analogic.com> <75F35484-8D34-4B1A-B158-92930EA704D6@mac.com> <Pine.LNX.4.61.0508111256440.15112@chaos.analogic.com>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <1E06281F-A481-42B1-B90A-1A68C4070913@mac.com>
-Cc: linux@horizon.com, linux-kernel@vger.kernel.org
+	Thu, 11 Aug 2005 13:18:30 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:17875 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751133AbVHKRS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 13:18:29 -0400
+Subject: Re: Need help in understanding x86 syscall
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>, 7eggert@gmx.de,
+       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <2cd57c9005081109597b18cc54@mail.gmail.com>
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
+	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
+	 <1123770661.17269.59.camel@localhost.localdomain>
+	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
+	 <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
+	 <1123775508.17269.64.camel@localhost.localdomain>
+	 <1123777184.17269.67.camel@localhost.localdomain>
+	 <2cd57c90050811093112a57982@mail.gmail.com>
+	 <2cd57c9005081109597b18cc54@mail.gmail.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 11 Aug 2005 13:18:01 -0400
+Message-Id: <1123780681.17269.71.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: CCITT-CRC16 in kernel
-Date: Thu, 11 Aug 2005 13:17:51 -0400
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 11, 2005, at 13:08:56, linux-os (Dick Johnson) wrote:
-> Okay. Thanks. This means that hardware somehow swapped bits
-> before doing a CRC. I wasn't aware that this was even possible
-> as it would require additional storage, well I guess anything
-> is now possible in a FPGA.
->
-> The "Bible" has been:
->      http://www.joegeluso.com/software/articles/ccitt.htm
->
-> Note that on the very first page, reference, is made to
-> the 0x1021 poly. Then there is source-code that is entirely
-> incompatible with anything in the kernel, but is supposed to
-> work (it does work on my hardware).
->
-> I have spent over a week grabbing everything on the Web that
-> could help decipher the CCITT CRC and they all show this
-> same kind of code and same kind of organization. Nothing
-> I could find on the Web is like the linux kernel ccitt_crc.
-> Go figure.
->
-> Do you suppose it was bit-swapped to bypass a patent?
+On Fri, 2005-08-12 at 00:59 +0800, Coywolf Qi Hunt wrote:
+> On 8/12/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+> > On 8/12/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> >
+> > > flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
 
-It could be that, or it could be some kernel genius figured
-out that one method is faster or better or more magical than
-the other on most platforms.  Since the code works well, I
-would be disinclined to tinker with it. :-D.
+> > The cpu does have sep. Is it vanilla kernel?
+> > 
 
-Cheers,
-Kyle Moffett
+It's vanilla 2.6.12-rc3 + Ingo's RT V0.7.46-02-rs-0.4 + some of my own
+customizations.  But I never touched the sysentry stuff and with a few
+printks I see it is being initialized.
 
---
-Q: Why do programmers confuse Halloween and Christmas?
-A: Because OCT 31 == DEC 25.
+> 
+> Also glibc support.
+> 
 
+I'm using Debian unstable with a recent (last week) update.
+
+-- Steve
 
 

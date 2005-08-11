@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVHKOKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVHKOKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbVHKOKI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 10:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVHKOKH
+	id S1750782AbVHKOKY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 10:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbVHKOKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 10:10:07 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:60378 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1750765AbVHKOKG (ORCPT
+	Thu, 11 Aug 2005 10:10:23 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:36248 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S1750782AbVHKOKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 10:10:06 -0400
-Date: Fri, 12 Aug 2005 00:10:04 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: "Michael Kerrisk" <mtk-lkml@gmx.net>
-Cc: trond.myklebust@fys.uio.no, peterc@gelato.unsw.edu.au,
-       linux-kernel@vger.kernel.org, matthew@wil.cx, michael.kerrisk@gmx.net
-Subject: Re: fcntl(F GETLEASE) semantics??
-Message-Id: <20050812001004.68779bfc.sfr@canb.auug.org.au>
-In-Reply-To: <994.1123766559@www9.gmx.net>
-References: <1123764552.8251.43.camel@lade.trondhjem.org>
-	<994.1123766559@www9.gmx.net>
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.6.9; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 11 Aug 2005 10:10:21 -0400
+Message-ID: <42FB5C4B.2010205@vc.cvut.cz>
+Date: Thu, 11 Aug 2005 16:10:19 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David King <dave@daveking.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Pls help me understand this MCE
+References: <42FB5768.8070608@daveking.com>
+In-Reply-To: <42FB5768.8070608@daveking.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Aug 2005 15:22:39 +0200 (MEST) "Michael Kerrisk" <mtk-lkml@gmx.net> wrote:
->
-> > A shared (i.e. read) lease means that there are currently no processes
-> > that can change the data or metadata (including your own). 
->                                         ^^^^^^^^^^^^^^^^^
+David King wrote:
+> CPU 0 4 northbridge TSC f03d1e587b
+> Northbridge Watchdog error
+> bit57 = processor context corrupt
+> bit61 = error uncorrected
+> bus error 'generic participation, request timed out
+> generic error mem transaction
+> generic access, level generic'
+> STATUS b200000000070f0f MCGSTATUS 4
 > 
-> This is precisely the point of the problem.  Stephen 
-> Rothwell, and Matthew Wilcox seem to be saying that
-> the last bit is not the case.  
+> That's all meaningless to me so I'm looking for help understanding what
+> it means and what parts of my system I should be looking at in order to
+> try to resolve this MCE.
+> 
+> A Google search found one hit that suggested that "Something tried to
+> access a physical memory address that was not mapped in the CPU."  If
+> that is indeed the correct interpretation, is there any wany to figure
+> out what that "something" is?
 
-Sorry, Michael, I was not aware of why the change was made and I must
-defer to Trond (for NFSv4) and the CIFS team on the appropriate semantics
-here.  Matthew may have another opinion.
+Try dumping *all* MCE values, as well as a call stack.  Even although
+MCE is tagged as processor context corrupt, there is rather big chance
+that stack trace will point back to the instruction which caused MCE
+(it always did in my case),  especially if it is single processor system.
+Then you'll at least know which subsystem/driver did that.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+						Best regards,
+							Petr Vandrovec
+

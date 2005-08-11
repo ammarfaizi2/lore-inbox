@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbVHKV4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbVHKV6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbVHKV4e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 17:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbVHKV4e
+	id S932292AbVHKV6j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 17:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbVHKV6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 17:56:34 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:11177 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932282AbVHKV4d (ORCPT
+	Thu, 11 Aug 2005 17:58:39 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:63171 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932289AbVHKV6h convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 17:56:33 -0400
-Message-ID: <42FBC985.4030602@pobox.com>
-Date: Thu, 11 Aug 2005 17:56:21 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Thu, 11 Aug 2005 17:58:37 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-ia64@vger.kernel.org,
-       Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
-References: <200508111424.43150.bjorn.helgaas@hp.com> <200508111445.41428.bjorn.helgaas@hp.com> <42FBBB6F.1030306@pobox.com> <200508111542.07851.bjorn.helgaas@hp.com> <20050811214807.GA9775@havoc.gtf.org>
-In-Reply-To: <20050811214807.GA9775@havoc.gtf.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] IDE: don't offer IDE_GENERIC on ia64
+Date: Thu, 11 Aug 2005 14:58:21 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F041DACC8@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] IDE: don't offer IDE_GENERIC on ia64
+Thread-Index: AcWevY9m5VRv6OWdS9q98H5ZXJ67qgAAfSwA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <B.Zolnierkiewicz@elka.pw.edu.pl>, <linux-kernel@vger.kernel.org>,
+       <linux-ide@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 11 Aug 2005 21:58:22.0797 (UTC) FILETIME=[CAC7EFD0:01C59EBF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE Controller 
-> (rev 02) (prog-if 8a [Master SecP PriP])
->         Subsystem: Hewlett-Packard Company d530 CMT (DG746A)
->         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Step
-> ping- SERR- FastB2B-
->         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort
-> - <MAbort- >SERR- <PERR-
->         Latency: 0
->         Interrupt: pin A routed to IRQ 169
->         Region 0: I/O ports at <ignored>
->         Region 1: I/O ports at <ignored>
->         Region 2: I/O ports at <ignored>
->         Region 3: I/O ports at <ignored>
->         Region 4: I/O ports at 14c0 [size=16]
->         Region 5: Memory at 40000000 (32-bit, non-prefetchable) [size=1K]
-> 
-> 
-> 
-> Trust me, IDE on PCI is still quite weird.
 
-The above configuration also indicates that the IRQs for the PCI device 
-are 14 and 15, _not_ 169.
+>Tony, others, does this change give you any heartburn?  On
+>the 460GX and 870 boxes I have, IDE is a PCI device.
 
-	Jeff
+No heartburn for me ... as you say IDE is built into one
+of the 870 chips.
 
+I don't know whether any non-Intel chipsets provide legacy IDE.
 
+-Tony

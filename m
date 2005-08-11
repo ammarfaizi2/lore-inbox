@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVHKMha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbVHKMry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbVHKMha (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 08:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVHKMha
+	id S1030296AbVHKMry (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 08:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbVHKMry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 08:37:30 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:421 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932374AbVHKMh3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 08:37:29 -0400
-References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
-            <20050811064217.GB21395@titan.lahn.de>
-In-Reply-To: <20050811064217.GB21395@titan.lahn.de>
-From: hunold@linuxtv.org
-To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-dvb-maintainer@linuxtv.org
-Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
-Date: Thu, 11 Aug 2005 14:37:20 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1E3CJE-0001NJ-PH@allen.werkleitz.de>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Scanned: No (on allen.werkleitz.de); SAEximRunCond expanded to false
+	Thu, 11 Aug 2005 08:47:54 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:24590 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932398AbVHKMrx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 08:47:53 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <42FB435E.2070607@effigent.net>
+References: <42FB435E.2070607@effigent.net>
+X-OriginalArrivalTime: 11 Aug 2005 12:47:51.0050 (UTC) FILETIME=[E25356A0:01C59E72]
+Content-class: urn:content-classes:message
+Subject: Re: __init()
+Date: Thu, 11 Aug 2005 08:47:38 -0400
+Message-ID: <Pine.LNX.4.61.0508110835480.14365@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: __init()
+Thread-Index: AcWecuJwsDgZBPeeQl6BhLVBzXvwPQ==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "raja" <vnagaraju@effigent.net>
+Cc: <linux-c-programming@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Philipp, 
 
-> I got the following OOPS from running "alevtd -F -d -v /dev/vbi0" with
-> my Siemens-DVB-C on a Dual-i686-600. I'm able to reproduce this even
-> running a 2.6.12-rc6 without the nvidia module tainting the kernel.
+On Thu, 11 Aug 2005, raja wrote:
 
-So you're using the analog tuner of the card to watch analog cable tv and 
-want to decode teletext from the vbi, right? 
+> Hi,
+>     Is there any way to execute my own __init() instead of default
+> __init() while running an executable.
+> -
 
-Can you tell me the last kernel version that worked for you? 
+Sure you link your object file with your own instead of using
+the default....
 
->
-> ...
-> kernel BUG at drivers/media/common/saa7146_video.c:741!
+     gcc -c -o myprog.o myprog.c
+     as -o start.o start.S
 
-739         fmt = format_by_fourcc(dev,fh->video_fmt.pixelformat);
-740         /* we need to have a valid format set here */
-741         BUG_ON(NULL == fmt); 
+     ld -o myprog myprog.o start.o /lib/libc.so.6
+                         |       |              |___ runtime lib
+                         |       |__________________ Your startup
+                         |__________________________ Your program
 
-This sanity check is failing. Apparently the software managed
-to select a pixelformat that cannot be translated to a "saa7146 format". 
+Startup starts with a label _start. You may have to write it
+in assembly. It calls main() and must never return. Instead
+it calls exit() with whatever main() returned, to quit.
 
-Puh, I wrote this long ago. ;-) IIRC this should not be possible (ie. the 
-driver should reject the unknown pixelformat in the configuring stage). 
+__init() is some M$ thing. Linux executables start with
+_start().
 
-Did you update the alevt package? Perhaps it's now doing this differently 
-and it would fail with older kernels as well, which have worked before. 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
 
-We will probably have to debug this on a very low level. 
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-Regards
-Michael. 
-
+Thank you.

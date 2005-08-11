@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbVHKRO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbVHKRSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbVHKRO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 13:14:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVHKRO4
+	id S1751132AbVHKRSH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 13:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbVHKRSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 13:14:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:45482 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751131AbVHKROz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 13:14:55 -0400
-Date: Thu, 11 Aug 2005 18:14:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, dipankar@in.ibm.com,
-       rusty@au1.ibm.com, bmark@us.ibm.com
-Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
-Message-ID: <20050811171451.GA5108@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Paul E. McKenney" <paulmck@us.ibm.com>,
-	linux-kernel@vger.kernel.org, mingo@elte.hu, dipankar@in.ibm.com,
-	rusty@au1.ibm.com, bmark@us.ibm.com
-References: <20050810171145.GA1945@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050810171145.GA1945@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 11 Aug 2005 13:18:07 -0400
+Received: from smtpout.mac.com ([17.250.248.83]:27124 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751132AbVHKRSG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 13:18:06 -0400
+In-Reply-To: <Pine.LNX.4.61.0508111256440.15112@chaos.analogic.com>
+References: <20050811144457.2598.qmail@science.horizon.com> <Pine.LNX.4.61.0508111058580.14789@chaos.analogic.com> <75F35484-8D34-4B1A-B158-92930EA704D6@mac.com> <Pine.LNX.4.61.0508111256440.15112@chaos.analogic.com>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <1E06281F-A481-42B1-B90A-1A68C4070913@mac.com>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: CCITT-CRC16 in kernel
+Date: Thu, 11 Aug 2005 13:17:51 -0400
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 10, 2005 at 10:11:45AM -0700, Paul E. McKenney wrote:
-> Hello!
-> 
-> This patch is an experiment in use of RCU for individual code paths that
-> read-acquire the tasklist lock, in this case, unicast signal delivery.
-> It passes five kernbenches on 4-CPU x86, but obviously needs much more
-> testing before it is considered for serious use, let alone inclusion.
+On Aug 11, 2005, at 13:08:56, linux-os (Dick Johnson) wrote:
+> Okay. Thanks. This means that hardware somehow swapped bits
+> before doing a CRC. I wasn't aware that this was even possible
+> as it would require additional storage, well I guess anything
+> is now possible in a FPGA.
+>
+> The "Bible" has been:
+>      http://www.joegeluso.com/software/articles/ccitt.htm
+>
+> Note that on the very first page, reference, is made to
+> the 0x1021 poly. Then there is source-code that is entirely
+> incompatible with anything in the kernel, but is supposed to
+> work (it does work on my hardware).
+>
+> I have spent over a week grabbing everything on the Web that
+> could help decipher the CCITT CRC and they all show this
+> same kind of code and same kind of organization. Nothing
+> I could find on the Web is like the linux kernel ccitt_crc.
+> Go figure.
+>
+> Do you suppose it was bit-swapped to bypass a patent?
 
-I think we should switch over tasklist_lock to RCU completely instead of
-adding suck hacks.  I've started lots of preparation work to get rid of
-tasklist_lock users outside of kernel/, especialy getting rid of any
-use in modules.
+It could be that, or it could be some kernel genius figured
+out that one method is faster or better or more magical than
+the other on most platforms.  Since the code works well, I
+would be disinclined to tinker with it. :-D.
+
+Cheers,
+Kyle Moffett
+
+--
+Q: Why do programmers confuse Halloween and Christmas?
+A: Because OCT 31 == DEC 25.
+
+
 

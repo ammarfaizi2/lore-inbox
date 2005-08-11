@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbVHKPW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbVHKPZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbVHKPW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 11:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVHKPW7
+	id S1751084AbVHKPZp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 11:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbVHKPZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 11:22:59 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:37852 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751084AbVHKPW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 11:22:58 -0400
-Subject: Re: Need help in understanding x86 syscall
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org, Ukil a <ukil_a@yahoo.com>, 7eggert@gmx.de
-In-Reply-To: <2cd57c90050811081374d7c4ef@mail.gmail.com>
-References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
-	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
-	 <1123770661.17269.59.camel@localhost.localdomain>
-	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
+	Thu, 11 Aug 2005 11:25:45 -0400
+Received: from pat.uio.no ([129.240.130.16]:64653 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751084AbVHKPZo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 11:25:44 -0400
+Subject: Re: fcntl(F GETLEASE) semantics??
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Michael Kerrisk <mtk-lkml@gmx.net>
+Cc: peterc@gelato.unsw.edu.au, linux-kernel@vger.kernel.org,
+       sfr@canb.auug.org.au, matthew@wil.cx, michael.kerrisk@gmx.net
+In-Reply-To: <1123772802.8251.123.camel@lade.trondhjem.org>
+References: <1123769192.8251.75.camel@lade.trondhjem.org>
+	 <23689.1123771230@www9.gmx.net>
+	 <1123772802.8251.123.camel@lade.trondhjem.org>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 11 Aug 2005 11:22:50 -0400
-Message-Id: <1123773770.17269.61.camel@localhost.localdomain>
+Date: Thu, 11 Aug 2005 11:25:20 -0400
+Message-Id: <1123773920.8251.128.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.475, required 12,
+	autolearn=disabled, AWL 2.34, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-11 at 23:13 +0800, Coywolf Qi Hunt wrote:
-> 
-> He is RBJ, Richard B. Johnson, the LKML defacto official troll.
-> 
+to den 11.08.2005 Klokka 11:06 (-0400) skreiv Trond Myklebust:
 
-Oh, so this is "root" who almost got DaveJ fired? :)
+> -----
+>  fcntl(SETLK)| effect on existing leases |
+>      flag    | F_RDLCK   | F_WRLCK       |
+>     ---------+---------------------------+
+>      F_RDLCK | none      | none          |
+>      F_WRLCK | recall    | none          |
 
--- Steve
+Oops... That table applies to existing leases owned by your process. The
+effect on leases owned by other processes is:
+
+ fcntl(SETLK)| effect on other clients   |
+     flag    | F_RDLCK   | F_WRLCK       |
+    ---------+---------------------------+
+     F_RDLCK | none      | recall        |
+     F_WRLCK | recall    | recall        |
+
+Cheers,
+  Trond
 

@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbVHKLi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVHKLsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030286AbVHKLi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 07:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbVHKLi7
+	id S932337AbVHKLsi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 07:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVHKLsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 07:38:59 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:43161 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1030286AbVHKLi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 07:38:58 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Paulo Marques <pmarques@grupopie.com>
-Subject: Re: [PATCH] do not save thousands of useless symbols in KALLSYMS kernels
-Date: Thu, 11 Aug 2005 14:38:34 +0300
-User-Agent: KMail/1.5.4
-Cc: kai.germaschewski@gmx.de, kai@germaschewski.name,
-       linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-References: <200508111403.39708.vda@ilport.com.ua> <42FB3381.3010809@grupopie.com>
-In-Reply-To: <42FB3381.3010809@grupopie.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 07:48:38 -0400
+Received: from tentacle.s2s.msu.ru ([193.232.119.109]:65507 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id S932278AbVHKLsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 07:48:37 -0400
+Date: Thu, 11 Aug 2005 15:48:36 +0400
+From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: 2.6.13-rc5 panic with tg3, e1000, vlan, tso
+Message-ID: <20050811114835.GB3543@tentacle.sectorb.msk.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200508111438.34620.vda@ilport.com.ua>
+X-Organization: Moscow State Univ., Institute of Mechanics
+X-Operating-System: Linux 2.6.11-ac7
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 August 2005 14:16, Paulo Marques wrote:
-> Denis Vlasenko wrote:
-> > Sample of my kernel's mostly useless symbols
-> > (starting_with:# of symbols):
-> > 
-> > __func__: 624
-> > __vendorstr_: 1760
-> > __pci_fixup_PCI_: 116
-> > __ksymtab_: 2597
-> > __kstrtab_: 2597
-> > __kcrctab_: 2597
-> > __initcall_: 236
-> > __devicestr_: 4686
-> > __devices_: 1760
-> > Total: 16973
-> > Lines in System.map: 39735
-> > 
-> > Excluding them from in-kernel symbol table saves ~300kb:
-> > 
-> >    text    data     bss     dec     hex filename
-> > 4337710 1054414  259296 5651420  563bdc vmlinux.carrier1 - w/o KALLSYMS
-> > 4342068 1296046  259296 5897410  59fcc2 vmlinux - with KALLSYMS+patch
-> > 4341948 1607634  259296 6208878  5ebd6e vmlinux.carrier - with KALLSYMS
-> >         ^^^^^^^
-> 
-> Hummm.... these symbols should only go in if you config KALLSYMS_ALL. 
-> Are you sure your configuration doesn't have KALLSYMS_ALL enabled?
+Hello!
 
-Yes, it has...
---
-vda
+Today my gateway crashed.
+I wrote down crash info on a paper.
+It's not complete since only last 25 lines were shown,
+but complete stackdump is here (I omitted hexadecimal values).
+
+Call Trace: <IRQ>
+    tcp_write_xmit+318
+    __tcp_push_pending_frames+45
+    tcp_rcv_established+1948
+    tcp_v4_do_rcv+35
+    tcp_v4_rcv+1444
+    nf_hook_slow+125
+    ip_local_deliver_finish+0
+    ip_local_deliver+389
+    ip_rcv+1187
+    packet_rcv_spkt+608
+    netif_receive_skb+478
+    e1000_clean_rx_irq+1165
+    tg3_vlan_rx+364
+    tg3_tx+328
+    e1000_clean+74
+    net_rx_action+171
+    __do_softirq+53
+    do_IRQ+79
+    ret_from_intr+0
+    <EOI>
+    thread_return+0
+    thread_return+86
+    default_idle+36
+    cpu_idle+79
+RIP: {tcp_tso_should_defer+73}
+Code: 0f 0b a3 7c 9d 42 80 ff ff ff ff c2 96 03 8b be 2c 03 00 00
+Aiee, killing interrupt handler!
+
+Before the call trace there was some 64-bit values.
+
+The box is dual Opteron with 2G RAM, with 64-bit kernel and mixed userland.
+There are 2 tg3 interfaces (on-board), 3 e1000 ones, and 2 e100's in it.
+
+After reboot, I disabled TSO (on e1000 NICs)  via ethtool.
+
+~
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
 

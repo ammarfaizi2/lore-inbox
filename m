@@ -1,233 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVHKRh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVHKRis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbVHKRh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 13:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbVHKRh2
+	id S932308AbVHKRis (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 13:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbVHKRis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 13:37:28 -0400
-Received: from verein.lst.de ([213.95.11.210]:15578 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S932302AbVHKRh1 (ORCPT
+	Thu, 11 Aug 2005 13:38:48 -0400
+Received: from fsmlabs.com ([168.103.115.128]:25729 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932308AbVHKRir (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 13:37:27 -0400
-Date: Thu, 11 Aug 2005 19:37:17 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Greg Howard <ghoward@sgi.com>, davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH, RFC] Standardize shutdown of the system from enviroment control modules
-Message-ID: <20050811173717.GA10420@lst.de>
-References: <20050809211003.GA29361@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050809211003.GA29361@lst.de>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Thu, 11 Aug 2005 13:38:47 -0400
+Date: Thu, 11 Aug 2005 11:44:42 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: [PATCH] i386 boottime for_each_cpu broken
+In-Reply-To: <20050811105409.GI8974@wotan.suse.de>
+Message-ID: <Pine.LNX.4.61.0508111021160.14504@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.61.0508102220070.16483@montezuma.fsmlabs.com>
+ <20050811105409.GI8974@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 11:10:03PM +0200, Christoph Hellwig wrote:
-> Currently snsc_event for Altix systems sends SIGPWR to init (and abuses
-> tasklist_lock..) while the sbus drivers call execve for /sbin/shutdown
-> (which is also ugly, it should at least use call_usermodehelper)
-> With normal sysvinit both will end up the same, but I suspect the
-> shutdown variant, maybe with a sysctl to chose the exact path to call
-> would be cleaner.  What do you guys think about adding a common function
-> to do this.  Could you test such a patch for me?
+On Thu, 11 Aug 2005, Andi Kleen wrote:
 
-Okay, here's such a patch, I've also switched the SN and the two sbus
-drivers over.
+> On Wed, Aug 10, 2005 at 10:59:28PM -0600, Zwane Mwaikambo wrote:
+> > for_each_cpu walks through all processors in cpu_possible_map, which is 
+> > defined as cpu_callout_map on i386 and isn't initialised until all 
+> > processors have been booted. This breaks things which do for_each_cpu 
+> > iterations early during boot. So, define cpu_possible_map as a bitmap with 
+> > NR_CPUS bits populated. This was triggered by a patch i'm working on which 
+> > does alloc_percpu before bringing up secondary processors.
+> 
+> Better is to initialize it in mpparse.c. That is what x86-64 is doing now.
 
+Good idea, here is an updated version, i left Voyager alone as i have no 
+way of testing it.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+ arch/i386/kernel/mpparse.c           |    8 +++++++-
+ arch/i386/kernel/smpboot.c           |    1 +
+ arch/i386/mach-voyager/voyager_smp.c |    1 +
+ include/asm-i386/smp.h               |    2 +-
+ 4 files changed, 10 insertions(+), 2 deletions(-)
 
-Index: linux-2.6/drivers/char/snsc_event.c
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+
+Index: linux-2.6.13-rc5-mm1/arch/i386/kernel/mpparse.c
 ===================================================================
---- linux-2.6.orig/drivers/char/snsc_event.c	2005-08-11 16:45:55.000000000 +0200
-+++ linux-2.6/drivers/char/snsc_event.c	2005-08-11 19:03:59.000000000 +0200
-@@ -195,24 +195,7 @@
- 	severity = scdrv_event_severity(code);
+RCS file: /home/cvsroot/linux-2.6.13-rc5-mm1/arch/i386/kernel/mpparse.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 mpparse.c
+--- linux-2.6.13-rc5-mm1/arch/i386/kernel/mpparse.c	7 Aug 2005 21:38:03 -0000	1.1.1.1
++++ linux-2.6.13-rc5-mm1/arch/i386/kernel/mpparse.c	11 Aug 2005 17:37:23 -0000
+@@ -122,7 +122,7 @@ static int MP_valid_apicid(int apicid, i
  
- 	if ((code & EV_CLASS_MASK) == EV_CLASS_PWRD_NOTIFY) {
--		struct task_struct *p;
--
--		/* give a SIGPWR signal to init proc */
--
--		/* first find init's task */
--		read_lock(&tasklist_lock);
--		for_each_process(p) {
--			if (p->pid == 1)
--				break;
--		}
--		if (p) { /* we found init's task */
--			printk(KERN_EMERG "Power off indication received. Initiating power fail sequence...\n");
--			force_sig(SIGPWR, p);
--		} else { /* failed to find init's task - just give message(s) */
--			printk(KERN_WARNING "Failed to find init proc to handle power off!\n");
--			printk("%s|$(0x%x)%s\n", severity, esp_code, desc);
--		}
--		read_unlock(&tasklist_lock);
-+		envctrl_do_shutdown();
- 	} else {
- 		/* print to system log */
- 		printk("%s|$(0x%x)%s\n", severity, esp_code, desc);
-Index: linux-2.6/drivers/sbus/char/bbc_envctrl.c
-===================================================================
---- linux-2.6.orig/drivers/sbus/char/bbc_envctrl.c	2005-08-11 16:45:59.000000000 +0200
-+++ linux-2.6/drivers/sbus/char/bbc_envctrl.c	2005-08-11 19:01:44.000000000 +0200
-@@ -4,13 +4,12 @@
-  * Copyright (C) 2001 David S. Miller (davem@redhat.com)
-  */
- 
--#define __KERNEL_SYSCALLS__
--
- #include <linux/kernel.h>
- #include <linux/kthread.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
-+#include <linux/envctrl.h>
- #include <asm/oplib.h>
- #include <asm/ebus.h>
- static int errno;
-@@ -176,8 +175,6 @@
- static void do_envctrl_shutdown(struct bbc_cpu_temperature *tp)
+ static void __init MP_processor_info (struct mpc_config_processor *m)
  {
- 	static int shutting_down = 0;
--	static char *envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
--	char *argv[] = { "/sbin/shutdown", "-h", "now", NULL };
- 	char *type = "???";
- 	s8 val = -1;
+- 	int ver, apicid;
++ 	int ver, apicid, cpu, found_bsp = 0;
+ 	physid_mask_t tmp;
+  	
+ 	if (!(m->mpc_cpuflag & CPU_ENABLED))
+@@ -181,6 +181,7 @@ static void __init MP_processor_info (st
+ 	if (m->mpc_cpuflag & CPU_BOOTPROCESSOR) {
+ 		Dprintk("    Bootup CPU\n");
+ 		boot_cpu_physical_apicid = m->mpc_apicid;
++		found_bsp = 1;
+ 	}
  
-@@ -201,8 +198,8 @@
- 	printk(KERN_CRIT "kenvctrld: Shutting down the system now.\n");
+ 	if (num_processors >= NR_CPUS) {
+@@ -204,6 +205,11 @@ static void __init MP_processor_info (st
+ 		return;
+ 	}
  
- 	shutting_down = 1;
--	if (execve("/sbin/shutdown", argv, envp) < 0)
--		printk(KERN_CRIT "envctrl: shutdown execution failed\n");
-+
-+	envctrl_do_shutdown();
- }
- 
- #define WARN_INTERVAL	(30 * HZ)
-Index: linux-2.6/drivers/sbus/char/envctrl.c
++	if (found_bsp)
++		cpu = 0;
++	else
++		cpu = num_processors - 1;
++	cpu_set(cpu, cpu_possible_map);
+ 	tmp = apicid_to_cpu_present(apicid);
+ 	physids_or(phys_cpu_present_map, phys_cpu_present_map, tmp);
+ 	
+Index: linux-2.6.13-rc5-mm1/arch/i386/kernel/smpboot.c
 ===================================================================
---- linux-2.6.orig/drivers/sbus/char/envctrl.c	2005-08-11 16:45:59.000000000 +0200
-+++ linux-2.6/drivers/sbus/char/envctrl.c	2005-08-11 19:01:57.000000000 +0200
-@@ -19,8 +19,6 @@
-  *              Daniele Bellucci <bellucda@tiscali.it>
-  */
+RCS file: /home/cvsroot/linux-2.6.13-rc5-mm1/arch/i386/kernel/smpboot.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 smpboot.c
+--- linux-2.6.13-rc5-mm1/arch/i386/kernel/smpboot.c	7 Aug 2005 21:38:03 -0000	1.1.1.1
++++ linux-2.6.13-rc5-mm1/arch/i386/kernel/smpboot.c	11 Aug 2005 17:07:44 -0000
+@@ -87,6 +87,7 @@ EXPORT_SYMBOL(cpu_online_map);
  
--#define __KERNEL_SYSCALLS__
--
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/sched.h>
-@@ -33,6 +31,7 @@
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/kernel.h>
-+#include <linux/envctrl.h>
+ cpumask_t cpu_callin_map;
+ cpumask_t cpu_callout_map;
++cpumask_t cpu_possible_map;
+ EXPORT_SYMBOL(cpu_callout_map);
+ static cpumask_t smp_commenced_mask;
  
- #include <asm/ebus.h>
- #include <asm/uaccess.h>
-@@ -975,25 +974,6 @@
- 	return NULL;
- }
- 
--static void envctrl_do_shutdown(void)
--{
--	static int inprog = 0;
--	static char *envp[] = {	
--		"HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
--	char *argv[] = { 
--		"/sbin/shutdown", "-h", "now", NULL };	
--
--	if (inprog != 0)
--		return;
--
--	inprog = 1;
--	printk(KERN_CRIT "kenvctrld: WARNING: Shutting down the system now.\n");
--	if (0 > execve("/sbin/shutdown", argv, envp)) {
--		printk(KERN_CRIT "kenvctrld: WARNING: system shutdown failed!\n"); 
--		inprog = 0;  /* unlikely to succeed, but we could try again */
--	}
--}
--
- static struct task_struct *kenvctrld_task;
- 
- static int kenvctrld(void *__unused)
-Index: linux-2.6/include/linux/envctrl.h
+Index: linux-2.6.13-rc5-mm1/arch/i386/mach-voyager/voyager_smp.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6/include/linux/envctrl.h	2005-08-11 18:58:41.000000000 +0200
-@@ -0,0 +1,6 @@
-+#ifndef _LINUX_ENVCTRL_H
-+#define _LINUX_ENVCTRL_H
-+
-+extern int envctrl_do_shutdown(void);
-+
-+#endif /* _LINUX_ENVCTRL_H */
-Index: linux-2.6/kernel/Makefile
-===================================================================
---- linux-2.6.orig/kernel/Makefile	2005-08-11 16:46:07.000000000 +0200
-+++ linux-2.6/kernel/Makefile	2005-08-11 18:57:57.000000000 +0200
-@@ -7,7 +7,7 @@
- 	    sysctl.o capability.o ptrace.o timer.o user.o \
- 	    signal.o sys.o kmod.o workqueue.o pid.o \
- 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
--	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o
-+	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o envctrl.o
+RCS file: /home/cvsroot/linux-2.6.13-rc5-mm1/arch/i386/mach-voyager/voyager_smp.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 voyager_smp.c
+--- linux-2.6.13-rc5-mm1/arch/i386/mach-voyager/voyager_smp.c	7 Aug 2005 21:38:04 -0000	1.1.1.1
++++ linux-2.6.13-rc5-mm1/arch/i386/mach-voyager/voyager_smp.c	11 Aug 2005 17:40:30 -0000
+@@ -241,6 +241,7 @@ static cpumask_t smp_commenced_mask = CP
+ /* This is for the new dynamic CPU boot code */
+ cpumask_t cpu_callin_map = CPU_MASK_NONE;
+ cpumask_t cpu_callout_map = CPU_MASK_NONE;
++cpumask_t cpu_possible_map = CPU_MASK_ALL;
+ EXPORT_SYMBOL(cpu_callout_map);
  
- obj-$(CONFIG_FUTEX) += futex.o
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
-Index: linux-2.6/kernel/envctrl.c
+ /* The per processor IRQ masks (these are usually kept in sync) */
+Index: linux-2.6.13-rc5-mm1/include/asm-i386/smp.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6/kernel/envctrl.c	2005-08-11 19:04:19.000000000 +0200
-@@ -0,0 +1,46 @@
-+/*
-+ * Copyright (C) 2001 David S. Miller.
-+ * Copyright (C) 2005 Christoph Hellwig.
-+ *	Released under GPL v2.
-+ *
-+ * Common code to shutdown the system when overheating.
-+ */
-+
-+#include <linux/envctrl.h>
-+#include <linux/kernel.h>
-+#include <linux/kmod.h>
-+
-+static char *envp[] = {
-+	"HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL
-+};
-+
-+static char *argv[] = {
-+	"/sbin/shutdown", "-h", "now", NULL
-+};
-+
-+/*
-+ * envctrl_do_shutdown  -  shut the system down when overheating
-+ *
-+ * Common routine to be called from all enviromental monitoring
-+ * drivers when a fatal overheating is detected.
-+ *
-+ * Returns 0 if /sbin/shutdown has been called sucessfully, 1 if
-+ * this routine has been called already but the kernel is still
-+ * running or a negative error value if executing the shutdown
-+ * command failed.
-+ */
-+int envctrl_do_shutdown(void)
-+{
-+	static int shutting_down = 0;
-+	int error;
-+
-+	if (shutting_down)
-+		return 1;
-+	shutting_down = 1;
-+
-+	printk(KERN_CRIT "envctrl: WARNING: Shutting down the system now.\n");
-+	error = call_usermodehelper("/sbin/shutdown", argv, envp, 0);
-+	if (error)
-+		printk(KERN_CRIT "envctrl: WARNING: system shutdown failed!\n");
-+	return error;
-+}
+RCS file: /home/cvsroot/linux-2.6.13-rc5-mm1/include/asm-i386/smp.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 smp.h
+--- linux-2.6.13-rc5-mm1/include/asm-i386/smp.h	7 Aug 2005 21:38:37 -0000	1.1.1.1
++++ linux-2.6.13-rc5-mm1/include/asm-i386/smp.h	11 Aug 2005 04:25:26 -0000
+@@ -59,7 +59,7 @@ extern void cpu_uninit(void);
+ 
+ extern cpumask_t cpu_callout_map;
+ extern cpumask_t cpu_callin_map;
+-#define cpu_possible_map cpu_callout_map
++extern cpumask_t cpu_possible_map;
+ 
+ /* We don't mark CPUs online until __cpu_up(), so we need another measure */
+ static inline int num_booting_cpus(void)

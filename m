@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbVHKVsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVHKVtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbVHKVsL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 17:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVHKVsK
+	id S932231AbVHKVtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 17:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVHKVtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 17:48:10 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:60075 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S932207AbVHKVsJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 17:48:09 -0400
-Date: Thu, 11 Aug 2005 17:48:07 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-ia64@vger.kernel.org,
-       Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
-Message-ID: <20050811214807.GA9775@havoc.gtf.org>
-References: <200508111424.43150.bjorn.helgaas@hp.com> <200508111445.41428.bjorn.helgaas@hp.com> <42FBBB6F.1030306@pobox.com> <200508111542.07851.bjorn.helgaas@hp.com>
+	Thu, 11 Aug 2005 17:49:16 -0400
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:40206 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932231AbVHKVtP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 17:49:15 -0400
+Date: Thu, 11 Aug 2005 23:49:46 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: I2C block reads with i2c-viapro: testers wanted
+Message-Id: <20050811234946.0106afbe.khali@linux-fr.org>
+In-Reply-To: <m3iryctaou.fsf@defiant.localdomain>
+References: <20050809231328.0726537b.khali@linux-fr.org>
+	<42FA6406.4030901@cetrtapot.si>
+	<20050810230633.0cb8737b.khali@linux-fr.org>
+	<42FA89FE.9050101@cetrtapot.si>
+	<20050811185651.0ca4cd96.khali@linux-fr.org>
+	<m3fytgnv73.fsf@defiant.localdomain>
+	<20050811215929.1df5fab0.khali@linux-fr.org>
+	<m3iryctaou.fsf@defiant.localdomain>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508111542.07851.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 03:42:07PM -0600, Bjorn Helgaas wrote:
-> Tony, others, does this change give you any heartburn?  On
-> the 460GX and 870 boxes I have, IDE is a PCI device.
+Hi Krzysztof,
+
+> > However,
+> > EEPROMs are also often found on SMBus busses, those controller only
+> > implement a subset of all possible I2C commands.
 > 
-> (I have been told that the SGI ia64 simulator depends on
-> IDE_GENERIC.  But it really should make the IDE device
-> appear in PCI (or describe it via ACPI)).
+> You mean one can't drive clock and data lines at will, and the
+> controller (some hardware) does it instead, based on commands received
+> from the program (and, for example, the program interface is parallel,
+> not 2-wire serial). Right?
 
-I think I was misunderstood.
+Partly right. Actually, most SMBus controllers work the following way:
+you program a number of registers (typically SMBus transaction type,
+target chip address, target register address or command, and the data to
+send in the case of a write transaction), then you tell the chip to
+initiate the transaction. Then you poll for the transaction to be over
+(or use an interupt, but most our SMBus drivers use polling), and read
+the result in some register in the case of a read transaction.
 
-Have you reviewed the PCI IDE specification?
+> But wait, even then does the controller really know anything about
+> I^2C commands? How would it differentiate between, say, 8-bit and
+> 16-bit reads? Or is it just an 8-bit EEPROM bus?
 
-On modern chipsets, the IDE device appears in PCI -- but often, the first 
-four I/O ports will be zeroed out, indicating that the I/O regions are
-actually 0x1f0/0x170.
+No, it is still physically a 2-wire serial bus. The limitation is due to
+the fast that the SMBus controller knows of a limited number of
+transactions, such as Send Byte, Read Byte, Read Word etc. If the SMBus
+controller doesn't know of the SMBus command you want to use (in my
+case, I2C block read), then there is no way to do it, because we have no
+direct control over the serial line.
 
-For example:
+> Does it do START and STOP automatically as well?
 
-00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE Controller 
-(rev 02) (prog-if 8a [Master SecP PriP])
-        Subsystem: Hewlett-Packard Company d530 CMT (DG746A)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Step
-ping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort
-- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 169
-        Region 0: I/O ports at <ignored>
-        Region 1: I/O ports at <ignored>
-        Region 2: I/O ports at <ignored>
-        Region 3: I/O ports at <ignored>
-        Region 4: I/O ports at 14c0 [size=16]
-        Region 5: Memory at 40000000 (32-bit, non-prefetchable) [size=1K]
+Absolutely. The good thing is that SMBus masters are not CPU intensive,
+contrary to bit-banging I2C adapters.
 
-
-
-Trust me, IDE on PCI is still quite weird.
-
-	Jeff
-
-
-
+-- 
+Jean Delvare

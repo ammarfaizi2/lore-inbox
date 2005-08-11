@@ -1,37 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbVHKKyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbVHKKyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbVHKKyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 06:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbVHKKyQ
+	id S1030251AbVHKKyo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 06:54:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbVHKKyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 06:54:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:11962 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964988AbVHKKyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 06:54:15 -0400
-Date: Thu, 11 Aug 2005 12:54:10 +0200
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] i386 boottime for_each_cpu broken
-Message-ID: <20050811105409.GI8974@wotan.suse.de>
-References: <Pine.LNX.4.61.0508102220070.16483@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508102220070.16483@montezuma.fsmlabs.com>
+	Thu, 11 Aug 2005 06:54:43 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19627 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S964920AbVHKKym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 06:54:42 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "David S. Miller" <davem@davemloft.net>, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: [PATCH] deinline netif_carrier_on/off
+Date: Thu, 11 Aug 2005 13:53:30 +0300
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_q4y+CYv7D+IAi21"
+Message-Id: <200508111353.30359.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 10, 2005 at 10:59:28PM -0600, Zwane Mwaikambo wrote:
-> for_each_cpu walks through all processors in cpu_possible_map, which is 
-> defined as cpu_callout_map on i386 and isn't initialised until all 
-> processors have been booted. This breaks things which do for_each_cpu 
-> iterations early during boot. So, define cpu_possible_map as a bitmap with 
-> NR_CPUS bits populated. This was triggered by a patch i'm working on which 
-> does alloc_percpu before bringing up secondary processors.
 
-Better is to initialize it in mpparse.c. That is what x86-64 is doing now.
+--Boundary-00=_q4y+CYv7D+IAi21
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
--Andi
+These functions are not called frequently, let's save some space.
+
+# grep -r 'netif_carrier_o[nf]' linux-2.6.12 | wc -l
+246
+
+# size vmlinux.org vmlinux.carrier
+text    data     bss     dec     hex filename
+4339634 1054414  259296 5653344  564360 vmlinux.org
+4337710 1054414  259296 5651420  563bdc vmlinux.carrier
+
+And this ain't an allyesconfig kernel.
+
+Attached to prevent mangling by MUA.
+--
+vda
+
+--Boundary-00=_q4y+CYv7D+IAi21
+Content-Type: text/x-diff;
+  charset="koi8-r";
+  name="carrier.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="carrier.patch"
+
+# grep -r 'netif_carrier_o[nf]' linux-2.6.12 | wc -l
+246
+
+# size vmlinux.org vmlinux.carrier
+text    data     bss     dec     hex filename
+4339634 1054414  259296 5653344  564360 vmlinux.org
+4337710 1054414  259296 5651420  563bdc vmlinux.carrier
+
+And this ain't an allyesconfig kernel!
+
+diff -urpN linux-2.6.12.org/include/linux/netdevice.h linux-2.6.12.carrier/include/linux/netdevice.h
+--- linux-2.6.12.org/include/linux/netdevice.h	Sun Jun 19 16:10:56 2005
++++ linux-2.6.12.carrier/include/linux/netdevice.h	Wed Aug 10 21:13:28 2005
+@@ -706,19 +706,9 @@ static inline int netif_carrier_ok(const
+ 
+ extern void __netdev_watchdog_up(struct net_device *dev);
+ 
+-static inline void netif_carrier_on(struct net_device *dev)
+-{
+-	if (test_and_clear_bit(__LINK_STATE_NOCARRIER, &dev->state))
+-		linkwatch_fire_event(dev);
+-	if (netif_running(dev))
+-		__netdev_watchdog_up(dev);
+-}
++extern void netif_carrier_on(struct net_device *dev);
+ 
+-static inline void netif_carrier_off(struct net_device *dev)
+-{
+-	if (!test_and_set_bit(__LINK_STATE_NOCARRIER, &dev->state))
+-		linkwatch_fire_event(dev);
+-}
++extern void netif_carrier_off(struct net_device *dev);
+ 
+ /* Hot-plugging. */
+ static inline int netif_device_present(struct net_device *dev)
+diff -urpN linux-2.6.12.org/net/sched/sch_generic.c linux-2.6.12.carrier/net/sched/sch_generic.c
+--- linux-2.6.12.org/net/sched/sch_generic.c	Wed Aug 10 21:15:26 2005
++++ linux-2.6.12.carrier/net/sched/sch_generic.c	Wed Aug 10 22:23:33 2005
+@@ -238,6 +238,20 @@ static void dev_watchdog_down(struct net
+ 	spin_unlock_bh(&dev->xmit_lock);
+ }
+ 
++void netif_carrier_on(struct net_device *dev)
++{
++	if (test_and_clear_bit(__LINK_STATE_NOCARRIER, &dev->state))
++		linkwatch_fire_event(dev);
++	if (netif_running(dev))
++		__netdev_watchdog_up(dev);
++}
++
++void netif_carrier_off(struct net_device *dev)
++{
++	if (!test_and_set_bit(__LINK_STATE_NOCARRIER, &dev->state))
++		linkwatch_fire_event(dev);
++}
++
+ /* "NOOP" scheduler: the best scheduler, recommended for all interfaces
+    under all circumstances. It is difficult to invent anything faster or
+    cheaper.
+@@ -604,6 +618,8 @@ void dev_shutdown(struct net_device *dev
+ }
+ 
+ EXPORT_SYMBOL(__netdev_watchdog_up);
++EXPORT_SYMBOL(netif_carrier_on);
++EXPORT_SYMBOL(netif_carrier_off);
+ EXPORT_SYMBOL(noop_qdisc);
+ EXPORT_SYMBOL(noop_qdisc_ops);
+ EXPORT_SYMBOL(qdisc_create_dflt);
+
+--Boundary-00=_q4y+CYv7D+IAi21--
+

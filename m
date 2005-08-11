@@ -1,88 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbVHKObL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbVHKOgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbVHKObL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 10:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbVHKObL
+	id S1751047AbVHKOgh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 10:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbVHKOgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 10:31:11 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:995 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750995AbVHKObL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 10:31:11 -0400
-Subject: Re: Need help in understanding  x86  syscall
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: linux-kernel@vger.kernel.org, Ukil a <ukil_a@yahoo.com>, 7eggert@gmx.de
-In-Reply-To: <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
-References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
-	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 11 Aug 2005 10:31:01 -0400
-Message-Id: <1123770661.17269.59.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 10:36:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20665 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751047AbVHKOgg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 10:36:36 -0400
+Message-ID: <42FB6255.10807@redhat.com>
+Date: Thu, 11 Aug 2005 10:36:05 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird  (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH]  largefile support for accounting
+Content-Type: multipart/mixed;
+ boundary="------------000907000206010901000609"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-11 at 10:04 -0400, linux-os (Dick Johnson) wrote:
-> Every interrupt software, or hardware, results in the branched
-> procedure being executed with the interrupts OFF. That's why
-> one of the first instructions in the kernel entry for a syscall
-> is 'sti' to turn them back on. Look at entry.S, line 182. This
-> occurs any time a trap occurs as well (Page 26-168, i486
-> Programmer's reference manual). FYI, this is helpful when
-> designing/debugging complex interrupt-service routines since
-> you can execute the interrupt with a software 'INT' instruction
-> (with the correct offset from the IRQ you are using). The software
-> doesn't 'know' where the interrupt came from, HW or SW.
+This is a multi-part message in MIME format.
+--------------000907000206010901000609
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I'm looking at 2.6.13-rc6-git1 line 182 of entry.S and I don't see it.
-Must be a different kernel.
+Hi.
 
-According to the documentation that I was looking at, a trap in x86 does
-_not_ turn off interrupts.
+There is a problem in the accounting subsystem in the kernel can not
+correctly handle files larger than 2GB.  The output file containing
+the process accounting data can grow very large if the system is large
+enough and active enough.  If the 2GB limit is reached, then the system
+simply stops storing process accounting data.
 
-In arch/i386/kernel/traps.c: trap_init
+Another annoying problem is that once the system reaches this 2GB limit,
+then every process which exits will receive a signal, SIGXFSZ.  This
+signal is generated because an attempt was made to write beyond the limit
+for the file descriptor.  This signal makes it look like every process
+has exited due to a signal, when in fact, they have not.
 
-  set_system_gate(SYSCALL_VECTOR,&system_call);
+The solution is to add the O_LARGEFILE flag to the list of flags used
+to open the accounting file.  The rest of the accounting support is
+already largefile safe.
 
-(where SYSCALL_VECTOR is of course 0x80).
+The changes were tested by constructing a large file (just short of 2GB),
+enabling accounting, and then running enough commands to cause the
+accounting data generated to increase the size of the file to 2GB.  Without
+the changes, the file grows to 2GB and the last command run in the test
+script appears to exit due a signal when it has not.  With the changes,
+things work as expected and quietly.
 
-This sets up a trap:
+There are some user level changes required so that it can deal with
+largefiles, but those are being handled separately.
 
-static void __init set_system_gate(unsigned int n, void *addr)
-{
-	_set_gate(idt_table+n,15,3,addr,__KERNEL_CS);
-}
+Signed-off-by: Peter Staubach <staubach@redhat.com>
 
+--------------000907000206010901000609
+Content-Type: text/plain;
+ name="devel"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="devel"
 
-since type 15 makes this a trap (3 gives it user access).  Also looking
-at the code that it will call:
+--- linux-2.6.12/kernel/acct.c.org	2005-06-17 15:48:29.000000000 -0400
++++ linux-2.6.12/kernel/acct.c	2005-08-10 15:12:46.000000000 -0400
+@@ -220,7 +220,7 @@ asmlinkage long sys_acct(const char __us
+ 			return (PTR_ERR(tmp));
+ 		}
+ 		/* Difference from BSD - they don't do O_APPEND */
+-		file = filp_open(tmp, O_WRONLY|O_APPEND, 0);
++		file = filp_open(tmp, O_WRONLY | O_APPEND | O_LARGEFILE, 0);
+ 		putname(tmp);
+ 		if (IS_ERR(file)) {
+ 			return (PTR_ERR(file));
 
-ENTRY(system_call)
-        pushl %eax                      # save orig_eax
-        SAVE_ALL
-        GET_THREAD_INFO(%ebp)
-                                        # system call tracing in operation
-        /* Note, _TIF_SECCOMP is bit number 8, and so it needs testw and not testb */
-        testw $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),TI_flags(%ebp)
-        jnz syscall_trace_entry
-        cmpl $(nr_syscalls), %eax
-        jae syscall_badsys
-syscall_call:
-        call *sys_call_table(,%eax,4)
-        movl %eax,EAX(%esp)             # store the return value
-syscall_exit:
-        cli                             # make sure we don't miss an interrupt
-                                        # setting need_resched or sigpending
-                                        # between sampling and the iret
-
-
-
-I don't see a sti here.
-
--- Steve
-
-
+--------------000907000206010901000609--

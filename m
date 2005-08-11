@@ -1,80 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVHKR5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVHKR6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVHKR5U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 13:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVHKR5U
+	id S932336AbVHKR6S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 13:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVHKR6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 13:57:20 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:63502 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932333AbVHKR5T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 13:57:19 -0400
+	Thu, 11 Aug 2005 13:58:17 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:10356 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932328AbVHKR6A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 13:58:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=hmB4qzS9V20LDOIwi7FkYMzGvS7HHdfOANfvM1OUeXE3pfRME5UpJX8vjDzBR2cd5UgwKaEULV1RIYbyz4bmnW9Z5QhVeHBbpffoUINa/4EYJ+eeulrtsuQvDJ3uOfdAa7JF2h6KaOusMXemLsJ+m2H7dTfjsTq3R3tTPqa22KM=
+Message-ID: <42FB9191.6050602@gmail.com>
+Date: Thu, 11 Aug 2005 19:57:37 +0200
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <1123781639.17269.83.camel@localhost.localdomain>
-References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz> <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com> <1123770661.17269.59.camel@localhost.localdomain> <2cd57c90050811081374d7c4ef@mail.gmail.com> <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com> <1123775508.17269.64.camel@localhost.localdomain> <1123777184.17269.67.camel@localhost.localdomain> <2cd57c90050811093112a57982@mail.gmail.com> <2cd57c9005081109597b18cc54@mail.gmail.com> <Pine.LNX.4.61.0508111310180.15153@chaos.analogic.com> <1123781187.17269.77.camel@localhost.localdomain> <1123781639.17269.83.camel@localhost.localdomain>
-X-OriginalArrivalTime: 11 Aug 2005 17:57:18.0051 (UTC) FILETIME=[1D1EDB30:01C59E9E]
-Content-class: urn:content-classes:message
-Subject: Re: Need help in understanding x86 syscall
-Date: Thu, 11 Aug 2005 13:57:03 -0400
-Message-ID: <Pine.LNX.4.61.0508111348060.15330@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Need help in understanding x86 syscall
-Thread-Index: AcWenh0oALfMtmgbS2itM+uI66HQMw==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>
-Cc: "Coywolf Qi Hunt" <coywolf@gmail.com>, <7eggert@gmx.de>,
-       "Ukil a" <ukil_a@yahoo.com>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Lee Revell <rlrevell@joe-job.com>, lgb@lgb.hu,
+       Allen Martin <AMartin@nvidia.com>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
+References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com>	 <20050811070943.GB8025@vega.lgb.hu> <1123765523.32375.10.camel@mindpipe> <42FB6C27.1010408@gmail.com> <42FB88F8.7040807@pobox.com> <42FB8D04.8050006@gmail.com> <42FB8F0D.6060202@pobox.com>
+In-Reply-To: <42FB8F0D.6060202@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik schrieb:
 
-On Thu, 11 Aug 2005, Steven Rostedt wrote:
-
-> On Thu, 2005-08-11 at 13:26 -0400, Steven Rostedt wrote:
+> Michael Thonke wrote:
 >
->> 288fb seems to use "int 0x80"  and so do all the other system calls that
->> I inspected.
+>> I have a ASUS A8V Deluxe too, and can't use the AMD X2 processor on 
+>> it...this is a feature..right?
+>> Supposed to run with DualCore but don't post..hm.
 >
-> I expect that if I had a Gentoo system that I compiled for my machine,
-> this would be different. But I suspect that Debian still wants to run on
-> my old Pentium 75MHz laptop.  How would libc know to use sysenter
-> instead of int 0x80.  It could do a test of the system, but would there
-> be an if statement for every system call then?   I guess that libc needs
-> to be compiled either to use it or not. Since there are still several
-> machines out there that don't have this feature, it would be safer to
-> not use it.
 >
-> -- Steve
+> What does ASUS say about this?  You can't just plug a new processor 
+> into an old motherboard and expect it to work, generally.
+
+Hello Jeff,
+
+No they don't like AMD x2 DualCore cpus. ASUS is not interesseted in the 
+bugs I found...Silicon Image helped me to get Samsung SATA II drivers 
+working on the Sil3132 chip and gave me a update/firmware. But ASUS 
+...what should I say? They say no problem encountered by us so 
+far...don't use linux...and thorw off the phone..while you want to 
+talk..*sigh*
+
 >
+>
+>> My SATA II devices. Get not regonized from the VIA SATA 
+>> controller...this bug is known.
+>> So I want to use my HDD's I bought ...why should I set my SATA II 
+>> device to be SATA I.
+>
+And nope they don't work, no drive which with SATAII operate without 
+tweak on VIA Southbridges..SATA controller.
+Hitachi,Samsung,WD
 
-Well I have a small-C runtime library that I put together for
-imbedded systems. Once somebody heard that I was using the
-"obsolete" int 0x80, they insisted that I re-do everything to
-use the new interface. Since I wasn't getting paid to think
-on that project, I did what I was told. Bench-marks to 'getpid()'
-showed the 0x80 interrupt faster by a few cycles so the "suits"
-claimed that I must have done something wrong. So we had a
-"code-review".
+I refer to the article of heise.de
+This article from heise.de is german sorry...but maybe you understand 
+what they wrote
 
-Finally it was decided; "The CPU must be handling things differently..."
-i.e., go back to the simpler int 0x80 interface. It was obvious
-to me that any difference in speed was simply noise. Both ways
-are essentially the same for performance so I wouldn't lose
-any sleep over an "older" 'C' runtime library.
+http://www.heise.de/newsticker/meldung/62189
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+Haven't found a
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+>
+> Please enable ATA_DEBUG and ATA_VERBOSE_DEBUG, and send me the output.
 
-Thank you.
+I tried that Jeff, but the base problem is on the low-level..
+Like the one I ound with Sil3132.
+
+>
+>
+> SATA II devices can be used on SATA I controllers just fine, with no 
+> need to tweak settings.
+>
+>     Jeff
+
+Michael
+
+-- 
+Michael Thonke
+IT-Systemintegrator /
+System- and Softwareanalyist
+
+
+

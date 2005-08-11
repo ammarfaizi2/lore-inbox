@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbVHKNmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbVHKNtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbVHKNmI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 09:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbVHKNmI
+	id S1030305AbVHKNtb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 09:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbVHKNtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 09:42:08 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:61374 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1030303AbVHKNmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 09:42:07 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: Need help in understanding  x86  syscall
-To: Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Thu, 11 Aug 2005 15:41:57 +0200
-References: <4Ae73-6Mm-5@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Thu, 11 Aug 2005 09:49:31 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:25794 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030305AbVHKNtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 09:49:31 -0400
+Message-ID: <42FB5768.8070608@daveking.com>
+Date: Thu, 11 Aug 2005 09:49:28 -0400
+From: David King <dave@daveking.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1E3DJm-0000jy-0B@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+To: linux-kernel@vger.kernel.org
+Subject: Pls help me understand this MCE
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ukil a <ukil_a@yahoo.com> wrote:
+I'm new at this so I'm learning my way through it and I'd appreciate any
+guidance.  My system freezes solid intermittently for no apparent
+reason.  The serial console shows a kernal panic caused by a machine
+check exception.  mcelog decodes the MCE as follows:
 
-> Now I had the doubt that if the the syscall
-> implementation is very large will the scheduling and
-> other interrupts be blocked for the whole time till
-> the process returns from the ISR (because in an ISR by
-> default the interrupts are disabled unless “sti” is
-> called explicitly)?
+CPU 0 4 northbridge TSC f03d1e587b
+Northbridge Watchdog error
+bit57 = processor context corrupt
+bit61 = error uncorrected
+bus error 'generic participation, request timed out
+generic error mem transaction
+generic access, level generic'
+STATUS b200000000070f0f MCGSTATUS 4
 
-According to my documentation it isn't. A software interrupt is a far call
-with an extra pushf, and a hardware interrupt is protected against recursion
-by the PIC, not by an interrupt flag.
+That's all meaningless to me so I'm looking for help understanding what
+it means and what parts of my system I should be looking at in order to
+try to resolve this MCE.
+
+A Google search found one hit that suggested that "Something tried to
+access a physical memory address that was not mapped in the CPU."  If
+that is indeed the correct interpretation, is there any wany to figure
+out what that "something" is?
+
+The system in question is a no-name system built from parts by a local
+computer shop.  It has an ASUS A8N-SLI motherboard.  I have updated the
+BIOS to the latest without affecting this problem.  The CPU installed is
+an "AMD Athlon(tm) 64 Processor 3500+".  I am running Fedora Core 4,
+kernel 2.6.12-1.1398_FC4.
+
+Any guidance would be appreciated.
+
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+David King
+dave@daveking.com

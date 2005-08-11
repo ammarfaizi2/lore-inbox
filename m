@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVHKB1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVHKB2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbVHKB1T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 21:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVHKB1T
+	id S932104AbVHKB2V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 21:28:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVHKB2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 21:27:19 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:11468 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932067AbVHKB1S
+	Wed, 10 Aug 2005 21:28:21 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:22663 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932104AbVHKB2U
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 21:27:18 -0400
-Subject: [RFC][PATCH - 4/13] NTP cleanup: Breakup ntp_adjtimex()
+	Wed, 10 Aug 2005 21:28:20 -0400
+Subject: [RFC][PATCH - 5/13] NTP cleanup: Break out leapsecond processing
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: George Anzinger <george@mvista.com>, frank@tuxrocks.com,
@@ -17,14 +17,15 @@ Cc: George Anzinger <george@mvista.com>, frank@tuxrocks.com,
        Nishanth Aravamudan <nacc@us.ibm.com>,
        Roman Zippel <zippel@linux-m68k.org>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-In-Reply-To: <1123723578.32330.2.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1123723634.32330.4.camel@cog.beaverton.ibm.com>
 References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
 	 <1123723384.30963.269.camel@cog.beaverton.ibm.com>
 	 <1123723534.32330.0.camel@cog.beaverton.ibm.com>
 	 <1123723578.32330.2.camel@cog.beaverton.ibm.com>
+	 <1123723634.32330.4.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain
-Date: Wed, 10 Aug 2005 18:27:14 -0700
-Message-Id: <1123723634.32330.4.camel@cog.beaverton.ibm.com>
+Date: Wed, 10 Aug 2005 18:28:16 -0700
+Message-Id: <1123723696.32330.6.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
@@ -32,9 +33,10 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	This patch breaks up the complex nesting of code in ntp_adjtimex() by
-creating a ntp_hardupdate() function and simplifying some of the logic.
-This also mimics the documented NTP spec somewhat better.
+	This patch breaks the leapsecond processing logic into its own
+function. By making the NTP code avoid making any direct changes to
+time, instead allowing the time code to use NTP to decide when to change
+time, we better isolate the NTP subsystem.
 
 Any comments or feedback would be greatly appreciated.
 
@@ -42,173 +44,215 @@ thanks
 -john
 
 
-linux-2.6.13-rc6_timeofday-ntp-part4_B5.patch
+linux-2.6.13-rc6_timeofday-ntp-part5_B5.patch
 ============================================
 diff --git a/include/linux/ntp.h b/include/linux/ntp.h
 --- a/include/linux/ntp.h
 +++ b/include/linux/ntp.h
-@@ -9,6 +9,11 @@
- #include <linux/time.h>
- #include <linux/timex.h>
- 
-+/* Required to safely shift negative values */
-+#define shiftR(x, s) ({ __typeof__(x) __x = x;\
-+		__typeof__(s) __s = s; \
-+		(__x < 0) ? (-((-__x) >> (__s))) : ((__x) >> (__s));})
-+
- /* NTP state machine interfaces */
+@@ -18,6 +18,7 @@
  void ntp_advance(void);
  int ntp_adjtimex(struct timex*);
+ void second_overflow(void);
++int ntp_leapsecond(struct timespec now);
+ void ntp_clear(void);
+ int ntp_synced(void);
+ long ntp_get_fixed_ns_adjustment(void);
 diff --git a/kernel/ntp.c b/kernel/ntp.c
 --- a/kernel/ntp.c
 +++ b/kernel/ntp.c
-@@ -244,12 +244,79 @@ void second_overflow(void)
- #endif
+@@ -40,12 +40,6 @@
+ #include <linux/jiffies.h>
+ #include <linux/errno.h>
+ 
+-#ifdef CONFIG_TIME_INTERPOLATION
+-void time_interpolator_update(long delta_nsec);
+-#else
+-#define time_interpolator_update(x) do {} while (0)
+-#endif
+-
+ /* Don't completely fail for HZ > 500.  */
+ int tickadj = 500/HZ ? : 1;		/* microsecs */
+ 
+@@ -71,6 +65,8 @@ static long time_next_adjust;
+ 
+ static long fixed_tick_ns_adj;
+ 
++#define SEC_PER_DAY 86400
++
+ void ntp_advance(void)
+ {
+ 	long time_adjust_step;
+@@ -139,59 +135,6 @@ void second_overflow(void)
+ 	}
+ 
+ 	/*
+-	 * Leap second processing. If in leap-insert state at
+-	 * the end of the day, the system clock is set back one
+-	 * second; if in leap-delete state, the system clock is
+-	 * set ahead one second. The microtime() routine or
+-	 * external clock driver will insure that reported time
+-	 * is always monotonic. The ugly divides should be
+-	 * replaced.
+-	 */
+-	switch (time_state) {
+-
+-	case TIME_OK:
+-		if (time_status & STA_INS)
+-			time_state = TIME_INS;
+-		else if (time_status & STA_DEL)
+-			time_state = TIME_DEL;
+-		break;
+-
+-	case TIME_INS:
+-		if (xtime.tv_sec % 86400 == 0) {
+-			xtime.tv_sec--;
+-			wall_to_monotonic.tv_sec++;
+-			/* The timer interpolator will make time change gradually instead
+-			 * of an immediate jump by one second.
+-			 */
+-			time_interpolator_update(-NSEC_PER_SEC);
+-			time_state = TIME_OOP;
+-			clock_was_set();
+-			printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
+-		}
+-		break;
+-
+-	case TIME_DEL:
+-		if ((xtime.tv_sec + 1) % 86400 == 0) {
+-			xtime.tv_sec++;
+-			wall_to_monotonic.tv_sec--;
+-			/* Use of time interpolator for a gradual change of time */
+-			time_interpolator_update(NSEC_PER_SEC);
+-			time_state = TIME_WAIT;
+-			clock_was_set();
+-			printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
+-		}
+-		break;
+-
+-	case TIME_OOP:
+-		time_state = TIME_WAIT;
+-		break;
+-
+-	case TIME_WAIT:
+-		if (!(time_status & (STA_INS | STA_DEL)))
+-			time_state = TIME_OK;
+-	}
+-
+-	/*
+ 	 * Compute the phase adjustment for the next second. In
+ 	 * PLL mode, the offset is reduced by a fixed factor
+ 	 * times the time constant. In FLL mode the offset is
+@@ -435,6 +378,70 @@ leave:
+ 	return result;
  }
  
++
 +/**
-+ * ntp_hardupdate - Calculates the offset and freq values
-+ * offset: current offset
-+ * tv: timeval holding the current time
++ * ntp_leapsecond - NTP leapsecond processing code.
++ * now: the current time
 + *
-+ * Private function, called only by ntp_adjtimex
-+ *
-+ * This function is called when an offset adjustment is requested.
-+ * It calculates the offset adjustment and manipulates the
-+ * frequency adjustement accordingly.
++ * Returns the number of seconds (-1, 0, or 1) that
++ * should be added to the current time to properly
++ * adjust for leapseconds.
 + */
-+static int ntp_hardupdate(long offset, struct timespec tv)
++int ntp_leapsecond(struct timespec now)
 +{
-+	int ret;
-+	long current_offset, interval;
-+
-+	ret = 0;
-+	if (!(time_status & STA_PLL))
-+		return ret;
-+
-+	current_offset = offset;
-+	/* Make sure offset is bounded by MAXPHASE */
-+	current_offset = min(current_offset, MAXPHASE);
-+	current_offset = max(current_offset, -MAXPHASE);
-+	time_offset = current_offset << SHIFT_UPDATE;
-+
-+	if (time_status & STA_FREQHOLD || time_reftime == 0)
-+		time_reftime = tv.tv_sec;
-+
-+	/* calculate seconds since last call to hardupdate */
-+	interval = tv.tv_sec - time_reftime;
-+	time_reftime = tv.tv_sec;
-+
 +	/*
-+	 * Select whether the frequency is to be controlled
-+	 * and in which mode (PLL or FLL). Clamp to the operating
-+	 * range. Ugly multiply/divide should be replaced someday.
++	 * Leap second processing. If in leap-insert state at
++	 * the end of the day, the system clock is set back one
++	 * second; if in leap-delete state, the system clock is
++	 * set ahead one second.
 +	 */
-+	if ((time_status & STA_FLL) && (interval >= MINSEC)) {
-+		long offset_ppm;
++	static time_t leaptime = 0;
 +
-+		offset_ppm = time_offset / interval;
-+		offset_ppm <<= (SHIFT_USEC - SHIFT_UPDATE);
++	switch (time_state) {
++	case TIME_OK:
++		if (time_status & STA_INS)
++			time_state = TIME_INS;
++		else if (time_status & STA_DEL)
++			time_state = TIME_DEL;
 +
-+		time_freq += shiftR(offset_ppm, SHIFT_KH);
++		/* calculate end of today (23:59:59)*/
++		leaptime = now.tv_sec + SEC_PER_DAY -
++					(now.tv_sec % SEC_PER_DAY) - 1;
++		break;
 +
-+	} else if ((time_status & STA_PLL) && (interval < MAXSEC)) {
-+		long damping, offset_ppm;
++	case TIME_INS:
++		/* Once we are at (or past) leaptime, insert the second */
++		if (now.tv_sec >= leaptime) {
++			time_state = TIME_OOP;
++			printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
++			return -1;
++		}
++		break;
 +
-+		offset_ppm = offset * interval;
++	case TIME_DEL:
++		/* Once we are at (or past) leaptime, delete the second */
++		if (now.tv_sec >= leaptime) {
++			time_state = TIME_WAIT;
++			printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
++			return 1;
++		}
++		break;
 +
-+		damping = (2 * time_constant) + SHIFT_KF - SHIFT_USEC;
++	case TIME_OOP:
++		/*  Wait for the end of the leap second*/
++		if (now.tv_sec > (leaptime + 1))
++			time_state = TIME_WAIT;
++		break;
 +
-+		time_freq += shiftR(offset_ppm, damping);
-+
-+	} else { /* calibration interval out of bounds (p. 12) */
-+		ret = TIME_ERROR;
++	case TIME_WAIT:
++		if (!(time_status & (STA_INS | STA_DEL)))
++			time_state = TIME_OK;
 +	}
 +
-+	/* bound time_freq */
-+	time_freq = min(time_freq, time_tolerance);
-+	time_freq = max(time_freq, -time_tolerance);
-+
-+	return ret;
++	return 0;
 +}
 +
 +
- /* adjtimex mainly allows reading (and writing, if superuser) of
-  * kernel time-keeping variables. used by xntpd.
-  */
- int ntp_adjtimex(struct timex *txc)
- {
--	long ltemp, mtemp, save_adjust;
-+	long save_adjust;
- 	int result;
+ /**
+  * ntp_clear - Clears the NTP state machine.
+  *
+diff --git a/kernel/timer.c b/kernel/timer.c
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -42,7 +42,7 @@
+ #include <asm/io.h>
  
- 	/* Now we validate the data before disabling interrupts */
-@@ -321,63 +388,9 @@ int ntp_adjtimex(struct timex *txc)
- 				/* adjtime() is independent from ntp_adjtime() */
- 				if ((time_next_adjust = txc->offset) == 0)
- 					time_adjust = 0;
--			} else if (time_status & STA_PLL) {
--				ltemp = txc->offset;
--
--				/*
--				 * Scale the phase adjustment and
--				 * clamp to the operating range.
--				 */
--				if (ltemp > MAXPHASE)
--					time_offset = MAXPHASE << SHIFT_UPDATE;
--				else if (ltemp < -MAXPHASE)
--					time_offset = -(MAXPHASE
--							<< SHIFT_UPDATE);
--				else
--					time_offset = ltemp << SHIFT_UPDATE;
--
--				/*
--				 * Select whether the frequency is to be controlled
--				 * and in which mode (PLL or FLL). Clamp to the operating
--				 * range. Ugly multiply/divide should be replaced someday.
--				 */
--
--				if (time_status & STA_FREQHOLD || time_reftime == 0)
--					time_reftime = xtime.tv_sec;
--
--				mtemp = xtime.tv_sec - time_reftime;
--				time_reftime = xtime.tv_sec;
--
--				if (time_status & STA_FLL) {
--					if (mtemp >= MINSEC) {
--						ltemp = (time_offset / mtemp) << (SHIFT_USEC -
--									SHIFT_UPDATE);
--						if (ltemp < 0)
--							time_freq -= -ltemp >> SHIFT_KH;
--						else
--							time_freq += ltemp >> SHIFT_KH;
--					} else /* calibration interval too short (p. 12) */
--						result = TIME_ERROR;
--				} else {	/* PLL mode */
--					if (mtemp < MAXSEC) {
--						ltemp *= mtemp;
--						if (ltemp < 0)
--							time_freq -= -ltemp >> (time_constant +
--									time_constant +
--									SHIFT_KF - SHIFT_USEC);
--					    else
--				    	    time_freq += ltemp >> (time_constant +
--								       time_constant +
--								       SHIFT_KF - SHIFT_USEC);
--					} else /* calibration interval too long (p. 12) */
--						result = TIME_ERROR;
--				}
--
--				if (time_freq > time_tolerance)
--					time_freq = time_tolerance;
--				else if (time_freq < -time_tolerance)
--					time_freq = -time_tolerance;
--			} /* STA_PLL */
-+				else if (ntp_hardupdate(txc->offset, xtime))
-+					result = TIME_ERROR;
+ #ifdef CONFIG_TIME_INTERPOLATION
+-void time_interpolator_update(long delta_nsec);
++static void time_interpolator_update(long delta_nsec);
+ #else
+ #define time_interpolator_update(x)
+ #endif
+@@ -626,9 +626,19 @@ static void update_wall_time(unsigned lo
+ 		ticks--;
+ 		update_wall_time_one_tick();
+ 		if (xtime.tv_nsec >= 1000000000) {
++			int leapsecond;
+ 			xtime.tv_nsec -= 1000000000;
+ 			xtime.tv_sec++;
+ 			second_overflow();
++
++			/* apply leapsecond if appropriate */
++			leapsecond = ntp_leapsecond(xtime);
++			if (leapsecond) {
++				xtime.tv_sec += leapsecond;
++				wall_to_monotonic.tv_sec -= leapsecond;
++				time_interpolator_update(leapsecond * NSEC_PER_SEC);
++				clock_was_set();
 +			}
- 		} /* txc->modes & ADJ_OFFSET */
+ 		}
+ 	} while (ticks);
+ }
+@@ -1274,7 +1284,7 @@ unsigned long time_interpolator_get_offs
+ #define INTERPOLATOR_ADJUST 65536
+ #define INTERPOLATOR_MAX_SKIP 10*INTERPOLATOR_ADJUST
  
- 		if (txc->modes & ADJ_TICK) {
+-void time_interpolator_update(long delta_nsec)
++static void time_interpolator_update(long delta_nsec)
+ {
+ 	u64 counter;
+ 	unsigned long offset;
 
 

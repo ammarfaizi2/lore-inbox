@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbVHKSow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVHKSs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbVHKSow (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 14:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbVHKSov
+	id S932364AbVHKSs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 14:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVHKSs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 14:44:51 -0400
-Received: from ns2.suse.de ([195.135.220.15]:6573 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932355AbVHKSov (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 14:44:51 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
-References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com.suse.lists.linux.kernel>
-	<20050811070943.GB8025@vega.lgb.hu.suse.lists.linux.kernel>
-	<1123765523.32375.10.camel@mindpipe.suse.lists.linux.kernel>
-	<42FB6C27.1010408@gmail.com.suse.lists.linux.kernel>
-	<42FB88F8.7040807@pobox.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 11 Aug 2005 20:44:49 +0200
-In-Reply-To: <42FB88F8.7040807@pobox.com.suse.lists.linux.kernel>
-Message-ID: <p734q9w48ke.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 11 Aug 2005 14:48:57 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:5536 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932357AbVHKSs4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 14:48:56 -0400
+To: Simon Derr <Simon.Derr@bull.net>
+Cc: Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-scsi-owner@vger.kernel.org, mingo@redhat.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] remove name length check in a workqueue
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+From: Andreas Herrmann <AHERRMAN@de.ibm.com>
+X-MIMETrack: S/MIME Sign by Notes Client on Andreas Herrmann/Germany/IBM(Release 5.0.11
+  |July 24, 2002) at 11.08.2005 20:47:08,
+	Serialize by Notes Client on Andreas Herrmann/Germany/IBM(Release 5.0.11  |July
+ 24, 2002) at 11.08.2005 20:47:08,
+	Serialize complete at 11.08.2005 20:47:08,
+	S/MIME Sign failed at 11.08.2005 20:47:08: The cryptographic key was not
+ found,
+	Serialize by Router on D12ML065/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 11/08/2005 20:48:53,
+	Serialize complete at 11/08/2005 20:48:53
+Message-ID: <OFCE6F94E7.B33AAE6C-ONC125705A.00670256-C125705A.0067378D@de.ibm.com>
+Date: Thu, 11 Aug 2005 20:48:50 +0200
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+        Simon Derr <Simon.Derr@bull.net> wrote:
 
-> Michael Thonke wrote:
-> > There is no other way to use a nearly good chipset for AMD64 cpus.
-> > Via's chipsets are really buggy not acceptable, so what else ULi/Ali
-> > who cares where to buy?
-> 
-> 
-> What specifically does not work, on VIA+AMD64 combination, under Linux?
+  > It is sufficient to have a few HBAs and to insmod/rmmod the driver a 
+few 
+  > times.
 
-The only known problem is the broken IOMMU, but unless you have >3GB
-of memory and plan to use highspeed devices that can only address 4GB
-that should not make muc difference.
+  > Since the host_no is choosen with a mere counter increment 
+  > in scsi_host_alloc():
 
--Andi
+  >       shost->host_no = scsi_host_next_hn++; /* XXX(hch): still racy */
+
+  > Unused `host_no's are not reused and the 100 limit is reached even on 
+  > smaller systems.
+
+  > I have no idea of why someone would do repeated insmod/rmmods, though.
+  > (But someone did).
+
+You even don't have to use insmod/rmmod.  On s390 (using zfcp) it
+suffices to take adapters offline and online (triggered via VM,
+hardware, or within Linux). Just do so about 100 times ... You
+know the result.
+
+
+Regards,
+
+Andreas

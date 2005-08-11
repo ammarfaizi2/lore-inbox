@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVHKLsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVHKLuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVHKLsi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 07:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVHKLsi
+	id S932279AbVHKLuF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 07:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVHKLuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 07:48:38 -0400
-Received: from tentacle.s2s.msu.ru ([193.232.119.109]:65507 "EHLO
-	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
-	id S932278AbVHKLsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 07:48:37 -0400
-Date: Thu, 11 Aug 2005 15:48:36 +0400
-From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: 2.6.13-rc5 panic with tg3, e1000, vlan, tso
-Message-ID: <20050811114835.GB3543@tentacle.sectorb.msk.ru>
+	Thu, 11 Aug 2005 07:50:04 -0400
+Received: from gate.crashing.org ([63.228.1.57]:49038 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932324AbVHKLuD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 07:50:03 -0400
+Subject: Occasional IDE lost interrupts
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       list linux-ide <linux-ide@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Content-Type: text/plain
+Date: Thu, 11 Aug 2005 13:49:30 +0200
+Message-Id: <1123760971.6802.2.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-X-Organization: Moscow State Univ., Institute of Mechanics
-X-Operating-System: Linux 2.6.11-ac7
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi Bart !
 
-Today my gateway crashed.
-I wrote down crash info on a paper.
-It's not complete since only last 25 lines were shown,
-but complete stackdump is here (I omitted hexadecimal values).
+That seem to be a new problem though I can't tell for sure when it
+started. I've had reports from users for some time now of
+"occasional" (once in a while, maybe once a day) lost interrupts on the
+mac hard disk. I have about 30 days uptime and just saw a similar one in
+my log. It happen during a disk access storm (apt-get upgrade :).
 
-Call Trace: <IRQ>
-    tcp_write_xmit+318
-    __tcp_push_pending_frames+45
-    tcp_rcv_established+1948
-    tcp_v4_do_rcv+35
-    tcp_v4_rcv+1444
-    nf_hook_slow+125
-    ip_local_deliver_finish+0
-    ip_local_deliver+389
-    ip_rcv+1187
-    packet_rcv_spkt+608
-    netif_receive_skb+478
-    e1000_clean_rx_irq+1165
-    tg3_vlan_rx+364
-    tg3_tx+328
-    e1000_clean+74
-    net_rx_action+171
-    __do_softirq+53
-    do_IRQ+79
-    ret_from_intr+0
-    <EOI>
-    thread_return+0
-    thread_return+86
-    default_idle+36
-    cpu_idle+79
-RIP: {tcp_tso_should_defer+73}
-Code: 0f 0b a3 7c 9d 42 80 ff ff ff ff c2 96 03 8b be 2c 03 00 00
-Aiee, killing interrupt handler!
+The problem when this happen is that I just lost DMA which is fairly
+annoying. Users are not supposed to understand the magic of hdparm
+-d1 /dev/hda and that shouldn't happen anyways...
 
-Before the call trace there was some 64-bit values.
+Do you have any clue of what can be going on ? The IDE pmac driver has
+not changed for a long time and I think that problem is fairly new
+(maybe 2.6.12 ? not sure, first time I actually see it unless it's
+unrelated and my disk is actually dying).
 
-The box is dual Opteron with 2G RAM, with 64-bit kernel and mixed userland.
-There are 2 tg3 interfaces (on-board), 3 e1000 ones, and 2 e100's in it.
+Shouldn't we have some more retry before giving up on DMA ?
 
-After reboot, I disabled TSO (on e1000 NICs)  via ethtool.
+Regards,
+Ben.
 
-~
-:wq
-                                        With best regards, 
-                                           Vladimir Savkin. 
+[432796.162593] ide-pmac lost interrupt, dma status: 8480
+[432796.162606] hda: lost interrupt
+[432796.162613] hda: dma_intr: status=0xd0 { Busy }
+[432796.162619]
+[432796.162622] ide: failed opcode was: unknown
+[432796.162632] hda: DMA disabled
+[432796.262581] ide0: reset: success
+
 

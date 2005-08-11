@@ -1,114 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbVHKKvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbVHKKyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbVHKKvP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 06:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbVHKKvP
+	id S964983AbVHKKyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 06:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbVHKKyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 06:51:15 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:18603 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1030237AbVHKKvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 06:51:14 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: rl@hellgate.ch, "David S. Miller" <davem@davemloft.net>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: via-rhine + link loss + autoneg off == trouble
-Date: Thu, 11 Aug 2005 13:50:42 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 06:54:16 -0400
+Received: from mx2.suse.de ([195.135.220.15]:11962 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964988AbVHKKyP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 06:54:15 -0400
+Date: Thu, 11 Aug 2005 12:54:10 +0200
+From: Andi Kleen <ak@suse.de>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] i386 boottime for_each_cpu broken
+Message-ID: <20050811105409.GI8974@wotan.suse.de>
+References: <Pine.LNX.4.61.0508102220070.16483@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508111350.42435.vda@ilport.com.ua>
+In-Reply-To: <Pine.LNX.4.61.0508102220070.16483@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I finally know what's going on.
+On Wed, Aug 10, 2005 at 10:59:28PM -0600, Zwane Mwaikambo wrote:
+> for_each_cpu walks through all processors in cpu_possible_map, which is 
+> defined as cpu_callout_map on i386 and isn't initialised until all 
+> processors have been booted. This breaks things which do for_each_cpu 
+> iterations early during boot. So, define cpu_possible_map as a bitmap with 
+> NR_CPUS bits populated. This was triggered by a patch i'm working on which 
+> does alloc_percpu before bringing up secondary processors.
 
-Again, the recipe:
-* have via-rhine NIC
-* unplug network cable
-* reboot box
-* force HDX (I do in with ethtool -s if autoneg off duplex half)
-* plug cable back
-* kernel still thinks that carrier is off despite "ethtool if"
-  saying that link is detected.
+Better is to initialize it in mpparse.c. That is what x86-64 is doing now.
 
-Why:
-
-...
-        if (intr_status & IntrLinkChange)
-                rhine_check_media(dev, 0);
-...
-
-static void rhine_check_media(struct net_device *dev, unsigned int init_media)
-{
-        struct rhine_private *rp = netdev_priv(dev);
-        void __iomem *ioaddr = rp->base;
-
-        mii_check_media(&rp->mii_if, debug, init_media);
-...
-
-unsigned int mii_check_media (struct mii_if_info *mii,
-                              unsigned int ok_to_print,
-                              unsigned int init_media)
-{
-        unsigned int old_carrier, new_carrier;
-        int advertise, lpa, media, duplex;
-        int lpa2 = 0;
-
-        /* if forced media, go no further */
-        if (mii->force_media)   <============================ HERE
-                return 0; /* duplex did not change */
-
-        /* check current and old link status */
-        old_carrier = netif_carrier_ok(mii->dev) ? 1 : 0;
-        new_carrier = (unsigned int) mii_link_ok(mii);
-
-        /* if carrier state did not change, this is a "bounce",
-         * just exit as everything is already set correctly
-         */
-        if ((!init_media) && (old_carrier == new_carrier))
-                return 0; /* duplex did not change */
-
-        /* no carrier, nothing much to do */
-        if (!new_carrier) {
-                netif_carrier_off(mii->dev);
-                if (ok_to_print)
-                        printk(KERN_INFO "%s: link down\n", mii->dev->name);
-                return 0; /* duplex did not change */
-        }
-
-        /*
-         * we have carrier, see who's on the other end
-         */
-        netif_carrier_on(mii->dev);
-...
-
-We can never reach netif_carrier_on if mii->force_media == TRUE!
-
-If I disable that "if(...) return 0;" it works.
-Instrumented log:
-
-17:54:20.07751 kern.info: qdisc_restart: start, q->dequeue=c03e86c6 <== noop_dequeue
-17:54:21.07736 kern.info: qdisc_restart: start, q->dequeue=c03e86c6
-17:54:23.14445 kern.info: rhine_check_media(init_media:0)
-17:54:23.14454 kern.info: mii_check_media
-17:54:23.14457 kern.info: mii_check_media: mii->force_media == TRUE, bailing DISABLED --vda
-17:54:23.14462 kern.info: mii_check_media: old_carrier:0 new_carrier:1
-17:54:23.14466 kern.info: mii_check_media: netif_carrier_on
-17:54:23.14469 kern.info: if: link up, 10Mbps, half-duplex, lpa 0x0000
-17:54:23.14474 kern.info: dev_activate(if);
-17:54:23.14477 kern.info: dev_activate(): dev->qdisc = dev->qdisc_sleeping
-17:54:24.64489 kern.info: pfifo_fast_enqueue returns 0
-17:54:24.64496 kern.info: pfifo_fast_dequeue returns a skb
-17:54:24.64499 kern.info: pfifo_fast_dequeue returns NULL
-17:54:24.64584 kern.info: pfifo_fast_enqueue returns 0
-17:54:24.64588 kern.info: qdisc_restart: start, q->dequeue=c03e87b6 <== pfifo_fast_dequeue
-17:54:24.64597 kern.info: pfifo_fast_dequeue returns a skb
-17:54:24.64601 kern.info: qdisc_restart: skb!=NULL
---
-vda
-
+-Andi

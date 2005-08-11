@@ -1,57 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVHKPwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVHKPv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVHKPwB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 11:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbVHKPwB
+	id S932219AbVHKPv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 11:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVHKPvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 11:52:01 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39563 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932220AbVHKPv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 11:51:59 -0400
-Subject: Re: Kernel 2.6.5 - Compaq Fibre Channel 64-bit/66Mhz HBA
-From: Arjan van de Ven <arjan@infradead.org>
-To: Bolke de Bruin <bdbruin@aub.nl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42FB72DE.8000703@aub.nl>
-References: <42FB72DE.8000703@aub.nl>
+	Thu, 11 Aug 2005 11:51:55 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:40392 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932219AbVHKPvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 11:51:55 -0400
+Subject: Re: Need help in understanding x86 syscall
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org,
+       Ukil a <ukil_a@yahoo.com>, 7eggert@gmx.de
+In-Reply-To: <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
+	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
+	 <1123770661.17269.59.camel@localhost.localdomain>
+	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
+	 <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
 Content-Type: text/plain
-Date: Thu, 11 Aug 2005 17:51:50 +0200
-Message-Id: <1123775510.3201.38.camel@laptopd505.fenrus.org>
+Organization: Kihon Technologies
+Date: Thu, 11 Aug 2005 11:51:48 -0400
+Message-Id: <1123775508.17269.64.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-11 at 17:46 +0200, Bolke de Bruin wrote:
-> Hello,
+On Thu, 2005-08-11 at 11:28 -0400, linux-os (Dick Johnson) wrote:
+> On Thu, 11 Aug 2005, Coywolf Qi Hunt wrote:
 > 
-> The company I work for is investigating a switch from Windows 2000 to a 
-> Linux based setup for its databases. Because of a dependancy on a third 
-> party we need to settle on kernel 2.6.5. 
-
-
-kernel.org 2.6.5 or some vendor 2.6.5? If the later.. you should ask the
-vendor as well
-
-> So the basic question is. Does this controller work on kernel 2.6.5?
+> > On 8/11/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> >> On Thu, 2005-08-11 at 10:04 -0400, linux-os (Dick Johnson) wrote:
+> >>> Every interrupt software, or hardware, results in the branched
+> >>> procedure being executed with the interrupts OFF. That's why
+> >>> one of the first instructions in the kernel entry for a syscall
+> >>> is 'sti' to turn them back on. Look at entry.S, line 182. This
+> >>> occurs any time a trap occurs as well (Page 26-168, i486
+> >>> Programmer's reference manual). FYI, this is helpful when
+> >>> designing/debugging complex interrupt-service routines since
+> >>> you can execute the interrupt with a software 'INT' instruction
+> >>> (with the correct offset from the IRQ you are using). The software
+> >>> doesn't 'know' where the interrupt came from, HW or SW.
+> >>
+> >> I'm looking at 2.6.13-rc6-git1 line 182 of entry.S and I don't see it.
+> >> Must be a different kernel.
+> >>
+> >> According to the documentation that I was looking at, a trap in x86 does
+> >> _not_ turn off interrupts.
+> >>
+> > ...
+> >>
+> >> I don't see a sti here.
+> >
 > 
+> Search for sysenter_entry. This is where the stack is switched
+> to the kernel stack. Then the code falls through past the
+> next label, sysenter_past_esp. The very next instruction
+> after the kernel stack has been set is 'sti'. Clear as day.
 
-in kernel.org 2.6.5 the answer is no; it hasn't been adjusted to the 2.6
-kernel really (heck hardly to the 2.4 kernel) so isn't reliable at all
-for business use (or in fact any use). Think "no error handling" and
-things like that.
+I just applied the following to one of my kernels:
+
+-- arch/i386/kernel/entry.S    (revision 274)
++++ arch/i386/kernel/entry.S    (working copy)
+@@ -184,6 +184,7 @@
+ ENTRY(sysenter_entry)
+        movl TSS_sysenter_esp0(%esp),%esp
+ sysenter_past_esp:
++       ud2
+        sti
+        pushl $(__USER_DS)
+        pushl %ebp
+
+And booted it.  The system is up and running, so I really don't think
+that the sysenter_entry is used for system calls.  
+
+Not so "Clear as day"!
+
+-- Steve
 
 

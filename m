@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVHKGfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVHKGlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbVHKGfG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 02:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbVHKGfG
+	id S932239AbVHKGlS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 02:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVHKGlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 02:35:06 -0400
-Received: from ip-svs-1.Informatik.Uni-Oldenburg.DE ([134.106.12.126]:63884
-	"EHLO aechz.svs.informatik.uni-oldenburg.de") by vger.kernel.org
-	with ESMTP id S964800AbVHKGfE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 02:35:04 -0400
-Date: Thu, 11 Aug 2005 08:34:07 +0200
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: Linux-2.6.13-rc6: aic7xxx testers please..
-Message-ID: <20050811063407.GA21395@titan.lahn.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	James Bottomley <James.Bottomley@SteelEye.com>
-References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
+	Thu, 11 Aug 2005 02:41:18 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:37630 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932239AbVHKGlS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 02:41:18 -0400
+Date: Thu, 11 Aug 2005 12:11:05 +0530
+From: Bharata B Rao <bharata@in.ibm.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] i386 boottime for_each_cpu broken
+Message-ID: <20050811064105.GC3937@in.ibm.com>
+Reply-To: bharata@in.ibm.com
+References: <Pine.LNX.4.61.0508102220070.16483@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
-Organization: UUCP-Freunde Lahn e.V.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.61.0508102220070.16483@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Aug 11, 2005 at 04:54:44AM +0000, Zwane Mwaikambo wrote:
+> for_each_cpu walks through all processors in cpu_possible_map, which is 
+> defined as cpu_callout_map on i386 and isn't initialised until all 
+> processors have been booted. This breaks things which do for_each_cpu 
+> iterations early during boot. So, define cpu_possible_map as a bitmap with 
+> NR_CPUS bits populated. This was triggered by a patch i'm working on which 
+> does alloc_percpu before bringing up secondary processors.
+> 
 
-On Sun, Aug 07, 2005 at 11:47:53AM -0700, Linus Torvalds wrote:
-> James and gang found the aic7xxx slowdown that happened after 2.6.12, and 
-> we'd like to get particular testing that it's fixed, so if you have a 
-> relevant machine, please do test this.
+Zwane,
 
-I just tried 2.6.13-rc6 after my last 2.6.11.12 and got a problem with
-the onboard aic7xxx on my old Gigabyte-6BXDS dual i686-600: During boot,
-something bad happened within domain validation and I got an oops from
-an unhandled NULL pointer. Since I don't have a secondary computer at
-home to capture the OOPS, here's the shortened stacktrace written down
-by hand:
-	show_stack
-	show_register
-	die
-	do_page_fault
-	error_code
-	ahc_set_syncrate
-	ahc_reset_channel
-	ahc_linux_bus_reset
-	scsi_try_bus_reset
-	scsi_eh_bus_reset
-	scsi_eh_ready_devs
-	scsi_unjam_host
-	scsi_error_handler
-	kernel_thread_helper
+I don't know the context of your work here, but a couple of 
+observations.
 
-After chaning the Adaptec bios setting for the Pioneer CDROM from
-"async" to "10 MB", I was able to boot the same kernel without problems.
+Since you populate cpu_possible_map with NR_CPUS, alloc_percpu()
+would end up allocating for all NR_CPUS.  Wouldn't you have achieved
+the same thing by compile time allocation ? Wouldn't this change
+lead to NR_CPUS allocations from alloc_percpu() for all users ?
 
-If somebody needs more information, I can reproduce the OOPS again and
-provide the missing information.
+Now since you have separated cpu_possible_map from cpu_callout_map,
+do we need to reflect cpu_possible_map with the value from
+cpu_callout_map after the cpu_callout_map is initialized fully from
+smp_prepare_cpus().
 
-BYtE
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+BTW, I am working on Kiran's dynamic percpu allocator patch and making
+it cpu hotplug aware. With that, alloc_percpu would initially allocate
+only for the possible cpus and would allocate for other cpus as and when
+they come up.
+
+Regards,
+Bharata.

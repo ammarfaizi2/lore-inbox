@@ -1,58 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVHKARV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbVHKAWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbVHKARV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 20:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbVHKARV
+	id S964943AbVHKAWN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 20:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVHKAWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 20:17:21 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:63166 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964823AbVHKARV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 20:17:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OGjaOE6cYvdM+gEoiC9Mz+I87qB3+IsQw2OUbkKzM/rBgW9DeBVZd/xQasFl2u+rnuIzErn+iaNp3z7OHRwXs1fFIJiSKEhhxtFPDzYNLVOkCTDEVVSPwHJsMwqv7dcvfeJ9FnDE0+aXrK05nc6s+z2vDQacQdmjiCO7rkhmqls=
-Message-ID: <86802c4405081017174c22dcd5@mail.gmail.com>
-Date: Wed, 10 Aug 2005 17:17:17 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [discuss] Re: 2.6.13-rc2 with dual way dual core ck804 MB
-Cc: Mike Waychison <mikew@google.com>, YhLu <YhLu@tyan.com>,
-       Peter Buckingham <peter@pantasys.com>, linux-kernel@vger.kernel.org,
-       "discuss@x86-64.org" <discuss@x86-64.org>
-In-Reply-To: <20050811000430.GD8974@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <3174569B9743D511922F00A0C94314230AF97867@TYANWEB>
-	 <42FA8A4B.4090408@google.com> <20050810232614.GC27628@wotan.suse.de>
-	 <86802c4405081016421db9baa5@mail.gmail.com>
-	 <20050811000430.GD8974@wotan.suse.de>
+	Wed, 10 Aug 2005 20:22:13 -0400
+Received: from usbb-lacimss1.unisys.com ([192.63.108.51]:5133 "EHLO
+	usbb-lacimss1.unisys.com") by vger.kernel.org with ESMTP
+	id S964943AbVHKAWM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 20:22:12 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC][2.6.12.3] IRQ compression/sharing patch
+Date: Wed, 10 Aug 2005 19:21:05 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04CB0@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC][2.6.12.3] IRQ compression/sharing patch
+Thread-Index: AcWeBvG9bKm5+6FTR8a+Ky/TbVMWFgAAOBzg
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: <jamesclv@us.ibm.com>
+Cc: "Andi Kleen" <ak@suse.de>, "Brown, Len" <len.brown@intel.com>,
+       <zwane@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 11 Aug 2005 00:21:05.0448 (UTC) FILETIME=[901B0A80:01C59E0A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In LinuxBIOS, we could init_ecc asynchronous and the time reduced from
-8x to 2.1x for 8 ways system. 1x mean 5s for 4G in one cpu. If 16G
-will take 20s.
-
-for TSC_SYNC asynchronous maybe you can get back 0.1s...
-
-YH
-
-On 8/10/05, Andi Kleen <ak@suse.de> wrote:
-> > So my patch still can be used with Eric's, It just serialize the
-> > TSC_SYNC between cpu.
+> > int gsi_irq_sharing(int gsi)
+> > {
+> >         int i, irq, vector;
 > >
-> > I wonder it you can refine to make TSC_SYNC serialize that beteen CPU.
-> > That will make
-> > CPU X:synchronized TSC ...
-> > in fixed postion and timming.
+> >         BUG_ON(gsi >= NR_IRQ_VECTORS);
+> >
+> >         if (platform_legacy_irq(gsi)) {
+> >                 gsi_2_irq[gsi] = gsi;
+> >                 return gsi;
+> >         }
+> >
+> >         if (gsi_2_irq[gsi] != 0xFF)
+> >                 return (int)gsi_2_irq[gsi];
+> >
+> >         vector = assign_irq_vector(gsi); // this part here==========
 > 
-> Why would we want that?
+> I thought I had this case covered earlier, given that in both i386 and
+> x86_64:
 > 
-> Boot time is critical so it's better to do things asynchronous.
+> #define platform_legacy_irq(irq)      ((irq) < 16)
+
+Yes, you are absolutely correct, I don't need the (gsi<16) part, this
+takes care of PCI IRQs that happened to be <16.
+
+> In the deleted vector sharing code, I also check 
+> platform_legacy_irq, to avoid inadvertently sharing vectors 
+> already assigned to legacy IRQs.
 > 
-> -Andi
->
+> Am I missing your point here?
+> 
+> >         if (gsi < 16) {
+> >                 irq = gsi;
+> >                 gsi_2_irq[gsi] = irq;
+> >         } else {
+> >                 irq = next_irq++;
+> >                 gsi_2_irq[gsi] = irq;
+> >         }
+> > //====================
+> 
+> I can't explain the gaps in the numbers with the original 
+> version.  I'll give your variant a try.
+
+The only problem is here:
+
++	if (i < NR_IRQS) {
++		gsi_2_irq[gsi] = i;
++		printk(KERN_INFO "GSI %d sharing vector 0x%02X and IRQ
+%d\n",
++				gsi, vector, i);
++		return i;
++	}
++
++	i = next_irq++;
+ 
+That means for any IRQ < NR_IRQS you allow it to be identity mapped,
+with all the gaps, and only for ones exceeding 224 you'll assign
+consecutive next_irqs++, whereas you can do it for all PCI IRQs above
+15. So, the alternative clause should probably come down to just:
+                 irq = next_irq++;
+                 gsi_2_irq[gsi] = irq; - which means just removing the
+one above...
+(although we better test that :)...I will definitely test vector sharing
+when manage to get on max configuration partition here.
+
+Regards,
+--Natalie
+ 

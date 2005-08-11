@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVHKRq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVHKRrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbVHKRq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 13:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVHKRq1
+	id S932309AbVHKRrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 13:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVHKRrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 13:46:27 -0400
-Received: from fsmlabs.com ([168.103.115.128]:40321 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932316AbVHKRq0 (ORCPT
+	Thu, 11 Aug 2005 13:47:09 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:5543 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932309AbVHKRrI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 13:46:26 -0400
-Date: Thu, 11 Aug 2005 11:52:08 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-cc: jamesclv@us.ibm.com, Andi Kleen <ak@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, linux-kernel@vger.kernel.org
-Subject: RE: [RFC][2.6.12.3] IRQ compression/sharing patch
-In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04CAE@USRV-EXCH4.na.uis.unisys.com>
-Message-ID: <Pine.LNX.4.61.0508111149190.14504@montezuma.fsmlabs.com>
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04CAE@USRV-EXCH4.na.uis.unisys.com>
+	Thu, 11 Aug 2005 13:47:08 -0400
+Message-ID: <42FB8F0D.6060202@pobox.com>
+Date: Thu, 11 Aug 2005 13:46:53 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Michael Thonke <iogl64nx@gmail.com>
+CC: Lee Revell <rlrevell@joe-job.com>, lgb@lgb.hu,
+       Allen Martin <AMartin@nvidia.com>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
+References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com>	 <20050811070943.GB8025@vega.lgb.hu> <1123765523.32375.10.camel@mindpipe> <42FB6C27.1010408@gmail.com> <42FB88F8.7040807@pobox.com> <42FB8D04.8050006@gmail.com>
+In-Reply-To: <42FB8D04.8050006@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Aug 2005, Protasevich, Natalie wrote:
+Michael Thonke wrote:
+> I have a ASUS A8V Deluxe too, and can't use the AMD X2 processor on 
+> it...this is a feature..right?
+> Supposed to run with DualCore but don't post..hm.
 
-> our systems we are just about to use up all 224 interrupts, but not
-> quiet. 
-> I have to mention that as far as I know Zwane is about to release his
-> vector sharing mechanism, he had it implemented and working for i386 (I
-> tested it on ES7000 successfully, by itself and combined with
-> compression patch too), and was planning implementing it for x86_64. I
-> am officially volunteering for testing it in its present state, for both
-> i386 and x86_64 (I can still do this on our systems by removing the IRQ
-> compression code :), hope this will help Zwane and Andi to release it as
-> soon as possible.
+What does ASUS say about this?  You can't just plug a new processor into 
+an old motherboard and expect it to work, generally.
 
-I added some of the suggestions brought forward (dynamically allocated 
-IDTs, percpu IDT) last night, all that's left is MSI, which does work 
-right now, but gets all its vectors allocated on the first irq handling 
-domain. I should be done soon, time permitting.
 
-Thanks,
-	Zwane
+> My SATA II devices. Get not regonized from the VIA SATA 
+> controller...this bug is known.
+> So I want to use my HDD's I bought ...why should I set my SATA II device 
+> to be SATA I.
+
+Please enable ATA_DEBUG and ATA_VERBOSE_DEBUG, and send me the output.
+
+SATA II devices can be used on SATA I controllers just fine, with no 
+need to tweak settings.
+
+	Jeff
+
+
 

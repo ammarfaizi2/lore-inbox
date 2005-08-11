@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbVHKRdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbVHKRgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbVHKRdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 13:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVHKRdM
+	id S932255AbVHKRgK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 13:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVHKRgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 13:33:12 -0400
-Received: from verein.lst.de ([213.95.11.210]:10714 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S932301AbVHKRdL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 13:33:11 -0400
-Date: Thu, 11 Aug 2005 19:33:05 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH] consolidate sys_ptrace
-Message-ID: <20050811173305.GA10372@lst.de>
-References: <20050810080057.GA5295@lst.de> <20050811173203.GA31610@twiddle.net>
+	Thu, 11 Aug 2005 13:36:10 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:49580 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932255AbVHKRgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 13:36:09 -0400
+Subject: Re: Need help in understanding x86 syscall
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Coywolf Qi Hunt <coywolf@gmail.com>, 7eggert@gmx.de,
+       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1123781187.17269.77.camel@localhost.localdomain>
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
+	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
+	 <1123770661.17269.59.camel@localhost.localdomain>
+	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
+	 <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
+	 <1123775508.17269.64.camel@localhost.localdomain>
+	 <1123777184.17269.67.camel@localhost.localdomain>
+	 <2cd57c90050811093112a57982@mail.gmail.com>
+	 <2cd57c9005081109597b18cc54@mail.gmail.com>
+	 <Pine.LNX.4.61.0508111310180.15153@chaos.analogic.com>
+	 <1123781187.17269.77.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 11 Aug 2005 13:33:59 -0400
+Message-Id: <1123781639.17269.83.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050811173203.GA31610@twiddle.net>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 10:32:03AM -0700, Richard Henderson wrote:
-> On Wed, Aug 10, 2005 at 10:00:57AM +0200, Christoph Hellwig wrote:
-> > The sys_ptrace boilerplate code (everything outside the big switch
-> > statement for the arch-specific requests) is shared by most
-> > architectures.  This patch moves it to kernel/ptrace.c and leaves the
-> > arch-specific code as arch_ptrace.
-> 
-> The signature of arch_ptrace needs to return long, and not int.
-> The PTRACE_PEEK{TEXT,DATA,USR} requests return a "word", which 
-> on 64-bit arches needs to be a 64-bit type.
+On Thu, 2005-08-11 at 13:26 -0400, Steven Rostedt wrote:
 
-Ok.  Will be that way in the next patch.
+> 288fb seems to use "int 0x80"  and so do all the other system calls that
+> I inspected.
+
+I expect that if I had a Gentoo system that I compiled for my machine,
+this would be different. But I suspect that Debian still wants to run on
+my old Pentium 75MHz laptop.  How would libc know to use sysenter
+instead of int 0x80.  It could do a test of the system, but would there
+be an if statement for every system call then?   I guess that libc needs
+to be compiled either to use it or not. Since there are still several
+machines out there that don't have this feature, it would be safer to
+not use it.
+
+-- Steve
+
 

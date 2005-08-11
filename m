@@ -1,163 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVHKE5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVHKE6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbVHKE5t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 00:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbVHKE5s
+	id S932262AbVHKE6G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 00:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbVHKE6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 00:57:48 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:49414 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932262AbVHKE5q
+	Thu, 11 Aug 2005 00:58:05 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:51206 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932265AbVHKE6C
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 00:57:46 -0400
-Date: Wed, 10 Aug 2005 21:57:41 -0700
+	Thu, 11 Aug 2005 00:58:02 -0400
+Date: Wed, 10 Aug 2005 21:58:01 -0700
 From: zach@vmware.com
-Message-Id: <200508110457.j7B4vePN019611@zach-dev.vmware.com>
+Message-Id: <200508110458.j7B4w1NU019619@zach-dev.vmware.com>
 To: akpm@osdl.org, chrisl@vmware.com, chrisw@osdl.org, hpa@zytor.com,
        Keir.Fraser@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
        m+Ian.Pratt@cl.cam.ac.uk, mbligh@mbligh.org, pratap@vmware.com,
        virtualization@lists.osdl.org, zach@vmware.com, zwane@arm.linux.org.uk
-Subject: [PATCH 11/14] i386 / Eliminate yet another redundant accessor
-X-OriginalArrivalTime: 11 Aug 2005 04:57:54.0389 (UTC) FILETIME=[3BCE5050:01C59E31]
+Subject: [PATCH 12/14] i386 / Move context switch inline
+X-OriginalArrivalTime: 11 Aug 2005 04:58:14.0452 (UTC) FILETIME=[47C3AF40:01C59E31]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Found yet another set of accessor functions for descriptors that really
-belongs in desc.h - move it there.
+By moving init_new_context and destroy_context inline into mmu_context.h,
+we can avoid extra functions calls, which are only needed for the unlikely
+case that the process context has an LDT to deal with.
 
-Patch-base: 2.6.13-rc5-mm1
-Patch-keys: i386 desc cleanup
+Now the code in ldt.c is called only when actually dealing with LDT
+creation or destruction.  Careful analysis of alloc_ldt function showed
+that by using two const parameters, huge amounts of dead code would be
+eliminated, allowing it to inline into copy_ldt.  This results in just
+better assembly code everywhere, and saves 118 bytes of space in my
+compilation - even with a lesser gcc (3.2.2).
+
+Less importantly, it puts the context code in mmu_context.h, which is
+just cleaner and helps make some later hypervisor diffs more readable.
+
+Patch-against: 2.6.13-rc5-mm1
+Patch-keys: i386 ldt mmu optimize cleanup
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.13/arch/i386/kernel/process.c
+Index: linux-2.6.13/arch/i386/kernel/ldt.c
 ===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/process.c	2005-08-09 21:10:00.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/process.c	2005-08-09 23:45:09.000000000 -0700
-@@ -898,26 +898,6 @@
+--- linux-2.6.13.orig/arch/i386/kernel/ldt.c	2005-08-10 17:04:59.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/ldt.c	2005-08-10 20:40:16.000000000 -0700
+@@ -19,7 +19,7 @@
+ #include <asm/ldt.h>
+ #include <asm/desc.h>
+ 
+-#ifdef CONFIG_SMP /* avoids "defined but not used" warnig */
++#ifdef CONFIG_SMP /* avoids "defined but not used" warning */
+ static void flush_ldt(void *null)
+ {
+ 	if (current->active_mm)
+@@ -27,15 +27,11 @@
+ }
+ #endif
+ 
+-static int alloc_ldt(mm_context_t *pc, int mincount, int reload)
++static inline int alloc_ldt(mm_context_t *pc, const int oldsize, int mincount, const int reload)
+ {
+ 	void *oldldt;
+ 	void *newldt;
+-	int oldsize;
+ 
+-	if (mincount <= pc->size)
+-		return 0;
+-	oldsize = pc->size;
+ 	mincount = (mincount+511)&(~511);
+ 	if (mincount*LDT_ENTRY_SIZE > PAGE_SIZE)
+ 		newldt = vmalloc(mincount*LDT_ENTRY_SIZE);
+@@ -48,12 +44,17 @@
+ 	if (oldsize)
+ 		memcpy(newldt, pc->ldt, oldsize*LDT_ENTRY_SIZE);
+ 	oldldt = pc->ldt;
+-	memset(newldt+oldsize*LDT_ENTRY_SIZE, 0, (mincount-oldsize)*LDT_ENTRY_SIZE);
++	if (reload)
++		memset(newldt+oldsize*LDT_ENTRY_SIZE, 0, (mincount-oldsize)*LDT_ENTRY_SIZE);
+ 	pc->ldt = newldt;
+ 	wmb();
+ 	pc->size = mincount;
+ 	wmb();
+ 
++	/*
++	 * If updating an active LDT, must reload LDT on all processors
++	 * where it could be active.
++	 */
+ 	if (reload) {
+ #ifdef CONFIG_SMP
+ 		cpumask_t mask;
+@@ -76,49 +77,27 @@
  	return 0;
  }
  
--/*
-- * Get the current Thread-Local Storage area:
-- */
--
--#define GET_BASE(desc) ( \
--	(((desc)->a >> 16) & 0x0000ffff) | \
--	(((desc)->b << 16) & 0x00ff0000) | \
--	( (desc)->b        & 0xff000000)   )
--
--#define GET_LIMIT(desc) ( \
--	((desc)->a & 0x0ffff) | \
--	 ((desc)->b & 0xf0000) )
--	
--#define GET_32BIT(desc)		(((desc)->b >> 22) & 1)
--#define GET_CONTENTS(desc)	(((desc)->b >> 10) & 3)
--#define GET_WRITABLE(desc)	(((desc)->b >>  9) & 1)
--#define GET_LIMIT_PAGES(desc)	(((desc)->b >> 23) & 1)
--#define GET_PRESENT(desc)	(((desc)->b >> 15) & 1)
--#define GET_USEABLE(desc)	(((desc)->b >> 20) & 1)
--
- asmlinkage int sys_get_thread_area(struct user_desc __user *u_info)
+-static inline int copy_ldt(mm_context_t *new, mm_context_t *old)
++int copy_ldt(mm_context_t *new, mm_context_t *old)
  {
- 	struct user_desc info;
-@@ -932,16 +912,7 @@
- 	memset(&info, 0, sizeof(info));
- 
- 	desc = current->thread.tls_array + idx - GDT_ENTRY_TLS_MIN;
--
--	info.entry_number = idx;
--	info.base_addr = GET_BASE(desc);
--	info.limit = GET_LIMIT(desc);
--	info.seg_32bit = GET_32BIT(desc);
--	info.contents = GET_CONTENTS(desc);
--	info.read_exec_only = !GET_WRITABLE(desc);
--	info.limit_in_pages = GET_LIMIT_PAGES(desc);
--	info.seg_not_present = !GET_PRESENT(desc);
--	info.useable = GET_USEABLE(desc);
-+	convert_desc_to_user(desc, &info, idx);
- 
- 	if (copy_to_user(u_info, &info, sizeof(info)))
- 		return -EFAULT;
-Index: linux-2.6.13/arch/i386/kernel/ptrace.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/ptrace.c	2005-08-09 21:10:00.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/ptrace.c	2005-08-09 21:10:24.000000000 -0700
-@@ -283,41 +283,11 @@
- 	struct user_desc info;
- 	struct desc_struct *desc;
- 
--/*
-- * Get the current Thread-Local Storage area:
-- */
--
--#define GET_BASE(desc) ( \
--	(((desc)->a >> 16) & 0x0000ffff) | \
--	(((desc)->b << 16) & 0x00ff0000) | \
--	( (desc)->b        & 0xff000000)   )
--
--#define GET_LIMIT(desc) ( \
--	((desc)->a & 0x0ffff) | \
--	 ((desc)->b & 0xf0000) )
--
--#define GET_32BIT(desc)		(((desc)->b >> 22) & 1)
--#define GET_CONTENTS(desc)	(((desc)->b >> 10) & 3)
--#define GET_WRITABLE(desc)	(((desc)->b >>  9) & 1)
--#define GET_LIMIT_PAGES(desc)	(((desc)->b >> 23) & 1)
--#define GET_PRESENT(desc)	(((desc)->b >> 15) & 1)
--#define GET_USEABLE(desc)	(((desc)->b >> 20) & 1)
--
- 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
- 		return -EINVAL;
- 
- 	desc = child->thread.tls_array + idx - GDT_ENTRY_TLS_MIN;
--
--	info.entry_number = idx;
--	info.base_addr = GET_BASE(desc);
--	info.limit = GET_LIMIT(desc);
--	info.seg_32bit = GET_32BIT(desc);
--	info.contents = GET_CONTENTS(desc);
--	info.read_exec_only = !GET_WRITABLE(desc);
--	info.limit_in_pages = GET_LIMIT_PAGES(desc);
--	info.seg_not_present = !GET_PRESENT(desc);
--	info.useable = GET_USEABLE(desc);
--
-+	convert_desc_to_user(desc, &info, idx);
- 	if (copy_to_user(user_desc, &info, sizeof(info)))
- 		return -EFAULT;
- 
-Index: linux-2.6.13/include/asm-i386/desc.h
-===================================================================
---- linux-2.6.13.orig/include/asm-i386/desc.h	2005-08-09 21:10:00.000000000 -0700
-+++ linux-2.6.13/include/asm-i386/desc.h	2005-08-10 20:40:26.000000000 -0700
-@@ -20,6 +20,13 @@
- #define desc_equal(desc1, desc2) \
- 		(((desc1)->a == (desc2)->a) && ((desc1)->b == (desc2)->b))
- 
-+#define get_desc_32bit(desc)	(((desc)->b >> 22) & 1)
-+#define get_desc_contents(desc)	(((desc)->b >> 10) & 3)
-+#define get_desc_writable(desc)	(((desc)->b >>  9) & 1)
-+#define get_desc_gran(desc)	(((desc)->b >> 23) & 1)
-+#define get_desc_present(desc)	(((desc)->b >> 15) & 1)
-+#define get_desc_usable(desc)	(((desc)->b >> 20) & 1)
+-	int err = alloc_ldt(new, old->size, 0);
+-	if (err < 0)
+-		return err;
+-	memcpy(new->ldt, old->ldt, old->size*LDT_ENTRY_SIZE);
+-	return 0;
++	int err;
 +
- static inline unsigned long get_desc_base(struct desc_struct *desc)
- {
- 	unsigned long base;
-@@ -36,6 +43,19 @@
- 	return limit;
++	down(&old->sem);
++	err = alloc_ldt(new, 0, old->size, 0);
++	if (!err)
++		memcpy(new->ldt, old->ldt, old->size*LDT_ENTRY_SIZE);
++	up(&old->sem);
++	return err;
  }
  
-+static inline void convert_desc_to_user(struct desc_struct *desc, struct user_desc *info, int idx)
-+{
-+	info->entry_number = idx;
-+	info->base_addr = get_desc_base(desc);
-+	info->limit = get_desc_limit(desc);
-+	info->seg_32bit = get_desc_32bit(desc);
-+	info->contents = get_desc_contents(desc);
-+	info->read_exec_only = !get_desc_writable(desc);
-+	info->limit_in_pages = get_desc_gran(desc);
-+	info->seg_not_present = !get_desc_present(desc);
-+	info->useable = get_desc_usable(desc);
-+}
-+
- extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
- DECLARE_PER_CPU(struct desc_struct, cpu_gdt_table[GDT_ENTRIES]);
+-/*
+- * we do not have to muck with descriptors here, that is
+- * done in switch_mm() as needed.
+- */
+-int init_new_context(struct task_struct *tsk, struct mm_struct *mm)
++void destroy_ldt(struct mm_struct *mm)
+ {
+-	struct mm_struct * old_mm;
+-	int retval = 0;
+-
+-	init_MUTEX(&mm->context.sem);
++	if (mm == current->active_mm)
++		clear_LDT();
++	if (mm->context.size*LDT_ENTRY_SIZE > PAGE_SIZE)
++		vfree(mm->context.ldt);
++	else
++		kfree(mm->context.ldt);
+ 	mm->context.size = 0;
+-	old_mm = current->mm;
+-	if (old_mm && old_mm->context.size > 0) {
+-		down(&old_mm->context.sem);
+-		retval = copy_ldt(&mm->context, &old_mm->context);
+-		up(&old_mm->context.sem);
+-	}
+-	return retval;
+-}
+-
+-/*
+- * No need to lock the MM as we are the last user
+- */
+-void destroy_context(struct mm_struct *mm)
+-{
+-	if (mm->context.size) {
+-		if (mm == current->active_mm)
+-			clear_LDT();
+-		if (mm->context.size*LDT_ENTRY_SIZE > PAGE_SIZE)
+-			vfree(mm->context.ldt);
+-		else
+-			kfree(mm->context.ldt);
+-		mm->context.size = 0;
+-	}
+ }
  
+ static int read_ldt(void __user * ptr, unsigned long bytecount)
+@@ -200,7 +179,8 @@
+ 
+ 	down(&mm->context.sem);
+ 	if (ldt_info.entry_number >= mm->context.size) {
+-		error = alloc_ldt(&current->mm->context, ldt_info.entry_number+1, 1);
++		error = alloc_ldt(&current->mm->context, mm->context.size,
++					ldt_info.entry_number+1, 1);
+ 		if (error < 0)
+ 			goto out_unlock;
+ 	}
+Index: linux-2.6.13/include/asm-i386/mmu_context.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/mmu_context.h	2005-08-10 17:04:59.000000000 -0700
++++ linux-2.6.13/include/asm-i386/mmu_context.h	2005-08-10 20:39:57.000000000 -0700
+@@ -10,9 +10,28 @@
+ /*
+  * Used for LDT copy/destruction.
+  */
+-int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
+-void destroy_context(struct mm_struct *mm);
++static inline int init_new_context(struct task_struct *tsk, struct mm_struct *mm)
++{
++	struct mm_struct * old_mm;
++	int retval = 0;
++
++	init_MUTEX(&mm->context.sem);
++	mm->context.size = 0;
++	old_mm = current->mm;
++	if (old_mm && unlikely(old_mm->context.size > 0)) {
++		retval = copy_ldt(&mm->context, &old_mm->context);
++	}
++	return retval;
++}
+ 
++/*
++ * No need to lock the MM as we are the last user
++ */
++static inline void destroy_context(struct mm_struct *mm)
++{
++	if (unlikely(mm->context.size))
++		destroy_ldt(mm);
++}
+ 
+ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
+ {
+Index: linux-2.6.13/include/asm-i386/desc.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/desc.h	2005-08-10 17:04:59.000000000 -0700
++++ linux-2.6.13/include/asm-i386/desc.h	2005-08-10 17:06:52.000000000 -0700
+@@ -189,5 +189,8 @@
+ 	put_cpu();
+ }
+ 
++extern void destroy_ldt(struct mm_struct *mm);
++extern int copy_ldt(mm_context_t *new, mm_context_t *old);
++
+ #endif /* !__ASSEMBLY__ */
+ #endif

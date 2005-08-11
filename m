@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbVHKIoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVHKIpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbVHKIoo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 04:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbVHKIoo
+	id S1030233AbVHKIpO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 04:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbVHKIpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 04:44:44 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36065 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030225AbVHKIon (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 04:44:43 -0400
-Date: Thu, 11 Aug 2005 16:50:06 +0800
-From: David Teigland <teigland@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: GFS - updated patches
-Message-ID: <20050811085006.GA19972@redhat.com>
-References: <20050802071828.GA11217@redhat.com> <20050811081729.GB12438@redhat.com> <1123749159.3201.19.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
+	Thu, 11 Aug 2005 04:45:14 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:23160 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S1030228AbVHKIpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 04:45:12 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.96,99,1122847200"; 
+   d="scan'208"; a="13920640:sNHT25223000"
+To: linux-kernel@vger.kernel.org
+Cc: linux-ide@vger.kernel.org
+Subject: [PATCH 2.6.12.4] sata_sis.c: Introducing device ID 0x182
+Organization: Fujitsu Siemens Computers VP BC E SW OS
+From: Rainer Koenig <Rainer.Koenig@fujitsu-siemens.com>
+Date: Thu, 11 Aug 2005 10:44:55 +0200
+Message-ID: <8764ucdfqw.fsf@ABG3595C.abg.fsc.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123749159.3201.19.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 10:32:38AM +0200, Arjan van de Ven wrote:
-> On Thu, 2005-08-11 at 16:17 +0800, David Teigland wrote:
-> > Thanks for all the review and comments.  This is a new set of patches that
-> > incorporates the suggestions we've received.
-> 
-> all of them or only a subset?
+Our new SIS based AMD desktop systems come with a very new SIS chipset
+that has a Serial ATA controller that has the device ID 0x182. Without
+this patch the system won't be able to use the hard disk in native mode.
+As a proof of concept we patched the kernel on a system with an older SIS
+chipset and then transfered the hard disk to the new system, looks like
+the new chipset is compatible enough to run without problems.
 
-All patches, now 01-13 (what was patch 08 disappeared entirely)
+Regards
+Rainer
 
+Patch signed-off-by: Rainer Koenig <Rainer.Koenig@fujitsu-siemens.com>
+
+--- linux-2.6.12.4/drivers/scsi/sata_sis.c	2005-08-05 09:04:37.000000000 +0200
++++ linux/drivers/scsi/sata_sis.c	2005-08-11 10:22:07.000000000 +0200
+@@ -62,6 +62,7 @@
+ static struct pci_device_id sis_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_SI, 0x180, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
+ 	{ PCI_VENDOR_ID_SI, 0x181, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
++        { PCI_VENDOR_ID_SI, 0x182, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
+ 	{ }	/* terminate list */
+ };
+ 
+
+-- 
+Dipl.-Inf. (FH) Rainer Koenig
+Project Manager Linux
+Business Clients
+Fujitsu Siemens Computers 
+VP BC E SW OS
+Phone: +49-821-804-3321
+Fax:   +49-821-804-2131
+ 

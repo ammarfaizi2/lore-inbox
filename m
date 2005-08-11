@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbVHKMry@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbVHKMtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbVHKMry (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 08:47:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbVHKMry
+	id S932398AbVHKMtd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 08:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVHKMtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 08:47:54 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:24590 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932398AbVHKMrx convert rfc822-to-8bit (ORCPT
+	Thu, 11 Aug 2005 08:49:33 -0400
+Received: from pat.uio.no ([129.240.130.16]:16336 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932398AbVHKMtc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 08:47:53 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <42FB435E.2070607@effigent.net>
-References: <42FB435E.2070607@effigent.net>
-X-OriginalArrivalTime: 11 Aug 2005 12:47:51.0050 (UTC) FILETIME=[E25356A0:01C59E72]
-Content-class: urn:content-classes:message
-Subject: Re: __init()
-Date: Thu, 11 Aug 2005 08:47:38 -0400
-Message-ID: <Pine.LNX.4.61.0508110835480.14365@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: __init()
-Thread-Index: AcWecuJwsDgZBPeeQl6BhLVBzXvwPQ==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "raja" <vnagaraju@effigent.net>
-Cc: <linux-c-programming@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Thu, 11 Aug 2005 08:49:32 -0400
+Subject: Re: fcntl(F GETLEASE) semantics??
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Michael Kerrisk <mtk-lkml@gmx.net>
+Cc: peterc@gelato.unsw.edu.au, linux-kernel@vger.kernel.org,
+       sfr@canb.auug.org.au, matthew@wil.cx, michael.kerrisk@gmx.net
+In-Reply-To: <24699.1123763244@www9.gmx.net>
+References: <1123761105.8251.10.camel@lade.trondhjem.org>
+	 <24699.1123763244@www9.gmx.net>
+Content-Type: text/plain
+Date: Thu, 11 Aug 2005 08:49:12 -0400
+Message-Id: <1123764552.8251.43.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.545, required 12,
+	autolearn=disabled, AWL 2.27, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+to den 11.08.2005 Klokka 14:27 (+0200) skreiv Michael Kerrisk:
+> And I pointed out that the existing behaviour (which is 
+> still current in 2.6.13-rc4) is inconsistent:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111511455406623&w=2
+> 
+>     Some further testing showed the following (both open() 
+>     and fcntl(F_SETLEASE) from same process):
+> 
+>      open()  |  lease requested
+>       flag   | F_RDLCK  | F_WRLCK
+>     ---------+----------+----------
+>     O_RDONLY | okay     |  okay
+>     O_WRONLY | EAGAIN   |  okay
+>     O_RDWR   | EAGAIN   |  okay
+> 
+> In other words, a process can open a file read-write, and
+> can't place a read lease, but can place a write lease!  
+> That does not seem to make any sense to me.
 
-On Thu, 11 Aug 2005, raja wrote:
+Then what do you think that leases are supposed to do, and why?
 
-> Hi,
->     Is there any way to execute my own __init() instead of default
-> __init() while running an executable.
-> -
+AFAIK, the whole point here is to provide a method to allow CIFS and
+NFSv4 clients to be notified if there is some behaviour on the server
+that screws with the ability to cache data.
 
-Sure you link your object file with your own instead of using
-the default....
+An exclusive (i.e. write) lease should mean that _nothing_ other than
+your process is accessing the file. A client may cache the file data,
+metadata and read/write locks because nobody else can change that
+information, and nobody else holds locks on the file. It may also cache
+file acl/access information, and hence cache new OPEN calls.
 
-     gcc -c -o myprog.o myprog.c
-     as -o start.o start.S
+A shared (i.e. read) lease means that there are currently no processes
+that can change the data or metadata (including your own). A client may
+cache data, metadata and read locks since there are no writers, and
+there is nobody holding write locks. The client may again cache OPEN
+calls as long as they are read-only.
 
-     ld -o myprog myprog.o start.o /lib/libc.so.6
-                         |       |              |___ runtime lib
-                         |       |__________________ Your startup
-                         |__________________________ Your program
-
-Startup starts with a label _start. You may have to write it
-in assembly. It calls main() and must never return. Instead
-it calls exit() with whatever main() returned, to quit.
-
-__init() is some M$ thing. Linux executables start with
-_start().
+Note that the kernel is still incomplete w.r.t. notification of changes.
+Holders of the oplocks/delegations need to be notified if the file is
+renamed, or if the acl/access information changes, say.
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+  Trond
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

@@ -1,103 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbVHKLFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030271AbVHKLQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbVHKLFH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 07:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbVHKLFG
+	id S1030271AbVHKLQU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 07:16:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbVHKLQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 07:05:06 -0400
-Received: from kenga.kmv.ru ([217.13.212.5]:42424 "EHLO kenga.kmv.ru")
-	by vger.kernel.org with ESMTP id S1030271AbVHKLFB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 07:05:01 -0400
-Date: Thu, 11 Aug 2005 15:01:22 +0400
-From: "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Cc: Olya Briginets <bolya@ukrpost.net>
-Subject: [PATCH] 2.4.31: fix isofs mount options parser
-Message-ID: <20050811110122.GX9857@kmv.ru>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="rMWmSaSbD7nr+du9"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-X-Data-Status: msg.XX4OQGep:32049@kenga.kmv.ru
+	Thu, 11 Aug 2005 07:16:20 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:25014 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S1030271AbVHKLQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 07:16:20 -0400
+Message-ID: <42FB3381.3010809@grupopie.com>
+Date: Thu, 11 Aug 2005 12:16:17 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: kai.germaschewski@gmx.de, kai@germaschewski.name,
+       linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] do not save thousands of useless symbols in KALLSYMS
+ kernels
+References: <200508111403.39708.vda@ilport.com.ua>
+In-Reply-To: <200508111403.39708.vda@ilport.com.ua>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Denis Vlasenko wrote:
+> Sample of my kernel's mostly useless symbols
+> (starting_with:# of symbols):
+> 
+> __func__: 624
+> __vendorstr_: 1760
+> __pci_fixup_PCI_: 116
+> __ksymtab_: 2597
+> __kstrtab_: 2597
+> __kcrctab_: 2597
+> __initcall_: 236
+> __devicestr_: 4686
+> __devices_: 1760
+> Total: 16973
+> Lines in System.map: 39735
+> 
+> Excluding them from in-kernel symbol table saves ~300kb:
+> 
+>    text    data     bss     dec     hex filename
+> 4337710 1054414  259296 5651420  563bdc vmlinux.carrier1 - w/o KALLSYMS
+> 4342068 1296046  259296 5897410  59fcc2 vmlinux - with KALLSYMS+patch
+> 4341948 1607634  259296 6208878  5ebd6e vmlinux.carrier - with KALLSYMS
+>         ^^^^^^^
 
---rMWmSaSbD7nr+du9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hummm.... these symbols should only go in if you config KALLSYMS_ALL. 
+Are you sure your configuration doesn't have KALLSYMS_ALL enabled?
 
-Hello Marcelo, LKML.
+If it does, it seems like the correct behavior to include all symbols if 
+you specified that you wanted _all_ symbols :)
 
-Previos patch incomplete and fix only gcc warnings. New patch attached.
-
-Description:
-This patch pix gcc-3.4 warnings, andfix broken logic in mount options
-parser.
-
---- cut ---
-inode.c: In function `parse_options':
-inode.c:341: warning: comparison of unsigned expression < 0 is always false
-inode.c:347: warning: comparison of unsigned expression < 0 is always false
---- cut ---
-
-Signed-of-by: Andrey Melnikoff <temnota@kmv.ru>
-
---- linux-2.4.31/fs/isofs/inode.c~old	2005-08-10 16:18:48.000000000 +0400
-+++ linux-2.4.31/fs/isofs/inode.c	2005-08-11 13:55:25.000000000 +0400
-@@ -335,15 +335,15 @@
- 			else if (!strcmp(value,"acorn")) popt->map = 'a';
- 			else return 0;
- 		}
--		if (!strcmp(this_char,"session") && value) {
-+		else if (!strcmp(this_char,"session") && value) {
- 			char * vpnt = value;
--			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
-+			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
- 			if(ivalue < 0 || ivalue >99) return 0;
- 			popt->session=ivalue+1;
- 		}
--		if (!strcmp(this_char,"sbsector") && value) {
-+		else if (!strcmp(this_char,"sbsector") && value) {
- 			char * vpnt = value;
--			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
-+			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
- 			if(ivalue < 0 || ivalue >660*512) return 0;
- 			popt->sbsector=ivalue;
- 		}
+By the way, there is a completely different version of 
+scripts/kallsyms.c in -mm that you might want to look at. It will 
+probably go in after 2.6.13 is out.
 
 -- 
- Best regards, TEMHOTA-RIPN aka MJA13-RIPE
- System Administrator. mailto:temnota@kmv.ru
+Paulo Marques - www.grupopie.com
 
-
---rMWmSaSbD7nr+du9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="isofs-fix.diff"
-
---- linux-2.4.31/fs/isofs/inode.c~old	2005-08-10 16:18:48.000000000 +0400
-+++ linux-2.4.31/fs/isofs/inode.c	2005-08-11 13:55:25.000000000 +0400
-@@ -335,15 +335,15 @@
- 			else if (!strcmp(value,"acorn")) popt->map = 'a';
- 			else return 0;
- 		}
--		if (!strcmp(this_char,"session") && value) {
-+		else if (!strcmp(this_char,"session") && value) {
- 			char * vpnt = value;
--			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
-+			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
- 			if(ivalue < 0 || ivalue >99) return 0;
- 			popt->session=ivalue+1;
- 		}
--		if (!strcmp(this_char,"sbsector") && value) {
-+		else if (!strcmp(this_char,"sbsector") && value) {
- 			char * vpnt = value;
--			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
-+			int ivalue = simple_strtoul(vpnt, &vpnt, 0);
- 			if(ivalue < 0 || ivalue >660*512) return 0;
- 			popt->sbsector=ivalue;
- 		}
-
---rMWmSaSbD7nr+du9--
+It is a mistake to think you can solve any major problems
+just with potatoes.
+Douglas Adams

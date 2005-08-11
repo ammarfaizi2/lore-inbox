@@ -1,91 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVHKVbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbVHKVbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbVHKVbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 17:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbVHKVbJ
+	id S1750995AbVHKVbM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 17:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVHKVbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 17:31:09 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:45864 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750989AbVHKVbI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 17:31:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RI5QXXYls+98aKZCAzF1xqHe7Lgl1tVVCbw/9n8NVhuyKDnSAdsOOPX/nAN20PiN5x1I42dIBSHnCCkbnPMiFlEI4db+Z8RTEW3JM5aDNVxN8cTxgCKg/XIYyVp2dKBJ8aLnbe5D5kyrFp/70lDvdsS5LAAyvMkTRViOJWzfKgg=
-Message-ID: <29495f1d05081114312e3dc2fa@mail.gmail.com>
-Date: Thu, 11 Aug 2005 14:31:07 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: "John M. King" <jmking1@uiuc.edu>
-Subject: Re: Possible race in sound/oss/forte.c ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42FB8522.7080605@uiuc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42FB8522.7080605@uiuc.edu>
+	Thu, 11 Aug 2005 17:31:12 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:59917 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1750995AbVHKVbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 17:31:11 -0400
+Message-ID: <42FBC43F.5020009@tmr.com>
+Date: Thu, 11 Aug 2005 17:33:51 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: george@mvista.com
+CC: Andrew Morton <akpm@osdl.org>, tony@atomide.com,
+       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
+       ck@vds.kolivas.org, tuukka.tikkanen@elektrobit.com
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
+References: <200508031559.24704.kernel@kolivas.org>	<200508060239.41646.kernel@kolivas.org>	<20050806174739.GU4029@stusta.de>	<200508071512.22668.kernel@kolivas.org>	<20050807165833.GA13918@in.ibm.com> <42F905DA.4070308@mvista.com>	<20050810140528.GA20893@in.ibm.com> <42FA81B9.9020801@mvista.com>
+In-Reply-To: <42FA81B9.9020801@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/11/05, John M. King <jmking1@uiuc.edu> wrote:
-> I know the OSS drivers are deprecated, but I'm trying to figure this out
-> for my own understanding.
+George Anzinger wrote:
+> Srivatsa Vaddagiri wrote:
 > 
-> Here's code from sound/oss/forte.c, in the write system call handler.  A
-> test has already been performed (under the protection of the lock) and
-> the driver has decided to sleep.
+>> On Tue, Aug 09, 2005 at 12:36:58PM -0700, George Anzinger wrote:
+>>
+>>> IMNOHO, this is the ONLY way to keep proper time.  As soon as you 
+>>> reprogram the PIT you have lost track of the time.
+>>
+>>
+>>
+>> George,
+>>     Can't TSC (or equivalent) serve as a backup while PIT is disabled,
+>> especially considering that we disable PIT only for short duration in 
+>> practice (few seconds maybe) _and_ that we don't have HRT support yet?
+>>
+> I think it really depends on what you want.  If you really want to keep 
+> good time, the only rock in town is the one connected to the PIT (and 
+> the pmtimer).  The problem is, if you want the jiffie edge to be stable, 
+> there is just now way to reprogram the PIT to get it back to where it was.
 > 
->     add_wait_queue (&channel->wait, &wait);
+> In an old version of HRT I did a trick of loading a short count (based 
+> on reading the TSC or pmtimer) and then put the LATCH count on top of 
+> it.  In a correctly performing PIT, it should count down the short 
+> count, interrupt, load the long count and continue from there.  Aside 
+> from the machines that had BAD PITs (they reset on the load instead of 
+> the expiry of the current count) there were other problems that, in the 
+> end, cause loss of time (too fast, too slow, take your pick).  I also 
+> found PITs that signaled that they had loaded the count (they set a 
+> status bit) prior to actually loading it.  All in all, I find the PIT is 
+> just an ugly beast to try to program.  On the other hand, if you want 
+> regular interrupts at some fixed period, it will do this forever (give 
+> or take a epoch or two;) with out touching anything after the initial 
+> program set up.
 > 
->     for (;;) {
->         spin_unlock_irqrestore (&chip->lock, flags);
+> In the end, I concluded that, for the community kernel, it is really 
+> best to just interrupt the irq line and leave the PIT run.  Then you use 
+> the TSC or pmtimer to figure the gross loss of interrupts and leave the 
+> PIT interrupt again to define the jiffie edge.  If you have other, more 
+> pressing, concerns I suppose you can program the PIT, but don't expect 
+> your wall clock to be as stable as it is now.
 > 
->         set_current_state (TASK_INTERRUPTIBLE);
->         schedule();
-> 
->         spin_lock_irqsave (&chip->lock, flags);
-> 
->         if (channel->frag_num - channel->filled_frags)
->             break;
->     }
-> 
->     remove_wait_queue (&channel->wait, &wait);
->     set_current_state (TASK_RUNNING);
-> 
-> The driver's interrupt handler calls wake_up_all().  What if an
-> interrupt occurs just after the spin_unlock_irqrestore() but before
-> setting TASK_INTERRUPTIBLE (and the interrupt handler does stuff that
-> causes the tested conditional to be true as well)?  The interrupt calls
-> wake_up_all(), but then when control returns here, the process will mark
-> itself TASK_INTERRUPTIBLE right away and sleep, effectively missing the
-> wake_up_all().
-> 
-> Is this a race condition?  If not, can someone point out the error(s) in
-> my reasoning?  Please CC me as I'm not subscribed to the list.
+What are the portability and scaling issues if it were done this way? It 
+clearly looks practical on x86 uni, but if we want per-CPU non-tick, I'm 
+less sure how it would work.
 
-This is broken code. You are supposed to set the state before adding
-oneself to the wait-queue, if you are going to unconditionally sleep,
-I believe.
+But when you go to non-x86 hardware, is there always going to be another 
+source of wakeup available if the PIT is blocked instead of reset? I 
+have to go back and look at how SPARC hardware works, I don't remember 
+enough to be useful.
 
-So, the loop probably should be:
-
-prepare_to_wait(&channel->wait, &wait, TASK_INTERRUPTIBLE);
-
-for (;;) {
-         spin_unlock_irqrestore (&chip->lock, flags);
- 
-         set_current_state (TASK_INTERRUPTIBLE); // redundant in the
-first iteration
-         schedule();
- 
-         spin_lock_irqsave (&chip->lock, flags);
- 
-         if (channel->frag_num - channel->filled_frags)
-             break;
-}
- 
-finish_wait(&channel->wait, &wait);
-
-Thanks,
-Nish
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

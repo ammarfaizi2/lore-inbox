@@ -1,103 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVHKRJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVHKRLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbVHKRJT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 13:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVHKRJT
+	id S1751129AbVHKRLH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 13:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbVHKRLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 13:09:19 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:22794 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751127AbVHKRJS convert rfc822-to-8bit (ORCPT
+	Thu, 11 Aug 2005 13:11:06 -0400
+Received: from spirit.analogic.com ([208.224.221.4]:45064 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1751129AbVHKRLF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 13:09:18 -0400
+	Thu, 11 Aug 2005 13:11:05 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <75F35484-8D34-4B1A-B158-92930EA704D6@mac.com>
-References: <20050811144457.2598.qmail@science.horizon.com> <Pine.LNX.4.61.0508111058580.14789@chaos.analogic.com> <75F35484-8D34-4B1A-B158-92930EA704D6@mac.com>
-X-OriginalArrivalTime: 11 Aug 2005 17:09:10.0257 (UTC) FILETIME=[63DC7610:01C59E97]
+In-Reply-To: <2cd57c9005081109597b18cc54@mail.gmail.com>
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz> <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com> <1123770661.17269.59.camel@localhost.localdomain> <2cd57c90050811081374d7c4ef@mail.gmail.com> <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com> <1123775508.17269.64.camel@localhost.localdomain> <1123777184.17269.67.camel@localhost.localdomain> <2cd57c90050811093112a57982@mail.gmail.com> <2cd57c9005081109597b18cc54@mail.gmail.com>
+X-OriginalArrivalTime: 11 Aug 2005 17:11:04.0022 (UTC) FILETIME=[A7AB9F60:01C59E97]
 Content-class: urn:content-classes:message
-Subject: Re: CCITT-CRC16 in kernel
-Date: Thu, 11 Aug 2005 13:08:56 -0400
-Message-ID: <Pine.LNX.4.61.0508111256440.15112@chaos.analogic.com>
+Subject: Re: Need help in understanding x86 syscall
+Date: Thu, 11 Aug 2005 13:10:44 -0400
+Message-ID: <Pine.LNX.4.61.0508111310180.15153@chaos.analogic.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: CCITT-CRC16 in kernel
-Thread-Index: AcWel2Pjx8BUWnm/TYC6mspEmALkPw==
+Thread-Topic: Need help in understanding x86 syscall
+Thread-Index: AcWel6e3N0YWU31sTWqi83vFy17c7g==
 From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Kyle Moffett" <mrmacman_g4@mac.com>
-Cc: <linux@horizon.com>, <linux-kernel@vger.kernel.org>
+To: "Coywolf Qi Hunt" <coywolf@gmail.com>
+Cc: "Steven Rostedt" <rostedt@goodmis.org>, <7eggert@gmx.de>,
+       "Ukil a" <ukil_a@yahoo.com>, <linux-kernel@vger.kernel.org>
 Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 11 Aug 2005, Kyle Moffett wrote:
+On Thu, 11 Aug 2005, Coywolf Qi Hunt wrote:
 
-> On Aug 11, 2005, at 11:19:59, linux-os (Dick Johnson) wrote:
->> On Thu, 11 Aug 2005 linux@horizon.com wrote:
->>> You're wrong in two ways:
->>> 1) You've got CRC-16 and CRC-CCITT mixed up, and
->>> 2) You've got the bit ordering backwards.  Remember, I said very
->>> clearly,
->>>   the lsbit is the first bit, and the first bit is the highest power
->>>   of x.  You can reverse the convention and still have a CRC, but
->>> that's
->>>   not the way it's usually done and it's more awkward in software.
+> On 8/12/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+>> On 8/12/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+>>> On Thu, 2005-08-11 at 11:51 -0400, Steven Rostedt wrote:
+>>>>
+>>>> And booted it.  The system is up and running, so I really don't think
+>>>> that the sysenter_entry is used for system calls.
+>>>>
+>>>> Not so "Clear as day"!
 >>>
->>> CRC-CCITT = X^16 + X^12 + X^5 + X^0 = 0x8408, and NOT 0x1021
->>> CRC-16 =  X^16 + X^15 + X^2 + X^0 = 0xa001, and NOT 0x8005
+>>> And so, looking into sysenter_entry, it seems that my configurations
+>>> don't seem to use it. This jumps straight to system_call without ever
+>>> having to turn interrupts on.
+>>>
+>>> # cat /proc/cpuinfo
+>>> processor       : 0
+>>> vendor_id       : GenuineIntel
+>>> cpu family      : 6
+>>> model           : 8
+>>> model name      : Pentium III (Coppermine)
+>>> stepping        : 3
+>>> cpu MHz         : 367.939
+>>> cache size      : 256 KB
+>>> fdiv_bug        : no
+>>> hlt_bug         : no
+>>> f00f_bug        : no
+>>> coma_bug        : no
+>>> fpu             : yes
+>>> fpu_exception   : yes
+>>> cpuid level     : 2
+>>> wp              : yes
+>>> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+>>> mca cmov pat pse36 mmx fxsr sse
+>>> bogomips        : 722.94
+>>>
+>>>
+>>> -- Steve
+>>>
 >>
->> Thank you very much for your time, but what you say is completely
->> different than anything else I have found on the net.
+>> The cpu does have sep. Is it vanilla kernel?
 >>
->> Do the math:
->>
->>      2^ 16 = 65536
->>      2^ 12 =  4096
->>      2^  5 =    32
->>      2^  0 =     1
->> ----------------------
->>                  69655 = 0x11021
 >
-> No, it's like this: first, the 16 term is ignored, then:
+> Also glibc support.
 >
->     2^ ( 15 - 12 ) = 2^  3 =     8 = 0x0008
->     2^ ( 15 -  5 ) = 2^ 10 =  1024 = 0x0400
->     2^ ( 15 -  0 ) = 2^ 15 = 32768 = 0x8000
-> -----------------------------------------------
->                                    = 0x8408
->
-> This has 2 things:
->     1) The least-significant bit is the first bit
->     2) The first bit is the _highest_ power of X.
->
-> Cheers,
-> Kyle Moffett
+> --
+> Coywolf Qi Hunt
+> http://ahbl.org/~coywolf/
 
-
-Okay. Thanks. This means that hardware somehow swapped bits
-before doing a CRC. I wasn't aware that this was even possible
-as it would require additional storage, well I guess anything
-is now possible in a FPGA.
-
-The "Bible" has been:
- 	http://www.joegeluso.com/software/articles/ccitt.htm
-
-Note that on the very first page, reference, is made to
-the 0x1021 poly. Then there is source-code that is entirely
-incompatible with anything in the kernel, but is supposed to
-work (it does work on my hardware).
-
-I have spent over a week grabbing everything on the Web that
-could help decipher the CCITT CRC and they all show this
-same kind of code and same kind of organization. Nothing
-I could find on the Web is like the linux kernel ccitt_crc.
-Go figure.
-
-Do you suppose it was bit-swapped to bypass a patent?
-
+Probably doesn't use int 0x80 at all.
 
 Cheers,
 Dick Johnson

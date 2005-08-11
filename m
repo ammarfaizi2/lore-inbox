@@ -1,103 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVHKBg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVHKBgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbVHKBg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 21:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbVHKBg0
+	id S932184AbVHKBgM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 21:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbVHKBgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 21:36:26 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:37595 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932200AbVHKBgZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 21:36:25 -0400
-Subject: [RFC][PATCH - 12/13] NTP cleanup: cleanup ntp_advance() adjtime
-	code
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: George Anzinger <george@mvista.com>, frank@tuxrocks.com,
-       Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-In-Reply-To: <1123724120.32531.5.camel@cog.beaverton.ibm.com>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
-	 <1123723384.30963.269.camel@cog.beaverton.ibm.com>
-	 <1123723534.32330.0.camel@cog.beaverton.ibm.com>
-	 <1123723578.32330.2.camel@cog.beaverton.ibm.com>
-	 <1123723634.32330.4.camel@cog.beaverton.ibm.com>
-	 <1123723696.32330.6.camel@cog.beaverton.ibm.com>
-	 <1123723739.32330.8.camel@cog.beaverton.ibm.com>
-	 <1123723875.32330.10.camel@cog.beaverton.ibm.com>
-	 <1123723913.32330.12.camel@cog.beaverton.ibm.com>
-	 <1123724003.32531.0.camel@cog.beaverton.ibm.com>
-	 <1123724039.32531.2.camel@cog.beaverton.ibm.com>
-	 <1123724120.32531.5.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Wed, 10 Aug 2005 18:36:20 -0700
-Message-Id: <1123724180.32531.6.camel@cog.beaverton.ibm.com>
+	Wed, 10 Aug 2005 21:36:12 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:21562 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932184AbVHKBgL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 21:36:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=A33kJh/raFSqC7SW5eGny71umcilgviCv6Up9yINmOzvpKcbvhHs+J+DMZgcwGS7xBE9nCS+3X/9+dxd/pMQALFhTeVVjOwRBkAs2WVNFsx+34xtYIPYWpQDz5jDAATsjk103NzLL1mra4rFnWujwH2As9qIu/fCZLW4tp8jIXU=
+Date: Wed, 10 Aug 2005 21:36:04 -0400
+To: Daniel Drake <dsd@gentoo.org>
+Cc: Kristoffer <kfs1@online.no>, linux-kernel@vger.kernel.org
+Subject: Re: captive-ntfs FUSE support?
+Message-ID: <20050811013604.GA29515@nineveh.rivenstone.net>
+Mail-Followup-To: Daniel Drake <dsd@gentoo.org>,
+	Kristoffer <kfs1@online.no>, linux-kernel@vger.kernel.org
+References: <op.svanygid3czpo8@myhost.localdomain> <42FA364C.9090605@gentoo.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42FA364C.9090605@gentoo.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: jfannin@gmail.com (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	This patch simplifies and cleans up the adjtime code in ntp_advance and
-corrects a comment.
+On Wed, Aug 10, 2005 at 06:15:56PM +0100, Daniel Drake wrote:
 
-Any comments or feedback would be greatly appreciated.
+> As for captive, I don't think its worth the effort. It has severe memory 
+> problems and Linux-NTFS development is going quite fast anyway.
 
-thanks
--john
+    I haven't seen any real changes in NTFS support in the kernel since
+the mid-2.5 series.  Is there somewhere else I should be looking?
 
-linux-2.6.13-rc6_timeofday-ntp-part12_B5.patch
-============================================
-diff --git a/kernel/ntp.c b/kernel/ntp.c
---- a/kernel/ntp.c
-+++ b/kernel/ntp.c
-@@ -156,29 +156,25 @@ void ntp_advance(unsigned long interval_
- 	shifted_ppm_sum += ss_adj << SHIFT_USEC;
- 
- 
--	if ( (time_adjust_step = ntp_adjtime_offset) != 0 ) {
--	    /* We are doing an adjtime thing.
--	     *
--	     * Prepare time_adjust_step to be within bounds.
--	     * Note that a positive ntp_adjtime_offset means we want the clock
--	     * to run faster.
--	     *
--	     * Limit the amount of the step to be in the range
--	     * -tickadj .. +tickadj
--	     */
--		if (ntp_adjtime_offset > tickadj)
--			time_adjust_step = tickadj;
--		else if (ntp_adjtime_offset < -tickadj)
--			time_adjust_step = -tickadj;
-+	/* Calculate the fixed tick adjustment */
-+	fixed_tick_ns_adj = 0;
- 
--	    /* Reduce by this step the amount of time left  */
--	    ntp_adjtime_offset -= time_adjust_step;
-+	/* If we are doing an adjtime thing */
-+	if (ntp_adjtime_offset) {
-+		long adjust_step = ntp_adjtime_offset;
-+		/* Limit the amount of the step to be in the range
-+		 * -tickadj .. +tickadj
-+		 */
-+		adjust_step = min_t(long, tickadj, adjust_step);
-+		adjust_step = max_t(long, -tickadj, adjust_step);
-+		/* Reduce by this step the amount of time left  */
-+		ntp_adjtime_offset -= adjust_step;
-+		fixed_tick_ns_adj += adjust_step * 1000;
- 	}
--	fixed_tick_ns_adj = time_adjust_step * 1000;
- 
- 	/*
--	 * Advance the phase, once it gets to one microsecond, then
--	 * advance the tick more.
-+	 * Advance the phase, once it gets to one nanosecond,
-+	 * then advance the fixed_tick_ns_adj.
- 	 */
- 	time_phase += time_adj;
- 	if (time_phase <= -FINENSEC) {
+    Thanks!
 
+-- 
+Joseph Fannin
+jfannin@gmail.com
 
+"Bull in pure form is rare; there is usually some contamination by data."
+    -- William Graves Perry Jr.

@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVHKPv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVHKPwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVHKPv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 11:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVHKPvz
+	id S932223AbVHKPwk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 11:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbVHKPwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 11:51:55 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:40392 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932219AbVHKPvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 11:51:55 -0400
-Subject: Re: Need help in understanding x86 syscall
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org,
-       Ukil a <ukil_a@yahoo.com>, 7eggert@gmx.de
-In-Reply-To: <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
-References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
-	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
-	 <1123770661.17269.59.camel@localhost.localdomain>
-	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
-	 <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 11 Aug 2005 11:51:48 -0400
-Message-Id: <1123775508.17269.64.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 11:52:40 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:43524 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932223AbVHKPwj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 11:52:39 -0400
+Message-ID: <42FB7440.5060501@vmware.com>
+Date: Thu, 11 Aug 2005 08:52:32 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ukil a <ukil_a@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Need help in understanding  x86  syscall
+References: <20050811053931.71120.qmail@web51604.mail.yahoo.com>
+In-Reply-To: <20050811053931.71120.qmail@web51604.mail.yahoo.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 11 Aug 2005 15:52:16.0515 (UTC) FILETIME=[A5DB4D30:01C59E8C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-11 at 11:28 -0400, linux-os (Dick Johnson) wrote:
-> On Thu, 11 Aug 2005, Coywolf Qi Hunt wrote:
-> 
-> > On 8/11/05, Steven Rostedt <rostedt@goodmis.org> wrote:
-> >> On Thu, 2005-08-11 at 10:04 -0400, linux-os (Dick Johnson) wrote:
-> >>> Every interrupt software, or hardware, results in the branched
-> >>> procedure being executed with the interrupts OFF. That's why
-> >>> one of the first instructions in the kernel entry for a syscall
-> >>> is 'sti' to turn them back on. Look at entry.S, line 182. This
-> >>> occurs any time a trap occurs as well (Page 26-168, i486
-> >>> Programmer's reference manual). FYI, this is helpful when
-> >>> designing/debugging complex interrupt-service routines since
-> >>> you can execute the interrupt with a software 'INT' instruction
-> >>> (with the correct offset from the IRQ you are using). The software
-> >>> doesn't 'know' where the interrupt came from, HW or SW.
-> >>
-> >> I'm looking at 2.6.13-rc6-git1 line 182 of entry.S and I don't see it.
-> >> Must be a different kernel.
-> >>
-> >> According to the documentation that I was looking at, a trap in x86 does
-> >> _not_ turn off interrupts.
-> >>
-> > ...
-> >>
-> >> I don't see a sti here.
-> >
-> 
-> Search for sysenter_entry. This is where the stack is switched
-> to the kernel stack. Then the code falls through past the
-> next label, sysenter_past_esp. The very next instruction
-> after the kernel stack has been set is 'sti'. Clear as day.
+Ukil a wrote:
 
-I just applied the following to one of my kernels:
+>I had this question. As per my understanding, in the
+>Linux system call implementation on x86 architecture
+>the call flows like this int 0x80 -> syscall ->
+>sys_call_vector(taken from the table)-> return from
+>interrupt service routine. 
+>  
+>
 
--- arch/i386/kernel/entry.S    (revision 274)
-+++ arch/i386/kernel/entry.S    (working copy)
-@@ -184,6 +184,7 @@
- ENTRY(sysenter_entry)
-        movl TSS_sysenter_esp0(%esp),%esp
- sysenter_past_esp:
-+       ud2
-        sti
-        pushl $(__USER_DS)
-        pushl %ebp
-
-And booted it.  The system is up and running, so I really don't think
-that the sysenter_entry is used for system calls.  
-
-Not so "Clear as day"!
-
--- Steve
+Almost. There are two entry points, the one you describe above, and the 
+sysenter entry point.
 
 
+>Now I had the doubt that if the the syscall
+>implementation is very large will the scheduling and
+>other interrupts be blocked for the whole time till
+>the process returns from the ISR (because in an ISR by
+>default the interrupts are disabled unless “sti” is
+>called explicitly)? That’s appears to be too long for
+>the scheduling or other interrupts to be blocked? 
+>Am I missing something here?
+>  
+>
+
+There are 3 types of gates you can use to service interrupts / faults on 
+i386. Task gates are used where complex state changes are required, and 
+an assured state is needed, such as doublefault and NMI handlers. 
+Interrupt gates are used where interrupts must be disabled during 
+initial processing, such as the page fault gate. Trap gates are used 
+when interrupts may be allowed, and do not clear the interrupt flag.
+
+On Linux, syscall vector int 0x80 is a trap gate, which means interrupts 
+are not disabled. The sysenter handler is very special; SYSENTER does 
+disable interrupts, so if you look at sysenter_entry, one of the first 
+things it will do is re-enable interrupts as soon as the stack is sane. 
+Thus, interrupts are enabled by default during system call processing 
+unless explicitly disabled.
+
+Your analysis of what would happen otherwise is quite correct.
+
+Zach

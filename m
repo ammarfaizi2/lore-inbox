@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVHKLuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbVHKLwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVHKLuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 07:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVHKLuE
+	id S932324AbVHKLwG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 07:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVHKLwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 07:50:04 -0400
-Received: from gate.crashing.org ([63.228.1.57]:49038 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932324AbVHKLuD (ORCPT
+	Thu, 11 Aug 2005 07:52:06 -0400
+Received: from pat.uio.no ([129.240.130.16]:34297 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932324AbVHKLwF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 07:50:03 -0400
-Subject: Occasional IDE lost interrupts
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       list linux-ide <linux-ide@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Thu, 11 Aug 2005 07:52:05 -0400
+Subject: Re: fcntl(F GETLEASE) semantics??
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Michael Kerrisk <mtk-lkml@gmx.net>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       sfr@canb.auug.org.au, michael.kerrisk@gmx.net
+In-Reply-To: <19888.1123748055@www44.gmx.net>
+References: <17146.43490.8672.13906@wombat.chubb.wattle.id.au>
+	 <19888.1123748055@www44.gmx.net>
 Content-Type: text/plain
-Date: Thu, 11 Aug 2005 13:49:30 +0200
-Message-Id: <1123760971.6802.2.camel@gaston>
+Date: Thu, 11 Aug 2005 07:51:45 -0400
+Message-Id: <1123761105.8251.10.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.539, required 12,
+	autolearn=disabled, AWL 2.27, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bart !
+to den 11.08.2005 Klokka 10:14 (+0200) skreiv Michael Kerrisk:
 
-That seem to be a new problem though I can't tell for sure when it
-started. I've had reports from users for some time now of
-"occasional" (once in a while, maybe once a day) lost interrupts on the
-mac hard disk. I have about 30 days uptime and just saw a similar one in
-my log. It happen during a disk access storm (apt-get upgrade :).
+> No.  The behavior in Linux recently, and arbitrarily (IMO) changed:
 
-The problem when this happen is that I just lost DMA which is fairly
-annoying. Users are not supposed to understand the magic of hdparm
--d1 /dev/hda and that shouldn't happen anyways...
+The change was NOT arbitrary. It was deliberate and for the reasons
+stated.
 
-Do you have any clue of what can be going on ? The IDE pmac driver has
-not changed for a long time and I think that problem is fairly new
-(maybe 2.6.12 ? not sure, first time I actually see it unless it's
-unrelated and my disk is actually dying).
+The whole point of leases is to support CIFS oplocks for Samba and NFSv4
+delegations in the kernel. Both have the same specific expected
+behaviour.
+The original deviates from that expected behaviour by allowing you to
+get a shared lease when in a condition that does not allow actual
+sharing.
 
-Shouldn't we have some more retry before giving up on DMA ?
-
-Regards,
-Ben.
-
-[432796.162593] ide-pmac lost interrupt, dma status: 8480
-[432796.162606] hda: lost interrupt
-[432796.162613] hda: dma_intr: status=0xd0 { Busy }
-[432796.162619]
-[432796.162622] ide: failed opcode was: unknown
-[432796.162632] hda: DMA disabled
-[432796.262581] ide0: reset: success
-
+Cheers,
+  Trond
 

@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbVHKVVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbVHKVY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbVHKVVc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 17:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbVHKVVc
+	id S1750973AbVHKVY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 17:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbVHKVY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 17:21:32 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:1709 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932489AbVHKVVb (ORCPT
+	Thu, 11 Aug 2005 17:24:27 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:7076 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750877AbVHKVY1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 17:21:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
-        b=fUWTS7xe8i1RZ8GYUDi4NFxopi8IXoReLM0ChykbSkFjLfLuC2ycYr+UgGVLDyqaAofvqDACFMw8HP1zLUUPRLDiRVy0fIDDg/vyLClkzqKze1joFtH5vV57t5Z0hbDIMHtwEs+op+xLQXWXh59mglzDhYjY662J5IpZKqWpees=
-Message-ID: <42FBC106.3040501@gmail.com>
-Date: Thu, 11 Aug 2005 21:20:06 +0000
-From: Luca Falavigna <dktrkranz@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Real-Time Preemption V0.7.53-02, fix redundant PREEMPT_RCU
- config option
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 17:24:27 -0400
+Date: Thu, 11 Aug 2005 16:22:09 -0500
+From: serue@us.ibm.com
+To: James Morris <jmorris@namei.org>
+Cc: serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Stacker - single-use static slots
+Message-ID: <20050811212209.GB28004@serge.austin.ibm.com>
+References: <20050727181732.GA22483@serge.austin.ibm.com> <Lynx.SEL.4.62.0507271527390.1844@thoron.boston.redhat.com> <Lynx.SEL.4.62.0507271535150.1844@thoron.boston.redhat.com> <20050803164516.GB13691@serge.austin.ibm.com> <Lynx.SEL.4.62.0508051154150.8981@thoron.boston.redhat.com> <20050810144516.GA5796@serge.austin.ibm.com> <Pine.LNX.4.63.0508110331250.27749@excalibur.intercode>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0508110331250.27749@excalibur.intercode>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes a redundant PREEMPT_RCU option from kernel/Kconfig.preempt.
+Quoting James Morris (jmorris@namei.org):
+> On Wed, 10 Aug 2005, serue@us.ibm.com wrote:
+> 
+> > those annoying cache effects, I assume - 3 slots (the default)
+> > outperforms two slots, even though only one slot is being used.  These
+> > tests were run on a 16-way power4+ system.  I may try to re-run on some
+> > x86 hardware, though each run will probably take 24 hours.
+> 
+> I've also run some benchmarks, comparing vanilla kernel with the 
+> two stacker approaches.  Results below.
+> 
+> Results seem to be mixed, sometimes a bit better, sometimes a bit worse.  
+> The macro benchmarks tend to show better figures for the static slot 
+> model.
+> 
+> Overall, it seems that SELinux could expect to take a 1-2% performance hit 
+> with the stacker.
 
+Thanks, James.
 
+I guess I should do some profiling runs - I'm surprised there would be
+this much of a hit with the static slots.
 
-Signed-off-by: Luca Falavigna <dktrkranz@gmail.com>
-
---- realtime-preempt-2.6.13-rc4-RT-V0.7.53-02.orig	2005-08-11 18:56:51.000000000
-+0000
-+++ realtime-preempt-2.6.13-rc4-RT-V0.7.53-02		2005-08-11 21:13:43.000000000 +0000
-@@ -21571,18 +21571,6 @@ Index: linux/kernel/Kconfig.preempt
- +
- +	  Say N if you are unsure.
- +
--+config PREEMPT_RCU
--+	bool "Preemptible RCU"
--+	default n
--+	depends on PREEMPT
--+	help
--+	  This option reduces the latency of the kernel by making certain
--+	  RCU sections preemptible. Normally RCU code is non-preemptible, if
--+	  this option is selected then read-only RCU sections become
--+	  preemptible. This helps latency, but may increase memory utilization.
--+
--+	  Say N if you are unsure.
--+
- +config SPINLOCK_BKL
- +	bool "Old-Style Big Kernel Lock"
- +	depends on (PREEMPT || SMP) && !PREEMPT_RT
-
-
-
-
-Regards,
--- 
-					Luca
-
+thanks,
+-serge

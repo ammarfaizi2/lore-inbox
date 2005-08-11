@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVHKFoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVHKFop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbVHKFoE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 01:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVHKFoE
+	id S932235AbVHKFop (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 01:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVHKFop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 01:44:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:47367 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932216AbVHKFoD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 01:44:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=O4NitJr/GBPyB5unRiMTUd6nRium7+G7Z4JVhKz5OR6uq87Jn3D9wFTZME1ejOIBbieCqLuAiO0aNSMaVT4n05WeLLY1b9UWQQsfChOWfzu1qkIYyLnDlDGRU+pLSkv0po5eM1rxbRgC69fV5JSyChdYI9kc9X6cInkM6RLv+pE=
-Message-ID: <aec7e5c305081022436c37204e@mail.gmail.com>
-Date: Thu, 11 Aug 2005 14:43:59 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: How to reclaim inode pages on demand
-Cc: mel@csn.ul.ie, linux-kernel@vger.kernel.org
-In-Reply-To: <20050811144441.54b6ef4a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0508081650160.26013@skynet>
-	 <20050808160844.04d1f7ac.akpm@osdl.org>
-	 <Pine.LNX.4.58.0508101730441.11984@skynet>
-	 <20050810101714.147e1333.akpm@osdl.org>
-	 <aec7e5c30508102008b739a6c@mail.gmail.com>
-	 <20050811144441.54b6ef4a.akpm@osdl.org>
+	Thu, 11 Aug 2005 01:44:45 -0400
+Received: from paleosilicon.orionmulti.com ([209.128.68.66]:22402 "EHLO
+	paleosilicon.orionmulti.com") by vger.kernel.org with ESMTP
+	id S932241AbVHKFoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 01:44:44 -0400
+X-Envelope-From: hpa@zytor.com
+Message-ID: <42FAE59F.8070009@zytor.com>
+Date: Wed, 10 Aug 2005 22:43:59 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, zach@vmware.com, akpm@osdl.org,
+       chrisl@vmware.com, Keir.Fraser@cl.cam.ac.uk,
+       linux-kernel@vger.kernel.org, m+Ian.Pratt@cl.cam.ac.uk,
+       mbligh@mbligh.org, pratap@vmware.com, virtualization@lists.osdl.org
+Subject: Re: [PATCH 8/14] i386 / Add a per cpu gdt accessor
+References: <200508110456.j7B4ue56019587@zach-dev.vmware.com> <Pine.LNX.4.61.0508102344060.16483@montezuma.fsmlabs.com> <20050811054045.GU7762@shell0.pdx.osdl.net>
+In-Reply-To: <20050811054045.GU7762@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/11/05, Andrew Morton <akpm@osdl.org> wrote:
-> Magnus Damm <magnus.damm@gmail.com> wrote:
-> >
-> > On 8/11/05, Andrew Morton <akpm@osdl.org> wrote:
-> > > Mel Gorman <mel@csn.ul.ie> wrote:
-> > > > The majority of pages I am seeing no longer have page->mapping set. Does
-> > > > this mean they are in the process of being cleared up?
-> > >
-> > > They're just anonymous pages, aren't they?  But you said "pages that are
-> > > being used for inodes".  Confused.
-> >
-> > I thought page->mapping was used by rmap for both inode-backed and
-> > anonymous pages. And the PAGE_MAPPING_ANON bit was used to determine
-> > that page->mapping points to struct anon_vma instead of struct
-> > address_space.
-> >
-> > When is page->mapping NULL?
-> >
+Chris Wright wrote:
+> * Zwane Mwaikambo (zwane@arm.linux.org.uk) wrote:
 > 
-> mm.h:page_mapping() handles all that.
+>>On Wed, 10 Aug 2005 zach@vmware.com wrote:
+>>
+>>
+>>>Add an accessor function for getting the per-CPU gdt.  Callee must already
+>>>have the CPU.
+>>
+>>This one seems superfluous to me, does accessing it indirectly generate 
+>>better code too?
+> 
+> 
+> It's prepratory for other work.
+> 
 
-Yes, thanks, but I believe that page->mapping is never NULL for
-anonymous pages. Does not all anonymous pages have page->mapping
-pointing to struct anon_vma?
+I am assuming it has no change on the code, right?  (If it does, 
+something is wrong...)
 
-/ magnus
+	-hpa

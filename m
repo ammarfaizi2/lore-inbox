@@ -1,94 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVHKSOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVHKSQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbVHKSOY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 14:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVHKSOY
+	id S932342AbVHKSQt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 14:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbVHKSQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 14:14:24 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:48609 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932341AbVHKSOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 14:14:23 -0400
-Date: Thu, 11 Aug 2005 11:14:11 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, steiner@sgi.com, dvhltc@us.ibm.com,
-       mbligh@mbligh.org
-Subject: Re: allow the load to grow upto its cpu_power (was Re: [Patch] don't kick ALB in the presence of pinned task)
-Message-ID: <20050811111411.A581@unix-os.sc.intel.com>
-References: <20050801174221.B11610@unix-os.sc.intel.com> <20050802092717.GB20978@elte.hu> <20050809160813.B1938@unix-os.sc.intel.com> <42F94A00.3070504@yahoo.com.au> <20050809190352.D1938@unix-os.sc.intel.com> <1123729750.5188.13.camel@npiggin-nld.site>
+	Thu, 11 Aug 2005 14:16:49 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:29355 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932342AbVHKSQs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 14:16:48 -0400
+Date: Thu, 11 Aug 2005 23:42:35 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, rusty@au1.ibm.com, bmark@us.ibm.com
+Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
+Message-ID: <20050811181235.GE4546@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050810171145.GA1945@us.ibm.com> <20050811171451.GA5108@infradead.org> <20050811180044.GD4546@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1123729750.5188.13.camel@npiggin-nld.site>; from nickpiggin@yahoo.com.au on Thu, Aug 11, 2005 at 01:09:10PM +1000
+In-Reply-To: <20050811180044.GD4546@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 01:09:10PM +1000, Nick Piggin wrote:
-> I have a variation on the 2nd part of your patch which I think
-> I would prefer. IMO it kind of generalises the current imbalance
-> calculation to handle this case rather than introducing a new
-> special case.
+On Thu, Aug 11, 2005 at 11:30:44PM +0530, Dipankar Sarma wrote:
+> When I worked on this last (a year or so ago), it seemed that I would
+> need to put a number of additional structures under RCU control.
+> It would be better to gradually move it towards RCU rather than
+> trying make all the readers lock-free.
 
-There is a difference between our changes. 
+Just for reference, this was my tasks-rcu patch. 2.6.0-test2, no less :)
+I was interested in get_pid_list() at that time. IIRC, I tested it with
+lots of top running along with other tests.
 
-When the system is lightly loaded, my patch minimizes the number of 
-groups picking up that load. This will help in power savings for 
-example in the context of CMP. There are more changes required
-(user or kernel) for complete power savings, but this is a direction 
-towards that.
+Thanks
+Dipankar
 
-How about this patch?
---
 
-Don't pull tasks from a group if that would cause the
-group's total load to drop below its total cpu_power
-(ie. cause the group to start going idle).
+Incremental patch to do lockfree traversal of the task list using
+RCU. For now it just does one of the costlies ones in /proc.
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
 
---- linux-2.6.13-rc5/kernel/sched.c~	2005-08-09 13:30:19.067072328 -0700
-+++ linux-2.6.13-rc5/kernel/sched.c	2005-08-11 09:29:55.937128384 -0700
-@@ -1886,6 +1886,7 @@
- {
- 	struct sched_group *busiest = NULL, *this = NULL, *group = sd->groups;
- 	unsigned long max_load, avg_load, total_load, this_load, total_pwr;
-+	unsigned long excess_load, max_pull;
- 	int load_idx;
+
+ fs/exec.c             |    1 +
+ fs/proc/base.c        |    5 +++--
+ include/linux/sched.h |   21 ++++++++++++++++-----
+ 3 files changed, 20 insertions(+), 7 deletions(-)
+
+diff -puN fs/exec.c~tasks-rcu fs/exec.c
+--- linux-2.6.0-test2-ds/fs/exec.c~tasks-rcu	2003-08-04 21:48:38.000000000 +0530
++++ linux-2.6.0-test2-ds-dipankar/fs/exec.c	2003-08-04 21:49:26.000000000 +0530
+@@ -676,6 +676,7 @@ static inline int de_thread(struct task_
  
- 	max_load = this_load = total_load = total_pwr = 0;
-@@ -1932,7 +1933,7 @@
- 		group = group->next;
- 	} while (group != sd->groups);
+ 		list_del(&current->tasks);
+ 		list_add_tail(&current->tasks, &init_task.tasks);
++		list_add_tail_rcu(&current->tasks, &init_task.tasks);
+ 		current->exit_signal = SIGCHLD;
+ 		state = leader->state;
  
--	if (!busiest || this_load >= max_load)
-+	if (!busiest || this_load >= max_load || max_load <= SCHED_LOAD_SCALE)
- 		goto out_balanced;
+diff -puN fs/proc/base.c~tasks-rcu fs/proc/base.c
+--- linux-2.6.0-test2-ds/fs/proc/base.c~tasks-rcu	2003-08-04 21:48:38.000000000 +0530
++++ linux-2.6.0-test2-ds-dipankar/fs/proc/base.c	2003-08-04 21:49:59.000000000 +0530
+@@ -32,6 +32,7 @@
+ #include <linux/mount.h>
+ #include <linux/security.h>
+ #include <linux/ptrace.h>
++#include <linux/rcupdate.h>
  
- 	avg_load = (SCHED_LOAD_SCALE * total_load) / total_pwr;
-@@ -1952,9 +1953,19 @@
- 	 * by pulling tasks to us.  Be careful of negative numbers as they'll
- 	 * appear as very large values with unsigned longs.
- 	 */
+ /*
+  * For hysterical raisins we keep the same inumbers as in the old procfs.
+@@ -1403,7 +1404,7 @@ static int get_pid_list(int index, unsig
+ 	int nr_pids = 0;
+ 
+ 	index--;
+-	read_lock(&tasklist_lock);
++	rcu_read_lock();
+ 	for_each_process(p) {
+ 		int pid = p->pid;
+ 		if (!pid_alive(p))
+@@ -1415,7 +1416,7 @@ static int get_pid_list(int index, unsig
+ 		if (nr_pids >= PROC_MAXPIDS)
+ 			break;
+ 	}
+-	read_unlock(&tasklist_lock);
++	rcu_read_unlock();
+ 	return nr_pids;
+ }
+ 
+diff -puN include/linux/sched.h~tasks-rcu include/linux/sched.h
+--- linux-2.6.0-test2-ds/include/linux/sched.h~tasks-rcu	2003-08-04 21:48:38.000000000 +0530
++++ linux-2.6.0-test2-ds-dipankar/include/linux/sched.h	2003-08-04 21:54:58.000000000 +0530
+@@ -28,6 +28,7 @@
+ #include <linux/completion.h>
+ #include <linux/pid.h>
+ #include <linux/percpu.h>
++#include <linux/rcupdate.h>
+ 
+ struct exec_domain;
+ 
+@@ -456,13 +457,23 @@ struct task_struct {
+ 	struct io_context *io_context;
+ 
+ 	unsigned long ptrace_message;
++	struct rcu_head rcu;
+ 	siginfo_t *last_siginfo; /* For ptrace use.  */
+ };
+ 
+ extern void __put_task_struct(struct task_struct *tsk);
+ #define get_task_struct(tsk) do { atomic_inc(&(tsk)->usage); } while(0)
+-#define put_task_struct(tsk) \
+-do { if (atomic_dec_and_test(&(tsk)->usage)) __put_task_struct(tsk); } while(0)
++static void put_task_struct_rcu(struct rcu_head *rcu)
++{
++	struct task_struct *tsk = container_of(rcu, struct task_struct, rcu);
++	__put_task_struct(tsk);
++}
++static inline void put_task_struct(struct task_struct *tsk)
++{
++	if (atomic_dec_and_test(&tsk->usage))
++		call_rcu(&tsk->rcu, put_task_struct_rcu);
++}
 +
-+	/* Don't want to pull so many tasks that a group would go idle */
-+	excess_load = min(max_load - avg_load, max_load - SCHED_LOAD_SCALE);
-+
-+	if (this_load < SCHED_LOAD_SCALE)
-+		/* pull as many tasks so that this group is fully utilized */
-+		max_pull = max(avg_load - this_load, SCHED_LOAD_SCALE - this_load);
-+	else 
-+		max_pull = avg_load - this_load;
-+	
- 	/* How much load to actually move to equalise the imbalance */
--	*imbalance = min((max_load - avg_load) * busiest->cpu_power,
--				(avg_load - this_load) * this->cpu_power)
-+	*imbalance = min(excess_load * busiest->cpu_power,
-+				max_pull * this->cpu_power)
- 			/ SCHED_LOAD_SCALE;
  
- 	if (*imbalance < SCHED_LOAD_SCALE) {
+ /*
+  * Per process flags
+@@ -675,13 +686,13 @@ extern void wait_task_inactive(task_t * 
+ 
+ #define REMOVE_LINKS(p) do {					\
+ 	if (thread_group_leader(p))				\
+-		list_del_init(&(p)->tasks);			\
++		list_del_rcu(&(p)->tasks);			\
+ 	remove_parent(p);					\
+ 	} while (0)
+ 
+ #define SET_LINKS(p) do {					\
+ 	if (thread_group_leader(p))				\
+-		list_add_tail(&(p)->tasks,&init_task.tasks);	\
++		list_add_tail_rcu(&(p)->tasks,&init_task.tasks);	\
+ 	add_parent(p, (p)->parent);				\
+ 	} while (0)
+ 
+@@ -689,7 +700,7 @@ extern void wait_task_inactive(task_t * 
+ #define prev_task(p)	list_entry((p)->tasks.prev, struct task_struct, tasks)
+ 
+ #define for_each_process(p) \
+-	for (p = &init_task ; (p = next_task(p)) != &init_task ; )
++	for (p = &init_task ; (p = next_task(p)),({ read_barrier_depends(); 0;}),p != &init_task ; )
+ 
+ /*
+  * Careful: do_each_thread/while_each_thread is a double loop so
+
+_

@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVHKSs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVHKSxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbVHKSs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 14:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVHKSs5
+	id S932359AbVHKSxj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 14:53:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVHKSxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 14:48:57 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:5536 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932357AbVHKSs4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 14:48:56 -0400
-To: Simon Derr <Simon.Derr@bull.net>
-Cc: Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-scsi-owner@vger.kernel.org, mingo@redhat.com
-MIME-Version: 1.0
-Subject: Re: [PATCH] remove name length check in a workqueue
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-From: Andreas Herrmann <AHERRMAN@de.ibm.com>
-X-MIMETrack: S/MIME Sign by Notes Client on Andreas Herrmann/Germany/IBM(Release 5.0.11
-  |July 24, 2002) at 11.08.2005 20:47:08,
-	Serialize by Notes Client on Andreas Herrmann/Germany/IBM(Release 5.0.11  |July
- 24, 2002) at 11.08.2005 20:47:08,
-	Serialize complete at 11.08.2005 20:47:08,
-	S/MIME Sign failed at 11.08.2005 20:47:08: The cryptographic key was not
- found,
-	Serialize by Router on D12ML065/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 11/08/2005 20:48:53,
-	Serialize complete at 11/08/2005 20:48:53
-Message-ID: <OFCE6F94E7.B33AAE6C-ONC125705A.00670256-C125705A.0067378D@de.ibm.com>
-Date: Thu, 11 Aug 2005 20:48:50 +0200
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 11 Aug 2005 14:53:39 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47785 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932359AbVHKSxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 14:53:38 -0400
+Date: Thu, 11 Aug 2005 19:53:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Don't use a klist for drivers' set-of-devices
+Message-ID: <20050811185332.GA6870@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>,
+	Patrick Mochel <mochel@digitalimplant.org>,
+	Kernel development list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0508101637360.4467-100000@iolanthe.rowland.org> <20050811182423.GC15803@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050811182423.GC15803@kroah.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        Simon Derr <Simon.Derr@bull.net> wrote:
+On Thu, Aug 11, 2005 at 11:24:23AM -0700, Greg KH wrote:
+> > This patch (as536) simplifies the driver-model core by replacing the klist 
+> > used to store the set of devices bound to a driver with a regular list 
+> > protected by a mutex.  It turns out that even with a klist, there are too 
+> > many opportunities for races for the list to be used safely by more than 
+> > one thread at a time.  And given that only one thread uses the list at any 
+> > moment, there's no need to add all the extra overhead of making it a 
+> > klist.
+> 
+> Hm, but that was the whole reason to go to a klist in the first place.
 
-  > It is sufficient to have a few HBAs and to insmod/rmmod the driver a 
-few 
-  > times.
+And shows once more that the klist approach was totally misguided.
 
-  > Since the host_no is choosen with a mere counter increment 
-  > in scsi_host_alloc():
-
-  >       shost->host_no = scsi_host_next_hn++; /* XXX(hch): still racy */
-
-  > Unused `host_no's are not reused and the 100 limit is reached even on 
-  > smaller systems.
-
-  > I have no idea of why someone would do repeated insmod/rmmods, though.
-  > (But someone did).
-
-You even don't have to use insmod/rmmod.  On s390 (using zfcp) it
-suffices to take adapters offline and online (triggered via VM,
-hardware, or within Linux). Just do so about 100 times ... You
-know the result.
-
-
-Regards,
-
-Andreas

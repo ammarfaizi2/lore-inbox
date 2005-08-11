@@ -1,114 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbVHKPRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVHKPSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751059AbVHKPRU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 11:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVHKPRU
+	id S1751079AbVHKPSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 11:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbVHKPSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 11:17:20 -0400
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:65003 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1751059AbVHKPRU (ORCPT
+	Thu, 11 Aug 2005 11:18:15 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:33780 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751081AbVHKPSN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 11:17:20 -0400
-Date: Fri, 12 Aug 2005 00:17:12 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][1/4] mips: add TANBAC VR4131 multichip module
-Message-Id: <20050812001712.77ae6495.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 11:18:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=K+b1s+SeH1Ottty0rCYX0XlQY99DaSC+FNNDEVsjr6qxwCHLbPrCvS6EP1/c/Vl0QZli3DPo0UJlNZWdxkyrjTRtupWVZPndqW/TuEweGvGyqhqIwYEEW49KGGebQdZ/aQAEMUcaPC9s1F36ic/ip3nclaD4Z+ZZ0VpKzarq3qI=
+Message-ID: <42FB6C27.1010408@gmail.com>
+Date: Thu, 11 Aug 2005 17:17:59 +0200
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: lgb@lgb.hu, Allen Martin <AMartin@nvidia.com>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
+References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com>	 <20050811070943.GB8025@vega.lgb.hu> <1123765523.32375.10.camel@mindpipe>
+In-Reply-To: <1123765523.32375.10.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Lee Revell schrieb:
 
-This patch has added TANBAC VR4131 multichip module in arch/mips/Kconfig
-Please apply.
+>On Thu, 2005-08-11 at 09:09 +0200, Gábor Lénárt wrote:
+>  
+>
+>>I want to buy a new system including
+>>motherboard with some Athlon64 CPU. I was told that nforce4 chipset is
+>>the "right" choice. However I'm using *only* Linux 
+>>    
+>>
+>
+>Who told you that?  Some Windows user?
+>  
+>
+(1.)
+There is no other way to use a nearly good chipset for AMD64 cpus.
+Via's chipsets are really buggy not acceptable, so what else ULi/Ali who 
+cares where to buy?
+Any hardware from them on european market..can't see them until yesterday.
 
-Yoichi
+>It's common knowledge that Nvidia is not Linux friendly.  Their business
+>is making hardware so people can play games on Windows. 
+>
+(2.)
+This is not correct, not everybody play games only on windows or only 
+buy hardware for gaming..
+reasons please look at (1.)
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+> Anything that
+>their lawyers think might have a 0.0001% chance of interfering with that
+>business model in the slightest bit will not happen.
+>
+>Lee
+>  
+>
+*ironic*
+Mh so I should take my lawyer and say..hey NVidia cheated me..can't use 
+there hardware completly under Linux but I bought it and can't use it 
+correctly.
+*ironic off*
 
-diff -urN -X dontdiff mm1-orig/arch/mips/Kconfig mm1/arch/mips/Kconfig
---- mm1-orig/arch/mips/Kconfig	2005-08-02 13:45:48.000000000 +0900
-+++ mm1/arch/mips/Kconfig	2005-08-12 00:06:39.000000000 +0900
-@@ -102,25 +102,29 @@
- 	select IRQ_CPU
- 	select ISA
- 
--config TANBAC_TB0226
--	bool "Support for TANBAC TB0226 (Mbase)"
-+config TANBAC_TB022X
-+	bool "Support for TANBAC VR4131 multichip module and TANBAC VR4131DIMM"
- 	depends on MACH_VR41XX
-+	select CPU_LITTLE_ENDIAN
- 	select DMA_NONCOHERENT
--	select HW_HAS_PCI
- 	select IRQ_CPU
-+	select HW_HAS_PCI
- 	help
--	  The TANBAC TB0226 (Mbase) is a MIPS-based platform manufactured by TANBAC.
--	  Please refer to <http://www.tanbac.co.jp/> about Mbase.
-+	  The TANBAC VR4131 multichip module(TB0225) and
-+	  the TANBAC VR4131DIMM(TB0229) are MIPS-based platforms
-+	  manufactured by TANBAC.
-+	  Please refer to <http://www.tanbac.co.jp/>
-+	  about VR4131 multichip module and VR4131DIMM.
- 
--config TANBAC_TB0229
--	bool "Support for TANBAC TB0229 (VR4131DIMM)"
--	depends on MACH_VR41XX
--	select DMA_NONCOHERENT
--	select HW_HAS_PCI
--	select IRQ_CPU
-+config TANBAC_TB0226
-+	bool "Support for TANBAC Mbase(TB0226)"
-+	depends on TANBAC_TB022X
-+	select PCI
-+	select PCI_VR41XX
-+	select GPIO_VR41XX
- 	help
--	  The TANBAC TB0229 (VR4131DIMM) is a MIPS-based platform manufactured by TANBAC.
--	  Please refer to <http://www.tanbac.co.jp/> about VR4131DIMM.
-+	  The TANBAC Mbase(TB0226) is a MIPS-based platform manufactured by TANBAC.
-+	  Please refer to <http://www.tanbac.co.jp/> about Mbase.
- 
- config VICTOR_MPC30X
- 	bool "Support for Victor MP-C303/304"
-diff -urN -X dontdiff mm1-orig/arch/mips/Makefile mm1/arch/mips/Makefile
---- mm1-orig/arch/mips/Makefile	2005-08-12 00:00:57.000000000 +0900
-+++ mm1/arch/mips/Makefile	2005-08-12 00:06:39.000000000 +0900
-@@ -510,14 +510,9 @@
- load-$(CONFIG_CASIO_E55)	+= 0xffffffff80004000
- 
- #
--# TANBAC TB0226 Mbase (VR4131)
-+# TANBAC VR4131 multichip module(TB0225) and TANBAC VR4131DIMM(TB0229) (VR4131)
- #
--load-$(CONFIG_TANBAC_TB0226)	+= 0xffffffff80000000
--
--#
--# TANBAC TB0229 VR4131DIMM (VR4131)
--#
--load-$(CONFIG_TANBAC_TB0229)	+= 0xffffffff80000000
-+load-$(CONFIG_TANBAC_TB022X)	+= 0xffffffff80000000
- 
- #
- # SGI IP22 (Indy/Indigo2)
-diff -urN -X dontdiff mm1-orig/drivers/char/Kconfig mm1/drivers/char/Kconfig
---- mm1-orig/drivers/char/Kconfig	2005-08-12 00:00:58.000000000 +0900
-+++ mm1/drivers/char/Kconfig	2005-08-12 00:07:21.000000000 +0900
-@@ -842,8 +842,9 @@
- 
- config TANBAC_TB0219
- 	tristate "TANBAC TB0219 base board support"
--	depends TANBAC_TB0229
--
-+	depends TANBAC_TB022X
-+	select PCI
-+	select PCI_VR41XX
- 
- menu "Ftape, the floppy tape device driver"
- 
+>
+>  
+>
+Sum it up either use Intel and Intel Hardware or die on Linux...*frustrated*
+
+Greets & Best regards
+Michael
+
+-- 
+Michael Thonke
+IT-Systemintegrator /
+System- and Softwareanalyist
+
+
+

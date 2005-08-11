@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVHKTXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVHKTXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbVHKTXD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 15:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVHKTXD
+	id S932402AbVHKTXu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 15:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVHKTXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 15:23:03 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:64167 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932310AbVHKTXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 15:23:00 -0400
-Message-ID: <42FBA58B.3070902@pobox.com>
-Date: Thu, 11 Aug 2005 15:22:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml@dodo.com.au
-CC: "Gaston, Jason D" <jason.d.gaston@intel.com>, mj@ucw.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com> <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com> <42EAF987.7020607@pobox.com> <6f0me1p2q3g9ralg4a2k2mcra21lhpg6ij@4ax.com>
-In-Reply-To: <6f0me1p2q3g9ralg4a2k2mcra21lhpg6ij@4ax.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 11 Aug 2005 15:23:50 -0400
+Received: from modeemi.modeemi.cs.tut.fi ([130.230.72.134]:54187 "EHLO
+	modeemi.modeemi.cs.tut.fi") by vger.kernel.org with ESMTP
+	id S932406AbVHKTXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 15:23:49 -0400
+Date: Thu, 11 Aug 2005 22:23:47 +0300
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Peter Chubb <peterc@gelato.unsw.edu.au>
+Subject: Re: fcntl(F_GETLEASE) semantics??
+Message-ID: <20050811192347.GG31158@jolt.modeemi.cs.tut.fi>
+References: <20050811184144.GE31158@jolt.modeemi.cs.tut.fi> <1123786619.7095.47.camel@lade.trondhjem.org> <20050811190252.GF31158@jolt.modeemi.cs.tut.fi> <1123787745.7095.53.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1123787745.7095.53.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: shd@modeemi.cs.tut.fi (Heikki Orsila)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
-> Does roughly 1/3 unused:
-> 
-> 63065 2005-07-30 14:51 pci_ids-list
-> 19243 2005-07-30 14:52 pci_ids-not_used
-> 
-> Seem in ballpark?
+On Thu, Aug 11, 2005 at 03:15:45PM -0400, Trond Myklebust wrote:
+> The difference between inotify and leases is, as I said, that leases
+> notify the lease holder synchronously. This allows the notified process
+> to flush all the cached information _before_ the operation that
+> triggered the lease notification is executed.
 
-Yes.
+So you're talking about the kernel side.. I was talking about userspace 
+perspective on the syscall. It would be rather odd to let a syscall
+block other applications involuntarily (and thus achieving synchronous 
+action in your meaning)..
 
-	Jeff
-
-
+-- 
+Heikki Orsila			Barbie's law:
+heikki.orsila@iki.fi		"Math is hard, let's go shopping!"
+http://www.iki.fi/shd

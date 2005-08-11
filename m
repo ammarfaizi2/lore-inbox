@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVHKX0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbVHKXdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932495AbVHKX0H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 19:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVHKX0H
+	id S1751036AbVHKXdR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 19:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbVHKXdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 19:26:07 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:50138 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932495AbVHKX0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 19:26:04 -0400
-Date: Fri, 12 Aug 2005 01:25:56 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org, Ukil a <ukil_a@yahoo.com>
-Subject: Re: Need help in understanding  x86  syscall
-In-Reply-To: <1123769139.17269.50.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0508111652440.3191@be1.lrz>
-References: <4Ae73-6Mm-5@gated-at.bofh.it>  <E1E3DJm-0000jy-0B@be1.lrz>
- <1123769139.17269.50.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+	Thu, 11 Aug 2005 19:33:17 -0400
+Received: from cantor.suse.de ([195.135.220.2]:27550 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751033AbVHKXdQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 19:33:16 -0400
+Date: Fri, 12 Aug 2005 01:33:02 +0200
+From: Andi Kleen <ak@suse.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>
+Subject: Re: [patch 3/8] [PATCH] x86_64: Fixing smpboot timing problem
+Message-ID: <20050811233302.GA8974@wotan.suse.de>
+References: <20050811225445.404816000@localhost.localdomain> <20050811225609.058881000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050811225609.058881000@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Aug 2005, Steven Rostedt wrote:
-> On Thu, 2005-08-11 at 15:41 +0200, Bodo Eggert wrote:
+>  static void __cpuinit tsc_sync_wait(void)
+>  {
+>  	if (notscsync || !cpu_has_tsc)
+>  		return;
+> -	printk(KERN_INFO "CPU %d: Syncing TSC to CPU %u.\n", smp_processor_id(),
+> -			boot_cpu_id);
+> -	sync_tsc();
+> +	sync_tsc(boot_cpu_id);
 
-> > According to my documentation it isn't. A software interrupt is a far call
-> > with an extra pushf, and a hardware interrupt is protected against recursion
-> > by the PIC, not by an interrupt flag.
-> 
-> I disagree with your definition of a system call.  The "int 0x80"
-> changes from user mode to kernel mode so it is much more powerful than a
-> "far call".
+I actually found a bug in this today. This should be sync_tsc(0), not sync_tsc(boot_cpu_id)
+Can you just fix it in your tree or should I submit a new patch? 
 
-Far calls and jumps can change to a inner ring. This is done by a special
-segment selector containing the segment _and_ the offset to jump to (the
-offset from the call instruction is ignored).
-
->  Also the CPU does protect against recursion and more than
-> one interrupt coming in at the same time. The PIC also works with the
-> CPU in this regard, but as I shown in my previous email, the interrupt
-> flag _does_ protect against it.
-
-Showing == claiming? However, my documentation was wrong.
-
-http://www.baldwin.cx/386htm/INT.htm
--- 
-Top 100 things you don't want the sysadmin to say:
-99. Shit!!
+-Andi

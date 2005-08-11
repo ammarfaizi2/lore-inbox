@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVHKFjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVHKFkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbVHKFjf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 01:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVHKFjf
+	id S1750831AbVHKFkH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 01:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbVHKFkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 01:39:35 -0400
-Received: from web51604.mail.yahoo.com ([206.190.38.209]:18054 "HELO
-	web51604.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932210AbVHKFjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 01:39:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=4f4aK3NZFX/JIYKuXog4FiqW96PP/F6/ZMTt5nTX8xCBj2xY/dutcTlACv/oS/DjJG7fl4ndyO6vYY43iyp0AL9sKNIihSi/D/5zCrcXgZJ7SOyRY7UeUdnqUiF9QH5SHlY5gTGyKXSwV/9oBypCBGGX7fuQFPWvLQ/ijkj63K0=  ;
-Message-ID: <20050811053931.71120.qmail@web51604.mail.yahoo.com>
-Date: Wed, 10 Aug 2005 22:39:31 -0700 (PDT)
-From: Ukil a <ukil_a@yahoo.com>
-Subject: Need help in understanding  x86  syscall
-To: linux-kernel@vger.kernel.org
+	Thu, 11 Aug 2005 01:40:07 -0400
+Received: from fsmlabs.com ([168.103.115.128]:28881 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1750877AbVHKFkF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 01:40:05 -0400
+Date: Wed, 10 Aug 2005 23:45:56 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: zach@vmware.com
+cc: akpm@osdl.org, chrisl@vmware.com, chrisw@osdl.org, hpa@zytor.com,
+       Keir.Fraser@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
+       m+Ian.Pratt@cl.cam.ac.uk, mbligh@mbligh.org, pratap@vmware.com,
+       virtualization@lists.osdl.org
+Subject: Re: [PATCH 8/14] i386 / Add a per cpu gdt accessor
+In-Reply-To: <200508110456.j7B4ue56019587@zach-dev.vmware.com>
+Message-ID: <Pine.LNX.4.61.0508102344060.16483@montezuma.fsmlabs.com>
+References: <200508110456.j7B4ue56019587@zach-dev.vmware.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had this question. As per my understanding, in the
-Linux system call implementation on x86 architecture
-the call flows like this int 0x80 -> syscall ->
-sys_call_vector(taken from the table)-> return from
-interrupt service routine. 
+On Wed, 10 Aug 2005 zach@vmware.com wrote:
 
-Now I had the doubt that if the the syscall
-implementation is very large will the scheduling and
-other interrupts be blocked for the whole time till
-the process returns from the ISR (because in an ISR by
-default the interrupts are disabled unless “sti” is
-called explicitly)? That’s appears to be too long for
-the scheduling or other interrupts to be blocked? 
-Am I missing something here?
-    Thanks 
-        Ukil
+> Add an accessor function for getting the per-CPU gdt.  Callee must already
+> have the CPU.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+This one seems superfluous to me, does accessing it indirectly generate 
+better code too?
+
+> Patch-base: 2.6.13-rc5-mm1
+> Patch-keys: i386 desc xen
+> Signed-off-by: Zachary Amsden <zach@vmware.com>
+> Index: linux-2.6.13/include/asm-i386/desc.h
+> ===================================================================
+> --- linux-2.6.13.orig/include/asm-i386/desc.h	2005-08-09 20:17:21.000000000 -0700
+> +++ linux-2.6.13/include/asm-i386/desc.h	2005-08-10 20:41:03.000000000 -0700
+> @@ -39,6 +39,8 @@
+>  extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
+>  DECLARE_PER_CPU(struct desc_struct, cpu_gdt_table[GDT_ENTRIES]);
+>  
+> +#define get_cpu_gdt_table(_cpu) (per_cpu(cpu_gdt_table, _cpu))
+> +
+>  DECLARE_PER_CPU(unsigned char, cpu_16bit_stack[CPU_16BIT_STACK_SIZE]);

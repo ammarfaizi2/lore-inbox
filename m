@@ -1,39 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbVHKWob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVHKWsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbVHKWob (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 18:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbVHKWob
+	id S932518AbVHKWsN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 18:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVHKWsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 18:44:31 -0400
-Received: from mail.portrix.net ([212.202.157.208]:58839 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S932497AbVHKWoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 18:44:30 -0400
-Message-ID: <42FBD4B4.2060400@ppp0.net>
-Date: Fri, 12 Aug 2005 00:44:04 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Thunderbird/1.0.6 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Miklos Szeredi <miklos@szeredi.hu>
-CC: akpm@osdl.org, blaisorblade@yahoo.it, linux-kernel@vger.kernel.org,
-       jdike@addtoit.com
-Subject: Re: UML build broken on 2.6.13-rc5-mm1
-References: <E1E3HxJ-0003Uf-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1E3HxJ-0003Uf-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 18:48:13 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:62972 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932518AbVHKWsN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 18:48:13 -0400
+Subject: [PATCH 2/2] sparsemem extreme: hotplug preparation
+To: akpm@osdl.org
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Thu, 11 Aug 2005 15:48:09 -0700
+References: <20050811224807.D1B56AC2@kernel.beaverton.ibm.com>
+In-Reply-To: <20050811224807.D1B56AC2@kernel.beaverton.ibm.com>
+Message-Id: <20050811224809.998979DE@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> UML is broken again in -mm.
-> 
-> Maybe UML should be added to one of the automatic build suites.
 
-It is, see here: http://l4x.org/k/?d=6080 . But the maintainer (if he cares)
-will know that it's broken and send a fix in time.
--mm is imho designed to be broken from time to time.
+This splits up sparse_index_alloc() into two pieces.  This is needed
+because we'll allocate the memory for the second level in a different
+place from where we actually consume it to keep the allocation from
+happening underneath a lock
 
--- 
-Jan
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
+
+ memhotplug-dave/include/linux/mmzone.h |    1 
+ memhotplug-dave/mm/sparse.c            |   52 ++++++++++++++++++++++++---------
+ 2 files changed, 40 insertions(+), 13 deletions(-)
+
+diff -puN mm/sparse.c~A6-extreme-hotplug-prepare mm/sparse.c
+--- memhotplug/mm/sparse.c~A6-extreme-hotplug-prepare	2005-08-11 15:46:18.000000000 -0700
++++ memhotplug-dave/mm/sparse.c	2005-08-11 15:46:18.000000000 -0700
+@@ -6,6 +6,7 @@
+ #include <linux/mmzone.h>
+ #include <linux/bootmem.h>
+ #include <linux/module.h>
++#include <linux/spinlock.h>
+ #include <asm/dma.h>
+ 
+ /*
+@@ -22,27 +23,52 @@ struct mem_section mem_section[NR_SECTIO
+ #endif
+ EXPORT_SYMBOL(mem_section);
+ 
+-static void sparse_alloc_root(unsigned long root, int nid)
+-{
+ #ifdef CONFIG_SPARSEMEM_EXTREME
+-	mem_section[root] = alloc_bootmem_node(NODE_DATA(nid), PAGE_SIZE);
+-#endif
++static struct mem_section *sparse_index_alloc(int nid)
++{
++	struct mem_section *section = NULL;
++	unsigned long array_size = SECTIONS_PER_ROOT *
++				   sizeof(struct mem_section);
++
++	section = alloc_bootmem_node(NODE_DATA(nid), array_size);
++
++	if (section)
++		memset(section, 0, array_size);
++
++	return section;
+ }
+ 
+-static void sparse_index_init(unsigned long section, int nid)
++static int sparse_index_init(unsigned long section_nr, int nid)
+ {
+-	unsigned long root = SECTION_NR_TO_ROOT(section);
++	static spinlock_t index_init_lock = SPIN_LOCK_UNLOCKED;
++	unsigned long root = SECTION_NR_TO_ROOT(section_nr);
++	struct mem_section *section;
++	int ret = 0;
+ 
+-	if (mem_section[root])
+-		return;
++	section = sparse_index_alloc(nid);
++	/*
++	 * This lock keeps two different sections from
++	 * reallocating for the same index
++	 */
++	spin_lock(&index_init_lock);
+ 
+-	sparse_alloc_root(root, nid);
++	if (mem_section[root]) {
++		ret = -EEXIST;
++		goto out;
++	}
+ 
+-	if (mem_section[root])
+-		memset(mem_section[root], 0, PAGE_SIZE);
+-	else
+-		panic("memory_present: NO MEMORY\n");
++	mem_section[root] = section;
++out:
++	spin_unlock(&index_init_lock);
++	return ret;
++}
++#else /* !SPARSEMEM_EXTREME */
++static inline int sparse_index_init(unsigned long section_nr, int nid)
++{
++	return 0;
+ }
++#endif
++
+ /* Record a memory area against a node. */
+ void memory_present(int nid, unsigned long start, unsigned long end)
+ {
+diff -puN include/linux/mmzone.h~A6-extreme-hotplug-prepare include/linux/mmzone.h
+--- memhotplug/include/linux/mmzone.h~A6-extreme-hotplug-prepare	2005-08-11 15:46:18.000000000 -0700
++++ memhotplug-dave/include/linux/mmzone.h	2005-08-11 15:46:18.000000000 -0700
+@@ -588,6 +588,7 @@ static inline int pfn_valid(unsigned lon
+ void sparse_init(void);
+ #else
+ #define sparse_init()	do {} while (0)
++#define sparse_index_init(_sec, _nid)  do {} while (0)
+ #endif /* CONFIG_SPARSEMEM */
+ 
+ #ifdef CONFIG_NODES_SPAN_OTHER_NODES
+_

@@ -1,45 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbVHKIcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVHKIdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbVHKIcx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 04:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVHKIcx
+	id S932300AbVHKIdx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 04:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVHKIdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 04:32:53 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61580 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932300AbVHKIcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 04:32:53 -0400
-Subject: Re: GFS - updated patches
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Teigland <teigland@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-In-Reply-To: <20050811081729.GB12438@redhat.com>
-References: <20050802071828.GA11217@redhat.com>
-	 <20050811081729.GB12438@redhat.com>
-Content-Type: text/plain
-Date: Thu, 11 Aug 2005 10:32:38 +0200
-Message-Id: <1123749159.3201.19.camel@laptopd505.fenrus.org>
+	Thu, 11 Aug 2005 04:33:53 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:13160 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932300AbVHKIdw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 04:33:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=rGDjb+cNLt6w9y+DvnrGpdK+fUXfA7mH5VxW56RXLIy3xwP7lqe3h9CTMqwgc06ufFjRzSV6ogJtOB7aYX6zERs61NXoTXQ5+yexyGtMBE5L8sqCXAtimbRUwxEM61fawBUpHAVZwsoKa349+mkjU0NSLLC8i7qHkKdikfPxwDo=
+Message-ID: <6b5347dc05081101334c1a6e3c@mail.gmail.com>
+Date: Thu, 11 Aug 2005 16:33:51 +0800
+From: n l <walking.to.remember@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: why the interrupt handler should be marked "static" for it is never called directly from another file.
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-11 at 16:17 +0800, David Teigland wrote:
-> Thanks for all the review and comments.  This is a new set of patches that
-> incorporates the suggestions we've received.
-
-all of them or only a subset?
-
-
+could you explain its reason for using static ?

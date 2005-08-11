@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbVHKACg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVHKAEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbVHKACg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 20:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVHKACf
+	id S964860AbVHKAEf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 20:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbVHKAEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 20:02:35 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:11395 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964851AbVHKACf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 20:02:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jY+zov8evHWEUWgNvhQjmHNrtxlxWTswDwHhcP0FX0MKSCuTb7rwZ0BdLrepFGJfaNtmTHiKr480/uh1pbcXR4JDwAUyLI67DVgMWry9ZGqRwZ6/iVsbvhAYwYdDJJCiwl4eYd8+RJNoA1/Bkrm0x/r3xdomlKICx7D+v+uObsI=
-Message-ID: <d4757e6005081017024c3bf3fd@mail.gmail.com>
-Date: Wed, 10 Aug 2005 20:02:33 -0400
-From: Joe <joecool1029@gmail.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: remove support for gcc < 3.2
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <42FA5848.809@tmr.com>
+	Wed, 10 Aug 2005 20:04:35 -0400
+Received: from mx2.suse.de ([195.135.220.15]:45531 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964860AbVHKAEe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 20:04:34 -0400
+Date: Thu, 11 Aug 2005 02:04:33 +0200
+From: Andi Kleen <ak@suse.de>
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: Andi Kleen <ak@suse.de>, Mike Waychison <mikew@google.com>,
+       YhLu <YhLu@tyan.com>, Peter Buckingham <peter@pantasys.com>,
+       linux-kernel@vger.kernel.org, "discuss@x86-64.org" <discuss@x86-64.org>
+Subject: Re: [discuss] Re: 2.6.13-rc2 with dual way dual core ck804 MB
+Message-ID: <20050811000430.GD8974@wotan.suse.de>
+References: <3174569B9743D511922F00A0C94314230AF97867@TYANWEB> <42FA8A4B.4090408@google.com> <20050810232614.GC27628@wotan.suse.de> <86802c4405081016421db9baa5@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050731222606.GL3608@stusta.de>
-	 <20050731.153631.70217457.davem@davemloft.net> <42FA5848.809@tmr.com>
+In-Reply-To: <86802c4405081016421db9baa5@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm for its removal. As for the gcc project "losing its way" consider
-that 3.4 has quite matured and also has much smaller binary size from
-3.3. 4.0 however is still too early in its development to come close
-to surpassing 3.4.
+> So my patch still can be used with Eric's, It just serialize the
+> TSC_SYNC between cpu.
+> 
+> I wonder it you can refine to make TSC_SYNC serialize that beteen CPU.
+> That will make
+> CPU X:synchronized TSC ... 
+> in fixed postion and timming.
 
-With all the changes and deprications it seems pointless to have to
-maintain extra code so 3 people can use an obsolete compiler.
-Something more recent like 3.4 should be used as a bench.
+Why would we want that? 
 
-Just my two cents.
+Boot time is critical so it's better to do things asynchronous.
+
+-Andi

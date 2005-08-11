@@ -1,44 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbVHKAF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbVHKAGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbVHKAF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 20:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVHKAF7
+	id S964947AbVHKAGx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 20:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbVHKAGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 20:05:59 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62677
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964885AbVHKAF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 20:05:59 -0400
-Date: Wed, 10 Aug 2005 17:05:57 -0700 (PDT)
-Message-Id: <20050810.170557.26275541.davem@davemloft.net>
-To: joecool1029@gmail.com
-Cc: davidsen@tmr.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: remove support for gcc < 3.2
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <d4757e6005081017024c3bf3fd@mail.gmail.com>
-References: <20050731.153631.70217457.davem@davemloft.net>
-	<42FA5848.809@tmr.com>
-	<d4757e6005081017024c3bf3fd@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Aug 2005 20:06:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28563 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964913AbVHKAGu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 20:06:50 -0400
+Date: Wed, 10 Aug 2005 20:06:34 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFT 4/5] CLOCK-Pro page replacement
+In-Reply-To: <20050810232209.GA3809@dmt.cnet>
+Message-ID: <Pine.LNX.4.61.0508101958510.2695@chimarrao.boston.redhat.com>
+References: <20050810200216.644997000@jumble.boston.redhat.com>
+ <20050810200943.809832000@jumble.boston.redhat.com> <20050810232209.GA3809@dmt.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Joe <joecool1029@gmail.com>
-Date: Wed, 10 Aug 2005 20:02:33 -0400
+On Wed, 10 Aug 2005, Marcelo Tosatti wrote:
 
-> With all the changes and deprications it seems pointless to have to
-> maintain extra code so 3 people can use an obsolete compiler.
+> First of all, this is very nice! The code is amazingly easy to read.
 
-This number is enormously greater than 3, and especially it's
-important because the folks who are quite important to kernel
-development (read as: Andrew Morton) rely on the build efficiency of
-gcc-2.95 so that they can actually get their daily work done.
+Thank you.
 
-Some of us spend the majority of our time doing patch applying and
-verification kernel builds, and often not much more than that.
+> You change the rate of active list scanning, which I suppose won't
+> change the current reclaiming behaviour much (at least not on the
+> "stress system to death" tests which most folks use to test page
+> replacement policies). I'll do some STP benchmarking.
+> 
+> But the fundamental metric for page replacement decision continues
+> to be recency alone.
+>
+> IMHO much deeper surgery is needed: actually use inter-reference
+> distance as the metric for page replacement decision.
 
-Therefore kernel build time is enormously important, and gcc-2.95
-is the best option as far as that goes.
+Actually, inter-reference distance is what triggers whether the
+active list gets scanned in addition to the inactive list.
+
+The inter-reference distance also determines on which list a
+page gets allocated.
+
+I agree the code probably needs tweaking in this respect, though.
+
+> As we talked, I've got an ARC variant working, but from what I gather
+> so far its not as simple as I've imagined. Direct replacement from the
+> active list seems to screw up most "stress system to death" workloads,
+> increasing major pagefaults.
+
+I'm not surprised!
+
+If a page is not frequently enough accessed to be on the active
+list, chances are it could still be accessed more frequently than
+many pages on the inactive list, and evicting the page is the
+wrong thing to do.
+
+I suspect that ARC and CAR/CART are more suited for databases
+than for general purpose OSes.  The reason databases are
+probably different is that databases tend to have large indexes,
+which are accessed more frequently than most data.  This may
+lead to a stricter "separation" between hot and cold pages.
+
+> Still lack a set of well analyzed pertinent VM tests... 
+
+Agreed - I really am not sure how to properly test replacement
+algorithms.
+
+-- 
+All Rights Reversed

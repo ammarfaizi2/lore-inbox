@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbVHKWyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbVHKW5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbVHKWyN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 18:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbVHKWyN
+	id S932520AbVHKW5A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 18:57:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVHKW5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 18:54:13 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:15558 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932357AbVHKWyM (ORCPT
+	Thu, 11 Aug 2005 18:57:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16515 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932459AbVHKW47 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 18:54:12 -0400
-Message-Id: <200508112253.j7BMrqsm016672@laptop11.inf.utfsm.cl>
-To: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with usb-storage and /dev/sd? 
-In-Reply-To: Message from DervishD <lkml@dervishd.net> 
-   of "Thu, 11 Aug 2005 09:29:29 +0200." <20050811072929.GD1223@DervishD> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 11 Aug 2005 18:53:52 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 11 Aug 2005 18:53:54 -0400 (CLT)
+	Thu, 11 Aug 2005 18:56:59 -0400
+Message-Id: <20050811225556.869832000@localhost.localdomain>
+References: <20050811225445.404816000@localhost.localdomain>
+Date: Thu, 11 Aug 2005 15:54:47 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org, discuss@x86-64.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Andi Kleen <ak@suse.de>,
+       Chris Wright <chrisw@osdl.org>
+Subject: [patch 2/8] [PATCH] Fix SRAT for non dual core AMD systems
+Content-Disposition: inline; filename=x86_64-srat-dual-core-amd.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD <lkml@dervishd.net> wrote:
->  * Pete Zaitcev <zaitcev@redhat.com> dixit:
-> > On Wed, 10 Aug 2005 21:22:43 +0200, DervishD <lkml@dervishd.net> wrote:
-> > >     I'm not using hotplug currently so... how can I make the USB
-> > > subsystem to assign always the same /dev/sd? entry to my USB Mass
-> > > storage devices? [...]
-> > You cannot. Just mount by label or something...
+-stable review patch.  If anyone has any  objections, please let us know.
+------------------
 
->     Mounting by label won't work, the problem is the /dev entry,
-> which changes every time.
 
-That's why you should mount by label...
+This fixes a bug in SRAT handling on AMD systems that was introduced
+with the dual core support. It would be disabled on CPUs without dual core.
+Just drop the bogus check.
 
-> > Better yet, install something like Fedora Core 4, which uses HAL,
-> > and forget about it. The fstab-sync takes care of the rest.
-> 
->     Oh no, thanks, I've already used Fedora and it only reinforced my
-> feeling about distros: I prefer my do-it-yourself box ;)
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-In Fedora rawhide it just works. I can't see how the knot you are tying
-yourself into by diy is any better...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Index: linux-2.6.12/arch/x86_64/kernel/setup.c
+===================================================================
+--- linux-2.6.12.orig/arch/x86_64/kernel/setup.c
++++ linux-2.6.12/arch/x86_64/kernel/setup.c
+@@ -729,8 +729,6 @@ static void __init amd_detect_cmp(struct
+ 	int cpu = smp_processor_id();
+ 	int node = 0;
+ 	unsigned bits;
+-	if (c->x86_num_cores == 1)
+-		return;
+ 
+ 	bits = 0;
+ 	while ((1 << bits) < c->x86_num_cores)
+
+--

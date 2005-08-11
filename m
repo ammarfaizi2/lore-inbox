@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbVHKOiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVHKOkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbVHKOiF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 10:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbVHKOiF
+	id S1751065AbVHKOkc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 10:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbVHKOkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 10:38:05 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:50563 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751050AbVHKOiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 10:38:03 -0400
-Date: Thu, 11 Aug 2005 16:37:53 +0200 (CEST)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@openx3.frec.bull.fr
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, mingo@redhat.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] remove name length check in a workqueue
-In-Reply-To: <20050810112710.47388a55.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0508111630360.25305@openx3.frec.bull.fr>
-References: <1123683544.5093.4.camel@mulgrave>
- <Pine.LNX.4.58.0508101044110.31617@devserv.devel.redhat.com>
- <20050810100523.0075d4e8.akpm@osdl.org> <1123694672.5134.11.camel@mulgrave>
- <20050810103733.42170f27.akpm@osdl.org> <1123696466.5134.23.camel@mulgrave>
- <20050810112710.47388a55.akpm@osdl.org>
+	Thu, 11 Aug 2005 10:40:32 -0400
+Received: from pop.gmx.net ([213.165.64.20]:60129 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751064AbVHKOkb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 10:40:31 -0400
+Date: Thu, 11 Aug 2005 16:40:30 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-lkml@gmx.net>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: peterc@gelato.unsw.edu.au, linux-kernel@vger.kernel.org,
+       sfr@canb.auug.org.au, matthew@wil.cx, michael.kerrisk@gmx.net
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 11/08/2005 16:50:23,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 11/08/2005 16:50:25,
-	Serialize complete at 11/08/2005 16:50:25
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <1123769192.8251.75.camel@lade.trondhjem.org>
+Subject: =?ISO-8859-1?Q?Re:_fcntl(F_GETLEASE)_semantics=3F=3F?=
+X-Priority: 3 (Normal)
+X-Authenticated: #23581172
+Message-ID: <23689.1123771230@www9.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Aug 2005, Andrew Morton wrote:
+Trond,
 
-> > What I posted originally; the current SCSI format for a workqueue:
-> > scsi_wq_%d hits the bug after the host number rises to 100, which has
-> > been seen by some enterprise person with > 100 HBAs.
-> > 
-> > The reason for this name is that the error handler thread is called
-> > scsi_eh_%d; so we could rename all our threads to avoid this, but one
-> > day someone will come along with a huge enough machine to hit whatever
-> > limit we squeeze it down to.
+> to den 11.08.2005 Klokka 15:22 (+0200) skreiv Michael Kerrisk:
 > 
-> OK, well scsi is using single-threaded workqueues anyway.  So we could do:
+> > As noted already, I don't know much of CIFS and SAMBA.
+> > But are you saying that it is sensible and consistent that
+> > "a process can open a file read-write, and can't place a 
+> > read lease, but can place a write lease"?  
 > 
-> 	if (singlethread)
-> 		BUG_ON(strlen(name) > sizeof(task_struct.comm) - 1);
-> 	else
-> 		BUG_ON(strlen(name) > sizeof(task_struct.comm) - 1 - 4);
-> 
-> which gets you 10,000,000 HBAs.   Enough?
+> It is just as "sensible and consistent" as being able to open the file
+> read-write and being able to place a read lease but not a write lease.
+> What is your point?
 
-I suppose so, but the problem is slightly worse:
+I think my metapoint really is this: there has never been a 
+clearly documented statement of how File Leases are supposed 
+to behave on Linux.  There is just some code... how is one 
+supposed to know what it _should_ do?  (The manual page text 
+was my attempt to discover the details, after the fact.)
 
-One does not need 100 HBAs to trigger the BUG_ON: 
+Can you provide an explanation of how file leases should 
+behave?  That is, a tabulation of the expected behavious 
+for the possible cimbinations of
 
-It is sufficient to have a few HBAs and to insmod/rmmod the driver a few 
-times.
+[lease type] X 
+[open() access-mode employed file placing lease] X
+[open() access-mode employed by other process(es)]
 
-Since the host_no is choosen with a mere counter increment 
-in scsi_host_alloc():
+?
 
-      shost->host_no = scsi_host_next_hn++; /* XXX(hch): still racy */
+> Make no mistake: this is not a locking protocol. It is implementing
+> support for a _caching_ protocol.
 
-Unused `host_no's are not reused and the 100 limit is reached even on 
-smaller systems.
+Yes, that I knew.
 
-I have no idea of why someone would do repeated insmod/rmmods, though.
-(But someone did).
+Cheers,
 
-	Simon.
+Michael
 
+-- 
+5 GB Mailbox, 50 FreeSMS http://www.gmx.net/de/go/promail
++++ GMX - die erste Adresse für Mail, Message, More +++

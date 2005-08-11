@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVHKMKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVHKMGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbVHKMKY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 08:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVHKMKY
+	id S932376AbVHKMGa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 08:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVHKMG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 08:10:24 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16594 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932351AbVHKMKX (ORCPT
+	Thu, 11 Aug 2005 08:06:29 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:26266 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932376AbVHKMG3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 08:10:23 -0400
-Date: Thu, 11 Aug 2005 14:10:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Greg Howard <ghoward@sgi.com>, davem@davemloft.net,
+	Thu, 11 Aug 2005 08:06:29 -0400
+Message-ID: <42FB41B5.98314BA5@tv-sign.ru>
+Date: Thu, 11 Aug 2005 16:16:53 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Dipankar Sarma <dipankar@in.ibm.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: Standardize shutdown of the system from enviroment control modules
-Message-ID: <20050811121017.GA2810@elf.ucw.cz>
-References: <20050809211003.GA29361@lst.de>
-Mime-Version: 1.0
+Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050809211003.GA29361@lst.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Paul E. McKenney wrote:
+>
+> --- linux-2.6.13-rc6/kernel/signal.c	2005-08-08 19:59:24.000000000 -0700
+> +++ linux-2.6.13-rc6-tasklistRCU/kernel/signal.c	2005-08-10 08:20:25.000000000 -0700
+> @@ -1151,9 +1151,13 @@ int group_send_sig_info(int sig, struct 
+>
+>  	ret = check_kill_permission(sig, info, p);
+>  	if (!ret && sig && p->sighand) {
+> +		if (!get_task_struct_rcu(p)) {
+> +			return -ESRCH;
+> +		}
+>  		spin_lock_irqsave(&p->sighand->siglock, flags);
+                                      ^^^^^^^
+Is it correct?
 
-> Currently snsc_event for Altix systems sends SIGPWR to init (and abuses
-> tasklist_lock..) while the sbus drivers call execve for /sbin/shutdown
-> (which is also ugly, it should at least use call_usermodehelper)
-> With normal sysvinit both will end up the same, but I suspect the
-> shutdown variant, maybe with a sysctl to chose the exact path to call
-> would be cleaner.  What do you guys think about adding a common function
-> to do this.  Could you test such a patch for me?
+The caller (kill_proc_info) does not take tasklist_lock anymore.
+If p does exec() at this time it can change/free its ->sighand.
 
-ACPI does some exec (in thermal), too. Yes, I think it is worth
-standartizing. Easy to test, btw, just echo too low trippoints.
+fs/exec.c:de_thread()
+   773                  write_lock_irq(&tasklist_lock);
+   774                  spin_lock(&oldsighand->siglock);
+   775                  spin_lock(&newsighand->siglock);
+   776
+   777                  current->sighand = newsighand;
+   778                  recalc_sigpending();
+   779
+   780                  spin_unlock(&newsighand->siglock);
+   781                  spin_unlock(&oldsighand->siglock);
+   782                  write_unlock_irq(&tasklist_lock);
+   783
+   784                  if (atomic_dec_and_test(&oldsighand->count))
+   785                          kmem_cache_free(sighand_cachep, oldsighand);
 
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+Oleg.

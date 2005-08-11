@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVHKUpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbVHKUxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVHKUpv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 16:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbVHKUpv
+	id S932451AbVHKUxB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 16:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbVHKUxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 16:45:51 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:10905 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932348AbVHKUpt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 16:45:49 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
-Date: Thu, 11 Aug 2005 14:45:41 -0600
-User-Agent: KMail/1.8.1
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <200508111424.43150.bjorn.helgaas@hp.com> <42FBB6C5.2070404@pobox.com>
-In-Reply-To: <42FBB6C5.2070404@pobox.com>
+	Thu, 11 Aug 2005 16:53:01 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:36311 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932451AbVHKUxB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 16:53:01 -0400
+Date: Thu, 11 Aug 2005 16:52:57 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: dtor_core@ameritech.net
+cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Don't use a klist for drivers' set-of-devices
+In-Reply-To: <d120d50005081113294dbb4961@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44L0.0508111643200.6745-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508111445.41428.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 August 2005 2:36 pm, Jeff Garzik wrote:
-> Bjorn Helgaas wrote:
-> > IA64 boxes only have PCI IDE devices, so there's no need to blindly poke
-> > around in I/O port space.  Poking at things that don't exist causes MCAs
-> > on HP ia64 systems.
-> > 
-> > Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> > 
-> > Index: work-vga/drivers/ide/Kconfig
-> > ===================================================================
-> > --- work-vga.orig/drivers/ide/Kconfig	2005-08-10 14:57:47.000000000 -0600
-> > +++ work-vga/drivers/ide/Kconfig	2005-08-10 14:58:02.000000000 -0600
-> > @@ -276,6 +276,7 @@
-> >  
-> >  config IDE_GENERIC
-> >  	tristate "generic/default IDE chipset support"
-> > +	depends on !IA64
-> 
-> hmmmmmmmmm.  Are you POSITIVE that the legacy IDE ports are never enabled?
-> 
-> In modern Intel chipsets, this still occurs with e.g. combined mode.
+On Thu, 11 Aug 2005, Dmitry Torokhov wrote:
 
-I don't know about combined mode.  If the legacy IDE ports are
-enabled, shouldn't they be described via ACPI, and hence usable
-via the ide_pnp - PNPACPI - ACPI path?
+> Hmm, so what do I do in the following scenario - I have a serio port
+> (AUX) that has a synaptics touchpad bound to it which is driven by
+> psmouse driver. psmouse driver registers a child port (synaptics
+> pass-through) during probe call. The child port is also driven by
+> psmouse module - but it looks like it will deadlock when binding.
+> 
+> Am I missing something here?
+
+I hate to say this, but you are right.  Can you suggest a way around this 
+problem?  Perhaps arranging things so that the devlist_mutex is held only 
+during the actual __device_bind_driver call and not during probe...  But 
+there are so many tricky interactions and possible races that this 
+requires a lot of thought.  I'll get back to you.
+
+Alan Stern
+

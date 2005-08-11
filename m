@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbVHKPWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbVHKPW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbVHKPWI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 11:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbVHKPWI
+	id S1751091AbVHKPW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 11:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVHKPW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 11:22:08 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:57060 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751085AbVHKPWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 11:22:06 -0400
-Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
-From: Lee Revell <rlrevell@joe-job.com>
-To: Michael Thonke <iogl64nx@gmail.com>
-Cc: lgb@lgb.hu, Allen Martin <AMartin@nvidia.com>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <42FB6C27.1010408@gmail.com>
-References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com>
-	 <20050811070943.GB8025@vega.lgb.hu> <1123765523.32375.10.camel@mindpipe>
-	 <42FB6C27.1010408@gmail.com>
+	Thu, 11 Aug 2005 11:22:59 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:37852 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751084AbVHKPW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 11:22:58 -0400
+Subject: Re: Need help in understanding x86 syscall
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org, Ukil a <ukil_a@yahoo.com>, 7eggert@gmx.de
+In-Reply-To: <2cd57c90050811081374d7c4ef@mail.gmail.com>
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
+	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
+	 <1123770661.17269.59.camel@localhost.localdomain>
+	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
 Content-Type: text/plain
-Date: Thu, 11 Aug 2005 11:22:04 -0400
-Message-Id: <1123773724.6980.14.camel@mindpipe>
+Organization: Kihon Technologies
+Date: Thu, 11 Aug 2005 11:22:50 -0400
+Message-Id: <1123773770.17269.61.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.6.1 
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-11 at 17:17 +0200, Michael Thonke wrote:
-> *frustrated*
+On Thu, 2005-08-11 at 23:13 +0800, Coywolf Qi Hunt wrote:
+> 
+> He is RBJ, Richard B. Johnson, the LKML defacto official troll.
+> 
 
-Hey I don't like it any more than you do.  But Nvidia is an IP company
-and they act like one.  Most of us would probably do the exact same
-thing in their position, AKA whatever the lawyers tell them ;-)
+Oh, so this is "root" who almost got DaveJ fired? :)
 
-Lee
+-- Steve
 

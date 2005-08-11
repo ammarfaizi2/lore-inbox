@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVHKUdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVHKUen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbVHKUdX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 16:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbVHKUdW
+	id S932446AbVHKUen (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 16:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVHKUen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 16:33:22 -0400
-Received: from fsmlabs.com ([168.103.115.128]:55689 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932420AbVHKUdW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 16:33:22 -0400
-Date: Thu, 11 Aug 2005 14:39:06 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Coywolf Qi Hunt <coywolf@gmail.com>, 7eggert@gmx.de,
-       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Need help in understanding x86 syscall
-In-Reply-To: <1123783862.17269.89.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0508111430280.19138@montezuma.fsmlabs.com>
-References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz> 
- <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com> 
- <1123770661.17269.59.camel@localhost.localdomain>  <2cd57c90050811081374d7c4ef@mail.gmail.com>
-  <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com> 
- <1123775508.17269.64.camel@localhost.localdomain> 
- <1123777184.17269.67.camel@localhost.localdomain>  <2cd57c90050811093112a57982@mail.gmail.com>
-  <2cd57c9005081109597b18cc54@mail.gmail.com>  <Pine.LNX.4.61.0508111310180.15153@chaos.analogic.com>
-  <1123781187.17269.77.camel@localhost.localdomain> 
- <Pine.LNX.4.61.0508111342170.15330@chaos.analogic.com>
- <1123783862.17269.89.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Aug 2005 16:34:43 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:36540 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932423AbVHKUel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 16:34:41 -0400
+Date: Thu, 11 Aug 2005 21:34:37 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
+Message-ID: <20050811203437.GA9265@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Bjorn Helgaas <bjorn.helgaas@hp.com>,
+	B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+	linux-ide@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <200508111424.43150.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508111424.43150.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Aug 2005, Steven Rostedt wrote:
+On Thu, Aug 11, 2005 at 02:24:43PM -0600, Bjorn Helgaas wrote:
+> IA64 boxes only have PCI IDE devices, so there's no need to blindly poke
+> around in I/O port space.  Poking at things that don't exist causes MCAs
+> on HP ia64 systems.
 
-> On Thu, 2005-08-11 at 13:46 -0400, linux-os (Dick Johnson) wrote:
-> 
-> > 
-> > I was talking about the one who had the glibc support to use
-> > the newer system-call entry (who's name can confuse).
-> > 
-> > You are looking at code that uses int 0x80. It's an interrupt,
-> > therefore, in the kernel, once the stack is set up, interrupts
-> > need to be (re)enabled.
-> 
-> int is a call to either an interrupt or exception procedure. 0x80 is
-> setup in Linux to be a trap and not an interrupt vector. So it does
-> _not_ turn off interrupts.
+Maybe it should instead depend on those systems where it is available.
+Anything but X86?
 
-It's actually a vector, that's all you can install in the IDT. Also a trap 
-doesn't advance the instruction pointer, so you resume at the trapping 
-instruction (e.g. vector 14/page fault), 0x80 is an interrupt gate. One 
-of the distinguishing differences is that 0x80 may be entered via int 
-0x80 from all ring levels. The reason why int 0x80 doesn't disable 
-interrupts is because issuing int 0x80 directly is similar to doing a far 
-call and therefore doesn't have the same effect as a real interrupt being 
-issued.

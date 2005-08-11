@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVHKCoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbVHKDIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbVHKCoH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 22:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVHKCoH
+	id S932236AbVHKDIW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 23:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbVHKDIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 22:44:07 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:45957 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932231AbVHKCoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 22:44:06 -0400
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-From: Lee Revell <rlrevell@joe-job.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
-       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
-       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-In-Reply-To: <1123727994.32531.62.camel@cog.beaverton.ibm.com>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
-	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
-	 <1123727560.30850.1.camel@mindpipe>
-	 <1123727994.32531.62.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Wed, 10 Aug 2005 22:44:04 -0400
-Message-Id: <1123728244.30850.5.camel@mindpipe>
+	Wed, 10 Aug 2005 23:08:22 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:55499 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932236AbVHKDIW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 23:08:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LnBN+b9mmNFsWqvfTyxczXQzBW9MF8B3skL5KgSoJ0bynjNeea43dZ++UCnr5Ba2VmApNWaf7e3MInifwQdGv+rpy5hMXTykpvvsdFXL3G/oMAFFMTMcoa1+T04l+INXdWjTLnAob5j7lcxtRRl+uT0ByHpZS7BjNa74vzyQvzo=
+Message-ID: <aec7e5c30508102008b739a6c@mail.gmail.com>
+Date: Thu, 11 Aug 2005 12:08:19 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: How to reclaim inode pages on demand
+Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050810101714.147e1333.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0508081650160.26013@skynet>
+	 <20050808160844.04d1f7ac.akpm@osdl.org>
+	 <Pine.LNX.4.58.0508101730441.11984@skynet>
+	 <20050810101714.147e1333.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-10 at 19:39 -0700, john stultz wrote:
-> Ah, I've got a patch on my laptop that takes that down to ~2% or less.
-> I didn't include it in this patch set but I'll work to get it
-> integrated before the next release. Sorry about that.
+On 8/11/05, Andrew Morton <akpm@osdl.org> wrote:
+> Mel Gorman <mel@csn.ul.ie> wrote:
+> > The majority of pages I am seeing no longer have page->mapping set. Does
+> > this mean they are in the process of being cleared up?
 > 
-> If you have any suggestions for further performance improvements,
-> please let me know.
+> They're just anonymous pages, aren't they?  But you said "pages that are
+> being used for inodes".  Confused.
 
-2% sounds reasonable to me.  I just don't think we can afford 20%
-because so many stupid apps bang on gettimeofday() constantly.
+I thought page->mapping was used by rmap for both inode-backed and
+anonymous pages. And the PAGE_MAPPING_ANON bit was used to determine
+that page->mapping points to struct anon_vma instead of struct
+address_space.
 
-Lee
+When is page->mapping NULL?
 
+/ magnus

@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbVHKOgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbVHKOiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751047AbVHKOgh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 10:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbVHKOgh
+	id S1751053AbVHKOiF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 10:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbVHKOiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 10:36:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20665 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751047AbVHKOgg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 10:36:36 -0400
-Message-ID: <42FB6255.10807@redhat.com>
-Date: Thu, 11 Aug 2005 10:36:05 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
-X-Accept-Language: en-us, en
+	Thu, 11 Aug 2005 10:38:05 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:50563 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751050AbVHKOiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 10:38:03 -0400
+Date: Thu, 11 Aug 2005 16:37:53 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Andrew Morton <akpm@osdl.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, mingo@redhat.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] remove name length check in a workqueue
+In-Reply-To: <20050810112710.47388a55.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0508111630360.25305@openx3.frec.bull.fr>
+References: <1123683544.5093.4.camel@mulgrave>
+ <Pine.LNX.4.58.0508101044110.31617@devserv.devel.redhat.com>
+ <20050810100523.0075d4e8.akpm@osdl.org> <1123694672.5134.11.camel@mulgrave>
+ <20050810103733.42170f27.akpm@osdl.org> <1123696466.5134.23.camel@mulgrave>
+ <20050810112710.47388a55.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH]  largefile support for accounting
-Content-Type: multipart/mixed;
- boundary="------------000907000206010901000609"
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 11/08/2005 16:50:23,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 11/08/2005 16:50:25,
+	Serialize complete at 11/08/2005 16:50:25
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000907000206010901000609
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 10 Aug 2005, Andrew Morton wrote:
 
-Hi.
+> > What I posted originally; the current SCSI format for a workqueue:
+> > scsi_wq_%d hits the bug after the host number rises to 100, which has
+> > been seen by some enterprise person with > 100 HBAs.
+> > 
+> > The reason for this name is that the error handler thread is called
+> > scsi_eh_%d; so we could rename all our threads to avoid this, but one
+> > day someone will come along with a huge enough machine to hit whatever
+> > limit we squeeze it down to.
+> 
+> OK, well scsi is using single-threaded workqueues anyway.  So we could do:
+> 
+> 	if (singlethread)
+> 		BUG_ON(strlen(name) > sizeof(task_struct.comm) - 1);
+> 	else
+> 		BUG_ON(strlen(name) > sizeof(task_struct.comm) - 1 - 4);
+> 
+> which gets you 10,000,000 HBAs.   Enough?
 
-There is a problem in the accounting subsystem in the kernel can not
-correctly handle files larger than 2GB.  The output file containing
-the process accounting data can grow very large if the system is large
-enough and active enough.  If the 2GB limit is reached, then the system
-simply stops storing process accounting data.
+I suppose so, but the problem is slightly worse:
 
-Another annoying problem is that once the system reaches this 2GB limit,
-then every process which exits will receive a signal, SIGXFSZ.  This
-signal is generated because an attempt was made to write beyond the limit
-for the file descriptor.  This signal makes it look like every process
-has exited due to a signal, when in fact, they have not.
+One does not need 100 HBAs to trigger the BUG_ON: 
 
-The solution is to add the O_LARGEFILE flag to the list of flags used
-to open the accounting file.  The rest of the accounting support is
-already largefile safe.
+It is sufficient to have a few HBAs and to insmod/rmmod the driver a few 
+times.
 
-The changes were tested by constructing a large file (just short of 2GB),
-enabling accounting, and then running enough commands to cause the
-accounting data generated to increase the size of the file to 2GB.  Without
-the changes, the file grows to 2GB and the last command run in the test
-script appears to exit due a signal when it has not.  With the changes,
-things work as expected and quietly.
+Since the host_no is choosen with a mere counter increment 
+in scsi_host_alloc():
 
-There are some user level changes required so that it can deal with
-largefiles, but those are being handled separately.
+      shost->host_no = scsi_host_next_hn++; /* XXX(hch): still racy */
 
-Signed-off-by: Peter Staubach <staubach@redhat.com>
+Unused `host_no's are not reused and the 100 limit is reached even on 
+smaller systems.
 
---------------000907000206010901000609
-Content-Type: text/plain;
- name="devel"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="devel"
+I have no idea of why someone would do repeated insmod/rmmods, though.
+(But someone did).
 
---- linux-2.6.12/kernel/acct.c.org	2005-06-17 15:48:29.000000000 -0400
-+++ linux-2.6.12/kernel/acct.c	2005-08-10 15:12:46.000000000 -0400
-@@ -220,7 +220,7 @@ asmlinkage long sys_acct(const char __us
- 			return (PTR_ERR(tmp));
- 		}
- 		/* Difference from BSD - they don't do O_APPEND */
--		file = filp_open(tmp, O_WRONLY|O_APPEND, 0);
-+		file = filp_open(tmp, O_WRONLY | O_APPEND | O_LARGEFILE, 0);
- 		putname(tmp);
- 		if (IS_ERR(file)) {
- 			return (PTR_ERR(file));
+	Simon.
 
---------------000907000206010901000609--

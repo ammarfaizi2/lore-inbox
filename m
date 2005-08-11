@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVHKIOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbVHKIVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbVHKIOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 04:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVHKIOR
+	id S1030219AbVHKIVG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 04:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVHKIVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 04:14:17 -0400
-Received: from mail.gmx.de ([213.165.64.20]:62951 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932290AbVHKIOR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 04:14:17 -0400
-Date: Thu, 11 Aug 2005 10:14:15 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: trond.myklebust@fys.uio.no, peterc@gelato.unsw.edu.au,
-       linux-kernel@vger.kernel.org, sfr@canb.auug.org.au,
-       michael.kerrisk@gmx.net
-MIME-Version: 1.0
-References: <17146.43490.8672.13906@wombat.chubb.wattle.id.au>
-Subject: =?ISO-8859-1?Q?Re:_fcntl(F_GETLEASE)_semantics=3F=3F?=
-X-Priority: 3 (Normal)
-X-Authenticated: #23581172
-Message-ID: <19888.1123748055@www44.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 04:21:05 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:25215 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932290AbVHKIVE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 04:21:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iwzApJ5/e1FJMASjR9sEdYQ23YBGRakHeF9UxJNnhVBOTPYyEY5WC8SRLDXL2CPsF+NRWStRZAsr5FUkHYk4HoQldgS2H/dMx0mrLlPVkx4qL3KCxnmVU2xfYVgDiNMOlxnWRgIG98yUdkbZK5AhwNImz2NRoRKm3axq/dK6GNU=
+Message-ID: <bc57270905081101217fdd4c5f@mail.gmail.com>
+Date: Thu, 11 Aug 2005 16:21:04 +0800
+From: Michael <mikore.li@gmail.com>
+To: linux clustering <linux-cluster@redhat.com>
+Subject: Re: [Linux-cluster] GFS - updated patches
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050811081729.GB12438@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050802071828.GA11217@redhat.com>
+	 <20050811081729.GB12438@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Von: Peter Chubb <peterc@gelato.unsw.edu.au>
-> 
-> >>>>> "Trond" == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-> 
-> Trond> to den 11.08.2005 Klokka 09:48 (+1000) skreiv Peter Chubb:
-> >> Hi, The LTP test fcntl23 is failing.  It does, in essence, fd =
-> >> open(xxx, O_RDWR|O_CREAT, 0777); if (fcntl(fd, F_SETLEASE, F_RDLCK)
-> >> == -1) fail;
-> >> 
-> >> fcntl always returns EAGAIN here.  The manual page says that a read
-> >> lease causes notification when `another process' opens the file for
-> >> writing or truncates it.  The kernel implements `any process'
-> >> (including the current one).
-> >> 
-> >> Which semantics are correct?  Personally I think that what the
-> >> kernel implements is correct (you can't get a read lease unsless
-> >> there are no writers _at_ _all_)
-> 
-> Trond> A read lease should mean that there are no writers at all.
-> 
-> Trond> If we were to allow the current process to open for write, then
-> Trond> that would still mean that nobody else can get a lease. In
-> Trond> effect you have been granted a lease with exclusive semantics
-> Trond> (i.e. a write lease). You might as well request that instead of
-> Trond> pretending it is a read lease.
-> 
-> So the manual page is wrong.  Fine.
-
-No.  The behavior in Linux recently, and arbitrarily (IMO) changed:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111502547506310&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111755426027086&w=2
-
-One of the developers of the file leases mechanism seems to have 
-agreed that this change should not have occurred:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111512619520116&w=2
-
-but the suggested patch did not (yet) make its way into the kernel.
-
-Stephen -- what is your take on this now?
-
-Cheers,
+I have the same question as I asked before, how can I see GFS in "make
+menuconfig", after I patch gfs2-full.patch into a 2.6.12.2 kernel?
 
 Michael
 
--- 
-GMX DSL = Maximale Leistung zum minimalen Preis!
-2000 MB nur 2,99, Flatrate ab 4,99 Euro/Monat: http://www.gmx.net/de/go/dsl
+On 8/11/05, David Teigland <teigland@redhat.com> wrote:
+> Thanks for all the review and comments.  This is a new set of patches that
+> incorporates the suggestions we've received.
+> 
+> http://redhat.com/~teigland/gfs2/20050811/gfs2-full.patch
+> http://redhat.com/~teigland/gfs2/20050811/broken-out/
+> 
+> Dave
+> 
+> --
+> Linux-cluster mailing list
+> Linux-cluster@redhat.com
+> http://www.redhat.com/mailman/listinfo/linux-cluster
+>

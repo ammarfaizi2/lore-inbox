@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVHKPJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbVHKPNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbVHKPJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 11:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbVHKPJ0
+	id S1751075AbVHKPNS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 11:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbVHKPNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 11:09:26 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:28229 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751060AbVHKPJ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 11:09:26 -0400
+	Thu, 11 Aug 2005 11:13:18 -0400
+Received: from nproxy.gmail.com ([64.233.182.205]:12155 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751075AbVHKPNR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 11:13:17 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=NM5E39YJ2p49JAFdxynoXkKTFF5ZcCci3tkSjet/O/Cplw4Mkkb1wEB2CcxHZYv615zJ8PCgwWamS5bSjP60o/ivv0A5pGwT+st3R6kGRARV2JfNeFG0RD8qNBqwmx6D0NptANs4JeavzLmlNNH0Ry1xXNVrpFi9DMOP+MNyQC0=
-Message-ID: <42FB6A19.1070300@gmail.com>
-Date: Thu, 11 Aug 2005 17:09:13 +0200
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Allen Martin <AMartin@nvidia.com>
-CC: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
-References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com>
-In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-From: Michael Thonke <iogl64nx@gmail.com>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gHnD88CzE1KaSMBpKK57eriUvchkRTnHUoLOWFbnO4hI7WgZuVE8b0uOZ+T6mbue63EPIRc0sRlwleTQefxA8Cup9GIGv8t54DotimoSzQSuzWgd8V8UdBqqW/NeT4buRoyKCCLk6eKSz81hby8stBI3vQONmDPf+4EQhwztTbo=
+Message-ID: <2cd57c90050811081374d7c4ef@mail.gmail.com>
+Date: Thu, 11 Aug 2005 23:13:13 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: Need help in understanding x86 syscall
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org, Ukil a <ukil_a@yahoo.com>, 7eggert@gmx.de
+In-Reply-To: <1123770661.17269.59.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
+	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
+	 <1123770661.17269.59.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allen Martin schrieb:
+On 8/11/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Thu, 2005-08-11 at 10:04 -0400, linux-os (Dick Johnson) wrote:
+> > Every interrupt software, or hardware, results in the branched
+> > procedure being executed with the interrupts OFF. That's why
+> > one of the first instructions in the kernel entry for a syscall
+> > is 'sti' to turn them back on. Look at entry.S, line 182. This
+> > occurs any time a trap occurs as well (Page 26-168, i486
+> > Programmer's reference manual). FYI, this is helpful when
+> > designing/debugging complex interrupt-service routines since
+> > you can execute the interrupt with a software 'INT' instruction
+> > (with the correct offset from the IRQ you are using). The software
+> > doesn't 'know' where the interrupt came from, HW or SW.
+> 
+> I'm looking at 2.6.13-rc6-git1 line 182 of entry.S and I don't see it.
+> Must be a different kernel.
+> 
+> According to the documentation that I was looking at, a trap in x86 does
+> _not_ turn off interrupts.
+> 
+...
+> 
+> I don't see a sti here.
+> 
+> -- Steve
+ 
 
->>Erm, why they are not willing to support NCQ under Linux...I 
->>mean many 
->>people using NVIDIA based mainboards. And that against that what I 
->>thought NVidia stands for - Linux friendly but seems only that this 
->>statement fit on graficcards? Is there no "responsible" person that 
->>says...Hello, Linux is a growing market that we need to 
->>serve? With full 
->>driver/program support?
->>
->>    
->>
->
->Likely the only way nForce4 NCQ support could be added under Linux would
->be with a closed source binary driver, and no one really wants that,
->especially for storage / boot volume.
->
-Who won't have drivers for Linux? Who told you that..?
-It would be a start point if closed or not closed source but say never 
-ever as your mail suggest is not a way to go.Whats about Servers that 
-using NForce Based Chipsets and they need NCQ? Always saying not needed 
-or so hard to hand out specs..is the lazy way that a company like NVidia 
-shouldn't go.
-
->  We decided it wasn't worth the
->headache of a binary driver for this one feature.
->
-Yes,you Nvidia decide..what's about the costumer dosn't the costumer 
-option counts? It's the A and the O of costumer relationship.
-Holding up a possiblity is better than say: "Oh, the costumers buy our 
-hardware but have no right to use it at all."
-So I paid 120€ for a NVidia Nforce4 and 3 Mainboard..and what..I can't 
-use it correctly only in Windows?
-NVidia seems only interesseted in GPU market so they hand out a bit of 
-drivers...mh they are also closed source..so the argument you offered 
-aboved is senseless...because NVidia do so for quite a long time.
-
->  Future nForce
->chipsets will have a redesigned SATA controller where we can be more
->open about documenting it.
->
->-Allen
->
->  
->
-So this was the last piece of NVidia I bought...about 400 Workstation 
-..is not the worth.
-
-Michael
+He is RBJ, Richard B. Johnson, the LKML defacto official troll.
 
 -- 
-Michael Thonke
-IT-Systemintegrator /
-System- and Softwareanalyist
-
-
-
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

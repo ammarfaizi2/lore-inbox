@@ -1,28 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVHKIdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbVHKIlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbVHKIdx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 04:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVHKIdx
+	id S1030224AbVHKIlV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 04:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbVHKIlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 04:33:53 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:13160 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932300AbVHKIdw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 04:33:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=rGDjb+cNLt6w9y+DvnrGpdK+fUXfA7mH5VxW56RXLIy3xwP7lqe3h9CTMqwgc06ufFjRzSV6ogJtOB7aYX6zERs61NXoTXQ5+yexyGtMBE5L8sqCXAtimbRUwxEM61fawBUpHAVZwsoKa349+mkjU0NSLLC8i7qHkKdikfPxwDo=
-Message-ID: <6b5347dc05081101334c1a6e3c@mail.gmail.com>
-Date: Thu, 11 Aug 2005 16:33:51 +0800
-From: n l <walking.to.remember@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: why the interrupt handler should be marked "static" for it is never called directly from another file.
+	Thu, 11 Aug 2005 04:41:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35039 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030224AbVHKIlU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 04:41:20 -0400
+Date: Thu, 11 Aug 2005 16:46:45 +0800
+From: David Teigland <teigland@redhat.com>
+To: Michael <mikore.li@gmail.com>, linux-cluster@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GFS - updated patches
+Message-ID: <20050811084645.GD12438@redhat.com>
+References: <20050802071828.GA11217@redhat.com> <20050811081729.GB12438@redhat.com> <bc57270905081101217fdd4c5f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <bc57270905081101217fdd4c5f@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-could you explain its reason for using static ?
+On Thu, Aug 11, 2005 at 04:21:04PM +0800, Michael wrote:
+> I have the same question as I asked before, how can I see GFS in "make
+> menuconfig", after I patch gfs2-full.patch into a 2.6.12.2 kernel?
+
+You need to select the dlm under drivers.  It's in -mm, or apply
+  http://redhat.com/~teigland/dlm.patch
+

@@ -1,34 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVHKGRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVHKGTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbVHKGRr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 02:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbVHKGRr
+	id S932280AbVHKGTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 02:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbVHKGTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 02:17:47 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:36835 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932277AbVHKGRq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 02:17:46 -0400
-Date: Thu, 11 Aug 2005 08:17:28 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Grzegorz Piotr Jaskiewicz <gj@kde.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: oops in VMWARE vmnet, on 2.6.12.x
-In-Reply-To: <20050809164526.GA21622@infradead.org>
-Message-ID: <Pine.LNX.4.61.0508110815410.28320@yvahk01.tjqt.qr>
-References: <200508091744.33523@gj-laptop> <42F8D23D.3000505@vc.cvut.cz>
- <20050809164526.GA21622@infradead.org>
+	Thu, 11 Aug 2005 02:19:09 -0400
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:45473 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S932280AbVHKGTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 02:19:08 -0400
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Lee Revell <rlrevell@joe-job.com>
+Date: Thu, 11 Aug 2005 08:17:55 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+Cc: lkml <linux-kernel@vger.kernel.org>
+Message-ID: <42FB09B4.20901.48E239C@rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <1123727560.30850.1.camel@mindpipe>
+References: <1123726394.32531.33.camel@cog.beaverton.ibm.com>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=3.95.0+V=3.95+U=2.07.102+R=04 July 2005+T=107508@20050811.060458Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10 Aug 2005 at 22:32, Lee Revell wrote:
 
->Nothing in the tarball mentiones any opensource license.  If vmware is
->actually using an opensource license please tell them to mention that
->license and remove the propritary code markers.
+> On Wed, 2005-08-10 at 19:13 -0700, john stultz wrote:
+> > All,
+> > 	Here's the next rev in my rework of the current timekeeping subsystem.
+> > No major changes, only some cleanups and further splitting the larger
+> > patches into smaller ones.
+> 
+> Last I heard this made gettimeofday() 20% slower on x86.  Is this still
+> the case?
 
-It's not opensource, but "proprietary and S_IRUGO". Though, the world won't 
-fall down instantly if you change something [e.g. bugfix] and redistribute 
-(with all the copyright stuff intact, and for non-profit)
+If it's only 20% for an increase in resolution of 100000%, it's quite good ;-)
+
+Regards,
+Ulrich
+
+
+> 
+> Lee
+> 
+
+

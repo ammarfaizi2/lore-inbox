@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbVHKXhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbVHKXnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbVHKXhN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 19:37:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVHKXhM
+	id S1751111AbVHKXnl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 19:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVHKXnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 19:37:12 -0400
-Received: from zorg.st.net.au ([203.16.233.9]:36836 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S1751073AbVHKXhL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 19:37:11 -0400
-Message-ID: <42FBE124.30005@torque.net>
-Date: Fri, 12 Aug 2005 09:37:08 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Thu, 11 Aug 2005 19:43:41 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:9611 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751111AbVHKXnk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 19:43:40 -0400
+From: Grant Coady <Grant.Coady@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Via-Rhine NIC, Via SATA or reiserfs broken, how to tell??
+Date: Fri, 12 Aug 2005 09:43:31 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <54nnf1tv8722aq6med3mlr4mvg7nli0r09@4ax.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Subject: [Announce] sg3_utils-1.16 available
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Greetings,
 
-sg3_utils is a package of command line utilities for sending
-SCSI commands to devices. This package targets the lk 2.6 and
-lk 2.4 series. In the lk 2.6 series these utilities (except
-sgp_dd) can be used with any devices that support the SG_IO
-ioctl.
+Situation is dataloss with no errors logged.
 
-This version adds sg_ident to report and set device identifiers.
-It extends various device scanning utilities beyond 256 device
-and includes bug fixes and man page improvements. See CHANGELOG
-for more information.
+Test: unpack 2.6.12 tarball from NFS mount source, diff against 
+previous attempt:
 
-A tarball, rpm and deb can be found on (see table 2):
-http://www.torque.net/sg
-For an overview of sg3_utils see this page:
-http://www.torque.net/sg/u_index.html
-The sg_dd utility has its own page at:
-http://www.torque.net/sg/sg_dd.html
-A changelog can be found at:
-http://www.torque.net/sg/p/sg3_utils.CHANGELOG
+$ diff -Nrup linux-2.6.12.old linux-2.6.12
+Binary files linux-2.6.12.old/include/asm-sparc/a.out.h and linux-2.6.12/include/asm-sparc/a.out.h differ
+diff -Nrup linux-2.6.12.old/include/asm-sparc/apc.h linux-2.6.12/include/asm-sparc/apc.h
+--- linux-2.6.12.old/include/asm-sparc/apc.h    2005-06-18 05:48:29.000000000 +1000
++++ linux-2.6.12/include/asm-sparc/apc.h        2005-06-18 05:48:29.000000000 +1000
+@@ -31,7 +31,7 @@
+ #define APC_BPORT_REG  0x30
 
-A release announcement has been sent to freshmeat.net .
+ #define APC_REGMASK            0x01
+-define APC_BPMASK              0x03
++#define APC_BPMASK             0x03
 
-Doug Gilbert
+ /*
+  * IDLE - CPU standby values (set to initiate standby)
+diff -Nrup linux-2.6.12.old/include/asm-sparc/svr4.h linux-2.6.12/include/asm-sparc/svr4.h
+--- linux-2.6.12.old/include/asm-sparc/svr4.h   2005-06-18 05:48:29.000000000 +1000
++++ linux-2.6.12/include/asm-sparc/svr4.h       2005-06-18 05:48:29.000000000 +1000
+@@ -15,7 +15,7 @@ typedef struct {                /* signa
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+ /* Values for siginfo.code */
+ #define SVR4_SINOINFO 32767
+-/* Siginfo, sucker expects bunch of information on those paramEters */
++/* Siginfo, sucker expects bunch of information on those parameters */
+ typedef union {
+        char total_size [128];
+        struct {
 
-iD8DBQFC++Eknayo+9E+FQIRAgQSAKCL7EirWTNuvvF3uqdN4OgnQr2bdwCdE/gY
-sq8wzUyPkd/vPr1Xc8+T+Es=
-=NU4B
------END PGP SIGNATURE-----
+
+Seems like three bit errors for source tree.  Other times I've noted 
+compile failures where unpacking source tree fresh would 'fix' error.
+I'd previously assumed that I accidentally killed source tree with 
+'cp -al ...' copies but I've had a segfault on that operation, hence 
+I do not know if this be NIC or filesystem (reiserfs on via SATA).
+
+
+Today disabled onboard via-rhine and used Intel pro/100 + e100 driver, 
+several source trees unpacked identically, running 2.6.12.4 or 2.4.31-hf3
+
+The fault occurs on 2.4 latest or 2.6 latest only on particular target 
+box, so problem is not the NFS server.
+
+How to test and isolate this error is in NIC driver, SATA driver or 
+filesystem?  
+
+Thanks,
+Grant.
+

@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbVHKVgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVHKVgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbVHKVgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 17:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVHKVgQ
+	id S932211AbVHKVgd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 17:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbVHKVgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 17:36:16 -0400
-Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:10253 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932163AbVHKVgP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 17:36:15 -0400
-Date: Thu, 11 Aug 2005 23:36:49 +0200
-From: Jean Delvare <khali@linux-fr.org>
+	Thu, 11 Aug 2005 17:36:33 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:22409 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932211AbVHKVgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 17:36:32 -0400
+Subject: [question] What's the difference between /dev/kmem and /dev/mem
+From: Steven Rostedt <rostedt@goodmis.org>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] (2/7) I2C: Kill i2c_algorithm.id
-Message-Id: <20050811233649.472cfa05.khali@linux-fr.org>
-In-Reply-To: <20050811231828.3e7f5837.khali@linux-fr.org>
-References: <20050811231828.3e7f5837.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 11 Aug 2005 17:36:28 -0400
+Message-Id: <1123796188.17269.127.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the adapter id rather than the algorithm id to detect the i2c-isa
-pseudo-adapter. This saves one level of dereferencing, and the
-algorithm ids will soon be gone anyway.
+OK, I thought I use to know this. But what is the difference
+between /dev/kmem and /dev/mem.  I thought that with /dev/kmem you could
+use the actual kernel addresses to read from. 
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+For example, if I wanted to read the current variable X in the kernel, I
+could look up the address of X in System.map, then mmaping to /dev/kmem
+I could get to that variable using the address that I got from
+System.map.  But this doesn't seem to work.
 
- drivers/i2c/busses/i2c-isa.c |    1 +
- include/linux/i2c-isa.h      |    6 +++---
- 2 files changed, 4 insertions(+), 3 deletions(-)
+I'm getting an IO error on read. And looking at this I see:
 
---- linux-2.6.13-rc5.orig/drivers/i2c/busses/i2c-isa.c	2005-08-02 20:30:04.000000000 +0200
-+++ linux-2.6.13-rc5/drivers/i2c/busses/i2c-isa.c	2005-08-02 20:30:24.000000000 +0200
-@@ -50,6 +50,7 @@
- /* There can only be one... */
- static struct i2c_adapter isa_adapter = {
- 	.owner		= THIS_MODULE,
-+	.id		= I2C_ALGO_ISA | I2C_HW_ISA,
- 	.class          = I2C_CLASS_HWMON,
- 	.algo		= &isa_algorithm,
- 	.name		= "ISA main adapter",
---- linux-2.6.13-rc5.orig/include/linux/i2c-isa.h	2005-08-02 20:30:04.000000000 +0200
-+++ linux-2.6.13-rc5/include/linux/i2c-isa.h	2005-08-02 20:30:24.000000000 +0200
-@@ -28,9 +28,9 @@
- 
- /* Detect whether we are on the isa bus. This is only useful to hybrid
-    (i2c+isa) drivers. */
--#define i2c_is_isa_client(clientptr) \
--        ((clientptr)->adapter->algo->id == I2C_ALGO_ISA)
- #define i2c_is_isa_adapter(adapptr) \
--        ((adapptr)->algo->id == I2C_ALGO_ISA)
-+        ((adapptr)->id == (I2C_ALGO_ISA | I2C_HW_ISA))
-+#define i2c_is_isa_client(clientptr) \
-+        i2c_is_isa_adapter((clientptr)->adapter)
- 
- #endif /* _LINUX_I2C_ISA_H */
 
--- 
-Jean Delvare
+static int mmap_kmem(struct file * file, struct vm_area_struct * vma)
+{
+        unsigned long long val;
+	/*
+	 * RED-PEN: on some architectures there is more mapped memory
+	 * than available in mem_map which pfn_valid checks
+	 * for. Perhaps should add a new macro here.
+	 *
+	 * RED-PEN: vmalloc is not supported right now.
+	 */
+	if (!pfn_valid(vma->vm_pgoff))
+		return -EIO;
+	val = (u64)vma->vm_pgoff << PAGE_SHIFT;
+	vma->vm_pgoff = __pa(val) >> PAGE_SHIFT;
+	return mmap_mem(file, vma);
+}
+
+I printed out the value in vma->vm_pgoff, and it still has the
+0xc0000000 (but shifted >> 12). Isn't this suppose to also remove the
+0xc?  Or am I just totally off here? 
+
+Thanks,
+
+-- Steve
+
+
+

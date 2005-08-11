@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVHKPeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVHKPin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbVHKPeX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 11:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVHKPeX
+	id S1751097AbVHKPin (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 11:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVHKPin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 11:34:23 -0400
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:27370 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751098AbVHKPeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 11:34:22 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Subject: Re: 2.6.13-rc4-mm1: Divide by zero in find_idlest_group
-Date: Fri, 12 Aug 2005 01:27:39 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <1123773675.9252.11.camel@kleikamp.austin.ibm.com>
-In-Reply-To: <1123773675.9252.11.camel@kleikamp.austin.ibm.com>
+	Thu, 11 Aug 2005 11:38:43 -0400
+Received: from kirby.webscope.com ([204.141.84.57]:28877 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S1751097AbVHKPim
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 11:38:42 -0400
+Message-ID: <42FB70EE.6010907@m1k.net>
+Date: Thu, 11 Aug 2005 11:38:22 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
+To: Gene Heskett <gene.heskett@verizon.net>
+CC: linux-kernel@vger.kernel.org,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: cx88 teletext not yet implemented -was- Re: Linux-2.6.13-rc6: aic7xxx
+ testers please..
+References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org> <20050811064217.GB21395@titan.lahn.de> <E1E3CJE-0001NJ-PH@allen.werkleitz.de> <200508111051.01067.gene.heskett@verizon.net>
+In-Reply-To: <200508111051.01067.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508120127.39436.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Aug 2005 01:21 am, Dave Kleikamp wrote:
-> I encounted this trap on a 2-way i386 box running 2.6.13-rc4-mm1:
->
-> [70347.743727] divide error: 0000 [#2]
-> [70347.752979] PREEMPT SMP DEBUG_PAGEALLOC
-> [70347.773060] last sysfs file: /devices/pnp0/00:11/id
->
-> Program received signal SIGTRAP, Trace/breakpoint trap.
-> 0xc0119556 in find_idlest_group (sd=0xc1084dc0, p=0xc3b96030, this_cpu=0)
->     at sched.c:1033
-> 1033                    target_load = target_load * rq->prio_bias /
-> rq->nr_running;
->
-> (gdb) where
-> #0  0xc0119556 in find_idlest_group (sd=0xc1084dc0, p=0xc3b96030,
-> this_cpu=0) at sched.c:1033
-> #1  0xc0119744 in sched_balance_self (cpu=0, flag=4) at sched.c:1151
-> #2  0xc011a63f in sched_exec () at sched.c:1840
-> #3  0xc016cacb in do_execve (filename=0xc3e35000 "/bin/sh",
-> argv=0xbfff512c, envp=0xbfff6010, regs=0xa00) at exec.c:1162
-> #4  0xc0101b5a in sys_execve (regs=
->       {ebx = -1208173323, ecx = -1073786580, edx = -1073782768, esi =
-> -1073782768, edi = -1208107392, ebp = -1073786620, eax = 11, xds = 123, xes
-> = -1072693125, orig_eax = 11, eip = -1208664822, xcs = 115, eflags = 658,
-> esp = -1073786628, xss = 123}) at process.c:787 #5  0xc0102fdd in
-> syscall_call () at current.h:9
-> #6  0xb7fcbcf5 in ?? ()
->
-> print *(struct runqueue *)0xc108c400
-> $1 = {lock = {raw_lock = {slock = 1}, break_lock = 0}, nr_running = 0,
->   prio_bias = 0, cpu_load = {0, 0, 0}, nr_switches = 8877527,
->   nr_uninterruptible = 132930, expired_timestamp = 0,
->   timestamp_last_tick = 70347783539837, curr = 0xc1103550, idle =
-> 0xc1103550, prev_mm = 0x0, active = 0xc108c8c0, expired = 0xc108c448,
-> arrays = {{ nr_active = 0, bitmap = {0, 0, 0, 0, 4096}, queue = {{next =
-> 0xc108c460, prev = 0xc108c460}, {next = 0xc108c468, prev = 0xc108c468}, {
-> next = 0xc108c470, prev = 0xc108c470}, {next = 0xc108c478, prev =
-> 0xc108c478}, {next = 0xc108c480, prev = 0xc108c480}, { next = 0xc108c488,
-> prev = 0xc108c488}, {next = 0xc108c490,
->
-> in __source_load, it looks like rq_nr_running must have changed between
-> the if statement and the divide:
->
->         if (rq->nr_running > 1 || (idle == NOT_IDLE && rq->nr_running))
->                 /*
->                  * If we are busy rebalancing the load is biased by
->                  * priority to create 'nice' support across cpus. When
->                  * idle rebalancing we should only bias the source_load if
->                  * there is more than one task running on that queue to
->                  * prevent idle rebalance from trying to pull tasks from a
->                  * queue with only one running task.
->                  */
->                 source_load = source_load * rq->prio_bias / rq->nr_running;
->
-> Should there be any locking around this?  Or should the value of
-> rq->nr_running be saved to a local variable as in this untested patch?
+Gene Heskett wrote:
 
-Very sneaky..
+>I can also report that teletext decoding has ceased to work
+>here.  But I'm not sure what kernel version killed it.  Currently
+>running 2.6.13-rc6.  But my card is cx88 based, a pcHDTV-3000.  But
+>attempting to switch it on/off doesn't seem to generate any output
+>indicating it failed, it just Doesn't Work(TM)
+>
+Gene-
 
-On initial inspection your patch makes complete sense. I see no point in 
-adding locking to this function as the accuracy is not critical. Want to give 
-your patch a run and then push it to akpm? Thanks!
+By teletext, I assume you are referring to closed captions.  Are you 
+sure that closed captions EVER worked for you on a cx88-based card?  
+AFAIK, this feature has not yet been implemented.  I am not at home now, 
+so I cannot try it, however, IIRC, closed captions is implemented in 
+bttv, and not yet in cx88.
+
+This is a v4l issue, not a dvb issue, however, it is NOT an issue.  This 
+is not a regression, because the feature has not yet been implemented.
+
+Gene, if I am wrong, (this is possible) then please provide the last 
+kernel version that had this feature correctly implemented.  I don't 
+think that I am wrong, though.  Please investigate this and confirm that 
+this is an actual regression or not.
 
 Cheers,
-Con
+
+-- 
+Michael Krufky
+
+

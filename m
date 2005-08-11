@@ -1,168 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVHKV2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVHKVbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbVHKV2e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 17:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbVHKV2e
+	id S1750989AbVHKVbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 17:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbVHKVbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 17:28:34 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:60668 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750986AbVHKV2d
+	Thu, 11 Aug 2005 17:31:09 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:45864 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750989AbVHKVbI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 17:28:33 -0400
-Date: Thu, 11 Aug 2005 16:26:15 -0500
-From: serue@us.ibm.com
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>
-Subject: [PATCH] [LSM - stacker] implement stacker_inode_init_security
-Message-ID: <20050811212615.GE28004@serge.austin.ibm.com>
+	Thu, 11 Aug 2005 17:31:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RI5QXXYls+98aKZCAzF1xqHe7Lgl1tVVCbw/9n8NVhuyKDnSAdsOOPX/nAN20PiN5x1I42dIBSHnCCkbnPMiFlEI4db+Z8RTEW3JM5aDNVxN8cTxgCKg/XIYyVp2dKBJ8aLnbe5D5kyrFp/70lDvdsS5LAAyvMkTRViOJWzfKgg=
+Message-ID: <29495f1d05081114312e3dc2fa@mail.gmail.com>
+Date: Thu, 11 Aug 2005 14:31:07 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: "John M. King" <jmking1@uiuc.edu>
+Subject: Re: Possible race in sound/oss/forte.c ?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42FB8522.7080605@uiuc.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+References: <42FB8522.7080605@uiuc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements the inode_init_security hook in stacker.
+On 8/11/05, John M. King <jmking1@uiuc.edu> wrote:
+> I know the OSS drivers are deprecated, but I'm trying to figure this out
+> for my own understanding.
+> 
+> Here's code from sound/oss/forte.c, in the write system call handler.  A
+> test has already been performed (under the protection of the lock) and
+> the driver has decided to sleep.
+> 
+>     add_wait_queue (&channel->wait, &wait);
+> 
+>     for (;;) {
+>         spin_unlock_irqrestore (&chip->lock, flags);
+> 
+>         set_current_state (TASK_INTERRUPTIBLE);
+>         schedule();
+> 
+>         spin_lock_irqsave (&chip->lock, flags);
+> 
+>         if (channel->frag_num - channel->filled_frags)
+>             break;
+>     }
+> 
+>     remove_wait_queue (&channel->wait, &wait);
+>     set_current_state (TASK_RUNNING);
+> 
+> The driver's interrupt handler calls wake_up_all().  What if an
+> interrupt occurs just after the spin_unlock_irqrestore() but before
+> setting TASK_INTERRUPTIBLE (and the interrupt handler does stuff that
+> causes the tested conditional to be true as well)?  The interrupt calls
+> wake_up_all(), but then when control returns here, the process will mark
+> itself TASK_INTERRUPTIBLE right away and sleep, effectively missing the
+> wake_up_all().
+> 
+> Is this a race condition?  If not, can someone point out the error(s) in
+> my reasoning?  Please CC me as I'm not subscribed to the list.
 
-With this patch, stacker passes the test program which Stephen sent out
-on July 5.  (Without it it does not)
+This is broken code. You are supposed to set the state before adding
+oneself to the wait-queue, if you are going to unconditionally sleep,
+I believe.
 
-thanks,
--serge
+So, the loop probably should be:
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
---
- stacker.c |  112 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 112 insertions(+)
+prepare_to_wait(&channel->wait, &wait, TASK_INTERRUPTIBLE);
 
-Index: linux-2.6.13-rc5-mm1/security/stacker.c
-===================================================================
---- linux-2.6.13-rc5-mm1.orig/security/stacker.c	2005-08-11 18:57:05.000000000 -0500
-+++ linux-2.6.13-rc5-mm1/security/stacker.c	2005-08-11 19:08:18.000000000 -0500
-@@ -443,6 +443,117 @@ static void stacker_inode_free_security 
- 		security_disown_value(h);
- }
+for (;;) {
+         spin_unlock_irqrestore (&chip->lock, flags);
  
-+/*
-+ * this will only be called if *name or *value in inode_init_security
-+ * is > 500.  Don't really expect that to ever happen.
-+ */
-+static int increase_bufsize(char **b1, char **b2, size_t *len)
-+{
-+	char *newb1;
-+	char *newb2;
-+	size_t newlen;
-+
-+	newlen = *len + 500;
-+
-+	newb1 = kmalloc(newlen, GFP_KERNEL);
-+	if (!newb1)
-+		return -ENOMEM;
-+
-+	newb2 = kmalloc(newlen, GFP_KERNEL);
-+	if (!newb2) {
-+		kfree(newb1);
-+		return -ENOMEM;
-+	}
-+
-+	strncpy(newb1, *b1, *len);
-+	strncpy(newb2, *b2, *len);
-+
-+	kfree(*b1);
-+	*b1 = newb1;
-+	kfree(*b2);
-+	*b2 = newb2;
-+	*len = newlen;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Called by fs code to query LSMs for initial security xattr values.
-+ * Stacker will query all LSMs.  Return values of -EOPNOTSUPP are
-+ * ignored.  Other errors will result in returning no value, and returning
-+ * the error.  If no LSMs return a real error, and at least one LSM returns
-+ * 0, then all values will be concatenated.  The length will be the total
-+ * length of all values, and **value will contain the \0-separated list
-+ * of values.
-+ */
-+static int stacker_inode_init_security(struct inode *inode, struct inode *dir,
-+				       char **name, void **value,
-+				       size_t *len)
-+{
-+	char *retn; /* hold the return values from LSMs */
-+	char *retv; /* hold the return values from LSMs */
-+	char *valuep = NULL;
-+	size_t retlen;	   /* hold retunred length from LSMs */
-+	int ret = -EOPNOTSUPP;
-+	size_t maxsize = 500;
-+	int curn = 0, tmpn; /* current size of *name */
-+	struct module_entry *m;
-+	size_t plen = 0;
-+
-+	if (name)
-+		*name = kmalloc(maxsize, GFP_KERNEL);
-+	if (value)
-+		valuep = kmalloc(maxsize, GFP_KERNEL);
-+	rcu_read_lock();
-+	stack_for_each_entry(m, &stacked_modules, lsm_list) {
-+		if (!m->module_operations.inode_init_security)
-+			continue;
-+		rcu_read_unlock();
-+		ret = m->module_operations.inode_init_security(inode, dir,
-+				&retn, (void **)&retv, &retlen);
-+		rcu_read_lock();
-+		if (ret < 0 && ret != -EOPNOTSUPP)
-+			break;
-+		tmpn = strlen(retn);
-+		while (plen+retlen+1 > maxsize || tmpn+curn > maxsize) {
-+			if (increase_bufsize(&retn, &retv, &maxsize)<0) {
-+				kfree(retn);
-+				kfree(retv);
-+				if (name) kfree(*name);
-+				kfree(valuep);
-+				ret = -ENOMEM;
-+				goto out;
-+			}
-+		}
-+
-+		if (name) {
-+			/* name must already be \0-terminated */
-+			strcpy(*name+curn, retn);
-+			curn += tmpn;
-+		}
-+
-+		if (valuep) {
-+			/* value may not be \0-terminated */
-+			strncpy(valuep+plen, retv, retlen);
-+			plen += retlen;
-+			(valuep)[plen] = '\0';
-+			plen++;
-+		}
-+
-+		kfree(retn);
-+		kfree(retv);
-+	}
-+out:
-+	rcu_read_unlock();
-+
-+	if (value && len) {
-+		*value = valuep;
-+		*len = plen;
-+	}
-+
-+	return ret;
-+}
-+
- static int stacker_inode_create (struct inode *inode, struct dentry *dentry,
- 			       int mask)
- {
-@@ -1315,6 +1426,7 @@ static struct security_operations stacke
+         set_current_state (TASK_INTERRUPTIBLE); // redundant in the
+first iteration
+         schedule();
  
- 	.inode_alloc_security		= stacker_inode_alloc_security,
- 	.inode_free_security		= stacker_inode_free_security,
-+	.inode_init_security		= stacker_inode_init_security,
- 	.inode_create			= stacker_inode_create,
- 	.inode_link			= stacker_inode_link,
- 	.inode_unlink			= stacker_inode_unlink,
+         spin_lock_irqsave (&chip->lock, flags);
+ 
+         if (channel->frag_num - channel->filled_frags)
+             break;
+}
+ 
+finish_wait(&channel->wait, &wait);
+
+Thanks,
+Nish

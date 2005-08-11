@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbVHKXoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbVHKXse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbVHKXoI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 19:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVHKXoI
+	id S1751073AbVHKXse (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 19:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVHKXse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 19:44:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35475 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751116AbVHKXoH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 19:44:07 -0400
-Date: Thu, 11 Aug 2005 16:43:43 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [patch 3/8] [PATCH] x86_64: Fixing smpboot timing problem
-Message-ID: <20050811234343.GF7762@shell0.pdx.osdl.net>
-References: <20050811225445.404816000@localhost.localdomain> <20050811225609.058881000@localhost.localdomain> <20050811233302.GA8974@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050811233302.GA8974@wotan.suse.de>
-User-Agent: Mutt/1.5.6i
+	Thu, 11 Aug 2005 19:48:34 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:49873 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751073AbVHKXsd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 19:48:33 -0400
+Date: Thu, 11 Aug 2005 17:21:24 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Is it possible to control C.O.P
+In-reply-to: <4AfFW-xN-5@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42FBDD74.1010608@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4AfFW-xN-5@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen (ak@suse.de) wrote:
-> >  static void __cpuinit tsc_sync_wait(void)
-> >  {
-> >  	if (notscsync || !cpu_has_tsc)
-> >  		return;
-> > -	printk(KERN_INFO "CPU %d: Syncing TSC to CPU %u.\n", smp_processor_id(),
-> > -			boot_cpu_id);
-> > -	sync_tsc();
-> > +	sync_tsc(boot_cpu_id);
+Luigi Genoni wrote:
+> HI,
+> there is a way that the kernel could cope with CPU Overheating Protection?
 > 
-> I actually found a bug in this today. This should be sync_tsc(0), not sync_tsc(boot_cpu_id)
-> Can you just fix it in your tree or should I submit a new patch? 
+> I am usng a Tyan MPX with Dual AthlonMP, but COP is configured to shutdown
+> the system toot early, when the temparature is still low.
 
-I'll fix it locally.  Thanks for the heads-up.
--chris
+I'm guessing this is controlled by the BIOS and handled by hardware, so 
+I don't know that there's much the kernel can do about it. Is there a 
+threshold temperature setting in the BIOS?
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

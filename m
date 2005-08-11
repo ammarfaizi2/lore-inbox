@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVHKRSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbVHKRVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVHKRSb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 13:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVHKRSa
+	id S1751134AbVHKRVH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 13:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVHKRVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 13:18:30 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:17875 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751133AbVHKRS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 13:18:29 -0400
-Subject: Re: Need help in understanding x86 syscall
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>, 7eggert@gmx.de,
-       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <2cd57c9005081109597b18cc54@mail.gmail.com>
-References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
-	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
-	 <1123770661.17269.59.camel@localhost.localdomain>
-	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
-	 <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
-	 <1123775508.17269.64.camel@localhost.localdomain>
-	 <1123777184.17269.67.camel@localhost.localdomain>
-	 <2cd57c90050811093112a57982@mail.gmail.com>
-	 <2cd57c9005081109597b18cc54@mail.gmail.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 11 Aug 2005 13:18:01 -0400
-Message-Id: <1123780681.17269.71.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 11 Aug 2005 13:21:07 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:62374 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751134AbVHKRVG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 13:21:06 -0400
+Message-ID: <42FB88F8.7040807@pobox.com>
+Date: Thu, 11 Aug 2005 13:20:56 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Thonke <iogl64nx@gmail.com>
+CC: Lee Revell <rlrevell@joe-job.com>, lgb@lgb.hu,
+       Allen Martin <AMartin@nvidia.com>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
+References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com>	 <20050811070943.GB8025@vega.lgb.hu> <1123765523.32375.10.camel@mindpipe> <42FB6C27.1010408@gmail.com>
+In-Reply-To: <42FB6C27.1010408@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-12 at 00:59 +0800, Coywolf Qi Hunt wrote:
-> On 8/12/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
-> > On 8/12/05, Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> > > flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+Michael Thonke wrote:
+> There is no other way to use a nearly good chipset for AMD64 cpus.
+> Via's chipsets are really buggy not acceptable, so what else ULi/Ali who 
+> cares where to buy?
 
-> > The cpu does have sep. Is it vanilla kernel?
-> > 
 
-It's vanilla 2.6.12-rc3 + Ingo's RT V0.7.46-02-rs-0.4 + some of my own
-customizations.  But I never touched the sysentry stuff and with a few
-printks I see it is being initialized.
+What specifically does not work, on VIA+AMD64 combination, under Linux?
 
-> 
-> Also glibc support.
-> 
+My Athlon64 with VIA chipset works great.
 
-I'm using Debian unstable with a recent (last week) update.
-
--- Steve
+	Jeff
 
 

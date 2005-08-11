@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbVHKOHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVHKOJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbVHKOHU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 10:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVHKOHU
+	id S1750786AbVHKOJP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 10:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVHKOJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 10:07:20 -0400
-Received: from gold.veritas.com ([143.127.12.110]:28842 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750719AbVHKOHR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 10:07:17 -0400
-Date: Thu, 11 Aug 2005 15:09:09 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: coywolf@lovecn.org
-cc: Andrew Morton <akpm@osdl.org>, Magnus Damm <magnus.damm@gmail.com>,
-       mel@csn.ul.ie, linux-kernel@vger.kernel.org
-Subject: Re: How to reclaim inode pages on demand
-In-Reply-To: <2cd57c900508110209de388f2@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0508111508030.11118@goblin.wat.veritas.com>
-References: <Pine.LNX.4.58.0508081650160.26013@skynet> 
- <20050808160844.04d1f7ac.akpm@osdl.org>  <Pine.LNX.4.58.0508101730441.11984@skynet>
-  <20050810101714.147e1333.akpm@osdl.org>  <aec7e5c30508102008b739a6c@mail.gmail.com>
-  <20050811144441.54b6ef4a.akpm@osdl.org> <2cd57c900508110209de388f2@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 11 Aug 2005 14:07:15.0509 (UTC) FILETIME=[FA2A1650:01C59E7D]
+	Thu, 11 Aug 2005 10:09:15 -0400
+Received: from [194.90.237.34] ([194.90.237.34]:64200 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP
+	id S1750765AbVHKOJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 10:09:14 -0400
+Date: Thu, 11 Aug 2005 17:11:43 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Gleb Natapov <glebn@voltaire.com>, Roland Dreier <roland@topspin.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH repost] PROT_DONTCOPY: ifiniband uverbs fork support
+Message-ID: <20050811141143.GB19686@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20050725171928.GC12206@mellanox.co.il> <Pine.LNX.4.61.0507261312460.16985@goblin.wat.veritas.com> <20050726133553.GA22276@mellanox.co.il> <Pine.LNX.4.61.0508091759050.14886@goblin.wat.veritas.com> <20050810083943.GM16361@minantech.com> <Pine.LNX.4.61.0508101412530.3153@goblin.wat.veritas.com> <20050810132611.GP16361@minantech.com> <Pine.LNX.4.61.0508101623480.4525@goblin.wat.veritas.com> <20050811080205.GR16361@minantech.com> <Pine.LNX.4.61.0508111446030.10888@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0508111446030.10888@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Aug 2005, Coywolf Qi Hunt wrote:
+Quoting r. Hugh Dickins <hugh@veritas.com>:
+> Subject: Re: [openib-general] Re: [PATCH repost] PROT_DONTCOPY: ifiniband uverbs fork support
 > 
-> at http://sosdg.org/~coywolf/lxr/source/include/linux/mm.h#L561
-> Should the comment be s/page_mapped/page->mapping/ ?
+> On Thu, 11 Aug 2005, Gleb Natapov wrote:
+> > What about the idea that was floating around about new VM flag that will
+> > instruct kernel to copy pages belonging to the vma on fork instead of mark
+> > them as cow?
+> 
+> It's a pretty good idea, and thanks for reminding us of it.
+> 
+> It suffers from the general difficulty with fixes within get_user_pages,
+> that we need down_write(&mm->mmap_sem) to split_vma, and even just to
+> update vm_flags, whereas get_user_pages is entered with down_read.
 
-No.
+No, the idea is to let the application (or a library that it loades)
+change this flag by means of some system call.
+Something like MADV_COPYONFORK, in addition to MADV_DONTCOPY.
+
+
+-- 
+MST

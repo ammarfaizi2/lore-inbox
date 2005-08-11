@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbVHKXIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVHKX0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932549AbVHKXIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 19:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbVHKXIZ
+	id S932495AbVHKX0H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 19:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVHKX0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 19:08:25 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:25528 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S932539AbVHKXIX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 19:08:23 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
-Date: Thu, 11 Aug 2005 17:07:30 -0600
-User-Agent: KMail/1.8.1
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-ia64@vger.kernel.org,
-       Tony Luck <tony.luck@intel.com>
-References: <200508111424.43150.bjorn.helgaas@hp.com> <20050811214807.GA9775@havoc.gtf.org> <42FBC985.4030602@pobox.com>
-In-Reply-To: <42FBC985.4030602@pobox.com>
+	Thu, 11 Aug 2005 19:26:07 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:50138 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932495AbVHKX0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 19:26:04 -0400
+Date: Fri, 12 Aug 2005 01:25:56 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org, Ukil a <ukil_a@yahoo.com>
+Subject: Re: Need help in understanding  x86  syscall
+In-Reply-To: <1123769139.17269.50.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0508111652440.3191@be1.lrz>
+References: <4Ae73-6Mm-5@gated-at.bofh.it>  <E1E3DJm-0000jy-0B@be1.lrz>
+ <1123769139.17269.50.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508111707.30861.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 August 2005 3:56 pm, Jeff Garzik wrote:
-> Jeff Garzik wrote:
-> > 00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE Controller 
-> > (rev 02) (prog-if 8a [Master SecP PriP])
-> >         Subsystem: Hewlett-Packard Company d530 CMT (DG746A)
-> >         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Step
-> > ping- SERR- FastB2B-
-> >         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort
-> > - <MAbort- >SERR- <PERR-
-> >         Latency: 0
-> >         Interrupt: pin A routed to IRQ 169
-> >         Region 0: I/O ports at <ignored>
-> >         Region 1: I/O ports at <ignored>
-> >         Region 2: I/O ports at <ignored>
-> >         Region 3: I/O ports at <ignored>
-> >         Region 4: I/O ports at 14c0 [size=16]
-> >         Region 5: Memory at 40000000 (32-bit, non-prefetchable) [size=1K]
-> > 
-> > Trust me, IDE on PCI is still quite weird.
+On Thu, 11 Aug 2005, Steven Rostedt wrote:
+> On Thu, 2005-08-11 at 15:41 +0200, Bodo Eggert wrote:
+
+> > According to my documentation it isn't. A software interrupt is a far call
+> > with an extra pushf, and a hardware interrupt is protected against recursion
+> > by the PIC, not by an interrupt flag.
 > 
-> The above configuration also indicates that the IRQs for the PCI device 
-> are 14 and 15, _not_ 169.
+> I disagree with your definition of a system call.  The "int 0x80"
+> changes from user mode to kernel mode so it is much more powerful than a
+> "far call".
 
-You deduce this by the absence of SecO and PriO?  I wonder if lspci
-should be enhanced to notice this, too.  I assume that the IRQ 169
-doesn't correspond to anything in /proc/interrupts.
+Far calls and jumps can change to a inner ring. This is done by a special
+segment selector containing the segment _and_ the offset to jump to (the
+offset from the call instruction is ignored).
 
-So the scenario in question (correct me if I'm wrong) is that we
-have a PCI IDE device that is handed off in compatibility mode (and
-may only work in that mode).  In that case, the PCI *device* still
-exists, so shouldn't the IDE PCI code claim that device, notice that
-it's in compatibility mode, and use the legacy ports and IRQs if
-necessary?
+>  Also the CPU does protect against recursion and more than
+> one interrupt coming in at the same time. The PIC also works with the
+> CPU in this regard, but as I shown in my previous email, the interrupt
+> flag _does_ protect against it.
 
-It seems like that all should work even if we don't have IDE_GENERIC.
+Showing == claiming? However, my documentation was wrong.
+
+http://www.baldwin.cx/386htm/INT.htm
+-- 
+Top 100 things you don't want the sysadmin to say:
+99. Shit!!

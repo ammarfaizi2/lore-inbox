@@ -1,102 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVHKQ5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVHKQ77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbVHKQ5t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 12:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVHKQ5t
+	id S1751096AbVHKQ77 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 12:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVHKQ77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 12:57:49 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:24711 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751125AbVHKQ5s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 12:57:48 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Bolke de Bruin <bdbruin@aub.nl>
-Subject: Re: Kernel 2.6.5 - Compaq Fibre Channel 64-bit/66Mhz HBA
-Date: Thu, 11 Aug 2005 18:58:38 +0200
-User-Agent: KMail/1.8.2
-References: <42FB72DE.8000703@aub.nl> <200508111819.45325@bilbo.math.uni-mannheim.de> <42FB7FC2.10405@aub.nl>
-In-Reply-To: <42FB7FC2.10405@aub.nl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2568067.pnqs2RUrGK";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508111858.45153@bilbo.math.uni-mannheim.de>
+	Thu, 11 Aug 2005 12:59:59 -0400
+Received: from nproxy.gmail.com ([64.233.182.200]:41089 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751096AbVHKQ76 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 12:59:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=f4YkACoNL9p5Vcn1GdX5zzS8UMfOx+YAX3MFKLdnjtzkfCzXCl8OhAkhZbaJsJsH3IMFc13K3RRFL8gp8Mvwt/M5RdUQXGJRmvCKbdTYsI6TvYXRTMzdxXjWOQz/oLsdSfN4nIPB5cbaZnZPSHxj+glOHNdaXP7TSml8HSK0qVs=
+Message-ID: <2cd57c9005081109597b18cc54@mail.gmail.com>
+Date: Fri, 12 Aug 2005 00:59:55 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: Need help in understanding x86 syscall
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>, 7eggert@gmx.de,
+       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <2cd57c90050811093112a57982@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
+	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
+	 <1123770661.17269.59.camel@localhost.localdomain>
+	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
+	 <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
+	 <1123775508.17269.64.camel@localhost.localdomain>
+	 <1123777184.17269.67.camel@localhost.localdomain>
+	 <2cd57c90050811093112a57982@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2568067.pnqs2RUrGK
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 8/12/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+> On 8/12/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> > On Thu, 2005-08-11 at 11:51 -0400, Steven Rostedt wrote:
+> > >
+> > > And booted it.  The system is up and running, so I really don't think
+> > > that the sysenter_entry is used for system calls.
+> > >
+> > > Not so "Clear as day"!
+> >
+> > And so, looking into sysenter_entry, it seems that my configurations
+> > don't seem to use it. This jumps straight to system_call without ever
+> > having to turn interrupts on.
+> >
+> > # cat /proc/cpuinfo
+> > processor       : 0
+> > vendor_id       : GenuineIntel
+> > cpu family      : 6
+> > model           : 8
+> > model name      : Pentium III (Coppermine)
+> > stepping        : 3
+> > cpu MHz         : 367.939
+> > cache size      : 256 KB
+> > fdiv_bug        : no
+> > hlt_bug         : no
+> > f00f_bug        : no
+> > coma_bug        : no
+> > fpu             : yes
+> > fpu_exception   : yes
+> > cpuid level     : 2
+> > wp              : yes
+> > flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+> > mca cmov pat pse36 mmx fxsr sse
+> > bogomips        : 722.94
+> >
+> >
+> > -- Steve
+> >
+> 
+> The cpu does have sep. Is it vanilla kernel?
+> 
 
-Am Donnerstag, 11. August 2005 18:41 schrieben Sie:
->>arrays allocated by the driver eat 2kB each, so a stack overflow is very
->>likely. Even with 8kB stack it is still not impossible. Using the version
->>from 2.6.5 will not be a very good idea I think, it's likely to crash your
->>machine one day.
->>
->:-(
->:
->>The right solution would be fixing the driver to use kmalloc()/kfree() wh=
-en
->> he really needs the memory. There was a patch only a few days ago that
->> tried to do that, but it was not really well done and would have crashed.
->> If you are really interested in I can do such a patch. The code of this
->> driver sucks universes through nanotubes, but one day someone _will_ have
->> to start cleaning this up.
->
->Define: really interested
->
->So, probably we are really interested. Though there are a couple of caveat=
-s:
->
->- Testing can be done only very limited. We have only one raid array
->available and it is in production
+Also glibc support.
 
-If whatever I do will go wrong you'll see it very fast. Then you can't rece=
-ive=20
-data ;)
-
->- Servers are not in yet, but will been in the next couple of weeks
->- As Arjan noted the kernel will be "some vendor 2.6.5". More precisely
->sles9 or rhle 3. This is dictated by the setup of informix 10 on those
->machines, we are stuck with that unfortunately. To be really interesting
->a patch should be backportable to 2.6.5 (or the equivalent rh kernel).
-
-This should be rather simple. Just use their kernel sources, copy the files=
-=20
-from a newer kernel in and rebuild the module.
-
->- I am currently investigating if other controllers are able to support
->this raid array and are supported. If so it might be a better idea to
->use those
-
-Yes, if you find some which have a driver that smells less it would be a go=
-od=20
-idea to use them.
-
->- We are willing to offer something in exchange. This ranges from 24
->bottles of beer of your choice to something else. The something else
->part needs to be discussed, but the beer part I can be held responsible
->for :-)
-
-*g* I'll remind you ;)
-
-Eike
-
---nextPart2568067.pnqs2RUrGK
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBC+4PFXKSJPmm5/E4RAlrEAJ98J0dZRUpoH6KJi+1hmx1/X6n4tACfS80y
-lgNGVnoDiPCIQDaUoEDnLDQ=
-=kQYW
------END PGP SIGNATURE-----
-
---nextPart2568067.pnqs2RUrGK--
+-- 
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

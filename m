@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVHKSCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbVHKSEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbVHKSCa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 14:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVHKSCa
+	id S932338AbVHKSEV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 14:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVHKSEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 14:02:30 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.198.43]:42674 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932335AbVHKSC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 14:02:29 -0400
-Message-ID: <42FB92AC.9080009@daveking.com>
-Date: Thu, 11 Aug 2005 14:02:20 -0400
-From: David King <dave@daveking.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Pls help me understand this MCE
-References: <42FB5768.8070608@daveking.com> <42FB5C4B.2010205@vc.cvut.cz>
-In-Reply-To: <42FB5C4B.2010205@vc.cvut.cz>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 14:04:20 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:60864 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932338AbVHKSEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 14:04:20 -0400
+Date: Thu, 11 Aug 2005 14:04:18 -0400
+To: Michael Thonke <iogl64nx@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Lee Revell <rlrevell@joe-job.com>,
+       lgb@lgb.hu, Allen Martin <AMartin@nvidia.com>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
+Message-ID: <20050811180418.GK31019@csclub.uwaterloo.ca>
+References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE3E7@hqemmail02.nvidia.com> <20050811070943.GB8025@vega.lgb.hu> <1123765523.32375.10.camel@mindpipe> <42FB6C27.1010408@gmail.com> <42FB88F8.7040807@pobox.com> <42FB8D04.8050006@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42FB8D04.8050006@gmail.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> Try dumping *all* MCE values, as well as a call stack.  Even although
-> MCE is tagged as processor context corrupt, there is rather big chance
-> that stack trace will point back to the instruction which caused MCE
-> (it always did in my case),  especially if it is single processor system.
-> Then you'll at least know which subsystem/driver did that.
+On Thu, Aug 11, 2005 at 07:38:12PM +0200, Michael Thonke wrote:
+> I have a ASUS A8V Deluxe too, and can't use the AMD X2 processor on 
+> it...this is a feature..right?
+> Supposed to run with DualCore but don't post..hm.
 
-Ok, here's everything I got from the serial console when the error
-occurred.  I don't have a clue how to interpret this stuff so I'd be
-eternally grateful if someone out there can help.  Or, if I
-misunderstood what you were telling me I ought to do, then explaining
-the process a bit more would be appreciated too.
+Well according to Asus you can if you run BIOS 1013 or 1014 on the
+board.  Any less and it won't boot.
 
-CPU 0: Machine Check Exception: 4 Bank 4: b200000000070f0f
-TSC 7cba18189a
-Kernel panic - not syncing: Machine check
+Now I certainly can't try it given I don't have such a CPU.
 
-Call Trace: <#MC> <ffffffff8013a4b5>{panic+133}
-<ffffffff80116d48>{print_mce+136}
-<ffffffff80116e19>{mce_panic+137} <ffffffff801173f2>{do_machine_check+754}
-<ffffffff80110147>{machine_check+127}
-<ffffffff80113dec>{timer_interrupt+444}
-<EOE> <IRQ> <ffffffff80146b50>{process_timeout+0}
-<ffffffff801704dc>{handle_IRQ_event+44} <ffffffff801706ed>{__do_IRQ+477}
-<ffffffff801120b8>{do_IRQ+72} <ffffffff8010f6c3>{ret_from_intr+0}
-<EOI> <ffffffff8010d230>{default_idle+0} <ffffffff8010d252>{default_idle+34}
-<ffffffff8010d291>{cpu_idle+49} <ffffffff8057e7e5>{start_kernel+469}
-<ffffffff8057e1f4>{_sinittext+500}
+> My SATA II devices. Get not regonized from the VIA SATA 
+> controller...this bug is known.
+> So I want to use my HDD's I bought ...why should I set my SATA II device 
+> to be SATA I.
 
-Thanks
--- 
-David King
-dave@daveking.com
+So a SATA II drive doesn't work at all?
+
+> Is also a feature of VIA Chipsets, right?
+> 
+> "It's not a bug, hey let's say is a feature."
+
+Common practice it seems.
+
+Len Sorensen

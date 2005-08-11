@@ -1,69 +1,274 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbVHKT65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVHKT61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbVHKT65 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 15:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVHKT65
+	id S932385AbVHKT61 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 15:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVHKT61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 15:58:57 -0400
-Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:3846 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932313AbVHKT64
+	Thu, 11 Aug 2005 15:58:27 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:32781 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932385AbVHKT60
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 15:58:56 -0400
-Date: Thu, 11 Aug 2005 21:59:29 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: LM Sensors <lm-sensors@lm-sensors.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: I2C block reads with i2c-viapro: testers wanted
-Message-Id: <20050811215929.1df5fab0.khali@linux-fr.org>
-In-Reply-To: <m3fytgnv73.fsf@defiant.localdomain>
-References: <20050809231328.0726537b.khali@linux-fr.org>
-	<42FA6406.4030901@cetrtapot.si>
-	<20050810230633.0cb8737b.khali@linux-fr.org>
-	<42FA89FE.9050101@cetrtapot.si>
-	<20050811185651.0ca4cd96.khali@linux-fr.org>
-	<m3fytgnv73.fsf@defiant.localdomain>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Aug 2005 15:58:26 -0400
+Message-ID: <42FBADDF.1020700@vmware.com>
+Date: Thu, 11 Aug 2005 12:58:23 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Coywolf Qi Hunt <coywolf@gmail.com>, 7eggert@gmx.de,
+       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Need help in understanding x86 syscall
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>	 <1123770661.17269.59.camel@localhost.localdomain>	 <2cd57c90050811081374d7c4ef@mail.gmail.com>	 <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>	 <1123775508.17269.64.camel@localhost.localdomain>	 <1123777184.17269.67.camel@localhost.localdomain>	 <2cd57c90050811093112a57982@mail.gmail.com>	 <2cd57c9005081109597b18cc54@mail.gmail.com>	 <Pine.LNX.4.61.0508111310180.15153@chaos.analogic.com>	 <1123781187.17269.77.camel@localhost.localdomain>	 <1123781639.17269.83.camel@localhost.localdomain>	 <42FB91FA.7070104@vmware.com> <1123784248.17269.93.camel@localhost.localdomain>
+In-Reply-To: <1123784248.17269.93.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------010403070800060406080109"
+X-OriginalArrivalTime: 11 Aug 2005 19:58:40.0601 (UTC) FILETIME=[11DBCC90:01C59EAF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Krzysztof,
+This is a multi-part message in MIME format.
+--------------010403070800060406080109
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Forgive my ignorance, but does it depend on the south bridge at all?
-> Isn't the block read capability just a function of EEPROM chip on
-> (I assume) RAM module?
+Steven Rostedt wrote:
 
-EEPROMs can be read using three different access modes: data byte reads
-(each transaction asks for one byte at a given offset), continuous byte
-reads (first transaction sets offset to 0, each subsequent transaction
-reads one byte and the offset auto-increments), and I2C block reads (one
-single transaction sets the initial offset and reads the whole block
-[1]).
+>OK, I get the same on my machine.
+>
+>  
+>
+>>On a machine that does not support sysenter, this will give you:
+>>
+>>int $0x80
+>>ret
+>>
+>>The int $0x80 system calls are still fully supported by a sysenter 
+>>capable kernel, since it must run older binaries and potentially support 
+>>syscalls during early boot up before it is known that sysenter is supported.
+>>    
+>>
+>
+>Now is the latest glibc using this.  Since I put in a ud2 op in my
+>sysenter_entry code, which is not triggered, as well as an objdump of
+>  
+>
+>libc.so shows a bunch of int 0x80 calls.
+>  
+>
 
-Now, just because most EEPROMs support these three modes doesn't mean
-you can always use them. It depends on which bus the EEPROM is sitting
-on, and which driver is used to control that bus.
+The NPTL version of glibc (the TLS library) uses this.
 
-If the bus is a true I2C bus, most of which are known as bit-banging and
-are driven by the i2c-algo-bit driver, then all three types of accesses
-will work, and we'll use I2C block reads because it's faster. However,
-EEPROMs are also often found on SMBus busses, those controller only
-implement a subset of all possible I2C commands. Where this subset
-includes I2C block reads, we can implement it in the driver and use it.
-This is exactly what I am doing with i2c-viapro right now.
+zach-dev2:~ $ ldd /bin/ls
+        linux-gate.so.1 =>  (0xffffe000)
+        librt.so.1 => /lib/tls/librt.so.1 (0x4002e000)
+        libacl.so.1 => /lib/libacl.so.1 (0x40038000)
+        libselinux.so.1 => /lib/libselinux.so.1 (0x4003e000)
+-->    libc.so.6 => /lib/tls/libc.so.6 (0x4004c000)
+        libpthread.so.0 => /lib/tls/libpthread.so.0 (0x40162000)
+        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
+        libattr.so.1 => /lib/libattr.so.1 (0x40174000)
 
-More generally, for an I2C/SMBus command to be usable, both the target
-chip and the bus controller must support it, and the bus controller
-driver must implement it.
+You'll find getpid much faster with TLS libraries (it's cached, no 
+longer a system call):
 
-I hope it's clearer now :)
+With TLS:
+zach-dev2:Micro-bench $ time ./getpid
 
-[1] Due to an internal limitation in the Linux kernel, the maximum block
-size that can be read is actually 32 bytes, so several block reads are
-needed to retrieve larger chunks of data.
+real    0m0.080s
+user    0m0.080s
+sys     0m0.000s
 
--- 
-Jean Delvare
+Without TLS:
+zach-dev:Micro-bench $ time ./getpid
+
+real   0m5.041s
+user   0m2.520s
+sys    0m2.520s
+
+If you're feeling really masochistic, I've added a demonstration of how 
+you can call sysenter from userspace without glibc.  The code verifies 
+that there is no way to exploit the kernel to achieve reading arbitrary 
+memory through a non-flat data segment.  It deliberately segfaults at 
+the end.  Let me point out this is a very wrong way to do things - you 
+should always use the vsyscall page, and in fact, this code actually 
+depends on the vsyscall page even if it is not apparent.  I fake the 
+same frame structure that the vsyscall page would have pushed to 
+simulate a vsyscall entry, but the kernel will always return to the 
+vsyscall page, which then returns back to us.  Fun stuff.  If you leave 
+the kernel hack for ud2 in your kernel, I would expect it to blow up in 
+amazing fashion when running the code below.
+
+zach-dev2:~ $ gcc sysenter.S sysenter.c -o sys
+sysenter.c: In function `main':
+sysenter.c:34: warning: passing arg 2 of `signal' from incompatible 
+pointer type
+sysenter.c:49: warning: passing arg 3 of `sysenter_call_2' makes pointer 
+from in
+teger without a cast
+sysenter.c:22: warning: return type of `main' is not `int'
+zach-dev2:~ $ ./sys
+interrupted %ebp = 0xbaadf00d
+phew
+Segmentation fault (core dumped)
+zach-dev2:~ $ gdb sys core
+GNU gdb 6.2.1
+Copyright 2004 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain 
+conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i586-suse-linux"...Using host libthread_db 
+library "
+/lib/tls/libthread_db.so.1".
+
+Core was generated by `./sys'.
+Program terminated with signal 11, Segmentation fault.
+
+warning: current_sos: Can't read pathname for load map: Input/output error
+
+Reading symbols from /lib/tls/libc.so.6...done.
+Loaded symbols for /lib/tls/libc.so.6
+Reading symbols from /lib/ld-linux.so.2...done.
+Loaded symbols for /lib/ld-linux.so.2
+#0  0xffffe410 in ?? ()
+(gdb) print $eax
+$1 = -14
+(gdb)
+
+#define EFAULT          14      /* Bad address */
+
+
+--------------010403070800060406080109
+Content-Type: text/plain;
+ name="getpid.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="getpid.c"
+
+int main(int argc, char *argv[]) {
+  int j;
+  for (j = 0; j < 1000000; j++) {
+    getpid(); getpid(); getpid(); getpid(); getpid();
+    getpid(); getpid(); getpid(); getpid(); getpid();
+  }
+}
+  
+
+--------------010403070800060406080109
+Content-Type: text/plain;
+ name="sysenter.S"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sysenter.S"
+
+#include <sys/syscall.h>
+
+.text
+.global sysenter_call
+.global sysenter_call_2
+
+/* void sysenter_call(pid_t pid, int signo, short ds, void *addr) */
+
+sysenter_call:
+	push %ebx
+	push %edi
+	push %ebp
+        push %ds
+	movl %esp, %edi
+	movl 20(%esp), %ebx   /* pid */
+	movl 24(%esp), %ecx   /* signo */
+	movl 28(%esp), %ds    /* exploit DS */
+	movl 32(%esp), %ebp
+	movl %ebp, %esp
+        push $sysenter_return
+	push %ecx
+	push %edx
+	subl $16, %ebp
+	push $0xbaadf00d
+	movl $SYS_kill, %eax
+	sysenter
+
+/* vsyscall page will ret to us here */
+sysenter_return:
+        mov %edi, %esp
+	pop %ds
+	pop %ebp
+	pop %edi
+	pop %ebx	
+	ret
+
+sysenter_call_2:
+	push %ebx
+	push %ebp
+	movl 12(%esp), %ebx   /* pid */
+	movl 16(%esp), %ecx   /* signo */
+	movl 20(%esp), %ebp
+	movl $SYS_kill, %eax
+	sysenter
+
+.data
+test: .long 0 
+
+--------------010403070800060406080109
+Content-Type: text/plain;
+ name="sysenter.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sysenter.c"
+
+#include <stdio.h>
+#include <signal.h>
+#include <asm/ldt.h>
+#include <asm/segment.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#define __KERNEL__
+#include <asm/page.h>
+
+extern void sysenter_call(pid_t pid, int signo, short ds, void *addr);
+extern void sysenter_call_2(pid_t pid, int signo, void *addr);
+void catch_sig(int signo, struct sigcontext ctx)
+{
+	__asm__ __volatile__("mov %0, %%ds" : : "r" (__USER_DS));
+	printf("interrupted %%ebp = 0x%x\n", ctx.ebp);
+	if (ctx.ebp == 0xbaadf00d)
+		printf("phew\n");
+}
+
+void main(void)
+{
+	struct user_desc desc;
+	short ds;
+	unsigned long addr;
+	unsigned *stack;
+	unsigned long offset;
+
+	stack = (unsigned *)mmap(0, 4096, PROT_EXEC|PROT_READ|PROT_WRITE,
+				 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	stack = &stack[1024];
+	addr = 0xf0000;
+	offset = __PAGE_OFFSET-(unsigned)stack+addr+16;
+	signal(SIGUSR1, catch_sig);
+	desc.entry_number = 0;
+	desc.base_addr = offset;
+	desc.limit = 0xffffff;
+	desc.seg_32bit = 1;
+	desc.contents = MODIFY_LDT_CONTENTS_DATA;
+	desc.read_exec_only = 0;
+	desc.limit_in_pages = 1;
+	desc.seg_not_present = 0;
+	desc.useable = 1;
+	if (modify_ldt(1, &desc, sizeof(desc)) != 0) {
+		perror("modify_ldt");
+	}
+	ds = 0x7; /* TI | RPL 3 */
+	sysenter_call(getpid(), SIGUSR1, ds, stack);
+	sysenter_call_2(getpid(), SIGSTOP, __PAGE_OFFSET+4096);
+	printf("not reached - core should show %%eax == -EFAULT\n");
+}
+
+--------------010403070800060406080109--

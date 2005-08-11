@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVHKSFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVHKSLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbVHKSFH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 14:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVHKSFG
+	id S932340AbVHKSLL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 14:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVHKSLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 14:05:06 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:51623 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932334AbVHKSFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 14:05:05 -0400
-Date: Thu, 11 Aug 2005 23:30:44 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, rusty@au1.ibm.com, bmark@us.ibm.com
-Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
-Message-ID: <20050811180044.GD4546@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050810171145.GA1945@us.ibm.com> <20050811171451.GA5108@infradead.org>
+	Thu, 11 Aug 2005 14:11:11 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:65449 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932340AbVHKSLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 14:11:10 -0400
+Subject: Re: Need help in understanding x86 syscall
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Coywolf Qi Hunt <coywolf@gmail.com>, 7eggert@gmx.de,
+       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0508111342170.15330@chaos.analogic.com>
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
+	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
+	 <1123770661.17269.59.camel@localhost.localdomain>
+	 <2cd57c90050811081374d7c4ef@mail.gmail.com>
+	 <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com>
+	 <1123775508.17269.64.camel@localhost.localdomain>
+	 <1123777184.17269.67.camel@localhost.localdomain>
+	 <2cd57c90050811093112a57982@mail.gmail.com>
+	 <2cd57c9005081109597b18cc54@mail.gmail.com>
+	 <Pine.LNX.4.61.0508111310180.15153@chaos.analogic.com>
+	 <1123781187.17269.77.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0508111342170.15330@chaos.analogic.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 11 Aug 2005 14:11:02 -0400
+Message-Id: <1123783862.17269.89.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050811171451.GA5108@infradead.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 06:14:51PM +0100, Christoph Hellwig wrote:
-> On Wed, Aug 10, 2005 at 10:11:45AM -0700, Paul E. McKenney wrote:
-> > Hello!
-> > 
-> > This patch is an experiment in use of RCU for individual code paths that
-> > read-acquire the tasklist lock, in this case, unicast signal delivery.
-> > It passes five kernbenches on 4-CPU x86, but obviously needs much more
-> > testing before it is considered for serious use, let alone inclusion.
+On Thu, 2005-08-11 at 13:46 -0400, linux-os (Dick Johnson) wrote:
+
 > 
-> I think we should switch over tasklist_lock to RCU completely instead of
-> adding suck hacks.  I've started lots of preparation work to get rid of
-> tasklist_lock users outside of kernel/, especialy getting rid of any
-> use in modules.
+> I was talking about the one who had the glibc support to use
+> the newer system-call entry (who's name can confuse).
+> 
+> You are looking at code that uses int 0x80. It's an interrupt,
+> therefore, in the kernel, once the stack is set up, interrupts
+> need to be (re)enabled.
 
-That would be really helpful, specially the ones in drivers/char/tty*.c :)
+int is a call to either an interrupt or exception procedure. 0x80 is
+setup in Linux to be a trap and not an interrupt vector. So it does
+_not_ turn off interrupts.
 
-When I worked on this last (a year or so ago), it seemed that I would
-need to put a number of additional structures under RCU control.
-It would be better to gradually move it towards RCU rather than
-trying make all the readers lock-free.
+I'm looking at the sysenter code which is suppose to be the fast entry
+into the system, and it looks like it is suppose to call the
+sysenter_entry when used.  I'm trying to write something to test this
+out, since I still have the ud2 op in my sysentry code. So if I do get
+this to work, I can cause a bug.
 
-Thanks
-Dipankar
+-- Steve
+
+

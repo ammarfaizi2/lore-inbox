@@ -1,136 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVHKDK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVHKDOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbVHKDK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 23:10:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVHKDK5
+	id S932240AbVHKDOS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 23:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVHKDOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 23:10:57 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:18042 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932238AbVHKDK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 23:10:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer;
-  b=tMA05Il6kMEYFkViboNmjdVsK75CM+y1YRFFZNeoSs+ozgph6sm2hxLwD0hORwjFWIvfUqVpxPUsUkldh5FXog+fClOPnofp9rbS64RjE0zHo1y5T4XrhtQTiRuMRsI1XZiTzlaWTgidcMd3Y/S2A1YOF5D1WHHNUlP3O59/3Tk=  ;
-Subject: Re: allow the load to grow upto its cpu_power (was Re: [Patch]
-	don't kick ALB in the presence of pinned task)
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, steiner@sgi.com, dvhltc@us.ibm.com,
-       mbligh@mbligh.org
-In-Reply-To: <20050809190352.D1938@unix-os.sc.intel.com>
-References: <20050801174221.B11610@unix-os.sc.intel.com>
-	 <20050802092717.GB20978@elte.hu>
-	 <20050809160813.B1938@unix-os.sc.intel.com> <42F94A00.3070504@yahoo.com.au>
-	 <20050809190352.D1938@unix-os.sc.intel.com>
-Content-Type: multipart/mixed; boundary="=-BojmvTexWfp6nvxmaW1I"
-Date: Thu, 11 Aug 2005 13:09:10 +1000
-Message-Id: <1123729750.5188.13.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Wed, 10 Aug 2005 23:14:18 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:49591 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932240AbVHKDOR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 23:14:17 -0400
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM LTC (xSeries Solutions)
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Subject: Re: [RFC][2.6.12.3] IRQ compression/sharing patch
+Date: Wed, 10 Aug 2005 20:14:13 -0700
+User-Agent: KMail/1.7.1
+Cc: Andi Kleen <ak@suse.de>, "Brown, Len" <len.brown@intel.com>,
+       Russ Weight <rweight@us.ibm.com>, linux-kernel@vger.kernel.org,
+       zwane@arm.linux.org.uk
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04CB0@USRV-EXCH4.na.uis.unisys.com>
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04CB0@USRV-EXCH4.na.uis.unisys.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508102014.14138.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 10 August 2005 05:21 pm, Protasevich, Natalie wrote:
+> > > int gsi_irq_sharing(int gsi)
+> > > {
+> > >         int i, irq, vector;
+> > >
+> > >         BUG_ON(gsi >= NR_IRQ_VECTORS);
+> > >
+> > >         if (platform_legacy_irq(gsi)) {
+> > >                 gsi_2_irq[gsi] = gsi;
+> > >                 return gsi;
+> > >         }
+> > >
+> > >         if (gsi_2_irq[gsi] != 0xFF)
+> > >                 return (int)gsi_2_irq[gsi];
+> > >
+> > >         vector = assign_irq_vector(gsi); // this part
+> > > here==========
+> >
+> > I thought I had this case covered earlier, given that in both i386
+> > and x86_64:
+> >
+> > #define platform_legacy_irq(irq)      ((irq) < 16)
+>
+> Yes, you are absolutely correct, I don't need the (gsi<16) part, this
+> takes care of PCI IRQs that happened to be <16.
+>
+> > In the deleted vector sharing code, I also check
+> > platform_legacy_irq, to avoid inadvertently sharing vectors
+> > already assigned to legacy IRQs.
+> >
+> > Am I missing your point here?
+> >
+> > >         if (gsi < 16) {
+> > >                 irq = gsi;
+> > >                 gsi_2_irq[gsi] = irq;
+> > >         } else {
+> > >                 irq = next_irq++;
+> > >                 gsi_2_irq[gsi] = irq;
+> > >         }
+> > > //====================
+> >
+> > I can't explain the gaps in the numbers with the original
+> > version.  I'll give your variant a try.
+>
+> The only problem is here:
+>
+> +	if (i < NR_IRQS) {
+> +		gsi_2_irq[gsi] = i;
+> +		printk(KERN_INFO "GSI %d sharing vector 0x%02X and IRQ
+> %d\n",
+> +				gsi, vector, i);
+> +		return i;
+> +	}
+> +
+> +	i = next_irq++;
+>
+> That means for any IRQ < NR_IRQS you allow it to be identity mapped,
+> with all the gaps, and only for ones exceeding 224 you'll assign
+> consecutive next_irqs++, whereas you can do it for all PCI IRQs above
+> 15. So, the alternative clause should probably come down to just:
+>                  irq = next_irq++;
+>                  gsi_2_irq[gsi] = irq; - which means just removing
+> the one above...
+> (although we better test that :)...I will definitely test vector
+> sharing when manage to get on max configuration partition here.
+>
+> Regards,
+> --Natalie
 
---=-BojmvTexWfp6nvxmaW1I
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Blast.  You're right, because i is the results of scanning irq_vector 
+(AKA IO_APIC_VECTOR()) for a previous use of the vector.  If i < 
+NR_IRQS then it has found a previous use and would substitute the other 
+IRQ number rather than allocate a new one.
 
-On Tue, 2005-08-09 at 19:03 -0700, Siddha, Suresh B wrote:
-> On Wed, Aug 10, 2005 at 10:27:44AM +1000, Nick Piggin wrote:
-> > Yeah this makes sense. Thanks.
-> > 
-> > I think we'll only need your first line change to fix this, though.
-> > 
-> > Your second change will break situations where a single group is very
-> > loaded, but it is in a domain with lots of cpu_power
-> > (total_load <= total_power).
-> 
-> In that case, we will move the excess load from that group to some
-> other group which is below its capacity. Instead of bringing everyone
-> to avg load, we make sure that everyone is at or below its cpu_power.
-> This will minimize the movements between the nodes.
-> 
-> For example, Let us assume sched groups node-0, node-1 each has 
-> 4*SCHED_LOAD_SCALE as its cpu_power.
-> 
-> And with 6 tasks on node-0 and 0 on node-1, current load balance 
-> will move 3 tasks from node-0 to 1. But with my patch, it will move only 
-> 2 tasks to node-1. Is this what you are referring to as breakage?
-> 
+Of course, one side effect of calling assign_irq_vector(gsi) is that the 
+vector number is stored at position gsi in irq_vector.  So, for IRQs 0 
+to NR_IRQS - 1, it will always find itself.
 
-No, I had thought it was possible to get into a situation where
-one queue could be very loaded but not have anyone to pull from
-it if total_load <= total_pwr.
+OK, how about not fighting that side effect and only reassigning IRQs
+that are >= NR_IRQS?  Maybe something like this:
 
-I see that shouldn't happen though.
+@@ -579,4 +589,57 @@ static inline int irq_trigger(int idx)
+ 	return MPBIOS_trigger(idx);
+ }
+ 
++/*
++ * gsi_irq_sharing -- Name overload!  "irq" can be either a legacy IRQ
++ * in the range 0-15, a linux IRQ in the range 0-223, or a GSI number
++ * from ACPI, which can easily reach 800.
++ *
++ * Compact the sparse GSI space into a available IRQs and reuse
++ * vectors if possible.
++ */
++int gsi_irq_sharing(int gsi)
++{
++	int i, tries, vector;
++
++	BUG_ON(gsi >= NR_IRQ_VECTORS);
++
++	/*
++	 * Don't share legacy IRQs.  Their trigger modes are usually edge
++	 * and PCI is level.  Mixed modes are trouble.  Only big boxes are
++	 * likely to overflow IRQs or to share vectors.
++	 */
++	if (likely(gsi < NR_IRQS && !sharing_vectors) || platform_legacy_irq(gsi)) {
++		gsi_2_irq[gsi] = gsi;
++		return gsi;
++	}
++
++	if (gsi_2_irq[gsi] != 0xFF)
++		return gsi_2_irq[gsi];
++	/*
++	 * Ran out of vectors or IRQ >= NR_IRQS.  Sharing vectors
++	 * means sharing IRQs, so scan irq_vectors for previous use
++	 * of vector and return that IRQ.
++	 */
++	tries = NR_IRQS;
++  try_again:
++	vector = assign_irq_vector(gsi);
++
++	/* Find the first IRQ using vector. */
++	for (i = 0; i < NR_IRQS; i++)
++		if (IO_APIC_VECTOR(i) == vector)
++			break;
++
++	if (i >= NR_IRQS || platform_legacy_irq(i)) {
++		if (--tries >= 0) {
++			IO_APIC_VECTOR(gsi) = 0;
++			goto try_again;
++		}
++		panic("gsi_irq_sharing: didn't find an IRQ using vector 0x%02X for GSI %d", vector, gsi);
++	}
++	printk("GSI %d assigned vector 0x%02X and IRQ %d\n", gsi, vector, i);
++	gsi_2_irq[gsi] = i;
++	return i;
++}
++
+ static int pin_2_irq(int idx, int apic, int pin)
+ {
+ 	int irq, i;
 
-I have a variation on the 2nd part of your patch which I think
-I would prefer. IMO it kind of generalises the current imbalance
-calculation to handle this case rather than introducing a new
-special case.
-
-Untested as yet, but I'll queue it to send to Andrew after it
-gets some testing - unless you have any objections that is.
-
-Thanks,
-Nick
 
 -- 
-SUSE Labs, Novell Inc.
-
-
-
---=-BojmvTexWfp6nvxmaW1I
-Content-Disposition: attachment; filename=sched-fix-fbg.patch
-Content-Type: text/x-patch; name=sched-fix-fbg.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Don't pull tasks from a group if that would cause the
-group's total load to drop below its total cpu_power
-(ie. cause the group to start going idle).
-
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-Signed-off-by: Nick Piggin <npiggin@suse.de>
-
-Index: linux-2.6/kernel/sched.c
-===================================================================
---- linux-2.6.orig/kernel/sched.c	2005-08-11 12:10:10.199651212 +1000
-+++ linux-2.6/kernel/sched.c	2005-08-11 12:53:15.361971195 +1000
-@@ -1886,6 +1886,7 @@
- {
- 	struct sched_group *busiest = NULL, *this = NULL, *group = sd->groups;
- 	unsigned long max_load, avg_load, total_load, this_load, total_pwr;
-+	unsigned long max_pull;
- 	int load_idx;
- 
- 	max_load = this_load = total_load = total_pwr = 0;
-@@ -1932,7 +1933,7 @@
- 		group = group->next;
- 	} while (group != sd->groups);
- 
--	if (!busiest || this_load >= max_load)
-+	if (!busiest || this_load >= max_load || max_load <= SCHED_LOAD_SCALE)
- 		goto out_balanced;
- 
- 	avg_load = (SCHED_LOAD_SCALE * total_load) / total_pwr;
-@@ -1952,8 +1953,12 @@
- 	 * by pulling tasks to us.  Be careful of negative numbers as they'll
- 	 * appear as very large values with unsigned longs.
- 	 */
-+
-+	/* Don't want to pull so many tasks that a group would go idle */
-+	max_pull = min(max_load - avg_load, max_load - SCHED_LOAD_SCALE);
-+	
- 	/* How much load to actually move to equalise the imbalance */
--	*imbalance = min((max_load - avg_load) * busiest->cpu_power,
-+	*imbalance = min(max_pull * busiest->cpu_power,
- 				(avg_load - this_load) * this->cpu_power)
- 			/ SCHED_LOAD_SCALE;
- 
-
---=-BojmvTexWfp6nvxmaW1I--
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+James Cleverdon
+IBM LTC (xSeries Linux Solutions)
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm

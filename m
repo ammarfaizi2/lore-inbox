@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbVHKPNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbVHKPRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751075AbVHKPNS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 11:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbVHKPNS
+	id S1751078AbVHKPRb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 11:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbVHKPRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 11:13:18 -0400
-Received: from nproxy.gmail.com ([64.233.182.205]:12155 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751075AbVHKPNR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 11:13:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gHnD88CzE1KaSMBpKK57eriUvchkRTnHUoLOWFbnO4hI7WgZuVE8b0uOZ+T6mbue63EPIRc0sRlwleTQefxA8Cup9GIGv8t54DotimoSzQSuzWgd8V8UdBqqW/NeT4buRoyKCCLk6eKSz81hby8stBI3vQONmDPf+4EQhwztTbo=
-Message-ID: <2cd57c90050811081374d7c4ef@mail.gmail.com>
-Date: Thu, 11 Aug 2005 23:13:13 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: Need help in understanding x86 syscall
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org, Ukil a <ukil_a@yahoo.com>, 7eggert@gmx.de
-In-Reply-To: <1123770661.17269.59.camel@localhost.localdomain>
+	Thu, 11 Aug 2005 11:17:31 -0400
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:1772 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S1751078AbVHKPRa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 11:17:30 -0400
+Date: Fri, 12 Aug 2005 00:17:25 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2/4] mips: add default select configs for vr41xx
+Message-Id: <20050812001725.4614f379.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz>
-	 <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com>
-	 <1123770661.17269.59.camel@localhost.localdomain>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/11/05, Steven Rostedt <rostedt@goodmis.org> wrote:
-> On Thu, 2005-08-11 at 10:04 -0400, linux-os (Dick Johnson) wrote:
-> > Every interrupt software, or hardware, results in the branched
-> > procedure being executed with the interrupts OFF. That's why
-> > one of the first instructions in the kernel entry for a syscall
-> > is 'sti' to turn them back on. Look at entry.S, line 182. This
-> > occurs any time a trap occurs as well (Page 26-168, i486
-> > Programmer's reference manual). FYI, this is helpful when
-> > designing/debugging complex interrupt-service routines since
-> > you can execute the interrupt with a software 'INT' instruction
-> > (with the correct offset from the IRQ you are using). The software
-> > doesn't 'know' where the interrupt came from, HW or SW.
-> 
-> I'm looking at 2.6.13-rc6-git1 line 182 of entry.S and I don't see it.
-> Must be a different kernel.
-> 
-> According to the documentation that I was looking at, a trap in x86 does
-> _not_ turn off interrupts.
-> 
-...
-> 
-> I don't see a sti here.
-> 
-> -- Steve
+Hi,
+
+This patch has added default select configs for vr41xx.
+Please apply.
+
+Yoichi
+
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+
+diff -urN -X dontdiff mm1-orig/arch/mips/Kconfig mm1/arch/mips/Kconfig
+--- mm1-orig/arch/mips/Kconfig	2005-08-11 23:21:13.000000000 +0900
++++ mm1/arch/mips/Kconfig	2005-08-11 23:27:17.000000000 +0900
+@@ -80,6 +80,7 @@
+ 	select DMA_NONCOHERENT
+ 	select IRQ_CPU
+ 	select HW_HAS_PCI
++	select PCI
+ 	select PCI_VR41XX
  
+ config ROCKHOPPER
+@@ -91,6 +92,7 @@
+ config CASIO_E55
+ 	bool "Support for CASIO CASSIOPEIA E-10/15/55/65"
+ 	depends on MACH_VR41XX
++	select CPU_LITTLE_ENDIAN
+ 	select DMA_NONCOHERENT
+ 	select IRQ_CPU
+ 	select ISA
+@@ -98,6 +100,7 @@
+ config IBM_WORKPAD
+ 	bool "Support for IBM WorkPad z50"
+ 	depends on MACH_VR41XX
++	select CPU_LITTLE_ENDIAN
+ 	select DMA_NONCOHERENT
+ 	select IRQ_CPU
+ 	select ISA
+@@ -128,17 +131,23 @@
+ 
+ config VICTOR_MPC30X
+ 	bool "Support for Victor MP-C303/304"
++	depends on MACH_VR41XX
++	select CPU_LITTLE_ENDIAN
+ 	select DMA_NONCOHERENT
+-	select HW_HAS_PCI
+ 	select IRQ_CPU
+-	depends on MACH_VR41XX
++	select HW_HAS_PCI
++	select PCI
++	select PCI_VR41XX
+ 
+ config ZAO_CAPCELLA
+ 	bool "Support for ZAO Networks Capcella"
+ 	depends on MACH_VR41XX
++	select CPU_LITTLE_ENDIAN
+ 	select DMA_NONCOHERENT
+-	select HW_HAS_PCI
+ 	select IRQ_CPU
++	select HW_HAS_PCI
++	select PCI
++	select PCI_VR41XX
+ 
+ config PCI_VR41XX
+ 	bool "Add PCI control unit support of NEC VR4100 series"
 
-He is RBJ, Richard B. Johnson, the LKML defacto official troll.
-
--- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/

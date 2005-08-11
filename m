@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbVHKJDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVHKJ06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbVHKJDb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 05:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbVHKJDb
+	id S932294AbVHKJ06 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 05:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVHKJ06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 05:03:31 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:29861 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030230AbVHKJDa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 05:03:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gqSVcTYnwjzaquN9EeNva1yd4YkSNYaI9u0HUkwSwPXpaEjrBZH3+hvFjxMs33e5OSihhjBo1XKJKn0qZ+4AtKF4NFPnRKtXf3oUl6LemnR3nrnnF58D9jfsN34bzwMolAZVCGDNozpaHKWPYeeMCnW9HKSQTvrQb0RfEfo11Mg=
-Message-ID: <6b5347dc0508110203345af854@mail.gmail.com>
-Date: Thu, 11 Aug 2005 17:03:25 +0800
-From: n l <walking.to.remember@gmail.com>
-To: Giuliano Pochini <pochini@denise.shiny.it>
-Subject: Re: why the interrupt handler should be marked "static" for it is never called directly from another file.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0508111049010.5385@denise.shiny.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6b5347dc05081101334c1a6e3c@mail.gmail.com>
-	 <Pine.LNX.4.58.0508111049010.5385@denise.shiny.it>
+	Thu, 11 Aug 2005 05:26:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57224 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932294AbVHKJ05 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 05:26:57 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200508110812.59986.phillips@arcor.de> 
+References: <200508110812.59986.phillips@arcor.de>  <42F57FCA.9040805@yahoo.com.au> <200508090724.30962.phillips@arcor.de> <20050808145430.15394c3c.akpm@osdl.org> 
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Hugh Dickins <hugh@veritas.com>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
+Date: Thu, 11 Aug 2005 10:26:30 +0100
+Message-ID: <26569.1123752390@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see, if a function in a module is not marked by static ,it can be
-accessed by any other function in kernel, while , using a static can
-avoid it .
+Daniel Phillips <phillips@arcor.de> wrote:
 
-thanks a lot !!
+> 
+> This filesystem-specific flag needs to be prevented from escaping into other
+> subsystems that might interact, such as VM.  The current usage is mainly
+> for directories, except for Reiser4, which uses it for journalling
+> ..
+> +	SetPageMiscFS(page);
 
+Can you please retain the *PageFsMisc names I've been using in my stuff?
 
-2005/8/11, Giuliano Pochini <pochini@denise.shiny.it>:
-> 
-> 
-> On Thu, 11 Aug 2005, n l wrote:
-> 
-> > could you explain its reason for using static ?
-> 
-> Anything which is never referenced from another file should be
-> static in order to keep namespace pollution low.
-> 
-> 
-> --
-> Giuliano.
->
+In my opinion putting the "Fs" bit first gives a clearer indication that this
+is a bit exclusively for the use of filesystems in general.
+
+> +#define PG_fs_misc		 8	/* don't let me spread */
+
+Should perhaps be:
+
+  +#define PG_fs_misc		 8	/* for internal filesystem use only */
+
+> and NFS, which presses it into service in a network cache coherency role.
+
+The patches to make the AFS filesystem use it were removed, pending a release
+of updated filesystem caching patches.
+
+The NFS filesystem patches that use it haven't yet found there way into
+Andrew's tree, but are also being held pending FS-Cache being updated.
+
+If you wish, I will send the FS-Cache patch, the AFS patch and the NFS patch
+to Andrew so that you can see. CacheFS needs more work, however, before that
+can be re-released.
+
+David

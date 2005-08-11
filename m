@@ -1,98 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVHKVwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVHKVyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbVHKVwR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 17:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbVHKVwR
+	id S932267AbVHKVyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 17:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVHKVyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 17:52:17 -0400
-Received: from science.horizon.com ([192.35.100.1]:53068 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S932261AbVHKVwQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 17:52:16 -0400
-Date: 11 Aug 2005 17:52:09 -0400
-Message-ID: <20050811215209.27443.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-os@analogic.com
-Subject: Re: CCITT-CRC16 in kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0508111058580.14789@chaos.analogic.com>
+	Thu, 11 Aug 2005 17:54:05 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:21493 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932267AbVHKVyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 17:54:04 -0400
+Date: Thu, 11 Aug 2005 17:53:16 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: cx88 teletext not yet implemented -was- Re: Linux-2.6.13-rc6:
+ aic7xxx testers please..
+In-reply-to: <42FB70EE.6010907@m1k.net>
+To: linux-kernel@vger.kernel.org, mkrufky@m1k.net
+Cc: Linux and Kernel Video <video4linux-list@redhat.com>
+Message-id: <200508111753.16970.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.58.0508071136020.3258@g5.osdl.org>
+ <200508111051.01067.gene.heskett@verizon.net> <42FB70EE.6010907@m1k.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> CRC-CCITT = X^16 + X^12 + X^5 + X^0 = 0x8408, and NOT 0x1021
->> CRC-16 =  X^16 + X^15 + X^2 + X^0 = 0xa001, and NOT 0x8005
->>
-> 
-> Thank you very much for your time, but what you say is completely
-> different than anything else I have found on the net.
-> 
-> Do the math:
-> 
->  	2^ 16 = 65536
->  	2^ 12 =  4096
->  	2^  5 =    32
->  	2^  0 =     1
-> ----------------------
->                  69655 = 0x11021
-> 
-> That's by convention 0x1021 as the X^16 is thrown away. I have
-> no clue how you could possibly get 0x8408 out of this, nor
-> how the CRC of 1 could possibly lie at offset 128 in a table
-> of CRC polynomials. Now I read it in the header, but that
-> doesn't make it right.
+On Thursday 11 August 2005 11:38, Michael Krufky wrote:
+>Gene Heskett wrote:
+>>I can also report that teletext decoding has ceased to work
+>>here.  But I'm not sure what kernel version killed it.  Currently
+>>running 2.6.13-rc6.  But my card is cx88 based, a pcHDTV-3000.  But
+>>attempting to switch it on/off doesn't seem to generate any output
+>>indicating it failed, it just Doesn't Work(TM)
+>
+>Gene-
+>
+>By teletext, I assume you are referring to closed captions.  Are you
+>sure that closed captions EVER worked for you on a cx88-based card?
+>AFAIK, this feature has not yet been implemented.  I am not at home
+> now, so I cannot try it, however, IIRC, closed captions is
+> implemented in bttv, and not yet in cx88.
+>
+>This is a v4l issue, not a dvb issue, however, it is NOT an issue. 
+> This is not a regression, because the feature has not yet been
+> implemented.
+>
+>Gene, if I am wrong, (this is possible) then please provide the last
+>kernel version that had this feature correctly implemented.  I don't
+>think that I am wrong, though.  Please investigate this and confirm
+> that this is an actual regression or not.
+>
+>Cheers,
 
-The thing is that X is not 2.  x is a formal variable with
-no defined value.
+Its entirely possible that the last time I saw it work was in fact on
+a bt878 card, one I junked because the tuner was apparently damaged,
+needing something like 10,000 u-v to give a useable picture.  I
+assumed (theres that word again) that the CC decoding was seperately
+handled by inspecting the output video data stream regardless of its
+source.  Mentally to me, that then would have been a tvtime function
+and not a cx88 function.  It makes far more sense to me anyway.
 
-	x^0  is represented as to 0x8000
-	x^5  is represented as to 0x0400
-	x^12 is represented as to 0x0008
-        x^16 is not represented by any bit
-	TOTAL:                    0x8408
+Sorry for the false alarm.
 
-> The "RS-232C" order to which you refer simply means that the
-> string of "bits" needs to handled as a string of bytes, not
-> words or longwords, in other words, not interpreted as
-> words, just bytes. If this isn't correct then ZMODEM and
-> a few other protocols are wrong. You certainly don't
-> swap every BIT in a string do you? You are not claiming
-> that (0x01 == 0x80) and (0x02 == 0x40), etc, are you?
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 
-Not at all.  To repeat:
-
-- A CRC is computed over a string of *bits*.  All of its error-corection
-  properties are described in terms of *bit* patterns and *bit* positions
-  and runs of adjacent *bits*.  It does not know or care about larger
-  structures such a bytes.
-
-- The CRC algorithm requires that the *first* bit it sees is the
-  coefficient of the highest power of x, and the *last* bit it sees is
-  the coefficient of x^0.  This is because it's basically long division.
-
-- If you are working in software, you (the implementor) must define a
-  mapping between a byte string and a bit string.  There are only two
-  mappings that make any sense at all:
-  1) The least-significant bit of each byte is considered "first",
-     and the most-significant is considered "last".
-  2) The most-significant bit of each byte is considered "first",
-     and the least-significant is considered "last".
-
-The logic of the CRC *does not care* which one you choose, but you have
-to choose one.  If the bytes are to be converted to bit-serial form, it
-is best to choose the form actually used for transmission to preserve the
-burst error detection properies of the CRC.  Note that:
-
-- Many people (including, apparently, you) find the second choice a bit
-  easier to visualize, as bit i is the coefficient of x^i.
-- The first choice is
-  a) Easier to implement in software, and
-  b) Matches RS-232 transmission order, and
-  c) Is used by hardware such as the Z8530 SCC and MPC860 QUICC, and
-  d) Is the form invariably used by experienced software implementors.
-
-If you have some wierd piece of existing hardware, it might have chosen
-either.  Just try them both and see which works.
-
-However, if your hardware uses the opposite bit ordering within bytes,
-DO NOT ATTEMPT to "fix" lib/crc-ccitt.c.  It will break all of the
-existing users of the code.

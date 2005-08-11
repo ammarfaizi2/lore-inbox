@@ -1,61 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVHKB3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVHKBbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbVHKB3T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Aug 2005 21:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVHKB3T
+	id S932136AbVHKBbV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Aug 2005 21:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbVHKBbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Aug 2005 21:29:19 -0400
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:33973 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932130AbVHKB3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Aug 2005 21:29:18 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Aug 2005 21:31:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:13013 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932136AbVHKBbT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Aug 2005 21:31:19 -0400
+Subject: [RFC][PATCH - 7/13] NTP cleanup: Cleanup signed shifting logic
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: George Anzinger <george@mvista.com>, frank@tuxrocks.com,
+       Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+In-Reply-To: <1123723739.32330.8.camel@cog.beaverton.ibm.com>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123723384.30963.269.camel@cog.beaverton.ibm.com>
+	 <1123723534.32330.0.camel@cog.beaverton.ibm.com>
+	 <1123723578.32330.2.camel@cog.beaverton.ibm.com>
+	 <1123723634.32330.4.camel@cog.beaverton.ibm.com>
+	 <1123723696.32330.6.camel@cog.beaverton.ibm.com>
+	 <1123723739.32330.8.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 18:31:15 -0700
+Message-Id: <1123723875.32330.10.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17146.43490.8672.13906@wombat.chubb.wattle.id.au>
-Date: Thu, 11 Aug 2005 11:29:06 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: fcntl(F_GETLEASE) semantics??
-In-Reply-To: <1123722848.8242.11.camel@lade.trondhjem.org>
-References: <17146.37443.505736.147373@wombat.chubb.wattle.id.au>
-	<1123722848.8242.11.camel@lade.trondhjem.org>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Trond" == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+All,
+	Signed shifting must be done carefully, and the ntp code has quite a
+number of conditionals to do the signed shifting. This patch makes use
+of the shiftR() macro introduced in a previous patch to simplify a bit
+of logic.
 
-Trond> to den 11.08.2005 Klokka 09:48 (+1000) skreiv Peter Chubb:
->> Hi, The LTP test fcntl23 is failing.  It does, in essence, fd =
->> open(xxx, O_RDWR|O_CREAT, 0777); if (fcntl(fd, F_SETLEASE, F_RDLCK)
->> == -1) fail;
->> 
->> fcntl always returns EAGAIN here.  The manual page says that a read
->> lease causes notification when `another process' opens the file for
->> writing or truncates it.  The kernel implements `any process'
->> (including the current one).
->> 
->> Which semantics are correct?  Personally I think that what the
->> kernel implements is correct (you can't get a read lease unsless
->> there are no writers _at_ _all_)
+Any comments or feedback would be greatly appreciated.
 
-Trond> A read lease should mean that there are no writers at all.
-
-Trond> If we were to allow the current process to open for write, then
-Trond> that would still mean that nobody else can get a lease. In
-Trond> effect you have been granted a lease with exclusive semantics
-Trond> (i.e. a write lease). You might as well request that instead of
-Trond> pretending it is a read lease.
-
-So the manual page is wrong.  Fine.
+thanks
+-john
 
 
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+linux-2.6.13-rc6_timeofday-ntp-part7_B5.patch
+============================================
+diff --git a/kernel/ntp.c b/kernel/ntp.c
+--- a/kernel/ntp.c
++++ b/kernel/ntp.c
+@@ -162,28 +162,19 @@ void second_overflow(void)
+ 	}
+ 
+ 	ltemp = time_freq;
+-	if (ltemp < 0)
+-		time_adj -= -ltemp >> (SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE);
+-	else
+-		time_adj += ltemp >> (SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE);
++	time_adj += shiftR(ltemp, (SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE));
+ 
+ #if HZ == 100
+     /* Compensate for (HZ==100) != (1 << SHIFT_HZ).
+      * Add 25% and 3.125% to get 128.125; => only 0.125% error (p. 14)
+      */
+-	if (time_adj < 0)
+-		time_adj -= (-time_adj >> 2) + (-time_adj >> 5);
+-	else
+-		time_adj += (time_adj >> 2) + (time_adj >> 5);
++	time_adj += shiftR(time_adj,2) + shiftR(time_adj,5);
+ #endif
+ #if HZ == 1000
+     /* Compensate for (HZ==1000) != (1 << SHIFT_HZ).
+      * Add 1.5625% and 0.78125% to get 1023.4375; => only 0.05% error (p. 14)
+      */
+-	if (time_adj < 0)
+-		time_adj -= (-time_adj >> 6) + (-time_adj >> 7);
+-	else
+-		time_adj += (time_adj >> 6) + (time_adj >> 7);
++	time_adj += shiftR(time_adj,6) + shiftR(time_adj,7);
+ #endif
+ }
+ 
+@@ -349,10 +340,7 @@ int ntp_adjtimex(struct timex *txc)
+ 	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
+ 		txc->offset = save_adjust;
+ 	else {
+-		if (time_offset < 0)
+-			txc->offset = -(-time_offset >> SHIFT_UPDATE);
+-		else
+-			txc->offset = time_offset >> SHIFT_UPDATE;
++		txc->offset = shiftR(time_offset, SHIFT_UPDATE);
+ 	}
+ 	txc->freq = time_freq;
+ 	txc->maxerror = time_maxerror;
+
+

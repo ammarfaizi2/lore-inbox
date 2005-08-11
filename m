@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbVHKIVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbVHKIcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbVHKIVG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 04:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVHKIVF
+	id S1030222AbVHKIcx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 04:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVHKIcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 04:21:05 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:25215 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932290AbVHKIVE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 04:21:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iwzApJ5/e1FJMASjR9sEdYQ23YBGRakHeF9UxJNnhVBOTPYyEY5WC8SRLDXL2CPsF+NRWStRZAsr5FUkHYk4HoQldgS2H/dMx0mrLlPVkx4qL3KCxnmVU2xfYVgDiNMOlxnWRgIG98yUdkbZK5AhwNImz2NRoRKm3axq/dK6GNU=
-Message-ID: <bc57270905081101217fdd4c5f@mail.gmail.com>
-Date: Thu, 11 Aug 2005 16:21:04 +0800
-From: Michael <mikore.li@gmail.com>
-To: linux clustering <linux-cluster@redhat.com>
-Subject: Re: [Linux-cluster] GFS - updated patches
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Thu, 11 Aug 2005 04:32:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61580 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932300AbVHKIcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 04:32:53 -0400
+Subject: Re: GFS - updated patches
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Teigland <teigland@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
 In-Reply-To: <20050811081729.GB12438@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
 References: <20050802071828.GA11217@redhat.com>
 	 <20050811081729.GB12438@redhat.com>
+Content-Type: text/plain
+Date: Thu, 11 Aug 2005 10:32:38 +0200
+Message-Id: <1123749159.3201.19.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same question as I asked before, how can I see GFS in "make
-menuconfig", after I patch gfs2-full.patch into a 2.6.12.2 kernel?
-
-Michael
-
-On 8/11/05, David Teigland <teigland@redhat.com> wrote:
+On Thu, 2005-08-11 at 16:17 +0800, David Teigland wrote:
 > Thanks for all the review and comments.  This is a new set of patches that
 > incorporates the suggestions we've received.
-> 
-> http://redhat.com/~teigland/gfs2/20050811/gfs2-full.patch
-> http://redhat.com/~teigland/gfs2/20050811/broken-out/
-> 
-> Dave
-> 
-> --
-> Linux-cluster mailing list
-> Linux-cluster@redhat.com
-> http://www.redhat.com/mailman/listinfo/linux-cluster
->
+
+all of them or only a subset?
+
+

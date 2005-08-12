@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbVHLShk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbVHLSiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbVHLShk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVHLShk
+	id S1750909AbVHLSiP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:38:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbVHLSiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:37:40 -0400
-Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:28809
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S1750897AbVHLShj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:37:39 -0400
-Date: Fri, 12 Aug 2005 14:35:48 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: Phil Dier <phil@icglink.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-       ziggy@icglink.com, scott@icglink.com, jack@icglink.com
-Subject: Re: 2.6.13-rc6 Oops with Software RAID, LVM, JFS, NFS
-Message-ID: <20050812183548.GA2255@kevlar.burdell.org>
-References: <20050811105954.31f25407.phil@icglink.com> <17148.1113.664829.360594@cse.unsw.edu.au> <20050812123505.1515634c.phil@icglink.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050812123505.1515634c.phil@icglink.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 12 Aug 2005 14:38:14 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:3521 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750909AbVHLSiN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:38:13 -0400
+Date: Fri, 12 Aug 2005 20:37:40 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Linus Torvalds <torvalds@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       gdt@linuxppc.org, Andrew Morton <akpm@osdl.org>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+Subject: Re: [PATCH] Fix PPC signal handling of NODEFER, should not affect
+ sa_mask
+In-Reply-To: <1123643401.9553.32.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr>
+References: <42F8EB66.8020002@fujitsu-siemens.com> 
+ <1123612016.3167.3.camel@localhost.localdomain>  <42F8F6CC.7090709@fujitsu-siemens.com>
+  <1123612789.3167.9.camel@localhost.localdomain>  <42F8F98B.3080908@fujitsu-siemens.com>
+  <1123614253.3167.18.camel@localhost.localdomain> 
+ <1123615983.18332.194.camel@localhost.localdomain>  <42F906EB.6060106@fujitsu-siemens.com>
+  <1123617812.18332.199.camel@localhost.localdomain> 
+ <1123618745.18332.204.camel@localhost.localdomain>  <20050809204928.GH7991@shell0.pdx.osdl.net>
+  <1123621223.9553.4.camel@localhost.localdomain>  <1123621637.9553.7.camel@localhost.localdomain>
+  <Pine.LNX.4.58.0508091419420.3258@g5.osdl.org> <1123643401.9553.32.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 12, 2005 at 12:35:05PM -0500, Phil Dier wrote:
-> On Fri, 12 Aug 2005 12:07:21 +1000
-> Neil Brown <neilb@cse.unsw.edu.au> wrote:
-> > You could possibly put something like
-> > 
-> > 	struct bio_vec *from;
-> > 	int i;
-> > 	bio_for_each_segment(from, bio, i)
-> > 		BUG_ON(page_zone(from->bv_page)==NULL);
-> > 
-> > in generic_make_requst in drivers/block/ll_rw_blk.c, just before
-> > the call to q->make_request_fn.
-> > This might trigger the bug early enough to see what is happening.
-> 
-> 
-> I've got tests running with this code in place, by I/O is so slow now
-> I don't think it's going to oops (or if it does, it'll be a while)..
-> 
-> Is there any other info I can collect to help track this down?
 
-Well, while we are slowing things down in the name of debugging..
-you might try setting the following debug options in your config:
+>Actually I take it the other way.  The wording is awful. But the "unless
+>SA_NODEFER or SA_RESETHAND is set, and then including the signal being
+>delivered".  This looks to me that it adds the signal being delivered to
+>the blocked mask unless the SA_NODEFER or SA_RESETHAND is set. I kind of
+>wonder if English is the native language of those that wrote this.  
 
-CONFIG_DEBUG_PAGEALLOC
-CONFIG_DEBUG_HIGHMEM
-CONFIG_DEBUG_SLAB
-CONFIG_FRAME_POINTER 
+So, if in doubt what is really meant - check which of the two/three/+ 
+different behaviors the users out there favor most.
 
-Can anyone think of anything else?
 
-According to the website you don't have these on right now.
 
-Sonny
+Jan Engelhardt
+-- 

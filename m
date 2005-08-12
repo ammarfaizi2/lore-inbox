@@ -1,69 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbVHLR7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVHLSAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbVHLR7s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbVHLRyp
+	id S1750791AbVHLSAU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVHLRym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:54:45 -0400
+	Fri, 12 Aug 2005 13:54:42 -0400
 Received: from mail-relay-4.tiscali.it ([213.205.33.44]:34194 "EHLO
 	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750794AbVHLRye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:54:34 -0400
-Subject: [patch 14/39] remap_file_pages protection support: assume VM_SHARED never disappears
+	id S1750791AbVHLRyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:54:36 -0400
+Subject: [patch 30/39] remap_file_pages protection support: ia64 bits
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 19:32:05 +0200
-Message-Id: <20050812173205.6D8DD24E7E1@zion.home.lan>
+Date: Fri, 12 Aug 2005 19:32:51 +0200
+Message-Id: <20050812173251.89A2024E810@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+From: Ingo Molnar <mingo@elte.hu>
 
-Assume that even after dropping and reacquiring the lock, (vma->vm_flags &
-VM_SHARED) won't change, thus moving a check earlier.
+I've attached a 'blind' port of the prot bits of fremap to ia64.  I've
+compiled it with a cross-compiler but otherwise it's untested.  (and it's
+very likely i got the pte bits wrong - but it's roughly OK.)
+
+This should at least make ia64 compile.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/mm/fremap.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
+ linux-2.6.git-paolo/include/asm-ia64/pgtable.h |   17 +++++++++++++----
+ 1 files changed, 13 insertions(+), 4 deletions(-)
 
-diff -puN mm/fremap.c~rfp-assume-VM_PRIVATE-stays mm/fremap.c
---- linux-2.6.git/mm/fremap.c~rfp-assume-VM_PRIVATE-stays	2005-08-11 12:58:07.000000000 +0200
-+++ linux-2.6.git-paolo/mm/fremap.c	2005-08-11 13:38:56.000000000 +0200
-@@ -232,6 +232,8 @@ retry:
+diff -puN include/asm-ia64/pgtable.h~rfp-arch-ia64 include/asm-ia64/pgtable.h
+--- linux-2.6.git/include/asm-ia64/pgtable.h~rfp-arch-ia64	2005-08-12 19:27:03.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-ia64/pgtable.h	2005-08-12 19:27:03.000000000 +0200
+@@ -433,7 +433,8 @@ extern void paging_init (void);
+  * Format of file pte:
+  *	bit   0   : present bit (must be zero)
+  *	bit   1   : _PAGE_FILE (must be one)
+- *	bits  2-62: file_offset/PAGE_SIZE
++ *	bit   2   : _PAGE_AR_RW
++ *	bits  3-62: file_offset/PAGE_SIZE
+  *	bit  63   : _PAGE_PROTNONE bit
+  */
+ #define __swp_type(entry)		(((entry).val >> 2) & 0x7f)
+@@ -442,9 +443,17 @@ extern void paging_init (void);
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
  
- 		/* Must set VM_NONLINEAR before any pages are populated. */
- 		if (pgoff != linear_page_index(vma, start)) {
-+			if (!(vma->vm_flags & VM_SHARED))
-+				goto out_unlock;
- 			if (!(vma->vm_flags & VM_NONLINEAR)) {
- 				if (!has_write_lock) {
- 					up_read(&mm->mmap_sem);
-@@ -239,12 +241,6 @@ retry:
- 					has_write_lock = 1;
- 					goto retry;
- 				}
--				/* XXX: we check VM_SHARED after re-getting the
--				 * (write) semaphore but I guess that we could
--				 * check it earlier as we're not allowed to turn
--				 * a VM_PRIVATE vma into a VM_SHARED one! */
--				if (!(vma->vm_flags & VM_SHARED))
--					goto out_unlock;
+-#define PTE_FILE_MAX_BITS		61
+-#define pte_to_pgoff(pte)		((pte_val(pte) << 1) >> 3)
+-#define pgoff_to_pte(off)		((pte_t) { ((off) << 2) | _PAGE_FILE })
++#define PTE_FILE_MAX_BITS		59
++#define pte_to_pgoff(pte)		((pte_val(pte) << 1) >> 4)
++
++#define pte_to_pgprot(pte) \
++	__pgprot((pte_val(pte) & (_PAGE_AR_RW | _PAGE_PROTNONE)) \
++		| ((pte_val(pte) & _PAGE_PROTNONE) ? 0 : \
++			(__ACCESS_BITS | _PAGE_PL_3)))
++
++#define pgoff_prot_to_pte(off, prot) \
++       ((pte_t) { _PAGE_FILE + \
++               (pgprot_val(prot) & (_PAGE_AR_RW | _PAGE_PROTNONE)) + (off) })
  
- 				mapping = vma->vm_file->f_mapping;
- 				spin_lock(&mapping->i_mmap_lock);
-@@ -254,10 +250,6 @@ retry:
- 				vma_nonlinear_insert(vma, &mapping->i_mmap_nonlinear);
- 				flush_dcache_mmap_unlock(mapping);
- 				spin_unlock(&mapping->i_mmap_lock);
--			} else {
--				/* Won't drop the lock, check it here.*/
--				if (!(vma->vm_flags & VM_SHARED))
--					goto out_unlock;
- 			}
- 		}
- 
+ /* XXX is this right? */
+ #define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
 _

@@ -1,60 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVHLSRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVHLSTA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbVHLSRU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVHLSQy
+	id S1750857AbVHLSTA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:19:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbVHLSQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:16:54 -0400
-Received: from web80214.mail.yahoo.com ([66.218.79.49]:9642 "HELO
-	web80214.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1750808AbVHLSQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:16:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=VfzK4sWf3G+NX5ett3YFyPq+8ZiEec27I3jFjwZ1aUTE7BpK/oFxAWHJrWDn2m2nsL/I7vShMhhwJm35rLtcn8DMsPiu/n+WqTnN7LHK4kIBbsWI2NDXyKMrvrMN2C6AdrumGIfowiCgPFTxhEZEDc+g7ubz2GayRJFYCMgP4Zc=  ;
-Message-ID: <20050812181623.6814.qmail@web80214.mail.yahoo.com>
-Date: Fri, 12 Aug 2005 11:16:23 -0700 (PDT)
-From: KrnlUsr <kdp102@yahoo.com>
-Subject: copy_from_user, copy_to_user in kernel
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 12 Aug 2005 14:16:42 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:33683 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750846AbVHLSQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:16:33 -0400
+Subject: [patch 17/39] remap_file_pages protection support: safety net for lazy arches
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 12 Aug 2005 20:21:42 +0200
+Message-Id: <20050812182142.B248924E7F1@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-Why does copy_from/to_user routines fail if both
-source and destination are in kernel space. I have a
-kernel module that:
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-1. takes some parameters from user space via ioctl
-(kernel copies arguments with copy_from_user)
+Since proper support requires that the arch at the very least handles
+VM_FAULT_SIGSEGV, as in next patch (otherwise the arch may BUG), and things
+are even more complex (see next patches), and it's triggerable only with
+VM_NONUNIFORM vma's, simply refuse creating them if the arch doesn't declare
+itself ready.
 
-2. processes command(s) from user and 
+This is a very temporary hack, so I've clearly marked it as such. And, with
+current rythms, I've given about 6 months for arches to get ready. Reducing
+this time is perfectly ok for me.
 
-3. returns output to user with copy_to_user
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-now i have a kernel thread that wants to talk to same 
-kernel module. basically user space programs will talk
-to my kernel module with ioctl but kernel threads will
-call EXPORTed routines. i'll have another set of
-routines to work with these two interfaces. but can i 
-have the core routines copy processed data back to
-kernel thread or user space with copy_to_user. or do i
-have to have some check saying if called from ioctl
-call copy_to_user otherwise call memcpy?
+ linux-2.6.git-paolo/Documentation/feature-removal-schedule.txt |   12 ++++++++++
+ linux-2.6.git-paolo/include/asm-i386/pgtable.h                 |    3 ++
+ linux-2.6.git-paolo/include/asm-um/pgtable.h                   |    3 ++
+ linux-2.6.git-paolo/mm/fremap.c                                |    5 ++++
+ 4 files changed, 23 insertions(+)
 
-
-                       user space interface
-                                  ^
-                   ---------------|---------------
-                                  V
-     kernel      <-->         kernel module
-     thread
-
-
-thanks
-
+diff -puN mm/fremap.c~rfp-safety-net-for-archs mm/fremap.c
+--- linux-2.6.git/mm/fremap.c~rfp-safety-net-for-archs	2005-08-11 13:46:49.000000000 +0200
++++ linux-2.6.git-paolo/mm/fremap.c	2005-08-11 13:55:02.000000000 +0200
+@@ -184,6 +184,11 @@ asmlinkage long sys_remap_file_pages(uns
+ 	int err = -EINVAL;
+ 	int has_write_lock = 0;
+ 
++	/* Hack for not-updated archs, KILLME after 2.6.16! */
++#ifndef __ARCH_SUPPORTS_VM_NONUNIFORM
++	if (flags & MAP_NOINHERIT)
++		goto out;
++#endif
+ 	if (prot && !(flags & MAP_NOINHERIT))
+ 		goto out;
+ 	/*
+diff -puN include/asm-i386/pgtable.h~rfp-safety-net-for-archs include/asm-i386/pgtable.h
+--- linux-2.6.git/include/asm-i386/pgtable.h~rfp-safety-net-for-archs	2005-08-11 13:46:49.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-i386/pgtable.h	2005-08-11 13:55:02.000000000 +0200
+@@ -419,4 +419,7 @@ extern void noexec_setup(const char *str
+ #define __HAVE_ARCH_PTE_SAME
+ #include <asm-generic/pgtable.h>
+ 
++/* Hack for not-updated archs, KILLME after 2.6.16! */
++#define __ARCH_SUPPORTS_VM_NONUNIFORM
++
+ #endif /* _I386_PGTABLE_H */
+diff -puN include/asm-um/pgtable.h~rfp-safety-net-for-archs include/asm-um/pgtable.h
+--- linux-2.6.git/include/asm-um/pgtable.h~rfp-safety-net-for-archs	2005-08-11 13:46:49.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-um/pgtable.h	2005-08-11 13:55:02.000000000 +0200
+@@ -361,6 +361,9 @@ static inline pte_t pte_modify(pte_t pte
+ 
+ #include <asm-generic/pgtable-nopud.h>
+ 
++/* Hack for not-updated archs, KILLME after 2.6.16! */
++#define __ARCH_SUPPORTS_VM_NONUNIFORM
++
+ #endif
+ #endif
+ 
+diff -puN Documentation/feature-removal-schedule.txt~rfp-safety-net-for-archs Documentation/feature-removal-schedule.txt
+--- linux-2.6.git/Documentation/feature-removal-schedule.txt~rfp-safety-net-for-archs	2005-08-11 14:06:00.000000000 +0200
++++ linux-2.6.git-paolo/Documentation/feature-removal-schedule.txt	2005-08-11 14:10:34.000000000 +0200
+@@ -135,3 +135,15 @@ Why:	With the 16-bit PCMCIA subsystem no
+ 	pcmciautils package available at
+ 	http://kernel.org/pub/linux/utils/kernel/pcmcia/
+ Who:	Dominik Brodowski <linux@brodo.de>
++
++---------------------------
++
++What:	__ARCH_SUPPORTS_VM_NONUNIFORM
++When:	December 2005
++Files:	mm/fremap.c, include/asm-*/pgtable.h
++Why:	It's just there to allow arches to update their page fault handlers to
++	support VM_FAULT_SIGSEGV, for remap_file_pages protection support.
++	Since they may BUG if this support is not added, the syscall code
++	refuses this new operation mode unless the arch declares itself as
++	"VM_FAULT_SIGSEGV-aware" with this macro.
++Who:	Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+_

@@ -1,103 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVHLR6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVHLR6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbVHLR6T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbVHLRyr
+	id S1750806AbVHLR6o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVHLR6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:54:47 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:36566 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750787AbVHLRya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:54:30 -0400
-Subject: [patch 08/39] remap_file_pages protection support: uml bits
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 19:31:48 +0200
-Message-Id: <20050812173148.8C0B624E7D2@zion.home.lan>
+	Fri, 12 Aug 2005 13:58:22 -0400
+Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:5130 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750781AbVHLR6R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:58:17 -0400
+Date: Fri, 12 Aug 2005 19:58:44 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: I2C block reads with i2c-viapro: testers wanted
+Message-Id: <20050812195844.4f597d19.khali@linux-fr.org>
+In-Reply-To: <m3wtmri364.fsf@defiant.localdomain>
+References: <20050809231328.0726537b.khali@linux-fr.org>
+	<42FA6406.4030901@cetrtapot.si>
+	<20050810230633.0cb8737b.khali@linux-fr.org>
+	<42FA89FE.9050101@cetrtapot.si>
+	<20050811185651.0ca4cd96.khali@linux-fr.org>
+	<m3fytgnv73.fsf@defiant.localdomain>
+	<20050811215929.1df5fab0.khali@linux-fr.org>
+	<m3iryctaou.fsf@defiant.localdomain>
+	<20050811234946.0106afbe.khali@linux-fr.org>
+	<m3br44t9cv.fsf@defiant.localdomain>
+	<20050812082653.098a6aa3.khali@linux-fr.org>
+	<m3wtmri364.fsf@defiant.localdomain>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Krzysztof,
 
-Update pte encoding macros for UML.
+> > In I2C mode, you can even alternate as many read and write sequences
+> > you want in a single transaction. The target chip would of course
+> > need to know how to interpret such a transaction though. I've never
+> > seen this possibility used so far.
+> 
+> Is this mode supported by the common (such as VIA south bridge)
+> controllers?
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+No it's not, for the simple reason that south bridges are almost always
+SMBus controllers, not I2C controllers.
 
- linux-2.6.git-paolo/include/asm-um/pgtable-2level.h |   15 ++++++++++----
- linux-2.6.git-paolo/include/asm-um/pgtable-3level.h |   21 +++++++++++++++-----
- 2 files changed, 27 insertions(+), 9 deletions(-)
+That being said, I'd be surprised if it ever matters. I never saw such
+transactions, and if some chip was to accept them, it would most
+probably also accept a sequence of more simple, SMBus-compatible
+transactions to achieve the same goal.
 
-diff -puN include/asm-um/pgtable-2level.h~rfp-arch-uml include/asm-um/pgtable-2level.h
---- linux-2.6.git/include/asm-um/pgtable-2level.h~rfp-arch-uml	2005-08-11 11:23:21.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-um/pgtable-2level.h	2005-08-11 11:23:21.000000000 +0200
-@@ -72,12 +72,19 @@ static inline void set_pte(pte_t *pteptr
- 	((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
- 
- /*
-- * Bits 0 through 3 are taken
-+ * Bits 0 to 5 are taken, split up the 26 bits of offset
-+ * into this range:
-  */
--#define PTE_FILE_MAX_BITS	28
-+#define PTE_FILE_MAX_BITS	26
- 
--#define pte_to_pgoff(pte) (pte_val(pte) >> 4)
-+#define pte_to_pgoff(pte) (pte_val(pte) >> 6)
-+#define pte_to_pgprot(pte) \
-+	__pgprot((pte_val(pte) & (_PAGE_RW | _PAGE_PROTNONE)) \
-+		| ((pte_val(pte) & _PAGE_PROTNONE) ? 0 : \
-+			(_PAGE_USER | _PAGE_PRESENT)) | _PAGE_ACCESSED)
- 
--#define pgoff_to_pte(off) ((pte_t) { ((off) << 4) + _PAGE_FILE })
-+#define pgoff_prot_to_pte(off, prot) \
-+	((pte_t) { ((off) << 6) + \
-+	 (pgprot_val(prot) & (_PAGE_RW | _PAGE_PROTNONE)) + _PAGE_FILE })
- 
- #endif
-diff -puN include/asm-um/pgtable-3level.h~rfp-arch-uml include/asm-um/pgtable-3level.h
---- linux-2.6.git/include/asm-um/pgtable-3level.h~rfp-arch-uml	2005-08-11 11:23:21.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-um/pgtable-3level.h	2005-08-11 11:23:21.000000000 +0200
-@@ -140,25 +140,36 @@ static inline pmd_t pfn_pmd(pfn_t page_n
- }
- 
- /*
-- * Bits 0 through 3 are taken in the low part of the pte,
-+ * Bits 0 through 5 are taken in the low part of the pte,
-  * put the 32 bits of offset into the high part.
-  */
- #define PTE_FILE_MAX_BITS	32
- 
-+
- #ifdef CONFIG_64BIT
- 
- #define pte_to_pgoff(p) ((p).pte >> 32)
--
--#define pgoff_to_pte(off) ((pte_t) { ((off) << 32) | _PAGE_FILE })
-+#define pgoff_to_pte(off) ((pte_t) { ((off) << 32) | _PAGE_FILE | \
-+		(pgprot_val(prot) & (_PAGE_RW | _PAGE_PROTNONE)) })
-+#define pte_flags(pte) pte_val(pte)
- 
- #else
- 
- #define pte_to_pgoff(pte) ((pte).pte_high)
--
--#define pgoff_to_pte(off) ((pte_t) { _PAGE_FILE, (off) })
-+#define pgoff_prot_to_pte(off, prot) ((pte_t) { \
-+		(pgprot_val(prot) & (_PAGE_RW | _PAGE_PROTNONE)) | _PAGE_FILE, \
-+		(off) })
-+/* Don't use pte_val below, useless to join the two halves */
-+#define pte_flags(pte) ((pte).pte_low)
- 
- #endif
- 
-+#define pte_to_pgprot(pte) \
-+	__pgprot((pte_flags(pte) & (_PAGE_RW | _PAGE_PROTNONE)) \
-+		| ((pte_flags(pte) & _PAGE_PROTNONE) ? 0 : \
-+			(_PAGE_USER | _PAGE_PRESENT)) | _PAGE_ACCESSED)
-+#undef pte_flags
-+
- #endif
- 
- /*
-_
+If you have further questions, they are welcome but I'd suggest that you
+drop LKML from the recipients and follow up on the lm_sensors list only,
+as we are getting somewhat off-topic now.
+
+-- 
+Jean Delvare

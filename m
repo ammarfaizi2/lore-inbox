@@ -1,31 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVHLR3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVHLRa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbVHLR3S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbVHLR3S
+	id S1750746AbVHLRa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVHLRa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:29:18 -0400
-Received: from dsl3-63-249-67-204.cruzio.com ([63.249.67.204]:52363 "EHLO
-	cichlid.com") by vger.kernel.org with ESMTP id S1750743AbVHLR3S
+	Fri, 12 Aug 2005 13:30:59 -0400
+Received: from nproxy.gmail.com ([64.233.182.206]:1237 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750746AbVHLRa7 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:29:18 -0400
-Date: Fri, 12 Aug 2005 10:29:11 -0700
-From: Andrew Burgess <aab@cichlid.com>
-Message-Id: <200508121729.j7CHTBLl018159@cichlid.com>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUGS: Real-Time Preemption 2.6.13-rc5-RT-V0.7.52-16 with CONFIG_DEBUG_SLAB
+	Fri, 12 Aug 2005 13:30:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KUJCL20fbjnosWQa0MYH1iS8dINxYiIQ1d0Xp6mFqCVQWysOs/n+XLbVKq/e9Vq7HSSMFiMfqrif40ueq4T7kFdFI1O1w4yT3FTImubYrcV252JcXNZjaYejzB//3tFXd/tNWVgYaHORQCAoBnjGQDp17AkuWCBNyusUlsq8VBc=
+Message-ID: <396556a20508121030de9b49d@mail.gmail.com>
+Date: Fri, 12 Aug 2005 18:30:55 +0100
+From: Adam Langley <alangley@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Edge triggered epoll with pts devices acts as level triggered
+In-Reply-To: <396556a20508120419238abca6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <396556a20508120419238abca6@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Here is 2.6.13-rc5-RT-V0.7.52-16 SMP with CONFIG_DEBUG_SLAB set.
->> How may I help?
+On 8/12/05, Adam Langley <alangley@gmail.com> wrote:
+> Waiting for edge triggered events (with EPOLLET) on pseudo terminal
+> devices appears to act as if it were level triggered; when data is
+> ready the fd is always returned by epoll_wait.
 
->ok, could you try the -53-05 (or later) kernel, does it work any better?
-
-Hi Ingo
-
-I will try it. But I think I wrongly pointed the finger to RT. I can't boot
-13rc6 vanilla in smp and I seem to be having bttv problems at other times.
+This occurs because writing to the terminal happens to cause a read
+event to occur for pseudo terminals, but not for real terminals. This
+is much less of a problem than the orginal message would suggest.
 
 
+AGL
+
+-- 
+Adam Langley                                      agl@imperialviolet.org
+http://www.imperialviolet.org                       (+44) (0)7906 332512
+PGP: 9113   256A   CC0F   71A6   4C84   5087   CDA5   52DF   2CB6   3D60

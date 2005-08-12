@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVHLWNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbVHLWOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbVHLWNe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 18:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbVHLWNe
+	id S1751302AbVHLWOj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 18:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVHLWOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 18:13:34 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:22249 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751301AbVHLWNd (ORCPT
+	Fri, 12 Aug 2005 18:14:39 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:43161 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S1751302AbVHLWOi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 18:13:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:subject:cc:references:organization:content-type:mime-version:content-transfer-encoding:message-id:in-reply-to:user-agent:from;
-        b=b0mScwynoObyUMDDaMLH+Mb65jQgNxGf/sRj2YWZ/vNowu5e6A724s7iPX7bsBhfWXLOpucl8Lgp8tp0IEGVv08ZL9gjzOFb+EHJ5+4j29pA4Bp1F/E8mJU+Bvuqpq5wlVRhAtWTQrXWthm5EKOLWdXvA5MYnU4divXLyrhlwfs=
-Date: Sat, 13 Aug 2005 08:13:21 +1000
-To: "Masoud Sharbiani" <masouds@masoud.ir>
-Subject: Re: Via-Rhine NIC, Via SATA or reiserfs broken, how to tell??
-Cc: "Vladimir V. Saveliev" <vs@namesys.com>, linux-kernel@vger.kernel.org
-References: <54nnf1tv8722aq6med3mlr4mvg7nli0r09@4ax.com> <42FC7D5E.8020604@namesys.com> <mc2pf1tgih72uq4flc3hl6q0897r060ilp@4ax.com> <42FCB06A.5050609@masoud.ir>
-Organization: http://www.squishybuglet.mine.nu/
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
+	Fri, 12 Aug 2005 18:14:38 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Daniel Phillips <phillips@arcor.de>
+Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
+Date: Sat, 13 Aug 2005 00:20:10 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Pavel Machek <pavel@suse.cz>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
+References: <42F57FCA.9040805@yahoo.com.au> <200508111236.25576.rjw@sisk.pl> <200508130556.11215.phillips@arcor.de>
+In-Reply-To: <200508130556.11215.phillips@arcor.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <op.sve1cjvzyuqkyt@magpie.mire.mine.nu>
-In-Reply-To: <42FCB06A.5050609@masoud.ir>
-User-Agent: Opera M2/8.02 (Win32, build 7680)
-From: Grant Coady <grant.coady@gmail.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508130020.11864.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Aug 2005 00:21:30 +1000, Masoud Sharbiani <masouds@masoud.ir> wrote:
+On Friday, 12 of August 2005 21:56, Daniel Phillips wrote:
+> On Thursday 11 August 2005 20:36, Rafael J. Wysocki wrote:
+> > > >> > Swsusp is the main "is valid ram" user I have in mind here. It
+> > > >> > wants to know whether or not it should save and restore the
+> > > >> > memory of a given `struct page`.
+> > > >>
+> > > >> Why can't it follow the rmap chain?
+> > > >
+> > > > It is walking physical memory, not memory managment chains. I need
+> > > > something like:
+> > >
+> > > Can you not use page_is_ram(pfn) ?
+> >
+> > IMHO it would be inefficient.
+> >
+> > There obviously are some non-RAM pages that should not be saved and there
+> > are some that are not worthy of saving, although they are RAM (eg because
+> > they never change), but this is very archtecture-dependent.  The arch code
+> > should mark them as PageNosave for swsusp, and that's enough.
+> 
+> I still don't see why you can't lift your flags up into the VMA.  The rmap 
+> mechanism is there precisely to let you get from the physical page to the 
+> users and user data, including VMAs.
 
-> Can you turn on UDP checksums and try again? That would isolate the
-> fault between the network or SATA.
+I'm not sure if I understand the issue, but swsusp works on a different level.
+It only needs to figure out which physical pages, as represented by struct page
+objects, should be saved to swap before suspend.  We browse all zones (once)
+and create a list of page frames that should be saved on the basis of the contents
+of the struct page objects alone.  IMHO if we needed to use any additional
+mechanisms here, it would be less efficient than just checking the page flags.
 
-It is the second tarball extraction from cache that suffers data
-corruption, not a network error.  I am in process of narrowing
-down cause as I now have 2.4.32-pre3 and 2.6.13-rc6-git3 .configs
-that work okay (5 tarball extracts, diff okay)on reiserfs and ext2.
+> I am also not sure why you are talking about efficiency here.  Did you measure 
+> the impact on suspend performance?
 
-Something to do with MTRR, highmem (box has 1GB), unwanted MP
-detection in dmesg --> no longer network, filesystem and/or SATA
-driver directly, dunno what yet, but tedious process of elimination
-will take time.
+I should have said "not enough".  The problem is that there may be some page
+frames corresponding to RAM (eg such that page_is_ram(pfn) is non-zero) which
+for some reason should not be saved on given architecture and we need a
+mechanism allowing us to identify them.
 
-How do I force fetching tarball from over NFS again?  At present
-the repeat extractions are from memory, not from network.
+Greets,
+Rafael
 
-Cheers,
-Grant.
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,36 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbVHLQmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVHLQv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbVHLQmq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 12:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVHLQmq
+	id S1750700AbVHLQv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 12:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbVHLQv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 12:42:46 -0400
-Received: from ns2.suse.de ([195.135.220.15]:61153 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751225AbVHLQmp (ORCPT
+	Fri, 12 Aug 2005 12:51:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13268 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750700AbVHLQv5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 12:42:45 -0400
-Date: Fri, 12 Aug 2005 18:42:44 +0200
-From: Andi Kleen <ak@suse.de>
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, Martin Wilck <martin.wilck@fujitsu-siemens.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: APIC version and 8-bit APIC IDs
-Message-ID: <20050812164244.GC22901@wotan.suse.de>
-References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel> <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com> <20050812133248.GN8974@wotan.suse.de> <42FCA97E.5010907@fujitsu-siemens.com> <42FCB86C.5040509@fujitsu-siemens.com> <20050812145725.GD922@wotan.suse.de> <86802c44050812093774bf4816@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c44050812093774bf4816@mail.gmail.com>
+	Fri, 12 Aug 2005 12:51:57 -0400
+Date: Fri, 12 Aug 2005 09:51:48 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Airlie <airlied@gmail.com>, akpm@osdl.org
+Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works
+ fine.
+In-Reply-To: <42FC7372.7040607@aitel.hist.no>
+Message-ID: <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> 
+ <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com>
+ <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 12, 2005 at 09:37:11AM -0700, yhlu wrote:
-> So MPTABLE do not have problem with it, only acpi related...?
 
-It's only a cosmetic problem I think with the printk being
-wrong. The actual decision in the code should all use the true
-value.
 
-Another way would be to just remove the printk output.
+On Fri, 12 Aug 2005, Helge Hafting wrote:
+>
+> > at the moment. The setup is fine with 2.6.13-rc4-mm1 x86-64, no 
+> > problems there.
+> 
+> The problem still exists in 2.6.13-rc6.  Usually, all I get is a 
+> suddenly black display, solveable by resizing.
 
--Andi
+Is there any chance you could try bisecting the problem? Either just 
+binary-searching the patches or by using the git bisect helper scripts?
+
+Obviously the git approach needs a "good" kernel in git, but if 
+2.6.13-rc4-mm1 is ok, then I assume that 2.6.13-rc4 is ok too? That's a 
+fair number of changes:
+
+	 git-rev-list v2.6.13-rc4..v2.6.13-rc6 | wc
+	    340     340   13940
+
+but if you can tighten it up a bit (you already had trouble at rc5, I 
+think), it shouldn't require testing more than a few kernels.
+
+Git has had bisection support for a while, but the helper scripts to use 
+it sanely are fairly new, so I think you'd need the git-0.99.4 release for 
+those. But then you'd just do
+
+	git bisect start
+	git bisect bad v2.6.13-rc5
+	git bisect good v2.6.13-rc4
+
+and start bisecting (that will check out a mid-way point automatically, 
+you build it, and then do "git bisect bad" or "git bisect good" depending 
+on whether the result is bad or good - it will continue to try to find 
+half-way points until it has found the point that turns from good to 
+bad..)
+
+		Linus

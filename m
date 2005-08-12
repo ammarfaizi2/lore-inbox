@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVHLRpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVHLRop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbVHLRpA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVHLRo7
+	id S1750707AbVHLRop (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVHLRop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:44:59 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:2315 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750728AbVHLRo6 convert rfc822-to-8bit
+	Fri, 12 Aug 2005 13:44:45 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:11972 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750707AbVHLRop convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:44:58 -0400
+	Fri, 12 Aug 2005 13:44:45 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LPvJOe2nD3ahg4I0SVmSDVg5jaeVCHBLE1u7n0PwTobdC6rE0rvb18pnxT08FYi5HzRU7BqF6xU6Is9580KZlg6bwuDxVpFJA8h9Kns57voCG320LAesopks6GCPdPY7kkllvWAurarhoNUJ3wgeY0sLiT4yFpDytc56w504ATI=
-Message-ID: <7f45d93905081210441e209e31@mail.gmail.com>
-Date: Fri, 12 Aug 2005 10:44:53 -0700
-From: Shaun Jackman <sjackman@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Trouble shooting a ten minute boot delay (SiI3112)
-Cc: Tejun Heo <htejun@gmail.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <42FC57EC.2060204@pobox.com>
+        b=OfwnEhFqqjkfTTGFoHnpSXBsaz71ZIPQBNOe/4H1IHxXmgy5XwbT+mCp74gjiZsdKYDwL+2c/Tt/T962s326oJQveB4To1UXa/WI9GVC71cEZKibfFEzn7k54FRjscXuTIZQmpvsClEBxt7edYjixrqxHmO0BG9LGERx1Qzaof0=
+Message-ID: <86802c4405081210442b1bb840@mail.gmail.com>
+Date: Fri, 12 Aug 2005 10:44:44 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: APIC version and 8-bit APIC IDs
+Cc: Martin Wilck <martin.wilck@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050812164244.GC22901@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <7f45d939050809163136a234a@mail.gmail.com>
-	 <42FC0DD4.9060905@gmail.com>
-	 <7f45d93905081201001a51d51b@mail.gmail.com>
-	 <42FC57EC.2060204@pobox.com>
+References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel>
+	 <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com>
+	 <20050812133248.GN8974@wotan.suse.de>
+	 <42FCA97E.5010907@fujitsu-siemens.com>
+	 <42FCB86C.5040509@fujitsu-siemens.com>
+	 <20050812145725.GD922@wotan.suse.de>
+	 <86802c44050812093774bf4816@mail.gmail.com>
+	 <20050812164244.GC22901@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/8/12, Jeff Garzik <jgarzik@pobox.com>:
-> > At this point there is a nine minute, fifteen second delay. As soon as
-> > the kernel starts printing messages it goes by quite fast, so I can't
-> > be certain what it's printing, but the first message according to
-> > dmesg is...
-> > Linux version 2.6.11-1-k7 (dannf@firetheft) (gcc version 3.3.6 (Debian 1:3.3.6-6
-> > )) #1 Mon Jun 20 21:26:23 MDT 2005
-> > BIOS-provided physical RAM map:
-> 
-> It's doing something BIOS-related at that point.
-> 
-> Try booting with 'edd=off' or disabling CONFIG_EDD.
+why matrin need to make apic id to be greater than 0x10 when system is
+only 2way?
 
-Thanks for the hint. I tried edd=off but sadly the boot delay
-persists. It looks as though edd was already disabled, as my .config
-contains CONFIG_EDD=m and the edd module is not loaded. If it helps
-troubleshooting I can post my .config here.
+too much io-apic in system?
 
-Cheers,
-Shaun
+YH
+
+On 8/12/05, Andi Kleen <ak@suse.de> wrote:
+> On Fri, Aug 12, 2005 at 09:37:11AM -0700, yhlu wrote:
+> > So MPTABLE do not have problem with it, only acpi related...?
+> 
+> It's only a cosmetic problem I think with the printk being
+> wrong. The actual decision in the code should all use the true
+> value.
+> 
+> Another way would be to just remove the printk output.
+> 
+> -Andi
+>

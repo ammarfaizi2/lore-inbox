@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVHKXtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbVHLACo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbVHKXtq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 19:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVHKXtq
+	id S932251AbVHLACo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 20:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVHLACo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 19:49:46 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:15211 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932207AbVHKXtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 19:49:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=cuxOYAu/ZPgRQZb64Y6yDvrZrfi2ADyaC43ksH5y3+fo1howUCTnfHSDzCrSQmH9vGuPi2hV6w3+cXzYmWGB7fK2IfhOCSMBx5NXNlra4hI4J3ForaVhkOSG6aiD4+xr38RMmymQJp0IEMZ9T026kqW4rI5/FOMCEdyj3TK04MU=  ;
-Message-ID: <42FBE410.9070809@yahoo.com.au>
-Date: Fri, 12 Aug 2005 09:49:36 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+	Thu, 11 Aug 2005 20:02:44 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:33240 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S932251AbVHLACn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 20:02:43 -0400
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Tim Yamin <plasmaroo@gentoo.org>, Tavis Ormandy <taviso@gentoo.org>
+Subject: Re: [patch 4/8] [PATCH] Update in-kernel zlib routines
+References: <20050811225445.404816000@localhost.localdomain>
+	<20050811225626.233013000@localhost.localdomain>
+From: Peter Osterlund <petero2@telia.com>
+Date: 12 Aug 2005 02:01:08 +0200
+In-Reply-To: <20050811225626.233013000@localhost.localdomain>
+Message-ID: <m3acjodnwb.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, steiner@sgi.com, dvhltc@us.ibm.com,
-       mbligh@mbligh.org
-Subject: Re: allow the load to grow upto its cpu_power (was Re: [Patch] don't
- kick ALB in the presence of pinned task)
-References: <20050801174221.B11610@unix-os.sc.intel.com> <20050802092717.GB20978@elte.hu> <20050809160813.B1938@unix-os.sc.intel.com> <42F94A00.3070504@yahoo.com.au> <20050809190352.D1938@unix-os.sc.intel.com> <1123729750.5188.13.camel@npiggin-nld.site> <20050811111411.A581@unix-os.sc.intel.com>
-In-Reply-To: <20050811111411.A581@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> On Thu, Aug 11, 2005 at 01:09:10PM +1000, Nick Piggin wrote:
-> 
->>I have a variation on the 2nd part of your patch which I think
->>I would prefer. IMO it kind of generalises the current imbalance
->>calculation to handle this case rather than introducing a new
->>special case.
-> 
-> 
-> There is a difference between our changes. 
-> 
-> When the system is lightly loaded, my patch minimizes the number of 
-> groups picking up that load. This will help in power savings for 
-> example in the context of CMP. There are more changes required
-> (user or kernel) for complete power savings, but this is a direction 
-> towards that.
-> 
-> How about this patch?
+Chris Wright <chrisw@osdl.org> writes:
 
-Well, it is a departure from our current idea of balancing.
-I would prefer to use my patch initially to fix the _bug_
-you found, then we can think about changing policy for
-power savings.
+> -stable review patch.  If anyone has any  objections, please let us know.
+> ------------------
+> 
+> a) http://sources.redhat.com/ml/bug-gnu-utils/1999-06/msg00183.html
 
-Main things I'm worried about:
+Why does this 6 year old bug have to be fixed in the 2.6.12 stable
+series? Doesn't the patch violate this stable series rule?
 
-Idle time regressions that pop up any time we put
-restrictions on balancing.
+ - It must fix a real bug that bothers people (not a, "This could be a
+   problem..." type thing.)
 
-This can tend to unbalance memory controllers (eg. on POWER5,
-CMP Opteron) which can be a performance problem on those
-systems.
-
-Lastly, complexity in the calculation.
+Maybe the motivation was just missing from the patch description?
 
 -- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

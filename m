@@ -1,83 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVHLSPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVHLSVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbVHLSPk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVHLSPk
+	id S1750820AbVHLSVq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbVHLSVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:15:40 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:46512 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750836AbVHLSP2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:15:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QogC8Mxv84n6W2zs/dZCmQaYsQOAYRvfCRyg+6/Ajs7eDtSDPvcBkNjwCwNqJKJp1/BbrP9pMgZJVwrnnnIPZKmIfY9q8qOHcwUsUZ2YAgW8LYTvOqx/y5dBSTqnJTSbCWVLYAbDwO63nLQK6EQIy7eV8VDFVSSx0vvyuV738RU=
-Message-ID: <86802c4405081211153ec42f7e@mail.gmail.com>
-Date: Fri, 12 Aug 2005 11:15:26 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: James Simmons <jsimmons@infradead.org>
-Subject: Re: Atyfb questions and issues
-Cc: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>,
-       Jim Ramsay <jim.ramsay@gmail.com>, alex.kern@gmx.de,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.56.0508121848040.30829@pentafluge.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.44.0508121918200.10526-100000@deadlock.et.tudelft.nl>
-	 <Pine.LNX.4.56.0508121848040.30829@pentafluge.infradead.org>
+	Fri, 12 Aug 2005 14:21:46 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:47821 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750820AbVHLSPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:15:18 -0400
+Subject: [patch 18/39] remap_file_pages protection support: add VM_FAULT_SIGSEGV
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
+       mingo@elte.hu
+From: blaisorblade@yahoo.it
+Date: Fri, 12 Aug 2005 20:21:45 +0200
+Message-Id: <20050812182145.DF52E24E7F3@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-james,
 
-I remember that xlinit in 2.6 kernel only works when BIOS option-rom
-really init fb.
-It can not work if the BIOS option rom is not executed.
+From: Ingo Molnar <mingo@elte.hu>
 
-For 2.4, it reversed, it can not work if BIOS opton-rom is executed.
-Only work if BIOS don't excute the option rom.
+Since with remap_file_pages w/prot we may put PROT_NONE on a single PTE rather
+than a VMA, we must handle that inside handle_mm_fault.
 
-YH
+This value must be handled in the arch-specific fault handlers, and this
+change must be ported to every arch on the world; now the new support is not
+in a separate syscall, so this *must* be done unless we want stability /
+security issues (the *BUG()* for unknown return values of handle_mm_fault() is
+triggerable from userspace calling remap_file_pages, and on other archs, we
+have VM_FAULT_OOM which is worse). However, I've alleviated this need via the
+previous "safety net" patch.
 
-On 8/12/05, James Simmons <jsimmons@infradead.org> wrote:
-> 
-> > > I have the following issue.  I am trying to get an ATI Rage XL chip
-> > > working on a MIPS-based processor, with a 2.6.11-based kernel from
-> > > linux-mips.org.  Now, I know that this was working with a 2.4.25-based
-> > > kernel previously.
-> >
-> > Okay, the 2.4 driver is more intrusive, it programs the chip from start as
-> > much as possible, while the 2.6 driver tries to depend on Bios settings. I
-> > haven't checked out the 2.6 driver enough to see if it is still possible
-> > to program from scratch.
-> 
-> The code is there to program the chip from scratch. Just select
-> 
-> "Rage XL No-BIOS Init support"
-> 
-> The last time I tried it it didn't work. If we could get it working that
-> would be great.
-> 
-> > Yes, according to my register data sheet a 7 means the memory clock
-> > frequency is derived from DLLCLK. Unfortunately I don't know what this
-> > DLLCLK is. I think it means the chip isn't properly initialized yet and it
-> > clocks the memory from a safe clock source to allow the computer to start.
-> >
-> > However, we most likely have no way to find out the speed of this DLLCLK.
-> >
-> > The memory clock frequency is important for the driver to be able to set a
-> > display mode; it needs to program a memory reload frequency into the chip
-> > which depends on the memory frequency.
-> 
-> Their is code in xlint.c that should properly set this. Have to debug that
-> code.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+This patch includes the arch-specific part for i386.
+
+Note, however, that _proper_ support is more intrusive; we can allow a write
+on a readonly VMA, but the arch fault handler currently stops that; it should
+test VM_NONUNIFORM instead and call handle_mm_fault() in case it's set. And it
+will have to do on its own all protection checks. This is in the following
+patches.
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ linux-2.6.git-paolo/arch/i386/mm/fault.c |    2 ++
+ linux-2.6.git-paolo/include/linux/mm.h   |    9 +++++----
+ linux-2.6.git-paolo/mm/memory.c          |   12 ++++++++++++
+ 3 files changed, 19 insertions(+), 4 deletions(-)
+
+diff -puN arch/i386/mm/fault.c~rfp-add-vm_fault_sigsegv arch/i386/mm/fault.c
+--- linux-2.6.git/arch/i386/mm/fault.c~rfp-add-vm_fault_sigsegv	2005-08-11 14:19:57.000000000 +0200
++++ linux-2.6.git-paolo/arch/i386/mm/fault.c	2005-08-11 14:19:58.000000000 +0200
+@@ -351,6 +351,8 @@ good_area:
+ 			goto do_sigbus;
+ 		case VM_FAULT_OOM:
+ 			goto out_of_memory;
++		case VM_FAULT_SIGSEGV:
++			goto bad_area;
+ 		default:
+ 			BUG();
+ 	}
+diff -puN include/linux/mm.h~rfp-add-vm_fault_sigsegv include/linux/mm.h
+--- linux-2.6.git/include/linux/mm.h~rfp-add-vm_fault_sigsegv	2005-08-11 14:19:58.000000000 +0200
++++ linux-2.6.git-paolo/include/linux/mm.h	2005-08-11 14:19:58.000000000 +0200
+@@ -632,10 +632,11 @@ static inline int page_mapped(struct pag
+  * Used to decide whether a process gets delivered SIGBUS or
+  * just gets major/minor fault counters bumped up.
+  */
+-#define VM_FAULT_OOM	(-1)
+-#define VM_FAULT_SIGBUS	0
+-#define VM_FAULT_MINOR	1
+-#define VM_FAULT_MAJOR	2
++#define VM_FAULT_OOM		(-1)
++#define VM_FAULT_SIGBUS		0
++#define VM_FAULT_MINOR		1
++#define VM_FAULT_MAJOR		2
++#define VM_FAULT_SIGSEGV	3
+ 
+ #define offset_in_page(p)	((unsigned long)(p) & ~PAGE_MASK)
+ 
+diff -puN mm/memory.c~rfp-add-vm_fault_sigsegv mm/memory.c
+--- linux-2.6.git/mm/memory.c~rfp-add-vm_fault_sigsegv	2005-08-11 14:19:58.000000000 +0200
++++ linux-2.6.git-paolo/mm/memory.c	2005-08-11 14:19:58.000000000 +0200
+@@ -1995,6 +1995,18 @@ static inline int handle_pte_fault(struc
+ 		return do_swap_page(mm, vma, address, pte, pmd, entry, write_access);
+ 	}
+ 
++	/*
++	 * Generate a SIGSEGV if a PROT_NONE page is accessed; this is handled
++	 * in arch-specific code if the whole VMA has PROT_NONE, and here if
++	 * just this pte has PROT_NONE (which can be done only with
++	 * remap_file_pages).
++	 */
++	if (pgprot_val(pte_to_pgprot(entry)) == pgprot_val(__P000)) {
++		pte_unmap(pte);
++		spin_unlock(&mm->page_table_lock);
++		return VM_FAULT_SIGSEGV;
++	}
++
+ 	if (write_access) {
+ 		if (!pte_write(entry))
+ 			return do_wp_page(mm, vma, address, pte, pmd, entry);
+_

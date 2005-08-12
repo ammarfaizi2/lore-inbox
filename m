@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVHLHke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVHLHsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbVHLHke (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 03:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVHLHke
+	id S932204AbVHLHsx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 03:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbVHLHsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 03:40:34 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:20366 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1751156AbVHLHkd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 03:40:33 -0400
-Date: Fri, 12 Aug 2005 09:40:18 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] remove support for gcc < 3.2
-In-Reply-To: <20050804065447.GB25606@lug-owl.de>
-Message-ID: <Pine.LNX.4.62.0508120938560.18366@numbat.sonytel.be>
-References: <20050731222606.GL3608@stusta.de> <21d7e99705080318347d6b58d5@mail.gmail.com>
- <20050804065447.GB25606@lug-owl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Aug 2005 03:48:52 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:40587
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751150AbVHLHsw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 03:48:52 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.53-01, High
+	Resolution Timers & RCU-tasklist features
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       george anzinger <george@mvista.com>
+In-Reply-To: <1123816760.4453.10.camel@mindpipe>
+References: <20050811110051.GA20872@elte.hu>
+	 <1123816044.4453.7.camel@mindpipe>  <1123816760.4453.10.camel@mindpipe>
+Content-Type: text/plain
+Organization: linutronix
+Date: Fri, 12 Aug 2005 07:48:42 +0000
+Message-Id: <1123832922.23647.81.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Aug 2005, Jan-Benedict Glaw wrote:
-> -sh-3.00# cat cpuinfo
-> cpu             : VAX
-> cpu type        : KA43
-> cpu sid         : 0x0b000006
-> cpu sidex       : 0x04010002
-> page size       : 4096
-> BogoMIPS        : 10.08
-> -sh-3.00# cat version
-> Linux version 2.6.12 (jbglaw@d2) (gcc version 4.1.0 20050803 (experimental)) #2 Wed Aug 3 23:42:11 CEST 2005
+On Thu, 2005-08-11 at 23:19 -0400, Lee Revell wrote:
+> On Thu, 2005-08-11 at 23:07 -0400, Lee Revell wrote:
+> > Very nice to see this going in (via) the RT patch.
+> > 
+> 
+> Also, does not compile for me with ACPI PM timer selected:
 
-Any change we will see this code in mainline?
-Or do you wait for a 25th anniversary of your hardware, or something like that?
-;-)
+I did not come around yet to adapt the PM timer to the overall changes I
+made.
 
-Gr{oetje,eeting}s,
+tglx
 
-						Geert (supporter of Linux
-						       on old systems)
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

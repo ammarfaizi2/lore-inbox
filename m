@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbVHLMlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbVHLMlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbVHLMlG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 08:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbVHLMlF
+	id S1751160AbVHLMlm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 08:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVHLMlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 08:41:05 -0400
-Received: from hermes2.cs.kuleuven.ac.be ([134.58.40.2]:44006 "EHLO
-	hermes2.cs.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S1751158AbVHLMlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 08:41:04 -0400
-Date: Fri, 12 Aug 2005 14:38:43 +0200 (MEST)
-From: Nikolay Pelov <ns@pelov.name>
-To: cpufreq@lists.linux.org.uk
-cc: Dave Jones <davej@redhat.com>, Bruno Ducrot <ducrot@poupinou.org>,
-       Pavel Machek <pavel@ucw.cz>, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] Re: PowerOP 2/3: Intel Centrino support
-In-Reply-To: <20050810184445.GB14350@redhat.com>
-Message-ID: <Pine.GSO.4.10.10508121406280.26851-100000@billie.cs.kuleuven.ac.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Aug 2005 08:41:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57231 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751160AbVHLMll (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 08:41:41 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200508121329.46533.phillips@istop.com> 
+References: <200508121329.46533.phillips@istop.com>  <200508110812.59986.phillips@arcor.de> <20050808145430.15394c3c.akpm@osdl.org> <26569.1123752390@warthog.cambridge.redhat.com> 
+To: Daniel Phillips <phillips@istop.com>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
+Date: Fri, 12 Aug 2005 13:41:19 +0100
+Message-ID: <5278.1123850479@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Aug 2005, Dave Jones wrote:
+Daniel Phillips <phillips@istop.com> wrote:
 
-> 
-> For example, most of the x86 drivers, if you set a speed, and then
-> start fiddling with the voltage, you can pretty much guarantee
-> you'll crash within the next few seconds.  They have to match,
-> or at the least, be within a very small margin.
-> 
-> Given how long its taken us to get sane userspace parts for cpufreq,
-> I'm loathe to changing the interfaces yet again unless there's
-> a clear advantage to doing so, as it'll take at least another 12 months
-> for userspace to catch up.
-> 
+> You also achieved some sort of new low point in the abuse of StudlyCaps
+> there.  Please, let's not get started on mixed case acronyms.
 
-I'm one of those x86 folks undervolting their Pentium M laptops,
-so let me share my experience/opinion. About a week after I bought my
-laptop (Acer Aspire 1690, Intel Pentium M 740 at 1.7GHz), I was at the
-point of returning it to the dealer because the fan was constantly on
-and making too much noise even when running at 800MHz. Then I discovered
-that in the windows world, folks are routinely undervolting their CPUs and
-obtaining significant improvements in reduced heat and battery life.
-There are a number of howto's and software tools on the topic. 
-After I did the excercise myself I ended up with an almost 30% reduction
-in voltage for every frequency. I didn't make measurments how much this
-extends the battery life but the fan certainly spins less often.
+My patch has been around for quite a while, and no-one else has complained,
+not even you before this point. Plus, you don't seem to be complaining about
+PageSwapCache... nor even PageLocked.
 
-When I wanted to do this excersise on linux I discovered that there
-wasn't any support for changing voltages on centrino - only some patches
-flying around on this mailing list, many of them for AMD. So, I wrote
-a very simple patch myself which works as follows. Currently, there is a
-table with avaliable frequencies which the cpu governors use for dynamic
-frequency switching. In this table every frequency is paired with a voltage
-setting so whenever someone sets a frequency, the driver also sets the
-corresponding voltage. I guess that this pair is what you refer to as a
-power point. The patch I wrote simply overrides the default voltages in
-this pair. I may send the patch in the coming days but its just a quick
-hack and not a serious solution.
+I'm just requesting that you base your stuff on my patch that's already in
+-mm. The names in there are already in use, though not currently in the -mm
+patch (the patches that use it have been temporarily dropped).
 
-To summarize, undervolting the cpu of your laptop is becoming an important
-task and it would be nice to have support for it in one way or another.
+> Anyway, it sounds like you want to bless the use of private page flags in
+> filesystems. That is most probably a bad idea.
 
-Nik.
+Just because you don't like it doesn't make it a bad idea or wrong.
 
+Please then suggest an alternative way of doing this. Do you understand the
+problem I'm trying to solve?
 
+> Take a browse through the existing users and feast your eyes on the
+> spectacular lack of elegance.
+
+There may be plenty of inelegance in the kernel, but this comment isn't very
+helpful. I've looked at an awful lot of code and cogitated much and tried
+different ways of doing things. Currently this is the best I've come up with.
+
+David

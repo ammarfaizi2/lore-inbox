@@ -1,42 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVHLTan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVHLTbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVHLTan (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 15:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVHLTan
+	id S1750804AbVHLTbO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 15:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVHLTbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 15:30:43 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:944 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750756AbVHLTan (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 15:30:43 -0400
-Date: Fri, 12 Aug 2005 21:30:31 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Zachary Amsden <zach@vmware.com>
-cc: Steven Rostedt <rostedt@goodmis.org>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Coywolf Qi Hunt <coywolf@gmail.com>, 7eggert@gmx.de,
-       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Need help in understanding x86 syscall
-In-Reply-To: <42FB91FA.7070104@vmware.com>
-Message-ID: <Pine.LNX.4.61.0508122128260.16845@yvahk01.tjqt.qr>
-References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz> 
- <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com> 
- <1123770661.17269.59.camel@localhost.localdomain>  <2cd57c90050811081374d7c4ef@mail.gmail.com>
-  <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com> 
- <1123775508.17269.64.camel@localhost.localdomain> 
- <1123777184.17269.67.camel@localhost.localdomain>  <2cd57c90050811093112a57982@mail.gmail.com>
-  <2cd57c9005081109597b18cc54@mail.gmail.com>  <Pine.LNX.4.61.0508111310180.15153@chaos.analogic.com>
-  <1123781187.17269.77.camel@localhost.localdomain>
- <1123781639.17269.83.camel@localhost.localdomain> <42FB91FA.7070104@vmware.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Aug 2005 15:31:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:64180 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750804AbVHLTbL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 15:31:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rhOQ09CyO9udQf00o6hys16YOHCWu++5fYsHGQXBOrU3wq1YSA1djlmnPzfPZ4OaXbKyAa8pK/2m0CTLHllf2X3Z/G4SoXcMaMKsv5j9KwCwjLVG5GxQDyoL85eEkHfQaZTXNXhUg3HI8l8+f64sTUuZ9fUyuq/Rr31NPidiVo4=
+Message-ID: <9a87484905081212317ca8c04e@mail.gmail.com>
+Date: Fri, 12 Aug 2005 21:31:11 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: rostedt@goodmis.org
+Subject: Re: [PATCH] Fix PPC signal handling of NODEFER, should not affect sa_mask
+Cc: Chris Wright <chrisw@osdl.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linus Torvalds <torvalds@osdl.org>, gdt@linuxppc.org,
+       Andrew Morton <akpm@osdl.org>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+In-Reply-To: <Pine.LNX.4.58.0508121456570.19908@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1123615983.18332.194.camel@localhost.localdomain>
+	 <1123618745.18332.204.camel@localhost.localdomain>
+	 <20050809204928.GH7991@shell0.pdx.osdl.net>
+	 <1123621223.9553.4.camel@localhost.localdomain>
+	 <1123621637.9553.7.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0508091419420.3258@g5.osdl.org>
+	 <1123643401.9553.32.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr>
+	 <20050812184503.GX7762@shell0.pdx.osdl.net>
+	 <Pine.LNX.4.58.0508121456570.19908@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> zach-dev2:~ $ ldd /bin/ls
-> linux-gate.so.1 =>  (0xffffe000)
->
-> This is the vsyscall entry point, which gets linked by ld into all processes.
+On 8/12/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Fri, 12 Aug 2005, Chris Wright wrote:
+> > * Jan Engelhardt (jengelh@linux01.gwdg.de) wrote:
+> > > So, if in doubt what is really meant - check which of the two/three/+
+> > > different behaviors the users out there favor most.
+> >
+> > Rather, check what happens in practice on other implementations.  I don't
+> > have Solaris, HP-UX, Irix, AIX, etc. boxen at hand, but some folks must.
+> >
+> 
+> I've supplied this before, but I'll send it again.  Attached is a program
+> that should show the behavior of the sigaction.  If someone has one of the
+> above mentioned boxes, please run this on the box and send back the
+> results.
+> 
+I've got a 4-way pSeries p550 running AIX 5.3 here : 
 
-Just a clarification... not GNU ld (the binutils thing), but /lib/ld-linux.so
+$ uname -s -M -p -v -r
+AIX 3 5 powerpc IBM,9113-550
 
+Output from your program :
+
+$ ./a.out
+Unknown return code!!
+Unknown return code!!
+Unknown return code!!
+Unknown return code!!
+Unknown return code!!
+Unknown return code!!
+sa_mask blocks sig
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

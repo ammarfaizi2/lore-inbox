@@ -1,242 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVHLRJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVHLRLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbVHLRJF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVHLRJF
+	id S1750736AbVHLRLw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVHLRLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:09:05 -0400
-Received: from mailhub.lss.emc.com ([168.159.2.31]:24975 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1750733AbVHLRJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:09:03 -0400
-From: Brett Russ <russb@emc.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Greg KH <gregkh@suse.de>
-Subject: [PATCH 2.6.12.3] PCI/libata INTx cleanup
-References: <20050803204709.8BA0720B06@lns1058.lss.emc.com> <42FBA08C.5040103@pobox.com>
-In-Reply-To: <42FBA08C.5040103@pobox.com>
-Message-Id: <20050812171043.CF61020E8B@lns1058.lss.emc.com>
-Date: Fri, 12 Aug 2005 13:10:43 -0400 (EDT)
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.8.12.17
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='IP_HTTP_ADDR 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __SANE_MSGID 0, __dnsbl.njabl.org_TIMEOUT , __dynablock.njabl.org_TIMEOUT '
+	Fri, 12 Aug 2005 13:11:52 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:32075 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750727AbVHLRLv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:11:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=C+/Gx1+huhxveUnhV1i5c2xU40Hj/fJ0QPuKB6FdzV5tHqm70gvlARlRJ2aFxeqBXG5wNc98N48JILNAKWdAxOrzT/DI0EU1nMoOixYG+ieQC5y0aTqc45FQaFue7+HeZf4tcVtVPj427KXYA/MJwRgaapLhMUddhCjYeGb9GW0=
+Message-ID: <4789af9e050812101110d3642d@mail.gmail.com>
+Date: Fri, 12 Aug 2005 11:11:43 -0600
+From: Jim Ramsay <jim.ramsay@gmail.com>
+To: daniel.mantione@freepascal.org, alex.kern@gmx.de,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Atyfb questions and issues
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Brett Russ wrote:
-> 
->> Simple cleanup to eliminate X copies of the same function in libata.  
->> Moved pci_enable_intx() to pci.c, added pci_disable_intx() as well, 
->> and use them throughout libata and msi.c.
->>
->> Signed-off-by: Brett Russ <russb@emc.com>
-> 
-> 
-> Though there is nothing wrong with this patch, I would prefer a single 
-> function, pci_intx(), as found in drivers/scsi/ahci.c.
-> 
-> Would you be willing to move that one to the PCI layer, eliminate the 
-> multiple copies of pci_enable_intx(), and replace the calls to 
-> pci_enable_intx() with calls to pci_intx() ?
+I have the following issue.  I am trying to get an ATI Rage XL chip
+working on a MIPS-based processor, with a 2.6.11-based kernel from
+linux-mips.org.  Now, I know that this was working with a 2.4.25-based
+kernel previously.
 
-Sounds like what I did, except for the naming change.  I did away with
-pci_disable_intx() and changed the names.  Look ok?
+I seem to get intermittent strange issues, such as the machine
+freezing from time to time, but in general I get the following in my
+dmesg when I load the atyfb module:
 
-BR
+atyfb: using auxiliary register aperture
+atyfb: 3D RAGE XL (Mach64 GR, PCI-33MHz) [0x4752 rev 0x27]
+atyfb(aty_valid_pll_ct): pllvclk=50 MHz, vclk=25 MHz
+atyfb(aty_dsp_gt): dsp_config 0x307c0001, dsp_on_off 0x14fffff0
+< Sometimes it will hang here >
+atyfb: 512K RESV, 29.498928 MHz XTAL, 230 MHz PLL, 83 Mhz MCLK, 63 MHz XCLK
+atyfb: Unsupported xclk source:  7.
+< Followed by a number of >
+atyfb: vclk out of range
+< and >
+atyfb: not enough video RAM
+< Finally I get >
+atyfb: can't set default video mode                                             
+atyfb(aty_set_pll_ct): about to program:                                        
+pll_ext_cntl=0x0f pll_gen_cntl=0xff pll_vclk_cntl=0xad                          
+atyfb(aty_set_pll_ct): setting clock 3 for FeedBackDivider 255, ReferenceDivider
+ 255, PostDivider 3(0)
+< Other times it will hang here >
 
+And that's all I get.
 
-Index: linux-2.6.12.3-mv/drivers/pci/msi.c
-===================================================================
---- linux-2.6.12.3-mv.orig/drivers/pci/msi.c
-+++ linux-2.6.12.3-mv/drivers/pci/msi.c
-@@ -478,10 +478,7 @@ static void disable_msi_mode(struct pci_
- 	}
-     	if (pci_find_capability(dev, PCI_CAP_ID_EXP)) {
- 		/* PCI Express Endpoint device detected */
--		u16 cmd;
--		pci_read_config_word(dev, PCI_COMMAND, &cmd);
--		cmd &= ~PCI_COMMAND_INTX_DISABLE;
--		pci_write_config_word(dev, PCI_COMMAND, cmd);
-+		pci_intx(dev);
- 	}
- }
- 
-Index: linux-2.6.12.3-mv/drivers/pci/pci.c
-===================================================================
---- linux-2.6.12.3-mv.orig/drivers/pci/pci.c
-+++ linux-2.6.12.3-mv/drivers/pci/pci.c
-@@ -733,6 +733,25 @@ pci_clear_mwi(struct pci_dev *dev)
- 	}
- }
- 
-+
-+/**
-+ * pci_intx - enables INTx generation in PCI cfg space cmd register
-+ * @dev: the PCI device to enable
-+ *
-+ * Enables PCI INTx generation for device
-+ */
-+void 
-+pci_intx(struct pci_dev *pdev)
-+{
-+        u16 pci_command;
-+
-+        pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
-+        if (pci_command & PCI_COMMAND_INTX_DISABLE) {
-+                pci_command &= ~PCI_COMMAND_INTX_DISABLE;
-+                pci_write_config_word(pdev, PCI_COMMAND, pci_command);
-+        }
-+}
-+
- #ifndef HAVE_ARCH_PCI_SET_DMA_MASK
- /*
-  * These can be overridden by arch-specific implementations
-@@ -809,6 +828,7 @@ EXPORT_SYMBOL(pci_request_region);
- EXPORT_SYMBOL(pci_set_master);
- EXPORT_SYMBOL(pci_set_mwi);
- EXPORT_SYMBOL(pci_clear_mwi);
-+EXPORT_SYMBOL(pci_intx);
- EXPORT_SYMBOL(pci_set_dma_mask);
- EXPORT_SYMBOL(pci_set_consistent_dma_mask);
- EXPORT_SYMBOL(pci_assign_resource);
-Index: linux-2.6.12.3-mv/drivers/scsi/sata_sis.c
-===================================================================
---- linux-2.6.12.3-mv.orig/drivers/scsi/sata_sis.c
-+++ linux-2.6.12.3-mv/drivers/scsi/sata_sis.c
-@@ -186,18 +186,6 @@ static void sis_scr_write (struct ata_po
- 		outl(val, ap->ioaddr.scr_addr + (sc_reg * 4));
- }
- 
--/* move to PCI layer, integrate w/ MSI stuff */
--static void pci_enable_intx(struct pci_dev *pdev)
--{
--	u16 pci_command;
--
--	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
--	if (pci_command & PCI_COMMAND_INTX_DISABLE) {
--		pci_command &= ~PCI_COMMAND_INTX_DISABLE;
--		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
--	}
--}
--
- static int sis_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
- {
- 	struct ata_probe_ent *probe_ent = NULL;
-@@ -254,7 +242,7 @@ static int sis_init_one (struct pci_dev 
- 	}
- 
- 	pci_set_master(pdev);
--	pci_enable_intx(pdev);
-+	pci_intx(pdev);
- 
- 	/* FIXME: check ata_device_add return value */
- 	ata_device_add(probe_ent);
-Index: linux-2.6.12.3-mv/drivers/scsi/ahci.c
-===================================================================
---- linux-2.6.12.3-mv.orig/drivers/scsi/ahci.c
-+++ linux-2.6.12.3-mv/drivers/scsi/ahci.c
-@@ -878,18 +878,6 @@ static int ahci_host_init(struct ata_pro
- 	return 0;
- }
- 
--/* move to PCI layer, integrate w/ MSI stuff */
--static void pci_enable_intx(struct pci_dev *pdev)
--{
--	u16 pci_command;
--
--	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
--	if (pci_command & PCI_COMMAND_INTX_DISABLE) {
--		pci_command &= ~PCI_COMMAND_INTX_DISABLE;
--		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
--	}
--}
--
- static void ahci_print_info(struct ata_probe_ent *probe_ent)
- {
- 	struct ahci_host_priv *hpriv = probe_ent->private_data;
-@@ -987,7 +975,7 @@ static int ahci_init_one (struct pci_dev
- 		goto err_out;
- 	}
- 
--	pci_enable_intx(pdev);
-+	pci_intx(pdev);
- 
- 	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
- 	if (probe_ent == NULL) {
-Index: linux-2.6.12.3-mv/drivers/scsi/ata_piix.c
-===================================================================
---- linux-2.6.12.3-mv.orig/drivers/scsi/ata_piix.c
-+++ linux-2.6.12.3-mv/drivers/scsi/ata_piix.c
-@@ -545,18 +545,6 @@ static void piix_set_dmamode (struct ata
- 	}
- }
- 
--/* move to PCI layer, integrate w/ MSI stuff */
--static void pci_enable_intx(struct pci_dev *pdev)
--{
--	u16 pci_command;
--
--	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
--	if (pci_command & PCI_COMMAND_INTX_DISABLE) {
--		pci_command &= ~PCI_COMMAND_INTX_DISABLE;
--		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
--	}
--}
--
- #define AHCI_PCI_BAR 5
- #define AHCI_GLOBAL_CTL 0x04
- #define AHCI_ENABLE (1 << 31)
-@@ -651,7 +639,7 @@ static int piix_init_one (struct pci_dev
- 	 * message-signalled interrupts currently).
- 	 */
- 	if (port_info[0]->host_flags & PIIX_FLAG_CHECKINTR)
--		pci_enable_intx(pdev);
-+		pci_intx(pdev);
- 
- 	if (combined) {
- 		port_info[sata_chan] = &piix_port_info[ent->driver_data];
-Index: linux-2.6.12.3-mv/drivers/scsi/sata_uli.c
-===================================================================
---- linux-2.6.12.3-mv.orig/drivers/scsi/sata_uli.c
-+++ linux-2.6.12.3-mv/drivers/scsi/sata_uli.c
-@@ -171,18 +171,6 @@ static void uli_scr_write (struct ata_po
- 	uli_scr_cfg_write(ap, sc_reg, val);
- }
- 
--/* move to PCI layer, integrate w/ MSI stuff */
--static void pci_enable_intx(struct pci_dev *pdev)
--{
--	u16 pci_command;
--
--	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
--	if (pci_command & PCI_COMMAND_INTX_DISABLE) {
--		pci_command &= ~PCI_COMMAND_INTX_DISABLE;
--		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
--	}
--}
--
- static int uli_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
- {
- 	struct ata_probe_ent *probe_ent;
-@@ -255,7 +243,7 @@ static int uli_init_one (struct pci_dev 
- 	}
- 
- 	pci_set_master(pdev);
--	pci_enable_intx(pdev);
-+	pci_intx(pdev);
- 
- 	/* FIXME: check ata_device_add return value */
- 	ata_device_add(probe_ent);
-Index: linux-2.6.12.3-mv/include/linux/pci.h
-===================================================================
---- linux-2.6.12.3-mv.orig/include/linux/pci.h
-+++ linux-2.6.12.3-mv/include/linux/pci.h
-@@ -810,6 +810,7 @@ void pci_set_master(struct pci_dev *dev)
- #define HAVE_PCI_SET_MWI
- int pci_set_mwi(struct pci_dev *dev);
- void pci_clear_mwi(struct pci_dev *dev);
-+void pci_intx(struct pci_dev *pdev);
- int pci_set_dma_mask(struct pci_dev *dev, u64 mask);
- int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
- int pci_assign_resource(struct pci_dev *dev, int i);
+I'm assuming that most of my issues are due to the "Unsupported xclk
+source" message.  Any ideas what I can do about this, or where I can
+go to learn more about how to make this thing work?
+
+-- 
+Jim Ramsay
+"Me fail English?  That's unpossible!"

@@ -1,141 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVHLRug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVHLRue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbVHLRug (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVHLRug
+	id S1750761AbVHLRue (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVHLRue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:50:36 -0400
-Received: from chello062178225197.14.15.tuwien.teleweb.at ([62.178.225.197]:33747
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750762AbVHLRuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:50:35 -0400
-Subject: [PATCH 2.6.13-rc6 1/2] New Syscall: get rlimits of any process
-From: Wieland Gmeiner <e8607062@student.tuwien.ac.at>
-Reply-To: e8607062@student.tuwien.ac.at
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Elliot Lee <sopwith@redhat.com>,
-       Wieland Gmeiner <e8607062@student.tuwien.ac.at>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 12 Aug 2005 19:48:22 +0200
-Message-Id: <1123868902.10923.5.camel@w2>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Fri, 12 Aug 2005 13:50:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:23783 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750761AbVHLRue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:50:34 -0400
+Date: Fri, 12 Aug 2005 18:50:30 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
+cc: Jim Ramsay <jim.ramsay@gmail.com>, alex.kern@gmx.de,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Atyfb questions and issues
+In-Reply-To: <Pine.LNX.4.44.0508121918200.10526-100000@deadlock.et.tudelft.nl>
+Message-ID: <Pine.LNX.4.56.0508121848040.30829@pentafluge.infradead.org>
+References: <Pine.LNX.4.44.0508121918200.10526-100000@deadlock.et.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
 
-I'm a participant in Googles Summer of Code Program, doing an entry
-level kernel project suggested by Fedora Core, "Getting and Setting
-Process Resource Limits out of Process Space".
+> > I have the following issue.  I am trying to get an ATI Rage XL chip
+> > working on a MIPS-based processor, with a 2.6.11-based kernel from
+> > linux-mips.org.  Now, I know that this was working with a 2.4.25-based
+> > kernel previously.
+> 
+> Okay, the 2.4 driver is more intrusive, it programs the chip from start as
+> much as possible, while the 2.6 driver tries to depend on Bios settings. I
+> haven't checked out the 2.6 driver enough to see if it is still possible
+> to program from scratch.
 
-Rationale: Currently resource usage limits (rlimits) can only be set 
-inside a process space, or inherited from the parent process. It 
-would be useful to allow adjusting resource limits for running 
-processes, e.g. tuning the resource usage of daemon processes under 
-changing workloads without restarting them.
+The code is there to program the chip from scratch. Just select 
 
-Implementation: This patch provides a new syscall getprlimit() for
-reading a given process resource limits for i386. Its implementation
-follows closely the getrlimit syscall. It is given a pid as an
-additional argument. If the given pid equals zero the current process
-rlimits are read and the behaviour resembles the behaviour of
-getrlimit. Otherwise some checking on the validity of the given pid is
-done and if the given process is found access is granted if
+"Rage XL No-BIOS Init support"
 
-- the calling process holds the CAP_SYS_RESOURCE capability or
-- the calling process uid equals the uid of the process whose rlimit
-  is being read or
-- the calling process uid equals the suid of the process whose rlimit
-  is being read or
-- the calling process euid equals the uid of the process whose rlimit
-  is being read or
-- the calling process euid equals the suid of the process whose 
-  rlimit is being read
-
-See the followup for the writing syscall. Additionally a
-/proc/pid/rlimits interface for comfortable access is under
-construction.
-
-Simple programs for testing the syscalls can be found on
-http://stud4.tuwien.ac.at/~e8607062/studies/soc/patches/
-
-
-Signed-off-by: Wieland Gmeiner <e8607062@student.tuwien.ac.at>
-
-
-diff -uprN -X linux-2.6.13-rc6-vanilla/Documentation/dontdiff linux-2.6.13-rc6-vanilla/arch/i386/kernel/syscall_table.S linux-2.6.13-rc6-rlim/arch/i386/kernel/syscall_table.S
---- linux-2.6.13-rc6-vanilla/arch/i386/kernel/syscall_table.S	2005-08-09 16:03:08.000000000 +0200
-+++ linux-2.6.13-rc6-rlim/arch/i386/kernel/syscall_table.S	2005-08-09 15:06:54.000000000 +0200
-@@ -294,3 +294,4 @@ ENTRY(sys_call_table)
- 	.long sys_inotify_init
- 	.long sys_inotify_add_watch
- 	.long sys_inotify_rm_watch
-+        .long sys_getprlimit
-diff -uprN -X linux-2.6.13-rc6-vanilla/Documentation/dontdiff linux-2.6.13-rc6-vanilla/include/asm-i386/unistd.h linux-2.6.13-rc6-rlim/include/asm-i386/unistd.h
---- linux-2.6.13-rc6-vanilla/include/asm-i386/unistd.h	2005-08-09 16:03:19.000000000 +0200
-+++ linux-2.6.13-rc6-rlim/include/asm-i386/unistd.h	2005-08-09 15:07:46.000000000 +0200
-@@ -299,8 +299,9 @@
- #define __NR_inotify_init	291
- #define __NR_inotify_add_watch	292
- #define __NR_inotify_rm_watch	293
-+#define __NR_getprlimit         294
+The last time I tried it it didn't work. If we could get it working that 
+would be great.
  
--#define NR_syscalls 294
-+#define NR_syscalls 295
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
-diff -uprN -X linux-2.6.13-rc6-vanilla/Documentation/dontdiff linux-2.6.13-rc6-vanilla/kernel/sys.c linux-2.6.13-rc6-rlim/kernel/sys.c
---- linux-2.6.13-rc6-vanilla/kernel/sys.c	2005-08-09 16:03:21.000000000 +0200
-+++ linux-2.6.13-rc6-rlim/kernel/sys.c	2005-08-09 15:10:32.000000000 +0200
-@@ -1603,6 +1603,47 @@ asmlinkage long sys_setrlimit(unsigned i
- 	return 0;
- }
- 
-+asmlinkage long sys_getprlimit(pid_t pid, unsigned int resource, struct rlimit __user *rlim)
-+{
-+        struct rlimit value;
-+        task_t *p;
-+        int retval = -EINVAL;
-+
-+        if (resource >= RLIM_NLIMITS)
-+                goto out_nounlock;
-+
-+        if (pid < 0)
-+                goto out_nounlock;
-+
-+        retval = -ESRCH;
-+        if (pid == 0) {
-+                p = current;
-+        } else {
-+                read_lock(&tasklist_lock);
-+                p = find_task_by_pid(pid);
-+        }
-+        if (p) {
-+                retval = -EPERM;
-+                if ((current->euid ^ p->suid) && (current->euid ^ p->uid) &&
-+                    (current->uid ^ p->suid) && (current->uid ^ p->uid) &&
-+                    !capable(CAP_SYS_RESOURCE))
-+                        goto out_unlock;
-+
-+                task_lock(p->group_leader);
-+                value = p->signal->rlim[resource];
-+                task_unlock(p->group_leader);
-+                retval = copy_to_user(rlim, &value, sizeof(*rlim)) ? -EFAULT : 0;
-+        }
-+        if (pid == 0)
-+                goto out_nounlock;
-+
-+out_unlock:
-+        read_unlock(&tasklist_lock);
-+
-+out_nounlock:
-+        return retval;
-+}
-+
- /*
-  * It would make sense to put struct rusage in the task_struct,
-  * except that would make the task_struct be *really big*.  After
+> Yes, according to my register data sheet a 7 means the memory clock
+> frequency is derived from DLLCLK. Unfortunately I don't know what this
+> DLLCLK is. I think it means the chip isn't properly initialized yet and it
+> clocks the memory from a safe clock source to allow the computer to start.
+> 
+> However, we most likely have no way to find out the speed of this DLLCLK.
+> 
+> The memory clock frequency is important for the driver to be able to set a
+> display mode; it needs to program a memory reload frequency into the chip
+> which depends on the memory frequency.
+
+Their is code in xlint.c that should properly set this. Have to debug that 
+code.
 

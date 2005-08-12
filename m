@@ -1,93 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbVHLFva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVHLGBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbVHLFva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 01:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbVHLFva
+	id S932339AbVHLGBg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 02:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbVHLGBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 01:51:30 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:10806 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932244AbVHLFv3 convert rfc822-to-8bit
+	Fri, 12 Aug 2005 02:01:35 -0400
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:33034 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932339AbVHLGBf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 01:51:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=D/Cgxi/WxA4bR+EjqZxQ0oNgfxhAQZKyAvIsn7bRY8tVhxWgUfBtYxjs9JJGeqI5mUT3f8O1e5ZhW+NQ6yP3R/LRKGhNX7VZVeAZPp6hr9z4oxcgXd0gpniX/XBEeGYc91jTn0STAW4HvQzlJno33XvSr5fmeIv041Kbs/vb0+o=
-Message-ID: <86802c4405081122513625c081@mail.gmail.com>
-Date: Thu, 11 Aug 2005 22:51:28 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] x86_64: Fix apicid versus cpu# confusion.
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-In-Reply-To: <m1hddvwzke.fsf_-_@ebiederm.dsl.xmission.com>
+	Fri, 12 Aug 2005 02:01:35 -0400
+Date: Fri, 12 Aug 2005 08:02:10 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [lm-sensors] I2C block reads with i2c-viapro: testers wanted
+Message-Id: <20050812080210.58573fe3.khali@linux-fr.org>
+In-Reply-To: <20050812010759.GA11361@jupiter.solarsys.private>
+References: <20050809231328.0726537b.khali@linux-fr.org>
+	<20050812010759.GA11361@jupiter.solarsys.private>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050811225445.404816000@localhost.localdomain>
-	 <20050811225609.058881000@localhost.localdomain>
-	 <20050811233302.GA8974@wotan.suse.de>
-	 <m1hddvwzke.fsf_-_@ebiederm.dsl.xmission.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So boot_cpu_id is apic id of BSP.
+Hi Mark,
 
-Anyway sync_tsc(...) there is master and MASTER..., but value are all 0.
+> > My experimental patch follows. I have enabled the I2C block read
+> > function for all VIA south bridges, so that it can be tested on all
+> > chips. I'll restrict that after the test phase, of course.
+> 
+> I fired it up on one of the older chipsets...
+> 
+> # lspci
+> (...)
+> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South] (rev 23)
+> (...)
+> 00:07.3 Host bridge: VIA Technologies, Inc. VT82C596 Power Management (rev 30)
 
-YH
+Oh, you do have one of these old 596 chips. Interesting. Could you
+possibly take a look at the i2c-viapro driver and comment on that part:
 
-On 8/11/05, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> Ok being impatient not wanting this tiny bug to be forgotten for
-> 2.6.13.  Linus please apply this micro patch.
+	if ((pci_read_config_word(pdev, id->driver_data, &vt596_smba)) ||
+	    !(vt596_smba & 0x1)) {
+		/* try 2nd address and config reg. for 596 */
+		if (id->device == PCI_DEVICE_ID_VIA_82C596_3 &&
+		    !pci_read_config_word(pdev, SMBBA2, &vt596_smba) &&
+		    (vt596_smba & 0x1)) {
+			smb_cf_hstcfg = 0x84;
+
+It looks like a hack to me, and I was wondering if we could clean it up
+(possibly by using pci quirks). I've not studied the problem in details
+yet, but comments and help would be welcome, and the fact that you do
+have a chip for testing will help anyway :)
+
+> As you suspected, it didn't work.
 > 
-> > >  static void __cpuinit tsc_sync_wait(void)
-> > >  {
-> > >     if (notscsync || !cpu_has_tsc)
-> > >             return;
-> > > - printk(KERN_INFO "CPU %d: Syncing TSC to CPU %u.\n", smp_processor_id(),
-> > > -                   boot_cpu_id);
-> > > -   sync_tsc();
-> > > +   sync_tsc(boot_cpu_id);
-> >
-> > I actually found a bug in this today. This should be sync_tsc(0), not
-> > sync_tsc(boot_cpu_id)
-> > Can you just fix it in your tree or should I submit a new patch?
-> >
-> > -Andi
-> 
-> Oops.  I knew I didn't have the physical versus logical cpu identifiers right
-> when I generated that patch.  It's not nearly as bad as I feared at the time
-> though.
-> 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-> ---
-> 
->  arch/x86_64/kernel/smpboot.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> 5192895f71c7eff7e1335cd9d6a775dda2bb5d52
-> diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
-> --- a/arch/x86_64/kernel/smpboot.c
-> +++ b/arch/x86_64/kernel/smpboot.c
-> @@ -334,7 +334,7 @@ static void __cpuinit tsc_sync_wait(void
->  {
->         if (notscsync || !cpu_has_tsc)
->                 return;
-> -       sync_tsc(boot_cpu_id);
-> +       sync_tsc(0);
->  }
-> 
->  static __init int notscsync_setup(char *s)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> # i2cdump -y 0 0x50 i
+> Error: Block read failed, return code 0
+
+Alright, it matches the datasheet and my expectations.
+
+> I also found something interesting, by accident.  With a stock FC4
+> kernel, the i2cdump clocked at 1.02s total.  With 2.6.13-rc6, it took
+> 5.11s!  The only relevant difference that I can see is that the FC4
+> kernel uses HZ of 1000 while my 2.6.13-rc6 kernel uses 100.  Because
+> the i2c-viapro is a polling driver, it becomes slower as HZ decreases.
+
+Absolutely true. This is what improved the speed of most SMBus drivers
+in 2.6 when compared with 2.4: HZ=1000. Now we're stepping back a bit
+with HZ=250.
+
+> I.e. the improvement you are seeing with byte vs. block xfers is quite
+> exaggerated because we poll the device relatively infrequently.  *All*
+> the xfers are slower than they could be w/ a non-polling driver.
+
+Oh well, even if we were using interrupts instead of polling, the block
+transactions are still better as they are still twice as fast, would
+generate less interrupts, and are generally less CPU-intensive. That
+being said, I plan to implement interrupts in i2c-viapro at a later
+time. I have no idea how to do that, but I'll take a look at what you
+did in your i2c-i801 reimplementation, it should help. I simply seem to
+remember that you expected problems for block transactions in interrupt
+more, and don't know why exactly.
+
+Maybe we can use interrupts for short commands and polling for big
+transactions. I see no technical problem doing that - although this
+would make the driver larger and more complex.
+
+BTW, it would be great if you could finalize your i2c-i801
+reimplementation so that we can add it to Linux 2.6. I remember it gave
+me much better performance than the original one, and the code was
+looking much nicer as well.
+
+Thanks for the tests :)
+-- 
+Jean Delvare

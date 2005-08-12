@@ -1,131 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVHLVXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVHLVaf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbVHLVXw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 17:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbVHLVXw
+	id S1751284AbVHLVaf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 17:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVHLVaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 17:23:52 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:12242 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751281AbVHLVXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 17:23:52 -0400
-Subject: Re: test_signal results AIX DU4 IRIX6 (was: [PATCH] Fix PPC signal
-	handling of NODEFER, should not affect sa_mask)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Robert Wilkens <robw@optonline.net>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Chris Wright <chrisw@osdl.org>
-In-Reply-To: <200508121316.55757.merritt@u.washington.edu>
-References: <200508121316.55757.merritt@u.washington.edu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 12 Aug 2005 17:23:33 -0400
-Message-Id: <1123881813.5296.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 12 Aug 2005 17:30:35 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:10413 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751282AbVHLVad (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 17:30:33 -0400
+Message-ID: <42FD14E9.8060502@pobox.com>
+Date: Fri, 12 Aug 2005 17:30:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>, Brett Russ <russb@emc.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12.3] PCI/libata INTx cleanup
+References: <20050803204709.8BA0720B06@lns1058.lss.emc.com> <42FBA08C.5040103@pobox.com> <20050812171043.CF61020E8B@lns1058.lss.emc.com> <20050812182253.GA7842@suse.de>
+In-Reply-To: <20050812182253.GA7842@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I received this from someone. I'm BCCing him since he didn't email to
-the LKML himself (for some reason, maybe he doesn't want spam), I'll
-protect his identity. If he wants to take credit, he should CC everyone.
-
-
-On Fri, 2005-08-12 at 13:16 -0700, Someone wrote:
-> DU4
-> ===
-> [3] uname -a
-> OSF1 hostname V4.0 878 alpha
-> [4] ./test_signal 
-> sa_mask blocks other signals
-> SA_NODEFER does not block other signals
-
-> SA_NODEFER does not affect sa_mask
-
-The above here is what the patch does, and NOT what Linux currently
-does.
-
-> SA_NODEFER and sa_mask blocks sig
-
-Same goes for the above here.
-
-> !SA_NODEFER blocks sig
-> SA_NODEFER does not block sig
-> sa_mask blocks sig
+Greg KH wrote:
+> On Fri, Aug 12, 2005 at 01:10:43PM -0400, Brett Russ wrote:
 > 
-> AIX
-> ===
-> [36] uname -a
-> AIX hostname 2 5 000A1B9A4C00
-> [37] ./test_signal 
-> sa_mask blocks other signals
-> SA_NODEFER does not block other signals
-
-> SA_NODEFER does not affect sa_mask
-> SA_NODEFER and sa_mask blocks sig
-
-Strike two. looks good for the patch.
-
-> !SA_NODEFER blocks sig
-> SA_NODEFER does not block sig
-> sa_mask blocks sig
+>>Jeff Garzik wrote:
+>>
+>>>Brett Russ wrote:
+>>>
+>>>
+>>>>Simple cleanup to eliminate X copies of the same function in libata.  
+>>>>Moved pci_enable_intx() to pci.c, added pci_disable_intx() as well, 
+>>>>and use them throughout libata and msi.c.
+>>>>
+>>>>Signed-off-by: Brett Russ <russb@emc.com>
+>>>
+>>>
+>>>Though there is nothing wrong with this patch, I would prefer a single 
+>>>function, pci_intx(), as found in drivers/scsi/ahci.c.
+>>>
+>>>Would you be willing to move that one to the PCI layer, eliminate the 
+>>>multiple copies of pci_enable_intx(), and replace the calls to 
+>>>pci_enable_intx() with calls to pci_intx() ?
+>>
+>>Sounds like what I did, except for the naming change.  I did away with
+>>pci_disable_intx() and changed the names.  Look ok?
 > 
-> Irix 6.5
-> ========
-> [9] uname -a
-> IRIX hostname 6.5 07201607 IP22
-> [10] ./test_signal 
-> sa_mask blocks other signals
-> SA_NODEFER does not block other signals
-
-> SA_NODEFER does not affect sa_mask
-> SA_NODEFER and sa_mask blocks sig
-
-Strike three, your out!
-
-> !SA_NODEFER blocks sig
-> SA_NODEFER does not block sig
-> sa_mask blocks sig
 > 
+> Looks ok to me, care to resend it with a Signed-off-by: and a new
+> changelog entry so I can apply it?
+> 
+> 
+>>+EXPORT_SYMBOL(pci_intx);
+> 
+> 
+> Hm, for new pci functions, I prefer to have them marked as
+> EXPORT_SYMBOL_GPL(), is that ok with you?
 
-So Linux is not compliant with other unices.  So I guess I'll get going
-on sending in patches for each architecture.
+Don't apply as-is, it needs to look like the current 2.6.13-rcX two-arg 
+version from drivers/scsi/ahci.c:
 
-Oh, just to show you what Linux shows without the patch:
+/* move to PCI layer, integrate w/ MSI stuff */
+static void pci_intx(struct pci_dev *pdev, int enable)
+{
+         u16 pci_command, new;
 
-$ uname -a
-Linux bilbo 2.6.12 #2 SMP Wed Jul 20 20:07:59 EDT 2005 i686 GNU/Linux
+         pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
 
-$ ./test_signal
-sa_mask blocks other other signals
-SA_NODEFER does not block other signals
-SA_NODEFER affects sa_mask
-SA_NODEFER and sa_mask does not block sig
-!SA_NODEFER blocks sig
-SA_NODEFER does not block sig
-sa_mask blocks sig
+         if (enable)
+                 new = pci_command & ~PCI_COMMAND_INTX_DISABLE;
+         else
+                 new = pci_command | PCI_COMMAND_INTX_DISABLE;
 
-
-And with the patch:
-
-$ uname -a
-Linux goliath 2.6.13-rc3 #5 SMP Fri Aug 12 14:39:38 EDT 2005 i686
-GNU/Linux
-
-$ ./test_signal
-sa_mask blocks other signals
-SA_NODEFER does not block other signals
-SA_NODEFER does not affect sa_mask
-SA_NODEFER and sa_mask blocks sig
-!SA_NODEFER blocks sig
-SA_NODEFER does not block sig
-sa_mask blocks sig
-
-
--- Steve
-
+         if (new != pci_command)
+                 pci_write_config_word(pdev, PCI_COMMAND, pci_command);
+}
 

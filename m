@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVHLIEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbVHLIJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbVHLIEF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 04:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbVHLIEF
+	id S1750998AbVHLIJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 04:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbVHLIJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 04:04:05 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:53418 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750783AbVHLIEE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 04:04:04 -0400
-Message-ID: <42FC57EC.2060204@pobox.com>
-Date: Fri, 12 Aug 2005 04:03:56 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shaun Jackman <sjackman@gmail.com>
-CC: Tejun Heo <htejun@gmail.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Trouble shooting a ten minute boot delay (SiI3112)
-References: <7f45d939050809163136a234a@mail.gmail.com>	 <42FC0DD4.9060905@gmail.com> <7f45d93905081201001a51d51b@mail.gmail.com>
-In-Reply-To: <7f45d93905081201001a51d51b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 12 Aug 2005 04:09:29 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:46742 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1750831AbVHLIJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 04:09:27 -0400
+Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-ia64@vger.kernel.org, Tony Luck <tony.luck@intel.com>
+In-Reply-To: <200508111707.30861.bjorn.helgaas@hp.com>
+References: <200508111424.43150.bjorn.helgaas@hp.com>
+	 <20050811214807.GA9775@havoc.gtf.org> <42FBC985.4030602@pobox.com>
+	 <200508111707.30861.bjorn.helgaas@hp.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Date: Fri, 12 Aug 2005 09:35:50 +0100
+Message-Id: <1123835751.22460.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaun Jackman wrote:
-> 2005/8/11, Tejun Heo <htejun@gmail.com>:
-> 
->>Shaun Jackman wrote:
->>
->>>I added a PCI SATA controller to my computer. Immediately after grub
->>>loads the kernel there is a consistent ten minute delay before the
->>>kernel displays its first message. I tested Linux 2.6.8 and 2.6.11
->>>both from Debian, and 2.6.11 from Knoppix, all of which experience the
->>>same delay.
->>
->>  * What do you mean by the `first' message?  ie. What's the first line
->>you read?
->>  * Is it really ten minutes?
-> 
-> 
-> Hello, Tejun. Thanks for the reply.
-> 
-> The message displayed by the bootloader, grub, is...
-> root (hd2,2)
-> 	Filesystem type is ext2fs, partition type 0x83
-> kernel /boot/vmlinuz-2.6.11-1-k7 root=/dev/md0 ro nodma
-> 	[Linux-bzImage, setup=0x1600, size=0x122a667]
-> initrd /boot/initrd.img-2.6.11-1-1-k7
-> 	[Linux-initrd @ 0x1fb29000, 0x4c6000 bytes]
-> boot
-> 
-> At this point there is a nine minute, fifteen second delay. As soon as
-> the kernel starts printing messages it goes by quite fast, so I can't
-> be certain what it's printing, but the first message according to
-> dmesg is...
-> Linux version 2.6.11-1-k7 (dannf@firetheft) (gcc version 3.3.6 (Debian 1:3.3.6-6
-> )) #1 Mon Jun 20 21:26:23 MDT 2005
-> BIOS-provided physical RAM map:
+On Iau, 2005-08-11 at 17:07 -0600, Bjorn Helgaas wrote:
+> So the scenario in question (correct me if I'm wrong) is that we
+> have a PCI IDE device that is handed off in compatibility mode (and
+> may only work in that mode).  In that case, the PCI *device* still
+> exists, so shouldn't the IDE PCI code claim that device, notice that
+> it's in compatibility mode, and use the legacy ports and IRQs if
+> necessary?
 
-It's doing something BIOS-related at that point.
+The PCI IDE code and legacy IDE code both find the device and they
+realise its the same device so that it is driven by a suitable driver.
+The legacy IDE driver is useful if your platform has an unsupported IDE
+controller. It seems ot me the correct fix for IA64 is probably to set
+your arch specific probe address function to only probe the standard PCI
+legacy ports and to do any other appropriate checks, not to take an axe
+to Kconfig. 
 
-Try booting with 'edd=off' or disabling CONFIG_EDD.
-
-	Jeff
-
-
+Alan
 

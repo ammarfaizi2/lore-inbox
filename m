@@ -1,62 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVHLR6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbVHLR6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbVHLR6o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVHLR6W
+	id S1750785AbVHLR6S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVHLRys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:58:22 -0400
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:5130 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750781AbVHLR6R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:58:17 -0400
-Date: Fri, 12 Aug 2005 19:58:44 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: LM Sensors <lm-sensors@lm-sensors.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: I2C block reads with i2c-viapro: testers wanted
-Message-Id: <20050812195844.4f597d19.khali@linux-fr.org>
-In-Reply-To: <m3wtmri364.fsf@defiant.localdomain>
-References: <20050809231328.0726537b.khali@linux-fr.org>
-	<42FA6406.4030901@cetrtapot.si>
-	<20050810230633.0cb8737b.khali@linux-fr.org>
-	<42FA89FE.9050101@cetrtapot.si>
-	<20050811185651.0ca4cd96.khali@linux-fr.org>
-	<m3fytgnv73.fsf@defiant.localdomain>
-	<20050811215929.1df5fab0.khali@linux-fr.org>
-	<m3iryctaou.fsf@defiant.localdomain>
-	<20050811234946.0106afbe.khali@linux-fr.org>
-	<m3br44t9cv.fsf@defiant.localdomain>
-	<20050812082653.098a6aa3.khali@linux-fr.org>
-	<m3wtmri364.fsf@defiant.localdomain>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Aug 2005 13:54:48 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:22711 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750785AbVHLRy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:54:28 -0400
+Subject: [patch 06/39] correct _PAGE_FILE comment
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 12 Aug 2005 19:31:43 +0200
+Message-Id: <20050812173143.6A79824E7CB@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Krzysztof,
 
-> > In I2C mode, you can even alternate as many read and write sequences
-> > you want in a single transaction. The target chip would of course
-> > need to know how to interpret such a transaction though. I've never
-> > seen this possibility used so far.
-> 
-> Is this mode supported by the common (such as VIA south bridge)
-> controllers?
+_PAGE_FILE does not indicate whether a file is in page / swap cache, it is set
+just for non-linear PTE's. Correct the comment for i386, x86_64, UML. Also
+clearify _PAGE_NONE.
 
-No it's not, for the simple reason that south bridges are almost always
-SMBus controllers, not I2C controllers.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-That being said, I'd be surprised if it ever matters. I never saw such
-transactions, and if some chip was to accept them, it would most
-probably also accept a sequence of more simple, SMBus-compatible
-transactions to achieve the same goal.
+ linux-2.6.git-paolo/include/asm-i386/pgtable.h   |   10 +++++-----
+ linux-2.6.git-paolo/include/asm-um/pgtable.h     |    8 +++++---
+ linux-2.6.git-paolo/include/asm-x86_64/pgtable.h |    2 +-
+ 3 files changed, 11 insertions(+), 9 deletions(-)
 
-If you have further questions, they are welcome but I'd suggest that you
-drop LKML from the recipients and follow up on the lm_sensors list only,
-as we are getting somewhat off-topic now.
-
--- 
-Jean Delvare
+diff -puN include/asm-i386/pgtable.h~correct-_PAGE_FILE-comment include/asm-i386/pgtable.h
+--- linux-2.6.git/include/asm-i386/pgtable.h~correct-_PAGE_FILE-comment	2005-08-11 11:17:04.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-i386/pgtable.h	2005-08-11 11:17:04.000000000 +0200
+@@ -86,9 +86,7 @@ void paging_init(void);
+ #endif
+ 
+ /*
+- * The 4MB page is guessing..  Detailed in the infamous "Chapter H"
+- * of the Pentium details, but assuming intel did the straightforward
+- * thing, this bit set in the page directory entry just means that
++ * _PAGE_PSE set in the page directory entry just means that
+  * the page directory entry points directly to a 4MB-aligned block of
+  * memory. 
+  */
+@@ -119,8 +117,10 @@ void paging_init(void);
+ #define _PAGE_UNUSED2	0x400
+ #define _PAGE_UNUSED3	0x800
+ 
+-#define _PAGE_FILE	0x040	/* set:pagecache unset:swap */
+-#define _PAGE_PROTNONE	0x080	/* If not present */
++/* If _PAGE_PRESENT is clear, we use these: */
++#define _PAGE_FILE	0x040	/* nonlinear file mapping, saved PTE; unset:swap */
++#define _PAGE_PROTNONE	0x080	/* if the user mapped it with PROT_NONE;
++				   pte_present gives true */
+ #ifdef CONFIG_X86_PAE
+ #define _PAGE_NX	(1ULL<<_PAGE_BIT_NX)
+ #else
+diff -puN include/asm-x86_64/pgtable.h~correct-_PAGE_FILE-comment include/asm-x86_64/pgtable.h
+--- linux-2.6.git/include/asm-x86_64/pgtable.h~correct-_PAGE_FILE-comment	2005-08-11 11:17:04.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-x86_64/pgtable.h	2005-08-11 11:17:04.000000000 +0200
+@@ -143,7 +143,7 @@ extern inline void pgd_clear (pgd_t * pg
+ #define _PAGE_ACCESSED	0x020
+ #define _PAGE_DIRTY	0x040
+ #define _PAGE_PSE	0x080	/* 2MB page */
+-#define _PAGE_FILE	0x040	/* set:pagecache, unset:swap */
++#define _PAGE_FILE	0x040	/* nonlinear file mapping, saved PTE; unset:swap */
+ #define _PAGE_GLOBAL	0x100	/* Global TLB entry */
+ 
+ #define _PAGE_PROTNONE	0x080	/* If not present */
+diff -puN include/asm-um/pgtable.h~correct-_PAGE_FILE-comment include/asm-um/pgtable.h
+--- linux-2.6.git/include/asm-um/pgtable.h~correct-_PAGE_FILE-comment	2005-08-11 11:17:04.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-um/pgtable.h	2005-08-11 11:17:04.000000000 +0200
+@@ -16,13 +16,15 @@
+ 
+ #define _PAGE_PRESENT	0x001
+ #define _PAGE_NEWPAGE	0x002
+-#define _PAGE_NEWPROT   0x004
+-#define _PAGE_FILE	0x008   /* set:pagecache unset:swap */
+-#define _PAGE_PROTNONE	0x010	/* If not present */
++#define _PAGE_NEWPROT	0x004
+ #define _PAGE_RW	0x020
+ #define _PAGE_USER	0x040
+ #define _PAGE_ACCESSED	0x080
+ #define _PAGE_DIRTY	0x100
++/* If _PAGE_PRESENT is clear, we use these: */
++#define _PAGE_FILE	0x008	/* nonlinear file mapping, saved PTE; unset:swap */
++#define _PAGE_PROTNONE	0x010	/* if the user mapped it with PROT_NONE;
++				   pte_present gives true */
+ 
+ #ifdef CONFIG_3_LEVEL_PGTABLES
+ #include "asm/pgtable-3level.h"
+_

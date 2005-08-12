@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbVHLNsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbVHLNwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbVHLNsp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 09:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbVHLNso
+	id S1751182AbVHLNwB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 09:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVHLNwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 09:48:44 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:60604 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751181AbVHLNso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 09:48:44 -0400
-Date: Fri, 12 Aug 2005 09:48:42 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: dtor_core@ameritech.net
-cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Don't use a klist for drivers' set-of-devices
-In-Reply-To: <d120d50005081113294dbb4961@mail.gmail.com>
-Message-ID: <Pine.LNX.4.44L0.0508120942180.4754-100000@iolanthe.rowland.org>
+	Fri, 12 Aug 2005 09:52:01 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:42636 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S1751182AbVHLNwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 09:52:00 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.96,103,1122847200"; 
+   d="scan'208"; a="13999206:sNHT28975336"
+Message-ID: <42FCA97E.5010907@fujitsu-siemens.com>
+Date: Fri, 12 Aug 2005 15:51:58 +0200
+From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Organization: Fujitsu Siemens Computers
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: de, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: APIC version and 8-bit APIC IDs
+References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel> <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com> <20050812133248.GN8974@wotan.suse.de>
+In-Reply-To: <20050812133248.GN8974@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Aug 2005, Dmitry Torokhov wrote:
+Andi Kleen wrote:
 
-> Hmm, so what do I do in the following scenario - I have a serio port
-> (AUX) that has a synaptics touchpad bound to it which is driven by
-> psmouse driver. psmouse driver registers a child port (synaptics
-> pass-through) during probe call. The child port is also driven by
-> psmouse module - but it looks like it will deadlock when binding.
+>>on the Intel Xeon MP systems, too,
+> 
+> How so? The XAPIC version check should work there.
 
-Dmitry's point is well founded.  Greg, I want to retract that klist patch 
-(as536).  I'll send in a revised version before long.
+ACPI: LAPIC (acpi_id[0x11] lapic_id[0x21] enabled)
+Processor #33 15:4 APIC version 16
+ACPI: LAPIC (acpi_id[0x12] lapic_id[0x26] enabled)
+Processor #38 15:4 APIC version 16
 
-It looks like the best approach will simply be to eliminate the driver's
-list of bound devices altogether.  That should make Christoph happy -- no
-klist, no list, no nothing!  :-)  The list hardly ever gets used, mainly
-when the driver is unloaded.  We can already get the same effect by
-iterating over the bus's list of devices and skipping everything not bound
-to the driver.
+This is a boot message excerpt from one of the "Potomac" systems we 
+have. x86_64 kernel without xapic check, therefore the CPUs are 
+activated, but they wouldn't be on recent i386.
 
-This will eliminate a whole set of races and make the code more 
-transparent (I hope).
+> I fixed that in the 64bit version already, but not in 32bit yet.
+> Yes, the value of the APIC IDs must be used as indicator.
 
-Alan Stern
+Great.
+Regards, Martin
 
+
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy

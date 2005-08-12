@@ -1,41 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVHLNHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVHLNK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbVHLNHd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 09:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVHLNHc
+	id S1751168AbVHLNK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 09:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVHLNK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 09:07:32 -0400
-Received: from mail.suse.de ([195.135.220.2]:35714 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751168AbVHLNHb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 09:07:31 -0400
-Date: Fri, 12 Aug 2005 15:07:26 +0200
-From: Andi Kleen <ak@suse.de>
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, Mike Waychison <mikew@google.com>,
-       YhLu <YhLu@tyan.com>, Peter Buckingham <peter@pantasys.com>,
-       linux-kernel@vger.kernel.org, "discuss@x86-64.org" <discuss@x86-64.org>
-Subject: Re: [discuss] Re: 2.6.13-rc2 with dual way dual core ck804 MB
-Message-ID: <20050812130725.GL8974@wotan.suse.de>
-References: <42FA8A4B.4090408@google.com> <20050810232614.GC27628@wotan.suse.de> <86802c4405081016421db9baa5@mail.gmail.com> <20050811000430.GD8974@wotan.suse.de> <86802c4405081017174c22dcd5@mail.gmail.com> <86802c440508101723d4aadef@mail.gmail.com> <20050811002841.GE8974@wotan.suse.de> <86802c440508101743783588df@mail.gmail.com> <20050811005100.GF8974@wotan.suse.de> <86802c4405081123597239dff7@mail.gmail.com>
+	Fri, 12 Aug 2005 09:10:28 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60821 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751168AbVHLNK2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 09:10:28 -0400
+Subject: [-mm patch] Avoid divide by zero errors in sched.c
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>
+Content-Type: text/plain
+Date: Fri, 12 Aug 2005 08:10:22 -0500
+Message-Id: <1123852222.9234.7.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c4405081123597239dff7@mail.gmail.com>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 11:59:21PM -0700, yhlu wrote:
-> andi,
-> 
-> is it possible for
-> after the AP1 call_in is done and before AP1 get in tsc_sync_wait
-> The AP2 call_in done.  and then AP1 get in tsc_sync_wait and before it
-> done, AP2 get in tsc_sync_wait too.
-> 
-> sync_master can not figure out from AP1 or AP2 because only have
-> go[MASTER] and go{SLAVE].
+This patch fixes a divide-by-zero error that I hit on a two-way i386
+machine.  rq->nr_running is tested to be non-zero, but may change by the
+time it is used in the division.  Saving the value to a local variable
+ensures that the same value that is checked is used in the division.
 
-Ok, you're right. It's better to move it to before callin map.
+Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Con Kolivas <kernel@kolivas.org>
 
--Andi
+diff -urp linux-2.6.13-rc5-mm1/kernel/sched.c linux/kernel/sched.c
+--- linux-2.6.13-rc5-mm1/kernel/sched.c	2005-08-11 09:41:30.000000000 -0500
++++ linux/kernel/sched.c	2005-08-11 09:47:27.000000000 -0500
+@@ -989,15 +989,16 @@ void kick_process(task_t *p)
+ static inline unsigned long __source_load(int cpu, int type, enum idle_type idle)
+ {
+ 	runqueue_t *rq = cpu_rq(cpu);
++	unsigned long running = rq->nr_running;
+ 	unsigned long source_load, cpu_load = rq->cpu_load[type-1],
+-		load_now = rq->nr_running * SCHED_LOAD_SCALE;
++		load_now = running * SCHED_LOAD_SCALE;
+ 
+ 	if (type == 0)
+ 		source_load = load_now;
+ 	else
+ 		source_load = min(cpu_load, load_now);
+ 
+-	if (rq->nr_running > 1 || (idle == NOT_IDLE && rq->nr_running))
++	if (running > 1 || (idle == NOT_IDLE && running))
+ 		/*
+ 		 * If we are busy rebalancing the load is biased by
+ 		 * priority to create 'nice' support across cpus. When
+@@ -1006,7 +1007,7 @@ static inline unsigned long __source_loa
+ 		 * prevent idle rebalance from trying to pull tasks from a
+ 		 * queue with only one running task.
+ 		 */
+-		source_load = source_load * rq->prio_bias / rq->nr_running;
++		source_load = source_load * rq->prio_bias / running;
+ 
+ 	return source_load;
+ }
+@@ -1022,16 +1023,17 @@ static inline unsigned long source_load(
+ static inline unsigned long __target_load(int cpu, int type, enum idle_type idle)
+ {
+ 	runqueue_t *rq = cpu_rq(cpu);
++	unsigned long running = rq->nr_running;
+ 	unsigned long target_load, cpu_load = rq->cpu_load[type-1],
+-		load_now = rq->nr_running * SCHED_LOAD_SCALE;
++		load_now = running * SCHED_LOAD_SCALE;
+ 
+ 	if (type == 0)
+ 		target_load = load_now;
+ 	else
+ 		target_load = max(cpu_load, load_now);
+ 
+-	if (rq->nr_running > 1 || (idle == NOT_IDLE && rq->nr_running))
+-		target_load = target_load * rq->prio_bias / rq->nr_running;
++	if (running > 1 || (idle == NOT_IDLE && running))
++		target_load = target_load * rq->prio_bias / running;
+ 
+ 	return target_load;
+ }
+
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

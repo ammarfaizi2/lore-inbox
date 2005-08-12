@@ -1,71 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbVHLEEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbVHLERb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbVHLEEp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 00:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVHLEEp
+	id S1750815AbVHLERb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 00:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbVHLERb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 00:04:45 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:16516 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750797AbVHLEEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 00:04:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=bFLlNmC51d6A/qe/4B3fDYpwWE/IyxeSeSsmG2dqWxGnomz9lpHh8y/QiAiQiWM/qkN51nOVg1au2uL5g9qwOiEwmgRpdneWL42wJDctkHjtq5hsmne2wsGgYaQ2wYmpBcU8QDosSkhjfx4QEpDBcH4hjua9t0Gu7qIx6SI9boI=  ;
-Subject: Re: [patch 6/7] mm: lockless pagecache
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: paulmck@us.ibm.com
-Cc: Paul McKenney <paul.mckenney@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050812014924.GQ1300@us.ibm.com>
-References: <42FB4201.7080304@yahoo.com.au> <42FB42BD.6020808@yahoo.com.au>
-	 <42FB42EF.1040401@yahoo.com.au> <42FB4311.2070807@yahoo.com.au>
-	 <42FB43A8.8060902@yahoo.com.au> <42FB43CB.5080403@yahoo.com.au>
-	 <42FB4454.2010601@yahoo.com.au>  <20050812014924.GQ1300@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 12 Aug 2005 14:04:39 +1000
-Message-Id: <1123819479.5098.16.camel@npiggin-nld.site>
+	Fri, 12 Aug 2005 00:17:31 -0400
+Received: from outbound1.mail.tds.net ([216.170.230.91]:18591 "EHLO
+	outbound1.mail.tds.net") by vger.kernel.org with ESMTP
+	id S1750816AbVHLERa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 00:17:30 -0400
+Date: Thu, 11 Aug 2005 23:17:20 -0500
+From: Phil Dier <phil@icglink.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, ziggy@icglink.com, scott@icglink.com,
+       jack@icglink.com
+Subject: Re: 2.6.13-rc6 Oops with Software RAID, LVM, JFS, NFS
+Message-Id: <20050811231720.3ecedcd9.phil@icglink.com>
+In-Reply-To: <17148.1113.664829.360594@cse.unsw.edu.au>
+References: <20050811105954.31f25407.phil@icglink.com>
+	<17148.1113.664829.360594@cse.unsw.edu.au>
+Organization: ICGLInk
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-11 at 18:49 -0700, Paul E. McKenney wrote:
-> On Thu, Aug 11, 2005 at 10:28:04PM +1000, Nick Piggin wrote:
-> > 6/7
+On Fri, 12 Aug 2005 12:07:21 +1000
+Neil Brown <neilb@cse.unsw.edu.au> wrote:
+
+> On Thursday August 11, phil@icglink.com wrote:
+> > Hi,
 > > 
-> > -- 
-> > SUSE Labs, Novell Inc.
+> > I posted an oops a few days ago from 2.6.12.3 [1].  Here are the results
+> > of my tests on 2.6.13-rc6.  The kernel oopses, but it the box isn't completely
+> > hosed; I can still log in and move around.  It appears that the only things that are
+> > locked are the apps that were doing i/o to the test partition.  More detailed info 
+> > about my configuration can be found here:
 > > 
+> > <http://www.icglink.com/debug-2.6.13-rc6.html>
 > 
-> > Use the speculative get_page and the lockless radix tree lookups
-> > to introduce lockless page cache lookups (ie. no mapping->tree_lock).
-> > 
-> > The only atomicity changes this should introduce is the use of a
-> > non atomic pagevec lookup for truncate, however what atomicity
-> > guarantees there were are probably not too useful anyway.
-> 
-> I don't understand the placement of the rcu_read_lock() and
-> rcu_read_unlock() calls.  Again, possibly because I don't understand
-> the overall algorithm yet.  And again, search for blank lines.
+> You don't seem to give details on how lvm is used to combine the md
+> arrays, though I'm not sure that would help particularly.
 > 
 
-I hope I gave a satisfactory answer to this in the last email. If
-not, let me know what I've missed...
+FYI:
 
-Indeed you are right that we could push all the RCU locking down
-into the radix tree lookups in the places you mention _if_ we
-didn't rely on lookups returning radix tree *slots*.
+vgdisplay -v vg1  
+    Using volume group(s) on command line
+    Finding volume group "vg1"
+  --- Volume group ---
+  VG Name               vg1
+  System ID             
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  8
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                255
+  Cur LV                1
+  Open LV               0
+  Max PV                255
+  Cur PV                2
+  Act PV                2
+  VG Size               410.00 GB
+  PE Size               128.00 MB
+  Total PE              3280
+  Alloc PE / Size       1093 / 136.62 GB
+  Free  PE / Size       2187 / 273.38 GB
+  VG UUID               XuRomW-O6Uw-oQGq-vdwD-YwMT-Dltj-NExFmV
+   
+  --- Logical volume ---
+  LV Name                /dev/vg1/home
+  VG Name                vg1
+  LV UUID                K7Gq9l-Vjte-ksFt-s0vn-ejqT-RGYc-5Aibtx
+  LV Write Access        read/write
+  LV Status              available
+  # open                 0
+  LV Size                136.62 GB
+  Current LE             1093
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     0
+  Block device           253:3
+   
+  --- Physical volumes ---
+  PV Name               /dev/md4     
+  PV UUID               VgHU6k-lZmE-j686-dvfX-OSsM-yh28-Jyfidn
+  PV Status             allocatable
+  Total PE / Free PE    1093 / 0
+   
+  PV Name               /dev/md7     
+  PV UUID               n4rVmy-rARO-a5mY-Iiqo-GvOx-2nbG-HluaTa
+  PV Status             allocatable
+  Total PE / Free PE    2187 / 2187
 
-Thanks,
-Nick
+md7 is in there to test live migration from smaller disks to larger ones.
+
+
+> 
+> 	struct bio_vec *from;
+> 	int i;
+> 	bio_for_each_segment(from, bio, i)
+> 		BUG_ON(page_zone(from->bv_page)==NULL);
+> 
+> in generic_make_requst in drivers/block/ll_rw_blk.c, just before
+> the call to q->make_request_fn.
+> This might trigger the bug early enough to see what is happening.
+
+
+I'll try this and report the results.
+
 
 -- 
-SUSE Labs, Novell Inc.
 
+Phil Dier <phil@dier.us>
 
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+/* vim:set ts=8 sw=8 nocindent noai: */

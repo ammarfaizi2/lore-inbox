@@ -1,85 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVHLTPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVHLTRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbVHLTPe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 15:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbVHLTPe
+	id S1751252AbVHLTRj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 15:17:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVHLTRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 15:15:34 -0400
-Received: from lugor.de ([212.112.242.222]:38540 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S1751249AbVHLTPd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 15:15:33 -0400
-From: Christian Hesse <mail@earthworm.de>
-To: ncunningham@cyclades.com
-Subject: Re: Hang at resume with AC adapter not plugged
-Date: Fri, 12 Aug 2005 21:14:46 +0200
-User-Agent: KMail/1.8.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       suspend2-devel@lists.suspend2.net, spock@gentoo.org
-References: <200508090741.29149.mail@earthworm.de> <1123566339.4370.131.camel@localhost>
-In-Reply-To: <1123566339.4370.131.camel@localhost>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)k
-	:nv*xqk4C@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)n#Q.o
-	kE~&T]0cQX6]<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<3O7GY9y_i!qG&Vv\D8/
-	%4@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+	Fri, 12 Aug 2005 15:17:39 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:39192 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1751251AbVHLTRi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 15:17:38 -0400
+Message-ID: <42FCF5D3.1080409@danbbs.dk>
+Date: Fri, 12 Aug 2005 21:17:39 +0200
+From: Mogens Valentin <monz@danbbs.dk>
+Reply-To: monz@danbbs.dk
+Organization: Mr Dev
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart374635956.CnBFtMB5xv";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linux IDE Mailing List <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: SATA status report updated
+References: <42FC2EF8.7030404@pobox.com>
+In-Reply-To: <42FC2EF8.7030404@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508122115.00197.mail@earthworm.de>
-X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart374635956.CnBFtMB5xv
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Jeff Garzik wrote:
+> 
+> Things in SATA-land have been moving along recently, so I updated the 
+> software status report:
+> 
+>     http://linux.yyz.us/sata/software-status.html
 
-On Tuesday 09 August 2005 07:45, Nigel Cunningham wrote:
-> Hi Christian.
->
-> On Tue, 2005-08-09 at 15:41, Christian Hesse wrote:
-> > Hi everybody,
-> >
-> > I have a little problem with software suspend 2.1.9.1[012] on
-> > 2.6.13-rc[3456]. The system hangs on resume if the AC adapter is not
-> > plugged in. Everything works well if I use 2.1.9.5 on 2.6.12.x or plug =
-in
-> > the AC adapter. I've tried acpi-20050729 for 2.6.13-rc6 but that did not
-> > change anything. The system is a Sumsung X10.
-> >
-> > Any ideas what could be the problem?
->
-> Do you have the ACPI modules compiled in, or built as modules? I'd
-> suggest that you try building them as modules and unloading while
-> suspending if you're not doing that already.
+ >> Queueing support, NCQ:
+ >> #3 will be supported by libata, for all hardware and devices that
+ >> support NCQ.
 
-Sometimes (very seldom) it also hangs if the AC adapter is plugged in, so I=
-=20
-tested some more and found another interesting fact: It boots just fine if =
-I=20
-use splash=3Dverbose insted of splash=3Dsilent (even without AC adapter). I=
-'ve=20
-patched the kernel with fbsplash-0.9.2-r4-2.6.13-rc[16].
+I guess this means libata support for HW-based NCQ.
+It also could mean software/driver implemented NCQ, which could work on 
+chipsets not supporting HW-NCQ in unison with a disk having NCQ?
 
-Any idea what could be the cause?
+> Although I have not updated it in several weeks, folks may wish to refer 
+> to the hardware status report as well:
+> 
+>     http://linux.yyz.us/sata/sata-status.html
 
-=2D-=20
-Christian
+How well does libata work with the newest ULi chipsets?
+If not well, is there a possible timeframe?
 
---nextPart374635956.CnBFtMB5xv
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.18 (GNU/Linux)
+(not on kernel list; if anyone there comments on ULi, pls. cc private)
 
-iD8DBQBC/PU0lZfG2c8gdSURAi7nAKCoI2uGVw57FYi926OJJk5/IGmrNwCfdO58
-lbXYMCXV+71yL0c/Dbf1nvU=
-=X15X
------END PGP SIGNATURE-----
+-- 
+Kind regards,
+Mogens Valentin
 
---nextPart374635956.CnBFtMB5xv--

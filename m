@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVHLCVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVHLCde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVHLCVs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 22:21:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbVHLCUQ
+	id S1751118AbVHLCde (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 22:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbVHLCde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 22:20:16 -0400
-Received: from waste.org ([216.27.176.166]:168 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S964789AbVHLCTt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 22:19:49 -0400
-Date: Thu, 11 Aug 2005 21:19:10 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.com>, "David S. Miller" <davem@davemloft.net>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: ak@suse.de, Jeff Moyer <jmoyer@redhat.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, john.ronciak@intel.com,
-       rostedt@goodmis.org
-In-Reply-To: <1.502409567@selenic.com>
-Message-Id: <2.502409567@selenic.com>
-Subject: [PATCH 1/8] netpoll: rx_flags bugfix
+	Thu, 11 Aug 2005 22:33:34 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44501 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750740AbVHLCdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 22:33:33 -0400
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch 3/8] [PATCH] x86_64: Fixing smpboot timing problem
+References: <20050811225445.404816000@localhost.localdomain>
+	<20050811225609.058881000@localhost.localdomain>
+	<20050811233302.GA8974@wotan.suse.de>
+	<20050811234343.GF7762@shell0.pdx.osdl.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 11 Aug 2005 20:32:08 -0600
+In-Reply-To: <20050811234343.GF7762@shell0.pdx.osdl.net> (Chris Wright's
+ message of "Thu, 11 Aug 2005 16:43:43 -0700")
+Message-ID: <m1ll37x4uv.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Initialize npinfo->rx_flags.  The way it stands now, this will have random
-garbage, and so will incur a locking penalty even when an rx_hook isn't
-registered and we are not active in the netpoll polling code.
+Chris Wright <chrisw@osdl.org> writes:
 
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+> * Andi Kleen (ak@suse.de) wrote:
+>> >  static void __cpuinit tsc_sync_wait(void)
+>> >  {
+>> >  	if (notscsync || !cpu_has_tsc)
+>> >  		return;
+>> > - printk(KERN_INFO "CPU %d: Syncing TSC to CPU %u.\n", smp_processor_id(),
+>> > -			boot_cpu_id);
+>> > -	sync_tsc();
+>> > +	sync_tsc(boot_cpu_id);
+>> 
+>> I actually found a bug in this today. This should be sync_tsc(0), not
+> sync_tsc(boot_cpu_id)
+>> Can you just fix it in your tree or should I submit a new patch? 
+>
+> I'll fix it locally.  Thanks for the heads-up.
 
---- linux-2.6.12/net/core/netpoll.c.orig	2005-07-01 14:02:56.039174635 -0400
-+++ linux-2.6.12/net/core/netpoll.c	2005-07-01 14:03:16.688739508 -0400
-@@ -639,6 +639,7 @@ int netpoll_setup(struct netpoll *np)
- 		if (!npinfo)
- 			goto release;
- 
-+		npinfo->rx_flags = 0;
- 		npinfo->rx_np = NULL;
- 		npinfo->poll_lock = SPIN_LOCK_UNLOCKED;
- 		npinfo->poll_owner = -1;
+Someone needs to send the patch to Linus for 2.6.13 as well.  Is someone
+else going to or should I.  I knew I was confused about physical versus
+logical apic ids when I generated the patch.
+
+Eric

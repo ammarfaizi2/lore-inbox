@@ -1,117 +1,256 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVHLQXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbVHLQ17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbVHLQXi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 12:23:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbVHLQXi
+	id S1751223AbVHLQ17 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 12:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbVHLQ17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 12:23:38 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:6878 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
-	id S1751220AbVHLQXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 12:23:38 -0400
-X-ORBL: [69.107.32.110]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:references:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:message-id;
-	b=No7zQvyvrfY0dCHsDUGtdygk/cgGb9cSGhFDBlCa6qDdxeK49063424Fu32L6/8Dc
-	CDb41hekfmlibELkJJxbw==
-Date: Fri, 12 Aug 2005 09:23:15 -0700
-From: david-b@pacbell.net
-To: tpoynor@mvista.com, geoffrey.levand@am.sony.com
-Subject: Re: [linux-pm] PowerOP 1/3: PowerOP core
-Cc: linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org,
-       cpufreq@lists.linux.org.uk
-References: <20050809025157.GB25064@slurryseal.ddns.mvista.com>
- <42F8D4C5.2090800@am.sony.com> <42F94B68.6060107@mvista.com>
-In-Reply-To: <42F94B68.6060107@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Aug 2005 12:27:59 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:13785 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1751219AbVHLQ16
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 12:27:58 -0400
+In-Reply-To: <42FCAD4D.7080707@gmail.com>
+References: <12872CA9-F089-4955-8751-8CC4E7B2140A@bootc.net> <42FC166A.3020505@gmail.com> <0FDE8D5B-CFF2-44F9-8C98-9C5EC5CDAE92@bootc.net> <42FC87ED.6030201@gmail.com> <22B1D7C7-7BC8-449C-914C-FCE5226BCAF2@bootc.net> <655E2636-B4D4-42EC-B10C-C8B8EFA09E33@bootc.net> <42FCAD4D.7080707@gmail.com>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <74C9A166-2FDC-45F8-BEB1-A574FD9602D4@bootc.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Linux-ide <linux-ide@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Message-Id: <20050812162315.16671E2E9B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+From: Chris Boot <bootc@bootc.net>
+Subject: Re: SiI 3112A + Seagate HDs = still no go?
+Date: Fri, 12 Aug 2005 17:27:39 +0100
+To: Tejun Heo <htejun@gmail.com>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How well would _this_ notion of an operating point scale up?
+On 12 Aug 2005, at 15:08, Tejun Heo wrote:
 
-I have this feeling that it's maybe better attuned to "scale down"
-sorts of problems (maybe cell phones) than to a big NUMA box.  I can
-see how a batch scheduled server might want to fire up only enough
-components to run the next simulation, but I wonder if maybe systems
-dynamically managing lots of resources might not be better off with
-some other model ... where userspace makes higher level decisions,
-and the kernel is adaptive within a potentially big solution space.
-(Likewise, maybe some of the smaller systems would too.)
-
-Also, I suspect everyone would be happier if cpufreq were left
-responsible for the CPU-specific parts of an operating point.
-That could mean system-specific hooks, e.g. to rule out certain
-voltages based on available power or what devices are running.
-
-Unfortunately, examples of non-CPUfreq part of an operating point
-may be tricky to come by on desktop systems.
-
-
-> Date: Tue, 09 Aug 2005 17:33:44 -0700
-> From: Todd Poynor <tpoynor@mvista.com>
+> Chris Boot wrote:
 >
-> Geoff Levand wrote:
+>> Hi Tejun,
+>> On 12 Aug 2005, at 12:33, Chris Boot wrote:
+>>
+>>> Hi Tejun,
+>>>
+>>> On 12 Aug 2005, at 12:28, Tejun Heo wrote:
+>>>
+>>>
+>>>
+>>>>
+>>>>  Hello, Chris.
+>>>>
+>>>> Chris Boot wrote:
+>>>>
+>>>>
+>>>>
+>>>>> On 12 Aug 2005, at 4:24, Tejun Heo wrote:
+>>>>>
+>>>>>
+>>>>>
+>>>>>> Chris Boot wrote:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>> Hi all,
+>>>>>>> I just recently took the plunge and bought 4 250 GB Seagate    
+>>>>>>> drives  and a 2 port Silicon Image 3112A controller card for   
+>>>>>>> the 2  drives my  motherboard doesn't handle. No matter how   
+>>>>>>> hard I try, I  can't get the  hard drives to work: they are   
+>>>>>>> detected correctly  and work reasonably  well under _very_   
+>>>>>>> light load, but anything  like building a RAID array  is a  
+>>>>>>> bit  much and the whole controller  seems to lock up.
+>>>>>>> I've tried adding the drive to the blacklist in the  
+>>>>>>> sata_sil.c   driver  and I still have the same trouble: as  
+>>>>>>> you can see the   messages below  relate to my patched kernel  
+>>>>>>> with the blacklist   fix. I've seen that  this was discussed  
+>>>>>>> just yesterday, but  that  seemed to give nothing:  http:// 
+>>>>>>> www.ussg.iu.edu/hypermail/ linux/ kernel/0508.1/0310.html
+>>>>>>> Ready and willing to hack my kernel to pieces; this machine  
+>>>>>>> is  no  use  until I get all the drives working! Needless to  
+>>>>>>> say  the  drives  connected to the on-board VIA controller  
+>>>>>>> work  fine, as do  the drives  currently on the SiI  
+>>>>>>> controller if I  swap them around.
+>>>>>>> Any ideas?
+>>>>>>> TIA
+>>>>>>> Chris
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>
+>>>>>> [added linux-ide to cc list]
+>>>>>>
+>>>>>>  Can you please try w/ vanilla kernel (2.6.12 or 2.6.13-rc)?    
+>>>>>> And  w/ one drive only?
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>> I unplugged both drives from my on-board SATA controller and   
+>>>>> left  just one connected to the 3112A controller. Rebooted with  
+>>>>> a  fresh,  vanilla 2.6.13-rc6 and ran:
+>>>>>
+>>>>>
+>>>>>
+>>>>
+>>>>  You can leave drives on on-board SATA controller.  It wouldn't   
+>>>> make any difference.
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>> dd if=/dev/zero of=test.img bs=1M count=16384
+>>>>> After about 30 seconds I got the crash and the kernel started    
+>>>>> repeating every 30 seconds (with different sector numbers):
+>>>>> ata1: command 0x35 timeout, stat 0xd9 host_stat 0x1
+>>>>> ata1: status=0xd9 { Busy }
+>>>>> SCSI error : <0 0 0 0> return code = 0x80000002
+>>>>> sda: Current: sense key=0xb
+>>>>> ASC=0x47 ASCQ=0x0
+>>>>> end_request: I/O error, dev sda, sector 14937602
+>>>>> ATA: abnormal status 0xD9 on port E0802087
+>>>>> ATA: abnormal status 0xD9 on port E0802087
+>>>>> ATA: abnormal status 0xD9 on port E0802087
+>>>>> dmesg:
+>>>>> Linux version 2.6.13-rc6 (bootc@arcadia.bootc.net) (gcc  
+>>>>> version   3.3.5-20050130 (Gentoo 3.3.5.20050130-r1,  
+>>>>> ssp-3.3.5.20050130-1,   pie-8.7.7.1)) #1 Fri Aug 12 12:31:25  
+>>>>> BST 2005
+>>>>> ...
+>>>>> libata version 1.11 loaded.
+>>>>> sata_sil version 0.9
+>>>>> ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 18 (level, low) ->  
+>>>>> IRQ  177
+>>>>> ata1: SATA max UDMA/100 cmd 0xE0802080 ctl 0xE080208A bmdma    
+>>>>> 0xE0802000 irq 177
+>>>>> ata2: SATA max UDMA/100 cmd 0xE08020C0 ctl 0xE08020CA bmdma    
+>>>>> 0xE0802008 irq 177
+>>>>> ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4023 85:3469  
+>>>>> 86:3c01   87:4023 88:207f
+>>>>> ata1: dev 0 ATA, max UDMA/133, 488397168 sectors: lba48
+>>>>> ata1: dev 0 configured for UDMA/100
+>>>>> scsi0 : sata_sil
+>>>>> ata2: no device found (phy stat 00000000)
+>>>>> scsi1 : sata_sil
+>>>>>   Vendor: ATA       Model: ST3250823AS       Rev: 3.03
+>>>>>   Type:   Direct-Access                      ANSI SCSI  
+>>>>> revision: 05
+>>>>> sata_via version 1.1
+>>>>> ACPI: PCI Interrupt 0000:00:0f.0[B] -> Link [ALKA] -> GSI 20   
+>>>>> (level,  low) -> IRQ 169
+>>>>> PCI: Via IRQ fixup for 0000:00:0f.0, from 11 to 9
+>>>>> sata_via(0000:00:0f.0): routed to hard irq line 9
+>>>>> ata3: SATA max UDMA/133 cmd 0xB400 ctl 0xB802 bmdma 0xC400 irq 169
+>>>>> ata4: SATA max UDMA/133 cmd 0xBC00 ctl 0xC002 bmdma 0xC408 irq 169
+>>>>> ata3: no device found (phy stat 00000000)
+>>>>> scsi2 : sata_via
+>>>>> ata4: no device found (phy stat 00000000)
+>>>>> scsi3 : sata_via
+>>>>> SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
+>>>>> SCSI device sda: drive cache: write back
+>>>>> SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
+>>>>> SCSI device sda: drive cache: write back
+>>>>> sda: sda1 sda2 sda3
+>>>>> Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+>>>>> Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,   
+>>>>> type 0
+>>>>> I forgot to mention previously but I even tried with "noapic   
+>>>>> nolapic  acpi=off pci=routeirq" and got the same trouble.
+>>>>>
+>>>>>
+>>>>>
+>>>>
+>>>>  This is weird as ST3250823AS (and all Seagate .8 drives) are   
+>>>> known to work without any problem with sii 3112/3114.  I  
+>>>> currently  don't own such a drive but someone confirmed me that  
+>>>> ST3250823AS  works w/ sii 3114 without any problem (including  
+>>>> bonnie++ results  and all).  So, I don't think it's the good old  
+>>>> mod15write problem.
+>>>>
+>>>>  I hope it's just a bad hardware, cable or something like that;   
+>>>> otherwise, you're hitting a new bug.  Can you verify if the  
+>>>> drive  works under windows?
+>>>>
+>>>>
+>>>
+>>> Well, what piqued my interest is that the same drives work fine  
+>>> on  my on-board sata_via controller. All 4 drives were bought at  
+>>> the  same time and *seem* to be from the same batch, and all work  
+>>> fine  on the VIA controller and none work on the 3112A. I've also  
+>>> tried  different cables, all of which are Belkin which I thought  
+>>> were  decent quality.
+>>>
+>>> I'll just try installing Winblows and let you know.
+>>>
+>> I just installed Windows XP SP2 and Cygwin:
+>> $ dd if=/dev/zero of=test.img bs=1M count=4096
+>> 4096+0 records in
+>> 4096+0 records out
+>> 4294967296 bytes (4.3GB) copied, 166.27 seconds, 25.8 MB/s
+>> So it works a treat, although it's slower than maybe it should  
+>> be:  under linux and the VIA controller I get about 50 MB/sec, but  
+>> that  may just be down to the OS.
+>> Where do I start to debug the problem?
+>> Many thanks,
+>> Chris
+>>
 >
-> > I'm wondering if anything could be gained by having the whole 
-> > struct powerop_point defined in asm/powerop.h, and treat it as an 
-> > opaque structure at this level.  That way, things other than just 
-> > ints could be passed between the policy manager and the backend, 
-> > although I guess that breaks the beauty of the simplicity and would 
-> > complicate the sys-fs interface, etc.  I'm interested to hear your 
-> > comments.
+> [adding cc to Jeff Garzik. (Hi!)]
 >
-> Making the "operating point" data structure entirely platform-specific 
-> should be OK.  There's a little value to having generic pieces handle 
-> some common chores (such as the sysfs interfaces), but even for integers 
-> decimal vs. hex formatting is nicer depending on the type of value. 
+>  Hi again, Chris.
+>
+>  Unfortunately, I'm as lost as you are.  Can you please do the  
+> followings?
+>
+>  * Verify if read is free from the problem.  ie. does "dd if=/dev/ 
+> sd? of=/dev/null" work?
 
-Taking a more extreme position or two:
+Works like a treat at 30 MB/s. I do get a few errors in the log  
+(repeated a couple of times), but they seem mostly harmless:
 
-  - Why have any parsing at all?  It's opaque data; so insist that
-    the kernel just get raw bytes.  That's the traditional solution,
-    not having the kernel parse arrays of integers.
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata1: error=0x04 { DriveStatusError }
 
-  - Why try to standardize a data-based abstraction at all?  Surely
-    it'd be easier to use modprobe, and have it register operating
-    points that include not just the data, but its interpretation.
+>  * Turn on ATA_DEBUG and ATA_VERBOSE_DEBUG in include/linux/ 
+> libata.h (change #undef's to #define's) and make the drive hang.   
+> The log should show what was going on.
 
-  - If those numbers are needed, having single-valued sysfs attributes
-    (maybe /sys/power/runstate/policy_name/XXX) would be preferable
-    to relying on getting position right within a multivalued input.
+While untarring and compiling the new kernel I got lots of:
 
-What I've had in mind is that "modprobe" would register some code
-implementing one or more named runtime policies.  Now one way to use
-such code would be to equate "policy" and "operating point"; a static
-mapping, as I think I see Todd suggesting, but compiled.  (Or maybe
-tuned using individual sysfs attributes.)
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata1: error=0x84 { DriveStatusError BadCRC }
 
-But another way would be to have that code pick some operating point
-that matches various constraints fed in from userspace ... maybe from
-sysfs attribute files managed by that code.  It could use all sorts
-of kernel APIs while choosing the point, and would clearly need to
-use them in order to actually _set_ some new point.
+Syslog seems to die log before I get anything useful, and setting  
+loglevel 9 with SysRq gives:
 
-It's easier for me to see how "echo policy_name > /sys/power/runtime"
-would scale up and down (given pluggable policy_name components!)
-than "echo 0 35 98 141 66 -3 0x7efc0 > /sys/power/foo" would.
+ata_fill_sg: PRD[126]: 0x1206A000, 0x1000)
+ata_fill_sg: PRD[127]: 0x1206B000, 0x1000)
+ata_dev_select: ENTER, ata1: device 0, wait 1
+ATA: abnormal status 0xD9 on port 0xE0804087
+ATA: abnormal status 0xD9 on port 0xE0804087
+ata_tf_load_mmio: hob: feat 0x0 nsect 0x3, lba 0x1 0x0 0x0
+ata_tf_load_mmio: feat 0x0 nsect 0xF8 lba 0x1A 0xEF 0x33
+ata_tf_load_mmio: device 0xE0
+ATA: abnormal statux 0xD9 on port 0xE0804087
+ata_exec_command_mmio: ata: cmd 0x35
+ata_scsi_translate: EXIT
 
+It then hangs for exactly 30 seconds, and more stuff flies by  
+followed by much the same messages EXCEPT:
 
-> Since most values that have been managed using similar interfaces thus 
-> far have been flags, register values, voltages, etc. using integers has 
-> worked well and nicely simplified the platform backend, but if there's a 
-> need for other data types then should be doable.
+1. There seems to be one less ata_fill_sg line every time, since PRD 
+[XXX] decrements by one every time.
+2. The ata_tf_load_mmio lines give different nsect and lba, the  
+device stays the same.
 
-Sysfs already has all that infrastructure, if you adopt the policy
-that such system-specific constraints show up in system-specific
-attributes somewhere ... matching the system-specific knowledge that's
-used to interpret them.  That'd also be less error prone than "whoops,
-there wasn't supposed to be a space between 35 and 98" or "darn, I
-switched the 141 and 66 around again".
+Many thanks,
+Chris
 
-- Dave
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/
 
 

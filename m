@@ -1,110 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVHLSFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVHLSFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbVHLSFb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVHLSFR
+	id S1750718AbVHLSFM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVHLSEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:05:17 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:57256 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750716AbVHLSEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:04:48 -0400
-Subject: [patch 33/39] remap_file_pages protection support: VM_FAULT_SIGSEGV permission checking rework
+	Fri, 12 Aug 2005 14:04:49 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:56028 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750713AbVHLSEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:04:47 -0400
+Subject: [patch 27/39] remap_file_pages protection support: fixups to ppc32 bits
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it,
+       paulus@samba.org
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 19:32:59 +0200
-Message-Id: <20050812173259.F3BAF24E816@zion.home.lan>
+Date: Fri, 12 Aug 2005 19:32:43 +0200
+Message-Id: <20050812173243.D6D8E24E807@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+From: Paul Mackerras <paulus@samba.org>
 
-Simplify the generic arch permission checking: the previous one was clumsy, as
-it didn't account arch-specific implications (read implies exec, write implies
-read, and so on).
-
-Still to undo fixes for the archs (i386 and UML) which were modified for the
-previous scheme.
+When I tried -mm4 on a ppc32 box, it hit a BUG because I hadn't excluded
+_PAGE_FILE from the bits used for swap entries.  While looking at that I
+realised that the pte_to_pgoff and pgoff_prot_to_pte macros were wrong for
+4xx and 8xx (embedded) PPC chips, since they use
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/mm/memory.c |   49 ++++++++++++++++++++++++++--------------
- 1 files changed, 33 insertions(+), 16 deletions(-)
+ linux-2.6.git-paolo/include/asm-ppc/pgtable.h |   48 +++++++++++++++++++++-----
+ 1 files changed, 39 insertions(+), 9 deletions(-)
 
-diff -puN mm/memory.c~rfp-sigsegv-4 mm/memory.c
---- linux-2.6.git/mm/memory.c~rfp-sigsegv-4	2005-08-12 17:18:55.000000000 +0200
-+++ linux-2.6.git-paolo/mm/memory.c	2005-08-12 17:18:55.000000000 +0200
-@@ -1923,6 +1923,35 @@ oom:
- 	goto out;
- }
+diff -puN include/asm-ppc/pgtable.h~rfp-arch-ppc32-pgtable-fixes include/asm-ppc/pgtable.h
+--- linux-2.6.git/include/asm-ppc/pgtable.h~rfp-arch-ppc32-pgtable-fixes	2005-08-12 18:18:44.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-ppc/pgtable.h	2005-08-12 18:18:44.000000000 +0200
+@@ -205,6 +205,7 @@ extern unsigned long ioremap_bot, iorema
+  */
+ #define _PAGE_PRESENT	0x00000001		/* S: PTE valid */
+ #define	_PAGE_RW	0x00000002		/* S: Write permission */
++#define _PAGE_FILE	0x00000004		/* S: nonlinear file mapping */
+ #define	_PAGE_DIRTY	0x00000004		/* S: Page dirty */
+ #define _PAGE_ACCESSED	0x00000008		/* S: Page referenced */
+ #define _PAGE_HWWRITE	0x00000010		/* H: Dirty & RW */
+@@ -213,7 +214,6 @@ extern unsigned long ioremap_bot, iorema
+ #define	_PAGE_ENDIAN	0x00000080		/* H: E bit */
+ #define	_PAGE_GUARDED	0x00000100		/* H: G bit */
+ #define	_PAGE_COHERENT	0x00000200		/* H: M bit */
+-#define _PAGE_FILE	0x00000400		/* S: nonlinear file mapping */
+ #define	_PAGE_NO_CACHE	0x00000400		/* H: I bit */
+ #define	_PAGE_WRITETHRU	0x00000800		/* H: W bit */
  
-+static inline int check_perms(struct vm_area_struct * vma, int access_mask) {
-+	if (unlikely(vm_flags & VM_NONUNIFORM)) {
-+		/* we used to check protections in arch handler, but with
-+		 * VM_NONUNIFORM the check is skipped. */
-+#if 0
-+		if ((access_mask & VM_WRITE) > (vm_flags & VM_WRITE))
-+			goto err;
-+		if ((access_mask & VM_READ) > (vm_flags & VM_READ))
-+			goto err;
-+		if ((access_mask & VM_EXEC) > (vm_flags & VM_EXEC))
-+			goto err;
-+#else
-+		/* access_mask contains the type of the access, vm_flags are the
-+		 * declared protections, pte has the protection which will be
-+		 * given to the PTE's in that area. */
-+		//pte_t pte = pfn_pte(0UL, protection_map[vm_flags & 0x0f|VM_SHARED]);
-+		pte_t pte = pfn_pte(0UL, vma->vm_page_prot);
-+		if ((access_mask & VM_WRITE) && ! pte_write(pte))
-+			goto err;
-+		if ((access_mask & VM_READ) && ! pte_read(pte))
-+			goto err;
-+		if ((access_mask & VM_EXEC) && ! pte_exec(pte))
-+			goto err;
+@@ -724,20 +724,50 @@ extern void paging_init(void);
+ #define __swp_type(entry)		((entry).val & 0x1f)
+ #define __swp_offset(entry)		((entry).val >> 5)
+ #define __swp_entry(type, offset)	((swp_entry_t) { (type) | ((offset) << 5) })
++
++#if defined(CONFIG_4xx) || defined(CONFIG_8xx)
++/* _PAGE_FILE and _PAGE_PRESENT are in the bottom 3 bits on all these chips. */
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) >> 3 })
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val << 3 })
++#else	/* Classic PPC */
++#define __pte_to_swp_entry(pte)		\
++    ((swp_entry_t) { ((pte_val(pte) >> 3) & ~1) | ((pte_val(pte) >> 2) & 1) })
++#define __swp_entry_to_pte(x)		\
++    ((pte_t) { (((x).val & ~1) << 3) | (((x).val & 1) << 2) })
 +#endif
-+	}
-+	return 0;
-+err:
-+	return -EPERM;
-+}
- /*
-  * Fault of a previously existing named mapping. Repopulate the pte
-  * from the encoded file_pte if possible. This enables swappable
-@@ -1944,14 +1973,8 @@ static int do_file_page(struct mm_struct
- 			((access_mask & VM_WRITE) && !(vma->vm_flags & VM_SHARED))) {
- 		/* We're behaving as if pte_file was cleared, so check
- 		 * protections like in handle_pte_fault. */
--		if (unlikely(vma->vm_flags & VM_NONUNIFORM)) {
--			if ((access_mask & VM_WRITE) > (vma->vm_flags & VM_WRITE))
--				goto out_segv;
--			if ((access_mask & VM_READ) > (vma->vm_flags & VM_READ))
--				goto out_segv;
--			if ((access_mask & VM_EXEC) > (vma->vm_flags & VM_EXEC))
--				goto out_segv;
--		}
-+		if (check_perms(vma, access_mask))
-+			goto out_segv;
  
- 		pte_clear(mm, address, pte);
- 		return do_no_page(mm, vma, address, access_mask & VM_WRITE, pte, pmd);
-@@ -2007,14 +2030,8 @@ static inline int handle_pte_fault(struc
- 		/* when pte_file(), the VMA protections are useless. Otherwise,
- 		 * we used to check protections in arch handler, but with
- 		 * VM_NONUNIFORM the check is skipped. */
--		if (unlikely(vma->vm_flags & VM_NONUNIFORM) && !pte_file(entry)) {
--			if ((access_mask & VM_WRITE) > (vma->vm_flags & VM_WRITE))
--				goto out_segv;
--			if ((access_mask & VM_READ) > (vma->vm_flags & VM_READ))
--				goto out_segv;
--			if ((access_mask & VM_EXEC) > (vma->vm_flags & VM_EXEC))
--				goto out_segv;
--		}
-+		if (!pte_file(entry) && check_perms(vma, access_mask))
-+			goto out_segv;
+ /* Encode and decode a nonlinear file mapping entry */
+-#define PTE_FILE_MAX_BITS	27
+-#define pte_to_pgoff(pte)	(((pte_val(pte) & ~0x7ff) >> 5)		\
+-				 | ((pte_val(pte) & 0x3f0) >> 4))
+-#define pte_to_pgprot(pte)	\
+-__pgprot((pte_val(pte) & (_PAGE_USER|_PAGE_RW|_PAGE_PRESENT)) | _PAGE_ACCESSED)
++/* We can't use any the _PAGE_PRESENT, _PAGE_FILE, _PAGE_USER, _PAGE_RW,
++   or _PAGE_HASHPTE bits for storing a page offset. */
++#if defined(CONFIG_40x)
++/* 40x, avoid the 0x53 bits - to simplify things, avoid 0x73 */ */
++#define __pgoff_split(x)	((((x) << 5) & ~0x7f) | (((x) << 2) & 0xc))
++#define __pgoff_glue(x)		((((x) & ~0x7f) >> 5) | (((x) & 0xc) >> 2))
++#elif defined(CONFIG_44x)
++/* 44x, avoid the 0x47 bits */
++#define __pgoff_split(x)	((((x) << 4) & ~0x7f) | (((x) << 3) & 0x38))
++#define __pgoff_glue(x)		((((x) & ~0x7f) >> 4) | (((x) & 0x38) >> 3))
++#elif defined(CONFIG_8xx)
++/* 8xx, avoid the 0x843 bits */
++#define __pgoff_split(x)	((((x) << 4) & ~0xfff) | (((x) << 3) & 0x780) \
++				 | (((x) << 2) & 0x3c))
++#define __pgoff_glue(x)		((((x) & ~0xfff) >> 4) | (((x) & 0x780) >> 3))\
++				 | (((x) & 0x3c) >> 2))
++#else
++/* classic PPC, avoid the 0x40f bits */
++#define __pgoff_split(x)	((((x) << 5) & ~0x7ff) | (((x) << 4) & 0x3f0))
++#define __pgoff_glue(x)		((((x) & ~0x7ff) >> 5) | (((x) & 0x3f0) >> 4))
++#endif
  
- 		/*
- 		 * If it truly wasn't present, we know that kswapd
++#define PTE_FILE_MAX_BITS	27
++#define pte_to_pgoff(pte)	__pgoff_glue(pte_val(pte))
+ #define pgoff_prot_to_pte(off, prot)					\
+-	((pte_t) { (((off) << 5) & ~0x7ff) | (((off) << 4) & 0x3f0)	\
+-		   | (pgprot_val(prot) & (_PAGE_USER|_PAGE_RW))		\
+-		   | _PAGE_FILE })
++	((pte_t) { __pgoff_split(off) | _PAGE_FILE |			\
++		   (pgprot_val(prot) & (_PAGE_USER|_PAGE_RW)) })
++
++#define pte_to_pgprot(pte)						\
++	__pgprot((pte_val(pte) & (_PAGE_USER|_PAGE_RW|_PAGE_PRESENT))	\
++		 | _PAGE_ACCESSED)
+ 
+ /* CONFIG_APUS */
+ /* For virtual address to physical address conversion */
 _

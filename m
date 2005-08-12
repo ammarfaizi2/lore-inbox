@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVHLQSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVHLQR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbVHLQSO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 12:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVHLQSO
+	id S1751216AbVHLQR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 12:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbVHLQR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 12:18:14 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:45697 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751217AbVHLQSN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 12:18:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZZzeb/lreGes0iqhsyS9SrM2i5SuRMSioexLIBXzqiLj1zQgJqtfPDqYf3L1fw+MsfDHGUgY05oLPYtXy7HIpSBd3twEeC8wKRUSy1sMK87bKh++8FLV7TEfWk57flPq0+5Hy6pO+w/VqtDu8S1KO36Tv1wX9DtvJRgFmjOx7YE=
-Message-ID: <86802c4405081209187e51878@mail.gmail.com>
-Date: Fri, 12 Aug 2005 09:18:07 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [discuss] Re: 2.6.13-rc2 with dual way dual core ck804 MB
-Cc: Mike Waychison <mikew@google.com>, Peter Buckingham <peter@pantasys.com>,
-       linux-kernel@vger.kernel.org, "discuss@x86-64.org" <discuss@x86-64.org>
-In-Reply-To: <20050812130725.GL8974@wotan.suse.de>
+	Fri, 12 Aug 2005 12:17:58 -0400
+Received: from hastings.mumak.ee ([194.204.22.4]:23733 "EHLO hastings.mumak.ee")
+	by vger.kernel.org with ESMTP id S1751216AbVHLQR5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 12:17:57 -0400
+Subject: Re: BUG: reiserfs+acl+quota deadlock
+From: Tarmo =?ISO-8859-1?Q?T=E4nav?= <tarmo@itech.ee>
+To: "Vladimir V. Saveliev" <vs@namesys.com>
+Cc: Jan Kara <jack@suse.cz>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, mason@suse.com, jeffm@suse.com,
+       grev@namesys.com
+In-Reply-To: <42FCB873.8070900@namesys.com>
+References: <1123643111.27819.23.camel@localhost>
+	 <20050810130009.GE22112@atrey.karlin.mff.cuni.cz>
+	 <1123684298.14562.4.camel@localhost>
+	 <20050810144024.GA18584@atrey.karlin.mff.cuni.cz>
+	 <42FCB873.8070900@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 12 Aug 2005 19:17:50 +0300
+Message-Id: <1123863470.14337.1.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42FA8A4B.4090408@google.com>
-	 <86802c4405081016421db9baa5@mail.gmail.com>
-	 <20050811000430.GD8974@wotan.suse.de>
-	 <86802c4405081017174c22dcd5@mail.gmail.com>
-	 <86802c440508101723d4aadef@mail.gmail.com>
-	 <20050811002841.GE8974@wotan.suse.de>
-	 <86802c440508101743783588df@mail.gmail.com>
-	 <20050811005100.GF8974@wotan.suse.de>
-	 <86802c4405081123597239dff7@mail.gmail.com>
-	 <20050812130725.GL8974@wotan.suse.de>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-good, I will produce one patch next week.
-
-YH
-
-On 8/12/05, Andi Kleen <ak@suse.de> wrote:
-> On Thu, Aug 11, 2005 at 11:59:21PM -0700, yhlu wrote:
-> > andi,
-> >
-> > is it possible for
-> > after the AP1 call_in is done and before AP1 get in tsc_sync_wait
-> > The AP2 call_in done.  and then AP1 get in tsc_sync_wait and before it
-> > done, AP2 get in tsc_sync_wait too.
-> >
-> > sync_master can not figure out from AP1 or AP2 because only have
-> > go[MASTER] and go{SLAVE].
+On R, 2005-08-12 at 18:55 +0400, Vladimir V. Saveliev wrote:
 > 
-> Ok, you're right. It's better to move it to before callin map.
+> It looks like the problem is that reiserfs_new_inode can be called either having xattrs locked or not.
+> It does unlocking/locking xattrs on error handling path, but has no idea about whether
+> xattrs are locked of not.
+> The attached patch seems to fix the problem.
+> I am not sure whether it is correct way to fix this problem, though.
 > 
-> -Andi
->
+> Tarmo, please check if this patch works for you.
+
+
+Sorry, I made a mistake when I first tested the patch, got some
+kernel images mixed up, it does fix the problem, thank you.
+
+
+
+-- 
+Tarmo Tänav <tarmo@itech.ee>
+

@@ -1,96 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVHLSBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVHLRyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbVHLSBA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbVHLSAY
+	id S1750772AbVHLRyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVHLRyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:00:24 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:35218 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750804AbVHLRym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:54:42 -0400
-Subject: [patch 16/39] remap_file_pages protection support: readd lock downgrading
+	Fri, 12 Aug 2005 13:54:15 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:57482 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750770AbVHLRyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:54:15 -0400
+Subject: [patch 26/39] remap_file_pages protection support: ppc32 bits
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 19:32:12 +0200
-Message-Id: <20050812173212.D241824E7E6@zion.home.lan>
+Date: Fri, 12 Aug 2005 19:32:40 +0200
+Message-Id: <20050812173241.3A55C24E805@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+From: Ingo Molnar <mingo@elte.hu>
 
-Even now, we'll sometimes take the write lock.  So, in that case, we could
-downgrade it; after a tiny bit of thought, I've choosen doing that when we'll
-either do any I/O or we'll alter a lot of PTEs. About how much "a lot" is,
-I've copied the values from this code in mm/memory.c:
-
-#ifdef CONFIG_PREEMPT
-# define ZAP_BLOCK_SIZE	(8 * PAGE_SIZE)
-#else
-/* No preempt: go for improved straight-line efficiency */
-# define ZAP_BLOCK_SIZE	(1024 * PAGE_SIZE)
-#endif
-
-I'm not sure about the trade-offs - we used to have a down_write, now we have
-a down_read() and a possible up_read()down_write(), and with this patch, the
-fast-path still takes only down_read, but the slow path will do down_read(),
-down_write(), downgrade_write(). This will increase the number of atomic
-operation but increase concurrency wrt mmap and similar operations - I don't
-know how much contention there is on that lock.
-
-Also, drop a bust comment: we cannot clear VM_NONLINEAR simply because code
-elsewhere is going to use it. At the very least, madvise_dontneed() relies on
-that flag being set (remaining non-linear truncation read the mapping
-list), but the list is probably longer and going to increase in the next
-patches of this series.
-
-Just in case this wasn't clear: this patch is not strictly related to
-protection support, I was just too lazy to move it up in the hierarchy.
+PPC32 bits of RFP - as in original patch.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/mm/fremap.c |   18 +++++++++++++-----
- 1 files changed, 13 insertions(+), 5 deletions(-)
+ linux-2.6.git-paolo/include/asm-ppc/pgtable.h |   15 +++++++++++----
+ 1 files changed, 11 insertions(+), 4 deletions(-)
 
-diff -puN mm/fremap.c~rfp-downgrade-lock mm/fremap.c
---- linux-2.6.git/mm/fremap.c~rfp-downgrade-lock	2005-08-11 23:04:39.000000000 +0200
-+++ linux-2.6.git-paolo/mm/fremap.c	2005-08-11 23:04:39.000000000 +0200
-@@ -152,6 +152,13 @@ err_unlock:
- }
+diff -puN include/asm-ppc/pgtable.h~rfp-arch-ppc include/asm-ppc/pgtable.h
+--- linux-2.6.git/include/asm-ppc/pgtable.h~rfp-arch-ppc	2005-08-12 18:18:43.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-ppc/pgtable.h	2005-08-12 18:39:57.000000000 +0200
+@@ -309,8 +309,8 @@ extern unsigned long ioremap_bot, iorema
+ /* Definitions for 60x, 740/750, etc. */
+ #define _PAGE_PRESENT	0x001	/* software: pte contains a translation */
+ #define _PAGE_HASHPTE	0x002	/* hash_page has made an HPTE for this pte */
+-#define _PAGE_FILE	0x004	/* when !present: nonlinear file mapping */
+ #define _PAGE_USER	0x004	/* usermode access allowed */
++#define _PAGE_FILE	0x008	/* when !present: nonlinear file mapping */
+ #define _PAGE_GUARDED	0x008	/* G: prohibit speculative access */
+ #define _PAGE_COHERENT	0x010	/* M: enforce memory coherence (SMP systems) */
+ #define _PAGE_NO_CACHE	0x020	/* I: cache inhibit */
+@@ -728,9 +728,16 @@ extern void paging_init(void);
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val << 3 })
  
- 
-+#ifdef CONFIG_PREEMPT
-+# define INSTALL_SIZE	(8 * PAGE_SIZE)
-+#else
-+/* No preempt: go for improved straight-line efficiency */
-+# define INSTALL_SIZE	(1024 * PAGE_SIZE)
-+#endif
+ /* Encode and decode a nonlinear file mapping entry */
+-#define PTE_FILE_MAX_BITS	29
+-#define pte_to_pgoff(pte)	(pte_val(pte) >> 3)
+-#define pgoff_to_pte(off)	((pte_t) { ((off) << 3) | _PAGE_FILE })
++#define PTE_FILE_MAX_BITS	27
++#define pte_to_pgoff(pte)	(((pte_val(pte) & ~0x7ff) >> 5)		\
++				 | ((pte_val(pte) & 0x3f0) >> 4))
++#define pte_to_pgprot(pte)	\
++__pgprot((pte_val(pte) & (_PAGE_USER|_PAGE_RW|_PAGE_PRESENT)) | _PAGE_ACCESSED)
 +
- /***
-  * sys_remap_file_pages - remap arbitrary pages of a shared backing store
-  *                        file within an existing vma.
-@@ -266,14 +273,15 @@ retry:
- 			}
- 		}
++#define pgoff_prot_to_pte(off, prot)					\
++	((pte_t) { (((off) << 5) & ~0x7ff) | (((off) << 4) & 0x3f0)	\
++		   | (pgprot_val(prot) & (_PAGE_USER|_PAGE_RW))		\
++		   | _PAGE_FILE })
  
-+		/* Do NOT hold the write lock while doing any I/O, nor when
-+		 * iterating over too many PTEs. Values might need tuning. */
-+		if (has_write_lock && (!(flags & MAP_NONBLOCK) || size > INSTALL_SIZE)) {
-+			downgrade_write(&mm->mmap_sem);
-+			has_write_lock = 0;
-+		}
- 		err = vma->vm_ops->populate(vma, start, size, pgprot, pgoff,
- 				flags & MAP_NONBLOCK);
- 
--		/*
--		 * We can't clear VM_NONLINEAR because we'd have to do
--		 * it after ->populate completes, and that would prevent
--		 * downgrading the lock.  (Locks can't be upgraded).
--		 */
- 	}
- 
- out_unlock:
+ /* CONFIG_APUS */
+ /* For virtual address to physical address conversion */
 _

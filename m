@@ -1,33 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVHLPsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVHLP4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbVHLPsv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 11:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVHLPsu
+	id S1750831AbVHLP4R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 11:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbVHLP4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 11:48:50 -0400
-Received: from ns2.suse.de ([195.135.220.15]:19416 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751202AbVHLPsu (ORCPT
+	Fri, 12 Aug 2005 11:56:16 -0400
+Received: from hastings.mumak.ee ([194.204.22.4]:30611 "EHLO hastings.mumak.ee")
+	by vger.kernel.org with ESMTP id S1750831AbVHLP4Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 11:48:50 -0400
-Date: Fri, 12 Aug 2005 17:48:49 +0200
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: netconsole lockup with current kernel 2.6.13-rc6-git3
-Message-ID: <20050812154849.GA8019@suse.de>
-References: <20050812131942.GA2696@suse.de>
+	Fri, 12 Aug 2005 11:56:16 -0400
+Subject: Re: BUG: reiserfs+acl+quota deadlock
+From: Tarmo =?ISO-8859-1?Q?T=E4nav?= <tarmo@itech.ee>
+To: Jeff Mahoney <jeffm@suse.com>
+Cc: "Vladimir V. Saveliev" <vs@namesys.com>, Jan Kara <jack@suse.cz>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, mason@suse.com,
+       grev@namesys.com
+In-Reply-To: <42FCBC00.2040903@suse.com>
+References: <1123643111.27819.23.camel@localhost>
+	 <20050810130009.GE22112@atrey.karlin.mff.cuni.cz>
+	 <1123684298.14562.4.camel@localhost>
+	 <20050810144024.GA18584@atrey.karlin.mff.cuni.cz>
+	 <42FCB873.8070900@namesys.com>  <42FCBC00.2040903@suse.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 12 Aug 2005 18:56:00 +0300
+Message-Id: <1123862161.14093.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20050812131942.GA2696@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Fri, Aug 12, Olaf Hering wrote:
+Vladimir V. Saveliev wrote:
+>  
+> > It looks like the problem is that reiserfs_new_inode can be called
+> > either having xattrs locked or not.
+> > It does unlocking/locking xattrs on error handling path, but has no idea
+> > about whether
+> > xattrs are locked of not.
+> > The attached patch seems to fix the problem.
+> > I am not sure whether it is correct way to fix this problem, though.
 
-> this is all I get, then the system is dead. I see it also on G5, no interrupts
-> served. Will check if older kernels work ok, it does at least work in SLES9
+I tested the patch, it did not fix the problem. Is there any way that I
+could help diagnose the problem? (so far I have not tried reiserfs or
+kernel debug options, could those help?)
 
-Doh, even broken in 2.6.12.
+
+On R, 2005-08-12 at 11:10 -0400, Jeff Mahoney wrote:
+> 
+> Does this patch actually fix it? It shouldn't.
+> 
+> The logic is like this: If a default ACL is associated with the parent
+> when the inode is created, xattrs will be locked so that the ACL can be
+> inherited. Since reiserfs_new_inode is called from the VFS layer with
+> inode->i_sem downed, {set,remove}xattr is locked out. The default ACL
+> can't be removed/added/changed while reiserfs_new_inode is running.
+> Therefore, if there is a default ACL, xattrs must be locked.
+
+I don't know if you read my report on this bug, but note that it had
+no requirement for any ACL's to be used (even default ACL's), there was
+only need for acl support to be enabled when mounting the partition.
+
+
+
+-- 
+Tarmo Tänav <tarmo@itech.ee>
+

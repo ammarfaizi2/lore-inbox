@@ -1,45 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVHLT11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbVHLT2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbVHLT11 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 15:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVHLT11
+	id S1750868AbVHLT2O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 15:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbVHLT2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 15:27:27 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:43464 "EHLO smtp6.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1750753AbVHLT10 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 15:27:26 -0400
-X-ME-UUID: 20050812192711725.B13801C002A1@mwinf0601.wanadoo.fr
-From: Guillaume Foliard <guifo@wanadoo.fr>
-Organization: _
-To: Ingo Molnar <mingo@redhat.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.53-01, High Resolution Timers & RCU-tasklist features
-Date: Fri, 12 Aug 2005 21:27:26 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200508112039.07660.guifo@wanadoo.fr> <Pine.LNX.4.58.0508120426070.3233@devserv.devel.redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0508120426070.3233@devserv.devel.redhat.com>
+	Fri, 12 Aug 2005 15:28:14 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:2978 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750868AbVHLT2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 15:28:13 -0400
+Date: Fri, 12 Aug 2005 15:27:52 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Chris Wright <chrisw@osdl.org>
+cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linus Torvalds <torvalds@osdl.org>, gdt@linuxppc.org,
+       Andrew Morton <akpm@osdl.org>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+Subject: Re: [PATCH] Fix PPC signal handling of NODEFER, should not affect
+ sa_mask
+In-Reply-To: <Pine.LNX.4.58.0508121456570.19908@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0508121526210.5970@localhost.localdomain>
+References: <1123615983.18332.194.camel@localhost.localdomain>
+ <42F906EB.6060106@fujitsu-siemens.com> <1123617812.18332.199.camel@localhost.localdomain>
+ <1123618745.18332.204.camel@localhost.localdomain> <20050809204928.GH7991@shell0.pdx.osdl.net>
+ <1123621223.9553.4.camel@localhost.localdomain> <1123621637.9553.7.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0508091419420.3258@g5.osdl.org> <1123643401.9553.32.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr> <20050812184503.GX7762@shell0.pdx.osdl.net>
+ <Pine.LNX.4.58.0508121456570.19908@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508122127.26928.guifo@wanadoo.fr>
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1319873847-1123874872=:5970"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 August 2005 14:53, Ingo Molnar wrote:
-> On Thu, 11 Aug 2005, Guillaume Foliard wrote:
-> > Hi,
-> >
-> > Here is the compilation error I had with 0.7.53-02 :
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+--8323328-1319873847-1123874872=:5970
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+
+On Fri, 12 Aug 2005, Steven Rostedt wrote:
 >
-> thanks - i've uploaded the -53-05 patch which should fix this - does it
-> build/work for you now?
+> I've supplied this before, but I'll send it again.  Attached is a program
+> that should show the behavior of the sigaction.  If someone has one of the
+> above mentioned boxes, please run this on the box and send back the
+> results.
 
-I've tried -53-07. Build is ok. Kernel has booted and is running.
+Here it is again. I tried it on another Linux box and realize that the
+parent was running before the child was able to initialize the signal
+handlers.  So I added another sleep.  I know sleeps don't guarentee
+anything, but this is just a simple test.
 
-Thank you.
+Attached is the fixed program.
 
-Guillaume
+-- Steve
+--8323328-1319873847-1123874872=:5970
+Content-Type: TEXT/x-csrc; charset=US-ASCII; name="test_signal.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0508121527520.5970@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="test_signal.c"
 
+I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3RkbGliLmg+DQojaW5j
+bHVkZSA8c3RyaW5nLmg+DQojaW5jbHVkZSA8c2lnbmFsLmg+DQojaW5jbHVk
+ZSA8c3lzL3R5cGVzLmg+DQojaW5jbHVkZSA8c3lzL3dhaXQuaD4NCiNpbmNs
+dWRlIDx1bmlzdGQuaD4NCg0Kc3RhdGljIGludCB1MTsNCnN0YXRpYyBpbnQg
+dTI7DQoNCnN0YXRpYyB2b2lkIHVzZXIxKGludCB4KQ0Kew0KCS8qIGZvciB0
+ZXN0aW5nIGFnYWluc3QgaXRzZWxmICovDQoJaWYgKHUxKQ0KCQl1MiA9IDE7
+DQoJdTEgPSAxOw0KCXNsZWVwKDUpOw0KCXUxID0gMDsNCn0NCg0Kc3RhdGlj
+IHZvaWQgdXNlcjIoaW50IHgpDQp7DQoJaWYgKHUxKQ0KCQl1MiA9IDE7DQp9
+DQoNCnN0YXRpYyB2b2lkIGludHIoaW50IHgpDQp7DQoJZXhpdCh1Mik7DQp9
+DQoNCnN0YXRpYyB2b2lkIHN0YXJ0KHN0cnVjdCBzaWdhY3Rpb24gKmFjdCkN
+CnsNCglzdHJ1Y3Qgc2lnYWN0aW9uIGE7DQoNCgltZW1zZXQoJmEsMCxzaXpl
+b2YoYSkpOw0KDQoJYS5zYV9oYW5kbGVyID0gaW50cjsNCglpZiAoKHNpZ2Fj
+dGlvbihTSUdJTlQsJmEsTlVMTCkpIDwgMCkgew0KCQlwZXJyb3IoInNpZ2Fj
+dGlvbiIpOw0KCQlleGl0KC0xKTsNCgl9DQoJDQoJLyoNCgkgKiBUaGlzIGlz
+IHRoZSB0ZXN0aW5nIGhhbmRsZXINCgkgKi8NCglhY3QtPnNhX2hhbmRsZXIg
+PSB1c2VyMTsNCglpZiAoKHNpZ2FjdGlvbihTSUdVU1IxLGFjdCxOVUxMKSkg
+PCAwKSB7DQoJCXBlcnJvcigic2lnYWN0aW9uIik7DQoJCWV4aXQoLTEpOw0K
+CX0NCg0KCWEuc2FfaGFuZGxlciA9IHVzZXIyOw0KCWlmICgoc2lnYWN0aW9u
+KFNJR1VTUjIsJmEsTlVMTCkpIDwgMCkgew0KCQlwZXJyb3IoInNpZ2FjdGlv
+biIpOw0KCQlleGl0KC0xKTsNCgl9DQoJCQ0KCQkNCglmb3IgKDs7KQ0KCQk7
+DQoNCn0NCmludCB0ZXN0c2lnKHN0cnVjdCBzaWdhY3Rpb24gKmFjdCwgaW50
+IHNpZzEsIGludCBzaWcyKQ0Kew0KCWludCBwaWQ7DQoJaW50IHN0YXR1czsN
+Cg0KCWlmICgocGlkID0gZm9yaygpKSA8IDApIHsNCgkJcGVycm9yKCJmb3Jr
+Iik7DQoJfSBlbHNlIGlmICghcGlkKSB7DQoJCS8qDQoJCSAqIFRlc3QxIHNh
+X21hc2sgaW5jbHVkZXMgU0lHVVNSMg0KCQkgKi8NCgkJc3RhcnQoYWN0KTsN
+CgkJZXhpdCgwKTsNCgl9DQoJc2xlZXAoMSk7DQoJLyoNCgkgKiBTZW5kIGZp
+cnN0IHNpZ25hbCB0byBzdGFydCB0aGUgdGVzdC4NCgkgKi8NCglraWxsKHBp
+ZCxzaWcxKTsNCgkvKg0KCSAqIFNJR1VTUjEgc2xlZXBzIGZvciA1LCBqdXN0
+IHNsZWVwIGZvciBvbiBoZXJlDQoJICogdG8gbWFrZSBzdXJlIHRoZSBzeXN0
+ZW0gZ290IGl0Lg0KCSAqLw0KCXNsZWVwKDEpOw0KCS8qDQoJICogU2VuZCB0
+aGUgc2Vjb25kIHNpZ25hbCB0byB0aGUgY2hpbGQsIHRvIHNlZSBpZiANCgkg
+KiB0aGlzIHdha2VzIGl0IHVwLg0KCSAqLw0KCWtpbGwocGlkLHNpZzIpOw0K
+CXNsZWVwKDEpOw0KCS8qDQoJICogRW5kIHRoZSB0ZXN0Lg0KCSAqLw0KCWtp
+bGwocGlkLFNJR0lOVCk7DQoJd2FpdHBpZChwaWQsJnN0YXR1cywwKTsNCgly
+ZXR1cm4gV0VYSVRTVEFUVVMoc3RhdHVzKTsNCn0NCg0KaW50IG1haW4oaW50
+IGFyZ2MsIGNoYXIgKiphcmd2KQ0Kew0KCXN0cnVjdCBzaWdhY3Rpb24gYWN0
+Ow0KCWludCByZXQ7DQoJDQoJbWVtc2V0KCZhY3QsMCxzaXplb2YoYWN0KSk7
+DQoJc2lnYWRkc2V0KCZhY3Quc2FfbWFzayxTSUdVU1IyKTsNCglyZXQgPSB0
+ZXN0c2lnKCZhY3QsU0lHVVNSMSxTSUdVU1IyKTsNCglzd2l0Y2ggKHJldCkg
+ew0KCQljYXNlIDA6DQoJCQlwcmludGYoInNhX21hc2sgYmxvY2tzIG90aGVy
+IHNpZ25hbHNcbiIpOw0KCQkJYnJlYWs7DQoJCWNhc2UgMToNCgkJCXByaW50
+Zigic2FfbWFzayBkb2VzIG5vdCBibG9jayBvdGhlciBzaWduYWxzXG4iKTsN
+CgkJCWJyZWFrOw0KCQlkZWZhdWx0Og0KCQkJcHJpbnRmKCJVbmtub3duIHJl
+dHVybiBjb2RlISFcbiIpOw0KCX0NCg0KCW1lbXNldCgmYWN0LDAsc2l6ZW9m
+KGFjdCkpOw0KCWFjdC5zYV9mbGFncyB8PSBTQV9OT0RFRkVSOw0KCXJldCA9
+IHRlc3RzaWcoJmFjdCxTSUdVU1IxLFNJR1VTUjIpOw0KCXN3aXRjaCAocmV0
+KSB7DQoJCWNhc2UgMDoNCgkJCXByaW50ZigiU0FfTk9ERUZFUiBibG9ja3Mg
+b3RoZXIgc2lnbmFsc1xuIik7DQoJCQlicmVhazsNCgkJY2FzZSAxOg0KCQkJ
+cHJpbnRmKCJTQV9OT0RFRkVSIGRvZXMgbm90IGJsb2NrIG90aGVyIHNpZ25h
+bHNcbiIpOw0KCQkJYnJlYWs7DQoJCWRlZmF1bHQ6DQoJCQlwcmludGYoIlVu
+a25vd24gcmV0dXJuIGNvZGUhIVxuIik7DQoJfQ0KDQoJbWVtc2V0KCZhY3Qs
+MCxzaXplb2YoYWN0KSk7DQoJYWN0LnNhX2ZsYWdzIHw9IFNBX05PREVGRVI7
+DQoJc2lnYWRkc2V0KCZhY3Quc2FfbWFzayxTSUdVU1IyKTsNCglyZXQgPSB0
+ZXN0c2lnKCZhY3QsU0lHVVNSMSxTSUdVU1IyKTsNCglzd2l0Y2ggKHJldCkg
+ew0KCQljYXNlIDA6DQoJCQlwcmludGYoIlNBX05PREVGRVIgZG9lcyBub3Qg
+YWZmZWN0IHNhX21hc2tcbiIpOw0KCQkJYnJlYWs7DQoJCWNhc2UgMToNCgkJ
+CXByaW50ZigiU0FfTk9ERUZFUiBhZmZlY3RzIHNhX21hc2tcbiIpOw0KCQkJ
+YnJlYWs7DQoJCWRlZmF1bHQ6DQoJCQlwcmludGYoIlVua25vd24gcmV0dXJu
+IGNvZGUhIVxuIik7DQoJfQ0KDQoJbWVtc2V0KCZhY3QsMCxzaXplb2YoYWN0
+KSk7DQoJYWN0LnNhX2ZsYWdzIHw9IFNBX05PREVGRVI7DQoJc2lnYWRkc2V0
+KCZhY3Quc2FfbWFzayxTSUdVU1IxKTsNCglyZXQgPSB0ZXN0c2lnKCZhY3Qs
+U0lHVVNSMSxTSUdVU1IxKTsNCglzd2l0Y2ggKHJldCkgew0KCQljYXNlIDA6
+DQoJCQlwcmludGYoIlNBX05PREVGRVIgYW5kIHNhX21hc2sgYmxvY2tzIHNp
+Z1xuIik7DQoJCQlicmVhazsNCgkJY2FzZSAxOg0KCQkJcHJpbnRmKCJTQV9O
+T0RFRkVSIGFuZCBzYV9tYXNrIGRvZXMgbm90IGJsb2NrIHNpZ1xuIik7DQoJ
+CQlicmVhazsNCgkJZGVmYXVsdDoNCgkJCXByaW50ZigiVW5rbm93biByZXR1
+cm4gY29kZSEhXG4iKTsNCgl9DQoNCgltZW1zZXQoJmFjdCwwLHNpemVvZihh
+Y3QpKTsNCglyZXQgPSB0ZXN0c2lnKCZhY3QsU0lHVVNSMSxTSUdVU1IxKTsN
+Cglzd2l0Y2ggKHJldCkgew0KCQljYXNlIDA6DQoJCQlwcmludGYoIiFTQV9O
+T0RFRkVSIGJsb2NrcyBzaWdcbiIpOw0KCQkJYnJlYWs7DQoJCWNhc2UgMToN
+CgkJCXByaW50ZigiIVNBX05PREVGRVIgZG9lcyBub3QgYmxvY2sgc2lnXG4i
+KTsNCgkJCWJyZWFrOw0KCQlkZWZhdWx0Og0KCQkJcHJpbnRmKCJVbmtub3du
+IHJldHVybiBjb2RlISFcbiIpOw0KCX0NCg0KCW1lbXNldCgmYWN0LDAsc2l6
+ZW9mKGFjdCkpOw0KCW1lbXNldCgmYWN0LDAsc2l6ZW9mKGFjdCkpOw0KCWFj
+dC5zYV9mbGFncyB8PSBTQV9OT0RFRkVSOw0KCXJldCA9IHRlc3RzaWcoJmFj
+dCxTSUdVU1IxLFNJR1VTUjEpOw0KCXN3aXRjaCAocmV0KSB7DQoJCWNhc2Ug
+MDoNCgkJCXByaW50ZigiU0FfTk9ERUZFUiBibG9ja3Mgc2lnXG4iKTsNCgkJ
+CWJyZWFrOw0KCQljYXNlIDE6DQoJCQlwcmludGYoIlNBX05PREVGRVIgZG9l
+cyBub3QgYmxvY2sgc2lnXG4iKTsNCgkJCWJyZWFrOw0KCQlkZWZhdWx0Og0K
+CQkJcHJpbnRmKCJVbmtub3duIHJldHVybiBjb2RlISFcbiIpOw0KCX0NCg0K
+CW1lbXNldCgmYWN0LDAsc2l6ZW9mKGFjdCkpOw0KCXNpZ2FkZHNldCgmYWN0
+LnNhX21hc2ssU0lHVVNSMSk7DQoJcmV0ID0gdGVzdHNpZygmYWN0LFNJR1VT
+UjEsU0lHVVNSMSk7DQoJc3dpdGNoIChyZXQpIHsNCgkJY2FzZSAwOg0KCQkJ
+cHJpbnRmKCJzYV9tYXNrIGJsb2NrcyBzaWdcbiIpOw0KCQkJYnJlYWs7DQoJ
+CWNhc2UgMToNCgkJCXByaW50Zigic2FfbWFzayBkb2VzIG5vdCBibG9jayBz
+aWdcbiIpOw0KCQkJYnJlYWs7DQoJCWRlZmF1bHQ6DQoJCQlwcmludGYoIlVu
+a25vd24gcmV0dXJuIGNvZGUhIVxuIik7DQoJfQ0KDQoJZXhpdCgwKTsNCn0N
+Cg==
+
+--8323328-1319873847-1123874872=:5970--

@@ -1,217 +1,346 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbVHLR5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVHLR4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbVHLR5z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVHLR5t
+	id S1750763AbVHLR4i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbVHLRyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:57:49 -0400
-Received: from mail.gmx.de ([213.165.64.20]:54993 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750805AbVHLR5b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:57:31 -0400
-X-Authenticated: #1189245
-Message-ID: <42FCE37F.7070606@gmx.net>
-Date: Fri, 12 Aug 2005 19:59:27 +0200
-From: Carsten Menke <bootsy52@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b) Gecko/20050217
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12.3 Kernel Oops using ISDN capi (c2faxsend)
-References: <42FCD58B.5010702@gmx.net>
-In-Reply-To: <42FCD58B.5010702@gmx.net>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 12 Aug 2005 13:54:52 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:22711 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750781AbVHLRyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:54:21 -0400
+Subject: [patch 19/39] remap file pages protection support: use FAULT_SIGSEGV for protection checking
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 12 Aug 2005 19:32:22 +0200
+Message-Id: <20050812173222.3F6DF24E7F2@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carsten Menke wrote:
 
-using 2.4.12.4 and disabling Preemption makes the problem even worse
-now c2faxsend is marked defunct and could not be killed producing this stack trace:
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
+The arch handler used to check itself protection, now we must possibly move
+that to the generic VM if the VMA is non-uniform.
 
+For now, do_file_page installs the PTE and doesn't check the fault type, if it
+was wrong, then it'll do another fault and die only then. I've left this for
+now to exercise more the code (and it works anyway).
 
+I've also changed do_no_pages to fault in pages with their *exact* permissions
+for non-uniform VMAs.
 
-Aug 12 19:40:45 localhost kernel: c011ba8a 
+The approach for checking is a bit clumsy because we are given a
+VM_{READ,WRITE,EXEC} mask so we do *strict* checking. For instance, a VM_EXEC
+mapping (which won't have VM_READ in vma->vm_flags) would give a fault on
+read.
 
-Aug 12 19:40:45 localhost kernel: SMP
-Aug 12 19:40:45 localhost kernel: Modules linked in: ipv6 piix ide_generic b1pci 
-b1dma b1 n_hdlc tun capi capifs kernelcapi evdev pcspkr parpo
-Aug 12 19:40:45 localhost kernel: CPU:    1
-Aug 12 19:40:45 localhost kernel: EIP:    0060:[mm_release+58/144]    Not 
-tainted VLI
-Aug 12 19:40:45 localhost kernel: EFLAGS: 00010282   (2.6.12.4) 
+To fix that properly, we should get a pgprot mask and test
+pte_read()/write/exec; for now I workaround that in the i386/UML handler, I
+have patches for fixing that subsequently.
 
-Aug 12 19:40:45 localhost kernel: EIP is at mm_release+0x3a/0x90
-Aug 12 19:40:45 localhost kernel: eax: 00000000   ebx: df96f020   ecx: b7c3abf8 
-   edx: df96f000
-Aug 12 19:40:45 localhost kernel: esi: 00000000   edi: df96f020   ebp: 0000000b 
-   esp: dd05a7c8
-Aug 12 19:40:45 localhost kernel: ds: 007b   es: 007b   ss: 0068
-Aug 12 19:40:45 localhost kernel: Process c2faxsend (pid: 3245, 
-threadinfo=dd05a000 task=df96f020)
-Aug 12 19:40:45 localhost kernel: Stack: c0448388 c04890c0 00000001 c0122e46 
-c0448388 0000000a 00000000 df96f020
-Aug 12 19:40:45 localhost kernel:        c011fb1a df96f020 00000000 dd05a000 
-df96f020 df96f4cc 0000000b c012053f
-Aug 12 19:40:45 localhost kernel:        df96f020 c037a677 00000000 c03c0c0c 
-00000000 dd05a000 dd05a944 c037a677
-Aug 12 19:40:45 localhost kernel: Call Trace:
-Aug 12 19:40:45 localhost kernel:  [__do_softirq+214/240] __do_softirq+0xd6/0xf0
-Aug 12 19:40:45 localhost kernel:  [exit_mm+26/304] exit_mm+0x1a/0x130
-Aug 12 19:40:45 localhost kernel:  [do_exit+191/832] do_exit+0xbf/0x340
-Aug 12 19:40:45 localhost kernel:  [die+380/384] die+0x17c/0x180
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+739/1465] 
-do_page_fault+0x2e3/0x5b9
-Aug 12 19:40:45 localhost kernel:  [load_balance+359/384] 
-load_balance+0x167/0x180
-Aug 12 19:40:45 localhost kernel:  [__mod_timer+249/320] __mod_timer+0xf9/0x140
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+0/1465] do_page_fault+0x0/0x5b9
-Aug 12 19:40:45 localhost kernel:  [error_code+79/84] error_code+0x4f/0x54
-Aug 12 19:40:45 localhost kernel:  [mm_release+58/144] mm_release+0x3a/0x90
-Aug 12 19:40:45 localhost kernel:  [__do_softirq+214/240] __do_softirq+0xd6/0xf0
-Aug 12 19:40:45 localhost kernel:  [exit_mm+26/304] exit_mm+0x1a/0x130
-Aug 12 19:40:45 localhost kernel:  [do_exit+191/832] do_exit+0xbf/0x340
-Aug 12 19:40:45 localhost kernel:  [die+380/384] die+0x17c/0x180
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+739/1465] 
-do_page_fault+0x2e3/0x5b9
-Aug 12 19:40:45 localhost kernel:  [load_balance+359/384] 
-load_balance+0x167/0x180
-Aug 12 19:40:45 localhost kernel:  [__mod_timer+249/320] __mod_timer+0xf9/0x140 
+Also, there is a (potential) problem: on VM_NONUNIFORM vmas, in
+handle_pte_fault(), if the PTE is present we return VM_FAULT_SIGSEGV. This has
+proven to be a bit strict, at least for UML - so this may break other arches
+too (only for new functionality). At least, peculiar ones - this problem was
+due to handle_mm_fault() called for TLB faults rather than PTE faults.
 
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+0/1465] 
-do_page_fault+0x0/0x5b9
-Aug 12 19:40:45 localhost kernel:  [error_code+79/84] error_code+0x4f/0x54
-Aug 12 19:40:45 localhost kernel:  [mm_release+58/144] mm_release+0x3a/0x90
-Aug 12 19:40:45 localhost kernel:  [__do_softirq+214/240] __do_softirq+0xd6/0xf0
-Aug 12 19:40:45 localhost kernel:  [exit_mm+26/304] exit_mm+0x1a/0x130
-Aug 12 19:40:45 localhost kernel:  [do_exit+191/832] do_exit+0xbf/0x340
-Aug 12 19:40:45 localhost kernel:  [die+380/384] die+0x17c/0x180
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+739/1465] 
-do_page_fault+0x2e3/0x5b9
-Aug 12 19:40:45 localhost kernel:  [load_balance+359/384] 
-load_balance+0x167/0x180
-Aug 12 19:40:45 localhost kernel:  [__mod_timer+249/320] __mod_timer+0xf9/0x140 
+Another problem I've just discovered is that PTRACE_POKETEXT access_process_vm
+on VM_NONUNIFORM write-protected vma's won't work. That's not a big problem.
 
-Aug 12 19:40:45 localhost kernel:  [neigh_periodic_timer+232/384] 
-neigh_periodic_timer+0xe8/0x180
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+0/1465] do_page_fault+0x0/0x5b9
-Aug 12 19:40:45 localhost kernel:  [error_code+79/84] error_code+0x4f/0x54
-Aug 12 19:40:45 localhost kernel:  [mm_release+58/144] mm_release+0x3a/0x90
-Aug 12 19:40:45 localhost kernel:  [__do_softirq+214/240] __do_softirq+0xd6/0xf0
-Aug 12 19:40:45 localhost kernel:  [exit_mm+26/304] exit_mm+0x1a/0x130
-Aug 12 19:40:45 localhost kernel:  [do_exit+191/832] do_exit+0xbf/0x340
-Aug 12 19:40:45 localhost kernel:  [die+380/384] die+0x17c/0x180
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+739/1465] 
-do_page_fault+0x2e3/0x5b9
-Aug 12 19:40:45 localhost kernel:  [load_balance+359/384] 
-load_balance+0x167/0x180
-Aug 12 19:40:45 localhost kernel:  [__mod_timer+249/320] __mod_timer+0xf9/0x140 
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+0/1465] 
-do_page_fault+0x0/0x5b9
-Aug 12 19:40:45 localhost kernel:  [error_code+79/84] error_code+0x4f/0x54
-Aug 12 19:40:45 localhost kernel:  [mm_release+58/144] mm_release+0x3a/0x90
-Aug 12 19:40:45 localhost kernel:  [__do_softirq+214/240] __do_softirq+0xd6/0xf0
-Aug 12 19:40:45 localhost kernel:  [exit_mm+26/304] exit_mm+0x1a/0x130
-Aug 12 19:40:45 localhost kernel:  [do_exit+191/832] do_exit+0xbf/0x340
-Aug 12 19:40:45 localhost kernel:  [die+380/384] die+0x17c/0x180
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+739/1465] 
-do_page_fault+0x2e3/0x5b9
-Aug 12 19:40:45 localhost kernel:  [load_balance+359/384] 
-load_balance+0x167/0x180
-Aug 12 19:40:45 localhost kernel:  [__mod_timer+249/320] __mod_timer+0xf9/0x140 
+ linux-2.6.git-paolo/arch/i386/mm/fault.c |   28 +++++++--
+ linux-2.6.git-paolo/include/linux/mm.h   |   11 +++
+ linux-2.6.git-paolo/mm/memory.c          |   96 ++++++++++++++++++++++++-------
+ 3 files changed, 108 insertions(+), 27 deletions(-)
 
-Aug 12 19:40:45 localhost kernel:  [__mod_timer+249/320] __mod_timer+0xf9/0x140 
-
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+0/1465] 
-do_page_fault+0x0/0x5b9
-Aug 12 19:40:45 localhost kernel:  [error_code+79/84] error_code+0x4f/0x54
-Aug 12 19:40:45 localhost kernel:  [mm_release+58/144] mm_release+0x3a/0x90
-Aug 12 19:40:45 localhost kernel:  [__do_softirq+214/240] __do_softirq+0xd6/0xf0
-Aug 12 19:40:45 localhost kernel:  [exit_mm+26/304] exit_mm+0x1a/0x130
-Aug 12 19:40:45 localhost kernel:  [do_exit+191/832] do_exit+0xbf/0x340
-Aug 12 19:40:45 localhost kernel:  [die+380/384] die+0x17c/0x180
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+739/1465] 
-do_page_fault+0x2e3/0x5b9
-Aug 12 19:40:45 localhost kernel:  [recalc_task_prio+136/336] 
-recalc_task_prio+0x88/0x150
-Aug 12 19:40:45 localhost kernel:  [activate_task+144/176] activate_task+0x90/0xb0
-Aug 12 19:40:45 localhost kernel:  [try_to_wake_up+658/736] 
-try_to_wake_up+0x292/0x2e0
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+0/1465] do_page_fault+0x0/0x5b9
-
-[ .. ]
-
-Aug 12 19:40:45 localhost kernel:  [mm_release+58/144] mm_release+0x3a/0x90
-Aug 12 19:40:45 localhost kernel:  [__do_softirq+214/240] __do_softirq+0xd6/0xf0
-Aug 12 19:40:45 localhost kernel:  [exit_mm+26/304] exit_mm+0x1a/0x130
-Aug 12 19:40:45 localhost kernel:  [do_exit+191/832] do_exit+0xbf/0x340
-Aug 12 19:40:45 localhost kernel:  [die+380/384] die+0x17c/0x180
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+739/1465] 
-do_page_fault+0x2e3/0x5b9
-Aug 12 19:40:45 localhost kernel:  [__wake_up_common+65/112] 
-__wake_up_common+0x41/0x70
-Aug 12 19:40:45 localhost kernel:  [__wake_up+62/96] __wake_up+0x3e/0x60
-Aug 12 19:40:45 localhost kernel:  [__queue_work+83/112] __queue_work+0x53/0x70
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+0/1465] do_page_fault+0x0/0x5b9
-Aug 12 19:40:45 localhost kernel:  [error_code+79/84] error_code+0x4f/0x54
-Aug 12 19:40:45 localhost kernel:  [mm_release+58/144] mm_release+0x3a/0x90
-Aug 12 19:40:45 localhost kernel:  [__do_softirq+214/240] __do_softirq+0xd6/0xf0
-Aug 12 19:40:45 localhost kernel:  [exit_mm+26/304] exit_mm+0x1a/0x130
-Aug 12 19:40:45 localhost kernel:  [do_exit+191/832] do_exit+0xbf/0x340
-Aug 12 19:40:45 localhost kernel:  [die+380/384] die+0x17c/0x180
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+739/1465] 
-do_page_fault+0x2e3/0x5b9
-Aug 12 19:40:45 localhost kernel:  [__wake_up+62/96] __wake_up+0x3e/0x60
-Aug 12 19:40:45 localhost kernel:  [release_console_sem+185/192] 
-release_console_sem+0xb9/0xc0
-Aug 12 19:40:45 localhost kernel:  [vprintk+413/592] vprintk+0x19d/0x250
-Aug 12 19:40:45 localhost kernel:  [xfs_log_move_tail+70/416] 
-xfs_log_move_tail+0x46/0x1a0
-Aug 12 19:40:45 localhost kernel:  [do_page_fault+0/1465] do_page_fault+0x0/0x5b9
-Aug 12 19:40:45 localhost kernel:  [error_code+79/84] error_code+0x4f/0x54
-Aug 12 19:40:45 localhost kernel:  [pg0+541760898/1068758016] 
-capilib_release_appl+0x52/0x70 [kernelcapi]
-Aug 12 19:40:45 localhost kernel:  [pg0+541727529/1068758016] 
-b1dma_release_appl+0x29/0xe0 [b1dma]
-Aug 12 19:40:45 localhost kernel:  [pg0+541749418/1068758016] 
-release_appl+0x1a/0x60 [kernelcapi]
-Aug 12 19:40:45 localhost kernel:  [pg0+541752528/1068758016] 
-capi20_release+0xc0/0xd0 [kernelcapi]
-Aug 12 19:40:45 localhost kernel:  [pg0+541537843/1068758016] 
-capidev_free+0x93/0xa0 [capi]
-Aug 12 19:40:45 localhost kernel:  [pg0+541542169/1068758016] 
-capi_release+0x19/0x30 [capi]
-Aug 12 19:40:45 localhost kernel:  [__fput+270/288] __fput+0x10e/0x120
-Aug 12 19:40:45 localhost kernel:  [filp_close+89/144] filp_close+0x59/0x90
-Aug 12 19:40:45 localhost kernel:  [put_files_struct+100/208] 
-put_files_struct+0x64/0xd0
-Aug 12 19:40:45 localhost kernel:  [do_exit+238/832] do_exit+0xee/0x340
-Aug 12 19:40:45 localhost kernel:  [do_group_exit+64/176] do_group_exit+0x40/0xb0
-Aug 12 19:40:45 localhost kernel:  [get_signal_to_deliver+560/832] 
-get_signal_to_deliver+0x230/0x340
-Aug 12 19:40:45 localhost kernel:  [do_signal+155/304] do_signal+0x9b/0x130
-Aug 12 19:40:45 localhost kernel:  [wake_up_state+24/32] wake_up_state+0x18/0x20
-Aug 12 19:40:45 localhost kernel:  [signal_wake_up+46/80] signal_wake_up+0x2e/0x50
-Aug 12 19:40:45 localhost kernel:  [force_sig_info+113/176] force_sig_info+0x71/0xb0
-Aug 12 19:40:45 localhost kernel:  [force_sig+32/48] force_sig+0x20/0x30
-Aug 12 19:40:45 localhost kernel:  [do_general_protection+135/416] 
-do_general_protection+0x87/0x1a0
-Aug 12 19:40:45 localhost kernel:  [sys_gettimeofday+60/144] 
-sys_gettimeofday+0x3c/0x90
-Aug 12 19:40:45 localhost kernel:  [do_general_protection+0/416] 
-do_general_protection+0x0/0x1a0
-Aug 12 19:40:45 localhost kernel:  [do_notify_resume+55/60] 
-do_notify_resume+0x37/0x3c
-Aug 12 19:40:45 localhost kernel:  [work_notifysig+19/21] work_notifysig+0x13/0x15
-Aug 12 19:40:45 localhost kernel: Code: 31 f6 8b 83 0c 01 00 00 8e e6 8e ee 85 
-c0 74 0d 31 d2 89 93 0c 01 00 00 e8 44 dc ff ff 8b 8b 14 01 00 00 85 c9 74 0a 8b 
-44 24 28 <8b> 40 20 48 7f 10 8b 5c 24 18 8b 74 24 1c 83 c4 20 c3 8d 74 26
-tual address 00000020
-Aug 12 19:40:45 localhost kernel:  <1>Unable to handle kernel NULL pointer 
-dereference at virtual address 00000020
--- 
-"There are two major products that came out of Berkeley: LSD and UNIX.
-   We don't believe this to be a coincidence." --Jeremy S. Anderson
+diff -puN arch/i386/mm/fault.c~rfp-fault-sigsegv-2 arch/i386/mm/fault.c
+--- linux-2.6.git/arch/i386/mm/fault.c~rfp-fault-sigsegv-2	2005-08-11 14:21:01.000000000 +0200
++++ linux-2.6.git-paolo/arch/i386/mm/fault.c	2005-08-11 16:12:46.000000000 +0200
+@@ -219,6 +219,7 @@ fastcall void do_page_fault(struct pt_re
+ 	unsigned long address;
+ 	unsigned long page;
+ 	int write;
++	int access_mask = 0;
+ 	siginfo_t info;
+ 
+ 	/* get the address */
+@@ -324,23 +325,24 @@ good_area:
+ 			/* fall through */
+ 		case 2:		/* write, not present */
+ 			if (!(vma->vm_flags & VM_WRITE))
+-				goto bad_area;
++				goto bad_area_prot;
+ 			write++;
+ 			break;
+-		case 1:		/* read, present */
++		case 1:		/* read, present - when does this happen? Maybe for NX exceptions? */
+ 			goto bad_area;
+ 		case 0:		/* read, not present */
+ 			if (!(vma->vm_flags & (VM_READ | VM_EXEC)))
+-				goto bad_area;
++				goto bad_area_prot;
+ 	}
+ 
+- survive:
++	access_mask = write ? VM_WRITE : 0;
++handle_fault:
+ 	/*
+ 	 * If for any reason at all we couldn't handle the fault,
+ 	 * make sure we exit gracefully rather than endlessly redo
+ 	 * the fault.
+ 	 */
+-	switch (handle_mm_fault(mm, vma, address, write)) {
++	switch (__handle_mm_fault(mm, vma, address, access_mask)) {
+ 		case VM_FAULT_MINOR:
+ 			tsk->min_flt++;
+ 			break;
+@@ -368,6 +370,20 @@ good_area:
+ 	up_read(&mm->mmap_sem);
+ 	return;
+ 
++	/* If the PTE is not present, the vma protection are not accurate if
++	 * VM_NONUNIFORM; present PTE's are correct for VM_NONUNIFORM and were
++	 * already handled otherwise. */
++bad_area_prot:
++	if (unlikely(vma->vm_flags & VM_NONUNIFORM)) {
++		access_mask = write ? VM_WRITE : 0;
++		/* Otherwise, on a legitimate read fault on a page mapped as
++		 * exec-only, we get problems. Probably, we should lower
++		 * requirements... we should always test just
++		 * pte_read/write/exec, on vma->vm_page_prot! This way is
++		 * cumbersome. However, for now things should work for i386. */
++		access_mask |= vma->vm_flags & VM_EXEC ? VM_EXEC : VM_READ;
++		goto handle_fault;
++	}
+ /*
+  * Something tried to access memory that isn't in our memory map..
+  * Fix it, but check if it's kernel or user first..
+@@ -481,7 +497,7 @@ out_of_memory:
+ 	if (tsk->pid == 1) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+-		goto survive;
++		goto handle_fault;
+ 	}
+ 	printk("VM: killing process %s\n", tsk->comm);
+ 	if (error_code & 4)
+diff -puN mm/memory.c~rfp-fault-sigsegv-2 mm/memory.c
+--- linux-2.6.git/mm/memory.c~rfp-fault-sigsegv-2	2005-08-11 14:21:01.000000000 +0200
++++ linux-2.6.git-paolo/mm/memory.c	2005-08-11 22:46:49.000000000 +0200
+@@ -877,6 +877,7 @@ untouched_anonymous_page(struct mm_struc
+ 	return 0;
+ }
+ 
++/* Return number of faulted-in pages. */
+ int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+ 		unsigned long start, int len, int write, int force,
+ 		struct page **pages, struct vm_area_struct **vmas)
+@@ -965,6 +966,7 @@ int get_user_pages(struct task_struct *t
+ 				case VM_FAULT_MAJOR:
+ 					tsk->maj_flt++;
+ 					break;
++				case VM_FAULT_SIGSEGV:
+ 				case VM_FAULT_SIGBUS:
+ 					return i ? i : -EFAULT;
+ 				case VM_FAULT_OOM:
+@@ -1888,7 +1890,11 @@ retry:
+ 
+ 		flush_icache_page(vma, new_page);
+ 		entry = mk_pte(new_page, vma->vm_page_prot);
+-		if (write_access)
++		/* With VM_NONUNIFORM, the VMA flags are invalid after a PTE has
++		 * been set (we can have a writeable VMA with a read-only PTE),
++		 * so we must set the *exact* permission on fault, and avoid
++		 * calling do_wp_page on write faults. */
++		if (write_access || unlikely(vma->vm_flags & VM_NONUNIFORM))
+ 			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+ 		set_pte_at(mm, address, page_table, entry);
+ 		if (anon) {
+@@ -1923,7 +1929,7 @@ oom:
+  * nonlinear vmas.
+  */
+ static int do_file_page(struct mm_struct * mm, struct vm_area_struct * vma,
+-	unsigned long address, int write_access, pte_t *pte, pmd_t *pmd)
++	unsigned long address, int access_mask, pte_t *pte, pmd_t *pmd)
+ {
+ 	unsigned long pgoff;
+ 	pgprot_t pgprot;
+@@ -1932,12 +1938,23 @@ static int do_file_page(struct mm_struct
+ 	BUG_ON(!vma->vm_ops || !vma->vm_ops->nopage);
+ 	/*
+ 	 * Fall back to the linear mapping if the fs does not support
+-	 * ->populate:
++	 * ->populate; in this case do the protection checks.
+ 	 */
+ 	if (!vma->vm_ops->populate ||
+-			(write_access && !(vma->vm_flags & VM_SHARED))) {
++			((access_mask & VM_WRITE) && !(vma->vm_flags & VM_SHARED))) {
++		/* We're behaving as if pte_file was cleared, so check
++		 * protections like in handle_pte_fault. */
++		if (unlikely(vma->vm_flags & VM_NONUNIFORM)) {
++			if ((access_mask & VM_WRITE) > (vma->vm_flags & VM_WRITE))
++				goto out_segv;
++			if ((access_mask & VM_READ) > (vma->vm_flags & VM_READ))
++				goto out_segv;
++			if ((access_mask & VM_EXEC) > (vma->vm_flags & VM_EXEC))
++				goto out_segv;
++		}
++
+ 		pte_clear(mm, address, pte);
+-		return do_no_page(mm, vma, address, write_access, pte, pmd);
++		return do_no_page(mm, vma, address, access_mask & VM_WRITE, pte, pmd);
+ 	}
+ 
+ 	pgoff = pte_to_pgoff(*pte);
+@@ -1952,6 +1969,10 @@ static int do_file_page(struct mm_struct
+ 	if (err)
+ 		return VM_FAULT_SIGBUS;
+ 	return VM_FAULT_MAJOR;
++out_segv:
++	pte_unmap(pte);
++	spin_unlock(&mm->page_table_lock);
++	return VM_FAULT_SIGSEGV;
+ }
+ 
+ /*
+@@ -1977,56 +1998,91 @@ static int do_file_page(struct mm_struct
+  */
+ static inline int handle_pte_fault(struct mm_struct *mm,
+ 	struct vm_area_struct * vma, unsigned long address,
+-	int write_access, pte_t *pte, pmd_t *pmd)
++	int access_mask, pte_t *pte, pmd_t *pmd)
+ {
+ 	pte_t entry;
+ 
+ 	entry = *pte;
+ 	if (!pte_present(entry)) {
++		/* when pte_file(), the VMA protections are useless. Otherwise,
++		 * we used to check protections in arch handler, but with
++		 * VM_NONUNIFORM the check is skipped. */
++		if (unlikely(vma->vm_flags & VM_NONUNIFORM) && !pte_file(entry)) {
++			if ((access_mask & VM_WRITE) > (vma->vm_flags & VM_WRITE))
++				goto out_segv;
++			if ((access_mask & VM_READ) > (vma->vm_flags & VM_READ))
++				goto out_segv;
++			if ((access_mask & VM_EXEC) > (vma->vm_flags & VM_EXEC))
++				goto out_segv;
++		}
++
+ 		/*
+ 		 * If it truly wasn't present, we know that kswapd
+ 		 * and the PTE updates will not touch it later. So
+ 		 * drop the lock.
+ 		 */
++		if (unlikely(pte_file(entry)))
++			return do_file_page(mm, vma, address, access_mask, pte, pmd);
++		access_mask &= VM_WRITE;
+ 		if (pte_none(entry))
+-			return do_no_page(mm, vma, address, write_access, pte, pmd);
+-		if (pte_file(entry))
+-			return do_file_page(mm, vma, address, write_access, pte, pmd);
+-		return do_swap_page(mm, vma, address, pte, pmd, entry, write_access);
++			return do_no_page(mm, vma, address, access_mask, pte, pmd);
++		return do_swap_page(mm, vma, address, pte, pmd, entry, access_mask);
+ 	}
+ 
++	/* VM_NONUNIFORM vma's have PTE's always installed with the correct
++	 * protection. */
++	if (unlikely(vma->vm_flags & VM_NONUNIFORM))
++		goto out_segv;
++
+ 	/*
+ 	 * Generate a SIGSEGV if a PROT_NONE page is accessed; this is handled
+ 	 * in arch-specific code if the whole VMA has PROT_NONE, and here if
+ 	 * just this pte has PROT_NONE (which can be done only with
+-	 * remap_file_pages).
++	 * remap_file_pages). Without remap_file_pages, PROT_NONE pages cannot
++	 * be installed.
++	 * However, I strongly suspect that the above check will make this
++	 * unnecessary.
+ 	 */
+-	if (pgprot_val(pte_to_pgprot(entry)) == pgprot_val(__P000)) {
+-		pte_unmap(pte);
+-		spin_unlock(&mm->page_table_lock);
+-		return VM_FAULT_SIGSEGV;
++	if (unlikely(pgprot_val(pte_to_pgprot(entry)) == pgprot_val(__S000))) {
++		if (vma->vm_flags & VM_NONUNIFORM) {
++			printk(KERN_DEBUG "The first handle_pte_fault test didn't work:\n");
++			dump_stack();
++			goto out_segv;
++		} else {
++			printk(KERN_ALERT "PROT_NONE mapping in UNIFORM VMA!\n");
++			WARN_ON(1);
++			goto out_segv;
++		}
+ 	}
+ 
+-	if (write_access) {
++	/* We only need to know whether the fault is a write one.*/
++	access_mask &= VM_WRITE;
++
++	if (access_mask) {
+ 		if (!pte_write(entry))
+ 			return do_wp_page(mm, vma, address, pte, pmd, entry);
+ 
+ 		entry = pte_mkdirty(entry);
+ 	}
+ 	entry = pte_mkyoung(entry);
+-	ptep_set_access_flags(vma, address, pte, entry, write_access);
++	ptep_set_access_flags(vma, address, pte, entry, access_mask);
+ 	update_mmu_cache(vma, address, entry);
+ 	lazy_mmu_prot_update(entry);
+ 	pte_unmap(pte);
+ 	spin_unlock(&mm->page_table_lock);
+ 	return VM_FAULT_MINOR;
++
++out_segv:
++	pte_unmap(pte);
++	spin_unlock(&mm->page_table_lock);
++	return VM_FAULT_SIGSEGV;
+ }
+ 
+ /*
+  * By the time we get here, we already hold the mm semaphore
+  */
+-int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
+-		unsigned long address, int write_access)
++int __handle_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
++		unsigned long address, int access_mask)
+ {
+ 	pgd_t *pgd;
+ 	pud_t *pud;
+@@ -2059,7 +2115,7 @@ int handle_mm_fault(struct mm_struct *mm
+ 	if (!pte)
+ 		goto oom;
+ 	
+-	return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
++	return handle_pte_fault(mm, vma, address, access_mask, pte, pmd);
+ 
+  oom:
+ 	spin_unlock(&mm->page_table_lock);
+diff -puN include/linux/mm.h~rfp-fault-sigsegv-2 include/linux/mm.h
+--- linux-2.6.git/include/linux/mm.h~rfp-fault-sigsegv-2	2005-08-11 14:21:01.000000000 +0200
++++ linux-2.6.git-paolo/include/linux/mm.h	2005-08-11 14:21:01.000000000 +0200
+@@ -712,7 +712,16 @@ extern pte_t *FASTCALL(pte_alloc_kernel(
+ extern pte_t *FASTCALL(pte_alloc_map(struct mm_struct *mm, pmd_t *pmd, unsigned long address));
+ extern int install_page(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long addr, struct page *page, pgprot_t prot);
+ extern int install_file_pte(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long addr, unsigned long pgoff, pgprot_t prot);
+-extern int handle_mm_fault(struct mm_struct *mm,struct vm_area_struct *vma, unsigned long address, int write_access);
++
++/* We reuse VM_READ, VM_WRITE and VM_EXEC for the @access_mask. */
++extern int __handle_mm_fault(struct mm_struct *mm,struct vm_area_struct *vma, unsigned long address, int access_mask);
++
++static inline int handle_mm_fault(struct mm_struct *mm,struct vm_area_struct *vma,
++		unsigned long address, int write_access)
++{
++	return __handle_mm_fault(mm, vma, address, write_access ? VM_WRITE : 0);
++}
++
+ extern int make_pages_present(unsigned long addr, unsigned long end);
+ extern int access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, int len, int write);
+ void install_arg_page(struct vm_area_struct *, struct page *, unsigned long);
+_

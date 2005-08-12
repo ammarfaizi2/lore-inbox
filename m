@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVHLRLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbVHLRLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbVHLRLw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVHLRLw
+	id S1750725AbVHLRLh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVHLRLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:11:52 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:32075 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750727AbVHLRLv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:11:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=C+/Gx1+huhxveUnhV1i5c2xU40Hj/fJ0QPuKB6FdzV5tHqm70gvlARlRJ2aFxeqBXG5wNc98N48JILNAKWdAxOrzT/DI0EU1nMoOixYG+ieQC5y0aTqc45FQaFue7+HeZf4tcVtVPj427KXYA/MJwRgaapLhMUddhCjYeGb9GW0=
-Message-ID: <4789af9e050812101110d3642d@mail.gmail.com>
-Date: Fri, 12 Aug 2005 11:11:43 -0600
-From: Jim Ramsay <jim.ramsay@gmail.com>
-To: daniel.mantione@freepascal.org, alex.kern@gmx.de,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Atyfb questions and issues
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 12 Aug 2005 13:11:36 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2782 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750725AbVHLRLg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:11:36 -0400
+To: Luca Falavigna <dktrkranz@gmail.com>
+Cc: rddunlap@osdl.org, fastboot@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kexec and frame buffer
+References: <42F219B3.6090502@gmail.com>
+	<m17jf1zgnz.fsf@ebiederm.dsl.xmission.com>
+	<42F4C6E8.1050605@gmail.com>
+	<m13bpnyppq.fsf@ebiederm.dsl.xmission.com>
+	<42F6266B.8000704@gmail.com> <42FCF00F.2040709@gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 12 Aug 2005 11:10:55 -0600
+In-Reply-To: <42FCF00F.2040709@gmail.com> (Luca Falavigna's message of "Fri,
+ 12 Aug 2005 18:53:03 +0000")
+Message-ID: <m1d5ojw068.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the following issue.  I am trying to get an ATI Rage XL chip
-working on a MIPS-based processor, with a 2.6.11-based kernel from
-linux-mips.org.  Now, I know that this was working with a 2.4.25-based
-kernel previously.
+Luca Falavigna <dktrkranz@gmail.com> writes:
 
-I seem to get intermittent strange issues, such as the machine
-freezing from time to time, but in general I get the following in my
-dmesg when I load the atyfb module:
+> Luca Falavigna ha scritto:
+>> Eric W. Biederman ha scritto:
+>> 
+>>>>Anyway I believe you also want to look at include/linux/tty.h
+>>>>at the screen_info structure.  I believe that is where
+>>>>all of that information is passed.
+>> 
+>> I noticed. Maybe if we fill struct x86_linux_param_header with some values
+>> obtained from struct screen_info, we should be able to "score that mid-court
+>> prayer" ;)
+>> 
+> I tried to implement a new ioctl command in fb_ioctl() in order to retrieve and
+> store screen_info variables into struct x86_linux_param_header, but I got the
+> same result: no messages shown in console, as I supposed.
+Hmm. very odd.  Sounds very much like an implementation problem.
 
-atyfb: using auxiliary register aperture
-atyfb: 3D RAGE XL (Mach64 GR, PCI-33MHz) [0x4752 rev 0x27]
-atyfb(aty_valid_pll_ct): pllvclk=50 MHz, vclk=25 MHz
-atyfb(aty_dsp_gt): dsp_config 0x307c0001, dsp_on_off 0x14fffff0
-< Sometimes it will hang here >
-atyfb: 512K RESV, 29.498928 MHz XTAL, 230 MHz PLL, 83 Mhz MCLK, 63 MHz XCLK
-atyfb: Unsupported xclk source:  7.
-< Followed by a number of >
-atyfb: vclk out of range
-< and >
-atyfb: not enough video RAM
-< Finally I get >
-atyfb: can't set default video mode                                             
-atyfb(aty_set_pll_ct): about to program:                                        
-pll_ext_cntl=0x0f pll_gen_cntl=0xff pll_vclk_cntl=0xad                          
-atyfb(aty_set_pll_ct): setting clock 3 for FeedBackDivider 255, ReferenceDivider
- 255, PostDivider 3(0)
-< Other times it will hang here >
+> After that I looked at video.S, especially an interesting label called "video":
+>
+> # This is the main entry point called by setup.S
+> # %ds *must* be pointing to the bootsector
+> video:	pushw	%ds		# We use different segments
+> 	pushw	%ds		# FS contains original DS
+> 	popw	%fs
+> [...]
+> #ifdef CONFIG_VIDEO_SELECT
+> 	movw	%fs:(0x01fa), %ax		# User selected video mode
+> 	cmpw	$ASK_VGA, %ax			# Bring up the menu
+> 	jz	vid2
+> [...]
+>
+> Video mode is stored (by bootloader, actually) at offset 0x01fa from a given
+> boot sector, which should be located at physical address DEF_SETUPSEG (0x9020).
+> Feel free to correct me if I'm wrong.
+That is the default address, it can actually move quite a bit.
 
-And that's all I get.
+> If we could store current video mode before executing reboot_code_buffer,
+> probably setup() function would take care of anything else. So we could
+> implement a function (or an assembly stub) in machine_kexec which does this job.
+> I think this is the best (and safest) solution.
 
-I'm assuming that most of my issues are due to the "Unsupported xclk
-source" message.  Any ideas what I can do about this, or where I can
-go to learn more about how to make this thing work?
+That is why we have sys_kexec_load().
+With a working ioctl (or other way to query the information) we
+just need to populate screen_info from x86-linux-setup.c in /sbin/kexec.
 
--- 
-Jim Ramsay
-"Me fail English?  That's unpossible!"
+Eric

@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbVHLSpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbVHLSqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbVHLSpe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVHLSpe
+	id S1750928AbVHLSqm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbVHLSqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:45:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55433 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750918AbVHLSpe (ORCPT
+	Fri, 12 Aug 2005 14:46:42 -0400
+Received: from mail.kroah.org ([69.55.234.183]:35210 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750928AbVHLSql (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:45:34 -0400
-Date: Fri, 12 Aug 2005 11:45:03 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Linus Torvalds <torvalds@osdl.org>,
-       Chris Wright <chrisw@osdl.org>, gdt@linuxppc.org,
-       Andrew Morton <akpm@osdl.org>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
-Subject: Re: [PATCH] Fix PPC signal handling of NODEFER, should not affect sa_mask
-Message-ID: <20050812184503.GX7762@shell0.pdx.osdl.net>
-References: <1123615983.18332.194.camel@localhost.localdomain> <42F906EB.6060106@fujitsu-siemens.com> <1123617812.18332.199.camel@localhost.localdomain> <1123618745.18332.204.camel@localhost.localdomain> <20050809204928.GH7991@shell0.pdx.osdl.net> <1123621223.9553.4.camel@localhost.localdomain> <1123621637.9553.7.camel@localhost.localdomain> <Pine.LNX.4.58.0508091419420.3258@g5.osdl.org> <1123643401.9553.32.camel@localhost.localdomain> <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr>
+	Fri, 12 Aug 2005 14:46:41 -0400
+Date: Fri, 12 Aug 2005 11:46:22 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru
+Subject: w1: more debug level decrease.
+Message-ID: <20050812184622.GA19999@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jan Engelhardt (jengelh@linux01.gwdg.de) wrote:
-> >Actually I take it the other way.  The wording is awful. But the "unless
-> >SA_NODEFER or SA_RESETHAND is set, and then including the signal being
-> >delivered".  This looks to me that it adds the signal being delivered to
-> >the blocked mask unless the SA_NODEFER or SA_RESETHAND is set. I kind of
-> >wonder if English is the native language of those that wrote this.  
-> 
-> So, if in doubt what is really meant - check which of the two/three/+ 
-> different behaviors the users out there favor most.
+Here's a patch for 2.6.13-rc6 to keep people's syslogs a bit nicer.
 
-Rather, check what happens in practice on other implementations.  I don't
-have Solaris, HP-UX, Irix, AIX, etc. boxen at hand, but some folks must.
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
+Do not spam syslog each 10 seconds when there is nothing on the wire.
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ drivers/w1/w1.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- gregkh-2.6.orig/drivers/w1/w1.c	2005-08-02 13:41:30.000000000 -0700
++++ gregkh-2.6/drivers/w1/w1.c	2005-08-12 11:42:04.000000000 -0700
+@@ -593,7 +593,7 @@
+ 		 * Return 0 - device(s) present, 1 - no devices present.
+ 		 */
+ 		if (w1_reset_bus(dev)) {
+-			dev_info(&dev->dev, "No devices present on the wire.\n");
++			dev_dbg(&dev->dev, "No devices present on the wire.\n");
+ 			break;
+ 		}
+ 

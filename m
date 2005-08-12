@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVHLTRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVHLTSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbVHLTRj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 15:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVHLTRj
+	id S1751253AbVHLTSn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 15:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVHLTSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 15:17:39 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:39192 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1751251AbVHLTRi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 15:17:38 -0400
-Message-ID: <42FCF5D3.1080409@danbbs.dk>
-Date: Fri, 12 Aug 2005 21:17:39 +0200
-From: Mogens Valentin <monz@danbbs.dk>
-Reply-To: monz@danbbs.dk
-Organization: Mr Dev
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux IDE Mailing List <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: SATA status report updated
-References: <42FC2EF8.7030404@pobox.com>
-In-Reply-To: <42FC2EF8.7030404@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Aug 2005 15:18:43 -0400
+Received: from waste.org ([216.27.176.166]:58249 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751253AbVHLTSm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 15:18:42 -0400
+Date: Fri, 12 Aug 2005 12:17:52 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: John Ronciak <john.ronciak@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
+       ak@suse.de, Jeff Moyer <jmoyer@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, john.ronciak@intel.com,
+       rostedt@goodmis.org
+Subject: Re: [PATCH 3/8] netpoll: e1000 netpoll tweak
+Message-ID: <20050812191752.GI12284@waste.org>
+References: <3.502409567@selenic.com> <4.502409567@selenic.com> <56a8daef0508121202172bcd17@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <56a8daef0508121202172bcd17@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+[corrected akpm's address]
+
+On Fri, Aug 12, 2005 at 12:02:03PM -0700, John Ronciak wrote:
+> Sorry this reply was to go to the whole list but only made it to Matt.
 > 
-> Things in SATA-land have been moving along recently, so I updated the 
-> software status report:
-> 
->     http://linux.yyz.us/sata/software-status.html
+> The e1000_intr() routine already calls e1000_clean_tx_irq().  So
+> what's the point of this patch?  Am I missing something?
 
- >> Queueing support, NCQ:
- >> #3 will be supported by libata, for all hardware and devices that
- >> support NCQ.
+Here is Steven's original analysis:
 
-I guess this means libata support for HW-based NCQ.
-It also could mean software/driver implemented NCQ, which could work on 
-chipsets not supporting HW-NCQ in unison with a disk having NCQ?
+http://lkml.org/lkml/2005/8/5/116
 
-> Although I have not updated it in several weeks, folks may wish to refer 
-> to the hardware status report as well:
-> 
->     http://linux.yyz.us/sata/sata-status.html
+It looked plausible, but I didn't dig much deeper.
 
-How well does libata work with the newest ULi chipsets?
-If not well, is there a possible timeframe?
-
-
-(not on kernel list; if anyone there comments on ULi, pls. cc private)
+> > Index: l/drivers/net/e1000/e1000_main.c
+> > ===================================================================
+> > --- l.orig/drivers/net/e1000/e1000_main.c       2005-08-06 17:36:32.000000000 -0500
+> > +++ l/drivers/net/e1000/e1000_main.c    2005-08-06 17:55:01.000000000 -0500
+> > @@ -3789,6 +3789,7 @@ e1000_netpoll(struct net_device *netdev)
+> >         struct e1000_adapter *adapter = netdev_priv(netdev);
+> >         disable_irq(adapter->pdev->irq);
+> >         e1000_intr(adapter->pdev->irq, netdev, NULL);
+> > +       e1000_clean_tx_irq(adapter);
+> >         enable_irq(adapter->pdev->irq);
+> >  }
+> >  #endif
 
 -- 
-Kind regards,
-Mogens Valentin
-
+Mathematics is the supreme nostalgia of our time.

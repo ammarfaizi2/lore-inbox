@@ -1,44 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbVHLDRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVHLDSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbVHLDRR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 23:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVHLDRR
+	id S1751147AbVHLDSE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 23:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbVHLDSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 23:17:17 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:60036 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751136AbVHLDRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 23:17:17 -0400
-Subject: Re: Wireless support
-From: Lee Revell <rlrevell@joe-job.com>
-To: roucaries bastien <roucaries.bastien@gmail.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Jochen Friedrich <jochen@scram.de>,
-       Adrian Bunk <bunk@stusta.de>, abonilla@linuxwireless.org,
-       Andreas Steinmetz <ast@domdv.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <195c7a900508111959710c3ca3@mail.gmail.com>
-References: <005501c59c4a$f6210800$a20cc60a@amer.sykes.com>
-	 <1123528018.15269.44.camel@mindpipe> <20050808232957.GR4006@stusta.de>
-	 <42F872E3.3050106@scram.de> <AC074A82-2B17-485A-9BFE-090CB4EE6E44@mac.com>
-	 <1123814434.26878.21.camel@mindpipe>
-	 <195c7a900508111959710c3ca3@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 11 Aug 2005 23:17:07 -0400
-Message-Id: <1123816628.4453.8.camel@mindpipe>
+	Thu, 11 Aug 2005 23:18:04 -0400
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:24527 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1751145AbVHLDSB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 23:18:01 -0400
+Date: Fri, 12 Aug 2005 06:17:56 +0300
+From: Paul Mundt <lethal@linux-sh.org>
+To: Robert Love <rml@novell.com>
+Cc: Mr Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       The Cutch <ttb@tentacle.dhs.org>
+Subject: Re: [patch] SH: inotify and ioprio syscalls
+Message-ID: <20050812031756.GA306@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Robert Love <rml@novell.com>, Mr Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	The Cutch <ttb@tentacle.dhs.org>
+References: <1123704797.23297.13.camel@betsy> <1123704429.23297.11.camel@betsy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.7 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Content-Disposition: inline
+In-Reply-To: <1123704797.23297.13.camel@betsy> <1123704429.23297.11.camel@betsy>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-12 at 12:59 +1000, roucaries bastien wrote:
-> They post on this list 1 year and a half ago no answer.
-> 
 
-I guess everyone on LKML has day jobs now, no one has time for fun stuff
-like reverse engineering drivers anymore... :-(
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Lee
+On Wed, Aug 10, 2005 at 04:07:09PM -0400, Robert Love wrote:
+> Add inotify and ioprio syscall stubs to SH.
+>=20
+> 	Robert Love
+>=20
+>=20
+> Signed-off-by: Robert Love <rml@novell.com>
+>=20
+>  arch/sh/kernel/entry.S  |    5 +++++
+>  include/asm-sh/unistd.h |    8 +++++++-
+>  2 files changed, 12 insertions(+), 1 deletion(-)
+>=20
 
+On Wed, Aug 10, 2005 at 04:13:17PM -0400, Robert Love wrote:
+> Add inotify and ioprio syscall stubs to SH64.
+>=20
+> 	Robert Love
+>=20
+>=20
+> Signed-off-by: Robert Love <rml@novell.com>
+>=20
+>  arch/sh64/kernel/syscalls.S |    5 +++++
+>  include/asm-sh64/unistd.h   |    7 ++++++-
+>  2 files changed, 11 insertions(+), 1 deletion(-)
+>=20
+Both look good, thanks.
+
+Acked-by: Paul Mundt <lethal@linux-sh.org>
+
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFC/BTk1K+teJFxZ9wRAvcSAJ0S2vttEFHPVDs+ma/WMbW7FrYCmgCfadyn
+omX9/VSKY9pIdPGYvqTdSlE=
+=L4kx
+-----END PGP SIGNATURE-----
+
+--ikeVEW9yuYc//A+q--

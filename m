@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVHLMx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVHLMz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVHLMx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 08:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVHLMx5
+	id S1751162AbVHLMz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 08:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbVHLMz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 08:53:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:61846 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751161AbVHLMx4 (ORCPT
+	Fri, 12 Aug 2005 08:55:27 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:31622 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S1751162AbVHLMz0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 08:53:56 -0400
-Date: Fri, 12 Aug 2005 08:53:49 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Guillaume Foliard <guifo@wanadoo.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.53-01, High
- Resolution Timers & RCU-tasklist features
-In-Reply-To: <200508112039.07660.guifo@wanadoo.fr>
-Message-ID: <Pine.LNX.4.58.0508120426070.3233@devserv.devel.redhat.com>
-References: <200508112039.07660.guifo@wanadoo.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Aug 2005 08:55:26 -0400
+Date: Fri, 12 Aug 2005 14:55:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Burgess <aab@cichlid.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUGS: Real-Time Preemption 2.6.13-rc5-RT-V0.7.52-16 with CONFIG_DEBUG_SLAB
+Message-ID: <20050812125540.GA12156@elte.hu>
+References: <200508101915.j7AJFJXe004888@cichlid.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508101915.j7AJFJXe004888@cichlid.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 11 Aug 2005, Guillaume Foliard wrote:
+* Andrew Burgess <aab@cichlid.com> wrote:
 
-> Hi,
-> 
-> Here is the compilation error I had with 0.7.53-02 :
+> Here is 2.6.13-rc5-RT-V0.7.52-16 SMP with CONFIG_DEBUG_SLAB set.
+> How may I help?
 
-thanks - i've uploaded the -53-05 patch which should fix this - does it
-build/work for you now?
+ok, could you try the -53-05 (or later) kernel, does it work any better?
 
 	Ingo

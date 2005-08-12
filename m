@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVHLCmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbVHLCrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750752AbVHLCmR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 22:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbVHLCmQ
+	id S1750755AbVHLCrz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 22:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbVHLCrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 22:42:16 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57831
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750752AbVHLCmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 22:42:16 -0400
-Date: Thu, 11 Aug 2005 19:41:11 -0700 (PDT)
-Message-Id: <20050811.194111.41635499.davem@davemloft.net>
-To: mpm@selenic.com
-Cc: akpm@osdl.com, ak@suse.de, jmoyer@redhat.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, john.ronciak@intel.com,
-       rostedt@goodmis.org
-Subject: Re: [PATCH 0/8] netpoll: various bugfixes
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1.502409567@selenic.com>
-References: <1.502409567@selenic.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 11 Aug 2005 22:47:55 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:29253 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750755AbVHLCry (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 22:47:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=C1gJHZH5lfeVYJgZgHmh55aP56JlYuTTpytRM1l/kLbOjb9cm5CojRNzHtTyBrHHNp1pRMIvtH4J+AVWkVzdOF3tR8qmBn5PvZ3qfUeTXq9+BSskceQCv6csMjVnamOXoDa0hY6DoQ1WjEWapGzXD+iBAysA60v1lpVjk0JVVFE=
+Message-ID: <42FC0DD4.9060905@gmail.com>
+Date: Fri, 12 Aug 2005 11:47:48 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Shaun Jackman <sjackman@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Trouble shooting a ten minute boot delay (SiI3112)
+References: <7f45d939050809163136a234a@mail.gmail.com>
+In-Reply-To: <7f45d939050809163136a234a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matt Mackall <mpm@selenic.com>
-Date: Thu, 11 Aug 2005 21:18:28 -0500
-
-> This patch series cleans up a few outstanding bugs in netpoll:
+Shaun Jackman wrote:
+> I added a PCI SATA controller to my computer. Immediately after grub
+> loads the kernel there is a consistent ten minute delay before the
+> kernel displays its first message. I tested Linux 2.6.8 and 2.6.11
+> both from Debian, and 2.6.11 from Knoppix, all of which experience the
+> same delay.
 > 
-> - two bugfixes from Jeff Moyer's netpoll bonding
-> - a tweak to e1000's netpoll stub
-> - timeout handling for e1000 with carrier loss
-> - prefilling SKBs at init
-> - a fix-up for a race discovered in initialization
-> - an unused variable warning
+> The SATA controller is connected to two 200 GB Seagate SATA
+> ST3200826AS drives. I managed to install Debian on the system, though
+> the install was perilous, and once booted the system runs wonderfully!
+> Any suggestions on how I can trouble shoot the ten minute boot delay?
+> I don't reboot frequently, but it is irksome.
 > 
-> This patch set was tested over repeated rebooting with both tg3 and
-> e1000 and random cable disconnection, with and without SMP and
-> preempt. Please apply.
+> What's the appropriate mailing list for SATA questions, perhaps
+> linux-ide or linux-scsi?
+> 
+> Please cc me in your reply. Thanks!
+> Shaun
+>
 
-All applied, thanks a lot for putting this patch set together.
 
-I'll push this to Linus after some smoke testing.
+  Hi, Shaun Jackman.
+
+  The list would be linux-ide but it doesn't really seem like a SATA 
+problem.
+
+  * What do you mean by the `first' message?  ie. What's the first line 
+you read?
+  * Is it really ten minutes?
+
+-- 
+tejun

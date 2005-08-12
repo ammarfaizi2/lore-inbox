@@ -1,46 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVHLTmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbVHLTlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbVHLTmk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 15:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVHLTmk
+	id S1751260AbVHLTlx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 15:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVHLTlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 15:42:40 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14606 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751128AbVHLTmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 15:42:39 -0400
-Date: Fri, 12 Aug 2005 20:42:34 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sparc, ppc64 build failures (allmodconfig, -latest)
-Message-ID: <20050812204234.A21152@flint.arm.linux.org.uk>
-Mail-Followup-To: Alexey Dobriyan <adobriyan@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20050812183854.GA3204@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050812183854.GA3204@mipter.zuzino.mipt.ru>; from adobriyan@gmail.com on Fri, Aug 12, 2005 at 10:38:54PM +0400
+	Fri, 12 Aug 2005 15:41:53 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:53401 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750714AbVHLTlw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 15:41:52 -0400
+Date: Fri, 12 Aug 2005 21:41:44 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
+In-Reply-To: <20050811203437.GA9265@infradead.org>
+Message-ID: <Pine.LNX.4.61.0508122141380.16845@yvahk01.tjqt.qr>
+References: <200508111424.43150.bjorn.helgaas@hp.com> <20050811203437.GA9265@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 12, 2005 at 10:38:54PM +0400, Alexey Dobriyan wrote:
-> 	sparc
-> 
-> drivers/char/ip2main.c:123:24: asm/serial.h: No such file or directory
-> drivers/char/synclinkmp.c:58:24: asm/serial.h: No such file or directory
 
-These drivers need to stop including asm/serial.h.  The only driver
-which should include this file is drivers/serial/8250.c and no other.
-It contains architecture specific definitions of the platforms 8250
-ports.
+>Maybe it should instead depend on those systems where it is available.
+>Anything but X86?
 
-It does not contain the default base baud (aka BASE_BAUD) for use with
-a custom 8250 board, which is actually architecture independent.
+x86_64?
 
+
+Jan Engelhardt
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

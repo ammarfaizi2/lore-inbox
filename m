@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbVHLLLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVHLLN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbVHLLLI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 07:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbVHLLLH
+	id S932105AbVHLLN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 07:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbVHLLN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 07:11:07 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30188 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750992AbVHLLLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 07:11:07 -0400
-Date: Fri, 12 Aug 2005 13:11:03 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] fix ucb1x00 support on collie
-Message-ID: <20050812111103.GD1826@elf.ucw.cz>
-References: <20050731134617.GA25906@elf.ucw.cz> <20050731164245.B20106@flint.arm.linux.org.uk> <20050807150802.C22977@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050807150802.C22977@flint.arm.linux.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Fri, 12 Aug 2005 07:13:56 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:36957 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S932105AbVHLLNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 07:13:55 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.96,103,1122847200"; 
+   d="scan'208"; a="13990044:sNHT26973548"
+Message-ID: <42FC8461.2040102@fujitsu-siemens.com>
+Date: Fri, 12 Aug 2005 13:13:37 +0200
+From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Organization: Fujitsu Siemens Computers
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, wli@holomorphy.com
+Cc: Gerhard Wichert <Gerhard.Wichert@fujitsu-siemens.com>
+Subject: APIC version and 8-bit APIC IDs
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi William, hello everyone,
 
-> > 
-> > > diff --git a/drivers/misc/mcp-sa1100.c b/drivers/misc/mcp-sa1100.c
-> > > --- a/drivers/misc/mcp-sa1100.c
-> > > +++ b/drivers/misc/mcp-sa1100.c
-> > > @@ -149,7 +149,7 @@ static int mcp_sa1100_probe(struct devic
-> > >  	    !machine_is_graphicsmaster() && !machine_is_lart()           &&
-> > >  	    !machine_is_omnimeter()      && !machine_is_pfs168()         &&
-> > >  	    !machine_is_shannon()        && !machine_is_simpad()         &&
-> > > -	    !machine_is_yopy())
-> > > +	    !machine_is_yopy()		 && !machine_is_collie())
-> > 
-> > I think it's about time we did something better with this, like only
-> > registering the platform device on those which use it.
-> > 
-> > > @@ -181,7 +187,10 @@ static int mcp_sa1100_probe(struct devic
-> > >  
-> > >  	Ser4MCSR = -1;
-> > >  	Ser4MCCR1 = 0;
-> > > -	Ser4MCCR0 = 0x00007f7f | MCCR0_ADM;
-> > > +	if (machine_is_collie()) 
-> > > +		Ser4MCCR0 = MCCR0_ADM | MCCR0_ExtClk;
-> > > +	else
-> > > +		Ser4MCCR0 = 0x00007f7f | MCCR0_ADM;
-> > 
-> > And this setup should probably be passed as part of the platform device
-> > data.
-> 
-> Ok, new set of patches on the ftp site with the above two items resolved.
-> I've also moved it into drivers/mfd and linked that directory into
-> kbuild.
+The MP_valid_apicid() function [arch/i386/kernel/mpparse.c] checks 
+whether the APIC version field is >=20 in order to determine whether the 
+CPU supports 8-bit physical APIC ids.
 
-Thanks, it seems to work okay here.
+We currently have two modern processors oin our labs (Intel Xeon MP, AMD 
+Dual-Core Opteron 875) for which this test is wrong because their APIC 
+ids are both 16, but they _do_ support 8-bit APIC ids. This leads to 
+erratic error messages and to valid CPUs not being detected.
 
-You still do:
+Unfortunately I cannot tell why this is so, and what test should be used 
+instead to make sure a CPU supports 8-bit APIC IDs.
 
-Ser4MCCR0 = data->mccr0 | 0x7f7f;
+The AMD BIOS and kernel developer's guide for Athlon64 and Opteron 
+processors says
 
-...I'm not sure, but it seems to me I want MMCR0 to be set to
-0x60000. Would it be better to move 7f7f constant (what is it, anyway)
-to machine-specific code?
+"When both ApicExtId and ApicExtBrdCst in the HyperTransport" 
+Transaction Control Register are set, all 8 bits of APIC ID are used."
 
-								Pavel
+This refers to the TCR register. Reading that would require PCI 
+configuration space access before the APICs are set up, I don't know if 
+that's possible.
+(http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/26094.PDF)
+
+The Intel Manual simply says
+"For the Pentium 4 and Intel Xeon Processors, the xAPIC specification 
+extends the local APIC field to 8 bits". The CPUs we have are Xeon MP 
+(family 15, model 4); their local APIC version is 16, and they do 
+support 8-bit APIC-IDs.
+
+I guess it's up to the Intel an AMD people to have a final word on this,
+but the current implementation is clearly wrong for these latest CPU types.
+
+Regards
+Martin
+
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy

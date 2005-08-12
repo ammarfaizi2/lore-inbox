@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVHLOWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbVHLOX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbVHLOWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 10:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVHLOWZ
+	id S1751195AbVHLOX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 10:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVHLOX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 10:22:25 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:21135 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S1751193AbVHLOWY convert rfc822-to-8bit (ORCPT
+	Fri, 12 Aug 2005 10:23:27 -0400
+Received: from gold.veritas.com ([143.127.12.110]:61354 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751195AbVHLOX0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 10:22:24 -0400
-Content-class: urn:content-classes:message
+	Fri, 12 Aug 2005 10:23:26 -0400
+Date: Fri, 12 Aug 2005 15:25:18 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference
+ between /dev/kmem and /dev/mem)
+In-Reply-To: <1123809302.17269.139.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0508121506500.4208@goblin.wat.veritas.com>
+References: <1123796188.17269.127.camel@localhost.localdomain>
+ <1123809302.17269.139.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: The Linux FAT issue on SD Cards.. maintainer support please
-Date: Fri, 12 Aug 2005 19:52:31 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Message-ID: <C349E772C72290419567CFD84C26E0170A0186@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: The Linux FAT issue on SD Cards.. maintainer support please
-Thread-Index: AcWeihh8WTWFEovmR1mAWE4yCb1YYQAsm6XA
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
-Cc: <hirofumi@mail.parknet.co.jp>,
-       "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 12 Aug 2005 14:23:23.0930 (UTC) FILETIME=[65CD27A0:01C59F49]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Lennart,
+On Thu, 11 Aug 2005, Steven Rostedt wrote:
+> 
+> Found the problem.  It is a bug with mmap_kmem.  The order of checks is
+> wrong, so here's the patch.
+> -	if (!pfn_valid(vma->vm_pgoff))
+> -		return -EIO;
+>  	val = (u64)vma->vm_pgoff << PAGE_SHIFT;
+>  	vma->vm_pgoff = __pa(val) >> PAGE_SHIFT;
+> +	if (!pfn_valid(vma->vm_pgoff))
+> +		return -EIO;
+>  	return mmap_mem(file, vma);
 
-I have an update on this. Please see the message indented inline.
+Good find, looks right to me, so far as it goes (why does this check
+pfn_valid just on the first? and remap_pfn_range will not behave as
+you'd expect on most of kmem, not before Nick kills PageReserved;
+and there's the red-penned issue of vmalloc'ed areas too).
 
->A few things I would try:
->
->Stick the SD card in a generic cheap USB media reader, and see what the
->kernel thinks of the cards then.  Do both work?
+Perhaps you're the first to mmap /dev/kmem: before those 2.6.11 changes,
+going back beyond 2.4.0, it seems to have expected to caller to subtract
+PAGE_OFFSET from the virtual address to give the file offset (when doing
+mmap, but not when doing read/write - senseless, especially given the
+variable behaviour of lseek to negative offset before the read/write).
 
-I do NOT have one. I am getting it today.  I will work on it this
-weekend?
-
->You could also use that do dd the first few blocks from the card to see
->what the partition table and fat tables look like, in case your SD
->driver is somehow messing that part up.  By having a copy you can
->compare more easily.
-
-I dumped the 0th sector of SD when formatted on 
-	1) CAM &
-	2) Windows
-The partition table exists on both.
-But, the Master Boot Code is NOT present on the CAM formatted SD but is
-available on windows formatted SD card.
-
-Can you comment on the Master Boot Code? What is it required on Linux
-HOW does windows managed without it? I mean how is Windows able to mount
-the SD?
-
-My driver does NOT support partitions? I mean I have implemented it as
-alloc_disk(1) & relative first_minor chage obviously.
-
-Is it why I am NOT able to mount the CAM formatted device?
-Is this a problem?
-
-Thanks & Regards,
-Mukund Jampala
+Hugh

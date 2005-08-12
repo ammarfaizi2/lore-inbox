@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVHLNR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbVHLNTo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbVHLNR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 09:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbVHLNR2
+	id S1751172AbVHLNTo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 09:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbVHLNTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 09:17:28 -0400
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:45457 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751171AbVHLNR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 09:17:27 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Subject: Re: [-mm patch] Avoid divide by zero errors in sched.c
-Date: Fri, 12 Aug 2005 23:17:04 +1000
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <1123852222.9234.7.camel@kleikamp.austin.ibm.com>
-In-Reply-To: <1123852222.9234.7.camel@kleikamp.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Aug 2005 09:19:44 -0400
+Received: from cantor.suse.de ([195.135.220.2]:30596 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751172AbVHLNTo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 09:19:44 -0400
+Date: Fri, 12 Aug 2005 15:19:43 +0200
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: netconsole lockup with current kernel 2.6.13-rc6-git3
+Message-ID: <20050812131942.GA2696@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200508122317.04387.kernel@kolivas.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Aug 2005 23:10, Dave Kleikamp wrote:
-> This patch fixes a divide-by-zero error that I hit on a two-way i386
-> machine.  rq->nr_running is tested to be non-zero, but may change by the
-> time it is used in the division.  Saving the value to a local variable
-> ensures that the same value that is checked is used in the division.
->
-> Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
 
-Acked-by: Con Kolivas <kernel@kolivas.org>
+on the system to debug do:
+
+girgendwas:~ # netconsole-server boettger:12346
+verify the loglevel. otherwise no message may appear on the remove host, see man
+dmesg(1)
+now run 'netcat -l -u -p 12346' on host 10.10.125.16 to see further kernel messages
+girgendwas:~ # echo 8 > /proc/sysrq-trigger
+girgendwas:~ # echo t > /proc/sysrq-trigger
+
+on the system to retrieve kernel messages from client above do:
+
+netcat -l -u -p 12346
+SysRq : Changing Loglevel
+Loglevel set to 8
+SysRq : Show State
+
+                                               sibling
+  task             PC      pid father child younger older
+init          S 00000286     0     1      0     2               (NOTLB)
+dfe1fec8 00000082 dfe1e000 00000286 0000002c 00000058 4f924352 00007b27
+       ffff037f 00000bca 4f924ace 00007b27 c15d3b88 c15d3a60 c15d3540 c140d160
+       4f92b4eb 00007b27 dfe1e000 00000000 00000282 c012f350 0204f514 c140dfe0
+Call Trace:
+ [<c012f350>] lock_timer_base+0x20/0x50
+ [<c012f428>] __mod_timer+0xa8/0xd0
+ [<c0342d7e>] schedule_timeout+0x4e/0xc0
+ [<c012fed0>] process_timeout+0x0/0x10
+ [<c018541f>] do_select+0x2af/0x360
+ [<c0184f90>] __pollwait+0x0/0xd0
+
+
+this is all I get, then the system is dead. I see it also on G5, no interrupts
+served. Will check if older kernels work ok, it does at least work in SLES9

@@ -1,47 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVHLSRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbVHLSRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbVHLSRV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVHLSQx
+	id S1750841AbVHLSRb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVHLSRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:16:53 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:33683 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750841AbVHLSQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:16:28 -0400
-Subject: [patch 04/39] remove implied vm_ops check
+	Fri, 12 Aug 2005 14:17:24 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:33414 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750808AbVHLSRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:17:09 -0400
+Subject: [patch 07/39] uml: fault handler micro-cleanups
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 20:21:04 +0200
-Message-Id: <20050812182105.28FD924E7CA@zion.home.lan>
+Date: Fri, 12 Aug 2005 20:21:13 +0200
+Message-Id: <20050812182113.7A94F24E7D5@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-If !vma->vm-ops we already BUG above, so retesting it is useless. The compiler
-cannot optimize this because BUG is a macro and is not thus marked noreturn;
-that should possibly be fixed.
+Avoid chomping low bits of address for functions doing it by themselves, fix
+whitespace, add a correctness checking.
+
+I did this for remap-file-pages protection support, it was useful on its own
+too.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/mm/memory.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ linux-2.6.git-paolo/arch/um/kernel/trap_kern.c |   28 +++++++++++--------------
+ 1 files changed, 13 insertions(+), 15 deletions(-)
 
-diff -puN mm/memory.c~remove-implied-vm_ops-check mm/memory.c
---- linux-2.6.git/mm/memory.c~remove-implied-vm_ops-check	2005-08-11 11:05:20.000000000 +0200
-+++ linux-2.6.git-paolo/mm/memory.c	2005-08-11 11:05:47.000000000 +0200
-@@ -1933,7 +1933,7 @@ static int do_file_page(struct mm_struct
- 	 * Fall back to the linear mapping if the fs does not support
- 	 * ->populate:
- 	 */
--	if (!vma->vm_ops || !vma->vm_ops->populate || 
-+	if (!vma->vm_ops->populate ||
- 			(write_access && !(vma->vm_flags & VM_SHARED))) {
- 		pte_clear(mm, address, pte);
- 		return do_no_page(mm, vma, address, write_access, pte, pmd);
+diff -puN arch/um/kernel/trap_kern.c~uml-fault-handler-changes arch/um/kernel/trap_kern.c
+--- linux-2.6.git/arch/um/kernel/trap_kern.c~uml-fault-handler-changes	2005-08-11 11:18:03.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/kernel/trap_kern.c	2005-08-11 11:19:56.000000000 +0200
+@@ -26,6 +26,7 @@
+ #include "mem.h"
+ #include "mem_kern.h"
+ 
++/* Note this is constrained to return 0, -EFAULT, -EACCESS, -ENOMEM by segv(). */
+ int handle_page_fault(unsigned long address, unsigned long ip, 
+ 		      int is_write, int is_user, int *code_out)
+ {
+@@ -35,7 +36,6 @@ int handle_page_fault(unsigned long addr
+ 	pud_t *pud;
+ 	pmd_t *pmd;
+ 	pte_t *pte;
+-	unsigned long page;
+ 	int err = -EFAULT;
+ 
+ 	*code_out = SEGV_MAPERR;
+@@ -52,7 +52,7 @@ int handle_page_fault(unsigned long addr
+ 	else if(expand_stack(vma, address)) 
+ 		goto out;
+ 
+- good_area:
++good_area:
+ 	*code_out = SEGV_ACCERR;
+ 	if(is_write && !(vma->vm_flags & VM_WRITE)) 
+ 		goto out;
+@@ -60,9 +60,8 @@ int handle_page_fault(unsigned long addr
+         if(!(vma->vm_flags & (VM_READ | VM_EXEC)))
+                 goto out;
+ 
+-	page = address & PAGE_MASK;
+ 	do {
+- survive:
++survive:
+ 		switch (handle_mm_fault(mm, vma, address, is_write)){
+ 		case VM_FAULT_MINOR:
+ 			current->min_flt++;
+@@ -79,16 +78,16 @@ int handle_page_fault(unsigned long addr
+ 		default:
+ 			BUG();
+ 		}
+-		pgd = pgd_offset(mm, page);
+-		pud = pud_offset(pgd, page);
+-		pmd = pmd_offset(pud, page);
+-		pte = pte_offset_kernel(pmd, page);
++		pgd = pgd_offset(mm, address);
++		pud = pud_offset(pgd, address);
++		pmd = pmd_offset(pud, address);
++		pte = pte_offset_kernel(pmd, address);
+ 	} while(!pte_present(*pte));
+ 	err = 0;
+ 	*pte = pte_mkyoung(*pte);
+ 	if(pte_write(*pte)) *pte = pte_mkdirty(*pte);
+-	flush_tlb_page(vma, page);
+- out:
++	flush_tlb_page(vma, address);
++out:
+ 	up_read(&mm->mmap_sem);
+ 	return(err);
+ 
+@@ -144,19 +143,18 @@ unsigned long segv(struct faultinfo fi, 
+ 		panic("Kernel mode fault at addr 0x%lx, ip 0x%lx", 
+ 		      address, ip);
+ 
+-	if(err == -EACCES){
++	if (err == -EACCES) {
+ 		si.si_signo = SIGBUS;
+ 		si.si_errno = 0;
+ 		si.si_code = BUS_ADRERR;
+ 		si.si_addr = (void *)address;
+                 current->thread.arch.faultinfo = fi;
+ 		force_sig_info(SIGBUS, &si, current);
+-	}
+-	else if(err == -ENOMEM){
++	} else if (err == -ENOMEM) {
+ 		printk("VM: killing process %s\n", current->comm);
+ 		do_exit(SIGKILL);
+-	}
+-	else {
++	} else {
++		BUG_ON(err != -EFAULT);
+ 		si.si_signo = SIGSEGV;
+ 		si.si_addr = (void *) address;
+                 current->thread.arch.faultinfo = fi;
 _

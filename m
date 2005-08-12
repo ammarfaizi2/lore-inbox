@@ -1,73 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVHLRzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVHLRzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbVHLRzN (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750770AbVHLRzN (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 12 Aug 2005 13:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVHLRyy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVHLRyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:54:54 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:22711 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750769AbVHLRyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:54:19 -0400
-Subject: [patch 34/39] remap_file_pages protection support: restrict permission testing
+	Fri, 12 Aug 2005 13:54:55 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:57482 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750777AbVHLRyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:54:16 -0400
+Subject: [patch 24/39] remap_file_pages protection support: adapt to uml peculiarities
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 19:33:02 +0200
-Message-Id: <20050812173303.269FF24E8C0@zion.home.lan>
+Date: Fri, 12 Aug 2005 19:32:35 +0200
+Message-Id: <20050812173236.22A9D24E7FE@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Yet to test. Currently we install a PTE when one is missing
-irrispective of the fault type, and if the access type is prohibited we'll
-get another fault and kill the process only then. With this, we check the
-access type on the 1st fault.
+Uml is particular in respect with other architectures (and possibly this is to
+fix) in the fact that our arch fault handler handles indifferently both TLB
+and page faults. In particular, we may get to call handle_mm_fault() when the
+PTE is already correct, but simply it's not flushed.
 
-We could also use this code for testing present PTE's, if the current
-assumption (fault on present PTE's in VM_NONUNIFORM vma's means access violation)
-proves problematic for architectures other than UML (which I already fixed),
-but I hope it's not needed.
+And rfp-fault-sigsegv-2 breaks this, because when getting a fault on a
+pte_present PTE and non-uniform VMA, it assumes the fault is due to a
+protection fault, and signals the caller a SIGSEGV must be sent.
+
+This isn't the final fix for UML, that's the next one.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/mm/memory.c |   16 ++++++++++++++++
- 1 files changed, 16 insertions(+)
+ linux-2.6.git-paolo/arch/um/kernel/trap_kern.c |   19 +++++++++++++++----
+ 1 files changed, 15 insertions(+), 4 deletions(-)
 
-diff -puN mm/memory.c~rfp-fault-sigsegv-3 mm/memory.c
---- linux-2.6.git/mm/memory.c~rfp-fault-sigsegv-3	2005-08-12 17:19:17.000000000 +0200
-+++ linux-2.6.git-paolo/mm/memory.c	2005-08-12 17:19:17.000000000 +0200
-@@ -1963,6 +1963,7 @@ static int do_file_page(struct mm_struct
- 	unsigned long pgoff;
- 	pgprot_t pgprot;
- 	int err;
-+	pte_t test_entry;
+diff -puN arch/um/kernel/trap_kern.c~rfp-sigsegv-uml-3 arch/um/kernel/trap_kern.c
+--- linux-2.6.git/arch/um/kernel/trap_kern.c~rfp-sigsegv-uml-3	2005-08-11 23:13:06.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/kernel/trap_kern.c	2005-08-11 23:14:26.000000000 +0200
+@@ -75,8 +75,21 @@ handle_fault:
+ 			err = -EACCES;
+ 			goto out;
+ 		case VM_FAULT_SIGSEGV:
+-			err = -EFAULT;
+-			goto out;
++			/* Duplicate this code here. */
++			pgd = pgd_offset(mm, address);
++			pud = pud_offset(pgd, address);
++			pmd = pmd_offset(pud, address);
++			pte = pte_offset_kernel(pmd, address);
++			if (likely (pte_newpage(*pte) || pte_newprot(*pte))) {
++				/* This wasn't done by __handle_mm_fault(), and
++				 * the page hadn't been flushed. */
++				*pte = pte_mkyoung(*pte);
++				if(pte_write(*pte)) *pte = pte_mkdirty(*pte);
++				break;
++			} else {
++				err = -EFAULT;
++				goto out;
++			}
+ 		case VM_FAULT_OOM:
+ 			err = -ENOMEM;
+ 			goto out_of_memory;
+@@ -89,8 +102,6 @@ handle_fault:
+ 		pte = pte_offset_kernel(pmd, address);
+ 	} while(!pte_present(*pte));
+ 	err = 0;
+-	*pte = pte_mkyoung(*pte);
+-	if(pte_write(*pte)) *pte = pte_mkdirty(*pte);
+ 	flush_tlb_page(vma, address);
  
- 	BUG_ON(!vma->vm_ops || !vma->vm_ops->nopage);
- 	/*
-@@ -1983,6 +1984,21 @@ static int do_file_page(struct mm_struct
- 	pgoff = pte_to_pgoff(*pte);
- 	pgprot = vma->vm_flags & VM_NONUNIFORM ? pte_to_pgprot(*pte): vma->vm_page_prot;
- 
-+	/* If this is not enabled, we'll get another fault after return next
-+	 * time, check we handle that one, and that this code works. */
-+#if 1
-+	/* We just want to test pte_{read,write,exec} */
-+	test_entry = mk_pte(0, pgprot);
-+	if (unlikely(vma->vm_flags & VM_NONUNIFORM) && !pte_file(*pte)) {
-+		if ((access_mask & VM_WRITE) && !pte_write(test_entry))
-+			goto out_segv;
-+		if ((access_mask & VM_READ) && !pte_read(test_entry))
-+			goto out_segv;
-+		if ((access_mask & VM_EXEC) && !pte_exec(test_entry))
-+			goto out_segv;
-+	}
-+#endif
-+
- 	pte_unmap(pte);
- 	spin_unlock(&mm->page_table_lock);
- 
+ 	/* If the PTE is not present, the vma protection are not accurate if
 _

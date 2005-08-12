@@ -1,211 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVHLSEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVHLSFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbVHLSEs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVHLSEr
+	id S1750713AbVHLSFb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVHLSFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:04:47 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:56028 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750716AbVHLSEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:04:46 -0400
-Subject: [patch 31/39] remap_file_pages protection support: s390 bits
+	Fri, 12 Aug 2005 14:05:17 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:57256 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750716AbVHLSEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:04:48 -0400
+Subject: [patch 33/39] remap_file_pages protection support: VM_FAULT_SIGSEGV permission checking rework
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it,
-       schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 19:32:53 +0200
-Message-Id: <20050812173254.4263E24E812@zion.home.lan>
+Date: Fri, 12 Aug 2005 19:32:59 +0200
+Message-Id: <20050812173259.F3BAF24E816@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-s390 memory management changes for remap-file-pages-prot patch:
+Simplify the generic arch permission checking: the previous one was clumsy, as
+it didn't account arch-specific implications (read implies exec, write implies
+read, and so on).
 
-- Add pgoff_prot_to_pte/pte_to_pgprot, remove pgoff_to_pte (required for
-  'prot' parameteter in shared-writeable mappings).
-
-- Handle VM_FAULT_SIGSEGV from handle_mm_fault in do_exception.
+Still to undo fixes for the archs (i386 and UML) which were modified for the
+previous scheme.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/arch/s390/mm/fault.c       |    2 
- linux-2.6.git-paolo/include/asm-s390/pgtable.h |   90 ++++++++++++++++---------
- 2 files changed, 60 insertions(+), 32 deletions(-)
+ linux-2.6.git-paolo/mm/memory.c |   49 ++++++++++++++++++++++++++--------------
+ 1 files changed, 33 insertions(+), 16 deletions(-)
 
-diff -puN arch/s390/mm/fault.c~rfp-arch-s390 arch/s390/mm/fault.c
---- linux-2.6.git/arch/s390/mm/fault.c~rfp-arch-s390	2005-08-12 19:27:58.000000000 +0200
-+++ linux-2.6.git-paolo/arch/s390/mm/fault.c	2005-08-12 19:27:58.000000000 +0200
-@@ -260,6 +260,8 @@ survive:
- 		goto do_sigbus;
- 	case VM_FAULT_OOM:
- 		goto out_of_memory;
-+	case VM_FAULT_SIGSEGV:
-+		goto bad_area;
- 	default:
- 		BUG();
- 	}
-diff -puN include/asm-s390/pgtable.h~rfp-arch-s390 include/asm-s390/pgtable.h
---- linux-2.6.git/include/asm-s390/pgtable.h~rfp-arch-s390	2005-08-12 19:27:58.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-s390/pgtable.h	2005-08-12 19:27:58.000000000 +0200
-@@ -211,16 +211,41 @@ extern char empty_zero_page[PAGE_SIZE];
-  * C  : changed bit
-  */
+diff -puN mm/memory.c~rfp-sigsegv-4 mm/memory.c
+--- linux-2.6.git/mm/memory.c~rfp-sigsegv-4	2005-08-12 17:18:55.000000000 +0200
++++ linux-2.6.git-paolo/mm/memory.c	2005-08-12 17:18:55.000000000 +0200
+@@ -1923,6 +1923,35 @@ oom:
+ 	goto out;
+ }
  
--/* Hardware bits in the page table entry */
-+/* Hardware bits in the page table entry. */
- #define _PAGE_RO        0x200          /* HW read-only                     */
- #define _PAGE_INVALID   0x400          /* HW invalid                       */
- 
--/* Mask and four different kinds of invalid pages. */
--#define _PAGE_INVALID_MASK	0x601
-+/* Software bits in the page table entry. */
-+#define _PAGE_FILE	0x001
-+#define _PAGE_PROTNONE	0x002
-+
-+/*
-+ * We have 8 different page "types", two valid types and 6 invalid types
-+ * (p = page address, o = swap offset, t = swap type, f = file offset):
-+ *                     0 xxxxxxxxxxxxxxxxxxx 0IP0 yyyyyy NF
-+ * valid rw:           0 <--------p--------> 0000 <--0-> 00
-+ * valid ro:           0 <--------p--------> 0010 <--0-> 00
-+ * invalid none:       0 <--------p--------> 0100 <--0-> 10
-+ * invalid empty:      0 <--------0--------> 0100 <--0-> 00
-+ * invalid swap:       0 <--------o--------> 0110 <--t-> 00
-+ * invalid file rw:    0 <--------f--------> 0100 <--f-> 01
-+ * invalid file ro:    0 <--------f--------> 0110 <--f-> 01
-+ * invaild file none:  0 <--------f--------> 0100 <--f-> 11
-+ *
-+ * The format for 64 bit is almost identical, there isn't a leading zero
-+ * and the number of bits in the page address part of the pte is 52 bits
-+ * instead of 19.
-+ */
-+
- #define _PAGE_INVALID_EMPTY	0x400
--#define _PAGE_INVALID_NONE	0x401
- #define _PAGE_INVALID_SWAP	0x600
--#define _PAGE_INVALID_FILE	0x601
-+#define _PAGE_INVALID_FILE	0x401
-+
-+#define _PTE_IS_VALID(__pte)	(!(pte_val(__pte) & _PAGE_INVALID))
-+#define _PTE_IS_NONE(__pte)	((pte_val(__pte) & 0x603) == 0x402)
-+#define _PTE_IS_EMPTY(__pte)	((pte_val(__pte) & 0x603) == 0x400)
-+#define _PTE_IS_SWAP(__pte)	((pte_val(__pte) & 0x603) == 0x600)
-+#define _PTE_IS_FILE(__pte)	((pte_val(__pte) & 0x401) == 0x401)
- 
- #ifndef __s390x__
- 
-@@ -281,13 +306,11 @@ extern char empty_zero_page[PAGE_SIZE];
++static inline int check_perms(struct vm_area_struct * vma, int access_mask) {
++	if (unlikely(vm_flags & VM_NONUNIFORM)) {
++		/* we used to check protections in arch handler, but with
++		 * VM_NONUNIFORM the check is skipped. */
++#if 0
++		if ((access_mask & VM_WRITE) > (vm_flags & VM_WRITE))
++			goto err;
++		if ((access_mask & VM_READ) > (vm_flags & VM_READ))
++			goto err;
++		if ((access_mask & VM_EXEC) > (vm_flags & VM_EXEC))
++			goto err;
++#else
++		/* access_mask contains the type of the access, vm_flags are the
++		 * declared protections, pte has the protection which will be
++		 * given to the PTE's in that area. */
++		//pte_t pte = pfn_pte(0UL, protection_map[vm_flags & 0x0f|VM_SHARED]);
++		pte_t pte = pfn_pte(0UL, vma->vm_page_prot);
++		if ((access_mask & VM_WRITE) && ! pte_write(pte))
++			goto err;
++		if ((access_mask & VM_READ) && ! pte_read(pte))
++			goto err;
++		if ((access_mask & VM_EXEC) && ! pte_exec(pte))
++			goto err;
++#endif
++	}
++	return 0;
++err:
++	return -EPERM;
++}
  /*
-  * No mapping available
-  */
--#define PAGE_NONE_SHARED  __pgprot(_PAGE_INVALID_NONE)
--#define PAGE_NONE_PRIVATE __pgprot(_PAGE_INVALID_NONE)
--#define PAGE_RO_SHARED	  __pgprot(_PAGE_RO)
--#define PAGE_RO_PRIVATE	  __pgprot(_PAGE_RO)
--#define PAGE_COPY	  __pgprot(_PAGE_RO)
--#define PAGE_SHARED	  __pgprot(0)
--#define PAGE_KERNEL	  __pgprot(0)
-+#define PAGE_NONE	__pgprot(_PAGE_INVALID | _PAGE_PROTNONE)
-+#define PAGE_READONLY	__pgprot(_PAGE_RO)
-+#define PAGE_COPY	__pgprot(_PAGE_RO)
-+#define PAGE_SHARED	__pgprot(0)
-+#define PAGE_KERNEL	__pgprot(0)
+  * Fault of a previously existing named mapping. Repopulate the pte
+  * from the encoded file_pte if possible. This enables swappable
+@@ -1944,14 +1973,8 @@ static int do_file_page(struct mm_struct
+ 			((access_mask & VM_WRITE) && !(vma->vm_flags & VM_SHARED))) {
+ 		/* We're behaving as if pte_file was cleared, so check
+ 		 * protections like in handle_pte_fault. */
+-		if (unlikely(vma->vm_flags & VM_NONUNIFORM)) {
+-			if ((access_mask & VM_WRITE) > (vma->vm_flags & VM_WRITE))
+-				goto out_segv;
+-			if ((access_mask & VM_READ) > (vma->vm_flags & VM_READ))
+-				goto out_segv;
+-			if ((access_mask & VM_EXEC) > (vma->vm_flags & VM_EXEC))
+-				goto out_segv;
+-		}
++		if (check_perms(vma, access_mask))
++			goto out_segv;
  
- /*
-  * The S390 can't do page protection for execute, and considers that the
-@@ -295,21 +318,21 @@ extern char empty_zero_page[PAGE_SIZE];
-  * the closest we can get..
-  */
-          /*xwr*/
--#define __P000  PAGE_NONE_PRIVATE
--#define __P001  PAGE_RO_PRIVATE
-+#define __P000  PAGE_NONE
-+#define __P001  PAGE_READONLY
- #define __P010  PAGE_COPY
- #define __P011  PAGE_COPY
--#define __P100  PAGE_RO_PRIVATE
--#define __P101  PAGE_RO_PRIVATE
-+#define __P100  PAGE_READONLY
-+#define __P101  PAGE_READONLY
- #define __P110  PAGE_COPY
- #define __P111  PAGE_COPY
+ 		pte_clear(mm, address, pte);
+ 		return do_no_page(mm, vma, address, access_mask & VM_WRITE, pte, pmd);
+@@ -2007,14 +2030,8 @@ static inline int handle_pte_fault(struc
+ 		/* when pte_file(), the VMA protections are useless. Otherwise,
+ 		 * we used to check protections in arch handler, but with
+ 		 * VM_NONUNIFORM the check is skipped. */
+-		if (unlikely(vma->vm_flags & VM_NONUNIFORM) && !pte_file(entry)) {
+-			if ((access_mask & VM_WRITE) > (vma->vm_flags & VM_WRITE))
+-				goto out_segv;
+-			if ((access_mask & VM_READ) > (vma->vm_flags & VM_READ))
+-				goto out_segv;
+-			if ((access_mask & VM_EXEC) > (vma->vm_flags & VM_EXEC))
+-				goto out_segv;
+-		}
++		if (!pte_file(entry) && check_perms(vma, access_mask))
++			goto out_segv;
  
--#define __S000  PAGE_NONE_SHARED
--#define __S001  PAGE_RO_SHARED
-+#define __S000  PAGE_NONE
-+#define __S001  PAGE_READONLY
- #define __S010  PAGE_SHARED
- #define __S011  PAGE_SHARED
--#define __S100  PAGE_RO_SHARED
--#define __S101  PAGE_RO_SHARED
-+#define __S100  PAGE_READONLY
-+#define __S101  PAGE_READONLY
- #define __S110  PAGE_SHARED
- #define __S111  PAGE_SHARED
- 
-@@ -376,18 +399,17 @@ extern inline int pmd_bad(pmd_t pmd)
- 
- extern inline int pte_none(pte_t pte)
- {
--	return (pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_EMPTY;
-+	return _PTE_IS_EMPTY(pte);
- }
- 
- extern inline int pte_present(pte_t pte)
- {
--	return !(pte_val(pte) & _PAGE_INVALID) ||
--		(pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_NONE;
-+	return _PTE_IS_VALID(pte) || _PTE_IS_NONE(pte);
- }
- 
- extern inline int pte_file(pte_t pte)
- {
--	return (pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_FILE;
-+	return _PTE_IS_FILE(pte);
- }
- 
- #define pte_same(a,b)	(pte_val(a) == pte_val(b))
-@@ -476,8 +498,8 @@ extern inline pte_t pte_modify(pte_t pte
- 
- extern inline pte_t pte_wrprotect(pte_t pte)
- {
--	/* Do not clobber _PAGE_INVALID_NONE pages!  */
--	if (!(pte_val(pte) & _PAGE_INVALID))
-+	/* Do not clobber PROT_NONE pages!  */
-+	if (!_PTE_IS_NONE(pte))
- 		pte_val(pte) |= _PAGE_RO;
- 	return pte;
- }
-@@ -774,17 +796,21 @@ extern inline pte_t mk_swap_pte(unsigned
- #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
- 
- #ifndef __s390x__
--# define PTE_FILE_MAX_BITS	26
-+# define PTE_FILE_MAX_BITS	25
- #else /* __s390x__ */
--# define PTE_FILE_MAX_BITS	59
-+# define PTE_FILE_MAX_BITS	58
- #endif /* __s390x__ */
- 
- #define pte_to_pgoff(__pte) \
--	((((__pte).pte >> 12) << 7) + (((__pte).pte >> 1) & 0x7f))
-+	((((__pte).pte >> 12) << 6) + (((__pte).pte >> 2) & 0x3f))
-+
-+#define pte_to_pgprot(pte) \
-+	__pgprot(pte_val(pte) & (_PAGE_RO | _PAGE_PROTNONE))
- 
--#define pgoff_to_pte(__off) \
--	((pte_t) { ((((__off) & 0x7f) << 1) + (((__off) >> 7) << 12)) \
--		   | _PAGE_INVALID_FILE })
-+#define pgoff_prot_to_pte(__off, __prot) \
-+	((pte_t) { _PAGE_INVALID_FILE | \
-+		((((__off) & 0x3f) << 2) + (((__off) >> 6) << 12)) | \
-+		(pgprot_val(__prot) & (_PAGE_RO | _PAGE_PROTNONE)) })
- 
- #endif /* !__ASSEMBLY__ */
- 
+ 		/*
+ 		 * If it truly wasn't present, we know that kswapd
 _

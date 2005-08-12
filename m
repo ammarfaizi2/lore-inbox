@@ -1,155 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbVHLTAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbVHLTCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbVHLTAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 15:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVHLTAZ
+	id S1751230AbVHLTCG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 15:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVHLTCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 15:00:25 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:52427 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750923AbVHLTAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 15:00:24 -0400
-Date: Fri, 12 Aug 2005 14:59:49 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Chris Wright <chrisw@osdl.org>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linus Torvalds <torvalds@osdl.org>, gdt@linuxppc.org,
-       Andrew Morton <akpm@osdl.org>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
-Subject: Re: [PATCH] Fix PPC signal handling of NODEFER, should not affect
- sa_mask
-In-Reply-To: <20050812184503.GX7762@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.58.0508121456570.19908@localhost.localdomain>
-References: <1123615983.18332.194.camel@localhost.localdomain>
- <42F906EB.6060106@fujitsu-siemens.com> <1123617812.18332.199.camel@localhost.localdomain>
- <1123618745.18332.204.camel@localhost.localdomain> <20050809204928.GH7991@shell0.pdx.osdl.net>
- <1123621223.9553.4.camel@localhost.localdomain> <1123621637.9553.7.camel@localhost.localdomain>
- <Pine.LNX.4.58.0508091419420.3258@g5.osdl.org> <1123643401.9553.32.camel@localhost.localdomain>
- <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr> <20050812184503.GX7762@shell0.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1394402902-1123873189=:19908"
+	Fri, 12 Aug 2005 15:02:06 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:37781 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751230AbVHLTCF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 15:02:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j9Y4zaH3tuqvsKq8UlqKui8vqA6OzVdpJf2viXg2FEJ5YkeZyyq8X+V5wa2Dync3BjgKiUhbbo1qqCFATHLhKfePYuV8JrSvvpzevpuJP9VwU+1AO3MD+ALGb7oV7PgoM4T7DnAMHLp/OiEoEyy0WGQyKb2qmAR9bgZzDmyM4Tg=
+Message-ID: <56a8daef0508121202172bcd17@mail.gmail.com>
+Date: Fri, 12 Aug 2005 12:02:03 -0700
+From: John Ronciak <john.ronciak@gmail.com>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH 3/8] netpoll: e1000 netpoll tweak
+Cc: Andrew Morton <akpm@osdl.com>, "David S. Miller" <davem@davemloft.net>,
+       ak@suse.de, Jeff Moyer <jmoyer@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, john.ronciak@intel.com,
+       rostedt@goodmis.org
+In-Reply-To: <4.502409567@selenic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3.502409567@selenic.com> <4.502409567@selenic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Sorry this reply was to go to the whole list but only made it to Matt.
 
---8323328-1394402902-1123873189=:19908
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+The e1000_intr() routine already calls e1000_clean_tx_irq().  So
+what's the point of this patch?  Am I missing something?
 
-On Fri, 12 Aug 2005, Chris Wright wrote:
-> * Jan Engelhardt (jengelh@linux01.gwdg.de) wrote:
-> > So, if in doubt what is really meant - check which of the two/three/+
-> > different behaviors the users out there favor most.
->
-> Rather, check what happens in practice on other implementations.  I don't
-> have Solaris, HP-UX, Irix, AIX, etc. boxen at hand, but some folks must.
->
+On 8/11/05, Matt Mackall <mpm@selenic.com> wrote:
+> Suggested by Steven Rostedt, matches his patch included in e100.
+> 
+> Signed-off-by: Matt Mackall <mpm@selenic.com>
+> 
+> Index: l/drivers/net/e1000/e1000_main.c
+> ===================================================================
+> --- l.orig/drivers/net/e1000/e1000_main.c       2005-08-06 17:36:32.000000000 -0500
+> +++ l/drivers/net/e1000/e1000_main.c    2005-08-06 17:55:01.000000000 -0500
+> @@ -3789,6 +3789,7 @@ e1000_netpoll(struct net_device *netdev)
+>         struct e1000_adapter *adapter = netdev_priv(netdev);
+>         disable_irq(adapter->pdev->irq);
+>         e1000_intr(adapter->pdev->irq, netdev, NULL);
+> +       e1000_clean_tx_irq(adapter);
+>         enable_irq(adapter->pdev->irq);
+>  }
+>  #endif
+> 
+> 
 
-I've supplied this before, but I'll send it again.  Attached is a program
-that should show the behavior of the sigaction.  If someone has one of the
-above mentioned boxes, please run this on the box and send back the
-results.
 
--- Steve
-
---8323328-1394402902-1123873189=:19908
-Content-Type: TEXT/x-csrc; charset=US-ASCII; name="test_signal.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.58.0508121459490.19908@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="test_signal.c"
-
-I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3RkbGliLmg+DQojaW5j
-bHVkZSA8c3RyaW5nLmg+DQojaW5jbHVkZSA8c2lnbmFsLmg+DQojaW5jbHVk
-ZSA8c3lzL3R5cGVzLmg+DQojaW5jbHVkZSA8c3lzL3dhaXQuaD4NCiNpbmNs
-dWRlIDx1bmlzdGQuaD4NCg0Kc3RhdGljIGludCB1MTsNCnN0YXRpYyBpbnQg
-dTI7DQoNCnN0YXRpYyB2b2lkIHVzZXIxKGludCB4KQ0Kew0KCS8qIGZvciB0
-ZXN0aW5nIGFnYWluc3QgaXRzZWxmICovDQoJaWYgKHUxKQ0KCQl1MiA9IDE7
-DQoJdTEgPSAxOw0KCXNsZWVwKDUpOw0KCXUxID0gMDsNCn0NCg0Kc3RhdGlj
-IHZvaWQgdXNlcjIoaW50IHgpDQp7DQoJaWYgKHUxKQ0KCQl1MiA9IDE7DQp9
-DQoNCnN0YXRpYyB2b2lkIGludHIoaW50IHgpDQp7DQoJZXhpdCh1Mik7DQp9
-DQoNCnN0YXRpYyB2b2lkIHN0YXJ0KHN0cnVjdCBzaWdhY3Rpb24gKmFjdCkN
-CnsNCglzdHJ1Y3Qgc2lnYWN0aW9uIGE7DQoNCgltZW1zZXQoJmEsMCxzaXpl
-b2YoYSkpOw0KDQoJYS5zYV9oYW5kbGVyID0gaW50cjsNCglpZiAoKHNpZ2Fj
-dGlvbihTSUdJTlQsJmEsTlVMTCkpIDwgMCkgew0KCQlwZXJyb3IoInNpZ2Fj
-dGlvbiIpOw0KCQlleGl0KC0xKTsNCgl9DQoJDQoJLyoNCgkgKiBUaGlzIGlz
-IHRoZSB0ZXN0aW5nIGhhbmRsZXINCgkgKi8NCglhY3QtPnNhX2hhbmRsZXIg
-PSB1c2VyMTsNCglpZiAoKHNpZ2FjdGlvbihTSUdVU1IxLGFjdCxOVUxMKSkg
-PCAwKSB7DQoJCXBlcnJvcigic2lnYWN0aW9uIik7DQoJCWV4aXQoLTEpOw0K
-CX0NCg0KCWEuc2FfaGFuZGxlciA9IHVzZXIyOw0KCWlmICgoc2lnYWN0aW9u
-KFNJR1VTUjIsJmEsTlVMTCkpIDwgMCkgew0KCQlwZXJyb3IoInNpZ2FjdGlv
-biIpOw0KCQlleGl0KC0xKTsNCgl9DQoJCQ0KCQkNCglmb3IgKDs7KQ0KCQk7
-DQoNCn0NCmludCB0ZXN0c2lnKHN0cnVjdCBzaWdhY3Rpb24gKmFjdCwgaW50
-IHNpZzEsIGludCBzaWcyKQ0Kew0KCWludCBwaWQ7DQoJaW50IHN0YXR1czsN
-Cg0KCWlmICgocGlkID0gZm9yaygpKSA8IDApIHsNCgkJcGVycm9yKCJmb3Jr
-Iik7DQoJfSBlbHNlIGlmICghcGlkKSB7DQoJCS8qDQoJCSAqIFRlc3QxIHNh
-X21hc2sgaW5jbHVkZXMgU0lHVVNSMg0KCQkgKi8NCgkJc3RhcnQoYWN0KTsN
-CgkJZXhpdCgwKTsNCgl9DQoJLyoNCgkgKiBTZW5kIGZpcnN0IHNpZ25hbCB0
-byBzdGFydCB0aGUgdGVzdC4NCgkgKi8NCglraWxsKHBpZCxzaWcxKTsNCgkv
-Kg0KCSAqIFNJR1VTUjEgc2xlZXBzIGZvciA1LCBqdXN0IHNsZWVwIGZvciBv
-biBoZXJlDQoJICogdG8gbWFrZSBzdXJlIHRoZSBzeXN0ZW0gZ290IGl0Lg0K
-CSAqLw0KCXNsZWVwKDEpOw0KCS8qDQoJICogU2VuZCB0aGUgc2Vjb25kIHNp
-Z25hbCB0byB0aGUgY2hpbGQsIHRvIHNlZSBpZiANCgkgKiB0aGlzIHdha2Vz
-IGl0IHVwLg0KCSAqLw0KCWtpbGwocGlkLHNpZzIpOw0KCXNsZWVwKDEpOw0K
-CS8qDQoJICogRW5kIHRoZSB0ZXN0Lg0KCSAqLw0KCWtpbGwocGlkLFNJR0lO
-VCk7DQoJd2FpdHBpZChwaWQsJnN0YXR1cywwKTsNCglyZXR1cm4gV0VYSVRT
-VEFUVVMoc3RhdHVzKTsNCn0NCg0KaW50IG1haW4oaW50IGFyZ2MsIGNoYXIg
-Kiphcmd2KQ0Kew0KCXN0cnVjdCBzaWdhY3Rpb24gYWN0Ow0KCWludCByZXQ7
-DQoJDQoJbWVtc2V0KCZhY3QsMCxzaXplb2YoYWN0KSk7DQoJc2lnYWRkc2V0
-KCZhY3Quc2FfbWFzayxTSUdVU1IyKTsNCglyZXQgPSB0ZXN0c2lnKCZhY3Qs
-U0lHVVNSMSxTSUdVU1IyKTsNCglzd2l0Y2ggKHJldCkgew0KCQljYXNlIDA6
-DQoJCQlwcmludGYoInNhX21hc2sgYmxvY2tzIG90aGVyIHNpZ25hbHNcbiIp
-Ow0KCQkJYnJlYWs7DQoJCWNhc2UgMToNCgkJCXByaW50Zigic2FfbWFzayBk
-b2VzIG5vdCBibG9jayBvdGhlciBzaWduYWxzXG4iKTsNCgkJCWJyZWFrOw0K
-CQlkZWZhdWx0Og0KCQkJcHJpbnRmKCJVbmtub3duIHJldHVybiBjb2RlISFc
-biIpOw0KCX0NCg0KCW1lbXNldCgmYWN0LDAsc2l6ZW9mKGFjdCkpOw0KCWFj
-dC5zYV9mbGFncyB8PSBTQV9OT0RFRkVSOw0KCXJldCA9IHRlc3RzaWcoJmFj
-dCxTSUdVU1IxLFNJR1VTUjIpOw0KCXN3aXRjaCAocmV0KSB7DQoJCWNhc2Ug
-MDoNCgkJCXByaW50ZigiU0FfTk9ERUZFUiBibG9ja3Mgb3RoZXIgc2lnbmFs
-c1xuIik7DQoJCQlicmVhazsNCgkJY2FzZSAxOg0KCQkJcHJpbnRmKCJTQV9O
-T0RFRkVSIGRvZXMgbm90IGJsb2NrIG90aGVyIHNpZ25hbHNcbiIpOw0KCQkJ
-YnJlYWs7DQoJCWRlZmF1bHQ6DQoJCQlwcmludGYoIlVua25vd24gcmV0dXJu
-IGNvZGUhIVxuIik7DQoJfQ0KDQoJbWVtc2V0KCZhY3QsMCxzaXplb2YoYWN0
-KSk7DQoJYWN0LnNhX2ZsYWdzIHw9IFNBX05PREVGRVI7DQoJc2lnYWRkc2V0
-KCZhY3Quc2FfbWFzayxTSUdVU1IyKTsNCglyZXQgPSB0ZXN0c2lnKCZhY3Qs
-U0lHVVNSMSxTSUdVU1IyKTsNCglzd2l0Y2ggKHJldCkgew0KCQljYXNlIDA6
-DQoJCQlwcmludGYoIlNBX05PREVGRVIgZG9lcyBub3QgYWZmZWN0IHNhX21h
-c2tcbiIpOw0KCQkJYnJlYWs7DQoJCWNhc2UgMToNCgkJCXByaW50ZigiU0Ff
-Tk9ERUZFUiBhZmZlY3RzIHNhX21hc2tcbiIpOw0KCQkJYnJlYWs7DQoJCWRl
-ZmF1bHQ6DQoJCQlwcmludGYoIlVua25vd24gcmV0dXJuIGNvZGUhIVxuIik7
-DQoJfQ0KDQoJbWVtc2V0KCZhY3QsMCxzaXplb2YoYWN0KSk7DQoJYWN0LnNh
-X2ZsYWdzIHw9IFNBX05PREVGRVI7DQoJc2lnYWRkc2V0KCZhY3Quc2FfbWFz
-ayxTSUdVU1IxKTsNCglyZXQgPSB0ZXN0c2lnKCZhY3QsU0lHVVNSMSxTSUdV
-U1IxKTsNCglzd2l0Y2ggKHJldCkgew0KCQljYXNlIDA6DQoJCQlwcmludGYo
-IlNBX05PREVGRVIgYW5kIHNhX21hc2sgYmxvY2tzIHNpZ1xuIik7DQoJCQli
-cmVhazsNCgkJY2FzZSAxOg0KCQkJcHJpbnRmKCJTQV9OT0RFRkVSIGFuZCBz
-YV9tYXNrIGRvZXMgbm90IGJsb2NrIHNpZ1xuIik7DQoJCQlicmVhazsNCgkJ
-ZGVmYXVsdDoNCgkJCXByaW50ZigiVW5rbm93biByZXR1cm4gY29kZSEhXG4i
-KTsNCgl9DQoNCgltZW1zZXQoJmFjdCwwLHNpemVvZihhY3QpKTsNCglyZXQg
-PSB0ZXN0c2lnKCZhY3QsU0lHVVNSMSxTSUdVU1IxKTsNCglzd2l0Y2ggKHJl
-dCkgew0KCQljYXNlIDA6DQoJCQlwcmludGYoIiFTQV9OT0RFRkVSIGJsb2Nr
-cyBzaWdcbiIpOw0KCQkJYnJlYWs7DQoJCWNhc2UgMToNCgkJCXByaW50Zigi
-IVNBX05PREVGRVIgZG9lcyBub3QgYmxvY2sgc2lnXG4iKTsNCgkJCWJyZWFr
-Ow0KCQlkZWZhdWx0Og0KCQkJcHJpbnRmKCJVbmtub3duIHJldHVybiBjb2Rl
-ISFcbiIpOw0KCX0NCg0KCW1lbXNldCgmYWN0LDAsc2l6ZW9mKGFjdCkpOw0K
-CW1lbXNldCgmYWN0LDAsc2l6ZW9mKGFjdCkpOw0KCWFjdC5zYV9mbGFncyB8
-PSBTQV9OT0RFRkVSOw0KCXJldCA9IHRlc3RzaWcoJmFjdCxTSUdVU1IxLFNJ
-R1VTUjEpOw0KCXN3aXRjaCAocmV0KSB7DQoJCWNhc2UgMDoNCgkJCXByaW50
-ZigiU0FfTk9ERUZFUiBibG9ja3Mgc2lnXG4iKTsNCgkJCWJyZWFrOw0KCQlj
-YXNlIDE6DQoJCQlwcmludGYoIlNBX05PREVGRVIgZG9lcyBub3QgYmxvY2sg
-c2lnXG4iKTsNCgkJCWJyZWFrOw0KCQlkZWZhdWx0Og0KCQkJcHJpbnRmKCJV
-bmtub3duIHJldHVybiBjb2RlISFcbiIpOw0KCX0NCg0KCW1lbXNldCgmYWN0
-LDAsc2l6ZW9mKGFjdCkpOw0KCXNpZ2FkZHNldCgmYWN0LnNhX21hc2ssU0lH
-VVNSMSk7DQoJcmV0ID0gdGVzdHNpZygmYWN0LFNJR1VTUjEsU0lHVVNSMSk7
-DQoJc3dpdGNoIChyZXQpIHsNCgkJY2FzZSAwOg0KCQkJcHJpbnRmKCJzYV9t
-YXNrIGJsb2NrcyBzaWdcbiIpOw0KCQkJYnJlYWs7DQoJCWNhc2UgMToNCgkJ
-CXByaW50Zigic2FfbWFzayBkb2VzIG5vdCBibG9jayBzaWdcbiIpOw0KCQkJ
-YnJlYWs7DQoJCWRlZmF1bHQ6DQoJCQlwcmludGYoIlVua25vd24gcmV0dXJu
-IGNvZGUhIVxuIik7DQoJfQ0KDQoJZXhpdCgwKTsNCn0NCg==
-
---8323328-1394402902-1123873189=:19908--
+-- 
+Cheers,
+John

@@ -1,72 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVHLStu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVHLSuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbVHLStu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVHLSt1
+	id S1751199AbVHLSuE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbVHLSty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:49:27 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:39339 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750942AbVHLSsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:48:53 -0400
-Subject: [patch 30/39] remap_file_pages protection support: ia64 bits
+	Fri, 12 Aug 2005 14:49:54 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:62412 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750987AbVHLStZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:49:25 -0400
+Subject: [patch 33/39] remap_file_pages protection support: VM_FAULT_SIGSEGV permission checking rework
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       mingo@elte.hu
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 20:36:13 +0200
-Message-Id: <20050812183613.AE59524E7DC@zion.home.lan>
+Date: Fri, 12 Aug 2005 20:36:22 +0200
+Message-Id: <20050812183622.E3B7E24E7E3@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Ingo Molnar <mingo@elte.hu>
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-I've attached a 'blind' port of the prot bits of fremap to ia64.  I've
-compiled it with a cross-compiler but otherwise it's untested.  (and it's
-very likely i got the pte bits wrong - but it's roughly OK.)
+Simplify the generic arch permission checking: the previous one was clumsy, as
+it didn't account arch-specific implications (read implies exec, write implies
+read, and so on).
 
-This should at least make ia64 compile.
+Still to undo fixes for the archs (i386 and UML) which were modified for the
+previous scheme.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/include/asm-ia64/pgtable.h |   17 +++++++++++++----
- 1 files changed, 13 insertions(+), 4 deletions(-)
+ linux-2.6.git-paolo/mm/memory.c |   49 ++++++++++++++++++++++++++--------------
+ 1 files changed, 33 insertions(+), 16 deletions(-)
 
-diff -puN include/asm-ia64/pgtable.h~rfp-arch-ia64 include/asm-ia64/pgtable.h
---- linux-2.6.git/include/asm-ia64/pgtable.h~rfp-arch-ia64	2005-08-12 19:27:03.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-ia64/pgtable.h	2005-08-12 19:27:03.000000000 +0200
-@@ -433,7 +433,8 @@ extern void paging_init (void);
-  * Format of file pte:
-  *	bit   0   : present bit (must be zero)
-  *	bit   1   : _PAGE_FILE (must be one)
-- *	bits  2-62: file_offset/PAGE_SIZE
-+ *	bit   2   : _PAGE_AR_RW
-+ *	bits  3-62: file_offset/PAGE_SIZE
-  *	bit  63   : _PAGE_PROTNONE bit
-  */
- #define __swp_type(entry)		(((entry).val >> 2) & 0x7f)
-@@ -442,9 +443,17 @@ extern void paging_init (void);
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
+diff -puN mm/memory.c~rfp-sigsegv-4 mm/memory.c
+--- linux-2.6.git/mm/memory.c~rfp-sigsegv-4	2005-08-12 17:18:55.000000000 +0200
++++ linux-2.6.git-paolo/mm/memory.c	2005-08-12 17:18:55.000000000 +0200
+@@ -1923,6 +1923,35 @@ oom:
+ 	goto out;
+ }
  
--#define PTE_FILE_MAX_BITS		61
--#define pte_to_pgoff(pte)		((pte_val(pte) << 1) >> 3)
--#define pgoff_to_pte(off)		((pte_t) { ((off) << 2) | _PAGE_FILE })
-+#define PTE_FILE_MAX_BITS		59
-+#define pte_to_pgoff(pte)		((pte_val(pte) << 1) >> 4)
-+
-+#define pte_to_pgprot(pte) \
-+	__pgprot((pte_val(pte) & (_PAGE_AR_RW | _PAGE_PROTNONE)) \
-+		| ((pte_val(pte) & _PAGE_PROTNONE) ? 0 : \
-+			(__ACCESS_BITS | _PAGE_PL_3)))
-+
-+#define pgoff_prot_to_pte(off, prot) \
-+       ((pte_t) { _PAGE_FILE + \
-+               (pgprot_val(prot) & (_PAGE_AR_RW | _PAGE_PROTNONE)) + (off) })
++static inline int check_perms(struct vm_area_struct * vma, int access_mask) {
++	if (unlikely(vm_flags & VM_NONUNIFORM)) {
++		/* we used to check protections in arch handler, but with
++		 * VM_NONUNIFORM the check is skipped. */
++#if 0
++		if ((access_mask & VM_WRITE) > (vm_flags & VM_WRITE))
++			goto err;
++		if ((access_mask & VM_READ) > (vm_flags & VM_READ))
++			goto err;
++		if ((access_mask & VM_EXEC) > (vm_flags & VM_EXEC))
++			goto err;
++#else
++		/* access_mask contains the type of the access, vm_flags are the
++		 * declared protections, pte has the protection which will be
++		 * given to the PTE's in that area. */
++		//pte_t pte = pfn_pte(0UL, protection_map[vm_flags & 0x0f|VM_SHARED]);
++		pte_t pte = pfn_pte(0UL, vma->vm_page_prot);
++		if ((access_mask & VM_WRITE) && ! pte_write(pte))
++			goto err;
++		if ((access_mask & VM_READ) && ! pte_read(pte))
++			goto err;
++		if ((access_mask & VM_EXEC) && ! pte_exec(pte))
++			goto err;
++#endif
++	}
++	return 0;
++err:
++	return -EPERM;
++}
+ /*
+  * Fault of a previously existing named mapping. Repopulate the pte
+  * from the encoded file_pte if possible. This enables swappable
+@@ -1944,14 +1973,8 @@ static int do_file_page(struct mm_struct
+ 			((access_mask & VM_WRITE) && !(vma->vm_flags & VM_SHARED))) {
+ 		/* We're behaving as if pte_file was cleared, so check
+ 		 * protections like in handle_pte_fault. */
+-		if (unlikely(vma->vm_flags & VM_NONUNIFORM)) {
+-			if ((access_mask & VM_WRITE) > (vma->vm_flags & VM_WRITE))
+-				goto out_segv;
+-			if ((access_mask & VM_READ) > (vma->vm_flags & VM_READ))
+-				goto out_segv;
+-			if ((access_mask & VM_EXEC) > (vma->vm_flags & VM_EXEC))
+-				goto out_segv;
+-		}
++		if (check_perms(vma, access_mask))
++			goto out_segv;
  
- /* XXX is this right? */
- #define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
+ 		pte_clear(mm, address, pte);
+ 		return do_no_page(mm, vma, address, access_mask & VM_WRITE, pte, pmd);
+@@ -2007,14 +2030,8 @@ static inline int handle_pte_fault(struc
+ 		/* when pte_file(), the VMA protections are useless. Otherwise,
+ 		 * we used to check protections in arch handler, but with
+ 		 * VM_NONUNIFORM the check is skipped. */
+-		if (unlikely(vma->vm_flags & VM_NONUNIFORM) && !pte_file(entry)) {
+-			if ((access_mask & VM_WRITE) > (vma->vm_flags & VM_WRITE))
+-				goto out_segv;
+-			if ((access_mask & VM_READ) > (vma->vm_flags & VM_READ))
+-				goto out_segv;
+-			if ((access_mask & VM_EXEC) > (vma->vm_flags & VM_EXEC))
+-				goto out_segv;
+-		}
++		if (!pte_file(entry) && check_perms(vma, access_mask))
++			goto out_segv;
+ 
+ 		/*
+ 		 * If it truly wasn't present, we know that kswapd
 _

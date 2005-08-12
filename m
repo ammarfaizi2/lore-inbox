@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbVHLAjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVHLAuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751050AbVHLAjc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 20:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbVHLAjc
+	id S1751117AbVHLAuU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 20:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVHLAuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 20:39:32 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:48600 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751040AbVHLAjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 20:39:32 -0400
-Date: Thu, 11 Aug 2005 17:39:18 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, steiner@sgi.com, dvhltc@us.ibm.com,
-       mbligh@mbligh.org
-Subject: Re: allow the load to grow upto its cpu_power (was Re: [Patch] don't kick ALB in the presence of pinned task)
-Message-ID: <20050811173917.B581@unix-os.sc.intel.com>
-References: <20050801174221.B11610@unix-os.sc.intel.com> <20050802092717.GB20978@elte.hu> <20050809160813.B1938@unix-os.sc.intel.com> <42F94A00.3070504@yahoo.com.au> <20050809190352.D1938@unix-os.sc.intel.com> <1123729750.5188.13.camel@npiggin-nld.site> <20050811111411.A581@unix-os.sc.intel.com> <42FBE410.9070809@yahoo.com.au>
+	Thu, 11 Aug 2005 20:50:20 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18180 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751117AbVHLAuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Aug 2005 20:50:19 -0400
+Date: Fri, 12 Aug 2005 02:50:11 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] DLM must depend on IPV6 || IPV6=n
+Message-ID: <20050812005011.GU4006@stusta.de>
+References: <20050809155001.GZ4006@stusta.de> <20050809155827.GD17488@lug-owl.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42FBE410.9070809@yahoo.com.au>; from nickpiggin@yahoo.com.au on Fri, Aug 12, 2005 at 09:49:36AM +1000
+In-Reply-To: <20050809155827.GD17488@lug-owl.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 12, 2005 at 09:49:36AM +1000, Nick Piggin wrote:
-> Well, it is a departure from our current idea of balancing.
-
-That idea is already changing from the first line of the patch. 
-And the change is "allowing the load to grow upto the sched 
-group's cpu_power"
-
-> I would prefer to use my patch initially to fix the _bug_
-> you found, then we can think about changing policy for
-> power savings.
-
-Second part of the patch is just a logical extension of the
-first one.
-
+On Tue, Aug 09, 2005 at 05:58:27PM +0200, Jan-Benedict Glaw wrote:
+> On Tue, 2005-08-09 17:50:01 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+> > This patch fixes the following compile error with CONFIG_DLM=y and 
+> > CONFIG_IPV6=m:
 > 
-> Main things I'm worried about:
+> [...]
 > 
-> Idle time regressions that pop up any time we put
-> restrictions on balancing.
-
-We are talking about lightly loaded case anyway. We are not changing
-the behavior of a heavily loaded system.
-
+> > --- linux-2.6.13-rc3-mm3-modular/drivers/dlm/Kconfig.old	2005-07-30 14:07:12.000000000 +0200
+> > +++ linux-2.6.13-rc3-mm3-modular/drivers/dlm/Kconfig	2005-07-30 14:07:41.000000000 +0200
+> > @@ -3,6 +3,7 @@
+> >  
+> >  config DLM
+> >  	tristate "Distributed Lock Manager (DLM)"
+> > +	depends on IPV6 || IPV6=n
+> >  	select IP_SCTP
+> >  	help
+> >  	A general purpose distributed lock manager for kernel or userspace
 > 
-> This can tend to unbalance memory controllers (eg. on POWER5,
-> CMP Opteron) which can be a performance problem on those
-> systems.
+> Why don't you allow modular builds of both? ...or aren't the IPv6
+> symbols exported?
 
-We will do that already with the first line in the patch. 
+Modular builds of both are supported.
 
-If we want to distribute uniformly among the memory controllers, 
-cpu_power of the group should reflect it (shared resources bottle neck).
+CONFIG_DLM=y and CONFIG_IPV6=m is the evil combination since
+CONFIG_IP_SCTP=y and CONFIG_IPV6=m doesn't compile.
 
-> Lastly, complexity in the calculation.
+> MfG, JBG
 
-My first patch is a simple straight fwd one.
+cu
+Adrian
 
-thanks,
-suresh
+BTW: Please don't strip people from replies.
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

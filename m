@@ -1,103 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbVHLR4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbVHLR5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbVHLR4i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbVHLRyx
+	id S1750784AbVHLR5E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbVHLR4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:54:53 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:57482 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750779AbVHLRyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:54:20 -0400
-Subject: [patch 11/39] remap_file_pages protection support: add MAP_NOINHERIT flag
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 19:31:55 +0200
-Message-Id: <20050812173156.315A624E7DA@zion.home.lan>
+	Fri, 12 Aug 2005 13:56:39 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:37295 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750805AbVHLR4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:56:33 -0400
+Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference 
+	between /dev/kmem and /dev/mem)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       hugh@veritas.com
+In-Reply-To: <p73br432izq.fsf@verdi.suse.de>
+References: <1123796188.17269.127.camel@localhost.localdomain.suse.lists.linux.kernel>
+	 <1123809302.17269.139.camel@localhost.localdomain.suse.lists.linux.kernel>
+	 <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org.suse.lists.linux.kernel>
+	 <p73br432izq.fsf@verdi.suse.de>
+Content-Type: text/plain
+Date: Fri, 12 Aug 2005 19:56:26 +0200
+Message-Id: <1123869386.3218.37.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-08-12 at 18:54 +0200, Andi Kleen wrote:
+> Linus Torvalds <torvalds@osdl.org> writes:
+> > 
+> > I'm actually more inclined to try to deprecate /dev/kmem.. I don't think 
+> > anybody has ever really used it except for some rootkits. 
+> 
+> I don't think that's true.
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+got any examples ?
 
-Add the MAP_NOINHERIT flag to arch headers, for use with remap-file-pages.
+>  
+> > So I'd be perfectly happy to fix this, but I'd be even happier if we made 
+> > the whole kmem thing a config variable (maybe even default it to "off").
+> 
+> Acessing vmalloc in /dev/mem would be pretty awkward. Yes it doesn't
+> also work in mmap of /dev/kmem, but at least in read/write.
+> There are quite a lot of scripts that use it for kernel debugging
+> like dumping variables. And for that you really want to access modules
+> and vmalloc. And it's much easier to parse than /proc/kcore
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+but you can stick gdb on /proc/kcore...
 
- linux-2.6.git-paolo/include/asm-i386/mman.h   |    1 +
- linux-2.6.git-paolo/include/asm-ia64/mman.h   |    1 +
- linux-2.6.git-paolo/include/asm-ppc/mman.h    |    1 +
- linux-2.6.git-paolo/include/asm-ppc64/mman.h  |    1 +
- linux-2.6.git-paolo/include/asm-s390/mman.h   |    1 +
- linux-2.6.git-paolo/include/asm-x86_64/mman.h |    1 +
- 6 files changed, 6 insertions(+)
 
-diff -puN include/asm-i386/mman.h~rfp-map-noinherit include/asm-i386/mman.h
---- linux-2.6.git/include/asm-i386/mman.h~rfp-map-noinherit	2005-08-11 12:06:40.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-i386/mman.h	2005-08-11 12:06:40.000000000 +0200
-@@ -22,6 +22,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_NOINHERIT	0x20000		/* don't inherit the protection bits of the underlying vma*/
- 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -puN include/asm-ia64/mman.h~rfp-map-noinherit include/asm-ia64/mman.h
---- linux-2.6.git/include/asm-ia64/mman.h~rfp-map-noinherit	2005-08-11 12:06:40.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-ia64/mman.h	2005-08-11 12:06:40.000000000 +0200
-@@ -30,6 +30,7 @@
- #define MAP_NORESERVE	0x04000		/* don't check for reservations */
- #define MAP_POPULATE	0x08000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_NOINHERIT	0x20000		/* don't inherit the protection bits of the underlying vma*/
- 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -puN include/asm-ppc64/mman.h~rfp-map-noinherit include/asm-ppc64/mman.h
---- linux-2.6.git/include/asm-ppc64/mman.h~rfp-map-noinherit	2005-08-11 12:06:40.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-ppc64/mman.h	2005-08-11 12:06:40.000000000 +0200
-@@ -38,6 +38,7 @@
- 
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_NOINHERIT	0x20000		/* don't inherit the protection bits of the underlying vma*/
- 
- #define MADV_NORMAL	0x0		/* default page-in behavior */
- #define MADV_RANDOM	0x1		/* page-in minimum required */
-diff -puN include/asm-ppc/mman.h~rfp-map-noinherit include/asm-ppc/mman.h
---- linux-2.6.git/include/asm-ppc/mman.h~rfp-map-noinherit	2005-08-11 12:06:40.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-ppc/mman.h	2005-08-11 12:06:40.000000000 +0200
-@@ -23,6 +23,7 @@
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_NOINHERIT	0x20000		/* don't inherit the protection bits of the underlying vma*/
- 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -puN include/asm-s390/mman.h~rfp-map-noinherit include/asm-s390/mman.h
---- linux-2.6.git/include/asm-s390/mman.h~rfp-map-noinherit	2005-08-11 12:06:40.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-s390/mman.h	2005-08-11 12:06:40.000000000 +0200
-@@ -30,6 +30,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_NOINHERIT	0x20000		/* don't inherit the protection bits of the underlying vma*/
- 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -puN include/asm-x86_64/mman.h~rfp-map-noinherit include/asm-x86_64/mman.h
---- linux-2.6.git/include/asm-x86_64/mman.h~rfp-map-noinherit	2005-08-11 12:06:40.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-x86_64/mman.h	2005-08-11 12:06:40.000000000 +0200
-@@ -23,6 +23,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_NOINHERIT	0x20000		/* don't inherit the protection bits of the underlying vma*/
- 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-_

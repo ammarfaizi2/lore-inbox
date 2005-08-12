@@ -1,41 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbVHLOqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVHLOsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbVHLOqz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 10:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVHLOqz
+	id S1751032AbVHLOsS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 10:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbVHLOsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 10:46:55 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:33704 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1750833AbVHLOqy (ORCPT
+	Fri, 12 Aug 2005 10:48:05 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:65178 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751032AbVHLOrZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 10:46:54 -0400
-Message-ID: <42FCB655.5090600@adaptec.com>
-Date: Fri, 12 Aug 2005 10:46:45 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux IDE Mailing List <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: SATA status report updated
-References: <42FC2EF8.7030404@pobox.com>
-In-Reply-To: <42FC2EF8.7030404@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Aug 2005 14:44:36.0332 (UTC) FILETIME=[5C364AC0:01C59F4C]
+	Fri, 12 Aug 2005 10:47:25 -0400
+Subject: [RFC][PATCH 04/12] memory hotplug prep: __section_nr helper
+To: linux-kernel@vger.kernel.org
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Fri, 12 Aug 2005 07:47:22 -0700
+References: <20050812144714.805F4B48@kernel.beaverton.ibm.com>
+In-Reply-To: <20050812144714.805F4B48@kernel.beaverton.ibm.com>
+Message-Id: <20050812144722.2A4D8B7F@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/12/05 01:09, Jeff Garzik wrote:
-> Things in SATA-land have been moving along recently, so I updated the 
-> software status report:
-> 
-> 	http://linux.yyz.us/sata/software-status.html
 
-Good write up.  I like the simplicity of error handling.
+A little helper that we use in the hotplug code.
 
-Thumbs up!
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
-	Luben
+ memhotplug-dave/include/linux/mmzone.h |   26 ++++++++++++++++++++++++++
+ mm/sparse.c                            |    0 
+ 2 files changed, 26 insertions(+)
+
+diff -puN include/linux/mmzone.h~C3-__section_nr include/linux/mmzone.h
+--- memhotplug/include/linux/mmzone.h~C3-__section_nr	2005-08-12 07:43:45.000000000 -0700
++++ memhotplug-dave/include/linux/mmzone.h	2005-08-12 07:43:45.000000000 -0700
+@@ -511,6 +511,31 @@ static inline struct mem_section *__nr_t
+ }
+ 
+ /*
++ * Although written for the SPARSEMEM_EXTREME case, this happens
++ * to also work for the flat array case becase
++ * NR_SECTION_ROOTS==NR_MEM_SECTIONS.
++ */
++static inline int __section_nr(struct mem_section* ms)
++{
++	unsigned long root_nr;
++	struct mem_section* root;
++
++	for (root_nr = 0;
++	     root_nr < NR_MEM_SECTIONS;
++	     root_nr += SECTIONS_PER_ROOT) {
++		root = __nr_to_section(root_nr);
++
++		if (!root)
++			continue;
++
++		if ((ms >= root) && (ms < (root + SECTIONS_PER_ROOT)))
++		     break;
++	}
++
++	return (root_nr * SECTIONS_PER_ROOT) + (ms - root);
++}
++
++/*
+  * We use the lower bits of the mem_map pointer to store
+  * a little bit of information.  There should be at least
+  * 3 bits here due to 32-bit alignment.
+@@ -606,3 +631,4 @@ unsigned long __init node_memmap_size_by
+ #endif /* !__ASSEMBLY__ */
+ #endif /* __KERNEL__ */
+ #endif /* _LINUX_MMZONE_H */
++
+diff -puN mm/sparse.c~C3-__section_nr mm/sparse.c
+_

@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbVHLSlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbVHLSpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbVHLSlp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbVHLSlp
+	id S1750920AbVHLSpe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVHLSpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:41:45 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:56408 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750915AbVHLSlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:41:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=55pSjHLNaUDhTQaZBPPbPbmMDgDXUFA/dNFtXZ7CJ+t4qX0DD6ja8LmvUUQswaw9LvONGOQAdFuSe3oYzfLpK9+eCRjecS8h3JnB//dlMaqVXos+fLL6Gu5JgnBTi7ps/6FnxOxQOMEk7XVv5BA0kl26fNLIyWxDex9gLo8Oltg=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [patch 1/3] uml: share page bits handling between 2 and 3 level pagetables
-Date: Fri, 12 Aug 2005 20:37:38 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-References: <20050728185655.9C6ADA3@zion.home.lan> <20050730160218.GB4585@ccure.user-mode-linux.org>
-In-Reply-To: <20050730160218.GB4585@ccure.user-mode-linux.org>
-MIME-Version: 1.0
+	Fri, 12 Aug 2005 14:45:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55433 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750918AbVHLSpe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:45:34 -0400
+Date: Fri, 12 Aug 2005 11:45:03 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Linus Torvalds <torvalds@osdl.org>,
+       Chris Wright <chrisw@osdl.org>, gdt@linuxppc.org,
+       Andrew Morton <akpm@osdl.org>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+Subject: Re: [PATCH] Fix PPC signal handling of NODEFER, should not affect sa_mask
+Message-ID: <20050812184503.GX7762@shell0.pdx.osdl.net>
+References: <1123615983.18332.194.camel@localhost.localdomain> <42F906EB.6060106@fujitsu-siemens.com> <1123617812.18332.199.camel@localhost.localdomain> <1123618745.18332.204.camel@localhost.localdomain> <20050809204928.GH7991@shell0.pdx.osdl.net> <1123621223.9553.4.camel@localhost.localdomain> <1123621637.9553.7.camel@localhost.localdomain> <Pine.LNX.4.58.0508091419420.3258@g5.osdl.org> <1123643401.9553.32.camel@localhost.localdomain> <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508122037.38473.blaisorblade@yahoo.it>
+In-Reply-To: <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 July 2005 18:02, Jeff Dike wrote:
-> On Thu, Jul 28, 2005 at 08:56:53PM +0200, blaisorblade@yahoo.it wrote:
-> > As obvious, a "core code nice cleanup" is not a "stability-friendly
-> > patch" so usual care applies.
+* Jan Engelhardt (jengelh@linux01.gwdg.de) wrote:
+> >Actually I take it the other way.  The wording is awful. But the "unless
+> >SA_NODEFER or SA_RESETHAND is set, and then including the signal being
+> >delivered".  This looks to me that it adds the signal being delivered to
+> >the blocked mask unless the SA_NODEFER or SA_RESETHAND is set. I kind of
+> >wonder if English is the native language of those that wrote this.  
+> 
+> So, if in doubt what is really meant - check which of the two/three/+ 
+> different behaviors the users out there favor most.
 
-> These look reasonable, as they are what we discussed in Ottawa.
-
-> I'll put them in my tree and see if I see any problems.  I would
-> suggest sending these in early after 2.6.13 if they seem OK.
-
-I've discovered that we're not the only one to miss dirty / accessed 
-"hardware" bits: see include/asm-alpha/pgtable.h (they don't have the 
-accessed bit). So maybe we could drop the "fault-on-access" thing.
-
-Also, note the comment before handle_pte_fault:
-/*
- * These routines also need to handle stuff like marking pages dirty
- * and/or accessed for architectures that don't do it in hardware (most
- * RISC architectures).  The early dirtying is also good on the i386.
- */
-
-I'm not able to find where we clean the dirty bit on a pte, however it's not 
-only done by pte_mkclean, there are some macros like ptep_clear... in 
-asm-generic/pgtable.h
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+Rather, check what happens in practice on other implementations.  I don't
+have Solaris, HP-UX, Irix, AIX, etc. boxen at hand, but some folks must.

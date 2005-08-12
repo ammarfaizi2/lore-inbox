@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVHLP37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbVHLPhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbVHLP37 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 11:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbVHLP37
+	id S1751198AbVHLPhN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 11:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbVHLPhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 11:29:59 -0400
-Received: from khc.piap.pl ([195.187.100.11]:6916 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1750833AbVHLP36 (ORCPT
+	Fri, 12 Aug 2005 11:37:13 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:20667 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751198AbVHLPhM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 11:29:58 -0400
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LM Sensors <lm-sensors@lm-sensors.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: I2C block reads with i2c-viapro: testers wanted
-References: <20050809231328.0726537b.khali@linux-fr.org>
-	<42FA6406.4030901@cetrtapot.si>
-	<20050810230633.0cb8737b.khali@linux-fr.org>
-	<42FA89FE.9050101@cetrtapot.si>
-	<20050811185651.0ca4cd96.khali@linux-fr.org>
-	<m3fytgnv73.fsf@defiant.localdomain>
-	<20050811215929.1df5fab0.khali@linux-fr.org>
-	<m3iryctaou.fsf@defiant.localdomain>
-	<20050811234946.0106afbe.khali@linux-fr.org>
-	<m3br44t9cv.fsf@defiant.localdomain>
-	<20050812082653.098a6aa3.khali@linux-fr.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Fri, 12 Aug 2005 17:29:55 +0200
-In-Reply-To: <20050812082653.098a6aa3.khali@linux-fr.org> (Jean Delvare's
- message of "Fri, 12 Aug 2005 08:26:53 +0200")
-Message-ID: <m3wtmri364.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 12 Aug 2005 11:37:12 -0400
+Date: Fri, 12 Aug 2005 19:37:05 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] kernel spams syslog every 10 sec with w1 debug
+Message-ID: <20050812153704.GA17148@2ka.mipt.ru>
+References: <20050812150748.GA6774@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20050812150748.GA6774@suse.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 12 Aug 2005 19:37:05 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <khali@linux-fr.org> writes:
+On Fri, Aug 12, 2005 at 05:07:48PM +0200, Olaf Hering (olh@suse.de) wrote:
+> 
+> Bug 104020 - kernel spams syslog every 10 sec with: w1_driver w1_bus_master1: No devices present on the wire.
+> 
+> After installing 10.0 B1, I found this in my syslog: 
+> Aug 10 23:40:06 linux kernel: w1_driver w1_bus_master1: No devices present on the wire. 
+> Aug 10 23:40:16 linux kernel: w1_driver w1_bus_master1: No devices present on the wire. 
+> 
+> Signed-off-by: Olaf Hering <olh@suse.de>
+> 
+>  drivers/w1/w1.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletion(-)
+> 
+> Index: linux-2.6.13-rc6-aes/drivers/w1/w1.c
+> ===================================================================
+> --- linux-2.6.13-rc6-aes.orig/drivers/w1/w1.c
+> +++ linux-2.6.13-rc6-aes/drivers/w1/w1.c
+> @@ -593,7 +593,8 @@ void w1_search(struct w1_master *dev, w1
+>  		 * Return 0 - device(s) present, 1 - no devices present.
+>  		 */
+>  		if (w1_reset_bus(dev)) {
+> -			dev_info(&dev->dev, "No devices present on the wire.\n");
+> +			if (printk_ratelimit())
+> +				dev_debug(&dev->dev, "No devices present on the wire.\n");
+>  			break;
+>  		}
 
-> In I2C mode, you can even alternate as many read and write sequences you
-> want in a single transaction. The target chip would of course need to
-> know how to interpret such a transaction though. I've never seen this
-> possibility used so far.
+I would even just replace it with dev_dbg(),
+since default 10 seconds timeout is more than printk_ratelimit_jiffies.
+I will add such a patch into w1 queue.
 
-Is this mode supported by the common (such as VIA south bridge)
-controllers?
+Thank you.
 
-> In SMBus mode, you are limited by the transaction types that have been
-> defined, but a number of them are composed of a write transaction and a
-> read transaction (separated by what is known as a "repeated start").
-> Read Byte, Read Word, Read Block and Read I2C Block are such
-> transactions. See the SMBus specification for the details.
-
-Ok. I guest there are just different codes for 8- and 16-bit addressing.
-
-> The I2C specifications are available from Philips. The SMBus
-> specifications are available from smbus.org. Intel also has good
-> datasheets for all ICH chips.
->
-> http://www.semiconductors.philips.com/markets/mms/protocols/i2c/
-> http://www.smbus.org/specs/
->
-> More generally, see the lm_sensors project's links page:
-> http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/doc/useful_addresses.html
-> and also:
-> http://secure.netroedge.com/~lm78/docs.html
->
-> Hope that helps,
-
-Sure. Thanks.
 -- 
-Krzysztof Halasa
+	Evgeniy Polyakov

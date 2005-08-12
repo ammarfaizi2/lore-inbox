@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVHLOSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbVHLOVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbVHLOSP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 10:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVHLOSP
+	id S1750971AbVHLOVp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 10:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVHLOVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 10:18:15 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:59293 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1751191AbVHLOSO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 10:18:14 -0400
-Message-ID: <42FCAFA1.7080602@adaptec.com>
-Date: Fri, 12 Aug 2005 10:18:09 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+	Fri, 12 Aug 2005 10:21:45 -0400
+Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:56238 "HELO
+	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750971AbVHLOVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 10:21:44 -0400
+Message-ID: <42FCB06A.5050609@masoud.ir>
+Date: Fri, 12 Aug 2005 10:21:30 -0400
+From: Masoud Sharbiani <masouds@masoud.ir>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux IDE Mailing List <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: SATA status report updated
-References: <42FC2EF8.7030404@pobox.com>
-In-Reply-To: <42FC2EF8.7030404@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Grant Coady <Grant.Coady@gmail.com>
+CC: "Vladimir V. Saveliev" <vs@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Via-Rhine NIC, Via SATA or reiserfs broken, how to tell??
+References: <54nnf1tv8722aq6med3mlr4mvg7nli0r09@4ax.com> <42FC7D5E.8020604@namesys.com> <mc2pf1tgih72uq4flc3hl6q0897r060ilp@4ax.com>
+In-Reply-To: <mc2pf1tgih72uq4flc3hl6q0897r060ilp@4ax.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Aug 2005 14:16:00.0113 (UTC) FILETIME=[5D440E10:01C59F48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/12/05 01:09, Jeff Garzik wrote:
-> Things in SATA-land have been moving along recently, so I updated the 
-> software status report:
-> 
-> 	http://linux.yyz.us/sata/software-status.html
-> 
-> Although I have not updated it in several weeks, folks may wish to refer 
-> to the hardware status report as well:
-> 
-> 	http://linux.yyz.us/sata/sata-status.html
-> 
-> Thanks to all the hard-working SATA contributors!
+Can you turn on UDP checksums and try again? That would isolate the 
+fault between the network or SATA.
+cheers,
+Masoud
+Grant Coady wrote:
 
-Thank you Jeff!
+>On Fri, 12 Aug 2005 14:43:42 +0400, "Vladimir V. Saveliev" <vs@namesys.com> wrote:
+>  
+>
+>>>How to test and isolate this error is in NIC driver, SATA driver or 
+>>>filesystem?  
+>>>
+>>>      
+>>>
+>>Could it be that tarbal on NFS server changed?
+>>It is not very likely that error in kernel drivers fixed typos in source code.
+>>    
+>>
+>
+>The 'typos' are the observed errors from extracting kernel source tarball, 
+>renaming top level directory and extracting tarball again.  Other times 
+>extraction fails with corrupt tarball error.  Cached image of tarball is 
+>corrupted as box doesn't go back to server.
+>
+>Since first report I've changed to using ext2 target filesystem, still get 
+>errors, so not reiserfs specific either.  
+>
+>Am in process of reducing options in kernel config, try to narrow down 
+>what problem is.  Nothing in logs, me have no idea ... yet.  
+>
+>Not a memory error as box compiled many hundred kernels last week without 
+>choking.  Test just now was with 2.6.13-rc6-git3, very repeatable.
+>
+>Same test on different box, no errors.  Other box has pro/100 NIC, 
+>reiserfs, unpack tarball from same server.  Never a problem.
+>
+>Cheers,
+>Grant.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-*Incredibly* good work!
 
-	Luben

@@ -1,97 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVHLSPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbVHLSPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbVHLSPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVHLSPQ
+	id S1750826AbVHLSPt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbVHLSPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:15:16 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:46245 "EHLO
+	Fri, 12 Aug 2005 14:15:49 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:46501 "EHLO
 	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750794AbVHLSPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:15:14 -0400
-Subject: [patch 16/39] remap_file_pages protection support: readd lock downgrading
+	id S1750823AbVHLSPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:15:19 -0400
+Subject: [patch 02/39] shmem_populate: avoid an useless check, and some comments
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 20:21:39 +0200
-Message-Id: <20050812182140.0767424E7EA@zion.home.lan>
+Date: Fri, 12 Aug 2005 20:20:59 +0200
+Message-Id: <20050812182059.E410A24E0A6@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Even now, we'll sometimes take the write lock.  So, in that case, we could
-downgrade it; after a tiny bit of thought, I've choosen doing that when we'll
-either do any I/O or we'll alter a lot of PTEs. About how much "a lot" is,
-I've copied the values from this code in mm/memory.c:
+Either shmem_getpage returns a failure, or it found a page, or it was told it
+couldn't do any I/O. So it's useless to check nonblock in the else branch. We
+could add a BUG() there but I preferred to comment the offending function.
 
-#ifdef CONFIG_PREEMPT
-# define ZAP_BLOCK_SIZE	(8 * PAGE_SIZE)
-#else
-/* No preempt: go for improved straight-line efficiency */
-# define ZAP_BLOCK_SIZE	(1024 * PAGE_SIZE)
-#endif
+This was taken out from one Ingo Molnar's old patch I'm resurrecting.
 
-I'm not sure about the trade-offs - we used to have a down_write, now we have
-a down_read() and a possible up_read()down_write(), and with this patch, the
-fast-path still takes only down_read, but the slow path will do down_read(),
-down_write(), downgrade_write(). This will increase the number of atomic
-operation but increase concurrency wrt mmap and similar operations - I don't
-know how much contention there is on that lock.
-
-Also, drop a bust comment: we cannot clear VM_NONLINEAR simply because code
-elsewhere is going to use it. At the very least, madvise_dontneed() relies on
-that flag being set (remaining non-linear truncation read the mapping
-list), but the list is probably longer and going to increase in the next
-patches of this series.
-
-Just in case this wasn't clear: this patch is not strictly related to
-protection support, I was just too lazy to move it up in the hierarchy.
+References: commit b103e8b204b317d52834671d5f09db95645523c2 of old-2.6-bkcvs,
+pointing to BKrev: 3f5ed0c1llm6NnNwNXtPv-Z0IYzkwA
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/mm/fremap.c |   18 +++++++++++++-----
- 1 files changed, 13 insertions(+), 5 deletions(-)
+ linux-2.6.git-paolo/mm/filemap.c |    7 +++++++
+ linux-2.6.git-paolo/mm/shmem.c   |    6 +++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff -puN mm/fremap.c~rfp-downgrade-lock mm/fremap.c
---- linux-2.6.git/mm/fremap.c~rfp-downgrade-lock	2005-08-11 23:04:39.000000000 +0200
-+++ linux-2.6.git-paolo/mm/fremap.c	2005-08-11 23:04:39.000000000 +0200
-@@ -152,6 +152,13 @@ err_unlock:
- }
- 
- 
-+#ifdef CONFIG_PREEMPT
-+# define INSTALL_SIZE	(8 * PAGE_SIZE)
-+#else
-+/* No preempt: go for improved straight-line efficiency */
-+# define INSTALL_SIZE	(1024 * PAGE_SIZE)
-+#endif
-+
- /***
-  * sys_remap_file_pages - remap arbitrary pages of a shared backing store
-  *                        file within an existing vma.
-@@ -266,14 +273,15 @@ retry:
+diff -puN mm/shmem.c~mm-populate-optim-comment mm/shmem.c
+--- linux-2.6.git/mm/shmem.c~mm-populate-optim-comment	2005-08-11 11:12:39.000000000 +0200
++++ linux-2.6.git-paolo/mm/shmem.c	2005-08-11 11:12:39.000000000 +0200
+@@ -1195,6 +1195,7 @@ static int shmem_populate(struct vm_area
+ 		err = shmem_getpage(inode, pgoff, &page, sgp, NULL);
+ 		if (err)
+ 			return err;
++		/* Page may still be null, but only if nonblock was set. */
+ 		if (page) {
+ 			mark_page_accessed(page);
+ 			err = install_page(mm, vma, addr, page, prot);
+@@ -1202,7 +1203,10 @@ static int shmem_populate(struct vm_area
+ 				page_cache_release(page);
+ 				return err;
  			}
+-		} else if (nonblock) {
++		} else {
++			/* No page was found just because we can't read it in
++			 * now (being here implies nonblock != 0), but the page
++			 * may exist, so set the PTE to fault it in later. */
+     			err = install_file_pte(mm, vma, addr, pgoff, prot);
+ 			if (err)
+ 	    			return err;
+diff -puN mm/filemap.c~mm-populate-optim-comment mm/filemap.c
+--- linux-2.6.git/mm/filemap.c~mm-populate-optim-comment	2005-08-11 11:12:39.000000000 +0200
++++ linux-2.6.git-paolo/mm/filemap.c	2005-08-11 11:12:39.000000000 +0200
+@@ -1505,8 +1505,12 @@ repeat:
+ 		return -EINVAL;
+ 
+ 	page = filemap_getpage(file, pgoff, nonblock);
++
++	/* XXX: This is wrong, a filesystem I/O error may have happened. Fix that as
++	 * done in shmem_populate calling shmem_getpage */
+ 	if (!page && !nonblock)
+ 		return -ENOMEM;
++
+ 	if (page) {
+ 		err = install_page(mm, vma, addr, page, prot);
+ 		if (err) {
+@@ -1514,6 +1518,9 @@ repeat:
+ 			return err;
  		}
- 
-+		/* Do NOT hold the write lock while doing any I/O, nor when
-+		 * iterating over too many PTEs. Values might need tuning. */
-+		if (has_write_lock && (!(flags & MAP_NONBLOCK) || size > INSTALL_SIZE)) {
-+			downgrade_write(&mm->mmap_sem);
-+			has_write_lock = 0;
-+		}
- 		err = vma->vm_ops->populate(vma, start, size, pgprot, pgoff,
- 				flags & MAP_NONBLOCK);
- 
--		/*
--		 * We can't clear VM_NONLINEAR because we'd have to do
--		 * it after ->populate completes, and that would prevent
--		 * downgrading the lock.  (Locks can't be upgraded).
--		 */
- 	}
- 
- out_unlock:
+ 	} else {
++		/* No page was found just because we can't read it in now (being
++		 * here implies nonblock != 0), but the page may exist, so set
++		 * the PTE to fault it in later. */
+ 		err = install_file_pte(mm, vma, addr, pgoff, prot);
+ 		if (err)
+ 			return err;
 _

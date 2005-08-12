@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVHLESU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVHLE1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbVHLESU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 00:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbVHLESU
+	id S1750825AbVHLE1p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 00:27:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVHLE1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 00:18:20 -0400
-Received: from smtpout.mac.com ([17.250.248.72]:49623 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750816AbVHLEST (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 00:18:19 -0400
-In-Reply-To: <1123816628.4453.8.camel@mindpipe>
-References: <005501c59c4a$f6210800$a20cc60a@amer.sykes.com> <1123528018.15269.44.camel@mindpipe> <20050808232957.GR4006@stusta.de> <42F872E3.3050106@scram.de> <AC074A82-2B17-485A-9BFE-090CB4EE6E44@mac.com> <1123814434.26878.21.camel@mindpipe> <195c7a900508111959710c3ca3@mail.gmail.com> <1123816628.4453.8.camel@mindpipe>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <D225842C-7A8F-4155-9D91-2C2E029C12FF@mac.com>
-Cc: roucaries bastien <roucaries.bastien@gmail.com>,
-       Jochen Friedrich <jochen@scram.de>, Adrian Bunk <bunk@stusta.de>,
-       abonilla@linuxwireless.org, Andreas Steinmetz <ast@domdv.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Wireless support
-Date: Fri, 12 Aug 2005 00:18:11 -0400
-To: Lee Revell <rlrevell@joe-job.com>
-X-Mailer: Apple Mail (2.733)
+	Fri, 12 Aug 2005 00:27:45 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49110 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750825AbVHLE1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 00:27:44 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Chris Wright <chrisw@osdl.org>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] x86_64: Fix apicid versus cpu# confusion.
+References: <20050811225445.404816000@localhost.localdomain>
+	<20050811225609.058881000@localhost.localdomain>
+	<20050811233302.GA8974@wotan.suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 11 Aug 2005 22:26:25 -0600
+In-Reply-To: <20050811233302.GA8974@wotan.suse.de> (Andi Kleen's message of
+ "Fri, 12 Aug 2005 01:33:02 +0200")
+Message-ID: <m1hddvwzke.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 11, 2005, at 23:17:07, Lee Revell wrote:
-> On Fri, 2005-08-12 at 12:59 +1000, roucaries bastien wrote:
+Ok being impatient not wanting this tiny bug to be forgotten for
+2.6.13.  Linus please apply this micro patch.
+
+> >  static void __cpuinit tsc_sync_wait(void)
+> >  {
+> >  	if (notscsync || !cpu_has_tsc)
+> >  		return;
+> > - printk(KERN_INFO "CPU %d: Syncing TSC to CPU %u.\n", smp_processor_id(),
+> > -			boot_cpu_id);
+> > -	sync_tsc();
+> > +	sync_tsc(boot_cpu_id);
 >
->> They post on this list 1 year and a half ago no answer.
+> I actually found a bug in this today. This should be sync_tsc(0), not
+> sync_tsc(boot_cpu_id)
+> Can you just fix it in your tree or should I submit a new patch?
 >
-> I guess everyone on LKML has day jobs now, no one has time for fun  
-> stuff
-> like reverse engineering drivers anymore... :-(
+> -Andi
 
-Much as I would love to help, I'm usually buried under schoolwork.   
-In any
-case, I really have to admire the people behind the project, translating
-tens of thousands of MIPS assembly instructions to C, documenting the C,
-then giving the documentation to somebody else to write the driver even
-though by that point you could write it backwards in a blindfold,  
-that has
-_got_ to be hard and frustrating work.
+Oops.  I knew I didn't have the physical versus logical cpu identifiers right
+when I generated that patch.  It's not nearly as bad as I feared at the time
+though.
 
-Cheers,
-Kyle Moffett
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
 
---
-Somone asked me why I work on this free (http://www.fsf.org/philosophy/)
-software stuff and not get a real job. Charles Shultz had the best  
-answer:
+ arch/x86_64/kernel/smpboot.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-"Why do musicians compose symphonies and poets write poems? They do  
-it because
-life wouldn't have any meaning for them if they didn't. That's why I  
-draw
-cartoons. It's my life."
-   -- Charles Shultz
-
-
+5192895f71c7eff7e1335cd9d6a775dda2bb5d52
+diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
+--- a/arch/x86_64/kernel/smpboot.c
++++ b/arch/x86_64/kernel/smpboot.c
+@@ -334,7 +334,7 @@ static void __cpuinit tsc_sync_wait(void
+ {
+ 	if (notscsync || !cpu_has_tsc)
+ 		return;
+-	sync_tsc(boot_cpu_id);
++	sync_tsc(0);
+ }
+ 
+ static __init int notscsync_setup(char *s)

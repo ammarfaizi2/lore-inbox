@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbVHLSXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbVHLS0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbVHLSXX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVHLSXW
+	id S1750883AbVHLS0p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbVHLS0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:23:22 -0400
-Received: from liaag2ae.mx.compuserve.com ([149.174.40.156]:18841 "EHLO
-	liaag2ae.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750804AbVHLSXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:23:02 -0400
-Date: Fri, 12 Aug 2005 14:18:52 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the
-  difference between /dev/km
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Message-ID: <200508121422_MC3-1-A70F-D742@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Fri, 12 Aug 2005 14:26:45 -0400
+Received: from mail.suse.de ([195.135.220.2]:30138 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750880AbVHLS0n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:26:43 -0400
+Date: Fri, 12 Aug 2005 20:26:28 +0200
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, hugh@veritas.com
+Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference between /dev/kmem and /dev/mem)
+Message-ID: <20050812182628.GG22901@wotan.suse.de>
+References: <1123796188.17269.127.camel@localhost.localdomain.suse.lists.linux.kernel> <1123809302.17269.139.camel@localhost.localdomain.suse.lists.linux.kernel> <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org.suse.lists.linux.kernel> <p73br432izq.fsf@verdi.suse.de> <1123869386.3218.37.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1123869386.3218.37.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Aug 2005 at 15:25:18 +0100 (BST), Hugh Dickins wrote:
-
-> On Thu, 11 Aug 2005, Steven Rostedt wrote:
+On Fri, Aug 12, 2005 at 07:56:26PM +0200, Arjan van de Ven wrote:
+> On Fri, 2005-08-12 at 18:54 +0200, Andi Kleen wrote:
+> > Linus Torvalds <torvalds@osdl.org> writes:
+> > > 
+> > > I'm actually more inclined to try to deprecate /dev/kmem.. I don't think 
+> > > anybody has ever really used it except for some rootkits. 
 > > 
-> > Found the problem.  It is a bug with mmap_kmem.  The order of checks is
-> > wrong, so here's the patch.
+> > I don't think that's true.
 > 
-> Good find, looks right to me, so far as it goes (why does this check
+> got any examples ?
 
- Even with Steven's patch applied, root cannot read from /dev/kmem with the
-following program, which works on 2.6.9.  "Invalid argument" means that the
-"fd is attached to an object that is unsuitable for reading."
+I wrote some hacks over the years, not sure it would be useful
+to post them because they all were very special purpose. 
 
-# ./desc2
-GDT is at 0xc13097a0
-read /dev/kmem: Invalid argument
+I know users are doing the same because they complain on x86-64
+when it doesn't work.
 
 
-#include <stdio.h>
-#include <fcntl.h>
-#define perr(err) { perror(err), exit(1); }
+> > > So I'd be perfectly happy to fix this, but I'd be even happier if we made 
+> > > the whole kmem thing a config variable (maybe even default it to "off").
+> > 
+> > Acessing vmalloc in /dev/mem would be pretty awkward. Yes it doesn't
+> > also work in mmap of /dev/kmem, but at least in read/write.
+> > There are quite a lot of scripts that use it for kernel debugging
+> > like dumping variables. And for that you really want to access modules
+> > and vmalloc. And it's much easier to parse than /proc/kcore
+> 
+> but you can stick gdb on /proc/kcore...
 
-struct {
-        unsigned short limit;
-        unsigned int base;
-} __attribute__ ((packed)) dtr;
+That's much more complicated. Instead of a simple read you would
+need to parse complex ASCII output. Also gdb normally doesn't
+work with a single System.map or /proc/kallsyms. I know it could
+be gotten to use that stuff, but that would be all very complicated.
+Much more complicated than read/write on /dev/kmem.
 
-int kmem, i;
-int buf[1024];
-
-int main() {
-        if ((kmem = open("/dev/kmem", O_RDONLY)) < 0)
-                perr("open /dev/kmem");
-
-        asm("sgdtl %0" : "=m"(dtr));
-        printf("GDT is at 0x%x\n", dtr.base);
-        dtr.limit++;  /* convert to size */
-
-        if (lseek(kmem, dtr.base, SEEK_SET) != dtr.base)
-                perr("lseek /dev/kmem");
-        if (read(kmem, buf, dtr.limit) != dtr.limit)
-                perr("read /dev/kmem");
-
-        for (i = 0; i < dtr.limit / 4; i += 2)
-                if (buf[i+1])
-                        printf("entry %d(0x%x): 0x%x 0x%x\n",
-                                i / 2, i / 2, buf[i], buf[i+1]);
-
-        return 0;
-}
-
-__
-Chuck
+-Andi

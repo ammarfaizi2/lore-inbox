@@ -1,70 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVHLSAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVHLSAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbVHLSAU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVHLRym
+	id S1750778AbVHLSAV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVHLRyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:54:42 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:34194 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750791AbVHLRyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:54:40 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:22711 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750799AbVHLRyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 12 Aug 2005 13:54:36 -0400
-Subject: [patch 30/39] remap_file_pages protection support: ia64 bits
+Subject: [patch 22/39] remap file pages protection support: use FAULT_SIGSEGV for protection checking, uml bits
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 19:32:51 +0200
-Message-Id: <20050812173251.89A2024E810@zion.home.lan>
+Date: Fri, 12 Aug 2005 19:32:30 +0200
+Message-Id: <20050812173230.9EC4924E7F9@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Ingo Molnar <mingo@elte.hu>
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-I've attached a 'blind' port of the prot bits of fremap to ia64.  I've
-compiled it with a cross-compiler but otherwise it's untested.  (and it's
-very likely i got the pte bits wrong - but it's roughly OK.)
-
-This should at least make ia64 compile.
+This adapts the changes to the i386 handler to the UML one. It isn't enough to
+make UML work, however, because UML has some peculiarities. Subsequent patches
+fix this.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/include/asm-ia64/pgtable.h |   17 +++++++++++++----
- 1 files changed, 13 insertions(+), 4 deletions(-)
+ linux-2.6.git-paolo/arch/um/kernel/trap_kern.c |   32 +++++++++++++++++++++----
+ 1 files changed, 27 insertions(+), 5 deletions(-)
 
-diff -puN include/asm-ia64/pgtable.h~rfp-arch-ia64 include/asm-ia64/pgtable.h
---- linux-2.6.git/include/asm-ia64/pgtable.h~rfp-arch-ia64	2005-08-12 19:27:03.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-ia64/pgtable.h	2005-08-12 19:27:03.000000000 +0200
-@@ -433,7 +433,8 @@ extern void paging_init (void);
-  * Format of file pte:
-  *	bit   0   : present bit (must be zero)
-  *	bit   1   : _PAGE_FILE (must be one)
-- *	bits  2-62: file_offset/PAGE_SIZE
-+ *	bit   2   : _PAGE_AR_RW
-+ *	bits  3-62: file_offset/PAGE_SIZE
-  *	bit  63   : _PAGE_PROTNONE bit
-  */
- #define __swp_type(entry)		(((entry).val >> 2) & 0x7f)
-@@ -442,9 +443,17 @@ extern void paging_init (void);
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
+diff -puN arch/um/kernel/trap_kern.c~rfp-fault-sigsegv-2-uml arch/um/kernel/trap_kern.c
+--- linux-2.6.git/arch/um/kernel/trap_kern.c~rfp-fault-sigsegv-2-uml	2005-08-11 23:09:32.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/kernel/trap_kern.c	2005-08-11 23:09:32.000000000 +0200
+@@ -37,6 +37,7 @@ int handle_page_fault(unsigned long addr
+ 	pmd_t *pmd;
+ 	pte_t *pte;
+ 	int err = -EFAULT;
++	int access_mask = 0;
  
--#define PTE_FILE_MAX_BITS		61
--#define pte_to_pgoff(pte)		((pte_val(pte) << 1) >> 3)
--#define pgoff_to_pte(off)		((pte_t) { ((off) << 2) | _PAGE_FILE })
-+#define PTE_FILE_MAX_BITS		59
-+#define pte_to_pgoff(pte)		((pte_val(pte) << 1) >> 4)
-+
-+#define pte_to_pgprot(pte) \
-+	__pgprot((pte_val(pte) & (_PAGE_AR_RW | _PAGE_PROTNONE)) \
-+		| ((pte_val(pte) & _PAGE_PROTNONE) ? 0 : \
-+			(__ACCESS_BITS | _PAGE_PL_3)))
-+
-+#define pgoff_prot_to_pte(off, prot) \
-+       ((pte_t) { _PAGE_FILE + \
-+               (pgprot_val(prot) & (_PAGE_AR_RW | _PAGE_PROTNONE)) + (off) })
+ 	*code_out = SEGV_MAPERR;
+ 	down_read(&mm->mmap_sem);
+@@ -55,14 +56,15 @@ int handle_page_fault(unsigned long addr
+ good_area:
+ 	*code_out = SEGV_ACCERR;
+ 	if(is_write && !(vma->vm_flags & VM_WRITE)) 
+-		goto out;
++		goto prot_bad;
  
- /* XXX is this right? */
- #define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
+         if(!(vma->vm_flags & (VM_READ | VM_EXEC)))
+-                goto out;
++                goto prot_bad;
+ 
++	access_mask = is_write ? VM_WRITE : 0;
+ 	do {
+-survive:
+-		switch (handle_mm_fault(mm, vma, address, is_write)){
++handle_fault:
++		switch (__handle_mm_fault(mm, vma, address, access_mask)) {
+ 		case VM_FAULT_MINOR:
+ 			current->min_flt++;
+ 			break;
+@@ -72,6 +74,9 @@ survive:
+ 		case VM_FAULT_SIGBUS:
+ 			err = -EACCES;
+ 			goto out;
++		case VM_FAULT_SIGSEGV:
++			err = -EFAULT;
++			goto out;
+ 		case VM_FAULT_OOM:
+ 			err = -ENOMEM;
+ 			goto out_of_memory;
+@@ -87,10 +92,27 @@ survive:
+ 	*pte = pte_mkyoung(*pte);
+ 	if(pte_write(*pte)) *pte = pte_mkdirty(*pte);
+ 	flush_tlb_page(vma, address);
++
++	/* If the PTE is not present, the vma protection are not accurate if
++	 * VM_NONUNIFORM; present PTE's are correct for VM_NONUNIFORM and were
++	 * already handled otherwise. */
+ out:
+ 	up_read(&mm->mmap_sem);
+ 	return(err);
+ 
++prot_bad:
++	if (unlikely(vma->vm_flags & VM_NONUNIFORM)) {
++		access_mask = is_write ? VM_WRITE : 0;
++		/* Otherwise, on a legitimate read fault on a page mapped as
++		 * exec-only, we get problems. Probably, we should lower
++		 * requirements... we should always test just
++		 * pte_read/write/exec, on vma->vm_page_prot! This way is
++		 * cumbersome. However, for now things should work for UML. */
++		access_mask |= vma->vm_flags & VM_EXEC ? VM_EXEC : VM_READ;
++		goto handle_fault;
++	}
++	goto out;
++	
+ /*
+  * We ran out of memory, or some other thing happened to us that made
+  * us unable to handle the page fault gracefully.
+@@ -100,7 +122,7 @@ out_of_memory:
+ 		up_read(&mm->mmap_sem);
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+-		goto survive;
++		goto handle_fault;
+ 	}
+ 	goto out;
+ }
 _

@@ -1,121 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVHLQAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVHLQSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbVHLQAp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 12:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbVHLQAp
+	id S1751217AbVHLQSO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 12:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVHLQSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 12:00:45 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:5079 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1751208AbVHLQAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 12:00:45 -0400
-Date: Fri, 12 Aug 2005 12:00:43 -0400
-To: "Mukund JB." <mukundjb@esntechnologies.co.in>
-Cc: hirofumi@mail.parknet.co.jp,
-       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: The Linux FAT issue on SD Cards.. maintainer support please
-Message-ID: <20050812160043.GM6714@csclub.uwaterloo.ca>
-References: <C349E772C72290419567CFD84C26E0170A0194@mail.esn.co.in>
+	Fri, 12 Aug 2005 12:18:14 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:45697 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751217AbVHLQSN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 12:18:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZZzeb/lreGes0iqhsyS9SrM2i5SuRMSioexLIBXzqiLj1zQgJqtfPDqYf3L1fw+MsfDHGUgY05oLPYtXy7HIpSBd3twEeC8wKRUSy1sMK87bKh++8FLV7TEfWk57flPq0+5Hy6pO+w/VqtDu8S1KO36Tv1wX9DtvJRgFmjOx7YE=
+Message-ID: <86802c4405081209187e51878@mail.gmail.com>
+Date: Fri, 12 Aug 2005 09:18:07 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [discuss] Re: 2.6.13-rc2 with dual way dual core ck804 MB
+Cc: Mike Waychison <mikew@google.com>, Peter Buckingham <peter@pantasys.com>,
+       linux-kernel@vger.kernel.org, "discuss@x86-64.org" <discuss@x86-64.org>
+In-Reply-To: <20050812130725.GL8974@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <C349E772C72290419567CFD84C26E0170A0194@mail.esn.co.in>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+References: <42FA8A4B.4090408@google.com>
+	 <86802c4405081016421db9baa5@mail.gmail.com>
+	 <20050811000430.GD8974@wotan.suse.de>
+	 <86802c4405081017174c22dcd5@mail.gmail.com>
+	 <86802c440508101723d4aadef@mail.gmail.com>
+	 <20050811002841.GE8974@wotan.suse.de>
+	 <86802c440508101743783588df@mail.gmail.com>
+	 <20050811005100.GF8974@wotan.suse.de>
+	 <86802c4405081123597239dff7@mail.gmail.com>
+	 <20050812130725.GL8974@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 12, 2005 at 09:16:56PM +0530, Mukund JB. wrote:
-> When I said mount, I guess FAT will read sector 0 to get the partition
-> info. And is it due to lack of partition support in the driver that will
-> affect the FAT layer reading the device.
-> Please update?
+good, I will produce one patch next week.
 
-No, the kernel read the partition table if it is there, and presents
-each partition as a device.
+YH
 
-The user can then mount the partition or the whole device (whichever is
-appropriate for the card) using the FAT filesystem driver.  The fat
-driver only works when pointed at the right location and has no clue
-about partitions (and it should not have a clue).
-
-> Yes, right, my card size if 16 MB. FS type is FAT12.
+On 8/12/05, Andi Kleen <ak@suse.de> wrote:
+> On Thu, Aug 11, 2005 at 11:59:21PM -0700, yhlu wrote:
+> > andi,
+> >
+> > is it possible for
+> > after the AP1 call_in is done and before AP1 get in tsc_sync_wait
+> > The AP2 call_in done.  and then AP1 get in tsc_sync_wait and before it
+> > done, AP2 get in tsc_sync_wait too.
+> >
+> > sync_master can not figure out from AP1 or AP2 because only have
+> > go[MASTER] and go{SLAVE].
 > 
-> The SD card has partitions on it (both: cam, windows).
-> So, my device node accessing is direct. 
-> You can see below the SD card has a single primary partition.
+> Ok, you're right. It's better to move it to before callin map.
 > 
-> So, I say "mount -tvfat /dev/tfa0 /mnt" which works for windows
-> formatted SD.
-> The same does NOT work with CAM formatted SD.
-
-Well if you ignore the partition table and just use a hardcoded offset
-to the start of the partition, well then it likely won't work if the
-partitioning layout is different for the two cards.
-
-> Sfdisk -l /dev/tfa0 ( CAM & win)
-> Disk /dev/tfa0: 448 cylinders, 2 heads, 32 sectors/track
-> Units = cylinders of 32768 bytes, blocks of 1024 bytes, counting from 0
-> 
->    Device Boot Start     End   #cyls    #blocks   Id  System
-> /dev/tfa0p1   *      0+    449     450-     14371+   1  FAT12
-> /dev/tfa0p2          0       -       0          0    0  Empty
-> /dev/tfa0p3          0       -       0          0    0  Empty
-> /dev/tfa0p4          0       -       0          0    0  Empty
-> Warning: partition 1 extends past end of disk
-> 
-> I don't understand, what is /dev/tfa0p1? I have no such device.
-
-Well that would be the partition 1 on the tfa0 device, which you need
-since that card has a partition there.
-
-> Will you please elaborate this?
-> What kind of partition support is required in the driver to support the
-> Camera Fat12 formatted SD Card?
-> 
-> I dumped the 1st sector of SD when formatted on CAM.
-> I have attached the files. Please have a look at them
-> 
-> 	Cluster-0.txt - First 16 Blocks of the device
-> 	Phy-Cam-57-sector.txt - 57th sector of the device (claimed FAT
-> sector
-> in Partition table)
-
-Well one of the two files you sent appears to contain a FAT12 filesystem
-directly on the device and has no partitions.  The other appears to
-contain a partition table with one partition, and I suspect that
-partition contains a FAT12 filesystem.
-
-To read one you access the whole device and mount that.  To access the
-other you have to use the partition and mount that instead.  This is why
-your driver MUST support partitions, or at the very least look for a
-partition table, and if it sees one, skip to the sector the partition
-table says is the start and present the device from that location on as
-the device (although that MAY mess up FAT, since I don't know if fat
-uses relative sector numbers from the start of the partition, or
-physical drive sector numbers.  I would think it was relative, in which
-case you should be ok just offseting all requests to the device by the
-number of sectors to the start of the partition found.
-
-So for the device above with one partition, you would have to check
-the partition table entry to find the start sector number of the
-partition and then offset requests by that amount.
-
-For example:
-fdisk -l -u /dev/sde:
-debdev1:~# fdisk -l -u /dev/sde
-
-Disk /dev/sde: 14 MB, 14745600 bytes
-2 heads, 32 sectors/track, 450 cylinders, total 28800 sectors
-Units = sectors of 1 * 512 = 512 bytes
-
-   Device Boot      Start         End      Blocks   Id  System
-/dev/sde1              57       28799       14371+   1  FAT12
-
-So if you skip 57 sectors you would see the FAT12 filesystem.
-
-On your card without a partition table, the FAT12 starts at sector 0, on
-the other it is offset by the number of sectors to the start of the
-first partition.
-
-Len Sorensen
+> -Andi
+>

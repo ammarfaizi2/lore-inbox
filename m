@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVHLP4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbVHLQBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbVHLP4R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 11:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbVHLP4Q
+	id S1751210AbVHLQBF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 12:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVHLQBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 11:56:16 -0400
-Received: from hastings.mumak.ee ([194.204.22.4]:30611 "EHLO hastings.mumak.ee")
-	by vger.kernel.org with ESMTP id S1750831AbVHLP4Q (ORCPT
+	Fri, 12 Aug 2005 12:01:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37286 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751210AbVHLQBB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 11:56:16 -0400
-Subject: Re: BUG: reiserfs+acl+quota deadlock
-From: Tarmo =?ISO-8859-1?Q?T=E4nav?= <tarmo@itech.ee>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: "Vladimir V. Saveliev" <vs@namesys.com>, Jan Kara <jack@suse.cz>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, mason@suse.com,
-       grev@namesys.com
-In-Reply-To: <42FCBC00.2040903@suse.com>
-References: <1123643111.27819.23.camel@localhost>
-	 <20050810130009.GE22112@atrey.karlin.mff.cuni.cz>
-	 <1123684298.14562.4.camel@localhost>
-	 <20050810144024.GA18584@atrey.karlin.mff.cuni.cz>
-	 <42FCB873.8070900@namesys.com>  <42FCBC00.2040903@suse.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 12 Aug 2005 18:56:00 +0300
-Message-Id: <1123862161.14093.4.camel@localhost>
+	Fri, 12 Aug 2005 12:01:01 -0400
+Date: Fri, 12 Aug 2005 12:00:46 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel spams syslog every 10 sec with w1 debug
+Message-ID: <20050812160046.GA13749@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org
+References: <20050812150748.GA6774@suse.de.suse.lists.linux.kernel> <p73fytf2miq.fsf@verdi.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73fytf2miq.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir V. Saveliev wrote:
->  
-> > It looks like the problem is that reiserfs_new_inode can be called
-> > either having xattrs locked or not.
-> > It does unlocking/locking xattrs on error handling path, but has no idea
-> > about whether
-> > xattrs are locked of not.
-> > The attached patch seems to fix the problem.
-> > I am not sure whether it is correct way to fix this problem, though.
+On Fri, Aug 12, 2005 at 05:38:37PM +0200, Andi Kleen wrote:
+ > Olaf Hering <olh@suse.de> writes:
+ > 
+ > > Bug 104020 - kernel spams syslog every 10 sec with: w1_driver w1_bus_master1: No devices present on the wire.
+ > > 
+ > > After installing 10.0 B1, I found this in my syslog: 
+ > > Aug 10 23:40:06 linux kernel: w1_driver w1_bus_master1: No devices present on the wire. 
+ > > Aug 10 23:40:16 linux kernel: w1_driver w1_bus_master1: No devices present on the wire. 
+ > 
+ > More interesting is why this thing is running at all.
+ > It shouldn't. 
 
-I tested the patch, it did not fix the problem. Is there any way that I
-could help diagnose the problem? (so far I have not tried reiserfs or
-kernel debug options, could those help?)
+Doesnt that get loaded if there's a Matrox card present ?
+(I am completely guessing here, so could be way off base).
 
-
-On R, 2005-08-12 at 11:10 -0400, Jeff Mahoney wrote:
-> 
-> Does this patch actually fix it? It shouldn't.
-> 
-> The logic is like this: If a default ACL is associated with the parent
-> when the inode is created, xattrs will be locked so that the ACL can be
-> inherited. Since reiserfs_new_inode is called from the VFS layer with
-> inode->i_sem downed, {set,remove}xattr is locked out. The default ACL
-> can't be removed/added/changed while reiserfs_new_inode is running.
-> Therefore, if there is a default ACL, xattrs must be locked.
-
-I don't know if you read my report on this bug, but note that it had
-no requirement for any ACL's to be used (even default ACL's), there was
-only need for acl support to be enabled when mounting the partition.
-
-
-
--- 
-Tarmo Tänav <tarmo@itech.ee>
+		Dave
 

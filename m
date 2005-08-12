@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbVHLWLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVHLWNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbVHLWLE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 18:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVHLWLE
+	id S932111AbVHLWNe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 18:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbVHLWNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 18:11:04 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:48527 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S1751300AbVHLWLC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 18:11:02 -0400
-Date: Sat, 13 Aug 2005 00:13:52 +0200
-From: DervishD <lkml@dervishd.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: 7eggert@gmx.de, harvested.in.lkml@7eggert.dyndns.org,
-       vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org
-Subject: Re: Problem with usb-storage and /dev/sd?
-Message-ID: <20050812221352.GA265@DervishD>
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>, 7eggert@gmx.de,
-	harvested.in.lkml@7eggert.dyndns.org, vonbrand@inf.utfsm.cl,
-	linux-kernel@vger.kernel.org
-References: <4pzyn-10f-33@gated-at.bofh.it> <4AubX-4w6-9@gated-at.bofh.it> <E1E3X6P-0000cN-BB@be1.lrz> <20050812103832.28ff17a0.zaitcev@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050812103832.28ff17a0.zaitcev@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 12 Aug 2005 18:13:34 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:22249 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751301AbVHLWNd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 18:13:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:subject:cc:references:organization:content-type:mime-version:content-transfer-encoding:message-id:in-reply-to:user-agent:from;
+        b=b0mScwynoObyUMDDaMLH+Mb65jQgNxGf/sRj2YWZ/vNowu5e6A724s7iPX7bsBhfWXLOpucl8Lgp8tp0IEGVv08ZL9gjzOFb+EHJ5+4j29pA4Bp1F/E8mJU+Bvuqpq5wlVRhAtWTQrXWthm5EKOLWdXvA5MYnU4divXLyrhlwfs=
+Date: Sat, 13 Aug 2005 08:13:21 +1000
+To: "Masoud Sharbiani" <masouds@masoud.ir>
+Subject: Re: Via-Rhine NIC, Via SATA or reiserfs broken, how to tell??
+Cc: "Vladimir V. Saveliev" <vs@namesys.com>, linux-kernel@vger.kernel.org
+References: <54nnf1tv8722aq6med3mlr4mvg7nli0r09@4ax.com> <42FC7D5E.8020604@namesys.com> <mc2pf1tgih72uq4flc3hl6q0897r060ilp@4ax.com> <42FCB06A.5050609@masoud.ir>
+Organization: http://www.squishybuglet.mine.nu/
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <op.sve1cjvzyuqkyt@magpie.mire.mine.nu>
+In-Reply-To: <42FCB06A.5050609@masoud.ir>
+User-Agent: Opera M2/8.02 (Win32, build 7680)
+From: Grant Coady <grant.coady@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Pete :)
+On Sat, 13 Aug 2005 00:21:30 +1000, Masoud Sharbiani <masouds@masoud.ir> wrote:
 
- * Pete Zaitcev <zaitcev@redhat.com> dixit:
-> > Which label will a random USB stick have?
-> GUID, I presume. Ask Andries Brouwer, he hacked on that, IIRC.
-> Actually msdos has on-disk format for user-settable labels in
-> the way analoguous to tune2fs -L label. I just do not know if
-> our implementation recognizes them.
+> Can you turn on UDP checksums and try again? That would isolate the
+> fault between the network or SATA.
 
-    My vfat's in my MP3 player and the USB stick doesn't have a
-label, at least not one usable by 'mount' (which only uses ext2/3
-labels and xfs labels AFAIK).
+It is the second tarball extraction from cache that suffers data
+corruption, not a network error.  I am in process of narrowing
+down cause as I now have 2.4.32-pre3 and 2.6.13-rc6-git3 .configs
+that work okay (5 tarball extracts, diff okay)on reiserfs and ext2.
 
-    Raúl Núñez de Arenas Coronado
+Something to do with MTRR, highmem (box has 1GB), unwanted MP
+detection in dmesg --> no longer network, filesystem and/or SATA
+driver directly, dunno what yet, but tedious process of elimination
+will take time.
 
--- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...
+How do I force fetching tarball from over NFS again?  At present
+the repeat extractions are from memory, not from network.
+
+Cheers,
+Grant.

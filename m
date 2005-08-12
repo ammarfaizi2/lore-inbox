@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbVHLOVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVHLOWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbVHLOVp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 10:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVHLOVp
+	id S1751193AbVHLOWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 10:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVHLOWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 10:21:45 -0400
-Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:56238 "HELO
-	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750971AbVHLOVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 10:21:44 -0400
-Message-ID: <42FCB06A.5050609@masoud.ir>
-Date: Fri, 12 Aug 2005 10:21:30 -0400
-From: Masoud Sharbiani <masouds@masoud.ir>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20040803
-X-Accept-Language: en-us, en
+	Fri, 12 Aug 2005 10:22:25 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:21135 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S1751193AbVHLOWY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 10:22:24 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Grant Coady <Grant.Coady@gmail.com>
-CC: "Vladimir V. Saveliev" <vs@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Via-Rhine NIC, Via SATA or reiserfs broken, how to tell??
-References: <54nnf1tv8722aq6med3mlr4mvg7nli0r09@4ax.com> <42FC7D5E.8020604@namesys.com> <mc2pf1tgih72uq4flc3hl6q0897r060ilp@4ax.com>
-In-Reply-To: <mc2pf1tgih72uq4flc3hl6q0897r060ilp@4ax.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: The Linux FAT issue on SD Cards.. maintainer support please
+Date: Fri, 12 Aug 2005 19:52:31 +0530
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Message-ID: <C349E772C72290419567CFD84C26E0170A0186@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: The Linux FAT issue on SD Cards.. maintainer support please
+Thread-Index: AcWeihh8WTWFEovmR1mAWE4yCb1YYQAsm6XA
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
+Cc: <hirofumi@mail.parknet.co.jp>,
+       "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you turn on UDP checksums and try again? That would isolate the 
-fault between the network or SATA.
-cheers,
-Masoud
-Grant Coady wrote:
+Dear Lennart,
 
->On Fri, 12 Aug 2005 14:43:42 +0400, "Vladimir V. Saveliev" <vs@namesys.com> wrote:
->  
->
->>>How to test and isolate this error is in NIC driver, SATA driver or 
->>>filesystem?  
->>>
->>>      
->>>
->>Could it be that tarbal on NFS server changed?
->>It is not very likely that error in kernel drivers fixed typos in source code.
->>    
->>
->
->The 'typos' are the observed errors from extracting kernel source tarball, 
->renaming top level directory and extracting tarball again.  Other times 
->extraction fails with corrupt tarball error.  Cached image of tarball is 
->corrupted as box doesn't go back to server.
->
->Since first report I've changed to using ext2 target filesystem, still get 
->errors, so not reiserfs specific either.  
->
->Am in process of reducing options in kernel config, try to narrow down 
->what problem is.  Nothing in logs, me have no idea ... yet.  
->
->Not a memory error as box compiled many hundred kernels last week without 
->choking.  Test just now was with 2.6.13-rc6-git3, very repeatable.
->
->Same test on different box, no errors.  Other box has pro/100 NIC, 
->reiserfs, unpack tarball from same server.  Never a problem.
->
->Cheers,
->Grant.
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+I have an update on this. Please see the message indented inline.
 
+>A few things I would try:
+>
+>Stick the SD card in a generic cheap USB media reader, and see what the
+>kernel thinks of the cards then.  Do both work?
 
+I do NOT have one. I am getting it today.  I will work on it this
+weekend?
+
+>You could also use that do dd the first few blocks from the card to see
+>what the partition table and fat tables look like, in case your SD
+>driver is somehow messing that part up.  By having a copy you can
+>compare more easily.
+
+I dumped the 0th sector of SD when formatted on 
+	1) CAM &
+	2) Windows
+The partition table exists on both.
+But, the Master Boot Code is NOT present on the CAM formatted SD but is
+available on windows formatted SD card.
+
+Can you comment on the Master Boot Code? What is it required on Linux
+HOW does windows managed without it? I mean how is Windows able to mount
+the SD?
+
+My driver does NOT support partitions? I mean I have implemented it as
+alloc_disk(1) & relative first_minor chage obviously.
+
+Is it why I am NOT able to mount the CAM formatted device?
+Is this a problem?
+
+Thanks & Regards,
+Mukund Jampala

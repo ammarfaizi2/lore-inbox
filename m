@@ -1,183 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVHLPQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVHLPQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbVHLPQe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 11:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbVHLPQe
+	id S932191AbVHLPQq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 11:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVHLPQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 11:16:34 -0400
-Received: from host27-37.discord.birch.net ([65.16.27.37]:51558 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S932187AbVHLPQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 11:16:33 -0400
-From: "Roger Heflin" <rheflin@atipa.com>
-To: "'Chris Boot'" <bootc@bootc.net>, <linux-kernel@vger.kernel.org>
-Cc: <linux-ide@vger.kernel.org>
-Subject: RE: SiI 3112A + Seagate HDs = still no go?
-Date: Fri, 12 Aug 2005 10:19:34 -0500
+	Fri, 12 Aug 2005 11:16:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:32755 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932191AbVHLPQp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 11:16:45 -0400
+Message-ID: <42FCBC88.3020903@mvista.com>
+Date: Fri, 12 Aug 2005 08:13:12 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Andrew Morton <akpm@osdl.org>, tony@atomide.com,
+       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
+       ck@vds.kolivas.org, tuukka.tikkanen@elektrobit.com
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 5
+References: <200508031559.24704.kernel@kolivas.org>	<200508060239.41646.kernel@kolivas.org>	<20050806174739.GU4029@stusta.de>	<200508071512.22668.kernel@kolivas.org>	<20050807165833.GA13918@in.ibm.com> <42F905DA.4070308@mvista.com>	<20050810140528.GA20893@in.ibm.com> <42FA81B9.9020801@mvista.com> <42FBC43F.5020009@tmr.com>
+In-Reply-To: <42FBC43F.5020009@tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <12872CA9-F089-4955-8751-8CC4E7B2140A@bootc.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-thread-index: AcWetsn9wB8WyWJ8TOmHsLwdGOIEsQAmczKg
-Message-ID: <EXCHG2003Y6YHkidcDj00000063@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 12 Aug 2005 14:13:50.0783 (UTC) FILETIME=[102DDCF0:01C59F48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bill Davidsen wrote:
+> George Anzinger wrote:
+> 
+>> Srivatsa Vaddagiri wrote:
+>>
+>>> On Tue, Aug 09, 2005 at 12:36:58PM -0700, George Anzinger wrote:
+>>>
+>>>> IMNOHO, this is the ONLY way to keep proper time.  As soon as you 
+>>>> reprogram the PIT you have lost track of the time.
+>>>
+>>>
+>>>
+>>>
+>>> George,
+>>>     Can't TSC (or equivalent) serve as a backup while PIT is disabled,
+>>> especially considering that we disable PIT only for short duration in 
+>>> practice (few seconds maybe) _and_ that we don't have HRT support yet?
+>>>
+>> I think it really depends on what you want.  If you really want to 
+>> keep good time, the only rock in town is the one connected to the PIT 
+>> (and the pmtimer).  The problem is, if you want the jiffie edge to be 
+>> stable, there is just now way to reprogram the PIT to get it back to 
+>> where it was.
+>>
+>> In an old version of HRT I did a trick of loading a short count (based 
+>> on reading the TSC or pmtimer) and then put the LATCH count on top of 
+>> it.  In a correctly performing PIT, it should count down the short 
+>> count, interrupt, load the long count and continue from there.  Aside 
+>> from the machines that had BAD PITs (they reset on the load instead of 
+>> the expiry of the current count) there were other problems that, in 
+>> the end, cause loss of time (too fast, too slow, take your pick).  I 
+>> also found PITs that signaled that they had loaded the count (they set 
+>> a status bit) prior to actually loading it.  All in all, I find the 
+>> PIT is just an ugly beast to try to program.  On the other hand, if 
+>> you want regular interrupts at some fixed period, it will do this 
+>> forever (give or take a epoch or two;) with out touching anything 
+>> after the initial program set up.
+>>
+>> In the end, I concluded that, for the community kernel, it is really 
+>> best to just interrupt the irq line and leave the PIT run.  Then you 
+>> use the TSC or pmtimer to figure the gross loss of interrupts and 
+>> leave the PIT interrupt again to define the jiffie edge.  If you have 
+>> other, more pressing, concerns I suppose you can program the PIT, but 
+>> don't expect your wall clock to be as stable as it is now.
+>>
+> What are the portability and scaling issues if it were done this way? It 
+> clearly looks practical on x86 uni, but if we want per-CPU non-tick, I'm 
+> less sure how it would work.
 
-With the Segate sata's I worked with before, I had to
-actually remove them from the blacklist, this was a couple
-of months ago with the native sata seagate disks.
+I am not sure how much is involved.  For VST I disabled the tick 
+generated NMI watchdog interrupt on a per cpu basis but stopped the PIT 
+tick only when all cpus were idle.  The next step would be to mess with 
+the interrupt steering logic to keep the tick away from idle cpus.  I 
+did not get into this level in my work, being mainly interested in 
+embedded systems.
+> 
+> But when you go to non-x86 hardware, is there always going to be another 
+> source of wakeup available if the PIT is blocked instead of reset? I 
+> have to go back and look at how SPARC hardware works, I don't remember 
+> enough to be useful.
 
-With the drive in the blacklist the drive worked right
-under light conditions, but under a dd read from the boot
-seagate the entire machine appeared to block on any io
-going to that disk, it did not stop (verified by vmstat),
-but I could never get the 55-60MiB/second expected, and
-was getting around 15MiB/second, with enormous amounts
-of interrupts, after removing it from the blacklist,
-I got the 55-60MiB/second rate, and the interrupts were
-much more reasonable, and the response of the system
-was actually useable.    When the lockup occurred, stopping
-the dd resulting in all things unlocking and continuing
-on, I duplicated this several times with the latest kernel
-at the time.
+Most (all) other archs don't have PITs.  The x86 sucks big time when it 
+comes to time keeping hardware.  The most common hardware is a counter 
+that runs forever (much as the TSC but FIXED in frequency).  Interrupts 
+are generated either by comparing a register to this or using companion 
+counters that just count down to zero.  In either case you don't loose 
+time because you can always precisely set up an interrupt.  To sleep, 
+then, you just set your sleep time in the normal time base interrupt 
+counter.  At the end, you know exactly what to set to get back to the 
+regular tick.
 
-                   Roger 
-
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Chris Boot
-> Sent: Thursday, August 11, 2005 4:55 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: SiI 3112A + Seagate HDs = still no go?
-> 
-> Hi all,
-> 
-> I just recently took the plunge and bought 4 250 GB Seagate 
-> drives and a 2 port Silicon Image 3112A controller card for 
-> the 2 drives my motherboard doesn't handle. No matter how 
-> hard I try, I can't get the hard drives to work: they are 
-> detected correctly and work reasonably well under _very_ 
-> light load, but anything like building a RAID array is a bit 
-> much and the whole controller seems to lock up.
-> 
-> I've tried adding the drive to the blacklist in the 
-> sata_sil.c driver and I still have the same trouble: as you 
-> can see the messages below relate to my patched kernel with 
-> the blacklist fix. I've seen that this was discussed just 
-> yesterday, but that seemed to give nothing:  
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0508.1/0310.html
-> 
-> Ready and willing to hack my kernel to pieces; this machine 
-> is no use until I get all the drives working! Needless to say 
-> the drives connected to the on-board VIA controller work 
-> fine, as do the drives currently on the SiI controller if I 
-> swap them around.
-> 
-> Any ideas?
-> 
-> TIA
-> Chris
-> 
-> The following messages are sent to the log when everything goes mad:
-> 
-> ata1: command 0x35 timeout, stat 0xd8 host_stat 0x0
-> ata1: status=0xd8 { Busy }
-> SCSI error : <0 0 0 0> return code = 0x80000002
-> sda: Current: sense key=0xb
-> ASC=0x47 ASCQ=0x0
-> end_request: I/O error, dev sda, sector 2990370
-> ATA: abnormal status 0xD8 on port E0802087
-> ATA: abnormal status 0xD8 on port E0802087
-> ATA: abnormal status 0xD8 on port E0802087 [ the above is 
-> transcribed so may not be 100% accurate ]
-> 
-> Dmesg log during boot (and detection):
-> 
-> Aug 11 21:47:05 arcadia Linux version 2.6.12-gentoo-r6
-> (root@arcadia.bootc.net) (gcc version 3.3.5-20050130 (Gentoo 
-> 3.3.5.20050130-r1, ssp-3.3.5.20050130-1, pie-8.7.7.1)) #2 Thu 
-> Aug 11 20:19:00 BST 2005 ...
-> Aug 11 17:30:12 arcadia sata_sil version 0.9 Aug 11 17:30:12 
-> arcadia ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 18 (level, 
-> low) -> IRQ 177 Aug 11 17:30:12 arcadia ata1: SATA max 
-> UDMA/100 cmd 0xE0802080 ctl 0xE080208A bmdma 0xE0802000 irq 
-> 177 Aug 11 17:30:12 arcadia ata2: SATA max UDMA/100 cmd 
-> 0xE08020C0 ctl 0xE08020CA bmdma 0xE0802008 irq 177 Aug 11 
-> 17:30:12 arcadia ata1: dev 0 cfg 49:2f00 82:346b 83:7d01
-> 84:4023 85:3469 86:3c01 87:4023 88:207f
-> Aug 11 17:30:12 arcadia ata1: dev 0 ATA, max UDMA/133, 488397168
-> sectors: lba48
-> Aug 11 17:30:12 arcadia ata1(0): applying Seagate errata fix 
-> Aug 11 17:30:12 arcadia ata1: dev 0 configured for UDMA/100 
-> Aug 11 17:30:12 arcadia scsi0 : sata_sil Aug 11 17:30:12 
-> arcadia ata2: dev 0 cfg 49:2f00 82:346b 83:7d01
-> 84:4023 85:3469 86:3c01 87:4023 88:207f
-> Aug 11 17:30:12 arcadia ata2: dev 0 ATA, max UDMA/133, 488397168
-> sectors: lba48
-> Aug 11 17:30:12 arcadia ata2(0): applying Seagate errata fix 
-> Aug 11 17:30:12 arcadia ata2: dev 0 configured for UDMA/100 
-> Aug 11 17:30:12 arcadia scsi1 : sata_sil
-> Aug 11 17:30:12 arcadia Vendor: ATA       Model: ST3250823AS        
-> Rev: 3.03
-> Aug 11 17:30:12 arcadia Type:   Direct-Access                       
-> ANSI SCSI revision: 05
-> Aug 11 17:30:12 arcadia Vendor: ATA       Model: ST3250823AS        
-> Rev: 3.03
-> Aug 11 17:30:12 arcadia Type:   Direct-Access                       
-> ANSI SCSI revision: 05
-> 
-> lspci:
-> 
-> 0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8377 
-> [KT400/KT600 AGP] Host Bridge 0000:00:01.0 PCI bridge: VIA 
-> Technologies, Inc. VT8235 PCI Bridge 0000:00:0a.0 Unknown 
-> mass storage controller: Silicon Image, Inc. SiI
-> 3112 [SATALink/SATARaid] Serial ATA Controller (rev 02) 
-> 0000:00:0c.0 FireWire (IEEE 1394): Agere Systems (former Lucent
-> Microelectronics) FW323 (rev 61)
-> 0000:00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA 
-> VT6420 SATA RAID Controller (rev 80)
-> 0000:00:0f.1 IDE interface: VIA Technologies, Inc. 
-> VT82C586A/B/ VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 
-> 06) 0000:00:10.0 USB Controller: VIA Technologies, Inc. 
-> VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-> 0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx 
-> UHCI USB 1.1 Controller (rev 81)
-> 0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx 
-> UHCI USB 1.1 Controller (rev 81)
-> 0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx 
-> UHCI USB 1.1 Controller (rev 81)
-> 0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 
-> (rev 86) 0000:00:11.0 ISA bridge: VIA Technologies, Inc. 
-> VT8237 ISA bridge [KT600/K8T800/K8T890 South]
-> 0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc.  
-> VT8233/A/8235/8237 AC97 Audio Controller (rev 60) 
-> 0000:00:12.0 Ethernet controller: VIA Technologies, Inc. 
-> VT6102 [Rhine-II] (rev 78) 0000:01:00.0 VGA compatible 
-> controller: nVidia Corporation NV11
-> [GeForce2 MX/MX 400] (rev b2)
-> 
-> Many thanks,
-> Chris
-> 
-> --
-> Chris Boot
-> bootc@bootc.net
-> http://www.bootc.net/
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+These other platforms make VST and High Res Timers so easy...
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

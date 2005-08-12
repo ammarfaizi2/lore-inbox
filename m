@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVHLRa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVHLRav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbVHLRa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVHLRa7
+	id S1750745AbVHLRav (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVHLRav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:30:59 -0400
-Received: from nproxy.gmail.com ([64.233.182.206]:1237 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750746AbVHLRa7 convert rfc822-to-8bit
+	Fri, 12 Aug 2005 13:30:51 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:53427 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750745AbVHLRav
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:30:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KUJCL20fbjnosWQa0MYH1iS8dINxYiIQ1d0Xp6mFqCVQWysOs/n+XLbVKq/e9Vq7HSSMFiMfqrif40ueq4T7kFdFI1O1w4yT3FTImubYrcV252JcXNZjaYejzB//3tFXd/tNWVgYaHORQCAoBnjGQDp17AkuWCBNyusUlsq8VBc=
-Message-ID: <396556a20508121030de9b49d@mail.gmail.com>
-Date: Fri, 12 Aug 2005 18:30:55 +0100
-From: Adam Langley <alangley@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Edge triggered epoll with pts devices acts as level triggered
-In-Reply-To: <396556a20508120419238abca6@mail.gmail.com>
+	Fri, 12 Aug 2005 13:30:51 -0400
+Subject: Re: [PATCH] Add removal schedule of
+	register_serial/unregister_serial to appropriate file
+From: Max Asbock <masbock@us.ibm.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, vernux@us.ibm.com
+In-Reply-To: <20050714203321.E10410@flint.arm.linux.org.uk>
+References: <20050623142335.A5564@flint.arm.linux.org.uk>
+	 <20050714203321.E10410@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1123867834.17335.73.camel@w-amax>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <396556a20508120419238abca6@mail.gmail.com>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 12 Aug 2005 10:30:34 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/12/05, Adam Langley <alangley@gmail.com> wrote:
-> Waiting for edge triggered events (with EPOLLET) on pseudo terminal
-> devices appears to act as if it were level triggered; when data is
-> ready the fd is always returned by epoll_wait.
+On Thu, 2005-07-14 at 12:33, Russell King wrote:
+> On Thu, Jun 23, 2005 at 02:23:35PM +0100, Russell King wrote:
+> > +
+> > +---------------------------
+> > +
+> > +What:	register_serial/unregister_serial
+> > +When:	December 2005
+> > +Why:	This interface does not allow serial ports to be registered against
+> > +	a struct device, and as such does not allow correct power management
+> > +	of such ports.  8250-based ports should use serial8250_register_port
+> > +	and serial8250_unregister_port instead.
+> > +Who:	Russell King <rmk@arm.linux.org.uk>
+> 
+> I think it's about time to make the build a little more vocal about the
+> expiry of these functions.  Due to recent discussions with problems in
+> the console initialisation vs power manglement, I'd like to move the
+> date forward to September.
+> 
 
-This occurs because writing to the terminal happens to cause a read
-event to occur for pseudo terminals, but not for real terminals. This
-is much less of a problem than the orginal message would suggest.
+I am converting the ibmasm driver that uses (un)register_serial to use
+serial_8250_(un)register_port. However I find function prototypes for
+the new interfaces only in linux/drivers/char/8250.h. Is there a reason
+there aren't any extern declarations for these functions in
+linux/include/serial.h or linux/include/serial_8250.h?
+
+thanks,
+max
 
 
-AGL
-
--- 
-Adam Langley                                      agl@imperialviolet.org
-http://www.imperialviolet.org                       (+44) (0)7906 332512
-PGP: 9113   256A   CC0F   71A6   4C84   5087   CDA5   52DF   2CB6   3D60

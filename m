@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVHLVad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbVHLVbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbVHLVad (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 17:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbVHLVad
+	id S1751287AbVHLVbI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 17:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVHLVa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 17:30:33 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:10157 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750901AbVHLVac (ORCPT
+	Fri, 12 Aug 2005 17:30:58 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:13741 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750906AbVHLVak (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 17:30:32 -0400
-Message-ID: <42FD14F0.5030500@pobox.com>
-Date: Fri, 12 Aug 2005 17:30:24 -0400
+	Fri, 12 Aug 2005 17:30:40 -0400
+Message-ID: <42FD14FB.3060200@pobox.com>
+Date: Fri, 12 Aug 2005 17:30:35 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Brett Russ <russb@emc.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.12.3] PCI/libata INTx cleanup
-References: <20050803204709.8BA0720B06@lns1058.lss.emc.com> <42FBA08C.5040103@pobox.com> <20050812171043.CF61020E8B@lns1058.lss.emc.com>
-In-Reply-To: <20050812171043.CF61020E8B@lns1058.lss.emc.com>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: SATA status report updated
+References: <42FC2EF8.7030404@pobox.com> <E1E3X1A-00081t-00@chiark.greenend.org.uk>
+In-Reply-To: <E1E3X1A-00081t-00@chiark.greenend.org.uk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brett Russ wrote:
-> Jeff Garzik wrote:
+Matthew Garrett wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+>>Things in SATA-land have been moving along recently, so I updated the 
+>>software status report:
+>>
+>>	http://linux.yyz.us/sata/software-status.html
+> 
+> 
+> I couldn't see any reference to system-wide power management (ie,
+> suspend/resume of machines with SATA interfaces) - is any work going on
+> in that area at the moment?
 
->>Though there is nothing wrong with this patch, I would prefer a single 
->>function, pci_intx(), as found in drivers/scsi/ahci.c.
-
-> Sounds like what I did, except for the naming change.  I did away with
-> pci_disable_intx() and changed the names.  Look ok?
-
-
-Nope.
-
-<thinks, and checks something>  Ahhhhh.  You were looking at an older 
-kernel.Nope.  Read the implementation I referenced, in ahci.c, from 
-2.6.13-rc6.  It takes a second argument:
-
-	static void pci_intx(struct pci_dev *pdev, int enable)
-
-Regards,
+Jens Axboe @ SuSE posted a patch that needs some work.  So, it's on the 
+radar screen, but I haven't seen any new work recently.
 
 	Jeff
+
 
 

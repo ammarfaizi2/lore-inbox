@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbVHLUwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVHLU5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbVHLUwb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 16:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVHLUwa
+	id S932083AbVHLU5N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 16:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVHLU5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 16:52:30 -0400
-Received: from ns1.suse.de ([195.135.220.2]:21973 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932080AbVHLUwa (ORCPT
+	Fri, 12 Aug 2005 16:57:13 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:29623 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932083AbVHLU5M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 16:52:30 -0400
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [patch 0/39] remap_file_pages protection support, try 2
-References: <200508122033.06385.blaisorblade@yahoo.it.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Aug 2005 22:52:28 +0200
-In-Reply-To: <200508122033.06385.blaisorblade@yahoo.it.suse.lists.linux.kernel>
-Message-ID: <p733bpe3mk3.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Fri, 12 Aug 2005 16:57:12 -0400
+Date: Fri, 12 Aug 2005 13:57:44 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, rusty@au1.ibm.com, bmark@us.ibm.com,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
+Message-ID: <20050812205744.GE1297@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050810171145.GA1945@us.ibm.com> <20050811095634.GA19342@elte.hu> <1123812057.26878.9.camel@mindpipe> <20050812063600.GC13397@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050812063600.GC13397@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blaisorblade <blaisorblade@yahoo.it> writes:
+On Fri, Aug 12, 2005 at 08:36:00AM +0200, Ingo Molnar wrote:
+> 
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > Doesn't this fix the longest latency we were seeing with 
+> > PREEMPT_DESKTOP, I don't have a trace handy but the upshot was "signal 
+> > delivery must remain atomic on !PREEMPT_RT"?
+> 
+> yes - although Paul's patch converts only a portion of the signal code 
+> to RCU-read-lock, so i'd expect there to be other latencies too. Might 
+> be worth a test (once we've sorted out the HRT build bugs).
 
-> Ok, I've been working for the past two weeks learning well the Linux VM, 
-> understanding the Ingo's remap_file_pages protection support and its various 
-> weakness (due to lack of time on his part), and splitting and finishing it.
+And there remains the question of how much of the benefit remains after
+I handle the corner cases...  :-/
 
-I'm not sure remap_file_pages was ever intended to be more integrated.
-It pretty much always was a Oracle specific performance hack. The problem
-with making it more powerful is that it will become more invasive then
-(like your patchbomb shows) and that will make it a bigger maintenance
-issue longer term and complicate all of VM. And it's probably not
-worth doing all that.
-
-So in short I think it's better to keep it into its corner with minimum
-functionality and let it not expand to other parts.
-
--Andi
+						Thanx, Paul

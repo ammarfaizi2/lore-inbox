@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbVHLKGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbVHLKZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbVHLKGH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 06:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVHLKGH
+	id S1750961AbVHLKZG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 06:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbVHLKZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 06:06:07 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:64903 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932087AbVHLKGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 06:06:06 -0400
-Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works
-	fine.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       akpm@osdl.org
-In-Reply-To: <42FC7372.7040607@aitel.hist.no>
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>
-	 <20050805104025.GA14688@aitel.hist.no>
-	 <21d7e99705080503515e3045d5@mail.gmail.com>
-	 <42F89F79.1060103@aitel.hist.no>  <42FC7372.7040607@aitel.hist.no>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 12 Aug 2005 11:32:54 +0100
-Message-Id: <1123842774.22460.22.camel@localhost.localdomain>
+	Fri, 12 Aug 2005 06:25:06 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:23839 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750961AbVHLKZF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 06:25:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=F5zf2rLlAui8By60s358sHCOfLBAtL/amZM4578mvaLUY04h+yZlm5z/cdRi2FVGebw6FwdxstUyaQHvB3O8twm5tWFWeO5UsY7iTRD90BpXfewR24+IhVHwqJ71MVtprtDeTzPMjA66l5KXHTbh1UPw6P/fe9zw2kyiMoedhcQ=
+Message-ID: <6278d222050812032446b583e4@mail.gmail.com>
+Date: Fri, 12 Aug 2005 11:24:59 +0100
+From: Daniel J Blueman <daniel.blueman@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: SATA status report updated
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-08-12 at 12:01 +0200, Helge Hafting wrote:
-> solveable by resizing.  But the machine will occationally hang, forcing 
-> me to
-> use the reset button.  I lost my mbox file to this (from an ext3 fs, on 
-> raid-1 on scsi.)
+As stability is a concern, why not get the ATA passthru work in
+sooner, then follow up with the SMART support after the passthru code
+has had time to mature?
 
-Unless you are using data=journal and have turned write cache off on
-your IDE drives that is expected. Metadata journalling protects your
-file system intgerity. Data journalling is more expensive but will
-protect your file integrity if the disk layer is also correctly set up.
-Unfortunately the IDE layer defaults the wrong way and despite many
-complaints has not been changed. In later 2.6 with modern drives you can
-also enable barrier mode on the IDE layer which gives better results
-than turning off the write cache.
+IMHO, the passthru work is good value alone, as there is currently no
+way to adjust various parameters (AM, spindown time, ...) of SATA
+disks right now.
 
-Alan
-
+Rob van Nieuwkerk wrote:
+> On Fri, 12 Aug 2005 01:09:12 -0400
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+> Hi Jeff,
+> 
+> > Things in SATA-land have been moving along recently, so I updated the 
+> > software status report:
+> > 
+> > 	http://linux.yyz.us/sata/software-status.html
+> 
+> Is any progress made on SMART support ?
+> I've been reading "SMART support will be integrated very soon"
+> for a very long time now .. :-)
+> 
+> > Thanks to all the hard-working SATA contributors!
+> 
+> Yup, thanks to you & them.  SATA has been working perfect in my system
+> since I started using it 10 months ago !
+> 
+> 	greetings,
+> 	Rob van Nieuwkerk
+___
+Daniel J Blueman

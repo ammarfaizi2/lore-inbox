@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbVHLGli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbVHLG7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751069AbVHLGli (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 02:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbVHLGli
+	id S1751057AbVHLG7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 02:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbVHLG7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 02:41:38 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:1356 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S1750835AbVHLGlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 02:41:37 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.96,102,1122847200"; 
-   d="scan'208"; a="13971772:sNHT26934108"
-Message-ID: <42FC448F.6070702@fujitsu-siemens.com>
-Date: Fri, 12 Aug 2005 08:41:19 +0200
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org
-Subject: Re: files_lock deadlock?
-References: <42DD2E37.3080204@fujitsu-siemens.com>	 <1121870871.1103.14.camel@localhost.localdomain>	 <42FB8ECF.4090106@fujitsu-siemens.com> <1123782699.3201.43.camel@laptopd505.fenrus.org>
-In-Reply-To: <1123782699.3201.43.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Aug 2005 02:59:24 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:19164 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751057AbVHLG7X convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 02:59:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jPAKBxvQxWygKzMrWqm0+95C9u0/C57gMxqEZgmNK/PdYMQDxhwuqwJ32xLxGbK8Y2vV9o1tJ43W9B3MvAV1hfz1NFVCoKNj33ZoPcBncQ3UoZiUw7dd1snPdghSupvlGeR8fCQrIAEC5QssfsBwf0DKno9OyAhdl0MK05ecpwk=
+Message-ID: <86802c4405081123597239dff7@mail.gmail.com>
+Date: Thu, 11 Aug 2005 23:59:21 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [discuss] Re: 2.6.13-rc2 with dual way dual core ck804 MB
+Cc: Mike Waychison <mikew@google.com>, YhLu <YhLu@tyan.com>,
+       Peter Buckingham <peter@pantasys.com>, linux-kernel@vger.kernel.org,
+       "discuss@x86-64.org" <discuss@x86-64.org>
+In-Reply-To: <20050811005100.GF8974@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3174569B9743D511922F00A0C94314230AF97867@TYANWEB>
+	 <42FA8A4B.4090408@google.com> <20050810232614.GC27628@wotan.suse.de>
+	 <86802c4405081016421db9baa5@mail.gmail.com>
+	 <20050811000430.GD8974@wotan.suse.de>
+	 <86802c4405081017174c22dcd5@mail.gmail.com>
+	 <86802c440508101723d4aadef@mail.gmail.com>
+	 <20050811002841.GE8974@wotan.suse.de>
+	 <86802c440508101743783588df@mail.gmail.com>
+	 <20050811005100.GF8974@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+andi,
 
-> I disagree, it's a performance cost.
-> It's a lot easier to make remove_proc_entry() a might_sleep().. (I'm
-> surprised it isn't already btw given that it's vfs related and the vfs
-> is mostly semaphore based)
+is it possible for
+after the AP1 call_in is done and before AP1 get in tsc_sync_wait
+The AP2 call_in done.  and then AP1 get in tsc_sync_wait and before it
+done, AP2 get in tsc_sync_wait too.
 
-Well enough. But to my understanding using spin_lock implies that we can 
-_prove_ the lock won't be taken in softirq context, and that we will be 
-able to prevent new such paths to be introduced in the future. I wonder 
-if that's possible for this lock.
+sync_master can not figure out from AP1 or AP2 because only have
+go[MASTER] and go{SLAVE].
 
-Regards,
-Martin
+YH
 
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+On 8/10/05, Andi Kleen <ak@suse.de> wrote:
+> On Wed, Aug 10, 2005 at 05:43:23PM -0700, yhlu wrote:
+> > Yes, I mean more aggressive
+> >
+> > static void __init smp_init(void)
+> > {
+> >         unsigned int i;
+> >
+> >         /* FIXME: This should be done in userspace --RR */
+> >         for_each_present_cpu(i) {
+> >                 if (num_online_cpus() >= max_cpus)
+> >                         break;
+> >                 if (!cpu_online(i))
+> >                         cpu_up(i);
+> >         }
+> >
+> >
+> > let cpu_up take one array instead of one int.
+> 
+> It can be done already by just not starting the CPUs and
+> then do it multithreaded from user space using sysfs with
+> the CPU hotplug infrastructure. Unfortunately cpu_up
+> right now has a global semaphore, so it won't save you any
+> time. However it could be done in parallel with other
+> startup jobs.
+> 
+> -Andi
+>

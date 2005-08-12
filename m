@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbVHLOv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbVHLOzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbVHLOv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 10:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVHLOrr
+	id S1751019AbVHLOzq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 10:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVHLOzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 10:47:47 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:19909 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751034AbVHLOr0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 10:47:26 -0400
-Subject: [RFC][PATCH 05/12] memory hotplug prep: fixup bad_range()
-To: linux-kernel@vger.kernel.org
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 12 Aug 2005 07:47:23 -0700
-References: <20050812144714.805F4B48@kernel.beaverton.ibm.com>
-In-Reply-To: <20050812144714.805F4B48@kernel.beaverton.ibm.com>
-Message-Id: <20050812144723.7C2B36A2@kernel.beaverton.ibm.com>
+	Fri, 12 Aug 2005 10:55:46 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:46395 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S1750985AbVHLOzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 10:55:46 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.96,103,1122847200"; 
+   d="scan'208"; a="14002681:sNHT26806072"
+Message-ID: <42FCB86C.5040509@fujitsu-siemens.com>
+Date: Fri, 12 Aug 2005 16:55:40 +0200
+From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Organization: Fujitsu Siemens Computers
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: APIC version and 8-bit APIC IDs
+References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel> <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com> <20050812133248.GN8974@wotan.suse.de> <42FCA97E.5010907@fujitsu-siemens.com>
+In-Reply-To: <42FCA97E.5010907@fujitsu-siemens.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I wrote:
 
-When doing memory hotplug operations, the size of existing zones can
-obviously change.  This means that zone->zone_{start_pfn,spanned_pages}
-can change.
+>> How so? The XAPIC version check should work there.
+> 
+> ACPI: LAPIC (acpi_id[0x11] lapic_id[0x21] enabled)
+> Processor #33 15:4 APIC version 16
+> ACPI: LAPIC (acpi_id[0x12] lapic_id[0x26] enabled)
+> Processor #38 15:4 APIC version 16
 
-There are currently no locks that protect these structure members.
-However, they are rarely accessed at runtime.  Outside of swsusp, the
-only place that I can find is bad_range().
+Forget it. I have fallen prey to  this line:
 
-So, split bad_range() up into two pieces: one that needs to be locked
-and anther that doesn't.
+	processor.mpc_apicver = 0x10; /* TBD: lapic version */
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
+in arch/x86_64/kernel/mpparse.c.
+I am used to get correct answers from Linux :-)
 
- memhotplug-dave/mm/page_alloc.c |   26 +++++++++++++++++++++-----
- 1 files changed, 21 insertions(+), 5 deletions(-)
+Cheers
+Martin
 
-diff -puN mm/page_alloc.c~C5.1-bad_range-rework mm/page_alloc.c
---- memhotplug/mm/page_alloc.c~C5.1-bad_range-rework	2005-08-12 07:43:46.000000000 -0700
-+++ memhotplug-dave/mm/page_alloc.c	2005-08-12 07:43:46.000000000 -0700
-@@ -77,21 +77,37 @@ int min_free_kbytes = 1024;
- unsigned long __initdata nr_kernel_pages;
- unsigned long __initdata nr_all_pages;
- 
--/*
-- * Temporary debugging check for pages not lying within a given zone.
-- */
--static int bad_range(struct zone *zone, struct page *page)
-+static int page_outside_zone_boundaries(struct zone *zone, struct page *page)
- {
- 	if (page_to_pfn(page) >= zone->zone_start_pfn + zone->spanned_pages)
- 		return 1;
- 	if (page_to_pfn(page) < zone->zone_start_pfn)
- 		return 1;
-+
-+	return 0;
-+}
-+
-+static int page_is_consistent(struct zone *zone, struct page *page)
-+{
- #ifdef CONFIG_HOLES_IN_ZONE
- 	if (!pfn_valid(page_to_pfn(page)))
--		return 1;
-+		return 0;
- #endif
- 	if (zone != page_zone(page))
-+		return 0;
-+
-+	return 1;
-+}
-+/*
-+ * Temporary debugging check for pages not lying within a given zone.
-+ */
-+static int bad_range(struct zone *zone, struct page *page)
-+{
-+	if (page_outside_zone_boundaries(zone, page))
- 		return 1;
-+	if (!page_is_consistent(zone, page))
-+		return 1;
-+
- 	return 0;
- }
- 
-_
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy

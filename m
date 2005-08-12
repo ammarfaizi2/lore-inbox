@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbVHLLTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbVHLL3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbVHLLTl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 07:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbVHLLTl
+	id S1750999AbVHLL3o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 07:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbVHLL3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 07:19:41 -0400
-Received: from nproxy.gmail.com ([64.233.182.192]:41378 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750983AbVHLLTk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 07:19:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=KJk6yZZMIV9gSsdyCIw4f/ZfVJq1QJLrsSzQubDzxO3DVX99Z1CpMmp1QsW41YwESTA9xoGISeVkEAxDcy9/nMGUZffXx45PTd+uvDFYBln5ASgJOtix8JOTiNon7w9RnZ60r8O6yyZ+vrjTrz729UU76nolvzqkZr6P6A2t38U=
-Message-ID: <396556a20508120419238abca6@mail.gmail.com>
-Date: Fri, 12 Aug 2005 12:19:39 +0100
-From: Adam Langley <alangley@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Edge triggered epoll with pts devices acts as level triggered
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 12 Aug 2005 07:29:44 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:52933 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750999AbVHLL3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 07:29:43 -0400
+Date: Fri, 12 Aug 2005 13:29:35 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+cc: Steven Rostedt <rostedt@goodmis.org>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Coywolf Qi Hunt <coywolf@gmail.com>, 7eggert@gmx.de,
+       Ukil a <ukil_a@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Need help in understanding x86 syscall
+In-Reply-To: <Pine.LNX.4.61.0508111430280.19138@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.58.0508121325330.2499@be1.lrz>
+References: <4Ae73-6Mm-5@gated-at.bofh.it> <E1E3DJm-0000jy-0B@be1.lrz> 
+ <Pine.LNX.4.61.0508110954360.14541@chaos.analogic.com> 
+ <1123770661.17269.59.camel@localhost.localdomain>  <2cd57c90050811081374d7c4ef@mail.gmail.com>
+  <Pine.LNX.4.61.0508111124530.14789@chaos.analogic.com> 
+ <1123775508.17269.64.camel@localhost.localdomain> 
+ <1123777184.17269.67.camel@localhost.localdomain>  <2cd57c90050811093112a57982@mail.gmail.com>
+  <2cd57c9005081109597b18cc54@mail.gmail.com>  <Pine.LNX.4.61.0508111310180.15153@chaos.analogic.com>
+  <1123781187.17269.77.camel@localhost.localdomain> 
+ <Pine.LNX.4.61.0508111342170.15330@chaos.analogic.com>
+ <1123783862.17269.89.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0508111430280.19138@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please cc me on replies)
+On Thu, 11 Aug 2005, Zwane Mwaikambo wrote:
+> On Thu, 11 Aug 2005, Steven Rostedt wrote:
+> > On Thu, 2005-08-11 at 13:46 -0400, linux-os (Dick Johnson) wrote:
 
-Waiting for edge triggered events (with EPOLLET) on pseudo terminal
-devices appears to act as if it were level triggered; when data is
-ready the fd is always returned by epoll_wait.
+> > int is a call to either an interrupt or exception procedure. 0x80 is
+> > setup in Linux to be a trap and not an interrupt vector. So it does
+> > _not_ turn off interrupts.
+> 
+> It's actually a vector, that's all you can install in the IDT.
 
-You can test this with the code below. Compile, run and press return.
-If edge triggering is working correctly a single event will be
-generated, otherwise a never ending stream will start.
+It's a vector + metadata, most noticably a privilege level and a
+descriptor type.
 
-This works *correctly* at a real terminal, but fails for pseudo
-terminals (specifically an xterm). As far as I can test with other
-terminals and ssh this is a general problem with pseudo terminals.
-
-% uname -a
-Linux ice 2.6.12 #4 SMP Sun Jul 31 11:42:15 BST 2005 i686 Pentium II
-(Deschutes) GenuineIntel GNU/Linux
-(vanilla kernel sources)
-
-% cat et2.c
-#include <sys/epoll.h>
-#include <unistd.h>
-#include <string.h>
-
-int
-main(int argc, char **argv) {
-        const int epoll_fd = epoll_create(4);
-        struct epoll_event ev;
-        struct epoll_event events[4];
-
-        memset(&ev, 0, sizeof(ev));
-        ev.events = EPOLLIN | EPOLLET;
-
-        epoll_ctl(epoll_fd, EPOLL_CTL_ADD, 0, &ev);
-
-        for (;;) {
-                epoll_wait(epoll_fd, events, 4, -1);
-                write(1, ".", 1);
-        }
-}
-
-
-Thanks
-
-
-AGL
+http://www.acm.uiuc.edu/sigops/roll_your_own/i386/idt.html
 
 -- 
-Adam Langley                                      agl@imperialviolet.org
-http://www.imperialviolet.org                       (+44) (0)7906 332512
-PGP: 9113   256A   CC0F   71A6   4C84   5087   CDA5   52DF   2CB6   3D60
+Top 100 things you don't want the sysadmin to say:
+47. Say, What does "Superblock Error" mean, anyhow?

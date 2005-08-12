@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVHLLN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbVHLLTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbVHLLN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 07:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbVHLLN4
+	id S1750983AbVHLLTl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 07:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbVHLLTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 07:13:56 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:36957 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S932105AbVHLLNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 07:13:55 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.96,103,1122847200"; 
-   d="scan'208"; a="13990044:sNHT26973548"
-Message-ID: <42FC8461.2040102@fujitsu-siemens.com>
-Date: Fri, 12 Aug 2005 13:13:37 +0200
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, wli@holomorphy.com
-Cc: Gerhard Wichert <Gerhard.Wichert@fujitsu-siemens.com>
-Subject: APIC version and 8-bit APIC IDs
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Aug 2005 07:19:41 -0400
+Received: from nproxy.gmail.com ([64.233.182.192]:41378 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750983AbVHLLTk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 07:19:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=KJk6yZZMIV9gSsdyCIw4f/ZfVJq1QJLrsSzQubDzxO3DVX99Z1CpMmp1QsW41YwESTA9xoGISeVkEAxDcy9/nMGUZffXx45PTd+uvDFYBln5ASgJOtix8JOTiNon7w9RnZ60r8O6yyZ+vrjTrz729UU76nolvzqkZr6P6A2t38U=
+Message-ID: <396556a20508120419238abca6@mail.gmail.com>
+Date: Fri, 12 Aug 2005 12:19:39 +0100
+From: Adam Langley <alangley@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Edge triggered epoll with pts devices acts as level triggered
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi William, hello everyone,
+(please cc me on replies)
 
-The MP_valid_apicid() function [arch/i386/kernel/mpparse.c] checks 
-whether the APIC version field is >=20 in order to determine whether the 
-CPU supports 8-bit physical APIC ids.
+Waiting for edge triggered events (with EPOLLET) on pseudo terminal
+devices appears to act as if it were level triggered; when data is
+ready the fd is always returned by epoll_wait.
 
-We currently have two modern processors oin our labs (Intel Xeon MP, AMD 
-Dual-Core Opteron 875) for which this test is wrong because their APIC 
-ids are both 16, but they _do_ support 8-bit APIC ids. This leads to 
-erratic error messages and to valid CPUs not being detected.
+You can test this with the code below. Compile, run and press return.
+If edge triggering is working correctly a single event will be
+generated, otherwise a never ending stream will start.
 
-Unfortunately I cannot tell why this is so, and what test should be used 
-instead to make sure a CPU supports 8-bit APIC IDs.
+This works *correctly* at a real terminal, but fails for pseudo
+terminals (specifically an xterm). As far as I can test with other
+terminals and ssh this is a general problem with pseudo terminals.
 
-The AMD BIOS and kernel developer's guide for Athlon64 and Opteron 
-processors says
+% uname -a
+Linux ice 2.6.12 #4 SMP Sun Jul 31 11:42:15 BST 2005 i686 Pentium II
+(Deschutes) GenuineIntel GNU/Linux
+(vanilla kernel sources)
 
-"When both ApicExtId and ApicExtBrdCst in the HyperTransport" 
-Transaction Control Register are set, all 8 bits of APIC ID are used."
+% cat et2.c
+#include <sys/epoll.h>
+#include <unistd.h>
+#include <string.h>
 
-This refers to the TCR register. Reading that would require PCI 
-configuration space access before the APICs are set up, I don't know if 
-that's possible.
-(http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/26094.PDF)
+int
+main(int argc, char **argv) {
+        const int epoll_fd = epoll_create(4);
+        struct epoll_event ev;
+        struct epoll_event events[4];
 
-The Intel Manual simply says
-"For the Pentium 4 and Intel Xeon Processors, the xAPIC specification 
-extends the local APIC field to 8 bits". The CPUs we have are Xeon MP 
-(family 15, model 4); their local APIC version is 16, and they do 
-support 8-bit APIC-IDs.
+        memset(&ev, 0, sizeof(ev));
+        ev.events = EPOLLIN | EPOLLET;
 
-I guess it's up to the Intel an AMD people to have a final word on this,
-but the current implementation is clearly wrong for these latest CPU types.
+        epoll_ctl(epoll_fd, EPOLL_CTL_ADD, 0, &ev);
 
-Regards
-Martin
+        for (;;) {
+                epoll_wait(epoll_fd, events, 4, -1);
+                write(1, ".", 1);
+        }
+}
+
+
+Thanks
+
+
+AGL
 
 -- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+Adam Langley                                      agl@imperialviolet.org
+http://www.imperialviolet.org                       (+44) (0)7906 332512
+PGP: 9113   256A   CC0F   71A6   4C84   5087   CDA5   52DF   2CB6   3D60

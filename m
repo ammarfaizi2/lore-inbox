@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVHLD3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbVHLD3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbVHLD3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Aug 2005 23:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVHLD3Z
+	id S1751146AbVHLD3T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Aug 2005 23:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbVHLD3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 23:29:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27116 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751149AbVHLD3Y (ORCPT
+	Thu, 11 Aug 2005 23:29:19 -0400
+Received: from smtp.istop.com ([66.11.167.126]:32978 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S1751146AbVHLD3T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 23:29:24 -0400
-Date: Thu, 11 Aug 2005 23:28:08 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: David Mosberger <davidm@napali.hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: suspect code in drivers/char/agp/generic.c
-Message-ID: <20050812032808.GE9529@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	David Mosberger <davidm@napali.hpl.hp.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <42FBF62F.5090205@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Aug 2005 23:29:19 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS
+Date: Fri, 12 Aug 2005 13:29:46 +1000
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Hugh Dickins <hugh@veritas.com>
+References: <200508110812.59986.phillips@arcor.de> <20050808145430.15394c3c.akpm@osdl.org> <26569.1123752390@warthog.cambridge.redhat.com>
+In-Reply-To: <26569.1123752390@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <42FBF62F.5090205@goop.org>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200508121329.46533.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 11, 2005 at 06:06:55PM -0700, Jeremy Fitzhardinge wrote:
- > I was just looking at agp_copy_info(), which contains this code:
- > 
- >    318 	if (bridge->mode & AGPSTAT_MODE_3_0)
- >    319 		info->mode = bridge->mode & ~AGP3_RESERVED_MASK;
- >    320 	else
- >    321 		info->mode = bridge->mode & ~AGP2_RESERVED_MASK;
- >    322 	info->mode = bridge->mode;
- > 
- > This looks wrong to me, since line 322 overrides the previous 4 lines'
- > work...
- > 
- > I have no idea whether this is actually causing a problem, but I'd
- > thought I'd call attention to it.
- 
-Ugh, that crept in when the multiple gart support got added.
-Line 322 shouldn't be there. I'll nuke it in agpgart.git
+On Thursday 11 August 2005 19:26, David Howells wrote:
+> Daniel Phillips <phillips@arcor.de> wrote:
+> > +	SetPageMiscFS(page);
+>
+> Can you please retain the *PageFsMisc names I've been using in my stuff?
+>
+> In my opinion putting the "Fs" bit first gives a clearer indication that
+> this is a bit exclusively for the use of filesystems in general.
 
-Whilst its clearly wrong, I'd like the corrected version to take a quick
-spin in -mm before we add this to 2.6.13, just in case.
+You also achieved some sort of new low point in the abuse of StudlyCaps there. 
+Please, let's not get started on mixed case acronyms.
 
-		Dave
+Anyway, it sounds like you want to bless the use of private page flags in 
+filesystems.  That is most probably a bad idea.  Take a browse through the 
+existing users and feast your eyes on the spectacular lack of elegance.
 
+Regards,
+
+Daniel

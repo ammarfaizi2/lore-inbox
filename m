@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVHLXEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbVHLXOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbVHLXEN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 19:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbVHLXEN
+	id S1751304AbVHLXOI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 19:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVHLXOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 19:04:13 -0400
-Received: from smtp.istop.com ([66.11.167.126]:44769 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1751219AbVHLXEM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 19:04:12 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-Date: Sat, 13 Aug 2005 09:04:40 +1000
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Pavel Machek <pavel@suse.cz>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
-References: <42F57FCA.9040805@yahoo.com.au> <200508130556.11215.phillips@arcor.de> <200508130020.11864.rjw@sisk.pl>
-In-Reply-To: <200508130020.11864.rjw@sisk.pl>
+	Fri, 12 Aug 2005 19:14:08 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:28149 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1751304AbVHLXOH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 19:14:07 -0400
+Message-ID: <42FD2D18.6080302@mvista.com>
+Date: Fri, 12 Aug 2005 16:13:28 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 1.0+ (X11/20050531)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jordan Crouse <jordan.crouse@amd.com>
+CC: Dave Jones <davej@redhat.com>, Bruno Ducrot <ducrot@poupinou.org>,
+       Pavel Machek <pavel@ucw.cz>, cpufreq@lists.linux.org.uk,
+       linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
+Subject: Re: PowerOP 2/3: Intel Centrino support
+References: <20050809025419.GC25064@slurryseal.ddns.mvista.com> <20050810100133.GA1945@elf.ucw.cz> <20050810125848.GM852@poupinou.org> <20050810184445.GB14350@redhat.com> <42FA8FC0.5000700@mvista.com> <20050811150650.GG26524@cosmic.amd.com>
+In-Reply-To: <20050811150650.GG26524@cosmic.amd.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508130904.41438.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 August 2005 08:20, Rafael J. Wysocki wrote:
-> On Friday, 12 of August 2005 21:56, Daniel Phillips wrote:
-> > I still don't see why you can't lift your flags up into the VMA.  The
-> > rmap mechanism is there precisely to let you get from the physical page
-> > to the users and user data, including VMAs.
->
-> I'm not sure if I understand the issue, but swsusp works on a different
-> level. It only needs to figure out which physical pages, as represented by
-> struct page objects, should be saved to swap before suspend.  We browse all
-> zones (once) and create a list of page frames that should be saved on the
-> basis of the contents of the struct page objects alone.  IMHO if we needed
-> to use any additional mechanisms here, it would be less efficient than just
-> checking the page flags.
+Jordan Crouse wrote:
 
-Isn't that what hash tables are for?  It seems to me obvious that you don't 
-absolutely need to reserve page flag bits, but you think this is better, 
-maybe enough faster to make a perceptible difference.  How about testing with 
-a hash table?  If it dims the lights then you have all the argument you need.
+> When it comes
+> to embedded power management concepts, a consistant theme is that people
+> often question the usefulness, redundancy or complexity of a solution.  This
+> is perfectly understandable, since such a huge majority of the power
+> management experts and users are concentrating intently on x86 desktops and
+> servers.  
 
-Admittedly, page flags have not gotten really tight just yet, and this is 
-something you can change later if they do become tight.  But it would be very 
-nice to know just which of those page flags are really needed (like uptodate) 
-versus which are just there for convenience.  I think yours fall in the 
-latter category.
+It also occurs to me that another reason for the disconnect between x86 
+desktop/server and embedded on this point is the lack of ACPI.  We want 
+to do things analogous to the power management performed by ACPI, but 
+entirely in Linux, so we need to expose some of those low-level machine 
+resources to our power management software.  In many cases those power 
+management decisions do not revolve around the question of the MHz at 
+which the CPU is to run.  Embedded Linux system power management exists 
+for many of the same reasons ACPI exists.
 
-Regards,
 
-Daniel
+-- 
+Todd

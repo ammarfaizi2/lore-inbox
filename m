@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVHLQv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVHLQxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbVHLQv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 12:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbVHLQv5
+	id S1750701AbVHLQxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 12:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbVHLQxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 12:51:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13268 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750700AbVHLQv5 (ORCPT
+	Fri, 12 Aug 2005 12:53:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:59291 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750701AbVHLQxd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 12:51:57 -0400
-Date: Fri, 12 Aug 2005 09:51:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@gmail.com>, akpm@osdl.org
-Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works
- fine.
-In-Reply-To: <42FC7372.7040607@aitel.hist.no>
-Message-ID: <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org>
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> 
- <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com>
- <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no>
+	Fri, 12 Aug 2005 12:53:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=uVrV3jhygppEBJkLnx/vpquv796fRdy7+Sly5J0X25AdqXNGY0nAeCcmsfLHBFSVqJY9hJp0UDu0KBKvh/ZPZ72F5EI4CTxTgkgN0/Ae+qotDUX2EQNt2YWxn3R6yUS4L+7o5hK9UZVRHvHmPWGeW8huhkU4Ev1I8vFGDUDLgj8=
+Message-ID: <42FCF00F.2040709@gmail.com>
+Date: Fri, 12 Aug 2005 18:53:03 +0000
+From: Luca Falavigna <dktrkranz@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: rddunlap@osdl.org, fastboot@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kexec and frame buffer
+References: <42F219B3.6090502@gmail.com>	<m17jf1zgnz.fsf@ebiederm.dsl.xmission.com>	<42F4C6E8.1050605@gmail.com> <m13bpnyppq.fsf@ebiederm.dsl.xmission.com> <42F6266B.8000704@gmail.com>
+In-Reply-To: <42F6266B.8000704@gmail.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-
-On Fri, 12 Aug 2005, Helge Hafting wrote:
->
-> > at the moment. The setup is fine with 2.6.13-rc4-mm1 x86-64, no 
-> > problems there.
+Luca Falavigna ha scritto:
+> Eric W. Biederman ha scritto:
 > 
-> The problem still exists in 2.6.13-rc6.  Usually, all I get is a 
-> suddenly black display, solveable by resizing.
+>>>Anyway I believe you also want to look at include/linux/tty.h
+>>>at the screen_info structure.  I believe that is where
+>>>all of that information is passed.
+> 
+> I noticed. Maybe if we fill struct x86_linux_param_header with some values
+> obtained from struct screen_info, we should be able to "score that mid-court
+> prayer" ;)
+> 
+I tried to implement a new ioctl command in fb_ioctl() in order to retrieve and
+store screen_info variables into struct x86_linux_param_header, but I got the
+same result: no messages shown in console, as I supposed.
+After that I looked at video.S, especially an interesting label called "video":
 
-Is there any chance you could try bisecting the problem? Either just 
-binary-searching the patches or by using the git bisect helper scripts?
+# This is the main entry point called by setup.S
+# %ds *must* be pointing to the bootsector
+video:	pushw	%ds		# We use different segments
+	pushw	%ds		# FS contains original DS
+	popw	%fs
+[...]
+#ifdef CONFIG_VIDEO_SELECT
+	movw	%fs:(0x01fa), %ax		# User selected video mode
+	cmpw	$ASK_VGA, %ax			# Bring up the menu
+	jz	vid2
+[...]
 
-Obviously the git approach needs a "good" kernel in git, but if 
-2.6.13-rc4-mm1 is ok, then I assume that 2.6.13-rc4 is ok too? That's a 
-fair number of changes:
+Video mode is stored (by bootloader, actually) at offset 0x01fa from a given
+boot sector, which should be located at physical address DEF_SETUPSEG (0x9020).
+Feel free to correct me if I'm wrong.
+If we could store current video mode before executing reboot_code_buffer,
+probably setup() function would take care of anything else. So we could
+implement a function (or an assembly stub) in machine_kexec which does this job.
+I think this is the best (and safest) solution.
 
-	 git-rev-list v2.6.13-rc4..v2.6.13-rc6 | wc
-	    340     340   13940
+Regards,
+- --
+					Luca
 
-but if you can tighten it up a bit (you already had trouble at rc5, I 
-think), it shouldn't require testing more than a few kernels.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Git has had bisection support for a while, but the helper scripts to use 
-it sanely are fairly new, so I think you'd need the git-0.99.4 release for 
-those. But then you'd just do
+iQEVAwUBQvzwDczkDT3RfMB6AQJlQAf+INkCMjhmm18RPCMHXij7WmOL/4TCKTc8
+fZCf+IzhsSUxwkfYmUbTfXtJ/xCxIyRh5gBGirB9n/s9NzOiYwmcQWMrn7DbWpWu
+YBVkTdz3W3Y0dA08baIYQ8u51gJvnVMuGJEFqsLxPx+gzHJOETEGkzhuyUuPk+J+
+N4OkSyTGYt5zXZmyVzV7KZ8XLrfX3XvRLV3m2aey0Hz4jcf8sIozANokDRdG3MpN
+7F0Z4yL1EnMI4oijHSDLeqbycAg8iYa49P45EO6+jzuRH2i2bnq8hOvBHa0+B01Q
+Gr0Ljd+DJ2jNVO4ecqbWC9oFxBFXsRN+ThAxsYEbWDGIrJdAa32mfA==
+=BztK
+-----END PGP SIGNATURE-----
 
-	git bisect start
-	git bisect bad v2.6.13-rc5
-	git bisect good v2.6.13-rc4
-
-and start bisecting (that will check out a mid-way point automatically, 
-you build it, and then do "git bisect bad" or "git bisect good" depending 
-on whether the result is bad or good - it will continue to try to find 
-half-way points until it has found the point that turns from good to 
-bad..)
-
-		Linus

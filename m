@@ -1,46 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbVHLLny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbVHLL5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbVHLLny (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 07:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbVHLLny
+	id S1751000AbVHLL5i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 07:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbVHLL5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 07:43:54 -0400
-Received: from ns2.suse.de ([195.135.220.15]:48819 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751024AbVHLLny (ORCPT
+	Fri, 12 Aug 2005 07:57:38 -0400
+Received: from mail2.sasken.com ([203.200.200.72]:61129 "EHLO mail2.sasken.com")
+	by vger.kernel.org with ESMTP id S1751000AbVHLL5h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 07:43:54 -0400
-To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APIC version and 8-bit APIC IDs
-References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Aug 2005 13:43:52 +0200
-In-Reply-To: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel>
-Message-ID: <p73pssj2xdz.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Aug 2005 07:57:37 -0400
+From: "Srinivas K" <srinuk@sasken.com>
+Subject: kernel
+Date: Fri, 12 Aug 2005 17:28:12 +0530
+Message-ID: <ddi2qu$74p$1@ncc-nt.nt.sasken.com>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+To: linux-kernel@vger.kernel.org
+X-News-Gateway: ncc-z.sasken.com
+X-imss-version: 2.030
+X-imss-result: Passed
+X-imss-scores: Clean:21.90727 C:2 M:3 S:5 R:5
+X-imss-settings: Baseline:3 C:3 M:3 S:3 R:3 (0.5000 0.5000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Wilck <martin.wilck@fujitsu-siemens.com> writes:
 
-> Hi William, hello everyone,
-> 
-> The MP_valid_apicid() function [arch/i386/kernel/mpparse.c] checks
-> whether the APIC version field is >=20 in order to determine whether
-> the CPU supports 8-bit physical APIC ids.
+hi friends,
 
-Yes, it's broken. In fact I removed it in my physflat32 patch
-which is needed for 16 core AMD systems. I don't think there
-is a generic way to fix it because the XAPIC check breaks
-on AMD systems and there is no good way to decide early 
-on subarchitectures before doing this check. Also it's only
-a sanity check for broken BIOS, and in this case it causes more problems
-than it solves.
+ post concepts regarding linux kernel which will be useful
 
-ftp://ftp.firstfloor.org/pub/ak/x86_64/x86_64-2.6.13rc3-1/patches/physflat32
 
-Will hopefully be fixed in 2.6.14.
+-- 
+Srinivasa Rao K
+Systems Engineer
+Nortel Business Unit
+Sasken Communication Technologies Ltd
+139/25, Ring Road, Domlur
+Bangalore - 560 071
+Ph: 2535 5501 Extn.:4804
+mail : srinuk@sasken.com
 
--Andi
+"SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer
+Survey 2004"
+
+
+SASKEN BUSINESS DISCLAIMER
+This message may contain confidential, proprietary or legally Privileged
+information. In case you are not the original intended Recipient of the
+message, you must not, directly or indirectly, use, Disclose, distribute,
+print, or copy any part of this message and you are requested to delete it
+and inform the sender. Any views expressed in this message are those of the
+individual sender unless otherwise stated. Nothing contained in this message
+shall be construed as an offer or acceptance of any offer by Sasken
+Communication Technologies Limited ("Sasken") unless sent with that express
+intent and with due authority of Sasken. Sasken has taken enough precautions
+to prevent the spread of viruses. However the company accepts no liability
+for any damage caused by any virus transmitted by this email
+
+
+
+"SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer Survey 2004"
+
+
+                           SASKEN BUSINESS DISCLAIMER
+This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email

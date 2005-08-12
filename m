@@ -1,77 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVHLUm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbVHLUwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbVHLUm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 16:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbVHLUm5
+	id S1751279AbVHLUwb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 16:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVHLUwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 16:42:57 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:41358 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751274AbVHLUm4 (ORCPT
+	Fri, 12 Aug 2005 16:52:30 -0400
+Received: from ns1.suse.de ([195.135.220.2]:21973 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932080AbVHLUwa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 16:42:56 -0400
-Date: Sat, 13 Aug 2005 00:42:51 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andi Kleen <ak@suse.de>
-Cc: Greg KH <greg@kroah.com>, ohnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org
-Subject: Re: w1: more debug level decrease.
-Message-ID: <20050812204251.GA15164@2ka.mipt.ru>
-References: <20050812184622.GA19999@kroah.com.suse.lists.linux.kernel> <p737jeq3o8j.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <p737jeq3o8j.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 13 Aug 2005 00:42:51 +0400 (MSD)
+	Fri, 12 Aug 2005 16:52:30 -0400
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [patch 0/39] remap_file_pages protection support, try 2
+References: <200508122033.06385.blaisorblade@yahoo.it.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 12 Aug 2005 22:52:28 +0200
+In-Reply-To: <200508122033.06385.blaisorblade@yahoo.it.suse.lists.linux.kernel>
+Message-ID: <p733bpe3mk3.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 12, 2005 at 10:16:12PM +0200, Andi Kleen (ak@suse.de) wrote:
-> Greg KH <greg@kroah.com> writes:
-> 
-> > Here's a patch for 2.6.13-rc6 to keep people's syslogs a bit nicer.
-> 
-> But why is this thing running every 10 seconds at all in the first place?
-> Looks to me like you're just hiding the symptoms, not fixing the bug
-> that makes this code run on unsuspecting systems.
-> 
-> e.g. one way would be to only probe once and then never again. 
+Blaisorblade <blaisorblade@yahoo.it> writes:
 
-Hmmm, why do you think it is a bug? :)
+> Ok, I've been working for the past two weeks learning well the Linux VM, 
+> understanding the Ingo's remap_file_pages protection support and its various 
+> weakness (due to lack of time on his part), and splitting and finishing it.
 
-This bus does not have any kind of notiication, so w1 core 
-searches for devices on this buses and prints when something is found
-or not. Exactly because of this message people are unhappy.
+I'm not sure remap_file_pages was ever intended to be more integrated.
+It pretty much always was a Oracle specific performance hack. The problem
+with making it more powerful is that it will become more invasive then
+(like your patchbomb shows) and that will make it a bigger maintenance
+issue longer term and complicate all of VM. And it's probably not
+worth doing all that.
 
-> -Andi
-> 
-> > 
-> > From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> > 
-> > Do not spam syslog each 10 seconds when there is nothing on the wire.
-> > 
-> > Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > 
-> > ---
-> >  drivers/w1/w1.c |    2 +-
-> >  1 files changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > --- gregkh-2.6.orig/drivers/w1/w1.c	2005-08-02 13:41:30.000000000 -0700
-> > +++ gregkh-2.6/drivers/w1/w1.c	2005-08-12 11:42:04.000000000 -0700
-> > @@ -593,7 +593,7 @@
-> >  		 * Return 0 - device(s) present, 1 - no devices present.
-> >  		 */
-> >  		if (w1_reset_bus(dev)) {
-> > -			dev_info(&dev->dev, "No devices present on the wire.\n");
-> > +			dev_dbg(&dev->dev, "No devices present on the wire.\n");
-> >  			break;
-> >  		}
-> >  
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+So in short I think it's better to keep it into its corner with minimum
+functionality and let it not expand to other parts.
 
--- 
-	Evgeniy Polyakov
+-Andi

@@ -1,91 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbVHLImQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVHLImx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbVHLImQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 04:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbVHLImQ
+	id S1750814AbVHLImx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 04:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbVHLImw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 04:42:16 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:41610 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S1750705AbVHLImP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 04:42:15 -0400
-Date: Fri, 12 Aug 2005 17:41:47 +0900
-From: Horms <horms@debian.org>
-To: Alexander Pytlev <apytlev@tut.by>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-Subject: Re: kernel 2.4.27-10: isofs driver ignore some parameters with mount
-Message-ID: <20050812084146.GA12984@debian.org>
-Mail-Followup-To: Alexander Pytlev <apytlev@tut.by>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-References: <1853917171.20050812104417@tut.by> <20050812082936.GB3302@verge.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050812082936.GB3302@verge.net.au>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.9i
+	Fri, 12 Aug 2005 04:42:52 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:43886 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S1750814AbVHLImw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 04:42:52 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.96,102,1122847200"; 
+   d="scan'208"; a="13979607:sNHT28659232"
+Message-ID: <42FC6104.6070200@fujitsu-siemens.com>
+Date: Fri, 12 Aug 2005 10:42:44 +0200
+From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Organization: Fujitsu Siemens Computers
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org
+Subject: Re: files_lock deadlock?
+References: <42DD2E37.3080204@fujitsu-siemens.com>	 <1121870871.1103.14.camel@localhost.localdomain>	 <42FB8ECF.4090106@fujitsu-siemens.com>	 <1123782699.3201.43.camel@laptopd505.fenrus.org>	 <42FC448F.6070702@fujitsu-siemens.com> <1123830453.3218.0.camel@laptopd505.fenrus.org>
+In-Reply-To: <1123830453.3218.0.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 12, 2005 at 05:29:36PM +0900, Horms wrote:
-> On Fri, Aug 12, 2005 at 10:44:17AM +0300, Alexander Pytlev wrote:
-> > Hello Debian,
-> > 
-> > Kernel 2.4.27-10
-> > With mount isofs filesystem, any mount parameters after
-> > iocharset=,map=,session= are ignored.
-> > 
-> > Sample:
-> > 
-> > mount -t isofs -o uid=100,iocharset=koi8-r,gid=100 /dev/cdrom /media/cdrom
-> > 
-> > gid=100 - was ignored
-> > 
-> > I look in source and find that problem. I make two patch, simply and full
-> > (what addeded some functionality - ignore wrong mount parameters)
-> 
-> Thanks,
-> 
-> I will try and get the simple version of this patch into the next
-> Sarge update.
-> 
-> I have also CCed Marcelo and the LKML for their consideration,
-> as this problem still seems to be present in the lastest 2.4 tree.
-> 
-> -- 
-> Horms
+Arjan van de Ven wrote:
 
-Marcelo and LKML, here is a rediff of the simple version of the patch
-from Alexander Pytlev that I forwarded previously. The whitespace in his
-version had been munged.
+> doing anything with files implies having a defined usercontext really,
+> and generally sleeping as well. So think this is quite safe.
 
-I haven't tested it, but it looks like it should resolve the problem
-Alexander reported that mount parameters after iocharset, map and
-session are ignored.
+Looking closer at this, I'd say that files_lock should be replaced by 
+locking of the respective lists (struct sb->s_files and struct 
+tty_struct->tty_files, unless I'm mistaken),  and that this locking 
+should be done with semaphores. Right?
 
-This should apply against current 2.4 git.  I took a peek into 2.6, and
-the code there has seems to have been completely restructured.
+Going through the list of all sb->s_files can be a costly operation; it 
+may be worthwile to have a per-sb locking mechanism for that.
 
-Signed-off-by: Horms <horms@verge.net.au>
+Martin
 
-
---- fs/isofs/inode.c.orig	2005-08-12 17:33:31.000000000 +0900
-+++ fs/isofs/inode.c	2005-08-12 17:33:38.000000000 +0900
-@@ -340,13 +340,13 @@
- 			else if (!strcmp(value,"acorn")) popt->map = 'a';
- 			else return 0;
- 		}
--		if (!strcmp(this_char,"session") && value) {
-+		else if (!strcmp(this_char,"session") && value) {
- 			char * vpnt = value;
- 			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
- 			if(ivalue < 0 || ivalue >99) return 0;
- 			popt->session=ivalue+1;
- 		}
--		if (!strcmp(this_char,"sbsector") && value) {
-+		else if (!strcmp(this_char,"sbsector") && value) {
- 			char * vpnt = value;
- 			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
- 			if(ivalue < 0 || ivalue >660*512) return 0;
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy

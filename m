@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbVHLStO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbVHLSst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbVHLStO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVHLStN
+	id S1750933AbVHLSst (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbVHLSss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:49:13 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:48572 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S1751187AbVHLStJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:49:09 -0400
-Subject: [patch 23/39] remap_file_pages protection support: fix try_to_unmap_one for VM_NONUNIFORM vma's
+	Fri, 12 Aug 2005 14:48:48 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:51916 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S1750933AbVHLSsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:48:47 -0400
+Subject: [patch 26/39] remap_file_pages protection support: ppc32 bits
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
+       mingo@elte.hu
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 20:35:54 +0200
-Message-Id: <20050812183554.D8CBD24E0B7@zion.home.lan>
+Date: Fri, 12 Aug 2005 20:36:02 +0200
+Message-Id: <20050812183603.0927F24E7D2@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+From: Ingo Molnar <mingo@elte.hu>
 
-When unmapping linear but non uniform VMA's in try_to_unmap_one, we must
-encode the prots in the PTE.
-
-However, we shouldn't use the generic set_nonlinear_pte() function as it
-allows for nonlinear offsets, on which we should instead BUG() in this code
-path.
-
-Additionally, add a missing TLB flush in both locations. However, there'is
-some excess of flushes in these functions.
+PPC32 bits of RFP - as in original patch.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/mm/rmap.c |    5 +++++
- 1 files changed, 5 insertions(+)
+ linux-2.6.git-paolo/include/asm-ppc/pgtable.h |   15 +++++++++++----
+ 1 files changed, 11 insertions(+), 4 deletions(-)
 
-diff -puN mm/rmap.c~rfp-fix-unmap-linear mm/rmap.c
---- linux-2.6.git/mm/rmap.c~rfp-fix-unmap-linear	2005-08-11 23:07:12.000000000 +0200
-+++ linux-2.6.git-paolo/mm/rmap.c	2005-08-11 23:07:12.000000000 +0200
-@@ -543,6 +543,10 @@ static int try_to_unmap_one(struct page 
- 	flush_cache_page(vma, address, page_to_pfn(page));
- 	pteval = ptep_clear_flush(vma, address, pte);
+diff -puN include/asm-ppc/pgtable.h~rfp-arch-ppc include/asm-ppc/pgtable.h
+--- linux-2.6.git/include/asm-ppc/pgtable.h~rfp-arch-ppc	2005-08-12 18:18:43.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-ppc/pgtable.h	2005-08-12 18:39:57.000000000 +0200
+@@ -309,8 +309,8 @@ extern unsigned long ioremap_bot, iorema
+ /* Definitions for 60x, 740/750, etc. */
+ #define _PAGE_PRESENT	0x001	/* software: pte contains a translation */
+ #define _PAGE_HASHPTE	0x002	/* hash_page has made an HPTE for this pte */
+-#define _PAGE_FILE	0x004	/* when !present: nonlinear file mapping */
+ #define _PAGE_USER	0x004	/* usermode access allowed */
++#define _PAGE_FILE	0x008	/* when !present: nonlinear file mapping */
+ #define _PAGE_GUARDED	0x008	/* G: prohibit speculative access */
+ #define _PAGE_COHERENT	0x010	/* M: enforce memory coherence (SMP systems) */
+ #define _PAGE_NO_CACHE	0x020	/* I: cache inhibit */
+@@ -728,9 +728,16 @@ extern void paging_init(void);
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val << 3 })
  
-+	/* If nonlinear, store the file page offset in the pte. */
-+	set_nonlinear_pte(pteval, pte, vma, mm, page, address);
-+	flush_tlb_page(vma, address);
+ /* Encode and decode a nonlinear file mapping entry */
+-#define PTE_FILE_MAX_BITS	29
+-#define pte_to_pgoff(pte)	(pte_val(pte) >> 3)
+-#define pgoff_to_pte(off)	((pte_t) { ((off) << 3) | _PAGE_FILE })
++#define PTE_FILE_MAX_BITS	27
++#define pte_to_pgoff(pte)	(((pte_val(pte) & ~0x7ff) >> 5)		\
++				 | ((pte_val(pte) & 0x3f0) >> 4))
++#define pte_to_pgprot(pte)	\
++__pgprot((pte_val(pte) & (_PAGE_USER|_PAGE_RW|_PAGE_PRESENT)) | _PAGE_ACCESSED)
 +
- 	/* Move the dirty bit to the physical page now the pte is gone. */
- 	if (pte_dirty(pteval))
- 		set_page_dirty(page);
-@@ -661,6 +665,7 @@ static void try_to_unmap_cluster(unsigne
++#define pgoff_prot_to_pte(off, prot)					\
++	((pte_t) { (((off) << 5) & ~0x7ff) | (((off) << 4) & 0x3f0)	\
++		   | (pgprot_val(prot) & (_PAGE_USER|_PAGE_RW))		\
++		   | _PAGE_FILE })
  
- 		/* If nonlinear, store the file page offset in the pte. */
- 		set_nonlinear_pte(pteval, pte, vma, mm, page, address);
-+		flush_tlb_page(vma, address);
- 
- 		/* Move the dirty bit to the physical page now the pte is gone. */
- 		if (pte_dirty(pteval))
+ /* CONFIG_APUS */
+ /* For virtual address to physical address conversion */
 _

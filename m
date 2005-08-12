@@ -1,96 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbVHLSTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbVHLSUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbVHLSTo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVHLSPp
+	id S1750855AbVHLSUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbVHLSTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:15:45 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:16531 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750826AbVHLSPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:15:22 -0400
-Subject: [patch 06/39] correct _PAGE_FILE comment
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 20:21:10 +0200
-Message-Id: <20050812182110.D887224E7D1@zion.home.lan>
+	Fri, 12 Aug 2005 14:19:45 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:50310 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750855AbVHLSTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:19:24 -0400
+Date: Fri, 12 Aug 2005 11:19:16 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Martin Wilck <martin.wilck@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: APIC version and 8-bit APIC IDs
+Message-ID: <20050812111916.A15541@unix-os.sc.intel.com>
+References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel> <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com> <20050812133248.GN8974@wotan.suse.de> <42FCA97E.5010907@fujitsu-siemens.com> <42FCB86C.5040509@fujitsu-siemens.com> <20050812145725.GD922@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050812145725.GD922@wotan.suse.de>; from ak@suse.de on Fri, Aug 12, 2005 at 04:57:25PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 12, 2005 at 04:57:25PM +0200, Andi Kleen wrote:
+> On Fri, Aug 12, 2005 at 04:55:40PM +0200, Martin Wilck wrote:
+> > I wrote:
+> > 
+> > >>How so? The XAPIC version check should work there.
+> > >
+> > >ACPI: LAPIC (acpi_id[0x11] lapic_id[0x21] enabled)
+> > >Processor #33 15:4 APIC version 16
+> > >ACPI: LAPIC (acpi_id[0x12] lapic_id[0x26] enabled)
+> > >Processor #38 15:4 APIC version 16
+> > 
+> > Forget it. I have fallen prey to  this line:
+> > 
+> > 	processor.mpc_apicver = 0x10; /* TBD: lapic version */
+> > 
+> > in arch/x86_64/kernel/mpparse.c.
+> > I am used to get correct answers from Linux :-)
+> 
+> Heh. Should probably fix that. Can you file a bug with the ACPI
+> people on http://bugzilla.kernel.org ? (or do a patch?)
 
-_PAGE_FILE does not indicate whether a file is in page / swap cache, it is set
-just for non-linear PTE's. Correct the comment for i386, x86_64, UML. Also
-clearify _PAGE_NONE.
+Here is the patch.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+--
+Fix the apic version that gets printed during boot. 
 
- linux-2.6.git-paolo/include/asm-i386/pgtable.h   |   10 +++++-----
- linux-2.6.git-paolo/include/asm-um/pgtable.h     |    8 +++++---
- linux-2.6.git-paolo/include/asm-x86_64/pgtable.h |    2 +-
- 3 files changed, 11 insertions(+), 9 deletions(-)
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
-diff -puN include/asm-i386/pgtable.h~correct-_PAGE_FILE-comment include/asm-i386/pgtable.h
---- linux-2.6.git/include/asm-i386/pgtable.h~correct-_PAGE_FILE-comment	2005-08-11 11:17:04.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-i386/pgtable.h	2005-08-11 11:17:04.000000000 +0200
-@@ -86,9 +86,7 @@ void paging_init(void);
- #endif
+--- linux-2.6.13-rc6/arch/x86_64/kernel/mpparse.c~	2005-08-12 10:19:07.037696416 -0700
++++ linux-2.6.13-rc6/arch/x86_64/kernel/mpparse.c	2005-08-12 10:19:38.098974384 -0700
+@@ -707,7 +707,7 @@
  
- /*
-- * The 4MB page is guessing..  Detailed in the infamous "Chapter H"
-- * of the Pentium details, but assuming intel did the straightforward
-- * thing, this bit set in the page directory entry just means that
-+ * _PAGE_PSE set in the page directory entry just means that
-  * the page directory entry points directly to a 4MB-aligned block of
-  * memory. 
-  */
-@@ -119,8 +117,10 @@ void paging_init(void);
- #define _PAGE_UNUSED2	0x400
- #define _PAGE_UNUSED3	0x800
- 
--#define _PAGE_FILE	0x040	/* set:pagecache unset:swap */
--#define _PAGE_PROTNONE	0x080	/* If not present */
-+/* If _PAGE_PRESENT is clear, we use these: */
-+#define _PAGE_FILE	0x040	/* nonlinear file mapping, saved PTE; unset:swap */
-+#define _PAGE_PROTNONE	0x080	/* if the user mapped it with PROT_NONE;
-+				   pte_present gives true */
- #ifdef CONFIG_X86_PAE
- #define _PAGE_NX	(1ULL<<_PAGE_BIT_NX)
- #else
-diff -puN include/asm-x86_64/pgtable.h~correct-_PAGE_FILE-comment include/asm-x86_64/pgtable.h
---- linux-2.6.git/include/asm-x86_64/pgtable.h~correct-_PAGE_FILE-comment	2005-08-11 11:17:04.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-x86_64/pgtable.h	2005-08-11 11:17:04.000000000 +0200
-@@ -143,7 +143,7 @@ extern inline void pgd_clear (pgd_t * pg
- #define _PAGE_ACCESSED	0x020
- #define _PAGE_DIRTY	0x040
- #define _PAGE_PSE	0x080	/* 2MB page */
--#define _PAGE_FILE	0x040	/* set:pagecache, unset:swap */
-+#define _PAGE_FILE	0x040	/* nonlinear file mapping, saved PTE; unset:swap */
- #define _PAGE_GLOBAL	0x100	/* Global TLB entry */
- 
- #define _PAGE_PROTNONE	0x080	/* If not present */
-diff -puN include/asm-um/pgtable.h~correct-_PAGE_FILE-comment include/asm-um/pgtable.h
---- linux-2.6.git/include/asm-um/pgtable.h~correct-_PAGE_FILE-comment	2005-08-11 11:17:04.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-um/pgtable.h	2005-08-11 11:17:04.000000000 +0200
-@@ -16,13 +16,15 @@
- 
- #define _PAGE_PRESENT	0x001
- #define _PAGE_NEWPAGE	0x002
--#define _PAGE_NEWPROT   0x004
--#define _PAGE_FILE	0x008   /* set:pagecache unset:swap */
--#define _PAGE_PROTNONE	0x010	/* If not present */
-+#define _PAGE_NEWPROT	0x004
- #define _PAGE_RW	0x020
- #define _PAGE_USER	0x040
- #define _PAGE_ACCESSED	0x080
- #define _PAGE_DIRTY	0x100
-+/* If _PAGE_PRESENT is clear, we use these: */
-+#define _PAGE_FILE	0x008	/* nonlinear file mapping, saved PTE; unset:swap */
-+#define _PAGE_PROTNONE	0x010	/* if the user mapped it with PROT_NONE;
-+				   pte_present gives true */
- 
- #ifdef CONFIG_3_LEVEL_PGTABLES
- #include "asm/pgtable-3level.h"
-_
+ 	processor.mpc_type = MP_PROCESSOR;
+ 	processor.mpc_apicid = id;
+-	processor.mpc_apicver = 0x10; /* TBD: lapic version */
++	processor.mpc_apicver = GET_APIC_VERSION(apic_read(APIC_LVR));
+ 	processor.mpc_cpuflag = (enabled ? CPU_ENABLED : 0);
+ 	processor.mpc_cpuflag |= (boot_cpu ? CPU_BOOTPROCESSOR : 0);
+ 	processor.mpc_cpufeature = (boot_cpu_data.x86 << 8) | 

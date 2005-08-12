@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVHLRfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVHLRgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbVHLRfN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 13:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVHLRfM
+	id S1750751AbVHLRgz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 13:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVHLRgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 13:35:12 -0400
-Received: from cramus.icglink.com ([66.179.92.18]:8163 "EHLO mx03.icglink.com")
-	by vger.kernel.org with ESMTP id S1750753AbVHLRfL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 13:35:11 -0400
-Date: Fri, 12 Aug 2005 12:35:05 -0500
-From: Phil Dier <phil@icglink.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, ziggy@icglink.com, scott@icglink.com,
-       jack@icglink.com
-Subject: Re: 2.6.13-rc6 Oops with Software RAID, LVM, JFS, NFS
-Message-Id: <20050812123505.1515634c.phil@icglink.com>
-In-Reply-To: <17148.1113.664829.360594@cse.unsw.edu.au>
-References: <20050811105954.31f25407.phil@icglink.com>
-	<17148.1113.664829.360594@cse.unsw.edu.au>
-Organization: ICGLink
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 12 Aug 2005 13:36:54 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:31722 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750751AbVHLRgy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 13:36:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W91Smt5naL6NfJl3udWKRVkhNtbnw2JA2eodu0I0JAlB7NhXfrZQ7woaEqC/i8GUOC8j9SKBZi21bqJo77Tth1wA7/koG0NI048esq6l23ucz4iTYx13/ThLRd5A6+fmlsj43HcivnMZfxd0uhxA3DNh3Tzd1e6ae+/j3I2de0g=
+Message-ID: <86802c4405081210361b6a71a2@mail.gmail.com>
+Date: Fri, 12 Aug 2005 10:36:51 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [discuss] Re: 2.6.13-rc2 with dual way dual core ck804 MB
+Cc: Mike Waychison <mikew@google.com>, Peter Buckingham <peter@pantasys.com>,
+       linux-kernel@vger.kernel.org, "discuss@x86-64.org" <discuss@x86-64.org>
+In-Reply-To: <20050812164100.GB22901@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <86802c4405081016421db9baa5@mail.gmail.com>
+	 <86802c4405081017174c22dcd5@mail.gmail.com>
+	 <86802c440508101723d4aadef@mail.gmail.com>
+	 <20050811002841.GE8974@wotan.suse.de>
+	 <86802c440508101743783588df@mail.gmail.com>
+	 <20050811005100.GF8974@wotan.suse.de>
+	 <86802c4405081123597239dff7@mail.gmail.com>
+	 <20050812130725.GL8974@wotan.suse.de>
+	 <86802c4405081209187e51878@mail.gmail.com>
+	 <20050812164100.GB22901@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Aug 2005 12:07:21 +1000
-Neil Brown <neilb@cse.unsw.edu.au> wrote:
-> You could possibly put something like
+Oh.
+
+On 8/12/05, Andi Kleen <ak@suse.de> wrote:
+> On Fri, Aug 12, 2005 at 09:18:07AM -0700, yhlu wrote:
+> > good, I will produce one patch next week.
 > 
-> 	struct bio_vec *from;
-> 	int i;
-> 	bio_for_each_segment(from, bio, i)
-> 		BUG_ON(page_zone(from->bv_page)==NULL);
+> I already did it in my tree.
 > 
-> in generic_make_requst in drivers/block/ll_rw_blk.c, just before
-> the call to q->make_request_fn.
-> This might trigger the bug early enough to see what is happening.
-
-
-I've got tests running with this code in place, by I/O is so slow now
-I don't think it's going to oops (or if it does, it'll be a while)..
-
-Is there any other info I can collect to help track this down?
-
--- 
-
-Phil Dier (ICGLink.com -- 615 370-1530 x733)
-
-/* vim:set noai nocindent ts=8 sw=8: */
+> -Andi
+>

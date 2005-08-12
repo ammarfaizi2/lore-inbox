@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbVHLTWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVHLTWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751259AbVHLTWa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 15:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVHLTW3
+	id S1751256AbVHLTWb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 15:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVHLTWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 12 Aug 2005 15:22:31 -0400
+Received: from waste.org ([216.27.176.166]:35978 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751256AbVHLTW3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 12 Aug 2005 15:22:29 -0400
-Received: from agf.customers.acn.gr ([213.5.17.156]:10638 "EHLO
-	enigma.wired-net.gr") by vger.kernel.org with ESMTP
-	id S1751254AbVHLTW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 15:22:28 -0400
-Message-ID: <47285.62.1.10.150.1123874953.squirrel@webmail.wired-net.gr>
-In-Reply-To: <Pine.LNX.4.61.0508110835480.14365@chaos.analogic.com>
-References: <42FB435E.2070607@effigent.net>
-    <Pine.LNX.4.61.0508110835480.14365@chaos.analogic.com>
-Date: Fri, 12 Aug 2005 22:29:13 +0300 (EEST)
-Subject: fdisk & LBA
-From: "Nanakos Chrysostomos" <nanakos@wired-net.gr>
-To: linux-c-programming@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Reply-To: nanakos@wired-net.gr
-User-Agent: SquirrelMail/1.4.4-rc1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Date: Fri, 12 Aug 2005 12:21:52 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
+       ak@suse.de, Jeff Moyer <jmoyer@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, john.ronciak@intel.com,
+       rostedt@goodmis.org
+Subject: Re: [PATCH 0/8] netpoll: various bugfixes
+Message-ID: <20050812192152.GJ12284@waste.org>
+References: <1.502409567@selenic.com> <20050812172151.GA11104@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050812172151.GA11104@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,i want to retrieve the partition table of a primary extended
-partition.
-My MBR partition table ,says that the LBA Partition Start sector for the
-extended partition is 10281600.It is the same that i find with my C code
-and through fdisk usage.
-How can i use this value to seek(lseek) to this point through the main
-block file (/dev/hda or /dev/hdb) and read the partition table of the
-logical partition?
+[corrected akpm's address]
 
+On Fri, Aug 12, 2005 at 07:21:51PM +0200, Olaf Hering wrote:
+>  On Thu, Aug 11, Matt Mackall wrote:
+> 
+> > This patch series cleans up a few outstanding bugs in netpoll:
+> > 
+> > - two bugfixes from Jeff Moyer's netpoll bonding
+> > - a tweak to e1000's netpoll stub
+> > - timeout handling for e1000 with carrier loss
+> > - prefilling SKBs at init
+> > - a fix-up for a race discovered in initialization
+> > - an unused variable warning
+> 
+> Matt, I have tested them, the sender doesnt lockup anymore. But a
+> task dump doesnt work, I get only the first task. This is on a 3GHz xeon
+> with tg3 card.
 
+Does the task dump work without patch 5/8 (add retry timeout)? I'll
+try testing it here.
 
-Thanks in advance.
-
+-- 
+Mathematics is the supreme nostalgia of our time.

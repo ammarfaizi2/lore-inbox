@@ -1,78 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbVHLStT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbVHLSuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbVHLStT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 14:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVHLStP
+	id S1750976AbVHLSuE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 14:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVHLStw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 14:49:15 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:39339 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1751185AbVHLStH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 14:49:07 -0400
-Subject: [patch 24/39] remap_file_pages protection support: adapt to uml peculiarities
+	Fri, 12 Aug 2005 14:49:52 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:62412 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S1751199AbVHLSta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 14:49:30 -0400
+Subject: [patch 27/39] remap_file_pages protection support: fixups to ppc32 bits
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
+       paulus@samba.org
 From: blaisorblade@yahoo.it
-Date: Fri, 12 Aug 2005 20:35:57 +0200
-Message-Id: <20050812183557.D15FE24E7CB@zion.home.lan>
+Date: Fri, 12 Aug 2005 20:36:05 +0200
+Message-Id: <20050812183605.E823924E7D6@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+From: Paul Mackerras <paulus@samba.org>
 
-Uml is particular in respect with other architectures (and possibly this is to
-fix) in the fact that our arch fault handler handles indifferently both TLB
-and page faults. In particular, we may get to call handle_mm_fault() when the
-PTE is already correct, but simply it's not flushed.
-
-And rfp-fault-sigsegv-2 breaks this, because when getting a fault on a
-pte_present PTE and non-uniform VMA, it assumes the fault is due to a
-protection fault, and signals the caller a SIGSEGV must be sent.
-
-This isn't the final fix for UML, that's the next one.
+When I tried -mm4 on a ppc32 box, it hit a BUG because I hadn't excluded
+_PAGE_FILE from the bits used for swap entries.  While looking at that I
+realised that the pte_to_pgoff and pgoff_prot_to_pte macros were wrong for
+4xx and 8xx (embedded) PPC chips, since they use
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/arch/um/kernel/trap_kern.c |   19 +++++++++++++++----
- 1 files changed, 15 insertions(+), 4 deletions(-)
+ linux-2.6.git-paolo/include/asm-ppc/pgtable.h |   48 +++++++++++++++++++++-----
+ 1 files changed, 39 insertions(+), 9 deletions(-)
 
-diff -puN arch/um/kernel/trap_kern.c~rfp-sigsegv-uml-3 arch/um/kernel/trap_kern.c
---- linux-2.6.git/arch/um/kernel/trap_kern.c~rfp-sigsegv-uml-3	2005-08-11 23:13:06.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/kernel/trap_kern.c	2005-08-11 23:14:26.000000000 +0200
-@@ -75,8 +75,21 @@ handle_fault:
- 			err = -EACCES;
- 			goto out;
- 		case VM_FAULT_SIGSEGV:
--			err = -EFAULT;
--			goto out;
-+			/* Duplicate this code here. */
-+			pgd = pgd_offset(mm, address);
-+			pud = pud_offset(pgd, address);
-+			pmd = pmd_offset(pud, address);
-+			pte = pte_offset_kernel(pmd, address);
-+			if (likely (pte_newpage(*pte) || pte_newprot(*pte))) {
-+				/* This wasn't done by __handle_mm_fault(), and
-+				 * the page hadn't been flushed. */
-+				*pte = pte_mkyoung(*pte);
-+				if(pte_write(*pte)) *pte = pte_mkdirty(*pte);
-+				break;
-+			} else {
-+				err = -EFAULT;
-+				goto out;
-+			}
- 		case VM_FAULT_OOM:
- 			err = -ENOMEM;
- 			goto out_of_memory;
-@@ -89,8 +102,6 @@ handle_fault:
- 		pte = pte_offset_kernel(pmd, address);
- 	} while(!pte_present(*pte));
- 	err = 0;
--	*pte = pte_mkyoung(*pte);
--	if(pte_write(*pte)) *pte = pte_mkdirty(*pte);
- 	flush_tlb_page(vma, address);
+diff -puN include/asm-ppc/pgtable.h~rfp-arch-ppc32-pgtable-fixes include/asm-ppc/pgtable.h
+--- linux-2.6.git/include/asm-ppc/pgtable.h~rfp-arch-ppc32-pgtable-fixes	2005-08-12 18:18:44.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-ppc/pgtable.h	2005-08-12 18:18:44.000000000 +0200
+@@ -205,6 +205,7 @@ extern unsigned long ioremap_bot, iorema
+  */
+ #define _PAGE_PRESENT	0x00000001		/* S: PTE valid */
+ #define	_PAGE_RW	0x00000002		/* S: Write permission */
++#define _PAGE_FILE	0x00000004		/* S: nonlinear file mapping */
+ #define	_PAGE_DIRTY	0x00000004		/* S: Page dirty */
+ #define _PAGE_ACCESSED	0x00000008		/* S: Page referenced */
+ #define _PAGE_HWWRITE	0x00000010		/* H: Dirty & RW */
+@@ -213,7 +214,6 @@ extern unsigned long ioremap_bot, iorema
+ #define	_PAGE_ENDIAN	0x00000080		/* H: E bit */
+ #define	_PAGE_GUARDED	0x00000100		/* H: G bit */
+ #define	_PAGE_COHERENT	0x00000200		/* H: M bit */
+-#define _PAGE_FILE	0x00000400		/* S: nonlinear file mapping */
+ #define	_PAGE_NO_CACHE	0x00000400		/* H: I bit */
+ #define	_PAGE_WRITETHRU	0x00000800		/* H: W bit */
  
- 	/* If the PTE is not present, the vma protection are not accurate if
+@@ -724,20 +724,50 @@ extern void paging_init(void);
+ #define __swp_type(entry)		((entry).val & 0x1f)
+ #define __swp_offset(entry)		((entry).val >> 5)
+ #define __swp_entry(type, offset)	((swp_entry_t) { (type) | ((offset) << 5) })
++
++#if defined(CONFIG_4xx) || defined(CONFIG_8xx)
++/* _PAGE_FILE and _PAGE_PRESENT are in the bottom 3 bits on all these chips. */
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) >> 3 })
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val << 3 })
++#else	/* Classic PPC */
++#define __pte_to_swp_entry(pte)		\
++    ((swp_entry_t) { ((pte_val(pte) >> 3) & ~1) | ((pte_val(pte) >> 2) & 1) })
++#define __swp_entry_to_pte(x)		\
++    ((pte_t) { (((x).val & ~1) << 3) | (((x).val & 1) << 2) })
++#endif
+ 
+ /* Encode and decode a nonlinear file mapping entry */
+-#define PTE_FILE_MAX_BITS	27
+-#define pte_to_pgoff(pte)	(((pte_val(pte) & ~0x7ff) >> 5)		\
+-				 | ((pte_val(pte) & 0x3f0) >> 4))
+-#define pte_to_pgprot(pte)	\
+-__pgprot((pte_val(pte) & (_PAGE_USER|_PAGE_RW|_PAGE_PRESENT)) | _PAGE_ACCESSED)
++/* We can't use any the _PAGE_PRESENT, _PAGE_FILE, _PAGE_USER, _PAGE_RW,
++   or _PAGE_HASHPTE bits for storing a page offset. */
++#if defined(CONFIG_40x)
++/* 40x, avoid the 0x53 bits - to simplify things, avoid 0x73 */ */
++#define __pgoff_split(x)	((((x) << 5) & ~0x7f) | (((x) << 2) & 0xc))
++#define __pgoff_glue(x)		((((x) & ~0x7f) >> 5) | (((x) & 0xc) >> 2))
++#elif defined(CONFIG_44x)
++/* 44x, avoid the 0x47 bits */
++#define __pgoff_split(x)	((((x) << 4) & ~0x7f) | (((x) << 3) & 0x38))
++#define __pgoff_glue(x)		((((x) & ~0x7f) >> 4) | (((x) & 0x38) >> 3))
++#elif defined(CONFIG_8xx)
++/* 8xx, avoid the 0x843 bits */
++#define __pgoff_split(x)	((((x) << 4) & ~0xfff) | (((x) << 3) & 0x780) \
++				 | (((x) << 2) & 0x3c))
++#define __pgoff_glue(x)		((((x) & ~0xfff) >> 4) | (((x) & 0x780) >> 3))\
++				 | (((x) & 0x3c) >> 2))
++#else
++/* classic PPC, avoid the 0x40f bits */
++#define __pgoff_split(x)	((((x) << 5) & ~0x7ff) | (((x) << 4) & 0x3f0))
++#define __pgoff_glue(x)		((((x) & ~0x7ff) >> 5) | (((x) & 0x3f0) >> 4))
++#endif
+ 
++#define PTE_FILE_MAX_BITS	27
++#define pte_to_pgoff(pte)	__pgoff_glue(pte_val(pte))
+ #define pgoff_prot_to_pte(off, prot)					\
+-	((pte_t) { (((off) << 5) & ~0x7ff) | (((off) << 4) & 0x3f0)	\
+-		   | (pgprot_val(prot) & (_PAGE_USER|_PAGE_RW))		\
+-		   | _PAGE_FILE })
++	((pte_t) { __pgoff_split(off) | _PAGE_FILE |			\
++		   (pgprot_val(prot) & (_PAGE_USER|_PAGE_RW)) })
++
++#define pte_to_pgprot(pte)						\
++	__pgprot((pte_val(pte) & (_PAGE_USER|_PAGE_RW|_PAGE_PRESENT))	\
++		 | _PAGE_ACCESSED)
+ 
+ /* CONFIG_APUS */
+ /* For virtual address to physical address conversion */
 _

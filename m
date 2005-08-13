@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVHMQfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVHMQll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbVHMQfb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 12:35:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVHMQfb
+	id S932187AbVHMQll (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 12:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbVHMQll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 12:35:31 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:42435 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932185AbVHMQfa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 12:35:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UBgKjwSoCYxPvtg3csPZikuSpiu7Mgzaza66moHlEu0JhbTfuQIZPvk8w005YuSl0dDNOWsMIMM+/8mJuCDy9RDuUghdpVW4qPwrJQPbDuREybdBMh+7sWtrHCUg0TWqplSgJwDkUiZue1FCRCjT8bHom4p5L+WdoooZCcFaqjU=
-Message-ID: <feed8cdd0508130935622387db@mail.gmail.com>
-Date: Sat, 13 Aug 2005 09:35:29 -0700
-From: Stephen Pollei <stephen.pollei@gmail.com>
-To: =?ISO-8859-1?Q?Martin_v=2E_L=F6wis?= <martin@v.loewis.de>
-Subject: Re: [Patch] Support UTF-8 scripts
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42FDE286.40707@v.loewis.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <42FDE286.40707@v.loewis.de>
+	Sat, 13 Aug 2005 12:41:41 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:37808 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932187AbVHMQlk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 12:41:40 -0400
+Message-ID: <42FE22BD.3050804@pobox.com>
+Date: Sat, 13 Aug 2005 12:41:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grant Coady <Grant.Coady@gmail.com>
+CC: Karsten Wiese <annabellesgarden@yahoo.de>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH,RFC] quirks for VIA VT8237 southbridge
+References: <200508131710.38569.annabellesgarden@yahoo.de> <d86sf15b5b36ta7rgkjo2p980fku9e0lce@4ax.com>
+In-Reply-To: <d86sf15b5b36ta7rgkjo2p980fku9e0lce@4ax.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/13/05, "Martin v. Löwis" <martin@v.loewis.de> wrote:
-> This patch adds support for UTF-8 signatures (aka BOM, byte order
-> mark) to binfmt_script. 
+Grant Coady wrote:
+> I'm tracking a dataloss on box with this chip, finding it difficult 
+> to nail a configuration that reliably produces dataloss, sometimes 
+> only one bit (e.g. 'c' --> 'C') of unpacking kernel source tree gets 
+> changed.
 
-> With such support, creating scripts that reliably carry non-ASCII
-> characters is simplified. 
-> the approach would naturally extend to Perl to enhance/replace
-> the "use utf8" pragma. 
 
-Thats great for the perl6 people.
-http://dev.perl.org/perl6/doc/design/syn/S03.html says they are going
-to be using « and » as operators... So I'd imagine that a lot of perl6
-scripts would be utf8.
+I've been watching this thread in the background.
 
--- 
-http://dmoz.org/profiles/pollei.html
-http://sourceforge.net/users/stephen_pollei/
-http://www.orkut.com/Profile.aspx?uid=2455954990164098214
-http://stephen_pollei.home.comcast.net/
+Just to eliminate one possibility, I would definitely switch out SATA 
+cables, which are notoriously crappy.
+
+	Jeff
+
+

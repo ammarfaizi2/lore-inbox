@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVHMSSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbVHMS2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbVHMSSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 14:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbVHMSSQ
+	id S932245AbVHMS2I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 14:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVHMS2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 14:18:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:50110 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932235AbVHMSSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 14:18:16 -0400
-Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference
-	between /dev/kmem and /dev/mem)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0508131034350.19049@g5.osdl.org>
-References: <1123796188.17269.127.camel@localhost.localdomain>
-	 <1123809302.17269.139.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org>
-	 <1123951810.3187.20.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.58.0508130955010.19049@g5.osdl.org>
-	 <1123953924.3187.22.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.58.0508131034350.19049@g5.osdl.org>
-Content-Type: text/plain
-Date: Sat, 13 Aug 2005 20:18:07 +0200
-Message-Id: <1123957087.3187.31.camel@laptopd505.fenrus.org>
+	Sat, 13 Aug 2005 14:28:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36511 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932245AbVHMS2H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 14:28:07 -0400
+Date: Sat, 13 Aug 2005 14:27:48 -0400
+From: Dave Jones <davej@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: obsolete modparam change busted.
+Message-ID: <20050813182748.GG26633@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050808184955.GA18779@redhat.com> <1123560076.13481.37.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1123560076.13481.37.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-13 at 10:37 -0700, Linus Torvalds wrote:
-> 
-> On Sat, 13 Aug 2005, Arjan van de Ven wrote:
-> > 
-> > attached is the same patch but now with Steven's change made as well
-> 
-> Actually, the more I looked at that mmap_kmem() function, the less I liked 
-> it.  Let's get that sucker fixed better first. It's still not wonderful, 
-> but at least now it tries to verify the whole _range_ of the mapping.
+On Tue, Aug 09, 2005 at 02:01:16PM +1000, Rusty Russell wrote:
+ > On Mon, 2005-08-08 at 14:49 -0400, Dave Jones wrote:
+ > > However this change was broken, and if the modprobe.conf
+ > > has trailing whitespace, modules fail to load with the
+ > > following helpful message..
+ > 
+ > Hi Dave,
+ > 
+ > 	This fix should be preferable, I think.
+ > 
+ > Name: Ignore trailing whitespace on kernel parameters correctly
+ > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-actually if that is your goal this just isn't enough... assume the
-situation of a 1 page "forbidden gap", if you mmap 3 pages with the gap
-in the middle.... then the code you send still doesn't cope. At which
-point... it gets messy...
+
+Hey Rusty,
+ This seems to have introduced a different regression :-)
+
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=165633
+
+We're now munching the end of the boot command line it seems.
+
+		Dave
 

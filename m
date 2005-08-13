@@ -1,98 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVHMLQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbVHMLPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbVHMLQW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 07:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbVHMLQW
+	id S1751326AbVHMLPk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 07:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbVHMLPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 07:16:22 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:22221 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751328AbVHMLQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 07:16:21 -0400
-Subject: Re: [PATCH] cpm_uart: Fix spinlock initialization
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rmk+lkml@arm.linux.org.uk, galak@freescale.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linuppc-embedded@freescale.com,
-       vbordug@ru.mvista.com
-In-Reply-To: <20050812.145809.88701697.davem@davemloft.net>
-References: <Pine.LNX.4.61.0508121132060.18385@nylon.am.freescale.net>
-	 <20050812204617.C21152@flint.arm.linux.org.uk>
-	 <1123884186.22460.79.camel@localhost.localdomain>
-	 <20050812.145809.88701697.davem@davemloft.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 13 Aug 2005 12:41:20 +0100
-Message-Id: <1123933280.6624.4.camel@localhost.localdomain>
+	Sat, 13 Aug 2005 07:15:40 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57988 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751326AbVHMLPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 07:15:40 -0400
+Date: Sat, 13 Aug 2005 13:15:34 +0200
+From: Jan Kara <jack@suse.cz>
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: [PATCH] Fix error handling in reiserfs
+Message-ID: <20050813111534.GD4516@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-08-12 at 14:58 -0700, David S. Miller wrote:
-> I like this a lot, and the count return based error handling
-> is nice as well.  Should a driver sink any bytes that the
-> TTY flip interface couldn't eat or should it just wait for
-> the overrun event?
+  Hi,
 
-Its really driver dependant. A lot of the hardware doesn't seem to have
-much choice. My assumption would be that it is better to stop reading
-from the uart if possible and hope you avoid the later overrun on the
-chip. Then agai with kmalloc backing the memory allocation it shouldn't
-ever happen except perhaps to people with high speed DMA interfaces.
+  the patch below fixes oops triggered when user exceeded his inode
+quota on reiserfs (reiserfs incorrectly thought the inode has been
+already allocated and tried to free it). Please apply.
 
-> With respect to that, in fact, there seems to be some questions
-> of consistency regarding tty_insert_flip_char() and the
-> tty_prepare_*() interfaces.  If tty_insert_flip_char() fails
-> to stow away the character (due to memory allocation failure),
-> this just happens transparently.  However, when using the
+								Honza
 
-It returns 1 or 0. You can also use tty_buffer_request_room(tty, 1) if
-you really want to know if there is a byte free. Its probably cheaper to
-just remember the overflow in a static in the irq handler and push it
-first next IRQ however.
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
 
 
-> tty_prepare_*() stuff the driver just doesn't sink the bytes
-> at that time.
-> 
-> Perhaps there should be some kind of counterpart for
-> tty_insert_flip_char() (something like tty_prepare_to_insert_*() or
-> whatever) so that the "out-of-space" handling can be made more
-> consistent.
+Initialize key object ID in inode so that we don't try to remove the inode
+when we fail on some checks even before we manage to allocate something.
 
-Not 100% sure I follow this ?
+Signed-off-by: Jan Kara <jack@suse.cz>
 
-> 
-> Some other things caught my eye while reading this:
-> 
-> --- linux.vanilla-2.6.13-rc6/drivers/char/hvc_console.c	2005-08-10 13:57:08.000000000 +0100
-> +++ linux-2.6.13-rc6/drivers/char/hvc_console.c	2005-07-18 19:06:42.000000000 +0100
->  ...
-> +		count = tty_buffer_request_room(tty. N_INBUF);
-> 
-> that "." should be a "," obviously.  Also:
-> 
-> --- linux.vanilla-2.6.13-rc6/drivers/char/pcmcia/synclink_cs.c	2005-08-10 13:57:08.000000000 +0100
-> +++ linux-2.6.13-rc6/drivers/char/pcmcia/synclink_cs.c	2005-07-25 15:49:51.000000000 +0100
->  ...
-> -		printk("%s(%d):rx_ready_async count=%d\n",
-> -			__FILE__,__LINE__,tty->flip.count);
-> +		printk("%s(%d):rx_ready",
-> +			__FILE__,__LINE__);
-> 
-> The name of the function really is "rx_ready_async", no real need
-> to condense it to "rx_ready" and in fact this might confuse someone
-> actually reading this debug message.
-
-Thanks
-
-> "smaller than or equal to" size, so I think this test is reversed
-> and should instead be:
-> 
-> +		if(t->size >= size) {
-> 
-> Keep up the good work :-)
-
-Doh I'd been looking for that bug
-
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.13-rc6/fs/reiserfs/namei.c linux-2.6.13-rc6-reiser_create_fix/fs/reiserfs/namei.c
+--- linux-2.6.13-rc6/fs/reiserfs/namei.c	2005-08-12 10:39:25.000000000 +0200
++++ linux-2.6.13-rc6-reiser_create_fix/fs/reiserfs/namei.c	2005-08-12 10:39:07.000000000 +0200
+@@ -593,6 +593,9 @@ static int new_inode_init(struct inode *
+ 	 */
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_mode = mode;
++	/* Make inode invalid - just in case we are going to drop it before
++	 * the initialization happens */
++	INODE_PKEY(inode)->k_objectid = 0;
+ 
+ 	if (dir->i_mode & S_ISGID) {
+ 		inode->i_gid = dir->i_gid;

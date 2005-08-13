@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVHMQdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVHMQfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbVHMQdb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 12:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbVHMQdb
+	id S932185AbVHMQfb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 12:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVHMQfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 12:33:31 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:10581 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932183AbVHMQda convert rfc822-to-8bit
+	Sat, 13 Aug 2005 12:35:31 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:42435 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932185AbVHMQfa convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 12:33:30 -0400
+	Sat, 13 Aug 2005 12:35:30 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KCo3ps49r7b181cKMqsCzxuk55FKrY4Qk3eUjUuiYBMN5jr4iFJ8OAqFT9gNNbIwo0Ru1G1jbP+KT3Fb8qpgCCH1CD00AZrMTzkwORGL+HjFeZ7CWZEo5vctlxRAptwRASST1rV40PTaAgy1ATseA+9kkKbjh0wiQZQATd9xbIk=
-Message-ID: <bda6d13a0508130933bdbc46a@mail.gmail.com>
-Date: Sat, 13 Aug 2005 09:33:29 -0700
-From: Joshua Hudson <joshudson@gmail.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: BSD jail
-In-Reply-To: <20050813143335.GA5044@IBM-BWN8ZTBWA01.austin.ibm.com>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UBgKjwSoCYxPvtg3csPZikuSpiu7Mgzaza66moHlEu0JhbTfuQIZPvk8w005YuSl0dDNOWsMIMM+/8mJuCDy9RDuUghdpVW4qPwrJQPbDuREybdBMh+7sWtrHCUg0TWqplSgJwDkUiZue1FCRCjT8bHom4p5L+WdoooZCcFaqjU=
+Message-ID: <feed8cdd0508130935622387db@mail.gmail.com>
+Date: Sat, 13 Aug 2005 09:35:29 -0700
+From: Stephen Pollei <stephen.pollei@gmail.com>
+To: =?ISO-8859-1?Q?Martin_v=2E_L=F6wis?= <martin@v.loewis.de>
+Subject: Re: [Patch] Support UTF-8 scripts
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42FDE286.40707@v.loewis.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <bda6d13a050812174768154ea5@mail.gmail.com>
-	 <20050813143335.GA5044@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <42FDE286.40707@v.loewis.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/13/05, Serge E. Hallyn <serue@us.ibm.com> wrote:
-> The latest version (which is still quite old) is at
-> http://www.sf.net/projects/linuxjail and does have ipv6 support.  The last
-> time I submitted it, Christoph had objected to the way the networking was
-> done in general.  I've tried twice to float a generalized "per-process
-> network namespaces" patch, but haven't really found a good approach.
-> 
-> I suspect that the best approach would be to take the linux-vserver
-> ngnet implementation and convert it to a standalone network namespace
-> plus virtual network device implementation.  Do you care to give this
-> a try?
-> 
-> thanks,
-> -serge
+On 8/13/05, "Martin v. Löwis" <martin@v.loewis.de> wrote:
+> This patch adds support for UTF-8 signatures (aka BOM, byte order
+> mark) to binfmt_script. 
 
-Why would you want a virtual network device implementation? The whole
-point of jail()
-is a replacement for chroot() for housing untrusted root processes in
-a lightweight
-manner as reasonable.  I think in one way at least, I have restricted the manner
-of jail behavior better than the current linuxjail, by turning off
-capabilities rather than
-blocking mknod(), mount(), etc.
+> With such support, creating scripts that reliably carry non-ASCII
+> characters is simplified. 
+> the approach would naturally extend to Perl to enhance/replace
+> the "use utf8" pragma. 
 
-I do like the idea of patching in through LSM, however not everything
-can be done there.
-In particular, I could escape from the jail as implemented there by a
-classic chroot()
-trick.
+Thats great for the perl6 people.
+http://dev.perl.org/perl6/doc/design/syn/S03.html says they are going
+to be using « and » as operators... So I'd imagine that a lot of perl6
+scripts would be utf8.
+
+-- 
+http://dmoz.org/profiles/pollei.html
+http://sourceforge.net/users/stephen_pollei/
+http://www.orkut.com/Profile.aspx?uid=2455954990164098214
+http://stephen_pollei.home.comcast.net/

@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVHMSfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVHMSm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbVHMSfN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 14:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbVHMSfM
+	id S932248AbVHMSm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 14:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbVHMSm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 14:35:12 -0400
-Received: from arizona.isc.ch ([195.141.178.2]:29178 "EHLO alton.isc.ch")
-	by vger.kernel.org with ESMTP id S932227AbVHMSfL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 14:35:11 -0400
-Date: Sat, 13 Aug 2005 20:34:21 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Denis Vlasenko <vda@ilport.com.ua>, Jeff Garzik <jgarzik@pobox.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-net@vger.kernel.org,
+	Sat, 13 Aug 2005 14:42:58 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:51124 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932248AbVHMSm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 14:42:57 -0400
+Subject: Re: [Patch] Support UTF-8 scripts
+From: Lee Revell <rlrevell@joe-job.com>
+To: Stephen Pollei <stephen.pollei@gmail.com>
+Cc: "Martin v." =?ISO-8859-1?Q?L=F6wis?= <martin@v.loewis.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: via-rhine + link loss + autoneg off == trouble
-Message-ID: <20050813183421.GA16360@k3.hellgate.ch>
-References: <200508111350.42435.vda@ilport.com.ua>
+In-Reply-To: <feed8cdd0508130935622387db@mail.gmail.com>
+References: <42FDE286.40707@v.loewis.de>
+	 <feed8cdd0508130935622387db@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sat, 13 Aug 2005 14:42:52 -0400
+Message-Id: <1123958572.11295.7.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508111350.42435.vda@ilport.com.ua>
-X-Operating-System: Linux 2.6.13-rc3 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.3.7 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff, can you tune in for a moment?
+On Sat, 2005-08-13 at 09:35 -0700, Stephen Pollei wrote:
+> Thats great for the perl6 people.
+> http://dev.perl.org/perl6/doc/design/syn/S03.html says they are going
+> to be using « and » as operators...
 
-First of all, many thanks to vda for tracking this down, and to everyone
-else who helped with it.
+Is Larry smoking crack?  That's one of the worst ideas I've heard in a
+long time.  There's no easy way to enter those at the keyboard!
 
-I had a look at my code and at 8139cp (which is one of only a handful
-of drivers that have been converted to use the generic MII stuff).
+http://www.cl.cam.ac.uk/~mgk25/unicode.html#input
 
-Turns out 8139cp doesn't seem to do anything to address the problem
-vda described, either, so it is equally affected. Is this something we
-should fix in mii.c, or is mii_check_media working as designed? Btw,
-I'd be thrilled if someone wrote a few lines per function in mii.c:
-purpose, preconditions, side effects, something along these lines.
+Lee
 
-Roger

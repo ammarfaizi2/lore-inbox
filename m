@@ -1,121 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVHMBhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVHMBjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbVHMBhA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 21:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVHMBhA
+	id S932123AbVHMBjS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 21:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVHMBjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 21:37:00 -0400
-Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:16283 "EHLO
-	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932122AbVHMBg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 21:36:59 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck@vds.kolivas.org, vatsa@in.ibm.com
-Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
-Date: Sat, 13 Aug 2005 11:35:45 +1000
-User-Agent: KMail/1.8.2
-Cc: tony@atomide.com, tuukka.tikkanen@elektrobit.com, akpm@osdl.org,
-       johnstul@us.ibm.com, linux-kernel@vger.kernel.org, ak@muc.de,
-       schwidefsky@de.ibm.com, george@mvista.com
-References: <20050812201946.GA5327@in.ibm.com>
-In-Reply-To: <20050812201946.GA5327@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Aug 2005 21:39:18 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:21065 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932123AbVHMBjR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 21:39:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ClSRlZEXXE/sPrVAqnyuT2ujpZCTqwyH7W9gRiZVKUy2VQ7X9A/rsWC+9PHBbdvxPnwaXJ1sJfsTNuo/ShgKVSnYgY0b3pz5jhli12YJ3/9YvBgaQlkLA+zyzWyPcon2yOKnAnB5WcDxVQkNiyPUcEJD+rKJCJhbZJy28yVQudk=
+Message-ID: <7f45d939050812183911812222@mail.gmail.com>
+Date: Fri, 12 Aug 2005 18:39:13 -0700
+From: Shaun Jackman <sjackman@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Trouble shooting a ten minute boot delay (SiI3112)
+Cc: Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0508122113510.16845@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200508131135.46558.kernel@kolivas.org>
+References: <7f45d939050809163136a234a@mail.gmail.com>
+	 <42FC0DD4.9060905@gmail.com>
+	 <7f45d93905081201001a51d51b@mail.gmail.com>
+	 <42FC57EC.2060204@pobox.com>
+	 <7f45d93905081210441e209e31@mail.gmail.com>
+	 <Pine.LNX.4.61.0508122039390.16845@yvahk01.tjqt.qr>
+	 <7f45d93905081212087ea5910a@mail.gmail.com>
+	 <Pine.LNX.4.61.0508122113510.16845@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Aug 2005 06:19, Srivatsa Vaddagiri wrote:
-> Hi,
-> 	Here's finally the SMP changes that I had promised. The patch
-> breaks the earlier restriction that all CPUs have to be idle before
-> cutting of timers and now allows each idle CPU to skip ticks independent
-> of others. The patch is against 2.6.13-rc6 and applies on top of Con's
-> patch maintained here:
+2005/8/12, Jan Engelhardt <jengelh@linux01.gwdg.de>:
+> >I tried earlyprintk=vga, but it didn't provide any extra information.
+> >Although, CONFIG_EARLY_PRINTK is disabled in my .config. Does it need
+> >to be set to CONFIG_EARLY_PRINTK=y for earlyprintk=vga to work?
+> 
+> I think yes, otherwise there would not be a .config entry at all.
+> 
+> >I haven't tried Sysrq+T yet. I'll report back.
+> 
+> Mind that it is unlikely to get a good trace at this stage, but it's worth the
+> try.
 
-Great! Thanks.
+I compiled a vanilla 2.6.12.4 kernel, enabled EARLY_PRINTK and
+rebooted with earlyprintk=vga. The kernel didn't display any extra
+information before the delay.
 
+$ uname -a
+Linux quince 2.6.12.4 #1 Fri Aug 12 13:02:40 PDT 2005 i686 GNU/Linux
+$ cat /proc/cmdline
+root=/dev/md0 ro nodma earlyprintk=vga
+$ grep EARLY_PRINTK /boot/config-2.6.12.4
+CONFIG_EARLY_PRINTK=y
 
-> @@ -431,6 +425,7 @@ static void mark_offset_tsc(void)
->  	if (lost >= 2) {
->  		jiffies_64 += lost-1;
->
-> +#ifndef CONFIG_NO_IDLE_HZ
->  		/* sanity check to ensure we're not always losing ticks */
->  		if (lost_count++ > 100) {
->  			printk(KERN_WARNING "Losing too many ticks!\n");
-> @@ -446,6 +441,7 @@ static void mark_offset_tsc(void)
->  		/* ... but give the TSC a fair chance */
->  		if (lost_count > 25)
->  			cpufreq_delayed_get();
-> +#endif
-
-Is this sanity check also required when !dynticks_enabled() ? If so it would 
-be better to be just if (!dynticks_enabled())
-
-
-> 21:43:36.000000000 +0530 @@ -1157,6 +1157,7 @@ next:
->
->  static struct hw_interrupt_type ioapic_level_type;
->  static struct hw_interrupt_type ioapic_edge_type;
-> +static struct hw_interrupt_type ioapic_edge_type_irq0;
-
-This handler is redundant in !CONFIG_NO_IDLE_HZ ? If it is, as it appears to 
-be, this is unnecessary extra code below in !CONFIG_NO_IDLE_HZ adding unused 
-branches.
-
-> @@ -1168,15 +1169,19 @@ static inline void ioapic_register_intr(
->  		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
->  				trigger == IOAPIC_LEVEL)
->  			irq_desc[vector].handler = &ioapic_level_type;
-> -		else
-> +		else if (vector)
->  			irq_desc[vector].handler = &ioapic_edge_type;
-> +		else
-> +			irq_desc[vector].handler = &ioapic_edge_type_irq0;
->  		set_intr_gate(vector, interrupt[vector]);
->  	} else	{
->  		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
->  				trigger == IOAPIC_LEVEL)
->  			irq_desc[irq].handler = &ioapic_level_type;
-> -		else
-> +		else if (irq)
->  			irq_desc[irq].handler = &ioapic_edge_type;
-> +		else
-> +			irq_desc[irq].handler = &ioapic_edge_type_irq0;
->  		set_intr_gate(vector, interrupt[irq]);
->  	}
->  }
-> @@ -1288,7 +1293,7 @@ static void __init setup_ExtINT_IRQ0_pin
->  	 * The timer IRQ doesn't have to know that behind the
->  	 * scene we have a 8259A-master in AEOI mode ...
->  	 */
-> -	irq_desc[0].handler = &ioapic_edge_type;
-> +	irq_desc[0].handler = &ioapic_edge_type_irq0;
->
->  	/*
->  	 * Add it to the IO-APIC irq-routing table:
-> @@ -2014,6 +2019,18 @@ static struct hw_interrupt_type ioapic_l
->  	.set_affinity 	= set_ioapic_affinity,
->  };
->
-> +/* Needed to disable PIT interrupts when all CPUs sleep */
-> +static struct hw_interrupt_type ioapic_edge_type_irq0 = {
-> +	.typename 	= "IO-APIC-edge-irq0",
-> +	.startup 	= startup_edge_ioapic,
-> +	.shutdown 	= shutdown_edge_ioapic,
-> +	.enable 	= unmask_IO_APIC_irq,
-> +	.disable 	= mask_IO_APIC_irq,
-> +	.ack 		= ack_edge_ioapic,
-> +	.end 		= end_edge_ioapic,
-> +	.set_affinity 	= set_ioapic_affinity,
-> +};
-
-
-Otherwise, looks good!
+I tried Alt-SysRq-T but there was no response. SYSRQ is enabled.
+$ grep SYSRQ /boot/config-2.6.12.4
+CONFIG_MAGIC_SYSRQ=y
 
 Cheers,
-Con
+Shaun

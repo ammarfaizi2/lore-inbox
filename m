@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVHMArO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVHMAsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbVHMArO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 20:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbVHMArO
+	id S1750843AbVHMAsK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 20:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVHMAsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 20:47:14 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:47116 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750836AbVHMArO convert rfc822-to-8bit
+	Fri, 12 Aug 2005 20:48:09 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:14587 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1750836AbVHMAsI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 20:47:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=UCAFAlXPf94PKKnzxcYKOrS+E3nGytdCWeyamWor51kWkxUJXRzRDuq+vi7OJQm2TXdPfCaW8e4vriaE5kxgb5Cr4C13pAPzE2lORTAmniIIqxSjW1mN3QedsJnz/uwPTHLasA6jRqw+hgu9AY67jxbaMOzh3dZMEZk/Tok7CyQ=
-Message-ID: <bda6d13a050812174768154ea5@mail.gmail.com>
-Date: Fri, 12 Aug 2005 17:47:11 -0700
-From: Joshua Hudson <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: BSD jail
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 12 Aug 2005 20:48:08 -0400
+Message-ID: <42FD42C1.6040009@mvista.com>
+Date: Fri, 12 Aug 2005 17:45:53 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] eliminte NMI entry/ exit code
+Content-Type: multipart/mixed;
+ boundary="------------000805030702000009090001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had been wanting this functionality myself, but for some reason it never found
-its way into the stock kernel.  I looked around, started coding,
-looked some more,
-coded some more, looked some more until I found this:
 
-http://kerneltrap.org/node/3823
+This is a multi-part message in MIME format.
+--------------000805030702000009090001
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I suppose the reason it wasn't applied is lack of good IPv6 support.
+The NMI entry and exit code fiddles with bits in the preempt count.  If 
+an NMI happens while some other code is doing the same, bits will be 
+lost.  This patch removes this modify code from the NMI path till we can 
+come up with something better.
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
 
-It is perhaps about what I was looking for, but a slightly different method.
-My idea was to cause no disturbance to the normal security chain, and
-so maintain jails in the following manner (remember, the sys_jail call
-is trusted)
- 1. Add an additional check to path_lookup (actually, a functioned
-called by path_lookup)
-to check for jail roots in addition to normal chroots.
- 2. Lockdown process visibility to only processes in the same jail.
- 3. Lockdown kill/ptrace/setpriority to processes in the same jail.
- 4. Lockdown capabilities to a restricted set that prevents novel
-means of breaking the jail.
- 5. Restrict binding to one IPv4 and one IPv6 address (squash bind to
-all to bind to that).
-All of this is done in front of the normal security mechansim, so that
-some non-default
-security module will not accidentally break this.
+--------------000805030702000009090001
+Content-Type: text/plain;
+ name="fix-nmi-enter.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-nmi-enter.patch"
 
-I provided compatability for exactly the BSD jail(2) call, but did it
-without breaking
-programs that depend on chroot escapes working (there are a few).
+Source: MontaVista Software, Inc. George Anzinger <george@mvista.com>
+Type: Defect Fix 
 
-I am currently about a third of the way to completion. This means that
-I will finish
-unless some other mechanism is provided before I do. I personally
-don't care if my
-patch is used (if released), but I want this functionality.
+Description:
+
+    Modifying a word from NMI code runs the very real risk of loosing
+    either then new or the old bits.  Remember, we can not prevent an
+    NMI interrupt from ANYWHERE, inparticular between the read and the
+    write of a read modify write sequence.
+
+    This patch removes the update of the preempt count from the NMI
+    path.
+
+Signed-off-by: George Anzinger<george@mvista.com>
+
+ hardirq.h |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
+
+Index: linux-2.6.13-rc/include/linux/hardirq.h
+===================================================================
+--- linux-2.6.13-rc.orig/include/linux/hardirq.h
++++ linux-2.6.13-rc/include/linux/hardirq.h
+@@ -98,9 +98,12 @@ extern void synchronize_irq(unsigned int
+ #else
+ # define synchronize_irq(irq)	barrier()
+ #endif
+-
+-#define nmi_enter()		irq_enter()
+-#define nmi_exit()		sub_preempt_count(HARDIRQ_OFFSET)
++/*
++ * Re think these.  NMI _must_not_ share data words with non-nmi code
++ * Meanwhile, just do a no-op.
++ */
++#define nmi_enter()	/*	irq_enter()  */
++#define nmi_exit()	/*	sub_preempt_count(HARDIRQ_OFFSET) */
+ 
+ #ifndef CONFIG_VIRT_CPU_ACCOUNTING
+ static inline void account_user_vtime(struct task_struct *tsk)
+
+--------------000805030702000009090001--

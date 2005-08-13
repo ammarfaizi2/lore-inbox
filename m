@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbVHMS2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVHMSfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbVHMS2I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 14:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVHMS2H
+	id S932227AbVHMSfN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 14:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbVHMSfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 14:28:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36511 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932245AbVHMS2H (ORCPT
+	Sat, 13 Aug 2005 14:35:12 -0400
+Received: from arizona.isc.ch ([195.141.178.2]:29178 "EHLO alton.isc.ch")
+	by vger.kernel.org with ESMTP id S932227AbVHMSfL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 14:28:07 -0400
-Date: Sat, 13 Aug 2005 14:27:48 -0400
-From: Dave Jones <davej@redhat.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: obsolete modparam change busted.
-Message-ID: <20050813182748.GG26633@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050808184955.GA18779@redhat.com> <1123560076.13481.37.camel@localhost.localdomain>
+	Sat, 13 Aug 2005 14:35:11 -0400
+Date: Sat, 13 Aug 2005 20:34:21 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Denis Vlasenko <vda@ilport.com.ua>, Jeff Garzik <jgarzik@pobox.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: via-rhine + link loss + autoneg off == trouble
+Message-ID: <20050813183421.GA16360@k3.hellgate.ch>
+References: <200508111350.42435.vda@ilport.com.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1123560076.13481.37.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200508111350.42435.vda@ilport.com.ua>
+X-Operating-System: Linux 2.6.13-rc3 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 09, 2005 at 02:01:16PM +1000, Rusty Russell wrote:
- > On Mon, 2005-08-08 at 14:49 -0400, Dave Jones wrote:
- > > However this change was broken, and if the modprobe.conf
- > > has trailing whitespace, modules fail to load with the
- > > following helpful message..
- > 
- > Hi Dave,
- > 
- > 	This fix should be preferable, I think.
- > 
- > Name: Ignore trailing whitespace on kernel parameters correctly
- > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Jeff, can you tune in for a moment?
 
+First of all, many thanks to vda for tracking this down, and to everyone
+else who helped with it.
 
-Hey Rusty,
- This seems to have introduced a different regression :-)
+I had a look at my code and at 8139cp (which is one of only a handful
+of drivers that have been converted to use the generic MII stuff).
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=165633
+Turns out 8139cp doesn't seem to do anything to address the problem
+vda described, either, so it is equally affected. Is this something we
+should fix in mii.c, or is mii_check_media working as designed? Btw,
+I'd be thrilled if someone wrote a few lines per function in mii.c:
+purpose, preconditions, side effects, something along these lines.
 
-We're now munching the end of the boot command line it seems.
-
-		Dave
-
+Roger

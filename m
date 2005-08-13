@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVHMT4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVHMUrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVHMT4E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 15:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVHMT4E
+	id S932281AbVHMUrM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 16:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVHMUrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 15:56:04 -0400
-Received: from mirapoint2.brutele.be ([212.68.199.149]:43093 "EHLO
-	mirapoint2.brutele.be") by vger.kernel.org with ESMTP
-	id S932279AbVHMT4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 15:56:03 -0400
-Date: Sat, 13 Aug 2005 21:55:45 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: linux-kernel@vger.kernel.org
+	Sat, 13 Aug 2005 16:47:12 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:38028 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S932281AbVHMUrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 16:47:11 -0400
+Message-ID: <42FE5C60.6000107@austin.rr.com>
+Date: Sat, 13 Aug 2005 15:47:28 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, stephane.wirtel@belgacom.net
 Subject: Re: Documenting the VFS
-Message-ID: <20050813195545.GA6275@localhost.localdomain>
-References: <4fec73ca05081312054f1d1dd9@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <4fec73ca05081312054f1d1dd9@mail.gmail.com>
-X-Operating-System: Linux debian 2.6.12-1-k7
-User-Agent: Mutt/1.5.9i
-X-Junkmail-Status: score=10/50, host=mirapoint2.brutele.be
-X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090202.42FE4DB7.0021-F-L0BeBC04zsV01UPbcJcIKw==, ip=
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe ( but I am not sure ), there is a recent article (or book) 
-on this subject.
-
 > Where can I found an up to date documentation about the VFS interface?
-Perhaps in Documentation/VFS, 
+There is an ok chapter on filesystems in the O'Reilly Linux Kernel book,
+and the Linux Device Drivers book (also from O'Reilly) is essential
+reading.
 
-> If there is no such document, which is the correct mailing list to
-> submit my questions at? Is there any IRC channel to chat about this?
-> (I have visited a couple of times #kernelnewbies).
-> 
-> Thanks for your help and regards,
-> 
-> -- 
-> Guillermo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Pay careful attention to fs/libfs.c and the nice small fs fs/ramfs which calls 
+libfs which are both useful as they help understand the minimum that certain 
+vfs interfaces require.  This was helpful to me when I wrote the cifs
+filesystem.
 
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
+Documentation/filesystems/vfs.txt has a little bit of documentation, as
+does Documentation/Locking and Documentation/directory-locking.
+
+I may try to write something (perhaps articles?) longer and
+more formal if I get time.  
+
+Finally the lwn series (weekly articles) on kernel development is
+invaluable in describing what changes.
+
 

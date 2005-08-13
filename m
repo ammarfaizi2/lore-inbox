@@ -1,82 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVHMVyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVHMWMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVHMVyA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 17:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbVHMVyA
+	id S932351AbVHMWMT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 18:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVHMWMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 17:54:00 -0400
-Received: from smtp.gentoo.org ([134.68.220.30]:1737 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S932270AbVHMVx7 (ORCPT
+	Sat, 13 Aug 2005 18:12:18 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63939 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932351AbVHMWMR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 17:53:59 -0400
-Subject: Re: [PATCH] Watchdog device node name unification
-From: Henrik Brix Andersen <brix@gentoo.org>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-In-Reply-To: <1123969015.13656.13.camel@sponge.fungus>
-References: <1123969015.13656.13.camel@sponge.fungus>
-Content-Type: text/plain
-Organization: Gentoo Metadistribution
-Date: Sat, 13 Aug 2005 23:53:56 +0200
-Message-Id: <1123970037.13656.16.camel@sponge.fungus>
+	Sat, 13 Aug 2005 18:12:17 -0400
+Date: Sat, 13 Aug 2005 15:11:48 -0700
+From: Greg KH <greg@kroah.com>
+To: Wieland Gmeiner <e8607062@student.tuwien.ac.at>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Elliot Lee <sopwith@redhat.com>
+Subject: Re: [PATCH 2.6.13-rc6 1/2] New Syscall: get rlimits of any process
+Message-ID: <20050813221148.GA20060@kroah.com>
+References: <1123868902.10923.5.camel@w2>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1123868902.10923.5.camel@w2>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-13 at 23:36 +0200, Henrik Brix Andersen wrote:
-> Here's a patch for unifying the watchdog device node name
-> to /dev/watchdog as expected by most user-space applications.
-> 
-> Please CC: me on replies as I am not subscribed to LKML.
-> 
-> 
-> Signed-off-by: Henrik Brix Andersen <brix@gentoo.org>
+On Fri, Aug 12, 2005 at 07:48:22PM +0200, Wieland Gmeiner wrote:
+> @@ -294,3 +294,4 @@ ENTRY(sys_call_table)
+>  	.long sys_inotify_init
+>  	.long sys_inotify_add_watch
+>  	.long sys_inotify_rm_watch
+> +        .long sys_getprlimit
 
-The last patch was accidentally against 2.6.12 - this one is against
-2.6.13-rc6.
+Please follow the proper kernel coding style when writing new kernel
+code...
 
+thanks,
 
-diff -urp linux-2.6.13-rc6/drivers/char/watchdog/ixp2000_wdt.c linux-2.6.13-rc6-watchdog/drivers/char/watchdog/ixp2000_wdt.c
---- linux-2.6.13-rc6/drivers/char/watchdog/ixp2000_wdt.c	2005-08-13 23:48:02.000000000 +0200
-+++ linux-2.6.13-rc6-watchdog/drivers/char/watchdog/ixp2000_wdt.c	2005-08-13 23:50:17.000000000 +0200
-@@ -182,7 +182,7 @@ static struct file_operations ixp2000_wd
- static struct miscdevice ixp2000_wdt_miscdev =
- {
- 	.minor		= WATCHDOG_MINOR,
--	.name		= "IXP2000 Watchdog",
-+	.name		= "watchdog",
- 	.fops		= &ixp2000_wdt_fops,
- };
- 
-diff -urp linux-2.6.13-rc6/drivers/char/watchdog/ixp4xx_wdt.c linux-2.6.13-rc6-watchdog/drivers/char/watchdog/ixp4xx_wdt.c
---- linux-2.6.13-rc6/drivers/char/watchdog/ixp4xx_wdt.c	2005-08-13 23:48:02.000000000 +0200
-+++ linux-2.6.13-rc6-watchdog/drivers/char/watchdog/ixp4xx_wdt.c	2005-08-13 23:50:17.000000000 +0200
-@@ -176,7 +176,7 @@ static struct file_operations ixp4xx_wdt
- static struct miscdevice ixp4xx_wdt_miscdev =
- {
- 	.minor		= WATCHDOG_MINOR,
--	.name		= "IXP4xx Watchdog",
-+	.name		= "watchdog",
- 	.fops		= &ixp4xx_wdt_fops,
- };
- 
-diff -urp linux-2.6.13-rc6/drivers/char/watchdog/scx200_wdt.c linux-2.6.13-rc6-watchdog/drivers/char/watchdog/scx200_wdt.c
---- linux-2.6.13-rc6/drivers/char/watchdog/scx200_wdt.c	2005-08-13 23:48:02.000000000 +0200
-+++ linux-2.6.13-rc6-watchdog/drivers/char/watchdog/scx200_wdt.c	2005-08-13 23:50:21.000000000 +0200
-@@ -206,7 +206,7 @@ static struct file_operations scx200_wdt
- 
- static struct miscdevice scx200_wdt_miscdev = {
- 	.minor = WATCHDOG_MINOR,
--	.name  = NAME,
-+	.name  = "watchdog",
- 	.fops  = &scx200_wdt_fops,
- };
- 
-
-
--- 
-Henrik Brix Andersen <brix@gentoo.org>
-Gentoo Metadistribution | Mobile computing herd
-
+greg k-h

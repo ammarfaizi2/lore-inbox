@@ -1,45 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVHMVG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVHMVPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbVHMVG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 17:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVHMVG2
+	id S932291AbVHMVPE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 17:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVHMVPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 17:06:28 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:20871 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932287AbVHMVG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 17:06:28 -0400
-From: Grant Coady <Grant.Coady@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH,RFC] quirks for VIA VT8237 southbridge
-Date: Sun, 14 Aug 2005 07:06:13 +1000
-Organization: http://bugsplatter.mine.nu/
-Message-ID: <4imsf11nt1t1dpmlp1vov5d62kpohopud8@4ax.com>
-References: <200508131710.38569.annabellesgarden@yahoo.de> <d86sf15b5b36ta7rgkjo2p980fku9e0lce@4ax.com> <42FE22BD.3050804@pobox.com>
-In-Reply-To: <42FE22BD.3050804@pobox.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Sat, 13 Aug 2005 17:15:04 -0400
+Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:50774 "HELO
+	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932291AbVHMVPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 17:15:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:From:Organization:To:Subject:Date:User-Agent:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=mz5S5gnmobN6AsB7hD1BY0Zb7QtNVQ9dLkrKvzamqyCyzY82bm7XMxo3dTDo2C6ljMtwf4DcSJ+HJ7bQwIM112XtghHCU1iHQx9ZeEhuj5hviwNzgNX/wz7kPbXzPx3Cz7YHk6OqZ00PRriaxxYNuNO03JraSNIhGlIKkjy+svs=  ;
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG][2.6.7+(or eariler)] Switching from LCD to external video w/ no external video connected causes deadlock - Regression
+Date: Sat, 13 Aug 2005 17:13:27 -0400
+User-Agent: KMail/1.8.1
+References: <000201c47516$2dd74730$0200080a@panic> <20041110160407.6275b5be.akpm@osdl.org> <200411101914.59821.shawn.starr@rogers.com>
+In-Reply-To: <200411101914.59821.shawn.starr@rogers.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200508131713.27418.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Aug 2005 12:41:33 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
+We're back to square one, in VT mode the system deadlocks once again when 
+switching between LCD, External video modes.
 
->Grant Coady wrote:
->> I'm tracking a dataloss on box with this chip, finding it difficult 
->> to nail a configuration that reliably produces dataloss, sometimes 
->> only one bit (e.g. 'c' --> 'C') of unpacking kernel source tree gets 
->> changed.
-...
->Just to eliminate one possibility, I would definitely switch out SATA 
->cables, which are notoriously crappy.
+Kernel: 2.6.13-rc5 (merucurial build August 2nd snapshot).
 
-Since I have a spare new cable, done so.  But just now check SMART (in 
-windows) and have zero UltraATA CRC Error rate (cable errors) for HDD.
+Looks like this bug needs to be reopened again :/
 
-Thanks,
-Grant.
+Shawn.
 
+On November 10, 2004 19:14, Shawn Starr wrote:
+> As of 2.6.9 in Linux console, it properly switches between modes, there is
+> a small delay when switching to external VGA (if you have sound playing it
+> will repeat for a moment then resume).  There is no deadlocks.
+>
+> I cant test inside X just yet (w/ Xinerama extension)
+>
+> Shawn.
+>
+> On November 10, 2004 19:04, Andrew Morton wrote:
+> > Is this still happening in current kernels?
+> >
+> > Thanks.
+> >
+> > "Shawn Starr" <shawn.starr@rogers.com> wrote:
+> > > I've noticed a few people with IBM Thinkpads running 2.6.7+ - different
+> > > models - have this problem. I don't know where in 2.6 this begin
+> > > happening though.
+> > >
+> > > When you use the function key and switch from LCD to External Video,
+> > > the system deadlocks.
+> > > While ssh'd into the laptop the system has deadlocked once I switched
+> > > video. Unfortunately, I don't have a USB <-> Serial dongle handy yet
+> > > ;-)
+> > >
+> > > The Video card is a ATI Radeon 9600 64MB RAM, kernel has no framebuffer
+> > > support enabled.
+> > >
+> > > Is this a known issue?
+> > >
+> > > Thanks.
+> > >
+> > > Shawn.
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > > in the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVHMWxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVHMXIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbVHMWxS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 18:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVHMWxR
+	id S932397AbVHMXIG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 19:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbVHMXIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 18:53:17 -0400
-Received: from mail.gmx.de ([213.165.64.20]:137 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932388AbVHMWxR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 18:53:17 -0400
-X-Authenticated: #20450766
-Date: Sat, 13 Aug 2005 22:49:58 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Robert Hancock <hancockr@shaw.ca>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Is it possible to control C.O.P
-In-Reply-To: <42FBDD74.1010608@shaw.ca>
-Message-ID: <Pine.LNX.4.60.0508132221060.12478@poirot.grange>
-References: <4AfFW-xN-5@gated-at.bofh.it> <42FBDD74.1010608@shaw.ca>
+	Sat, 13 Aug 2005 19:08:05 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:57784 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932397AbVHMXID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 19:08:03 -0400
+Message-ID: <13573691.1123974481892.JavaMail.ngmail@webmail-04.arcor-online.net>
+Date: Sun, 14 Aug 2005 01:08:01 +0200 (CEST)
+From: thomas.mey3r@arcor.de
+To: linux-kernel@vger.kernel.org
+Subject: Aw: 2.6.13-rc5 -> 2.6.13-rc6: ACPI patches seems break the kernel
+In-Reply-To: <14604408.1123706059756.JavaMail.ngmail@webmail-08.arcor-online.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <14604408.1123706059756.JavaMail.ngmail@webmail-08.arcor-online.net>
+X-ngMessageSubType: MessageSubType_MAIL
+X-WebmailclientIP: 84.58.112.33
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Aug 2005, Robert Hancock wrote:
+ Hello.
 
-> Luigi Genoni wrote:
-> > HI,
-> > there is a way that the kernel could cope with CPU Overheating Protection?
-> > 
-> > I am usng a Tyan MPX with Dual AthlonMP, but COP is configured to shutdown
-> > the system toot early, when the temparature is still low.
+2.6.13-rc6-git5 resolves my kernel hang problem. seems to be the undo of the pci.c patch (or the pci quirk patch?)
+
+wiht kind regards
+thomas
+
+----- Original Nachricht ----
+Von:     thomas.mey3r@arcor.de
+An:      linux-kernel@vger.kernel.org
+Datum:   10.08.2005 22:34
+Betreff: 2.6.13-rc5 -> 2.6.13-rc6: ACPI patches seems break the kernel
+
+> Hello.
+> My machine (i386, acer 1350) stops to work with 2.6.13-rc6. it works with
+> "acpi=off". the abend seems to be a total deadlock. no system request keys
+> works. no oops with log level 9.
+> could someone please have a look at this?
 > 
-> I'm guessing this is controlled by the BIOS and handled by hardware, so I
-> don't know that there's much the kernel can do about it. Is there a threshold
-> temperature setting in the BIOS?
-
-Not sure what you mean by "shutdown" - the OS shuts down the system 
-cleanly or the BIOS just switches off the power? If the former, you, most 
-probably, just have wrongly configured sensors. I had a problem with 
-fictitious CPU overheating, until I modified my /etc/sensors.conf. Just 
-ask on sensors@stimpy.netroedge.com - no need to subscribe, people are 
-very helpful there.
-
-HTH
-Guennadi
----
-Guennadi Liakhovetski
+> with kind regards
+> thomas
+> 
+> ps:
+> please carbon copy me, because i'm not on the list.
+> 
+> 

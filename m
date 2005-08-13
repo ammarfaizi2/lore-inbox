@@ -1,121 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVHMBGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVHMBNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbVHMBGt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 21:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbVHMBGt
+	id S932079AbVHMBNn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 21:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVHMBNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 21:06:49 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:10485 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932104AbVHMBGt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 21:06:49 -0400
-Message-ID: <42FD47A1.6070506@mvista.com>
-Date: Fri, 12 Aug 2005 18:06:41 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 1.0+ (X11/20050531)
+	Fri, 12 Aug 2005 21:13:43 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:45748 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932079AbVHMBNm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 21:13:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=GE4cthOa2jXdpkYQsuMWITZxYbIG0b3/CGfSuNoP4Kk7EOzdfHSDw4b/ZkDBKEuDaJI80OmC8Hq0R7NbhEdjRoW5w/iJFkL3dKaDCLjTmbfgCMNQjW0YbfH5Iu+3pTVAZXy8yzPsM/Bw4MgBbtnD80li1ODLZISR4DeEagfzVuw=
+Message-ID: <42FD493D.8020506@gmail.com>
+Date: Sat, 13 Aug 2005 10:13:33 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: david-b@pacbell.net
-CC: geoffrey.levand@am.sony.com, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-Subject: Re: [linux-pm] PowerOP 1/3: PowerOP core
-References: <20050809025157.GB25064@slurryseal.ddns.mvista.com> <42F8D4C5.2090800@am.sony.com> <42F94B68.6060107@mvista.com> <20050812162315.16671E2E9B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-In-Reply-To: <20050812162315.16671E2E9B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+To: Chris Boot <bootc@bootc.net>
+CC: Jeff Garzik <jgarzik@pobox.com>, Linux-ide <linux-ide@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: SiI 3112A + Seagate HDs = still no go?
+References: <12872CA9-F089-4955-8751-8CC4E7B2140A@bootc.net> <42FC166A.3020505@gmail.com> <0FDE8D5B-CFF2-44F9-8C98-9C5EC5CDAE92@bootc.net> <42FC87ED.6030201@gmail.com> <22B1D7C7-7BC8-449C-914C-FCE5226BCAF2@bootc.net> <655E2636-B4D4-42EC-B10C-C8B8EFA09E33@bootc.net> <42FCAD4D.7080707@gmail.com> <74C9A166-2FDC-45F8-BEB1-A574FD9602D4@bootc.net>
+In-Reply-To: <74C9A166-2FDC-45F8-BEB1-A574FD9602D4@bootc.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-david-b@pacbell.net wrote:
-> How well would _this_ notion of an operating point scale up?
+
+  Hello, Chris.
+
+Chris Boot wrote:
+> On 12 Aug 2005, at 15:08, Tejun Heo wrote:
 > 
-> I have this feeling that it's maybe better attuned to "scale down"
-> sorts of problems (maybe cell phones) than to a big NUMA box.  I can
-> see how a batch scheduled server might want to fire up only enough
-> components to run the next simulation, but I wonder if maybe systems
-> dynamically managing lots of resources might not be better off with
-> some other model ... where userspace makes higher level decisions,
-> and the kernel is adaptive within a potentially big solution space.
-> (Likewise, maybe some of the smaller systems would too.)
-
-If I understand correctly, that does seem to describe how such systems 
-are used today: out of a potentially large number of choices (and some 
-embedded SOCs do have a good variety of clocking, core voltage, and 
-power domain choices), configure only those useful for the problem at 
-hand into the kernel and then userspace gives marching orders to the 
-kernel to activate whatever's appropriate according to system-specific 
-logic in userspace.
-
->   - Why have any parsing at all?  It's opaque data; so insist that
->     the kernel just get raw bytes.  That's the traditional solution,
->     not having the kernel parse arrays of integers.
+>>
+>> [adding cc to Jeff Garzik. (Hi!)]
+>>
+>>  Hi again, Chris.
+>>
+>>  Unfortunately, I'm as lost as you are.  Can you please do the  
+>> followings?
+>>
+>>  * Verify if read is free from the problem.  ie. does "dd if=/dev/ sd? 
+>> of=/dev/null" work?
 > 
->   - Why try to standardize a data-based abstraction at all?  Surely
->     it'd be easier to use modprobe, and have it register operating
->     points that include not just the data, but its interpretation.
+> 
+> Works like a treat at 30 MB/s. I do get a few errors in the log  
+> (repeated a couple of times), but they seem mostly harmless:
+> 
+> ata1: status=0x51 { DriveReady SeekComplete Error }
+> ata1: error=0x04 { DriveStatusError }
 
-Configuring the definitions of desired operating points (and updating 
-these on-the-fly) from userspace has its advantages, but inserting into 
-the kernel as a module should work fine and avoids some awkward 
-userspace interfaces.  In the current code it is intended that both 
-in-kernel interfaces (without parsing) and userspace interfaces are 
-available, but I think non-diagnostic userspace interfaces could easily 
-be dropped.  One of the nice things about having it done from userspace 
-is that apps can be in charge of configuring operating points and 
-activating those operating points in response to changes in system state 
-(with reduced chance of mismatched app + module).  And since it can be 
-done in userspace it's nice to simplify the kernel that way, which some 
-folks feel strongly about.  But not a big deal to me.
+  This is IDE ABRT error and it indicates that something strange is 
+going on.  You're not getting this kind of error on VIA controller, right?
 
-Standard data structures have small benefits for implementing some code 
-once instead of per-platform.  Another possibility in addition to the 
-configuration or diagnostic interfaces is the concept of "constraints" 
-on operating points according to device needs that you and others have 
-alluded to: the constraints can be expressed in a form that can be 
-checked by platform-independent code ("check the value at this power 
-parameter index in the array for this range of integer values").  Also 
-not a big deal.
+>>  * Turn on ATA_DEBUG and ATA_VERBOSE_DEBUG in include/linux/ libata.h 
+>> (change #undef's to #define's) and make the drive hang.   The log 
+>> should show what was going on.
+> 
+> 
+> While untarring and compiling the new kernel I got lots of:
+> 
+> ata1: status=0x51 { DriveReady SeekComplete Error }
+> ata1: error=0x84 { DriveStatusError BadCRC }
 
-All in all, it sounds like the next version of this should not have a 
-userspace configuration interface and should not provide a 
-platform-independent structure for the operating points.  The operating 
-point get and set functions are in machine-specific code and take an 
-operating point argument defined in header files shared between the 
-machine-specific code and whatever kernel code is creating and 
-activating operating points.  Any diagnostic interfaces need to be 
-machine-dependent as well.
+  Wow, this is CRC error.  Something is wrong w/ your controller.
 
-Now that the operating points are created without a generic layer or 
-structure, if one wants a generic interface to set (activate) one of 
-those operating points, probably identified by name, from userspace then 
-a little extra is needed.  Can worry about that later.
+> Syslog seems to die log before I get anything useful, and setting  
+> loglevel 9 with SysRq gives:
+> 
+> ata_fill_sg: PRD[126]: 0x1206A000, 0x1000)
+> ata_fill_sg: PRD[127]: 0x1206B000, 0x1000)
+> ata_dev_select: ENTER, ata1: device 0, wait 1
+> ATA: abnormal status 0xD9 on port 0xE0804087
+> ATA: abnormal status 0xD9 on port 0xE0804087
+> ata_tf_load_mmio: hob: feat 0x0 nsect 0x3, lba 0x1 0x0 0x0
+> ata_tf_load_mmio: feat 0x0 nsect 0xF8 lba 0x1A 0xEF 0x33
+> ata_tf_load_mmio: device 0xE0
+> ATA: abnormal statux 0xD9 on port 0xE0804087
+> ata_exec_command_mmio: ata: cmd 0x35
+> ata_scsi_translate: EXIT
+> 
+> It then hangs for exactly 30 seconds, and more stuff flies by  followed 
+> by much the same messages EXCEPT:
+> 
+> 1. There seems to be one less ata_fill_sg line every time, since PRD 
+> [XXX] decrements by one every time.
+> 2. The ata_tf_load_mmio lines give different nsect and lba, the  device 
+> stays the same.
 
->   - If those numbers are needed, having single-valued sysfs attributes
->     (maybe /sys/power/runstate/policy_name/XXX) would be preferable
->     to relying on getting position right within a multivalued input.
+  30 secs is SCSI command timeout and retrying w/ one less chunk is sd 
+driver's error recovery behavior.
 
-In case it helps, the code thus far and proposed interfaces use 
-single-valued sysfs interfaces.  Since you also mentioned:
+  It seems that a lot of errors occur while bits are going through your 
+SATA connection.  I don't know about Seagate drives, but my Samsung 
+drive sometimes locks up if it gets weird packets/commands.  This might 
+be also your case.  PHY-resetting usually gets the drive back online but 
+currently libata doesn't do any such error recovery actions.  To make 
+sure that it's because of faulty controller, can you please try the 
+following?
 
-> It's easier for me to see how "echo policy_name > /sys/power/runtime"
-> would scale up and down (given pluggable policy_name components!)
-> than "echo 0 35 98 141 66 -3 0x7efc0 > /sys/power/foo" would.
+  * Monitor how IO goes on the drive in Windows.  You can do this by
+      - Start->Run and enter perfmon.
+      - After perfmon starts, right click on (heh heh, I guess this is
+        one of those few times you read this on linux kernel mailing
+        list) counter list and select add. Add DiskBytes/sec counter of
+        PhysicalDisk object.
+      - Adjust scale to 0.0000010.  Also, change color to black to make
+        it stand out.
+      - start dd.
 
-and:
-
-> That'd also be less error prone than "whoops,
-> there wasn't supposed to be a space between 35 and 98" or "darn, I
-> switched the 141 and 66 around again".
-
-It may be worth pointing out that these interfaces wouldn't do that (a 
-two level hierarchy of operating point name and single power parameter 
-attribute would be used, and the ordering into the array is handled by 
-the generic PowerOP core, which knows how to associate parameter names 
-with array indices).  Older versions of DPM did use interfaces similar 
-to what you describe, in case you've got that in mind.  They weren't 
-intended to be used interactively.
-
-Thanks,
-
+  I think, if the errors are due to hardware error, the perfmon graph 
+will show some stuttering when it hits command timeout.  So, write to 
+disk, as writing seems to cause timeouts.  If the problem also happens 
+on Windows, it's highly likely that you have a faulty controller.
 
 -- 
-Todd
+tejun

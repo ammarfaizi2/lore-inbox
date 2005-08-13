@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVHMQ5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVHMRQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbVHMQ5J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 12:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVHMQ5I
+	id S932117AbVHMRQn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 13:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVHMRQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 12:57:08 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:6296 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932215AbVHMQ5H convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 12:57:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AZBi08TB0dSGSsf3BWGo060+q6s1h5+gzmiX5RtC2BJdNnvFkWfUssbvAFoXojaE3mmSy0WJ9OX889SlDA6NTFheBqgulpna/daMcZaPavXKXEvGxLL7Vf41Y+mubIPKxCPfJXvBeVS0hAURtdpb3qj7jU3MZczvsQaTHk6FxAE=
-Message-ID: <bda6d13a05081309575498f1bb@mail.gmail.com>
-Date: Sat, 13 Aug 2005 09:57:02 -0700
-From: Joshua Hudson <joshudson@gmail.com>
+	Sat, 13 Aug 2005 13:16:43 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:21496 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S932117AbVHMRQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 13:16:42 -0400
+Message-ID: <42FE2B0A.2010305@austin.rr.com>
+Date: Sat, 13 Aug 2005 12:16:58 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference between /dev/kmem and /dev/mem)
-In-Reply-To: <1123951810.3187.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1123796188.17269.127.camel@localhost.localdomain>
-	 <1123809302.17269.139.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org>
-	 <1123951810.3187.20.camel@laptopd505.fenrus.org>
+Subject: sending selected git changesets from middle of set of cloned tree
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/13/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Fri, 2005-08-12 at 09:35 -0700, Linus Torvalds wrote:
-> >
-> > On Thu, 11 Aug 2005, Steven Rostedt wrote:
-> > >
-> > > Found the problem.  It is a bug with mmap_kmem.  The order of checks is
-> > > wrong, so here's the patch.  Attached is a little program that reads the
-> > > System map looking for the variable modprobe_path.  If it finds it, then
-> > > it opens /dev/kmem for read only and mmaping it to read the contents of
-> > > modprobe_path.
-> >
-> > I'm actually more inclined to try to deprecate /dev/kmem.. I don't think
-> > anybody has ever really used it except for some rootkits. It only exists
-> > in the first place because it's historical.
-> >
-> > We do need to support /dev/mem for X, but even that might go away some
-> > day.
-> >
-> > So I'd be perfectly happy to fix this, but I'd be even happier if we made
-> > the whole kmem thing a config variable (maybe even default it to "off").
-> 
-I believe rootkit detectors, as well as some versions of ps (wchan
-field) use kmem.
+Is there a way to send to mainline requests to pick up selected 
+changesets from the middle of a git tree (another git tree on kernel.org 
+in this case)?
+
+I have two changsets (both one line fixes, but reasonably important ones)
+
+    
+http://www.kernel.org/git/?p=linux/kernel/git/sfrench/cifs-2.6.git;a=commit;h=f4cfd69cf349dd27e00d5cf804b57aee04e059c2
+
+and
+             
+http://www.kernel.org/git/?p=linux/kernel/git/sfrench/cifs-2.6.git;a=commit;h=ef6724e32142c2d9ca252d423cacc435c142734e
+
+without sending the whole tree (which includes another eight changesets 
+some before and some after)?   After testing last week at the cifs 
+plugfest, I would like to send these two in particular ASAP but want to 
+wait on the other eight since it is so late in the rc cycle for 
+mainline, and if I send them as diff/patches then I presumably would 
+lose the changeset comments.
+
+Is there a way to do a test committ against another git tree of a 
+particular changeset in the middle of one of my trees?
+
+
+Is there a way to update the comment field of a changeset without 
+undoing the whole tree and reapplying each changeset?  This comes up a 
+lot when someone opens a bugzilla bug number, after a fix for the 
+problem has already been applied to the git tree.  It also would have 
+helped once when I wanted to fix the signed-off line which was 
+accidently left off without backing the whole set of later changes out 
+and reapplying the changeset.

@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVHMJ4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbVHMKGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbVHMJ4s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 05:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVHMJ4s
+	id S932142AbVHMKGb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 06:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVHMKGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 05:56:48 -0400
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:50879 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751322AbVHMJ4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 05:56:47 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference  between /dev/kmem and /dev/mem)
-Date: Sat, 13 Aug 2005 11:56:23 +0200
-User-Agent: KMail/1.7.2
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       hugh@veritas.com
-References: <1123796188.17269.127.camel@localhost.localdomain.suse.lists.linux.kernel> <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org.suse.lists.linux.kernel> <p73br432izq.fsf@verdi.suse.de>
-In-Reply-To: <p73br432izq.fsf@verdi.suse.de>
+	Sat, 13 Aug 2005 06:06:31 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:23502 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932142AbVHMKGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 06:06:30 -0400
+Date: Sat, 13 Aug 2005 12:06:16 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: 7eggert@gmx.de, harvested.in.lkml@7eggert.dyndns.org,
+       vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org
+Subject: Re: Problem with usb-storage and /dev/sd?
+In-Reply-To: <20050812103832.28ff17a0.zaitcev@redhat.com>
+Message-ID: <Pine.LNX.4.58.0508131149070.2192@be1.lrz>
+References: <4pzyn-10f-33@gated-at.bofh.it> <4AubX-4w6-9@gated-at.bofh.it>
+ <E1E3X6P-0000cN-BB@be1.lrz> <20050812103832.28ff17a0.zaitcev@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3108866.xRFNcAgFZ3";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508131156.28553.ioe-lkml@rameria.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3108866.xRFNcAgFZ3
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Fri, 12 Aug 2005, Pete Zaitcev wrote:
 
-Hi Andi,
+> On Fri, 12 Aug 2005 12:49:28 +0200, Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org> wrote:
+> 
+> > Which label will a random USB stick have?
+> 
+> GUID, I presume.
 
-On Friday 12 August 2005 18:54, Andi Kleen wrote:
-> Acessing vmalloc in /dev/mem would be pretty awkward. Yes it doesn't
-> also work in mmap of /dev/kmem, but at least in read/write.
-> There are quite a lot of scripts that use it for kernel debugging
-> like dumping variables. And for that you really want to access modules
-> and vmalloc. And it's much easier to parse than /proc/kcore
+A global unique ID won't work out to make all USB mass storage devices
+appear under a common mountpoint, especially if it is recreated while
+"formating" it.
 
-Perfect! So it should be under CONFIG_DEBUG_KERNEL and default to off.
-
-So you can still debug and we raise the bar higher for rootkits,=20
-if they are the only other user.
-
-Too simple?
-
-
-Regards
-
-Ingo Oeser
-
-
---nextPart3108866.xRFNcAgFZ3
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC/cPMU56oYWuOrkARAsgoAKDKDOG4wvpAtUgkIrOW79xLXWYNhwCggU0C
-vq78hI7yCIv4Wmg0eF5b8y4=
-=K3Eo
------END PGP SIGNATURE-----
-
---nextPart3108866.xRFNcAgFZ3--
+-- 
+The enemy diversion you have been ignoring will be the main attack. 

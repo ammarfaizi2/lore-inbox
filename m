@@ -1,138 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbVHMLTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVHMLie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbVHMLTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 07:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVHMLTP
+	id S932149AbVHMLie (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 07:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVHMLie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 07:19:15 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8326 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751329AbVHMLTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 07:19:15 -0400
-Date: Sat, 13 Aug 2005 13:19:14 +0200
-From: Jan Kara <jack@suse.cz>
-To: Tarmo =?iso-8859-2?Q?T=E4nav?= <tarmo@itech.ee>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org,
-       mason@suse.com, jeffm@suse.com
-Subject: Re: BUG: reiserfs+acl+quota deadlock
-Message-ID: <20050813111914.GE4516@atrey.karlin.mff.cuni.cz>
-References: <1123643111.27819.23.camel@localhost> <20050810130009.GE22112@atrey.karlin.mff.cuni.cz> <1123684298.14562.4.camel@localhost>
+	Sat, 13 Aug 2005 07:38:34 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:31893 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932149AbVHMLid
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 07:38:33 -0400
+Date: Sat, 13 Aug 2005 17:07:17 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com,
+       akpm@osdl.org, johnstul@us.ibm.com, linux-kernel@vger.kernel.org,
+       ak@muc.de, schwidefsky@de.ibm.com, george@mvista.com
+Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
+Message-ID: <20050813113717.GB4550@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050812201946.GA5327@in.ibm.com> <200508131135.46558.kernel@kolivas.org> <200508131651.08809.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1123684298.14562.4.camel@localhost>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200508131651.08809.kernel@kolivas.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 13, 2005 at 04:51:07PM +1000, Con Kolivas wrote:
+> I'm sorry to say this doesn't appear to skip any ticks on my single P4 with 
+> SMP/SMT enabled.
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Con,
+	I had enabled skipping ticks only in default_idle routine. So if
+you have a different idle route (which I suspect is the case), it will not
+skip ticks (since dyn_tick_reprogram_timer will not be called).
+Can you try this patch?
 
-> Tried the attached patch but it changed nothing, I trying to create
-> a new file as a user whose quota grace time has ran out will still
-> cause everything accessing the users homedir (the one with the quota)
-> to hang in D state.
-> 
-> Also note that the bug I reported only exists when acl is also
-> enabled (does not have to be used). And although my kernel is not
-> built with debug (or reiserfs debug) support, I don't get any
-> oopses or reiserfs errors.. it just hangs.
-  OK, I've debugged the hang (I think the bug was actually introduced by
-Jeff's fix). Attached patch should fix it.
 
-								Honza
+---
 
-> On K, 2005-08-10 at 15:00 +0200, Jan Kara wrote:
-> >   Hello,
-> > 
-> > > I've already reported a similiar bug to the one I found now
-> > > and that was fixed by:
-> > > "[PATCH] reiserfs: fix deadlock in inode creation failure path w/
-> > > default ACL"
-> > > 
-> > > This bug is similiar in effect but has some differences in how
-> > > to trigger it. The end effect will be just like with the other
-> > > bug that the affected directory will be unaccessible to any user
-> > > or process.
-> > > 
-> > > So here's the way to reproduce it, as minimal as I could get it:
-> > > 
-> > > You need reiserfs, quota and acl support in kernel.
-> > > you also need quota tools (edquota, quotaon, quotacheck), I used
-> > > linuxquota 3.12.
-> > > 
-> > > # cd /mnt
-> > > # dd if=/dev/zero of=test bs=1M count=50
-> > > 50+0 records in
-> > > 50+0 records out
-> > > # mkreiserfs -f test >/dev/null
-> > > mkreiserfs 3.6.19 (2003 www.namesys.com)
-> > > 
-> > > test is not a block special device
-> > > Continue (y/n):y
-> > > # mkdir mpoint
-> > > # mount test mpoint -o loop,acl,usrquota
-> > > # mkdir mpoint/user1
-> > > # useradd -d /mnt/mpoint/user1 user1     # may also use existing user
-> > > # chown user1 mpoint/user1
-> > > # quotacheck -v mpoint                   # initializes quota file
-> > > # edquota user1
-> > > ---- set soft block limit to 1000, hard limit to 4000 ----
-> > > # edquota -t
-> > > ---- set the grace periods to something small: 1minutes ---
-> > > # quotaon mpoint
-> > > # ## at this point "repquota -a" should show the quota for user1
-> > > # su user1
-> > > # cd
-> > > # ## now we are in user1 home dir as user1
-> > > # cat /dev/zero > file1
-> > > loop2: warning, user block quota exceeded.
-> > > loop2: write failed, user block limit reached.
-> > > cat: write error: No space left on device
-> > > --- now we wait till the grace period expires (repquota -a) ----
-> > > # cat "" > otherfile
-> > > loop2: write failed, user block quota exceeded too long.
-> > > ---- and it will hang forever ----
-> > > # ## /mnt/mpoint can still be accessed, but /mnt/mpoint/user1 can't
-> > > 
-> > > 
-> > > I tested this on an -mm patchset kernel (2.6.13-rc5-mm1), but I
-> > > discovered the bug in my server which runs plain 2.6.12 with the
-> > > patch from Jeff Mahoney for the first reiserfs+acl bug.
-> > > 
-> > > The main difference between the two bugs is that the first one requires
-> > > the existance of a default acl, this one does not, but it does require
-> > > acl to be enabled.
-> >   This seems to be the same problem as bug #4771 that I've just fix. Can
-> > you try attached patch please?
-> >   Andrew, can you include the patch into -mm if ReiserFS guys won't object?
-> 
+ linux-2.6.13-rc6-root/arch/i386/kernel/process.c |    7 ++++---
+ linux-2.6.13-rc6-root/kernel/dyn-tick.c          |    8 ++++++--
+ 2 files changed, 10 insertions(+), 5 deletions(-)
+
+diff -puN kernel/dyn-tick.c~dynamic-tick-smp-fix kernel/dyn-tick.c
+--- linux-2.6.13-rc6/kernel/dyn-tick.c~dynamic-tick-smp-fix	2005-08-13 15:53:56.000000000 +0530
++++ linux-2.6.13-rc6-root/kernel/dyn-tick.c	2005-08-13 15:56:12.000000000 +0530
+@@ -37,16 +37,18 @@ spinlock_t dyn_tick_lock;
+ 
+ /*
+  * Arch independent code needed to reprogram next timer interrupt.
+- * Gets called with IRQs disabled from cpu_idle() before entering idle loop.
++ * Gets called from cpu_idle() before entering idle loop.
+  */
+ unsigned long dyn_tick_reprogram_timer(void)
+ {
+ 	int cpu = smp_processor_id();
+-	unsigned long delta;
++	unsigned long delta, flags;
+ 
+ 	if (!DYN_TICK_IS_SET(DYN_TICK_ENABLED))
+ 		return 0;
+ 
++	local_irq_save(flags);
++
+ 	if (rcu_pending(cpu) || local_softirq_pending())
+ 		return 0;
+ 
+@@ -76,6 +78,8 @@ unsigned long dyn_tick_reprogram_timer(v
+ 
+ 	write_sequnlock(&xtime_lock);
+ 
++	local_irq_restore(flags);
++
+ 	return delta;
+ }
+ 
+diff -puN arch/i386/kernel/process.c~dynamic-tick-smp-fix arch/i386/kernel/process.c
+--- linux-2.6.13-rc6/arch/i386/kernel/process.c~dynamic-tick-smp-fix	2005-08-13 15:53:56.000000000 +0530
++++ linux-2.6.13-rc6-root/arch/i386/kernel/process.c	2005-08-13 15:55:20.000000000 +0530
+@@ -104,10 +104,9 @@ void default_idle(void)
+ {
+ 	if (!hlt_counter && boot_cpu_data.hlt_works_ok) {
+ 		local_irq_disable();
+-		if (!need_resched()) {
+-			dyn_tick_reprogram_timer();
++		if (!need_resched())
+ 			safe_halt();
+-		} else
++		else
+ 			local_irq_enable();
+ 	} else {
+ 		cpu_relax();
+@@ -202,6 +201,8 @@ void cpu_idle(void)
+ 			if (cpu_is_offline(cpu))
+ 				play_dead();
+ 
++			dyn_tick_reprogram_timer();
++
+ 			__get_cpu_var(irq_stat).idle_timestamp = jiffies;
+ 			idle();
+ 		}
+_
+
+I have tested this patch on my Laptop (P4) that HZ goes down to ~25 with
+dyn-ticks enabled (but Power consumption goes _up_ as Ted had noted earlier
+- I need to try some of the ACPI patches that were pointed out in the thread).
+
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="reiser-2.6.13-rc6-2-xattr_fix.diff"
 
-When i_acl_default is set to some error we do not hold the lock (hence we are
-not allowed to drop it and reacquire later).
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.13-rc6-1-reiser_create_fix/fs/reiserfs/inode.c linux-2.6.13-rc6-2-reiser_xattr_fix/fs/reiserfs/inode.c
---- linux-2.6.13-rc6-1-reiser_create_fix/fs/reiserfs/inode.c	2005-08-14 17:10:21.000000000 +0200
-+++ linux-2.6.13-rc6-2-reiser_xattr_fix/fs/reiserfs/inode.c	2005-08-14 17:11:35.000000000 +0200
-@@ -1985,7 +1985,7 @@ int reiserfs_new_inode(struct reiserfs_t
- 	 * iput doesn't deadlock in reiserfs_delete_xattrs. The locking
- 	 * code really needs to be reworked, but this will take care of it
- 	 * for now. -jeffm */
--	if (REISERFS_I(dir)->i_acl_default) {
-+	if (REISERFS_I(dir)->i_acl_default && !IS_ERR(REISERFS_I(dir)->i_acl_default)) {
- 		reiserfs_write_unlock_xattrs(dir->i_sb);
- 		iput(inode);
- 		reiserfs_write_lock_xattrs(dir->i_sb);
-
---vkogqOf2sHV7VnPd--
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVHMMkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVHMMk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbVHMMkv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 08:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVHMMku
+	id S932159AbVHMMk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 08:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbVHMMk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 08:40:50 -0400
-Received: from ns1.suse.de ([195.135.220.2]:16305 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932147AbVHMMku (ORCPT
+	Sat, 13 Aug 2005 08:40:57 -0400
+Received: from ns1.suse.de ([195.135.220.2]:19633 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932159AbVHMMk5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 08:40:50 -0400
-Date: Sat, 13 Aug 2005 14:39:56 +0200
+	Sat, 13 Aug 2005 08:40:57 -0400
+Date: Sat, 13 Aug 2005 14:40:52 +0200
 From: Andi Kleen <ak@suse.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk, ak@suse.de,
-       gerg@uclinux.org, jdike@karaya.com, sammy@sammy.net,
-       lethal@linux-sh.org, wli@holomorphy.com, davem@davemloft.net,
-       matthew@wil.cx, geert@linux-m68k.org, paulus@samba.org,
-       davej@codemonkey.org.uk, tony.luck@intel.com, dev-etrax@axis.com,
-       rpurdie@rpsys.net, spyro@f2s.com, Robert Wilkens <robw@optonline.net>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Convert sigaction to act like other unices
-Message-ID: <20050813123956.GN22901@wotan.suse.de>
-References: <1123900802.5296.88.camel@localhost.localdomain>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, hugh@veritas.com
+Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference  between /dev/kmem and /dev/mem)
+Message-ID: <20050813124052.GO22901@wotan.suse.de>
+References: <1123796188.17269.127.camel@localhost.localdomain.suse.lists.linux.kernel> <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org.suse.lists.linux.kernel> <p73br432izq.fsf@verdi.suse.de> <200508131156.28553.ioe-lkml@rameria.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1123900802.5296.88.camel@localhost.localdomain>
+In-Reply-To: <200508131156.28553.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 12, 2005 at 10:40:02PM -0400, Steven Rostedt wroqte:
-> Here's a patch that converts all architectures to behave like other unix
-> boxes signal handling.  It's funny that I didn't need to change the m68k
-> architecture, since it was the only one that already behaves this way!
-> (the m68knommu does not!)
+> Perfect! So it should be under CONFIG_DEBUG_KERNEL and default to off.
+> 
+> So you can still debug and we raise the bar higher for rootkits, 
+> if they are the only other user.
+> 
+> Too simple?
 
-<rest snipped which also wasn't better>
-
-This is not a description of what you changed. A patch entry has to 
-start with a rationale and then a description of the change.
+If you wanted to recompile your kernel to debug you could as well
+add printks. But the whole point of kmem hacks is to avoid that
+slow cycle.
 
 -Andi

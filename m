@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVHMHBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVHMIqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbVHMHBL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 03:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbVHMHBL
+	id S932132AbVHMIqR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 04:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVHMIqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 03:01:11 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:21407 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S1751320AbVHMHBK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 03:01:10 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Daniel Phillips <phillips@arcor.de>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-Date: Sat, 13 Aug 2005 09:06:42 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Pavel Machek <pavel@suse.cz>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
-References: <42F57FCA.9040805@yahoo.com.au> <200508130020.11864.rjw@sisk.pl> <200508130904.41438.phillips@arcor.de>
-In-Reply-To: <200508130904.41438.phillips@arcor.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508130906.44088.rjw@sisk.pl>
+	Sat, 13 Aug 2005 04:46:16 -0400
+Received: from oldconomy.demon.nl ([212.238.217.56]:18623 "EHLO
+	artemis.slagter.name") by vger.kernel.org with ESMTP
+	id S932131AbVHMIqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 04:46:15 -0400
+Subject: Re: SATA status report updated
+From: Erik Slagter <erik@slagter.name>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <42FD14FB.3060200@pobox.com>
+References: <42FC2EF8.7030404@pobox.com>
+	 <E1E3X1A-00081t-00@chiark.greenend.org.uk>  <42FD14FB.3060200@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-P8EqRvuvJjTgMvGw2iDS"
+Date: Sat, 13 Aug 2005 10:45:59 +0200
+Message-Id: <1123922759.4370.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-1.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 13 of August 2005 01:04, Daniel Phillips wrote:
-> On Saturday 13 August 2005 08:20, Rafael J. Wysocki wrote:
-> > On Friday, 12 of August 2005 21:56, Daniel Phillips wrote:
-> > > I still don't see why you can't lift your flags up into the VMA.  The
-> > > rmap mechanism is there precisely to let you get from the physical page
-> > > to the users and user data, including VMAs.
-> >
-> > I'm not sure if I understand the issue, but swsusp works on a different
-> > level. It only needs to figure out which physical pages, as represented by
-> > struct page objects, should be saved to swap before suspend.  We browse all
-> > zones (once) and create a list of page frames that should be saved on the
-> > basis of the contents of the struct page objects alone.  IMHO if we needed
-> > to use any additional mechanisms here, it would be less efficient than just
-> > checking the page flags.
-> 
-> Isn't that what hash tables are for?  It seems to me obvious that you don't 
-> absolutely need to reserve page flag bits, but you think this is better, 
-> maybe enough faster to make a perceptible difference.  How about testing with 
-> a hash table?  If it dims the lights then you have all the argument you need.
-> 
-> Admittedly, page flags have not gotten really tight just yet, and this is 
-> something you can change later if they do become tight.  But it would be very 
-> nice to know just which of those page flags are really needed (like uptodate) 
-> versus which are just there for convenience.  I think yours fall in the 
-> latter category.
 
-Well, I think we can do without PG_nosave in swsusp, although it would require
-a considerable effort to remove it.
+--=-P8EqRvuvJjTgMvGw2iDS
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Greets,
-Rafael
+On Fri, 2005-08-12 at 17:30 -0400, Jeff Garzik wrote:
+> Matthew Garrett wrote:
+> > Jeff Garzik <jgarzik@pobox.com> wrote:
+> >=20
+> >>Things in SATA-land have been moving along recently, so I updated the=20
+> >>software status report:
+> >>
+> >>	http://linux.yyz.us/sata/software-status.html
+> >=20
+> >=20
+> > I couldn't see any reference to system-wide power management (ie,
+> > suspend/resume of machines with SATA interfaces) - is any work going on
+> > in that area at the moment?
+>=20
+> Jens Axboe @ SuSE posted a patch that needs some work.  So, it's on the=20
+> radar screen, but I haven't seen any new work recently.
 
+Ah, the sata-suspend patch. Also very needed. Extensively used over here
+on various kernels (2.6.11 and 2.6.12 versions), no problems, works like
+a charm imho.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+--=-P8EqRvuvJjTgMvGw2iDS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBC/bNHJgD/6j32wUYRAlMYAJ4mGC70La3nZAviis9nSYpEXolMawCfdKAD
+kaKDhd7WrFlkPzlT2HZWBgc=
+=rUgW
+-----END PGP SIGNATURE-----
+
+--=-P8EqRvuvJjTgMvGw2iDS--

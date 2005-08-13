@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbVHMJV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVHMJ4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbVHMJV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 05:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbVHMJV7
+	id S932137AbVHMJ4s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 05:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVHMJ4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 05:21:59 -0400
-Received: from lug-owl.de ([195.71.106.12]:56019 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750776AbVHMJV6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 05:21:58 -0400
-Date: Sat, 13 Aug 2005 11:21:54 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove support for gcc < 3.2
-Message-ID: <20050813092154.GC2382@lug-owl.de>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	linux-kernel@vger.kernel.org
-References: <20050731222606.GL3608@stusta.de> <21d7e99705080318347d6b58d5@mail.gmail.com> <20050804065447.GB25606@lug-owl.de> <20050804203831.GD4029@stusta.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4ZLFUWh1odzi/v6L"
-Content-Disposition: inline
-In-Reply-To: <20050804203831.GD4029@stusta.de>
-X-Operating-System: Linux mail 2.6.12.3lug-owl
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Sat, 13 Aug 2005 05:56:48 -0400
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:50879 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751322AbVHMJ4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 05:56:47 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference  between /dev/kmem and /dev/mem)
+Date: Sat, 13 Aug 2005 11:56:23 +0200
+User-Agent: KMail/1.7.2
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       hugh@veritas.com
+References: <1123796188.17269.127.camel@localhost.localdomain.suse.lists.linux.kernel> <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org.suse.lists.linux.kernel> <p73br432izq.fsf@verdi.suse.de>
+In-Reply-To: <p73br432izq.fsf@verdi.suse.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3108866.xRFNcAgFZ3";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508131156.28553.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---4ZLFUWh1odzi/v6L
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+--nextPart3108866.xRFNcAgFZ3
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2005-08-04 22:38:31 +0200, Adrian Bunk <bunk@stusta.de> wrote:
-> On Thu, Aug 04, 2005 at 08:54:47AM +0200, Jan-Benedict Glaw wrote:
-> > I guess that if you remove -fno-unit-at-a-time from i386 and use a
-> > current GCC, you'll run into that fun, too.
->=20
-> What bug exactly?
-
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D23237
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---4ZLFUWh1odzi/v6L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 Content-Disposition: inline
+
+Hi Andi,
+
+On Friday 12 August 2005 18:54, Andi Kleen wrote:
+> Acessing vmalloc in /dev/mem would be pretty awkward. Yes it doesn't
+> also work in mmap of /dev/kmem, but at least in read/write.
+> There are quite a lot of scripts that use it for kernel debugging
+> like dumping variables. And for that you really want to access modules
+> and vmalloc. And it's much easier to parse than /proc/kcore
+
+Perfect! So it should be under CONFIG_DEBUG_KERNEL and default to off.
+
+So you can still debug and we raise the bar higher for rootkits,=20
+if they are the only other user.
+
+Too simple?
+
+
+Regards
+
+Ingo Oeser
+
+
+--nextPart3108866.xRFNcAgFZ3
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFC/buyHb1edYOZ4bsRAgIkAJ0QrUZDI9c8H+ueQ+GiJFXF/XlGeACdHVyZ
-/hDL6iUXKdY5fNrZpepsXqk=
-=XvqE
+iD8DBQBC/cPMU56oYWuOrkARAsgoAKDKDOG4wvpAtUgkIrOW79xLXWYNhwCggU0C
+vq78hI7yCIv4Wmg0eF5b8y4=
+=K3Eo
 -----END PGP SIGNATURE-----
 
---4ZLFUWh1odzi/v6L--
+--nextPart3108866.xRFNcAgFZ3--

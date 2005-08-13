@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbVHMDPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbVHMDTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbVHMDPb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Aug 2005 23:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbVHMDPb
+	id S1750894AbVHMDTE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Aug 2005 23:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbVHMDTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Aug 2005 23:15:31 -0400
-Received: from mail.tmr.com ([64.65.253.246]:3031 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1750894AbVHMDPb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Aug 2005 23:15:31 -0400
-Message-ID: <42FD688E.7090106@tmr.com>
-Date: Fri, 12 Aug 2005 23:27:10 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joe <joecool1029@gmail.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: remove support for gcc < 3.2
-References: <20050731222606.GL3608@stusta.de>	 <20050731.153631.70217457.davem@davemloft.net> <42FA5848.809@tmr.com> <d4757e6005081017024c3bf3fd@mail.gmail.com>
-In-Reply-To: <d4757e6005081017024c3bf3fd@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 12 Aug 2005 23:19:04 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:56247 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S1750894AbVHMDTD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Aug 2005 23:19:03 -0400
+Mime-Version: 1.0 (Apple Message framework v622)
 Content-Transfer-Encoding: 7bit
+Message-Id: <c10854018590b2287bc64888d842a4ac@iki.fi>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Teemu Koponen <tkoponen@iki.fi>
+Subject: Opening of blocking FIFOs not reliable?
+Date: Fri, 12 Aug 2005 20:18:59 -0700
+X-Mailer: Apple Mail (2.622)
+X-Spam-Niksula: No
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe wrote:
+Hi,
 
->I'm for its removal. As for the gcc project "losing its way" consider
->that 3.4 has quite matured and also has much smaller binary size from
->3.3. 4.0 however is still too early in its development to come close
->to surpassing 3.4.
->
+Opening a FIFO for WR_ONLY should release a previously blocked RD_ONLY 
+open. I suspect this is not guaranteed on a heavily loaded Linux box.
 
-I consider that the compiler get bigger and slower with every release. 
-The tools used to find overlong paths in the kernel would work well for 
-gcc. Recent versions are painful, even with a decent SMP machine. The 
-people compiling on laptops could spend a day building with new versions.
+Consider fs/fifo.c (of 2.6.13-rc6-git4) and its wait_for_partner() and 
+wake_up_partner() functions. I think wait_for_partner()'s while loop 
+never exits, *iff* the writer, after opening the FIFO, closes it before 
+the reader gets scheduled. Shouldn't the writer's open() block until 
+the reader's open() is done?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+Teemu
+
+--
 

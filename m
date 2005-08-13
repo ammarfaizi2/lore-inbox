@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbVHMQR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVHMQdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbVHMQR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 12:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbVHMQR4
+	id S932184AbVHMQdv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 12:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVHMQdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 12:17:56 -0400
-Received: from nproxy.gmail.com ([64.233.182.198]:13546 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751350AbVHMQR4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 12:17:56 -0400
+	Sat, 13 Aug 2005 12:33:51 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:47735 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932184AbVHMQdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 12:33:50 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NTcdL55n6pju8rcc6ydiuHuC5jfJIbk8DJCAfZjVrmGyAjFef2kXeIB6OtyFgFxCl8352Mi9vmV5bXmMA5Ix+HssWKF05HPJzUij6BIVk5a/YMQjg37GEYvDmJ6L7Q+LFi+wsl7Iu2i4jNcaLqGX3yLUgbc9P7WgRV9cyVmU7/I=
-Message-ID: <84144f02050813091719c9c85a@mail.gmail.com>
-Date: Sat, 13 Aug 2005 19:17:50 +0300
-From: Pekka Enberg <penberg@gmail.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: Reusing the slab allocator
-Cc: lkml <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Dave Airlie <airlied@linux.ie>, Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <9e473391050810092835b3ef27@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+  s=s1024; d=yahoo.de;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=oFzgFcMZOQCuJQwXptLH54oqM6eN+tY1V6xh5iFKubVsD67s/MkQpDvIk2jGSETuRuGrd+Qyo08jxnFoLHDTmiAR3rz4KumceV+g1T+Xce+MpLzvtaWTQ40HNaFViSuy8E2H3aSfEolLA4o+dLIy/UO/OYDHnNlpyxZW37hB4Co=  ;
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: Grant Coady <Grant.Coady@gmail.com>
+Subject: Re: [PATCH,RFC] quirks for VIA VT8237 southbridge
+Date: Sat, 13 Aug 2005 18:34:16 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <200508131710.38569.annabellesgarden@yahoo.de> <d86sf15b5b36ta7rgkjo2p980fku9e0lce@4ax.com>
+In-Reply-To: <d86sf15b5b36ta7rgkjo2p980fku9e0lce@4ax.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <9e473391050810092835b3ef27@mail.gmail.com>
+Message-Id: <200508131834.16629.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/10/05, Jon Smirl <jonsmirl@gmail.com> wrote:
-> We need a memory manager for the VRAM on video cards. The most common
-> video cards have been 2MB and 512MB memory. Is it possible to reuse
-> the kernel slab allocator for managing this memory?
+Am Samstag, 13. August 2005 18:04 schrieb Grant Coady:
 > 
-> There are a couple of other odd constraints.
-> 1) Some objects need to be allocated on boundaries, like 64B or even
-> 1KB divisible addresses.
-> 2) It would be best if the allocation bookkeeping data structures were
-> kept in system RAM. It may not be simple to access VRAM for read/write
-> of bookkeeping info. VRAM  can require slow PCI cycles or need high
-> mem mappings to access.
+> I'm tracking a dataloss on box with this chip, finding it difficult 
+> to nail a configuration that reliably produces dataloss, sometimes 
+> only one bit (e.g. 'c' --> 'C') of unpacking kernel source tree gets 
+> changed.
 > 
-> If possible I'd rather reuse an existing manager than write a new one.
+> Relevant?  This is on a KM400 with Skt A Sempron + Seagate SATA HDD.
+> http://bugsplatter.mine.nu/test/linux-2.6/sempro/
 
-Alternatively, take a look at vmem allocator described in Magazines
-and Vmem: Extending the Slab Allocator to Many CPUs and Arbitrary
-Resources by Bonwick. AFAIK the slab allocator in Solaris is built on
-vmem.
+Very unlikely. Rare bitwise errors like yours are more likely caused by 
+i.e. broken IDE cable or too fast an IDE-controller setting for the
+cable / drive. Or memory error. Or an itch on the mainboard. or++
 
-                                   Pekka
+Interrupt errors would cause errors blockwisely.
+like whole sectors of data missing, device not working....
+
+   Karsten  
+
+	
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVHMUrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVHMVG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbVHMUrM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 16:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVHMUrM
+	id S932287AbVHMVG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 17:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVHMVG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 16:47:12 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:38028 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S932281AbVHMUrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 16:47:11 -0400
-Message-ID: <42FE5C60.6000107@austin.rr.com>
-Date: Sat, 13 Aug 2005 15:47:28 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Sat, 13 Aug 2005 17:06:28 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:20871 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932287AbVHMVG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 17:06:28 -0400
+From: Grant Coady <Grant.Coady@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH,RFC] quirks for VIA VT8237 southbridge
+Date: Sun, 14 Aug 2005 07:06:13 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <4imsf11nt1t1dpmlp1vov5d62kpohopud8@4ax.com>
+References: <200508131710.38569.annabellesgarden@yahoo.de> <d86sf15b5b36ta7rgkjo2p980fku9e0lce@4ax.com> <42FE22BD.3050804@pobox.com>
+In-Reply-To: <42FE22BD.3050804@pobox.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, stephane.wirtel@belgacom.net
-Subject: Re: Documenting the VFS
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Where can I found an up to date documentation about the VFS interface?
-There is an ok chapter on filesystems in the O'Reilly Linux Kernel book,
-and the Linux Device Drivers book (also from O'Reilly) is essential
-reading.
+On Sat, 13 Aug 2005 12:41:33 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
 
-Pay careful attention to fs/libfs.c and the nice small fs fs/ramfs which calls 
-libfs which are both useful as they help understand the minimum that certain 
-vfs interfaces require.  This was helpful to me when I wrote the cifs
-filesystem.
+>Grant Coady wrote:
+>> I'm tracking a dataloss on box with this chip, finding it difficult 
+>> to nail a configuration that reliably produces dataloss, sometimes 
+>> only one bit (e.g. 'c' --> 'C') of unpacking kernel source tree gets 
+>> changed.
+...
+>Just to eliminate one possibility, I would definitely switch out SATA 
+>cables, which are notoriously crappy.
 
-Documentation/filesystems/vfs.txt has a little bit of documentation, as
-does Documentation/Locking and Documentation/directory-locking.
+Since I have a spare new cable, done so.  But just now check SMART (in 
+windows) and have zero UltraATA CRC Error rate (cable errors) for HDD.
 
-I may try to write something (perhaps articles?) longer and
-more formal if I get time.  
-
-Finally the lwn series (weekly articles) on kernel development is
-invaluable in describing what changes.
-
+Thanks,
+Grant.
 

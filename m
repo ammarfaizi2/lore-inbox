@@ -1,118 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVHMLie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVHMMHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbVHMLie (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 07:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVHMLie
+	id S932152AbVHMMHl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 08:07:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVHMMHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 07:38:34 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:31893 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932149AbVHMLid
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 07:38:33 -0400
-Date: Sat, 13 Aug 2005 17:07:17 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com,
-       akpm@osdl.org, johnstul@us.ibm.com, linux-kernel@vger.kernel.org,
-       ak@muc.de, schwidefsky@de.ibm.com, george@mvista.com
-Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
-Message-ID: <20050813113717.GB4550@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050812201946.GA5327@in.ibm.com> <200508131135.46558.kernel@kolivas.org> <200508131651.08809.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508131651.08809.kernel@kolivas.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 13 Aug 2005 08:07:41 -0400
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:63123 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932152AbVHMMHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 08:07:41 -0400
+Message-ID: <42FDE286.40707@v.loewis.de>
+Date: Sat, 13 Aug 2005 14:07:34 +0200
+From: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [Patch] Support UTF-8 scripts
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 13, 2005 at 04:51:07PM +1000, Con Kolivas wrote:
-> I'm sorry to say this doesn't appear to skip any ticks on my single P4 with 
-> SMP/SMT enabled.
+This patch adds support for UTF-8 signatures (aka BOM, byte order
+mark) to binfmt_script. Files that start with EF BF FF # ! are now
+recognized as scripts (in addition to files starting with # !).
 
-Con,
-	I had enabled skipping ticks only in default_idle routine. So if
-you have a different idle route (which I suspect is the case), it will not
-skip ticks (since dyn_tick_reprogram_timer will not be called).
-Can you try this patch?
+With such support, creating scripts that reliably carry non-ASCII
+characters is simplified. Editors and the script interpreter can
+easily agree on what the encoding of the script is, and the
+interpreter can then render strings appropriately. Currently,
+Python supports source files that start with the UTF-8 signature;
+the approach would naturally extend to Perl to enhance/replace
+the "use utf8" pragma. Likewise, Tcl could use the UTF-8 signature
+to reliably identify UTF-8 source code (instead of assuming
+[encoding system] for source code).
 
+Please find the patch attached below.
 
----
+Regards,
+Martin
 
- linux-2.6.13-rc6-root/arch/i386/kernel/process.c |    7 ++++---
- linux-2.6.13-rc6-root/kernel/dyn-tick.c          |    8 ++++++--
- 2 files changed, 10 insertions(+), 5 deletions(-)
+Signed-off-by: Martin v. Löwis <martin@v.loewis.de>
 
-diff -puN kernel/dyn-tick.c~dynamic-tick-smp-fix kernel/dyn-tick.c
---- linux-2.6.13-rc6/kernel/dyn-tick.c~dynamic-tick-smp-fix	2005-08-13 15:53:56.000000000 +0530
-+++ linux-2.6.13-rc6-root/kernel/dyn-tick.c	2005-08-13 15:56:12.000000000 +0530
-@@ -37,16 +37,18 @@ spinlock_t dyn_tick_lock;
- 
+diff --git a/fs/binfmt_script.c b/fs/binfmt_script.c
+--- a/fs/binfmt_script.c
++++ b/fs/binfmt_script.c
+@@ -1,7 +1,7 @@
  /*
-  * Arch independent code needed to reprogram next timer interrupt.
-- * Gets called with IRQs disabled from cpu_idle() before entering idle loop.
-+ * Gets called from cpu_idle() before entering idle loop.
+  *  linux/fs/binfmt_script.c
+  *
+- *  Copyright (C) 1996  Martin von Löwis
++ *  Copyright (C) 1996, 2005  Martin von Löwis
+  *  original #!-checking implemented by tytso.
   */
- unsigned long dyn_tick_reprogram_timer(void)
- {
- 	int cpu = smp_processor_id();
--	unsigned long delta;
-+	unsigned long delta, flags;
- 
- 	if (!DYN_TICK_IS_SET(DYN_TICK_ENABLED))
- 		return 0;
- 
-+	local_irq_save(flags);
+
+@@ -23,7 +23,16 @@ static int load_script(struct linux_binp
+        char interp[BINPRM_BUF_SIZE];
+        int retval;
+
+-       if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!') ||
+(bprm->sh_bang))
++       /* It is a recursive invocation. */
++       if (bprm->sh_bang)
++               return -ENOEXEC;
 +
- 	if (rcu_pending(cpu) || local_softirq_pending())
- 		return 0;
- 
-@@ -76,6 +78,8 @@ unsigned long dyn_tick_reprogram_timer(v
- 
- 	write_sequnlock(&xtime_lock);
- 
-+	local_irq_restore(flags);
-+
- 	return delta;
- }
- 
-diff -puN arch/i386/kernel/process.c~dynamic-tick-smp-fix arch/i386/kernel/process.c
---- linux-2.6.13-rc6/arch/i386/kernel/process.c~dynamic-tick-smp-fix	2005-08-13 15:53:56.000000000 +0530
-+++ linux-2.6.13-rc6-root/arch/i386/kernel/process.c	2005-08-13 15:55:20.000000000 +0530
-@@ -104,10 +104,9 @@ void default_idle(void)
- {
- 	if (!hlt_counter && boot_cpu_data.hlt_works_ok) {
- 		local_irq_disable();
--		if (!need_resched()) {
--			dyn_tick_reprogram_timer();
-+		if (!need_resched())
- 			safe_halt();
--		} else
-+		else
- 			local_irq_enable();
- 	} else {
- 		cpu_relax();
-@@ -202,6 +201,8 @@ void cpu_idle(void)
- 			if (cpu_is_offline(cpu))
- 				play_dead();
- 
-+			dyn_tick_reprogram_timer();
-+
- 			__get_cpu_var(irq_stat).idle_timestamp = jiffies;
- 			idle();
- 		}
-_
-
-I have tested this patch on my Laptop (P4) that HZ goes down to ~25 with
-dyn-ticks enabled (but Power consumption goes _up_ as Ted had noted earlier
-- I need to try some of the ACPI patches that were pointed out in the thread).
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
++       /* It starts neither with #!, nor with #! preceded by
++          the UTF-8 signature. */
++       if (!(((bprm->buf[0] == '#') && (bprm->buf[1] == '!'))
++             || ((bprm->buf[0] == '\xef') && (bprm->buf[1] == '\xbb')
++                 && (bprm->buf[2] == '\xbf') && (bprm->buf[3] == '#')
++                 && (bprm->buf[4] == '!'))))
+                return -ENOEXEC;
+        /*
+         * This section does the #! interpretation.
+@@ -46,7 +55,8 @@ static int load_script(struct linux_binp
+                else
+                        break;
+        }
+-       for (cp = bprm->buf+2; (*cp == ' ') || (*cp == '\t'); cp++);
++       cp = (bprm->buf[0]=='\xef') ? bprm->buf+5 : bprm->buf+2;
++       while ((*cp == ' ') || (*cp == '\t')) cp++;
+        if (*cp == '\0')
+                return -ENOEXEC; /* No interpreter name found */
+        i_name = cp;

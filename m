@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbVHMPGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVHMPI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbVHMPGW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 11:06:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVHMPGW
+	id S1751330AbVHMPI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 11:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVHMPI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 11:06:22 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:41351 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751309AbVHMPGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 11:06:22 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: vatsa@in.ibm.com
-Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
-Date: Sun, 14 Aug 2005 00:53:20 +1000
-User-Agent: KMail/1.8.2
-Cc: ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com,
-       akpm@osdl.org, johnstul@us.ibm.com, linux-kernel@vger.kernel.org,
-       ak@muc.de, schwidefsky@de.ibm.com, george@mvista.com
-References: <20050812201946.GA5327@in.ibm.com> <200508131651.08809.kernel@kolivas.org> <20050813113717.GB4550@in.ibm.com>
-In-Reply-To: <20050813113717.GB4550@in.ibm.com>
+	Sat, 13 Aug 2005 11:08:27 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:61711 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751330AbVHMPI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 11:08:27 -0400
+Message-ID: <42FE0CE1.5010502@superbug.co.uk>
+Date: Sat, 13 Aug 2005 16:08:17 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Takashi Iwai <tiwai@suse.de>
+CC: Lee Revell <rlrevell@joe-job.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       "The Linux Audio Developers' Mailing List" 
+	<linux-audio-dev@music.columbia.edu>,
+       Raymond Lai <raymond.kk.lai@gmail.com>,
+       linux-pcmcia@lists.infradead.org, alsa-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] Re: [linux-audio-dev] Re: any update on the	pcmcia
+ bug blocking Audigy2 notebook sound card driver development
+References: <1ed860e3050807084449b0daac@mail.gmail.com>	<20050807104332.320aec48.akpm@osdl.org>	<1123519224.16205.5.camel@cmn37.stanford.edu>	<1123570490.26998.1.camel@mindpipe> <s5hvf2eyvme.wl%tiwai@suse.de>
+In-Reply-To: <s5hvf2eyvme.wl%tiwai@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508140053.21056.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Aug 2005 21:37, Srivatsa Vaddagiri wrote:
-> On Sat, Aug 13, 2005 at 04:51:07PM +1000, Con Kolivas wrote:
-> > I'm sorry to say this doesn't appear to skip any ticks on my single P4
-> > with SMP/SMT enabled.
->
-> Con,
-> 	I had enabled skipping ticks only in default_idle routine. So if
-> you have a different idle route (which I suspect is the case), it will not
-> skip ticks (since dyn_tick_reprogram_timer will not be called).
-> Can you try this patch?
+Anyone wishing to help fix this, please see:
+http://bugzilla.kernel.org/show_bug.cgi?id=5057
 
-Indeed this fixes it on my P4 so that it does skip ticks. However presumably 
-due to the code change I am having the reverse behaviour from previously - it 
-pauses for ages when using PIT - worse so than previously in that if I dont 
-generate interrupts with my mouse or keyboard it just sits there 
-indefinitely. Having said that, it seems to work fine in APIC mode. 
+Takashi Iwai wrote:
+> At Tue, 09 Aug 2005 02:54:49 -0400,
+> Lee Revell wrote:
+> 
+>>[added James to cc:]
+>>
+>>On Mon, 2005-08-08 at 09:40 -0700, Fernando Lopez-Lezcano wrote:
+>>
+>>>On Sun, 2005-08-07 at 10:43, Andrew Morton wrote:
+>>>
+>>>>Raymond Lai <raymond.kk.lai@gmail.com> wrote:
+>>>>
+>>>>>Hi all,
+>>>>>
+>>>>>I remember there's a kernel pcmcia bug preventing the development for 
+>>>>>the Audigy2 pcmcia notebook sound card driver. 
+>>>>>
+>>>>>See http://www.alsa-project.org/alsa-doc/index.php?vendor=vendor-Creative_Labs#matrix
+>>>>>
+>>>>>Is there any new updates on the situation? Has the bug been fixed? or
+>>>>>anyone working on it?
+>>>>
+>>>>Is it related to http://bugzilla.kernel.org/show_bug.cgi?id=4788 ?
+>>>
+>>>I think not, the card in question is the Creative Audigy 2 ZS PCMCIA
+>>>card. I have one I can't use yet :-( The kernel locks hard when ALSA
+>>>tries to load the driver. 
+>>
+>>Maybe we should have the emu10k1 driver not claim the device until this
+>>is fixed.  It's better than locking the machine (this behavior has been
+>>confirmed by several other users).
+> 
+> 
+> It seems to have the same PCI ID.  If the probing phase already
+> triggers the hang up, we can't stop it.
+> 
+> 
+> Takashi
+> 
+> 
 
-Without any modifications yet (I won't touch the code while you're busy with 
-it), here is a rolled up patch of yours on top of mine for those wanting to 
-try all the code:
-
-http://ck.kolivas.org/patches/dyn-ticks/2.6.13-rc6-dtck-2.patch
-
-Cheers,
-Con
+Please see
+http://bugzilla.kernel.org/show_bug.cgi?id=5057

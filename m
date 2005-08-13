@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbVHPPoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVHPPr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030194AbVHPPoX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 11:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbVHPPoX
+	id S1030197AbVHPPr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 11:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVHPPr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 11:44:23 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:19132 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030195AbVHPPoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 11:44:22 -0400
-Subject: Re: 2.6.13-rc6-rt5
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <1124206316.5764.14.camel@localhost.localdomain>
-References: <20050816121843.GA24308@elte.hu>
-	 <1124206316.5764.14.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 16 Aug 2005 11:44:06 -0400
-Message-Id: <1124207046.5764.17.camel@localhost.localdomain>
+	Tue, 16 Aug 2005 11:47:27 -0400
+Received: from AReims-151-1-72-193.w83-198.abo.wanadoo.fr ([83.198.94.193]:29453
+	"EHLO arda.LT-P.net") by vger.kernel.org with ESMTP
+	id S1030193AbVHPPr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 11:47:26 -0400
+Date: Sun, 14 Aug 2005 00:54:30 +0200
+From: LT-P <LT-P@LT-P.net>
+To: Horms <horms@debian.org>
+Cc: 321442@bugs.debian.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Bug#321442: kernel-source-2.6.8: fails to compile on powerpc
+ (drivers/ide/ppc/pmac.c)
+Message-ID: <20050814005430.2e26e627@arda.LT-P.net>
+In-Reply-To: <20050808085703.GE18551@verge.net.au>
+References: <E1E13vT-0008G7-R1@arda.LT-P.net>
+	<20050808085703.GE18551@verge.net.au>
+Organization: Banquise
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ouch, what was I thinking for that initializing flags to zero:
+Le lun 08 aoû 2005 17:57:04 CEST, Horms <horms@debian.org> a écrit:
 
-Sorry, lets try that again:
+> Can you please enable BLK_DEV_IDEDMA_PCI and see if that resolves your
+> problem. If it does, then the following patch should fix Kconfig
+> so that BLK_DEV_IDEDMA_PCI needs to be enabled for BLK_DEV_IDE_PMAC
+> to be enabled. It should patch cleanly against Debian's 2.6.8 and
+> Linus' current Git tree.
+It seems to solve the problem, thanks.
+Sometimes, I feel like I am the only person in the world to compile the kernel on
+powerpc... :)
 
-Signed-off-by: Steven Rostedt
+LT-P
 
-
-Index: linux_realtime_ernie/kernel/latency.c
-===================================================================
---- linux_realtime_ernie/kernel/latency.c	(revision 293)
-+++ linux_realtime_ernie/kernel/latency.c	(working copy)
-@@ -1307,12 +1307,13 @@
- 	T1 = cycles();
- 	delta = T1-T0;
- 
-+	raw_local_save_flags(flags);
-+
- #ifndef CONFIG_CRITICAL_LATENCY_HIST
- 	if (!report_latency(delta))
- 		goto out;
- #endif
- 
--	raw_local_save_flags(flags);
- 	____trace(cpu, TRACE_FN, tr, CALLER_ADDR0, parent_eip, 0, 0, 0, flags);
- 	/*
- 	 * Update the timestamp, because the trace entry above
-@@ -1441,7 +1442,7 @@
- 	_trace_cmdline(cpu, tr);
- 
- 	raw_local_save_flags(flags);
--	____trace(cpu, TRACE_FN, tr, eip, parent_eip, 0, 0, 0);
-+	____trace(cpu, TRACE_FN, tr, eip, parent_eip, 0, 0, 0, flags);
- 
- 	atomic_dec(&tr->disabled);
- }
-@@ -1459,7 +1460,7 @@
- 
- 	atomic_inc(&tr->disabled);
- 	raw_local_save_flags(flags);
--	____trace(cpu, TRACE_FN, tr, eip, parent_eip, 0, 0, 0);
-+	____trace(cpu, TRACE_FN, tr, eip, parent_eip, 0, 0, 0, flags);
- 	check_critical_timing(cpu, tr, eip);
- 	tr->critical_start = 0;
- 	atomic_dec(&tr->disabled);
-
-
+-- 
+Seals are cute, kiss them

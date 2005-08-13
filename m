@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVHMQdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVHMQdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbVHMQdv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 12:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVHMQdv
+	id S932183AbVHMQdb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 12:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbVHMQdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 12:33:51 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:47735 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932184AbVHMQdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 12:33:50 -0400
+	Sat, 13 Aug 2005 12:33:31 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:10581 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932183AbVHMQda convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 12:33:30 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=oFzgFcMZOQCuJQwXptLH54oqM6eN+tY1V6xh5iFKubVsD67s/MkQpDvIk2jGSETuRuGrd+Qyo08jxnFoLHDTmiAR3rz4KumceV+g1T+Xce+MpLzvtaWTQ40HNaFViSuy8E2H3aSfEolLA4o+dLIy/UO/OYDHnNlpyxZW37hB4Co=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Grant Coady <Grant.Coady@gmail.com>
-Subject: Re: [PATCH,RFC] quirks for VIA VT8237 southbridge
-Date: Sat, 13 Aug 2005 18:34:16 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200508131710.38569.annabellesgarden@yahoo.de> <d86sf15b5b36ta7rgkjo2p980fku9e0lce@4ax.com>
-In-Reply-To: <d86sf15b5b36ta7rgkjo2p980fku9e0lce@4ax.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KCo3ps49r7b181cKMqsCzxuk55FKrY4Qk3eUjUuiYBMN5jr4iFJ8OAqFT9gNNbIwo0Ru1G1jbP+KT3Fb8qpgCCH1CD00AZrMTzkwORGL+HjFeZ7CWZEo5vctlxRAptwRASST1rV40PTaAgy1ATseA+9kkKbjh0wiQZQATd9xbIk=
+Message-ID: <bda6d13a0508130933bdbc46a@mail.gmail.com>
+Date: Sat, 13 Aug 2005 09:33:29 -0700
+From: Joshua Hudson <joshudson@gmail.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: BSD jail
+In-Reply-To: <20050813143335.GA5044@IBM-BWN8ZTBWA01.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200508131834.16629.annabellesgarden@yahoo.de>
+References: <bda6d13a050812174768154ea5@mail.gmail.com>
+	 <20050813143335.GA5044@IBM-BWN8ZTBWA01.austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 13. August 2005 18:04 schrieb Grant Coady:
+On 8/13/05, Serge E. Hallyn <serue@us.ibm.com> wrote:
+> The latest version (which is still quite old) is at
+> http://www.sf.net/projects/linuxjail and does have ipv6 support.  The last
+> time I submitted it, Christoph had objected to the way the networking was
+> done in general.  I've tried twice to float a generalized "per-process
+> network namespaces" patch, but haven't really found a good approach.
 > 
-> I'm tracking a dataloss on box with this chip, finding it difficult 
-> to nail a configuration that reliably produces dataloss, sometimes 
-> only one bit (e.g. 'c' --> 'C') of unpacking kernel source tree gets 
-> changed.
+> I suspect that the best approach would be to take the linux-vserver
+> ngnet implementation and convert it to a standalone network namespace
+> plus virtual network device implementation.  Do you care to give this
+> a try?
 > 
-> Relevant?  This is on a KM400 with Skt A Sempron + Seagate SATA HDD.
-> http://bugsplatter.mine.nu/test/linux-2.6/sempro/
+> thanks,
+> -serge
 
-Very unlikely. Rare bitwise errors like yours are more likely caused by 
-i.e. broken IDE cable or too fast an IDE-controller setting for the
-cable / drive. Or memory error. Or an itch on the mainboard. or++
+Why would you want a virtual network device implementation? The whole
+point of jail()
+is a replacement for chroot() for housing untrusted root processes in
+a lightweight
+manner as reasonable.  I think in one way at least, I have restricted the manner
+of jail behavior better than the current linuxjail, by turning off
+capabilities rather than
+blocking mknod(), mount(), etc.
 
-Interrupt errors would cause errors blockwisely.
-like whole sectors of data missing, device not working....
-
-   Karsten  
-
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+I do like the idea of patching in through LSM, however not everything
+can be done there.
+In particular, I could escape from the jail as implemented there by a
+classic chroot()
+trick.

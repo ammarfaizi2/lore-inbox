@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVHMWYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbVHMWad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbVHMWYY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 18:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVHMWYX
+	id S932379AbVHMWad (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 18:30:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbVHMWac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 18:24:23 -0400
-Received: from nic.upatras.gr ([150.140.129.30]:17596 "HELO nic.upatras.gr")
-	by vger.kernel.org with SMTP id S932285AbVHMWYX (ORCPT
+	Sat, 13 Aug 2005 18:30:32 -0400
+Received: from smtp.gentoo.org ([134.68.220.30]:62657 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S932379AbVHMWac (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 18:24:23 -0400
-From: Michael Iatrou <m.iatrou@freemail.gr>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] configurable debug info from radeonfb old driver
-Date: Sun, 14 Aug 2005 01:18:27 +0300
-User-Agent: KMail/1.8.2
-X-Face: *8Gl!va:8&HzlgC%IRQaxD*[{;>3OMj];U1I;[rtNn@,hA7h/cTR1!!0J`koxA2)=?iso-8859-7?q?xj=7ELd9=0A=09N4LpVN=24=5CaU=27r?=<dFtnPd*,?d&u_g_kAnTwdv>2l}1-ae/$k1heNY.:5"9IYPy>X$msqG
-MIME-Version: 1.0
-Message-Id: <200508140118.27921.m.iatrou@freemail.gr>
-Cc: ajoshi@shell.unixbox.com, akpm@osdl.org
-Content-Type: text/plain;
-  charset="iso-8859-7"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sat, 13 Aug 2005 18:30:32 -0400
+Subject: Re: [PATCH] Watchdog device node name unification
+From: Henrik Brix Andersen <brix@gentoo.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0508131520520.3553@g5.osdl.org>
+References: <1123969015.13656.13.camel@sponge.fungus>
+	 <1123970037.13656.16.camel@sponge.fungus>
+	 <Pine.LNX.4.58.0508131520520.3553@g5.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YlwA2EHtQSW+izEH9SCA"
+Organization: Gentoo Metadistribution
+Date: Sun, 14 Aug 2005 00:30:29 +0200
+Message-Id: <1123972229.13656.18.camel@sponge.fungus>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Currently, radeonfb old driver always prints debugging informations. This 
-patch makes debug info reporting configurable.
- 
+--=-YlwA2EHtQSW+izEH9SCA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-diff -urN linux-2.6.13-rc6/drivers/video/Kconfig linux-2.6.13-rc6.new/drivers/video/Kconfig
---- linux-2.6.13-rc6/drivers/video/Kconfig      2005-08-14 00:48:34.000000000 +0300
-+++ linux-2.6.13-rc6.new/drivers/video/Kconfig  2005-08-14 00:54:10.000000000 +0300
-@@ -936,6 +936,15 @@
-          There is a product page at
-          <http://www.ati.com/na/pages/products/pc/radeon32/index.html>.
+On Sat, 2005-08-13 at 15:21 -0700, Linus Torvalds wrote:
+> On Sat, 13 Aug 2005, Henrik Brix Andersen wrote:
+> >=20
+> > The last patch was accidentally against 2.6.12 - this one is against
+> > 2.6.13-rc6.
+>=20
+> Doesn't seem to be serious enough to be worth it at this late stage in th=
+e=20
+> 2.6.13 game. Can you re-send after I do a release?
 
-+config FB_RADEON_OLD_DEBUG
-+    bool "Enable debug output from Old Radeon driver"
-+    depends on FB_RADEON_OLD
-+    default n
-+    help
-+      Say Y here if you want the Radeon driver to output all sorts
-+      of debugging informations to provide to the maintainer when
-+      something goes wrong.
-+
- config FB_RADEON
-        tristate "ATI Radeon display support"
-        depends on FB && PCI
-diff -urN linux-2.6.13-rc6/drivers/video/radeonfb.c linux-2.6.13-rc6.new/drivers/video/radeonfb.c
---- linux-2.6.13-rc6/drivers/video/radeonfb.c   2005-06-19 14:49:29.000000000 +0300
-+++ linux-2.6.13-rc6.new/drivers/video/radeonfb.c       2005-08-14 00:55:16.000000000 +0300
-@@ -80,7 +80,11 @@
- #include <video/radeon.h>
- #include <linux/radeonfb.h>
+Certainly. I will resend after 2.6.13 has been released.
 
--#define DEBUG  1
-+#ifdef CONFIG_FB_RADEON_OLD_DEBUG
-+#define DEBUG       1
-+#else
-+#define DEBUG       0
-+#endif
+Regards,
+Brix
+--=20
+Henrik Brix Andersen <brix@gentoo.org>
+Gentoo Metadistribution | Mobile computing herd
 
- #if DEBUG
- #define RTRACE         printk
+--=-YlwA2EHtQSW+izEH9SCA
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
--- 
- Michael Iatrou
+iD8DBQBC/nSFv+Q4flTiePgRAh5DAJ9wMzp6fYv9KqUeWDYb+5aKx8gjZgCffZ4h
+K+bymeDAM6/oqIEZuo98Uws=
+=h0yP
+-----END PGP SIGNATURE-----
+
+--=-YlwA2EHtQSW+izEH9SCA--
 

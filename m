@@ -1,64 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVHMV3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbVHMVg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbVHMV3p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 17:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbVHMV3p
+	id S932269AbVHMVg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 17:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbVHMVg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 17:29:45 -0400
-Received: from ns2.suse.de ([195.135.220.15]:19874 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932325AbVHMV3o (ORCPT
+	Sat, 13 Aug 2005 17:36:58 -0400
+Received: from smtp.gentoo.org ([134.68.220.30]:22701 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S932269AbVHMVg6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 17:29:44 -0400
-Date: Sat, 13 Aug 2005 23:29:24 +0200
-From: Andi Kleen <ak@suse.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       rmk@arm.linux.org.uk, gerg@uclinux.org, jdike@karaya.com,
-       sammy@sammy.net, lethal@linux-sh.org, wli@holomorphy.com,
-       davem@davemloft.net, matthew@wil.cx, geert@linux-m68k.org,
-       paulus@samba.org, davej@codemonkey.org.uk, tony.luck@intel.com,
-       dev-etrax@axis.com, rpurdie@rpsys.net, spyro@f2s.com,
-       Robert Wilkens <robw@optonline.net>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Convert sigaction to act like other unices
-Message-ID: <20050813212924.GQ22901@wotan.suse.de>
-References: <1123900802.5296.88.camel@localhost.localdomain> <20050813123956.GN22901@wotan.suse.de> <1123941614.5296.112.camel@localhost.localdomain>
+	Sat, 13 Aug 2005 17:36:58 -0400
+Subject: [PATCH] Watchdog device node name unification
+From: Henrik Brix Andersen <brix@gentoo.org>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Content-Type: text/plain
+Organization: Gentoo Metadistribution
+Date: Sat, 13 Aug 2005 23:36:55 +0200
+Message-Id: <1123969015.13656.13.camel@sponge.fungus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123941614.5296.112.camel@localhost.localdomain>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 13, 2005 at 10:00:14AM -0400, Steven Rostedt wrote:
-> On Sat, 2005-08-13 at 14:39 +0200, Andi Kleen wrote:
-> > On Fri, Aug 12, 2005 at 10:40:02PM -0400, Steven Rostedt wroqte:
-> > > Here's a patch that converts all architectures to behave like other unix
-> > > boxes signal handling.  It's funny that I didn't need to change the m68k
-> > > architecture, since it was the only one that already behaves this way!
-> > > (the m68knommu does not!)
-> > 
-> > <rest snipped which also wasn't better>
-> > 
-> > This is not a description of what you changed. A patch entry has to 
-> > start with a rationale and then a description of the change.
-> 
-> Sorry, I forgot that not all were in on the thread.  (duh, I added a
-> bunch of others, I guess I wasn't thinking clearly).
+Here's a patch for unifying the watchdog device node name
+to /dev/watchdog as expected by most user-space applications.
 
-I actually read the thread, but patches with useless descriptions
-like your previous one cannot be applied in general because you cannot expect
-that people later looking at the <VCS system of the week> logs 
-know about some obscure thread months or years before. Or rather
-the person who applied it would need to write a better description
-on his own, which is not their job.
+Please CC: me on replies as I am not subscribed to LKML.
 
-My general feeling about the change is that it risks breaking programs
-and doesn't seem to have any compelling advantages,
-so unless there is a bug demonstrated I wouldn't apply it.
 
--Andi
+Signed-off-by: Henrik Brix Andersen <brix@gentoo.org>
+
+
+diff -urp linux-2.6.13-rc6/drivers/char/watchdog/ixp2000_wdt.c linux-2.6.13-rc6-watchdog/drivers/char/watchdog/ixp2000_wdt.c
+--- linux-2.6.13-rc6/drivers/char/watchdog/ixp2000_wdt.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-watchdog/drivers/char/watchdog/ixp2000_wdt.c	2005-08-13 23:10:22.000000000 +0200
+@@ -186,7 +186,7 @@ static struct file_operations ixp2000_wd
+ static struct miscdevice ixp2000_wdt_miscdev =
+ {
+ 	.minor		= WATCHDOG_MINOR,
+-	.name		= "IXP2000 Watchdog",
++	.name		= "watchdog",
+ 	.fops		= &ixp2000_wdt_fops,
+ };
+ 
+diff -urp linux-2.6.13-rc6/drivers/char/watchdog/ixp4xx_wdt.c linux-2.6.13-rc6-watchdog/drivers/char/watchdog/ixp4xx_wdt.c
+--- linux-2.6.13-rc6/drivers/char/watchdog/ixp4xx_wdt.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-watchdog/drivers/char/watchdog/ixp4xx_wdt.c	2005-08-13 23:10:33.000000000 +0200
+@@ -180,7 +180,7 @@ static struct file_operations ixp4xx_wdt
+ static struct miscdevice ixp4xx_wdt_miscdev =
+ {
+ 	.minor		= WATCHDOG_MINOR,
+-	.name		= "IXP4xx Watchdog",
++	.name		= "watchdog",
+ 	.fops		= &ixp4xx_wdt_fops,
+ };
+ 
+diff -urp linux-2.6.13-rc6/drivers/char/watchdog/sa1100_wdt.c linux-2.6.13-rc6-watchdog/drivers/char/watchdog/sa1100_wdt.c
+--- linux-2.6.13-rc6/drivers/char/watchdog/sa1100_wdt.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-watchdog/drivers/char/watchdog/sa1100_wdt.c	2005-08-13 23:14:05.000000000 +0200
+@@ -176,7 +176,7 @@ static struct file_operations sa1100dog_
+ static struct miscdevice sa1100dog_miscdev =
+ {
+ 	.minor		= WATCHDOG_MINOR,
+-	.name		= "SA1100/PXA2xx watchdog",
++	.name		= "watchdog",
+ 	.fops		= &sa1100dog_fops,
+ };
+ 
+diff -urp linux-2.6.13-rc6/drivers/char/watchdog/scx200_wdt.c linux-2.6.13-rc6-watchdog/drivers/char/watchdog/scx200_wdt.c
+--- linux-2.6.13-rc6/drivers/char/watchdog/scx200_wdt.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-watchdog/drivers/char/watchdog/scx200_wdt.c	2005-08-13 23:14:33.000000000 +0200
+@@ -210,7 +210,7 @@ static struct file_operations scx200_wdt
+ 
+ static struct miscdevice scx200_wdt_miscdev = {
+ 	.minor = WATCHDOG_MINOR,
+-	.name  = NAME,
++	.name  = "watchdog",
+ 	.fops  = &scx200_wdt_fops,
+ };
+ 
+
+-- 
+Henrik Brix Andersen <brix@gentoo.org>
+Gentoo Metadistribution | Mobile computing herd
 

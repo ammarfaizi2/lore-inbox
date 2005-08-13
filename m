@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbVHMXaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbVHMXnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbVHMXaF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 19:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbVHMXaF
+	id S932412AbVHMXnc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 19:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVHMXnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 19:30:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28907 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932407AbVHMXaB (ORCPT
+	Sat, 13 Aug 2005 19:43:32 -0400
+Received: from ns2.suse.de ([195.135.220.15]:54187 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932412AbVHMXnb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 19:30:01 -0400
-Date: Sat, 13 Aug 2005 19:29:57 -0400
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: IDE CD problems in 2.6.13rc6
-Message-ID: <20050813232957.GE3172@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org
+	Sat, 13 Aug 2005 19:43:31 -0400
+Date: Sun, 14 Aug 2005 01:43:22 +0200
+From: Olaf Hering <olh@suse.de>
+To: Christoph Hellwig <hch@infradead.org>,
+       Henrik Brix Andersen <brix@gentoo.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] Watchdog device node name unification
+Message-ID: <20050813234322.GA30563@suse.de>
+References: <1123969015.13656.13.camel@sponge.fungus> <20050813232519.GA20256@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20050813232519.GA20256@infradead.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed this week whilst trying to encode a bunch
-of audio CDs to oggs that my boxes running the latest
-kernels are having serious issues, whereas 2.6.12 seems
-to cope just fine.
+ On Sun, Aug 14, Christoph Hellwig wrote:
 
-The symptoms vary. On some of my machines just inserting
-an audio CD makes the box instantly lock up.
-If I boot with the same CD in the drive, sound-juicer
-can read it just fine. When I get to the next CD, I have
-to reboot again, or it locks up.
+> On Sat, Aug 13, 2005 at 11:36:55PM +0200, Henrik Brix Andersen wrote:
+> > Here's a patch for unifying the watchdog device node name
+> > to /dev/watchdog as expected by most user-space applications.
+> > 
+> > Please CC: me on replies as I am not subscribed to LKML.
+> 
+> Please don't.  misdevice.name is a description of the device, and doesn't
+> have any relation with the name of the device node.
 
-On another box, it gets stuck in a loop where it
-just prints out..
-
-hdc: irq timeout: status=0xd0 { Busy }    (This line sometimes has status=0xc0)
-ide: failed opcode was: unknown
-
-The net result is that I've not got a single box that
-will read audio CDs without doing something bad, and I've
-tried it on several quite diverse systems.
-
-
-I'll try and narrow down over the next few days when this
-started happening, but IDE / CD folks may have some better
-ideas about which changes were suspicious.
-
-		Dave
-
+It is used for /class/misc/$name/dev

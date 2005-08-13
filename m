@@ -1,67 +1,45 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbVHKLbz (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 11 Aug 2005 07:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbVHKLbz
+	id S932259AbVHMTAs (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 13 Aug 2005 15:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbVHMTAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Aug 2005 07:31:55 -0400
-Received: from bay105-f25.bay105.hotmail.com ([65.54.224.35]:45417 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1030277AbVHKLby
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Aug 2005 07:31:54 -0400
-Message-ID: <BAY105-F25F81E35A0C4A0A40C46AFB6BD0@phx.gbl>
-X-Originating-IP: [65.54.224.200]
-X-Originating-Email: [aliwaheed25@hotmail.com]
-Reply-To: aliwaheed100@walla.com
-From: "Ali Waheed" <aliwaheed25@hotmail.com>
-Subject: CHARITY.
-Date: Thu, 11 Aug 2005 03:31:54 -0800
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 11 Aug 2005 11:31:54.0624 (UTC) FILETIME=[467BE800:01C59E68]
-To: unlisted-recipients:; (no To-header on input)
+	Sat, 13 Aug 2005 15:00:48 -0400
+Received: from [219.134.76.129] ([219.134.76.129]:1291 "HELO 202.96.154.15")
+	by vger.kernel.org with SMTP id S932256AbVHMTAs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 15:00:48 -0400
+Message-ID: <yvS@ara.seed.net.tw>
+From: SbvrFXRM0Wv7RI@venus.seed.net.tw
+To: pBu0m4C0tXGf@tpts5.seed.net.tw
+Subject: =?ISO-8859-1?Q?=20=D2=E6=B4=EF=B8=E3=BB=EE=B6=AF,=C7=EB=CD=B6=CE?= =?ISO-8859-1?Q?=D2=C5?=
+	=?ISO-8859-1?Q?=AE=B6=F9=D2=BB=C6=B1,=D0=BB=D0=BB!?=
+Content-Type: text/plain;
+Content-Transfer-Encoding: Quoted-Printable
+X-Priority: 3
+X-MSMail-Priority: Normal
+Date: Sat, 13 Aug 2005 15:00:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030277AbVHKLbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932259AbVHMTAs@vger.kernel.org>
 
-From: Mr.Ali Waheed.
-E-mail: aliwaheed100@walla.com
 
-My name is Ali Waheed, A Bahrain  national I have been diagnosed with 
-Oesophageal
-cancer .It has defiled all forms of medical treatment, and right now I have 
-only about a few  months
-to live, according to medical experts.
-I have not particularly lived my life so well, as I never really cared for 
-anyone(not even
-myself)but my business. Though I am very rich, I was never generous, I was 
-always hostile to people and only focused on my business as that was the 
-only thing I cared for. But now I regret all this as I now know that there  
-is more to life than just wanting to have or make all the money in the 
-world. I
-believe when God gives me a second chance to come to this world I would live 
-my life a different way from how I have lived it. Now that God has called 
-me, I have willed and given most of my property and assets to my immediate 
-and extended family members as well as a  few close friends .I want God to 
-be merciful to me and accept my soul so, I have decided to give alms to 
-charity organizations, as I want this to be one of the last good deeds I do 
-on earth. So far, I have Distributed money to some charity organizations in 
-the U.A.E, Somalia  and Malaysia. Now that my health has deteriorated so 
-badly, I cannot do  this myself anymore. I once asked members of my family 
-to close one of my accounts and distribute the money which I have there to 
-charity organization in Bulgaria and Pakistan, they refused and kept the 
-money to themselves. Hence, I do not trust them anymore, as they seem not to 
-be contended with what I have leftfor them. The last of my money which no 
-one knows of is the huge cash deposit of Eighteen Million 
-dollars($18,000,000,00) that I have with a finance House abroad. I will want 
-you to help me collect this deposit and despatch it to charity 
-organizations.
-N/B:KINDLY NOTE THAT 20% of this funds must go to the tsunami victims and 
-another 10% for your effort and time.
+=D2=E6=B4=EF=BD=E0=B0=D7,=D0=A6=B3=F6=B2=CA=C9=AB=C8=CB=C9=FA=B8=E3=D2=BB=B8=F6=BB=EE=B6=AF,=CE=D2=B0=D1=CE=D2=C5=AE=B6=F9=B5=C4=D5=D5=C6=AC
+=D2=B2=B4=AB=C9=CF=C8=A5=C1=CB.=C4=FA=C8=E7=B9=FB=D3=D0=BF=D5,=BE=CD=B0=DD=CD=D0=B0=EF=C3=A6=CD=B6=CE=D2=C5=AE=B6=F9=D2=BB=C6=B1,=D4=DA=B4=CB
+=CF=C8=D0=D0=B6=E0=D0=BB=C1=CB!
 
-Regards,
-Mr.Ali Waheed.
-I WOULD WANT YOU TO REACH ME VIA MY PRIVATE EMAIL
-ADDRESS IF YOU ARE WILLING TO ASSIST ME CARRY OUT THIS WISH:  
-aliwaheed100@walla.com
+=CE=D2=C5=AE=B6=F9=B5=C4=CD=BC=C6=AC=B5=D8=D6=B7=C8=E7=CF=C2:
+http://www.extrawhite.com.cn/detail.asp=3Fid=3D590EA968-0E98-40F4-ABB9-C1EDDA65B4D9
+
+=CE=D2=D7=D4=C8=CF=CE=AA=CE=D2=C5=AE=B6=F9=B5=C4=D0=A6=C8=DD=CA=C7=CA=C0=BD=E7=C9=CF=D7=EE=B2=D3=C0=C3=D7=EE=C3=C0=B5=C4,=CB=FD=CA=C7=C8=AB=BC=D2=B5=C4
+=BF=AA=D0=C4=B9=FB=B0=A1!
+
+=C4=FA=D6=BB=D0=E8=D4=DA=CF=C2=C3=E6=B5=C4 "=CE=D2=D2=AA=CD=B6=D2=BB=C6=B1" =C1=AC=BD=D3=D6=D0 "=D6=B1=BD=D3=BD=F8=C8=EB=CD=B6=C6=B1" =BE=CD=BF=C9
+=D2=D4=C1=CB,=B2=BB=D0=E8=D2=AA=D7=A2=B2=E1=CC=EE=D0=B4=D7=CA=C1=CF=B5=C4.=B2=BB=B9=FD=C8=E7=B9=FB=C4=E3=D7=A2=B2=E1=D4=D9=CD=B6=C6=B1,=D2=B2=BF=C9=C4=DC
+=D6=D0=BD=B1=B5=C4.
+
+=B0=DD=CD=D0=B0=DD=CD=D0!
+
+-------------------------------------------------------
+=C8=E7=B9=FB=C4=FA=B2=BB=CF=B2=BB=B6=CE=D2=D5=E2=C3=B4=D7=F6,=C7=EB=BC=FB=C1=C2!=C8=AB=B5=B1=D2=BB=D0=A6!=D0=BB=D0=BB!
 
 

@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVHMVPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVHMV3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbVHMVPE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 17:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVHMVPE
+	id S932325AbVHMV3p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 17:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbVHMV3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 17:15:04 -0400
-Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:50774 "HELO
-	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932291AbVHMVPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 17:15:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:From:Organization:To:Subject:Date:User-Agent:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=mz5S5gnmobN6AsB7hD1BY0Zb7QtNVQ9dLkrKvzamqyCyzY82bm7XMxo3dTDo2C6ljMtwf4DcSJ+HJ7bQwIM112XtghHCU1iHQx9ZeEhuj5hviwNzgNX/wz7kPbXzPx3Cz7YHk6OqZ00PRriaxxYNuNO03JraSNIhGlIKkjy+svs=  ;
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG][2.6.7+(or eariler)] Switching from LCD to external video w/ no external video connected causes deadlock - Regression
-Date: Sat, 13 Aug 2005 17:13:27 -0400
-User-Agent: KMail/1.8.1
-References: <000201c47516$2dd74730$0200080a@panic> <20041110160407.6275b5be.akpm@osdl.org> <200411101914.59821.shawn.starr@rogers.com>
-In-Reply-To: <200411101914.59821.shawn.starr@rogers.com>
-MIME-Version: 1.0
+	Sat, 13 Aug 2005 17:29:45 -0400
+Received: from ns2.suse.de ([195.135.220.15]:19874 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932325AbVHMV3o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 17:29:44 -0400
+Date: Sat, 13 Aug 2005 23:29:24 +0200
+From: Andi Kleen <ak@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       rmk@arm.linux.org.uk, gerg@uclinux.org, jdike@karaya.com,
+       sammy@sammy.net, lethal@linux-sh.org, wli@holomorphy.com,
+       davem@davemloft.net, matthew@wil.cx, geert@linux-m68k.org,
+       paulus@samba.org, davej@codemonkey.org.uk, tony.luck@intel.com,
+       dev-etrax@axis.com, rpurdie@rpsys.net, spyro@f2s.com,
+       Robert Wilkens <robw@optonline.net>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Convert sigaction to act like other unices
+Message-ID: <20050813212924.GQ22901@wotan.suse.de>
+References: <1123900802.5296.88.camel@localhost.localdomain> <20050813123956.GN22901@wotan.suse.de> <1123941614.5296.112.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508131713.27418.shawn.starr@rogers.com>
+In-Reply-To: <1123941614.5296.112.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're back to square one, in VT mode the system deadlocks once again when 
-switching between LCD, External video modes.
+On Sat, Aug 13, 2005 at 10:00:14AM -0400, Steven Rostedt wrote:
+> On Sat, 2005-08-13 at 14:39 +0200, Andi Kleen wrote:
+> > On Fri, Aug 12, 2005 at 10:40:02PM -0400, Steven Rostedt wroqte:
+> > > Here's a patch that converts all architectures to behave like other unix
+> > > boxes signal handling.  It's funny that I didn't need to change the m68k
+> > > architecture, since it was the only one that already behaves this way!
+> > > (the m68knommu does not!)
+> > 
+> > <rest snipped which also wasn't better>
+> > 
+> > This is not a description of what you changed. A patch entry has to 
+> > start with a rationale and then a description of the change.
+> 
+> Sorry, I forgot that not all were in on the thread.  (duh, I added a
+> bunch of others, I guess I wasn't thinking clearly).
 
-Kernel: 2.6.13-rc5 (merucurial build August 2nd snapshot).
+I actually read the thread, but patches with useless descriptions
+like your previous one cannot be applied in general because you cannot expect
+that people later looking at the <VCS system of the week> logs 
+know about some obscure thread months or years before. Or rather
+the person who applied it would need to write a better description
+on his own, which is not their job.
 
-Looks like this bug needs to be reopened again :/
+My general feeling about the change is that it risks breaking programs
+and doesn't seem to have any compelling advantages,
+so unless there is a bug demonstrated I wouldn't apply it.
 
-Shawn.
+-Andi
 
-On November 10, 2004 19:14, Shawn Starr wrote:
-> As of 2.6.9 in Linux console, it properly switches between modes, there is
-> a small delay when switching to external VGA (if you have sound playing it
-> will repeat for a moment then resume).  There is no deadlocks.
->
-> I cant test inside X just yet (w/ Xinerama extension)
->
-> Shawn.
->
-> On November 10, 2004 19:04, Andrew Morton wrote:
-> > Is this still happening in current kernels?
-> >
-> > Thanks.
-> >
-> > "Shawn Starr" <shawn.starr@rogers.com> wrote:
-> > > I've noticed a few people with IBM Thinkpads running 2.6.7+ - different
-> > > models - have this problem. I don't know where in 2.6 this begin
-> > > happening though.
-> > >
-> > > When you use the function key and switch from LCD to External Video,
-> > > the system deadlocks.
-> > > While ssh'd into the laptop the system has deadlocked once I switched
-> > > video. Unfortunately, I don't have a USB <-> Serial dongle handy yet
-> > > ;-)
-> > >
-> > > The Video card is a ATI Radeon 9600 64MB RAM, kernel has no framebuffer
-> > > support enabled.
-> > >
-> > > Is this a known issue?
-> > >
-> > > Thanks.
-> > >
-> > > Shawn.
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > > in the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/

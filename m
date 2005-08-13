@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVHMXIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbVHMXPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbVHMXIG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 19:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbVHMXIF
+	id S932398AbVHMXPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 19:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbVHMXPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 19:08:05 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:57784 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932397AbVHMXID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 19:08:03 -0400
-Message-ID: <13573691.1123974481892.JavaMail.ngmail@webmail-04.arcor-online.net>
-Date: Sun, 14 Aug 2005 01:08:01 +0200 (CEST)
-From: thomas.mey3r@arcor.de
-To: linux-kernel@vger.kernel.org
-Subject: Aw: 2.6.13-rc5 -> 2.6.13-rc6: ACPI patches seems break the kernel
-In-Reply-To: <14604408.1123706059756.JavaMail.ngmail@webmail-08.arcor-online.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <14604408.1123706059756.JavaMail.ngmail@webmail-08.arcor-online.net>
-X-ngMessageSubType: MessageSubType_MAIL
-X-WebmailclientIP: 84.58.112.33
+	Sat, 13 Aug 2005 19:15:32 -0400
+Received: from ns1.suse.de ([195.135.220.2]:22755 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932398AbVHMXPc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 19:15:32 -0400
+Date: Sun, 14 Aug 2005 01:15:31 +0200
+From: Olaf Hering <olh@suse.de>
+To: Henrik Brix Andersen <brix@gentoo.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Watchdog device node name unification
+Message-ID: <20050813231531.GA29706@suse.de>
+References: <1123969015.13656.13.camel@sponge.fungus> <1123970037.13656.16.camel@sponge.fungus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1123970037.13656.16.camel@sponge.fungus>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello.
+ On Sat, Aug 13, Henrik Brix Andersen wrote:
 
-2.6.13-rc6-git5 resolves my kernel hang problem. seems to be the undo of the pci.c patch (or the pci quirk patch?)
+> On Sat, 2005-08-13 at 23:36 +0200, Henrik Brix Andersen wrote:
+> > Here's a patch for unifying the watchdog device node name
+> > to /dev/watchdog as expected by most user-space applications.
+> > 
+> > Please CC: me on replies as I am not subscribed to LKML.
+> > 
+> > 
+> > Signed-off-by: Henrik Brix Andersen <brix@gentoo.org>
+> 
+> The last patch was accidentally against 2.6.12 - this one is against
+> 2.6.13-rc6.
 
-wiht kind regards
-thomas
-
------ Original Nachricht ----
-Von:     thomas.mey3r@arcor.de
-An:      linux-kernel@vger.kernel.org
-Datum:   10.08.2005 22:34
-Betreff: 2.6.13-rc5 -> 2.6.13-rc6: ACPI patches seems break the kernel
-
-> Hello.
-> My machine (i386, acer 1350) stops to work with 2.6.13-rc6. it works with
-> "acpi=off". the abend seems to be a total deadlock. no system request keys
-> works. no oops with log level 9.
-> could someone please have a look at this?
-> 
-> with kind regards
-> thomas
-> 
-> ps:
-> please carbon copy me, because i'm not on the list.
-> 
-> 
+A patch like that is sitting in -mm since almost 5 months. I wonder why
+it was never merged.

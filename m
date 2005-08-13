@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbVHMXZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbVHMXaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbVHMXZU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 19:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVHMXZU
+	id S932407AbVHMXaF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 19:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbVHMXaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 19:25:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:3524 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932403AbVHMXZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 19:25:20 -0400
-Date: Sun, 14 Aug 2005 00:25:19 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Henrik Brix Andersen <brix@gentoo.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] Watchdog device node name unification
-Message-ID: <20050813232519.GA20256@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Henrik Brix Andersen <brix@gentoo.org>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <1123969015.13656.13.camel@sponge.fungus>
+	Sat, 13 Aug 2005 19:30:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28907 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932407AbVHMXaB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 19:30:01 -0400
+Date: Sat, 13 Aug 2005 19:29:57 -0400
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: IDE CD problems in 2.6.13rc6
+Message-ID: <20050813232957.GE3172@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1123969015.13656.13.camel@sponge.fungus>
 User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 13, 2005 at 11:36:55PM +0200, Henrik Brix Andersen wrote:
-> Here's a patch for unifying the watchdog device node name
-> to /dev/watchdog as expected by most user-space applications.
-> 
-> Please CC: me on replies as I am not subscribed to LKML.
+I've noticed this week whilst trying to encode a bunch
+of audio CDs to oggs that my boxes running the latest
+kernels are having serious issues, whereas 2.6.12 seems
+to cope just fine.
 
-Please don't.  misdevice.name is a description of the device, and doesn't
-have any relation with the name of the device node.
+The symptoms vary. On some of my machines just inserting
+an audio CD makes the box instantly lock up.
+If I boot with the same CD in the drive, sound-juicer
+can read it just fine. When I get to the next CD, I have
+to reboot again, or it locks up.
+
+On another box, it gets stuck in a loop where it
+just prints out..
+
+hdc: irq timeout: status=0xd0 { Busy }    (This line sometimes has status=0xc0)
+ide: failed opcode was: unknown
+
+The net result is that I've not got a single box that
+will read audio CDs without doing something bad, and I've
+tried it on several quite diverse systems.
+
+
+I'll try and narrow down over the next few days when this
+started happening, but IDE / CD folks may have some better
+ideas about which changes were suspicious.
+
+		Dave
 

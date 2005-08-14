@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVHNWvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVHNX0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbVHNWvM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 18:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVHNWvL
+	id S932347AbVHNX0A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 19:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbVHNX0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 18:51:11 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:44487 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S932340AbVHNWvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 18:51:11 -0400
-Date: Mon, 15 Aug 2005 00:51:01 +0200
-From: Voluspa <voluspa@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE CD problems in 2.6.13rc6
-Message-Id: <20050815005101.26df083a.voluspa@telia.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 14 Aug 2005 19:26:00 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:50756 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932347AbVHNXZ7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 19:25:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XohbOBV+XeQOG8dJTi1lsz6cDt/jZRLX3+nGcnVMdXyU78xObRT/3iOfahwYcABqtpbvxfLGOxOYWwZOeNRWk9fbe/N23eVdThvN6icBrCWvbl9irsuXnVVMrka1MRHfzOs5yeArnrAJ78jeu6EMYQS5c+bFOQfM12kaQ09Z9BI=
+Message-ID: <bda6d13a050814162519d6f2a8@mail.gmail.com>
+Date: Sun, 14 Aug 2005 16:25:55 -0700
+From: Joshua Hudson <joshudson@gmail.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: BSD jail
+In-Reply-To: <20050814115651.GA6024@IBM-BWN8ZTBWA01.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <bda6d13a050812174768154ea5@mail.gmail.com>
+	 <20050813143335.GA5044@IBM-BWN8ZTBWA01.austin.ibm.com>
+	 <bda6d13a0508130933bdbc46a@mail.gmail.com>
+	 <20050814115651.GA6024@IBM-BWN8ZTBWA01.austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2005-08-14 20:10:49 Nick Warne wrote:
-
->Note the last sentence:
+Quoting Serge E. Hallyn (serue@us.ibm.com)
+>Quoting Joshua Hudson (joshudson@gmail.com):
+> Why would you want a virtual network device implementation? The whole
 >
->' This  variation  is  designed for use with "libraries" of drive 
->identification information, and can also be used on ATAPI drives which may  
->give  media errors with the standard mechanism.
+>So that a jailed process can use the net but can't use your network
+>address (intercept ssh, imap/stunnel, etc).
 
-My jaw just clonked on the table. And the media error at hand made you
-buy a new CD-RW. There is precedence for this (remember the blaming X and
-other programs in the keyboard driver?) so perhaps the kernel people could
-amend the error like:
+[snip]
 
-hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-hdc: drive_cmd: error=0x04 { AbortedCommand }
-ide: failed opcode was: 0xec
-ide: Did you just run "hdparm -I" or do you use a nosy desktop?
+>But in the end vserver with read-only bind mounts seems a better way to
+>go imo.
+Latest version of linux vserver source: 100K bzipped
+Latest version of linux-jail: 34K uncompressed
 
-Mvh
-Mats Johannesson
---
+To build a virtual network device requires code for the device, code
+for routing the device
+in the kernel, some way to tell the router that this machine is hosted
+through the host
+machine's ethernet card, and control of which processes use which
+network devices.
+
+Way too much work for something intended to be simple and have essentially no
+overhead.  All this work only gets jailed processes the ability to use
+127.0.0.1.
+The rest I can already do with eth0:1 and the specs for jail(2) from BSD.

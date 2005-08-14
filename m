@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVHNLYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbVHNLfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbVHNLYY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 07:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVHNLYY
+	id S932492AbVHNLfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 07:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVHNLfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 07:24:24 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:14311 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932491AbVHNLYX convert rfc822-to-8bit
+	Sun, 14 Aug 2005 07:35:15 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:57992 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932492AbVHNLfO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 07:24:23 -0400
+	Sun, 14 Aug 2005 07:35:14 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W8SBLChkWp/hIOTFk94yiMBYEzCSNxjMd+sb/cEJ1y9obewAbsJThqXBHiml52Yt+8U1K9ImXp1prUtJZtz0OC4m9Y/D0e2LDr9NtX5HPd+FasfNpey+XWUGsFniVEPsq2BCWdJnzpmID+lbi79d80rVTnGlslB7qWMW0rLxouM=
-Message-ID: <9a8748490508140424675191ad@mail.gmail.com>
-Date: Sun, 14 Aug 2005 13:24:21 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH] Fix PPC signal handling of NODEFER, should not affect sa_mask
-Cc: Chris Wright <chrisw@osdl.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linus Torvalds <torvalds@osdl.org>, gdt@linuxppc.org,
-       Andrew Morton <akpm@osdl.org>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
-In-Reply-To: <1123880891.5296.3.camel@localhost.localdomain>
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Mpp1xEoRhZwM4tPC2xMZtHgMZghzM2zeF4tpE0HhJS7c2lp2xp7xL2+qJU79MHJp/ZTtPppgjrEz22fSviItmkqCP8/uiwMYLJtTnWNVGTERPHmV76gBoLDr2zeXoDCXJhdjedAsWCZJVkywPwy7IO2Y4aW7dzhykCpwRhqVHIA=
+Message-ID: <58cb370e05081404354fe6a097@mail.gmail.com>
+Date: Sun, 14 Aug 2005 13:35:11 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: IDE CD problems in 2.6.13rc6
+In-Reply-To: <20050813232957.GE3172@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <1123615983.18332.194.camel@localhost.localdomain>
-	 <1123621223.9553.4.camel@localhost.localdomain>
-	 <1123621637.9553.7.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0508091419420.3258@g5.osdl.org>
-	 <1123643401.9553.32.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr>
-	 <20050812184503.GX7762@shell0.pdx.osdl.net>
-	 <Pine.LNX.4.58.0508121456570.19908@localhost.localdomain>
-	 <9a87484905081212317ca8c04e@mail.gmail.com>
-	 <1123880891.5296.3.camel@localhost.localdomain>
+References: <20050813232957.GE3172@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/12/05, Steven Rostedt <rostedt@goodmis.org> wrote:
-> On Fri, 2005-08-12 at 21:31 +0200, Jesper Juhl wrote:
-> 
-> > >
-> > I've got a 4-way pSeries p550 running AIX 5.3 here :
-> >
-> > $ uname -s -M -p -v -r
-> > AIX 3 5 powerpc IBM,9113-550
-> >
-> > Output from your program :
-> >
-> > $ ./a.out
-> > Unknown return code!!
-> > Unknown return code!!
-> > Unknown return code!!
-> > Unknown return code!!
-> > Unknown return code!!
-> > Unknown return code!!
-> > sa_mask blocks sig
-> >
-> 
-> Did you try my updated code (the one with the extra sleep?). Here's
-> another version where I output the unknown return code.  Funny that this
-> didn't print any other error message. Since the return codes should show
-> something else.
-> 
-> Please try the attached.
-> 
-With the version you attached I get this :
+Hi Dave,
 
-$ uname -s -M -p -v -r
-AIX 3 5 powerpc IBM,9113-550
-$ gcc test_signal.c
-$ ./a.out
-sa_mask blocks other signals
-SA_NODEFER does not block other signals
-SA_NODEFER does not affect sa_mask
-SA_NODEFER and sa_mask blocks sig
-!SA_NODEFER blocks sig
-SA_NODEFER does not block sig
-sa_mask blocks sig
+On 8/14/05, Dave Jones <davej@redhat.com> wrote:
+> I've noticed this week whilst trying to encode a bunch
+> of audio CDs to oggs that my boxes running the latest
+> kernels are having serious issues, whereas 2.6.12 seems
+> to cope just fine.
+> 
+> The symptoms vary. On some of my machines just inserting
+> an audio CD makes the box instantly lock up.
+> If I boot with the same CD in the drive, sound-juicer
+> can read it just fine. When I get to the next CD, I have
+> to reboot again, or it locks up.
+> 
+> On another box, it gets stuck in a loop where it
+> just prints out..
+> 
+> hdc: irq timeout: status=0xd0 { Busy }    (This line sometimes has status=0xc0)
+> ide: failed opcode was: unknown
+> 
+> The net result is that I've not got a single box that
+> will read audio CDs without doing something bad, and I've
+> tried it on several quite diverse systems.
+> 
+> 
+> I'll try and narrow down over the next few days when this
+> started happening, but IDE / CD folks may have some better
+> ideas about which changes were suspicious.
 
+I checked 2.6.13-rc6 patch and I see no IDE / CD changes which
+could be responsible for this regression.  You can try reverting ide-cd
+changes and see if this helps.  IRQ routing changes?
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Bartlomiej

@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbVHNBTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbVHNBZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbVHNBTU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 21:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbVHNBTU
+	id S1751369AbVHNBZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 21:25:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbVHNBZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 21:19:20 -0400
-Received: from smtpout.mac.com ([17.250.248.89]:32484 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751367AbVHNBTT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 21:19:19 -0400
-In-Reply-To: <1123981065.14138.29.camel@localhost.localdomain>
-References: <42FDE286.40707@v.loewis.de> <feed8cdd0508130935622387db@mail.gmail.com> <1123958572.11295.7.camel@mindpipe> <20050813184951.GA8283@carfax.org.uk> <1123959201.11295.9.camel@mindpipe> <1123981065.14138.29.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <896E8B77-FD22-4898-BFE5-559936B8040E@mac.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, Hugo Mills <hugo-lkml@carfax.org.uk>,
-       Stephen Pollei <stephen.pollei@gmail.com>,
-       =?ISO-8859-1?Q? "Martin_v._L=F6wis" ?= <martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [Patch] Support UTF-8 scripts
-Date: Sat, 13 Aug 2005 21:19:02 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-X-Mailer: Apple Mail (2.733)
+	Sat, 13 Aug 2005 21:25:08 -0400
+Received: from itapoa.terra.com.br ([200.176.10.194]:29842 "EHLO
+	itapoa.terra.com.br") by vger.kernel.org with ESMTP
+	id S1751369AbVHNBZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 21:25:07 -0400
+X-Terra-Karma: -2%
+X-Terra-Hash: 34ea2582f34bb80fe882ba9ec6ec592e
+Message-ID: <42FE9C7A.8000509@terra.com.br>
+Date: Sat, 13 Aug 2005 22:20:58 -0300
+From: Piter PUNK <piterpk@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050731
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Problems with ABNT2 USB keyboards
+Content-Type: multipart/mixed;
+ boundary="------------090909080000060501000208"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 13, 2005, at 20:57:45, Alan Cox wrote:
->>>    I have "setxkbmap -symbols 'en_US(pc102)+gb'" in my ~/.xsession,
->>> and « and » are available as AltGr-z and AltGr-x respectively.
->>
->> Most keyboards don't have an AltGr key.
->
-> You must be an American. Most old the worlds keyboards have an AltGr
-> key. You'll find that US keyboards have two alt keys to avoid  
-> confusing
-> people (like one button mice ;)) but the right one is understood by  
-> the
-> X bindings to be "AltGr". Even though the US keyboard is apparently
-> lacking functionality its purely a text label issue
+This is a multi-part message in MIME format.
+--------------090909080000060501000208
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-And those of us who are Mac OS X oriented have patched our console and X
-keycodes to match the mac way of generating symbols:
+Hi,
 
-Alt-\        = «
-Alt-Shift-\  = »
-Alt-Shift-+  = ±
+	I got problems trying to use ABNT2 USB keyboards with the
+"." key in numeric keypad. The problem only appears in USB
+keyboards (not in PS/2) and in 2.4 series (not in 2.6).
 
-If only someone could come up with a good character palette like exists
-on that OS, something that could generate a wide variety of keysyms,
-preferably all of UTF-8, and send them to the topmost window.
+	The solution is very simple, and only need to change one line
+and add other in pc_keyb.c. And, in my tests, don't affect any other
+keyboards.
 
-Cheers,
-Kyle Moffett
+						Thanks a lot,
 
---
-Unix was not designed to stop people from doing stupid things,  
-because that
-would also stop them from doing clever things.
-   -- Doug Gwyn
+							Piter PUNK
 
+--------------090909080000060501000208
+Content-Type: text/plain;
+ name="dot_in_ABNT2_keyboard.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dot_in_ABNT2_keyboard.patch"
 
+--- linux/drivers/char/pc_keyb.c	2005-07-26 21:16:40.000000000 -0300
++++ linux-my/drivers/char/pc_keyb.c	2005-07-26 21:16:33.000000000 -0300
+@@ -231,6 +231,12 @@
+ #define E0_MSLW	125
+ #define E0_MSRW	126
+ #define E0_MSTM	127
++/* piterpk@terra.com.br:
++ * Brazilian ABNT2 had 18 keys in numeric keypad
++ * instead 17 in other keyboards. The 18th key is
++ * a "."
++ */
++#define E0_KPPT 121
+ 
+ static unsigned char e0_keys[128] = {
+   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x00-0x07 */
+@@ -247,7 +253,7 @@
+   0, 0, 0, E0_MSLW, E0_MSRW, E0_MSTM, 0, 0,	      /* 0x58-0x5f */
+   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x60-0x67 */
+   0, 0, 0, 0, 0, 0, 0, E0_MACRO,		      /* 0x68-0x6f */
+-  0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x70-0x77 */
++  0, 0, 0, 0, 0, E0_KPPT, 0, 0,			      /* 0x70-0x77 */
+   0, 0, 0, 0, 0, 0, 0, 0			      /* 0x78-0x7f */
+ };
+ 
+
+--------------090909080000060501000208--

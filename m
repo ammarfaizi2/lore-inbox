@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVHNKk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbVHNKko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbVHNKk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 06:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVHNKk0
+	id S932482AbVHNKko (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 06:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbVHNKko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 06:40:26 -0400
-Received: from levante.wiggy.net ([195.85.225.139]:54203 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S932481AbVHNKk0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 06:40:26 -0400
-Date: Sun, 14 Aug 2005 12:40:24 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-Message-ID: <20050814104024.GB6277@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <42FDE286.40707@v.loewis.de> <feed8cdd0508130935622387db@mail.gmail.com> <1123958572.11295.7.camel@mindpipe> <20050813184951.GA8283@carfax.org.uk> <1123959201.11295.9.camel@mindpipe> <1123981065.14138.29.camel@localhost.localdomain> <896E8B77-FD22-4898-BFE5-559936B8040E@mac.com> <1123983619.17816.1.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1123983619.17816.1.camel@mindpipe>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
+	Sun, 14 Aug 2005 06:40:44 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:19116 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S932482AbVHNKkn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 06:40:43 -0400
+In-Reply-To: <42FF19AC.6010502@colorfullife.com>
+References: <42FF19AC.6010502@colorfullife.com>
+Mime-Version: 1.0 (Apple Message framework v622)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <5dd81f5a65eb47acb87fcf4953c88bf1@iki.fi>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Teemu Koponen <tkoponen@iki.fi>
+Subject: Re: Opening of blocking FIFOs not reliable?
+Date: Sun, 14 Aug 2005 03:40:34 -0700
+To: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Apple Mail (2.622)
+X-Spam-Niksula: No
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Lee Revell wrote:
-> My point exactly, it's idiotic for Perl6 to use these as OPERATORS, the
-> atoms of the language, when there's not even a platform independent way
-> to type them in.
+On Aug 14, 2005, at 3:15, Manfred Spraul wrote:
 
-I anyone had bothered to read the URL in one of the earlier emails you
-would have seen that '<<' is an accepted alternative spelling.
+>> Opening a FIFO for WR_ONLY should release a previously blocked 
+>> RD_ONLY open. I suspect this is not guaranteed on a heavily loaded 
+>> Linux box.
+>>
+> Do you have a test case?
+> IIRC we had that bug, and it was fixed by adding PIPE_WCOUNTER:
+> PIPE_WRITERS counts the number of writers. This one is decreased 
+> during close(). PIPE_WCOUNTER counts how often a writer was seen. It's 
+> never decreased. Readers that wait for a writer wait until 
+> PIPE_WCOUNTER changes, they do not look at PIPE_WRITERS.
 
-Wichert.
+Ah, I missed the semantics of WCOUNTER.  True, writer's open should 
+always release the reader' s open (as Alan pointed out).
 
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+I do have a test application, which experienced dead-locked readers' 
+opens before I artificially delayed writers' closes. The application 
+runs on PlanetLab, which uses VServer, though. I'll try to construct 
+next a minimal test case based on the application and reproduce the 
+behavior on a vanilla box...
+
+Teemu
+
+--
+

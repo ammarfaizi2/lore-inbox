@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVHNWZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVHNWy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbVHNWZl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 18:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVHNWZl
+	id S932344AbVHNWy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 18:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVHNWy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 18:25:41 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48649 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932336AbVHNWZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 18:25:40 -0400
-Date: Sun, 14 Aug 2005 23:25:25 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Greg KH <greg@kroah.com>, James.Smart@Emulex.Com,
-       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] add transport class symlink to device object
-Message-ID: <20050814232525.A27481@flint.arm.linux.org.uk>
-Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
-	James.Smart@Emulex.Com, Andrew Morton <akpm@osdl.org>,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk>; from matthew@wil.cx on Sun, Aug 14, 2005 at 04:02:31PM +0100
+	Sun, 14 Aug 2005 18:54:59 -0400
+Received: from ms-smtp-01-smtplb.ohiordc.rr.com ([65.24.5.135]:57223 "EHLO
+	ms-smtp-01-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S932341AbVHNWy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 18:54:58 -0400
+Message-Id: <200508142254.j7EMssWY013913@ms-smtp-01-eri0.ohiordc.rr.com>
+From: "The Post Office" <postmaster@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: Uqg
+Date: Sun, 14 Aug 2005 17:54:00 -0500
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0011_D7FF71C8.16B5846D"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Virus-Scan-Result: Repaired 34256 W32.Mydoom.M@mm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 14, 2005 at 04:02:31PM +0100, Matthew Wilcox wrote:
-> On Sat, Aug 13, 2005 at 02:39:56PM -0700, Greg KH wrote:
-> > Heh, I already have a patch like this pending for 2.6.14 at:
-> > 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/driver-link-device-and-class.patch
-> 
-> Last time I tried to do something like this, it fell over with
-> multi-function serial ports.  Look at this example:
-> 
-> # ls -l /sys/class/tty/ttyS*/device | cut -c40-
-> /sys/class/tty/ttyS0/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:04.0
-> /sys/class/tty/ttyS1/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:04.0
-> /sys/class/tty/ttyS2/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:04.0
-> /sys/class/tty/ttyS3/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:05.0
-> /sys/class/tty/ttyS4/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:05.0
-> 
-> Adding the reverse links gets you three links in the 0000:00:04.0
-> directory all called 'tty' (or 'class:tty', whatever), each pointing to
-> a different place.  This doesn't happen for scsi devices as the class is
-> attached to the scsi_dev, not the pci_dev.  I think the tty subsystem
-> needs to be modified to add tty_devs as subdevices of the pci_dev.
 
-Eww.  Do you really want one struct device per tty with all the
-memory each one eats?
 
-If that's really what you want you need to talk to Alan and not me.
-Alan looks after tty level stuff, I look after serial level stuff.
-The above is a tty level issue not a serial level issue.
+This is a multi-part message in MIME format.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+------=_NextPart_000_0011_D7FF71C8.16B5846D
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+ALERT!
+
+This e-mail, in its original form, contained one or more attached files that were infected with a virus, worm, or other type of security threat. This e-mail was sent from a Road Runner IP address. As part of our continuing initiative to stop the spread of malicious viruses, Road Runner scans all outbound e-mail attachments. If a virus, worm, or other security threat is found, Road Runner cleans or deletes the infected attachments as necessary, but continues to send the original message content to the recipient. Further information on this initiative can be found at http://help.rr.com/faqs/e_mgsp.html.
+Please be advised that Road Runner does not contact the original sender of the e-mail as part of the scanning process. Road Runner recommends that if the sender is known to you, you contact them directly and advise them of their issue. If you do not know the sender, we advise you to forward this message in its entirety (including full headers) to the Road Runner Abuse Department, at abuse@rr.com.
+
+Dear user linux-kernel@vger.kernel.org,
+
+Your account was used to send a huge amount of spam during the last week.
+We suspect that your computer had been compromised and now runs a trojan proxy server.
+
+We recommend you to follow our instruction in order to keep your computer safe.
+
+Sincerely yours,
+The vger.kernel.org support team.
+
+
+------=_NextPart_000_0011_D7FF71C8.16B5846D
+Content-Type: text/plain;
+	name="DELETED0.TXT"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="DELETED0.TXT"
+
+ZmlsZSBhdHRhY2htZW50OiB0cmFuc2NyaXB0LnppcA0KDQpUaGlzIGUtbWFpbCBpbiBpdHMg
+b3JpZ2luYWwgZm9ybSBjb250YWluZWQgb25lIG9yIG1vcmUgYXR0YWNoZWQgZmlsZXMgdGhh
+dCB3ZXJlIGluZmVjdGVkIHdpdGggdGhlIFczMi5NeWRvb20uTUBtbSB2aXJ1cyBvciB3b3Jt
+LiBUaGV5IGhhdmUgYmVlbiByZW1vdmVkLg0KRm9yIG1vcmUgaW5mb3JtYXRpb24gb24gUm9h
+ZCBSdW5uZXIncyB2aXJ1cyBmaWx0ZXJpbmcgaW5pdGlhdGl2ZSwgdmlzaXQgb3VyIEhlbHAg
+JiBNZW1iZXIgU2VydmljZXMgcGFnZXMgYXQgaHR0cDovL2hlbHAucnIuY29tLCBvciB0aGUg
+dmlydXMgZmlsdGVyaW5nIGluZm9ybWF0aW9uIHBhZ2UgZGlyZWN0bHkgYXQgaHR0cDovL2hl
+bHAucnIuY29tL2ZhcXMvZV9tZ3NwLmh0bWwuIA0K
+------=_NextPart_000_0011_D7FF71C8.16B5846D--
+
+

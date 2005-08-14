@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVHNImi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVHNIrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbVHNImi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 04:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVHNImh
+	id S932286AbVHNIrR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 04:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVHNIrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 04:42:37 -0400
-Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:7629 "EHLO
-	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932153AbVHNImh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 04:42:37 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: usb camera failing in 2.6.13-rc6
-Date: Sun, 14 Aug 2005 18:42:12 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <mailman.1124005092.8274.linux-kernel2news@redhat.com> <20050814010047.4b5fd37e.zaitcev@redhat.com>
-In-Reply-To: <20050814010047.4b5fd37e.zaitcev@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Aug 2005 04:47:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:50386 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932286AbVHNIrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 04:47:17 -0400
+Date: Sun, 14 Aug 2005 09:47:15 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Henrik Brix Andersen <brix@gentoo.org>
+Cc: Olaf Hering <olh@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Watchdog device node name unification
+Message-ID: <20050814084715.GA15668@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Henrik Brix Andersen <brix@gentoo.org>, Olaf Hering <olh@suse.de>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <1123969015.13656.13.camel@sponge.fungus> <20050813232519.GA20256@infradead.org> <20050813234322.GA30563@suse.de> <1123978962.13656.21.camel@sponge.fungus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508141842.13209.kernel@kolivas.org>
+In-Reply-To: <1123978962.13656.21.camel@sponge.fungus>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Aug 2005 18:00, Pete Zaitcev wrote:
-> On Sun, 14 Aug 2005 17:12:06 +1000, Con Kolivas <kernel@kolivas.org> wrote:
-> > A digital camera which was working fine in 2.6.11/12 now fails on
-> > 2.6.13-rc6 (not sure when it started failing).
->
-> Does it continue to work on an older kernel? I saw a USB device breaking
-> right in the moment of reboot into a new kernel (thus prompting a week
-> of diffing an head-scratching).
+On Sun, Aug 14, 2005 at 02:22:41AM +0200, Henrik Brix Andersen wrote:
+> On Sun, 2005-08-14 at 01:43 +0200, Olaf Hering wrote:
+> >  On Sun, Aug 14, Christoph Hellwig wrote:
+> > > Please don't.  misdevice.name is a description of the device, and doesn't
+> > > have any relation with the name of the device node.
+> > 
+> > It is used for /class/misc/$name/dev
+> 
+> ... and for udev-enabled systems, it's the name of the device node to be
+> created.
 
-Yes all those dmesgs etc were redone after it failed in rc6 as I needed it 
-working. Oh and all other usb devices - mouse, printer, scanner, keyboard are 
-working fine in rc6; it's just the camera.
+Looks like people never learn.  We had horrible problems with devfs because
+it decided to overload existing name fields, but the udev brigade does the same
+idiocy again..
 
-> > +usbmon: debugs is not available
->
-> Deconfigure CONFIG_USB_MON. It's useless without debugfs anyway.
-
-Will do,
-
-Thanks
-Con

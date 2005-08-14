@@ -1,63 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVHNVwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVHNV52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVHNVwy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 17:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVHNVwy
+	id S932316AbVHNV52 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 17:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbVHNV52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 17:52:54 -0400
-Received: from smtpout.mac.com ([17.250.248.88]:8128 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932319AbVHNVwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 17:52:53 -0400
-In-Reply-To: <ufazmrl9h3u.fsf@epithumia.math.uh.edu>
-References: <42FDE286.40707@v.loewis.de> <feed8cdd0508130935622387db@mail.gmail.com> <1123958572.11295.7.camel@mindpipe> <ufazmrl9h3u.fsf@epithumia.math.uh.edu>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <B5D8E5BB-3D45-4C48-A769-C69973BA5D1D@mac.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Stephen Pollei <stephen.pollei@gmail.com>,
-       =?ISO-8859-1?Q? "Martin_v._L=F6wis" ?= <martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [Patch] Support UTF-8 scripts
-Date: Sun, 14 Aug 2005 17:52:36 -0400
-To: Jason L Tibbitts III <tibbs@math.uh.edu>
-X-Mailer: Apple Mail (2.733)
+	Sun, 14 Aug 2005 17:57:28 -0400
+Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:22752 "EHLO
+	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
+	id S932316AbVHNV51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 17:57:27 -0400
+Message-ID: <42FFBDCB.2040804@austin.rr.com>
+Date: Sun, 14 Aug 2005 16:55:23 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird  (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: torvalds@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] [CIFS]  Two small cifs patches 
+Content-Type: multipart/mixed;
+ boundary="------------010400050204010204020705"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 14, 2005, at 02:18:13, Jason L Tibbitts III wrote:
->>>>>> "LR" == Lee Revell <rlrevell@joe-job.com> writes:
-> LR> Is Larry smoking crack?
->
-> From the Perl6-Bible: http://search.cpan.org/dist/Perl6-Bible/lib/ 
-> Perl6/Bible/S03.pod:
+This is a multi-part message in MIME format.
+--------------010400050204010204020705
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I think this confirms that the answer is yes.  See the following at  
-the above URL:
-> Note that ?^ is functionally identical to !.?| differs from || in  
-> that ?| always
-> returns a standard boolean value (either 1 or 0), whereas ||  
-> returns the actual
-> value of the first of its arguments that is true.
+Based on testing at the cifs plugfest last week these were the two most 
+important patches from among those pending in my tree.   The rest can 
+wait until after 2.6.12
 
-Since when is the string "!.?|" an operator???  Or "?^", "+|", "~|",  
-"?|", etc.  I
-think Larry's gone off the deep end on this one.  It may be an  
-incredibly powerful
-and expressive language, but it seems _really_ strange, and probably  
-will produce
-the best Obfuscated-code contest the world has ever seen. (Better  
-even than the
-Perl5 one).
+--------------010400050204010204020705
+Content-Type: text/x-patch;
+ name="CIFS-Fix-missing-entries-in-search-results-when-very-long-file-names-and.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="CIFS-Fix-missing-entries-in-search-results-when-very-long-file-names-and.patch"
 
-Cheers,
-Kyle Moffett
+[PATCH] [CIFS] Fix missing entries in search results when very long file names and
+more than 50 (or so) of such long search entries in the directory.  FindNext
+could send corrupt last byte of resume name when resume key was a few hundred
+bytes long file name or longer.
 
---
-Simple things should be simple and complex things should be possible
-   -- Alan Kay
+Fixes Samba Bug # 2932
 
+Signed-off-by: Steve French (sfrench@us.ibm.com)
+---
 
+ fs/cifs/cifssmb.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
+ef6724e32142c2d9ca252d423cacc435c142734e
+diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -2628,6 +2628,9 @@ int CIFSFindNext(const int xid, struct c
+ 	if(name_len < PATH_MAX) {
+ 		memcpy(pSMB->ResumeFileName, psrch_inf->presume_name, name_len);
+ 		byte_count += name_len;
++		/* 14 byte parm len above enough for 2 byte null terminator */
++		pSMB->ResumeFileName[name_len] = 0;
++		pSMB->ResumeFileName[name_len+1] = 0;
+ 	} else {
+ 		rc = -EINVAL;
+ 		goto FNext2_err_exit;
+
+--------------010400050204010204020705
+Content-Type: text/x-patch;
+ name="CIFS-Fix-path-name-conversion-for-long-filenames-when-mapchars-mount.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="CIFS-Fix-path-name-conversion-for-long-filenames-when-mapchars-mount.patch"
+
+[PATCH] [CIFS] Fix path name conversion for long filenames when mapchars mount
+option was specified at mount time.
+
+Signed-off-by: Steve French (sfrench@us.ibm.com)
+---
+
+ fs/cifs/CHANGES |    6 ++++++
+ fs/cifs/misc.c  |    1 +
+ 2 files changed, 7 insertions(+), 0 deletions(-)
+
+f4cfd69cf349dd27e00d5cf804b57aee04e059c2
+diff --git a/fs/cifs/CHANGES b/fs/cifs/CHANGES
+--- a/fs/cifs/CHANGES
++++ b/fs/cifs/CHANGES
+@@ -1,3 +1,9 @@
++Version 1.35
++------------
++Add writepage performance improvements.  Fix path name conversions
++for long filenames on mounts which were done with "mapchars" mount option
++specified.
++
+ Version 1.34
+ ------------
+ Fix error mapping of the TOO_MANY_LINKS (hardlinks) case.
+diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
+--- a/fs/cifs/misc.c
++++ b/fs/cifs/misc.c
+@@ -611,6 +611,7 @@ cifsConvertToUCS(__le16 * target, const 
+ 		src_char = source[i];
+ 		switch (src_char) {
+ 			case 0:
++				target[j] = 0;
+ 				goto ctoUCS_out;
+ 			case ':':
+ 				target[j] = cpu_to_le16(UNI_COLON);
+
+--------------010400050204010204020705--

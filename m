@@ -1,78 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbVHNBZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbVHNB1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbVHNBZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 21:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbVHNBZI
+	id S1751370AbVHNB1y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 21:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVHNB1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 21:25:08 -0400
-Received: from itapoa.terra.com.br ([200.176.10.194]:29842 "EHLO
-	itapoa.terra.com.br") by vger.kernel.org with ESMTP
-	id S1751369AbVHNBZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 21:25:07 -0400
-X-Terra-Karma: -2%
-X-Terra-Hash: 34ea2582f34bb80fe882ba9ec6ec592e
-Message-ID: <42FE9C7A.8000509@terra.com.br>
-Date: Sat, 13 Aug 2005 22:20:58 -0300
-From: Piter PUNK <piterpk@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050731
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Problems with ABNT2 USB keyboards
-Content-Type: multipart/mixed;
- boundary="------------090909080000060501000208"
+	Sat, 13 Aug 2005 21:27:54 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:48326 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751370AbVHNB1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 21:27:53 -0400
+Subject: 2.6.13-rc6-git5 : PCI mem resource alloc failure
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sat, 13 Aug 2005 21:27:50 -0400
+Message-Id: <1123982870.2779.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090909080000060501000208
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+With 2.6.13-rc6-git5 I started getting the below errors. Despite of the
+errors everything works fine. (only problem is that I have to
+disconnect /reconnect the usb mouse for it to get detected..)
 
-Hi,
 
-	I got problems trying to use ABNT2 USB keyboards with the
-"." key in numeric keypad. The problem only appears in USB
-keyboards (not in PS/2) and in 2.4 series (not in 2.6).
+[    0.000000] Allocating PCI resources starting at 60000000 (gap:
+60000000:9ff80000)
+.
+.
+.
+[   47.883970] PCI: Failed to allocate mem resource #10:2000000@e2000000
+for 000 0:02:04.0
+[   47.884002] PCI: Failed to allocate mem resource #10:2000000@e2000000
+for 000 0:02:04.1
+[   47.884030] PCI: Bus 3, cardbus bridge: 0000:02:04.0
+[   47.884035]   IO window: 00003000-00003fff
+[   47.884042]   IO window: 00004000-00004fff
+[   47.884050]   PREFETCH window: 60000000-61ffffff
+[   47.884056] PCI: Bus 7, cardbus bridge: 0000:02:04.1
+[   47.884061]   IO window: 00005000-00005fff
+[   47.884067]   IO window: 00006000-00006fff
+[   47.884074]   PREFETCH window: 62000000-63ffffff
+[   47.884080] PCI: Bridge: 0000:00:0a.0
+[   47.884085]   IO window: 3000-7fff
+[   47.884092]   MEM window: e0100000-e17fffff
+[   47.884127]   PREFETCH window: 60000000-63ffffff
+[   47.884137] PCI: Bridge: 0000:00:0b.0
+[   47.884140]   IO window: disabled.
+[   47.884148]   MEM window: e2000000-e2ffffff
+[   47.884155]   PREFETCH window: f0000000-f80fffff
+[   47.884170] PCI: Setting latency timer of device 0000:00:0a.0 to 64
+[   47.884806] ACPI: PCI Interrupt Link [LNK1] enabled at IRQ 19
+[   47.884818] ACPI: PCI Interrupt 0000:02:04.0[A] -> Link [LNK1] -> GSI
+19 (lev el, low) -> IRQ 177
+[   47.885434] ACPI: PCI Interrupt Link [LNK2] enabled at IRQ 18
+[   47.885442] ACPI: PCI Interrupt 0000:02:04.1[B] -> Link [LNK2] -> GSI
+18 (lev el, low) -> IRQ 185
+[   47.886005] agpgart: Detected AGP bridge 0
+[   47.886017] agpgart: Setting up Nforce3 AGP.
+[   47.893822] agpgart: AGP aperture is 128M @ 0xe8000000
 
-	The solution is very simple, and only need to change one line
-and add other in pc_keyb.c. And, in my tests, don't affect any other
-keyboards.
-
-						Thanks a lot,
-
-							Piter PUNK
-
---------------090909080000060501000208
-Content-Type: text/plain;
- name="dot_in_ABNT2_keyboard.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dot_in_ABNT2_keyboard.patch"
-
---- linux/drivers/char/pc_keyb.c	2005-07-26 21:16:40.000000000 -0300
-+++ linux-my/drivers/char/pc_keyb.c	2005-07-26 21:16:33.000000000 -0300
-@@ -231,6 +231,12 @@
- #define E0_MSLW	125
- #define E0_MSRW	126
- #define E0_MSTM	127
-+/* piterpk@terra.com.br:
-+ * Brazilian ABNT2 had 18 keys in numeric keypad
-+ * instead 17 in other keyboards. The 18th key is
-+ * a "."
-+ */
-+#define E0_KPPT 121
- 
- static unsigned char e0_keys[128] = {
-   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x00-0x07 */
-@@ -247,7 +253,7 @@
-   0, 0, 0, E0_MSLW, E0_MSRW, E0_MSTM, 0, 0,	      /* 0x58-0x5f */
-   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x60-0x67 */
-   0, 0, 0, 0, 0, 0, 0, E0_MACRO,		      /* 0x68-0x6f */
--  0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x70-0x77 */
-+  0, 0, 0, 0, 0, E0_KPPT, 0, 0,			      /* 0x70-0x77 */
-   0, 0, 0, 0, 0, 0, 0, 0			      /* 0x78-0x7f */
- };
- 
-
---------------090909080000060501000208--

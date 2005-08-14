@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbVHNB1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVHNBiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbVHNB1y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 21:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVHNB1y
+	id S932300AbVHNBiw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 21:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVHNBiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 21:27:54 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:48326 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751370AbVHNB1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 21:27:53 -0400
-Subject: 2.6.13-rc6-git5 : PCI mem resource alloc failure
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sat, 13 Aug 2005 21:27:50 -0400
-Message-Id: <1123982870.2779.7.camel@localhost.localdomain>
+	Sat, 13 Aug 2005 21:38:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:65249 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S932300AbVHNBiv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 21:38:51 -0400
+Date: Sun, 14 Aug 2005 03:38:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Jeff Dike <jdike@addtoit.com>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [RFC] [patch 0/39] remap_file_pages protection support, try 2
+Message-ID: <20050814013849.GA23795@elte.hu>
+References: <200508122033.06385.blaisorblade@yahoo.it>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508122033.06385.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.6.13-rc6-git5 I started getting the below errors. Despite of the
-errors everything works fine. (only problem is that I have to
-disconnect /reconnect the usb mouse for it to get detected..)
 
+* Blaisorblade <blaisorblade@yahoo.it> wrote:
 
-[    0.000000] Allocating PCI resources starting at 60000000 (gap:
-60000000:9ff80000)
-.
-.
-.
-[   47.883970] PCI: Failed to allocate mem resource #10:2000000@e2000000
-for 000 0:02:04.0
-[   47.884002] PCI: Failed to allocate mem resource #10:2000000@e2000000
-for 000 0:02:04.1
-[   47.884030] PCI: Bus 3, cardbus bridge: 0000:02:04.0
-[   47.884035]   IO window: 00003000-00003fff
-[   47.884042]   IO window: 00004000-00004fff
-[   47.884050]   PREFETCH window: 60000000-61ffffff
-[   47.884056] PCI: Bus 7, cardbus bridge: 0000:02:04.1
-[   47.884061]   IO window: 00005000-00005fff
-[   47.884067]   IO window: 00006000-00006fff
-[   47.884074]   PREFETCH window: 62000000-63ffffff
-[   47.884080] PCI: Bridge: 0000:00:0a.0
-[   47.884085]   IO window: 3000-7fff
-[   47.884092]   MEM window: e0100000-e17fffff
-[   47.884127]   PREFETCH window: 60000000-63ffffff
-[   47.884137] PCI: Bridge: 0000:00:0b.0
-[   47.884140]   IO window: disabled.
-[   47.884148]   MEM window: e2000000-e2ffffff
-[   47.884155]   PREFETCH window: f0000000-f80fffff
-[   47.884170] PCI: Setting latency timer of device 0000:00:0a.0 to 64
-[   47.884806] ACPI: PCI Interrupt Link [LNK1] enabled at IRQ 19
-[   47.884818] ACPI: PCI Interrupt 0000:02:04.0[A] -> Link [LNK1] -> GSI
-19 (lev el, low) -> IRQ 177
-[   47.885434] ACPI: PCI Interrupt Link [LNK2] enabled at IRQ 18
-[   47.885442] ACPI: PCI Interrupt 0000:02:04.1[B] -> Link [LNK2] -> GSI
-18 (lev el, low) -> IRQ 185
-[   47.886005] agpgart: Detected AGP bridge 0
-[   47.886017] agpgart: Setting up Nforce3 AGP.
-[   47.893822] agpgart: AGP aperture is 128M @ 0xe8000000
+> Ok, I've been working for the past two weeks learning well the Linux 
+> VM, understanding the Ingo's remap_file_pages protection support and 
+> its various weakness (due to lack of time on his part), and splitting 
+> and finishing it.
+> 
+> Here follow a series of 39 _little_ patches against the git-commit-id 
+> 889371f61fd5bb914d0331268f12432590cf7e85, which means between 
+> 2.6.13-rc4 and -rc5.
+> 
+> Actually, the first 7 ones are unrelated trivial cleanups which 
+> somehow get in the way on this work and that can probably be merged 
+> even now (many are just comment fixes).
+> 
+> Since I was a VM newbie until two weeks ago, I've separated my changes 
+> into many little patches.
 
+hi. Great work! I'm wondering about this comment in 
+rfp-fix-unmap-linear.patch:
+
+> Additionally, add a missing TLB flush in both locations. However, 
+> there'is some excess of flushes in these functions.
+
+excess TLB flushes one of the reasons of bad UML performance, so you 
+should really review them and not do spurious TLB flushes.
+
+	Ingo

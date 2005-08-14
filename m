@@ -1,83 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVHNPQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbVHNPTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbVHNPQg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 11:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVHNPQg
+	id S932550AbVHNPTD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 11:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbVHNPTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 11:16:36 -0400
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:9484 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932547AbVHNPQg
+	Sun, 14 Aug 2005 11:19:01 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:44018 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S932550AbVHNPTB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 11:16:36 -0400
-Date: Sun, 14 Aug 2005 17:17:16 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] (5/5) I2C updates for 2.4.32-pre3
-Message-Id: <20050814171716.099b8f55.khali@linux-fr.org>
-In-Reply-To: <20050814151320.76e906d5.khali@linux-fr.org>
-References: <20050814151320.76e906d5.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 14 Aug 2005 11:19:01 -0400
+Subject: RE: NCQ support NVidia NForce4 (CK804) SATAII
+From: Lion Vollnhals <webmaster@schiggl.de>
+To: wrlk@riede.org
+Cc: linux-kernel@vger.kernel.org, Allen Martin <AMartin@nvidia.com>
+In-Reply-To: <pan.2005.08.14.13.28.56.704434@riede.org>
+References: <fa.psg95ip.1emqnop@ifi.uio.no>
+	 <pan.2005.08.14.13.28.56.704434@riede.org>
+Content-Type: text/plain
+Date: Sun, 14 Aug 2005 17:18:44 +0200
+Message-Id: <1124032724.9323.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Five log messages lack their trailing new line in i2c-core.
+Am Sonntag, den 14.08.2005, 09:29 -0400 schrieb Willem Riede:
+> On Wed, 10 Aug 2005 20:54:35 +0000, Allen Martin wrote:
+> 
+> > Likely the only way nForce4 NCQ support could be added under Linux would
+> > be with a closed source binary driver, and no one really wants that,
+> > especially for storage / boot volume.  We decided it wasn't worth the
+> > headache of a binary driver for this one feature.  Future nForce
+> > chipsets will have a redesigned SATA controller where we can be more
+> > open about documenting it.
+> 
+> That is disappointing. I was seriously considering a motherboard with your
+> chipset because of its impressive specifications, but now I have to
+> reconsider (I'm one of those folks that never bought an nVidia graphics
+> board due to the lack of open full-function driver). I _hate_ not being
+> able to use all features.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+I agree.
 
- drivers/i2c/i2c-core.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+I am considering buying an nForce4 board, too.
+But i am discouraged by it's closed source nature.
 
---- linux-2.4.31.orig/drivers/i2c/i2c-core.c	2005-04-09 12:35:59.000000000 +0200
-+++ linux-2.4.31/drivers/i2c/i2c-core.c	2005-07-28 19:29:25.000000000 +0200
-@@ -208,7 +208,7 @@
- 			if ((res = drivers[j]->attach_adapter(adap))) {
- 				printk(KERN_WARNING "i2c-core.o: can't detach adapter %s "
- 				       "while detaching driver %s: driver not "
--				       "detached!",adap->name,drivers[j]->name);
-+				       "detached!\n", adap->name, drivers[j]->name);
- 				goto ERROR1;	
- 			}
- 	DRV_UNLOCK();
-@@ -226,7 +226,7 @@
- 			if ((res=client->driver->detach_client(client))) {
- 				printk(KERN_ERR "i2c-core.o: adapter %s not "
- 					"unregistered, because client at "
--					"address %02x can't be detached. ",
-+					"address %02x can't be detached\n",
- 					adap->name, client->addr);
- 				goto ERROR0;
- 			}
-@@ -339,7 +339,7 @@
- 				printk(KERN_WARNING "i2c-core.o: while unregistering "
- 				       "dummy driver %s, adapter %s could "
- 				       "not be detached properly; driver "
--				       "not unloaded!",driver->name,
-+				       "not unloaded!\n", driver->name,
- 				       adap->name);
- 				ADAP_UNLOCK();
- 				return res;
-@@ -361,7 +361,7 @@
- 						       "address %02x of "
- 						       "adapter `%s' could not"
- 						       "be detached; driver"
--						       "not unloaded!",
-+						       "not unloaded!\n",
- 						       driver->name,
- 						       client->addr,
- 						       adap->name);
-@@ -448,7 +448,7 @@
- 	if (adapter->client_unregister != NULL) 
- 		if ((res = adapter->client_unregister(client))) {
- 			printk(KERN_ERR "i2c-core.o: client_unregister [%s] failed, "
--			       "client not detached",client->name);
-+			       "client not detached\n", client->name);
- 			return res;
- 		}
- 
 
--- 
-Jean Delvare
+Lion Vollnhals
+

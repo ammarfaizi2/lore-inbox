@@ -1,95 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVHNKBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVHNKKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbVHNKBN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 06:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVHNKBN
+	id S932472AbVHNKKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 06:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVHNKKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 06:01:13 -0400
-Received: from nic.upatras.gr ([150.140.129.30]:45024 "HELO nic.upatras.gr")
-	by vger.kernel.org with SMTP id S932471AbVHNKBN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 06:01:13 -0400
-From: Michael Iatrou <m.iatrou@freemail.gr>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] configurable debug info from radeonfb old driver
-Date: Sun, 14 Aug 2005 13:01:48 +0300
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, ajoshi@shell.unixbox.com
-References: <200508140118.27921.m.iatrou@freemail.gr> <20050814012506.79987caf.akpm@osdl.org>
-In-Reply-To: <20050814012506.79987caf.akpm@osdl.org>
-X-Face: *8Gl!va:8&HzlgC%IRQaxD*[{;>3OMj];U1I;[rtNn@,hA7h/cTR1!!0J`koxA2)=?utf-8?q?xj=7ELd9=0A=09N4LpVN=24=5CaU=27r?=<dFtnPd*,?d&u_g_kAnTwdv>2l}1-ae/$k1heNY.:5"9IYPy>X$msqG
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-7"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508141301.49640.m.iatrou@freemail.gr>
+	Sun, 14 Aug 2005 06:10:20 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:23524 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S932472AbVHNKKU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 06:10:20 -0400
+From: dth@picard.cistron.nl (Danny ter Haar)
+Subject: 2.6.13-rcX really this bad ?
+Date: Sun, 14 Aug 2005 10:10:18 +0000 (UTC)
+Organization: Cistron
+Message-ID: <ddn5aa$glm$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1124014218 17078 62.216.30.70 (14 Aug 2005 10:10:18 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@picard.cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When the date was Sunday 14 August 2005 11:25, Andrew Morton wrote:
+I've posted a couple of times than my newsserver is not stable
+with any 2.6.13-rcX kernels.
+Last kernel that survived is 2.6.12-mm1 (18+days)
+Of course i can just stick with that kernel, but i thought it would
+be wise to live on the edge and run a reasonable loaded server with
+the latest/greatest. This ends in disaster though...
 
-> Michael Iatrou <m.iatrou@freemail.gr> wrote:
-> >
-> > Hi,
-> > 
-> > Currently, radeonfb old driver always prints debugging informations. This 
-> > patch makes debug info reporting configurable.
-> >  
-> > 
-> > diff -urN linux-2.6.13-rc6/drivers/video/Kconfig linux-2.6.13-rc6.new/drivers/video/Kconfig
-> > --- linux-2.6.13-rc6/drivers/video/Kconfig      2005-08-14 00:48:34.000000000 +0300
-> > +++ linux-2.6.13-rc6.new/drivers/video/Kconfig  2005-08-14 00:54:10.000000000 +0300
-> > @@ -936,6 +936,15 @@
-> >           There is a product page at
-> >           <http://www.ati.com/na/pages/products/pc/radeon32/index.html>.
-> > 
-> > +config FB_RADEON_OLD_DEBUG
-> > +    bool "Enable debug output from Old Radeon driver"
-> > +    depends on FB_RADEON_OLD
-> > +    default n
-> > +    help
-> > +      Say Y here if you want the Radeon driver to output all sorts
-> > +      of debugging informations to provide to the maintainer when
-> > +      something goes wrong.
-> > +
-> >  config FB_RADEON
-> >         tristate "ATI Radeon display support"
-> >         depends on FB && PCI
-> > diff -urN linux-2.6.13-rc6/drivers/video/radeonfb.c linux-2.6.13-rc6.new/drivers/video/radeonfb.c
-> > --- linux-2.6.13-rc6/drivers/video/radeonfb.c   2005-06-19 14:49:29.000000000 +0300
-> > +++ linux-2.6.13-rc6.new/drivers/video/radeonfb.c       2005-08-14 00:55:16.000000000 +0300
-> > @@ -80,7 +80,11 @@
-> >  #include <video/radeon.h>
-> >  #include <linux/radeonfb.h>
-> > 
-> > -#define DEBUG  1
-> > +#ifdef CONFIG_FB_RADEON_OLD_DEBUG
-> > +#define DEBUG       1
-> > +#else
-> > +#define DEBUG       0
-> > +#endif
-> > 
-> >  #if DEBUG
-> >  #define RTRACE         printk
-> 
-> That's probably a bit fancier than we really need.  How about we just set
-> DEBUG to zero?
- 
-That's an option too.
+These are last uptimes, all reset by panic on reset.
 
-diff -urN linux-2.6.13-rc6/drivers/video/radeonfb.c linux-2.6.13-rc6.new/drivers/video/radeonfb.c
---- linux-2.6.13-rc6/drivers/video/radeonfb.c   2005-06-19 14:49:29.000000000 +0300
-+++ linux-2.6.13-rc6.new/drivers/video/radeonfb.c       2005-08-14 12:58:10.000000000 +0300
-@@ -80,7 +80,7 @@
- #include <video/radeon.h>
- #include <linux/radeonfb.h>
+reboot   system boot  2.6.13-rc6-git5  Sun Aug 14 02:56    (09:07)
+reboot   system boot  2.6.13-rc6-git4  Fri Aug 12 16:50    (1+19:13)
+reboot   system boot  2.6.13-rc6-git3  Fri Aug 12 12:32    (04:16)
+reboot   system boot  2.6.13-rc6-git3  Thu Aug 11 13:18    (1+03:29)
+reboot   system boot  2.6.13-rc6-git2  Thu Aug 11 12:40    (00:35)
+reboot   system boot  2.6.13-rc6-git1  Wed Aug 10 13:24    (23:52)
+reboot   system boot  2.6.13-rc6       Wed Aug 10 02:46    (10:35)
+reboot   system boot  2.6.13-rc6       Mon Aug  8 16:52    (1+20:29)
+reboot   system boot  2.6.13-rc6       Sun Aug  7 22:07    (2+15:14)
 
--#define DEBUG  1
-+#define DEBUG  0
+Since i got no feedback on my previous posts, i either bring it 
+the wrong way, or people don't care and i ought to shut up.
+I think however that just before releasing a new stable kernel these
+kind of feedback could be healthy to ironout some bugs.
 
- #if DEBUG
- #define RTRACE         printk
+For now i'll switch back to 2.6.12-mm1 and follow this mailling list
+and try again when i the problems seem to have been solved.
 
--- 
- Michael Iatrou
+Danny
+

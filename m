@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbVHNN3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbVHNOAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932519AbVHNN3E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 09:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbVHNN3E
+	id S932527AbVHNOAz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 10:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVHNOAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 09:29:04 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.198.43]:56209 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932519AbVHNN3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 09:29:02 -0400
-From: Willem Riede <wrlk@riede.org>
-Subject: RE: NCQ support NVidia NForce4 (CK804) SATAII
-Date: Sun, 14 Aug 2005 09:29:00 -0400
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-Message-Id: <pan.2005.08.14.13.28.56.704434@riede.org>
-References: <fa.psg95ip.1emqnop@ifi.uio.no>
-Reply-To: wrlk@riede.org
-To: linux-kernel@vger.kernel.org, "Allen Martin" <AMartin@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 14 Aug 2005 10:00:55 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:36296 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932527AbVHNOAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 10:00:54 -0400
+Subject: Re: IDE CD problems in 2.6.13rc6
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <58cb370e05081404354fe6a097@mail.gmail.com>
+References: <20050813232957.GE3172@redhat.com>
+	 <58cb370e05081404354fe6a097@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 14 Aug 2005 14:46:41 +0100
+Message-Id: <1124027202.14138.46.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Aug 2005 20:54:35 +0000, Allen Martin wrote:
+On Sul, 2005-08-14 at 13:35 +0200, Bartlomiej Zolnierkiewicz wrote:
+> > The symptoms vary. On some of my machines just inserting
+> > an audio CD makes the box instantly lock up.
 
-> Likely the only way nForce4 NCQ support could be added under Linux would
-> be with a closed source binary driver, and no one really wants that,
-> especially for storage / boot volume.  We decided it wasn't worth the
-> headache of a binary driver for this one feature.  Future nForce
-> chipsets will have a redesigned SATA controller where we can be more
-> open about documenting it.
+You've got all the gnome cruft running. Start by turning that off. Then
+try inserting/removing audio discs, playing them with "cdplay". I'd
+expect that to be ok
 
-That is disappointing. I was seriously considering a motherboard with your
-chipset because of its impressive specifications, but now I have to
-reconsider (I'm one of those folks that never bought an nVidia graphics
-board due to the lack of open full-function driver). I _hate_ not being
-able to use all features.
+Next try ripping an audio cd without all the gnome crud loaded. If that
+works (it may or may not) then its practical to try and pin down the bug
+and see if its error handling (the locking patterns all changed in the
+base kernel recently hence all those new PIIX error reports) or
+something else.
 
-Any chance your company will reconsider? Are you in a position to make
-that decision? Is there a VP I can write to (politely) to support the case?
+> I checked 2.6.13-rc6 patch and I see no IDE / CD changes which
+> could be responsible for this regression.  You can try reverting ide-cd
+> changes and see if this helps.  IRQ routing changes?
 
-I don't understand your reluctance in this case (I do for your graphics
-processors) - it's not as if adding this function to sata_nv would
-expose your crown jewels - you write yourself that next time you'd use a
-different (better) interface...
+Then you'd expect to see "drive confused" methods. It could be IRQ
+related - missing IRQ might do it although I'd expect that to cause
+crashes during probe if we got extra IRQs (because the code to handle it
+was removed from the base kernel even though it is required).
 
-Regards, Willem Riede.
+Another thing that will do this is if you bomb the drive with commands
+from somewhere (say GNOME) or crash the firmware, which is why you need
+to isolate all the gnome gunge for testing, and if that makes the
+difference see if its a kernel or higher level change and if so what its
+doing that causes problems.
+
+Alan
 

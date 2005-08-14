@@ -1,143 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVHNEBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVHNELY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbVHNEBE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 00:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbVHNEBE
+	id S932436AbVHNELY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 00:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbVHNELX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 00:01:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:27299 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932443AbVHNEBC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 00:01:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=apIWQkvnFvSy9siEWSR+44n4Pwd32qrnpZE6q59eTDOYe3ul1B0ZZOpj6O1o/RyXuRK7Zzon5EV4jcGKdVYjVZiVEr6FICVOCXPbvhxfZFX5f92T+Mtuhr6AzhC2fGwg74Vr4UTPVU7bNuqv2DyHc3gBz1CQcpCn3JfQqbdxBrk=
-Message-ID: <398d69300508132100327e3712@mail.gmail.com>
-Date: Sun, 14 Aug 2005 12:00:59 +0800
-From: Xuekun Hu <xuekun.hu@gmail.com>
+	Sun, 14 Aug 2005 00:11:23 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:13319 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S932436AbVHNELX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 00:11:23 -0400
 To: linux-kernel@vger.kernel.org
-Subject: lockmeter: fix lock counter roll over issue
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Cc: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [Patch] Support UTF-8 scripts
+From: James Cloos <cloos@jhcloos.com>
+In-Reply-To: <1123980802.14138.25.camel@localhost.localdomain> (Alan Cox's message of "Sun, 14 Aug 2005 01:53:22 +0100")
+References: <42FDE286.40707@v.loewis.de>
+	<feed8cdd0508130935622387db@mail.gmail.com>
+	<1123958572.11295.7.camel@mindpipe>
+	<1123980802.14138.25.camel@localhost.localdomain>
+X-Hashcash: 1:21:050814:linux-kernel@vger.kernel.org::S0KWLaoypWJNIQxy:000000000000000000000000000000000XHJG
+X-Hashcash: 1:21:050814:rlrevell@joe-job.com::6WQ5If7Em3WBq72K:000000000000000000000000000000000000000007pNX
+Date: Sun, 14 Aug 2005 00:10:49 -0400
+Message-ID: <m3y875kvjq.fsf@lugabout.cloos.reno.nv.us>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I collected lockmeter data for a longer duration, sometimes the
-locks counter could roll over. I'm sure someone else maybe meet the
-same situation. So I wrote the below patch, could you have a look?
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-diff -Nraup linux/include/linux/lockmeter.h
-linux.lockmeter/include/linux/lockmeter.h
---- linux/include/linux/lockmeter.h	2005-08-09 10:46:53.302083832 +0800
-+++ linux.lockmeter/include/linux/lockmeter.h	2005-08-05
-17:22:37.000000000 +0800
-@@ -150,7 +150,7 @@ typedef struct {
- 	uint32_t    max_wait_ww_ticks;  /* max wait time writer vs writer  */
- 	                                /* prev 2 only used for write locks*/
- 	uint32_t    acquire_time;       /* time lock acquired this CPU     */
--	uint32_t    count[LSTAT_ACT_MAX_VALUES];
-+	uint64_t    count[LSTAT_ACT_MAX_VALUES];
- } lstat_lock_counts_t;
- 
- typedef lstat_lock_counts_t	lstat_cpu_counts_t[LSTAT_MAX_STAT_INDEX];
-@@ -167,7 +167,7 @@ typedef lstat_lock_counts_t	lstat_cpu_co
- #define LSTAT_MAX_READ_LOCK_INDEX 1000
- typedef struct {
- 	POINTER	    lock_ptr;            /* address of lock for output stats */
--	uint32_t    read_lock_count;
-+	uint64_t    read_lock_count;
- 	int64_t     cum_hold_ticks;       /* sum of read lock hold times over */
- 	                                  /* all callers. ....................*/
- 	uint32_t    write_index;          /* last write lock hash table index */
+Alan> The command line console mappings may not include them by
+Alan> default (you can obviously add them if your keyboard lacks
+Alan> them). The X keyboard however does include compose functionality
+Alan> for » and « and many other symbols that might be useful eg ±
 
-I also modified lockstat to compliant with this modification against
-lockstat 1.4.11 version.
+Not to mention that many editors, including emacs and vim, have their
+own support for entering such non-ascii characters no matter what the
+console or X11 keyboards look like.
 
-diff -Nraup lockstat/include/linux/lockmeter.h
-lockstat.fix/include/linux/lockmeter.h
---- lockstat/include/linux/lockmeter.h	2004-09-14 07:02:05.000000000 +0800
-+++ lockstat.fix/include/linux/lockmeter.h	2005-08-05 17:38:46.000000000 +0800
-@@ -150,7 +150,7 @@ typedef struct {
- 	uint32_t    max_wait_ww_ticks;  /* max wait time writer vs writer  */
- 	                                /* prev 2 only used for write locks*/
- 	uint32_t    acquire_time;       /* time lock acquired this CPU     */
--	uint32_t    count[LSTAT_ACT_MAX_VALUES];
-+	uint64_t    count[LSTAT_ACT_MAX_VALUES];
- } lstat_lock_counts_t;
- 
- typedef lstat_lock_counts_t	lstat_cpu_counts_t[LSTAT_MAX_STAT_INDEX];
-@@ -167,7 +167,7 @@ typedef lstat_lock_counts_t	lstat_cpu_co
- #define LSTAT_MAX_READ_LOCK_INDEX 1000
- typedef struct {
- 	POINTER	    lock_ptr;            /* address of lock for output stats */
--	uint32_t    read_lock_count;          
-+	uint64_t    read_lock_count;          
- 	int64_t     cum_hold_ticks;       /* sum of read lock hold times over */
- 	                                  /* all callers. ....................*/
- 	uint32_t    write_index;          /* last write lock hash table index */
-diff -Nraup lockstat/lockstat.c lockstat.fix/lockstat.c
---- lockstat/lockstat.c	2004-09-14 07:01:41.000000000 +0800
-+++ lockstat.fix/lockstat.c	2005-08-09 10:35:18.305356776 +0800
-@@ -36,7 +36,7 @@ static char lockstat_version[]  = "1.4.1
- #include <stdlib.h>
- #include <string.h>
- #include <errno.h>
--#include <sys/time.h>
-+#include <time.h>
- #include <linux/lockmeter.h>
- 
- extern void	closeFiles(void);
-@@ -267,7 +267,7 @@ typedef enum	{Null_Entry, Spin_Entry, RL
- 
- typedef struct {
- 	lstat_lock_counts_t  counts;
--	uint32_t	total;
-+	uint64_t	total;
- 	double		contention;
- 	double		persec;
- 	double          utilization;
-@@ -999,7 +999,8 @@ add_counts(lock_summary_t *sump, lstat_l
- int
- sum_counts(lock_summary_t *sump, entry_type_enum entry_type)
- {
--	int		total, i, j;
-+	int		i, j;
-+	uint64_t	total;
- 	double	contention;
- 	double  utilization;
- 
-@@ -1171,7 +1172,7 @@ print_lock(char *name, lock_summary_t *s
- 	float mean_hold_time, max_hold_time;
- 	float wait_time, mean_wait_time, max_wait_time, mean_wait_ww_time,
-max_wait_ww_time;
- 	double temp_time;
--	uint32_t total_spin_count = 0;
-+	uint64_t total_spin_count = 0;
- 
- 	print_header();
- 
-@@ -1317,7 +1318,7 @@ print_lock(char *name, lock_summary_t *s
- 	}
- 
- 	/* following done for ALL types of locks, except as indicated */
--	printf(" %9d", sump->total);
-+	printf(" %20ld", sump->total);
- 	print_percentage('
-',100.0*(double)sump->counts.count[LSTAT_ACT_NO_WAIT]/(double)sump->total,0);
- 	print_percentage('
-',100.0*(double)sump->counts.count[LSTAT_ACT_SPIN]/(double)sump->total,0);
- 	if (entry_type == WLspin_Entry) {
-@@ -1325,7 +1326,7 @@ print_lock(char *name, lock_summary_t *s
- 				 ')');
- 	}
- #ifdef notyet
--	printf("%9d", sump->counts.count[LSTAT_ACT_SLEPT]);
-+	printf("%20ld", sump->counts.count[LSTAT_ACT_SLEPT]);
- #endif
- 	if (entry_type == Spin_Entry) {
- 		/* We only see these for spinlock_t, and even then it's rare. */
- 
-Any comments?
+-JimC
+-- 
+James H. Cloos, Jr. <cloos@jhcloos.com>

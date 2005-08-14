@@ -1,90 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVHNAla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbVHNBOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbVHNAla (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 20:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVHNAla
+	id S1751365AbVHNBOx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 21:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbVHNBOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 20:41:30 -0400
-Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:35756 "EHLO
-	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751361AbVHNAla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 20:41:30 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck@vds.kolivas.org
-Subject: Re: Slow sync in Interbench: anticipatory starves writes?
-Date: Sun, 14 Aug 2005 09:08:04 +1000
-User-Agent: KMail/1.8.2
-Cc: "Indan Zupancic" <indan@nul.nu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <45213.81.207.0.53.1123974374.squirrel@81.207.0.53>
-In-Reply-To: <45213.81.207.0.53.1123974374.squirrel@81.207.0.53>
+	Sat, 13 Aug 2005 21:14:53 -0400
+Received: from imap.gmx.net ([213.165.64.20]:26053 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751365AbVHNBOx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 21:14:53 -0400
+X-Authenticated: #1189245
+Message-ID: <42FE9B41.4000909@gmx.net>
+Date: Sun, 14 Aug 2005 03:15:45 +0200
+From: Carsten Menke <bootsy52@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b) Gecko/20050217
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12.3 and 2.6.13-rc6 Kernel Oops using ISDN capi (c2faxsend)
+References: <42FCD58B.5010702@gmx.net> <42FCE37F.7070606@gmx.net>
+In-Reply-To: <42FCE37F.7070606@gmx.net>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508140908.05287.kernel@kolivas.org>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Aug 2005 09:06, Indan Zupancic wrote:
-> Hello,
+Carsten Menke wrote:
 
-Hi.
+The same applies using 2.6.13-rc6 but the trace looks a little bit different 
+(the last line). The fax transfer starts but then breaks with this trace in the 
+middle.
 
-Interesting find. I'm forwarding this on to lkml and Nick so they can peruse 
-your findings and see what needs to be done.
+//Carsten
 
-Thanks,
-Con
+capilib_new_ncci: kcapi: appl 3 ncci 0x10101 up
+kcapi: appl 3 ncci 0x10101 forced down
+kcapi: appl 3 ncci 0x10101 down
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+  printing eip:
+e0968df2
+*pde = 00000000
+Oops: 0002 [#1]
+PREEMPT SMP
+Modules linked in: ipv6 piix ide_generic b1pci b1dma b1 n_hdlc tun capi capifs 
+kernelcapi evdev pcspkr parport_pc parport psmouse genrtc e1000 ide_cd cdrom 
+ide_disk ide_core floppy usb_storage fbcon font bitblit vga16fb usbhid usbkbd 
+ehci_hcd uhci_hcd thermal processor fan unix
+CPU:    0
+EIP:    0060:[<e0968df2>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.13-rc6)
+EIP is at capilib_release_appl+0x52/0x70 [kernelcapi]
+eax: 00000000   ebx: d75e6d80   ecx: c03b9c14   edx: 00000000
+esi: dfb7fe4c   edi: dfb7fe4c   ebp: 00000003   esp: d7679dac
+ds: 007b   es: 007b   ss: 0068
+Process c2faxsend (pid: 4112, threadinfo=d7678000 task=c1718540)
+Stack: e096b940 00000003 00010101 dfb7fcc8 00000003 dfe8b000 dff85300 e0937b29
+        dfb7fe4c 00000003 000000e2 dfb7fcc8 dd6e0a88 dea2b0d0 e09660ba dfb7fcc8
+        00000003 00000000 e0966ce0 dfb7fcc8 00000003 dd6e0a80 d55b8480 e089a653
+Call Trace:
+  [<e0937b29>] b1dma_release_appl+0x29/0xe0 [b1dma]
+  [<e09660ba>] release_appl+0x1a/0x70 [kernelcapi]
+  [<e0966ce0>] capi20_release+0xc0/0xd0 [kernelcapi]
+  [<e089a653>] capidev_free+0x93/0xa0 [capi]
+  [<e089b739>] capi_release+0x19/0x30 [capi]
+  [<c0160a3a>] __fput+0x18a/0x1a0
+  [<c015ed9d>] filp_close+0x4d/0x80
+  [<c011fe34>] put_files_struct+0x64/0xd0
+  [<c0120b69>] do_exit+0x109/0x410
+  [<c0120ef0>] do_group_exit+0x40/0xb0
+  [<c012a900>] get_signal_to_deliver+0x230/0x340
+  [<c0102f1f>] do_signal+0x8f/0x120
+  [<c0118198>] wake_up_state+0x18/0x20
+  [<c0128cae>] signal_wake_up+0x2e/0x50
+  [<c0129311>] force_sig_info+0x71/0xb0
+  [<c0129c50>] force_sig+0x20/0x30
+  [<c0104d75>] do_general_protection+0xa5/0x1d0
+  [<c023db22>] copy_to_user+0x42/0x60
+  [<c0122b0c>] sys_gettimeofday+0x3c/0x90
+  [<c0104cd0>] do_general_protection+0x0/0x1d0
+  [<c0102fe7>] do_notify_resume+0x37/0x3c
+  [<c01031a6>] work_notifysig+0x13/0x15
+Code: f3 39 fb 8b 36 75 f2 83 c4 0c 5b 5e 5f 5d c3 8b 43 0c 89 6c 24 04 c7 04 24 
+40 b9 96 e0 89 44 24 08 e8 e3 56 7b df 8b 53 04 8b 03 <89> 50 04 89 02 c7 43 04 
+00 02 20 00 c7 03 00 01 10 00 89 1c 24
+  <1>Fixing recursive fault but reboot is needed!
 
-> Short version:
-> With the anticipatory IO scheduler it's possible to cause extreme long
-> delays so that sync() calls can take minutes. Isn't this a potential DOS?
->
-> Long version:
-> Running interbench took often much longer than expected. As the early
-> versions were buggy I thought it was an interbench bug. But now, with
-> interbench 0.29, the problem is still there. So I tried pinning it down
-> and found out that it isn't an interbench bug at all, but that sync() is
-> taking so long.
->
-> All test results and data can be found at http://nul.nu/~indan/synctest/
-> If no interval is given then it's 2 seconds.
->
-> The testcase I used most is running a modified interbench which only
-> tests X with the options -w Compile -c -t 10, so that only the X
-> simulation under the Compile load is run without causing extra hd
-> activity. All changes can be found in the file named "diff". This seemed
-> the minimal test which reliably caused sync to be slow often. It may be
-> that the full interbench run causes worse conditions, as some normal runs
-> took 53 minutes (see 2.6.13-rc6-hg.log1).
->
-> test1/ and test2/ dirs have earlier tests without sync timing. test3/ has
-> sync timing added and is probably the most useful. Normally the X+Compile
-> simulation takes about 15 to 20 seconds, but often 30 seconds or more,
-> and once in a while more than one minute. test1/ was slowest with almost
-> 4 minutes.
->
-> At the end of the Compile test interbench stops the burn, write and read
-> thread, in that order. Because stopping the write thread causes a sync
-> which takes very long, the read thread keeps running, as can be seen in
-> the vmstat output. A good log is
-> http://nul.nu/~indan/synctest/test3/log9. There can also be seen that
-> while interbench is waiting for the sync, almost no writing happens at
-> all.
->
-> Another good log with also meminfo output is
-> http://nul.nu/~indan/synctest/test3/log2. There can be seen that even
-> when there is no dirty or writeback data sync still doesn't return but
-> keeps going.
->
-> While writing this mail I tried other IO schedulers, and none have slow
-> syncs except anticipatory. The others don't take more than one second for
-> the sync.
->
-> Funny that a cpu scheduler test finds IO scheduler problems. :-)
->
-> Greetings,
->
-> Indan
+
+-- 
+"There are two major products that came out of Berkeley: LSD and UNIX.
+   We don't believe this to be a coincidence." --Jeremy S. Anderson

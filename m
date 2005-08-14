@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbVHNX2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVHNX3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbVHNX2y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 19:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVHNX2y
+	id S932352AbVHNX3k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 19:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbVHNX3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 19:28:54 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:7656 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932349AbVHNX2y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 19:28:54 -0400
-Subject: Re: [Patch] Support UTF-8 scripts
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Stephen Pollei <stephen.pollei@gmail.com>,
-       Jason L Tibbitts III <tibbs@math.uh.edu>,
-       "Martin v." =?ISO-8859-1?Q?L=F6wis?= <martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1124049592.4918.2.camel@mindpipe>
-References: <42FDE286.40707@v.loewis.de>
-	 <feed8cdd0508130935622387db@mail.gmail.com>
-	 <1123958572.11295.7.camel@mindpipe> <ufazmrl9h3u.fsf@epithumia.math.uh.edu>
-	 <feed8cdd050814125845fe4e2e@mail.gmail.com>
-	 <1124049592.4918.2.camel@mindpipe>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 15 Aug 2005 00:55:54 +0100
-Message-Id: <1124063754.28862.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Sun, 14 Aug 2005 19:29:39 -0400
+Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:675 "EHLO
+	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932352AbVHNX3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 19:29:39 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: usb camera failing in 2.6.13-rc6
+Date: Mon, 15 Aug 2005 09:29:20 +1000
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <mailman.1124005092.8274.linux-kernel2news@redhat.com> <200508141842.13209.kernel@kolivas.org> <20050814115648.4f12f1ec.zaitcev@redhat.com>
+In-Reply-To: <20050814115648.4f12f1ec.zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508150929.21402.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-08-14 at 15:59 -0400, Lee Revell wrote:
-> I know the alternatives are available.  That doesn't make it any less
-> idiotic to use non ASCII characters as operators.  I think it's a very
-> slippery slope.  We write code in ASCII, dammit.
+On Mon, 15 Aug 2005 04:56, Pete Zaitcev wrote:
+> On Sun, 14 Aug 2005 18:42:12 +1000, Con Kolivas <kernel@kolivas.org> wrote:
+> > On Sun, 14 Aug 2005 18:00, Pete Zaitcev wrote:
+> > > On Sun, 14 Aug 2005 17:12:06 +1000, Con Kolivas <kernel@kolivas.org>
+> > > wrote:
+> >
+> > Yes all those dmesgs etc were redone after it failed in rc6 as I needed
+> > it working. Oh and all other usb devices - mouse, printer, scanner,
+> > keyboard are working fine in rc6; it's just the camera.
+>
+> This should be diffable. You caught this regression relatively early.
+> But I'm afraid you have to go through the divide-by-half excercise.
+>
+> If I were a betting man, I'd bet on this:
 
-Its a trivial patch and there is a lot to be said for UTF-8 scripts. As
-to writing code in ascii, the kernel regularly has outbreaks of either
-UTF-8 or ISO-8859-* especially in the docs directory. Standardising
-these on UTF-8 would be helpful.
+> Remember that dmesg diff you sent? That's the one. If you strace
+> the digikamcameracl, it probably keels over after EBUSY.
 
-Yes the kernel code is C so ASCII except for the odd abuser of the ©
-symbol.
+Nice shot! Got it in one. bugzilla updated with confirmation.
 
-Alan
+So how do we proceed with this one? Do I need to file a digikam bug report 
+too?
 
+
+Cheers,
+Con

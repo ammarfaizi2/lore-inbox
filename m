@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVHNTzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVHNT74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbVHNTzt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 15:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVHNTzt
+	id S932174AbVHNT74 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 15:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbVHNT74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 15:55:49 -0400
-Received: from mail.linicks.net ([217.204.244.146]:51461 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S932141AbVHNTzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 15:55:48 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE CD problems in 2.6.13rc6
-Date: Sun, 14 Aug 2005 20:55:35 +0100
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508142055.35731.nick@linicks.net>
+	Sun, 14 Aug 2005 15:59:56 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:4519 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932174AbVHNT74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 15:59:56 -0400
+Subject: Re: [Patch] Support UTF-8 scripts
+From: Lee Revell <rlrevell@joe-job.com>
+To: Stephen Pollei <stephen.pollei@gmail.com>
+Cc: Jason L Tibbitts III <tibbs@math.uh.edu>,
+       "Martin v." =?ISO-8859-1?Q?L=F6wis?= <martin@v.loewis.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <feed8cdd050814125845fe4e2e@mail.gmail.com>
+References: <42FDE286.40707@v.loewis.de>
+	 <feed8cdd0508130935622387db@mail.gmail.com>
+	 <1123958572.11295.7.camel@mindpipe> <ufazmrl9h3u.fsf@epithumia.math.uh.edu>
+	 <feed8cdd050814125845fe4e2e@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1251
+Date: Sun, 14 Aug 2005 15:59:50 -0400
+Message-Id: <1124049592.4918.2.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.7 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Voluspa wrote:
-
+On Sun, 2005-08-14 at 12:58 -0700, Stephen Pollei wrote:
+> My main point was that utf-8 for identifiers, operators, and string
+> constants are becoming more prevalent, so BOM support for scripts
+> sounds like a Good Idea™ .
 > 
-> The "hdparm -I /dev/hdc"
-> 
-> hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> hdc: drive_cmd: error=0x04 { AbortedCommand }
-> de: failed opcode was: 0xec
-> 
-> Is present on all kernels that I have locally (oldest 2.6.11.11)
-> so it is not related to the threadstarters problems, it seems.
 
-Hi all,
+I know the alternatives are available.  That doesn't make it any less
+idiotic to use non ASCII characters as operators.  I think it's a very
+slippery slope.  We write code in ASCII, dammit.
 
-Maybe teaching you all to suck eggs here, but I used to get this a lot on my 
-CD's - KDE ran some probe and as the CD[s] where empty logs filled up rapidly 
-with that error.  I thought the[a] drive was duff, so bought a new CD-RW.
+Lee
 
-Made no difference :-/  I then investigated further, and read that instead of 
-the SCSI emulation, it was superceded by IDE-CD.
-
-kernel 2.6.12.3
-
-Kernel command line: BOOT_IMAGE=Nicks ro root=303 hdc=ide-cd hdd=ide-cd
-
-Fixed the issue for me.  But as I say, teaching to suck eggs, but I thought I 
-would mention it.
-
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."

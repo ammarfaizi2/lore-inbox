@@ -1,41 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVHNIA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbVHNI0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbVHNIA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 04:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVHNIA4
+	id S1751343AbVHNI0d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 04:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbVHNI0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 04:00:56 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37004 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932415AbVHNIA4 (ORCPT
+	Sun, 14 Aug 2005 04:26:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4326 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751343AbVHNI0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 04:00:56 -0400
-Date: Sun, 14 Aug 2005 01:00:47 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: usb camera failing in 2.6.13-rc6
-Message-Id: <20050814010047.4b5fd37e.zaitcev@redhat.com>
-In-Reply-To: <mailman.1124005092.8274.linux-kernel2news@redhat.com>
-References: <mailman.1124005092.8274.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
+	Sun, 14 Aug 2005 04:26:32 -0400
+Date: Sun, 14 Aug 2005 01:25:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Iatrou <m.iatrou@freemail.gr>
+Cc: linux-kernel@vger.kernel.org, ajoshi@shell.unixbox.com
+Subject: Re: [PATCH] configurable debug info from radeonfb old driver
+Message-Id: <20050814012506.79987caf.akpm@osdl.org>
+In-Reply-To: <200508140118.27921.m.iatrou@freemail.gr>
+References: <200508140118.27921.m.iatrou@freemail.gr>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Aug 2005 17:12:06 +1000, Con Kolivas <kernel@kolivas.org> wrote:
+Michael Iatrou <m.iatrou@freemail.gr> wrote:
+>
+> Hi,
+> 
+> Currently, radeonfb old driver always prints debugging informations. This 
+> patch makes debug info reporting configurable.
+>  
+> 
+> diff -urN linux-2.6.13-rc6/drivers/video/Kconfig linux-2.6.13-rc6.new/drivers/video/Kconfig
+> --- linux-2.6.13-rc6/drivers/video/Kconfig      2005-08-14 00:48:34.000000000 +0300
+> +++ linux-2.6.13-rc6.new/drivers/video/Kconfig  2005-08-14 00:54:10.000000000 +0300
+> @@ -936,6 +936,15 @@
+>           There is a product page at
+>           <http://www.ati.com/na/pages/products/pc/radeon32/index.html>.
+> 
+> +config FB_RADEON_OLD_DEBUG
+> +    bool "Enable debug output from Old Radeon driver"
+> +    depends on FB_RADEON_OLD
+> +    default n
+> +    help
+> +      Say Y here if you want the Radeon driver to output all sorts
+> +      of debugging informations to provide to the maintainer when
+> +      something goes wrong.
+> +
+>  config FB_RADEON
+>         tristate "ATI Radeon display support"
+>         depends on FB && PCI
+> diff -urN linux-2.6.13-rc6/drivers/video/radeonfb.c linux-2.6.13-rc6.new/drivers/video/radeonfb.c
+> --- linux-2.6.13-rc6/drivers/video/radeonfb.c   2005-06-19 14:49:29.000000000 +0300
+> +++ linux-2.6.13-rc6.new/drivers/video/radeonfb.c       2005-08-14 00:55:16.000000000 +0300
+> @@ -80,7 +80,11 @@
+>  #include <video/radeon.h>
+>  #include <linux/radeonfb.h>
+> 
+> -#define DEBUG  1
+> +#ifdef CONFIG_FB_RADEON_OLD_DEBUG
+> +#define DEBUG       1
+> +#else
+> +#define DEBUG       0
+> +#endif
+> 
+>  #if DEBUG
+>  #define RTRACE         printk
 
-> A digital camera which was working fine in 2.6.11/12 now fails on 2.6.13-rc6 
-> (not sure when it started failing).
+That's probably a bit fancier than we really need.  How about we just set
+DEBUG to zero?
 
-Does it continue to work on an older kernel? I saw a USB device breaking
-right in the moment of reboot into a new kernel (thus prompting a week
-of diffing an head-scratching).
-
-> +usbmon: debugs is not available
-
-Deconfigure CONFIG_USB_MON. It's useless without debugfs anyway.
-
--- Pete

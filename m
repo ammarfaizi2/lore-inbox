@@ -1,64 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbVHNCF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVHNB7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbVHNCF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 22:05:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbVHNCF3
+	id S932307AbVHNB7i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 21:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVHNB7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 22:05:29 -0400
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:18633 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932396AbVHNCF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 22:05:28 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: vatsa@in.ibm.com
-Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
-Date: Sun, 14 Aug 2005 10:18:28 +1000
-User-Agent: KMail/1.8.2
-Cc: ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com,
-       akpm@osdl.org, johnstul@us.ibm.com, linux-kernel@vger.kernel.org,
-       ak@muc.de, schwidefsky@de.ibm.com, george@mvista.com
-References: <20050812201946.GA5327@in.ibm.com> <200508140053.21056.kernel@kolivas.org> <20050813164618.GA4659@in.ibm.com>
-In-Reply-To: <20050813164618.GA4659@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Aug 2005 21:59:38 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:41131 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932307AbVHNB7h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 21:59:37 -0400
+Date: Sun, 14 Aug 2005 04:00:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: blaisorblade@yahoo.it, user-mode-linux-devel@lists.sourceforge.net,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, jdike@addtoit.com,
+       bstroesser@fujitsu-siemens.com
+Subject: Re: [uml-devel] Re: [RFC] [patch 0/39] remap_file_pages protection support, try 2
+Message-ID: <20050814020021.GB23795@elte.hu>
+References: <200508122033.06385.blaisorblade@yahoo.it> <20050812.112954.115910063.davem@davemloft.net> <200508122056.11442.blaisorblade@yahoo.it> <20050812.120517.65192635.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508141018.29668.kernel@kolivas.org>
+In-Reply-To: <20050812.120517.65192635.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=disabled SpamAssassin version=3.0.4
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Aug 2005 02:46, Srivatsa Vaddagiri wrote:
-> On Sun, Aug 14, 2005 at 12:53:20AM +1000, Con Kolivas wrote:
-> > Indeed this fixes it on my P4 so that it does skip ticks. However
-> > presumably due to the code change I am having the reverse behaviour from
-> > previously - it pauses for ages when using PIT - worse so than previously
-> > in that if I dont generate interrupts with my mouse or keyboard it just
-> > sits there indefinitely. Having said that, it seems to work fine in APIC
-> > mode.
->
-> Can you explain what you mean by "pauses for ages when using PIT"? Is it
-> while running pmstat? What command line options did you use? 
 
-I use vmstat as that is good enough to tell me how many interrupts/s are 
-occurring. When running 'vmstat 2' for example with PIT mode, vmstat makes 
-absolutely no progress if I don't move the mouse, even though it's supposed 
-to update every 2 seconds. Then when I move the mouse it will show something 
-like 13 tasks running presumably because all of these tasks were waiting on 
-timers that made no progress until interrupts drove the timers on again. I 
-built in both PIT and APIC dyntick mode into the kernel and the default in 
-the way I modified the patch is for APIC mode to be used if it's built in. 
-After that I modified the values using the sysfs interface at
-/sys/devices/system/dyn_tick/dyn_tick0/. In APIC mode it seems to run close to 
-what it did on the pre-smp version of the dynticks patch but the timers do 
-seem to be off still with vmstat updating at intervals not consistent with 
-what parameter is passed to it. It does seems there are some timing issues 
-with this patch, although it is also quite stable (up for 10 hours now).
-I've had a few interesting messages in my syslog suggesting problems:
-Hangcheck: hangcheck value past margin!
+* David S. Miller <davem@davemloft.net> wrote:
 
-and then later on a few of:
-set_rtc_mmss: can't update from 0 to 59
+> From: Blaisorblade <blaisorblade@yahoo.it>
+> Date: Fri, 12 Aug 2005 20:56:11 +0200
+> 
+> > However, I sent the initial tarball containing all them, so I hope
+> > that will be useful.
+> 
+> So not only did you spam the list with 40 patch postings, you sent a 
+> second copy of everything as a tarball attachment as well.  That's 
+> even worse.
+> 
+> Please do not abuse the list server in this way, it is a resource that 
+> is not just your's, but rather one which has to be shared amongst all 
+> folks doing kernel development.
 
-Cheers,
-Con
+while i agree that 40 patches is not common, i'd like to point out that 
+Paolo has sent 40 very nicely split up patches instead of one 
+unreviewable monolithic patch, which are the encouraged format for 
+kernel changes. I havent seen any hard limit mentioned for patch-bombs 
+on lkml before - and i've seen much larger patchbombs going to lkml as 
+well, without any followup chastising of the submitter. E.g.:
+
+   Subject: [0/48] Suspend2 2.1.9.8 for 2.6.12
+
+So if there needs to be some limit, it might be worth defining some 
+actual hard limit for this.
+
+But the more important point is that given how complex the VM, and in 
+particular sys_remap_file_pages_prot() is, i'm personally much more 
+happy about the work having been submitted in a split-up way than i am 
+unhappy about the bombing!
+
+Paolo has actually worked alot on this, which resulted in 40 real, new 
+patches, so i couldnt think of any better way to present this work for 
+review. Had he posted some link it would not be individually reviewable. 
+(nor could the patch components be picked up by search utilities in that 
+case - i frequently search lkml for patches, but naturally i dont 
+traverse links referenced in them.) So i think we should rather be happy 
+about the 40-patch progress that Paolo has made to Linux, than be 
+unhappy about this intense work's effect on our infrastructure.
+
+In other words, we should not be worried about the number of real 
+changes submitted to lkml, and we should only hope for that number to 
+increase, and we should encourage people to do it! Paolo did this in 2 
+weeks, so it's not like he has sent changes accumulated over a long time 
+in a patch-bomb. It was real, cutting-edge work very relevant to lkml, 
+which work i believe Paolo didnt have much choice submitting in any 
+other sensible and reviewable form.
+
+(i think i agree that maybe the tarball should not have been sent - but 
+even that one was within the usual size limits and other people send 
+tarballs frequently too.)
+
+	Ingo

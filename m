@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVHNVUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbVHNVYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbVHNVUV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 17:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVHNVUV
+	id S932306AbVHNVYh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 17:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVHNVYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 17:20:21 -0400
-Received: from nproxy.gmail.com ([64.233.182.206]:60841 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932299AbVHNVUU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 17:20:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UnpgJ6Ha+zk8c7SjOGHX4j6R22Q8uQBmgwEZaJEOdJGoQdLW1BJVll/ainxb6XouXsexqGImWkgt+YBeUQuCTVZ3pJlkKb47MpXv56w60S5lgw+19/nmZ6TH4IRE8VJxOV4v3Vi7j8jnSbaELDdfUxnZQVHT3sSBZEA5TRWsiFg=
-Message-ID: <58cb370e050814142013db4ba1@mail.gmail.com>
-Date: Sun, 14 Aug 2005 23:20:16 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IT8212/ITE RAID
-Cc: Daniel Drake <dsd@gentoo.org>, CaT <cat@zip.com.au>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1124054033.26937.3.camel@localhost.localdomain>
+	Sun, 14 Aug 2005 17:24:37 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:16264 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S932306AbVHNVYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 17:24:37 -0400
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+From: Ian Kumlien <pomac@vapor.com>
+Reply-To: pomac@vapor.com
+To: linux-kernel@vger.kernel.org
+Cc: hch@infradead.org, arian@infradead.org, lkml.hyoshiok@gmail.com
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+WHVD58LyIKj5Djda9+x"
+Date: Sun, 14 Aug 2005 23:24:20 +0200
+Message-Id: <1124054660.10376.15.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050814053017.GA27824@zip.com.au> <42FF263A.8080009@gentoo.org>
-	 <20050814114733.GB27824@zip.com.au> <42FF3CBA.1030900@gentoo.org>
-	 <1124026385.14138.37.camel@localhost.localdomain>
-	 <58cb370e050814080120291979@mail.gmail.com>
-	 <1124034767.14138.55.camel@localhost.localdomain>
-	 <58cb370e050814085613ccc42c@mail.gmail.com>
-	 <1124054033.26937.3.camel@localhost.localdomain>
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/14/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Sul, 2005-08-14 at 17:56 +0200, Bartlomiej Zolnierkiewicz wrote:
-> > * your stuff was accepted after all (and some stuff like ide-cd
-> >   fixes was never splitted from the -ac patchset and submitted)
-> 
-> They were.
 
-I remember discussion about end-of-media ide-cd fixes but the patch
-was never submitted.  If you have *URL* to the patch I'll work on the patch.
+--=-+WHVD58LyIKj5Djda9+x
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > * you've never provided any technical details on "the stuff I broke"
-> 
-> I did, several times. I had some detailed locking discussions with
-> Manfred and others on it as a result. The locking in the base IDE is
-> still broken, in fact its become worse - the random locking around
-> timing changes now causes some PIIX users to see double spinlock debug
-> with the base kernel as an example.
+Hi, all
 
-Huh?  *WHICH* my patch causes this?
+I might be missunderstanding things but...
 
-I don't remember this discussion et all, care to give some pointers?
+First of all, machines with long pipelines will suffer from cache misses
+(p4 in this case).
 
-> > > Would make sense, but I thought I had the right bits masked. Will take a
-> >
-> > WIN_RESTORE is send unconditionally (as it always was),
-> >
-> > This is not the right thing, somebody should go over all ATA/ATAPI
-> > drafts and come with the correct strategy of handling WIN_RESTORE.
-> 
-> Ok that would make sense. Matthew Garrett also reported some problems in
-> that area with suspend/resume (BIOS restoring its idea of things...)
+Depending on the size copied, (i don't know how large they are so..)
+can't one run out of cachelines and/or evict more useful cache data?
 
-Quite likely, WIN_RESTORE is not sent on resume etc.
+Ie, if it's cached from begining to end, we generally only need 'some
+of' the begining, the cpu's prefetch should manage the rest.
+
+I might, as i said, not know all about things like this and i also
+suffer from a fever but i still find Hiro's data interesting.
+
+Isn't there some way to do the same test for the same time and measure
+the differences in allround data? to see if we really are punished as
+bad on accessing the data post copy? (could it be size dependant?)
+
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-+WHVD58LyIKj5Djda9+x
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
+
+iD8DBQBC/7aE7F3Euyc51N8RAjP+AJ9x36doGPtrF7WWZI0S/AaZSENtuwCfYocP
+tMyQR5vpD06u+Stzxl6jicY=
+=Ppx9
+-----END PGP SIGNATURE-----
+
+--=-+WHVD58LyIKj5Djda9+x--
+

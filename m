@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbVHNLfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVHNLnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbVHNLfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 07:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVHNLfP
+	id S932493AbVHNLnW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 07:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVHNLnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 07:35:15 -0400
-Received: from nproxy.gmail.com ([64.233.182.207]:57992 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932492AbVHNLfO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 07:35:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Mpp1xEoRhZwM4tPC2xMZtHgMZghzM2zeF4tpE0HhJS7c2lp2xp7xL2+qJU79MHJp/ZTtPppgjrEz22fSviItmkqCP8/uiwMYLJtTnWNVGTERPHmV76gBoLDr2zeXoDCXJhdjedAsWCZJVkywPwy7IO2Y4aW7dzhykCpwRhqVHIA=
-Message-ID: <58cb370e05081404354fe6a097@mail.gmail.com>
-Date: Sun, 14 Aug 2005 13:35:11 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: IDE CD problems in 2.6.13rc6
-In-Reply-To: <20050813232957.GE3172@redhat.com>
+	Sun, 14 Aug 2005 07:43:22 -0400
+Received: from mailfe14.swipnet.se ([212.247.155.161]:37525 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S932493AbVHNLnW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 07:43:22 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Date: Sun, 14 Aug 2005 13:43:18 +0200
+From: Alexander Nyberg <alexn@telia.com>
+To: Danny ter Haar <dth@picard.cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rcX really this bad ?
+Message-ID: <20050814114317.GA1365@localhost.localdomain>
+References: <ddn5aa$glm$1@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050813232957.GE3172@redhat.com>
+In-Reply-To: <ddn5aa$glm$1@news.cistron.nl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+On Sun, Aug 14, 2005 at 10:10:18AM +0000 Danny ter Haar wrote:
 
-On 8/14/05, Dave Jones <davej@redhat.com> wrote:
-> I've noticed this week whilst trying to encode a bunch
-> of audio CDs to oggs that my boxes running the latest
-> kernels are having serious issues, whereas 2.6.12 seems
-> to cope just fine.
+> I've posted a couple of times than my newsserver is not stable
+> with any 2.6.13-rcX kernels.
+> Last kernel that survived is 2.6.12-mm1 (18+days)
+> Of course i can just stick with that kernel, but i thought it would
+> be wise to live on the edge and run a reasonable loaded server with
+> the latest/greatest. This ends in disaster though...
+>
+> Since i got no feedback on my previous posts, i either bring it 
+> the wrong way, or people don't care and i ought to shut up.
+> I think however that just before releasing a new stable kernel these
+> kind of feedback could be healthy to ironout some bugs.
 > 
-> The symptoms vary. On some of my machines just inserting
-> an audio CD makes the box instantly lock up.
-> If I boot with the same CD in the drive, sound-juicer
-> can read it just fine. When I get to the next CD, I have
-> to reboot again, or it locks up.
-> 
-> On another box, it gets stuck in a loop where it
-> just prints out..
-> 
-> hdc: irq timeout: status=0xd0 { Busy }    (This line sometimes has status=0xc0)
-> ide: failed opcode was: unknown
-> 
-> The net result is that I've not got a single box that
-> will read audio CDs without doing something bad, and I've
-> tried it on several quite diverse systems.
-> 
-> 
-> I'll try and narrow down over the next few days when this
-> started happening, but IDE / CD folks may have some better
-> ideas about which changes were suspicious.
 
-I checked 2.6.13-rc6 patch and I see no IDE / CD changes which
-could be responsible for this regression.  You can try reverting ide-cd
-changes and see if this helps.  IRQ routing changes?
+Is the machine running X? We need some output from it so we can debug
+what's going on, the info should be printed to the console. It would
+be great if you could run the latest kernel and see if you get any
+output. Also add nmi_watchdog=2 to the boot command line.
 
-Bartlomiej
+You can also set up a serial console or netconsole to capture the output
+from the server with the help of another machine, described in
+Documentation/serial-console.txt
+Documentation/networking/netconsole.txt

@@ -1,26 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbVHNAHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbVHNAWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbVHNAHw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 20:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVHNAHw
+	id S1751354AbVHNAWV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 20:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVHNAWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 20:07:52 -0400
-Received: from frodo.hserus.net ([204.74.68.40]:15120 "EHLO frodo.hserus.net")
-	by vger.kernel.org with ESMTP id S1751343AbVHNAHv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 20:07:51 -0400
-From: Dan Jacobson <jidanni@jidanni.org>
-To: p_gortmaker@yahoo.com, akpm@osd.org, linux-kernel@vger.kernel.org
-Cc: 322487@bugs.debian.org
-Subject: Re: Bug#322487: linux-doc-2.6.12: 00-INDEX: missing items
-References: <E1E2z3O-0002IK-Ay@jidanni1> <20050811021219.GB1378@verge.net.au>
-Date: Sun, 14 Aug 2005 07:17:52 +0800
-Message-ID: <877jep1l5r.fsf@jidanni.org>
+	Sat, 13 Aug 2005 20:22:21 -0400
+Received: from twinlark.arctic.org ([207.7.145.18]:32919 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id S1751354AbVHNAWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 20:22:20 -0400
+Date: Sat, 13 Aug 2005 17:22:19 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: steve roussey <iamstever@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about SO_LINGER
+In-Reply-To: <57792e85050810175041d2bad4@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0508131719540.5173@twinlark.arctic.org>
+References: <57792e85050810175041d2bad4@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fellows, please note http://bugs.debian.org/322487 . I am not the
-right person to write content, as I wouldn't know what to write, as I
-am not a computer pro. Never tampered with kernels, etc.
+On Wed, 10 Aug 2005, steve roussey wrote:
+
+> socket to shut down.  Apache has a workaround called lingering_close()
+> that tries to address broken SO_LINGER implementations, but it also blocks."
+
+apache 1.x is single threaded / forked, so yeah it blocks.  the 
+implementation is there because very few SO_LINGER implementations 
+actually worked in the 90s.  the method used by apache 1.x is easy to 
+modify into a non-blocking form... which could be how they did it in 2.x 
+(i stopped hacking on apache sometime early in 2.x development).
+
+-dean

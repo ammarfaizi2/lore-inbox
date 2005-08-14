@@ -1,138 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbVHNLBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVHNLYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbVHNLBE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 07:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVHNLBD
+	id S932491AbVHNLYY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 07:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVHNLYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 07:01:03 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40968 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932486AbVHNLBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 07:01:02 -0400
-Date: Sun, 14 Aug 2005 13:00:58 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>
-Cc: gregkh@suse.de, NAGANO Daisuke <breeze.nagano@nifty.ne.jp>,
-       alan@lxorguk.ukuu.org.uk, sailer@ife.ee.ethz.ch,
-       linux-kernel@vger.kernel.org, perex@suse.cz,
-       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zaitcev@yahoo.com,
-       Christoph Eckert <ce@christeck.de>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: [2.6 patch] schedule OSS USB drivers for removal
-Message-ID: <20050814110058.GD8393@stusta.de>
-References: <20050729153226.GE3563@stusta.de> <1123607633.5601.7.camel@mindpipe> <20050809174906.GA4006@stusta.de> <1123876729.12680.45.camel@mindpipe>
+	Sun, 14 Aug 2005 07:24:24 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:14311 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932491AbVHNLYX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 07:24:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W8SBLChkWp/hIOTFk94yiMBYEzCSNxjMd+sb/cEJ1y9obewAbsJThqXBHiml52Yt+8U1K9ImXp1prUtJZtz0OC4m9Y/D0e2LDr9NtX5HPd+FasfNpey+XWUGsFniVEPsq2BCWdJnzpmID+lbi79d80rVTnGlslB7qWMW0rLxouM=
+Message-ID: <9a8748490508140424675191ad@mail.gmail.com>
+Date: Sun, 14 Aug 2005 13:24:21 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH] Fix PPC signal handling of NODEFER, should not affect sa_mask
+Cc: Chris Wright <chrisw@osdl.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linus Torvalds <torvalds@osdl.org>, gdt@linuxppc.org,
+       Andrew Morton <akpm@osdl.org>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+In-Reply-To: <1123880891.5296.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1123876729.12680.45.camel@mindpipe>
-User-Agent: Mutt/1.5.9i
+References: <1123615983.18332.194.camel@localhost.localdomain>
+	 <1123621223.9553.4.camel@localhost.localdomain>
+	 <1123621637.9553.7.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0508091419420.3258@g5.osdl.org>
+	 <1123643401.9553.32.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr>
+	 <20050812184503.GX7762@shell0.pdx.osdl.net>
+	 <Pine.LNX.4.58.0508121456570.19908@localhost.localdomain>
+	 <9a87484905081212317ca8c04e@mail.gmail.com>
+	 <1123880891.5296.3.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 12, 2005 at 03:58:48PM -0400, Lee Revell wrote:
-> On Tue, 2005-08-09 at 19:49 +0200, Adrian Bunk wrote:
-> > On Tue, Aug 09, 2005 at 01:13:51PM -0400, Lee Revell wrote:
-> > > On Fri, 2005-07-29 at 17:32 +0200, Adrian Bunk wrote:
-> > > > This patch schedules obsolete OSS drivers (with ALSA drivers that 
-> > > > support the same hardware) for removal.
-> > > > 
-> > > > Scheduling the via82cxxx driver for removal was ACK'ed by Jeff Garzik.
-> > > > 
-> > > 
-> > > Someone on linux-audio-user just pointed out that the OSS USB audio and
-> > > midi modules were never deprecated, much less scheduled to be removed.
-> > > 
-> > > Maybe the best way to deprecate them is to move them to Sound -> OSS,
-> > > that's where they belong anyway.
-> > 
-> > I'd deprecate them without moving them.
-> > 
+On 8/12/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Fri, 2005-08-12 at 21:31 +0200, Jesper Juhl wrote:
 > 
-> Here's the patch.  The bug was that CONFIG_USB_AUDIO and CONFIG_USB_MIDI
-> need to depend on CONFIG_SOUND_PRIME.
->...
+> > >
+> > I've got a 4-way pSeries p550 running AIX 5.3 here :
+> >
+> > $ uname -s -M -p -v -r
+> > AIX 3 5 powerpc IBM,9113-550
+> >
+> > Output from your program :
+> >
+> > $ ./a.out
+> > Unknown return code!!
+> > Unknown return code!!
+> > Unknown return code!!
+> > Unknown return code!!
+> > Unknown return code!!
+> > Unknown return code!!
+> > sa_mask blocks sig
+> >
+> 
+> Did you try my updated code (the one with the extra sleep?). Here's
+> another version where I output the unknown return code.  Funny that this
+> didn't print any other error message. Since the return codes should show
+> something else.
+> 
+> Please try the attached.
+> 
+With the version you attached I get this :
 
-This doesn't deprecate them (I've deprecated only some of the options 
-below CONFIG_SOUND_PRIME).
-
-What about the patch below?
-
-A second "deprecated OSS" option doesn't do much harm and seems to be 
-the easiest solution.
-
-cu
-Adrian
-
-
-<--  snip  -->
+$ uname -s -M -p -v -r
+AIX 3 5 powerpc IBM,9113-550
+$ gcc test_signal.c
+$ ./a.out
+sa_mask blocks other signals
+SA_NODEFER does not block other signals
+SA_NODEFER does not affect sa_mask
+SA_NODEFER and sa_mask blocks sig
+!SA_NODEFER blocks sig
+SA_NODEFER does not block sig
+sa_mask blocks sig
 
 
-Deprecate the OSS USB drivers.
-
-This patch includes spelling fixes by Lee Revell.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- Documentation/feature-removal-schedule.txt |    2 +-
- drivers/usb/class/Kconfig                  |   21 ++++++++++++++++++---
- 2 files changed, 19 insertions(+), 4 deletions(-)
-
---- linux-2.6.13-rc5-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-08-14 12:53:46.000000000 +0200
-+++ linux-2.6.13-rc5-mm1-full/Documentation/feature-removal-schedule.txt	2005-08-14 12:54:01.000000000 +0200
-@@ -42,7 +42,7 @@
- 
- ---------------------------
- 
--What:	drivers depending on OBSOLETE_OSS_DRIVER
-+What:	drivers depending on OBSOLETE_OSS_DRIVER or OBSOLETE_OSS_USB_DRIVER
- When:	October 2005
- Why:	OSS drivers with ALSA replacements
- Who:	Adrian Bunk <bunk@stusta.de>
---- linux-2.6.13-rc5-mm1-full/drivers/usb/class/Kconfig.old	2005-08-14 12:47:29.000000000 +0200
-+++ linux-2.6.13-rc5-mm1-full/drivers/usb/class/Kconfig	2005-08-14 12:54:52.000000000 +0200
-@@ -4,9 +4,22 @@
- comment "USB Device Class drivers"
- 	depends on USB
- 
-+config OBSOLETE_OSS_USB_DRIVER
-+	bool "Obsolete OSS USB drivers"
-+	depends on USB && SOUND
-+	help
-+	  This option enables support for the obsolete USB Audio and Midi
-+	  drivers that are scheduled for removal in the near future since
-+	  there are ALSA drivers for the same hardware.
-+
-+	  Please contact Adrian Bunk <bunk@stusta.de> if you had to
-+	  say Y here because of missing support in the ALSA drivers.
-+
-+	  If unsure, say N.
-+
- config USB_AUDIO
- 	tristate "USB Audio support"
--	depends on USB && SOUND
-+	depends on USB && SOUND && OBSOLETE_OSS_USB_DRIVER
- 	help
- 	  Say Y here if you want to connect USB audio equipment such as
- 	  speakers to your computer's USB port. You only need this if you use
-@@ -40,10 +53,12 @@
- 
- config USB_MIDI
- 	tristate "USB MIDI support"
--	depends on USB && SOUND
-+	depends on USB && SOUND && OBSOLETE_OSS_USB_DRIVER
- 	---help---
- 	  Say Y here if you want to connect a USB MIDI device to your
--	  computer's USB port. This driver is for devices that comply with
-+	  computer's USB port.  You only need this if you use the OSS
-+	  sound system; USB MIDI devices are supported by ALSA's USB
-+	  audio driver. This driver is for devices that comply with
- 	  'Universal Serial Bus Device Class Definition for MIDI Device'.
- 
- 	  The following devices are known to work:
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

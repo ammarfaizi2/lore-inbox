@@ -1,107 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVHNUKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVHNUNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVHNUKw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 16:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbVHNUKw
+	id S932223AbVHNUNb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 16:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbVHNUNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 16:10:52 -0400
-Received: from mail.linicks.net ([217.204.244.146]:28423 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S932220AbVHNUKv convert rfc822-to-8bit (ORCPT
+	Sun, 14 Aug 2005 16:13:31 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:50089 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932223AbVHNUNb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 16:10:51 -0400
-Content-Disposition: inline
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE CD problems in 2.6.13rc6
-Date: Sun, 14 Aug 2005 21:10:49 +0100
-User-Agent: KMail/1.8.1
+	Sun, 14 Aug 2005 16:13:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:cc:subject:references:message-id:date:organization:content-type:mime-version:content-transfer-encoding:in-reply-to:user-agent:from;
+        b=M9mVAVdSxUwDPvuqIJ1+oVlzl65N9zLerlBCjZVaRoz/tRg2RZ+kyqkJhKlJtGLzGh/AuD9AofVVGgg1xVY/3Ylo26Ye2RNyoewhQIFm2ApT1WQ4OkIyq+YfPHDlyIRSxKHuP0mi7WBwDUSvfr1ZhES4EcHplPLiswVU1OHAKRs=
+To: "Roger Luethi" <rl@hellgate.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Via-Rhine NIC, Via SATA or reiserfs broken, how to tell??
+References: <54nnf1tv8722aq6med3mlr4mvg7nli0r09@4ax.com> <20050814121255.GA2695@k3.hellgate.ch>
+Message-ID: <op.svik4dzgyuqkyt@magpie.mire.mine.nu>
+Date: Mon, 15 Aug 2005 06:13:15 +1000
+Organization: http://www.squishybuglet.mine.nu/
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200508142110.49598.nick@linicks.net>
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20050814121255.GA2695@k3.hellgate.ch>
+User-Agent: Opera M2/8.02 (Win32, build 7680)
+From: Grant Coady <grant.coady@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just remember a path I took when resolving the issue further to my post 
-below.
+On Sun, 14 Aug 2005 22:12:55 +1000, Roger Luethi <rl@hellgate.ch> wrote:
 
-Here is what man hdparm says on -i and -I:
-
-       -i     Display  the  identification info that was obtained from the 
-drive at boot time,
-              if available.  This is a feature of modern IDE drives, and may 
-not be  supported
-              by  older  devices.   The  data returned may or may not be 
-current, depending on
-              activity since booting the system.  However, the current  
-multiple  sector  mode
-              count is always shown.  For a more detailed interpretation of 
-the identification
-              info, refer to AT Attachment Interface for Disk Drives (ANSI ASC 
-X3T9.2  working
-              draft, revision 4a, April 19/93).
-
-       -I     Request identification info directly from the drive, which is 
-displayed in a new
-              expanded format with considerably more detail  than  with  the  
-older  -i  flag.
-              There is a special "no seatbelts" variation on this option, 
--Istdin which cannot
-              be combined with any other options, and which  accepts  a  drive  
-identification
-              block  as  standard  input instead of using a /dev/hd* 
-parameter.  The format of
-              this block must be exactly the same as that found in  
-the  /proc/ide/*/hd*/iden­
-              tify  "files".   This  variation  is  designed for use with 
-"libraries" of drive
-              identification information, and can also be used on ATAPI drives 
-which may  give
-              media errors with the standard mechanism.
-
-Note the last sentence:
-
-' This  variation  is  designed for use with "libraries" of drive 
-identification information, and can also be used on ATAPI drives which may  
-give  media errors with the standard mechanism.
-
-Nick
-
-Voluspa wrote:
-> The "hdparm -I /dev/hdc"
+>> @@ -31,7 +31,7 @@
+>>  #define APC_BPORT_REG  0x30
+>>
+>>  #define APC_REGMASK            0x01
+>> -define APC_BPMASK              0x03
+>> +#define APC_BPMASK             0x03
 >
-> hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> hdc: drive_cmd: error=0x04 { AbortedCommand }
-> de: failed opcode was: 0xec
+> Color me skeptical. I've seen some weird bit flips and data corruption;
+> "paramters" to "paramEters" I could buy. But data corruption that
+> _inserts_ a hash mark a the beginning of a line of a header file? What
+> are the odds?
+
+A bitflip in the compressed image could expand the wrong token
+resulting in dataloss just as easily as flip character case.
+
+Since reporting this error I've eliminated filesystem and NIC
+by substitution, fault occurs on ext2 and Intel pro/100.
 >
-> Is present on all kernels that I have locally (oldest 2.6.11.11)
-> so it is not related to the threadstarters problems, it seems.
+>> Today disabled onboard via-rhine and used Intel pro/100 + e100 driver,
+>> several source trees unpacked identically, running 2.6.12.4 or 2.4.31-hf3
+>
+> While that seems to point to the Rhine as the possible cause, I can't
+> see how any driver could possibly be involved in this.
 
-Hi all,
+Neither can I, now testing outside of linux, eliminate OS as factor,
+or, is it hardware or software?  I dunno...
 
-Maybe teaching you all to suck eggs here, but I used to get this a lot on my
-CD's - KDE ran some probe and as the CD[s] where empty logs filled up rapidly
-with that error.  I thought the[a] drive was duff, so bought a new CD-RW.
-
-Made no difference :-/  I then investigated further, and read that instead of
-the SCSI emulation, it was superceded by IDE-CD.
-
-kernel 2.6.12.3
-
-Kernel command line: BOOT_IMAGE=Nicks ro root=303 hdc=ide-cd hdd=ide-cd
-
-Fixed the issue for me.  But as I say, teaching to suck eggs, but I thought I
-would mention it.
-
-Nick
---
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
-
--------------------------------------------------------
-
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+Grant.

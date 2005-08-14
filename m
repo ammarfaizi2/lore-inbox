@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVHNBiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVHNBkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbVHNBiw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 21:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVHNBiw
+	id S932304AbVHNBkW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 21:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbVHNBkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 21:38:52 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:65249 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S932300AbVHNBiv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 21:38:51 -0400
-Date: Sun, 14 Aug 2005 03:38:49 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Jeff Dike <jdike@addtoit.com>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [RFC] [patch 0/39] remap_file_pages protection support, try 2
-Message-ID: <20050814013849.GA23795@elte.hu>
-References: <200508122033.06385.blaisorblade@yahoo.it>
+	Sat, 13 Aug 2005 21:40:22 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:25563 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932304AbVHNBkV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Aug 2005 21:40:21 -0400
+Subject: Re: [Patch] Support UTF-8 scripts
+From: Lee Revell <rlrevell@joe-job.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugo Mills <hugo-lkml@carfax.org.uk>,
+       Stephen Pollei <stephen.pollei@gmail.com>,
+       "=?ISO-8859-1?Q? Martin_v._L=F6wis ?=" <martin@v.loewis.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <896E8B77-FD22-4898-BFE5-559936B8040E@mac.com>
+References: <42FDE286.40707@v.loewis.de>
+	 <feed8cdd0508130935622387db@mail.gmail.com>
+	 <1123958572.11295.7.camel@mindpipe> <20050813184951.GA8283@carfax.org.uk>
+	 <1123959201.11295.9.camel@mindpipe>
+	 <1123981065.14138.29.camel@localhost.localdomain>
+	 <896E8B77-FD22-4898-BFE5-559936B8040E@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sat, 13 Aug 2005 21:40:18 -0400
+Message-Id: <1123983619.17816.1.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508122033.06385.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.3.7 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Blaisorblade <blaisorblade@yahoo.it> wrote:
-
-> Ok, I've been working for the past two weeks learning well the Linux 
-> VM, understanding the Ingo's remap_file_pages protection support and 
-> its various weakness (due to lack of time on his part), and splitting 
-> and finishing it.
+On Sat, 2005-08-13 at 21:19 -0400, Kyle Moffett wrote:
+> And those of us who are Mac OS X oriented have patched our console and
+> X keycodes to match the mac way of generating symbols:
 > 
-> Here follow a series of 39 _little_ patches against the git-commit-id 
-> 889371f61fd5bb914d0331268f12432590cf7e85, which means between 
-> 2.6.13-rc4 and -rc5.
+> Alt-\        = «
+> Alt-Shift-\  = »
+> Alt-Shift-+  = ±
 > 
-> Actually, the first 7 ones are unrelated trivial cleanups which 
-> somehow get in the way on this work and that can probably be merged 
-> even now (many are just comment fixes).
-> 
-> Since I was a VM newbie until two weeks ago, I've separated my changes 
-> into many little patches.
 
-hi. Great work! I'm wondering about this comment in 
-rfp-fix-unmap-linear.patch:
+My point exactly, it's idiotic for Perl6 to use these as OPERATORS, the
+atoms of the language, when there's not even a platform independent way
+to type them in.
 
-> Additionally, add a missing TLB flush in both locations. However, 
-> there'is some excess of flushes in these functions.
+Lee
 
-excess TLB flushes one of the reasons of bad UML performance, so you 
-should really review them and not do spurious TLB flushes.
-
-	Ingo

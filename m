@@ -1,113 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVHNV52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVHNWEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbVHNV52 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 17:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbVHNV52
+	id S932321AbVHNWEf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 18:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVHNWEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 17:57:28 -0400
-Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:22752 "EHLO
-	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
-	id S932316AbVHNV51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 17:57:27 -0400
-Message-ID: <42FFBDCB.2040804@austin.rr.com>
-Date: Sun, 14 Aug 2005 16:55:23 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: torvalds@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] [CIFS]  Two small cifs patches 
-Content-Type: multipart/mixed;
- boundary="------------010400050204010204020705"
+	Sun, 14 Aug 2005 18:04:35 -0400
+Received: from smtpout.mac.com ([17.250.248.72]:63221 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932321AbVHNWEf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 18:04:35 -0400
+In-Reply-To: <1123883633.5296.26.camel@localhost.localdomain>
+References: <1123615983.18332.194.camel@localhost.localdomain> <1123618745.18332.204.camel@localhost.localdomain> <20050809204928.GH7991@shell0.pdx.osdl.net> <1123621223.9553.4.camel@localhost.localdomain> <1123621637.9553.7.camel@localhost.localdomain> <Pine.LNX.4.58.0508091419420.3258@g5.osdl.org> <1123643401.9553.32.camel@localhost.localdomain> <Pine.LNX.4.61.0508122036500.16845@yvahk01.tjqt.qr> <20050812184503.GX7762@shell0.pdx.osdl.net> <Pine.LNX.4.58.0508121456570.19908@localhost.localdomain> <9a87484905081212317ca8c04e@mail.gmail.com> <1123883633.5296.26.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <5453A418-F493-4704-B8A9-20A20D429FCA@mac.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Chris Wright <chrisw@osdl.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Robert Wilkens <robw@optonline.net>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] Fix PPC signal handling of NODEFER, should not affect	sa_mask
+Date: Sun, 14 Aug 2005 18:04:29 -0400
+To: Steven Rostedt <rostedt@goodmis.org>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010400050204010204020705
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Aug 12, 2005, at 17:53:53, Steven Rostedt wrote:
+> Two more systems that are different from Linux.
+>
+> So far, Linux is the odd ball out.
 
-Based on testing at the cifs plugfest last week these were the two most 
-important patches from among those pending in my tree.   The rest can 
-wait until after 2.6.12
+Make that three more systems (Mac OS X has the same behavior as the  
+BSDs):
 
---------------010400050204010204020705
-Content-Type: text/x-patch;
- name="CIFS-Fix-missing-entries-in-search-results-when-very-long-file-names-and.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="CIFS-Fix-missing-entries-in-search-results-when-very-long-file-names-and.patch"
+zeus:~ kyle$ uname -a
+Darwin zeus.moffetthome.net 8.2.0 Darwin Kernel Version 8.2.0: Fri  
+Jun 24 17:46:54 PDT 2005; root:xnu-792.2.4.obj~3/RELEASE_PPC Power  
+Macintosh powerpc
+zeus:~ kyle$ ./test_signal
+sa_mask blocks other signals
+SA_NODEFER does not block other signals
+SA_NODEFER does not affect sa_mask
+SA_NODEFER and sa_mask blocks sig
+!SA_NODEFER blocks sig
+SA_NODEFER does not block sig
+sa_mask blocks sig
 
-[PATCH] [CIFS] Fix missing entries in search results when very long file names and
-more than 50 (or so) of such long search entries in the directory.  FindNext
-could send corrupt last byte of resume name when resume key was a few hundred
-bytes long file name or longer.
+Cheers,
+Kyle Moffett
 
-Fixes Samba Bug # 2932
+--
+Q: Why do programmers confuse Halloween and Christmas?
+A: Because OCT 31 == DEC 25.
 
-Signed-off-by: Steve French (sfrench@us.ibm.com)
----
 
- fs/cifs/cifssmb.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
 
-ef6724e32142c2d9ca252d423cacc435c142734e
-diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
---- a/fs/cifs/cifssmb.c
-+++ b/fs/cifs/cifssmb.c
-@@ -2628,6 +2628,9 @@ int CIFSFindNext(const int xid, struct c
- 	if(name_len < PATH_MAX) {
- 		memcpy(pSMB->ResumeFileName, psrch_inf->presume_name, name_len);
- 		byte_count += name_len;
-+		/* 14 byte parm len above enough for 2 byte null terminator */
-+		pSMB->ResumeFileName[name_len] = 0;
-+		pSMB->ResumeFileName[name_len+1] = 0;
- 	} else {
- 		rc = -EINVAL;
- 		goto FNext2_err_exit;
-
---------------010400050204010204020705
-Content-Type: text/x-patch;
- name="CIFS-Fix-path-name-conversion-for-long-filenames-when-mapchars-mount.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="CIFS-Fix-path-name-conversion-for-long-filenames-when-mapchars-mount.patch"
-
-[PATCH] [CIFS] Fix path name conversion for long filenames when mapchars mount
-option was specified at mount time.
-
-Signed-off-by: Steve French (sfrench@us.ibm.com)
----
-
- fs/cifs/CHANGES |    6 ++++++
- fs/cifs/misc.c  |    1 +
- 2 files changed, 7 insertions(+), 0 deletions(-)
-
-f4cfd69cf349dd27e00d5cf804b57aee04e059c2
-diff --git a/fs/cifs/CHANGES b/fs/cifs/CHANGES
---- a/fs/cifs/CHANGES
-+++ b/fs/cifs/CHANGES
-@@ -1,3 +1,9 @@
-+Version 1.35
-+------------
-+Add writepage performance improvements.  Fix path name conversions
-+for long filenames on mounts which were done with "mapchars" mount option
-+specified.
-+
- Version 1.34
- ------------
- Fix error mapping of the TOO_MANY_LINKS (hardlinks) case.
-diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
---- a/fs/cifs/misc.c
-+++ b/fs/cifs/misc.c
-@@ -611,6 +611,7 @@ cifsConvertToUCS(__le16 * target, const 
- 		src_char = source[i];
- 		switch (src_char) {
- 			case 0:
-+				target[j] = 0;
- 				goto ctoUCS_out;
- 			case ':':
- 				target[j] = cpu_to_le16(UNI_COLON);
-
---------------010400050204010204020705--

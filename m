@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVHNX0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbVHNX2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbVHNX0A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 19:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbVHNX0A
+	id S932349AbVHNX2y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 19:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVHNX2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 19:26:00 -0400
-Received: from zproxy.gmail.com ([64.233.162.205]:50756 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932347AbVHNXZ7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 19:25:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XohbOBV+XeQOG8dJTi1lsz6cDt/jZRLX3+nGcnVMdXyU78xObRT/3iOfahwYcABqtpbvxfLGOxOYWwZOeNRWk9fbe/N23eVdThvN6icBrCWvbl9irsuXnVVMrka1MRHfzOs5yeArnrAJ78jeu6EMYQS5c+bFOQfM12kaQ09Z9BI=
-Message-ID: <bda6d13a050814162519d6f2a8@mail.gmail.com>
-Date: Sun, 14 Aug 2005 16:25:55 -0700
-From: Joshua Hudson <joshudson@gmail.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: BSD jail
-In-Reply-To: <20050814115651.GA6024@IBM-BWN8ZTBWA01.austin.ibm.com>
+	Sun, 14 Aug 2005 19:28:54 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:7656 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932349AbVHNX2y convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 19:28:54 -0400
+Subject: Re: [Patch] Support UTF-8 scripts
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Stephen Pollei <stephen.pollei@gmail.com>,
+       Jason L Tibbitts III <tibbs@math.uh.edu>,
+       "Martin v." =?ISO-8859-1?Q?L=F6wis?= <martin@v.loewis.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1124049592.4918.2.camel@mindpipe>
+References: <42FDE286.40707@v.loewis.de>
+	 <feed8cdd0508130935622387db@mail.gmail.com>
+	 <1123958572.11295.7.camel@mindpipe> <ufazmrl9h3u.fsf@epithumia.math.uh.edu>
+	 <feed8cdd050814125845fe4e2e@mail.gmail.com>
+	 <1124049592.4918.2.camel@mindpipe>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Mon, 15 Aug 2005 00:55:54 +0100
+Message-Id: <1124063754.28862.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bda6d13a050812174768154ea5@mail.gmail.com>
-	 <20050813143335.GA5044@IBM-BWN8ZTBWA01.austin.ibm.com>
-	 <bda6d13a0508130933bdbc46a@mail.gmail.com>
-	 <20050814115651.GA6024@IBM-BWN8ZTBWA01.austin.ibm.com>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Serge E. Hallyn (serue@us.ibm.com)
->Quoting Joshua Hudson (joshudson@gmail.com):
-> Why would you want a virtual network device implementation? The whole
->
->So that a jailed process can use the net but can't use your network
->address (intercept ssh, imap/stunnel, etc).
+On Sul, 2005-08-14 at 15:59 -0400, Lee Revell wrote:
+> I know the alternatives are available.  That doesn't make it any less
+> idiotic to use non ASCII characters as operators.  I think it's a very
+> slippery slope.  We write code in ASCII, dammit.
 
-[snip]
+Its a trivial patch and there is a lot to be said for UTF-8 scripts. As
+to writing code in ascii, the kernel regularly has outbreaks of either
+UTF-8 or ISO-8859-* especially in the docs directory. Standardising
+these on UTF-8 would be helpful.
 
->But in the end vserver with read-only bind mounts seems a better way to
->go imo.
-Latest version of linux vserver source: 100K bzipped
-Latest version of linux-jail: 34K uncompressed
+Yes the kernel code is C so ASCII except for the odd abuser of the ©
+symbol.
 
-To build a virtual network device requires code for the device, code
-for routing the device
-in the kernel, some way to tell the router that this machine is hosted
-through the host
-machine's ethernet card, and control of which processes use which
-network devices.
+Alan
 
-Way too much work for something intended to be simple and have essentially no
-overhead.  All this work only gets jailed processes the ability to use
-127.0.0.1.
-The rest I can already do with eth0:1 and the specs for jail(2) from BSD.

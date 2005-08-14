@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbVHNUqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbVHNVA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbVHNUqs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 16:46:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVHNUqr
+	id S932298AbVHNVA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 17:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbVHNVA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 16:46:47 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:1685 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932278AbVHNUqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 16:46:47 -0400
-Subject: Re: IT8212/ITE RAID
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Daniel Drake <dsd@gentoo.org>, CaT <cat@zip.com.au>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <58cb370e050814085613ccc42c@mail.gmail.com>
-References: <20050814053017.GA27824@zip.com.au>
-	 <42FF263A.8080009@gentoo.org> <20050814114733.GB27824@zip.com.au>
-	 <42FF3CBA.1030900@gentoo.org>
-	 <1124026385.14138.37.camel@localhost.localdomain>
-	 <58cb370e050814080120291979@mail.gmail.com>
-	 <1124034767.14138.55.camel@localhost.localdomain>
-	 <58cb370e050814085613ccc42c@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 14 Aug 2005 22:13:53 +0100
-Message-Id: <1124054033.26937.3.camel@localhost.localdomain>
+	Sun, 14 Aug 2005 17:00:56 -0400
+Received: from waste.org ([216.27.176.166]:56796 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932298AbVHNVA4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 17:00:56 -0400
+Date: Sun, 14 Aug 2005 14:00:10 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
+       ak@suse.de, Jeff Moyer <jmoyer@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, john.ronciak@intel.com,
+       rostedt@goodmis.org
+Subject: Re: [PATCH 0/8] netpoll: various bugfixes
+Message-ID: <20050814210010.GU12284@waste.org>
+References: <1.502409567@selenic.com> <20050812172151.GA11104@suse.de> <20050812192152.GJ12284@waste.org> <20050812193109.GA15434@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050812193109.GA15434@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-08-14 at 17:56 +0200, Bartlomiej Zolnierkiewicz wrote:
-> * your stuff was accepted after all (and some stuff like ide-cd
->   fixes was never splitted from the -ac patchset and submitted)
-
-They were.
-
-> * you've never provided any technical details on "the stuff I broke"
-
-I did, several times. I had some detailed locking discussions with
-Manfred and others on it as a result. The locking in the base IDE is
-still broken, in fact its become worse - the random locking around
-timing changes now causes some PIIX users to see double spinlock debug
-with the base kernel as an example.
-
-
-> > Would make sense, but I thought I had the right bits masked. Will take a
+On Fri, Aug 12, 2005 at 09:31:09PM +0200, Olaf Hering wrote:
+>  On Fri, Aug 12, Matt Mackall wrote:
 > 
-> WIN_RESTORE is send unconditionally (as it always was),
+> > Does the task dump work without patch 5/8 (add retry timeout)? I'll
+> > try testing it here.
 > 
-> This is not the right thing, somebody should go over all ATA/ATAPI
-> drafts and come with the correct strategy of handling WIN_RESTORE.
+> I spoke to soon, worked once, after reboot not anymore. Will try to play
+> with individual patches. Does the task dump work for you, at least?
 
-Ok that would make sense. Matthew Garrett also reported some problems in
-that area with suspend/resume (BIOS restoring its idea of things...)
+Works flawlessly on e1000. Works on tg3 with serial console, but seems
+to cause trouble without. Haven't had time to dig deeper yet.
 
+-- 
+Mathematics is the supreme nostalgia of our time.

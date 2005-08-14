@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVHNUjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbVHNUqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbVHNUjk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 16:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbVHNUjj
+	id S932278AbVHNUqs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 16:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVHNUqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 16:39:39 -0400
-Received: from siaag2ah.compuserve.com ([149.174.40.141]:53215 "EHLO
-	siaag2ah.compuserve.com") by vger.kernel.org with ESMTP
-	id S932271AbVHNUjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 16:39:39 -0400
-Date: Sun, 14 Aug 2005 16:36:34 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch 2.6.13-rc6] Fix kmem read on 32-bit archs
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200508141639_MC3-1-A731-592C@compuserve.com>
-MIME-Version: 1.0
+	Sun, 14 Aug 2005 16:46:47 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:1685 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932278AbVHNUqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 16:46:47 -0400
+Subject: Re: IT8212/ITE RAID
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Daniel Drake <dsd@gentoo.org>, CaT <cat@zip.com.au>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <58cb370e050814085613ccc42c@mail.gmail.com>
+References: <20050814053017.GA27824@zip.com.au>
+	 <42FF263A.8080009@gentoo.org> <20050814114733.GB27824@zip.com.au>
+	 <42FF3CBA.1030900@gentoo.org>
+	 <1124026385.14138.37.camel@localhost.localdomain>
+	 <58cb370e050814080120291979@mail.gmail.com>
+	 <1124034767.14138.55.camel@localhost.localdomain>
+	 <58cb370e050814085613ccc42c@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Date: Sun, 14 Aug 2005 22:13:53 +0100
+Message-Id: <1124054033.26937.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Aug 2005 09:24:02 -0700 (PDT), Linus Torvalds wrote:
+On Sul, 2005-08-14 at 17:56 +0200, Bartlomiej Zolnierkiewicz wrote:
+> * your stuff was accepted after all (and some stuff like ide-cd
+>   fixes was never splitted from the -ac patchset and submitted)
 
-> Yes, the thing needs to be opened with O_LARGEFILE and you need to use 
-> "llseek()" to seek into it, but once you do that, everything should be 
-> fine.
+They were.
 
-  GCC warns about using llseek and suggests lseek64 instead. That works
-for me, but up till 2.6.11 plain lseek worked too.  I guess it really
-shouldn't have?
+> * you've never provided any technical details on "the stuff I broke"
 
-__
-Chuck
+I did, several times. I had some detailed locking discussions with
+Manfred and others on it as a result. The locking in the base IDE is
+still broken, in fact its become worse - the random locking around
+timing changes now causes some PIIX users to see double spinlock debug
+with the base kernel as an example.
+
+
+> > Would make sense, but I thought I had the right bits masked. Will take a
+> 
+> WIN_RESTORE is send unconditionally (as it always was),
+> 
+> This is not the right thing, somebody should go over all ATA/ATAPI
+> drafts and come with the correct strategy of handling WIN_RESTORE.
+
+Ok that would make sense. Matthew Garrett also reported some problems in
+that area with suspend/resume (BIOS restoring its idea of things...)
+

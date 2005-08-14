@@ -1,62 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVHNUJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVHNUKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbVHNUJW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 16:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbVHNUJV
+	id S932220AbVHNUKw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 16:10:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbVHNUKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 16:09:21 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:12503 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932088AbVHNUJV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 16:09:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ba6Do/P5L+wwmXCp8n+Vb++GDsfGYqmltw08Oo+EsKvfAM68qHsT5DqtK+jKvc6hDgIbzkKrLzRXKeBlfkeKbzEhfIGrPXeUf+a3druHEdTFdE0EuBtfPEFdc7mt0u73pW0WIUUV6yfuaAZnSVYJp4Lr/U5G8TpLKs9F/T/DfvA=
-Message-ID: <4fec73ca050814130916b78a57@mail.gmail.com>
-Date: Sun, 14 Aug 2005 22:09:20 +0200
-From: =?ISO-8859-1?Q?Guillermo_L=F3pez_Alejos?= <glalejos@gmail.com>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Implementing a network based filesystem
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 14 Aug 2005 16:10:52 -0400
+Received: from mail.linicks.net ([217.204.244.146]:28423 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S932220AbVHNUKv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 16:10:51 -0400
 Content-Disposition: inline
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE CD problems in 2.6.13rc6
+Date: Sun, 14 Aug 2005 21:10:49 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200508142110.49598.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I just remember a path I took when resolving the issue further to my post 
+below.
 
-I continue studying the VFS interface. As I said in previous e-mails,
-my goal is to integrate an existing parallel filesystem into the Linux
-kernel.
+Here is what man hdparm says on -i and -I:
 
-Now, I am looking for a reduced subset of operations to focus on. I
-have selected the following:
-  struct file_system_type
-    get_sb()
-  struct super_operations
-    read_inode()
-    write_inode()
-    delete_inode()
-    write_super()
-  struct inode_operations
-    *none*
-  struct dentry_operations
-    *none*
-  struct file_operations
-    read()
-    write()
+       -i     Display  the  identification info that was obtained from the 
+drive at boot time,
+              if available.  This is a feature of modern IDE drives, and may 
+not be  supported
+              by  older  devices.   The  data returned may or may not be 
+current, depending on
+              activity since booting the system.  However, the current  
+multiple  sector  mode
+              count is always shown.  For a more detailed interpretation of 
+the identification
+              info, refer to AT Attachment Interface for Disk Drives (ANSI ASC 
+X3T9.2  working
+              draft, revision 4a, April 19/93).
 
-Methods that are not in the listing will be replaced by generic
-functions. I think that the enumerated methods are what it is needed
-to make this network based filesystem work (without taking in account
-other requirements of the filesystem).
+       -I     Request identification info directly from the drive, which is 
+displayed in a new
+              expanded format with considerably more detail  than  with  the  
+older  -i  flag.
+              There is a special "no seatbelts" variation on this option, 
+-Istdin which cannot
+              be combined with any other options, and which  accepts  a  drive  
+identification
+              block  as  standard  input instead of using a /dev/hd* 
+parameter.  The format of
+              this block must be exactly the same as that found in  
+the  /proc/ide/*/hd*/iden­
+              tify  "files".   This  variation  is  designed for use with 
+"libraries" of drive
+              identification information, and can also be used on ATAPI drives 
+which may  give
+              media errors with the standard mechanism.
 
-I would appreciate corrections about this listing in case I have
-forget some important method.
+Note the last sentence:
 
-Regards,
+' This  variation  is  designed for use with "libraries" of drive 
+identification information, and can also be used on ATAPI drives which may  
+give  media errors with the standard mechanism.
+
+Nick
+
+Voluspa wrote:
+> The "hdparm -I /dev/hdc"
+>
+> hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> hdc: drive_cmd: error=0x04 { AbortedCommand }
+> de: failed opcode was: 0xec
+>
+> Is present on all kernels that I have locally (oldest 2.6.11.11)
+> so it is not related to the threadstarters problems, it seems.
+
+Hi all,
+
+Maybe teaching you all to suck eggs here, but I used to get this a lot on my
+CD's - KDE ran some probe and as the CD[s] where empty logs filled up rapidly
+with that error.  I thought the[a] drive was duff, so bought a new CD-RW.
+
+Made no difference :-/  I then investigated further, and read that instead of
+the SCSI emulation, it was superceded by IDE-CD.
+
+kernel 2.6.12.3
+
+Kernel command line: BOOT_IMAGE=Nicks ro root=303 hdc=ide-cd hdd=ide-cd
+
+Fixed the issue for me.  But as I say, teaching to suck eggs, but I thought I
+would mention it.
+
+Nick
+--
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."
+
+-------------------------------------------------------
 
 -- 
-Guillermo
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

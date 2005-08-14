@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbVHNPBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVHNPEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbVHNPBH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 11:01:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbVHNPBH
+	id S932541AbVHNPEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 11:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVHNPEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 11:01:07 -0400
-Received: from nproxy.gmail.com ([64.233.182.192]:20678 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932540AbVHNPBG convert rfc822-to-8bit
+	Sun, 14 Aug 2005 11:04:25 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:38663 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932541AbVHNPEY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 11:01:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fCsysKi6RfZ188CJqXBnNVcBNBcry1TmeMPRs4W3wlpyRpHrQ0+1N/DDe+pDDlQ9Ii5YEgQdVI37ffJhI1K/W01FDBUxpOTkMPcYK6dXSdkT1mHFGQUrK4X/DhYBGTB8mtJS6+aNvAgaRjktz9AgED040NYledkW/YxwvwitzsM=
-Message-ID: <58cb370e050814080120291979@mail.gmail.com>
-Date: Sun, 14 Aug 2005 17:01:04 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IT8212/ITE RAID
-Cc: Daniel Drake <dsd@gentoo.org>, CaT <cat@zip.com.au>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1124026385.14138.37.camel@localhost.localdomain>
+	Sun, 14 Aug 2005 11:04:24 -0400
+Date: Sun, 14 Aug 2005 17:04:59 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] (1/5) I2C updates for 2.4.32-pre3
+Message-Id: <20050814170459.7758d061.khali@linux-fr.org>
+In-Reply-To: <20050814151320.76e906d5.khali@linux-fr.org>
+References: <20050814151320.76e906d5.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050814053017.GA27824@zip.com.au> <42FF263A.8080009@gentoo.org>
-	 <20050814114733.GB27824@zip.com.au> <42FF3CBA.1030900@gentoo.org>
-	 <1124026385.14138.37.camel@localhost.localdomain>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/14/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Sul, 2005-08-14 at 13:44 +0100, Daniel Drake wrote:
-> > > [227523.229557] hda: 390721968 sectors (200049 MB) w/8192KiB Cache, CHS=24321/255/63, BUG
-> 
-> Thats probably the fact other patches from -ac are missing in base. It
-> should be harmless.
+Backport of a spelling fix Tobias Klauser sent to me for Linux
+2.6.12-rc4. Already fixed in i2c CVS.
 
-Therefore please submit them.
+Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
-> > > [227523.229631] hda: cache flushes not supported
-> > > [227523.229932]  hda:hda: recal_intr: status=0x51 { DriveReady SeekComplete Error }
-> > > [227523.230905] hda: recal_intr: error=0x04 { DriveStatusError }
-> > > [227523.230952] ide: failed opcode was: unknown
-> 
-> Yep - on my "wtf" list. In some cases we send a strange command to the
-> IT8212 drive. I'm still trying to find the guilty command we send (none
-> of my drives do this), so that I can fix the ident adjustment to stop
-> it. The noise is just the command being rejected which is ok but messy
-> and wants stomping.
+ drivers/i2c/i2c-dev.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-small hint: WIN_RESTORE
+--- linux-2.4.30.orig/drivers/i2c/i2c-dev.c	2005-06-03 19:21:12.000000000 +0200
++++ linux-2.4.30/drivers/i2c/i2c-dev.c	2005-06-03 19:22:52.000000000 +0200
+@@ -229,7 +229,7 @@
+ 				   sizeof(rdwr_arg)))
+ 			return -EFAULT;
+ 
+-		/* Put an arbritrary limit on the number of messages that can
++		/* Put an arbitrary limit on the number of messages that can
+ 		 * be sent at once */
+ 		if (rdwr_arg.nmsgs > 42)
+ 			return -EINVAL;
+
+-- 
+Jean Delvare

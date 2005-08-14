@@ -1,51 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVHNLnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbVHNLry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbVHNLnW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 07:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVHNLnW
+	id S932496AbVHNLry (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 07:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbVHNLry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 07:43:22 -0400
-Received: from mailfe14.swipnet.se ([212.247.155.161]:37525 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S932493AbVHNLnW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 07:43:22 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Sun, 14 Aug 2005 13:43:18 +0200
-From: Alexander Nyberg <alexn@telia.com>
-To: Danny ter Haar <dth@picard.cistron.nl>
+	Sun, 14 Aug 2005 07:47:54 -0400
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:63839 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932496AbVHNLrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 07:47:53 -0400
+Date: Sun, 14 Aug 2005 21:47:33 +1000
+From: CaT <cat@zip.com.au>
+To: Daniel Drake <dsd@gentoo.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rcX really this bad ?
-Message-ID: <20050814114317.GA1365@localhost.localdomain>
-References: <ddn5aa$glm$1@news.cistron.nl>
+Subject: Re: IT8212/ITE RAID
+Message-ID: <20050814114733.GB27824@zip.com.au>
+References: <20050814053017.GA27824@zip.com.au> <42FF263A.8080009@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ddn5aa$glm$1@news.cistron.nl>
+In-Reply-To: <42FF263A.8080009@gentoo.org>
+Organisation: Furball Inc.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 14, 2005 at 10:10:18AM +0000 Danny ter Haar wrote:
-
-> I've posted a couple of times than my newsserver is not stable
-> with any 2.6.13-rcX kernels.
-> Last kernel that survived is 2.6.12-mm1 (18+days)
-> Of course i can just stick with that kernel, but i thought it would
-> be wise to live on the edge and run a reasonable loaded server with
-> the latest/greatest. This ends in disaster though...
->
-> Since i got no feedback on my previous posts, i either bring it 
-> the wrong way, or people don't care and i ought to shut up.
-> I think however that just before releasing a new stable kernel these
-> kind of feedback could be healthy to ironout some bugs.
+On Sun, Aug 14, 2005 at 12:08:42PM +0100, Daniel Drake wrote:
+> CaT wrote:
+> >1. Alan Cox's IDE driver that was included in his ac patchset, which
+> >   seems to have died at 2.6.11ac7.
+> >2. A brief visit from a SCSI IDE driver in Andrew Mortons mm patchset.
+> >   It lived a brief but noted life before being taken out without any
+> >   reason (that I spotted) in 2.6.12-rc4-mm1
 > 
+> Alan's driver has been merged into 2.6.13. You can get the up-to-date 
 
-Is the machine running X? We need some output from it so we can debug
-what's going on, the info should be printed to the console. It would
-be great if you could run the latest kernel and see if you get any
-output. Also add nmi_watchdog=2 to the boot command line.
+Wooooooooooooooooooooooooooo!
 
-You can also set up a serial console or netconsole to capture the output
-from the server with the help of another machine, described in
-Documentation/serial-console.txt
-Documentation/networking/netconsole.txt
+> patches here:
+> 
+> http://dev.gentoo.org/~dsd/genpatches/trunk/2.6.12/2315_ide-no-lba.patch
+> http://dev.gentoo.org/~dsd/genpatches/trunk/2.6.12/4345_it8212.patch
+
+Didn't use these patches. Just went to 13-rc6 for now to test. All works
+as before with the following errors on bootup:
+
+[227523.229512] hda: max request size: 128KiB
+[227523.229557] hda: 390721968 sectors (200049 MB) w/8192KiB Cache, CHS=24321/255/63, BUG
+[227523.229631] hda: cache flushes not supported
+[227523.229932]  hda:hda: recal_intr: status=0x51 { DriveReady SeekComplete Error }
+[227523.230905] hda: recal_intr: error=0x04 { DriveStatusError }
+[227523.230952] ide: failed opcode was: unknown
+[227524.379085]  hda1
+[227524.379710] hdc: max request size: 128KiB
+[227524.379752] hdc: 120103200 sectors (61492 MB) w/1821KiB Cache, CHS=16383/255/63, BUG
+[227524.379825] hdc: cache flushes not supported
+[227524.379991]  hdc:hdc: recal_intr: status=0x51 { DriveReady SeekComplete Error }
+[227524.380702] hdc: recal_intr: error=0x04 { DriveStatusError }
+[227524.380748] ide: failed opcode was: unknown
+[227525.536757]  hdc1 hdc2
+
+
+/dev/hda:
+
+ Model=ST3200822A, FwRev=3.01, SerialNo=3LJ22Y8F
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=unknown, BuffSize=8192kB, MaxMultSect=16, MultSect=16
+ CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=268435455
+ IORDY=on/off
+ PIO modes:  pio0 pio1 pio2 
+ DMA modes:  mdma0 mdma1 mdma2 
+ AdvancedPM=no
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 2: 
+
+ * signifies the current active mode
+
+
+/dev/hdc:
+
+ Model=IC35L060AVV207-0, FwRev=V22OA63A, SerialNo=VNVB01G2RAK8XH
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
+ BuffType=DualPortCache, BuffSize=1821kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=120103200
+ IORDY=on/off
+ PIO modes:  pio0 pio1 pio2 
+ DMA modes:  mdma0 mdma1 mdma2 
+ AdvancedPM=no
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 3a: 
+
+ * signifies the current active mode
+
+-- 
+    "To the extent that we overreact, we proffer the terrorists the
+    greatest tribute."
+    	- High Court Judge Michael Kirby

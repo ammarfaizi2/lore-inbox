@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVHNO7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbVHNPBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbVHNO7v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 10:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbVHNO7v
+	id S932540AbVHNPBH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 11:01:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbVHNPBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 10:59:51 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40577 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932537AbVHNO7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 10:59:51 -0400
-Date: Sun, 14 Aug 2005 16:02:31 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg KH <greg@kroah.com>
-Cc: James.Smart@Emulex.Com, Andrew Morton <akpm@osdl.org>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH] add transport class symlink to device object
-Message-ID: <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk>
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com>
+	Sun, 14 Aug 2005 11:01:07 -0400
+Received: from nproxy.gmail.com ([64.233.182.192]:20678 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932540AbVHNPBG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 11:01:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fCsysKi6RfZ188CJqXBnNVcBNBcry1TmeMPRs4W3wlpyRpHrQ0+1N/DDe+pDDlQ9Ii5YEgQdVI37ffJhI1K/W01FDBUxpOTkMPcYK6dXSdkT1mHFGQUrK4X/DhYBGTB8mtJS6+aNvAgaRjktz9AgED040NYledkW/YxwvwitzsM=
+Message-ID: <58cb370e050814080120291979@mail.gmail.com>
+Date: Sun, 14 Aug 2005 17:01:04 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: IT8212/ITE RAID
+Cc: Daniel Drake <dsd@gentoo.org>, CaT <cat@zip.com.au>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1124026385.14138.37.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050813213955.GB19235@kroah.com>
-User-Agent: Mutt/1.4.1i
+References: <20050814053017.GA27824@zip.com.au> <42FF263A.8080009@gentoo.org>
+	 <20050814114733.GB27824@zip.com.au> <42FF3CBA.1030900@gentoo.org>
+	 <1124026385.14138.37.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 13, 2005 at 02:39:56PM -0700, Greg KH wrote:
-> Heh, I already have a patch like this pending for 2.6.14 at:
-> 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/driver-link-device-and-class.patch
+On 8/14/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Sul, 2005-08-14 at 13:44 +0100, Daniel Drake wrote:
+> > > [227523.229557] hda: 390721968 sectors (200049 MB) w/8192KiB Cache, CHS=24321/255/63, BUG
+> 
+> Thats probably the fact other patches from -ac are missing in base. It
+> should be harmless.
 
-Last time I tried to do something like this, it fell over with
-multi-function serial ports.  Look at this example:
+Therefore please submit them.
 
-# ls -l /sys/class/tty/ttyS*/device | cut -c40-
-/sys/class/tty/ttyS0/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:04.0
-/sys/class/tty/ttyS1/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:04.0
-/sys/class/tty/ttyS2/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:04.0
-/sys/class/tty/ttyS3/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:05.0
-/sys/class/tty/ttyS4/device -> ../../../devices/parisc/0/0:0/pci0000:00/0000:00:05.0
+> > > [227523.229631] hda: cache flushes not supported
+> > > [227523.229932]  hda:hda: recal_intr: status=0x51 { DriveReady SeekComplete Error }
+> > > [227523.230905] hda: recal_intr: error=0x04 { DriveStatusError }
+> > > [227523.230952] ide: failed opcode was: unknown
+> 
+> Yep - on my "wtf" list. In some cases we send a strange command to the
+> IT8212 drive. I'm still trying to find the guilty command we send (none
+> of my drives do this), so that I can fix the ident adjustment to stop
+> it. The noise is just the command being rejected which is ok but messy
+> and wants stomping.
 
-Adding the reverse links gets you three links in the 0000:00:04.0
-directory all called 'tty' (or 'class:tty', whatever), each pointing to
-a different place.  This doesn't happen for scsi devices as the class is
-attached to the scsi_dev, not the pci_dev.  I think the tty subsystem
-needs to be modified to add tty_devs as subdevices of the pci_dev.
-
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+small hint: WIN_RESTORE

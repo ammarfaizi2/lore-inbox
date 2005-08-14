@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVHNPEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVHNPFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbVHNPEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 11:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVHNPEZ
+	id S932543AbVHNPFo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 11:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbVHNPFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 11:04:25 -0400
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:38663 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932541AbVHNPEY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 11:04:24 -0400
-Date: Sun, 14 Aug 2005 17:04:59 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] (1/5) I2C updates for 2.4.32-pre3
-Message-Id: <20050814170459.7758d061.khali@linux-fr.org>
-In-Reply-To: <20050814151320.76e906d5.khali@linux-fr.org>
+	Sun, 14 Aug 2005 11:05:44 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:34464 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S932543AbVHNPFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 11:05:43 -0400
+Message-ID: <42FF5DC4.3090906@linuxtv.org>
+Date: Sun, 14 Aug 2005 11:05:40 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jean Delvare <khali@linux-fr.org>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] (0/5) I2C updates for 2.4.32-pre3
 References: <20050814151320.76e906d5.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20050814151320.76e906d5.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Backport of a spelling fix Tobias Klauser sent to me for Linux
-2.6.12-rc4. Already fixed in i2c CVS.
+Jean Delvare wrote:
 
-Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-
- drivers/i2c/i2c-dev.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.4.30.orig/drivers/i2c/i2c-dev.c	2005-06-03 19:21:12.000000000 +0200
-+++ linux-2.4.30/drivers/i2c/i2c-dev.c	2005-06-03 19:22:52.000000000 +0200
-@@ -229,7 +229,7 @@
- 				   sizeof(rdwr_arg)))
- 			return -EFAULT;
- 
--		/* Put an arbritrary limit on the number of messages that can
-+		/* Put an arbitrary limit on the number of messages that can
- 		 * be sent at once */
- 		if (rdwr_arg.nmsgs > 42)
- 			return -EINVAL;
+>I have a total of 5 patches with minor fixes to the Linux 2.4 i2c
+>subsystem and documentation. These fixes I gathered for the past few
+>months as they were applied to the Linux 2.6 tree and to the i2c CVS
+>repository.
+>
+>Individual patches will be posted in reply to this post, with
+>explanations and diffstat. Please consider applying them.
+>  
+>
+How come these patches never showed up on LKML?
 
 -- 
-Jean Delvare
+Michael Krufky
+

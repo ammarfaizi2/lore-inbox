@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVHNB7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVHNCM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbVHNB7i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Aug 2005 21:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVHNB7i
+	id S932417AbVHNCM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Aug 2005 22:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbVHNCM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Aug 2005 21:59:38 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:41131 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932307AbVHNB7h (ORCPT
+	Sat, 13 Aug 2005 22:12:28 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:30637 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932417AbVHNCM1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Aug 2005 21:59:37 -0400
-Date: Sun, 14 Aug 2005 04:00:21 +0200
+	Sat, 13 Aug 2005 22:12:27 -0400
+Date: Sun, 14 Aug 2005 04:12:58 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: blaisorblade@yahoo.it, user-mode-linux-devel@lists.sourceforge.net,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, jdike@addtoit.com,
-       bstroesser@fujitsu-siemens.com
-Subject: Re: [uml-devel] Re: [RFC] [patch 0/39] remap_file_pages protection support, try 2
-Message-ID: <20050814020021.GB23795@elte.hu>
-References: <200508122033.06385.blaisorblade@yahoo.it> <20050812.112954.115910063.davem@davemloft.net> <200508122056.11442.blaisorblade@yahoo.it> <20050812.120517.65192635.davem@davemloft.net>
+To: George Anzinger <george@mvista.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Ryan Brown <some.nzguy@gmail.com>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.53-01, High Resolution Timers & RCU-tasklist features
+Message-ID: <20050814021258.GA25877@elte.hu>
+References: <20050811110051.GA20872@elte.hu> <1c1c8636050812172817b14384@mail.gmail.com> <1123893158.12680.70.camel@mindpipe> <42FD4593.9030702@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050812.120517.65192635.davem@davemloft.net>
+In-Reply-To: <42FD4593.9030702@mvista.com>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -33,58 +33,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* David S. Miller <davem@davemloft.net> wrote:
+* George Anzinger <george@mvista.com> wrote:
 
-> From: Blaisorblade <blaisorblade@yahoo.it>
-> Date: Fri, 12 Aug 2005 20:56:11 +0200
+> Ingo, all
 > 
-> > However, I sent the initial tarball containing all them, so I hope
-> > that will be useful.
-> 
-> So not only did you spam the list with 40 patch postings, you sent a 
-> second copy of everything as a tarball attachment as well.  That's 
-> even worse.
-> 
-> Please do not abuse the list server in this way, it is a resource that 
-> is not just your's, but rather one which has to be shared amongst all 
-> folks doing kernel development.
+> I, silly person that I am, configured an RT, SMP, PREEMPT_DEBUG system. 
+>  Someone put code in the NMI path to modify the preempt count which, 
+> often as not will generate a PREEMPT_DEBUG message as there is no tell 
+> what state the preempt count is in on an NMI interrupt.  I have sent 
+> the attached patch to Andrew on this, but meanwhile, if you want RT, 
+> SMP, PREEMPT_DEBUG you will be much better off with this.
 
-while i agree that 40 patches is not common, i'd like to point out that 
-Paolo has sent 40 very nicely split up patches instead of one 
-unreviewable monolithic patch, which are the encouraged format for 
-kernel changes. I havent seen any hard limit mentioned for patch-bombs 
-on lkml before - and i've seen much larger patchbombs going to lkml as 
-well, without any followup chastising of the submitter. E.g.:
-
-   Subject: [0/48] Suspend2 2.1.9.8 for 2.6.12
-
-So if there needs to be some limit, it might be worth defining some 
-actual hard limit for this.
-
-But the more important point is that given how complex the VM, and in 
-particular sys_remap_file_pages_prot() is, i'm personally much more 
-happy about the work having been submitted in a split-up way than i am 
-unhappy about the bombing!
-
-Paolo has actually worked alot on this, which resulted in 40 real, new 
-patches, so i couldnt think of any better way to present this work for 
-review. Had he posted some link it would not be individually reviewable. 
-(nor could the patch components be picked up by search utilities in that 
-case - i frequently search lkml for patches, but naturally i dont 
-traverse links referenced in them.) So i think we should rather be happy 
-about the 40-patch progress that Paolo has made to Linux, than be 
-unhappy about this intense work's effect on our infrastructure.
-
-In other words, we should not be worried about the number of real 
-changes submitted to lkml, and we should only hope for that number to 
-increase, and we should encourage people to do it! Paolo did this in 2 
-weeks, so it's not like he has sent changes accumulated over a long time 
-in a patch-bomb. It was real, cutting-edge work very relevant to lkml, 
-which work i believe Paolo didnt have much choice submitting in any 
-other sensible and reviewable form.
-
-(i think i agree that maybe the tarball should not have been sent - but 
-even that one was within the usual size limits and other people send 
-tarballs frequently too.)
+ah - thanks, applied. Might explain some of the recent SMP weirdnesses 
+i'm seeing. Attributed them to the HRT patch ;-)
 
 	Ingo

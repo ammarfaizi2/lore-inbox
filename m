@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbVHNKPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbVHNKWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbVHNKPq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 06:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbVHNKPq
+	id S932478AbVHNKWI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 06:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbVHNKWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 06:15:46 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:59268 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S932473AbVHNKPp (ORCPT
+	Sun, 14 Aug 2005 06:22:08 -0400
+Received: from lucidpixels.com ([66.45.37.187]:39303 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S932478AbVHNKWH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 06:15:45 -0400
-Message-ID: <42FF19AC.6010502@colorfullife.com>
-Date: Sun, 14 Aug 2005 12:15:08 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.5.1
-X-Accept-Language: en-us, en
+	Sun, 14 Aug 2005 06:22:07 -0400
+Date: Sun, 14 Aug 2005 06:21:57 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-kernel@vger.kernel.org
+Subject: Question regarding HPET the 2.6 series kernel.
+Message-ID: <Pine.LNX.4.63.0508140619320.5070@p34>
 MIME-Version: 1.0
-To: Teemu Koponen <tkoponen@iki.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Opening of blocking FIFOs not reliable?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Teemu wrote:
 
->Opening a FIFO for WR_ONLY should release a previously blocked RD_ONLY 
->open. I suspect this is not guaranteed on a heavily loaded Linux box.
->  
->
-Do you have a test case?
-IIRC we had that bug, and it was fixed by adding PIPE_WCOUNTER:
-PIPE_WRITERS counts the number of writers. This one is decreased during 
-close(). PIPE_WCOUNTER counts how often a writer was seen. It's never 
-decreased. Readers that wait for a writer wait until PIPE_WCOUNTER 
-changes, they do not look at PIPE_WRITERS.
+[*] HPET Timer Support
+[*]   Provide RTC interrupt
 
---
-    Manfred
+[*] HPET - High Precision Event Timer
+[*]   Allow mmap of HPET
+
+http://tlug.up.ac.za/guides/lkcg/arch_i386.html
+
+HPET Timer Support	HPET_TIMER
+This enables the use of the HPET for the kernel's internal timer. HPET is 
+the next generation timer replacing legacy 8254s. You can safely choose Y 
+here. However, HPET will only be activated if the platform and the BIOS 
+support this feature. Otherwise the 8254 will be used for timing services. 
+Choose N to continue using the legacy 8254 timer.
+
+How do I determine if my BIOS has this feature?
+
+$ dmesg | grep -i hpet
+$ dmesg | grep -i 8254
+$ dmesg | grep -i timer
+..TIMER: vector=0x31 pin1=2 pin2=-1
+PCI: Setting latency timer of device 0000:02:01.0 to 64
+$
+
+Assuming it does, is there any reason to use or not to use this feature?
+
+Thanks,
+
+Justin.
+

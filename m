@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVHONAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVHONEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbVHONAz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 09:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVHONAz
+	id S932341AbVHONEW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 09:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbVHONEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 09:00:55 -0400
-Received: from nproxy.gmail.com ([64.233.182.201]:55852 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932330AbVHONAz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 09:00:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WRDvApFirro3hV0qVrJr0DDof6Nkfa0tPGtsakrCPZhkkxAl/Two2jkkpaWqRDPBZGsvzHJl6+2RP6Tam64mIWQ7+3kdMpj1BBhksppx++gxJ6XPXFFp3BLyGjmJ4A0yWBnSA6oPMfvWD3qS+3DpTfaYuNH6dauib1ifV7TcEnI=
-Message-ID: <58cb370e050815060056f2d0b6@mail.gmail.com>
-Date: Mon, 15 Aug 2005 15:00:53 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works fine.
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       akpm@osdl.org
-In-Reply-To: <58cb370e0508150553d4aed03@mail.gmail.com>
+	Mon, 15 Aug 2005 09:04:22 -0400
+Received: from cantor.suse.de ([195.135.220.2]:59819 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751092AbVHONEV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 09:04:21 -0400
+Date: Mon, 15 Aug 2005 15:04:20 +0200
+From: Olaf Hering <olh@suse.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up mmap of /dev/kmem
+Message-ID: <20050815130420.GA521@suse.de>
+References: <200508132201.j7DM1TAN031499@hera.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>
-	 <20050805104025.GA14688@aitel.hist.no>
-	 <21d7e99705080503515e3045d5@mail.gmail.com>
-	 <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no>
-	 <1123842774.22460.22.camel@localhost.localdomain>
-	 <58cb370e0508150553d4aed03@mail.gmail.com>
+In-Reply-To: <200508132201.j7DM1TAN031499@hera.kernel.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/15/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
-> On 8/12/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > On Gwe, 2005-08-12 at 12:01 +0200, Helge Hafting wrote:
-> > > solveable by resizing.  But the machine will occationally hang, forcing
-> > > me to
-> > > use the reset button.  I lost my mbox file to this (from an ext3 fs, on
-> > > raid-1 on scsi.)
-> >
-> > Unless you are using data=journal and have turned write cache off on
-> > your IDE drives that is expected. Metadata journalling protects your
-> > file system intgerity. Data journalling is more expensive but will
-> > protect your file integrity if the disk layer is also correctly set up.
-> > Unfortunately the IDE layer defaults the wrong way and despite many
-> > complaints has not been changed. In later 2.6 with modern drives you can
-> 
-> Changing defaults is not that easy, disabling write-cache shortens HDD
-> life considerably (discussed on LKML).
-> 
-> Recommend solution is to disable write-cache w/ hdparm or use barrier mode.
-> 
-> > also enable barrier mode on the IDE layer which gives better results
-> > than turning off the write cache.
+ On Sat, Aug 13, Linux Kernel Mailing List wrote:
 
-Moreover Helge is using RAID-1 on SCSI so IDE is out of picture here.
+> tree e52389322e063c5b784ead6ec314503f7646c765
+> parent 2da5bf80f754e28cc153362e5ed1edaa9740897a
+> author Linus Torvalds <torvalds@g5.osdl.org> Sun, 14 Aug 2005 04:22:59 -0700
+> committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 14 Aug 2005 04:22:59 -0700
+> 
+> Fix up mmap of /dev/kmem
+> 
+> This leaves the issue of whether we should deprecate the whole thing (or
+> if we should check the whole mmap range, for that matter) open. Just do
+> the minimal fix for now.
+> 
+>  drivers/char/mem.c |   12 ++++++++----
+>  1 files changed, 8 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/char/mem.c b/drivers/char/mem.c
+> --- a/drivers/char/mem.c
+> +++ b/drivers/char/mem.c
+> @@ -261,7 +261,11 @@ static int mmap_mem(struct file * file, 
+>  
+>  static int mmap_kmem(struct file * file, struct vm_area_struct * vma)
+>  {
+> -        unsigned long long val;
+> +	unsigned long pfn;
+> +
+> +	/* Turn a kernel-virtual address into a physical page frame */
+> +	pfn = __pa((u64)vma->vm_pgoff << PAGE_SHIFT) >> PAGE_SHIFT;
+> +
+>  	/*
+>  	 * RED-PEN: on some architectures there is more mapped memory
+>  	 * than available in mem_map which pfn_valid checks
+
+make all ARCH=um SUBARCH=i386 V=1
+
+This gives 
+
+drivers/char/mem.c: In function 'mmap_kmem':
+drivers/char/mem.c:267: error: invalid operands to binary <<
+
+
+
+static int mmap_kmem(struct file * file, struct vm_area_struct * vma)
+{
+ unsigned long pfn;
+
+
+ pfn = to_phys((void *) (unsigned long) (u64)vma->vm_pgoff << 12) >> 12;
+# 276 "drivers/char/mem.c"
+ if (!((pfn) < max_mapnr))
+  return -5;
+

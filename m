@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVHOJYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbVHOJeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVHOJYr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 05:24:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbVHOJYr
+	id S932358AbVHOJeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 05:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbVHOJeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 05:24:47 -0400
-Received: from miranda.se.axis.com ([193.13.178.8]:32486 "EHLO
-	miranda.se.axis.com") by vger.kernel.org with ESMTP id S932332AbVHOJYq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 05:24:46 -0400
-From: "Mikael Starvik" <mikael.starvik@axis.com>
-To: "'Eric W. Biederman'" <ebiederm@xmission.com>,
-       "'Andrew Morton'" <akpm@osdl.org>
-Cc: "'Linus Torvalds'" <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH 5/23] Fix the arguments to machine_restart on cris
-Date: Mon, 15 Aug 2005 11:24:31 +0200
-Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668030B4DC3@exmail1.se.axis.com>
+	Mon, 15 Aug 2005 05:34:09 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:42148 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S932358AbVHOJeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 05:34:08 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Subject: Re: [-mm patch] make kcalloc() a static inline
+Date: Mon, 15 Aug 2005 12:33:46 +0300
+User-Agent: KMail/1.5.4
+Cc: Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050808223842.GM4006@stusta.de> <200508151120.46186.vda@ilport.com.ua> <Pine.LNX.4.58.0508151126570.26955@sbz-30.cs.Helsinki.FI>
+In-Reply-To: <Pine.LNX.4.58.0508151126570.26955@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C668031D51FB@exmail1.se.axis.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
+Content-Disposition: inline
+Message-Id: <200508151233.46523.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, not really luck but anyway (the caller puts the first argument in
-register r10 and the called function never uses it so no harm).
+> > static inline void *kcalloc(size_t n, size_t size, unsigned int __nocast flags)
+> > {
+> > 	if (__builtin_constant_p(n)) {
+> > 		if (n != 0 && size > INT_MAX / n)
+> > 			return NULL;
+> > 		return kzalloc(n * size, flags);
+> > 	}
+> > 	return kcalloc_helper(n, size, flags);
+> > }
+> > 
+> > void *kcalloc_helper(size_t n, size_t size, unsigned int __nocast flags)
+> > {
+> > 	if (n != 0 && size > INT_MAX / n)
+> > 		return NULL;
+> > 	return kzalloc(n * size, flags);
+> > }
+> 
+> That's extra complexity and code duplication. How much do we shave off 
+> kernel text of allyesconfig with this?
+> 
+> Please note that whenever the caller does proper bounds checking, GCC can 
+> optimize the security check away. Therefore, in practice, we don't spread 
+> around the extra operations so much, I think.
 
-Acked-by: Mikael Starvik <starvik@axis.com>
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Eric W. Biederman
-Sent: Tuesday, July 26, 2005 7:33 PM
-To: Andrew Morton
-Cc: Linus Torvalds; linux-kernel@vger.kernel.org
-Subject: [PATCH 5/23] Fix the arguments to machine_restart on cris
-
-
-
-It appears machine_restart has been working cris just
-by luck.
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
-
- arch/cris/kernel/process.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-bb30d3f0b58c6ecde77e7446b8bab12610fb5f97
-diff --git a/arch/cris/kernel/process.c b/arch/cris/kernel/process.c
---- a/arch/cris/kernel/process.c
-+++ b/arch/cris/kernel/process.c
-@@ -113,6 +113,7 @@
- #include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/mqueue.h>
-+#include <linux/reboot.h>
- 
- //#define DEBUG
- 
-@@ -208,7 +209,7 @@ void cpu_idle (void)
- 
- void hard_reset_now (void);
- 
--void machine_restart(void)
-+void machine_restart(char *cmd)
- {
- 	hard_reset_now();
- }
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+gcc can optimize that away with non-const n?! I don't think so.
+--
+vda
 

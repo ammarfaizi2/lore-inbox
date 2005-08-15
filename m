@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbVHOQhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbVHOQkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbVHOQhw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 12:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVHOQhw
+	id S964838AbVHOQkT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 12:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVHOQkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 12:37:52 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:14696 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964835AbVHOQhv convert rfc822-to-8bit
+	Mon, 15 Aug 2005 12:40:19 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:42701 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964840AbVHOQkR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 12:37:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LViOnZ9+QAvLL1C3V/YJnFJn/jq45GLYMpyS5DpXjGVimY+76C8jwidW6p/Y21dhEn/KOptpqV8u5x5Mz0801gWyNaigaLzx59YJc9PckT+XULeYcmS3rXU3MUldgjTW/BkE0540GwAYxPAsH/bsQWyCUMuiDClcJ12lUXJbzcU=
-Message-ID: <5ebee0d10508150937da6c1ed@mail.gmail.com>
-Date: Mon, 15 Aug 2005 12:37:50 -0400
-From: Bill Jordan <woodennickel@gmail.com>
-To: Gleb Natapov <glebn@voltaire.com>
-Subject: Re: [openib-general] Re: [PATCH repost] PROT_DONTCOPY: ifiniband uverbs fork support
-Cc: Hugh Dickins <hugh@veritas.com>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <20050811080205.GR16361@minantech.com>
+	Mon, 15 Aug 2005 12:40:17 -0400
+Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
+From: john stultz <johnstul@us.ibm.com>
+To: vatsa@in.ibm.com
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Con Kolivas <kernel@kolivas.org>,
+       ck@vds.kolivas.org, Tony Lindgren <tony@atomide.com>,
+       tuukka.tikkanen@elektrobit.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel Kernel <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@muc.de>, george@mvista.com
+In-Reply-To: <20050815154726.GB4731@in.ibm.com>
+References: <20050812201946.GA5327@in.ibm.com>
+	 <200508140053.21056.kernel@kolivas.org> <20050813164618.GA4659@in.ibm.com>
+	 <200508141018.29668.kernel@kolivas.org>
+	 <6189ECD1-1CE7-4E36-B9F4-FD4D9E5871FA@mac.com>
+	 <20050815154726.GB4731@in.ibm.com>
+Content-Type: text/plain
+Date: Mon, 15 Aug 2005 09:39:22 -0700
+Message-Id: <1124123963.4722.9.camel@leatherman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050719165542.GB16028@mellanox.co.il>
-	 <20050725171928.GC12206@mellanox.co.il>
-	 <Pine.LNX.4.61.0507261312460.16985@goblin.wat.veritas.com>
-	 <20050726133553.GA22276@mellanox.co.il>
-	 <Pine.LNX.4.61.0508091759050.14886@goblin.wat.veritas.com>
-	 <20050810083943.GM16361@minantech.com>
-	 <Pine.LNX.4.61.0508101412530.3153@goblin.wat.veritas.com>
-	 <20050810132611.GP16361@minantech.com>
-	 <Pine.LNX.4.61.0508101623480.4525@goblin.wat.veritas.com>
-	 <20050811080205.GR16361@minantech.com>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/11/05, Gleb Natapov <glebn@voltaire.com> wrote:
-> What about the idea that was floating around about new VM flag that will
-> instruct kernel to copy pages belonging to the vma on fork instead of mark
-> them as cow?
+On Mon, 2005-08-15 at 21:17 +0530, Srivatsa Vaddagiri wrote:
+> On Sun, Aug 14, 2005 at 12:15:38AM -0400, Kyle Moffett wrote:
+> > It may be a good idea to rebase this patch off the new generic time- 
+> > keeping
+> > subsystem that John Stultz is working on.
 > 
+> I _am_ using the new subsystem interface (->mark_offset) to catch up with lost
+> ticks. Only I don't think it is that good at catching up the lost ticks if we
+> skip ticks for few seconds in a stretch. 
 
-I think the big problem with this idea is the huge memory regions that
-InfiniBand applications are dealing with. If the application forks (or
-uses system()), you are going to copy a huge chunk of data (most
-likely swapping since the application memory footprint is probably
-already tuned to consume the available physical memory). And the copy
-is really for nothing since in most (or at least many) cases the child
-is just going to exec anyway.
+Hey Srivatsa, 
 
--- 
-Bill Jordan
+The timer_opts interface is the existing interface, my work replaces it
+and separates timekeeping from the timer interrupt.
+
+You can find a cumulative version of my patch here:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0508.1/0982.html
+
+thanks
+-john
+
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbVHOVWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbVHOVYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbVHOVWs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 17:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbVHOVWr
+	id S964982AbVHOVYs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 17:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbVHOVYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 17:22:47 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:17876 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S964973AbVHOVWq (ORCPT
+	Mon, 15 Aug 2005 17:24:48 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:16016 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S964978AbVHOVYr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 17:22:46 -0400
-Date: Mon, 15 Aug 2005 16:22:24 -0500
+	Mon, 15 Aug 2005 17:24:47 -0400
+Date: Mon, 15 Aug 2005 16:24:25 -0500
 From: mikem <mikem@beardog.cca.cpqcorp.net>
 To: marcelo.tosatti@cyclades.com, axboe@suse.de
 Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 3/4] cciss 2.4: adds 2 ioctls for ia64 based systems
-Message-ID: <20050815212224.GD12760@beardog.cca.cpqcorp.net>
+Subject: [PATCH 4/4] cciss 2.4: fixes a warning from cciss_scsi.c during compile
+Message-ID: <20050815212425.GE12760@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,29 +22,25 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 3/4
-This patch adds 2 ioctls required for IPF systems. Without this change
-parted may fail. This causes some vendor installs to fail.
+Patch 4/4
+This patch fixes a warning during compile.
 Please consider this for inclusion.
 
 Signed-off-by: Mike Miller <mike.miller@hp.com>
 
- cciss.c |    5 +++++
- 1 files changed, 5 insertions(+)
+ cciss_scsi.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 --------------------------------------------------------------------------------
-diff -burNp lx2431-p002/drivers/block/cciss.c lx2431/drivers/block/cciss.c
---- lx2431-p002/drivers/block/cciss.c	2005-08-15 15:13:15.484004000 -0500
-+++ lx2431/drivers/block/cciss.c	2005-08-15 15:18:32.863755640 -0500
-@@ -748,7 +748,12 @@ static int cciss_ioctl(struct inode *ino
- 	case BLKELVGET:
- 	case BLKELVSET:
- 	case BLKSSZGET:
-+#ifdef CONFIG_IA64
-+        case BLKGETLASTSECT:
-+        case BLKSETLASTSECT:
-+#endif
- 		return blk_ioctl(inode->i_rdev, cmd, arg);
-+
- 	case CCISS_GETPCIINFO:
- 	{
- 		cciss_pci_info_struct pciinfo;
+diff -burNp lx2431-p003/drivers/block/cciss_scsi.c lx2431/drivers/block/cciss_scsi.c
+--- lx2431-p003/drivers/block/cciss_scsi.c	2004-08-07 18:26:04.000000000 -0500
++++ lx2431/drivers/block/cciss_scsi.c	2005-08-15 16:03:10.022765608 -0500
+@@ -220,8 +220,7 @@ scsi_cmd_stack_free(int ctlr)
+ 		printk( "cciss: %d scsi commands are still outstanding.\n",
+ 			CMD_STACK_SIZE - stk->top);
+ 		// BUG();
+-		printk("WE HAVE A BUG HERE!!! stk=0x%08x\n",
+-			(unsigned int) stk);
++		printk("WE HAVE A BUG HERE!!! stk=0x%p\n", stk);
+ 	}
+ 	size = sizeof(struct cciss_scsi_cmd_stack_elem_t) * CMD_STACK_SIZE;
+ 

@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVHOMxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVHONAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbVHOMxh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 08:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbVHOMxg
+	id S932330AbVHONAz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 09:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVHONAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 08:53:36 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:51127 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750741AbVHOMxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 08:53:36 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
-Date: Mon, 15 Aug 2005 22:52:47 +1000
-User-Agent: KMail/1.8.2
-Cc: Pavel Machek <pavel@suse.cz>, Jim MacBaine <jmacbaine@gmail.com>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
-       tuukka.tikkanen@elektrobit.com
-References: <200508031559.24704.kernel@kolivas.org> <20050814194756.GC1686@openzaurus.ucw.cz> <Pine.LNX.4.61.0508141942480.6740@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.61.0508141942480.6740@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Aug 2005 09:00:55 -0400
+Received: from nproxy.gmail.com ([64.233.182.201]:55852 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932330AbVHONAz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 09:00:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WRDvApFirro3hV0qVrJr0DDof6Nkfa0tPGtsakrCPZhkkxAl/Two2jkkpaWqRDPBZGsvzHJl6+2RP6Tam64mIWQ7+3kdMpj1BBhksppx++gxJ6XPXFFp3BLyGjmJ4A0yWBnSA6oPMfvWD3qS+3DpTfaYuNH6dauib1ifV7TcEnI=
+Message-ID: <58cb370e050815060056f2d0b6@mail.gmail.com>
+Date: Mon, 15 Aug 2005 15:00:53 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works fine.
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Airlie <airlied@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
+       akpm@osdl.org
+In-Reply-To: <58cb370e0508150553d4aed03@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200508152252.47825.kernel@kolivas.org>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>
+	 <20050805104025.GA14688@aitel.hist.no>
+	 <21d7e99705080503515e3045d5@mail.gmail.com>
+	 <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no>
+	 <1123842774.22460.22.camel@localhost.localdomain>
+	 <58cb370e0508150553d4aed03@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Aug 2005 11:43, Zwane Mwaikambo wrote:
-> On Sun, 14 Aug 2005, Pavel Machek wrote:
-> > > Ok perhaps on the resume side instead. When trying to resume can you
-> > > try booting with 'dyntick=disable'. Note this isn't meant to be a long
-> > > term fix but once we figure out where the problem is we should be able
-> > > to code around it.
+On 8/15/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> On 8/12/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > On Gwe, 2005-08-12 at 12:01 +0200, Helge Hafting wrote:
+> > > solveable by resizing.  But the machine will occationally hang, forcing
+> > > me to
+> > > use the reset button.  I lost my mbox file to this (from an ext3 fs, on
+> > > raid-1 on scsi.)
 > >
-> > Can you reproduce it using plain swsusp?
-> >
-> > We probably need more carefull suspend/resume support on timer with
-> > dyntick enabled.
-> >
-> > With vanilla, timer just ticks on constant rate; no state to save.
-> > With dyntick, however...
->
-> Why not just set it to a fixed frequency, suspend and then on boot resume
-> to a fixed frequency and let the timer tick code eventually switch back.
+> > Unless you are using data=journal and have turned write cache off on
+> > your IDE drives that is expected. Metadata journalling protects your
+> > file system intgerity. Data journalling is more expensive but will
+> > protect your file integrity if the disk layer is also correctly set up.
+> > Unfortunately the IDE layer defaults the wrong way and despite many
+> > complaints has not been changed. In later 2.6 with modern drives you can
+> 
+> Changing defaults is not that easy, disabling write-cache shortens HDD
+> life considerably (discussed on LKML).
+> 
+> Recommend solution is to disable write-cache w/ hdparm or use barrier mode.
+> 
+> > also enable barrier mode on the IDE layer which gives better results
+> > than turning off the write cache.
 
-It's probably worth holding off further discussion on this point till the SMP 
-scalable version is working well enough and see if/how the problem manifests 
-there.
-
-Cheers,
-Con
+Moreover Helge is using RAID-1 on SCSI so IDE is out of picture here.

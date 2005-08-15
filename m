@@ -1,73 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVHOHV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVHOHhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVHOHV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 03:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVHOHV4
+	id S932154AbVHOHhs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 03:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVHOHhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 03:21:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2284 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932144AbVHOHV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 03:21:56 -0400
-Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
-From: Arjan van de Ven <arjan@infradead.org>
-To: pomac@vapor.com
-Cc: linux-kernel@vger.kernel.org, hch@infradead.org, arian@infradead.org,
-       lkml.hyoshiok@gmail.com
-In-Reply-To: <1124054660.10376.15.camel@localhost>
-References: <1124054660.10376.15.camel@localhost>
-Content-Type: text/plain
-Date: Mon, 15 Aug 2005 09:21:51 +0200
-Message-Id: <1124090511.3228.12.camel@laptopd505.fenrus.org>
+	Mon, 15 Aug 2005 03:37:48 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:36025 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S932154AbVHOHhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 03:37:47 -0400
+Date: Mon, 15 Aug 2005 11:37:14 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.13-rc5-mm1: BUG: rwlock recursion on CPU#0
+Message-ID: <20050815093714.GB4439@rama.de.gnumonks.org>
+References: <200508141448.36562.rjw@sisk.pl> <Pine.LNX.4.61.0508141940200.6740@montezuma.fsmlabs.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0508141940200.6740@montezuma.fsmlabs.com>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-08-14 at 23:24 +0200, Ian Kumlien wrote:
-> Hi, all
-> 
-> I might be missunderstanding things but...
-> 
-> First of all, machines with long pipelines will suffer from cache misses
-> (p4 in this case).
-> 
-> Depending on the size copied, (i don't know how large they are so..)
-> can't one run out of cachelines and/or evict more useful cache data?
 
-CPU caches are really big nowadays
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Ie, if it's cached from begining to end, we generally only need 'some
-> of' the begining, the cpu's prefetch should manage the rest.
+On Sun, Aug 14, 2005 at 08:15:53PM -0600, Zwane Mwaikambo wrote:
 
-cpu prefetch isn't going to be fast enough. It helps some, but in the
-end the cpu prefetch also has to wait for the ram, it doesn't make the
-ram faster or free, it just takes a jumpstart on getting to it.
+> Is the following patch correct? ip_conntrack_event_cache should never be=
+=20
+> called with ip_conntrack_lock held and ct_add_counters does not need to b=
+e=20
+> called with ip_conntrack_lock held.
 
+No, it's not correct.  ct_add_countes has to be called from within
+write_lock_bh() on ip_conntrack_lock.
 
-> I might, as i said, not know all about things like this and i also
-> suffer from a fever but i still find Hiro's data interesting.
+So if you keep the ct_add_counters() call where it is and only apply the
+rest of your patch (i.e. deferring of ip_conntrack_event_cache() call),
+then I think your patch would work.
 
-It is. It's good proof that you can make a big gain already by
-converting a few key places to his excellent code. And neither me nor
-Christoph are suggesting to ditch his effort! Instead we suggest that
-what he is doing is useful for some cases and harmful for others, and
-that it is quite easy to identify those cases and separate them from
-eachother, and that thus as a result it is more optimal to have 2 apis,
-one for each of the cases.
+However, the whole eventcache needs to be audited, it's called from a
+number of places.
 
+As Patrick wrote he's working on a solution, I'm not going to intervene
+or replicate his work.  As a interim solution I'd suggest disabling
+CONFIG_IP_NF_CT_ACCT [which can't be vital anyway, since it was only
+added in net-2.6.14 (and thus -mm)].
 
+Cheers,
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
+--7AUc2qLy4jB3hD7Z
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDAGJJXaXGVTD0i/8RAgAoAKCXgyYsWyIzw6bKK1OnpnlhTAEvcgCgqOeG
+B16+kW+DiFqW3wA/tVPX/TA=
+=fakC
+-----END PGP SIGNATURE-----
+
+--7AUc2qLy4jB3hD7Z--

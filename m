@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbVHOOMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbVHOOQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbVHOOMF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 10:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbVHOOME
+	id S964779AbVHOOQB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 10:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbVHOOQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 10:12:04 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:26262 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964782AbVHOOMD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 10:12:03 -0400
-Subject: uart_port structure in serial8250_port[i]  doesn't have the
-	port_type values
-From: "V. Ananda Krishnan" <mansarov@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: rmk+lkml@arm.linux.org.uk, gregkh@suse.de
+	Mon, 15 Aug 2005 10:16:01 -0400
+Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:64082 "HELO
+	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S964779AbVHOOQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 10:16:00 -0400
+Subject: idr_get_new_above not working?
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Andrew Morton <akpm@osdl.org>, Robert Love <rml@novell.com>,
+       linux-kernel@vger.kernel.org, jim.houston@ccur.com
 Content-Type: text/plain
-Date: Mon, 15 Aug 2005 09:10:56 -0500
-Message-Id: <1124115056.3694.27.camel@siliver.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
 Content-Transfer-Encoding: 7bit
+Date: Mon, 15 Aug 2005 10:16:46 -0400
+Message-Id: <1124115406.7369.6.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hey,
 
-  The problem described here is related to the 8250_pci driver in
-2.6.12.3/2.6.12.4 kernels. When 8250_pci device driver detects a serial
-port pci device and sets up the default setup (8250_pci.c), it tries to
-find a match or unused port (serial8250_find_match_or_unused proc in in
-8250.c). This leads to the uart_match_port with one of the parameters as
-serial8250_ports[i].port. During debugging, I noticed that the none of
-elements of the serial8250_ports[i].port.type was having any port value.
-So the serial8250_register_port fails and the device driver module fails
-to load. In this scenario, the last resort to find any entry which
-doesn't have a real port associated with it also fails, because of the
-null value in the serial8250_ports[i].port.type.  I would like to know
-when the port.type values in uart_8250_port strucutre (in
-serial8250_ports[i]) is populated? Is there anything missing in the
-serial8250_find_match_or_unused codes?  Any help to degug this problem
-is appreciated. Thanks.
+Inotify is using idr_get_new_above to make sure that the next watch
+descriptor is larger/different than any of the previous watch
+descriptors. We keep track of the largest wd that we get out of
+idr_get_new_above, and pass that to idr_get_new_above. I have noticed
+though, that idr_get_new_above always returns the first available id.
+This causes a serious problem for inotify, because user space will get a
+IGNORE event for a wd K that might refer to the last holder of the K.
 
-V.Ananda Krishnan
-
-
+-- 
+John McCutchan <ttb@tentacle.dhs.org>

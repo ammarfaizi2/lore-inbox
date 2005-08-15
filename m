@@ -1,115 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbVHOW66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVHOXAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbVHOW66 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 18:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVHOW66
+	id S932334AbVHOXAF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 19:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbVHOXAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 18:58:58 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:60850 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1751094AbVHOW65 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 18:58:57 -0400
-X-IronPort-AV: i="3.96,109,1122872400"; 
-   d="scan'208"; a="279920332:sNHT26052096"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
-Date: Mon, 15 Aug 2005 17:58:56 -0500
-Message-ID: <4277B1B44843BA48B0173B5B0A0DED4352817E@ausx3mps301.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
-Thread-Index: AcWh7OovvF1T67llRfyRyPloDBtMCQ==
-From: <Michael_E_Brown@Dell.com>
-To: <mrmacman_g4@mac.com>
-Cc: <linux-kernel@vger.kernel.org>, <Douglas_Warzecha@Dell.com>,
-       <Matt_Domsch@Dell.com>
-X-OriginalArrivalTime: 15 Aug 2005 22:58:56.0867 (UTC) FILETIME=[EA820330:01C5A1EC]
+	Mon, 15 Aug 2005 19:00:04 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:22789 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932334AbVHOW7z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 18:59:55 -0400
+Date: Mon, 15 Aug 2005 16:00:09 -0700
+From: zach@vmware.com
+Message-Id: <200508152300.j7FN090x005328@zach-dev.vmware.com>
+To: akpm@osdl.org, chrisl@vmware.com, chrisw@osdl.org, hpa@zytor.com,
+       linux-kernel@vger.kernel.org, mbligh@mbligh.org, prasanna@in.ibm.com,
+       pratap@vmware.com, virtualization@lists.osdl.org, zach@vmware.com,
+       zwane@arm.linux.org.uk
+Subject: [PATCH 4/6] i386 virtualization - Ldt kprobes bugfix
+X-OriginalArrivalTime: 15 Aug 2005 22:59:53.0492 (UTC) FILETIME=[0C424D40:01C5A1ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> +On some Dell systems, systems management software must access
-certain
->> +management information via a system management interrupt (SMI).   
->> The SMI data
->> +buffer must reside in 32-bit address space, and the physical  
->> address of the
->> +buffer is required for the SMI.  The driver maintains the memory  
->> required for
->> +the SMI and provides a way for the application to generate the SMI.
->> +The driver creates the following sysfs entries for systems
-management
->> +software to perform these system management interrupts:
->
-> Why can't you just implement the system management actions in the
-kernel
-> driver?  This is tantamount to a binary SMI hook to userspace.  What
-> functionality does this provide on a dell system from an
-administrator's
-> point of view?
+While cleaning up the LDT code, I noticed that kprobes code was very bogus
+with respect to segment handling.  Three bugs are fixed here.
 
-Kyle,
-	I'm sure that not everybody agrees with the whole concept of SMI
+1) Taking an int3 from v8086 mode could cause the kprobes code to read
+   a non-existent LDT.
+2) The CS value is not truncated to 16 bit, which could cause an access
+   beyond the bounds of the LDT.
+3) The LDT was being read without taking the mm->context semaphore, which
+   means bogus and or non-existent vmalloc()ed pages could be read.
 
-calls. Nevertheless, these calls exist, and in order to have a complete 
-systems-management solution, we have to provide a way to do SMI calls. 
-Now, we have developed a way to do these SMI calls from userspace
-without 
-kernel support, but we are trying to be community-friendly and show our 
-hooks in the open, rather than trying to sneak them in under the covers.
+I've also included my latest version of the LDT test.
 
-	You might not like the concept of a generic hook for SMI calls
-in 
-the kernel, but the alternatives are hardly better. One alternative is 
-the already-mentioned method that we do things under the covers in 
-userspace. Another alternative is that we write separate kernel code for
+/*
+ * Copyright (c) 2005, Zachary Amsden (zach@vmware.com)
+ * This is licensed under the GPL.
+ */
 
-each and every SMI call that exists in the Dell BIOS. The second 
-alternative is not entirely feasible. We have over 60 SMI functions, and
+#include <stdio.h>
+#include <signal.h>
+#include <asm/ldt.h>
+#include <asm/segment.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sched.h>
+#define __KERNEL__
+#include <asm/page.h>
 
-we would have to write a kernel-mode wrapper for each and every one. I 
-hope you agree that code that doesn't exist is less buggy than code that
+/*
+ * Spin modifying LDT entry 1 to get contention on the mm->context
+ * semaphore.
+ */
+void evil_child(void *addr)
+{
+	struct user_desc desc;
 
-is, and that code that is in userspace is a whole lot less likely to
-cause 
-a kernel crash than code that is in the kernel. We are trying to keep
-our 
-kernel bloat down. We don't really think that customers of IBM or HP
-really 
-want their Red Hat kernels loaded down with a bunch of Dell-only code.
-	
-	Additionally, we are releasing an open source library (GPL/OSL
-dual 
-license) that can use these hooks to perform many systems management 
-functions in userspace. See http://linux.dell.com/libsmbios/main/. We 
-should have code in libsmbios to do SMI using this driver within about
-two 
-weeks.  We currently writing the SMI hooks in libsmbios using this
-posted 
-version of the driver. I am the maintainer of this project, and it is my
-goal 
-to have code in libsmbios for every Dell SMI call.
+	while (1) {
+		desc.entry_number = 1;
+		desc.base_addr = addr;
+		desc.limit = 1;
+		desc.seg_32bit = 1;
+		desc.contents = MODIFY_LDT_CONTENTS_CODE;
+		desc.read_exec_only = 0;
+		desc.limit_in_pages = 1;
+		desc.seg_not_present = 0;
+		desc.useable = 1;
+		if (modify_ldt(1, &desc, sizeof(desc)) != 0) {
+			perror("modify_ldt");
+			abort();
+		}
+	}
+	exit(0);
+}
 
-	Dell is not trying to use this driver as a method of inserting
-binary 
-blobs into the kernel, nor are we trying to subvert kernel security by 
-implementing this driver. We are simply trying to get all of our systems
+void catch_sig(int signo, struct sigcontext ctx)
+{
+	return;
+}
 
-management software into the kernel as open source drivers. This
-represents 
-a fundamental shift in philosophy from the Dell systems-management team
-from 
-our previous binary-only driver approach. 
+void main(void)
+{
+        struct user_desc desc;
+        char *code;
+        unsigned long long tsc;
+	char *stack;
+	pid_t child; 
+	int i;
+	unsigned long long lasttsc = 0;
 
-	We would welcome feedback on a better way to implement this
-driver in 
-the kernel, but the fact remains that we have to have a way to do this,
-and 
-we are open-sourcing all of the code necessary to get this done. 
---
-Michael Brown
+        code = (char *)mmap(0, 8192, PROT_EXEC|PROT_READ|PROT_WRITE,
+                                 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+	/* Test 1 - CODE, 32-BIT, 2 page limit */
+        desc.entry_number = 0;
+        desc.base_addr = code;
+        desc.limit = 1;
+        desc.seg_32bit = 1;
+        desc.contents = MODIFY_LDT_CONTENTS_CODE;
+        desc.read_exec_only = 0;
+        desc.limit_in_pages = 1;
+        desc.seg_not_present = 0;
+        desc.useable = 1;
+        if (modify_ldt(1, &desc, sizeof(desc)) != 0) {
+                perror("modify_ldt");
+		abort();
+        }
+        printf("INFO: code base is 0x%08x\n", (unsigned)code);
+        code[0x0ffe] = 0x0f;  /* rdtsc */
+        code[0x0fff] = 0x31;
+        code[0x1000] = 0xcb;  /* lret */
+        __asm__ __volatile("lcall $7,$0xffe" : "=A" (tsc));
+        printf("INFO: TSC is 0x%016llx\n", tsc);
+
+	/*
+	 * Fork an evil child that shares the same MM context
+	 */
+	stack = malloc(8192);
+	child = clone(evil_child, stack, CLONE_VM, 0xb0b0);
+	if (child == -1) {
+		perror("clone");
+		abort();
+	}
+
+	/* Test 2 - CODE, 32-BIT, 4097 byte limit */
+        desc.entry_number = 512;
+        desc.base_addr = code;
+        desc.limit = 4096;
+        desc.seg_32bit = 1;
+        desc.contents = MODIFY_LDT_CONTENTS_CODE;
+        desc.read_exec_only = 0;
+        desc.limit_in_pages = 0;
+        desc.seg_not_present = 0;
+        desc.useable = 1;
+        if (modify_ldt(1, &desc, sizeof(desc)) != 0) {
+                perror("modify_ldt");
+		abort();
+        }
+        code[0x0ffe] = 0x0f;  /* rdtsc */
+        code[0x0fff] = 0x31;
+        code[0x1000] = 0xcb;  /* lret */
+        __asm__ __volatile("lcall $0x1007,$0xffe" : "=A" (tsc));
+
+	/*
+	 * Test 3 - CODE, 32-BIT, maximal LDT.  Race against evil
+	 * child while taking debug traps on LDT CS.
+	 */
+	for (i = 0; i < 1000; i++) {
+		signal(SIGTRAP, catch_sig);
+		desc.entry_number = 8191;
+		desc.base_addr = code;
+		desc.limit = 4097;
+		desc.seg_32bit = 1;
+		desc.contents = MODIFY_LDT_CONTENTS_CODE;
+		desc.read_exec_only = 0;
+		desc.limit_in_pages = 0;
+		desc.seg_not_present = 0;
+		desc.useable = 1;
+		if (modify_ldt(1, &desc, sizeof(desc)) != 0) {
+			perror("modify_ldt");
+			abort();
+		}
+		code[0x0ffe] = 0x0f;  /* rdtsc */
+		code[0x0fff] = 0x31;
+		code[0x1000] = 0xcc;  /* int3 */
+        	code[0x1001] = 0xcb;  /* lret */
+		__asm__ __volatile("lcall $0xffff,$0xffe" : "=A" (tsc));
+		if (tsc < lasttsc) {
+			printf("WARNING: TSC went backwards\n");
+		}
+		lasttsc = tsc;
+	}
+	if (kill(child, SIGTERM) != 0) {
+		perror("kill");
+		abort();
+	}
+	printf("PASS: LDT code segment\n");
+}
+
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Index: linux-2.6.13/arch/i386/kernel/kprobes.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/kprobes.c	2005-08-15 10:50:26.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/kprobes.c	2005-08-15 10:55:14.000000000 -0700
+@@ -155,23 +155,37 @@
+ {
+ 	struct kprobe *p;
+ 	int ret = 0;
++ 	unsigned seg = regs->xcs & 0xffff;
+ 	kprobe_opcode_t *addr = NULL;
+ 
+-	/* We're in an interrupt, but this is clear and BUG()-safe. */
+-	preempt_disable();
+-	/* Check if the application is using LDT entry for its code segment and
+-	 * calculate the address by reading the base address from the LDT entry.
+-	 */
+-	if (segment_from_ldt(regs->xcs) && (current->mm)) {
+-		struct desc_struct *desc;
+-		desc = &current->mm->context.ldt[segment_index(regs->xcs)];
+-		addr = (kprobe_opcode_t *) (get_desc_base(desc) + regs->eip -
+-						sizeof(kprobe_opcode_t));
+-	} else {
+-		addr = (kprobe_opcode_t *)(regs->eip - sizeof(kprobe_opcode_t));
+-	}
+-	/* Check we're not actually recursing */
+-	if (kprobe_running()) {
++         /*
++ 	 * Must form address for V8086 mode and rule this out before testing
++ 	 * for LDT code segment.  Reading the base address from the LDT entry
++ 	 * requires getting the mm->context semaphore in the case of a shared
++ 	 * address space.  Since this could sleep, we have to temporarily
++ 	 * re-enable IRQs.  This is ok, since this is only done in the LDT
++ 	 * CS case, and only userspace can run with LDT code segments.
++  	 */
++ 	if (regs->eflags & VM_MASK) {
++ 		addr = (kprobe_opcode_t *)(((seg << 4) + regs->eip - 
++ 			sizeof(kprobe_opcode_t)) & 0xffff);
++ 	} else if (segment_from_ldt(seg) && (current->mm)) {
++  		struct desc_struct *desc;
++ 		local_irq_enable();
++ 		down(&current->mm->context.sem);
++ 		desc = &current->mm->context.ldt[segment_index(seg)];
++  		addr = (kprobe_opcode_t *) (get_desc_base(desc) + regs->eip -
++  						sizeof(kprobe_opcode_t));
++ 		up(&current->mm->context.sem);
++ 		local_irq_disable();
++  	} else {
++  		addr = (kprobe_opcode_t *)(regs->eip - sizeof(kprobe_opcode_t));
++  	}
++ 	/* We're in an interrupt, but this is clear and BUG()-safe. */
++ 	preempt_disable();
++ 
++  	/* Check we're not actually recursing */
++  	if (kprobe_running()) {
+ 		/* We *are* holding lock here, so this is safe.
+ 		   Disarm the probe we just hit, and ignore it. */
+ 		p = get_kprobe(addr);

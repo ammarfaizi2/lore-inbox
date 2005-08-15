@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbVHOVyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbVHOWAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbVHOVyu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 17:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbVHOVyu
+	id S964999AbVHOWAO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 18:00:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVHOWAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 17:54:50 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:62213 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S964998AbVHOVyt
+	Mon, 15 Aug 2005 18:00:13 -0400
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:16390 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S964999AbVHOWAM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 17:54:49 -0400
-Date: Mon, 15 Aug 2005 23:55:31 +0200
+	Mon, 15 Aug 2005 18:00:12 -0400
+Date: Tue, 16 Aug 2005 00:00:54 +0200
 From: Jean Delvare <khali@linux-fr.org>
 To: Nathan Lutchansky <lutchann@litech.org>
 Cc: LKML <linux-kernel@vger.kernel.org>,
        LM Sensors <lm-sensors@lm-sensors.org>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 1/5] call i2c_probe from i2c core
-Message-Id: <20050815235531.2a7d2bb6.khali@linux-fr.org>
-In-Reply-To: <20050815175257.GB24959@litech.org>
+Subject: Re: [PATCH 2/5] remove attach_adapter from i2c hwmon drivers
+Message-Id: <20050816000054.31543cb9.khali@linux-fr.org>
+In-Reply-To: <20050815175342.GC24959@litech.org>
 References: <20050815175106.GA24959@litech.org>
-	<20050815175257.GB24959@litech.org>
+	<20050815175342.GC24959@litech.org>
 X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,65 +28,84 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Nathan,
 
-> Index: linux-2.6.13-rc6+gregkh/include/linux/i2c.h
+> Index: linux-2.6.13-rc6+gregkh/drivers/hwmon/atxp1.c
 > ===================================================================
-
-You should probably be using the --no-index option of quilt 0.42 (if you
-are using quilt as I presumed), as I heard Linus doesn't like these
-index lines in the patches he receives.
-
-> --- linux-2.6.13-rc6+gregkh.orig/drivers/i2c/i2c-core.c
-> +++ linux-2.6.13-rc6+gregkh/drivers/i2c/i2c-core.c
-> @@ -193,9 +193,16 @@ int i2c_add_adapter(struct i2c_adapter *
->  	/* inform drivers of new adapters */
->  	list_for_each(item,&drivers) {
->  		driver = list_entry(item, struct i2c_driver, list);
-> -		if (driver->flags & I2C_DF_NOTIFY)
-> -			/* We ignore the return code; if it fails, too bad */
-> -			driver->attach_adapter(adap);
-> +		if (driver->flags & I2C_DF_NOTIFY) {
-> +			/* We ignore the return codes; if it fails, too bad */
-> +			if (driver->attach_adapter)
-> +				driver->attach_adapter(adap);
-> +			if (driver->detect_client && driver->address_data &&
-> +					((driver->class & adap->class) ||
-> +						driver->class == 0))
-> +				i2c_probe(adap, driver->address_data,
-> +						driver->detect_client);
-> +		}
->  	}
+> --- linux-2.6.13-rc6+gregkh.orig/drivers/hwmon/atxp1.c
+> +++ linux-2.6.13-rc6+gregkh/drivers/hwmon/atxp1.c
+> @@ -44,7 +44,6 @@ static unsigned short normal_i2c[] = { 0
 >  
->  out_unlock:
-> @@ -307,7 +314,13 @@ int i2c_add_driver(struct i2c_driver *dr
->  	if (driver->flags & I2C_DF_NOTIFY) {
->  		list_for_each(item,&adapters) {
->  			adapter = list_entry(item, struct i2c_adapter, list);
-> -			driver->attach_adapter(adapter);
-> +			if (driver->attach_adapter)
-> +				driver->attach_adapter(adapter);
-> +			if (driver->detect_client && driver->address_data &&
-> +					((driver->class & adapter->class) ||
-> +						driver->class == 0))
-> +				i2c_probe(adapter, driver->address_data,
-> +						driver->detect_client);
->  		}
->  	}
+>  I2C_CLIENT_INSMOD_1(atxp1);
+>  
+> -static int atxp1_attach_adapter(struct i2c_adapter * adapter);
+>  static int atxp1_detach_client(struct i2c_client * client);
+>  static struct atxp1_data * atxp1_update_device(struct device *dev);
+>  static int atxp1_detect(struct i2c_adapter *adapter, int address, int
+>  kind);
+> @@ -53,7 +52,8 @@ static struct i2c_driver atxp1_driver = 
+>  	.owner		= THIS_MODULE,
+>  	.name		= "atxp1",
+>  	.flags		= I2C_DF_NOTIFY,
+> -	.attach_adapter = atxp1_attach_adapter,
+> +	.address_data	= &addr_data,
+> +	.detect_client	= atxp1_detect,
+>  	.detach_client	= atxp1_detach_client,
+>  };
+>  
+> @@ -251,11 +251,6 @@ static ssize_t atxp1_storegpio2(struct d
+>  static DEVICE_ATTR(gpio2, S_IRUGO | S_IWUSR, atxp1_showgpio2,
+>  atxp1_storegpio2);
+>  
+>  
+> -static int atxp1_attach_adapter(struct i2c_adapter *adapter)
+> -{
+> -	return i2c_probe(adapter, &addr_data, &atxp1_detect);
+> -};
+> -
+>  static int atxp1_detect(struct i2c_adapter *adapter, int address, int
+>  kind) {
+>  	struct i2c_client * new_client;
+> Index: linux-2.6.13-rc6+gregkh/drivers/hwmon/ds1621.c
+> ===================================================================
+> --- linux-2.6.13-rc6+gregkh.orig/drivers/hwmon/ds1621.c
+> +++ linux-2.6.13-rc6+gregkh/drivers/hwmon/ds1621.c
+> @@ -80,7 +80,6 @@ struct ds1621_data {
+>  	u8 conf;			/* Register encoding, combined */
+>  };
+>  
+> -static int ds1621_attach_adapter(struct i2c_adapter *adapter);
+>  static int ds1621_detect(struct i2c_adapter *adapter, int address,
+>  			 int kind);
+>  static void ds1621_init_client(struct i2c_client *client);
+> @@ -93,7 +92,8 @@ static struct i2c_driver ds1621_driver =
+>  	.name		= "ds1621",
+>  	.id		= I2C_DRIVERID_DS1621,
+>  	.flags		= I2C_DF_NOTIFY,
+> -	.attach_adapter	= ds1621_attach_adapter,
+> +	.address_data	= &addr_data,
+> +	.detect_client	= ds1621_detect,
+>  	.detach_client	= ds1621_detach_client,
+>  };
+>  
+> @@ -178,12 +178,6 @@ static DEVICE_ATTR(temp1_min, S_IWUSR | 
+>  static DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp_max,
+>  set_temp_max);
+>  
+>  
+> -static int ds1621_attach_adapter(struct i2c_adapter *adapter)
+> -{
+> -	return i2c_probe(adapter, &addr_data, ds1621_detect);
+> -}
+> -
+> -/* This function is called by i2c_probe */
+>  int ds1621_detect(struct i2c_adapter *adapter, int address,
+>                    int kind)
+>  {
 
-Couldn't we check for the return value of driver->attach_adapter()? That
-way this function could conditionally prevent i2c_probe() from being
-run. This is just a random proposal, I don't know if some drivers would
-have an interest in doing that.
-
-Also, maybe we can put this new code in a separate function to be called
-from both i2c_add_adapter and i2c_add_driver, so as to not duplicate
-code? Or would this be too much overhead? It could be made inline then.
-Again, just a random thought.
-
-> --- linux-2.6.13-rc6+gregkh.orig/Documentation/i2c/writing-clients
-> +++ linux-2.6.13-rc6+gregkh/Documentation/i2c/writing-clients
-
-Thanks for the documentation update. However, you didn't update
-i2c/porting-clients accordingly. Could you please?
+I noticed that these two drivers do not properly define their .class to
+I2C_CLASS_HWMON. I understand that doing so doesn't belong to this
+patch, but having an additional patch to apply on top it fixing the
+problem would be great. Can you do that? Or I will, it doesn't really
+matter (the patch should be really straightforward now.)
 
 Thanks,
 -- 

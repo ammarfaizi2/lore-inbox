@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbVHOSz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbVHOS4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbVHOSz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 14:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVHOSz4
+	id S964901AbVHOS4p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 14:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbVHOS4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 14:55:56 -0400
-Received: from mail.kroah.org ([69.55.234.183]:21381 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964900AbVHOSzz (ORCPT
+	Mon, 15 Aug 2005 14:56:44 -0400
+Received: from s243.chello.upc.cz ([62.24.84.243]:41405 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S964901AbVHOS4o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 14:55:55 -0400
-Date: Mon, 15 Aug 2005 11:55:38 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-Cc: Nish Aravamudan <nish.aravamudan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [USB-Storage : i386] Oops with an adaptor for laptop hard disk.
-Message-ID: <20050815185538.GA15137@kroah.com>
-References: <20050815102925.GA843@localhost.localdomain> <20050815110836.GA16201@mipter.zuzino.mipt.ru> <20050815112122.GB6451@localhost.localdomain> <20050815162437.GA10114@kroah.com> <20050815182947.GA6286@localhost.localdomain> <29495f1d05081511374d1f2fc7@mail.gmail.com> <20050815184306.GB6286@localhost.localdomain>
+	Mon, 15 Aug 2005 14:56:44 -0400
+Date: Mon, 15 Aug 2005 20:57:29 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Joe Peterson <joe@skyrush.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] to drivers/input/evdev.c to add mixer device "/dev/input/events"
+Message-ID: <20050815185729.GA1450@ucw.cz>
+References: <4300D09C.4030702@skyrush.com> <20050815174558.GB1450@ucw.cz> <4300D845.8070605@skyrush.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050815184306.GB6286@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <4300D845.8070605@skyrush.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 15, 2005 at 08:43:06PM +0200, Stephane Wirtel wrote:
-> Le Monday 15 August 2005 a 11:08, Nish Aravamudan ecrivait: 
-> > On 8/15/05, Stephane Wirtel <stephane.wirtel@belgacom.net> wrote:
-> > > Le Monday 15 August 2005 a 09:08, Greg KH ecrivait:
-> > > > On Mon, Aug 15, 2005 at 01:21:22PM +0200, Stephane Wirtel wrote:
-> > > > > Le Monday 15 August 2005 a 15:08, Alexey Dobriyan ecrivait:
-> > > > > > On Mon, Aug 15, 2005 at 12:29:25PM +0200, Stephane Wirtel wrote:
-> > > > > > > With a laptop hard disk adaptop to usb, I do a modprobe with the
-> > > > > > > usb-storage module. If I disconnect my hard disk, I get an oops.
-> > > > > >
-> > > > > > > nvidia 3711688 14 - Live 0xe10f1000
-> > > > > >
-> > > > > > > EIP:    0060:[<c019710b>]    Tainted: P      VLI
-> > > > > >
-> > > > > > Is it reproducable without nvidia module loaded?
-> > > > > Yes :(
-> > > >
-> > > > Can you do so with 2.6.13-rc6 and without the nvidia module?  If so,
-> > > > please let us know.
-> > > I try to patch a 2.6.12.4 with the 2.6.13-rc6 prepatch, but I get some
-> > > Hunks
-> > 
-> > That's because 2.6.13-rc6 is based off of 2.6.12.
-> I download the kernel-2.6.13-rc6's archive from ftp://ftp.kernel.org/.../testing/
+On Mon, Aug 15, 2005 at 12:00:37PM -0600, Joe Peterson wrote:
 
-No, Nish means to apply that patch to a clean 2.6.12 tree, not 2.6.12.4.
+> I am using evtouch, but I had read that X itself has an issue with
+> devices that are not "always there" and that X does not [yet] seem to be
+> designed to handle hotplugging well (for example, device names need to
+> be hard-coded in xorg.conf, so a changing device name on plugging will
+> not work).
 
-thanks,
+You just need to list all the possible names, as far as I know, which
+isn't too bad. And udev takes care of it anyway.
 
-greg k-h
+> Perhaps this could be fixed, but it might be a lot more
+> involved.  Why was /dev/input/mice created? 
+
+To make 2.6 work with existing applications. It's scheduled to be
+removed. I definitely don't want to add more workarounds for X
+limitations to the kernel - that only defers fixing X.
+
+> It does correct the issue of unplugging and plugging mice (as well as
+> its obvious feature of allowing multiple mice, of course)?  It keeps X
+> happy by shielding it from the plugging/unplugging.
+
+Yes. But X really needs to start caring about hotplug. I've heard that
+latest builds are moving into that direction (though I didn't try myself
+yet).
+
+> If the mixing of event devices is problematic, what about simply the
+> idea of a persistent event device that always "exists" to the user of
+> the events but will reattach if the HW is plugged/unplugged (the device
+> name assigned could be made constant using a udev symlink)?  This could
+> solve the problem without mixing all events.  In my case, I have one
+> touch screen only (as most people would), so the mixing works in my
+> case, of course.
+
+The event device always exists until it's closed. It'll return -ENODEV on
+any operation, but is discarded only after the last application closes
+it.
+
+What exact change of behavior do you need? If you want the kernel to
+match the newly plugged-in device to the existing, open, unattached,
+evdev node, well, that's near impossible to do solely in the kernel.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

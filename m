@@ -1,89 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVHOHvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVHOHtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbVHOHvc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 03:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbVHOHvc
+	id S932162AbVHOHtu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 03:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbVHOHtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 03:51:32 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:44184 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S932164AbVHOHvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 03:51:31 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Andy Isaacson <adi@hexapodia.org>, Marc Singer <elf@buici.com>
-Subject: Re: [PATCH] spi
-Date: Mon, 15 Aug 2005 10:51:13 +0300
-User-Agent: KMail/1.5.4
-Cc: Marcel Holtmann <marcel@holtmann.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050808174721.GA2853@buici.com> <20050809190500.GA6551@buici.com> <20050809192920.GC23389@hexapodia.org>
-In-Reply-To: <20050809192920.GC23389@hexapodia.org>
+	Mon, 15 Aug 2005 03:49:50 -0400
+Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:30913 "EHLO
+	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932162AbVHOHtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 03:49:50 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: usb camera failing in 2.6.13-rc6
+Date: Mon, 15 Aug 2005 17:49:20 +1000
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <mailman.1124005092.8274.linux-kernel2news@redhat.com> <200508150929.21402.kernel@kolivas.org> <20050814172600.71a4a8cc.zaitcev@redhat.com>
+In-Reply-To: <20050814172600.71a4a8cc.zaitcev@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+Content-Type: multipart/signed;
+  boundary="nextPart1442011.s2U9Ev5T4W";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508151051.13678.vda@ilport.com.ua>
+Message-Id: <200508151749.23116.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It was explained to me that the !pointer test wasn't guaranteed to be
-> > equivalent because of the way that the test is handled.
-> 
-> Whoever explained that to you was wrong.  6.5.3.3 is the final word on
-> how "!x" is interpreted, and it *says* in the *text* that
-> "!x" === "x!=0".  I don't see how this could be any clearer.
-> 
-> > The spec fragments above don't address how the boolean test is
-> > coerced.  Does it cast pointer to an integer and perform the test, or
-> > does it cast the 0 to a pointer and perform the test.  The C++ spec I
-> > have is vague on this point.  The only reference it makes to pointers
-> > is that the operand for ! may be a pointer.
-> 
-> Because of the equivalence *given in the text of 6.5.3.3* we can simply
-> follow the money.  (I'm not concerned, here, about what ambiguities the
-> C++ folks may or may not have introduced into their monstrosity.  The
-> Linux kernel is written in C, and the C standard is unambiguous on this
-> point.  Though frankly I'd be suprised if C++ breaks something so
-> straightforward and useful.)
-> 
-> The section that defines != says
-> 
-> 6.5.9 Equality operators
->   Syntax
-> (1)      equality-expression:
->                 relational-expression
->                 equality-expression == relational-expression
->                 equality-expression != relational-expression
->   Constraints
-> 
-> (2) One of the following shall hold:
->   ...
->   -- one operand is a pointer and the other is a null pointer constant.
-> 
-> (5) ... If one operand is a pointer and the other is a null pointer
->   constant, the null pointer constant is converted to the type of the
->   pointer. ...
-> 
-> So:
-> 1. !x is defined equivalent to x!=0.
-> 2. 0 is a "null pointer constant".
-> 3. (assuming x is a pointer) 0 will be promoted to pointer type in the
->    expression "x!=0".
+--nextPart1442011.s2U9Ev5T4W
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-You are right to 99.9% ;)
+On Mon, 15 Aug 2005 10:26, Pete Zaitcev wrote:
+> On Mon, 15 Aug 2005 09:29:20 +1000, Con Kolivas <kernel@kolivas.org> wrot=
+e:
+> > > Remember that dmesg diff you sent? That's the one. If you strace
+> > > the digikamcameracl, it probably keels over after EBUSY.
+> >
+> > Nice shot! Got it in one. bugzilla updated with confirmation.
+> >
+> > So how do we proceed with this one? Do I need to file a digikam bug
+> > report too?
+>
+> Since I never encountered it, I'm not versed in the switching of
+> the current altsetting. I suppose, this has to be discussed between
+> digikam developers and linux-usb-devel (Alan Stern probably knows
+> how that has to be done). It's very likely that all digikam needs
+> is to claim the interface after the altsetting was switched...
+> But I really do not know.
 
-The last 0.1% of wrongness comes from linux/stddef.h:
-...
-#define NULL ((void *)0)
+Ok I've investigated further and had a pointer from Andrew Clayton who fixe=
+s=20
+this problem with a gphoto2 upgrade. The issue is a libgphoto2 one and=20
+kernels 2.6.13+ will require libgphoto2 2.1.6 or later to work properly.
 
-Thus, !ptr is equivalent to ptr==0 but not equivalent to ptr==NULL
-in general case for the kernel code (it is equivalent if ptr is
-a variable of a _pointer type_ because ptr then implicitly converted
-to (void*)).
+To sort this out before 2.6.13 comes out and it bites a lot of people - as=
+=20
+most distros will have this problem - I suggest pointing them to the bugzil=
+la=20
+entry as a FAQ:
 
-Our NULL isn't 0 by design. it's not a bug, regardless what Stroustrup says
-about NULL define.
---
-vda
+http://bugzilla.kernel.org/show_bug.cgi?id=3D5063
 
+Cheers,
+Con
+
+--nextPart1442011.s2U9Ev5T4W
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDAEkDZUg7+tp6mRURAlfHAJ9MZG13Ct1g5ptqqxI/POfLV+S+CQCeMEAB
+dOm7lskwxWlk6zWkHFTI5Ko=
+=Jj/Z
+-----END PGP SIGNATURE-----
+
+--nextPart1442011.s2U9Ev5T4W--

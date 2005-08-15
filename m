@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbVHOWmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbVHOWqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965023AbVHOWmE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 18:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbVHOWmE
+	id S965029AbVHOWqS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 18:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbVHOWqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 18:42:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62159 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965023AbVHOWmB (ORCPT
+	Mon, 15 Aug 2005 18:46:18 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:983 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965029AbVHOWqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 18:42:01 -0400
-Date: Mon, 15 Aug 2005 15:41:43 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Olaf Hering <olaf@aepfle.de>
-cc: Arjan van de Ven <arjan@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference
- between /dev/kmem and /dev/mem)
-In-Reply-To: <20050815193307.GA11025@aepfle.de>
-Message-ID: <Pine.LNX.4.58.0508151540230.3553@g5.osdl.org>
-References: <1123796188.17269.127.camel@localhost.localdomain>
- <1123809302.17269.139.camel@localhost.localdomain> <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org>
- <1123951810.3187.20.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0508130955010.19049@g5.osdl.org>
- <1123953924.3187.22.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0508131034350.19049@g5.osdl.org>
- <20050815193307.GA11025@aepfle.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Aug 2005 18:46:17 -0400
+Subject: Re: [RFC - 0/13] NTP cleanup work (v. B5)
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
+       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
+       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+In-Reply-To: <Pine.LNX.4.61.0508151212000.3728@scrub.home>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508151212000.3728@scrub.home>
+Content-Type: text/plain
+Date: Mon, 15 Aug 2005 15:46:13 -0700
+Message-Id: <1124145973.8630.33.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 15 Aug 2005, Olaf Hering wrote:
+On Tue, 2005-08-16 at 00:12 +0200, Roman Zippel wrote:
+> On Wed, 10 Aug 2005, john stultz wrote:
 > 
-> ARCH=um doesnt like your version, but mine.
+> > 	The goal of this patch set is to isolate the in kernel NTP state
+> > machine in the hope of simplifying the current timekeeping code and
+> > allowing for optional future changes in the timekeeping subsystem.
+> > 
+> > I've tried to address some of the complexity concerns for systems that
+> > do not have a continuous timesource, preserving the existing behavior
+> > while still providing a ppm interface allowing smooth adjustments to
+> > continuous timesources. 
+> 
+> I think most of this is premature cleanup. As it also changes the logic in 
+> small ways, I'm not even sure it qualifies as a cleanup.
 
-Yours is broken. As is arch-um.
+Please, Roman, I'm spending quite a bit of time breaking this up into
+small chunks specifically to help this discussion. Rather then just
+stating that the logic is changed in small ways, could you please be
+specific and point to where that logic has changed and we can fix or
+discuss it.
 
-The fix would _seem_ to be something like the appended. Can you verify?
+> The only obvious patch is the PPS code removal, which is fine.
 
-		Linus
-----
-diff --git a/include/asm-um/page.h b/include/asm-um/page.h
---- a/include/asm-um/page.h
-+++ b/include/asm-um/page.h
-@@ -104,8 +104,8 @@ extern void *to_virt(unsigned long phys)
-  * casting is the right thing, but 32-bit UML can't have 64-bit virtual
-  * addresses
-  */
--#define __pa(virt) to_phys((void *) (unsigned long) virt)
--#define __va(phys) to_virt((unsigned long) phys)
-+#define __pa(virt) to_phys((void *) (unsigned long) (virt))
-+#define __va(phys) to_virt((unsigned long) (phys))
- 
- #define page_to_pfn(page) ((page) - mem_map)
- #define pfn_to_page(pfn) (mem_map + (pfn))
+Ok, one down, 12 to go ;)
+
+> For the rest I can't agree on to move everything that aggressively into 
+> the ntp namespace. The kernel clock is controlled via NTP, but how it 
+> actually works has little to do with "network time". 
+
+Eh? The adjtimex() interface causes a small adjustment to be added or
+removed from the system time each tick. Why should this code not be put
+behind a clear interface?
+
+> Some of the 
+> parameters are even private clock variables (e.g. time adjustment, phase), 
+> which don't belong in any common code. (I'll expand on that in the next 
+> mail.)
+
+Again, I'm not understanding your objection. Its exactly because the
+time_adjust and phase values are NTP specific variables that I'm trying
+to move them from the timer.c code into ntp.c
+
+I'm trying to address your concerns, I just need you to be more
+explicit.
+
+thanks
+-john
+

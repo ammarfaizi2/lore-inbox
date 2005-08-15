@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbVHOUYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbVHOUYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964946AbVHOUYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 16:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVHOUYP
+	id S964942AbVHOUYm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 16:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVHOUYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 16:24:15 -0400
-Received: from loihi.boulder.swri.edu ([65.241.78.2]:3551 "EHLO
-	perseus.boulder.swri.edu") by vger.kernel.org with ESMTP
-	id S964946AbVHOUYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 16:24:14 -0400
-Message-ID: <4300F9DD.8090005@skyrush.com>
-Date: Mon, 15 Aug 2005 14:23:57 -0600
-From: Joe Peterson <joe@skyrush.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mr.fred.smoothie@pobox.com
-CC: Vojtech Pavlik <vojtech@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
+	Mon, 15 Aug 2005 16:24:42 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:25798 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964942AbVHOUYl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 16:24:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EtV+MZ/zqe/wdL62ehjFrkvWSro/AVpk5H9uSJAPMe3hpPhlyBm9YB2/IiXklfCCdWlKEojZxNwiYmCtR8EPh9lUM5IE+TmxhN31no4DuqmezFgeK5SjH/RjjHhySCHXWZtYwYHEKH8KF+vu+1yEeRpv1O6P5QPo1OymHTtS8Ko=
+Message-ID: <9e47339105081513245b168d24@mail.gmail.com>
+Date: Mon, 15 Aug 2005 16:24:40 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+To: Joe Peterson <joe@skyrush.com>
 Subject: Re: [PATCH] to drivers/input/evdev.c to add mixer device "/dev/input/events"
-References: <4300D09C.4030702@skyrush.com> <20050815174558.GB1450@ucw.cz>	 <4300D845.8070605@skyrush.com> <20050815185729.GA1450@ucw.cz>	 <4300EF7C.9020500@skyrush.com> <161717d505081513066c660129@mail.gmail.com>
-In-Reply-To: <161717d505081513066c660129@mail.gmail.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4300EF7C.9020500@skyrush.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4300D09C.4030702@skyrush.com> <20050815174558.GB1450@ucw.cz>
+	 <4300D845.8070605@skyrush.com> <20050815185729.GA1450@ucw.cz>
+	 <4300EF7C.9020500@skyrush.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Neuer wrote:
-> On 8/15/05, Joe Peterson <joe@skyrush.com> wrote:
-> 
->>So, overall, I agree that we should not invent hacks to make up for
->>another software package's problems...
-> 
-> 
-> but also wrote:
-> 
-> 
->>If the kernel could handle that aspect, it would make all programs more stable.
-> 
-> 
-> which seems a little contradictory.
+On 8/15/05, Joe Peterson <joe@skyrush.com> wrote:
+> So, overall, I agree that we should not invent hacks to make up for
+> another software package's problems, but perhaps input devices,
+> especially ones that sometimes are not there at boot or not there all
+> the time, should be treated in a way that lets programs stay ignorant of
+> the intermittent nature of the devices.  It does not sound right to push
+> the handling of the intermittent nature to each user program.  If the
+> kernel could handle that aspect, it would make all programs more stable.
+> And most of those "plug and unplug" events, even if handled by X or
+> other programs, would really be unnecessary in most cases.  In the case
+> of a touchscreen, there is no need for X to know it switched off and
+> back on again - it just needs to keep listening for touch events.  For X
+> to be "hotplug aware" in this sense only adds complication, I would
+> think.  At least if there were a mode in the device/hotplug/udev stuff
+> to make a "permanent" device (from boot, and always), you could spare
+> the program all of that.
 
-What I was trying to say (and didn't say very well!) is that I agree
-that "hacks" should not be created to mask other problems, but perhaps
-there are ways to solve the problem in the kernel (or in user-space
-programs like udev) that are not hacks and that generally make things
-more elegant all around.
+Vojtech is right. The problem is in X and should not be fixed in the
+kernel. You need to complain about this on the Xorg lists.
 
-> However, Joe continued with:
-> 
-> 
->>It does not sound right to push the handling of the intermittent nature
->>to each user program.
-> 
-> 
-> Indeed. Each user program should not care about it. An event/hotplug
-> library should, and the user programs should use that. Like d-bus/HAL.
+http://lists.freedesktop.org/mailman/listinfo/xorg
 
-Right.  Or, if it makes sense, I was proposing that a new kind of device
-(or device mode) that makes a device ever-present could prevent needless
-handling of plugs and unplugs in applications or X, if that's
-appropriate.  /dev/input/mice is such a device, acting as a catch-all
-for mouse events (and as a byproduct, the specific mouse device chosen
-arbitrarily does not matter to the app).  If it's a hack (as Vojtech
-says), maybe there is a way to get the same functionality in a less
-hackish way.  But Vojtech is right that the kernel should not read
-config files or set "policy," so perhaps something like udev is the
-right place for that kind of thing...
+In your example you missed the case of someone having X running and
+they plug in a new device that X has never seen before. The Linux
+kernel has a hotplug system that tracks all of these plug in/out
+events. The problem is that X is not using the hotplug system when it
+should. X could even track your display being open/closed if it was
+listening to the hotplug events.
 
-	-Joe
+The xorg evdev input driver is here:
+http://cvs.freedesktop.org/xorg/driver/xf86-input-evdev/
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

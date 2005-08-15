@@ -1,115 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVHOMSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVHOMWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbVHOMSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 08:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbVHOMSZ
+	id S932085AbVHOMWR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 08:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbVHOMWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 08:18:25 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:45699 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1750730AbVHOMSY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 08:18:24 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [-mm patch] make kcalloc() a static inline
-Date: Mon, 15 Aug 2005 15:17:52 +0300
-User-Agent: KMail/1.5.4
-Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050808223842.GM4006@stusta.de> <200508151233.46523.vda@ilport.com.ua> <1124098918.3228.25.camel@laptopd505.fenrus.org>
-In-Reply-To: <1124098918.3228.25.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Aug 2005 08:22:17 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:39548 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751091AbVHOMWQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 08:22:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ebhlNX/Z8vZyo8pu3tFe49IWeAvgcJ6/noscxgCQc2Fi0DlQgSI+dizT+8vVxNi88mL/4f6oc/AIUWSD3/HkcGZ6+PCpxuMMadswlrySdn7itwqMfIY4RzuS0pzbiEKVZ4wBwBi3UqEb9aYBdYjwEYaRLB5P1ySacjfiZXnDJK0=
+Message-ID: <9a8748490508150522f6c3921@mail.gmail.com>
+Date: Mon, 15 Aug 2005 14:22:12 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "D. ShadowWolf" <dhazelton@enter.net>
+Subject: Re: oops in 2.6.13-rc6-git5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200508150133.49400.dhazelton@enter.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200508151517.52171.vda@ilport.com.ua>
+References: <200508150133.49400.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 August 2005 12:41, Arjan van de Ven wrote:
-> On Mon, 2005-08-15 at 12:33 +0300, Denis Vlasenko wrote:
+On 8/15/05, D. ShadowWolf <dhazelton@enter.net> wrote:
+> Decided to take the latest git kernel for a run and ran into the following oops when shutting the system down to try it from a cold-boot situation. I wasn't able to capture the oops as it happened, but thankfully syslog was still running and I managed to trap it there.
 > 
-> > gcc can optimize that away with non-const n?! I don't think so.
+
+serial console, netconsole, console on line-printer  are all useful
+for capturing Oops data. There are detailed guides in Documentation/
+
+> When the oops occurred the system was almost shut down, but the command that was executing at the time was to save the sync the hardware clock to Linux (I think)... the trap from my kernel logs (I have each class of kernel event redirected to a different file. This leads to some huge files in a short span, but is useful for debugging a new kernel)
+> The kernel is tainted by the lt modem drivers (lt_modem & lt_serial) however the problem does not appear to be in either of those, and they function properly under 2.6.12.3
 > 
-> due to the wonders of "value range propagation" it actually can, if the
-> check is done sufficiently before...
+> I'm running a basic Slackware 10 distribution (other than the ltmodem drivers (gone inside the next month))
 > 
-> gcc keeps track of the range a variable can have at each point, so if
-> the check is done before, the "possible range" will be such that the
-> divide should be optimizable.
-> 
-> (Note: this is a relatively new feature in gcc though)
 
-# gcc -v
-Using built-in specs.
-Target: i386-pc-linux-gnu
-Configured with: ../gcc-4.0.0.src/configure --prefix=/usr/app/gcc-4.0.0 --exec-prefix=/usr/app/gcc-4.0.0 --bindir=/usr/bin --sbindir=/usr/sbin --libexecdir=/usr/app/gcc-4.0.0/libexec --datadir=/usr/app/gcc-4.0.0/share --sysconfdir=/etc --sharedstatedir=/usr/app/gcc-4.0.0/var/com --localstatedir=/usr/app/gcc-4.0.0/var --libdir=/usr/lib --includedir=/usr/include --infodir=/usr/info --mandir=/usr/man --with-slibdir=/usr/app/gcc-4.0.0/lib --with-local-prefix=/usr/local --with-gxx-include-dir=/usr/app/gcc-4.0.0/include/g++-v3 --enable-languages=c,c++ --with-system-zlib --disable-nls --enable-threads=posix i386-pc-linux-gnu
-Thread model: posix
-gcc version 4.0.0
-# cat t.c
-#include <stdlib.h>
-#include <limits.h>
+I've tried to reproduce the Oops here with your config, but my
+hardware is too different to match your config, so I had to make some
+changes to get the kernel running. In the end I was not able to
+reproduce it.
 
-void *kzalloc(size_t size, unsigned int flags);
-
-static inline void *kcalloc(size_t n, size_t size, unsigned int flags)
-{
-        if (n != 0 && size > INT_MAX / n)
-                return NULL;
-        return kzalloc(n * size, flags);
-}
-
-void* f(int n, int sz)
-{
-        if (sz<1000) return kcalloc(n, sz, 1);
-        return NULL;
-}
-# gcc -O2 -S -mcpu=i386 t.c
-`-mcpu=' is deprecated. Use `-mtune=' or '-march=' instead.
-# cat t.s
-        .file   "t.c"
-        .text
-        .p2align 2,,3
-.globl f
-        .type   f, @function
-f:
-        pushl   %ebp
-        movl    %esp, %ebp
-        pushl   %ebx
-        movl    8(%ebp), %ebx
-        movl    12(%ebp), %ecx
-        cmpl    $999, %ecx
-        jg      .L2
-        testl   %ebx, %ebx
-        jne     .L9
-.L4:
-        movl    $1, 12(%ebp)
-        imull   %ebx, %ecx
-        movl    %ecx, 8(%ebp)
-        popl    %ebx
-        leave
-        jmp     kzalloc
-        .p2align 2,,3
-.L9:
-        movl    $2147483647, %eax
-        xorl    %edx, %edx
-        divl    %ebx
-        cmpl    %eax, %ecx
-        jbe     .L4
-        .p2align 2,,3
-.L2:
-        xorl    %eax, %eax
-        popl    %ebx
-        leave
-        ret
-        .size   f, .-f
-        .ident  "GCC: (GNU) 4.0.0"
-        .section        .note.GNU-stack,"",@progbits
+Can you reproduce the crash reliably? 
+Can you reproduce the crash with a non-tainted kernel?
 
 
-Seems like that optimization is not helping.
-Do you have better example?
---
-vda
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

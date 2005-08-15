@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVHORl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbVHORiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbVHORl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 13:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVHORl0
+	id S964831AbVHORiP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 13:38:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbVHORiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 13:41:26 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:35133 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964832AbVHORlZ convert rfc822-to-8bit
+	Mon, 15 Aug 2005 13:38:15 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:18361 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S964831AbVHORiP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 13:41:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rs3sPAGjtGgJSHrj1GSDQsS8AImdjPTYHUfW+S/rlgsgk8FyUYVa7Xf7UiMXXQ4f91GXP2rjrNbZ4/+vNpfeGSpXitR3AtdvqqK27YUObdupN3ogU8dshRHx8dK+NCy8oUgNT5xpN1Zvdmle5/97m6TccQ6MHOOExY+okYKRt6k=
-Message-ID: <a762e240508151041597c84fc@mail.gmail.com>
-Date: Mon, 15 Aug 2005 10:41:22 -0700
-From: Keith Mannthey <kmannth@gmail.com>
-To: "Srinivasan, Usha" <Usha.Srinivasan@unisys.com>
-Subject: Re: 2.6.12.3 boot problem
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <94C8C9E8B25F564F95185BDA64AB05F601F9A9B1@USTR-EXCH5.na.uis.unisys.com>
+	Mon, 15 Aug 2005 13:38:15 -0400
+Date: Mon, 15 Aug 2005 19:45:55 +0200
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works fine.
+Message-ID: <20050815174555.GA16842@aitel.hist.no>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com> <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no> <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org> <43008C9C.60806@aitel.hist.no> <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <94C8C9E8B25F564F95185BDA64AB05F601F9A9B1@USTR-EXCH5.na.uis.unisys.com>
+In-Reply-To: <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org>
+User-Agent: Mutt/1.5.9i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/15/05, Srinivasan, Usha <Usha.Srinivasan@unisys.com> wrote:
-> Hello,
+On Mon, Aug 15, 2005 at 08:50:12AM -0700, Linus Torvalds wrote:
 > 
-> I have been successfully running 2.6.11 under Red Hat RHEL4 environment
-> with no problems at all.  I needed to switch to 2.6.12 and chose
-> 2.6.12.3.  However, I am having problems booting 2.6.12.3.  My SCSI HBAs
-> & disks are not being found at boot time and I see these errors during
-> boot:
-The 2.6.11 tree is a kernel.org tree?
-
-Are you using LVM or regular partitions?
-
-> Red Hat nash version 4.1.18 starting
-> Mkrootdev: label / not found
-> Umount /sys failed: 16
-> Mount: error 19 mounting ext3
-> Mount: error 2 mounting none
-> Switchroot: mount failed: 22
-> Umount /initrd/dev failed: 2
-
-Do you see the scsi driver find the disks?
-
-I work around I use some times is to change my root line in the
-bootloader to root=/dev/(your disk).  Lables can cause confusion.
- 
-> After trying many many things I have figured out what works and what
-> doesn't.
 > 
-> Works:
-> If I build scsi_mod, sd_mod, scsi_transport_spi and aic7xxxx drivers as
-> built into the kernel, 2.6.12.3 boots fine.
+> On Mon, 15 Aug 2005, Helge Hafting wrote:
+> >
+> > Ok, I have downlaoded git and started the first compile.
+> > Git will tell when the correct point is found (assuming I
+> > do the "git bisect bad/good" right), by itself?
 > 
-> Doesn't work:
-> If I build scsi_mod, sd_mod, scsi_transport_spi and aic7xxxx drivers as
-> Modules, 2.6.12.3 fails to boot.
+> Yes. You should see 
+> 
+> 	Bisecting: xxx revisions left to test after this
+> 
+> and the "xxx" should hopefully decrease by half during each round. And t 
+> the end of it, you should get
+> 
+> 	<sha1> is first bad commit
+> 
+> followed by the actual patch that caused the problem.
+> 
+> > Is there any way to make git tell exactly where between rc4 and rc5
+> > each kernel is, so I can name the bzimages accordingly?
+> 
+> You'd have to use the raw commit names, since these things don't have any 
+> symbolic names. You can get that by just doing
+> 
+> 	cat .git/HEAD
+> 
+> which will give you a 40-character hex string (representing the 160-bit 
+> SHA1 of the top commit). Not very readable, but it's unique, and if you 
+> report that hex string to other git users, they can trivially recreate the 
+> tree you have.
+> 
+Good.  I save those .git/HEAD strings to a separate file.
+The first iteration
+a46e812620bd7db457ce002544a1a6572c313d8a
+seemed to turn out "good".  I test further during the compile of
+the next one.
 
-The modules are put into an initrd correct?  You need their
-functinality to boot.
+Thanks for all the instructions on using git.
 
-
-Keith
+Helge Hafting

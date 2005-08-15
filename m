@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVHOGnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbVHOHQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbVHOGnO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 02:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVHOGnO
+	id S932124AbVHOHQm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 03:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVHOHQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 02:43:14 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:5459 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S932099AbVHOGnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 02:43:13 -0400
-Message-ID: <430037EF.4000102@google.com>
-Date: Sun, 14 Aug 2005 23:36:31 -0700
-From: Hareesh Nagarajan <hareesh@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: zanussi@us.ibm.com, karim@opersys.com
-Subject: relayfs back ported to 2.4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 15 Aug 2005 03:16:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:38887 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932124AbVHOHQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 03:16:41 -0400
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+From: Arjan van de Ven <arjan@infradead.org>
+To: hyoshiok@miraclelinux.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <98df96d30508142343407b4d61@mail.gmail.com>
+References: <98df96d305081402164ce52f8@mail.gmail.com>
+	 <1124012489.3222.13.camel@laptopd505.fenrus.org>
+	 <98df96d305081403222e75b232@mail.gmail.com>
+	 <1124015743.3222.17.camel@laptopd505.fenrus.org>
+	 <98df96d30508142343407b4d61@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 15 Aug 2005 09:16:30 +0200
+Message-Id: <1124090190.3228.3.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All:
 
-For all those who are interested, the relayfs patch is now available for 
-the 2.4 kernel from this link:
+> Anyway we could not find the cache aware version of __copy_from_user_ll
+> has a big regression yet.
 
-	http://relayfs.sourceforge.net/
 
-The patch is equivalent to relayfs from the 2.6.11-mm3 kernel. Earlier 
-today I sent in the 2.4 port that mirrors relayfs from the 
-2.6.13-rc5-mm1 kernel to the authors. So you can expect it to be up on 
-sourceforge in a few days. If you cannot wait, feel free to ask me for it.
+that is because you spread the cache misses out from one place to all
+over the place, so that no one single point sticks out anymore.
 
-Thanks,
+Do you agree that your copy is less optimal for the case where the
+kernel will (almost) immediately use the data? 
 
-Hareesh
--= Engineering Intern =-
+I agree that your copy is really nice for places where the kernel will
+NOT use the data in the cpu, say for big write() system calls.
+
+My suggestion is to realize there are basically 2 different use cases,
+and that in the code the first one is very common, while in your
+profiles the second one is very common. Based on that I suggest to make
+a special copy_from_user_nocache() API for the cases where the kernel
+will not use the data (and ignore software raid5 here) and use your
+excellent version for that API, while leaving the code for the cases
+where the kernel WILL use the data alone. Code wise the "will use" case
+is the vast majority, so only changing the few places that know they
+don't use the data will be very efficient, and will give immediate big
+improvement in your profile data, since those few places tend to get
+used a lot in the cases you benchmark.
+
+

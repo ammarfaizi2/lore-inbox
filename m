@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVHOVZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVHOVai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964980AbVHOVZu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 17:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbVHOVZu
+	id S964981AbVHOVai (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 17:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVHOVai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 17:25:50 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:16648 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S964980AbVHOVZt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 17:25:49 -0400
-Date: Mon, 15 Aug 2005 17:14:19 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference between /dev/kmem and /dev/mem)
-Message-ID: <20050815211419.GA7348@ccure.user-mode-linux.org>
-References: <1123796188.17269.127.camel@localhost.localdomain> <1123809302.17269.139.camel@localhost.localdomain> <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org> <1123951810.3187.20.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0508130955010.19049@g5.osdl.org> <1123953924.3187.22.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0508131034350.19049@g5.osdl.org> <20050815193307.GA11025@aepfle.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050815193307.GA11025@aepfle.de>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 15 Aug 2005 17:30:38 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:50556 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S964981AbVHOVai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 17:30:38 -0400
+Date: Mon, 15 Aug 2005 14:30:15 -0700 (PDT)
+From: Naveen Gupta <ngupta@google.com>
+To: wim@iguana.be, david@2gen.com, akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [-mm PATCH] remove use of pci_find_device in watchdog driver for
+ Intel 6300ESB chipset 
+Message-ID: <Pine.LNX.4.56.0508151425320.27212@krishna.corp.google.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 15, 2005 at 09:33:07PM +0200, Olaf Hering wrote:
-> ARCH=um doesnt like your version, but mine.
-> 
-> drivers/char/mem.c:267: error: invalid operands to binary <<
-> 
->         pfn = (__pa((u64)vma->vm_pgoff) << PAGE_SHIFT) >> PAGE_SHIFT;
 
-My page.h was missing some parens.  Try the patch below.
+This patch replaces obsolete 'pci_find_device' with 'pci_get_device' to
+prevent the device from being stolen under us in Watchdog timer driver
+for intel 6300ESB chipset.
 
-				Jeff
+Signed-off-by: Naveen Gupta <ngupta@google.com>
 
-Index: linux-2.6.13-rc6/include/asm-um/page.h
+Index: linux-2.6.12/drivers/char/watchdog/i6300esb.c
 ===================================================================
---- linux-2.6.13-rc6.orig/include/asm-um/page.h	2005-08-15 16:57:55.000000000 -0400
-+++ linux-2.6.13-rc6/include/asm-um/page.h	2005-08-15 17:16:57.000000000 -0400
-@@ -104,8 +104,8 @@
-  * casting is the right thing, but 32-bit UML can't have 64-bit virtual
-  * addresses
-  */
--#define __pa(virt) to_phys((void *) (unsigned long) virt)
--#define __va(phys) to_virt((unsigned long) phys)
-+#define __pa(virt) to_phys((void *) (unsigned long) (virt))
-+#define __va(phys) to_virt((unsigned long) (phys))
+--- linux-2.6.12.orig/drivers/char/watchdog/i6300esb.c	2005-08-15 11:28:07.000000000 -0700
++++ linux-2.6.12/drivers/char/watchdog/i6300esb.c	2005-08-15 11:36:54.000000000 -0700
+@@ -362,23 +362,24 @@
+ {
+ 	u8 val1;
+ 	unsigned short val2;
+-
++	struct pci_device_id *ids = esb_pci_tbl;
+         struct pci_dev *dev = NULL;
+         /*
+          *      Find the PCI device
+          */
  
- #define page_to_pfn(page) ((page) - mem_map)
- #define pfn_to_page(pfn) (mem_map + (pfn))
+-        while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+-                if (pci_match_id(esb_pci_tbl, dev)) {
+-                        esb_pci = dev;
+-                        break;
+-                }
+-        }
++	while (ids->vendor && ids->device) {
++		if ((dev = pci_get_device(ids->vendor, ids->device, dev)) != NULL) {
++			esb_pci = dev;
++			break;
++		}
++		ids++;
++	}
+ 
+         if (esb_pci) {
+         	if (pci_enable_device(esb_pci)) {
+ 			printk (KERN_ERR PFX "failed to enable device\n");
+-			goto out;
++			goto err_devput;
+ 		}
+ 
+ 		if (pci_request_region(esb_pci, 0, ESB_MODULE_NAME)) {
+@@ -430,8 +431,9 @@
+ 		pci_release_region(esb_pci, 0);
+ err_disable:
+ 		pci_disable_device(esb_pci);
++err_devput:
++		pci_dev_put(esb_pci);
+ 	}
+-out:
+ 	return 0;
+ }
+ 
+@@ -481,7 +483,8 @@
+ 	pci_release_region(esb_pci, 0);
+ /* err_disable: */
+ 	pci_disable_device(esb_pci);
+-/* out: */
++/* err_devput: */
++	pci_dev_put(esb_pci);
+         return ret;
+ }
+ 
+@@ -497,6 +500,7 @@
+ 	iounmap(BASEADDR);
+ 	pci_release_region(esb_pci, 0);
+ 	pci_disable_device(esb_pci);
++	pci_dev_put(esb_pci);
+ }
+ 
+ module_init(watchdog_init);

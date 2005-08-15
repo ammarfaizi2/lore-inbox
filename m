@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVHOWSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbVHOW1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbVHOWSv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 18:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbVHOWSv
+	id S965014AbVHOW1H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 18:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVHOW1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 18:18:51 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:38326 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965015AbVHOWSu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 18:18:50 -0400
-Subject: Re: [PATCH] pmtmr and PRINTK_TIME timings display
-From: john stultz <johnstul@us.ibm.com>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: Steven Rostedt <rostedt@goodmis.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200508041723.25848.petkov@uni-muenster.de>
-References: <200508041459.43500.petkov@uni-muenster.de>
-	 <1123161545.12009.6.camel@localhost.localdomain>
-	 <200508041723.25848.petkov@uni-muenster.de>
-Content-Type: text/plain
-Date: Mon, 15 Aug 2005 15:18:46 -0700
-Message-Id: <1124144326.8630.9.camel@cog.beaverton.ibm.com>
+	Mon, 15 Aug 2005 18:27:06 -0400
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:19646 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S965014AbVHOW1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 18:27:05 -0400
+Date: Tue, 16 Aug 2005 00:27:02 +0200
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: Naveen Gupta <ngupta@google.com>
+Cc: wim@iguana.be, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [-mm PATCH] set enable bit instead of lock bit of Watchdog Timer in Intel 6300 chipset
+Message-ID: <20050815222701.GB18872@hardeman.nu>
+References: <Pine.LNX.4.56.0508151416530.27145@krishna.corp.google.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.56.0508151416530.27145@krishna.corp.google.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-04 at 17:23 +0200, Borislav Petkov wrote:
-> I get it. Actually, I wasn't very sure whether this is the right solution 
-> since my desktop machine uses tsc timer as default while the laptop the 
-> pmtmr. I also remember that there was a patch a while ago on lkml which 
-> enabled a modifiable behavior for PRINTK_TIME through a /proc interface and 
-> kernel boot option but it somehow didn't get accepted. Ok, then, since we 
-> keep the jiffies solution across arch's, how can I force the kernel to use 
-> tsc for printk timings so that i can see the deltas between the different 
-> printk's instead of the jiffies_64 ns value? The Pentium-M Centrino on the 
-> laptop evidently supports rdtsc as a msr instruction.
+On Mon, Aug 15, 2005 at 02:21:05PM -0700, Naveen Gupta wrote:
+>
+>This patch sets the WDT_ENABLE bit of the Lock Register to enable the
+>watchdog and WDT_LOCK bit only if nowayout is set. The old code always
+>sets the WDT_LOCK bit of watchdog timer for Intel 6300ESB chipset. So, we
+>end up locking the watchdog instead of enabling it.
+>
+>Signed-off-by: Naveen Gupta <ngupta@google.com>
 
-The issue is that there are a number of laptops that do not properly
-support cpufreq and additionally newer laptop chips halt their TSC's
-when they go into C3 mode. This keeps the TSC from working as a proper
-timesource on these systems, and causes the need for alternative
-timesources like the ACPI PM timer. 
+Acked-by: David Härdeman <david@2gen.com>
 
-thanks
--john
+Thanks Naveen.
 
-
+//David

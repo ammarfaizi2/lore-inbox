@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVHOAJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbVHOA0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932582AbVHOAJu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 20:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbVHOAJu
+	id S932597AbVHOA0T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 20:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbVHOA0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 20:09:50 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:51134 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932582AbVHOAJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 20:09:50 -0400
-Subject: Re: IDE CD problems in 2.6.13rc6
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Voluspa <voluspa@telia.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050815005101.26df083a.voluspa@telia.com>
-References: <20050815005101.26df083a.voluspa@telia.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 15 Aug 2005 01:37:08 +0100
-Message-Id: <1124066229.29265.2.camel@localhost.localdomain>
+	Sun, 14 Aug 2005 20:26:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47546 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932597AbVHOA0S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 20:26:18 -0400
+Date: Sun, 14 Aug 2005 17:26:00 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb camera failing in 2.6.13-rc6
+Message-Id: <20050814172600.71a4a8cc.zaitcev@redhat.com>
+In-Reply-To: <200508150929.21402.kernel@kolivas.org>
+References: <mailman.1124005092.8274.linux-kernel2news@redhat.com>
+	<200508141842.13209.kernel@kolivas.org>
+	<20050814115648.4f12f1ec.zaitcev@redhat.com>
+	<200508150929.21402.kernel@kolivas.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-08-15 at 00:51 +0200, Voluspa wrote:
-> hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> hdc: drive_cmd: error=0x04 { AbortedCommand }
-> ide: failed opcode was: 0xec
-> ide: Did you just run "hdparm -I" or do you use a nosy desktop?
+On Mon, 15 Aug 2005 09:29:20 +1000, Con Kolivas <kernel@kolivas.org> wrote:
 
-We certainly could interpret 0x51, 0x04 specifically. Its not an "error"
-in the usual spew at the user case generally speaking but a "do this"
-"no" sequence. Its useful to log because sending unknown commands to an
-IDE device is something we want to catch (some drives hang if you do it,
-others do really *crazy* things).
+> > Remember that dmesg diff you sent? That's the one. If you strace
+> > the digikamcameracl, it probably keels over after EBUSY.
+> 
+> Nice shot! Got it in one. bugzilla updated with confirmation.
+> 
+> So how do we proceed with this one? Do I need to file a digikam bug
+> report too?
 
-Would
+Since I never encountered it, I'm not versed in the switching of
+the current altsetting. I suppose, this has to be discussed between
+digikam developers and linux-usb-devel (Alan Stern probably knows
+how that has to be done). It's very likely that all digikam needs
+is to claim the interface after the altsetting was switched...
+But I really do not know.
 
-hdc: command not supported by drive
-ide: failed opcode was: 0xec
-
-have been more helpful 
-
-Alan
-
+-- Pete

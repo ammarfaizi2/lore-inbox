@@ -1,86 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbVHOQb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbVHOQea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbVHOQb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 12:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbVHOQb6
+	id S964830AbVHOQea (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 12:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbVHOQea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 12:31:58 -0400
-Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:8686 "EHLO
-	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964812AbVHOQb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 12:31:58 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: vatsa@in.ibm.com
-Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
-Date: Tue, 16 Aug 2005 02:30:51 +1000
-User-Agent: KMail/1.8.2
-Cc: tony@atomide.com, tuukka.tikkanen@elektrobit.com, akpm@osdl.org,
-       johnstul@us.ibm.com, linux-kernel@vger.kernel.org, ak@muc.de,
-       george@mvista.com
-References: <20050812201946.GA5327@in.ibm.com> <200508141018.29668.kernel@kolivas.org> <20050815153541.GA4731@in.ibm.com>
-In-Reply-To: <20050815153541.GA4731@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 15 Aug 2005 12:34:30 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:27877 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964830AbVHOQe3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 12:34:29 -0400
+Subject: Re: uart_port structure in serial8250_port[i]  doesn't have the
+	port_type values
+From: "V. Ananda Krishnan" <mansarov@us.ibm.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+In-Reply-To: <20050815171159.C30479@flint.arm.linux.org.uk>
+References: <1124115056.3694.27.camel@siliver.austin.ibm.com>
+	 <20050815155232.B30479@flint.arm.linux.org.uk>
+	 <1124121399.3694.50.camel@siliver.austin.ibm.com>
+	 <20050815171159.C30479@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Mon, 15 Aug 2005 11:33:39 -0500
+Message-Id: <1124123620.3694.53.camel@siliver.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-16) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508160230.52860.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Aug 2005 01:35, Srivatsa Vaddagiri wrote:
-> On Sun, Aug 14, 2005 at 10:18:28AM +1000, Con Kolivas wrote:
-> > timers that made no progress until interrupts drove the timers on again.
-> > I built in both PIT and APIC dyntick mode into the kernel and the default
-> > in the way I modified the patch is for APIC mode to be used if it's built
-> > in. After that I modified the values using the sysfs interface at
-> > /sys/devices/system/dyn_tick/dyn_tick0/. In APIC mode it seems to run
-> > close to
->
-> Con,
-> 	I am observing the reverse problem - my patch does not work in APIC
-> mode. I am thinking it has to do something with disabling PIT interrupts.
->
-> Have you enabled CONFIG_DYN_TICK_USE_APIC in my patch? 
+On Mon, 2005-08-15 at 17:11 +0100, Russell King wrote:
+> On Mon, Aug 15, 2005 at 10:56:38AM -0500, V. Ananda Krishnan wrote:
+> > On Mon, 2005-08-15 at 15:52 +0100, Russell King wrote:
+> > > On Mon, Aug 15, 2005 at 09:10:56AM -0500, V. Ananda Krishnan wrote:
+> > > >   The problem described here is related to the 8250_pci driver in
+> > > > 2.6.12.3/2.6.12.4 kernels. When 8250_pci device driver detects a serial
+> > > > port pci device and sets up the default setup (8250_pci.c), it tries to
+> > > > find a match or unused port (serial8250_find_match_or_unused proc in in
+> > > > 8250.c).
+> > > > 
+> > > > This leads to the uart_match_port with one of the parameters as
+> > > > serial8250_ports[i].port. During debugging, I noticed that the none of
+> > > > elements of the serial8250_ports[i].port.type was having any port value.
+> > > 
+> > > Every variable has a value.  In this case, they start off as PORT_UNKNOWN
+> > > as expected.
+> > > 
+> > > > So the serial8250_register_port fails and the device driver module fails
+> > > > to load.
+> > > 
+> > > I don't follow you here - failure of this function is not dependent on
+> > > port.type being PORT_UNKNOWN.
+> > 
+> > Sorry for not being clear.  When 8250_pci.c invokes the function
+> > serial8250_register_port(&serial_port) at line 1736 (linux-2.6.12.4), I
+> > am seeing the following values: number of ports in the pci device is 1,
+> > and the port structure has io_type:2, iobase:0, membase:80005000 and
+> > mapbase:d6000000. In turn, The serial8250_register_port procedure in
+> > 8250.c calls the serial8250_find_match_or_unused(port) routine (line
+> > 2439 in 8250.c of linux-2.6.12.4) which returns 0. Hence the
+> > uart_add_one_port(&serial8250_reg, &uart->port) (line 2455 in 8250.c of
+> > linux-2.6.12.4) codes are not touched and serial8250_register_port
+> > returns -28 (-ENOSPC) to the register_port caller.
+> 
+> Please consider that the person you're trying to communicate with has
+> intimate knowledge of the code in question, so adding such things like
+> line numbers, filenames, and versions to your explaination just adds
+> extra meaningless noise which just obfuscates the rest of your
+> explaination.
+> 
+> The problem with your explaination is that it doesn't really give me
+> any idea what:
+> 
+> * ports are already registered with the driver
+> * the value of CONFIG_SERIAL_8250_NR_UARTS is
+> 
+> You can provide all of this by providing the complete and entire contents
+> of /proc/tty/driver/serial
 
-yes I already said I tried apic mode, that's the one that works "best" but I 
-suspect that's reflecting the fact that I hardly ever go below 300Hz on this 
-machine except in init 1. Time definitely was lost the longer the machine was 
-running.
+Thanks for your guidance.  Here is the cat of /proc/tty/driver/serial:
+serinfo:1.0 driver revision:
+0: uart:16550A port:000003F8 irq:4 tx:11963 rx:0 RTS|DTR
+1: uart:16550A port:000002F8 irq:3 tx:11 rx:0
+2: uart:16550A port:00000898 irq:14 tx:0 rx:0
+3: uart:16550A port:00000890 irq:15 tx:0 rx:0
 
-> What does 
-> /sys/.../dyn_tick0/state show when my patch is working (in APIC mode for
-> you)? 
+> 
+> Without this, I can only conclude from your above description that
+> all available 8250 ports are already associated with some hardware,
+> and therefore the 8250 driver is working as designed.
+> 
 
-suitable:       1
-enabled:        1
-apic suitable:  1
-using APIC:     1
-(remember I wrote the sysfs portion ;) )
 
-> Can you disable CONFIG_DYN_TICK_USE_APIC with my patch and check if 
-> it works? 
-
-You mean disable it at runtime or not compile it in at all? Disabling it at 
-runtime caused what I described to you as PIT mode (long stalls etc).
-
-> Also can you send me 'dmesg | grep APIC' (want to know if your 
-> hardware has local APIC that is enabled by the kernel).
-
-ACPI: Local APIC address 0xfee00000
-ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-Processor #0 15:2 APIC version 20
-ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
-Processor #1 15:2 APIC version 20
-ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
-ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
-ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
-IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
-Enabling APIC mode:  Flat.  Using 1 I/O APICs
-mapped APIC to ffffd000 (fee00000)
-mapped IOAPIC to ffffc000 (fec00000)
-ENABLING IO-APIC IRQs
-ACPI: Using IOAPIC for interrupt routing
-
-Cheers,
-Con

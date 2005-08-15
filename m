@@ -1,94 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbVHPBok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbVHPBwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965072AbVHPBok (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 21:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbVHPBok
+	id S965065AbVHPBwe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 21:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbVHPBwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 21:44:40 -0400
-Received: from smtpout.mac.com ([17.250.248.89]:27353 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965072AbVHPBok (ORCPT
+	Mon, 15 Aug 2005 21:52:33 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:6541 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S965065AbVHPBwd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 21:44:40 -0400
-In-Reply-To: <20050815233849.GA3758@sysman-doug.us.dell.com>
-References: <20050815200522.GA3667@sysman-doug.us.dell.com> <AC1976B5-FAFC-4809-B1B2-579D5F14FDFE@mac.com> <20050815233849.GA3758@sysman-doug.us.dell.com>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A9EE6A23-FE2C-4CDE-8236-23F1E48F25F0@mac.com>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 15 Aug 2005 21:52:33 -0400
+Message-Id: <200508160152.j7G1qS6j017607@zeus1.kernel.org>
+From: "Josue Garner" <button_kevin@phreaker.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: HOT Teens movies and pictures!
+Date: Mon, 15 Aug 2005 18:56:19 +0000
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: CwAkt44PhgtCeJxvniJ1JYyv9jPKpbFRrppx
+Content-Type: text/plain;
+        charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
-Date: Mon, 15 Aug 2005 21:44:34 -0400
-To: Doug Warzecha <Douglas_Warzecha@dell.com>
-X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 15, 2005, at 19:38:49, Doug Warzecha wrote:
-> On Mon, Aug 15, 2005 at 04:23:37PM -0400, Kyle Moffett wrote:
->> Why can't you just implement the system management actions in the  
->> kernel
->> driver?
->
-> We want to minimize the amount of code in the kernel and avoid  
-> having to
-> update the driver each time a new system management command is added.
+New Teens Portal <Unexperienced Pussy> present:
 
-One of the recent trends in kernel driver development is to make as much
-as possible accessible through standard tools (like with echo and cat  
-via
-sysfs).
+- On-line Chats
+- Every 3 days updates
+- Online Support Service
+- Popular Forum
+- Live Video Chats
+- Over 753 hours of HQ video
+- 539018+ images
 
-> The libsmbios project is being updated to use this code.  http:// 
-> linux.dell.com/libsmbios/main/.  Using the libsmbios code, you
-> will be able to set all of the options in BIOS F2 screen from Linux
-> userspace.  Also, libsmbios is looking at implementing a few other  
-> things
-> like fan status.  Libsmbios is 100% open-source (OSL/GPL dual  
-> license).
+BONUS! Full access to hot 3 sites:
 
- From my point of view, this driver could use sysfs almost entirely  
-and put
-all of the hardware-manipulation code completely in kernel space, along
-with the hardware detection code.  You could have plain-text files in
-/sys/bus/platform/dellbios/ that have all of the BIOS F2 options  
-accessible
-to the admin from the command line, without special tools.  (You could
-always add an extra program that presents a BIOS-like interface)
-
-> The power cycle feature of the system powers off the system for a few
-> seconds and then powers the system back on without user intervention.
-> shutdown() and reboot() don't provide that feature.
-
-Please ensure that the code is only run on reboot (and maybe halt), but
-definitely not in the poweroff code.
-
->> What exactly is smi_type used for?  Please provide better  
->> documentation
->> on how to use this and what it does.
->
-> The method of generating a host control SMI is not exactly the same  
-> for
-> each PowerEdge system listed in dcdbas.txt.  host_control_smi_type  
-> tells
-> the driver how to generate the host control SMI for the system in use.
-> I'll update dcdbas.txt with the SMI type value associated with the  
-> systems
-> listed in that file.
-
-This is an _excellent_ reason why more of this should be in the kernel.
-What happens if the wrong SMI is used?  Shouldn't it be relatively easy
-for the kernel to determine the correct SMI itself?
-
-Thanks for your hard work!
-
-Cheers,
-Kyle Moffett
-
---
-Unix was not designed to stop people from doing stupid things,  
-because that
-would also stop them from doing clever things.
-   -- Doug Gwyn
-
+STOP waiting, click here:
+http://aerolinenow.com/upj/
 

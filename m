@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbVHOWqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVHOW5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965029AbVHOWqS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 18:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbVHOWqS
+	id S1751095AbVHOW5w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 18:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVHOW5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 18:46:18 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:983 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965029AbVHOWqR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 18:46:17 -0400
-Subject: Re: [RFC - 0/13] NTP cleanup work (v. B5)
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
-       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
-       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-In-Reply-To: <Pine.LNX.4.61.0508151212000.3728@scrub.home>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508151212000.3728@scrub.home>
-Content-Type: text/plain
-Date: Mon, 15 Aug 2005 15:46:13 -0700
-Message-Id: <1124145973.8630.33.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Aug 2005 18:57:52 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:58380 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751095AbVHOW5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 18:57:52 -0400
+Date: Mon, 15 Aug 2005 15:58:09 -0700
+From: zach@vmware.com
+Message-Id: <200508152258.j7FMw9p8005295@zach-dev.vmware.com>
+To: akpm@osdl.org, chrisw@osdl.org, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, zach@vmware.com
+Subject: [PATCH 0/6] i386 virtualization patches, Set 3
+X-OriginalArrivalTime: 15 Aug 2005 22:57:51.0272 (UTC) FILETIME=[C3690280:01C5A1EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-16 at 00:12 +0200, Roman Zippel wrote:
-> On Wed, 10 Aug 2005, john stultz wrote:
-> 
-> > 	The goal of this patch set is to isolate the in kernel NTP state
-> > machine in the hope of simplifying the current timekeeping code and
-> > allowing for optional future changes in the timekeeping subsystem.
-> > 
-> > I've tried to address some of the complexity concerns for systems that
-> > do not have a continuous timesource, preserving the existing behavior
-> > while still providing a ppm interface allowing smooth adjustments to
-> > continuous timesources. 
-> 
-> I think most of this is premature cleanup. As it also changes the logic in 
-> small ways, I'm not even sure it qualifies as a cleanup.
+This round attempts to conclude all of the LDT related cleanup with some
+finally nice looking LDT code, fixes for the UML build, a bugfix for
+really rather nasty kprobes problems, and the basic framework for an LDT
+test suite.  It is really rather unfortunate that this code is so
+difficult to test, even with DOSemu and Wine, there are still very nasty
+corner cases here - anyone want an iret to 16-bit stack test?.
 
-Please, Roman, I'm spending quite a bit of time breaking this up into
-small chunks specifically to help this discussion. Rather then just
-stating that the logic is changed in small ways, could you please be
-specific and point to where that logic has changed and we can fix or
-discuss it.
+I was going to attempt to clean up the math-emu code to make it use the
+nice new segment and descriptor table accessors, but it quickly became
+apparent that this would be a long, tedious, error prone process that
+would eventually result in the death of a large section of my brain.
+In addition, it is not very fun to test this on the actual hardware it
+is designed to run on (although I did manage to track down a 386 with
+detachable i387 coprocessor, the owner is not sure it still boots).
+Someday it would be nice to have an audit of this code; it appears to
+be riddled with bugs relating to segmentation, for example it assumes
+LDT segments on overrides, does not use the mm->context semaphore to
+protect LDT access, and generally looks scarily out of date in both
+function and appearance.
 
-> The only obvious patch is the PPS code removal, which is fine.
+I also have a makeover for the pgtable.h code.  Splitting operations that
+write hardware page tables into the sub-arch layer was very ugly,
+hopefully this is a much cleaner approach.  There really must be a way
+for a paravirtualized hypervisor to hook the page table updates, and this
+appears to be the cleanest solution so far.
 
-Ok, one down, 12 to go ;)
+This patch set is based on 2.6.13-rc6 -mm1 broken out series.  It applies
+and builds i386, x86_64, and um-i386 on 2.6.13-rc5.  I've tested PAE and
+non-PAE SMP kernels and am working on an LDT test suite.  Depends on
+the i386 cleanups, sub-arch movement, and LDT cleanups I've already sent
+out.
 
-> For the rest I can't agree on to move everything that aggressively into 
-> the ntp namespace. The kernel clock is controlled via NTP, but how it 
-> actually works has little to do with "network time". 
-
-Eh? The adjtimex() interface causes a small adjustment to be added or
-removed from the system time each tick. Why should this code not be put
-behind a clear interface?
-
-> Some of the 
-> parameters are even private clock variables (e.g. time adjustment, phase), 
-> which don't belong in any common code. (I'll expand on that in the next 
-> mail.)
-
-Again, I'm not understanding your objection. Its exactly because the
-time_adjust and phase values are NTP specific variables that I'm trying
-to move them from the timer.c code into ntp.c
-
-I'm trying to address your concerns, I just need you to be more
-explicit.
-
-thanks
--john
-
+--
+Zachary Amsden <zach@vmware.com>
+Whee!  Actually deliver the signal.

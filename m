@@ -1,79 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVHONEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVHONGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbVHONEW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 09:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbVHONEW
+	id S932182AbVHONGc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 09:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbVHONGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 09:04:22 -0400
-Received: from cantor.suse.de ([195.135.220.2]:59819 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751092AbVHONEV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 09:04:21 -0400
-Date: Mon, 15 Aug 2005 15:04:20 +0200
-From: Olaf Hering <olh@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fix up mmap of /dev/kmem
-Message-ID: <20050815130420.GA521@suse.de>
-References: <200508132201.j7DM1TAN031499@hera.kernel.org>
+	Mon, 15 Aug 2005 09:06:32 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:6637 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932182AbVHONGb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 09:06:31 -0400
+Date: Mon, 15 Aug 2005 16:06:22 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Denis Vlasenko <vda@ilport.com.ua>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] make kcalloc() a static inline
+In-Reply-To: <1124108737.3228.35.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.58.0508151601540.3068@sbz-30.cs.Helsinki.FI>
+References: <20050808223842.GM4006@stusta.de>  <200508151233.46523.vda@ilport.com.ua>
+  <1124098918.3228.25.camel@laptopd505.fenrus.org>  <200508151517.52171.vda@ilport.com.ua>
+ <1124108737.3228.35.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200508132201.j7DM1TAN031499@hera.kernel.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sat, Aug 13, Linux Kernel Mailing List wrote:
+On Mon, 2005-08-15 at 15:17 +0300, Denis Vlasenko wrote:
+> > Seems like that optimization is not helping.
+> > Do you have better example?
 
-> tree e52389322e063c5b784ead6ec314503f7646c765
-> parent 2da5bf80f754e28cc153362e5ed1edaa9740897a
-> author Linus Torvalds <torvalds@g5.osdl.org> Sun, 14 Aug 2005 04:22:59 -0700
-> committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 14 Aug 2005 04:22:59 -0700
-> 
-> Fix up mmap of /dev/kmem
-> 
-> This leaves the issue of whether we should deprecate the whole thing (or
-> if we should check the whole mmap range, for that matter) open. Just do
-> the minimal fix for now.
-> 
->  drivers/char/mem.c |   12 ++++++++----
->  1 files changed, 8 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/char/mem.c b/drivers/char/mem.c
-> --- a/drivers/char/mem.c
-> +++ b/drivers/char/mem.c
-> @@ -261,7 +261,11 @@ static int mmap_mem(struct file * file, 
->  
->  static int mmap_kmem(struct file * file, struct vm_area_struct * vma)
->  {
-> -        unsigned long long val;
-> +	unsigned long pfn;
-> +
-> +	/* Turn a kernel-virtual address into a physical page frame */
-> +	pfn = __pa((u64)vma->vm_pgoff << PAGE_SHIFT) >> PAGE_SHIFT;
-> +
->  	/*
->  	 * RED-PEN: on some architectures there is more mapped memory
->  	 * than available in mem_map which pfn_valid checks
+On Mon, 15 Aug 2005, Arjan van de Ven wrote:
+> you need gcc 4.1 (eg CVS) for the value range propagation stuff.
 
-make all ARCH=um SUBARCH=i386 V=1
+For Denis' example, it does not seem to help. I must admit I did not know 
+GCC 3.x does not have this optimization. I am also bit confused as Adrian 
+and  I saw small reduction in kernel text with kcalloc() inlined. If GCC 
+is, in fact, spreading the extra operations everywhere, shouldn't kernel 
+text be bigger?
 
-This gives 
+			Pekka
 
-drivers/char/mem.c: In function 'mmap_kmem':
-drivers/char/mem.c:267: error: invalid operands to binary <<
-
-
-
-static int mmap_kmem(struct file * file, struct vm_area_struct * vma)
-{
- unsigned long pfn;
-
-
- pfn = to_phys((void *) (unsigned long) (u64)vma->vm_pgoff << 12) >> 12;
-# 276 "drivers/char/mem.c"
- if (!((pfn) < max_mapnr))
-  return -5;
+penberg@haji ~/tmp $ ~/bin/gcc-4.1-cvs/bin/gcc -v
+Using built-in specs.
+Target: i686-pc-linux-gnu
+Configured with: ../gcc/configure --prefix=/home/penberg/bin/gcc-4.1-cvs 
+--enable-languages=c
+Thread model: posix
+gcc version 4.1.0 20050815 (experimental)
+penberg@haji ~/tmp $ ~/bin/gcc-4.1-cvs/bin/gcc -O -S -mcpu=i386 t.c
+`-mcpu=' is deprecated. Use `-mtune=' or '-march=' instead.
+penberg@haji ~/tmp $ cat t.s
+        .file   "t.c"
+        .text
+.globl f
+        .type   f, @function
+f:
+        pushl   %ebp
+        movl    %esp, %ebp
+        pushl   %ebx
+        subl    $4, %esp
+        movl    12(%ebp), %eax
+        cmpl    $999, %eax
+        jg      .L2
+        movl    %eax, %ebx
+        movl    8(%ebp), %ecx
+        testl   %ecx, %ecx
+        je      .L4
+        movl    $2147483647, %eax
+        movl    $0, %edx
+        divl    %ecx
+        cmpl    %eax, %ebx
+        ja      .L2
+.L4:
+        subl    $8, %esp
+        pushl   $1
+        movl    %ebx, %eax
+        imull   %ecx, %eax
+        pushl   %eax
+        call    kzalloc
+        addl    $16, %esp
+        jmp     .L6
+.L2:
+        movl    $0, %eax
+.L6:
+        movl    -4(%ebp), %ebx
+        leave
+        ret
+        .size   f, .-f
+        .ident  "GCC: (GNU) 4.1.0 20050815 (experimental)"
+        .section        .note.GNU-stack,"",@progbits
 

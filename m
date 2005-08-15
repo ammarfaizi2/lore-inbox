@@ -1,77 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbVHOWcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbVHOWeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965018AbVHOWcp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 18:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVHOWcp
+	id S965020AbVHOWeK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 18:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVHOWeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 18:32:45 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:3083 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S965018AbVHOWco
+	Mon, 15 Aug 2005 18:34:10 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:64668 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965020AbVHOWeI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 18:32:44 -0400
-Message-ID: <430118E9.30803@tmr.com>
-Date: Mon, 15 Aug 2005 18:36:25 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Lord <liml@rtr.ca>
-Subject: Re: libata PATA todo list
-References: <42FBBB10.9020407@pobox.com>
-In-Reply-To: <42FBBB10.9020407@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Aug 2005 18:34:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UF+Cg867TqzTSsNU0rdjF5jywKORGttLMpYLWVNYD7KAdAcfQ4Xf3b1hdFL1FVcxV+QnsUxGtfHsyH+bphuUuu/X4/m0Iq/Ye2YzrCa4GohDO6b1qhnxHQA72NnvGDqMsQgtRJLyJ3uH+7TADVnyKeKT7ZU12ywTVvGHrDRc3m0=
+Message-ID: <7f45d939050815153448a44e0f@mail.gmail.com>
+Date: Mon, 15 Aug 2005 15:34:04 -0700
+From: Shaun Jackman <sjackman@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: Trouble shooting a ten minute boot delay (SiI3112)
+Cc: lkml <linux-kernel@vger.kernel.org>, Tejun Heo <htejun@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+In-Reply-To: <1123901740.5296.100.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7f45d939050809163136a234a@mail.gmail.com>
+	 <42FC0DD4.9060905@gmail.com>
+	 <7f45d93905081201001a51d51b@mail.gmail.com>
+	 <42FC57EC.2060204@pobox.com>
+	 <7f45d93905081210441e209e31@mail.gmail.com>
+	 <Pine.LNX.4.61.0508122039390.16845@yvahk01.tjqt.qr>
+	 <7f45d93905081212087ea5910a@mail.gmail.com>
+	 <Pine.LNX.4.61.0508122113510.16845@yvahk01.tjqt.qr>
+	 <7f45d939050812183911812222@mail.gmail.com>
+	 <1123901740.5296.100.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+2005/8/12, Steven Rostedt <rostedt@goodmis.org>:
+> Is the keyboard ever set up then? This is all happening before
+> console_init (since that's when the prints start) and the early printk
+> won't show anything before it parses the options.  For other
+> architectures, I use to write out to the serial really early, just an
+> 'x'. If you know how to do that, you could give it a try. Start at
+> start_kernel in main hopefully you see the 'x'. If you do, keep moving
+> it until you find where it's delaying.  Of course, this could be before
+> start_kernel, then you're really screwed, unless you're good at doing
+> the same in assembly (which I've done for MIPS, PPC and ARM, but never
+> for x86).
+
+Since each reboot takes ten minutes, this would be a tedious process.
+Thanks for the suggestion though.
+
+> > I compiled a vanilla 2.6.12.4 kernel, enabled EARLY_PRINTK and
+> > rebooted with earlyprintk=vga. The kernel didn't display any extra
+> > information before the delay.
 > 
-> Since there's been some recent interest in the subject, I thought I 
-> would post the PATA todo list for libata.  Some of these items are from 
-> my memory, and some are from a list Alan was kind enough to create.  The 
-> items verbatim from Alan are prefixed "Alan: ".
+> Do you see grub saying "uncompressing kernel..." or whatever that says?
 
+Grub says...
 
-> 2) Simplex DMA
-> 
-> PCI IDE specification has a 'simplex' DMA bit, which should be tested. 
-> Simplex means that only one command can be outstanding, for BOTH port0 
-> and port1, at any given time.
-> 
-> Possibly some hosts also need Simplex DMA, but may not assert the 
-> standard PCI IDE Simplex DMA capability bit.  I don't know.
+root (hd2,2)
+  Filesystem type is ext2fs, partition type 0x83
+kernel /boot/vmlinuz-2.6.12.4 root=/dev/md0 ro nodma
+   [Linux-bzImage, setup=0x1e00, size=0x1302ff]
 
-I remember using devices which require this. Not recently.
+I suspect this second message is where grub decompresses the kernel.
+The last message grub displays is simply...
 
+boot
 
-> 4) Alan:  Command filter
-> 
-> Alan -- explanation?
-> 
-> I know one line item here, at least:  Promise controllers snoop SET 
-> FEATURES - XFER MODE command.  We must stop command processing on ALL 
-> ports when this command is issued, to avoid corruption.
-
-The last time I tried, cdrecord was allowed to burn the first session of 
-a multi-session CD as a user (with correct device permissions) but not 
-to read the multisession info (current ISO size) to burn another 
-session. I haven't tried it in the last few months, I changed my script 
-to do something else. However, it really should work.
-
-I will test this if you like, but I'm on 7x24 coverage this week and 
-7x24 vacation after that, so not soon.
-
-
-> 10) ATAPI DMA alignment (discussed elsewhere)
-> 
-> Needed even for PATA, AFAICT.
-
-Thanks for keeping the list!
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Cheers,
+Shaun

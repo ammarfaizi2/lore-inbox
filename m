@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbVHOUGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbVHOUHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964887AbVHOUGG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 16:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbVHOUGF
+	id S964919AbVHOUHK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 16:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbVHOUHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 16:06:05 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:1454 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964887AbVHOUGF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 16:06:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JMyJQh6YJWDyZdwUBrbrmfkBUkzfXyM1QtnvsNQX10pjK6BXPNHHKu01g9U6UoFoGsYNkIWBs6NlGrr6WbFmIXpghXQL5Q3yrHuq+pKFZ49+7fWac4ILgQx42ZKJp7J1AXv0jVnAXiMBnQ7G4Ms75Ivy0V1cdXAa1004u7kVvC0=
-Message-ID: <161717d505081513066c660129@mail.gmail.com>
-Date: Mon, 15 Aug 2005 16:06:04 -0400
-From: Dave Neuer <mr.fred.smoothie@gmail.com>
-Reply-To: mr.fred.smoothie@pobox.com
-To: Joe Peterson <joe@skyrush.com>
-Subject: Re: [PATCH] to drivers/input/evdev.c to add mixer device "/dev/input/events"
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4300EF7C.9020500@skyrush.com>
+	Mon, 15 Aug 2005 16:07:09 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50337 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964920AbVHOUHI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 16:07:08 -0400
+Date: Mon, 15 Aug 2005 13:06:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Brett Russ <russb@emc.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH 2.6.13-rc6] PCI/libata INTx cleanup
+Message-ID: <20050815200637.GA15871@kroah.com>
+References: <20050803204709.8BA0720B06@lns1058.lss.emc.com> <42FBA08C.5040103@pobox.com> <20050812171043.CF61020E8B@lns1058.lss.emc.com> <20050812182253.GA7842@suse.de> <42FD14E9.8060502@pobox.com> <20050812224303.F40A820E94@lns1058.lss.emc.com> <20050815185732.GA15216@kroah.com> <4300E83F.1090401@emc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4300D09C.4030702@skyrush.com> <20050815174558.GB1450@ucw.cz>
-	 <4300D845.8070605@skyrush.com> <20050815185729.GA1450@ucw.cz>
-	 <4300EF7C.9020500@skyrush.com>
+In-Reply-To: <4300E83F.1090401@emc.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/15/05, Joe Peterson <joe@skyrush.com> wrote:
+On Mon, Aug 15, 2005 at 03:08:47PM -0400, Brett Russ wrote:
+> Greg KH wrote:
+> >On Fri, Aug 12, 2005 at 06:43:03PM -0400, Brett Russ wrote:
+> >
+> >>Simple cleanup to eliminate X copies of the pci_enable_intx() function
+> >>in libata.  Moved ahci.c's pci_intx() to pci.c and use it throughout
+> >>libata and msi.c.
+> >>
+> >>Signed-off-by: Brett Russ <russb@emc.com>
+> >
+> >
+> >It would have been nice if you had built this code :(
+> >
+> >Hint, get rid of all TRUE and FALSE usages in your patch.  Care to try
+> >again?
+> >
+> >thanks,
+> >
+> >greg k-h
 > 
-> So, overall, I agree that we should not invent hacks to make up for
-> another software package's problems...
+> 
+> Hmm, I did build it before submitting, saw not even a warning.  So I 
+> just rebuilt it again to verify, and same thing.  Why would my tree work 
+> and not yours?  config file?
 
-but also wrote:
+You don't have MSI enabled in yours :(
 
-> If the kernel could handle that aspect, it would make all programs more stable.
+thanks,
 
-which seems a little contradictory.
-
-However, Joe continued with:
-
-> It does not sound right to push the handling of the intermittent nature
-> to each user program.
-
-Indeed. Each user program should not care about it. An event/hotplug
-library should, and the user programs should use that. Like d-bus/HAL.
-
-Dave
+greg k-h

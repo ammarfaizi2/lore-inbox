@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVHOI3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVHOIc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbVHOI3H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 04:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVHOI3H
+	id S932264AbVHOIc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 04:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbVHOIc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 04:29:07 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:63434 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932249AbVHOI3G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 04:29:06 -0400
-Date: Mon, 15 Aug 2005 11:28:41 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Denis Vlasenko <vda@ilport.com.ua>
-cc: Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] make kcalloc() a static inline
-In-Reply-To: <200508151120.46186.vda@ilport.com.ua>
-Message-ID: <Pine.LNX.4.58.0508151126570.26955@sbz-30.cs.Helsinki.FI>
-References: <20050808223842.GM4006@stusta.de> <200508151106.05973.vda@ilport.com.ua>
- <1124093660.3228.14.camel@laptopd505.fenrus.org> <200508151120.46186.vda@ilport.com.ua>
+	Mon, 15 Aug 2005 04:32:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43274 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932250AbVHOIc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 04:32:56 -0400
+Date: Mon, 15 Aug 2005 09:32:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Greg KH <greg@kroah.com>, James.Smart@Emulex.Com,
+       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] add transport class symlink to device object
+Message-ID: <20050815093244.A19811@flint.arm.linux.org.uk>
+Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+	James.Smart@Emulex.Com, Andrew Morton <akpm@osdl.org>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <20050814232525.A27481@flint.arm.linux.org.uk> <20050815004303.GB9466@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050815004303.GB9466@parcelfarce.linux.theplanet.co.uk>; from matthew@wil.cx on Mon, Aug 15, 2005 at 01:43:03AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Aug 2005, Denis Vlasenko wrote:
-> Sure, I don't want to disable the check. I want that check to be
-> in _non-inlined function_.
+On Mon, Aug 15, 2005 at 01:43:03AM +0100, Matthew Wilcox wrote:
+> On Sun, Aug 14, 2005 at 11:25:25PM +0100, Russell King wrote:
+> > Eww.  Do you really want one struct device per tty with all the
+> > memory each one eats?
+> > 
+> > If that's really what you want you need to talk to Alan and not me.
+> > Alan looks after tty level stuff, I look after serial level stuff.
+> > The above is a tty level issue not a serial level issue.
 > 
-> static inline void *kcalloc(size_t n, size_t size, unsigned int __nocast flags)
-> {
-> 	if (__builtin_constant_p(n)) {
-> 		if (n != 0 && size > INT_MAX / n)
-> 			return NULL;
-> 		return kzalloc(n * size, flags);
-> 	}
-> 	return kcalloc_helper(n, size, flags);
-> }
-> 
-> void *kcalloc_helper(size_t n, size_t size, unsigned int __nocast flags)
-> {
-> 	if (n != 0 && size > INT_MAX / n)
-> 		return NULL;
-> 	return kzalloc(n * size, flags);
-> }
+> mmm.  I don't know whether it's really a tty level issue or a serial
+> issue.  The only tty classes with corresponding devices are the serial
+> ones, at least on my system.  If this is the case, then the right fix
+> would seem to be something like creating a new struct device for each
+> serial port, then making that the uart_port->dev instead of the pci_dev
+> or whatever.
 
-That's extra complexity and code duplication. How much do we shave off 
-kernel text of allyesconfig with this?
+What's the reason for enforcing one struct device per struct class_dev ?
+I thought one of the points of class_dev was that you could have multiple
+of them per struct device.
 
-Please note that whenever the caller does proper bounds checking, GCC can 
-optimize the security check away. Therefore, in practice, we don't spread 
-around the extra operations so much, I think.
+Please note that I have other commitments for the next fortnight, so my
+time this week is _very_ limited.  Can this wait until September?
 
-			Pekka
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

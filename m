@@ -1,177 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVHORAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbVHORBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbVHORAW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 13:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbVHORAW
+	id S964847AbVHORBV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 13:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbVHORBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 13:00:22 -0400
-Received: from mail.autoweb.net ([198.172.237.26]:64641 "EHLO mail.autoweb.net")
-	by vger.kernel.org with ESMTP id S964845AbVHORAV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 13:00:21 -0400
-Date: Mon, 15 Aug 2005 13:00:16 -0400
-From: Ryan Anderson <ryan@michonline.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@gmail.com>, akpm@osdl.org
-Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works fine.
-Message-ID: <20050815170016.GH7001@mythryan2.michonline.com>
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com> <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no> <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org> <43008C9C.60806@aitel.hist.no> <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org>
+	Mon, 15 Aug 2005 13:01:21 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:6161 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S964847AbVHORBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 13:01:20 -0400
+Date: Mon, 15 Aug 2005 18:35:20 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Adrian Bunk <bunk@stusta.de>, Blaisorblade <blaisorblade@yahoo.it>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Andi Kleen <ak@suse.de>,
+       Christoph Hellwig <hch@lst.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Feature removal: ACPI S4bios support
+Message-ID: <20050815163520.GG20363@alpha.home.local>
+References: <200508111417.47499.blaisorblade@yahoo.it> <20050812132444.GH1826@elf.ucw.cz> <20050815160007.GA3614@stusta.de> <20050815162638.GA2379@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050815162638.GA2379@elf.ucw.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 15, 2005 at 08:50:12AM -0700, Linus Torvalds wrote:
-> > Is there any way to make git tell exactly where between rc4 and rc5
-> > each kernel is, so I can name the bzimages accordingly?
+Hi Pavel,
+
+On Mon, Aug 15, 2005 at 06:26:38PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> You'd have to use the raw commit names, since these things don't have any 
-> symbolic names. You can get that by just doing
+> > > Remove S4BIOS support. It is pretty useless, and only ever worked for
+> > > _me_ once. (I do not think anyone else ever tried it). It was in
+> > > feature-removal for a long time, and it should have been removed before.
+> > >...
+> > 
+> > You've forgotten to remove the feature-removal-schedule.txt entry in 
+> > your patch.  ;-)
 > 
-> 	cat .git/HEAD
-> 
-> which will give you a 40-character hex string (representing the 160-bit 
-> SHA1 of the top commit). Not very readable, but it's unique, and if you 
-> report that hex string to other git users, they can trivially recreate the 
-> tree you have.
+> Well, that can always be done later. There are probably other small
+> pieces that can be removed now. But I got neither ACK nor NAK on the
+> patch :-(.
 
-The following patch (which Sam has in the kbuild tree for 2.6.14, IIRC)
-will make that automatic, or you can just do:
+Oh, it's a good sign. There are so many people loudly complaining when a
+feature is removed (including me). That means you found nobody to disagree
+with you. The fact that nobody either ACKed your patch may be because nobody
+is able to tell better than you if it will break anything. Maybe it's time
+to repost and ask for an ACK ?
 
-	ln -s .git/HEAD localversion-git
+> 								Pavel
 
-(My patch will notice when you are at a tag and not append anything
-special in thaat case.)
+Willy
 
-Index: linux-git/Makefile
-===================================================================
---- linux-git.orig/Makefile	2005-07-31 04:30:00.000000000 -0400
-+++ linux-git/Makefile	2005-07-31 04:32:16.000000000 -0400
-@@ -551,6 +551,26 @@ export KBUILD_IMAGE ?= vmlinux
- # images. Default is /boot, but you can set it to other values
- export	INSTALL_PATH ?= /boot
- 
-+# If CONFIG_LOCALVERSION_AUTO is set, we automatically perform some tests
-+# and try to determine if the current source tree is a release tree, of any sort,
-+# or if is a pure development tree.
-+#
-+# A 'release tree' is any tree with a git TAG associated
-+# with it.  The primary goal of this is to make it safe for a native
-+# git/CVS/SVN user to build a release tree (i.e, 2.6.9) and also to
-+# continue developing against the current Linus tree, without having the Linus
-+# tree overwrite the 2.6.9 tree when installed.
-+#
-+# Currently, only git is supported.
-+# Other SCMs can edit scripts/setlocalversion and add the appropriate
-+# checks as needed.
-+
-+
-+ifdef CONFIG_LOCALVERSION_AUTO
-+	localversion-auto := $(shell $(PERL) $(srctree)/scripts/setlocalversion $(srctree))
-+	LOCALVERSION := $(LOCALVERSION)$(localversion-auto)
-+endif
-+
- #
- # INSTALL_MOD_PATH specifies a prefix to MODLIB for module directory
- # relocations required by build roots.  This is not defined in the
-Index: linux-git/init/Kconfig
-===================================================================
---- linux-git.orig/init/Kconfig	2005-07-31 04:30:00.000000000 -0400
-+++ linux-git/init/Kconfig	2005-07-31 04:32:16.000000000 -0400
-@@ -77,6 +77,22 @@ config LOCALVERSION
- 	  object and source tree, in that order.  Your total string can
- 	  be a maximum of 64 characters.
- 
-+config LOCALVERSION_AUTO
-+	bool "Automatically append version information to the version string"
-+	default y
-+	help
-+	  This will try to automatically determine if the current tree is a
-+	  release tree by looking for git tags that
-+	  belong to the current top of tree revision.
-+
-+	  A string of the format -gxxxxxxxx will be added to the localversion
-+	  if a git based tree is found.  The string generated by this will be
-+	  appended after any matching localversion* files, and after the value
-+	  set in CONFIG_LOCALVERSION
-+
-+	  Note: This requires Perl, and a git repository, but not necessarily
-+	  the git or cogito tools to be installed.
-+
- config SWAP
- 	bool "Support for paging of anonymous memory (swap)"
- 	depends on MMU
-Index: linux-git/scripts/setlocalversion
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-git/scripts/setlocalversion	2005-07-31 04:32:16.000000000 -0400
-@@ -0,0 +1,56 @@
-+#!/usr/bin/perl
-+# Copyright 2004 - Ryan Anderson <ryan@michonline.com>  GPL v2
-+
-+use strict;
-+use warnings;
-+use Digest::MD5;
-+require 5.006;
-+
-+if (@ARGV != 1) {
-+	print <<EOT;
-+Usage: setlocalversion <srctree>
-+EOT
-+	exit(1);
-+}
-+
-+my ($srctree) = @ARGV;
-+chdir($srctree);
-+
-+my @LOCALVERSIONS = ();
-+
-+# We are going to use the following commands to try and determine if this
-+# repository is at a Version boundary (i.e, 2.6.10 vs 2.6.10 + some patches) We
-+# currently assume that all meaningful version boundaries are marked by a tag.
-+# We don't care what the tag is, just that something exists.
-+
-+# Git/Cogito store the top-of-tree "commit" in .git/HEAD
-+# A list of known tags sits in .git/refs/tags/
-+#
-+# The simple trick here is to just compare the two of these, and if we get a
-+# match, return nothing, otherwise, return a subset of the SHA-1 hash in
-+# .git/HEAD
-+
-+sub do_git_checks {
-+	open(H,"<.git/HEAD") or return;
-+	my $head = <H>;
-+	chomp $head;
-+	close(H);
-+
-+	opendir(D,".git/refs/tags") or return;
-+	foreach my $tagfile (grep !/^\.{1,2}$/, readdir(D)) {
-+		open(F,"<.git/refs/tags/" . $tagfile) or return;
-+		my $tag = <F>;
-+		chomp $tag;
-+		close(F);
-+		return if ($tag eq $head);
-+	}
-+	closedir(D);
-+
-+	push @LOCALVERSIONS, "g" . substr($head,0,8);
-+}
-+
-+if ( -d ".git") {
-+	do_git_checks();
-+}
-+
-+printf "-%s\n", join("-",@LOCALVERSIONS) if (scalar @LOCALVERSIONS > 0);
-
-
-
-
--- 
-
-Ryan Anderson
-  sometimes Pug Majere
+> -- 
+> if you have sharp zaurus hardware you don't need... you know my address
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

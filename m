@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbVHOQkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVHOQk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbVHOQkT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 12:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVHOQkT
+	id S964836AbVHOQk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 12:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVHOQk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 12:40:19 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:42701 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964840AbVHOQkR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 12:40:17 -0400
-Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
-From: john stultz <johnstul@us.ibm.com>
-To: vatsa@in.ibm.com
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Con Kolivas <kernel@kolivas.org>,
-       ck@vds.kolivas.org, Tony Lindgren <tony@atomide.com>,
-       tuukka.tikkanen@elektrobit.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel Kernel <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@muc.de>, george@mvista.com
-In-Reply-To: <20050815154726.GB4731@in.ibm.com>
-References: <20050812201946.GA5327@in.ibm.com>
-	 <200508140053.21056.kernel@kolivas.org> <20050813164618.GA4659@in.ibm.com>
-	 <200508141018.29668.kernel@kolivas.org>
-	 <6189ECD1-1CE7-4E36-B9F4-FD4D9E5871FA@mac.com>
-	 <20050815154726.GB4731@in.ibm.com>
-Content-Type: text/plain
-Date: Mon, 15 Aug 2005 09:39:22 -0700
-Message-Id: <1124123963.4722.9.camel@leatherman>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Aug 2005 12:40:27 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:60324 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964836AbVHOQk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 12:40:27 -0400
+Date: Mon, 15 Aug 2005 17:40:23 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Jim Ramsay <jim.ramsay@gmail.com>
+cc: yhlu <yhlu.kernel@gmail.com>,
+       =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>,
+       alex.kern@gmx.de, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Atyfb questions and issues
+In-Reply-To: <4789af9e050815092545fe2925@mail.gmail.com>
+Message-ID: <Pine.LNX.4.56.0508151733160.7300@pentafluge.infradead.org>
+References: <4789af9e050812101110d3642d@mail.gmail.com> 
+ <Pine.LNX.4.44.0508121918200.10526-100000@deadlock.et.tudelft.nl> 
+ <86802c4405081211021e76349c@mail.gmail.com> <4789af9e050815092545fe2925@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-15 at 21:17 +0530, Srivatsa Vaddagiri wrote:
-> On Sun, Aug 14, 2005 at 12:15:38AM -0400, Kyle Moffett wrote:
-> > It may be a good idea to rebase this patch off the new generic time- 
-> > keeping
-> > subsystem that John Stultz is working on.
+
+> > I wonder if James put that in mainstream, he already sent one patch
+> > for 2.6.5....
+> > 
+> > please refer to
+> > http://www.linuxbios.org/pipermail/linuxbios/2004-May/007734.html
 > 
-> I _am_ using the new subsystem interface (->mark_offset) to catch up with lost
-> ticks. Only I don't think it is that good at catching up the lost ticks if we
-> skip ticks for few seconds in a stretch. 
+> It appears to me that this patch is in the 2.6.11 from linux-mips.org
+> that I am presently using.
 
-Hey Srivatsa, 
+Its in the standard tree as well. The question is does it work in the mips 
+branch? Last time I tried booting without the bios it did not work. Yhlu 
+is right, atyfb_setup_generic is called which in x86 calls the 
+init_from_bios function. Then in aty_init is the biosless initializing is 
+done. 
 
-The timer_opts interface is the existing interface, my work replaces it
-and separates timekeeping from the timer interrupt.
+> Maybe his mips FW does this, but mine doesn't.  Any tips on how I can
+> do this in software?
 
-You can find a cumulative version of my patch here:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0508.1/0982.html
-
-thanks
--john
-
-
+The idea of the patch is not to need FW.

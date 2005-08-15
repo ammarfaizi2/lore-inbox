@@ -1,84 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbVHOUyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbVHOUyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964958AbVHOUyA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 16:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbVHOUyA
+	id S964960AbVHOUyY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 16:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbVHOUyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 16:54:00 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:20972 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964958AbVHOUx7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 16:53:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WdMHtsPUqlR4zvjhZGFeIZOTI0JGEyi17jh/nbUKuvsDc1xeKYCHr8aDbCW3OX4egGA60fQCOyLthnKJqL/Y0h9BhRVh1n/hqz168lcRAnyDidTHzWNLo9ZY4BFB5UPOLNzdQlkGEuHpi7++P9BazuxSAhwLgNsxVbm1i1LY6cA=
-Message-ID: <4789af9e050815135347e398fd@mail.gmail.com>
-Date: Mon, 15 Aug 2005 14:53:58 -0600
-From: Jim Ramsay <jim.ramsay@gmail.com>
-To: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-Subject: Re: Atyfb questions and issues
-Cc: James Simmons <jsimmons@infradead.org>, yhlu <yhlu.kernel@gmail.com>,
-       alex.kern@gmx.de, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0508152129490.11750-100000@deadlock.et.tudelft.nl>
+	Mon, 15 Aug 2005 16:54:24 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:12817 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S964960AbVHOUyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 16:54:23 -0400
+Date: Mon, 15 Aug 2005 22:54:18 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: mustang4@free.fr
+Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Hang or stop after uncompressing MPC8245
+Message-ID: <20050815205418.GA1745@pcw.home.local>
+References: <1124122213.4300be659dc89@imp5-q.free.fr> <20050815155505.GF20363@alpha.home.local> <1124125002.4300c94a31810@imp5-q.free.fr> <20050815165141.GA29660@alpha.home.local> <1124136498.4300f6321bb1b@imp5-q.free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4789af9e0508151221486d0003@mail.gmail.com>
-	 <Pine.LNX.4.44.0508152129490.11750-100000@deadlock.et.tudelft.nl>
+In-Reply-To: <1124136498.4300f6321bb1b@imp5-q.free.fr>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, Daniël, forgot to CC everyone else on this - please forgive my
-resend to you.
+On Mon, Aug 15, 2005 at 10:08:18PM +0200, mustang4@free.fr wrote:
+> Thanks Willy,
+> 
+> So i just compile a new Kernel with options we have talking about...
+> And it's freeze, nothing to the console...
+> 
+> So i need to find the way to enable the Level-Triggered Interrupts in the kernel
+> to the right IRQ address...
 
-On 8/15/05, Daniël Mantione <daniel@deadlock.et.tudelft.nl> wrote:
-> I don't know what the purpose of this patch is but it copies the pre-LCD
-> version of the code in mach64_ct.c into the xlinit.c code of 2.6. This is
-> not the var_to_pll code. This code affects the display fifo and can
-> cause wrong image if incorrectly programmed, but has nothing to do with
-> initializing the chip.
+sorry, but I did not find much more info either. I don't know how to change those
+IRQs from edge to level. It is from software, on the board itself ? I don't know.
+I found interesting pieces of code there :
 
-The purpose of this patch is to get the xlinit working for non-i386
-machines, such as the MIPS processor board I'm currently working with.
- It works for me.  The problem is that for non-i386 machines,
-init_bios_setup is not called, so some values that the 2.6 code
-assumes should be initialized are not.
+   # grep -r IRQ_SENSE /usr/src/linux-2.4.31/arch/ppc/kernel
 
-In the 2.4 kernel I'm using as a reference with the 'xlinit' code
-built in, which works on my hardware, the var_to_pll code consists of
-3 calls:
-- aty_valid_pll_ct
-- aty_dsp_gt
-- aty_calc_pll_ct
+They seem to imply that the interrupt mode (level/edge) is read from somewhere at
+boot, but I have no idea where. May be they can be configured from the boot loader ?
 
-Now, the 2.6 kernel's var_to_pll code is identical, except that it
-doesn't call aty_calc_pll_ct any more.  However, the differences don't
-stop there.  The 'aty_valid_pll_ct' call in the 2.6 kernel is much
-smaller than the 2.4 kernel - apparently it assumes that someone else
-will have initialized much of the pll struct.
+> I read the thread... but i can't find the thing to change in kernel source or
+> kernel configuration.
+> 
+> Or perhaps i enable to many option in
+> "Device Drivers  --->" "Character devices-->" "Serial drivers  --->"
+> <*> 8250/16550 and compatible serial support                     x x
+>   x x    [*]   Console on 8250/16550 and compatible serial port           x x
+>   x x    (4)   Maximum number of non-legacy 8250/16550 serial ports       x x
+>   x x    [*]   Extended 8250/16550 serial driver options                  x x
+>   x x    [*]     Support more than 4 legacy serial ports                  x x
+>   x x    [*]     Support for sharing serial interrupts                    x x
+>   x x    [ ]     Autodetect IRQ on standard ports (unsafe)                x x
+>   x x    [*]     Support special multiport boards                         x x
+>   x x    [*]     Support RSA serial ports
+> 
+> Try autodetect IRQ ?
+> I'll try to learn more about  edge/level irq sharing...
 
-So to work around this I took these from the 2.4 kernel, renamed them
-with 'init_' instead of 'aty_' and put them into xlinit.c, only if
-__i386__ isn't defined, and call them explicitly instead of wrapping
-them inside a function called 'var_to_pll'.
+well, I still do not know how the serial driver manages to find those specific
+addresses. You should ask one of the people involved in the previous threads,
+he might have more clue.
 
-> The pre-LCD code caused several problems for both i386 and
-> non-i386 laptops, and should not be reused. Also, Geert Uytterhoeven
-> has said that he developed the pre-LCD by trial and and not by
-> design. The post-LCD code is derived from the XFree86 driver, it is
-> supposed to work fine if X works.
+Regards,
+Willy
 
-My patch won't affect non-i386 machines.  Notice the '#ifndef
-__i386__' around everything I changed.
-
-This simply fixes the issue that the new 2.6 xlinit code assumes that
-you have a bios that will do *something* to your chip before handing
-control over to the kernel, which is not always the case.
-
-If you have a fix that is more correct, I'd be happy to test it for you!
-
--- 
-Jim Ramsay
-"Me fail English?  That's unpossible!"
+> 
+> Yann
+> 
+> > Hi,
+> >
+> > On Mon, Aug 15, 2005 at 06:56:42PM +0200, mustang4@free.fr wrote:
+> > > Hi,
+> >
+> > > This is what my board say (in console mode) about serial address:
+> > > 0x08 COM1             DUART8245    0xfc004500 0x07a12000 0x00000001
+> > 0x01effc70
+> > > 0x09 COM2             DUART8245    0xfc004600 0x07a12000 0x00000001
+> > 0x01e107d0
+> >
+> > Have you read this thread ?
+> >
+> >   http://ozlabs.org/pipermail/linuxppc-embedded/2005-August/019482.html
+> >
+> > It discusses your about your board, on which interrupts must be set to LEVEL
+> > and not EDGE. BTW, they also used 8250. I don't know how you have to
+> > configure
+> > the serial ports though.
+> >
+> > This boot log also confirms that you have to use 8250/16550 :
+> >
+> >   http://mhonarc.axis.se/jffs-dev/msg01350.html
+> >
+> > > >   - are you sure that you enabled "console on serial port" in the config
+> > ?
+> > > Yes, i enable " Support for console on virtual terminal" but i enable
+> > > "Non-standard serial port support" option too...
+> > > So i recompile without the last one... and i recompile "with Serial drivers
+> > > --->" "[*]   Console on 8250/16550 and compatible serial port" perhaps it's
+> > > that... And i came back to you.
+> > > But, perhaps i've allready tested... i ll check.. it's not a default option
+> > ?
+> >
+> > It's not necessarily a default option. There are many console and serial
+> > ports combination available. BTW, you could also try netconsole which will
+> > send you the console data over an ethernet port if you cannot get the serial
+> > to work.
+> >
+> > > >   - how can you be certain that the serial will appear on ttyS0 and not
+> > ttyS1
+> > > >     or another one (the kernel might detect another serial port which it
+> > > >     assigns ttyS0)
+> > > I pass parameter directly to the kernel;
+> >
+> > ok.
+> >
+> > > Another option i set :
+> > >  Default bootloader kernel arguments  x x  x x(console=ttyS0,9600
+> > console=tty0
+> >
+> > ok.
+> >
+> > Regards,
+> > Willy
+> >
+> >
+> 

@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbVHOVts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVHOVud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbVHOVts (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 17:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbVHOVts
+	id S964993AbVHOVud (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 17:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVHOVud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 17:49:48 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:40093 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964991AbVHOVtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 17:49:47 -0400
-Date: Mon, 15 Aug 2005 22:49:03 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: mikem <mikem@beardog.cca.cpqcorp.net>, marcelo.tosatti@cyclades.com,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 3/4] cciss 2.4: adds 2 ioctls for ia64 based systems
-Message-ID: <20050815214903.GA12701@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	mikem <mikem@beardog.cca.cpqcorp.net>, marcelo.tosatti@cyclades.com,
-	Jens Axboe <axboe@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <20050815212224.GD12760@beardog.cca.cpqcorp.net> <1124141573.5089.55.camel@mulgrave>
+	Mon, 15 Aug 2005 17:50:33 -0400
+Received: from mail.suse.de ([195.135.220.2]:15073 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964993AbVHOVuc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 17:50:32 -0400
+Date: Mon, 15 Aug 2005 23:50:18 +0200
+From: Olaf Hering <olh@suse.de>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference between /dev/kmem and /dev/mem)
+Message-ID: <20050815215018.GA14747@suse.de>
+References: <1123796188.17269.127.camel@localhost.localdomain> <1123809302.17269.139.camel@localhost.localdomain> <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org> <1123951810.3187.20.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0508130955010.19049@g5.osdl.org> <1123953924.3187.22.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0508131034350.19049@g5.osdl.org> <20050815193307.GA11025@aepfle.de> <20050815211419.GA7348@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1124141573.5089.55.camel@mulgrave>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20050815211419.GA7348@ccure.user-mode-linux.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 15, 2005 at 04:32:53PM -0500, James Bottomley wrote:
-> On Mon, 2005-08-15 at 16:22 -0500, mikem wrote:
-> > +#ifdef CONFIG_IA64
-> > +        case BLKGETLASTSECT:
-> > +        case BLKSETLASTSECT:
-> > +#endif
-> >  		return blk_ioctl(inode->i_rdev, cmd, arg);
+ On Mon, Aug 15, Jeff Dike wrote:
+
+> On Mon, Aug 15, 2005 at 09:33:07PM +0200, Olaf Hering wrote:
+> > ARCH=um doesnt like your version, but mine.
+> > 
+> > drivers/char/mem.c:267: error: invalid operands to binary <<
+> > 
+> >         pfn = (__pa((u64)vma->vm_pgoff) << PAGE_SHIFT) >> PAGE_SHIFT;
 > 
-> What makes these two ioctls IA64 specific?  I think they're completely
-> general in 2.4, so there's no need for the #ifdef.
+> My page.h was missing some parens.  Try the patch below.
 
-They don't exist in 2.4 mainline.  The ia64 patch and then many
-distributions introduced it because the EFI partitions spec contains
-some braindamage that requries accessing the last sector.  In 2.6 the
-block device nodes can do that, so the ioctls aren't needed either.
-
-In short this patch should not go into mainline 2.4, it doesn't support
-ia64 anyway and if it did it wouldn't compile because the ioctls aren't
-defined.
-
+compiles ok now, I hope it works.

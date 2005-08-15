@@ -1,165 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVHOVHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVHOVKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbVHOVHe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 17:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVHOVHd
+	id S964969AbVHOVKz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 17:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbVHOVKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 17:07:33 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:50816 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S964965AbVHOVHc (ORCPT
+	Mon, 15 Aug 2005 17:10:55 -0400
+Received: from deadlock.et.tudelft.nl ([130.161.36.93]:36506 "EHLO
+	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id S964969AbVHOVKy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 17:07:32 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
-Date: Mon, 15 Aug 2005 15:07:22 -0600
-User-Agent: KMail/1.8.1
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <200508111424.43150.bjorn.helgaas@hp.com> <1123836012.22460.16.camel@localhost.localdomain>
-In-Reply-To: <1123836012.22460.16.camel@localhost.localdomain>
+	Mon, 15 Aug 2005 17:10:54 -0400
+Date: Mon, 15 Aug 2005 23:10:43 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
+To: Jim Ramsay <jim.ramsay@gmail.com>
+cc: James Simmons <jsimmons@infradead.org>, yhlu <yhlu.kernel@gmail.com>,
+       <alex.kern@gmx.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Atyfb questions and issues
+In-Reply-To: <4789af9e050815133711481beb@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44.0508152246590.11750-100000@deadlock.et.tudelft.nl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508151507.22776.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 August 2005 2:40 am, Alan Cox wrote:
-> Assuming all IA-64 boxes are PCI or better then you actually want to
-> edit include/asm-ia64/ide.h and edit ide_default_io_base where someone
-> years ago cut and pasted x86-32 values so that case 2-5 are removed.
-> Then you will just probe the compatibility mode PCI addresses for system
-> IDE channels.
 
-Thanks for the pointer.  There shouldn't be anything arch-
-specific required for ia64, so I think we can get rid of
-just about everything in asm-ia64/ide.h, since everything
-we care about will be discovered by PCI IDE.
 
-There's no ia64 reason to limit MAX_HWIFS, so I used
-CONFIG_IDE_MAX_HWIFS, resulting in a little more Kconfig
-ugliness.  Maybe that should move into linux/ide.h, so
-arches only need to define MAX_HWIFS if they have a need
-for it?
+Op Mon, 15 Aug 2005, schreef Jim Ramsay:
 
-I noticed that on a box with no devices on ide1, we probed
-ide1 twice -- once via ide_setup_pci_device() and again via
-ide_generic_init().  This isn't fatal, since the generic probe
-uses the I/O ports setup by PCI IDE, but it's unnecessary
-and a bit ugly.
+> On 8/15/05, Daniël Mantione <daniel@deadlock.et.tudelft.nl> wrote:
+> > I don't know what the purpose of this patch is but it copies the pre-LCD
+> > version of the code in mach64_ct.c into the xlinit.c code of 2.6. This is
+> > not the var_to_pll code. This code affects the display fifo and can
+> > cause wrong image if incorrectly programmed, but has nothing to do with
+> > initializing the chip.
+>
+> The purpose of this patch is to get the xlinit working for non-i386
+> machines, such as the MIPS processor board I'm currently working with.
+>  It works for me.  The problem is that for non-i386 machines,
+> init_bios_setup is not called, so some values that the 2.6 code
+> assumes should be initialized are not.
+>
+> In the 2.4 kernel I'm using as a reference with the 'xlinit' code
+> built in, which works on my hardware, the var_to_pll code consists of
+> 3 calls:
+> - aty_valid_pll_ct
+> - aty_dsp_gt
+> - aty_calc_pll_ct
+>
+> Now, the 2.6 kernel's var_to_pll code is identical, except that it
+> doesn't call aty_calc_pll_ct any more.  However, the differences don't
+> stop there.  The 'aty_valid_pll_ct' call in the 2.6 kernel is much
+> smaller than the 2.4 kernel - apparently it assumes that someone else
+> will have initialized much of the pll struct.
 
-I stuck in a "hwif->noprobe = 1" at the point where probe_hwif()
-decides the interface isn't present, which prevents the second
-probe by ide_generic_init().
+Yes, aty_valid_pll_ct in the pre-LCD calculation consists of two parts:
+ * Calculation of the post divider for the chip and memory clock.
+ * Calculation of the post divider for the pixel clock.
 
-Other comments or advice?
+The the calculation of the post divider for the chip and memory clock
+is part of the chip initialisation, and not of the video mode setting. It
+didn't hurt though. However, in the post-LCD code there is an option to
+prevent the driver from reclocking your chip and there are separate chip
+and memory clocks. Therefore the calculation of the memory post divider is
+done in mach64_ct.c near line 358 and the chip clock near line 391. This
+code is fully equivalent to the original.
 
-Index: work-vga/drivers/ide/Kconfig
-===================================================================
---- work-vga.orig/drivers/ide/Kconfig	2005-08-11 15:39:27.000000000 -0600
-+++ work-vga/drivers/ide/Kconfig	2005-08-15 12:08:05.000000000 -0600
-@@ -52,9 +52,9 @@
- 
- if IDE
- 
--config IDE_MAX_HWIFS 
-+config IDE_MAX_HWIFS
- 	int "Max IDE interfaces"
--	depends on ALPHA || SUPERH
-+	depends on ALPHA || SUPERH || IA64
- 	default 4
- 	help
- 	  This is the maximum number of IDE hardware interfaces that will
-Index: work-vga/include/asm-ia64/ide.h
-===================================================================
---- work-vga.orig/include/asm-ia64/ide.h	2005-08-03 16:48:31.000000000 -0600
-+++ work-vga/include/asm-ia64/ide.h	2005-08-15 14:29:44.000000000 -0600
-@@ -14,58 +14,12 @@
- #ifdef __KERNEL__
- 
- #include <linux/config.h>
--
--#include <linux/irq.h>
-+#include <asm-generic/ide_iops.h>
- 
- #ifndef MAX_HWIFS
--# ifdef CONFIG_PCI
--#define MAX_HWIFS	10
--# else
--#define MAX_HWIFS	6
--# endif
--#endif
--
--#define IDE_ARCH_OBSOLETE_DEFAULTS
--
--static inline int ide_default_irq(unsigned long base)
--{
--	switch (base) {
--	      case 0x1f0: return isa_irq_to_vector(14);
--	      case 0x170: return isa_irq_to_vector(15);
--	      case 0x1e8: return isa_irq_to_vector(11);
--	      case 0x168: return isa_irq_to_vector(10);
--	      case 0x1e0: return isa_irq_to_vector(8);
--	      case 0x160: return isa_irq_to_vector(12);
--	      default:
--		return 0;
--	}
--}
--
--static inline unsigned long ide_default_io_base(int index)
--{
--	switch (index) {
--	      case 0: return 0x1f0;
--	      case 1: return 0x170;
--	      case 2: return 0x1e8;
--	      case 3: return 0x168;
--	      case 4: return 0x1e0;
--	      case 5: return 0x160;
--	      default:
--		return 0;
--	}
--}
--
--#define IDE_ARCH_OBSOLETE_INIT
--#define ide_default_io_ctl(base)	((base) + 0x206) /* obsolete */
--
--#ifdef CONFIG_PCI
--#define ide_init_default_irq(base)	(0)
--#else
--#define ide_init_default_irq(base)	ide_default_irq(base)
-+#define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
- #endif
- 
--#include <asm-generic/ide_iops.h>
--
- #endif /* __KERNEL__ */
- 
- #endif /* __ASM_IA64_IDE_H */
-Index: work-vga/include/linux/ide.h
-===================================================================
---- work-vga.orig/include/linux/ide.h	2005-08-03 16:48:32.000000000 -0600
-+++ work-vga/include/linux/ide.h	2005-08-15 12:43:38.000000000 -0600
-@@ -266,7 +266,7 @@
- 
- #include <asm/ide.h>
- 
--/* needed on alpha, x86/x86_64, ia64, mips, ppc32 and sh */
-+/* needed on alpha, x86/x86_64, mips, ppc32 and sh */
- #ifndef IDE_ARCH_OBSOLETE_DEFAULTS
- # define ide_default_io_base(index)	(0)
- # define ide_default_irq(base)		(0)
-Index: work-vga/drivers/ide/ide-probe.c
-===================================================================
---- work-vga.orig/drivers/ide/ide-probe.c	2005-08-09 15:09:59.000000000 -0600
-+++ work-vga/drivers/ide/ide-probe.c	2005-08-15 14:30:33.000000000 -0600
-@@ -852,6 +852,7 @@
- 
- 	if (!hwif->present) {
- 		ide_hwif_release_regions(hwif);
-+		hwif->noprobe = 1;
- 		return;
- 	}
- 
+The calculation of the post divider for the pixel clock is still in
+aty_valid_pll_ct.
+
+Now, the only thing that aty_calc_pll_ct did, was to convert a multiplier
+(1x, 2x, 4x or 8x) to a number that should be programmed into a register
+(0, 1, 2 or 3). I use a more elegant way in the post-LCD code, and that is
+a simple array lookup in the postdividers array.
+
+In other words, all code of aty_valid_pll_ct and aty_calc_pll_ct is still
+there and there should be no need to use the 2.4 code.
+
+aty_dsp_gt is totally rewritten as I described in my previous e-mail.
+
+> So to work around this I took these from the 2.4 kernel, renamed them
+> with 'init_' instead of 'aty_' and put them into xlinit.c, only if
+> __i386__ isn't defined, and call them explicitly instead of wrapping
+> them inside a function called 'var_to_pll'.
+>
+> > The pre-LCD code caused several problems for both i386 and
+> > non-i386 laptops, and should not be reused. Also, Geert Uytterhoeven
+> > has said that he developed the pre-LCD by trial and and not by
+> > design. The post-LCD code is derived from the XFree86 driver, it is
+> > supposed to work fine if X works.
+>
+> My patch won't affect non-i386 machines.  Notice the '#ifndef
+> __i386__' around everything I changed.
+
+It won't affect i386 machines because of that. It will affect PowerPC
+hardware which use Mach64 chips a lot.
+
+We did a fix (display fifo size) into the table of chips to make an
+Apple Wallstreet laptop work. That change was correct, but it does have
+the effect that it no longer works with the old code.
+
+> This simply fixes the issue that the new 2.6 xlinit code assumes that
+> you have a bios that will do *something* to your chip before handing
+> control over to the kernel, which is not always the case.
+>
+> If you have a fix that is more correct, I'd be happy to test it for you!
+
+Afaik the driver falls back to default values in the chip table if
+init_bios_setup isn't called or succesfull. But then there might still be
+a need for a replacement for init_bios_setup. If the chip table does not
+contain the right values for your system you should write a replacement.
+If necessary, explicitly detect your machine and use hardcoded values.
+
+Daniël
+

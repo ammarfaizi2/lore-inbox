@@ -1,115 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbVHORvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVHORxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964858AbVHORvM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 13:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVHORvM
+	id S964860AbVHORxA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 13:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbVHORxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 13:51:12 -0400
-Received: from kent.litech.org ([72.9.242.215]:11786 "EHLO kent.litech.org")
-	by vger.kernel.org with ESMTP id S964858AbVHORvM (ORCPT
+	Mon, 15 Aug 2005 13:53:00 -0400
+Received: from kent.litech.org ([72.9.242.215]:12554 "EHLO kent.litech.org")
+	by vger.kernel.org with ESMTP id S964860AbVHORw7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 13:51:12 -0400
-Date: Mon, 15 Aug 2005 13:51:06 -0400
+	Mon, 15 Aug 2005 13:52:59 -0400
+Date: Mon, 15 Aug 2005 13:52:57 -0400
 From: Nathan Lutchansky <lutchann@litech.org>
 To: LKML <linux-kernel@vger.kernel.org>,
        lm-sensors <lm-sensors@lm-sensors.org>
 Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH 0/5] improve i2c probing
-Message-ID: <20050815175106.GA24959@litech.org>
+Subject: [PATCH 1/5] call i2c_probe from i2c core
+Message-ID: <20050815175257.GB24959@litech.org>
+References: <20050815175106.GA24959@litech.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050815175106.GA24959@litech.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Add the address_data and detect_client fields to the i2c_driver
+structure.  If these are set, i2c core will call i2c_probe directly when
+attach_adapter would have been called.  If the i2c_driver class field is
+also set, probing will only be done on adapters with an intersecting
+class field.
 
-This patch series makes a couple of improvements to the i2c device
-probing process.
+The attach_adapter callback will still be called if it is present, but
+this makes it unnecessary for almost all in-tree i2c drivers.
 
-Currently, when a new i2c bus needs to be probed, the i2c subsystem
-calls the attach_adapter callback for each loaded i2c client driver,
-which must call the i2c_probe function with a list of addresses to be
-probed and another callback for reporting detected devices:
+Signed-off-by: Nathan Lutchansky <lutchann@litech.org>
 
-    static int foo_attach_adapter(struct i2c_adapter *adapter)
-    {
-            if (!(adapter->class & I2C_CLASS_HWMON))
-                    return 0;
-            return i2c_probe(adapter, &addr_data, foo_detect);
-    }
+ Documentation/i2c/writing-clients |   58 ++++++++++++++++++++++++--------------
+ drivers/i2c/i2c-core.c            |   21 +++++++++++--
+ include/linux/i2c.h               |   11 +++++++
+ 3 files changed, 65 insertions(+), 25 deletions(-)
 
-Virtually every i2c client driver uses exactly the same code, so there's
-little point in requiring them all to implement this callback.  The
-first patch in this series adds two new fields to the i2c_driver
-structure, `address_data' and `detect_client', and if they are set by
-the driver, the i2c core will automatically call i2c_probe using those
-fields as the second and third argument.  If the `class' field of the
-i2c_driver structure is set, it will be compared with the adapter class
-first.
-
-Patches 2 and 3 add these fields to the i2c_driver initializer in the
-i2c hwmon and misc i2c chip drivers and remove the corresponding
-attach_adapter callbacks.
-
-The second improvement (which is really the point of this patch set) is
-to add the functions i2c_probe_device and i2c_remove_device for directly
-creating and destroying i2c clients on a particular adapter:
-
-    int i2c_probe_device(struct i2c_adapter *adapter, int driver_id,
-                         int addr, int kind);
-    int i2c_remove_device(struct i2c_adapter *adapter, int driver_id,
-                          int addr);
-
-These functions make the i2c subsystem usable for special-purpose i2c
-buses where probing isn't possible, either because probing is known to
-be dangerous for devices that are present on the bus, or because the i2c
-adapter lacks quick writes and/or error reporting.
-
-The final patch adds a new i2c adapter flag to indicate that the adapter
-should never be probed.
-
-This patch set applies cleanly to the end of Greg KH's i2c patch queue,
-as of 12-Aug-2005.  -Nathan
-
- Documentation/i2c/writing-clients |   58 ++++++++++++++---------
- drivers/hwmon/adm1021.c           |   12 +---
- drivers/hwmon/adm1025.c           |   12 +---
- drivers/hwmon/adm1026.c           |   13 +----
- drivers/hwmon/adm1031.c           |   13 +----
- drivers/hwmon/adm9240.c           |   12 +---
- drivers/hwmon/asb100.c            |   17 +-----
- drivers/hwmon/atxp1.c             |    9 ---
- drivers/hwmon/ds1621.c            |   10 ----
- drivers/hwmon/fscher.c            |   12 +---
- drivers/hwmon/fscpos.c            |   12 +---
- drivers/hwmon/gl518sm.c           |   12 +---
- drivers/hwmon/gl520sm.c           |   12 +---
- drivers/hwmon/it87.c              |   17 +-----
- drivers/hwmon/lm63.c              |   12 +---
- drivers/hwmon/lm75.c              |   13 +----
- drivers/hwmon/lm77.c              |   13 +----
- drivers/hwmon/lm78.c              |   17 +-----
- drivers/hwmon/lm80.c              |   12 +---
- drivers/hwmon/lm83.c              |   12 +---
- drivers/hwmon/lm85.c              |   12 +---
- drivers/hwmon/lm87.c              |   12 +---
- drivers/hwmon/lm90.c              |   12 +---
- drivers/hwmon/lm92.c              |   11 +---
- drivers/hwmon/max1619.c           |   12 +---
- drivers/hwmon/w83781d.c           |   17 +-----
- drivers/hwmon/w83792d.c           |   18 +------
- drivers/hwmon/w83l785ts.c         |   12 +---
- drivers/i2c/chips/ds1337.c        |    9 ---
- drivers/i2c/chips/ds1374.c        |    8 ---
- drivers/i2c/chips/eeprom.c        |   10 ----
- drivers/i2c/chips/m41t00.c        |    9 ---
- drivers/i2c/chips/max6875.c       |   10 ----
- drivers/i2c/chips/pca9539.c       |   10 ----
- drivers/i2c/chips/pcf8574.c       |   10 ----
- drivers/i2c/chips/pcf8591.c       |   10 ----
- drivers/i2c/chips/rtc8564.c       |    8 ---
- drivers/i2c/i2c-core.c            |   95 ++++++++++++++++++++++++++++++++++++--
- include/linux/i2c.h               |   21 ++++++++
- 39 files changed, 246 insertions(+), 360 deletions(-)
+Index: linux-2.6.13-rc6+gregkh/include/linux/i2c.h
+===================================================================
+--- linux-2.6.13-rc6+gregkh.orig/include/linux/i2c.h
++++ linux-2.6.13-rc6+gregkh/include/linux/i2c.h
+@@ -48,6 +48,7 @@ struct i2c_algorithm;
+ struct i2c_adapter;
+ struct i2c_client;
+ struct i2c_driver;
++struct i2c_client_address_data;
+ union i2c_smbus_data;
+ 
+ /*
+@@ -113,6 +114,7 @@ struct i2c_driver {
+ 	int id;
+ 	unsigned int class;
+ 	unsigned int flags;		/* div., see below		*/
++	struct i2c_client_address_data *address_data;
+ 
+ 	/* Notifies the driver that a new bus has appeared. This routine
+ 	 * can be used by the driver to test if the bus meets its conditions
+@@ -123,6 +125,15 @@ struct i2c_driver {
+ 	int (*attach_adapter)(struct i2c_adapter *);
+ 	int (*detach_adapter)(struct i2c_adapter *);
+ 
++	/* Requests that the driver validate an address on a bus and attach a
++	 * new client. If this routine is supplied, it will be called for
++	 * each device on new buses that appear, provided the bus class
++	 * matches the class field and devices exist at the addresses listed
++	 * in the address_data field. For most drivers, this mechanism can
++	 * be used instead of an attach_adapter routine.
++	 */
++	int (*detect_client)(struct i2c_adapter *, int addr, int kind);
++
+ 	/* tells the driver that a client is about to be deleted & gives it 
+ 	 * the chance to remove its private data. Also, if the client struct
+ 	 * has been dynamically allocated by the driver in the function above,
+Index: linux-2.6.13-rc6+gregkh/drivers/i2c/i2c-core.c
+===================================================================
+--- linux-2.6.13-rc6+gregkh.orig/drivers/i2c/i2c-core.c
++++ linux-2.6.13-rc6+gregkh/drivers/i2c/i2c-core.c
+@@ -193,9 +193,16 @@ int i2c_add_adapter(struct i2c_adapter *
+ 	/* inform drivers of new adapters */
+ 	list_for_each(item,&drivers) {
+ 		driver = list_entry(item, struct i2c_driver, list);
+-		if (driver->flags & I2C_DF_NOTIFY)
+-			/* We ignore the return code; if it fails, too bad */
+-			driver->attach_adapter(adap);
++		if (driver->flags & I2C_DF_NOTIFY) {
++			/* We ignore the return codes; if it fails, too bad */
++			if (driver->attach_adapter)
++				driver->attach_adapter(adap);
++			if (driver->detect_client && driver->address_data &&
++					((driver->class & adap->class) ||
++						driver->class == 0))
++				i2c_probe(adap, driver->address_data,
++						driver->detect_client);
++		}
+ 	}
+ 
+ out_unlock:
+@@ -307,7 +314,13 @@ int i2c_add_driver(struct i2c_driver *dr
+ 	if (driver->flags & I2C_DF_NOTIFY) {
+ 		list_for_each(item,&adapters) {
+ 			adapter = list_entry(item, struct i2c_adapter, list);
+-			driver->attach_adapter(adapter);
++			if (driver->attach_adapter)
++				driver->attach_adapter(adapter);
++			if (driver->detect_client && driver->address_data &&
++					((driver->class & adapter->class) ||
++						driver->class == 0))
++				i2c_probe(adapter, driver->address_data,
++						driver->detect_client);
+ 		}
+ 	}
+ 
+Index: linux-2.6.13-rc6+gregkh/Documentation/i2c/writing-clients
+===================================================================
+--- linux-2.6.13-rc6+gregkh.orig/Documentation/i2c/writing-clients
++++ linux-2.6.13-rc6+gregkh/Documentation/i2c/writing-clients
+@@ -27,8 +27,10 @@ address.
+ static struct i2c_driver foo_driver = {
+ 	.owner		= THIS_MODULE,
+ 	.name		= "Foo version 2.3 driver",
++	.class		= I2C_CLASS_HWMON,
+ 	.flags		= I2C_DF_NOTIFY,
+-	.attach_adapter	= &foo_attach_adapter,
++	.address_data	= &addr_data,
++	.detect_client	= &foo_detect_client,
+ 	.detach_client	= &foo_detach_client,
+ 	.command	= &foo_command /* may be NULL */
+ }
+@@ -147,8 +149,8 @@ are defined to help determine what addre
+ are defined in i2c.h to help you support them, as well as a generic
+ detection algorithm.
+ 
+-You do not have to use this parameter interface; but don't try to use
+-function i2c_probe() if you don't.
++You do not have to use this parameter interface; but then the i2c core won't
++be able to probe for devices for you.
+ 
+ NOTE: If you want to write a `sensors' driver, the interface is slightly
+       different! See below.
+@@ -207,35 +209,49 @@ Attaching to an adapter
+ -----------------------
+ 
+ Whenever a new adapter is inserted, or for all adapters if the driver is
+-being registered, the callback attach_adapter() is called. Now is the
+-time to determine what devices are present on the adapter, and to register
+-a client for each of them.
+-
+-The attach_adapter callback is really easy: we just call the generic
+-detection function. This function will scan the bus for us, using the
+-information as defined in the lists explained above. If a device is
+-detected at a specific address, another callback is called.
++being registered, your driver may be notified through one of two
++callbacks, depending on the degree of control you need to exercise over
++the probing process. This is the time to determine what devices are
++present on the adapter and to register a client for each device your
++driver supports.
++
++The easiest way to handle the probing process is to simply set the `class',
++`address_data', and `detect_client' fields in the i2c_driver structure.
++The `class' field is a bitmask of all the adapter classes which should be
++probed for devices supported by this driver. Typically you would just set
++this to I2C_CLASS_HWMON, which is appropriate for `sensors' drivers.  The
++`address_data' field should be set to `&addr_data', which is defined by the
++macros explained above, so you do not have to define it yourself.  When a
++new adapter is attached, the bus is scanned for the addresses defined in
++the lists above, and the detect_client callback gets called when a device
++is detected at a specific address.
++
++If you prefer, you can omit the `class', `address_data', and
++`detect_client' fields from your i2c_driver structure, and instead set
++`attach_adapter'.  The `attach_adapter' callback gets called every time a
++new adapter is attached and the bus needs to be scanned, so if you need to
++perform any special checks or configuration before you scan a bus for
++devices, you should use attach_adapter. If the bus is suitable, you can
++then call the generic i2c_probe function to scan for the addresses in the
++lists explained above, and the callback passed in the third parameter will
++get called for each device detected.
+ 
+   int foo_attach_adapter(struct i2c_adapter *adapter)
+   {
+     return i2c_probe(adapter,&addr_data,&foo_detect_client);
+   }
+ 
+-Remember, structure `addr_data' is defined by the macros explained above,
+-so you do not have to define it yourself.
+-
+-The i2c_probe function will call the foo_detect_client
+-function only for those i2c addresses that actually have a device on
+-them (unless a `force' parameter was used). In addition, addresses that
+-are already in use (by some other registered client) are skipped.
++With either mechanism, addresses that are already in use (by some other
++registered client) are skipped.
+ 
+ 
+ The detect client function
+ --------------------------
+ 
+-The detect client function is called by i2c_probe. The `kind' parameter
+-contains -1 for a probed detection, 0 for a forced detection, or a positive
+-number for a forced detection with a chip type forced.
++The detect client function is called by the address probing mechanism.
++The `kind' parameter contains -1 for a probed detection, 0 for a forced
++detection, or a positive number for a forced detection with a chip type
++forced.
+ 
+ Below, some things are only needed if this is a `sensors' driver. Those
+ parts are between /* SENSORS ONLY START */ and /* SENSORS ONLY END */

@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVHOTdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbVHOTkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbVHOTdo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 15:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVHOTdo
+	id S964911AbVHOTkp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 15:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVHOTkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 15:33:44 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:52641 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S964898AbVHOTdo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 15:33:44 -0400
-Date: Mon, 15 Aug 2005 21:33:07 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference between /dev/kmem and /dev/mem)
-Message-ID: <20050815193307.GA11025@aepfle.de>
-References: <1123796188.17269.127.camel@localhost.localdomain> <1123809302.17269.139.camel@localhost.localdomain> <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org> <1123951810.3187.20.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0508130955010.19049@g5.osdl.org> <1123953924.3187.22.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0508131034350.19049@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0508131034350.19049@g5.osdl.org>
-User-Agent: Mutt/1.5.6i
+	Mon, 15 Aug 2005 15:40:45 -0400
+Received: from deadlock.et.tudelft.nl ([130.161.36.93]:13466 "EHLO
+	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id S964911AbVHOTkp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 15:40:45 -0400
+Date: Mon, 15 Aug 2005 21:40:26 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
+To: Jim Ramsay <jim.ramsay@gmail.com>
+cc: James Simmons <jsimmons@infradead.org>, yhlu <yhlu.kernel@gmail.com>,
+       <alex.kern@gmx.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Atyfb questions and issues
+In-Reply-To: <4789af9e0508151221486d0003@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44.0508152129490.11750-100000@deadlock.et.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 13, 2005 at 10:37:03AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Sat, 13 Aug 2005, Arjan van de Ven wrote:
-> > 
-> > attached is the same patch but now with Steven's change made as well
-> 
-> Actually, the more I looked at that mmap_kmem() function, the less I liked 
-> it.  Let's get that sucker fixed better first. It's still not wonderful, 
-> but at least now it tries to verify the whole _range_ of the mapping.
-> 
-> Steven, does this "alternate mmap_kmem fix" patch work for you?
-> 
-> 		Linus
-> ----
-> diff --git a/drivers/char/mem.c b/drivers/char/mem.c
-> --- a/drivers/char/mem.c
-> +++ b/drivers/char/mem.c
-> @@ -261,7 +261,11 @@ static int mmap_mem(struct file * file, 
->  
->  static int mmap_kmem(struct file * file, struct vm_area_struct * vma)
->  {
-> -        unsigned long long val;
-> +	unsigned long pfn, size;
-> +
-> +	/* Turn a kernel-virtual address into a physical page frame */
-> +	pfn = __pa((u64)vma->vm_pgoff << PAGE_SHIFT) >> PAGE_SHIFT;
-> +
 
-ARCH=um doesnt like your version, but mine.
 
-drivers/char/mem.c:267: error: invalid operands to binary <<
+Op Mon, 15 Aug 2005, schreef Jim Ramsay:
 
-        pfn = (__pa((u64)vma->vm_pgoff) << PAGE_SHIFT) >> PAGE_SHIFT;
+> Of course.
+>
+> How about the replacement for 'xlinit.c' I have attached here?
+>
+> I noticed that the big difference between what the 2.4 kernel and 2.6
+> kernel did is that the 'var_to_pll' (and its component functions) in
+> 2.4 did a lot more probing than that in the 2.6 kernel.
+>
+> So I copied the relevant 2.4 bits for non-i386 archs, and replaced the
+> call to 'var_to_pll' with the "new" stuff.
+>
+> This seems to work for me.  Enjoy!
+
+I don't know what the purpose of this patch is but it copies the pre-LCD
+version of the code in mach64_ct.c into the xlinit.c code of 2.6. This is
+not the var_to_pll code. This code affects the display fifo and can
+cause wrong image if incorrectly programmed, but has nothing to do with
+initializing the chip.
+
+The pre-LCD code caused several problems for both i386 and
+non-i386 laptops, and should not be reused. Also, Geert Uytterhoeven
+has said that he developed the pre-LCD by trial and and not by
+design. The post-LCD code is derived from the XFree86 driver, it is
+supposed to work fine if X works.
+
+Daniël Mantione
 

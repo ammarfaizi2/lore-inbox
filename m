@@ -1,52 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVHOUV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbVHOUXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbVHOUV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 16:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbVHOUV7
+	id S964948AbVHOUXq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 16:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbVHOUXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 16:21:59 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:57234 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S964939AbVHOUV7 (ORCPT
+	Mon, 15 Aug 2005 16:23:45 -0400
+Received: from smtpout.mac.com ([17.250.248.85]:25554 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S964948AbVHOUXp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 16:21:59 -0400
-Message-ID: <4300F963.5040905@drzeus.cx>
-Date: Mon, 15 Aug 2005 22:21:55 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-3 (X11/20050806)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Flash erase groups and filesystems
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 15 Aug 2005 16:23:45 -0400
+In-Reply-To: <20050815200522.GA3667@sysman-doug.us.dell.com>
+References: <20050815200522.GA3667@sysman-doug.us.dell.com>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <AC1976B5-FAFC-4809-B1B2-579D5F14FDFE@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
+Date: Mon, 15 Aug 2005 16:23:37 -0400
+To: Doug Warzecha <Douglas_Warzecha@dell.com>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you know how flash erase groups behave then skip a bit ;)
+On Aug 15, 2005, at 16:05:22, Doug Warzecha wrote:
+> This patch adds the Dell Systems Management Base Driver with sysfs  
+> support.
 
-As you may or may not be aware, flash memory tends to be designed so
-that only large groups of sectors can be erased at a time. For most
-systems this is handled automatically by having the onboard controller
-caching everyhing but the sector being overwritten. If you write a
-single sector at a time (or if the controller is stupid) this will
-result in the flash being erased several times because of writes in
-sectors close by. The end result being that your flash is worn out faster.
+> +On some Dell systems, systems management software must access certain
+> +management information via a system management interrupt (SMI).   
+> The SMI data
+> +buffer must reside in 32-bit address space, and the physical  
+> address of the
+> +buffer is required for the SMI.  The driver maintains the memory  
+> required for
+> +the SMI and provides a way for the application to generate the SMI.
+> +The driver creates the following sysfs entries for systems management
+> +software to perform these system management interrupts:
 
---8<--- skip to here ----
+Why can't you just implement the system management actions in the kernel
+driver?  This is tantamount to a binary SMI hook to userspace.  What
+functionality does this provide on a dell system from an administrator's
+point of view?
 
-To minimise the number of erases the MMC protocol supports pre-erasing
-blocks before you actually write to them. Now what I'm unclear on is how
-this will interact with filesystems and the assumptions they make.
+> +Host Control Action
+> +
+> +Dell OpenManage supports a host control feature that allows the  
+> administrator
+> +to perform a power cycle or power off of the system after the OS  
+> has finished
+> +shutting down.  On some Dell systems, this host control feature  
+> requires that
+> +a driver perform a SMI after the OS has finished shutting down.
+> +
+> +The driver creates the following sysfs entries for systems  
+> management software
+> +to schedule the driver to perform a power cycle or power off host  
+> control
+> +action after the system has finished shutting down:
+> +
+> +/sys/devices/platform/dcdbas/host_control_action
+> +/sys/devices/platform/dcdbas/host_control_smi_type
+> +/sys/devices/platform/dcdbas/host_control_on_shutdown
 
-If the controller gets a request to write 128 sectors and this fails
-after 20 sectors, the remaining 108 sectors will still have lost their
-data because of the pre-erase. Will this break assumptions made in the
-VFS layer? I.e. does it assume that only the failed sector has unknown data?
+How is this different from shutdown() or reboot()?  What exactly is  
+smi_type used
+for?  Please provide better documentation on how to use this and what  
+it does.
 
-I'm writing a patch that gives this functionality to the MMC layer and
-since I'm no VFS expert I need some input into any side effects.
+If this is supposed to be used with the RBU code to trigger a BIOS  
+update, then
+why not integrate it into one kernel driver that receives firmware,  
+loads it into
+the BIOS, and properly resets the machine at powerdown?  I think  
+PowerPC does a
+similar thing with OpenFirmware flash memory.  When I change the  
+default boot
+device or other firmware environment, I get a message from the kernel  
+upon
+shutdown:
+Erasing <BRAND> flash bank 1...
+Writing <BRAND> flash bank 1...
 
-Rgds
-Pierre
+Would not a similar system work for Dell?  It would be far simpler to  
+use than
+the current mess of patches you've proposed.  If done properly, I  
+could even
+do this:
+
+cat firmware-with-checksum.img >/sys/devices/platform/dellbios/ 
+firmware_upgrade
+
+Then an ordinary system reboot or shutdown would automatically use  
+the SMI and
+host-control-action to upgrade the firmware and shutdown or reboot,  
+instead of
+the normal ACPI shutdown and reboot code.
+
+Cheers,
+Kyle Moffett
+
+--
+Somone asked me why I work on this free (http://www.fsf.org/philosophy/)
+software stuff and not get a real job. Charles Shultz had the best  
+answer:
+
+"Why do musicians compose symphonies and poets write poems? They do  
+it because
+life wouldn't have any meaning for them if they didn't. That's why I  
+draw
+cartoons. It's my life."
+   -- Charles Shultz
+
+

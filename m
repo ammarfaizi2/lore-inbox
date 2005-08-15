@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbVHOQOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVHOQRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbVHOQOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 12:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbVHOQOJ
+	id S964807AbVHOQRj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 12:17:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVHOQRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 12:14:09 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:45186 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964816AbVHOQOI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 12:14:08 -0400
-Date: Mon, 15 Aug 2005 21:05:41 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: ck@vds.kolivas.org, tony@atomide.com, tuukka.tikkanen@elektrobit.com,
-       akpm@osdl.org, johnstul@us.ibm.com, linux-kernel@vger.kernel.org,
-       ak@muc.de, george@mvista.com
-Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
-Message-ID: <20050815153541.GA4731@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050812201946.GA5327@in.ibm.com> <200508140053.21056.kernel@kolivas.org> <20050813164618.GA4659@in.ibm.com> <200508141018.29668.kernel@kolivas.org>
+	Mon, 15 Aug 2005 12:17:39 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:3089 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S964807AbVHOQRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 12:17:38 -0400
+Date: Mon, 15 Aug 2005 17:55:05 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: mustang4@free.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Hang or stop after uncompressing MPC8245
+Message-ID: <20050815155505.GF20363@alpha.home.local>
+References: <1124122213.4300be659dc89@imp5-q.free.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200508141018.29668.kernel@kolivas.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1124122213.4300be659dc89@imp5-q.free.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 14, 2005 at 10:18:28AM +1000, Con Kolivas wrote:
-> timers that made no progress until interrupts drove the timers on again. I 
-> built in both PIT and APIC dyntick mode into the kernel and the default in 
-> the way I modified the patch is for APIC mode to be used if it's built in. 
-> After that I modified the values using the sysfs interface at
-> /sys/devices/system/dyn_tick/dyn_tick0/. In APIC mode it seems to run close to 
+Hello,
 
-Con,
-	I am observing the reverse problem - my patch does not work in APIC
-mode. I am thinking it has to do something with disabling PIT interrupts.
+On Mon, Aug 15, 2005 at 06:10:13PM +0200, mustang4@free.fr wrote:
+> 
+> Hello,
+> 
+> I try to boot my linux kernel (with 2.4 or 2.6 it's the same problem) on an
+> embeded board (EM04N MenMicro) base on a MPC8245 cpu...
+> 
+> When i boot i 've;
+> 
+> > Detected PPCBOOT header
+> >     Verifying image CRC...ok
+> >     Uncompressing Multi-File Image ... ok
+> >     Moving initrd...ok
+> >     Passing Kernel parameters: root=ramfs console=ttyS0,9600
+> >     Starting Linux Kernel.
+> >
+> and stop here... i must hard reset the board...
+> 
+> Anyone boot a linux kernel on this board ?
+> I heard about UART serial port problem with MPC8245 cpu, but i don't find a
+> working solution for patching kernel or setting up correctly...
 
-Have you enabled CONFIG_DYN_TICK_USE_APIC in my patch? What does
-/sys/.../dyn_tick0/state show when my patch is working (in APIC mode for you)?
-Can you disable CONFIG_DYN_TICK_USE_APIC with my patch and check if it
-works? Also can you send me 'dmesg | grep APIC' (want to know if your
-hardware has local APIC that is enabled by the kernel).
+Although I don't know this board, here are a few questions :
+  - are you sure that you enabled the correct serial driver and that it is
+    linked to the zImage and not build as a module ?
+  - are you sure that you enabled "console on serial port" in the config ?
+  - how can you be certain that the serial will appear on ttyS0 and not ttyS1
+    or another one (the kernel might detect another serial port which it
+    assigns ttyS0)
+  - is it possible that you have trouble with the endianness of the image ?
+    example: little endian image loaded on big endian CPU ?
 
+Regards,
+Willy
 
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+> Anyone can help me ?
+> 
+> I use :
+> ELDK kit cross compilation for PPC8245
+> uBoot
+> and official last kernel source...
+> 
+> Thanks
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

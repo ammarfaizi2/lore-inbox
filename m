@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbVHOBQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbVHOBh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932619AbVHOBQb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 21:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbVHOBQb
+	id S932624AbVHOBh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 21:37:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbVHOBh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 21:16:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5535 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932619AbVHOBQa (ORCPT
+	Sun, 14 Aug 2005 21:37:58 -0400
+Received: from fsmlabs.com ([168.103.115.128]:6309 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932624AbVHOBh5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 21:16:30 -0400
-Date: Sun, 14 Aug 2005 18:16:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.6.13-rc6] Fix kmem read on 32-bit archs
-In-Reply-To: <200508141639_MC3-1-A731-592C@compuserve.com>
-Message-ID: <Pine.LNX.4.58.0508141803590.3553@g5.osdl.org>
-References: <200508141639_MC3-1-A731-592C@compuserve.com>
+	Sun, 14 Aug 2005 21:37:57 -0400
+Date: Sun, 14 Aug 2005 19:43:46 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+cc: Con Kolivas <kernel@kolivas.org>, Jim MacBaine <jmacbaine@gmail.com>,
+       linux-kernel@vger.kernel.org, ck@vds.kolivas.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com
+Subject: Re: [PATCH] i386 No-Idle-Hz aka Dynamic-Ticks 3
+In-Reply-To: <20050814194756.GC1686@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0508141942480.6740@montezuma.fsmlabs.com>
+References: <200508031559.24704.kernel@kolivas.org> <200508040716.24346.kernel@kolivas.org>
+ <3afbacad050803152226016790@mail.gmail.com> <200508040852.10224.kernel@kolivas.org>
+ <20050814194756.GC1686@openzaurus.ucw.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 14 Aug 2005, Pavel Machek wrote:
 
-
-On Sun, 14 Aug 2005, Chuck Ebbert wrote:
+> > Ok perhaps on the resume side instead. When trying to resume can you try 
+> > booting with 'dyntick=disable'. Note this isn't meant to be a long term fix 
+> > but once we figure out where the problem is we should be able to code around 
+> > it.
 > 
->   GCC warns about using llseek and suggests lseek64 instead. That works
-> for me, but up till 2.6.11 plain lseek worked too.  I guess it really
-> shouldn't have?
+> Can you reproduce it using plain swsusp?
+> 
+> We probably need more carefull suspend/resume support on timer with dyntick
+> enabled.
+> 
+> With vanilla, timer just ticks on constant rate; no state to save.
+> With dyntick, however...
 
-Well, we have had various special-cases for /dev/[k]mem to try to make it 
-work even with 32-bit lseek in the past (or with 64-bit lseek on archs 
-that need the high bit set). So I wouldn't say "shouldn't have" - I'd love 
-it if it worked, but my ove for it working is somewhat tempered by the 
-need for it not screwing up everything else in the kernel ;)
-
-Now, it's entirely possible that we shoul djust make "sys_lseek()" work
-differently: right now it _always_ sign-extends its offset from "off_t" to
-"loff_t", but the thing is, for a SEEK_SET, it probably makes more sense
-to zero-extend it (since a negative SEEK_SET just doesn't make any sense).
-
-So a hacky alternative might be something like the appended, but I have to 
-admit that it's pretty damn hacky even if it makes sense at some level..
-
-Oh, btw, this will cause it to still return EOVERFLOW, you'd need to also 
-change that error return logic.
-
-		Linus
-
------
-diff --git a/fs/read_write.c b/fs/read_write.c
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -137,7 +137,11 @@ asmlinkage off_t sys_lseek(unsigned int 
- 
- 	retval = -EINVAL;
- 	if (origin <= 2) {
--		loff_t res = vfs_llseek(file, offset, origin);
-+		/* SEEK_SET zero-extends, others sign-extend */
-+		loff_t res = offset;
-+		if (!origin)
-+			res = (unsigned long)offset;
-+		res = vfs_llseek(file, res, origin);
- 		retval = res;
- 		if (res != (loff_t)retval)
- 			retval = -EOVERFLOW;	/* LFS: should only happen on 32 bit platforms */
+Why not just set it to a fixed frequency, suspend and then on boot resume 
+to a fixed frequency and let the timer tick code eventually switch back.

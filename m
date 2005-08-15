@@ -1,106 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVHOIGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbVHOIPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbVHOIGx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 04:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbVHOIGx
+	id S932218AbVHOIPW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 04:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbVHOIPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 04:06:53 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:60388 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S932192AbVHOIGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 04:06:52 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Adrian Bunk <bunk@stusta.de>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       Andrew Morton <akpm@osdl.org>
+	Mon, 15 Aug 2005 04:15:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42374 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932218AbVHOIPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 04:15:22 -0400
 Subject: Re: [-mm patch] make kcalloc() a static inline
-Date: Mon, 15 Aug 2005 11:06:05 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
+From: Arjan van de Ven <arjan@infradead.org>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Adrian Bunk <bunk@stusta.de>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200508151106.05973.vda@ilport.com.ua>
 References: <20050808223842.GM4006@stusta.de>
-In-Reply-To: <20050808223842.GM4006@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	 <200508151106.05973.vda@ilport.com.ua>
+Content-Type: text/plain
+Date: Mon, 15 Aug 2005 10:14:20 +0200
+Message-Id: <1124093660.3228.14.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508151106.05973.vda@ilport.com.ua>
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 August 2005 01:38, Adrian Bunk wrote:
-> kcalloc() doesn't do much more than calling kzalloc(), and gcc has 
-> better optimizing opportunities when it's inlined.
-> 
-> The result of this patch with a fulll kernel compile (roughly equivalent 
-> to "make allyesconfig") shows a minimal size improvement:
-> 
->     text           data     bss     dec             hex filename
-> 25864955        5891214 2012840 33769009        2034631 vmlinux-before
-> 25864635        5891206 2012840 33768681        20344e9 vmlinux-staticinline
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  include/linux/slab.h |   15 ++++++++++++++-
->  mm/slab.c            |   14 --------------
->  2 files changed, 14 insertions(+), 15 deletions(-)
-> 
-> --- linux-2.6.13-rc5-mm1-full/include/linux/slab.h.old	2005-08-08 12:28:32.000000000 +0200
-> +++ linux-2.6.13-rc5-mm1-full/include/linux/slab.h	2005-08-08 12:29:59.000000000 +0200
-> @@ -103,8 +103,21 @@
->  	return __kmalloc(size, flags);
->  }
->  
-> -extern void *kcalloc(size_t, size_t, unsigned int __nocast);
->  extern void *kzalloc(size_t, unsigned int __nocast);
-> +
-> +/**
-> + * kcalloc - allocate memory for an array. The memory is set to zero.
-> + * @n: number of elements.
-> + * @size: element size.
-> + * @flags: the type of memory to allocate.
-> + */
-> +static inline void *kcalloc(size_t n, size_t size, unsigned int __nocast flags)
-> +{
-> +	if (n != 0 && size > INT_MAX / n)
-> +		return NULL;
-> +	return kzalloc(n * size, flags);
-> +}
-> +
->  extern void kfree(const void *);
->  extern unsigned int ksize(const void *);
->  
-> --- linux-2.6.13-rc5-mm1-full/mm/slab.c.old	2005-08-08 12:29:26.000000000 +0200
-> +++ linux-2.6.13-rc5-mm1-full/mm/slab.c	2005-08-08 12:29:53.000000000 +0200
-> @@ -3028,20 +3028,6 @@
->  EXPORT_SYMBOL(kzalloc);
->  
->  /**
-> - * kcalloc - allocate memory for an array. The memory is set to zero.
-> - * @n: number of elements.
-> - * @size: element size.
-> - * @flags: the type of memory to allocate.
-> - */
-> -void *kcalloc(size_t n, size_t size, unsigned int __nocast flags)
-> -{
-> -	if (n != 0 && size > INT_MAX / n)
-> -		return NULL;
-> -	return kzalloc(n * size, flags);
-> -}
-> -EXPORT_SYMBOL(kcalloc);
-> -
-> -/**
->   * kfree - free previously allocated memory
->   * @objp: pointer returned by kmalloc.
->   *
+On Mon, 2005-08-15 at 11:06 +0300, Denis Vlasenko wrote:
 
-Can you conditionalize it on __builtin_constant_p(n) ?
-Otherwise with variable n you have 3 oprations in inlined
-code, one of them a division.
+> > +static inline void *kcalloc(size_t n, size_t size, unsigned int __nocast flags)
+> > +{
+> > +	if (n != 0 && size > INT_MAX / n)
+> > +		return NULL;
+> > +	return kzalloc(n * size, flags);
+> > +}
 
-I bet you'll save even more space with such change.
---
-vda
+> Can you conditionalize it on __builtin_constant_p(n) ?
+> Otherwise with variable n you have 3 oprations in inlined
+> code, one of them a division.
+
+you can't conditionalize the security check really. If it's constant,
+gcc will optimize it anyway, and if it's not constant you for sure want
+the check there...
+
 

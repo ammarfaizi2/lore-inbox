@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVHOVTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbVHOVUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbVHOVTo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 17:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbVHOVTo
+	id S964975AbVHOVUk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 17:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVHOVUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 17:19:44 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.17]:63768 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S964954AbVHOVTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 17:19:43 -0400
-Subject: [PATCH] 2.6.13-rc6-git[67] UML compile fix
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 15 Aug 2005 23:19:41 +0200
-Message-Id: <1124140781.15180.17.camel@twins>
+	Mon, 15 Aug 2005 17:20:40 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:44772 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S964968AbVHOVUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 17:20:39 -0400
+Date: Mon, 15 Aug 2005 16:20:14 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: marcelo.tosatti@cyclades.com, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH 2/4] cciss 2.4: adds BLKSSZGET ioctl for Oracle
+Message-ID: <20050815212014.GC12760@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff, Andrew,
+Patch 2/4
+This patch adds the BLKSSZGET ioctl for Oracle. Please consider this for 
+inclusion.
 
-A small patch to make UML build on recent kernels. Still in time for 2.6.13 ?
+Signed-off-by: Mike Miller <mike.miller@hp.com>
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-
---- linux-2.6.13-rc6-git7/include/asm-um/page.h~  2005-08-15 21:19:47.000000000 +0200
-+++ linux-2.6.13-rc6-git7/include/asm-um/page.h   2005-08-15 23:15:05.000000000 +0200
-@@ -104,8 +104,8 @@
-  * casting is the right thing, but 32-bit UML can't have 64-bit virtual
-  * addresses
-  */
--#define __pa(virt) to_phys((void *) (unsigned long) virt)
--#define __va(phys) to_virt((unsigned long) phys)
-+#define __pa(virt) to_phys((void *) (unsigned long) (virt))
-+#define __va(phys) to_virt((unsigned long) (phys))
-
- #define page_to_pfn(page) ((page) - mem_map)
- #define pfn_to_page(pfn) (mem_map + (pfn))
-
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
-
+ cciss.c |    1 +
+ 1 files changed, 1 insertion(+)
+--------------------------------------------------------------------------------
+diff -burNp lx2431-p001/drivers/block/cciss.c lx2431/drivers/block/cciss.c
+--- lx2431-p001/drivers/block/cciss.c	2005-08-15 14:43:50.375342000 -0500
++++ lx2431/drivers/block/cciss.c	2005-08-15 15:13:15.484004696 -0500
+@@ -747,6 +747,7 @@ static int cciss_ioctl(struct inode *ino
+ 	case BLKPG:
+ 	case BLKELVGET:
+ 	case BLKELVSET:
++	case BLKSSZGET:
+ 		return blk_ioctl(inode->i_rdev, cmd, arg);
+ 	case CCISS_GETPCIINFO:
+ 	{

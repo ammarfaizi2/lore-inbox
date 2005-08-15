@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVHOGQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbVHOGWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVHOGQx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 02:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVHOGQx
+	id S932097AbVHOGWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 02:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbVHOGWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 02:16:53 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47027 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932092AbVHOGQw (ORCPT
+	Mon, 15 Aug 2005 02:22:25 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:13960 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932097AbVHOGWZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 02:16:52 -0400
-Date: Mon, 15 Aug 2005 08:16:46 +0200
-From: Olaf Hering <olh@suse.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       ak@suse.de, Jeff Moyer <jmoyer@redhat.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, john.ronciak@intel.com,
-       rostedt@goodmis.org
-Subject: Re: [PATCH 0/8] netpoll: various bugfixes
-Message-ID: <20050815061646.GA20762@suse.de>
-References: <1.502409567@selenic.com> <20050812172151.GA11104@suse.de> <20050812192152.GJ12284@waste.org> <20050812193109.GA15434@suse.de> <20050814210010.GU12284@waste.org>
+	Mon, 15 Aug 2005 02:22:25 -0400
+Date: Mon, 15 Aug 2005 08:23:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Chuck Harding <charding@llnl.gov>
+Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel0 n0 build0 B-) RT-V0.7.53-06
+Message-ID: <20050815062314.GA5583@elte.hu>
+References: <Pine.LNX.4.63.0508121011040.22346@ghostwheel.llnl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050814210010.GU12284@waste.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <Pine.LNX.4.63.0508121011040.22346@ghostwheel.llnl.gov>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=disabled SpamAssassin version=3.0.4
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Aug 14, Matt Mackall wrote:
 
-> On Fri, Aug 12, 2005 at 09:31:09PM +0200, Olaf Hering wrote:
-> >  On Fri, Aug 12, Matt Mackall wrote:
-> > 
-> > > Does the task dump work without patch 5/8 (add retry timeout)? I'll
-> > > try testing it here.
-> > 
-> > I spoke to soon, worked once, after reboot not anymore. Will try to play
-> > with individual patches. Does the task dump work for you, at least?
+* Chuck Harding <charding@llnl.gov> wrote:
+
+>   CC      drivers/ide/ide-taskfile.o
+> drivers/ide/ide-taskfile.c: In function `ide_pio_sector':
+> drivers/ide/ide-taskfile.c:282: error: `flags' undeclared (first use in 
+> this function)
+> drivers/ide/ide-taskfile.c:282: error: (Each undeclared identifier is 
+> reported only once
+> drivers/ide/ide-taskfile.c:282: error: for each function it appears in.)
+> make[2]: *** [drivers/ide/ide-taskfile.o] Error 1
+> make[1]: *** [drivers/ide] Error 2
+> make: *** [drivers] Error 2
 > 
-> Works flawlessly on e1000. Works on tg3 with serial console, but seems
-> to cause trouble without. Haven't had time to dig deeper yet.
+> It needs this patch to fix:
 
-Can you send me your .config off-list?
-I'm using
-ftp.suse.com/pub/projects/kernel/kotd/i386/HEAD/kernel-smp.i586.rpm
+thanks. I solved it a bit differently, by reverting this original change 
+around the flags:
 
-will check if that nmi_watchdog thing shows anything.
+> -#ifdef CONFIG_HIGHMEM
+> +#if defined(CONFIG_HIGHMEM) && !defined(CONFIG_PREEMPT_RT)
+
+	Ingo

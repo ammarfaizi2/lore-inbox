@@ -1,55 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVHOHxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVHOIGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbVHOHxm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 03:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbVHOHxm
+	id S932192AbVHOIGx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 04:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbVHOIGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 03:53:42 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:26803 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932165AbVHOHxl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 03:53:41 -0400
-Message-ID: <43004BCF.7080606@aitel.hist.no>
-Date: Mon, 15 Aug 2005 10:01:19 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Mon, 15 Aug 2005 04:06:53 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:60388 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S932192AbVHOIGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 04:06:52 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Adrian Bunk <bunk@stusta.de>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [-mm patch] make kcalloc() a static inline
+Date: Mon, 15 Aug 2005 11:06:05 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <20050808223842.GM4006@stusta.de>
+In-Reply-To: <20050808223842.GM4006@stusta.de>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Stephen Pollei <stephen.pollei@gmail.com>,
-       =?UTF-8?B?IlwiTWFydGluIHYu?= =?UTF-8?B?XCIgTMO2d2lzIg==?= 
-	<martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-References: <42FDE286.40707@v.loewis.de>	 <feed8cdd0508130935622387db@mail.gmail.com> <1123958572.11295.7.camel@mindpipe>
-In-Reply-To: <1123958572.11295.7.camel@mindpipe>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508151106.05973.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-
->On Sat, 2005-08-13 at 09:35 -0700, Stephen Pollei wrote:
+On Tuesday 09 August 2005 01:38, Adrian Bunk wrote:
+> kcalloc() doesn't do much more than calling kzalloc(), and gcc has 
+> better optimizing opportunities when it's inlined.
+> 
+> The result of this patch with a fulll kernel compile (roughly equivalent 
+> to "make allyesconfig") shows a minimal size improvement:
+> 
+>     text           data     bss     dec             hex filename
+> 25864955        5891214 2012840 33769009        2034631 vmlinux-before
+> 25864635        5891206 2012840 33768681        20344e9 vmlinux-staticinline
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  include/linux/slab.h |   15 ++++++++++++++-
+>  mm/slab.c            |   14 --------------
+>  2 files changed, 14 insertions(+), 15 deletions(-)
+> 
+> --- linux-2.6.13-rc5-mm1-full/include/linux/slab.h.old	2005-08-08 12:28:32.000000000 +0200
+> +++ linux-2.6.13-rc5-mm1-full/include/linux/slab.h	2005-08-08 12:29:59.000000000 +0200
+> @@ -103,8 +103,21 @@
+>  	return __kmalloc(size, flags);
+>  }
 >  
->
->>Thats great for the perl6 people.
->>http://dev.perl.org/perl6/doc/design/syn/S03.html says they are going
->>to be using « and » as operators...
->>    
->>
->
->Is Larry smoking crack?  That's one of the worst ideas I've heard in a
->long time.  There's no easy way to enter those at the keyboard!
+> -extern void *kcalloc(size_t, size_t, unsigned int __nocast);
+>  extern void *kzalloc(size_t, unsigned int __nocast);
+> +
+> +/**
+> + * kcalloc - allocate memory for an array. The memory is set to zero.
+> + * @n: number of elements.
+> + * @size: element size.
+> + * @flags: the type of memory to allocate.
+> + */
+> +static inline void *kcalloc(size_t n, size_t size, unsigned int __nocast flags)
+> +{
+> +	if (n != 0 && size > INT_MAX / n)
+> +		return NULL;
+> +	return kzalloc(n * size, flags);
+> +}
+> +
+>  extern void kfree(const void *);
+>  extern unsigned int ksize(const void *);
 >  
->
-On your keyboard, that is.  So what?
+> --- linux-2.6.13-rc5-mm1-full/mm/slab.c.old	2005-08-08 12:29:26.000000000 +0200
+> +++ linux-2.6.13-rc5-mm1-full/mm/slab.c	2005-08-08 12:29:53.000000000 +0200
+> @@ -3028,20 +3028,6 @@
+>  EXPORT_SYMBOL(kzalloc);
+>  
+>  /**
+> - * kcalloc - allocate memory for an array. The memory is set to zero.
+> - * @n: number of elements.
+> - * @size: element size.
+> - * @flags: the type of memory to allocate.
+> - */
+> -void *kcalloc(size_t n, size_t size, unsigned int __nocast flags)
+> -{
+> -	if (n != 0 && size > INT_MAX / n)
+> -		return NULL;
+> -	return kzalloc(n * size, flags);
+> -}
+> -EXPORT_SYMBOL(kcalloc);
+> -
+> -/**
+>   * kfree - free previously allocated memory
+>   * @objp: pointer returned by kmalloc.
+>   *
 
-My keyboard happen to have no easy way of entering a dollar sign,
-even though it is in «ascii».  That makes sense though, as it is one
-of those ascii characters that is almost never used in my part of the world.
+Can you conditionalize it on __builtin_constant_p(n) ?
+Otherwise with variable n you have 3 oprations in inlined
+code, one of them a division.
 
-Still, if I needed to use the «$» when programming, I sure could map it to
-some key combination.  X is nice that way. 
+I bet you'll save even more space with such change.
+--
+vda
 
-Helge Hafting

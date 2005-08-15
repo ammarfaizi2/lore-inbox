@@ -1,113 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbVHOQ4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVHORAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964842AbVHOQ4o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 12:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVHOQ4o
+	id S964845AbVHORAW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 13:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbVHORAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 12:56:44 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:13263 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S964842AbVHOQ4o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 12:56:44 -0400
-Message-ID: <1124125002.4300c94a31810@imp5-q.free.fr>
-Date: Mon, 15 Aug 2005 18:56:42 +0200
-From: mustang4@free.fr
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Hang or stop after uncompressing MPC8245
-References: <1124122213.4300be659dc89@imp5-q.free.fr> <20050815155505.GF20363@alpha.home.local>
-In-Reply-To: <20050815155505.GF20363@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 57.250.252.246
+	Mon, 15 Aug 2005 13:00:22 -0400
+Received: from mail.autoweb.net ([198.172.237.26]:64641 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S964845AbVHORAV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 13:00:21 -0400
+Date: Mon, 15 Aug 2005 13:00:16 -0400
+From: Ryan Anderson <ryan@michonline.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Airlie <airlied@gmail.com>, akpm@osdl.org
+Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works fine.
+Message-ID: <20050815170016.GH7001@mythryan2.michonline.com>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com> <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no> <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org> <43008C9C.60806@aitel.hist.no> <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 15, 2005 at 08:50:12AM -0700, Linus Torvalds wrote:
+> > Is there any way to make git tell exactly where between rc4 and rc5
+> > each kernel is, so I can name the bzimages accordingly?
+> 
+> You'd have to use the raw commit names, since these things don't have any 
+> symbolic names. You can get that by just doing
+> 
+> 	cat .git/HEAD
+> 
+> which will give you a 40-character hex string (representing the 160-bit 
+> SHA1 of the top commit). Not very readable, but it's unique, and if you 
+> report that hex string to other git users, they can trivially recreate the 
+> tree you have.
 
-> Hello,
->
-> On Mon, Aug 15, 2005 at 06:10:13PM +0200, mustang4@free.fr wrote:
-> >
-> > Hello,
-> >
-> > I try to boot my linux kernel (with 2.4 or 2.6 it's the same problem) on an
-> > embeded board (EM04N MenMicro) base on a MPC8245 cpu...
-> >
-> > When i boot i 've;
-> >
-> > > Detected PPCBOOT header
-> > >     Verifying image CRC...ok
-> > >     Uncompressing Multi-File Image ... ok
-> > >     Moving initrd...ok
-> > >     Passing Kernel parameters: root=ramfs console=ttyS0,9600
-> > >     Starting Linux Kernel.
-> > >
-> > and stop here... i must hard reset the board...
-> >
-> > Anyone boot a linux kernel on this board ?
-> > I heard about UART serial port problem with MPC8245 cpu, but i don't find a
-> > working solution for patching kernel or setting up correctly...
->
-> Although I don't know this board, here are a few questions :
->   - are you sure that you enabled the correct serial driver and that it is
->     linked to the zImage and not build as a module ?
+The following patch (which Sam has in the kbuild tree for 2.6.14, IIRC)
+will make that automatic, or you can just do:
 
-I enable and build my kernel with driver (staticly):
+	ln -s .git/HEAD localversion-git
 
-Multi-IO cards (parallel and serial) (in Device Drivers-> Parallel port support 
-)
+(My patch will notice when you are at a tag and not append anything
+special in thaat case.)
 
-This is what my board say (in console mode) about serial address:
-0x08 COM1             DUART8245    0xfc004500 0x07a12000 0x00000001 0x01effc70
-0x09 COM2             DUART8245    0xfc004600 0x07a12000 0x00000001 0x01e107d0
+Index: linux-git/Makefile
+===================================================================
+--- linux-git.orig/Makefile	2005-07-31 04:30:00.000000000 -0400
++++ linux-git/Makefile	2005-07-31 04:32:16.000000000 -0400
+@@ -551,6 +551,26 @@ export KBUILD_IMAGE ?= vmlinux
+ # images. Default is /boot, but you can set it to other values
+ export	INSTALL_PATH ?= /boot
+ 
++# If CONFIG_LOCALVERSION_AUTO is set, we automatically perform some tests
++# and try to determine if the current source tree is a release tree, of any sort,
++# or if is a pure development tree.
++#
++# A 'release tree' is any tree with a git TAG associated
++# with it.  The primary goal of this is to make it safe for a native
++# git/CVS/SVN user to build a release tree (i.e, 2.6.9) and also to
++# continue developing against the current Linus tree, without having the Linus
++# tree overwrite the 2.6.9 tree when installed.
++#
++# Currently, only git is supported.
++# Other SCMs can edit scripts/setlocalversion and add the appropriate
++# checks as needed.
++
++
++ifdef CONFIG_LOCALVERSION_AUTO
++	localversion-auto := $(shell $(PERL) $(srctree)/scripts/setlocalversion $(srctree))
++	LOCALVERSION := $(LOCALVERSION)$(localversion-auto)
++endif
++
+ #
+ # INSTALL_MOD_PATH specifies a prefix to MODLIB for module directory
+ # relocations required by build roots.  This is not defined in the
+Index: linux-git/init/Kconfig
+===================================================================
+--- linux-git.orig/init/Kconfig	2005-07-31 04:30:00.000000000 -0400
++++ linux-git/init/Kconfig	2005-07-31 04:32:16.000000000 -0400
+@@ -77,6 +77,22 @@ config LOCALVERSION
+ 	  object and source tree, in that order.  Your total string can
+ 	  be a maximum of 64 characters.
+ 
++config LOCALVERSION_AUTO
++	bool "Automatically append version information to the version string"
++	default y
++	help
++	  This will try to automatically determine if the current tree is a
++	  release tree by looking for git tags that
++	  belong to the current top of tree revision.
++
++	  A string of the format -gxxxxxxxx will be added to the localversion
++	  if a git based tree is found.  The string generated by this will be
++	  appended after any matching localversion* files, and after the value
++	  set in CONFIG_LOCALVERSION
++
++	  Note: This requires Perl, and a git repository, but not necessarily
++	  the git or cogito tools to be installed.
++
+ config SWAP
+ 	bool "Support for paging of anonymous memory (swap)"
+ 	depends on MMU
+Index: linux-git/scripts/setlocalversion
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-git/scripts/setlocalversion	2005-07-31 04:32:16.000000000 -0400
+@@ -0,0 +1,56 @@
++#!/usr/bin/perl
++# Copyright 2004 - Ryan Anderson <ryan@michonline.com>  GPL v2
++
++use strict;
++use warnings;
++use Digest::MD5;
++require 5.006;
++
++if (@ARGV != 1) {
++	print <<EOT;
++Usage: setlocalversion <srctree>
++EOT
++	exit(1);
++}
++
++my ($srctree) = @ARGV;
++chdir($srctree);
++
++my @LOCALVERSIONS = ();
++
++# We are going to use the following commands to try and determine if this
++# repository is at a Version boundary (i.e, 2.6.10 vs 2.6.10 + some patches) We
++# currently assume that all meaningful version boundaries are marked by a tag.
++# We don't care what the tag is, just that something exists.
++
++# Git/Cogito store the top-of-tree "commit" in .git/HEAD
++# A list of known tags sits in .git/refs/tags/
++#
++# The simple trick here is to just compare the two of these, and if we get a
++# match, return nothing, otherwise, return a subset of the SHA-1 hash in
++# .git/HEAD
++
++sub do_git_checks {
++	open(H,"<.git/HEAD") or return;
++	my $head = <H>;
++	chomp $head;
++	close(H);
++
++	opendir(D,".git/refs/tags") or return;
++	foreach my $tagfile (grep !/^\.{1,2}$/, readdir(D)) {
++		open(F,"<.git/refs/tags/" . $tagfile) or return;
++		my $tag = <F>;
++		chomp $tag;
++		close(F);
++		return if ($tag eq $head);
++	}
++	closedir(D);
++
++	push @LOCALVERSIONS, "g" . substr($head,0,8);
++}
++
++if ( -d ".git") {
++	do_git_checks();
++}
++
++printf "-%s\n", join("-",@LOCALVERSIONS) if (scalar @LOCALVERSIONS > 0);
 
 
->   - are you sure that you enabled "console on serial port" in the config ?
-Yes, i enable " Support for console on virtual terminal" but i enable
-"Non-standard serial port support" option too...
-So i recompile without the last one... and i recompile "with Serial drivers
---->" "[*]   Console on 8250/16550 and compatible serial port" perhaps it's
-that... And i came back to you.
-But, perhaps i've allready tested... i ll check.. it's not a default option ?
-
->   - how can you be certain that the serial will appear on ttyS0 and not ttyS1
->     or another one (the kernel might detect another serial port which it
->     assigns ttyS0)
-I pass parameter directly to the kernel;
-
-Another option i set :
- Default bootloader kernel arguments  x x  x x(console=ttyS0,9600 console=tty0
 
 
-Thanks
+-- 
 
-Yann.
-
->   - is it possible that you have trouble with the endianness of the image ?
->     example: little endian image loaded on big endian CPU ?
-
-My image seems to be ok...
-
->
-> Regards,
-> Willy
->
-> > Anyone can help me ?
-> >
-> > I use :
-> > ELDK kit cross compilation for PPC8245
-> > uBoot
-> > and official last kernel source...
-> >
-> > Thanks
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+Ryan Anderson
+  sometimes Pug Majere

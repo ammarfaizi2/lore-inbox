@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbVHOJeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVHOJka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbVHOJeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 05:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbVHOJeJ
+	id S932378AbVHOJka (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 05:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVHOJka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 05:34:09 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:42148 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S932358AbVHOJeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 05:34:08 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Subject: Re: [-mm patch] make kcalloc() a static inline
-Date: Mon, 15 Aug 2005 12:33:46 +0300
-User-Agent: KMail/1.5.4
-Cc: Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050808223842.GM4006@stusta.de> <200508151120.46186.vda@ilport.com.ua> <Pine.LNX.4.58.0508151126570.26955@sbz-30.cs.Helsinki.FI>
-In-Reply-To: <Pine.LNX.4.58.0508151126570.26955@sbz-30.cs.Helsinki.FI>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Aug 2005 05:40:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51466 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932378AbVHOJk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 05:40:29 -0400
+Date: Mon, 15 Aug 2005 10:40:22 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: blaisorblade@yahoo.it
+Cc: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, mingo@elte.hu
+Subject: Re: [patch 18/39] remap_file_pages protection support: add VM_FAULT_SIGSEGV
+Message-ID: <20050815104022.D19811@flint.arm.linux.org.uk>
+Mail-Followup-To: blaisorblade@yahoo.it, akpm@osdl.org, jdike@addtoit.com,
+	linux-kernel@vger.kernel.org,
+	user-mode-linux-devel@lists.sourceforge.net, mingo@elte.hu
+References: <20050812182145.DF52E24E7F3@zion.home.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508151233.46523.vda@ilport.com.ua>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050812182145.DF52E24E7F3@zion.home.lan>; from blaisorblade@yahoo.it on Fri, Aug 12, 2005 at 08:21:45PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > static inline void *kcalloc(size_t n, size_t size, unsigned int __nocast flags)
-> > {
-> > 	if (__builtin_constant_p(n)) {
-> > 		if (n != 0 && size > INT_MAX / n)
-> > 			return NULL;
-> > 		return kzalloc(n * size, flags);
-> > 	}
-> > 	return kcalloc_helper(n, size, flags);
-> > }
-> > 
-> > void *kcalloc_helper(size_t n, size_t size, unsigned int __nocast flags)
-> > {
-> > 	if (n != 0 && size > INT_MAX / n)
-> > 		return NULL;
-> > 	return kzalloc(n * size, flags);
-> > }
-> 
-> That's extra complexity and code duplication. How much do we shave off 
-> kernel text of allyesconfig with this?
-> 
-> Please note that whenever the caller does proper bounds checking, GCC can 
-> optimize the security check away. Therefore, in practice, we don't spread 
-> around the extra operations so much, I think.
+On Fri, Aug 12, 2005 at 08:21:45PM +0200, blaisorblade@yahoo.it wrote:
+> @@ -632,10 +632,11 @@ static inline int page_mapped(struct pag
+>   * Used to decide whether a process gets delivered SIGBUS or
+>   * just gets major/minor fault counters bumped up.
+>   */
+> -#define VM_FAULT_OOM	(-1)
+> -#define VM_FAULT_SIGBUS	0
+> -#define VM_FAULT_MINOR	1
+> -#define VM_FAULT_MAJOR	2
+> +#define VM_FAULT_OOM		(-1)
+> +#define VM_FAULT_SIGBUS		0
+> +#define VM_FAULT_MINOR		1
+> +#define VM_FAULT_MAJOR		2
+> +#define VM_FAULT_SIGSEGV	3
+>  
+>  #define offset_in_page(p)	((unsigned long)(p) & ~PAGE_MASK)
+>  
 
-gcc can optimize that away with non-const n?! I don't think so.
---
-vda
+Please arrange for "success" values to be numerically larger than "failure"
+values.  This will avoid breaking ARM.
 
+Is there a reason why we don't use -ve numbers for failure and +ve for
+success here?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

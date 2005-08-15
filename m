@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbVHOSkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbVHOSng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbVHOSkX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 14:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbVHOSkX
+	id S964871AbVHOSng (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 14:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbVHOSng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 14:40:23 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:13696 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964874AbVHOSkW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 14:40:22 -0400
-Date: Mon, 15 Aug 2005 11:40:13 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: xfs-masters@oss.sgi.com, sfrench@samba.org, sct@redhat.com,
-       okir@monad.swb.de.sgi.com, trond.myklebust@fys.uio.no,
-       reiserfs-dev@namesys.com, urban@teststation.com, nathans@sgi.com,
-       akpm@osdl.org, samba-technical@lists.samba.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-       samba@samba.org, linux-xfs@oss.sgi.com
-Subject: Re: [xfs-masters] [-mm PATCH 2/32] fs: fix-up schedule_timeout() usage
-Message-ID: <20050815184013.GJ2854@us.ibm.com>
-References: <20050815180514.GC2854@us.ibm.com> <20050815180804.GE2854@us.ibm.com> <20050815181752.GA23701@lst.de>
+	Mon, 15 Aug 2005 14:43:36 -0400
+Received: from mirapoint2.brutele.be ([212.68.199.149]:24137 "EHLO
+	mirapoint2.brutele.be") by vger.kernel.org with ESMTP
+	id S964871AbVHOSnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 14:43:35 -0400
+Date: Mon, 15 Aug 2005 20:43:06 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Stephane Wirtel <stephane.wirtel@belgacom.net>,
+       linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [USB-Storage : i386] Oops with an adaptor for laptop hard disk.
+Message-ID: <20050815184306.GB6286@localhost.localdomain>
+References: <20050815102925.GA843@localhost.localdomain> <20050815110836.GA16201@mipter.zuzino.mipt.ru> <20050815112122.GB6451@localhost.localdomain> <20050815162437.GA10114@kroah.com> <20050815182947.GA6286@localhost.localdomain> <29495f1d05081511374d1f2fc7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20050815181752.GA23701@lst.de>
-X-Operating-System: Linux 2.6.12 (i686)
+In-Reply-To: <29495f1d05081511374d1f2fc7@mail.gmail.com>
+X-Operating-System: Linux debian 2.6.12-1-k7
 User-Agent: Mutt/1.5.9i
+X-Junkmail-Status: score=10/50, host=mirapoint2.brutele.be
+X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090202.4300DFA7.0056-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
+	=?ISO-8859-1?Q?p=3D=C0=F5=08=08?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15.08.2005 [20:17:52 +0200], Christoph Hellwig wrote:
-> On Mon, Aug 15, 2005 at 11:08:04AM -0700, Nishanth Aravamudan wrote:
-> > Description: Use schedule_timeout_{,un}interruptible() instead of
-> > set_current_state()/schedule_timeout() to reduce kernel size. Also use
-> > helper functions to convert between human time units and jiffies rather
-> > than constant HZ division to avoid rounding errors.
+Le Monday 15 August 2005 a 11:08, Nish Aravamudan ecrivait: 
+> On 8/15/05, Stephane Wirtel <stephane.wirtel@belgacom.net> wrote:
+> > Le Monday 15 August 2005 a 09:08, Greg KH ecrivait:
+> > > On Mon, Aug 15, 2005 at 01:21:22PM +0200, Stephane Wirtel wrote:
+> > > > Le Monday 15 August 2005 a 15:08, Alexey Dobriyan ecrivait:
+> > > > > On Mon, Aug 15, 2005 at 12:29:25PM +0200, Stephane Wirtel wrote:
+> > > > > > With a laptop hard disk adaptop to usb, I do a modprobe with the
+> > > > > > usb-storage module. If I disconnect my hard disk, I get an oops.
+> > > > >
+> > > > > > nvidia 3711688 14 - Live 0xe10f1000
+> > > > >
+> > > > > > EIP:    0060:[<c019710b>]    Tainted: P      VLI
+> > > > >
+> > > > > Is it reproducable without nvidia module loaded?
+> > > > Yes :(
+> > >
+> > > Can you do so with 2.6.13-rc6 and without the nvidia module?  If so,
+> > > please let us know.
+> > I try to patch a 2.6.12.4 with the 2.6.13-rc6 prepatch, but I get some
+> > Hunks
 > 
-> The XFS changes are still wrong for the same rason as last time,
-> we actually do want the daemons to do work if they're woken earlier
-> using wake_up_process.
+> That's because 2.6.13-rc6 is based off of 2.6.12.
+I download the kernel-2.6.13-rc6's archive from ftp://ftp.kernel.org/.../testing/
 
-Hrm, I got dropped from the Cc list...? No worries, I'm subscribed in
-two places :)
+Thanks
 
-I think your reference to "last time" is the KJ patches which probably
-used msleep{,_interruptible}() instead of schedule_timeout(). This
-patchset, in contrast, should result in *no* functional changes (beyond
-some more precisie conversions, where appropriate).
-schedule_timeout_interruptible(some_value), for instance is nothing more than:
+-- 
+Stephane Wirtel <stephane.wirtel@belgacom.net>
 
-	set_current_state(TASK_INTERRUPTIBLE);
-	schedule_timeout(some_value);
-
-Just in the form of a combine function call. No loops like msleep() &
-co.
-
-Is the patch still a problem?
-
-Thanks,
-Nish

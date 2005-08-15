@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932664AbVHOLR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932671AbVHOLV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932664AbVHOLR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 07:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbVHOLR1
+	id S932671AbVHOLV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 07:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbVHOLV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 07:17:27 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:43189 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932664AbVHOLR0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 07:17:26 -0400
-Date: Mon, 15 Aug 2005 13:18:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Ryan Brown <some.nzguy@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       george anzinger <george@mvista.com>
-Subject: [patch] Real-Time Preemption, -RT-2.6.13-rc6-V0.7.53-11
-Message-ID: <20050815111804.GA26161@elte.hu>
-References: <20050811110051.GA20872@elte.hu> <1c1c8636050812172817b14384@mail.gmail.com>
+	Mon, 15 Aug 2005 07:21:28 -0400
+Received: from mirapoint2.brutele.be ([212.68.199.149]:6946 "EHLO
+	mirapoint2.brutele.be") by vger.kernel.org with ESMTP
+	id S932671AbVHOLV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 07:21:27 -0400
+Date: Mon, 15 Aug 2005 13:21:22 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Stephane Wirtel <stephane.wirtel@belgacom.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [USB-Storage : i386] Oops with an adaptor for laptop hard disk.
+Message-ID: <20050815112122.GB6451@localhost.localdomain>
+References: <20050815102925.GA843@localhost.localdomain> <20050815110836.GA16201@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <1c1c8636050812172817b14384@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=disabled SpamAssassin version=3.0.4
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20050815110836.GA16201@mipter.zuzino.mipt.ru>
+X-Operating-System: Linux debian 2.6.12-1-k7
+User-Agent: Mutt/1.5.9i
+X-Junkmail-Status: score=10/50, host=mirapoint2.brutele.be
+X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090205.43007849.000E-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
+	=?ISO-8859-1?Q?p=3D=C0=F5=08=08?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le Monday 15 August 2005 a 15:08, Alexey Dobriyan ecrivait: 
+> On Mon, Aug 15, 2005 at 12:29:25PM +0200, Stephane Wirtel wrote:
+> > With a laptop hard disk adaptop to usb, I do a modprobe with the
+> > usb-storage module. If I disconnect my hard disk, I get an oops.
+> 
+> > nvidia 3711688 14 - Live 0xe10f1000
+> 
+> > EIP:    0060:[<c019710b>]    Tainted: P      VLI
+> 
+> Is it reproducable without nvidia module loaded?
+Yes :( 
 
-* Ryan Brown <some.nzguy@gmail.com> wrote:
+-- 
+Stephane Wirtel <stephane.wirtel@belgacom.net>
 
-> is there a patch available for -rc6?
-
-yes, i've just uploaded the -53-11 release, which is against 2.6.13-rc6.
-
-the -53-11 release includes a number of fixes, in particular a fix for 
-hard lockups that occur mostly on SMP systems, but also might occur on 
-UP systems.
-
-to build a -53-11 tree, the following patches should to be applied:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
-   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc6.bz2
-   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.13-rc6-RT-V0.7.53-11
-
-	Ingo

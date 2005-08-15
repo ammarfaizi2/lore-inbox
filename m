@@ -1,42 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932668AbVHOLVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932670AbVHOLvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932668AbVHOLVG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 07:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbVHOLVG
+	id S932670AbVHOLvP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 07:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbVHOLvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 07:21:06 -0400
-Received: from mirapoint2.brutele.be ([212.68.199.149]:3617 "EHLO
-	mirapoint2.brutele.be") by vger.kernel.org with ESMTP
-	id S932668AbVHOLVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 07:21:05 -0400
-Date: Mon, 15 Aug 2005 13:20:57 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: Stephane Wirtel <stephane.wirtel@belgacom.net>,
-       frank nero <m4rcos2003@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: oops in kernel 2.6.11.10
-Message-ID: <20050815112057.GA6451@localhost.localdomain>
-References: <20050530021313.43231.qmail@web32601.mail.mud.yahoo.com> <2cd57c900508150019544d49ca@mail.gmail.com> <20050815103252.GA15843@localhost.localdomain> <2cd57c900508150415753af3d8@mail.gmail.com>
+	Mon, 15 Aug 2005 07:51:15 -0400
+Received: from mail.murom.net ([213.177.124.17]:63701 "EHLO ns1.murom.ru")
+	by vger.kernel.org with ESMTP id S932670AbVHOLvO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 07:51:14 -0400
+Date: Mon, 15 Aug 2005 15:50:28 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Mathias Kretschmer <posting@blx4.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: VIA VT6410 IDE support for 2.6.11-rc3/via82cxxx
+Message-ID: <20050815115028.GA23812@procyon.home>
+References: <41A2E581.2010305@blx4.net> <41A38128.90305@pobox.com> <41A3A238.3070003@blx4.net> <4206A1F5.6050305@blx4.net> <4207A268.3040804@blx4.net> <4207A513.10601@pobox.com> <58cb370e0502111033677d9a2d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-In-Reply-To: <2cd57c900508150415753af3d8@mail.gmail.com>
-X-Operating-System: Linux debian 2.6.12-1-k7
-User-Agent: Mutt/1.5.9i
-X-Junkmail-Status: score=10/50, host=mirapoint2.brutele.be
-X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090201.430077ED.000E-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
-	=?ISO-8859-1?Q?p=3D=C0=F5=08=08?=
+In-Reply-To: <58cb370e0502111033677d9a2d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Monday 15 August 2005 a 19:08, Coywolf Qi Hunt ecrivait: 
-> On 8/15/05, Stephane Wirtel <stephane.wirtel@belgacom.net> wrote:
-> > Question, is there a relation with my bug ? See the mail with Oops and
-> > USBStorage ?
-> 
-> No.
 
-Thanks
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Feb 11, 2005 at 07:33:59PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> On Mon, 07 Feb 2005 12:27:47 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> > Mathias Kretschmer wrote:
+> > > Mathias Kretschmer wrote:
+> > >> Mathias Kretschmer wrote:
+> > >>> Jeff Garzik wrote:
+> > >>>> Mathias Kretschmer wrote:
+> > >>>>> hi,
+> > >>>>>
+> > >>>>> I found an older version of this patch (against 2.4.22) on some
+> > >>>>> website. After a little bit of editing it applied cleanly to 2.4.=
+27
+> > >>>>> (and now 2.4.28). It works fine for me on a ASUS P4P800-Deluxe wi=
+th
+> > >>>>> 4x 300GB disks.
+> > >>>>>
+> > >>>>> Maybe someone finds this patch helpful. Any reason why the origin=
+al
+> > >>>>> patch did not make it into the kernel ?
+> > >>>>
+> > >>>> Why not add it to the existing via82cxxx driver, and get better
+> > >>>> performance and device tuning?
+> > >>
+> > >> OK, the attached patch adds support for the VIA 6410 chip to the
+> > >> via82cxxx driver (instead of the generic driver).
+> > >> I've tested it on the board mentioned above. Works fine for me.
+> > >
+> > > as above, but for 2.6.11-rc3
+> >=20
+> > Bart, got this one?
+>=20
+> I applied it (after whitespace cleanup) to ide-dev-2.6.
+
+Sorry to bother you, but what's the status of this patch?  Since that
+time, 2.6.11 and 2.6.12 kernels were released, now 2.6.13 is almost
+ready, and the VT6410 support does not seem to appear even in -mm.
+Has the patch been lost, or is it broken?
+
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFDAIGEW82GfkQfsqIRAtVPAJ97nhjxXktfZ6Hei3KoqnjZWHq4UQCggSVG
+5ee6KsVe3+QnAD6bu5gvMUw=
+=adeu
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--

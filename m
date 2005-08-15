@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbVHORBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVHORCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbVHORBV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 13:01:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbVHORBV
+	id S964833AbVHORCG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 13:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVHORCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 13:01:21 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:6161 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S964847AbVHORBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 13:01:20 -0400
-Date: Mon, 15 Aug 2005 18:35:20 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Adrian Bunk <bunk@stusta.de>, Blaisorblade <blaisorblade@yahoo.it>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Len Brown <len.brown@intel.com>, Andi Kleen <ak@suse.de>,
-       Christoph Hellwig <hch@lst.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Feature removal: ACPI S4bios support
-Message-ID: <20050815163520.GG20363@alpha.home.local>
-References: <200508111417.47499.blaisorblade@yahoo.it> <20050812132444.GH1826@elf.ucw.cz> <20050815160007.GA3614@stusta.de> <20050815162638.GA2379@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050815162638.GA2379@elf.ucw.cz>
-User-Agent: Mutt/1.4i
+	Mon, 15 Aug 2005 13:02:06 -0400
+Received: from usea-naimss1.unisys.com ([192.61.61.103]:18700 "EHLO
+	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
+	id S964833AbVHORCF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 13:02:05 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: 2.6.12.3 boot problem
+Date: Mon, 15 Aug 2005 13:00:47 -0400
+Message-ID: <94C8C9E8B25F564F95185BDA64AB05F601F9A9B1@USTR-EXCH5.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.12.3 boot problem
+Thread-Index: AcWhuuHKOWQbmbCRRvqPsN0ooo7kpA==
+From: "Srinivasan, Usha" <Usha.Srinivasan@unisys.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 15 Aug 2005 17:00:49.0878 (UTC) FILETIME=[E343AF60:01C5A1BA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
+Hello,
 
-On Mon, Aug 15, 2005 at 06:26:38PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > Remove S4BIOS support. It is pretty useless, and only ever worked for
-> > > _me_ once. (I do not think anyone else ever tried it). It was in
-> > > feature-removal for a long time, and it should have been removed before.
-> > >...
-> > 
-> > You've forgotten to remove the feature-removal-schedule.txt entry in 
-> > your patch.  ;-)
-> 
-> Well, that can always be done later. There are probably other small
-> pieces that can be removed now. But I got neither ACK nor NAK on the
-> patch :-(.
+I have been successfully running 2.6.11 under Red Hat RHEL4 environment
+with no problems at all.  I needed to switch to 2.6.12 and chose
+2.6.12.3.  However, I am having problems booting 2.6.12.3.  My SCSI HBAs
+& disks are not being found at boot time and I see these errors during
+boot:
 
-Oh, it's a good sign. There are so many people loudly complaining when a
-feature is removed (including me). That means you found nobody to disagree
-with you. The fact that nobody either ACKed your patch may be because nobody
-is able to tell better than you if it will break anything. Maybe it's time
-to repost and ask for an ACK ?
+Red Hat nash version 4.1.18 starting
+Mkrootdev: label / not found
+Umount /sys failed: 16
+Mount: error 19 mounting ext3
+Mount: error 2 mounting none
+Switchroot: mount failed: 22
+Umount /initrd/dev failed: 2
 
-> 								Pavel
 
-Willy
+After trying many many things I have figured out what works and what
+doesn't.  
+ 
+Works:
+If I build scsi_mod, sd_mod, scsi_transport_spi and aic7xxxx drivers as
+built into the kernel, 2.6.12.3 boots fine.
 
-> -- 
-> if you have sharp zaurus hardware you don't need... you know my address
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Doesn't work:
+If I build scsi_mod, sd_mod, scsi_transport_spi and aic7xxxx drivers as
+Modules, 2.6.12.3 fails to boot.
+
+I was able to run with these drivers as Modules in 2.6.11 without ANY
+problems.  Has something changed in 2.6.12.3 with regards to finding
+SCSI boot disks?
+
+Please CC my work email when responding with your
+suggestions/advice/comments. Thanks in advance!
+
+Usha 
+_______________________________________
+
+Usha Srinivasan
+Software Engineer
+Unisys Corporation
+Malvern, Pennsylvania
+610-648-4392
+

@@ -1,74 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932631AbVHOCDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932625AbVHOCJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932631AbVHOCDu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Aug 2005 22:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932632AbVHOCDu
+	id S932625AbVHOCJx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Aug 2005 22:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbVHOCJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Aug 2005 22:03:50 -0400
-Received: from outbound3.mail.tds.net ([216.170.230.93]:50346 "EHLO
-	outbound3.mail.tds.net") by vger.kernel.org with ESMTP
-	id S932631AbVHOCDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Aug 2005 22:03:50 -0400
-Date: Sun, 14 Aug 2005 21:03:31 -0500
-From: Phil Dier <phil@icglink.com>
-To: Sonny Rao <sonny@burdell.org>
-Cc: neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org, ziggy@icglink.com,
-       scott@icglink.com, jack@icglink.com
-Subject: Re: 2.6.13-rc6 Oops with Software RAID, LVM, JFS, NFS
-Message-Id: <20050814210331.102e005c.phil@icglink.com>
-In-Reply-To: <20050812183548.GA2255@kevlar.burdell.org>
-References: <20050811105954.31f25407.phil@icglink.com>
-	<17148.1113.664829.360594@cse.unsw.edu.au>
-	<20050812123505.1515634c.phil@icglink.com>
-	<20050812183548.GA2255@kevlar.burdell.org>
-Organization: ICGLInk
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Aug 2005 22:09:53 -0400
+Received: from fsmlabs.com ([168.103.115.128]:47013 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932625AbVHOCJw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Aug 2005 22:09:52 -0400
+Date: Sun, 14 Aug 2005 20:15:53 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Harald Welte <laforge@netfilter.org>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.13-rc5-mm1: BUG: rwlock recursion on CPU#0
+In-Reply-To: <200508141448.36562.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.61.0508141940200.6740@montezuma.fsmlabs.com>
+References: <200508141448.36562.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got this:
+On Sun, 14 Aug 2005, Rafael J. Wysocki wrote:
 
-Unable to handle kernel paging request at virtual address eeafefc0
- printing eip:
-c0188487
-*pde = 00681067
-*pte = 2eafe000
-Oops: 0000 [#1]
-SMP DEBUG_PAGEALLOC
-Modules linked in:
-CPU:    1
-EIP:    0060:[<c0188487>]    Not tainted VLI
-EFLAGS: 00010296   (2.6.13-rc6)
-EIP is at inotify_inode_queue_event+0x17/0x130
-eax: eeafefc0   ebx: 00000000   ecx: 00000200   edx: eeafee9c
-esi: 00000000   edi: ef4cbe9c   ebp: f66e1eac   esp: f66e1e84
-ds: 007b   es: 007b   ss: 0068
-Process nfsd (pid: 6259, threadinfo=f66e0000 task=f6307b00)
-Stack: eeafee9c c0536a34 ee900f6c f66e1eac c0179949 eeafefc0 23644d80 00000000
-       00000000 ef4cbe9c f66e1ed4 c01713ad eeafee9c 00000400 00000000 00000000
-       eeafee9c ee900f6c f0940f6c f6f0adf8 f66e1f00 c020caa1 ef4cbe9c ee900f6c
-Call Trace:
- [<c0103e7f>] show_stack+0x7f/0xa0
- [<c0104030>] show_registers+0x160/0x1d0
- [<c0104260>] die+0x100/0x180
- [<c0116199>] do_page_fault+0x369/0x6ed
- [<c0103aa3>] error_code+0x4f/0x54
- [<c01713ad>] vfs_unlink+0x17d/0x210
- [<c020caa1>] nfsd_unlink+0x161/0x240
- [<c0207c64>] nfsd_proc_remove+0x44/0x90
- [<c0206747>] nfsd_dispatch+0xd7/0x200
- [<c0491b13>] svc_process+0x533/0x670
- [<c02064dd>] nfsd+0x1bd/0x350
- [<c01011e5>] kernel_thread_helper+0x5/0x10
-Code: ff ff ff 8b 5d f8 8b 75 fc 89 ec 5d c3 8d b4 26 00 00 00 00 55 89 e5 57 56 53 83 ec 1c 8b 45 08 8b 55 08 05 24 01 00 00 89 45 ec <39> 82 24 01 00 00 74 5d f0 ff 8a 2c 01 00 00 0f 88 d1 0b 00 00
+> I've got the following BUG on Asus L5D (x86-64) with the 2.6.13-rc5-mm1 kernel:
+> 
+> BUG: rwlock recursion on CPU#0, nscd/3668, ffffffff8817d4a0
+> 
+> Call Trace:<ffffffff80241ca9>{add_preempt_count+105} <ffffffff80241682>{rwlock_bug+114}
+>        <ffffffff8024179e>{_raw_write_lock+62} <ffffffff80350f48>{_write_lock_bh+40}
+>        <ffffffff88171824>{:ip_conntrack:destroy_conntrack+196}
+>        <ffffffff88170435>{:ip_conntrack:__ip_ct_event_cache_init+165}
+>        <ffffffff88170549>{:ip_conntrack:ip_ct_refresh_acct+249}
+>        <ffffffff88173c4f>{:ip_conntrack:udp_packet+47} <ffffffff88172143>{:ip_conntrack:ip_conntrack_in+1059}
+>        <ffffffff8816fb4c>{:ip_conntrack:ip_conntrack_local+76}
+>        <ffffffff802fe7ec>{nf_iterate+92} <ffffffff80311d90>{dst_output+0}
+>        <ffffffff802ff3de>{nf_hook_slow+142} <ffffffff80311d90>{dst_output+0}
+>        <ffffffff803123bf>{ip_push_pending_frames+895} <ffffffff802eade9>{lock_sock+201}
+>        <ffffffff8032e72e>{udp_push_pending_frames+574} <ffffffff8032ffc7>{udp_sendmsg+1703}
+>        <ffffffff8013874e>{current_fs_time+78} <ffffffff8015c03c>{file_read_actor+60}
+>        <ffffffff80199b6c>{update_atime+76} <ffffffff8015e8fa>{do_generic_mapping_read+1194}
+>        <ffffffff80335946>{inet_sendmsg+86} <ffffffff802e7dff>{sock_sendmsg+271}
+>        <ffffffff80241ca9>{add_preempt_count+105} <ffffffff8016153e>{free_hot_cold_page+270}
+>        <ffffffff801615bb>{free_hot_page+11} <ffffffff80241ca9>{add_preempt_count+105}
+>        <ffffffff8014a670>{autoremove_wake_function+0} <ffffffff802e846c>{sockfd_lookup+28}
+>        <ffffffff802e9c64>{sys_sendto+260} <ffffffff80193003>{do_sys_poll+851}
+>        <ffffffff80193de0>{__pollwait+0} <ffffffff8010eb3e>{system_call+126}
+>        
+> ---------------------------
+> | preempt count: 00000303 ]
+> | 3 level deep critical section nesting:
+> ----------------------------------------
+> .. [<ffffffff802ff385>] .... nf_hook_slow+0x35/0x160
+> .....[<ffffffff803123bf>] ..   ( <= ip_push_pending_frames+0x37f/0x490)
+> .. [<ffffffff80350f40>] .... _write_lock_bh+0x20/0x30
+> .....[<ffffffff88170500>] ..   ( <= ip_ct_refresh_acct+0xb0/0x160 [ip_conntrack])
+> .. [<ffffffff80350f40>] .... _write_lock_bh+0x20/0x30
+> .....[<ffffffff88171824>] ..   ( <= destroy_conntrack+0xc4/0x180 [ip_conntrack])
 
+Is the following patch correct? ip_conntrack_event_cache should never be 
+called with ip_conntrack_lock held and ct_add_counters does not need to be 
+called with ip_conntrack_lock held.
 
-
--- 
-
-Phil Dier <phil@dier.us>
-
-/* vim:set ts=8 sw=8 nocindent noai: */
+Index: linux-2.6.13-rc5-mm1/net/ipv4/netfilter/ip_conntrack_core.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.13-rc5-mm1/net/ipv4/netfilter/ip_conntrack_core.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 ip_conntrack_core.c
+--- linux-2.6.13-rc5-mm1/net/ipv4/netfilter/ip_conntrack_core.c	7 Aug 2005 21:38:40 -0000	1.1.1.1
++++ linux-2.6.13-rc5-mm1/net/ipv4/netfilter/ip_conntrack_core.c	15 Aug 2005 02:09:23 -0000
+@@ -1139,15 +1139,20 @@ void ip_ct_refresh_acct(struct ip_conntr
+ 		ct->timeout.expires = extra_jiffies;
+ 		ct_add_counters(ct, ctinfo, skb);
+ 	} else {
++		int do_event_cache = 0;
++
+ 		write_lock_bh(&ip_conntrack_lock);
+ 		/* Need del_timer for race avoidance (may already be dying). */
+ 		if (del_timer(&ct->timeout)) {
+ 			ct->timeout.expires = jiffies + extra_jiffies;
+ 			add_timer(&ct->timeout);
+-			ip_conntrack_event_cache(IPCT_REFRESH, skb);
++			do_event_cache = 1;
+ 		}
+-		ct_add_counters(ct, ctinfo, skb);
+ 		write_unlock_bh(&ip_conntrack_lock);
++
++		if (do_event_cache)
++			ip_conntrack_event_cache(IPCT_REFRESH, skb);
++		ct_add_counters(ct, ctinfo, skb);
+ 	}
+ }
+ 

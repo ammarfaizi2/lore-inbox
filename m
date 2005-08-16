@@ -1,109 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbVHPFbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965112AbVHPFdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbVHPFbB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 01:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbVHPFbA
+	id S965112AbVHPFdG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 01:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbVHPFdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 01:31:00 -0400
-Received: from adsl-67-65-14-122.dsl.austtx.swbell.net ([67.65.14.122]:43710
-	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
-	id S965103AbVHPFbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 01:31:00 -0400
-Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base
-	Driver (dcdbas) with sysfs support
-From: Michael E Brown <Michael_E_Brown@dell.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200508160517.j7G5Hm2D017218@turing-police.cc.vt.edu>
-References: <1124165368.10755.136.camel@soltek.michaels-house.net>
-	 <200508160517.j7G5Hm2D017218@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Tue, 16 Aug 2005 00:30:51 -0500
-Message-Id: <1124170251.10755.205.camel@soltek.michaels-house.net>
+	Tue, 16 Aug 2005 01:33:06 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:47283 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S965112AbVHPFdF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 01:33:05 -0400
+Date: Tue, 16 Aug 2005 14:31:23 +0900
+From: Horms <horms@debian.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Alexander Pytlev <apytlev@tut.by>, linux-kernel@vger.kernel.org,
+       debian-kernel@lists.debian.org,
+       "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>,
+       Willy Tarreau <willy@w.ods.org>
+Subject: Re: kernel 2.4.27-10: isofs driver ignore some parameters with mount
+Message-ID: <20050816053121.GD11925@verge.net.au>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Alexander Pytlev <apytlev@tut.by>, linux-kernel@vger.kernel.org,
+	debian-kernel@lists.debian.org,
+	"Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>,
+	Willy Tarreau <willy@w.ods.org>
+References: <1853917171.20050812104417@tut.by> <20050812082936.GB3302@verge.net.au> <20050816011121.GB7807@dmt.cnet>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050816011121.GB7807@dmt.cnet>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-16 at 01:17 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 15 Aug 2005 23:09:28 CDT, you said:
+On Mon, Aug 15, 2005 at 10:11:21PM -0300, Marcelo Tosatti wrote:
 > 
-> > No, dcdbas has nothing to do with this. I'll have to submit a patch
-> > against the docs. The program you need to use already exists and is
-> > open source. You can use libsmbios to do this.
-> > http://linux.dell.com/libsmbios/main.
+> Hi folks,
 > 
-> Now I'm confoozled.  Maybe - I suspect we're actually in violent agreement...
-
-nope... :-)
-
-> 
-> On Mon, 15 Aug 2005 17:58:56 CDT, Michael_E_Brown@Dell.com said:
-> > 	Additionally, we are releasing an open source library (GPL/OSL dual 
-> > license) that can use these hooks to perform many systems management 
-> > functions in userspace. See http://linux.dell.com/libsmbios/main/. We 
-> > should have code in libsmbios to do SMI using this driver within about two 
-> > weeks.  We currently writing the SMI hooks in libsmbios using this posted 
-> > version of the driver. I am the maintainer of this project, and it is my goal 
-> > to have code in libsmbios for every Dell SMI call.
-> 
-> So dcdbas *is* intended as the kernel end of the userspace libsmbios, which
-> is the suggested way of getting that BIOS updated. OK, I got it now.. ;)
-
-not quite... :-)
-
-Basically, for the exact case of RBU, libsmbios _today_ has what is
-necessary to support this, without using dcdbas.
-
-Today, libsmbios can set certain CMOS bits. _Some_ of the BIOS F2 screen
-options are represented in CMOS as bits. Also, other features are made
-available through CMOS that are not available through F2, and all of
-these bits (F2 bits and other bits) can be manipulated by libsmbios. It
-just so happens that RBU is implemented using a CMOS bit (represented by
-token 0x005C and 0x005D). 
-
-The addition of 'dcdbas' driver enables _extra_, _additional_
-functionality that libsmbios does not today have. The rest of the BIOS
-F2 screen options that are not in CMOS are available through SMI. Also,
-lots of other interesting stuff that is not related to BIOS F2 screens
-is available through SMI.
-
-To give an example: the Asset tag can be set through CMOS and SMI.
-Today, libsmbios can only set asset tag through CMOS. With the addition
-of dcdbas, libsmbios can use the SMI method to update asset tag. 
-
-SMI is a more reliable way to set asset tag, as it is dynamic and system
-flash is updated right away. Future systems may drop CMOS method
-completely as we start to run out of room in CMOS (there are only 256
-_bytes_ available in CMOS, remember.) 
-
-Basically, I am positioning libsmbios as an open-source way to take
-advantage of all of the features of a Dell system that are available
-through the system smbios/dmi table (similar to dmidecode), system cmos,
-or through SMI calls.
-
-> 
-> (continuing on)
-> 
-> > The binary you want to use is "activateCmosToken", under bins/output/
-> > (after compilation). The command line syntax is like this:
-> > 	activateCmosToken 0x005C
+> On Fri, Aug 12, 2005 at 05:29:36PM +0900, Horms wrote:
+> > On Fri, Aug 12, 2005 at 10:44:17AM +0300, Alexander Pytlev wrote:
+> > > Hello Debian,
+> > > 
+> > > Kernel 2.4.27-10
+> > > With mount isofs filesystem, any mount parameters after
+> > > iocharset=,map=,session= are ignored.
+> > > 
+> > > Sample:
+> > > 
+> > > mount -t isofs -o uid=100,iocharset=koi8-r,gid=100 /dev/cdrom /media/cdrom
+> > > 
+> > > gid=100 - was ignored
+> > > 
+> > > I look in source and find that problem. I make two patch, simply and full
+> > > (what addeded some functionality - ignore wrong mount parameters)
 > > 
-> > If you want to cancel a BIOS update that has already been activated
-> > (per above), use: 	
-> > 	activateCmosToken 0x005D
+> > Thanks,
 > > 
-> > Basically, follow the docs in the RBU docs as far as cat-ing the bios
-> > update image to the rbu sysfs files, then use the activateCmosToken
-> > program to tell BIOS to do the update on reboot. 
+> > I will try and get the simple version of this patch into the next
+> > Sarge update.
+> > 
+> > I have also CCed Marcelo and the LKML for their consideration,
+> > as this problem still seems to be present in the lastest 2.4 tree.
+> > 
+> > -- 
+> > Horms
+> > 
+> > simply patch:
+> > ===================================================================================
+> > --- kernel-source-2.4.27/fs/isofs/inode.c       2005-05-19 13:29:39.000000000 +0300
+> > +++ kernel-source/fs/isofs/inode.c      2005-08-11 11:55:12.000000000 +0300
+> > @@ -340,13 +340,13 @@
+> >                         else if (!strcmp(value,"acorn")) popt->map = 'a';
+> >                         else return 0;
+> >                 }
+> > -               if (!strcmp(this_char,"session") && value) {
+> > +               else if (!strcmp(this_char,"session") && value) {
+> >                         char * vpnt = value;
+> >                         unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+> >                         if(ivalue < 0 || ivalue >99) return 0;
+> >                         popt->session=ivalue+1;
+> >                 }
+> > -               if (!strcmp(this_char,"sbsector") && value) {
+> > +               else if (!strcmp(this_char,"sbsector") && value) {
+> >                         char * vpnt = value;
+> >                         unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+> >                         if(ivalue < 0 || ivalue >660*512) return 0;
+> > ===================================================================================
 > 
-> Ahh... the missing piece I didn't have before. :)
+> Neither "sbsector" or "session" parameters are part of the options string used 
+> in Alexander's example, so how come this patch can make any difference? 
+> 
+> Usage of "sbsector" or "session" parameters could explain the above patch
+> making a difference because the buggy, always true "(unsigned long) ivalue < 0"
+> comparison invokes "return 0", but that is not the case.
+> 
+> The code after the "popt->iocharset = value;" does not make any sense.
+> 
+> It seems that the "*value = 0" assignment can screw up the rest of the
+> string, isnt that the real issue?
+> 
+> #ifdef CONFIG_JOLIET
+>                 if (!strcmp(this_char,"iocharset") && value) {
+>                         popt->iocharset = value;
+>                         while (*value && *value != ',')
+>                                 value++;
+>                         if (value == popt->iocharset)
+>                                 return 0;
+>                         *value = 0;
+>                 } else
+> #endif
 
-I provided this info to Abhay when he posted RBU, and I thought he had
-already updated the rbu docs with this info. I suppose I should have
-checked. :-(
+Sorry about that, while the patch above does seem to be
+a valid clean up, on further examination I agree that it
+does not address the problem at hand, and that the problem seems
+to lie in the *value assignment as you suggest. I wonder
+if advancing this_char to the character aftter value, if
+non-NULL would resolve this problem. I'll do some testing,
+but in the mean time, here is what I have in mind:
 
---
-Michael
-
+--- a/fs/isofs/inode.c	2005-08-16 14:22:27.000000000 +0900
++++ b/fs/isofs/inode.c	2005-08-16 14:27:55.000000000 +0900
+@@ -329,7 +329,10 @@
+ 				value++;
+ 			if (value == popt->iocharset)
+ 				return 0;
+-			*value = 0;
++			if (*value) {
++				this_char = value + 1;
++				*value = 0;
++			}
+ 		} else
+ #endif
+ 		if (!strcmp(this_char,"map") && value) {

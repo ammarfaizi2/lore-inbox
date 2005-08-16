@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbVHPRPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbVHPRRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbVHPRPp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 13:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbVHPRPp
+	id S1030255AbVHPRRK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 13:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbVHPRRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 13:15:45 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:43629 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S1030254AbVHPRPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 13:15:44 -0400
-Message-ID: <43021EC5.9030803@google.com>
-Date: Tue, 16 Aug 2005 10:13:41 -0700
-From: Mike Waychison <mikew@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
-X-Accept-Language: en-us, en
+	Tue, 16 Aug 2005 13:17:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23706 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030255AbVHPRRJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 13:17:09 -0400
+Date: Tue, 16 Aug 2005 10:15:34 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Jesper Juhl <jesper.juhl@gmail.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk,
+       gerg@uclinux.org, jdike@karaya.com, sammy@sammy.net,
+       lethal@linux-sh.org, wli@holomorphy.com, davem@davemloft.net,
+       matthew@wil.cx, geert@linux-m68k.org, paulus@samba.org,
+       davej@codemonkey.org.uk, tony.luck@intel.com, dev-etrax@axis.com,
+       rpurdie@rpsys.net, spyro@f2s.com, Robert Wilkens <robw@optonline.net>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Convert sigaction to act like other unices
+In-Reply-To: <1124211863.5764.31.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0508161014400.3553@g5.osdl.org>
+References: <1123900802.5296.88.camel@localhost.localdomain> 
+ <20050813123956.GN22901@wotan.suse.de>  <1123941614.5296.112.camel@localhost.localdomain>
+  <20050813212924.GQ22901@wotan.suse.de>  <9a874849050814052035ad2838@mail.gmail.com>
+ <1124211863.5764.31.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: coywolf@sosdg.org, akpm@osdl.org, bunk@stusta.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] unexport __mntput()
-References: <20050815015357.GA16778@everest.sosdg.org> <430014EA.4030404@google.com> <Pine.LNX.4.61.0508161320510.30973@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0508161320510.30973@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>Nfsd uses it to serve up nfs exports that don't cross mountpoints (or do, if
->>"crossmnt" is specified in /etc/exports.
-> 
-> 
-> Is not this called nohide?
-> 
-> 
 
-On the command line it's a synonym, but the nfs-utils uses 
-NFSEXP_CROSSMOUNT to tell the kernel.
 
-Mike Waychison
+On Tue, 16 Aug 2005, Steven Rostedt wrote:
+> 
+> b) add the patch (in -mm or early 14 or later), see if any applications
+> break, but we will finally match the man pages and etc.
+
+We'll definitely test the patch. I doubt it breaks anything, and it's the 
+right thing to do, but yes, we'll try it out very early in the 2.6.14 
+cycle. Somebody make sure to send me the patch after I release 2.6.13 so 
+that I don't forget.
+
+		Linus

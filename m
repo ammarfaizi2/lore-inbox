@@ -1,115 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVHPXrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVHPXsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbVHPXrr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 19:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVHPXrd
+	id S1750751AbVHPXsT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 19:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVHPXsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 19:47:33 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:52147 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1750745AbVHPXrc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 19:47:32 -0400
-X-IronPort-AV: i="3.96,114,1122872400"; 
-   d="scan'208"; a="280501160:sNHT28430024"
-Date: Tue, 16 Aug 2005 19:02:13 -0500
-From: Doug Warzecha <Douglas_Warzecha@dell.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, Michael_E_Brown@dell.com,
-       Matt_Domsch@dell.com
-Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
-Message-ID: <20050817000213.GA3645@sysman-doug.us.dell.com>
-References: <20050815200522.GA3667@sysman-doug.us.dell.com> <20050816055247.GA20697@kroah.com>
+	Tue, 16 Aug 2005 19:48:10 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:26283 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750746AbVHPXsG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 19:48:06 -0400
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, lkml <linux-kernel@vger.kernel.org>,
+       George Anzinger <george@mvista.com>, frank@tuxrocks.com,
+       Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+In-Reply-To: <Pine.LNX.4.62.0508161116270.7101@schroedinger.engr.sgi.com>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.62.0508161116270.7101@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Tue, 16 Aug 2005 16:48:01 -0700
+Message-Id: <1124236081.8630.110.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050816055247.GA20697@kroah.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 15, 2005 at 10:52:48PM -0700, Greg KH wrote:
-> On Mon, Aug 15, 2005 at 03:05:22PM -0500, Doug Warzecha wrote:
-> > +
-> > +1) Lock smi_data.
-> > +2) Determine buffer size needed for system management command.
-> > +3) Write buffer size needed to smi_data_buf_size.
-> > +   (Driver will ensure that its SMI data buffer is at least that size.)
-> 
-> Why have this step?  Why is it needed?  Just go off of the size of the
-> buffer that is written to smi_data.  Or am I missing something?
+On Tue, 2005-08-16 at 11:25 -0700, Christoph Lameter wrote:
+> You mentioned that the NTP code has some issues with time interpolation 
+> at the KS. This is due to the NTP layer not being aware of actual time 
+> differences between timer interrupts that the interpolator knows about.
 
-I'll change smi_data_write to do that.
+My understanding of the issue was that when NTP makes an adjustment, it
+only affects xtime, and any difference between the adjusted time and the
+interpolator's time was just accumulated in the interpolator's offset.
+That then, to my understanding, required the bit about adjusting the
+interpolator frequency to be slower then what we expect so negative
+offsets can be applied. 
 
-> > +4) If physical address of SMI data buffer is needed to set up system
-> > +   management command, read physical address from smi_data_buf_phys_addr
-> > +   and add to command data.
-> 
-> How do you know this?
+Looking at it closer, it may very work, but it does seem to be
+addressing the issue somewhat indirectly.
 
-It depends on the SMI calling convention.  Dell OpenManage needs the physical address for the SMI to get the ESM log on the PowerEdge systems listed in this doc.
+> If the NTP layer would be aware of the actual intervals measured by the 
+> timesource (or interpolator) then presumably time could be adjusted in a 
+> more accurate way.
 
-> > +#define DCDBAS_DEV_ATTR_RW(_name) \
-> > +	DEVICE_ATTR(_name,0644,_name##_show,_name##_store);
-> > +
-> > +#define DCDBAS_DEV_ATTR_RO(_name) \
-> > +	DEVICE_ATTR(_name,0444,_name##_show,NULL);
-> 
-> Why let all users read this data?
+This is basically what I do in my patch. I directly apply the NTP
+adjustment to the timesource interval, and periodically increment the
+NTP state machine by the timesource interval when we accumulate it.
 
-Will be changed so that only owner can read.
+thanks
+-john
 
-> > +#define DCDBAS_BIN_ATTR_RW(_name) \
-> > +struct bin_attribute bin_attr_##_name = { \
-> > +	.attr =  { .name = __stringify(_name), \
-> > +		   .mode = 0644, \
-> 
-> Why let everyone read this data?
 
-Will be changed so that only owner can read.
 
-> > +struct callintf_cmd {
-> > +	u32 magic;
-> 
-> Why even have this?  Does it really stop anything except random
-> scribblings?
-
-It's to stop random writing.
-
-> > +	u16 command_address;
-> > +	u8 command_code;
-> > +	u8 reserved;
-> > +	u32 command_signature;
-> > +	u8 command_buffer[1];
-> > +} __attribute__ ((packed));
-> 
-> As these cross the userspace/kernelspace boundry, please use the __u32,
-> __u16, and __u8 variable types.
-
-Will be changed.
-
-> > +struct apm_cmd {
-> > +	u8 command;
-> > +	s8 status;
-> > +	u16 reserved;
-> > +	union {
-> > +		struct {
-> > +			u8 parm[MAX_SYSMGMT_SHORTCMD_PARMBUF_LEN];
-> > +		} __attribute__ ((packed)) shortreq;
-> > +
-> > +		struct {
-> > +			u16 num_sg_entries;
-> > +			struct {
-> > +				u32 size;
-> > +				u64 addr;
-> > +			} __attribute__ ((packed))
-> > +			    sglist[MAX_SYSMGMT_LONGCMD_SGENTRY_NUM];
-> > +		} __attribute__ ((packed)) longreq;
-> > +	} __attribute__ ((packed)) parameters;
-> > +} __attribute__ ((packed));
-> 
-> Same here (I think...)
-
-Will be changed.
-
-Doug
 

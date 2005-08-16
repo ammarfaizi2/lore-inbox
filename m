@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbVHPE4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbVHPE7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbVHPE4q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 00:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbVHPE4p
+	id S965104AbVHPE7S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 00:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbVHPE7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 00:56:45 -0400
-Received: from mail.kroah.org ([69.55.234.183]:54188 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932601AbVHPE4p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 00:56:45 -0400
-Date: Mon, 15 Aug 2005 17:28:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH] removes pci_find_device from i6300esb.c
-Message-ID: <20050816002843.GA18625@kroah.com>
-References: <200508100009.j7A09Qi1003695@wscnet.wsc.cz> <200508160024.j7G0OvmC002258@wscnet.wsc.cz>
+	Tue, 16 Aug 2005 00:59:18 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:45633 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932603AbVHPE7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 00:59:17 -0400
+Date: Tue, 16 Aug 2005 13:54:25 +0900 (JST)
+Message-Id: <20050816.135425.719901536.hyoshiok@miraclelinux.com>
+To: taka@valinux.co.jp
+Cc: lkml.hyoshiok@gmail.com, arjan@infradead.org, linux-kernel@vger.kernel.org,
+       hyoshiok@miraclelinux.com
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+In-Reply-To: <20050816.131729.15816429.taka@valinux.co.jp>
+References: <98df96d3050815163331d6cce1@mail.gmail.com>
+	<20050816.123042.424254477.hyoshiok@miraclelinux.com>
+	<20050816.131729.15816429.taka@valinux.co.jp>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.13 (Rational FORTRAN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508160024.j7G0OvmC002258@wscnet.wsc.cz>
-User-Agent: Mutt/1.5.9i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 16, 2005 at 02:24:57AM +0200, Jiri Slaby wrote:
-> This patch changes pci_find_device to pci_get_device (encapsulated in
-> for_each_pci_dev) in i6300esb watchdog card with appropriate adding pci_dev_put.
-> 
-> Generated in 2.6.13-rc5-mm1 kernel version.
-> 
-> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
-> 
-> This is repost, the patch was posted yet:
-> 8 Aug 2005
+Takahashi san,
 
-I can't take this as the driver is only in the -mm tree, not mainline.
-Andrew will have to pick it up (if it's even correct, haven't verified
-it or not...)
+I appreciate your comments.
 
-thanks,
+> Hi,
+> 
+> BTW, what are you going to do with the page-faults which may happen
+> during __copy_user_zeroing_nocache()? The current process may be blocked
+> in the handler for a while and get FPU registers polluted.
+> kernel_fpu_begin() won't help the case. This is another issue, though.
 
-greg k-h
+My code does nothing do it.
+
+I need a volunteer to implement it.
+
+Regards,
+  Hiro

@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVHPATh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbVHPAZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbVHPATh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 20:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbVHPATh
+	id S965050AbVHPAZR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 20:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbVHPAZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 20:19:37 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:24455 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S965046AbVHPATh (ORCPT
+	Mon, 15 Aug 2005 20:25:17 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:9347 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S965050AbVHPAZQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 20:19:37 -0400
-Message-ID: <4301310C.8040505@gmail.com>
-Date: Tue, 16 Aug 2005 02:19:24 +0200
+	Mon, 15 Aug 2005 20:25:16 -0400
+Date: Tue, 16 Aug 2005 02:24:57 +0200
+Message-Id: <200508160024.j7G0OvmC002258@wscnet.wsc.cz>
+Subject: [PATCH] removes pci_find_device from i6300esb.c
 From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
-CC: Naveen Gupta <ngupta@google.com>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm PATCH] remove use of pci_find_device in watchdog driver
- for Intel 6300ESB chipset
-References: <Pine.LNX.4.56.0508151425320.27212@krishna.corp.google.com> <20050815231426.GA19111@hardeman.nu>
-In-Reply-To: <20050815231426.GA19111@hardeman.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-reply-to: <200508100009.j7A09Qi1003695@wscnet.wsc.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Härdeman napsal(a):
+This patch changes pci_find_device to pci_get_device (encapsulated in
+for_each_pci_dev) in i6300esb watchdog card with appropriate adding pci_dev_put.
 
-> On Mon, Aug 15, 2005 at 02:30:15PM -0700, Naveen Gupta wrote:
-> [...}
->
->> -        while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) 
->> != NULL) {
->> -                if (pci_match_id(esb_pci_tbl, dev)) {
->> -                        esb_pci = dev;
->> -                        break;
->> -                }
->> -        }
->> +    while (ids->vendor && ids->device) {
->> +        if ((dev = pci_get_device(ids->vendor, ids->device, dev)) != 
->> NULL) {
->> +            esb_pci = dev;
->> +            break;
->> +        }
->> +        ids++;
->> +    }
->
->
-> I'm certainly not sure about this, but the proposed while loop looks a 
-> bit unconventional, wouldn't something like:
->
-> for_each_pci_dev(dev)
->     if (pci_match_id(esb_pci_tbl, dev)) {
->         esb_pci = dev;
->         break;
->     }
-> }
->
-> be better?
+Generated in 2.6.13-rc5-mm1 kernel version.
 
-I did it here http://lkml.org/lkml/2005/8/9/305, but it wasn't acked 
-yet. I should repost.
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+This is repost, the patch was posted yet:
+8 Aug 2005
 
+diff --git a/drivers/char/watchdog/i6300esb.c b/drivers/char/watchdog/i6300esb.c
+--- a/drivers/char/watchdog/i6300esb.c
++++ b/drivers/char/watchdog/i6300esb.c
+@@ -368,12 +368,11 @@ static unsigned char __init esb_getdevic
+          *      Find the PCI device
+          */
+ 
+-        while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++        for_each_pci_dev(dev)
+                 if (pci_match_id(esb_pci_tbl, dev)) {
+                         esb_pci = dev;
+                         break;
+                 }
+-        }
+ 
+         if (esb_pci) {
+         	if (pci_enable_device(esb_pci)) {
+@@ -430,6 +429,7 @@ err_release:
+ 		pci_release_region(esb_pci, 0);
+ err_disable:
+ 		pci_disable_device(esb_pci);
++		pci_dev_put(esb_pci);
+ 	}
+ out:
+ 	return 0;
+@@ -481,6 +481,7 @@ err_unmap:
+ 	pci_release_region(esb_pci, 0);
+ /* err_disable: */
+ 	pci_disable_device(esb_pci);
++	pci_dev_put(esb_pci);
+ /* out: */
+         return ret;
+ }
+@@ -497,6 +498,7 @@ static void __exit watchdog_cleanup (voi
+ 	iounmap(BASEADDR);
+ 	pci_release_region(esb_pci, 0);
+ 	pci_disable_device(esb_pci);
++	pci_dev_put(esb_pci);
+ }
+ 
+ module_init(watchdog_init);

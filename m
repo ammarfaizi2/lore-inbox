@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVHPXuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVHPXua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750752AbVHPXuw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 19:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVHPXuw
+	id S1750746AbVHPXua (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 19:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVHPXua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 19:50:52 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:19167 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750750AbVHPXup convert rfc822-to-8bit
+	Tue, 16 Aug 2005 19:50:30 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:11736 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750746AbVHPXu3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 19:50:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cUvOlFE5k7oWrgfhC85o99fxPn3LF0SjKrU8zy0UfJZ+eiCYWcEanLQQBChGasNcVbfZvOmr1S/noMzgHQP17PHIZwhZyIIQD2D8jmP90HwYxxnt5B9IQiHIBUfS9QOx9nhW6vB5CKcrYmYIN4qo+7MbeBpZnbxVtWwByDrcGpg=
-Message-ID: <21d7e99705081616504d28cca5@mail.gmail.com>
-Date: Wed, 17 Aug 2005 09:50:44 +1000
-From: Dave Airlie <airlied@gmail.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: rc6 keeps hanging and blanking displays
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <20050816211424.GA14367@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42F89F79.1060103@aitel.hist.no>
-	 <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org>
-	 <43008C9C.60806@aitel.hist.no>
-	 <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org>
-	 <20050815221109.GA21279@aitel.hist.no>
-	 <21d7e99705081516182e97b8a1@mail.gmail.com>
-	 <21d7e99705081516241197164a@mail.gmail.com>
-	 <20050816165242.GA10024@aitel.hist.no>
-	 <Pine.LNX.4.58.0508160955270.3553@g5.osdl.org>
-	 <20050816211424.GA14367@aitel.hist.no>
+	Tue, 16 Aug 2005 19:50:29 -0400
+Message-ID: <43027B79.9070702@zytor.com>
+Date: Tue, 16 Aug 2005 16:49:13 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: zach@vmware.com, akpm@osdl.org, chrisl@vmware.com, chrisw@osdl.org,
+       Keir.Fraser@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
+       m+Ian.Pratt@cl.cam.ac.uk, mbligh@mbligh.org, pratap@vmware.com,
+       virtualization@lists.osdl.org, zwame@arm.linux.org.uk
+Subject: Re: [PATCH 4/14] i386 / Clean up asm and volatile keywords in desc
+References: <200508110453.j7B4rpe9019530@zach-dev.vmware.com> <20050816234205.GE27628@wotan.suse.de>
+In-Reply-To: <20050816234205.GE27628@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ...
+Andi Kleen wrote:
+> On Wed, Aug 10, 2005 at 09:53:51PM -0700, zach@vmware.com wrote:
 > 
-> Seems like it died trying to perform int10 initialization?
-
-I'm still pointing towards that assign pci resources patch from Gregs
-tree that I mentioned earlier..
-
-the fact that disabling the DRM stops things from working is really
-bad, maybe the pci_enable_device in the DRM is setting up the devices,
-whereas  without it X tries and fails...
-
+>>Stop using extra underscores on asm and volatiles, that is just silly.
 > 
-> I can try running the radeon xserver only, as the vga console is on the matrox
-> card.
+> Actually the volatiles might be still useful. Or if you drop them
+> at least add memory clobbers. I had sometimes bugs  on x86-64
+> with the compiler moving such assembly statements with invisible 
+> side effects around too aggressively and causing weird problems.
+> 
+> Agreed on the underscores, I hate them too :)
 > 
 
-I'm running low on ideas, I'm also having a hard time tracking what is
-actually happening,  the MGA bugs I've tracked are related to that
-assign pci resources patch, and I really can't see what is happening
-if the DRM isn't in the mix..
+Well, put volatiles in *unless* the only effect of an asm statement is 
+producing the output values.
 
-If you build a working kernel (i.e. like 2.6.13 without DRM) does it
-hang similarly?
+	-hpa
 
-Dave.

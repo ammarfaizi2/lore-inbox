@@ -1,66 +1,316 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVHPVrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbVHPVtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVHPVrO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 17:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVHPVrO
+	id S1750901AbVHPVtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 17:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbVHPVtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 17:47:14 -0400
-Received: from usea-naimss1.unisys.com ([192.61.61.103]:30473 "EHLO
-	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S932399AbVHPVrN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 17:47:13 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.12.3 boot problem - response to Kevin's questions
-Date: Tue, 16 Aug 2005 17:45:54 -0400
-Message-ID: <94C8C9E8B25F564F95185BDA64AB05F601FC5D73@USTR-EXCH5.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.12.3 boot problem - response to Kevin's questions
-Thread-Index: AcWhwGN/HBVeg8Y6RxiMhPOm+FZyFwABVPyQADgHCsA=
-From: "Srinivasan, Usha" <Usha.Srinivasan@unisys.com>
-To: "Keith Mannthey" <kmannth@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 16 Aug 2005 21:45:56.0089 (UTC) FILETIME=[E1C61690:01C5A2AB]
+	Tue, 16 Aug 2005 17:49:25 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:11862 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750877AbVHPVtY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 17:49:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k5FUZQ/bzlV/Sj6TAowafVfWuDNR8ineOZb8z0lJ/FMUSRn+bsHxlXPelpPbC9MS9rmBAXKB3cOcNqBe28P2f/IzoPIFKNXUo+0vs2zBQHYr9pGq4XJJ1LKu2W7yJ/UsL7IrJVdIGYx3TCx8qHpaEUWqrf89U9eZ/lvKtKFBc+w=
+Message-ID: <6bffcb0e05081614498879a72@mail.gmail.com>
+Date: Tue, 16 Aug 2005 23:49:21 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Schedulers benchmark - Was: [ANNOUNCE][RFC] PlugSched-5.2.4 for 2.6.12 and 2.6.13-rc6
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <43001E18.8020707@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43001E18.8020707@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kevin,
-Thanks for your quick response. Here are my answers posted to the group:
+Hi,
+here are schedulers benchmark (part2):
 
-> The 2.6.11 tree is a kernel.org tree?
-Yes. I downloaded it from www.kernel.org/pub/linux/kernel/v2.6
+II 2.6.12 kernel compilation. (make allyesconfig, time make all -j64)
+1
+scheduler:
+ingosched
 
-> Are you using LVM or regular partitions?
-Regular.
+schedstat:
+version 12
+timestamp 4294703525
+cpu0 0 0 56 56 169 18916 4327 7006 5153 8279 4999 14589
+domain0 3 14286 13960 223 8331 213 41 0 13960 515 361 8 4456 498 9 0
+361 3995 33cpu1 4 4 35 41 138 16449 3148 5742 3405 5476 8317 13301
+domain0 3 15176 14906 28 6446 324 1 0 14906 445 260 0 6443 725 0 1 259 2919 2386
 
-> Do you see the scsi driver find the disks?
-Nope, that's the problem. I don't see messages such as:
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-        <Adaptec aic7899 Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-nor
-Vendor: QUANTUM   Model: ATLAS10K2-TY184L  Rev: DA40
-  Type:   Direct-Access                      ANSI SCSI revision: 03
+ng02:/usr/src/linux-2.6.12# time make all -j64
+[..]
+real    52m8.545s
+user    77m22.551s
+sys     6m53.710s
 
+schedstat:
+version 12
+timestamp 2865328
+cpu0 0 0 56 56 11027 932161 45161 437285 392608 2879724 97852635 887000
+domain0 3 154136 148688 255 3539795 348038 43 0 148688 265154 95205 16
+117343168cpu1 4 4 35 41 7983 717530 20188 331783 234314 2513531
+61528113 697342
+domain0 3 330750 329787 240 268784 25593 8 0 329787 245887 67225 9 123137621 124
 
-> I work around I use some times is to change my root line in the
-> bootloader to root=/dev/(your disk).  Lables can cause confusion.
-Tried that but it didn't help. It's just not finding the disks.
-Moreover, this works fine for 2.6.11.
+(make clean, reboot)
 
-> The modules are put into an initrd correct?  You need their
->functinality to boot.
-Yep, they're there and I see them loading fine. But, no HBAs/disks are
-being found.
+2
+scheduler:
+staircase
 
-It's puzzling & annoying. What has changed from 2.6.11 to 2.6.12.3 with
-regards to having scsi_mod, sd_mod and aic7xxx drivers as modules???
+schedstat:
+version 12
+timestamp 4294711457
+cpu0 1 0 0 40 0 19115 4726 7594 6058 8800 6034 14389
+domain0 3 18785 18624 6 3598 181 5 0 18624 271 212 0 2022 260 0 0 212 4908 4678
+64 5775 284 2 0 4678 0 0 0 0 0 0 0 0 0 1929 701 0
+cpu1 3 0 0 68 0 15636 3327 6411 4480 6404 5692 12309
+domain0 3 18923 18748 16 3935 190 1 0 18748 286 236 1 1185 186 0 0 236
+3554 3310 65 6551 384 0 0 3310 1 0 1 0 0 0 0 0 0 1536 473 0
 
-usha
+ng02:/usr/src/linux-2.6.12# time make all -j64
+[..]
+real    52m11.154s
+user    77m5.350s
+sys     6m47.279s
 
+schedstat:
+version 12
+timestamp 2875844
+cpu0 1 0 0 40 0 1051349 41469 403797 365682 2984780 84186734 1009880
+domain0 3 150432 148511 19 1073874 105405 5 0 148511 162818 124062 0
+21605211 2232067 0 0 124062 47468 41420 68 2672024 294653 2 0 41420 0
+0 0 0 0 0 0 0 0 69058 27836 0
+cpu1 3 0 0 68 0 710465 23281 255708 186648 2383374 51017987 687184
+domain0 3 449495 447056 142 1331065 130448 9 0 447056 161304 124359 2
+20525129 2123543 0 0 124359 31327 23262 82 3556275 382826 0 0 23262 4
+0 4 0 0 0 0 0 0 38115 20511 0
+
+(make clean, reboot)
+
+3
+scheduler:
+spa_no_frills
+
+schedstat:
+version 12
+timestamp 4294709868
+cpu0 7 0 0 31 0 21395 7537 7041 5153 7647 6266 13858
+domain0 3 17810 17488 10 7263 365 8 0 17487 440 326 1 3665 433 0 0 326
+4927 4272 322 10231 665 0 0 4272 0 0 0 0 0 0 0 0 0 2207 752 0
+cpu1 9 0 0 61 0 19306 6309 6416 4207 6437 4821 12997
+domain0 3 17909 17634 16 6101 313 2 0 17634 463 349 1 3938 442 0 0 349
+3956 3449 136 8667 649 1 0 3449 2 0 2 0 0 0 0 0 0 1888 558 0
+
+ng02:/usr/src/linux-2.6.12# time make all -j64
+[..]
+real    51m43.804s
+user    77m26.817s
+sys     6m42.708s
+
+schedstat:
+version 12
+timestamp 2846896
+cpu0 7 0 0 31 0 374020 73131 183580 129796 2891667 85133779 300889
+domain0 3 139434 134358 13 3662659 361146 8 0 134357 266995 93811 3
+131639947 13248660 0 0 93811 68418 49366 338 13638565 1356576 0 0
+49366 0 0 0 0 0 0 0 0 0 89589 27194 0
+cpu1 9 0 0 61 0 296669 49766 147472 57881 2389117 87262106 246903
+domain0 3 386982 381999 177 3507639 345563 6 0 381999 236011 62929 2
+131824143 13257353 0 0 62929 46855 27247 186 13823126 1377208 1 0
+27247 3 0 3 0 0 0 0 0 0 53784 12584 0
+
+(make clean, reboot)
+
+4
+scheduler:
+zaphod
+
+max_ia_bonus=default
+max_tpt_bonus=default
+
+schedstat:
+version 12
+timestamp 4294706234
+cpu0 1 0 0 49 0 22515 8612 5914 4598 8260 7394 13903
+domain0 3 14886 14549 226 9716 322 44 0 14549 505 371 1 4869 591 10 0
+371 4230 3728 111 11322 1065 20 0 3728 0 0 0 0 0 0 0 0 0 2051 815 0
+cpu1 2 0 0 43 0 22177 8577 6121 4068 6049 8529 13600
+domain0 3 14944 14613 19 10610 664 1 0 14613 543 402 0 5222 620 0 0
+402 3057 2640 112 9146 778 1 0 2640 1 0 1 0 0 0 0 0 0 1316 494 0
+
+ng02:/usr/src/linux-2.6.12# time make all -j64
+[..]
+real    59m21.696s
+user    72m57.739s
+sys     7m26.097s
+
+schedstat:
+version 12
+timestamp 3301229
+cpu0 1 0 0 49 0 1693415 591665 556682 498782 2618068 55649165 1101750
+domain0 3 381722 341658 339 24282485 2387485 45 0 341658 279386 99116
+29 105559718 10696258 11 0 99116 117635 80891 188 17240759 1764877 28
+0 80891 0 0 0 0 0 0
+0 0 0 165973 82419 0
+cpu1 2 0 0 43 0 1700822 1003452 272138 106163 2528280 92728229 697370
+domain0 3 378785 331050 355 28397292 2791244 4 0 331050 282961 100625
+19 106829196 10812846 0 0 100625 63611 35574 262 11986605 1255118 3 0
+35574 2 0 2 0 0 0 0
+0 0 57900 21016 0
+
+(make clean, reboot)
+---
+
+scheduler:
+zaphod
+
+max_tpt_bonus=0
+max_ia_bonus=default
+
+schedstat:
+version 12
+timestamp 4294755302
+cpu0 9 0 0 46 0 26255 10444 7705 6022 7655 9631 15811
+domain0 3 39944 39594 3 10421 637 0 0 39594 588 378 1 8394 985 0 0 378
+5591 5080 118 11077 1038 1 0 5080 0 0 0 0 0 0 0 0 0 2018 843 0
+cpu1 6 0 0 52 0 21261 8718 5812 3792 9412 10403 12543
+domain0 3 38575 38190 23 11322 670 2 0 38190 762 614 2 6047 700 0 0
+614 3449 2934 111 11474 1242 1 0 2934 1 0 1 0 0 0 0 0 0 1683 812 0
+
+ng02:/usr/src/linux-2.6.12# time make all -j64
+[..]
+real    59m11.220s
+user    72m48.062s
+sys     7m21.810s
+
+schedstat:
+version 12
+timestamp 3339829
+cpu0 9 0 0 46 0 1715129 598295 565296 504886 2669115 70722110 1116834
+domain0 3 377158 338725 18 22589126 2220472 0 0 338725 277264 107841 6 96835571
+9816071 0 0 107841 112781 80897 232 14130991 1452183 2 0 80897 0 0 0 0
+0 0 0 0 0 168467 74718 0
+cpu1 6 0 0 52 0 1714241 1017907 271426 102957 2462665 73319932 696334
+domain0 3 421951 378107 263 26405957 2596314 15 0 378107 269987 107424
+10 92730486 9385939 0 0 107424 94351 59728 233 14539319 1511489 3 0
+59728 2 0 2 0 0 0 0 0 0 60410 23657 0
+
+(make clean, reboot)
+---
+
+scheduler:
+zaphod
+
+max_ia_bonus=0
+max_tpt_bonus=default
+
+schedstat:
+version 12
+timestamp 4294723517
+cpu0 6 0 0 54 0 22434 8691 6436 5045 7042 8830 13743
+domain0 3 24343 24022 187 10237 410 32 0 24022 506 367 1 5777 655 10 0 367 4473
+3990 108 10378 1038 20 0 3990 0 0 0 0 0 0 0 0 0 1918 761 0
+cpu1 9 0 0 39 0 20936 7681 5845 3925 7258 6844 13255
+domain0 3 23886 23577 18 9678 594 1 0 23577 597 445 2 6850 796 0 0 445
+3255 2792 134 9758 771 0 0 2792 1 0 1 0 0 0 0 0 0 1391 549 0
+
+ng02:/usr/src/linux-2.6.12# time make all -j64
+[..]
+real    52m6.752s
+user    77m32.568s
+sys     6m50.631s
+
+schedstat:
+version 12
+timestamp 2883506
+cpu0 6 0 0 54 0 391843 78621 174803 126148 2960251 43673239 313222
+domain0 3 122166 118084 222 2879281 283471 34 0 118084 283683 85515 6 151886066
+15287509 11 0 85515 69125 50623 132 12982408 1297967 20 0 50623 2 0 2 0 0 0 0 0
+0 88291 35195 0
+cpu1 9 0 0 39 0 332752 45389 171063 82770 2332170 129780847 287363
+domain0 3 431223 430079 408 298346 28157 11 0 430079 248759 41482 21
+158651611 15979171 0 0 41482 38861 22908 169 8250486 889939 1 0 22908
+3 0 3 0 0 0 0 0 0 48655 11739 0
+
+(make clean, reboot)
+---
+
+scheduler:
+zaphod
+
+max_ia_bonus=0
+max_tpt_bonus=0
+
+schedstat:
+version 12
+timestamp 4294723310
+cpu0 5 0 0 45 0 24527 9527 7183 5640 7731 8140 15000
+domain0 3 23845 23549 1 7431 425 0 0 23549 563 410 0 5507 738 0 0 410 4939 4439
+129 10589 1103 0 0 4439 0 0 0 0 0 0 0 0 0 1836 815 0
+cpu1 10 0 0 48 0 19807 7605 5209 3371 6473 7205 12202
+domain0 3 24106 23821 9 6969 383 2 0 23821 544 410 1 5344 615 0 0 410 3129 2639
+92 10889 1257 1 0 2639 1 0 1 0 0 0 0 0 0 1543 708 0
+
+ng02:/usr/src/linux-2.6.12# time make all -j64
+[..]
+real    51m45.490s
+user    77m29.455s
+sys     6m43.458s
+
+schedstat:
+version 12
+timestamp 2862027
+cpu0 5 0 0 45 0 417289 78612 197659 143262 2942167 85716631 338677
+domain0 3 121248 116356 4 3433437 338424 0 0 116356 268374 98814 3
+124428617 12532343 0 0 98814 72208 53591 150 12711024 1267936 0 0
+53591 0 0 0 0 0 0 0 0 0 95206 30055 0
+cpu1 10 0 0 48 0 319707 53648 153211 58003 2326792 80073113 266059
+domain0 3 426106 420964 222 3457925 340359 25 0 420964 230199 60805 2 124557568
+12533690 0 0 60805 47755 28733 137 12822787 1279811 2 0 28733 2 0 2 0 0 0 0 0 0
+54397 14020 0
+
+(make clean, reboot)
+
+5
+
+scheduler:
+nicksched
+
+schedstat:
+version 12
+timestamp 4294713082
+cpu0 0 0 0 6473 363 19371 4208 7314 5633 8501 6060 15163
+domain0 3 18768 18551 7 4960 216 0 0 18547 504 345 4 6530 710 3 0 345 4401 4072
+136 9154 544 6 0 4072 0 0 0 0 0 0 0 0 0 1983 749 0
+cpu1 0 0 0 219297 368 16354 3127 6451 4466 6118 7213 13227
+domain0 3 19782 19507 11 5745 274 1 0 19507 457 278 1 8187 862 0 0 278
+3282 2948 178 7362 365 0 0 2948 1 0 1 0 0 0 0 0 0 1681 601 0
+
+ng02:/usr/src/linux-2.6.12# time make all -j64
+[..]
+real    54m54.660s
+user    77m11.406s
+sys     7m43.727s
+
+schedstat:
+version 12
+timestamp 3041080
+cpu0 0 0 0 6473 5938 1532110 69297 766122 693086 2992532 54276055 1462813
+domain0 3 192369 186143 23 2890373 282660 0 0 186139 253736 119186 5
+60546832 6145171 3 0 119186 87809 69041 256 6841635 688251 6 0 69041 0
+0 0 0 0 0 0 0 0 140993 57014 0
+cpu1 0 0 0 219297 5117 803867 32625 388381 247386 2447498 50035417 771242
+domain0 3 457596 453709 251 1566866 152437 13 0 453708 222786 82104 16 63487135
+6415580 0 0 82104 47897 32208 416 5667526 571216 1 0 32208 1 0 1 0 0 0
+0 0 0 73036 29846 0
+
+Regards,
+Michal Piotrowski

@@ -1,97 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVHPTWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVHPTlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbVHPTWF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 15:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVHPTWF
+	id S932310AbVHPTlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 15:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVHPTll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 15:22:05 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:1727 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932372AbVHPTWD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 15:22:03 -0400
-Date: Tue, 16 Aug 2005 21:29:46 +0200
+	Tue, 16 Aug 2005 15:41:41 -0400
+Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:15810 "EHLO
+	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932310AbVHPTll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 15:41:41 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Tue, 16 Aug 2005 20:41:37 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@gmail.com>, akpm@osdl.org
-Subject: Re: rc6 keeps hanging and blanking displays - bisection complete
-Message-ID: <20050816192946.GB10024@aitel.hist.no>
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com> <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no> <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org> <43008C9C.60806@aitel.hist.no> <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org> <20050815221109.GA21279@aitel.hist.no> <Pine.LNX.4.58.0508151550360.3553@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0508151550360.3553@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+cc: linux-kernel@vger.kernel.org
+Subject: [2.6-BK-URL] Another urgent NTFS bug fix!
+Message-ID: <Pine.LNX.4.60.0508162037450.3110@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1870869256-691403781-1124221297=:3110"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 15, 2005 at 03:59:07PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 16 Aug 2005, Helge Hafting wrote:
-> >
-> > This was interesting.  At first, lots of kernels just kept working,
-> > I almost suspected I was doing something wrong. Then the second last kernel
-> > recompiled a lot of DRM stuff - and the crash came back!
-> > The kernel after that worked again, and so the final message was:
-> > 
-> > 561fb765b97f287211a2c73a844c5edb12f44f1d is first bad commit
-> 
-> Ok, that definitely looks bogus. 
-> 
-> That commit should not matter at _all_, it only changes ppc64 specific 
-> things. 
-> 
-> If the bug is sometimes hard to trigger, maybe one of the "good" kernels 
-> wasn't good after all. That would definitely throw a wrench in the 
-> bisection.
-> 
-The hang, or at least an X "pause" tends to happen in 5-10 minutes of
-playing cuyo. (�2D game).  I have now had the last good kernel
-(6ade43fbbcc3c12f0ddba112351d14d6c82ae476) running for almost 24
-hours, only interrupted by the brief test of drm-less rc6.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Normal use haven't provoked anything. Since DRM sort of works with this
-kernell, I tried tuxracer on the radeon.  (Trouble is always with
-the radeon, never the mga xserver).  I played several games, ok
-except for the usual lousy 5-9 fps. One time I had a "pause", the 3D-game
-just froze for about half a minute.  The other xserver kept
-displaying firefox (and updating the page too) but I could not
-start any processes there.  I tried starting an xterm - it did not
-appear until tuxracer "unfroze" and continued as if nothing happened. 
-Perhaps the frozen process held a lock? 
+--1870869256-691403781-1124221297=:3110
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Disk io seemed sluggish after that incident, and the load meter in
-icewm seemed to indicate more waiting than usual.  The logs tells
-me of SCSI aborts and a bus reset.  I booted into drm-less rc6 after
-that.  
+Hi again Linus, please pull from
 
-Some interrupts are shared on this machine:
-$ cat /proc/interrupts 
-           CPU0       
-  0:   10113154    IO-APIC-edge  timer
-  1:        371    IO-APIC-edge  i8042
-  2:          0          XT-PIC  cascade
-  4:       5735    IO-APIC-edge  serial
-  8:          0    IO-APIC-edge  rtc
- 12:      11024    IO-APIC-edge  i8042
- 14:         21    IO-APIC-edge  ide0
- 16:     803248   IO-APIC-level  sym53c8xx, eth0, mga@pci:0000:01:00.0
- 17:          0   IO-APIC-level  Trident Audio
- 19:     755535   IO-APIC-level  radeon@pci:0000:00:08.0
- 20:       5946   IO-APIC-level  libata
- 21:       9448   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3, 
-uhci_hcd:usb4
-NMI:        234 
-LOC:   10111810 
-ERR:          0
-MIS:          0
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git/HEAD
 
-The troublesome radoen has a irq of its own.  The scsi controller
-shares irq with the matrox g550, but that card never seem to
-cause any trouble, other than saturating the cpu during games. :-)
+This is another urgent NTFS bug fix which fixes an analogous problem to=20
+the previous one.  In the rush of getting out the previous patch I=20
+completely forgot there are two different code paths that lead to mft=20
+records being written out.  The previous patch addressed the inode dirty=20
+based writeout while this one addresses the page dirty based writeout.
 
-On to look at iomem and that rc6 crash.
+Please apply before you release 2.6.13.  Many thanks and apologies for=20
+sending two merge requests in a row like this!
 
-Helge Hafting
+The diff style patch produced with git format-patch linux-2.6 is below.
+
+Best regards,
+
+        Anton
+--=20
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+
+[PATCH] NTFS: Complete the previous fix for the unset device when mapping
+      buffers for mft record writing.  I had missed the writepage based mft
+      record write code path.
+
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+---
+
+ fs/ntfs/ChangeLog |    2 +-
+ fs/ntfs/aops.c    |    1 +
+ 2 files changed, 2 insertions(+), 1 deletions(-)
+
+481d0374217f3fefaf98efbd8d21d73c138dd928
+diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+--- a/fs/ntfs/ChangeLog
++++ b/fs/ntfs/ChangeLog
+@@ -175,7 +175,7 @@ ToDo/Notes:
+ =09  the ntfs inode in memory if present.  Also, the ntfs inode has its
+ =09  own locking so it does not matter if the vfs inode is locked.
+ =09- Fix bug in mft record writing where we forgot to set the device in
+-=09  the buffers when mapping them after the VM had discarded them
++=09  the buffers when mapping them after the VM had discarded them.
+ =09  Thanks to Martin MOKREJ=C5=A0 for the bug report.
+=20
+ 2.1.22 - Many bug and race fixes and error handling improvements.
+diff --git a/fs/ntfs/aops.c b/fs/ntfs/aops.c
+--- a/fs/ntfs/aops.c
++++ b/fs/ntfs/aops.c
+@@ -924,6 +924,7 @@ static int ntfs_write_mst_block(struct p
+ =09=09=09LCN lcn;
+ =09=09=09unsigned int vcn_ofs;
+=20
++=09=09=09bh->b_bdev =3D vol->sb->s_bdev;
+ =09=09=09/* Obtain the vcn and offset of the current block. */
+ =09=09=09vcn =3D (VCN)block << bh_size_bits;
+ =09=09=09vcn_ofs =3D vcn & vol->cluster_size_mask;
+--1870869256-691403781-1124221297=:3110--

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbVHPKCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbVHPKBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965181AbVHPKCH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 06:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbVHPKCG
+	id S965179AbVHPKBr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 06:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbVHPKBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 06:02:06 -0400
-Received: from nproxy.gmail.com ([64.233.182.202]:38677 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965184AbVHPKCB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 06:02:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ShIA9lFUHBS4hvcz4s87De/XdC59ZT5v1ePtqzm2KMqdGfJhzKgThJa0lmbO7YVh8WgM8wfnWCN6iOzU3IoPR6r37T9yVfjj68XpTEHe8PnfRhS7KPl8EMz8FAbMLpVL1qo8rgRHhhUBkXpxGcV4kC9+qfhp4dyCBcXnRLZn954=
-Message-ID: <58cb370e050816030248e6283c@mail.gmail.com>
-Date: Tue, 16 Aug 2005 12:02:00 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
-In-Reply-To: <20050811203437.GA9265@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200508111424.43150.bjorn.helgaas@hp.com>
-	 <20050811203437.GA9265@infradead.org>
+	Tue, 16 Aug 2005 06:01:47 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:47537 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S965179AbVHPKBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 06:01:47 -0400
+Date: Tue, 16 Aug 2005 12:01:42 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-git5 : PCI mem resource alloc failure
+In-Reply-To: <1123982870.2779.7.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0508161200480.32120@yvahk01.tjqt.qr>
+References: <1123982870.2779.7.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/11/05, Christoph Hellwig <hch@infradead.org> wrote:
-> On Thu, Aug 11, 2005 at 02:24:43PM -0600, Bjorn Helgaas wrote:
-> > IA64 boxes only have PCI IDE devices, so there's no need to blindly poke
-> > around in I/O port space.  Poking at things that don't exist causes MCAs
-> > on HP ia64 systems.
-> 
-> Maybe it should instead depend on those systems where it is available.
-> Anything but X86?
 
-Don't forget that arch specific drivers use IDE_GENERIC *indirectly*
-to probe for devices.
+>With 2.6.13-rc6-git5 I started getting the below errors. Despite of the
+>errors everything works fine. (only problem is that I have to
+>disconnect /reconnect the usb mouse for it to get detected..)
+>
+>[   47.883970] PCI: Failed to allocate mem resource #10:2000000@e2000000
+>for 000 0:02:04.0
+>[   47.884002] PCI: Failed to allocate mem resource #10:2000000@e2000000
+>for 000 0:02:04.1
 
-Bartlomiej
+cat /proc/iomem before you modprobe the module - is 20000000 already reserved 
+by the motherboard?
+
+>[   47.884170] PCI: Setting latency timer of device 0000:00:0a.0 to 64
+>[   47.884806] ACPI: PCI Interrupt Link [LNK1] enabled at IRQ 19
+>[   47.884818] ACPI: PCI Interrupt 0000:02:04.0[A] -> Link [LNK1] -> GSI
+>19 (lev el, low) -> IRQ 177
+>[   47.885434] ACPI: PCI Interrupt Link [LNK2] enabled at IRQ 18
+>[   47.885442] ACPI: PCI Interrupt 0000:02:04.1[B] -> Link [LNK2] -> GSI
+>18 (lev el, low) -> IRQ 185
+>[   47.886005] agpgart: Detected AGP bridge 0
+>[   47.886017] agpgart: Setting up Nforce3 AGP.
+>[   47.893822] agpgart: AGP aperture is 128M @ 0xe8000000
+
+
+
+Jan Engelhardt
+-- 

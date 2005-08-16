@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVHPUo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932708AbVHPUxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbVHPUo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 16:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbVHPUo4
+	id S932708AbVHPUxo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 16:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbVHPUxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 16:44:56 -0400
-Received: from fmr14.intel.com ([192.55.52.68]:46311 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932441AbVHPUoz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 16:44:55 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Multiple virtual address mapping for the same code on IA-64 linux kernel.
-Date: Tue, 16 Aug 2005 13:44:50 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F04294461@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Multiple virtual address mapping for the same code on IA-64 linux kernel.
-Thread-Index: AcWioji5ltHCX38GTymx/ljVBn7HXgAANkwg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "vamsi krishna" <vamsi.krishnak@gmail.com>, <linux-ia64@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 16 Aug 2005 20:44:54.0209 (UTC) FILETIME=[5B1F8B10:01C5A2A3]
+	Tue, 16 Aug 2005 16:53:43 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56840 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932708AbVHPUxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 16:53:43 -0400
+Date: Tue, 16 Aug 2005 21:53:29 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: James.Smart@Emulex.Com, James.Bottomley@SteelEye.com, matthew@wil.cx,
+       greg@kroah.com, akpm@osdl.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] add transport class symlink to device object
+Message-ID: <20050816215329.B14055@flint.arm.linux.org.uk>
+Mail-Followup-To: Luben Tuikov <luben_tuikov@adaptec.com>,
+	James.Smart@Emulex.Com, James.Bottomley@SteelEye.com,
+	matthew@wil.cx, greg@kroah.com, akpm@osdl.org,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	alan@lxorguk.ukuu.org.uk
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD39@xbl3.ma.emulex.com> <4301EC0E.6090406@adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4301EC0E.6090406@adaptec.com>; from luben_tuikov@adaptec.com on Tue, Aug 16, 2005 at 09:37:18AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 16, 2005 at 09:37:18AM -0400, Luben Tuikov wrote:
+> On 08/15/05 20:52, James.Smart@Emulex.Com wrote:
+> > My vote is to make the multiplexor instantiate each serial line
+> > as a separate device.
+> 
+> Yes, you're absolutely and completely correct.  I think the same
+> way as you do.
 
->I have been investigating a problem in which there has been a dramatic
-> core size (complete program size) of a program running on a IA-64
->machine running kernel version 2.4.21-4.0.1 (A redhat advanced server
->distribution) compared to other 64-bit architectures like amd64 and
->EM64T. There has been an increase of around 20% of the size.
+Just don't expect it to happen any time in the next fortnight, even
+if 2.6.13 were to appear tomorrow.  Firstly, I have the parport_serial
+patches queued up since god knows when (a month or so back now I
+think.)  Secondly I'm not around next week so I probably won't have
+time to do anything with serial in the non-rc part of the 2.6.14
+cycle.
 
-Itanium instruction set is not as compact as some other architectures,
-so the same program will typically require more bytes of code.
+Therefore, I think this will have to wait for 2.6.14 or so.  Sorry.
 
--Tony
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbVHPNf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbVHPNhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965221AbVHPNf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 09:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbVHPNf5
+	id S965211AbVHPNhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 09:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965217AbVHPNhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 09:35:57 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:56039 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S965223AbVHPNf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 09:35:56 -0400
-Subject: Re: PROBLEM: blocking read on socket repeatedly returns EAGAIN
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kern Sibbald <kern@sibbald.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200508161519.39719.kern@sibbald.com>
-References: <200508161519.39719.kern@sibbald.com>
-Content-Type: text/plain
+	Tue, 16 Aug 2005 09:37:25 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:20427 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S965211AbVHPNhX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 09:37:23 -0400
+Message-ID: <4301EC0E.6090406@adaptec.com>
+Date: Tue, 16 Aug 2005 09:37:18 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James.Smart@Emulex.Com
+CC: James.Bottomley@SteelEye.com, matthew@wil.cx, greg@kroah.com,
+       akpm@osdl.org, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, rmk@arm.linux.org.uk
+Subject: Re: [PATCH] add transport class symlink to device object
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD39@xbl3.ma.emulex.com>
+In-Reply-To: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD39@xbl3.ma.emulex.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Tue, 16 Aug 2005 15:03:11 +0100
-Message-Id: <1124200991.17555.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-OriginalArrivalTime: 16 Aug 2005 13:35:03.0479 (UTC) FILETIME=[4EA67470:01C5A267]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-08-16 at 15:19 +0200, Kern Sibbald wrote:
-> have written, nor does it write() anything.  When my read() is issued, I 
-> expect it to block, but it immediately returns with -1 and errno set to 
-> EAGAIN.  If the read() is re-issued, a CPU intensive loop results as long as 
-> the other end does not read() the data written to the socket.  This is a 
-> multi-threaded program, but the other threads are all blocked on something.
+On 08/15/05 20:52, James.Smart@Emulex.Com wrote:
+> Actually, I view this as being a little odd...
+> 
+> What is "0000:00:04:0" in this case ? The "device" is not a serial
+> port, which is what the ttyXX back link would lead you to believe.
+> Thus, it's a serial port multiplexer that supports up to N ports,
+> right ? and wouldn't the more correct representation have been to
+> enumerate a device for each serial port ? (e.g. 0000:00:04.0/line0,
+> 0000:00:04.0/line1, or similar)
+> 
+> Think if SCSI used this same style of representation. For example,
+> if there was no scsi target device entity, but class entities did
+> exist and they just pointed back to the scsi host device entry.
+> 
+> My vote is to make the multiplexor instantiate each serial line
+> as a separate device.
 
-You are describing behaviour as expected with nonblocking set. That
-suggests to me that something or someone set or inherited the nonblock
-flag on that socket. Is the strange behaviour specific to the latest
-kernel ?
+Hi James,
 
-Alan
+Yes, you're absolutely and completely correct.  I think the same
+way as you do.
+
+	Luben
+

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbVHPPlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbVHPPnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbVHPPlo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 11:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbVHPPlo
+	id S1030191AbVHPPnG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 11:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbVHPPnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 11:41:44 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:43172
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1030187AbVHPPln (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 11:41:43 -0400
-Subject: Re: HDAPS, Need to park the head for real
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Reply-To: abonilla@linuxwireless.org
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>
-In-Reply-To: <1124206444.25596.18.camel@mindpipe>
-References: <1124205914.4855.14.camel@localhost.localdomain>
-	 <1124206444.25596.18.camel@mindpipe>
-Content-Type: text/plain
-Date: Tue, 16 Aug 2005 09:41:49 -0600
-Message-Id: <1124206909.4855.26.camel@localhost.localdomain>
+	Tue, 16 Aug 2005 11:43:06 -0400
+Received: from oldconomy.demon.nl ([212.238.217.56]:65417 "EHLO
+	artemis.slagter.name") by vger.kernel.org with ESMTP
+	id S1030186AbVHPPnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 11:43:04 -0400
+Subject: Re: [linux-usb-devel] PCI quirks not handled and config space
+	differences on resume from S3
+From: Erik Slagter <erik@slagter.name>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       acpi-devel <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.44L0.0508161131240.18233-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0508161131240.18233-100000@iolanthe.rowland.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jro+3TF4/ZrHnav1OL7T"
+Date: Tue, 16 Aug 2005 17:42:37 +0200
+Message-Id: <1124206957.19419.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.3 (2.2.3-1.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-16 at 11:34 -0400, Lee Revell wrote:
-> On Tue, 2005-08-16 at 09:25 -0600, Alejandro Bonilla Beeche wrote:
-> > 	We are currently almost there with hdaps. We are thinking how we should
-> > make things and have made most of the decesions. We still need help from
-> > anyone that might know about this. Please, if you can think of anything,
-> > let us know.
-> > 
-> 
-> Please don't start a new thread for every little HDAPS issue.  It will
-> make it impossible to follow the development for archive users.  This
-> should have been a followup to the previous thread.
-> 
-> Lee
 
-Lee,
+--=-jro+3TF4/ZrHnav1OL7T
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	Sorry, the problem is that this IS the main *issue*, if we can figure
-this out, we can go from there and get this working.
+On Tue, 2005-08-16 at 11:37 -0400, Alan Stern wrote:
+> > Diff between "lspci -vvvxxx" before and after resume for all
+> > problematic devices on my machine is attached.
+> >=20
+> > Are there any patches I can try?
+>=20
+> The uhci-hcd driver _does_ restore the config space for its devices=20
+> properly.
 
-Previous threads were related to the fact that we needed a developer or
-if we should either use sysfs or not.
+Apparently something is sort of wrong though, because I need to rmmod
+uhci_hcd and hci_usb before suspending, otherwise nasty things happen.
 
-This one is hopefully the last thread about this subject regarding
-driver making.
+--=-jro+3TF4/ZrHnav1OL7T
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Hopefully we can get an answer? ;-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-.Alejandro
+iD8DBQBDAgltJgD/6j32wUYRAj6yAKCBe9wp/GTLkPJFhh2vvAD9VOe0WQCeMz3a
+4LZvEXud+p1awbBKInhi1d4=
+=1+po
+-----END PGP SIGNATURE-----
 
+--=-jro+3TF4/ZrHnav1OL7T--

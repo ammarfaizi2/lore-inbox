@@ -1,97 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbVHPUg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVHPUg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbVHPUg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 16:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVHPUg2
+	id S932395AbVHPUg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 16:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVHPUg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 16:36:28 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:57462 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932327AbVHPUg1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 16:36:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Jjwt58tZY0gEF2JIxylFsMh+p4SJxbNp82H5N62Qj45etQGTKKb6u/CJmyC1IXcsFBgRyc5MIFwPcvRpAxYcOT+dyXJ00tLe2kMFCTnqzCAuCCT2SqTJJtG11+tlus31lZSTu4tN7wh58+RyhLMRdbSl5Rz979pB4o3YAnCev9k=
-Message-ID: <3faf056805081613365f5237de@mail.gmail.com>
-Date: Wed, 17 Aug 2005 02:06:26 +0530
-From: vamsi krishna <vamsi.krishnak@gmail.com>
-To: linux-ia64@vger.kernel.org
-Subject: Multiple virtual address mapping for the same code on IA-64 linux kernel.
-Cc: linux-kernel@vger.kernel.org
+	Tue, 16 Aug 2005 16:36:58 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16297 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932395AbVHPUg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 16:36:57 -0400
+Date: Tue, 16 Aug 2005 22:31:56 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Michael E Brown <Michael_E_Brown@dell.com>
+Cc: Greg KH <greg@kroah.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       linux-kernel@vger.kernel.org, Douglas_Warzecha@dell.com,
+       Matt_Domsch@dell.com
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
+Message-ID: <20050816203156.GB516@openzaurus.ucw.cz>
+References: <4277B1B44843BA48B0173B5B0A0DED4352817E@ausx3mps301.aus.amer.dell.com> <DEFA2736-585A-4F84-9262-C3EB53E8E2A0@mac.com> <1124161828.10755.87.camel@soltek.michaels-house.net> <20050816081622.GA22625@kroah.com> <1124199265.10755.310.camel@soltek.michaels-house.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1124199265.10755.310.camel@soltek.michaels-house.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+Hi!
 
-Sorry to interrupt you.
+> > > To take a concrete example, I suggested to Doug to mention fan status. I
+> > > get the feeling that you possibly think that this would be better
+> > > integrated into lmsensors, or something like that.
+> > 
+> > Yes it should.  That way you get the benifit of all userspace
+> > applications that already use the lmsensors library without having to be
+> > rewritten in order to support your new library.
+> 
+> Little did I know when I first mentioned it how big of a mistake it
+> would be to mention the sensor functions. *sigh*
+> 
+> The dcdbas driver allows access to all of the Dell SMIs. Sensors are
+> only one instance of SMI code (only two functions, in fact, if I am
+> reading this spec correctly). The other (roughly) 58 functions have
+> nothing to do with sensors. The presence of the dcdbas driver would not
 
-I have been investigating a problem in which there has been a dramatic
- core size (complete program size) of a program running on a IA-64
-machine running kernel version 2.4.21-4.0.1 (A redhat advanced server
-distribution) compared to other 64-bit architectures like amd64 and
-EM64T. There has been an increase of around 20% of the size.
+Perhaps it is okay to export 2 values through lmsensors and the remaining 58
+by some other approach, but I think we could find sensible way to export more
+than two functions...
 
-I verified the virtual address mappings in /proc/<>/maps file and
-found that several .so files (other segments of same size) are getting
-mapped multiple times as follows.
-<------------------------------------------------------------------------------------------------>
-200000000005c000-200000000007c000 r-xp 0000000000000000 08:07 6521003 
-  /usr/X11R6/lib/libXext.so.6.4
-200000000007c000-2000000000090000 rw-p 0000000000010000 08:07 6521003 
-  /usr/X11R6/lib/libXext.so.6.4
-2000000000090000-2000000000268000 r-xp 0000000000000000 08:07 6520995 
-  /usr/X11R6/lib/libX11.so.6.2
-2000000000268000-2000000000270000 ---p 00000000001d8000 08:07 6520995 
-  /usr/X11R6/lib/libX11.so.6.2
-2000000000270000-2000000000284000 rw-p 00000000001d0000 08:07 6520995 
-  /usr/X11R6/lib/libX11.so.6.2
-2000000000284000-200000000028c000 r-xp 0000000000000000 08:07 6094863 
-  /lib/libdl-2.2.4.so
-200000000028c000-2000000000294000 ---p 0000000000008000 08:07 6094863 
-  /lib/libdl-2.2.4.so
-2000000000294000-200000000029c000 rw-p 0000000000000000 08:07 6094863 
-  /lib/libdl-2.2.4.so
-200000000029c000-20000000002b8000 r-xp 0000000000000000 08:07 6094883 
-  /lib/libpthread-0.9.so
-20000000002b8000-20000000002bc000 ---p 000000000001c000 08:07 6094883 
-  /lib/libpthread-0.9.so
-20000000002bc000-20000000002d4000 rw-p 0000000000010000 08:07 6094883 
-  /lib/libpthread-0.9.so
-20000000002d4000-2000000000358000 r-xp 0000000000000000 08:07 376886  
-  /usr/lib/libncurses.so.5.2
-2000000000358000-2000000000364000 ---p 0000000000084000 08:07 376886  
-  /usr/lib/libncurses.so.5.2
-2000000000364000-2000000000374000 rw-p 0000000000080000 08:07 376886  
-  /usr/lib/libncurses.so.5.2
-2000000000374000-2000000000378000 rw-p 0000000000000000 00:00 0
-2000000000378000-2000000000400000 r-xp 0000000000000000 08:07 6094865 
-  /lib/libm-2.2.4.so
-2000000000400000-2000000000408000 ---p 0000000000088000 08:07 6094865 
-  /lib/libm-2.2.4.so
-2000000000408000-2000000000414000 rw-p 0000000000080000 08:07 6094865 
-  /lib/libm-2.2.4.so
-2000000000414000-200000000065c000 r-xp 0000000000000000 08:07 6094859 
-  /lib/libc-2.2.4.so
-200000000065c000-2000000000664000 ---p 0000000000248000 08:07 6094859 
-  /lib/libc-2.2.4.so
-2000000000664000-2000000000678000 rw-p 0000000000240000 08:07 6094859 
-  /lib/libc-2.2.4.so
-<------------------------------------------------------------------------------------------->
+> stop anybody from writing another driver to provide a hwmon interface to
+> just the sensors pieces. 
 
-example /lib/libc-2.2.4.so size 6094859    got mapped 3 times with
-permissions 'r-xp' , '---p' and 'rw-p' from the bottom.
+Good, hwmon can use dcdbas interface internally.
 
-I found the similar mappings for all the programs running on a IA-64
-machine. Is this some special kernel kind of feature on IA-64 ??
+> Ok, here is a short list of the things you can do with the Dell SMI
+> implementation. Note that this is a rough categorization of functions.
+> As implemented, get and set are normally separate SMI calls, so for each
+> that says get/set or read/write, read that as two SMI calls.
+> 
+> I am in the process of writing detailed docs for these (at least the
+> ones I have docs for) in libsmbios and hope to be done in a few days.
+> 
+> 1) Read/Write Non-Volatile Storage
+> 	-- main use case for libsmbios. This lets us set all of the rest of the
+> BIOS F2 options that are settable. To rehash from an earlier email, BIOS
+> stores some options in CMOS, these are already available in libsmbios.
+> The rest of the options are stored in SMI, and in fact almost all the
+> new options being added are SMI-only, as CMOS has run out of room.
+> 	-- There are roughly 300 different tokens (usually equivalent to a BIOS
+> F2 option, but not always). These are split between CMOS and SMI, but a
+> good percentage of these are SMI. 
 
-Your kind inputs on this problem are greatly appreciated.
+This one is going to be tough, altrough sysfs file with ascii representation of
+all 300 options would be cool.
 
-Looking forward to hear from you.
+> 2) Read/Write Battery/AC mode settings. Read system status. 
+> 	-- Fans/Voltage. This interface is only used by laptops (currently used
+> by i8k driver).
+> 	-- Systems status gives failing sensor count.
 
-Thanks in advance,
-Vamsi kundeti
+We already have interfaces for battery status. One in /proc/apm, one in /proc/acpi.
+
+> 3) Dynamic system status:
+> 	AC Available
+> 	Lid Closed
+> 	Battery Available
+
+See acpi.
+
+> 	Docked
+
+Other notebooks can dock, too. It would be nice to do just one interface.
+
+> 	Main Battery Critical
+> 	Main Battery Avail
+> 	Aux. Battery Critical
+> 	Aux. Battery Avail.
+
+Thats battery status, see above.
+
+> 	SCSI Available
+> 	Network Available
+> 	Module bay contents (floppy, cd, ls120, etc)
+
+Does it get any info you can't get in other way?
+
+> 4) Get/Set Boot Device Priority
+> 	-- set system boot order (floppy, cd, hard drive, pxe, etc)
+
+Sounds like cmos options above...
+
+> 5) Get/Set BBS IPL/BCV priority
+> 	-- more fine grained way to set boot priority. lets you choose which
+> add-in card gets to be C: drive.
+
+Cmos options.
+
+> 6) Get display type
+> 	-- laptops. gets display res + misc attributes 
+> 7) Get display resolution
+
+Framebuffer driver already knows about this.
+
+> 8) Get/Set active display
+> 	-- laptops: switch between crt/lcd
+> 9) Get battery information
+
+Acpi again.
+
+> 10) Get/set/verify user/user II/administrator passwords
+
+Looks like cmos; not sure how to solve that one.
+ 
+> 11) Get/Set asset/service/property/eppid tags
+
+cmos again.
+
+> 12) Get/Set monitor refresh rate
+
+This should go through fbdev somehow, but I see its hard.
+
+> 13) Get slice type. (laptop expansion thingy, I suppose)
+
+If even you don't know what its good for, we probably don't want to support it
+anyway.
+
+> 14) Onboard NIC status (laptops)
+
+Redundant.
+
+> 15) Get/Set onboard radio status
+> 	-- turn on/off wifi antenna
+
+Should integrate with wlan support.
+
+> 16) Application Program Registration (your guess is as good as mine.)
+> 17) User customization control (same)
+
+Then do not support it.
+
+> 18) Get Message information.
+> 	--returns bios event information (english only) for stuff like overtemp
+
+Wow, nice; acpi has something similar. Common solution needed...
+
+> 19) Get hard drive size (why? I don't know)
+
+No support, then.
+
+> 20) Get/Clear ECC memory single-bit error status
+> 21) Get memory test support information.
+> 22) Start/Stop memory test
+> 23) Get memory test error information/ map error information
+
+Not sure about those.
+
+> 24) Get/set server boot device priority
+
+Looks like cmos again.
+
+> 25) Issue Read-only SBDS Command
+> 	-- "Smart Battery Data Specification" -- whatever that is.
+> 
+
+There's spec somewhere. Some acer notebooks have only smart battery interface.
+
+			Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

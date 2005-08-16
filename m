@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVHPCIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVHPCnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964804AbVHPCIH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 22:08:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVHPCIH
+	id S964856AbVHPCnX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 22:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVHPCnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 22:08:07 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:27083 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964804AbVHPCIG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 22:08:06 -0400
-Subject: Re: [RFC][PATCH - 4/13] NTP cleanup: Breakup ntp_adjtimex()
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: George Anzinger <george@mvista.com>, frank@tuxrocks.com,
-       Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-In-Reply-To: <1123723634.32330.4.camel@cog.beaverton.ibm.com>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
-	 <1123723384.30963.269.camel@cog.beaverton.ibm.com>
-	 <1123723534.32330.0.camel@cog.beaverton.ibm.com>
-	 <1123723578.32330.2.camel@cog.beaverton.ibm.com>
-	 <1123723634.32330.4.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Mon, 15 Aug 2005 19:08:00 -0700
-Message-Id: <1124158081.8630.92.camel@cog.beaverton.ibm.com>
+	Mon, 15 Aug 2005 22:43:23 -0400
+Received: from h80ad2575.async.vt.edu ([128.173.37.117]:28565 "EHLO
+	h80ad2575.async.vt.edu") by vger.kernel.org with ESMTP
+	id S964856AbVHPCnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 22:43:22 -0400
+Message-Id: <200508160243.j7G2h8qm010206@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Doug Warzecha <Douglas_Warzecha@dell.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support 
+In-Reply-To: Your message of "Mon, 15 Aug 2005 18:38:49 CDT."
+             <20050815233849.GA3758@sysman-doug.us.dell.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050815200522.GA3667@sysman-doug.us.dell.com> <AC1976B5-FAFC-4809-B1B2-579D5F14FDFE@mac.com>
+            <20050815233849.GA3758@sysman-doug.us.dell.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: multipart/signed; boundary="==_Exmh_1124160186_3269P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 15 Aug 2005 22:43:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-10 at 18:27 -0700, john stultz wrote:
-> All,
-> 	This patch breaks up the complex nesting of code in ntp_adjtimex() by
-> creating a ntp_hardupdate() function and simplifying some of the logic.
-> This also mimics the documented NTP spec somewhat better.
+--==_Exmh_1124160186_3269P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 15 Aug 2005 18:38:49 CDT, Doug Warzecha said:
+
+> > If this is supposed to be used with the RBU code to trigger a BIOS  
+> > update, ...
 > 
-> Any comments or feedback would be greatly appreciated.
+> This driver is not needed by the RBU code.
 
-Ugh. I just caught a bug where I misplaced the parens. 
+Documentation/dell_rbu.txt says:
 
-> -			} /* STA_PLL */
-> +				else if (ntp_hardupdate(txc->offset, xtime))
-> +					result = TIME_ERROR;
-> +			}
->  		} /* txc->modes & ADJ_OFFSET */
- 
-That's wrong. The following patch fixes it. 
+> The rbu driver needs to have an application which will inform the BIOS to
+> enable the update in the next system reboot.
 
-thanks
--john
+Can the dcdbas code be used to implement that application?
 
 
-diff --git a/kernel/ntp.c b/kernel/ntp.c
---- a/kernel/ntp.c
-+++ b/kernel/ntp.c
-@@ -388,9 +388,8 @@ int ntp_adjtimex(struct timex *txc)
- 				/* adjtime() is independent from ntp_adjtime() */
- 				if ((time_next_adjust = txc->offset) == 0)
- 					time_adjust = 0;
--				else if (ntp_hardupdate(txc->offset, xtime))
--					result = TIME_ERROR;
--			}
-+			} else if (ntp_hardupdate(txc->offset, xtime))
-+				result = TIME_ERROR;
- 		} /* txc->modes & ADJ_OFFSET */
- 
- 		if (txc->modes & ADJ_TICK) {
 
+--==_Exmh_1124160186_3269P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDAVK6cC3lWbTT17ARArAmAJ94nQ2CBxW3nkvXE9i7G9Jatb1UwQCgoPM6
+fcD00PH7Ni/lMpezxTNBgwA=
+=XEJG
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1124160186_3269P--

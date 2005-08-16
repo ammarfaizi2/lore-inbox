@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbVHPBxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVHPCIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965073AbVHPBxR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 21:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbVHPBxR
+	id S964804AbVHPCIH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 22:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVHPCIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 21:53:17 -0400
-Received: from smtp.istop.com ([66.11.167.126]:6567 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S965073AbVHPBxQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 21:53:16 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [RFC][patch 0/2] mm: remove PageReserved
-Date: Tue, 16 Aug 2005 11:53:58 +1000
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, hugh@veritas.com
-References: <200508130534.54155.phillips@arcor.de> <3521.1123757360@warthog.cambridge.redhat.com> <8985.1124111717@warthog.cambridge.redhat.com>
-In-Reply-To: <8985.1124111717@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 15 Aug 2005 22:08:07 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:27083 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964804AbVHPCIG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 22:08:06 -0400
+Subject: Re: [RFC][PATCH - 4/13] NTP cleanup: Breakup ntp_adjtimex()
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: George Anzinger <george@mvista.com>, frank@tuxrocks.com,
+       Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+In-Reply-To: <1123723634.32330.4.camel@cog.beaverton.ibm.com>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123723384.30963.269.camel@cog.beaverton.ibm.com>
+	 <1123723534.32330.0.camel@cog.beaverton.ibm.com>
+	 <1123723578.32330.2.camel@cog.beaverton.ibm.com>
+	 <1123723634.32330.4.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Mon, 15 Aug 2005 19:08:00 -0700
+Message-Id: <1124158081.8630.92.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508161153.59476.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 August 2005 23:15, David Howells wrote:
-> I want to know when a page is going to be modified so that I
-> can predict the state of the cache as much as possible. I don't want
-> userspace processes corrupting the cache in unrecorded ways.
+On Wed, 2005-08-10 at 18:27 -0700, john stultz wrote:
+> All,
+> 	This patch breaks up the complex nesting of code in ntp_adjtimex() by
+> creating a ntp_hardupdate() function and simplifying some of the logic.
+> This also mimics the documented NTP spec somewhat better.
+> 
+> Any comments or feedback would be greatly appreciated.
 
-There are two cases:
+Ugh. I just caught a bug where I misplaced the parens. 
 
-  1) Metadata.  If anybody is doing racy writes to metadata pages, it is
-     your filesystem, and you have a bug.
+> -			} /* STA_PLL */
+> +				else if (ntp_hardupdate(txc->offset, xtime))
+> +					result = TIME_ERROR;
+> +			}
+>  		} /* txc->modes & ADJ_OFFSET */
+ 
+That's wrong. The following patch fixes it. 
 
-  2) Data.  In Linux practice and Posix, racy writes to files have
-     undefined semantics, including the possibility that data may end up
-     interleaved on a disk block.
+thanks
+-john
 
-You seem to be trying to define (2) as "corruption" and setting out to prevent 
-it.  But it is not the responsibility of a filesystem to prevent this, it is 
-the responsibility of the application.
 
-Could you please explain why it is not ok to end up with a half-written page 
-in your cache, if the client was in fact halfway through writing it when it 
-crashed?
+diff --git a/kernel/ntp.c b/kernel/ntp.c
+--- a/kernel/ntp.c
++++ b/kernel/ntp.c
+@@ -388,9 +388,8 @@ int ntp_adjtimex(struct timex *txc)
+ 				/* adjtime() is independent from ntp_adjtime() */
+ 				if ((time_next_adjust = txc->offset) == 0)
+ 					time_adjust = 0;
+-				else if (ntp_hardupdate(txc->offset, xtime))
+-					result = TIME_ERROR;
+-			}
++			} else if (ntp_hardupdate(txc->offset, xtime))
++				result = TIME_ERROR;
+ 		} /* txc->modes & ADJ_OFFSET */
+ 
+ 		if (txc->modes & ADJ_TICK) {
 
-Regards,
 
-Daniel

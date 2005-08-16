@@ -1,110 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965272AbVHPPe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbVHPPhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965272AbVHPPe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 11:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030181AbVHPPe2
+	id S1030188AbVHPPhG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 11:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbVHPPhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 11:34:28 -0400
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:54970 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S965272AbVHPPe1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 11:34:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
-  b=KJfMs94zT57tTiuyWXGB4TTw6NZM1wXGLyjOhqcZuhYW4JOA1o87f6IIOi6fRXj3if5OuZwtT36ltYq3i286WR8Zw6fRlvcDyq3rIwyWrfEIeciQSHiaEqYn2OsmhQ4T3wzwnYXekMLkk0vrvFpl8l/ed7dnz30irOptYSuZfPI=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH,RFC] quirks for VIA VT8237 southbridge
-Date: Tue, 16 Aug 2005 17:26:14 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-References: <200508131710.38569.annabellesgarden@yahoo.de> <200508151631.07717.bjorn.helgaas@hp.com>
-In-Reply-To: <200508151631.07717.bjorn.helgaas@hp.com>
+	Tue, 16 Aug 2005 11:37:05 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:38069 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1030184AbVHPPhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 11:37:04 -0400
+Date: Tue, 16 Aug 2005 11:37:03 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+cc: acpi-devel <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-ide@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] PCI quirks not handled and config space
+ differences on resume from S3
+In-Reply-To: <4301DF63.1020605@gmx.net>
+Message-ID: <Pine.LNX.4.44L0.0508161131240.18233-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200508161726.14149.annabellesgarden@yahoo.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 16. August 2005 00:31 schrieb Bjorn Helgaas:
-> These patches seem unrelated except that they both contain the
-> text "via", so I think you should at least split them.
+On Tue, 16 Aug 2005, Carl-Daniel Hailfinger wrote:
 
-Will do.
+> Hi,
+> 
+> it seems that PCI quirks are not handled on resume which results
+> in all kinds of strange effects, like disappeared PCI devices.
 
-> This quirk_via_irq() change seems like an awful lot of work to
-> get rid of a few log messages.  In my opinion, it's just not
-> worth it, because it's so hard to debug problems in that area
-> already.
+> Besides that, a number of drivers do not restore the pci config
+> space of their associated devices properly on resume from S3.
+> 
+> These drivers (and associated devices) are:
+> - intel_agp (Host bridge: Intel Corp. 82855PM Processor to I/O Controller)
+> - ? (PCI bridge: Intel Corp. 82855PM Processor to AGP Controller)
+> - uhci_hcd (USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller)
+> - ? (PCI bridge: Intel Corp. 82801 PCI Bridge)
+> - ? (ISA bridge: Intel Corp. 82801DBM LPC Interface Controller)
+> - piix_ide (IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage Controller)
+> 
+> Diff between "lspci -vvvxxx" before and after resume for all
+> problematic devices on my machine is attached.
+> 
+> Are there any patches I can try?
 
-What about the following version?
-quirk_via_686irq() only works on pci_devs that are part of the 686.
-Sooner or later there'll be more VIA southbridge types, which will
-not need quirk_via_irq() like the 8237.
+The uhci-hcd driver _does_ restore the config space for its devices 
+properly.
 
-------
-/*
- * Via 686A/B:  The PCI_INTERRUPT_LINE register for the on-chip
- * devices, USB0/1, AC97, MC97, and ACPI, has an unusual feature:
- * when written, it makes an internal connection to the PIC.
- * For these devices, this register is defined to be 4 bits wide.
- * Normally this is fine.  However for IO-APIC motherboards, or
- * non-x86 architectures (yes Via exists on PPC among other places),
- * we must mask the PCI_INTERRUPT_LINE value versus 0xf to get
- * interrupts delivered properly.
- */
-static void quirk_via_686irq(struct pci_dev *dev)
-{
-	u8 irq, new_irq;
-		/*
-		 * The ISA bridge is used to identify the 686.
-		 * It shares it's PCI slot and bus with the device under test
-		 * and is assigned to function 0.
-		 */
-	unsigned int isa_bridge_devfn = PCI_DEVFN(PCI_SLOT(dev->devfn), 0);
-	struct pci_dev * isa_bridge = pci_find_slot(dev->bus->number, isa_bridge_devfn);
-		
-	if (isa_bridge == NULL || isa_bridge->vendor != PCI_VENDOR_ID_VIA ||
-	    isa_bridge->device != PCI_DEVICE_ID_VIA_82C686)
-		return;		/* We are not on a 686. Lets leave */
 
-	new_irq = dev->irq & 0xf;
-	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
-	if (new_irq != irq) {
-		printk(KERN_INFO "PCI: Via IRQ fixup for %s, from %d to %d\n",
-			pci_name(dev), irq, new_irq);
-		udelay(15);	/* unknown if delay really needed */
-		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
-	} 
-}
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, quirk_via_686irq);
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, quirk_via_686irq);
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, quirk_via_686irq);
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, quirk_via_686irq);
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_6, quirk_via_686irq);
-------
+> USB UHCI Controller #1 (rev 03) (prog-if 00 [UHCI])
+>         Subsystem: Samsung Electronics Co Ltd: Unknown device c00c
+>         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-Stepping- SERR- FastB2B-
+>         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-<TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 0
+>         Interrupt: pin A routed to IRQ 5
+>         Region 4: I/O ports at 1800 [size=32]
+>  00: 86 80 c2 24 05 00 80 02 03 00 03 0c 00 00 80 00
+>  10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  20: 01 18 00 00 00 00 00 00 00 00 00 00 4d 14 0c c0
+>  30: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 00
+>  40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> -c0: 00 25 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> +c0: 00 2f 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-We could also add a "pci_dev * housed_in;" to "struct pci_dev"
-to get rid of search done above under pci_find_slot().
-To fill in "pci_dev * housed_in;", we'd need another quirk though.
+Just because the before and after values are different doesn't mean 
+anything is wrong.  Those particular bits are set by the hardware in 
+response to various events.  They are used only by the BIOS, to provide 
+USB keyboard and mouse services.  They don't affect the device's function 
+or the Linux driver at all.
 
-Side note 1: IIRC via82xxx IDE code could also make use of such a "pci_dev * housed_in;"
+Alan Stern
 
-Side note 2: The members
-./include/linux/pci.h:542:	unsigned short vendor_compatible[DEVICE_COUNT_COMPATIBLE];
-./include/linux/pci.h:543:	unsigned short device_compatible[DEVICE_COUNT_COMPATIBLE];
-of "struct pci_dev" are unused in the current kernel and can vanish.
-So a new "pci_dev * housed_in;" in "struct pci_dev" wouldn't add code in the sum.
-
-   Karsten
-
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

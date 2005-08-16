@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVHPXwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVHPX4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbVHPXwO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 19:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVHPXwO
+	id S1750739AbVHPX4R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 19:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVHPX4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 19:52:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41367 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750750AbVHPXwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 19:52:13 -0400
-Date: Tue, 16 Aug 2005 16:52:00 -0700
-From: Chris Wright <chrisw@osdl.org>
+	Tue, 16 Aug 2005 19:56:17 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:63500 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750739AbVHPX4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 19:56:16 -0400
+Message-ID: <43027D20.7020907@vmware.com>
+Date: Tue, 16 Aug 2005 16:56:16 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Andi Kleen <ak@suse.de>
-Cc: zach@vmware.com, akpm@osdl.org, chrisl@vmware.com, chrisw@osdl.org,
-       hpa@zytor.com, Keir.Fraser@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
+Cc: akpm@osdl.org, chrisl@vmware.com, chrisw@osdl.org, hpa@zytor.com,
+       Keir.Fraser@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
        m+Ian.Pratt@cl.cam.ac.uk, mbligh@mbligh.org, pratap@vmware.com,
        virtualization@lists.osdl.org, zwame@arm.linux.org.uk
-Subject: Re: [PATCH 4/14] i386 / Clean up asm and volatile keywords in desc
-Message-ID: <20050816235200.GS7762@shell0.pdx.osdl.net>
-References: <200508110453.j7B4rpe9019530@zach-dev.vmware.com> <20050816234205.GE27628@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050816234205.GE27628@wotan.suse.de>
-User-Agent: Mutt/1.5.6i
+Subject: Re: [PATCH 5/14] i386 / Use early clobber to eliminate rotate in
+ desc
+References: <200508110454.j7B4sBDK019538@zach-dev.vmware.com> <20050816234514.GG27628@wotan.suse.de>
+In-Reply-To: <20050816234514.GG27628@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Aug 2005 23:55:56.0749 (UTC) FILETIME=[0B5457D0:01C5A2BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen (ak@suse.de) wrote:
-> On Wed, Aug 10, 2005 at 09:53:51PM -0700, zach@vmware.com wrote:
-> > Stop using extra underscores on asm and volatiles, that is just silly.
-> 
-> Actually the volatiles might be still useful. Or if you drop them
-> at least add memory clobbers.
+Andi Kleen wrote:
 
-They are still there, just the underscores on both asm and volatile got
-pulled.
+>On Wed, Aug 10, 2005 at 09:54:11PM -0700, zach@vmware.com wrote:
+>  
+>
+>>Use an early clobber on addr to avoid the extra rorl instruction at the
+>>end of _set_tssldt_desc.
+>>    
+>>
+>
+>I would suggest to just use C for this. I do this on x86-64 and 
+>I don't think there is any reason to use this hard to maintain
+>code for it.
+>
 
-> I had sometimes bugs  on x86-64
-> with the compiler moving such assembly statements with invisible 
-> side effects around too aggressively and causing weird problems.
-> 
-> Agreed on the underscores, I hate them too :)
+This one in particular is non-optimal looking from C because the 
+compiler misses the potential for rotation.  But, composing into 
+temporaries and then issuing two writes to memory instead of multiple 
+writes within the same word could actually get you a better cycle count, 
+and that is something GCC just might be able to do :)
 
-Heh, same here ;-)
-
-thanks,
--chris
+Zach

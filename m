@@ -1,77 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932663AbVHPMM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932643AbVHPMQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932663AbVHPMM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 08:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbVHPMM0
+	id S932643AbVHPMQF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 08:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbVHPMQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 08:12:26 -0400
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:43780 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932663AbVHPMMZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 08:12:25 -0400
-Date: Tue, 16 Aug 2005 14:13:08 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Nathan Lutchansky <lutchann@litech.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 1/5] call i2c_probe from i2c core
-Message-Id: <20050816141308.23bd2956.khali@linux-fr.org>
-In-Reply-To: <20050816031454.GH24959@litech.org>
-References: <20050815175106.GA24959@litech.org>
-	<20050815175257.GB24959@litech.org>
-	<20050815235531.2a7d2bb6.khali@linux-fr.org>
-	<20050816031454.GH24959@litech.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 16 Aug 2005 08:16:05 -0400
+Received: from relay.rost.ru ([80.254.111.11]:15539 "EHLO smtp.rost.ru")
+	by vger.kernel.org with ESMTP id S932643AbVHPMQE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 08:16:04 -0400
+Date: Tue, 16 Aug 2005 16:15:58 +0400
+To: Valdis.Kletnieks@vt.edu
+Cc: Michael E Brown <Michael_E_Brown@dell.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Doug Warzecha <Douglas_Warzecha@dell.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
+Message-ID: <20050816121558.GB4356@pazke>
+Mail-Followup-To: Valdis.Kletnieks@vt.edu,
+	Michael E Brown <Michael_E_Brown@dell.com>,
+	Kyle Moffett <mrmacman_g4@mac.com>,
+	Doug Warzecha <Douglas_Warzecha@dell.com>,
+	linux-kernel@vger.kernel.org
+References: <1124168323.10755.179.camel@soltek.michaels-house.net> <200508160536.j7G5aKox017930@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+In-Reply-To: <200508160536.j7G5aKox017930@turing-police.cc.vt.edu>
+X-Uname: Linux 2.6.13-rc5-mm1-pazke i686
+User-Agent: Mutt/1.5.9i
+From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nathan,
 
-> > >  	if (driver->flags & I2C_DF_NOTIFY) {
-> > >  		list_for_each(item,&adapters) {
-> > >  			adapter = list_entry(item, struct i2c_adapter, list);
-> > > -			driver->attach_adapter(adapter);
-> > > +			if (driver->attach_adapter)
-> > > +				driver->attach_adapter(adapter);
-> > > +			if (driver->detect_client && driver->address_data &&
-> > > +					((driver->class & adapter->class) ||
-> > > +						driver->class == 0))
-> > > +				i2c_probe(adapter, driver->address_data,
-> > > +						driver->detect_client);
-> > >  		}
-> > >  	}
-> > 
-> > Couldn't we check for the return value of driver->attach_adapter()?
-> > That way this function could conditionally prevent i2c_probe() from
-> > being run. This is just a random proposal, I don't know if some
-> > drivers would have an interest in doing that.
-> 
-> Yeah, I was thinking about that too, but I can't think of a reasonable
-> return code to use.  -1 for "don't probe"?  Or <0 for "fatal error,
-> don't touch this bus any more"?  Anyway, client drivers will probably
-> only use one of the two detection methods because if they need to
-> implement attach_adapter they can just call i2c_probe from there.
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Oh well, on second thought you are probably right, there is little
-benefit in implementing my proposal, and this will make the code more
-complex. Let's just forget about it until someone actually needs it.
+On 228, 08 16, 2005 at 01:36:19AM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 15 Aug 2005 23:58:43 CDT, Michael E Brown said:
+>=20
+> > No, this is an _EXCELLENT_ reason why _LESS_ of this should be in the
+> > kernel. Why should we have to duplicate a _TON_ of code inside the
+> > kernel to figure out which platform we are on, and then look up in a
+> > table which method to use for that platform? We have a _MUCH_ nicer
+> > programming environment available to us in userspace where we can use
+> > things like libsmbios to look up the platform type, then look in an
+> > easily-updateable text file which smi type to use. In general, plugging
+> > the wrong value here is a no-op.
+>=20
+> You'll still need to do some *very* basic checking - there's fairly
+> scary-looking 'outb' call in  callintf_smi()  and host_control_smi() that=
+ seems to
+> be totally too trusting that The Right Thing is located at address CMOS_B=
+ASE_PORT:
+>=20
+> +		for (index =3D PE1300_CMOS_CMD_STRUCT_PTR;
+> +		     index < (PE1300_CMOS_CMD_STRUCT_PTR + 4);
+> +		     index++) {
+> +			outb(index,
+> +			     (CMOS_BASE_PORT + CMOS_PAGE2_INDEX_PORT_PIIX4));
+> +			outb(*data++,
+> +			     (CMOS_BASE_PORT + CMOS_PAGE2_DATA_PORT_PIIX4));
+> +		}
+>=20
+> This Dell C840 has an 845, not a PIIX.  What just got toasted if this dri=
+ver
+> gets called?
+>=20
+> Can we have a check that the machine is (a) a Dell and (b) has a PIIX and=
+ (c) the
+> PIIX has a functional SMI behind it, before we start doing outb() calls?
 
-> I didn't think anybody was porting client drivers any more, but if
-> you're still updating that doc, I can too.  :-)
+What about dmi_check_system() ?
 
-I count 15 drivers [1] of the lm_sensors project that are still missing
-from Linux 2.6. Maybe some of these will never be ported due to a lack
-of interest, but I believe a good half will be (five ports are in
-progress already.) So we need to keep the i2c/porting-client document
-up-to-date for a few more months.
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
 
-Thanks.
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-[1] adm1024, bmcsensors, ds1307, fscscy, lm93, matorb, max6650,
-maxilife, mic74, mtp008, saa1064, smartbatt, thmc50, vt1211, vt8231.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
--- 
-Jean Delvare
+iD8DBQFDAdj+R2OTnxNuAyMRAuBeAKCDXuNUL9LLG4bbj+ibA7KD1ZR29QCgplA1
+pziuEFyDIyAW+EpbGC15h9M=
+=Lwby
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--

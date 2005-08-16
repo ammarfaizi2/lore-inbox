@@ -1,95 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVHPIaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbVHPIft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965142AbVHPIaa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 04:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbVHPIaa
+	id S965143AbVHPIft (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 04:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbVHPIft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 04:30:30 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:17083 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S965142AbVHPIaa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 04:30:30 -0400
-Message-ID: <4301A5F2.1030805@aitel.hist.no>
-Date: Tue, 16 Aug 2005 10:38:10 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Tue, 16 Aug 2005 04:35:49 -0400
+Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:32465 "EHLO
+	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
+	id S965143AbVHPIfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 04:35:48 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH] pmtmr and PRINTK_TIME timings display
+Date: Tue, 16 Aug 2005 10:35:30 +0200
+User-Agent: KMail/1.7.2
+Cc: Steven Rostedt <rostedt@goodmis.org>, lkml <linux-kernel@vger.kernel.org>
+References: <200508041459.43500.petkov@uni-muenster.de> <200508041723.25848.petkov@uni-muenster.de> <1124144326.8630.9.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1124144326.8630.9.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-To: Joe Peterson <joe@skyrush.com>
-CC: mr.fred.smoothie@pobox.com, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] to drivers/input/evdev.c to add mixer device "/dev/input/events"
-References: <4300D09C.4030702@skyrush.com> <20050815174558.GB1450@ucw.cz>	 <4300D845.8070605@skyrush.com> <20050815185729.GA1450@ucw.cz>	 <4300EF7C.9020500@skyrush.com> <161717d505081513066c660129@mail.gmail.com> <4300F9DD.8090005@skyrush.com>
-In-Reply-To: <4300F9DD.8090005@skyrush.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508161035.31085.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Peterson wrote:
+On Tuesday 16 August 2005 00:18, john stultz wrote:
+> On Thu, 2005-08-04 at 17:23 +0200, Borislav Petkov wrote:
+> > I get it. Actually, I wasn't very sure whether this is the right solution
+> > since my desktop machine uses tsc timer as default while the laptop the
+> > pmtmr. I also remember that there was a patch a while ago on lkml which
+> > enabled a modifiable behavior for PRINTK_TIME through a /proc interface
+> > and kernel boot option but it somehow didn't get accepted. Ok, then,
+> > since we keep the jiffies solution across arch's, how can I force the
+> > kernel to use tsc for printk timings so that i can see the deltas between
+> > the different printk's instead of the jiffies_64 ns value? The Pentium-M
+> > Centrino on the laptop evidently supports rdtsc as a msr instruction.
+>
+> The issue is that there are a number of laptops that do not properly
+> support cpufreq and additionally newer laptop chips halt their TSC's
+> when they go into C3 mode. This keeps the TSC from working as a proper
+> timesource on these systems, and causes the need for alternative
+> timesources like the ACPI PM timer.
 
->Dave Neuer wrote:
->  
->
->>On 8/15/05, Joe Peterson <joe@skyrush.com> wrote:
->>
->>    
->>
->>>So, overall, I agree that we should not invent hacks to make up for
->>>another software package's problems...
->>>      
->>>
->>but also wrote:
->>
->>
->>    
->>
->>>If the kernel could handle that aspect, it would make all programs more stable.
->>>      
->>>
->>which seems a little contradictory.
->>    
->>
->
->What I was trying to say (and didn't say very well!) is that I agree
->that "hacks" should not be created to mask other problems, but perhaps
->there are ways to solve the problem in the kernel (or in user-space
->programs like udev) that are not hacks and that generally make things
->more elegant all around.
->
->  
->
->>However, Joe continued with:
->>
->>
->>    
->>
->>>It does not sound right to push the handling of the intermittent nature
->>>to each user program.
->>>      
->>>
->>Indeed. Each user program should not care about it. An event/hotplug
->>library should, and the user programs should use that. Like d-bus/HAL.
->>    
->>
->
->Right.  Or, if it makes sense, I was proposing that a new kind of device
->(or device mode) that makes a device ever-present could prevent needless
->handling of plugs and unplugs in applications or X, if that's
->appropriate.  /dev/input/mice is such a device, acting as a catch-all
->for mouse events (and as a byproduct, the specific mouse device chosen
->arbitrarily does not matter to the app).  If it's a hack (as Vojtech
->says), maybe there is a way to get the same functionality in a less
->hackish way.  But Vojtech is right that the kernel should not read
->config files or set "policy," so perhaps something like udev is the
->right place for that kind of thing...
->  
->
-Is the kernel really needed for this trick, or could a daemon similiar to
-gpm do the job instead?  I.e. the daemon reads the evdev device (when
-it is there) and writes to a FIFO. X pulls events out of the other end of
-that FIFO.  If the device goes away, the daemon simply waits for it to
-reappear, possibly hooking into hotplug if that helps. The FIFO does
-not go away, so X is happy.  X just waits till events appear again.
+This _is_ actually my laptop I'm testing it on and sofar no problem. But as 
+Steven pointed out earlier, one probably needs a different kind of timing 
+information besides delta timings. Besides, <scripts/show_delta> can do all 
+the formatting and delta computation already.
 
-Helge Hafting
+Thanks & regards,
+Borislav Petkov.

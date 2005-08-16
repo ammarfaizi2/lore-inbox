@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbVHPNld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965230AbVHPNtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965217AbVHPNld (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 09:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbVHPNlc
+	id S965230AbVHPNtY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 09:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbVHPNtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 09:41:32 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:1486 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S965217AbVHPNlb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 09:41:31 -0400
-Message-ID: <4301ED06.1020209@adaptec.com>
-Date: Tue, 16 Aug 2005 09:41:26 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: James.Smart@Emulex.Com, matthew@wil.cx, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH] add transport class symlink to device object
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD39@xbl3.ma.emulex.com> <1124154494.5089.86.camel@mulgrave>
-In-Reply-To: <1124154494.5089.86.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Aug 2005 13:39:11.0543 (UTC) FILETIME=[E2820470:01C5A267]
+	Tue, 16 Aug 2005 09:49:24 -0400
+Received: from nproxy.gmail.com ([64.233.182.200]:5682 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965231AbVHPNtW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 09:49:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jqlP427HxWziLyvR0vUA7KJUIIwZEhM0wAY/Sl19VdQuRXFQMi1H3IWDYv4DPjmHshq90rQloWoEunfzt0unVQrIUMfWOPO/bE9bFdEG4EDkxvLDKKBG8G943bMOEk98/Vv61ZdZ5HBS1CxZrIJfp8oHqTdt7C40iRuN413YZYw=
+Message-ID: <58cb370e05081606497e4d9907@mail.gmail.com>
+Date: Tue, 16 Aug 2005 15:49:20 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, linux-ia64@vger.kernel.org
+In-Reply-To: <20050816134029.GA5113@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200508111424.43150.bjorn.helgaas@hp.com>
+	 <1123836012.22460.16.camel@localhost.localdomain>
+	 <200508151507.22776.bjorn.helgaas@hp.com>
+	 <58cb370e050816023845b57a74@mail.gmail.com>
+	 <1124196958.17555.8.camel@localhost.localdomain>
+	 <20050816134029.GA5113@parcelfarce.linux.theplanet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/15/05 21:08, James Bottomley wrote:
->>Think if SCSI used this same style of representation. For example,
->>if there was no scsi target device entity, but class entities did
->>exist and they just pointed back to the scsi host device entry.
+On 8/16/05, Matthew Wilcox <matthew@wil.cx> wrote:
+> On Tue, Aug 16, 2005 at 01:55:58PM +0100, Alan Cox wrote:
+> > On Maw, 2005-08-16 at 11:38 +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > * removing IDE_ARCH_OBSOLETE_INIT define has some implications,
+> > >   * non-functional ide-cs driver (but there is no PCMCIA on IA64?)
+> >
+> > IA64 systems can support PCI->Cardbus/PCMCIA cards so they do actually
+> > need this support. They could also do with cardbus IDE support but that
+> > means a whole pile of patches still although the refcounting stuff means
+> > its a lot closer to doable now
 > 
-> 
-> Yes, it's theoretically possible to have had SCSI do this.  We didn't do
-> it at the time because class_devices didn't exist when the SCSI tree was
-> first put together.  It would, however, have rather put the mockers on
-> doing transport classes since class devices can't point at other class
-> devices.
+> Then IDE_ARCH_OBSOLETE_INIT needs to be added back for all other
+> architectures that support PCI too ...
 
-Well, so be it.
+Rather ide-cs needs to be fixed to use ide_std_init_ports() instead of
+ide_init_hwif_ports() (please see my reply to Alan).
 
-All in all, I'd like to point out that James S has a very good
-and valid point, as anyone trained in SCSI protocols can see.
-
->>My vote is to make the multiplexor instantiate each serial line
->>as a separate device.
-> 
-> That's a choice that's up to the maintainer of the serial driver ...
-
-I think James S, was making a point of concept.  Maybe SCSI Core can
-learn from this?
-
-	Luben
+Bartlomiej

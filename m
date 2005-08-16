@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbVHPN4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbVHPN7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965239AbVHPN4M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 09:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965240AbVHPN4L
+	id S965242AbVHPN7d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 09:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbVHPN7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 09:56:11 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:9230 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S965239AbVHPN4J (ORCPT
+	Tue, 16 Aug 2005 09:59:33 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:54544 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S965241AbVHPN7c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 09:56:09 -0400
-Date: Tue, 16 Aug 2005 15:56:06 +0200
-From: David Madore <david.madore@ens.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-Message-ID: <20050816135606.GA24415@clipper.ens.fr>
-References: <42FDE286.40707@v.loewis.de> <feed8cdd0508130935622387db@mail.gmail.com> <1123958572.11295.7.camel@mindpipe> <ufazmrl9h3u.fsf@epithumia.math.uh.edu> <feed8cdd050814125845fe4e2e@mail.gmail.com> <1124049592.4918.2.camel@mindpipe>
+	Tue, 16 Aug 2005 09:59:32 -0400
+Date: Tue, 16 Aug 2005 15:59:23 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: The Linux FAT issue on SD Cards.. maintainer support please
+Message-ID: <20050816135923.GB86400@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+References: <43E52E630789A34CBC7422287BFB99AC01F12D@mail.esn.co.in>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1124049592.4918.2.camel@mindpipe>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Tue, 16 Aug 2005 15:56:06 +0200 (CEST)
+In-Reply-To: <43E52E630789A34CBC7422287BFB99AC01F12D@mail.esn.co.in>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 14, 2005 at 08:00:31PM +0000, Lee Revell wrote:
->		   We write code in ASCII, dammit.
+On Tue, Aug 16, 2005 at 07:04:34PM +0530, Mukund JB. wrote:
+> Dear Lennart,
+> 
+> I have bought a "entermultimedia" USB 2.0 21-in-1 card.
+> There are no Linux driver support in the CD  provided.
+> Can u suggest me what is best bug (USB card reader) with Linux driver
+> support in the Market.
 
-<URL: http://www.madore.org/~david/weblog/2004-12.html#d.2004-12-03.0813 >
+It doesn't work as-is with the usb-storage driver?
 
-:-)
-
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+  OG.

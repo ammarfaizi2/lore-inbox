@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbVHPFgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbVHPFnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbVHPFgf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 01:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbVHPFgf
+	id S1751037AbVHPFnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 01:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVHPFnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 01:36:35 -0400
-Received: from h80ad2575.async.vt.edu ([128.173.37.117]:7401 "EHLO
-	h80ad2575.async.vt.edu") by vger.kernel.org with ESMTP
-	id S965116AbVHPFge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 01:36:34 -0400
-Message-Id: <200508160536.j7G5aKox017930@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Michael E Brown <Michael_E_Brown@dell.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>,
-       Doug Warzecha <Douglas_Warzecha@dell.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support 
-In-Reply-To: Your message of "Mon, 15 Aug 2005 23:58:43 CDT."
-             <1124168323.10755.179.camel@soltek.michaels-house.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <1124168323.10755.179.camel@soltek.michaels-house.net>
+	Tue, 16 Aug 2005 01:43:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:26843 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751037AbVHPFnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 01:43:45 -0400
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+Cc: taka@valinux.co.jp, lkml.hyoshiok@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050816.135425.719901536.hyoshiok@miraclelinux.com>
+References: <98df96d3050815163331d6cce1@mail.gmail.com>
+	 <20050816.123042.424254477.hyoshiok@miraclelinux.com>
+	 <20050816.131729.15816429.taka@valinux.co.jp>
+	 <20050816.135425.719901536.hyoshiok@miraclelinux.com>
+Content-Type: text/plain
+Date: Tue, 16 Aug 2005 07:43:35 +0200
+Message-Id: <1124171015.3215.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1124170579_3269P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Date: Tue, 16 Aug 2005 01:36:19 -0400
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1124170579_3269P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 2005-08-16 at 13:54 +0900, Hiro Yoshioka wrote:
+> Takahashi san,
+> 
+> I appreciate your comments.
+> 
+> > Hi,
+> > 
+> > BTW, what are you going to do with the page-faults which may happen
+> > during __copy_user_zeroing_nocache()? The current process may be blocked
+> > in the handler for a while and get FPU registers polluted.
+> > kernel_fpu_begin() won't help the case. This is another issue, though.
+> 
+> My code does nothing do it.
+> 
+> I need a volunteer to implement it.
 
-On Mon, 15 Aug 2005 23:58:43 CDT, Michael E Brown said:
-
-> No, this is an _EXCELLENT_ reason why _LESS_ of this should be in the
-> kernel. Why should we have to duplicate a _TON_ of code inside the
-> kernel to figure out which platform we are on, and then look up in a
-> table which method to use for that platform? We have a _MUCH_ nicer
-> programming environment available to us in userspace where we can use
-> things like libsmbios to look up the platform type, then look in an
-> easily-updateable text file which smi type to use. In general, plugging
-> the wrong value here is a no-op.
-
-You'll still need to do some *very* basic checking - there's fairly
-scary-looking 'outb' call in  callintf_smi()  and host_control_smi() that seems to
-be totally too trusting that The Right Thing is located at address CMOS_BASE_PORT:
-
-+		for (index = PE1300_CMOS_CMD_STRUCT_PTR;
-+		     index < (PE1300_CMOS_CMD_STRUCT_PTR + 4);
-+		     index++) {
-+			outb(index,
-+			     (CMOS_BASE_PORT + CMOS_PAGE2_INDEX_PORT_PIIX4));
-+			outb(*data++,
-+			     (CMOS_BASE_PORT + CMOS_PAGE2_DATA_PORT_PIIX4));
-+		}
-
-This Dell C840 has an 845, not a PIIX.  What just got toasted if this driver
-gets called?
-
-Can we have a check that the machine is (a) a Dell and (b) has a PIIX and (c) the
-PIIX has a functional SMI behind it, before we start doing outb() calls?
+it's actually not too hard; all you need is to use SSE and not MMX; and
+then just store sse register you're overwriting on the stack or so...
 
 
 
---==_Exmh_1124170579_3269P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDAXtScC3lWbTT17ARAkH9AJwNuiQIhgPK6YvfDsMYaXEUwtXFNwCeNEu3
-jIzwUVhDfRaIB5Z7px1NXZQ=
-=oqFp
------END PGP SIGNATURE-----
-
---==_Exmh_1124170579_3269P--

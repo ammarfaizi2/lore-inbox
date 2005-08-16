@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbVHPINk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbVHPIQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965138AbVHPINk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 04:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbVHPINj
+	id S965139AbVHPIQW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 04:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbVHPIQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 04:13:39 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:14218 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S965138AbVHPINj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 04:13:39 -0400
-Date: Tue, 16 Aug 2005 10:14:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, Dipankar Sarma <dipankar@in.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
-Message-ID: <20050816081413.GB16498@elte.hu>
-References: <42FB41B5.98314BA5@tv-sign.ru> <20050812015607.GR1300@us.ibm.com> <42FC6305.E7A00C0A@tv-sign.ru> <20050815174403.GE1562@us.ibm.com>
+	Tue, 16 Aug 2005 04:16:22 -0400
+Received: from herkules.vianova.fi ([194.100.28.129]:17045 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S965139AbVHPIQV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 04:16:21 -0400
+X-Qmail-Scanner-Mail-From: vherva@ENIGMA.viasys.com via herkules.vianova.fi
+X-Qmail-Scanner: 1.23 (Clear:RC:1(194.100.28.161):. Processed in 0.059203 secs)
+From: "Ville Herva" <vherva@ENIGMA.viasys.com>
+Date: Tue, 16 Aug 2005 11:16:17 +0300
+To: linux-kernel@vger.kernel.org, linux-lvm@redhat.com
+Subject: Upgrade from 2.6.10-ac8 to 2.6.12.5 broke lvm rootfs
+Message-ID: <20050816081617.GB3172@vianova.fi>
+Reply-To: vherva@vianova.fi
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050815174403.GE1562@us.ibm.com>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Operating-System: CYGWIN_NT-5.1 enigma 1.5.18(0.132/4/2) 2005-07-02 20:30 i686 unknown unknown Cygwin
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After upgrading the kernel from 2.6.10-ac8 to 2.6.12.5 the initramfs was no
+longer able to mount rootfs.
 
-* Paul E. McKenney <paulmck@us.ibm.com> wrote:
+  mount: error 6 mounting ext3
 
-> OK, the attached instead revalidates that the task struct still 
-> references the sighand_struct after obtaining the lock (and passes 
-> kernbench and LTP, which tells me I need to get better tests!).
+All the configuration options are identical, and upgrading lvm2 package:
+  lvm2-2.00.25-1.01       -> lvm2-2.01.14-1.0
+  device-mapper-1.00.19-2 -> device-mapper-1.01.04-1.0
 
-i've applied this to the -RT tree, and it's looking good so far from a 
-basic stability POV.
+Did not change anything.
 
-	Ingo
+Dm, ext3 and the relevant block device drivers statically compiled in.
+
+The vg has lvm1 format, fwiw.
+
+I enabled all the debug options I could think of in the nash-based initramfs
+init script. That did not appear to tell much: all I was able to tell was
+that lvm was succesfully called by the init script:
+
+mount -t proc /proc /proc
+mount -t sysfs none /sys
+insmod /lib/dm-snapshot.ko 
+mkdevices /dev
+mkdmnod
+lvm vgscan -v
+# sleep 5
+lvm vgchange -ay
+# sleep 5
+lvm vgmknodes
+# sleep 5
+mkrootdev /dev/root
+umount /sys
+# sleep 5
+mount -o defaults --ro -t ext3 /dev/root /sysroot
+switchroot /sysroot
+
+but those didn't give any meaningful output (other than notices about
+setting log indentation level).
+
+Finally, I added "sleep 5" after each lvm command (commented out above),
+which appeared "solve" the problem. 
+
+Apparently the lvm scripts somehow do their initialization asynchronously
+and the init script tries to mount root before it is available. I'm not sure
+why this is affected by the kernel version, though.
+
+
+
+-- v --
+
+v@iki.fi

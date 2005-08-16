@@ -1,97 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932682AbVHPMcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932686AbVHPMhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932682AbVHPMcz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 08:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbVHPMcy
+	id S932686AbVHPMhK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 08:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbVHPMhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 08:32:54 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:45065 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S932682AbVHPMcy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 08:32:54 -0400
-Message-ID: <4301DCC1.5060409@stud.feec.vutbr.cz>
-Date: Tue, 16 Aug 2005 14:32:01 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050803)
-X-Accept-Language: en-us, en
+	Tue, 16 Aug 2005 08:37:10 -0400
+Received: from web26902.mail.ukl.yahoo.com ([217.146.176.91]:63928 "HELO
+	web26902.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932686AbVHPMhJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 08:37:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=uRcq8d3FCasF8A5XNUmqPbcenOD2tfw9iExK2tshXrY5xZ0shqtGXlogq8qzOc4YUkhEm8ABZBNePrwLPM9ya+8pyYrlG+ZtX6dUVR5303xn/CeriI1CrDQy6Khd/izV6uKd5KBkgj0qbGpUqrSi0amdczd9xnVAcBLxtabINmE=  ;
+Message-ID: <20050816123708.84443.qmail@web26902.mail.ukl.yahoo.com>
+Date: Tue, 16 Aug 2005 14:37:07 +0200 (CEST)
+From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Subject: Re: Trouble shooting a ten minute boot delay (SiI3112)
+To: linux-kernel@vger.kernel.org, Shaun Jackman <sjackman@gmail.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       george anzinger <george@mvista.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, dwalker@mvista.com,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: 2.6.13-rc6-rt1
-References: <20050811110051.GA20872@elte.hu> <1c1c8636050812172817b14384@mail.gmail.com> <20050815111804.GA26161@elte.hu> <20050816084116.GA16772@elte.hu>
-In-Reply-To: <20050816084116.GA16772@elte.hu>
-Content-Type: multipart/mixed;
- boundary="------------010201020801090805080707"
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (0.1 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -0.6 BAYES_01               BODY: Bayesian spam probability is 1 to 10%
-                              [score: 0.0279]
-  ____
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010201020801090805080707
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+> > Do you see grub saying "uncompressing kernel..." or whatever that says?
+>
+> Grub says...
+>
+> root (hd2,2)
+>   Filesystem type is ext2fs, partition type 0x83
+> kernel /boot/vmlinuz-2.6.12.4 root=/dev/md0 ro nodma
+>   [Linux-bzImage, setup=0x1e00, size=0x1302ff]
 
-Ingo Molnar wrote:
-> i've released the 2.6.13-rc6-rt1 tree, which can be downloaded from the 
-> usual place:
-> 
->   http://redhat.com/~mingo/realtime-preempt/
-> 
-> as the name already suggests, i've switched to a new, simplified naming 
-> scheme, which follows the usual naming convention of trees tracking the 
-> mainline kernel. The numbering will be restarted for every new upstream 
-> kernel the -RT tree is merged to.
+  May I suggest to try a boot with Gujin bootloader, i.e. put
+http://www.mirrorservice.org/sites/download.sourceforge.net/pub/sourceforge/g/gu/gujin/install-1.2.tar.gz/install/boot.144?extract=true
+  on a floppy, or:
+http://www.mirrorservice.org/sites/download.sourceforge.net/pub/sourceforge/g/gu/gujin/install-1.2.tar.gz/install/boot.bcd?extract=true
+  on a bootable CDROM and try it?
 
-Great! With this naming scheme it is easy to teach Matt Mackall's 
-ketchup script about the -RT tree.
-The modified ketchup script can be downloaded from:
-http://www.uamt.feec.vutbr.cz/rizeni/pom/ketchup-0.9+rt
+  If it is a BIOS probing problem, or early decompression, you can get more
+ information by making a DOS bootable floppy and run this executable:
+http://www.mirrorservice.org/sites/download.sourceforge.net/pub/sourceforge/g/gu/gujin/standard-1.2.tar.gz/dbgload.exe?extract=true
+ It will act as the previous bootloader but also save a file named DBG
+ on the floppy where it will write the value of all BIOS parameters given
+ to Linux.
 
-Matt, would you release a new ketchup version with this support for 
-Ingo's tree?
+  If even Gujin misbehaves on accessing the disks, try dbgdisk.exe instead
+ of dbgload.exe to see what is unusual in your BIOS - if it is a BIOS
+ problem at all.
 
-Michal
+  Cheers,
+  Etienne.
 
---------------010201020801090805080707
-Content-Type: text/plain;
- name="ketchup-rt.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ketchup-rt.diff"
 
---- ketchup-0.9	2005-08-16 14:06:20.000000000 +0200
-+++ ketchup-0.9+rt	2005-08-16 14:24:05.000000000 +0200
-@@ -307,7 +307,11 @@ version_info = {
-     '2.6-mjb': (latest_mjb,
-                  kernel_url + "/people/mbligh/%(prebase)s/patch-%(full)s.bz2",
-                  r'patch-(2.6.*?).bz2',
--                 1, "Martin Bligh's random collection 'o crap")
-+                 1, "Martin Bligh's random collection 'o crap"),
-+    '2.6-rt': (latest_dir,
-+                "http://people.redhat.com/mingo/realtime-preempt/patch-%(full)s",
-+		r'patch-(2.6.*?)',
-+		0, "Ingo Molnar's realtime-preempt kernel")
-     }
- 
- def version_url(ver, sign = 0):
 
---------------010201020801090805080707--
+	
+
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

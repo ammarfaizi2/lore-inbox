@@ -1,141 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVHPBjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbVHPBok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965070AbVHPBjh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 21:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVHPBjh
+	id S965072AbVHPBok (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 21:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbVHPBok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 21:39:37 -0400
-Received: from smtp.enter.net ([216.193.128.24]:45840 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S965070AbVHPBjg (ORCPT
+	Mon, 15 Aug 2005 21:44:40 -0400
+Received: from smtpout.mac.com ([17.250.248.89]:27353 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S965072AbVHPBok (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 21:39:36 -0400
-From: "D. ShadowWolf" <dhazelton@enter.net>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: oops in 2.6.13-rc6-git5
-Date: Mon, 15 Aug 2005 21:46:00 -0400
-User-Agent: KMail/1.7.2
-References: <200508150133.49400.dhazelton@enter.net> <9a8748490508150522f6c3921@mail.gmail.com>
-In-Reply-To: <9a8748490508150522f6c3921@mail.gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6942770.AorGf0fXII";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Mon, 15 Aug 2005 21:44:40 -0400
+In-Reply-To: <20050815233849.GA3758@sysman-doug.us.dell.com>
+References: <20050815200522.GA3667@sysman-doug.us.dell.com> <AC1976B5-FAFC-4809-B1B2-579D5F14FDFE@mac.com> <20050815233849.GA3758@sysman-doug.us.dell.com>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A9EE6A23-FE2C-4CDE-8236-23F1E48F25F0@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508152146.07553.dhazelton@enter.net>
-X-Virus-Checker-Version: Enter.Net Virus Scanner 1.1
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
+Date: Mon, 15 Aug 2005 21:44:34 -0400
+To: Doug Warzecha <Douglas_Warzecha@dell.com>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6942770.AorGf0fXII
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_YVUADKm3ObguThX"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
---Boundary-01=_YVUADKm3ObguThX
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Monday 15 August 2005 08:22, you wrote:
-> On 8/15/05, D. ShadowWolf <dhazelton@enter.net> wrote:
-> > Decided to take the latest git kernel for a run and ran into the
-> > following oops when shutting the system down to try it from a cold-boot
-> > situation. I wasn't able to capture the oops as it happened, but
-> > thankfully syslog was still running and I managed to trap it there.
+On Aug 15, 2005, at 19:38:49, Doug Warzecha wrote:
+> On Mon, Aug 15, 2005 at 04:23:37PM -0400, Kyle Moffett wrote:
+>> Why can't you just implement the system management actions in the  
+>> kernel
+>> driver?
 >
-> serial console, netconsole, console on line-printer  are all useful
-> for capturing Oops data. There are detailed guides in Documentation/
+> We want to minimize the amount of code in the kernel and avoid  
+> having to
+> update the driver each time a new system management command is added.
+
+One of the recent trends in kernel driver development is to make as much
+as possible accessible through standard tools (like with echo and cat  
+via
+sysfs).
+
+> The libsmbios project is being updated to use this code.  http:// 
+> linux.dell.com/libsmbios/main/.  Using the libsmbios code, you
+> will be able to set all of the options in BIOS F2 screen from Linux
+> userspace.  Also, libsmbios is looking at implementing a few other  
+> things
+> like fan status.  Libsmbios is 100% open-source (OSL/GPL dual  
+> license).
+
+ From my point of view, this driver could use sysfs almost entirely  
+and put
+all of the hardware-manipulation code completely in kernel space, along
+with the hardware detection code.  You could have plain-text files in
+/sys/bus/platform/dellbios/ that have all of the BIOS F2 options  
+accessible
+to the admin from the command line, without special tools.  (You could
+always add an extra program that presents a BIOS-like interface)
+
+> The power cycle feature of the system powers off the system for a few
+> seconds and then powers the system back on without user intervention.
+> shutdown() and reboot() don't provide that feature.
+
+Please ensure that the code is only run on reboot (and maybe halt), but
+definitely not in the poweroff code.
+
+>> What exactly is smi_type used for?  Please provide better  
+>> documentation
+>> on how to use this and what it does.
 >
-> > When the oops occurred the system was almost shut down, but the command
-> > that was executing at the time was to save the sync the hardware clock =
-to
-> > Linux (I think)... the trap from my kernel logs (I have each class of
-> > kernel event redirected to a different file. This leads to some huge
-> > files in a short span, but is useful for debugging a new kernel) The
-> > kernel is tainted by the lt modem drivers (lt_modem & lt_serial) however
-> > the problem does not appear to be in either of those, and they function
-> > properly under 2.6.12.3
-> >
-> > I'm running a basic Slackware 10 distribution (other than the ltmodem
-> > drivers (gone inside the next month))
->
-> I've tried to reproduce the Oops here with your config, but my
-> hardware is too different to match your config, so I had to make some
-> changes to get the kernel running. In the end I was not able to
-> reproduce it.
->
-> Can you reproduce the crash reliably?
-> Can you reproduce the crash with a non-tainted kernel?
+> The method of generating a host control SMI is not exactly the same  
+> for
+> each PowerEdge system listed in dcdbas.txt.  host_control_smi_type  
+> tells
+> the driver how to generate the host control SMI for the system in use.
+> I'll update dcdbas.txt with the SMI type value associated with the  
+> systems
+> listed in that file.
 
-Haven't attempted to reproduce - I actually tried the kernel against my bet=
-ter=20
-judgement -- I've had hard-drives killed by faulty kernels in the past. But=
-=20
-since you've requested, yes, I'll give it a shot. Reproducing it with an=20
-untainted kernel should be as simple as just booting the system, but I'm=20
-going to have to go monkey my init scripts to disable the automagic loading=
-=20
-of the modules that taint the kernel.
+This is an _excellent_ reason why more of this should be in the kernel.
+What happens if the wrong SMI is used?  Shouldn't it be relatively easy
+for the kernel to determine the correct SMI itself?
 
-As for doing it using a network or serial console - I don't have the equipm=
-ent=20
-anymore. I used to have a decent WYSE serial console, but that died in the=
-=20
-same storm that caught my old system... If you know where I can pick up an=
-=20
-old line printer or a cheap serial terminal I'll buy it and get it setup=20
-ASAP.
+Thanks for your hard work!
 
-DRH
+Cheers,
+Kyle Moffett
 
---Boundary-01=_YVUADKm3ObguThX
-Content-Type: application/pgp-keys;
-  name="OpenPGP key 0xA6992F96300F159086FF28208F8280BB8B00C32A"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename=0xA6992F96300F159086FF28208F8280BB8B00C32A.asc
+--
+Unix was not designed to stop people from doing stupid things,  
+because that
+would also stop them from doing clever things.
+   -- Doug Gwyn
 
------BEGIN PGP PUBLIC KEY BLOCK-----
-Version: GnuPG v1.2.7 (GNU/Linux)
 
-mQGiBEJS3C0RBADeLmOaFYR40Pd/n86pPD10DYJIiSuEEJJAovJI/E3kjYgKnom0
-CmwPa9oEXf4B3FMVcqB0ksKrhA8ECVsNRwO91+LObFczyc59XBgYDScn9h9t+lu4
-IZTObcR1SnQ/I+YdeJpd12ZcuLAnQ3EGl9+7bBOJgr4JcwM6Idixtg92kwCg4vhj
-97BpUqPSk6cwD4LMRoqzABcEAJPZdEpYDwrXiy5aQx8ax+CbdfJX+XhxVcOrqzoI
-8TS7yZPcE1rszCANpCb6xg7TReWyIOu+FQvfzLg5e7Cl2XtVC66RDgdlTBy/pjnX
-fxIOIW5Hl+cVaWLBJ2tdAOIiyGPrKC/uTyY/N+4iQTsQK2l/yxc3fOgEN0g9AY9a
-GSkHBACmX6awLcrdnxY0p2J/OmRtT4oOWcbq5TUchM9SzPLLIatGZEs7jUal9OYo
-ZzmRPjElgM4koF7TTB+71FTUaqVGd0smJVKfJ1nVp6nefxOI6MH/v8/4j7Bvtb1Y
-Ypkrxt+R8WWUI1L19yEDp55rvzqIkkLtmJZP/QJg2e7zxTYYi7Q5RGFuaWVsIFIu
-IEhhemVsdG9uIChUaGUgU2hhZG93V29sZikgPGRoYXplbHRvbkBlbnRlci5uZXQ+
-iF4EExECAB4FAkJS3C0CGwMGCwkIBwMCAxUCAwMWAgECHgECF4AACgkQj4KAu4sA
-wyoRwwCeN+PEM8jpxxpxiG4dGyXNwTZBtNkAoKAtdOgeK66+zPEtJFanUeFe6lRX
-uQENBEJS3DoQBACfejnq7GSJ7g8nL669pXDVFFrabOaiIC4sH0FgqbK+Oewm4h77
-Ir5QL9SsHWvYSBYxnCODvR7zHv8HefWgJ4duC66b8PCXY/qcmxhRhYtdEssx/ncm
-BhNXlPPvsyPT/e7PdZkDv7dJuVtVJrLVVeSniz+3KBIIYb395B+yhzjPLwAEDQP9
-HFlaX9Duyg8c+RFhqStVrIluy7ZTg8pGjF2KLPsCmcSVzVLLhplF1M6Fs1CSgwRe
-OCDRWPFohcaSxPIwIdlS0h2HOnWziPVpzh4HWylbtC6cZYg7dpgaDlJA00ikUlyj
-6/bxwNwBuVoNSegIe0mN+xAIsvXM2TLuY1fFYcmeRxmISQQYEQIACQUCQlLcOgIb
-DAAKCRCPgoC7iwDDKsoRAJwKJETliGVgcCSTMd7sq/WMOe9VAgCgxq4MRqWBvPWY
-fPs99FjiIC8asFc=
-=vwF/
------END PGP PUBLIC KEY BLOCK-----
-
---Boundary-01=_YVUADKm3ObguThX--
-
---nextPart6942770.AorGf0fXII
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-
-iD8DBQBDAUVfj4KAu4sAwyoRAqLtAJ94EkmGiLxQ1xLhaAfvijSoQsG5ywCfc11h
-aR8qSNlS0TpiPAv68cM6qTc=
-=I0Nk
------END PGP SIGNATURE-----
-
---nextPart6942770.AorGf0fXII--

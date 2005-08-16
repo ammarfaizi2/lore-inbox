@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbVHPWPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbVHPWQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbVHPWPI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 18:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbVHPWPI
+	id S1751003AbVHPWQU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 18:16:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbVHPWQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 18:15:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50576 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750945AbVHPWPH (ORCPT
+	Tue, 16 Aug 2005 18:16:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9873 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750974AbVHPWQT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 18:15:07 -0400
-Date: Tue, 16 Aug 2005 15:14:50 -0700
-From: Greg KH <greg@kroah.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+	Tue, 16 Aug 2005 18:16:19 -0400
+Date: Tue, 16 Aug 2005 15:16:05 -0700
+From: Greg Kroah-Hartman <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev-067 and 2.6.12?
-Message-ID: <20050816221450.GA28520@kroah.com>
-References: <200508162302.00900.s0348365@sms.ed.ac.uk> <20050816220544.GA28377@kroah.com> <200508162312.26972.s0348365@sms.ed.ac.uk>
+Subject: [patch 3/7] PCI: fix quirk-6700-fix.patch
+Message-ID: <20050816221605.GD28619@kroah.com>
+References: <20050816220001.699316000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508162312.26972.s0348365@sms.ed.ac.uk>
+Content-Disposition: inline; filename="pci-quirk-6700-fix.patch"
+In-Reply-To: <20050816221527.GA28619@kroah.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 16, 2005 at 11:12:26PM +0100, Alistair John Strachan wrote:
-> On Tuesday 16 August 2005 23:05, Greg KH wrote:
-> > On Tue, Aug 16, 2005 at 11:02:00PM +0100, Alistair John Strachan wrote:
-> > > Hi,
-> > >
-> > > I just tried upgrading udev 053 to 067 on a 2.6.12 system and although
-> > > the system booted, firmware_class failed to upload the firmware for my
-> > > wireless card, prism54 was no longer auto loaded, etc. Even manually
-> > > loading the driver didn't help.
-> > >
-> > > Any reason why 067 wouldn't work with 2.6.12? Do you have to do something
-> > > special with hotplug prior to upgrading?
-> >
-> > What distro are you using?  What rules file are you using?
-> >
-> > 067 should work just fine for you, it is for a lot of Gentoo and SuSE
-> > users right now, on 2.6.12.
-> >
-> 
-> An LFS from April 05, with the stock 50-udev.rules, 25-lfs.rules (which 
-> doesn't do anything suspicious, I think; certainly nothing related to my 
-> problem).
+From: Andrew Morton <akpm@osdl.org>
 
-There are no "stock" udev rules anymore.  That's probably the issue, all
-of the distros made their own, so we provide them in the tarball.  I
-suggest you talk to the LFS people about this.
+drivers/built-in.o(.text+0x32c3): In function `quirk_pcie_pxh':
+/usr/src/25/drivers/pci/quirks.c:1312: undefined reference to `disable_msi_mode'
 
-> 25-lfs.rules does duplicate some of the things in 50-udev.rules, but I think 
-> that's deliberate (they want to interfere with the stock install as little as 
-> possible, and the overrides take precedence). I've put my /etc/udev directory 
-> unmodified up here:
-> 
-> http://devzero.co.uk/~alistair/udev/
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-s/=/==/ for most of your rules and see if that works.
+---
+ drivers/pci/pci.h |    6 ++++++
+ 1 files changed, 6 insertions(+)
 
-> If I reinstall 053 and reboot, everything that's broken on 067 works again. Do 
-> you need a specific hotplug installed?
+--- gregkh-2.6.orig/drivers/pci/pci.h	2005-08-16 14:57:46.000000000 -0700
++++ gregkh-2.6/drivers/pci/pci.h	2005-08-16 14:57:47.000000000 -0700
+@@ -46,7 +46,13 @@ extern int pci_msi_quirk;
+ #else
+ #define pci_msi_quirk 0
+ #endif
++
++#ifdef CONFIG_PCI_MSI
+ void disable_msi_mode(struct pci_dev *dev, int pos, int type);
++#else
++static inline void disable_msi_mode(struct pci_dev *dev, int pos, int type) { }
++#endif
++
+ extern int pcie_mch_quirk;
+ extern struct device_attribute pci_dev_attrs[];
+ extern struct class_device_attribute class_device_attr_cpuaffinity;
 
-You shouldn't.
-
-You also might want to take this to the linux-hotplug-devel mailing
-list, as that's the proper place for udev issues.
-
-good luck,
-
-greg k-h
+--

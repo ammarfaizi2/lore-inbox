@@ -1,320 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbVHPQIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbVHPQIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbVHPQIw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 12:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbVHPQIw
+	id S1030209AbVHPQIW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 12:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbVHPQIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 12:08:52 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:64901 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030210AbVHPQIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 12:08:51 -0400
-Subject: Re: 2.6.13-rc6-rt5
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <1124207046.5764.17.camel@localhost.localdomain>
-References: <20050816121843.GA24308@elte.hu>
-	 <1124206316.5764.14.camel@localhost.localdomain>
-	 <1124207046.5764.17.camel@localhost.localdomain>
-Content-Type: multipart/mixed; boundary="=-kEUtDZeT0aiCnPUS7oKb"
-Organization: Kihon Technologies
-Date: Tue, 16 Aug 2005 12:08:27 -0400
-Message-Id: <1124208507.5764.20.camel@localhost.localdomain>
+	Tue, 16 Aug 2005 12:08:22 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:12224 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1030209AbVHPQIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 12:08:21 -0400
+Date: Tue, 16 Aug 2005 12:08:20 -0400
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>
+Cc: hirofumi@mail.parknet.co.jp,
+       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: The Linux FAT issue on SD Cards.. maintainer support please
+Message-ID: <20050816160820.GY6714@csclub.uwaterloo.ca>
+References: <43E52E630789A34CBC7422287BFB99AC01F129@mail.esn.co.in>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E52E630789A34CBC7422287BFB99AC01F129@mail.esn.co.in>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 16, 2005 at 06:54:40PM +0530, Mukund JB. wrote:
+> Yes, I agree. My sentence formation was wrong.
+> 
+> My question here is:
+> 
+> If I have NO multiple partition support implemented in the driver, will
+> it effect mounting the first partition on the device?
 
---=-kEUtDZeT0aiCnPUS7oKb
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Yes.  If you have no partition support, then you can only mount cards
+without a partition table since that is all you are presenting.  cards
+which have a partition table will have their start of filesystem offset
+by a few sectors to the start of partition 1 or 4 or whichever it is
+using.
 
-OK, I compiled it now. Tried to boot, and it rebooted on me before
-showing any output :-(
+> i.e. If I said alloc_disk(1) (single partition), and if I am trying to
+> mount the very first partition, will I be able to do it?
+> 
+> Existing gendisk code:
+> ---------------
+> 	alloc_disk(1);
+> 	first_minor = socket_no; // Device socket no varies from 0 - 3.
+> 					 // so, each device- we have
+> just one node; 					 // NO partitions on
+> each device.
+> 
+> Device Interface: mknod /dev/tfa0 b 252 0
+> 
+> Will I have to modify the above code? 
 
-So I'll start debugging it, but just incase I'm not looking for
-something that is already found, is there anything wrong with the
-following config?
+I don't even know what that code is doing.
 
--- Steve
+> Will you tell me what else do I need to handle multiple partition in my
+> driver apart from alloc_disk(n) & first_minor modifications as per n(n/o
+> partitions)?
 
+Well you can either support partitions fully by making your driver work
+like the ide and scsi and such drivers do things, or you can just make
+it simpler and only support devices without a partition table and those
+with a single partition entry in the partition table.  That would
+support probably 99.99% of cards you would encounter.  You just have to
+check if a partition table exists, if it doesn't, just present the whole
+device as the disk, while if a partition table exists, scan it for a
+partition that is not a blank entry, then find the start of that
+partition and present the device to the user starting at that sector.
 
---=-kEUtDZeT0aiCnPUS7oKb
-Content-Disposition: attachment; filename=config_ernie
-Content-Type: text/plain; name=config_ernie; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+> The partition layout mentioned in the partition table is same for the
+> Windows formatted SD & CAM formatted SD. I assume partition layout
+> starts at 0x1BE.
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_BROKEN=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-CONFIG_LOCALVERSION=""
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_EMBEDDED=y
-CONFIG_KALLSYMS=y
-CONFIG_KALLSYMS_ALL=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_BASE_SMALL=0
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_GENERIC=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=7
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HIGH_RES_TIMERS=y
-CONFIG_HIGH_RES_TIMER_TSC=y
-CONFIG_HIGH_RES_RESOLUTION=1000
-CONFIG_PREEMPT_RT=y
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_SOFTIRQS=y
-CONFIG_PREEMPT_HARDIRQS=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_PREEMPT_RCU=y
-CONFIG_RCU_STATS=y
-CONFIG_RCU_TORTURE_TEST=y
-CONFIG_RWSEM_GENERIC_SPINLOCK=y
-CONFIG_ASM_SEMAPHORES=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_IOAPIC_FAST=y
-CONFIG_X86_TSC=y
-CONFIG_NOHIGHMEM=y
-CONFIG_SELECT_MEMORY_MODEL=y
-CONFIG_FLATMEM_MANUAL=y
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_SECCOMP=y
-CONFIG_HZ_1000=y
-CONFIG_HZ=1000
-CONFIG_PHYSICAL_START=0x100000
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA_DMA_API=y
-CONFIG_ISA=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_FIB_HASH=y
-CONFIG_IP_TCPDIAG=y
-CONFIG_TCP_CONG_BIC=y
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CLK_JIFFIES=y
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_PARPORT=y
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_QLA2XXX=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-CONFIG_NETCONSOLE=m
-CONFIG_NETPOLL=y
-CONFIG_NETPOLL_RX=y
-CONFIG_NETPOLL_TRAP=y
-CONFIG_NET_POLL_CONTROLLER=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_MOUSE_INPORT=m
-CONFIG_MOUSE_LOGIBM=m
-CONFIG_MOUSE_PC110PAD=m
-CONFIG_MOUSE_VSXXXAA=m
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_LEGACY_PTY_COUNT=256
-CONFIG_RTC=y
-CONFIG_RTC_HISTOGRAM=y
-CONFIG_BLOCKER=y
-CONFIG_AGP=y
-CONFIG_AGP_ALI=y
-CONFIG_AGP_AMD=y
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_SIS=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_TDFX=y
-CONFIG_DRM_RADEON=y
-CONFIG_HWMON=y
-CONFIG_FB=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=y
-CONFIG_USB_STORAGE=y
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_MON=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-CONFIG_INOTIFY=y
-CONFIG_DNOTIFY=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_PROC_FS=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFSD=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_EXPORTFS=y
-CONFIG_NFS_COMMON=y
-CONFIG_SUNRPC=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_DETECT_SOFTLOCKUP=y
-CONFIG_SCHEDSTATS=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_DEBUG_IRQ_FLAGS=y
-CONFIG_WAKEUP_TIMING=y
-CONFIG_PREEMPT_TRACE=y
-CONFIG_CRITICAL_PREEMPT_TIMING=y
-CONFIG_CRITICAL_IRQSOFF_TIMING=y
-CONFIG_CRITICAL_TIMING=y
-CONFIG_LATENCY_TIMING=y
-CONFIG_LATENCY_TRACE=y
-CONFIG_MCOUNT=y
-CONFIG_RT_DEADLOCK_DETECT=y
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_DEBUG_INFO=y
-CONFIG_FRAME_POINTER=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_STACK_USAGE=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRC32=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
+If there is a partition table then it starts there.
 
---=-kEUtDZeT0aiCnPUS7oKb--
+> >> Sfdisk -l /dev/tfa0 ( CAM & win)
+> >> Disk /dev/tfa0: 448 cylinders, 2 heads, 32 sectors/track
+> >> Units = cylinders of 32768 bytes, blocks of 1024 bytes, counting from
+> 0
+> >>
+> >>    Device Boot Start     End   #cyls    #blocks   Id  System
+> >> /dev/tfa0p1   *      0+    449     450-     14371+   1  FAT12
+> >> /dev/tfa0p2          0       -       0          0    0  Empty
+> >> /dev/tfa0p3          0       -       0          0    0  Empty
+> >> /dev/tfa0p4          0       -       0          0    0  Empty
+> >> Warning: partition 1 extends past end of disk
+> >>
+> Can you quote your comments on the warning given by sfdisk command
+> above?
 
+The warning means the driver is broken and says the wrong number of
+cylinders for the device.
+
+> These files belong to the same device. They are just different sectors
+> of the device file. 
+> 	
+> 	Cluster-0.txt - First 16 Blocks of the device
+> 	Phy-Cam-57-sector.txt - 57th sector of the device (claimed FAT
+> 	
+> Sector)
+
+Oh ok.  So on that card the first partition probably starts that that
+sector.
+
+> >So for the device above with one partition, you would have to check
+> >the partition table entry to find the start sector number of the
+> >partition and then offset requests by that amount.
+> 
+> You mean the application like mount should check the partition table
+> entry to find the start sector number of the partition and then mount
+> the particular partition.
+> 
+> >For example:
+> >fdisk -l -u /dev/sde:
+> >debdev1:~# fdisk -l -u /dev/sde
+> >
+> >Disk /dev/sde: 14 MB, 14745600 bytes
+> >2 heads, 32 sectors/track, 450 cylinders, total 28800 sectors
+> >Units = sectors of 1 * 512 = 512 bytes
+> >
+> >   Device Boot      Start         End      Blocks   Id  System
+> >/dev/sde1              57       28799       14371+   1  FAT12
+> >
+> >So if you skip 57 sectors you would see the FAT12 filesystem.
+> >
+> 
+> Can you comment on the fdisk output which says the total sectors are
+> 28672 while the total n/o sector passed to fdisk through the HDIO_GETGEO
+> ioctl is 28800.
+
+You are missing 128 sectors which happens to be 2 heads * 32 sectors *
+2 cylinders.  So 28672 matches 2 heads, 32 sectors 448 cylinders, so
+may the real problem you had with sfdisk was that it decided your total
+sector size was wrong, and fixed the cylinder count down by 2 to match
+the number of sectors.  Your driver SHOULD be returning 28800 for the
+number of sectors.
+
+> I have a single ioctl implemented in the driver i.e HDIO_GETGEO ioctl.
+
+Perhaps one of the more modern ways of getting disk size would return
+the full number of sectors instead.  For example the ioctl BLKSSZGET and
+BLKGETSIZE and BLKGETSIZE64.
+
+Now on the other hand, I think you may have an error in your total size
+calculation in the driver too, since 2 heads * 32 sectors * 450
+cylinders is 28800 sectors total.
+
+> fdisk -l -u /dev/tfa0:
+> debdev1:~# fdisk -l -u /dev/tfa0
+> 
+> Disk /dev/tfa0: 14 MB, 14680064 bytes
+> 2 heads, 32 sectors/track, 450 cylinders, total 28672 sectors
+> Units = sectors of 1 * 512 = 512 bytes
+> 
+>    Device Boot      Start         End      Blocks   Id  System
+> /dev/ tfa0p1		57       28799       14371+   1  FAT12
+
+I think given your partition table says the last sector is 28799 of the
+partition, you have to find out why your driver is returning a total
+size of 28672 when the real size is 28800.
+
+Len Sorensen

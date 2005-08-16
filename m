@@ -1,52 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbVHPKBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965185AbVHPKGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965179AbVHPKBr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 06:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbVHPKBr
+	id S965185AbVHPKGM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 06:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbVHPKGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 06:01:47 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:47537 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S965179AbVHPKBr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 06:01:47 -0400
-Date: Tue, 16 Aug 2005 12:01:42 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc6-git5 : PCI mem resource alloc failure
-In-Reply-To: <1123982870.2779.7.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0508161200480.32120@yvahk01.tjqt.qr>
-References: <1123982870.2779.7.camel@localhost.localdomain>
+	Tue, 16 Aug 2005 06:06:12 -0400
+Received: from pcsbom.patni.com ([203.124.139.208]:28327 "EHLO
+	pcsspz.PATNI.COM") by vger.kernel.org with ESMTP id S965185AbVHPKGM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 06:06:12 -0400
+Reply-To: <shahid.shaikh@patni.com>
+From: "shahid shaikh" <shahid.shaikh@patni.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Defination of Flag CONFIG_DEBUG_SPINLOCK_SLEEP in AS4 UP1
+Date: Tue, 16 Aug 2005 15:37:07 +0530
+Message-ID: <00a501c5a24a$4339aca0$11051aac@pcp41116>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="----------=_1124187238-14495-287"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format...
 
->With 2.6.13-rc6-git5 I started getting the below errors. Despite of the
->errors everything works fine. (only problem is that I have to
->disconnect /reconnect the usb mouse for it to get detected..)
->
->[   47.883970] PCI: Failed to allocate mem resource #10:2000000@e2000000
->for 000 0:02:04.0
->[   47.884002] PCI: Failed to allocate mem resource #10:2000000@e2000000
->for 000 0:02:04.1
+------------=_1124187238-14495-287
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-cat /proc/iomem before you modprobe the module - is 20000000 already reserved 
-by the motherboard?
+Hi all,
+While doing insmod for a psuedo driver, kernel is dumping a stack because
+sleep function is called.
+My init_module function for psuedo driver calls add_disk to register admin
+device.
+In add_disk(), kernel is allocating memory using kmalloc with flag
+GFP_KERNEL. This is hardcoded in kernel code for add_disk.
 
->[   47.884170] PCI: Setting latency timer of device 0000:00:0a.0 to 64
->[   47.884806] ACPI: PCI Interrupt Link [LNK1] enabled at IRQ 19
->[   47.884818] ACPI: PCI Interrupt 0000:02:04.0[A] -> Link [LNK1] -> GSI
->19 (lev el, low) -> IRQ 177
->[   47.885434] ACPI: PCI Interrupt Link [LNK2] enabled at IRQ 18
->[   47.885442] ACPI: PCI Interrupt 0000:02:04.1[B] -> Link [LNK2] -> GSI
->18 (lev el, low) -> IRQ 185
->[   47.886005] agpgart: Detected AGP bridge 0
->[   47.886017] agpgart: Setting up Nforce3 AGP.
->[   47.893822] agpgart: AGP aperture is 128M @ 0xe8000000
+Whenever kernel inserts any module or driver it disable all interrupts. But
+allocating memory with GFP_KERNEL  flag may sleep. This becomes self
+contradicting. Hence an invalid context.
+Through kmalloc(), might_sleep_if( flag & GFP_WAIT ) function is called
+where flag is GFP_KERNEL.
+At this, sleep function is called.
+Sleep function have been defined differently depending on defination of
+CONFIG_DEBUG_SPINLOCK_SLEEP flag.
+The above flag is defined in AS4 UP1. If the flag is defined, might_sleep()
+function calls sleep function and then calls reschedule function.
+If not defined, might_sleep() function directly calls reschedule function.
+In sleep function if irqs_disabled() returns 1, it dumps stack.
+irqs_disabled() returns 1 when irqs are disabled.
+
+What we should do to avoid the above scenario?
+
+GFP_KERNEL flag in kmalloc code is hard coded. Can't change that.
+
+We have to call add_disk from our init_module to register admin device for
+our psuedo driver.
+
+We tried by enabling irqs before calling add_disk using kernel api
+local_irq_enable(). It works fine.
+But is it correct to enable irqs in a kernel module?
+After add_disk we even restored it back using kernel api
+local_irq_disable().
+
+Or is there any other way around thorugh which we can avoid the above
+scenario?
+
+Warm Regards,
+Shahid Shaikh.
 
 
 
-Jan Engelhardt
--- 
+
+
+http://www.patni.com
+World-Wide Partnerships. World-Class Solutions.
+_____________________________________________________________________
+
+This e-mail message may contain proprietary, confidential or legally
+privileged information for the sole use of the person or entity to
+whom this message was originally addressed. Any review, e-transmission
+dissemination or other use of or taking of any action in reliance upon
+this information by persons or entities other than the intended
+recipient is prohibited. If you have received this e-mail in error
+kindly delete  this e-mail from your records. If it appears that this
+mail has been forwarded to you without proper authority, please notify
+us immediately at netadmin@patni.com and delete this mail. 
+_____________________________________________________________________
+
+------------=_1124187238-14495-287--

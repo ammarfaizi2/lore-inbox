@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVHPCnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVHPCtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbVHPCnX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 22:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVHPCnX
+	id S964862AbVHPCtv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 22:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVHPCtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 22:43:23 -0400
-Received: from h80ad2575.async.vt.edu ([128.173.37.117]:28565 "EHLO
-	h80ad2575.async.vt.edu") by vger.kernel.org with ESMTP
-	id S964856AbVHPCnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 22:43:22 -0400
-Message-Id: <200508160243.j7G2h8qm010206@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Doug Warzecha <Douglas_Warzecha@dell.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support 
-In-Reply-To: Your message of "Mon, 15 Aug 2005 18:38:49 CDT."
-             <20050815233849.GA3758@sysman-doug.us.dell.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050815200522.GA3667@sysman-doug.us.dell.com> <AC1976B5-FAFC-4809-B1B2-579D5F14FDFE@mac.com>
-            <20050815233849.GA3758@sysman-doug.us.dell.com>
+	Mon, 15 Aug 2005 22:49:51 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:52372 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964862AbVHPCtu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 22:49:50 -0400
+Date: Tue, 16 Aug 2005 07:41:19 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Con Kolivas <kernel@kolivas.org>,
+       ck@vds.kolivas.org, Tony Lindgren <tony@atomide.com>,
+       tuukka.tikkanen@elektrobit.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel Kernel <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@muc.de>, george@mvista.com
+Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
+Message-ID: <20050816021119.GD4731@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050812201946.GA5327@in.ibm.com> <200508140053.21056.kernel@kolivas.org> <20050813164618.GA4659@in.ibm.com> <200508141018.29668.kernel@kolivas.org> <6189ECD1-1CE7-4E36-B9F4-FD4D9E5871FA@mac.com> <20050815154726.GB4731@in.ibm.com> <1124123963.4722.9.camel@leatherman>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1124160186_3269P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 15 Aug 2005 22:43:07 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124123963.4722.9.camel@leatherman>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1124160186_3269P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 15 Aug 2005 18:38:49 CDT, Doug Warzecha said:
-
-> > If this is supposed to be used with the RBU code to trigger a BIOS  
-> > update, ...
+On Mon, Aug 15, 2005 at 09:39:22AM -0700, john stultz wrote:
+> The timer_opts interface is the existing interface, my work replaces it
+> and separates timekeeping from the timer interrupt.
 > 
-> This driver is not needed by the RBU code.
+> You can find a cumulative version of my patch here:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0508.1/0982.html
 
-Documentation/dell_rbu.txt says:
+Oops ..Thanks for pointing it out! Will try this patch and let you
+know how stable time is with dyn-tick.
 
-> The rbu driver needs to have an application which will inform the BIOS to
-> enable the update in the next system reboot.
-
-Can the dcdbas code be used to implement that application?
-
+-- 
 
 
---==_Exmh_1124160186_3269P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDAVK6cC3lWbTT17ARArAmAJ94nQ2CBxW3nkvXE9i7G9Jatb1UwQCgoPM6
-fcD00PH7Ni/lMpezxTNBgwA=
-=XEJG
------END PGP SIGNATURE-----
-
---==_Exmh_1124160186_3269P--
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

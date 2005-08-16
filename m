@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVHPXPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVHPXRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbVHPXPb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 19:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVHPXPb
+	id S1750728AbVHPXRN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 19:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbVHPXRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 19:15:31 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:53196
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1750726AbVHPXPa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 19:15:30 -0400
-Subject: Re: HDAPS, Need to park the head for real
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Reply-To: abonilla@linuxwireless.org
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>
-In-Reply-To: <20050816200708.GE3425@suse.de>
-References: <1124205914.4855.14.camel@localhost.localdomain>
-	 <20050816200708.GE3425@suse.de>
-Content-Type: text/plain
-Date: Tue, 16 Aug 2005 17:15:33 -0600
-Message-Id: <1124234133.4855.73.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 16 Aug 2005 19:17:13 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:63316 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S1750728AbVHPXRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 19:17:12 -0400
+Message-ID: <430273F3.2000204@suse.com>
+Date: Tue, 16 Aug 2005 19:17:07 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: jerome lacoste <jerome.lacoste@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Marie-Helene Lacoste <manies@tele2.fr>
+Subject: Re: 2.6.12.3 clock drifting twice too fast (amd64)
+References: <5a2cf1f6050816031011590972@mail.gmail.com> <Pine.LNX.4.62.0508161103360.7101@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0508161103360.7101@schroedinger.engr.sgi.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-16 at 22:07 +0200, Jens Axboe wrote:
-> On Tue, Aug 16 2005, Alejandro Bonilla Beeche wrote:
-> If I were in your position, I would just implement this for ide (pata,
-> not sata) right now, since that is what you need to support (or do some
-> of these notebooks come with sata?). So it follows that you add an ide
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Some notebooks are coming up with a Sata controller I think, but is
-still and IDE drive. I think some T43's come with that.
+Christoph Lameter wrote:
+> On Tue, 16 Aug 2005, jerome lacoste wrote:
+> 
+>>Installed stock 2.6.12.3 on a brand new amd64 box with an Asus extreme
+>>AX 300 SE/t mainboard.
+>>
+>>I remember seeing a message in the boot saying something along:
+>>
+>>  "cannot connect to hardware clock."
+>>
+>>And now I see that the time is changing too fast (about 2 seconds each second).
+> 
+> The timer interrupt is probably called twice for some reason and therefore 
+> time runs twice as fast. Try using HPET for interrupt timing.
+> 
+>>I don't have visual on the boot sequence anymore (only remote access).
+> 
+> Use serial console or netconsole. The boot information is logged. Try 
+> dmesg.
 
-But, I will ask or check again later if we ever need this feature for
-SATA.
+I am seeing similar results on my Acer Ferrari 4000 (Turion64 ML-37). It
+does appear that time is running 2x normal time.
 
-.Alejandro
+Booting with noapictimer cleared up the timing issues, though it did
+introduce some IRQ badness.
 
+- -Jeff
+
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFDAnPzLPWxlyuTD7IRAuQ+AKCoK4Bvj9YaSxK1cYzK/LQUGcj2pQCgmBKK
+hGeSfGE+CvdNzqW3pN5LQq8=
+=wtra
+-----END PGP SIGNATURE-----

@@ -1,42 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVHPUln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVHPUmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbVHPUln (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 16:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVHPUln
+	id S932437AbVHPUmO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 16:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbVHPUmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 16:41:43 -0400
-Received: from ns1.suse.de ([195.135.220.2]:20425 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932434AbVHPUlm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 16:41:42 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: vamsi krishna <vamsi.krishnak@gmail.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Multiple virtual address mapping for the same code on IA-64 linux kernel.
-References: <3faf056805081613365f5237de@mail.gmail.com>
-X-Yow: Look!!  Karl Malden!
-Date: Tue, 16 Aug 2005 22:41:39 +0200
-In-Reply-To: <3faf056805081613365f5237de@mail.gmail.com> (vamsi krishna's
-	message of "Wed, 17 Aug 2005 02:06:26 +0530")
-Message-ID: <je1x4tbon0.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 16 Aug 2005 16:42:14 -0400
+Received: from nproxy.gmail.com ([64.233.182.192]:32989 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932441AbVHPUmL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 16:42:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FRljgkxMzIFgzXOuT0pDF8g7DHLNW9vvjK8h9NGv8eW7urFoZJbBe4XtY0w7lJH0lI3VONBHwl53/zs5QTPqtASkdx4fNihp9/LjYuOfy2kdSxF4niRXPuuhptwWV1NIvcKsmnMgLrT37hV27GXpMHnBPrtbYc2mDuKDQsxh0Uw=
+Message-ID: <58cb370e050816134270b445ea@mail.gmail.com>
+Date: Tue, 16 Aug 2005 22:42:07 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+In-Reply-To: <1124223946.22924.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200508111424.43150.bjorn.helgaas@hp.com>
+	 <200508151507.22776.bjorn.helgaas@hp.com>
+	 <58cb370e050816023845b57a74@mail.gmail.com>
+	 <200508161316.32602.bjorn.helgaas@hp.com>
+	 <1124223946.22924.4.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vamsi krishna <vamsi.krishnak@gmail.com> writes:
+On 8/16/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > >   * non-functional HDIO_REGISTER_HWIF ioctl (ain't really working either)
+> >
+> > HDIO_SCAN_HWIF - I don't know about this one.  How are we supposed to
+> > follow the "new ports shouldn't define IDE_ARCH_OBSOLETE_INIT" injunction
+> > if we lose all this functionality without it?  ia64 is about as close to
+> > a new port as you get :-)
+> 
+> It allows you to register interfaces from user space.
+> 
+> As to IDE_ARCH_OBOSOLETE_INIT, its a red herring. It's not worth the
+> trouble to avoid it given the expected short remaining life time of the
+> old IDE layer. Far better would be to help get the new SATA layer doing
+> PATA so drivers/ide can be deleted.
 
-> example /lib/libc-2.2.4.so size 6094859    got mapped 3 times with
-> permissions 'r-xp' , '---p' and 'rw-p' from the bottom.
+My opinion on this matter differ, I want to:
+* finish rewriting IDE code
+* deprecate crap
+* (later) drop crap and merge rest with libata
 
-Note the file offset.
+I will write precised TODO (w/ status) soon.
 
-Andreas.
+IMO this is much better solution as:
+* you go from working code into small steps (evolution)
+* you don't have to maintain both libata and IDE driver
+   for X years (deleting drivers/ide anytime soon is a pipedream)
+* as IDE becomes less popular testing gets harder
+  (especially when developing new code - you don't
+   have previous state)
+* it shouldn't be that hard - I have many parts of the stuff
+  done (they need some polishing)
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Bjorn, thanks for working on this, IDE_ARCH_OBSOLETE_INIT
+( -> ide_init_hwif_ports() ) needs to be fixed in order to make REAL
+improvements.
+
+Bartlomiej

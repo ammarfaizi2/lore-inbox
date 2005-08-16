@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbVHPS0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbVHPSZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbVHPS0L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 14:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbVHPS0L
+	id S1030283AbVHPSZl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 14:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbVHPSZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 14:26:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:56731 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030284AbVHPS0J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 14:26:09 -0400
-Date: Tue, 16 Aug 2005 11:25:32 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: john stultz <johnstul@us.ibm.com>
-cc: Roman Zippel <zippel@linux-m68k.org>, lkml <linux-kernel@vger.kernel.org>,
-       George Anzinger <george@mvista.com>, frank@tuxrocks.com,
-       Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-In-Reply-To: <1124151001.8630.87.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0508161116270.7101@schroedinger.engr.sgi.com>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com> 
- <1123726394.32531.33.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508152115480.3728@scrub.home>
- <1124151001.8630.87.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Aug 2005 14:25:41 -0400
+Received: from bay17-f4.bay17.hotmail.com ([64.4.43.54]:49493 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1030283AbVHPSZk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 14:25:40 -0400
+Message-ID: <BAY17-F40AC2E0770858535E78D0FCB00@phx.gbl>
+X-Originating-IP: [172.202.42.53]
+X-Originating-Email: [kimlee101@hotmail.com]
+Reply-To: kimlee2005@excite.com
+From: "kim lee" <kimlee101@hotmail.com>
+To: kim@hotmail.com
+Subject: Representatives needed urgently
+Date: Tue, 16 Aug 2005 18:25:38 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 16 Aug 2005 18:25:38.0409 (UTC) FILETIME=[E6ADA590:01C5A28F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Aug 2005, john stultz wrote:
+Dear Sir/Madam,
 
-> Sorry. It was subtle, but after thinking more about your arguments, I've
-> stepped back from my earlier goals of replacing the timekeeping code for
-> all arches and instead I've decided to just focus on allowing
-> architectures that would duplicate code using a continuous timesource
-> use a common code base.  
+I am Mr.kim Lee ,we are a company that deal on
+importing and exporting raw materials into Canada,America and England. We 
+are searching for
+representatives who can  help us establish a medium of getting to our 
+costumers in the Canada,America and England as well as making payments 
+through you to us.
 
-Thats great!
+Please if you are interested in transacting business
+with us we will be very glad. Please contact us for more information.
+Subject to your satisfaction,you shall be well compensated for your troubles 
+and time.
 
-> Think of it more as a replacement for the time_interpolator code (which
-> thanks to Christoph Lameter, it is quite influenced by).
+reply to kimlee@cmiecteam.com
 
-I have no objection to replacing the time_interpolator code if the 
-timesources provide a superset of functionality. Rename time_interpolator 
-to timesource (including all currently existing interpolator defintions 
-which will become time sources) and modify/add fields to be able to 
-satisfy your requirements. The interpolator compensations may become not 
-necessary if the upper layers can deal with discrepancies between timer 
-interrupts and actual intervals occurring between these interrupts and if 
-the upper layer can adjust the time source in use.
+Regards.
+kim Lee
 
-You mentioned that the NTP code has some issues with time interpolation 
-at the KS. This is due to the NTP layer not being aware of actual time 
-differences between timer interrupts that the interpolator knows about. If 
-the NTP layer would be aware of the actual intervals measured by the 
-timesource (or interpolator) then presumably time could be adjusted in a 
-more accurate way.
 

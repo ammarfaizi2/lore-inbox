@@ -1,34 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbVHPSgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbVHPSoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030290AbVHPSgr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 14:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbVHPSgr
+	id S1030292AbVHPSoE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 14:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVHPSoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 14:36:47 -0400
-Received: from dsl027-180-204.sfo1.dsl.speakeasy.net ([216.27.180.204]:25576
-	"EHLO outer-richmond.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030290AbVHPSgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 14:36:46 -0400
-Date: Tue, 16 Aug 2005 11:36:34 -0700 (PDT)
-Message-Id: <20050816.113634.43780066.davem@davemloft.net>
-To: kern@sibbald.com
+	Tue, 16 Aug 2005 14:44:04 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:62352 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030292AbVHPSoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 14:44:02 -0400
+Subject: Re: [PATCH] input-driver-yealink-P1K-usb-phone
+From: Lee Revell <rlrevell@joe-job.com>
+To: Henk <Henk.Vergonet@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: blocking read on socket repeatedly returns EAGAIN
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200508161519.39719.kern@sibbald.com>
-References: <200508161519.39719.kern@sibbald.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+In-Reply-To: <20050816175322.GA3240@god.dyndns.org>
+References: <20050816142144.GA2939@god.dyndns.org>
+	 <1124206681.25596.20.camel@mindpipe> <20050816175322.GA3240@god.dyndns.org>
+Content-Type: text/plain
+Date: Tue, 16 Aug 2005 14:44:00 -0400
+Message-Id: <1124217841.26534.11.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.3.7 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kern Sibbald <kern@sibbald.com>
-Subject: PROBLEM: blocking read on socket repeatedly returns EAGAIN
-Date: Tue, 16 Aug 2005 15:19:39 +0200
+On Tue, 2005-08-16 at 19:53 +0200, Henk wrote:
+> Ehm, I did not know there was still an OSS usb driver.
 
-> A read() on a TCP/IP socket, which should block returns -1 with errno=EAGAIN
+Thankfully it's going away real soon.  It failed to depend on OSS,
+didn't have decent help text, and doesn't live under Sound so lots of
+people got them confused.  Most ALSA based distros failed to even
+blacklist it by default so hotplug would load it preferentially to the
+ALSA driver.  See the gazillion bug reports on the ALSA lists.
 
-If a signal is delivered to the process during the read(),
-then -EAGAIN is perfectly valid.
+Lee
+

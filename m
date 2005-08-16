@@ -1,106 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVHPUE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbVHPUOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbVHPUE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 16:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbVHPUE4
+	id S932692AbVHPUOX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 16:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVHPUOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 16:04:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:1176 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932385AbVHPUE4 (ORCPT
+	Tue, 16 Aug 2005 16:14:23 -0400
+Received: from NS8.Sony.CO.JP ([137.153.0.33]:4249 "EHLO ns8.sony.co.jp")
+	by vger.kernel.org with ESMTP id S932692AbVHPUOW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 16:04:56 -0400
-Date: Tue, 16 Aug 2005 22:07:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>
-Subject: Re: HDAPS, Need to park the head for real
-Message-ID: <20050816200708.GE3425@suse.de>
-References: <1124205914.4855.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1124205914.4855.14.camel@localhost.localdomain>
+	Tue, 16 Aug 2005 16:14:22 -0400
+Message-ID: <43024977.7020101@sm.sony.co.jp>
+Date: Wed, 17 Aug 2005 05:15:51 +0900
+From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] FAT dirent scan with hint
+Content-Type: multipart/mixed;
+ boundary="------------040600040805070009060605"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 16 2005, Alejandro Bonilla Beeche wrote:
-> Hi,
-> 
-> 	We are currently almost there with hdaps. We are thinking how we should
-> make things and have made most of the decesions. We still need help from
-> anyone that might know about this. Please, if you can think of anything,
-> let us know.
-> 
-> The head_park script given by Jens Axboe was good for us, but we need to
-> park the head of the hard drive for a certain amount of time, please
-> call it 5 seconds or 10 seconds. I/We do not know how to make this
-> script to *park* the head for the selected amount of time.
+This is a multi-part message in MIME format.
+--------------040600040805070009060605
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-Ok, I'll give you some hints to get you started... What you really want
-to do, is:
 
-- Insert a park request at the front of the queue
-- On completion callback on that request, freeze the block queue and
-  schedule it for unfreeze after a given time
+We realized that "ls -l" has taken so long time, over 1000 entries on
+directory in FAT/VFAT. Attached patch tries to solve the issue.
 
-I would suggest some sysfs file for doing this. The best approach would
-be to incorporate my generic command types (patch posted some months
-ago), since that would allow you to add this sysfs file as just a
-generic helper and let the drivers actually do what they need. That
-would be the Right Approach, but to involved for your project I'm sure.
+This uses a simple solution which records position of the last found
+entry and uses it as start position of next scan. It would work well
+under following assumption;
+- in most case dirent will be examined by stat() or it's variants with
+  from top to bottom direction.
+- found entries would be cached with VFS level dentry cache.
 
-If I were in your position, I would just implement this for ide (pata,
-not sata) right now, since that is what you need to support (or do some
-of these notebooks come with sata?). So it follows that you add an ide
-sysfs attribute for this and we integrate a proper solution once the
-request type stuff is finalized. As the user api, I would suggest just
-echoing a timeout in seconds to the file. So:
-
-# echo 5 > /sys/block/hda/device/freeze
-
-would park the head, freeze queue, and unfreeze in 5 seconds.
-
-The sysfs write function for that file would allocate a request, fill in
-the request as a REQ_DRIVE_TASKFILE with the command I listed in the
-original program. The request->end_io function will inspect success of
-the park command, and if successful freeze the queue. The freeze act
-would probably just abuse queue->unplug_work to register a different
-unplug worker that will restart the queue.
-
-static void blk_unfreeze_work(void *data)
-{
-        request_queue_t *q = work;
-
-        INIT_WORK(&q->unplug_work, blk_unplug_work, q);
-
-        blk_start_queue(q);
-}
-
-static void blk_unfreeze_timeout(unsigned long data)
-{
-        request_queue_t *q = (request_queue_t *) data;
-
-        INIT_WORK(&q->unplug_work, blk_unfreeze_work, q);
-        q->unplug_timer.function = blk_unplug_timeout;
-}
-
-void blk_freeze_queue(request_queue_t *q, int seconds)
-{
-        blk_stop_queue(q);
-        INIT_WORK(&q->unplug_work, blk_unfreeze_work, q);
-        q->unplug_timer.function = blk_unfreeze_timeout;
-        mod_timer(&q->unplug_timer, msecs_to_jiffies(seconds*1000) + jiffies);
-}
-
-Totally untested and pretty hacky, but should work for a plain IDE
-device (since it uses generic plugging, only the stacked devices alter
-this). You should get the drift.
-
-You may have to prevent IDE from re-entering the queueing handler on
-finished completion of the park request, the best approach is likely to
-check for a stopped queue in the ide request handler.
+What do you think about this patch and above assumption?
+Do you have any other good solution about this issue?
 
 -- 
-Jens Axboe
+Hiroyuki Machida		machida@sm.sony.co.jp		
+SSW Dept. HENC, Sony Corp.
 
+--------------040600040805070009060605
+Content-Type: text/plain;
+ name="fat-dirscan-with-hint.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="fat-dirscan-with-hint.patch"
+
+VGhpcyBwYXRjaCBlbmFibGVzIHVzaW5nIGhpbnQgbmZvcm1hdGlvbiBvbiBzY2FubmluZyBk
+aXIuCkl0IHJlYWNoZXMgZXhjZWxlbnQgcGVyZm9ybWFuY2Ugd2l0aCAibHMgLWwiIGZvciBv
+dmVyIDEwMDAgZW50cmllcy4KSSdtIG5vdCB0aGUgb3JpZ2luYWwgYXV0aG9yLiBJIGp1c3Qg
+cG9ydGVkIGl0IHRvIDIuNi4xMiBhbmQgY2xlYW4gaXQgdXAuCgoKKiBmYXQtZGlyc2Nhbi13
+aXRoLWhpbnQucGF0Y2gKCiBmcy9mYXQvZGlyLmMgICAgICAgICAgICAgfCAgIDQ5ICsrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tCiBmcy9mYXQvaW5v
+ZGUuYyAgICAgICAgICAgfCAgICAyICsKIGluY2x1ZGUvbGludXgvbXNkb3NfZnMuaCB8ICAg
+IDEgCiAzIGZpbGVzIGNoYW5nZWQsIDM4IGluc2VydGlvbnMoKyksIDE0IGRlbGV0aW9ucygt
+KQoKU2lnbmVkLW9mZi1ieTogSGlyb3l1a2kgTWFjaGlkYSA8bWFjaGlkYUBzbS5zb255LmNv
+LmpwPiBmb3IgQ0VMRgoKKiBtb2RpZmllZCBmaWxlcwoKLS0tIG9yaWcvZnMvZmF0L2Rpci5j
+CisrKyBtb2QvZnMvZmF0L2Rpci5jCkBAIC0yMTgsMTMgKzIxOCwyMCBAQAogCWludCB1dGY4
+ID0gc2JpLT5vcHRpb25zLnV0Zjg7CiAJaW50IGFueWNhc2UgPSAoc2JpLT5vcHRpb25zLm5h
+bWVfY2hlY2sgIT0gJ3MnKTsKIAl1bnNpZ25lZCBzaG9ydCBvcHRfc2hvcnRuYW1lID0gc2Jp
+LT5vcHRpb25zLnNob3J0bmFtZTsKLQlsb2ZmX3QgY3BvcyA9IDA7CiAJaW50IGNobCwgaSwg
+aiwgbGFzdF91LCBlcnI7CisJbG9mZl90IGNwb3M7CisJbG9mZl90IHN0YXJ0ID0gY3BvcyA9
+IE1TRE9TX0koaW5vZGUpLT5pX2RpcnNjYW5faGludDsKKwlpbnQgcmVhY2hfYm90dG9tID0g
+MDsKIAogCWVyciA9IC1FTk9FTlQ7CiAJd2hpbGUoMSkgewotCQlpZiAoZmF0X2dldF9lbnRy
+eShpbm9kZSwgJmNwb3MsICZiaCwgJmRlKSA9PSAtMSkKLQkJCWdvdG8gRU9EaXI7CitUb3A6
+CisJCWlmIChyZWFjaF9ib3R0b20gJiYgY3BvcyA+PSBzdGFydCkgZ290byBFT0RpcjsKKwkJ
+aWYgKGZhdF9nZXRfZW50cnkoaW5vZGUsICZjcG9zLCAmYmgsICZkZSkgPT0gLTEpIHsKKwkJ
+CWlmICghc3RhcnQpIGdvdG8gRU9EaXI7CisJCQlyZWFjaF9ib3R0b20gKys7IGNwb3MgPSAw
+OworCQkJY29udGludWU7CisJCX0KIHBhcnNlX3JlY29yZDoKIAkJbnJfc2xvdHMgPSAwOwog
+CQlpZiAoZGUtPm5hbWVbMF0gPT0gREVMRVRFRF9GTEFHKQpAQCAtMjc0LDggKzI4MSwxMSBA
+QAogCQkJCWlmIChkcy0+aWQgJiAweDQwKSB7CiAJCQkJCXVuaWNvZGVbb2Zmc2V0ICsgMTNd
+ID0gMDsKIAkJCQl9Ci0JCQkJaWYgKGZhdF9nZXRfZW50cnkoaW5vZGUsICZjcG9zLCAmYmgs
+ICZkZSkgPCAwKQotCQkJCQlnb3RvIEVPRGlyOworCQkJCWlmIChmYXRfZ2V0X2VudHJ5KGlu
+b2RlLCAmY3BvcywgJmJoLCAmZGUpIDwwICkgeworCQkJCQlpZiAoIXN0YXJ0KSBnb3RvIEVP
+RGlyOworCQkJCQlyZWFjaF9ib3R0b20gKys7IGNwb3MgPSAwOworCQkJCQlnb3RvIFRvcDsK
+KwkJCQl9CiAJCQkJaWYgKHNsb3QgPT0gMCkKIAkJCQkJYnJlYWs7CiAJCQkJZHMgPSAoc3Ry
+dWN0IG1zZG9zX2Rpcl9zbG90ICopIGRlOwpAQCAtMzYzLDYgKzM3Myw3IEBACiAJc2luZm8t
+PmRlID0gZGU7CiAJc2luZm8tPmJoID0gYmg7CiAJc2luZm8tPmlfcG9zID0gZmF0X21ha2Vf
+aV9wb3Moc2IsIHNpbmZvLT5iaCwgc2luZm8tPmRlKTsKKwlNU0RPU19JKGlub2RlKS0+aV9k
+aXJzY2FuX2hpbnQgPSBzaW5mby0+c2xvdF9vZmY7CiAJZXJyID0gMDsKIEVPRGlyOgogCWlm
+ICh1bmljb2RlKQpAQCAtODM4LDE2ICs4NDksMjYgQEAKIAkgICAgIHN0cnVjdCBmYXRfc2xv
+dF9pbmZvICpzaW5mbykKIHsKIAlzdHJ1Y3Qgc3VwZXJfYmxvY2sgKnNiID0gZGlyLT5pX3Ni
+OworCWxvZmZfdCBzdGFydCA9IHNpbmZvLT5zbG90X29mZiA9IE1TRE9TX0koZGlyKS0+aV9k
+aXJzY2FuX2hpbnQ7CisJaW50IHJlYWNoX2JvdHRvbSA9IDA7CiAKLQlzaW5mby0+c2xvdF9v
+ZmYgPSAwOwotCXNpbmZvLT5iaCA9IE5VTEw7Ci0Jd2hpbGUgKGZhdF9nZXRfc2hvcnRfZW50
+cnkoZGlyLCAmc2luZm8tPnNsb3Rfb2ZmLCAmc2luZm8tPmJoLAotCQkJCSAgICZzaW5mby0+
+ZGUpID49IDApIHsKLQkJaWYgKCFzdHJuY21wKHNpbmZvLT5kZS0+bmFtZSwgbmFtZSwgTVNE
+T1NfTkFNRSkpIHsKLQkJCXNpbmZvLT5zbG90X29mZiAtPSBzaXplb2YoKnNpbmZvLT5kZSk7
+Ci0JCQlzaW5mby0+bnJfc2xvdHMgPSAxOwotCQkJc2luZm8tPmlfcG9zID0gZmF0X21ha2Vf
+aV9wb3Moc2IsIHNpbmZvLT5iaCwgc2luZm8tPmRlKTsKLQkJCXJldHVybiAwOworCXNpbmZv
+LT5iaD1OVUxMOworCXdoaWxlICgxKSB7CisJCWlmIChmYXRfZ2V0X3Nob3J0X2VudHJ5KGRp
+ciwgJnNpbmZvLT5zbG90X29mZiwgJnNpbmZvLT5iaCwKKwkJCQkJJnNpbmZvLT5kZSkgPj0g
+MCkgeworCQkJaWYgKCFzdHJuY21wKHNpbmZvLT5kZS0+bmFtZSwgbmFtZSwgTVNET1NfTkFN
+RSkpIHsKKwkJCQlzaW5mby0+c2xvdF9vZmYgLT0gc2l6ZW9mKCpzaW5mby0+ZGUpOworCQkJ
+CXNpbmZvLT5ucl9zbG90cyA9IDE7CisJCQkJc2luZm8tPmlfcG9zID0gZmF0X21ha2VfaV9w
+b3Moc2IsIHNpbmZvLT5iaCwgCisJCQkJCQkJICAgICAgc2luZm8tPmRlKTsKKwkJCQlNU0RP
+U19JKGRpciktPmlfZGlyc2Nhbl9oaW50ID0gc2luZm8tPnNsb3Rfb2ZmOworCQkJCXJldHVy
+biAwOworCQkJfQorCQkJaWYgKHJlYWNoX2JvdHRvbSAmJiAoc3RhcnQgPD0gc2luZm8tPnNs
+b3Rfb2ZmKSkgYnJlYWs7CisJCX0gZWxzZSB7CisJCQlpZiAoIXN0YXJ0KSBicmVhazsKKwkJ
+CXNpbmZvLT5zbG90X29mZiA9IDA7CisJCQlyZWFjaF9ib3R0b20rKzsKIAkJfQogCX0KIAly
+ZXR1cm4gLUVOT0VOVDsKCgotLS0gb3JpZy9mcy9mYXQvaW5vZGUuYworKysgbW9kL2ZzL2Zh
+dC9pbm9kZS5jCkBAIC0yMzYsNiArMjM2LDcgQEAKIAlzdHJ1Y3QgbXNkb3Nfc2JfaW5mbyAq
+c2JpID0gTVNET1NfU0IoaW5vZGUtPmlfc2IpOwogCWludCBlcnJvcjsKIAorCU1TRE9TX0ko
+aW5vZGUpLT5pX2RpcnNjYW5faGludCA9IDA7CiAJTVNET1NfSShpbm9kZSktPmlfcG9zID0g
+MDsKIAlpbm9kZS0+aV91aWQgPSBzYmktPm9wdGlvbnMuZnNfdWlkOwogCWlub2RlLT5pX2dp
+ZCA9IHNiaS0+b3B0aW9ucy5mc19naWQ7CkBAIC0xMDM0LDYgKzEwMzUsNyBAQAogCXN0cnVj
+dCBtc2Rvc19zYl9pbmZvICpzYmkgPSBNU0RPU19TQihzYik7CiAJaW50IGVycm9yOwogCisJ
+TVNET1NfSShpbm9kZSktPmlfZGlyc2Nhbl9oaW50ID0gMDsKIAlNU0RPU19JKGlub2RlKS0+
+aV9wb3MgPSAwOwogCWlub2RlLT5pX3VpZCA9IHNiaS0+b3B0aW9ucy5mc191aWQ7CiAJaW5v
+ZGUtPmlfZ2lkID0gc2JpLT5vcHRpb25zLmZzX2dpZDsKCgotLS0gb3JpZy9pbmNsdWRlL2xp
+bnV4L21zZG9zX2ZzLmgKKysrIG1vZC9pbmNsdWRlL2xpbnV4L21zZG9zX2ZzLmgKQEAgLTI1
+Nyw2ICsyNTcsNyBAQAogCXVuc2lnbmVkIGludCBjYWNoZV92YWxpZF9pZDsKIAogCWxvZmZf
+dCBtbXVfcHJpdmF0ZTsKKwlsb2ZmX3QgaV9kaXJzY2FuX2hpbnQ7CS8qIGxhc3Qgc2NhbmVk
+IGFuZCBmb3VuZCBwb3MgKi8KIAlpbnQgaV9zdGFydDsJCS8qIGZpcnN0IGNsdXN0ZXIgb3Ig
+MCAqLwogCWludCBpX2xvZ3N0YXJ0OwkJLyogbG9naWNhbCBmaXJzdCBjbHVzdGVyICovCiAJ
+aW50IGlfYXR0cnM7CQkvKiB1bnVzZWQgYXR0cmlidXRlIGJpdHMgKi8KCgoK
+--------------040600040805070009060605--

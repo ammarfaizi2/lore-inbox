@@ -1,70 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965145AbVHPIlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbVHPIq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965145AbVHPIlP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 04:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbVHPIlP
+	id S965147AbVHPIq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 04:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbVHPIq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 04:41:15 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:56460 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S965145AbVHPIlP (ORCPT
+	Tue, 16 Aug 2005 04:46:56 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:43958 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S965147AbVHPIqy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 04:41:15 -0400
-Date: Tue, 16 Aug 2005 10:41:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       george anzinger <george@mvista.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, dwalker@mvista.com
-Subject: 2.6.13-rc6-rt1
-Message-ID: <20050816084116.GA16772@elte.hu>
-References: <20050811110051.GA20872@elte.hu> <1c1c8636050812172817b14384@mail.gmail.com> <20050815111804.GA26161@elte.hu>
+	Tue, 16 Aug 2005 04:46:54 -0400
+Date: Tue, 16 Aug 2005 17:38:09 +0900
+From: Horms <horms@debian.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Alexander Pytlev <apytlev@tut.by>, linux-kernel@vger.kernel.org,
+       debian-kernel@lists.debian.org,
+       "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>,
+       Willy Tarreau <willy@w.ods.org>
+Subject: Re: kernel 2.4.27-10: isofs driver ignore some parameters with mount
+Message-ID: <20050816083807.GA31717@debian.org>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Alexander Pytlev <apytlev@tut.by>, linux-kernel@vger.kernel.org,
+	debian-kernel@lists.debian.org,
+	"Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>,
+	Willy Tarreau <willy@w.ods.org>
+References: <1853917171.20050812104417@tut.by> <20050812082936.GB3302@verge.net.au> <20050816011121.GB7807@dmt.cnet> <20050816053121.GD11925@verge.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050815111804.GA26161@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050816053121.GD11925@verge.net.au>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-i've released the 2.6.13-rc6-rt1 tree, which can be downloaded from the 
-usual place:
+On Marcelo's request I have taken a closer look at this.
+It seems that Alexander Pytlev's original (simple) patch was correct.
 
-  http://redhat.com/~mingo/realtime-preempt/
+Without it the logic looks a bit like this.
 
-as the name already suggests, i've switched to a new, simplified naming 
-scheme, which follows the usual naming convention of trees tracking the 
-mainline kernel. The numbering will be restarted for every new upstream 
-kernel the -RT tree is merged to.
+while (...) {
+	if iocharset
+		...
+	else if map
+		...
+	if session
+		...
+	if sbsector
+		...
+	else if check
+		...
+		...
+	else
+		return 1;
+}
 
-the 2.6.13-rc6-rt1 release includes a number of fixes. Changes since 
--53-11:
+Now, if iocharset, map or session are matched, then none of the if or
+else if clauses under sbsector will match (that is none of these clauses
+match iocharset, map or session), and thus the else clause will be hit,
+and the function will return 1 without parsing any furhter options.
 
- - more HRT fixes (Thomas Gleixner)
+With Alexander's fix, the if session and if sbsector clauses
+become else if, and its easy to see that the return 1 won't
+be premeturely called.
 
- - more RCU-tasklist-lock fixes (Paul E. McKenney)
+I have tested that this patch works using the testcase options
+iocharset=koi8-r,gid=100, and checking that gid is set correctly
+with the patch, and incorrectly without.
 
- - IPC message-queue and IPC messages wakeup fixes (Daniel Walker)
+Here is the patch and signoff again, just for the record.
+I will send a second patch to clean up the *value = 0 code
+that Marcelo cast concerns over - its bogus but harmless.
 
- - VIA VT8237 southbridge quirks to fix IOAPIC issues (Karsten Wiese)
+Signed-off-by: Horms <horms@verge.net.au>
 
- - NMI preemption-count fix (George Anzinger)
-
- - various latency tracer fixes: lost trace entries, SMP weirdnesses (me)
-
-to build a 2.6.13-rc6-rt1 tree, the following patches should to be 
-applied:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
-   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc6.bz2
-   http://redhat.com/~mingo/realtime-preempt/patch-2.6.13-rc6-rt1
-
-	Ingo
+--- a/fs/isofs/inode.c	2005-08-03 14:46:33.000000000 +0900
++++ b/fs/isofs/inode.c	2005-08-16 17:23:04.000000000 +0900
+@@ -340,13 +337,13 @@
+ 			else if (!strcmp(value,"acorn")) popt->map = 'a';
+ 			else return 0;
+ 		}
+-		if (!strcmp(this_char,"session") && value) {
++		else if (!strcmp(this_char,"session") && value) {
+ 			char * vpnt = value;
+ 			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+ 			if(ivalue < 0 || ivalue >99) return 0;
+ 			popt->session=ivalue+1;
+ 		}
+-		if (!strcmp(this_char,"sbsector") && value) {
++		else if (!strcmp(this_char,"sbsector") && value) {
+ 			char * vpnt = value;
+ 			unsigned int ivalue = simple_strtoul(vpnt, &vpnt, 0);
+ 			if(ivalue < 0 || ivalue >660*512) return 0;

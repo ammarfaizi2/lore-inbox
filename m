@@ -1,272 +1,247 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbVHPNeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbVHPNee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965216AbVHPNeu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 09:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965211AbVHPNeu
+	id S965215AbVHPNee (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 09:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbVHPNee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 09:34:50 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:6364 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S965217AbVHPNet
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 09:34:49 -0400
-Message-ID: <1124199287.4301eb7780623@imp5-q.free.fr>
-Date: Tue, 16 Aug 2005 15:34:47 +0200
-From: mustang4@free.fr
-To: Willy TARREAU <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Hang or stop after uncompressing MPC8245
-References: <1124122213.4300be659dc89@imp5-q.free.fr> <20050815155505.GF20363@alpha.home.local> <1124125002.4300c94a31810@imp5-q.free.fr> <20050815165141.GA29660@alpha.home.local> <1124136498.4300f6321bb1b@imp5-q.free.fr> <20050815205418.GA1745@pcw.home.local>
-In-Reply-To: <20050815205418.GA1745@pcw.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 57.250.252.246
+	Tue, 16 Aug 2005 09:34:34 -0400
+Received: from adsl-67-65-14-122.dsl.austtx.swbell.net ([67.65.14.122]:65470
+	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
+	id S965215AbVHPNee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 09:34:34 -0400
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base
+	Driver (dcdbas) with sysfs support
+From: Michael E Brown <Michael_E_Brown@dell.com>
+To: Greg KH <greg@kroah.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org,
+       Douglas_Warzecha@dell.com, Matt_Domsch@dell.com
+In-Reply-To: <20050816081622.GA22625@kroah.com>
+References: <4277B1B44843BA48B0173B5B0A0DED4352817E@ausx3mps301.aus.amer.dell.com>
+	 <DEFA2736-585A-4F84-9262-C3EB53E8E2A0@mac.com>
+	 <1124161828.10755.87.camel@soltek.michaels-house.net>
+	 <20050816081622.GA22625@kroah.com>
+Content-Type: text/plain
+Date: Tue, 16 Aug 2005 08:34:24 -0500
+Message-Id: <1124199265.10755.310.camel@soltek.michaels-house.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks a lot Willy,
+On Tue, 2005-08-16 at 01:16 -0700, Greg KH wrote:
+> On Mon, Aug 15, 2005 at 10:10:28PM -0500, Michael E Brown wrote:
+> > To take a concrete example, I suggested to Doug to mention fan status. I
+> > get the feeling that you possibly think that this would be better
+> > integrated into lmsensors, or something like that.
+> 
+> Yes it should.  That way you get the benifit of all userspace
+> applications that already use the lmsensors library without having to be
+> rewritten in order to support your new library.
 
-I try to find something in this way...
+Little did I know when I first mentioned it how big of a mistake it
+would be to mention the sensor functions. *sigh*
 
-Note, that i test my board with an image with Kernel 2.4 and work well.. but
-it's a no-free version (i don't have source or configuration) ... Me, i want to
-boot with my own kernel and find correct configuration...
-This system use, i thinks, a patch to the kernel, or more simply, a good kernel
-configuration options...
-There is no reason i can't boot with an "official open linux kernel" and boot
-with a "no-free" version which use a free kernel...
+The dcdbas driver allows access to all of the Dell SMIs. Sensors are
+only one instance of SMI code (only two functions, in fact, if I am
+reading this spec correctly). The other (roughly) 58 functions have
+nothing to do with sensors. The presence of the dcdbas driver would not
+stop anybody from writing another driver to provide a hwmon interface to
+just the sensors pieces. 
 
-Here the log ;
+This isn't like a PCI device where there can be only one driver. With
+the dcdbas driver in place, other drivers could also be written to
+provide subsystem-specific interfaces to the same data, such as hwmon.
+There isn't anything in dcdbas that would conflict with or lock out
+anybody from creating another driver that provides access to the same
+data.
 
-to 0x01000000       1218 kB
-Loaded 0x001308b0 bytes
-Detected PPCBOOT header
-   Verifying image CRC...ok
-   Uncompressing Multi-File Image ... ok
-   Moving initrd...ok
-   Starting Linux Kernel.
+> 
+> > That really isn't the case, as lmsensors is really geared towards
+> > bit-banging lm81 (for example) chips to get fan status.
+> 
+> Not true at all.  It is geared toward providing a common userspace
+> interface for all sensor information in the system.  Now if it provides
+> this in a good and easy to use way is another story...
+> 
+> But anyway, there is a standard way to export fan speed and temperature
+> information from the kernel, the hwmon interface (see -mm for examples
+> and documentation, and the i2c stuff in mainline today.)
 
-MENMON parameter string: MPAR mem0=262144 mem1=0 flash0=2048 cpu=MPC8245 cpuclkO
-Using memory size from MENMON 0x10000000
-Linux version 2.4.18 (ww@swserver) (gcc version 3.2.3) #2 Tue Aug 9 15:32:12 CE5
----menem04_setup_arch---
-menem04_find_bridges:
-hose:0xc0167000
-i2c-core.o: i2c core module
-i2c-core.o: /proc/bus/ does not exist
-menem04_i2c.o: i2c MEN EM04 adapter module
-i2c-core.o: adapter I2C MEN EM04 registered as adapter 0.
-i2c-core.o: driver M41T56 registered.
-i2c-core.o: client [M41T56] registered to adapter [I2C MEN EM04](pos. 0).
-On node 0 totalpages: 65536
-zone(0): 65536 pages.
-zone(1): 0 pages.
-zone(2): 0 pages.
-Kernel command line: devfs=mount root=ramfs rw console=ttyS0,9600
-Using bus clock from MENMON 128000000Hz
-MEN Chameleon number modules: 12
-Frodo #0: phys.adr:0xbff7e500  irq:5
-Frodo channel 0: mode=0x01
-Frodo channel 1: mode=0x01
-Frodo channel 2: mode=0x01
-Frodo channel 3: mode=0x01
-BOROMIR: phys.adr:0xbff7e600
-OpenPIC Version 1.2 (1 CPUs and 139 IRQ sources) at fcfce000
-OpenPIC timer frequency is 128.000000 MHz
-Calibrating delay loop... 255.59 BogoMIPS
-Memory: 256084k available (748k kernel code, 324k data, 68k init, 0k highmem)
-Dentry-cache hash table entries: 32768 (order: 6, 262144 bytes)
-Inode-cache hash table entries: 16384 (order: 5, 131072 bytes)
-Mount-cache hash table entries: 4096 (order: 3, 32768 bytes)
-Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
-POSIX conformance testing by UNIFIX
-PCI: Probing PCI hardware
-i2c-core.o: driver AT24Cxx registered.
-at24cxx_attach:  adap:0xc00d7b7c  addr:0x50  flags:0x0  kind:0xffffffff
-i2c-core.o: client [AT24Cxx] registered to adapter [I2C MEN EM04](pos. 1).
-at24cxx_attach:  adap:0xc00d7b7c  addr:0x54  flags:0x0  kind:0xffffffff
-i2c-core.o: client [AT24Cxx] registered to adapter [I2C MEN EM04](pos. 2).
-at24cxx_attach:  adap:0xc00d7b7c  addr:0x55  flags:0x0  kind:0xffffffff
-i2c-core.o: client [AT24Cxx] registered to adapter [I2C MEN EM04](pos. 3).
-at24cxx_attach:  adap:0xc00d7b7c  addr:0x56  flags:0x0  kind:0xffffffff
-i2c-core.o: client [AT24Cxx] registered to adapter [I2C MEN EM04](pos. 4).
-at24cxx_attach:  adap:0xc00d7b7c  addr:0x57  flags:0x0  kind:0xffffffff
-i2c-core.o: client [AT24Cxx] registered to adapter [I2C MEN EM04](pos. 5).
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Starting kswapd
-devfs: v1.10 (20020120) Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x1
-i2c-core.o: i2c core module
-i2c-algo-bit.o: i2c bit algorithm module
-menem04_i2c.o: i2c MEN EM04 adapter module
-i2c-core.o: adapter I2C MEN EM04 registered as adapter 0.
-i2c-core.o: driver M41T56 registered.
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI ed
-ttyS00 at 0xfcfcc500 (irq = 137) is a 16550A
-ttyS01 at 0xfcfcc600 (irq = 138) is a 16550A
-ttyS02 at 0xfcfca500 (irq = 5) is a 16550A
-ttyS03 at 0xfcfca510 (irq = 5) is a 16550A
-ttyS04 at 0xfcfca520 (irq = 5) is a 16550A
-ttyS05 at 0xfcfca530 (irq = 5) is a 16550A
-menpci2vme: PCI2VME bridge vendor/device 1172/5056 not exist
-block: 128 slots per queue, batch=32
-RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-hda: PQI ATA Rev6.0, ATA DISK drive
-ide0 at 0xd3002200-0xd300221c,0xd3002238 on irq 4
-hda: 125952 sectors (64 MB) w/0KiB Cache, CHS=984/16/8
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1
-VFS: Mounted root (ramfs filesystem).
-UNTAR: Extracting root archive: done.
-Mounted devfs on /dev
-Freeing unused kernel memory: 68k init
-init started:  BusyBox v1.00-pre8 (2004.05.27-20:35+0000) multi-call binary
+I don't really know a bunch about lmsensors. I just downloaded it and
+started poking around. I would have thought, though, that they would
+provide an easy way to provide a userspace library method of extending
+for new sensors. I suppose I was wrong here as I don't see such
+functionality on first glance.
 
+> 
+> > In our case, we have a standardized BIOS interface to get this info,
+> > and that standardized method involves SMI and not bit-banging
+> > interfaces. Once this driver is accepted into the kernel, we can go
+> > and add support in the _userspace_ lmsensors libs to poll fan and temp
+> > using this driver.
+> 
+> No, export this data properly through sysfs like all other temperature
+> and sensor data is.  Don't create a new one, no matter how much you
+> would like to keep from changing kernel code in the future for new
+> hardware.
 
-BusyBox v1.00-pre8 (2004.05.27-20:35+0000) Built-in shell (msh)
-Enter 'help' for a list of built-in commands.
+This driver is not trying to create a new way to do sensor and monitor
+data. This just happens to be a side effect of the main use case.
 
-#
+> 
+> > For example, we already have at least one buggy implementation of this
+> > exact stack in the kernel as the i8k driver. The i8k driver was reverse-
+> > engineered and works, but it does not follow the spec at all, and so is
+> > subject to major breakage if the BIOS changes. With dcdbase + libsmbios,
+> > we can write this _correctly_, and in such a way that it follows the
+> > spec and will not break on BIOS updates.
+> 
+> No, fix the i8k driver as you have access to the specs.  It was there
+> first.
 
+Ok.
 
-> On Mon, Aug 15, 2005 at 10:08:18PM +0200, mustang4@free.fr wrote:
-> > Thanks Willy,
-> >
-> > So i just compile a new Kernel with options we have talking about...
-> > And it's freeze, nothing to the console...
-> >
-> > So i need to find the way to enable the Level-Triggered Interrupts in the
-> kernel
-> > to the right IRQ address...
->
-> sorry, but I did not find much more info either. I don't know how to change
-> those
-> IRQs from edge to level. It is from software, on the board itself ? I don't
-> know.
-> I found interesting pieces of code there :
->
->    # grep -r IRQ_SENSE /usr/src/linux-2.4.31/arch/ppc/kernel
->
-> They seem to imply that the interrupt mode (level/edge) is read from
-> somewhere at
-> boot, but I have no idea where. May be they can be configured from the boot
-> loader ?
->
-> > I read the thread... but i can't find the thing to change in kernel source
-> or
-> > kernel configuration.
-> >
-> > Or perhaps i enable to many option in
-> > "Device Drivers  --->" "Character devices-->" "Serial drivers  --->"
-> > <*> 8250/16550 and compatible serial support                     x x
-> >   x x    [*]   Console on 8250/16550 and compatible serial port           x
-> x
-> >   x x    (4)   Maximum number of non-legacy 8250/16550 serial ports       x
-> x
-> >   x x    [*]   Extended 8250/16550 serial driver options                  x
-> x
-> >   x x    [*]     Support more than 4 legacy serial ports                  x
-> x
-> >   x x    [*]     Support for sharing serial interrupts                    x
-> x
-> >   x x    [ ]     Autodetect IRQ on standard ports (unsafe)                x
-> x
-> >   x x    [*]     Support special multiport boards                         x
-> x
-> >   x x    [*]     Support RSA serial ports
-> >
-> > Try autodetect IRQ ?
-> > I'll try to learn more about  edge/level irq sharing...
->
-> well, I still do not know how the serial driver manages to find those
-> specific
-> addresses. You should ask one of the people involved in the previous threads,
-> he might have more clue.
->
-> Regards,
-> Willy
->
-> >
-> > Yann
-> >
-> > > Hi,
-> > >
-> > > On Mon, Aug 15, 2005 at 06:56:42PM +0200, mustang4@free.fr wrote:
-> > > > Hi,
-> > >
-> > > > This is what my board say (in console mode) about serial address:
-> > > > 0x08 COM1             DUART8245    0xfc004500 0x07a12000 0x00000001
-> > > 0x01effc70
-> > > > 0x09 COM2             DUART8245    0xfc004600 0x07a12000 0x00000001
-> > > 0x01e107d0
-> > >
-> > > Have you read this thread ?
-> > >
-> > >   http://ozlabs.org/pipermail/linuxppc-embedded/2005-August/019482.html
-> > >
-> > > It discusses your about your board, on which interrupts must be set to
-> LEVEL
-> > > and not EDGE. BTW, they also used 8250. I don't know how you have to
-> > > configure
-> > > the serial ports though.
-> > >
-> > > This boot log also confirms that you have to use 8250/16550 :
-> > >
-> > >   http://mhonarc.axis.se/jffs-dev/msg01350.html
-> > >
-> > > > >   - are you sure that you enabled "console on serial port" in the
-> config
-> > > ?
-> > > > Yes, i enable " Support for console on virtual terminal" but i enable
-> > > > "Non-standard serial port support" option too...
-> > > > So i recompile without the last one... and i recompile "with Serial
-> drivers
-> > > > --->" "[*]   Console on 8250/16550 and compatible serial port" perhaps
-> it's
-> > > > that... And i came back to you.
-> > > > But, perhaps i've allready tested... i ll check.. it's not a default
-> option
-> > > ?
-> > >
-> > > It's not necessarily a default option. There are many console and serial
-> > > ports combination available. BTW, you could also try netconsole which
-> will
-> > > send you the console data over an ethernet port if you cannot get the
-> serial
-> > > to work.
-> > >
-> > > > >   - how can you be certain that the serial will appear on ttyS0 and
-> not
-> > > ttyS1
-> > > > >     or another one (the kernel might detect another serial port which
-> it
-> > > > >     assigns ttyS0)
-> > > > I pass parameter directly to the kernel;
-> > >
-> > > ok.
-> > >
-> > > > Another option i set :
-> > > >  Default bootloader kernel arguments  x x  x x(console=ttyS0,9600
-> > > console=tty0
-> > >
-> > > ok.
-> > >
-> > > Regards,
-> > > Willy
-> > >
-> > >
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> 
+> > What you are asking us to do is just not feasible on many levels. First,
+> > just from the number of functions we would have to implement. We would
+> > have to implement about 60 new sysfs files, with at least 120 separate
+> > functions for read/write.
+> 
+> No problem at all, we can create that with only 2 read/write functions.
+> See the i2c code for details.
 
+file/line#? I did a quick search and didn't see anything special.
+
+My main point here is that each SMI call would require it's own kernel-
+space parsing of parameter and return values, as each call has different
+argument passing requirements.
+
+> 
+> > Each function would have to take into account the specific calling
+> > requirements of that specific function.
+> 
+> Again, no different from any other sensor driver.
+
+Again, this driver is not a sensor driver. 
+
+> 
+> > Then, we would have to implement all of the bugfixes and
+> > platform-specific workarounds in the kernel for each of those
+> > functions for each Dell platform.
+> 
+> Yup.
+> 
+> > Each time another function is added to BIOS, we would have to go out
+> > and patch everybody's kernel to support the new function.
+> 
+> Yup.  I suggest you complain to the bios people about this horrible way
+> to design hardware then :)
+
+You have a smiley there, but you know very well that even the most well-
+intentioned BIOS folk make errors in design or implementation from time
+to time. Once it is in BIOS, there really isn't much choice but try to
+work around it. 
+
+> 
+> > Besides the fact that this is just not a good design, there just isn't
+> > the manpower to maintain all of these in the kernel along with the
+> > requisite testing for each update, not to mention the lag between when
+> > we have to submit something and when it would show up in a vendor
+> > kernel.
+> 
+> And the lag for your userspace library would not be the same?
+
+For some odd reason, our customers have less concerns with updating a
+userspace library. 
+
+Ok, here is a short list of the things you can do with the Dell SMI
+implementation. Note that this is a rough categorization of functions.
+As implemented, get and set are normally separate SMI calls, so for each
+that says get/set or read/write, read that as two SMI calls.
+
+I am in the process of writing detailed docs for these (at least the
+ones I have docs for) in libsmbios and hope to be done in a few days.
+
+1) Read/Write Non-Volatile Storage
+	-- main use case for libsmbios. This lets us set all of the rest of the
+BIOS F2 options that are settable. To rehash from an earlier email, BIOS
+stores some options in CMOS, these are already available in libsmbios.
+The rest of the options are stored in SMI, and in fact almost all the
+new options being added are SMI-only, as CMOS has run out of room.
+	-- There are roughly 300 different tokens (usually equivalent to a BIOS
+F2 option, but not always). These are split between CMOS and SMI, but a
+good percentage of these are SMI. 
+
+2) Read/Write Battery/AC mode settings. Read system status. 
+	-- Fans/Voltage. This interface is only used by laptops (currently used
+by i8k driver).
+	-- Systems status gives failing sensor count.
+
+3) Dynamic system status:
+	AC Available
+	Lid Closed
+	Battery Available
+	Docked
+	Main Battery Critical
+	Main Battery Avail
+	Aux. Battery Critical
+	Aux. Battery Avail.
+	SCSI Available
+	Network Available
+	Module bay contents (floppy, cd, ls120, etc)
+
+4) Get/Set Boot Device Priority
+	-- set system boot order (floppy, cd, hard drive, pxe, etc)
+
+5) Get/Set BBS IPL/BCV priority
+	-- more fine grained way to set boot priority. lets you choose which
+add-in card gets to be C: drive.
+
+6) Get display type
+	-- laptops. gets display res + misc attributes
+
+7) Get display resolution
+
+8) Get/Set active display
+	-- laptops: switch between crt/lcd
+
+9) Get battery information
+
+10) Get/set/verify user/user II/administrator passwords
+
+11) Get/Set asset/service/property/eppid tags
+
+12) Get/Set monitor refresh rate
+
+13) Get slice type. (laptop expansion thingy, I suppose)
+
+14) Onboard NIC status (laptops)
+
+15) Get/Set onboard radio status
+	-- turn on/off wifi antenna
+
+16) Application Program Registration (your guess is as good as mine.)
+17) User customization control (same)
+
+18) Get Message information.
+	--returns bios event information (english only) for stuff like overtemp
+
+19) Get hard drive size (why? I don't know)
+
+20) Get/Clear ECC memory single-bit error status
+
+21) Get memory test support information.
+
+22) Start/Stop memory test
+
+23) Get memory test error information/ map error information
+
+24) Get/set server boot device priority
+
+25) Issue Read-only SBDS Command
+	-- "Smart Battery Data Specification" -- whatever that is.
+
+--
+Michael
 

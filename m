@@ -1,618 +1,320 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbVHPQGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbVHPQIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbVHPQGg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 12:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVHPQGg
+	id S1030210AbVHPQIw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 12:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbVHPQIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 12:06:36 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:57352 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1030208AbVHPQGf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 12:06:35 -0400
-Date: Tue, 16 Aug 2005 11:42:01 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, chrisl@vmware.com,
-       pratap@vmware.com, virtualization@lists.osdl.org
-Subject: [RFC] [PATCH] Split host arch headers for UML's benefit
-Message-ID: <20050816154201.GA6733@ccure.user-mode-linux.org>
+	Tue, 16 Aug 2005 12:08:52 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:64901 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030210AbVHPQIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 12:08:51 -0400
+Subject: Re: 2.6.13-rc6-rt5
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <1124207046.5764.17.camel@localhost.localdomain>
+References: <20050816121843.GA24308@elte.hu>
+	 <1124206316.5764.14.camel@localhost.localdomain>
+	 <1124207046.5764.17.camel@localhost.localdomain>
+Content-Type: multipart/mixed; boundary="=-kEUtDZeT0aiCnPUS7oKb"
+Organization: Kihon Technologies
+Date: Tue, 16 Aug 2005 12:08:27 -0400
+Message-Id: <1124208507.5764.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes the recent UML compilation failure in -rc5-mm1
-without making the UML build reach further into the i386 headers.  It
-splits the i386 ptrace.h and system.h into UML-usable and UML-unusable
-pieces.  
 
-The string "abi" is in there because I did ptrace.h first, and that
-involves separating the ptrace ABI stuff from everything else (if
-pt_regs is not considered part of the abi).  However, the system.h
-split is between random stuff that UML can use and random stuff that
-it can't.  So, perhaps better names would be -uml or -userspace or
-something.
+--=-kEUtDZeT0aiCnPUS7oKb
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-This isolates UML somewhat from host header changes while allowing it
-to reuse host stuff.  Build failures like the current one would be
-less frequent.  It also allows UML headers to be cleaned up - see the
-deletions from ptrace-generic.h and system-generic.h which used to
-rename the stuff from the host headers which UML couldn't use.
+OK, I compiled it now. Tried to boot, and it rebooted on me before
+showing any output :-(
 
-ptrace.h and system.h are the two problem cases at the moment.  There
-are others, but not a lot.  These two are the messiest ones.
+So I'll start debugging it, but just incase I'm not looking for
+something that is already found, is there anything wrong with the
+following config?
 
-Any arch which runs UML would need similar treatment - right now,
-that's i386, x86_64, and s390.
+-- Steve
 
-				Jeff
 
-Index: linux-2.6.13-rc5-mm1-abi/include/asm-i386/ptrace-abi.h
-===================================================================
---- linux-2.6.13-rc5-mm1-abi.orig/include/asm-i386/ptrace-abi.h	2005-08-16 05:22:15.349927640 -0400
-+++ linux-2.6.13-rc5-mm1-abi/include/asm-i386/ptrace-abi.h	2005-08-16 11:30:46.000000000 -0400
-@@ -0,0 +1,36 @@
-+#ifndef __PTRACE_ABI__
-+#define __PTRACE_ABI__
-+
-+#define EBX 0
-+#define ECX 1
-+#define EDX 2
-+#define ESI 3
-+#define EDI 4
-+#define EBP 5
-+#define EAX 6
-+#define DS 7
-+#define ES 8
-+#define FS 9
-+#define GS 10
-+#define ORIG_EAX 11
-+#define EIP 12
-+#define CS  13
-+#define EFL 14
-+#define UESP 15
-+#define SS   16
-+#define FRAME_SIZE 17
-+
-+/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
-+#define PTRACE_GETREGS            12
-+#define PTRACE_SETREGS            13
-+#define PTRACE_GETFPREGS          14
-+#define PTRACE_SETFPREGS          15
-+#define PTRACE_GETFPXREGS         18
-+#define PTRACE_SETFPXREGS         19
-+
-+#define PTRACE_OLDSETOPTIONS         21
-+
-+#define PTRACE_GET_THREAD_AREA    25
-+#define PTRACE_SET_THREAD_AREA    26
-+
-+#endif
-Index: linux-2.6.13-rc5-mm1-abi/include/asm-i386/ptrace.h
-===================================================================
---- linux-2.6.13-rc5-mm1-abi.orig/include/asm-i386/ptrace.h	2005-08-16 08:48:01.000000000 -0400
-+++ linux-2.6.13-rc5-mm1-abi/include/asm-i386/ptrace.h	2005-08-16 11:03:34.000000000 -0400
-@@ -1,24 +1,7 @@
- #ifndef _I386_PTRACE_H
- #define _I386_PTRACE_H
- 
--#define EBX 0
--#define ECX 1
--#define EDX 2
--#define ESI 3
--#define EDI 4
--#define EBP 5
--#define EAX 6
--#define DS 7
--#define ES 8
--#define FS 9
--#define GS 10
--#define ORIG_EAX 11
--#define EIP 12
--#define CS  13
--#define EFL 14
--#define UESP 15
--#define SS   16
--#define FRAME_SIZE 17
-+#include <asm/ptrace-abi.h>
- 
- /* this struct defines the way the registers are stored on the 
-    stack during a system call. */
-@@ -41,19 +24,6 @@
- 	int  xss;
- };
- 
--/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
--#define PTRACE_GETREGS            12
--#define PTRACE_SETREGS            13
--#define PTRACE_GETFPREGS          14
--#define PTRACE_SETFPREGS          15
--#define PTRACE_GETFPXREGS         18
--#define PTRACE_SETFPXREGS         19
--
--#define PTRACE_OLDSETOPTIONS         21
--
--#define PTRACE_GET_THREAD_AREA    25
--#define PTRACE_SET_THREAD_AREA    26
--
- #ifdef __KERNEL__
- 
- #include <asm/vm86.h>
-Index: linux-2.6.13-rc5-mm1-abi/include/asm-i386/system-abi.h
-===================================================================
---- linux-2.6.13-rc5-mm1-abi.orig/include/asm-i386/system-abi.h	2005-08-16 05:22:15.349927640 -0400
-+++ linux-2.6.13-rc5-mm1-abi/include/asm-i386/system-abi.h	2005-08-16 11:32:28.000000000 -0400
-@@ -0,0 +1,190 @@
-+#ifndef __SYSTEM_ABI__
-+#define __SYSTEM_ABI__
-+
-+#include <asm/cpufeature.h>
-+
-+#ifdef CONFIG_SMP
-+#define smp_mb()	mb()
-+#define smp_rmb()	rmb()
-+#define smp_wmb()	wmb()
-+#define smp_read_barrier_depends()	read_barrier_depends()
-+#define set_mb(var, value) do { xchg(&var, value); } while (0)
-+#else
-+#define smp_mb()	barrier()
-+#define smp_rmb()	barrier()
-+#define smp_wmb()	barrier()
-+#define smp_read_barrier_depends()	do { } while(0)
-+#define set_mb(var, value) do { var = value; barrier(); } while (0)
-+#endif
-+
-+#define xchg(ptr,v) ((__typeof__(*(ptr)))__xchg((unsigned long)(v),(ptr),sizeof(*(ptr))))
-+
-+#define tas(ptr) (xchg((ptr),1))
-+
-+struct __xchg_dummy { unsigned long a[100]; };
-+#define __xg(x) ((struct __xchg_dummy *)(x))
-+
-+/*
-+ * Note: no "lock" prefix even on SMP: xchg always implies lock anyway
-+ * Note 2: xchg has side effect, so that attribute volatile is necessary,
-+ *	  but generally the primitive is invalid, *ptr is output argument. --ANK
-+ */
-+static inline unsigned long __xchg(unsigned long x, volatile void * ptr, int size)
-+{
-+	switch (size) {
-+		case 1:
-+			__asm__ __volatile__("xchgb %b0,%1"
-+				:"=q" (x)
-+				:"m" (*__xg(ptr)), "0" (x)
-+				:"memory");
-+			break;
-+		case 2:
-+			__asm__ __volatile__("xchgw %w0,%1"
-+				:"=r" (x)
-+				:"m" (*__xg(ptr)), "0" (x)
-+				:"memory");
-+			break;
-+		case 4:
-+			__asm__ __volatile__("xchgl %0,%1"
-+				:"=r" (x)
-+				:"m" (*__xg(ptr)), "0" (x)
-+				:"memory");
-+			break;
-+	}
-+	return x;
-+}
-+
-+/* 
-+ * Alternative instructions for different CPU types or capabilities.
-+ * 
-+ * This allows to use optimized instructions even on generic binary
-+ * kernels.
-+ * 
-+ * length of oldinstr must be longer or equal the length of newinstr
-+ * It can be padded with nops as needed.
-+ * 
-+ * For non barrier like inlines please define new variants
-+ * without volatile and memory clobber.
-+ */
-+#define alternative(oldinstr, newinstr, feature) 	\
-+	asm volatile ("661:\n\t" oldinstr "\n662:\n" 		     \
-+		      ".section .altinstructions,\"a\"\n"     	     \
-+		      "  .align 4\n"				       \
-+		      "  .long 661b\n"            /* label */          \
-+		      "  .long 663f\n"		  /* new instruction */ 	\
-+		      "  .byte %c0\n"             /* feature bit */    \
-+		      "  .byte 662b-661b\n"       /* sourcelen */      \
-+		      "  .byte 664f-663f\n"       /* replacementlen */ \
-+		      ".previous\n"						\
-+		      ".section .altinstr_replacement,\"ax\"\n"			\
-+		      "663:\n\t" newinstr "\n664:\n"   /* replacement */    \
-+		      ".previous" :: "i" (feature) : "memory")  
-+
-+/*
-+ * Alternative inline assembly with input.
-+ * 
-+ * Pecularities:
-+ * No memory clobber here. 
-+ * Argument numbers start with 1.
-+ * Best is to use constraints that are fixed size (like (%1) ... "r")
-+ * If you use variable sized constraints like "m" or "g" in the 
-+ * replacement maake sure to pad to the worst case length.
-+ */
-+#define alternative_input(oldinstr, newinstr, feature, input...)		\
-+	asm volatile ("661:\n\t" oldinstr "\n662:\n"				\
-+		      ".section .altinstructions,\"a\"\n"			\
-+		      "  .align 4\n"						\
-+		      "  .long 661b\n"            /* label */			\
-+		      "  .long 663f\n"		  /* new instruction */ 	\
-+		      "  .byte %c0\n"             /* feature bit */		\
-+		      "  .byte 662b-661b\n"       /* sourcelen */		\
-+		      "  .byte 664f-663f\n"       /* replacementlen */ 		\
-+		      ".previous\n"						\
-+		      ".section .altinstr_replacement,\"ax\"\n"			\
-+		      "663:\n\t" newinstr "\n664:\n"   /* replacement */ 	\
-+		      ".previous" :: "i" (feature), ##input)
-+
-+/*
-+ * Force strict CPU ordering.
-+ * And yes, this is required on UP too when we're talking
-+ * to devices.
-+ *
-+ * For now, "wmb()" doesn't actually do anything, as all
-+ * Intel CPU's follow what Intel calls a *Processor Order*,
-+ * in which all writes are seen in the program order even
-+ * outside the CPU.
-+ *
-+ * I expect future Intel CPU's to have a weaker ordering,
-+ * but I'd also expect them to finally get their act together
-+ * and add some real memory barriers if so.
-+ *
-+ * Some non intel clones support out of order store. wmb() ceases to be a
-+ * nop for these.
-+ */
-+ 
-+
-+/* 
-+ * Actually only lfence would be needed for mb() because all stores done 
-+ * by the kernel should be already ordered. But keep a full barrier for now. 
-+ */
-+
-+#define mb() alternative("lock; addl $0,0(%%esp)", "mfence", X86_FEATURE_XMM2)
-+#define rmb() alternative("lock; addl $0,0(%%esp)", "lfence", X86_FEATURE_XMM2)
-+
-+/**
-+ * read_barrier_depends - Flush all pending reads that subsequents reads
-+ * depend on.
-+ *
-+ * No data-dependent reads from memory-like regions are ever reordered
-+ * over this barrier.  All reads preceding this primitive are guaranteed
-+ * to access memory (but not necessarily other CPUs' caches) before any
-+ * reads following this primitive that depend on the data return by
-+ * any of the preceding reads.  This primitive is much lighter weight than
-+ * rmb() on most CPUs, and is never heavier weight than is
-+ * rmb().
-+ *
-+ * These ordering constraints are respected by both the local CPU
-+ * and the compiler.
-+ *
-+ * Ordering is not guaranteed by anything other than these primitives,
-+ * not even by data dependencies.  See the documentation for
-+ * memory_barrier() for examples and URLs to more information.
-+ *
-+ * For example, the following code would force ordering (the initial
-+ * value of "a" is zero, "b" is one, and "p" is "&a"):
-+ *
-+ * <programlisting>
-+ *	CPU 0				CPU 1
-+ *
-+ *	b = 2;
-+ *	memory_barrier();
-+ *	p = &b;				q = p;
-+ *					read_barrier_depends();
-+ *					d = *q;
-+ * </programlisting>
-+ *
-+ * because the read of "*q" depends on the read of "p" and these
-+ * two reads are separated by a read_barrier_depends().  However,
-+ * the following code, with the same initial values for "a" and "b":
-+ *
-+ * <programlisting>
-+ *	CPU 0				CPU 1
-+ *
-+ *	a = 2;
-+ *	memory_barrier();
-+ *	b = 3;				y = b;
-+ *					read_barrier_depends();
-+ *					x = a;
-+ * </programlisting>
-+ *
-+ * does not enforce ordering, since there is no data dependency between
-+ * the read of "a" and the read of "b".  Therefore, on some CPUs, such
-+ * as Alpha, "y" could be set to 3 and "x" to 0.  Use rmb()
-+ * in cases like thiswhere there are no data dependencies.
-+ **/
-+
-+#define read_barrier_depends()	do { } while(0)
-+
-+extern unsigned long arch_align_stack(unsigned long sp);
-+
-+#endif
-Index: linux-2.6.13-rc5-mm1-abi/include/asm-i386/system.h
-===================================================================
---- linux-2.6.13-rc5-mm1-abi.orig/include/asm-i386/system.h	2005-08-16 08:48:01.000000000 -0400
-+++ linux-2.6.13-rc5-mm1-abi/include/asm-i386/system.h	2005-08-16 11:26:36.000000000 -0400
-@@ -7,6 +7,8 @@
- #include <asm/cpufeature.h>
- #include <linux/bitops.h> /* for LOCK_PREFIX */
- 
-+#include <asm/system-abi.h>
-+
- #ifdef __KERNEL__
- 
- struct task_struct;	/* one of the stranger aspects of C forward declarations.. */
-@@ -112,14 +114,6 @@
- 
- #define nop() __asm__ __volatile__ ("nop")
- 
--#define xchg(ptr,v) ((__typeof__(*(ptr)))__xchg((unsigned long)(v),(ptr),sizeof(*(ptr))))
--
--#define tas(ptr) (xchg((ptr),1))
--
--struct __xchg_dummy { unsigned long a[100]; };
--#define __xg(x) ((struct __xchg_dummy *)(x))
--
--
- /*
-  * The semantics of XCHGCMP8B are a bit strange, this is why
-  * there is a loop and the loading of %%eax and %%edx has to
-@@ -175,36 +169,6 @@
-  __set_64bit(ptr, ll_low(value), ll_high(value)) )
- 
- /*
-- * Note: no "lock" prefix even on SMP: xchg always implies lock anyway
-- * Note 2: xchg has side effect, so that attribute volatile is necessary,
-- *	  but generally the primitive is invalid, *ptr is output argument. --ANK
-- */
--static inline unsigned long __xchg(unsigned long x, volatile void * ptr, int size)
--{
--	switch (size) {
--		case 1:
--			__asm__ __volatile__("xchgb %b0,%1"
--				:"=q" (x)
--				:"m" (*__xg(ptr)), "0" (x)
--				:"memory");
--			break;
--		case 2:
--			__asm__ __volatile__("xchgw %w0,%1"
--				:"=r" (x)
--				:"m" (*__xg(ptr)), "0" (x)
--				:"memory");
--			break;
--		case 4:
--			__asm__ __volatile__("xchgl %0,%1"
--				:"=r" (x)
--				:"m" (*__xg(ptr)), "0" (x)
--				:"memory");
--			break;
--	}
--	return x;
--}
--
--/*
-  * Atomic compare and exchange.  Compare OLD with MEM, if identical,
-  * store NEW in MEM.  Return the initial value in MEM.  Success is
-  * indicated by comparing RETURN with OLD.
-@@ -256,137 +220,6 @@
- }; 
- #endif
- 
--/* 
-- * Alternative instructions for different CPU types or capabilities.
-- * 
-- * This allows to use optimized instructions even on generic binary
-- * kernels.
-- * 
-- * length of oldinstr must be longer or equal the length of newinstr
-- * It can be padded with nops as needed.
-- * 
-- * For non barrier like inlines please define new variants
-- * without volatile and memory clobber.
-- */
--#define alternative(oldinstr, newinstr, feature) 	\
--	asm volatile ("661:\n\t" oldinstr "\n662:\n" 		     \
--		      ".section .altinstructions,\"a\"\n"     	     \
--		      "  .align 4\n"				       \
--		      "  .long 661b\n"            /* label */          \
--		      "  .long 663f\n"		  /* new instruction */ 	\
--		      "  .byte %c0\n"             /* feature bit */    \
--		      "  .byte 662b-661b\n"       /* sourcelen */      \
--		      "  .byte 664f-663f\n"       /* replacementlen */ \
--		      ".previous\n"						\
--		      ".section .altinstr_replacement,\"ax\"\n"			\
--		      "663:\n\t" newinstr "\n664:\n"   /* replacement */    \
--		      ".previous" :: "i" (feature) : "memory")  
--
--/*
-- * Alternative inline assembly with input.
-- * 
-- * Pecularities:
-- * No memory clobber here. 
-- * Argument numbers start with 1.
-- * Best is to use constraints that are fixed size (like (%1) ... "r")
-- * If you use variable sized constraints like "m" or "g" in the 
-- * replacement maake sure to pad to the worst case length.
-- */
--#define alternative_input(oldinstr, newinstr, feature, input...)		\
--	asm volatile ("661:\n\t" oldinstr "\n662:\n"				\
--		      ".section .altinstructions,\"a\"\n"			\
--		      "  .align 4\n"						\
--		      "  .long 661b\n"            /* label */			\
--		      "  .long 663f\n"		  /* new instruction */ 	\
--		      "  .byte %c0\n"             /* feature bit */		\
--		      "  .byte 662b-661b\n"       /* sourcelen */		\
--		      "  .byte 664f-663f\n"       /* replacementlen */ 		\
--		      ".previous\n"						\
--		      ".section .altinstr_replacement,\"ax\"\n"			\
--		      "663:\n\t" newinstr "\n664:\n"   /* replacement */ 	\
--		      ".previous" :: "i" (feature), ##input)
--
--/*
-- * Force strict CPU ordering.
-- * And yes, this is required on UP too when we're talking
-- * to devices.
-- *
-- * For now, "wmb()" doesn't actually do anything, as all
-- * Intel CPU's follow what Intel calls a *Processor Order*,
-- * in which all writes are seen in the program order even
-- * outside the CPU.
-- *
-- * I expect future Intel CPU's to have a weaker ordering,
-- * but I'd also expect them to finally get their act together
-- * and add some real memory barriers if so.
-- *
-- * Some non intel clones support out of order store. wmb() ceases to be a
-- * nop for these.
-- */
-- 
--
--/* 
-- * Actually only lfence would be needed for mb() because all stores done 
-- * by the kernel should be already ordered. But keep a full barrier for now. 
-- */
--
--#define mb() alternative("lock; addl $0,0(%%esp)", "mfence", X86_FEATURE_XMM2)
--#define rmb() alternative("lock; addl $0,0(%%esp)", "lfence", X86_FEATURE_XMM2)
--
--/**
-- * read_barrier_depends - Flush all pending reads that subsequents reads
-- * depend on.
-- *
-- * No data-dependent reads from memory-like regions are ever reordered
-- * over this barrier.  All reads preceding this primitive are guaranteed
-- * to access memory (but not necessarily other CPUs' caches) before any
-- * reads following this primitive that depend on the data return by
-- * any of the preceding reads.  This primitive is much lighter weight than
-- * rmb() on most CPUs, and is never heavier weight than is
-- * rmb().
-- *
-- * These ordering constraints are respected by both the local CPU
-- * and the compiler.
-- *
-- * Ordering is not guaranteed by anything other than these primitives,
-- * not even by data dependencies.  See the documentation for
-- * memory_barrier() for examples and URLs to more information.
-- *
-- * For example, the following code would force ordering (the initial
-- * value of "a" is zero, "b" is one, and "p" is "&a"):
-- *
-- * <programlisting>
-- *	CPU 0				CPU 1
-- *
-- *	b = 2;
-- *	memory_barrier();
-- *	p = &b;				q = p;
-- *					read_barrier_depends();
-- *					d = *q;
-- * </programlisting>
-- *
-- * because the read of "*q" depends on the read of "p" and these
-- * two reads are separated by a read_barrier_depends().  However,
-- * the following code, with the same initial values for "a" and "b":
-- *
-- * <programlisting>
-- *	CPU 0				CPU 1
-- *
-- *	a = 2;
-- *	memory_barrier();
-- *	b = 3;				y = b;
-- *					read_barrier_depends();
-- *					x = a;
-- * </programlisting>
-- *
-- * does not enforce ordering, since there is no data dependency between
-- * the read of "a" and the read of "b".  Therefore, on some CPUs, such
-- * as Alpha, "y" could be set to 3 and "x" to 0.  Use rmb()
-- * in cases like thiswhere there are no data dependencies.
-- **/
--
--#define read_barrier_depends()	do { } while(0)
--
- #ifdef CONFIG_X86_OOSTORE
- /* Actually there are no OOO store capable CPUs for now that do SSE, 
-    but make it already an possibility. */
-@@ -395,20 +228,6 @@
- #define wmb()	__asm__ __volatile__ ("": : :"memory")
- #endif
- 
--#ifdef CONFIG_SMP
--#define smp_mb()	mb()
--#define smp_rmb()	rmb()
--#define smp_wmb()	wmb()
--#define smp_read_barrier_depends()	read_barrier_depends()
--#define set_mb(var, value) do { xchg(&var, value); } while (0)
--#else
--#define smp_mb()	barrier()
--#define smp_rmb()	barrier()
--#define smp_wmb()	barrier()
--#define smp_read_barrier_depends()	do { } while(0)
--#define set_mb(var, value) do { var = value; barrier(); } while (0)
--#endif
--
- #define set_wmb(var, value) do { var = value; wmb(); } while (0)
- 
- #include <mach_system.h>
-@@ -439,6 +258,4 @@
- 	wbinvd();
- }
- 
--extern unsigned long arch_align_stack(unsigned long sp);
--
- #endif
-Index: linux-2.6.13-rc5-mm1-abi/include/asm-um/ptrace-generic.h
-===================================================================
---- linux-2.6.13-rc5-mm1-abi.orig/include/asm-um/ptrace-generic.h	2005-06-17 15:48:29.000000000 -0400
-+++ linux-2.6.13-rc5-mm1-abi/include/asm-um/ptrace-generic.h	2005-08-16 11:31:30.000000000 -0400
-@@ -9,19 +9,7 @@
- #ifndef __ASSEMBLY__
- 
- #include "linux/config.h"
--
--#define pt_regs pt_regs_subarch
--#define show_regs show_regs_subarch
--#define send_sigtrap send_sigtrap_subarch
--
--#include "asm/arch/ptrace.h"
--
--#undef pt_regs
--#undef show_regs
--#undef send_sigtrap
--#undef user_mode
--#undef instruction_pointer
--
-+#include "asm/arch/ptrace-abi.h"
- #include "sysdep/ptrace.h"
- 
- struct pt_regs {
-Index: linux-2.6.13-rc5-mm1-abi/include/asm-um/system-generic.h
-===================================================================
---- linux-2.6.13-rc5-mm1-abi.orig/include/asm-um/system-generic.h	2005-06-17 15:48:29.000000000 -0400
-+++ linux-2.6.13-rc5-mm1-abi/include/asm-um/system-generic.h	2005-08-16 11:32:15.000000000 -0400
-@@ -1,19 +1,7 @@
- #ifndef __UM_SYSTEM_GENERIC_H
- #define __UM_SYSTEM_GENERIC_H
- 
--#include "asm/arch/system.h"
--
--#undef switch_to
--#undef local_irq_save
--#undef local_irq_restore
--#undef local_irq_disable
--#undef local_irq_enable
--#undef local_save_flags
--#undef local_irq_restore
--#undef local_irq_enable
--#undef local_irq_disable
--#undef local_irq_save
--#undef irqs_disabled
-+#include "asm/arch/system-abi.h"
- 
- extern void *switch_to(void *prev, void *next, void *last);
- 
+--=-kEUtDZeT0aiCnPUS7oKb
+Content-Disposition: attachment; filename=config_ernie
+Content-Type: text/plain; name=config_ernie; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_EMBEDDED=y
+CONFIG_KALLSYMS=y
+CONFIG_KALLSYMS_ALL=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HIGH_RES_TIMERS=y
+CONFIG_HIGH_RES_TIMER_TSC=y
+CONFIG_HIGH_RES_RESOLUTION=1000
+CONFIG_PREEMPT_RT=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_SOFTIRQS=y
+CONFIG_PREEMPT_HARDIRQS=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_PREEMPT_RCU=y
+CONFIG_RCU_STATS=y
+CONFIG_RCU_TORTURE_TEST=y
+CONFIG_RWSEM_GENERIC_SPINLOCK=y
+CONFIG_ASM_SEMAPHORES=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_IOAPIC_FAST=y
+CONFIG_X86_TSC=y
+CONFIG_NOHIGHMEM=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_SECCOMP=y
+CONFIG_HZ_1000=y
+CONFIG_HZ=1000
+CONFIG_PHYSICAL_START=0x100000
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA_DMA_API=y
+CONFIG_ISA=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_IP_TCPDIAG=y
+CONFIG_TCP_CONG_BIC=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CLK_JIFFIES=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_PARPORT=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_NETCONSOLE=m
+CONFIG_NETPOLL=y
+CONFIG_NETPOLL_RX=y
+CONFIG_NETPOLL_TRAP=y
+CONFIG_NET_POLL_CONTROLLER=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_MOUSE_INPORT=m
+CONFIG_MOUSE_LOGIBM=m
+CONFIG_MOUSE_PC110PAD=m
+CONFIG_MOUSE_VSXXXAA=m
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_RTC=y
+CONFIG_RTC_HISTOGRAM=y
+CONFIG_BLOCKER=y
+CONFIG_AGP=y
+CONFIG_AGP_ALI=y
+CONFIG_AGP_AMD=y
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_SIS=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_TDFX=y
+CONFIG_DRM_RADEON=y
+CONFIG_HWMON=y
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_8x16=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_MON=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_INOTIFY=y
+CONFIG_DNOTIFY=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_PROC_FS=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_EXPORTFS=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_DETECT_SOFTLOCKUP=y
+CONFIG_SCHEDSTATS=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_PREEMPT=y
+CONFIG_DEBUG_IRQ_FLAGS=y
+CONFIG_WAKEUP_TIMING=y
+CONFIG_PREEMPT_TRACE=y
+CONFIG_CRITICAL_PREEMPT_TIMING=y
+CONFIG_CRITICAL_IRQSOFF_TIMING=y
+CONFIG_CRITICAL_TIMING=y
+CONFIG_LATENCY_TIMING=y
+CONFIG_LATENCY_TRACE=y
+CONFIG_MCOUNT=y
+CONFIG_RT_DEADLOCK_DETECT=y
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_DEBUG_INFO=y
+CONFIG_FRAME_POINTER=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_STACK_USAGE=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+
+--=-kEUtDZeT0aiCnPUS7oKb--
+

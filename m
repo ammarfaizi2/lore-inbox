@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVHPWmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVHPWmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbVHPWmc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 18:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbVHPWmc
+	id S1750706AbVHPWmT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 18:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbVHPWmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 18:42:32 -0400
-Received: from bay17-f12.bay17.hotmail.com ([64.4.43.62]:27471 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1750713AbVHPWma
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 18:42:30 -0400
-Message-ID: <BAY17-F128EAAE430E9616B778C75F8B00@phx.gbl>
-X-Originating-IP: [172.202.42.53]
-X-Originating-Email: [kimlee114@hotmail.com]
-Reply-To: kimlee2005@excite.com
-From: "kim lee" <kimlee114@hotmail.com>
-To: kim@hotmail.com
-Subject: Representatives needed urgently
-Date: Tue, 16 Aug 2005 22:42:30 +0000
+	Tue, 16 Aug 2005 18:42:19 -0400
+Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:55428 "EHLO
+	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750706AbVHPWmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 18:42:18 -0400
+Date: Wed, 17 Aug 2005 08:41:50 +1000
+From: CaT <cat@zip.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Daniel Drake <dsd@gentoo.org>, linux-kernel@vger.kernel.org
+Subject: Re: IT8212/ITE RAID
+Message-ID: <20050816224149.GH27824@zip.com.au>
+References: <20050814053017.GA27824@zip.com.au> <42FF263A.8080009@gentoo.org> <20050814114733.GB27824@zip.com.au> <42FF3CBA.1030900@gentoo.org> <1124026385.14138.37.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 16 Aug 2005 22:42:30.0468 (UTC) FILETIME=[C8FB3840:01C5A2B3]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124026385.14138.37.camel@localhost.localdomain>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir/Madam,
+On Sun, Aug 14, 2005 at 02:33:05PM +0100, Alan Cox wrote:
+> On Sul, 2005-08-14 at 13:44 +0100, Daniel Drake wrote:
+> > > [227523.229557] hda: 390721968 sectors (200049 MB) w/8192KiB Cache, CHS=24321/255/63, BUG
+> 
+> Thats probably the fact other patches from -ac are missing in base. It
+> should be harmless. 
 
-I am Mr.kim Lee ,we are a company that deal on
-importing and exporting raw materials into Canada,America and England. We 
-are searching for
-representatives who can  help us establish a medium of getting to our 
-costumers in the Canada,America and England as well as making payments 
-through you to us.
+Just remembered that I was seeing the above with 11ac7 aswell.
 
-Please if you are interested in transacting business
-with us we will be very glad. Please contact us for more information.
-Subject to your satisfaction,you shall be well compensated for your troubles 
-and time.
-
-reply to kimlee@cmiecteam.com
-
-Regards.
-kim Lee
-
-
+-- 
+    "To the extent that we overreact, we proffer the terrorists the
+    greatest tribute."
+    	- High Court Judge Michael Kirby

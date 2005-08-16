@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbVHPEhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbVHPEiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965099AbVHPEhT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 00:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbVHPEhT
+	id S932606AbVHPEiu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 00:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbVHPEiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 00:37:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65198 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932602AbVHPEhR (ORCPT
+	Tue, 16 Aug 2005 00:38:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15791 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932601AbVHPEit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 00:37:17 -0400
-Date: Mon, 15 Aug 2005 21:37:02 -0700
+	Tue, 16 Aug 2005 00:38:49 -0400
+Date: Mon, 15 Aug 2005 21:38:43 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: zach@vmware.com
 Cc: akpm@osdl.org, chrisl@vmware.com, chrisw@osdl.org, hpa@zytor.com,
-       jdike@addtoit.com, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
-       pratap@vmware.com, virtualization@lists.osdl.org,
-       zwane@arm.linux.org.uk
-Subject: Re: [PATCH 1/6] i386 virtualization - Fix uml build
-Message-ID: <20050816043702.GS7762@shell0.pdx.osdl.net>
-References: <200508152258.j7FMwdAb005304@zach-dev.vmware.com>
+       linux-kernel@vger.kernel.org, mbligh@mbligh.org, pratap@vmware.com,
+       virtualization@lists.osdl.org, zwane@arm.linux.org.uk
+Subject: Re: [PATCH 2/6] i386 virtualization - Remove some dead debugging code
+Message-ID: <20050816043843.GT7762@shell0.pdx.osdl.net>
+References: <200508152259.j7FMx9qZ005312@zach-dev.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200508152258.j7FMwdAb005304@zach-dev.vmware.com>
+In-Reply-To: <200508152259.j7FMx9qZ005312@zach-dev.vmware.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 * zach@vmware.com (zach@vmware.com) wrote:
-> Attempt to fix the UML build by assuming the default i386 subarchitecture
-> (mach-default).
+> This code is quite dead.  Release_thread is always guaranteed that the mm has
+> already been released, thus dead_task->mm will always be NULL.
 > 
-> I can't fully test this because spinlock breakage is still happening in
-> my tree, but it gets rid of the mach_xxx.h missing file warnings.
+> Signed-off-by: Zachary Amsden <zach@vmware.com>
+> Index: linux-2.6.13/arch/i386/kernel/process.c
+> ===================================================================
+> --- linux-2.6.13.orig/arch/i386/kernel/process.c	2005-08-15 10:46:18.000000000 -0700
+> +++ linux-2.6.13/arch/i386/kernel/process.c	2005-08-15 10:48:51.000000000 -0700
+> @@ -421,17 +421,7 @@
+>  
+>  void release_thread(struct task_struct *dead_task)
+>  {
+> -	if (dead_task->mm) {
+> -		// temporary debugging check
+> -		if (dead_task->mm->context.size) {
+> -			printk("WARNING: dead process %8s still has LDT? <%p/%d>\n",
+> -					dead_task->comm,
+> -					dead_task->mm->context.ldt,
+> -					dead_task->mm->context.size);
+> -			BUG();
+> -		}
+> -	}
+> -
+> +	BUG_ON(dead_task->mm);
 
-I assume this is intended to fix a build error caused by patches in the
-earlier set which added more reliance on mach-default?
+This BUG_ON() has different semantics than old dead one.  Is there a
+point?  exit_mm() has already reset this to NULL, no?
 
-thanks,
--chris
+>  	release_vm86_irqs(dead_task);
+>  }

@@ -1,100 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbVHPMx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbVHPMtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965204AbVHPMx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 08:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbVHPMx7
+	id S965200AbVHPMtt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 08:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965201AbVHPMtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 08:53:59 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:21127 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S965201AbVHPMx6 (ORCPT
+	Tue, 16 Aug 2005 08:49:49 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:58278 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S965200AbVHPMts (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 08:53:58 -0400
-Message-ID: <4301E1AE.6010501@gmail.com>
-Date: Tue, 16 Aug 2005 14:53:02 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Bolke de Bruin <bdbruin@aub.nl>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6.13-rc6] MODULE_DEVICE_TABLE for cpqfcTS driver
-References: <200508051202.07091@bilbo.math.uni-mannheim.de> <200508091806.45341@bilbo.math.uni-mannheim.de> <200508161111.08070@bilbo.math.uni-mannheim.de> <200508161111.35431@bilbo.math.uni-mannheim.de>
-In-Reply-To: <200508161111.35431@bilbo.math.uni-mannheim.de>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Aug 2005 08:49:48 -0400
+Date: Tue, 16 Aug 2005 14:50:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: Mr Machine <machinehasnoagenda@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: error compiling 2.6.13.rc6 with realtime-preempt patch -rt2 ('quirk_via_irq')
+Message-ID: <20050816125001.GA26148@elte.hu>
+References: <4301D0F9.4050405@gmail.com> <200508161402.57051.Serge.Noiraud@bull.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200508161402.57051.Serge.Noiraud@bull.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rolf Eike Beer napsal(a):
 
->Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
->
->--- a/drivers/scsi/cpqfcTSinit.c	2005-08-14 14:20:40.000000000 +0200
->+++ b/drivers/scsi/cpqfcTSinit.c	2005-08-14 14:25:33.000000000 +0200
->@@ -264,18 +264,14 @@ static void launch_FCworker_thread(struc
->  * Agilent XL2 
->  * HP Tachyon
->  */
->-#define HBA_TYPES 3
->-
->-#ifndef PCI_DEVICE_ID_COMPAQ_
->-#define PCI_DEVICE_ID_COMPAQ_TACHYON	0xa0fc
->-#endif
->-
->-static struct SupportedPCIcards cpqfc_boards[] __initdata = {
->-	{PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_TACHYON},
->-	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_TACHLITE},
->-	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_TACHYON},
->+static struct pci_device_id cpqfc_boards[] __initdata = {
->+	{PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_TACHYON, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
->+	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_TACHLITE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
->+	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_TACHYON, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
->+	{0, }
-> };
->  
->
-Wouldn't be better to use PCI_DEVICE macro for better readability?
+* Serge Noiraud <serge.noiraud@bull.net> wrote:
 
-> 
->+MODULE_DEVICE_TABLE(pci, cpqfc_boards);
-> 
-> int cpqfcTS_detect(Scsi_Host_Template *ScsiHostTemplate)
-> {
->@@ -294,14 +290,9 @@ int cpqfcTS_detect(Scsi_Host_Template *S
->   ScsiHostTemplate->proc_name = "cpqfcTS";
-> #endif
-> 
->-  for( i=0; i < HBA_TYPES; i++)
->-  {
->-    // look for all HBAs of each type
->-
->-    while((PciDev = pci_find_device(cpqfc_boards[i].vendor_id,
->-				    cpqfc_boards[i].device_id, PciDev)))
->-    {
->-
->+  for(i = 0; cpqfc_boards[i]; i++) {
->+    while((PciDev = pci_get_device(cpqfc_boards[i].vendor,
->+				    cpqfc_boards[i].device, PciDev))) {
->       if (pci_enable_device(PciDev)) {
-> 	printk(KERN_ERR
-> 		"cpqfc: can't enable PCI device at %s\n", pci_name(PciDev));
->  
->
-You maybe forgot to add pci_dev_put in error cases. You can inspire 
-yourself here:
-http://www.fi.muni.cz/~xslaby/lnx/pci_find/drivers:scsi:cpqfcTSinit.c.txt
-(it wasn't accepted yet).
+> mardi 16 Août 2005 13:41, Mr Machine wrote/a écrit :
+> > i get this error during compile of pci drivers:
 
-BTW. Greg KH wants me to cc him, if some of these changes are being done.
+> I have the same problem with rt1 and rt2.
 
-regards,
+i have fixed this in -rt4 (just uploaded).
 
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+> One 'bizarre' thing : If I patch directly 2.6.13.rc6 with the RT 
+> patch, I have an error on this driver with the first patch at 500 
+> instead of 560! Did we miss something ?
 
+yeah, patch management mistake. (My repository had the full patch but 
+quilt didnt pick it up because i edited the file outside-of-quilt.)
+
+	Ingo

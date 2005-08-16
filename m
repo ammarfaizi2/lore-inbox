@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbVHPNhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965219AbVHPNhp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbVHPNhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 09:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965217AbVHPNhZ
+	id S965219AbVHPNhp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 09:37:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbVHPNhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 09:37:25 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:20427 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S965211AbVHPNhX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 09:37:23 -0400
-Message-ID: <4301EC0E.6090406@adaptec.com>
-Date: Tue, 16 Aug 2005 09:37:18 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James.Smart@Emulex.Com
-CC: James.Bottomley@SteelEye.com, matthew@wil.cx, greg@kroah.com,
-       akpm@osdl.org, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, rmk@arm.linux.org.uk
-Subject: Re: [PATCH] add transport class symlink to device object
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD39@xbl3.ma.emulex.com>
-In-Reply-To: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD39@xbl3.ma.emulex.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Aug 2005 13:35:03.0479 (UTC) FILETIME=[4EA67470:01C5A267]
+	Tue, 16 Aug 2005 09:37:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:943 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S965219AbVHPNhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 09:37:43 -0400
+Date: Tue, 16 Aug 2005 14:40:29 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
+Message-ID: <20050816134029.GA5113@parcelfarce.linux.theplanet.co.uk>
+References: <200508111424.43150.bjorn.helgaas@hp.com> <1123836012.22460.16.camel@localhost.localdomain> <200508151507.22776.bjorn.helgaas@hp.com> <58cb370e050816023845b57a74@mail.gmail.com> <1124196958.17555.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124196958.17555.8.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/15/05 20:52, James.Smart@Emulex.Com wrote:
-> Actually, I view this as being a little odd...
+On Tue, Aug 16, 2005 at 01:55:58PM +0100, Alan Cox wrote:
+> On Maw, 2005-08-16 at 11:38 +0200, Bartlomiej Zolnierkiewicz wrote:
+> > * removing IDE_ARCH_OBSOLETE_INIT define has some implications,
+> >   * non-functional ide-cs driver (but there is no PCMCIA on IA64?)
 > 
-> What is "0000:00:04:0" in this case ? The "device" is not a serial
-> port, which is what the ttyXX back link would lead you to believe.
-> Thus, it's a serial port multiplexer that supports up to N ports,
-> right ? and wouldn't the more correct representation have been to
-> enumerate a device for each serial port ? (e.g. 0000:00:04.0/line0,
-> 0000:00:04.0/line1, or similar)
-> 
-> Think if SCSI used this same style of representation. For example,
-> if there was no scsi target device entity, but class entities did
-> exist and they just pointed back to the scsi host device entry.
-> 
-> My vote is to make the multiplexor instantiate each serial line
-> as a separate device.
+> IA64 systems can support PCI->Cardbus/PCMCIA cards so they do actually
+> need this support. They could also do with cardbus IDE support but that
+> means a whole pile of patches still although the refcounting stuff means
+> its a lot closer to doable now
 
-Hi James,
+Then IDE_ARCH_OBSOLETE_INIT needs to be added back for all other
+architectures that support PCI too ...
 
-Yes, you're absolutely and completely correct.  I think the same
-way as you do.
-
-	Luben
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

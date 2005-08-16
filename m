@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbVHPP5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVHPQDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbVHPP5d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 11:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbVHPP5d
+	id S1030203AbVHPQDe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 12:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbVHPQDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 11:57:33 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:27629 "EHLO
+	Tue, 16 Aug 2005 12:03:34 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:15497 "EHLO
 	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1030199AbVHPP5c convert rfc822-to-8bit (ORCPT
+	id S1030203AbVHPQDe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 11:57:32 -0400
+	Tue, 16 Aug 2005 12:03:34 -0400
 X-Cam-SpamDetails: Not scanned
 X-Cam-AntiVirus: No virus found
 X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: 2.6.13-rc6 ntfs oops
+Subject: [2.6-BK-URL] Urgent NTFS bug fix
 From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Martin =?iso-8859-2?Q?MOKREJ=A9?= 
-	<mmokrejs@ribosome.natur.cuni.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.60.0508152125000.11229@hermes-1.csi.cam.ac.uk>
-References: <4300B407.60409@ribosome.natur.cuni.cz>
-	 <Pine.LNX.4.60.0508152125000.11229@hermes-1.csi.cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Organization: Computing Service, University of Cambridge, UK
-Date: Tue, 16 Aug 2005 16:57:13 +0100
-Message-Id: <1124207833.30476.19.camel@imp.csi.cam.ac.uk>
+Date: Tue, 16 Aug 2005 17:03:27 +0100
+Message-Id: <1124208207.30476.27.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Linus, please pull from
 
-On Mon, 2005-08-15 at 21:50 +0100, Anton Altaparmakov wrote:
-> On Mon, 15 Aug 2005, [ISO-8859-2] Martin MOKREJ© wrote:
-> >   I was just copying some data from ntfs partition to xfs and I got the following:
-> > Does someone need more info? Briefly, no SMP but HIGHMEm 4GB, i686 P4 machine, 32bit.
-> 
-> Yes, please.  Could you do (assuming your built kernel sources are in 
-> /usr/src/linux-2.6.13-rc6):
-> 
-> cd /usr/src/linux-2.6.13-rc6/drivers/block
-> 
-> objdump -Sl ll_rw_blk.o | sed -e '0,/generic_make_request/d' |
-> sed -e '350,$d' | bzip2 -9 - > lrw.bz2
-> 
-> And then email me the file lrw.bz2?  Thanks!
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git/HEAD
 
-Thanks a lot for sending me the file!  It allowed me to find the bug in
-less than 60 seconds.  (-8
+This is an urgent NTFS bug fix which fixes the oops reported by Martin
+MOKREJŠ.
 
-You can apply the below patch to fix it.  I will be submitting to Linus
-ASAP so it gets in before 2.6.13 is released.
+Please apply before you release 2.6.13.  Thanks!
+
+The diff style patch produced with git format-patch linux-2.6 is below.
 
 Best regards,
 
@@ -107,6 +91,5 @@ diff --git a/fs/ntfs/mft.c b/fs/ntfs/mft.c
  			/* Obtain the vcn and offset of the current block. */
  			vcn = ((VCN)ni->mft_no << vol->mft_record_size_bits) +
  					(block_start - m_start);
-
 
 

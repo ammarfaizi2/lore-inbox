@@ -1,144 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbVHPJOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbVHPJSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965157AbVHPJOI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 05:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbVHPJOI
+	id S965160AbVHPJSD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 05:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965162AbVHPJSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 05:14:08 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:34502 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S965157AbVHPJOC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 05:14:02 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.13-rc6] remove superfluos ioctls from cpqfcTS
-Date: Tue, 16 Aug 2005 11:14:38 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-scsi@vger.kernel.org, James Bottomley <James.Bottomley@steeleye.com>,
+	Tue, 16 Aug 2005 05:18:01 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14759 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965160AbVHPJSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 05:18:00 -0400
+Date: Tue, 16 Aug 2005 10:17:58 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>,
        Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
        Bolke de Bruin <bdbruin@aub.nl>
-References: <200508051202.07091@bilbo.math.uni-mannheim.de> <200508161112.47120@bilbo.math.uni-mannheim.de> <200508161113.45940@bilbo.math.uni-mannheim.de>
-In-Reply-To: <200508161113.45940@bilbo.math.uni-mannheim.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 2.6.13-rc6] remove dead reset function from cpqfcTS driver
+Message-ID: <20050816091758.GA21378@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Rolf Eike Beer <eike-kernel@sf-tec.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-scsi@vger.kernel.org,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Bolke de Bruin <bdbruin@aub.nl>
+References: <200508051202.07091@bilbo.math.uni-mannheim.de> <200508091806.45341@bilbo.math.uni-mannheim.de> <200508161111.08070@bilbo.math.uni-mannheim.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508161114.39675@bilbo.math.uni-mannheim.de>
+In-Reply-To: <200508161111.08070@bilbo.math.uni-mannheim.de>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove ioctls to get PCI information and driver version. These information 
-can be found via lspci or dmesg. Also remove two typedefs already commented 
-out.
+On Tue, Aug 16, 2005 at 11:11:06AM +0200, Rolf Eike Beer wrote:
+> cpqfcTS_reset() is never referenced from anywhere. By using the nonexistent 
+> constant SCSI_RESET_ERROR it causes just another unneeded compile error.
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+That was the old reset handler.  Do you actually have this hardware?
+The driver is pretty much un-recoverable and mkp is working on a from
+scratch driver for this hardware - I don't think putting any work into the
+driver makes sense unless you have a very urgent need to use it.
 
---- a/drivers/scsi/cpqfcTSioctl.h	2005-08-07 20:18:56.000000000 +0200
-+++ b/drivers/scsi/cpqfcTSioctl.h	2005-08-14 16:39:04.000000000 +0200
-@@ -4,47 +4,6 @@
- 
- #define CCPQFCTS_IOC_MAGIC 'Z'
- 
--typedef struct 
--{
--  __u8 bus;
--  __u8 dev_fn;
--  __u32 board_id;
--} cpqfc_pci_info_struct;
--
--typedef __u32 DriverVer_type;
--/*
--typedef union
--{
--  struct  // Peripheral Unit Device
--  { 
--    __u8 Bus:6;
--    __u8 Mode:2;  // b00
--    __u8 Dev;
--  } PeripDev;
--  struct  // Volume Set Address
--  { 
--    __u8 DevMSB:6;
--    __u8 Mode:2;  // b01
--    __u8 DevLSB;
--  } LogDev;
--  struct  // Logical Unit Device (SCSI-3, SCC-2 defined)
--  { 
--    __u8 Targ:6;
--    __u8 Mode:2;  // b10
--    __u8 Dev:5;
--    __u8 Bus:3;
--
--  } LogUnit;
--} SCSI3Addr_struct;
--
--
--typedef struct
--{
--  SCSI3Addr_struct FCP_Nexus;
--  __u8 cdb[16];
--} PassThru_Command_struct;
--*/
--
- /* this is nearly duplicated in idashare.h */
- typedef struct {
-   int	lc;    		/* Controller number */
-@@ -73,9 +32,6 @@
- #define VENDOR_READ_OPCODE			0x26
- #define VENDOR_WRITE_OPCODE			0x27
- 
--#define CPQFCTS_GETPCIINFO _IOR( CCPQFCTS_IOC_MAGIC, 1, cpqfc_pci_info_struct)
--#define CPQFCTS_GETDRIVVER _IOR( CCPQFCTS_IOC_MAGIC, 9, DriverVer_type)
--
- #define CPQFCTS_SCSI_PASSTHRU _IOWR( CCPQFCTS_IOC_MAGIC,11, VENDOR_IOCTL_REQ)
- 
- /* We would rather have equivalent generic, low-level driver agnostic 
-@@ -91,4 +47,3 @@
- /* Used to invoke Target Defice Reset for Fibre Channel */
- // #define CPQFC_IOCTL_FC_TDR 0x5388
- #define CPQFC_IOCTL_FC_TDR _IO( CCPQFCTS_IOC_MAGIC, 15)
--
---- a/drivers/scsi/cpqfcTSinit.c	2005-08-14 15:05:57.000000000 +0200
-+++ b/drivers/scsi/cpqfcTSinit.c	2005-08-14 16:13:17.000000000 +0200
-@@ -659,40 +659,6 @@ int cpqfcTS_ioctl( struct scsi_device *S
-         return result;
-       }
- 
--      case CPQFCTS_GETPCIINFO:
--      {
--	cpqfc_pci_info_struct pciinfo;
--	
--	if( !arg)
--	  return -EINVAL;
--
--         	
--	
--        pciinfo.bus = cpqfcHBAdata->PciDev->bus->number;
--        pciinfo.dev_fn = cpqfcHBAdata->PciDev->devfn;
--	pciinfo.board_id = cpqfcHBAdata->PciDev->device |
--			  (cpqfcHBAdata->PciDev->vendor <<16);
--	
--        if(copy_to_user( arg, &pciinfo, sizeof(cpqfc_pci_info_struct)))
--		return( -EFAULT);
--        return 0;
--      }
--
--      case CPQFCTS_GETDRIVVER:
--      {
--	DriverVer_type DriverVer =
--		CPQFCTS_DRIVER_VER( VER_MAJOR,VER_MINOR,VER_SUBMINOR);
--	
--	if( !arg)
--	  return -EINVAL;
--
--        if(copy_to_user( arg, &DriverVer, sizeof(DriverVer)))
--		return( -EFAULT);
--        return 0;
--      }
--
--
--
-       case CPQFC_IOCTL_FC_TARGET_ADDRESS:
- 	// can we find an FC device mapping to this SCSI target?
- /* 	DumCmnd.channel = ScsiDev->channel; */		// For searching

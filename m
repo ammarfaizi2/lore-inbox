@@ -1,66 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbVHPLW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbVHPLcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbVHPLW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 07:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbVHPLW5
+	id S932640AbVHPLcO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 07:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932641AbVHPLcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 07:22:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2962 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932637AbVHPLW4 (ORCPT
+	Tue, 16 Aug 2005 07:32:14 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:17615 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S932640AbVHPLcO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 07:22:56 -0400
-Date: Tue, 16 Aug 2005 13:22:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
-Subject: [patch] Cleanups/debugging fixes in pcmcia/soc_common.c
-Message-ID: <20050816112254.GA2630@elf.ucw.cz>
+	Tue, 16 Aug 2005 07:32:14 -0400
+Date: Tue, 16 Aug 2005 10:53:45 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: cpufreq@lists.linux.org.uk, Patrick Mochel <mochel@digitalimplant.org>,
+       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: PowerOP 0/3: System power operating point management API
+Message-ID: <20050816085345.GJ9150@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Todd Poynor <tpoynor@mvista.com>, cpufreq@lists.linux.org.uk,
+	Patrick Mochel <mochel@digitalimplant.org>, linux-pm@lists.osdl.org,
+	linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+References: <20050809024907.GA25064@slurryseal.ddns.mvista.com> <20050810100718.GC1945@elf.ucw.cz> <42FA796A.4080205@mvista.com> <20050809024907.GA25064@slurryseal.ddns.mvista.com> <Pine.LNX.4.50.0508091110430.19925-100000@monsoon.he.net> <42F963F6.60209@mvista.com> <20050809030000.GA25112@slurryseal.ddns.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <42FA796A.4080205@mvista.com> <42F963F6.60209@mvista.com> <20050809030000.GA25112@slurryseal.ddns.mvista.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This fixes debugging in soc_common.c (vprintk, not printk may be used
-at that point), makes "no cpufreq" hooks a little bit safer and fixes
-whitespace a tiny bit. Please apply,
-								Pavel
+The PowerOP infrastructure you suggest surely is one path to better runtime
+power management in the Linux kernel. However, I don't like it at all in its
+current implementation. Here are a few suggestions for improvements,
+rewrites, and so on:
 
-diff --git a/drivers/pcmcia/soc_common.c b/drivers/pcmcia/soc_common.c
---- a/drivers/pcmcia/soc_common.c
-+++ b/drivers/pcmcia/soc_common.c
-@@ -66,7 +67,7 @@ void soc_pcmcia_debug(struct soc_pcmcia_
- 	if (pc_debug > lvl) {
- 		printk(KERN_DEBUG "skt%u: %s: ", skt->nr, func);
- 		va_start(args, fmt);
--		printk(fmt, args);
-+		vprintk(fmt, args);
- 		va_end(args);
- 	}
- }
-@@ -655,8 +656,8 @@ static void soc_pcmcia_cpufreq_unregiste
- }
- 
- #else
--#define soc_pcmcia_cpufreq_register()
--#define soc_pcmcia_cpufreq_unregister()
-+static int soc_pcmcia_cpufreq_register(void) { return 0; }
-+static void soc_pcmcia_cpufreq_unregister(void) {}
- #endif
- 
- int soc_common_drv_pcmcia_probe(struct device *dev, struct pcmcia_low_level *ops, int first, int nr)
-@@ -738,7 +739,7 @@ int soc_common_drv_pcmcia_probe(struct d
- 			goto out_err_5;
- 		}
- 
--		if ( list_empty(&soc_pcmcia_sockets) )
-+		if (list_empty(&soc_pcmcia_sockets))
- 			soc_pcmcia_cpufreq_register();
- 
- 		list_add(&skt->node, &soc_pcmcia_sockets);
+First, the table interface you suggest is ugly. If there's indeed the need for
+such an abstraction, I'd favour something like
 
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+	struct powerop {
+		struct list_head	powerop_values; /* linked list of powerop_values */
+		...
+	}
+
+	struct powerop_value {
+		unsigned long		value_cur;
+		unsigned long		value_min;
+		unsigned long		value_max;
+		struct list_head	next;
+		u16			type;
+		struct powerop_value	*cross_dependency;
+		struct powerop_driver	*driver;
+	}
+
+	#define POWEROP_TYPE_CPU_FREQUENCY		0x00000001
+	#define POWEROP_TYPE_CPU_VOLTAGE		0x00000002
+	#define POWEROP_TYPE_FRONT_SIDE_BUS_SPEED	0x00000004
+	...
+	#define POWEROP_TYPE_GPU_FREQUENCY	0x00010000
+	...
+
+and if CPU_VOLTAGE and CPU_FREQEUNCY can only be modified at the same time, (as
+most cpufreq drivers require), type is 0x00000003.
+
+
+Secondly, you do not adress the cross-relationships between operation points
+correctly. If you change the CPU frequency, you may have to switch other
+(memory, video) settings; you might even have to validate the frequency
+settings for these or even additional reasons (thermal and battery reasons -
+ACPI _PPC).
+
+Thirdly, who is to decide on the power management settings? The first and
+intuitive answer is the kernel. Therefore, kernel-space cpufreq governors
+exist. Only under rare circumstances, you want full userspace control --
+that's what the userspace cpufreq governor is for.
+
+Foruthly, the code duplication which your implementation leads to is obvious
+for the speedstep-centrino case. And in contrast to Pavel, I do not consider
+it a "tiny cleanup".
+
+
+
+I'd suggest that you try upgrading the cpufreq infrastructure to provide
+full support for multiple types of POWEROPs:
+
+a)	Setting of "policies"
+	- New "min" or "max" values for all powerop_values are set, verified
+	  by powerop lowlevel drivers, powerop governors and external
+	  notifiers. E.g. if a new frequency min/max pair is required, the
+	  voltage level gets a new min and max value as well --> you need to
+	  handle recursion.
+	- If necessary a new "powerop governor" is started.
+	   - Each powerop governor specifies which POWEROPs it can handle
+		- current cpufreq governors can handle CPU_FREQUENCY,
+		  CPU_VOLTAGE and FRONT_SIDE_BUS_SPEED
+		- an userspace fallback-governor always "handles" the
+		  parameters no other governor handles
+
+b)	Setting of "values"
+	- Each governor can initiate transitions between the "min" and "max"
+	  values for operationg points it aquired ownership for.
+	- The new setting is notified to all other governors and to external
+	  notifiers. If some entitiy decides it cannot live well with this
+	  new setting, it breaks out. Note that this should not happen quite
+	  often, as the "normal" verification takes place in a) above.
+	  Nonetheless, if you want to break out CPU_VOLTAGE and CPU_FREQUENCY, you
+	  need it. And as it makes life for the kernel so much more
+	  difficult, I'm against doing so.
+	- The low-level driver handling the powerop_value is called
+
+Thanks,
+	Dominik

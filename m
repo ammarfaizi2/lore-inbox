@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbVHPKMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965192AbVHPKVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965191AbVHPKMu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 06:12:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbVHPKMu
+	id S965192AbVHPKVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 06:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965194AbVHPKVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 06:12:50 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:48560 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965190AbVHPKMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 06:12:49 -0400
-Date: Tue, 16 Aug 2005 11:12:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: shahid shaikh <shahid.shaikh@patni.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Defination of Flag CONFIG_DEBUG_SPINLOCK_SLEEP in AS4 UP1
-Message-ID: <20050816101248.GA22395@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	shahid shaikh <shahid.shaikh@patni.com>,
-	linux-kernel@vger.kernel.org
-References: <00a501c5a24a$4339aca0$11051aac@pcp41116>
+	Tue, 16 Aug 2005 06:21:06 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:22899 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S965192AbVHPKVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 06:21:05 -0400
+Date: Tue, 16 Aug 2005 19:16:17 +0900 (JST)
+Message-Id: <20050816.191617.1025215458.hyoshiok@miraclelinux.com>
+To: arjan@infradead.org
+Cc: taka@valinux.co.jp, lkml.hyoshiok@gmail.com, linux-kernel@vger.kernel.org,
+       hyoshiok@miraclelinux.com
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+In-Reply-To: <1124171015.3215.0.camel@laptopd505.fenrus.org>
+References: <20050816.131729.15816429.taka@valinux.co.jp>
+	<20050816.135425.719901536.hyoshiok@miraclelinux.com>
+	<1124171015.3215.0.camel@laptopd505.fenrus.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.13 (Rational FORTRAN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00a501c5a24a$4339aca0$11051aac@pcp41116>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What's AS UP1 in your subject?
-
-On Tue, Aug 16, 2005 at 03:37:07PM +0530, shahid shaikh wrote:
-> Hi all,
-> While doing insmod for a psuedo driver, kernel is dumping a stack because
-> sleep function is called.
-> My init_module function for psuedo driver calls add_disk to register admin
-> device.
-> In add_disk(), kernel is allocating memory using kmalloc with flag
-> GFP_KERNEL. This is hardcoded in kernel code for add_disk.
+From: Arjan van de Ven <arjan@infradead.org>
+> > My code does nothing do it.
+> > 
+> > I need a volunteer to implement it.
 > 
-> Whenever kernel inserts any module or driver it disable all interrupts.
+> it's actually not too hard; all you need is to use SSE and not MMX; and
+> then just store sse register you're overwriting on the stack or so...
 
-No, it doesn't you must be doing it yourself somewhere, probably using
-a spin_lock_irq or spin_lock_irqsave.  If you can't find the problem
-yourself post your module source to the kernelnewbies@nl.linux.org list
-the deals with such basic problems.
+oh, really? Does the linux kernel take care of
+SSE save/restore on a task switch?
 
+Regards,
+  Hiro

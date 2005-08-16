@@ -1,176 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965039AbVHOXyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbVHPAFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965039AbVHOXyO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 19:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVHOXyO
+	id S964923AbVHPAFN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 20:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbVHPAFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 19:54:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:12189 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965039AbVHOXyN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 19:54:13 -0400
-Date: Mon, 15 Aug 2005 16:53:57 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       zaitcev@redhat.com
-Subject: usbmon in 2.6.13: peeking into DMA areas
-Message-Id: <20050815165357.322892c0.zaitcev@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 15 Aug 2005 20:05:13 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:55813 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S964923AbVHPAFL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 20:05:11 -0400
+Message-ID: <43012DCA.2080701@vmware.com>
+Date: Mon, 15 Aug 2005 17:05:30 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+Cc: akpm@osdl.org, chrisl@vmware.com, chrisw@osdl.org,
+       linux-kernel@vger.kernel.org, mbligh@mbligh.org, pratap@vmware.com,
+       virtualization@lists.osdl.org
+Subject: Re: [PATCH 5/6] i386 virtualization - Make generic set wrprotect
+ a macro
+References: <200508152300.j7FN0dD7005336@zach-dev.vmware.com> <20050815232502.GG3614@stusta.de>
+In-Reply-To: <20050815232502.GG3614@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Aug 2005 00:05:30.0242 (UTC) FILETIME=[36BEAE20:01C5A1F6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not completely confident in this patch, so while the fix is being
-requested by users, I would like to have it postponed until 2.6.13.
+Adrian Bunk wrote:
 
-This code looks at urb->transfer_dma, maps the page and takes the data.
-I am looking for volunteers to contribute architectures other than i386
-or to develop an architecure-neutral API for it (or point me that it
-was done already).
+>On Mon, Aug 15, 2005 at 04:00:39PM -0700, zach@vmware.com wrote:
+>
+>  
+>
+>>Make the generic version of ptep_set_wrprotect a macro.  This is good for
+>>code uniformity, and fixes the build for architectures which include pgtable.h
+>>through headers into assembly code, but do not define a ptep_set_wrprotect
+>>function.
+>>    
+>>
+>
+>
+>This against the kernel coding style.
+>In fact, we are usually doing exactly the opposite. 
+>
+>What exactly is the technical problem this patch is trying to solve, IOW 
+>which architectures are breaking for you?
+>  
+>
 
-Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
+The generic pgtable.h include is special and apparently deliberately 
+against kernel coding style.  Look at the rest of the file.  All 
+"functions" here are purely macros, or encapsulated with:
 
-diff -urpN -X dontdiff linux-2.6.13-rc6/drivers/usb/mon/Makefile linux-2.6.13-rc6-lem/drivers/usb/mon/Makefile
---- linux-2.6.13-rc6/drivers/usb/mon/Makefile	2005-08-14 20:57:43.000000000 -0700
-+++ linux-2.6.13-rc6-lem/drivers/usb/mon/Makefile	2005-08-15 11:25:32.000000000 -0700
-@@ -2,7 +2,7 @@
- # Makefile for USB Core files and filesystem
- #
- 
--usbmon-objs	:= mon_main.o mon_stat.o mon_text.o
-+usbmon-objs	:= mon_main.o mon_stat.o mon_text.o mon_dma.o
- 
- # This does not use CONFIG_USB_MON because we want this to use a tristate.
- obj-$(CONFIG_USB)	+= usbmon.o
-diff -urpN -X dontdiff linux-2.6.13-rc6/drivers/usb/mon/mon_dma.c linux-2.6.13-rc6-lem/drivers/usb/mon/mon_dma.c
---- linux-2.6.13-rc6/drivers/usb/mon/mon_dma.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.13-rc6-lem/drivers/usb/mon/mon_dma.c	2005-08-15 16:11:51.000000000 -0700
-@@ -0,0 +1,55 @@
-+/*
-+ * The USB Monitor, inspired by Dave Harding's USBMon.
-+ * 
-+ * mon_dma.c: Library which snoops on DMA areas.
-+ *
-+ * Copyright (C) 2005 Pete Zaitcev (zaitcev@redhat.com)
-+ */
-+#include <linux/kernel.h>
-+#include <linux/list.h>
-+#include <linux/highmem.h>
-+#include <asm/page.h>
-+
-+#include <linux/usb.h>	/* Only needed for declarations in usb_mon.h */
-+#include "usb_mon.h"
-+
-+#ifdef __i386__		/* CONFIG_ARCH_I386 does not exit */
-+#define MON_HAS_UNMAP 1
-+
-+#define phys_to_page(phys)	pfn_to_page((phys) >> PAGE_SHIFT)
-+
-+char mon_dmapeek(unsigned char *dst, dma_addr_t dma_addr, int len)
-+{
-+	struct page *pg;
-+	unsigned long flags;
-+	unsigned char *map;
-+	unsigned char *ptr;
-+
-+	/*
-+	 * On i386, a DMA handle is the "physical" address of a page.
-+	 * In other words, the bus address is equal to physical address.
-+	 * There is no IOMMU.
-+	 */
-+	pg = phys_to_page(dma_addr);
-+
-+	/*
-+	 * We are called from hardware IRQs in case of callbacks.
-+	 * But we can be called from softirq or process context in case
-+	 * of submissions. In such case, we need to protect KM_IRQ0.
-+	 */
-+	local_irq_save(flags);
-+	map = kmap_atomic(pg, KM_IRQ0);
-+	ptr = map + (dma_addr & (PAGE_SIZE-1));
-+	memcpy(dst, ptr, len);
-+	kunmap_atomic(map, KM_IRQ0);
-+	local_irq_restore(flags);
-+	return 0;
-+}
-+#endif /* __i386__ */
-+
-+#ifndef MON_HAS_UNMAP
-+char mon_dmapeek(unsigned char *dst, dma_addr_t dma_addr, int len)
-+{
-+	return 'D';
-+}
-+#endif
-diff -urpN -X dontdiff linux-2.6.13-rc6/drivers/usb/mon/mon_text.c linux-2.6.13-rc6-lem/drivers/usb/mon/mon_text.c
---- linux-2.6.13-rc6/drivers/usb/mon/mon_text.c	2005-08-14 20:57:43.000000000 -0700
-+++ linux-2.6.13-rc6-lem/drivers/usb/mon/mon_text.c	2005-08-15 11:44:13.000000000 -0700
-@@ -91,25 +91,11 @@ static inline char mon_text_get_data(str
-     int len, char ev_type)
- {
- 	int pipe = urb->pipe;
--	unsigned char *data;
--
--	/*
--	 * The check to see if it's safe to poke at data has an enormous
--	 * number of corner cases, but it seems that the following is
--	 * more or less safe.
--	 *
--	 * We do not even try to look transfer_buffer, because it can
--	 * contain non-NULL garbage in case the upper level promised to
--	 * set DMA for the HCD.
--	 */
--	if (urb->transfer_flags & URB_NO_TRANSFER_DMA_MAP)
--		return 'D';
- 
- 	if (len <= 0)
- 		return 'L';
--
--	if ((data = urb->transfer_buffer) == NULL)
--		return 'Z';	/* '0' would be not as pretty. */
-+	if (len >= DATA_MAX)
-+		len = DATA_MAX;
- 
- 	/*
- 	 * Bulk is easy to shortcut reliably. 
-@@ -126,8 +112,21 @@ static inline char mon_text_get_data(str
- 		}
- 	}
- 
--	if (len >= DATA_MAX)
--		len = DATA_MAX;
-+	/*
-+	 * The check to see if it's safe to poke at data has an enormous
-+	 * number of corner cases, but it seems that the following is
-+	 * more or less safe.
-+	 *
-+	 * We do not even try to look transfer_buffer, because it can
-+	 * contain non-NULL garbage in case the upper level promised to
-+	 * set DMA for the HCD.
-+	 */
-+	if (urb->transfer_flags & URB_NO_TRANSFER_DMA_MAP)
-+		return mon_dmapeek(ep->data, urb->transfer_dma, len);
-+
-+	if (urb->transfer_buffer == NULL)
-+		return 'Z';	/* '0' would be not as pretty. */
-+
- 	memcpy(ep->data, urb->transfer_buffer, len);
- 	return 0;
- }
-diff -urpN -X dontdiff linux-2.6.13-rc6/drivers/usb/mon/usb_mon.h linux-2.6.13-rc6-lem/drivers/usb/mon/usb_mon.h
---- linux-2.6.13-rc6/drivers/usb/mon/usb_mon.h	2005-06-17 12:48:29.000000000 -0700
-+++ linux-2.6.13-rc6-lem/drivers/usb/mon/usb_mon.h	2005-08-15 16:12:42.000000000 -0700
-@@ -43,6 +45,10 @@ struct mon_reader {
- void mon_reader_add(struct mon_bus *mbus, struct mon_reader *r);
- void mon_reader_del(struct mon_bus *mbus, struct mon_reader *r);
- 
-+/*
-+ */
-+extern char mon_dmapeek(unsigned char *dst, dma_addr_t dma_addr, int len);
-+
- extern struct semaphore mon_lock;
- 
- extern struct file_operations mon_fops_text;
+#ifndef __ASSEMBLY__
+static inline void foo()
+#endif
+
+This is because asm-generic/pgtable.h can get included in assembler 
+files via a number of ways.
+
+Now, if you have a header file that gets conditionally excluded based on 
+#ifndef __ASSEMBLY__,  as asm-i386/pgtable.h does to 
+pgtable-{2|3}level.h you must do one of the following:
+
+1) move all  __HAVE_ARCH_PTEP_XXX definitions out of the !__ASSEMBLY__ 
+clause
+2) protect all inline assembler functions in asm-generic/pgtable.h with 
+!__ASSEMBLY
+3) use macros instead of inline functions in asm-generic
+
+Having the ability to redefine page table accessors at the sub-arch 
+level is necessary to have a paravirtualized sub-arch of i386.  My third 
+attempt at this (the first was a horror unthinkable to even publish) is 
+trying to make the code as clean and consistent as possible.  #1 above 
+makes maintaing compile time PAE for i386 with a paravirtualized 
+sub-arch cumbersome, since one must either isolate the __HAVE_ARCH _XXX 
+defines from the XXX function definition itself, surround each 
+individual function with !__ASSEMBLY__, or switch to macros instead of 
+inline functions for include/asm-i386/pgtable-{2|3}level.h.  Ugly and 
+difficult to maintain.
+
+Thus, I chose the default convention of following the surrounding code.  
+There are 6 C inline functions in the generic pgtable.h and 37 macros.  
+Converting to and from macros and inline functions here is rather 
+tedious and error prone, all of these functions are conditionally 
+defined based on the architecture, and I don't want to risk introducing 
+yet another regression for an architecture that I don't have a 
+cross-compile set up for.
+
+If you have a better approch, I'd be interested in hearing it.
+
+Zach

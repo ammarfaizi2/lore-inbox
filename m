@@ -1,36 +1,29 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261432AbVHBId7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932702AbVHPU2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVHBId7 (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 2 Aug 2005 04:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVHBId6
+	id S932702AbVHPU2j (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 16 Aug 2005 16:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbVHPU2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 04:33:58 -0400
-Received: from web52110.mail.yahoo.com ([206.190.48.113]:24704 "HELO
-	web52110.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261432AbVHBIb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 04:31:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=h0Fd3ciMZy6yiSUcuPdUlMGVNe+IC03j53kEx/fgp0QcKz8jg756fsf2pS69SIWj3Zd8mJ0QL4nE9Vs/zeANSuGEVvaU7Dq56bDa2jMzioKr15cd3nIK5YNqC9UpUe1t2L0RgIGEdQuqxyAdU4BGZKLiRaOZu+Y0W73XbkgxE7E=  ;
-Message-ID: <20050802083158.28724.qmail@web52110.mail.yahoo.com>
-Date: Tue, 2 Aug 2005 01:31:58 -0700 (PDT)
-From: DANDURI ESHWAR <d_eshwar_in@yahoo.com>
+	Tue, 16 Aug 2005 16:28:39 -0400
+Received: from r2.mxs.westcall.ru ([195.94.224.12]:54979 "EHLO
+	r2.mxs.WestCall.Ru") by vger.kernel.org with ESMTP id S932702AbVHPU2j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 16:28:39 -0400
+From: gia@ticard.ru
+Message-ID: <1120.195.94.234.226.1124224104.squirrel@ticard.ru>
+Date: Wed, 17 Aug 2005 00:28:24 +0400 (MSD)
+Subject: linux
 To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2 [CVS]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI all,
-   I working on IPSEC for hardware offloading.. Can
-some body help me from where I can get the
-documentation..
-
-Tehst
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Hello from Russia. Can you send me a Linux documentation, i want to learn
+Unix.I am asking you because, i have only email access to internet.Please
+help.
+Thank you.

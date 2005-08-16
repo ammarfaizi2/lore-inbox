@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbVHPUn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVHPUo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbVHPUn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 16:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbVHPUn5
+	id S932441AbVHPUo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 16:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbVHPUo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 16:43:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31440 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932440AbVHPUn4 (ORCPT
+	Tue, 16 Aug 2005 16:44:56 -0400
+Received: from fmr14.intel.com ([192.55.52.68]:46311 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932441AbVHPUoz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 16:43:56 -0400
-Date: Tue, 16 Aug 2005 13:44:18 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Nicholas Fechner <fechner@ponton-consulting.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Module bridge not loading in 2.6.13-rc6
-Message-ID: <20050816134418.5d7b8791@dxpl.pdx.osdl.net>
-In-Reply-To: <43019C3D.4060705@ponton-consulting.de>
-References: <43019C3D.4060705@ponton-consulting.de>
-X-Mailer: Sylpheed-Claws 1.9.11 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
+	Tue, 16 Aug 2005 16:44:55 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Multiple virtual address mapping for the same code on IA-64 linux kernel.
+Date: Tue, 16 Aug 2005 13:44:50 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F04294461@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Multiple virtual address mapping for the same code on IA-64 linux kernel.
+Thread-Index: AcWioji5ltHCX38GTymx/ljVBn7HXgAANkwg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "vamsi krishna" <vamsi.krishnak@gmail.com>, <linux-ia64@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 16 Aug 2005 20:44:54.0209 (UTC) FILETIME=[5B1F8B10:01C5A2A3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Aug 2005 09:56:45 +0200
-Nicholas Fechner <fechner@ponton-consulting.de> wrote:
 
-> Please CC to fechner@ponton-consulting.de, since I am not subscribed to
-> linux-kernel. Thanks.
-> 
-> Hi,
-> I tried the current -rc6 Release on one of our test machines. It is a
-> mirror of our gateway, hence the iptable modules. It also runs OpenVPN
-> using a bridge configuration. After the kernel build and reboot I tried
-> to "modprobe bridge", resulting in:
-> 
-> FATAL: Error inserting bridge
-> (/lib/modules/2.6.13-rc6/kernel/net/bridge/bridge.ko): Unknown symbol in
-> module, or unknown parameter (see dmesg)
-> 
->
-> bridge: disagrees about version of symbol dev_set_mtu
-> bridge: Unknown symbol dev_set_mtu
-> bridge: disagrees about version of symbol dev_queue_xmit
-> bridge: Unknown symbol dev_queue_xmit
-> bridge: Unknown symbol br_handle_frame_hook
+>I have been investigating a problem in which there has been a dramatic
+> core size (complete program size) of a program running on a IA-64
+>machine running kernel version 2.4.21-4.0.1 (A redhat advanced server
+>distribution) compared to other 64-bit architectures like amd64 and
+>EM64T. There has been an increase of around 20% of the size.
 
-You rebuilt the kernel (or bridge module), but did not install the updated
-modules.  The module versioning code checks that any module loaded was
-built from the same source as the kernel itself. In your case the bridge
-module does not correspond to the running kernel.  If you are doing
-your own kernel builds, you need to do:
-	make modules_install
-	make install
+Itanium instruction set is not as compact as some other architectures,
+so the same program will typically require more bytes of code.
+
+-Tony

@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVHPWEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbVHPWGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbVHPWEN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 18:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbVHPWEN
+	id S1751102AbVHPWGE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 18:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbVHPWGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 18:04:13 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:11712 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1751104AbVHPWEL (ORCPT
+	Tue, 16 Aug 2005 18:06:03 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50828 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751102AbVHPWGB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 18:04:11 -0400
-Message-ID: <430262D4.9060705@adaptec.com>
-Date: Tue, 16 Aug 2005 18:04:04 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Jim Houston <jim.houston@ccur.com>
-Subject: [PATCH 2.6.12.5 2/2] include/linux: enclose idr.h in #ifndef
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Aug 2005 22:01:45.0233 (UTC) FILETIME=[1781F810:01C5A2AE]
+	Tue, 16 Aug 2005 18:06:01 -0400
+Date: Tue, 16 Aug 2005 15:05:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev-067 and 2.6.12?
+Message-ID: <20050816220544.GA28377@kroah.com>
+References: <200508162302.00900.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508162302.00900.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Aug 16, 2005 at 11:02:00PM +0100, Alistair John Strachan wrote:
+> Hi,
+> 
+> I just tried upgrading udev 053 to 067 on a 2.6.12 system and although the 
+> system booted, firmware_class failed to upload the firmware for my wireless 
+> card, prism54 was no longer auto loaded, etc. Even manually loading the 
+> driver didn't help.
+> 
+> Any reason why 067 wouldn't work with 2.6.12? Do you have to do something 
+> special with hotplug prior to upgrading?
 
-This patch encloses the idr.h header file in
-#ifndef __IDR_H__ macro.
+What distro are you using?  What rules file are you using?
 
-Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
+067 should work just fine for you, it is for a lot of Gentoo and SuSE
+users right now, on 2.6.12.
 
---- linux-2.6.12.5/include/linux/idr.h.old	2005-08-16 17:20:15.000000000 -0400
-+++ linux-2.6.12.5/include/linux/idr.h	2005-08-16 17:21:11.000000000 -0400
-@@ -8,6 +8,10 @@
-  * Small id to pointer translation service avoiding fixed sized
-  * tables.
-  */
-+
-+#ifndef __IDR_H__
-+#define __IDR_H__
-+
- #include <linux/types.h>
- #include <linux/bitops.h>
- 
-@@ -76,3 +80,5 @@
- int idr_get_new_above(struct idr *idp, void *ptr, int starting_id, int *id);
- void idr_remove(struct idr *idp, int id);
- void idr_init(struct idr *idp);
-+
-+#endif /* __IDR_H__ */
--
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+thanks,
 
+greg k-h

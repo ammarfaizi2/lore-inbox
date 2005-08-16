@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbVHPBfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbVHPBhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbVHPBfU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Aug 2005 21:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbVHPBfU
+	id S965068AbVHPBhX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Aug 2005 21:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVHPBhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Aug 2005 21:35:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:53071 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965067AbVHPBfT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Aug 2005 21:35:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pPM+7ZY6WkicegvwlGJ6TADteAmMAWw6ATm9F+nDpveDqgTZR0RD+VDLmJtxuvo+uksxZBMSBAXQwjXNeq4d+bivhAFEbrA7Eaj2GvmaRnYUXogPub0oXwQu0290390JiLmTa8N4PxPtfftdoBtrOERd5ycfA6L42JnF6sFEwac=
-Message-ID: <bda6d13a050815183546210506@mail.gmail.com>
-Date: Mon, 15 Aug 2005 18:35:18 -0700
-From: Joshua Hudson <joshudson@gmail.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: BSD jail
-In-Reply-To: <bda6d13a050814162519d6f2a8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bda6d13a050812174768154ea5@mail.gmail.com>
-	 <20050813143335.GA5044@IBM-BWN8ZTBWA01.austin.ibm.com>
-	 <bda6d13a0508130933bdbc46a@mail.gmail.com>
-	 <20050814115651.GA6024@IBM-BWN8ZTBWA01.austin.ibm.com>
-	 <bda6d13a050814162519d6f2a8@mail.gmail.com>
+	Mon, 15 Aug 2005 21:37:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2187 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965068AbVHPBhW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Aug 2005 21:37:22 -0400
+Date: Mon, 15 Aug 2005 18:36:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the difference
+ between /dev/kmem and /dev/mem)
+In-Reply-To: <1124155352.5764.5.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0508151836370.3553@g5.osdl.org>
+References: <1123796188.17269.127.camel@localhost.localdomain> 
+ <1123809302.17269.139.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org>  <1123951810.3187.20.camel@laptopd505.fenrus.org>
+  <Pine.LNX.4.58.0508130955010.19049@g5.osdl.org>  <1123953924.3187.22.camel@laptopd505.fenrus.org>
+  <Pine.LNX.4.58.0508131034350.19049@g5.osdl.org>  <1124155000.5764.3.camel@localhost.localdomain>
+ <1124155352.5764.5.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+
+On Mon, 15 Aug 2005, Steven Rostedt wrote:
+
+> On Mon, 2005-08-15 at 21:16 -0400, Steven Rostedt wrote:
 > 
-> To build a virtual network device requires code for the device, code
-> for routing the device
-> in the kernel, some way to tell the router that this machine is hosted
-> through the host
-> machine's ethernet card, and control of which processes use which
-> network devices.
+> > Sorry for the late reply, my wife's Grandmother just passed away a few
+> > days ago (at 98 years old) and if I went within 6 feet of the computer
+> > she would have killed me!
 > 
-I've bombed out. I don't understand how the network devices work well
-enough to do any of this.
+> Just to clearify, "she" as in my wife would have killed me. Not her late
+> grandmother.
+
+Thanks for the clarification. We were starting to worry about your family.
+
+		Linus

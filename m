@@ -1,36 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbVHPPiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbVHPPlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbVHPPiF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 11:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbVHPPiE
+	id S1030187AbVHPPlo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 11:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbVHPPlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 11:38:04 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:37098 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030185AbVHPPiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 11:38:03 -0400
-Subject: Re: [PATCH] input-driver-yealink-P1K-usb-phone
-From: Lee Revell <rlrevell@joe-job.com>
-To: Henk <Henk.Vergonet@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050816142144.GA2939@god.dyndns.org>
-References: <20050816142144.GA2939@god.dyndns.org>
+	Tue, 16 Aug 2005 11:41:44 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:43172
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1030187AbVHPPln (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 11:41:43 -0400
+Subject: Re: HDAPS, Need to park the head for real
+From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+Reply-To: abonilla@linuxwireless.org
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>
+In-Reply-To: <1124206444.25596.18.camel@mindpipe>
+References: <1124205914.4855.14.camel@localhost.localdomain>
+	 <1124206444.25596.18.camel@mindpipe>
 Content-Type: text/plain
-Date: Tue, 16 Aug 2005 11:38:00 -0400
-Message-Id: <1124206681.25596.20.camel@mindpipe>
+Date: Tue, 16 Aug 2005 09:41:49 -0600
+Message-Id: <1124206909.4855.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.7 
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-16 at 16:21 +0200, Henk wrote:
->   - audio playback    via generic usb audio diver
->   - audio record      via generic usb audio diver 
+On Tue, 2005-08-16 at 11:34 -0400, Lee Revell wrote:
+> On Tue, 2005-08-16 at 09:25 -0600, Alejandro Bonilla Beeche wrote:
+> > 	We are currently almost there with hdaps. We are thinking how we should
+> > make things and have made most of the decesions. We still need help from
+> > anyone that might know about this. Please, if you can think of anything,
+> > let us know.
+> > 
+> 
+> Please don't start a new thread for every little HDAPS issue.  It will
+> make it impossible to follow the development for archive users.  This
+> should have been a followup to the previous thread.
+> 
+> Lee
 
-There is no such thing.
+Lee,
 
-Do you mean the obsolete OSS usb-audio driver, or snd-usb-audio?
+	Sorry, the problem is that this IS the main *issue*, if we can figure
+this out, we can go from there and get this working.
 
-Lee
+Previous threads were related to the fact that we needed a developer or
+if we should either use sysfs or not.
+
+This one is hopefully the last thread about this subject regarding
+driver making.
+
+Hopefully we can get an answer? ;-)
+
+.Alejandro
 

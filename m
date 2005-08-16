@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVHPXJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVHPXL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbVHPXJW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 19:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVHPXJW
+	id S1750727AbVHPXL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 19:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbVHPXL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 19:09:22 -0400
-Received: from soundwarez.org ([217.160.171.123]:5076 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1750719AbVHPXJV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 19:09:21 -0400
-Date: Wed, 17 Aug 2005 01:09:20 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: udev-067 and 2.6.12?
-Message-ID: <20050816230920.GA11750@vrfy.org>
-References: <200508162302.00900.s0348365@sms.ed.ac.uk> <20050816220544.GA28377@kroah.com> <200508162312.26972.s0348365@sms.ed.ac.uk> <20050816221450.GA28520@kroah.com>
+	Tue, 16 Aug 2005 19:11:29 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:6101 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750727AbVHPXL2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 19:11:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JIFjWdd60lNFaNLFE72uzGmQf9QejFgyJEAshnf/tTI94sl22am2xQGc8BOUC9iFOJF9YVnBV7SclpGTLuBxrtY79AMwBnR1RBu2Ue0gAUFa2Vy8Ql+ma21MgLkbQRZCwL6nMwhLZyghWGLDsBxynZ9dReFeYhvNllaeib2HOFo=
+Message-ID: <5a2cf1f605081616116ba521ab@mail.gmail.com>
+Date: Wed, 17 Aug 2005 01:11:26 +0200
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.12.3 clock drifting twice too fast (amd64)
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Marie-Helene Lacoste <manies@tele2.fr>
+In-Reply-To: <1124228482.8630.95.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050816221450.GA28520@kroah.com>
-User-Agent: Mutt/1.5.9i
+References: <5a2cf1f6050816031011590972@mail.gmail.com>
+	 <1124228482.8630.95.camel@cog.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 16, 2005 at 03:14:50PM -0700, Greg KH wrote:
-> On Tue, Aug 16, 2005 at 11:12:26PM +0100, Alistair John Strachan wrote:
-> > On Tuesday 16 August 2005 23:05, Greg KH wrote:
-> > > On Tue, Aug 16, 2005 at 11:02:00PM +0100, Alistair John Strachan wrote:
-> > > > Hi,
-> > > >
-> > > > I just tried upgrading udev 053 to 067 on a 2.6.12 system and although
-> > > > the system booted, firmware_class failed to upload the firmware for my
-> > > > wireless card, prism54 was no longer auto loaded, etc. Even manually
-> > > > loading the driver didn't help.
-> > > >
-> > > > Any reason why 067 wouldn't work with 2.6.12? Do you have to do something
-> > > > special with hotplug prior to upgrading?
-> > >
-> > > What distro are you using?  What rules file are you using?
-> > >
-> > > 067 should work just fine for you, it is for a lot of Gentoo and SuSE
-> > > users right now, on 2.6.12.
-> > >
-> > 
-> > An LFS from April 05, with the stock 50-udev.rules, 25-lfs.rules (which 
-> > doesn't do anything suspicious, I think; certainly nothing related to my 
-> > problem).
+On 8/16/05, john stultz <johnstul@us.ibm.com> wrote:
+> On Tue, 2005-08-16 at 12:10 +0200, jerome lacoste wrote:
+> > Installed stock 2.6.12.3 on a brand new amd64 box with an Asus extreme
+> > AX 300 SE/t mainboard.
+> >
+> > I remember seeing a message in the boot saying something along:
+> >
+> >   "cannot connect to hardware clock."
+> >
+> > And now I see that the time is changing too fast (about 2 seconds each second).
+> [snip]
+> > 0000:00:00.0 Host bridge: ATI Technologies Inc: Unknown device 5951
 > 
-> There are no "stock" udev rules anymore.  That's probably the issue, all
-> of the distros made their own, so we provide them in the tarball.  I
-> suggest you talk to the LFS people about this.
+> Looks like the AMD/ATI bug.
 > 
-> > 25-lfs.rules does duplicate some of the things in 50-udev.rules, but I think 
-> > that's deliberate (they want to interfere with the stock install as little as 
-> > possible, and the overrides take precedence). I've put my /etc/udev directory 
-> > unmodified up here:
-> > 
-> > http://devzero.co.uk/~alistair/udev/
-> 
-> s/=/==/ for most of your rules and see if that works.
-> 
-> > If I reinstall 053 and reboot, everything that's broken on 067 works again. Do 
-> > you need a specific hotplug installed?
+> http://bugzilla.kernel.org/show_bug.cgi?id=3927
 
-Do you provide hooks for handling /etc/hotplug.d/? We are on the way of
-getting rid of that directory and recent udev versions don't handle
-that by default anymore. If you don't know, read the udev RELEASE-NOTES.
+Sounds like it. I will have to try the patch.
 
-Kay
+Good catch John!
+
+Jerome

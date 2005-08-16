@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965102AbVHPFIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbVHPFOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965102AbVHPFIk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 01:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbVHPFIk
+	id S965105AbVHPFOt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 01:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbVHPFOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 01:08:40 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:55044 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965102AbVHPFIj
+	Tue, 16 Aug 2005 01:14:49 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:58064 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S965105AbVHPFOs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 01:08:39 -0400
-Message-ID: <430174D5.20209@vmware.com>
-Date: Mon, 15 Aug 2005 22:08:37 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-Cc: akpm@osdl.org, chrisl@vmware.com, hpa@zytor.com,
-       linux-kernel@vger.kernel.org, mbligh@mbligh.org, pratap@vmware.com,
-       virtualization@lists.osdl.org, zwane@arm.linux.org.uk
-Subject: Re: [PATCH 2/6] i386 virtualization - Remove some dead debugging
- code
-References: <200508152259.j7FMx9qZ005312@zach-dev.vmware.com> <20050816043843.GT7762@shell0.pdx.osdl.net>
-In-Reply-To: <20050816043843.GT7762@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Aug 2005 05:08:37.0750 (UTC) FILETIME=[8F582960:01C5A220]
+	Tue, 16 Aug 2005 01:14:48 -0400
+X-ORBL: [63.205.185.3]
+Date: Mon, 15 Aug 2005 22:14:34 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Doug Warzecha <Douglas_Warzecha@dell.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
+Message-ID: <20050816051434.GB25224@taniwha.stupidest.org>
+References: <20050815200522.GA3667@sysman-doug.us.dell.com> <AC1976B5-FAFC-4809-B1B2-579D5F14FDFE@mac.com> <20050816043451.GA25224@taniwha.stupidest.org> <C38BFC4F-E00F-4CE8-A4DD-89AE55B898D9@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C38BFC4F-E00F-4CE8-A4DD-89AE55B898D9@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
+On Tue, Aug 16, 2005 at 12:55:35AM -0400, Kyle Moffett wrote:
 
->* zach@vmware.com (zach@vmware.com) wrote:
->  
->
->>This code is quite dead.  Release_thread is always guaranteed that the mm has
->>already been released, thus dead_task->mm will always be NULL.
->>
->>Signed-off-by: Zachary Amsden <zach@vmware.com>
->>Index: linux-2.6.13/arch/i386/kernel/process.c
->>===================================================================
->>--- linux-2.6.13.orig/arch/i386/kernel/process.c	2005-08-15 10:46:18.000000000 -0700
->>+++ linux-2.6.13/arch/i386/kernel/process.c	2005-08-15 10:48:51.000000000 -0700
->>@@ -421,17 +421,7 @@
->> 
->> void release_thread(struct task_struct *dead_task)
->> {
->>-	if (dead_task->mm) {
->>-		// temporary debugging check
->>-		if (dead_task->mm->context.size) {
->>-			printk("WARNING: dead process %8s still has LDT? <%p/%d>\n",
->>-					dead_task->comm,
->>-					dead_task->mm->context.ldt,
->>-					dead_task->mm->context.size);
->>-			BUG();
->>-		}
->>-	}
->>-
->>+	BUG_ON(dead_task->mm);
->>    
->>
->
->This BUG_ON() has different semantics than old dead one.  Is there a
->point?  exit_mm() has already reset this to NULL, no?
->  
->
+> I'm worried that it might be more of a mess in userspace than it
+> could be if done properly in the kernel.
 
-Yes, completely.  This BUG() could be eliminated entirely, as trivial 
-inspection shows.  I can't fathom a single reason why it should still 
-exist, but the presence of it in the first place made be wonder if there 
-may be some erudite reason for it.  Thus I raised the BUG to a higher 
-power - obviously the LDT is gone if the MM is gone.
+I would rather if it's gonna be a mess it's, then we put that mess in
+userspace rather than in the kernel.
 
-Zach
+> Hardware drivers, especially for something as critical as the BIOS,
+> should probably be done in-kernel.
+
+For the most part it's not for the BIOS though AFAICT.  It's for some
+hacky little microcontroller that controls fans and similar things
+that Dell won't give up details for.
+
+> Look at the mess that X has become, it mmaps /dev/mem and pokes at
+> the PCI busses directly.  I just don't want an MSI-driver to become
+> another /dev/mem.
+
+It's for old hardware, I'm not sure it will evolve much other than
+just for maintenance.
+
+It's really hard to say, maybe if Dell gave more details about the
+userspace we would have a better idea?
+

@@ -1,36 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965097AbVHPEfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbVHPEhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965097AbVHPEfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 00:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbVHPEfJ
+	id S965099AbVHPEhT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 00:37:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbVHPEhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 00:35:09 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:149 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S932601AbVHPEfI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 00:35:08 -0400
-X-ORBL: [63.205.185.3]
-Date: Mon, 15 Aug 2005 21:34:51 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Doug Warzecha <Douglas_Warzecha@dell.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
-Message-ID: <20050816043451.GA25224@taniwha.stupidest.org>
-References: <20050815200522.GA3667@sysman-doug.us.dell.com> <AC1976B5-FAFC-4809-B1B2-579D5F14FDFE@mac.com>
+	Tue, 16 Aug 2005 00:37:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:65198 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932602AbVHPEhR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 00:37:17 -0400
+Date: Mon, 15 Aug 2005 21:37:02 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: zach@vmware.com
+Cc: akpm@osdl.org, chrisl@vmware.com, chrisw@osdl.org, hpa@zytor.com,
+       jdike@addtoit.com, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
+       pratap@vmware.com, virtualization@lists.osdl.org,
+       zwane@arm.linux.org.uk
+Subject: Re: [PATCH 1/6] i386 virtualization - Fix uml build
+Message-ID: <20050816043702.GS7762@shell0.pdx.osdl.net>
+References: <200508152258.j7FMwdAb005304@zach-dev.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <AC1976B5-FAFC-4809-B1B2-579D5F14FDFE@mac.com>
+In-Reply-To: <200508152258.j7FMwdAb005304@zach-dev.vmware.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 15, 2005 at 04:23:37PM -0400, Kyle Moffett wrote:
+* zach@vmware.com (zach@vmware.com) wrote:
+> Attempt to fix the UML build by assuming the default i386 subarchitecture
+> (mach-default).
+> 
+> I can't fully test this because spinlock breakage is still happening in
+> my tree, but it gets rid of the mach_xxx.h missing file warnings.
 
-> Why can't you just implement the system management actions in the
-> kernel driver?
+I assume this is intended to fix a build error caused by patches in the
+earlier set which added more reliance on mach-default?
 
-Why put things in the kernel unless it's really needed?
-
-I'm not thrillied about the lack of userspace support for this driver
-but that still doesn't mean we need to shovel wads of crap into the
-kernel.
+thanks,
+-chris

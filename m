@@ -1,97 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932641AbVHPLlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932653AbVHPLpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932641AbVHPLlf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 07:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932643AbVHPLlf
+	id S932653AbVHPLpU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 07:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932643AbVHPLpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 07:41:35 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:39991 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932641AbVHPLle (ORCPT
+	Tue, 16 Aug 2005 07:45:19 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:62654 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932658AbVHPLpS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 07:41:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=dCM0WRidFfbueA7V0F+fSOEaMH9uyFcbHPNZrKxom/CPsQ/WatKfJQo3c8A9m0YCRzYHad5mdS4MMcQ87kiXJfIOSHiehn7cOuNOlS9GGjVzI2QQMIQlzO+jSGJpCUW1AVlE6JDCxWkCfsDhctw7PhVdku2umPrZm7MX9YF/YnU=
-Message-ID: <4301D0F9.4050405@gmail.com>
-Date: Tue, 16 Aug 2005 21:41:45 +1000
-From: Mr Machine <machinehasnoagenda@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Tue, 16 Aug 2005 07:45:18 -0400
+Message-ID: <4301D455.AC721EB7@tv-sign.ru>
+Date: Tue, 16 Aug 2005 15:56:05 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: error compiling 2.6.13.rc6 with realtime-preempt patch -rt2 ('quirk_via_irq')
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+To: paulmck@us.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, Dipankar Sarma <dipankar@in.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
+References: <42FB41B5.98314BA5@tv-sign.ru> <20050812015607.GR1300@us.ibm.com> <42FC6305.E7A00C0A@tv-sign.ru> <20050815174403.GE1562@us.ibm.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i get this error during compile of pci drivers:
+Paul E. McKenney wrote:
+>
+> OK, the attached instead revalidates that the task struct still references
+> the sighand_struct after obtaining the lock
 
-   CC      drivers/pci/access.o
-   CC      drivers/pci/bus.o
-   CC      drivers/pci/probe.o
-   CC      drivers/pci/remove.o
-   CC      drivers/pci/pci.o
-   CC      drivers/pci/quirks.o
-drivers/pci/quirks.c: In function ‘quirk_via_irq’:
-drivers/pci/quirks.c:505: error: ‘vt8237_devfn’ undeclared (first use in 
-this function)
-drivers/pci/quirks.c:505: error: (Each undeclared identifier is reported 
-only once
-drivers/pci/quirks.c:505: error: for each function it appears in.)
-drivers/pci/quirks.c:506: error: ‘quirk_via_irq_not’ undeclared (first 
-use in this function)
-make[2]: *** [drivers/pci/quirks.o] Error 1
-make[1]: *** [drivers/pci] Error 2
-make: *** [drivers] Error 2
-[mrmachine@localhost linux-2.6.12]$
+Personally I think this is a way to go. A nitpick suggestion,
+could you make a separate function (say, lock_task_sighand)
+which does all this job?
 
+> > and there are some remaining problems
+> > that I need to sort out, including:
+> ...
+>
+> o	Some of the functions invoked by __group_send_sig_info(),
+> 	including handle_stop_signal(), momentarily drop ->siglock.
 
-if this helps, here's the realtime configuration section from my .config 
-file:
+Just to be sure that one point doesn't escape your attention, this:
 
-# CONFIG_LEGACY_TIMER is not set
-CONFIG_HPET_TIMER=y
-# CONFIG_HIGH_RES_TIMERS is not set
-CONFIG_HPET_EMULATE_RTC=y
-# CONFIG_SMP is not set
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT_DESKTOP=y
-# CONFIG_PREEMPT_RT is not set
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_SOFTIRQS=y
-CONFIG_PREEMPT_HARDIRQS=y
-# CONFIG_SPINLOCK_BKL is not set
-CONFIG_PREEMPT_BKL=y
-# CONFIG_PREEMPT_RCU is not set
-# CONFIG_RCU_TORTURE_TEST is not set
-CONFIG_ASM_SEMAPHORES=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-# CONFIG_X86_UP_APIC is not set
+> +++ linux-2.6.13-rc4-realtime-preempt-V0.7.53-01-tasklistRCU/kernel/signal.c	2005-08-14 19:53:28.000000000 -0700
+> @@ -328,9 +328,11 @@ void __exit_sighand(struct task_struct *
+>  	struct sighand_struct * sighand = tsk->sighand;
+>  
+>  	/* Ok, we're done with the signal handlers */
+> +	spin_lock(&sighand->siglock);
+>  	tsk->sighand = NULL;
+>  	if (atomic_dec_and_test(&sighand->count))
+> -		kmem_cache_free(sighand_cachep, sighand);
+> +		sighand_free(sighand);
+> +	spin_unlock(&sighand->siglock);
 
+is not enough (and unneeded). Unless I missed something, we have
+a race:
 
-and from the pci driver section:
+release_task:
 
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GOMMCONFIG is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-# CONFIG_PCIEPORTBUS is not set
-# CONFIG_PCI_LEGACY_PROC is not set
-CONFIG_PCI_NAMES=y
-CONFIG_ISA_DMA_API=y
-# CONFIG_ISA is not set
-# CONFIG_MCA is not set
-# CONFIG_SCx200 is not set
+	__exit_signal:
+		spin_lock(sighand);
+		spin_unlock(sighand);
+		flush_sigqueue(&sig->shared_pending);
+		kmem_cache_free(tsk->signal);
+							// here comes group_send_sig_info(), locks ->sighand,
+							// delivers the signal to the ->shared_pending.
+							// siginfo leaked, or crash.
+	__exit_sighand:
+		spin_lock(sighand);
+		tsk->sighand = NULL;
+		// too late !!!!
 
-Please CC me on any replies.
+I think that release_task() should not use __exit_sighand()
+at all. Instead, __exit_signal() should set tsk->sighand = NULL
+under ->sighand->lock.
 
-shayne
+>  int group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
+>  {
+>  	unsigned long flags;
+> +	struct sighand_struct *sp;
+>  	int ret;
+>
+> +retry:
+>  	ret = check_kill_permission(sig, info, p);
+> -	if (!ret && sig && p->sighand) {
+> +	if (!ret && sig && (sp = p->sighand)) {
+>  		if (!get_task_struct_rcu(p)) {
+>  			return -ESRCH;
+>  		}
+> -		spin_lock_irqsave(&p->sighand->siglock, flags);
+> +		spin_lock_irqsave(&sp->siglock, flags);
+> +		if (p->sighand != sp) {
+> +			spin_unlock_irqrestore(&sp->siglock, flags);
+> +			put_task_struct(p);
+> +			goto retry;
+> +		}
+>  		ret = __group_send_sig_info(sig, info, p);
+> -		spin_unlock_irqrestore(&p->sighand->siglock, flags);
+> +		spin_unlock_irqrestore(&sp->siglock, flags);
+>  		put_task_struct(p);
+
+Do we really need get_task_struct_rcu/put_task_struct here?
+
+The task_struct can't go away under us, it is rcu protected.
+When ->sighand is locked, and it is still the same after
+the re-check, it means that 'p' has not done __exit_signal()
+yet, so it is safe to send the signal.
+
+And if the task has ->usage == 0, it means that it also has
+->sighand == NULL, and your code will notice that.
+
+No?
+
+Oleg.

@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbVHPJrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVHPJs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965172AbVHPJrK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 05:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbVHPJrK
+	id S965168AbVHPJs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 05:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbVHPJs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 05:47:10 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:13211 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S965172AbVHPJrJ (ORCPT
+	Tue, 16 Aug 2005 05:48:59 -0400
+Received: from [212.45.14.9] ([212.45.14.9]:22011 "EHLO ari.home")
+	by vger.kernel.org with ESMTP id S965168AbVHPJs7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 05:47:09 -0400
-Date: Tue, 16 Aug 2005 11:46:58 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Hugo Mills <hugo-lkml@carfax.org.uk>
-cc: Lee Revell <rlrevell@joe-job.com>,
-       Stephen Pollei <stephen.pollei@gmail.com>,
-       Martin =?iso-8859-1?Q?v=2E_L=F6wis?= <martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-In-Reply-To: <20050813184951.GA8283@carfax.org.uk>
-Message-ID: <Pine.LNX.4.61.0508161145560.32120@yvahk01.tjqt.qr>
-References: <42FDE286.40707@v.loewis.de> <feed8cdd0508130935622387db@mail.gmail.com>
- <1123958572.11295.7.camel@mindpipe> <20050813184951.GA8283@carfax.org.uk>
+	Tue, 16 Aug 2005 05:48:59 -0400
+Date: Tue, 16 Aug 2005 13:48:39 +0400 (MSD)
+From: "Lev A. Melnikovsky" <leva@despammed.com>
+To: linux-kernel@vger.kernel.org
+Subject: atime on devices
+Message-ID: <Pine.LNX.4.62.0508161209540.6795@nev.ubzr>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1352548545-1124185618=:32120"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi!
 
---1283855629-1352548545-1124185618=:32120
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+It is sometimes useful to know device access time. Things that I have in 
+mind are the software-based hard disk inactivity spindown (some brain 
+damaged IDE drives fail to follow "hdparm -S" if the argument is longer 
+than 1/2 hour) and sound card muting if it is not touched for a while. 
+Notebook users might want to powerdown their network cards after 
+inactivity as well.
 
->> > Thats great for the perl6 people.
->> > http://dev.perl.org/perl6/doc/design/syn/S03.html says they are going
->> > to be using « and » as operators...
->> 
->> Is Larry smoking crack?  That's one of the worst ideas I've heard in a
->> long time.  There's no easy way to enter those at the keyboard!
->
->   I have "setxkbmap -symbols 'en_US(pc102)+gb'" in my ~/.xsession,
->and « and » are available as AltGr-z and AltGr-x respectively.
+I wonder if such functionality is already available or is planned to be 
+available some time soon?
 
-.Xmodmap: keycode 117 = MultiKey
+Earlier discussions I found in the list mention also atime of tty, mouse 
+and other human interface device (but "access" meaning is somewhat 
+different).
 
-and then use [the Windows(R) Context Menu Key],[<],[<] to generate «
-Cheers :)
+Thanks
+-L.
 
-
-Jan Engelhardt
--- 
---1283855629-1352548545-1124185618=:32120--
+P.S. For my own purposes of the disk spindown I'm using an ad-hoc patch 
+(which I wrote as a proof of the concept while using late 2.2 kernels, it 
+is still functional in 2.4.30, never had time to rewrite it properly) to 
+ide-disk.c, so that it exports the last access time as 
+/proc/ide/hdX/last_access. Keeping atime attribute along with device files 
+themselves seems more logical, but might cause side effects...

@@ -1,58 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbVHPQ16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbVHPQbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbVHPQ16 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 12:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbVHPQ15
+	id S1030224AbVHPQbU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 12:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbVHPQbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 12:27:57 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:42645 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1030222AbVHPQ15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 12:27:57 -0400
-Date: Tue, 16 Aug 2005 18:27:35 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Flash erase groups and filesystems
-Message-ID: <20050816162735.GB21462@wohnheim.fh-wedel.de>
-References: <4300F963.5040905@drzeus.cx>
+	Tue, 16 Aug 2005 12:31:20 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:40671 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030224AbVHPQbT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 12:31:19 -0400
+Date: Tue, 16 Aug 2005 18:32:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-rt5
+Message-ID: <20050816163202.GA5288@elte.hu>
+References: <20050816121843.GA24308@elte.hu> <1124206316.5764.14.camel@localhost.localdomain> <1124207046.5764.17.camel@localhost.localdomain> <1124208507.5764.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4300F963.5040905@drzeus.cx>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1124208507.5764.20.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.5 required=5.9 tests=AWL,UPPERCASE_50_75 autolearn=disabled SpamAssassin version=3.0.4
+	0.9 UPPERCASE_50_75        message body is 50-75% uppercase
+	-0.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 August 2005 22:21:55 +0200, Pierre Ossman wrote:
-> 
-> To minimise the number of erases the MMC protocol supports pre-erasing
-> blocks before you actually write to them. Now what I'm unclear on is how
-> this will interact with filesystems and the assumptions they make.
-> 
-> If the controller gets a request to write 128 sectors and this fails
-> after 20 sectors, the remaining 108 sectors will still have lost their
-> data because of the pre-erase. Will this break assumptions made in the
-> VFS layer? I.e. does it assume that only the failed sector has unknown data?
-> 
-> I'm writing a patch that gives this functionality to the MMC layer and
-> since I'm no VFS expert I need some input into any side effects.
 
-Question came up before, albeit with a different phrasing.  One
-possible approach to benefit from this ability would be to create a
-"forget" operation.  When a filesystem already knows that some data is
-unneeded (after a truncate or erase operation), it will ask the device
-to forget previously occupied blocks.
+i removed some debug options from your .config, and that booted. Here's 
+the diff between the good and bad .config's. Trying to narrow it down 
+further.
 
-The device then has the _option_ of handling the forget operation.
-Further reads on these blocks may return random data.
+	Ingo
 
-And since noone stepped up to implement this yet, you can still get
-all the fame and glory yourself! ;)
-
-Jörn
-
--- 
-All art is but imitation of nature.
--- Lucius Annaeus Seneca
+--- .config.good00
++++ .config.bad00
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+ # Linux kernel version: 2.6.13-rc6-rt6
+-# Tue Aug 16 18:10:47 2005
++# Tue Aug 16 18:05:14 2005
+ #
+ CONFIG_X86=y
+ CONFIG_MMU=y
+@@ -156,7 +156,6 @@
+ # CONFIG_MATH_EMULATION is not set
+ CONFIG_MTRR=y
+ CONFIG_HAVE_DEC_LOCK=y
+-# CONFIG_REGPARM is not set
+ CONFIG_SECCOMP=y
+ # CONFIG_HZ_100 is not set
+ # CONFIG_HZ_250 is not set
+@@ -1239,23 +1238,28 @@
+ CONFIG_LOG_BUF_SHIFT=14
+ CONFIG_DETECT_SOFTLOCKUP=y
+ CONFIG_SCHEDSTATS=y
+-# CONFIG_DEBUG_SLAB is not set
+-# CONFIG_DEBUG_PREEMPT is not set
+-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+-# CONFIG_WAKEUP_TIMING is not set
++CONFIG_DEBUG_SLAB=y
++CONFIG_DEBUG_PREEMPT=y
++CONFIG_DEBUG_IRQ_FLAGS=y
++CONFIG_WAKEUP_TIMING=y
++# CONFIG_WAKEUP_LATENCY_HIST is not set
++CONFIG_PREEMPT_TRACE=y
+ # CONFIG_CRITICAL_PREEMPT_TIMING is not set
+ # CONFIG_CRITICAL_IRQSOFF_TIMING is not set
+-# CONFIG_RT_DEADLOCK_DETECT is not set
++CONFIG_LATENCY_TIMING=y
++CONFIG_LATENCY_TRACE=y
++CONFIG_MCOUNT=y
++CONFIG_RT_DEADLOCK_DETECT=y
+ # CONFIG_DEBUG_RT_LOCKING_MODE is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+-# CONFIG_DEBUG_INFO is not set
++CONFIG_DEBUG_INFO=y
+ # CONFIG_DEBUG_FS is not set
+-# CONFIG_USE_FRAME_POINTER is not set
++CONFIG_FRAME_POINTER=y
+ CONFIG_EARLY_PRINTK=y
+-# CONFIG_DEBUG_STACKOVERFLOW is not set
++CONFIG_DEBUG_STACKOVERFLOW=y
+ # CONFIG_KPROBES is not set
+-# CONFIG_DEBUG_STACK_USAGE is not set
++CONFIG_DEBUG_STACK_USAGE=y
+ # CONFIG_DEBUG_PAGEALLOC is not set
+ # CONFIG_4KSTACKS is not set
+ CONFIG_X86_FIND_SMP_CONFIG=y

@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbVHPNiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbVHPNld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965229AbVHPNiu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 09:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbVHPNit
+	id S965217AbVHPNld (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 09:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbVHPNlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 09:38:49 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:5594 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S965224AbVHPNis (ORCPT
+	Tue, 16 Aug 2005 09:41:32 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:1486 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S965217AbVHPNlb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 09:38:48 -0400
-Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <58cb370e050816030248e6283c@mail.gmail.com>
-References: <200508111424.43150.bjorn.helgaas@hp.com>
-	 <20050811203437.GA9265@infradead.org>
-	 <58cb370e050816030248e6283c@mail.gmail.com>
-Content-Type: text/plain
+	Tue, 16 Aug 2005 09:41:31 -0400
+Message-ID: <4301ED06.1020209@adaptec.com>
+Date: Tue, 16 Aug 2005 09:41:26 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: James.Smart@Emulex.Com, matthew@wil.cx, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [PATCH] add transport class symlink to device object
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD39@xbl3.ma.emulex.com> <1124154494.5089.86.camel@mulgrave>
+In-Reply-To: <1124154494.5089.86.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Tue, 16 Aug 2005 15:05:52 +0100
-Message-Id: <1124201152.17555.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-OriginalArrivalTime: 16 Aug 2005 13:39:11.0543 (UTC) FILETIME=[E2820470:01C5A267]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-08-16 at 12:02 +0200, Bartlomiej Zolnierkiewicz wrote:
-> On 8/11/05, Christoph Hellwig <hch@infradead.org> wrote:
-> > On Thu, Aug 11, 2005 at 02:24:43PM -0600, Bjorn Helgaas wrote:
-> > > IA64 boxes only have PCI IDE devices, so there's no need to blindly poke
-> > > around in I/O port space.  Poking at things that don't exist causes MCAs
-> > > on HP ia64 systems.
-> > 
-> > Maybe it should instead depend on those systems where it is available.
-> > Anything but X86?
+On 08/15/05 21:08, James Bottomley wrote:
+>>Think if SCSI used this same style of representation. For example,
+>>if there was no scsi target device entity, but class entities did
+>>exist and they just pointed back to the scsi host device entry.
 > 
-> Don't forget that arch specific drivers use IDE_GENERIC *indirectly*
-> to probe for devices.
+> 
+> Yes, it's theoretically possible to have had SCSI do this.  We didn't do
+> it at the time because class_devices didn't exist when the SCSI tree was
+> first put together.  It would, however, have rather put the mockers on
+> doing transport classes since class devices can't point at other class
+> devices.
 
-Just about everything wants IDE GENERIC. Most of them want the probe
-address providing function to simply be "return 0" or the two 'magic'
-PCI bus legacy addresses. Probably only ia-32 wants to poke other
-addresses and even that now checks for non-PCI first
+Well, so be it.
 
+All in all, I'd like to point out that James S has a very good
+and valid point, as anyone trained in SCSI protocols can see.
+
+>>My vote is to make the multiplexor instantiate each serial line
+>>as a separate device.
+> 
+> That's a choice that's up to the maintainer of the serial driver ...
+
+I think James S, was making a point of concept.  Maybe SCSI Core can
+learn from this?
+
+	Luben

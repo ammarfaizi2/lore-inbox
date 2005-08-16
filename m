@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbVHPVl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVHPVm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbVHPVl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 17:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVHPVl0
+	id S932463AbVHPVm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 17:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVHPVm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 17:41:26 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:54148 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932163AbVHPVl0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 17:41:26 -0400
-Subject: Re: 2.6.12.3 clock drifting twice too fast (amd64)
-From: john stultz <johnstul@us.ibm.com>
-To: jerome lacoste <jerome.lacoste@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Marie-Helene Lacoste <manies@tele2.fr>
-In-Reply-To: <5a2cf1f6050816031011590972@mail.gmail.com>
-References: <5a2cf1f6050816031011590972@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 16 Aug 2005 14:41:22 -0700
-Message-Id: <1124228482.8630.95.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Tue, 16 Aug 2005 17:42:56 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:23574 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932463AbVHPVm4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 17:42:56 -0400
+Message-ID: <43025DD7.3090007@vmware.com>
+Date: Tue, 16 Aug 2005 14:42:47 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kumar Gala <kumar.gala@freescale.com>
+Cc: linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: asm/segment.h?
+References: <83B69EC3-8677-4199-BDDB-375AE708234C@freescale.com>
+In-Reply-To: <83B69EC3-8677-4199-BDDB-375AE708234C@freescale.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Aug 2005 21:42:27.0600 (UTC) FILETIME=[65813100:01C5A2AB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-16 at 12:10 +0200, jerome lacoste wrote:
-> Installed stock 2.6.12.3 on a brand new amd64 box with an Asus extreme
-> AX 300 SE/t mainboard.
-> 
-> I remember seeing a message in the boot saying something along:
-> 
->   "cannot connect to hardware clock."
-> 
-> And now I see that the time is changing too fast (about 2 seconds each second).
-[snip]
-> 0000:00:00.0 Host bridge: ATI Technologies Inc: Unknown device 5951
+Kumar Gala wrote:
 
-Looks like the AMD/ATI bug.
-
-http://bugzilla.kernel.org/show_bug.cgi?id=3927
-
-thanks
--john
+> Looking at some architectures it appears that asm/uaccess.h should be  
+> used instead of asm/segment.h.  Is this generally true that code in  
+> segment.h should be moved into uaccess.h or is it still valid for an  
+> architecture to have segment.h?
 
 
+At least in i386, segment.h can be included by userspace programs, and 
+although it really is the user include maintainers that should sort that 
+out, moving segment.h into uaccess.h makes that job more tedious.
+
+It looks like the proper thing to do for ppc is to deprecate segment.h 
+entirely.
+
+Zach

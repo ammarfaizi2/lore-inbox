@@ -1,124 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965249AbVHPO02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965253AbVHPOfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965249AbVHPO02 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 10:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbVHPO01
+	id S965253AbVHPOfy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 10:35:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbVHPOfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 10:26:27 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:409 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S965249AbVHPO00 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 10:26:26 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.13-rc6] remove 2.4 compat code from cpqfcTS driver, take 2
-Date: Tue, 16 Aug 2005 16:28:07 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-scsi@vger.kernel.org, James Bottomley <James.Bottomley@steeleye.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Bolke de Bruin <bdbruin@aub.nl>
-References: <200508051202.07091@bilbo.math.uni-mannheim.de> <200508161111.35431@bilbo.math.uni-mannheim.de> <200508161112.47120@bilbo.math.uni-mannheim.de>
-In-Reply-To: <200508161112.47120@bilbo.math.uni-mannheim.de>
+	Tue, 16 Aug 2005 10:35:54 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:36780 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S965253AbVHPOfx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 10:35:53 -0400
+Date: Tue, 16 Aug 2005 10:35:52 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Ryan Brown <some.nzguy@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc6-V0.7.53-11
+In-Reply-To: <20050816035353.GA8411@elte.hu>
+Message-ID: <Pine.LNX.4.44L0.0508161009010.4823-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508161628.09474@bilbo.math.uni-mannheim.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove compat code for Linux 2.4 and earlier. Fixed bug in earlier version
-that caused compile error.
+On Tue, 16 Aug 2005, Ingo Molnar wrote:
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+> * Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+> 
+> > --- linux-2.6.13-rc6-git7-RT-V0.7.53-11/drivers/usb/core/hcd.c~ 2005-08-15 21:23:45.000000000 +0200
+> > +++ linux-2.6.13-rc6-git7-RT-V0.7.53-11/drivers/usb/core/hcd.c  2005-08-15 22:03:33.000000000 +0200
+> > @@ -506,13 +506,11 @@ error:
+> >         }
+> > 
+> >         /* any errors get returned through the urb completion */
+> > -       local_irq_save (flags);
+> > +       local_irq_save_nort (flags);
+> >         spin_lock (&urb->lock);
+> >         if (urb->status == -EINPROGRESS)
+> >                 urb->status = status;
+> >         spin_unlock (&urb->lock);
+> >         usb_hcd_giveback_urb (hcd, urb, NULL);
+> > -       local_irq_restore (flags);
+> > +       local_irq_restore_nort (flags);
+> >         return 0;
+> >  }
+> 
+> i'm wondering whether we could/should also fix this upstream - and 
+> whether this [making the IRQ flags disabling a NOP on -RT] is the right 
+> fix. Why does the USB hcd.c code do this in the first place? Disabling 
+> interrupts during usb_hcd_giveback_urb() [but not holding the urb->lock] 
+> might serialize on UP, but it has no serialization effect on SMP and is 
+> hence potentially buggy. Is there something i'm missing about this code?
+> 
+> the normal way of using urb->lock would be spin_lock_irqsave() and 
+> spin_lock_irqrestore(), not the 'detached' method seen above.
 
---- a/drivers/scsi/cpqfcTScontrol.c	2005-08-13 19:00:35.000000000 +0200
-+++ b/drivers/scsi/cpqfcTScontrol.c	2005-08-14 11:02:09.000000000 +0200
-@@ -28,8 +28,6 @@
-    Hewlitt Packard Manual Part Number 5968-1083E.
- */
- 
--#define LinuxVersionCode(v, p, s) (((v)<<16)+((p)<<8)+(s))
--
- #include <linux/blkdev.h>
- #include <linux/kernel.h>
- #include <linux/string.h>
---- a/drivers/scsi/cpqfcTSstructs.h	2005-08-14 11:11:52.000000000 +0200
-+++ b/drivers/scsi/cpqfcTSstructs.h	2005-08-14 11:12:54.000000000 +0200
-@@ -88,7 +88,6 @@
- #define CPQFCTS_CMD_PER_LUN 15 // power of 2 -1, must be >0 
- #define CPQFCTS_REQ_QUEUE_LEN (TACH_SEST_LEN/2) // must be < TACH_SEST_LEN
- 
--#define LinuxVersionCode(v, p, s) (((v)<<16)+((p)<<8)+(s))
- #ifndef DECLARE_MUTEX_LOCKED
- #define DECLARE_MUTEX_LOCKED(sem) struct semaphore sem = MUTEX_LOCKED
- #endif
---- a/drivers/scsi/cpqfcTSinit.c	2005-08-14 14:56:41.000000000 +0200
-+++ b/drivers/scsi/cpqfcTSinit.c	2005-08-14 14:57:27.000000000 +0200
-@@ -29,8 +29,6 @@
- */
- 
- 
--#define LinuxVersionCode(v, p, s) (((v)<<16)+((p)<<8)+(s))
--
- #include <linux/config.h>  
- #include <linux/interrupt.h>  
- #include <linux/module.h>
-@@ -72,31 +70,10 @@ int cpqfcTS_TargetDeviceReset( Scsi_Devi
- // few fields...
- // NOTE: proc_fs changes in 2.4 kernel
- 
--#if LINUX_VERSION_CODE < LinuxVersionCode(2,3,27)
--static struct proc_dir_entry proc_scsi_cpqfcTS =
--{
--  PROC_SCSI_CPQFCTS,           // ushort low_ino (enumerated list)
--  7,                           // ushort namelen
--  DEV_NAME,                    // const char* name
--  S_IFDIR | S_IRUGO | S_IXUGO, // mode_t mode
--  2                            // nlink_t nlink
--	                       // etc. ...
--};
--
--
--#endif
--
--#if LINUX_VERSION_CODE >= LinuxVersionCode(2,4,7)
--#  define CPQFC_DECLARE_COMPLETION(x) DECLARE_COMPLETION(x)
--#  define CPQFC_WAITING waiting
--#  define CPQFC_COMPLETE(x) complete(x)
--#  define CPQFC_WAIT_FOR_COMPLETION(x) wait_for_completion(x);
--#else
--#  define CPQFC_DECLARE_COMPLETION(x) DECLARE_MUTEX_LOCKED(x)
--#  define CPQFC_WAITING sem
--#  define CPQFC_COMPLETE(x) up(x)
--#  define CPQFC_WAIT_FOR_COMPLETION(x) down(x)
--#endif
-+#define CPQFC_DECLARE_COMPLETION(x) DECLARE_COMPLETION(x)
-+#define CPQFC_WAITING waiting
-+#define CPQFC_COMPLETE(x) complete(x)
-+#define CPQFC_WAIT_FOR_COMPLETION(x) wait_for_completion(x);
- 
- static int cpqfc_alloc_private_data_pool(CPQFCHBA *hba);
- 
-@@ -284,12 +261,6 @@ int cpqfcTS_detect(Scsi_Host_Template *S
- 
-   ENTER("cpqfcTS_detect");
- 
--#if LINUX_VERSION_CODE < LinuxVersionCode(2,3,27)
--  ScsiHostTemplate->proc_dir = &proc_scsi_cpqfcTS;
--#else
--  ScsiHostTemplate->proc_name = "cpqfcTS";
--#endif
--
-   for(i = 0; cpqfc_boards[i]; i++) {
-     while((PciDev = pci_get_device(cpqfc_boards[i].vendor,
- 				    cpqfc_boards[i].device, PciDev))) {
-@@ -2059,6 +2030,7 @@ void* fcMemManager( struct pci_dev *pdev
- 
- 
- static Scsi_Host_Template driver_template = {
-+	.proc_name              = DEV_NAME,
- 	.detect                 = cpqfcTS_detect,
- 	.release                = cpqfcTS_release,
- 	.info                   = cpqfcTS_info,
+I don't know much about the real-time preemption work, but I can explain 
+what the code was supposed to be doing.
+
+Interrupts are disabled during usb_hcd_giveback_urb because that's how it
+was done originally and nobody has made an effort to remove this
+assumption from the USB device drivers.  There's no real reason for it
+other than historical inertia.  It's not done for serialization -- there's
+no need for serialization since an URB can't be resubmitted before the
+previous callback occurs (unless a driver is badly broken).  The
+"detached" method is used simply to avoid an extra pair of enable/disable
+instructions.
+
+Personally I think it would be an improvement if we changed things to
+allow callbacks with interrupts enabled.  This would require a lot of 
+auditing of USB drivers, but in the end it should prove worthwhile.
+
+> > similar fix, completions need not have irqs disabled on PREEMPT_RT 
+> > right?
+> 
+> correct, PREEMPT_RT is very strict about the use of the interrupt flags.  
+> A fair portion of the now-illegal API uses are also SMP bugs on 
+> upstream, so these details are worth pursuing.
+> 
+> > --- linux-2.6.13-rc6-git7-RT-V0.7.53-11/drivers/usb/core/hcd.c~ 2005-08-15 22:03:33.000000000 +0200
+> > +++ linux-2.6.13-rc6-git7-RT-V0.7.53-11/drivers/usb/core/hcd.c  2005-08-15 22:32:54.000000000 +0200
+> > @@ -538,7 +538,7 @@ void usb_hcd_poll_rh_status(struct usb_h
+> >         if (length > 0) {
+> > 
+> >                 /* try to complete the status urb */
+> > -               local_irq_save (flags);
+> > +               local_irq_save_nort (flags);
+> >                 spin_lock(&hcd_root_hub_lock);
+> >                 urb = hcd->status_urb;
+> >                 if (urb) {
+> > @@ -562,7 +562,7 @@ void usb_hcd_poll_rh_status(struct usb_h
+> >                         usb_hcd_giveback_urb (hcd, urb, NULL);
+> >                 else
+> >                         hcd->poll_pending = 1;
+> > -               local_irq_restore (flags);
+> > +               local_irq_restore_nort (flags);
+> 
+> same question: why are interrupts being kept disabled longer, and why is 
+> usb_hcd_giveback_urb() called with interrupts disabled? (I tried to use 
+> spin_lock_irqsave/irqrestore() in earlier -RT versions, but people 
+> reported hangs and USB misbehavior, which might be related. I'm worried 
+> that your _nort patch could cause similar misbehavior.)
+
+Same answer as above: The call is done with interrupts disabled because 
+it was always done that way.
+
+> how about (naively) extending the urb->lock to cover 
+> usb_hcd_giveback_urb() calls too - does that cause a deadlock or is it 
+> unsafe in some other way?
+
+It would cause a deadlock.  Not to mention that this is not what urb->lock
+is intended for (protection of urb->status).
+
+Alan Stern
+

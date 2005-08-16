@@ -1,70 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVHPWRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVHPWYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVHPWRj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 18:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVHPWRP
+	id S1751125AbVHPWYk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 18:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVHPWYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 18:17:15 -0400
-Received: from mail.kroah.org ([69.55.234.183]:21137 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751015AbVHPWQ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 18:16:59 -0400
-Date: Tue, 16 Aug 2005 15:16:46 -0700
-From: Greg Kroah-Hartman <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: [patch 7/7] USB: usbmon: Copyrights and a typo
-Message-ID: <20050816221646.GH28619@kroah.com>
-References: <20050816220001.699316000@press.kroah.org>
+	Tue, 16 Aug 2005 18:24:40 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:18852 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751125AbVHPWYj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 18:24:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tiPQaWPsrHmalWwrTpIEsyjahUX9YvcnWP4h1fcJ2I26NFG3XWI+PpM1Y9+dR4xViCMlyfz+20/6kZtD26ETr52DYGxluyMIb7SiNVnu4MdQlKnOx0FtLiVC20xx5t6BL7zqYLRJOyM0iwQGxIpmpM0OMacHVkr4dshVoosimLQ=
+Message-ID: <29495f1d0508161524260a856c@mail.gmail.com>
+Date: Tue, 16 Aug 2005 15:24:34 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Stas Sergeev <stsp@aknet.ru>
+Subject: Re: [rfc][patch] API for timer hooks
+Cc: john stultz <johnstul@us.ibm.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43024ADA.8030508@aknet.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="usb-usbmon-copyright.patch"
-In-Reply-To: <20050816221527.GA28619@kroah.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42FDF744.2070205@aknet.ru>
+	 <1124126354.8630.3.camel@cog.beaverton.ibm.com>
+	 <43024ADA.8030508@aknet.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pete Zaitcev <zaitcev@redhat.com>
+On 8/16/05, Stas Sergeev <stsp@aknet.ru> wrote:
+> Hello.
+> 
+> john stultz wrote:
+> > Interesting. Could you explain why the soft-timer interface doesn't<>
+> > suffice?
+> I'll try to explain why *I think*
+> it doesn't suffice, please correct
+> me if my assumptions are wrong.
+> 
+> There are two (bad) things about the
+> PC-Speaker driver:
+> 1. It needs the higher interrupt frequency.
+> Since there seem to be no API to change
+> the timer frequency at runtime, the driver
+> does this itself. Now I have googled out
+> the thread
+> [PATCH] i386: Selectable Frequency of the Timer Interrupt
+> but it doesn't look like it ended up
+> with some patch applied, or where is it?
 
-Add copyright statements and fix a typo.
+This thread resulted in CONFIG_HZ. You get to choose between 100, 250
+or 1000. It was not meant to allow runtime HZ modifications.
 
-Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 2. It needs its handler to be executed
+> first in the chain. Otherwise the quality
+> is poor because of the latency.
 
----
- drivers/usb/mon/mon_main.c |    4 +++-
- drivers/usb/mon/usb_mon.h  |    2 ++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+Yeah, that's a tougher one :)
 
---- gregkh-2.6.orig/drivers/usb/mon/mon_main.c	2005-06-17 12:48:29.000000000 -0700
-+++ gregkh-2.6/drivers/usb/mon/mon_main.c	2005-08-15 23:40:15.000000000 -0700
-@@ -2,6 +2,8 @@
-  * The USB Monitor, inspired by Dave Harding's USBMon.
-  *
-  * mon_main.c: Main file, module initiation and exit, registrations, etc.
-+ *
-+ * Copyright (C) 2005 Pete Zaitcev (zaitcev@redhat.com)
-  */
- 
- #include <linux/kernel.h>
-@@ -311,7 +313,7 @@
- 
- 	mondir = debugfs_create_dir("usbmon", NULL);
- 	if (IS_ERR(mondir)) {
--		printk(KERN_NOTICE TAG ": debugs is not available\n");
-+		printk(KERN_NOTICE TAG ": debugfs is not available\n");
- 		return -ENODEV;
- 	}
- 	if (mondir == NULL) {
---- gregkh-2.6.orig/drivers/usb/mon/usb_mon.h	2005-08-15 23:40:08.000000000 -0700
-+++ gregkh-2.6/drivers/usb/mon/usb_mon.h	2005-08-15 23:40:15.000000000 -0700
-@@ -1,5 +1,7 @@
- /*
-  * The USB Monitor, inspired by Dave Harding's USBMon.
-+ *
-+ * Copyright (C) 2005 Pete Zaitcev (zaitcev@redhat.com)
-  */
- 
- #ifndef __USB_MON_H
+> My approach solves both problems by
+> introducing the grabbing ability.
+> This is a rather simple patch, and since
+> it allows to do some cleanup, I though
+> it could be usefull not only for the
+> speaker driver.
+> But if you can tell me how to achieve
+> at least the point 1 (that is, speed up the
+> timer at run-time quite arbitrary) without
+> the kernel mods, then it would be a real
+> salvation.
 
---
+Does the dynamic-tick patch help you at all? I'm not sure if it's
+meant to, admittedly. I'm also not sure if it has any cap on the
+maximum HZ it attempts to reprogram the hardware to... Mucking with HZ
+at run-time is going to break lots of stuff, though...well, not
+necessarily, depends on how you muck with jiffies :)
+
+Thanks,
+Nish

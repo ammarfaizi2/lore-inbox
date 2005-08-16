@@ -1,38 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932727AbVHPVZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932733AbVHPV22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932727AbVHPVZd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 17:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932728AbVHPVZd
+	id S932733AbVHPV22 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 17:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbVHPV22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 17:25:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53122 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932727AbVHPVZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 17:25:32 -0400
-Date: Tue, 16 Aug 2005 22:25:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Posix file attribute support on VFAT (take #2)
-Message-ID: <20050816212531.GA2479@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Machida, Hiroyuki" <machida@sm.sony.co.jp>,
-	linux-kernel@vger.kernel.org
-References: <43023957.1020909@sm.sony.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43023957.1020909@sm.sony.co.jp>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 16 Aug 2005 17:28:28 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:43679 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S932733AbVHPV21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 17:28:27 -0400
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Transfer-Encoding: 7bit
+Message-Id: <83B69EC3-8677-4199-BDDB-375AE708234C@freescale.com>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: linux-kernel list <linux-kernel@vger.kernel.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: asm/segment.h?
+Date: Tue, 16 Aug 2005 16:28:35 -0500
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 17, 2005 at 04:07:03AM +0900, Machida, Hiroyuki wrote:
-> 
-> This is a take 2 of posix file attribute support on VFAT.
+Looking at some architectures it appears that asm/uaccess.h should be  
+used instead of asm/segment.h.  Is this generally true that code in  
+segment.h should be moved into uaccess.h or is it still valid for an  
+architecture to have segment.h?
 
-Sorry, but this is far too scary.  Please just use one of the sane
-filesystems linux supports.
+I'm cleaning up arch/ppc and arch/ppc64 and was wondering about  
+everyone else.
 
+- kumar

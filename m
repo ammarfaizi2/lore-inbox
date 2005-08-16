@@ -1,151 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932714AbVHPVGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932721AbVHPVPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932714AbVHPVGm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 17:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932716AbVHPVGl
+	id S932721AbVHPVPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 17:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932722AbVHPVPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 17:06:41 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:15039 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932714AbVHPVGl
+	Tue, 16 Aug 2005 17:15:16 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:33834 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932721AbVHPVPO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 17:06:41 -0400
-Date: Tue, 16 Aug 2005 23:14:24 +0200
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Airlie <airlied@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: rc6 keeps hanging and blanking displays
-Message-ID: <20050816211424.GA14367@aitel.hist.no>
-References: <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no> <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org> <43008C9C.60806@aitel.hist.no> <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org> <20050815221109.GA21279@aitel.hist.no> <21d7e99705081516182e97b8a1@mail.gmail.com> <21d7e99705081516241197164a@mail.gmail.com> <20050816165242.GA10024@aitel.hist.no> <Pine.LNX.4.58.0508160955270.3553@g5.osdl.org>
+	Tue, 16 Aug 2005 17:15:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XSLzz6sZqtC+OvULugi1YFvUjXAHWxXoLS4XjVtt0tFXLuDUwWPjo73UNSQfJJks9v+3ClVIrPceHMRh9xiJm8lGW7RlEekKv7SIKQ+LJV7TwzhNCi0qGvTe0rfwEZUnU/Un6ZpM9aBJeHArRTsuY95rmLvhOPAZ9mngqIfr6tU=
+Message-ID: <5a2cf1f605081614152c41d5ac@mail.gmail.com>
+Date: Tue, 16 Aug 2005 23:15:14 +0200
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: 2.6.12.3 clock drifting twice too fast (amd64)
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Marie-Helene Lacoste <manies@tele2.fr>
+In-Reply-To: <Pine.LNX.4.62.0508161103360.7101@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0508160955270.3553@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+References: <5a2cf1f6050816031011590972@mail.gmail.com>
+	 <Pine.LNX.4.62.0508161103360.7101@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 16, 2005 at 10:00:50AM -0700, Linus Torvalds wrote:
+On 8/16/05, Christoph Lameter <clameter@engr.sgi.com> wrote:
+> On Tue, 16 Aug 2005, jerome lacoste wrote:
 > 
-> 
-> On Tue, 16 Aug 2005, Helge Hafting wrote:
+> > Installed stock 2.6.12.3 on a brand new amd64 box with an Asus extreme
+> > AX 300 SE/t mainboard.
+
+Ooops the main board is a Sapphire Axion XP200PA-A58SL. The
+aforementionned name is the video card's one...
+
+> > I remember seeing a message in the boot saying something along:
 > >
-> > I tried rc6 with DRM turned off.  That kernel consistently _died_ when 
-> > trying to start xdm. Xorg logs for both cards ended like this:
-> > 
-> > (II) LoadModule: "pcidata"
-> > (II) Loading /usr/X11R6/lib/modules/libpcidata.a
+> >   "cannot connect to hardware clock."
+> >
+> > And now I see that the time is changing too fast (about 2 seconds each second).
 > 
-> Ok, it does sound like your X server is doing something nasty on the PCI 
-> bus. 
+> The timer interrupt is probably called twice for some reason and therefore
+> time runs twice as fast. Try using HPET for interrupt timing.
+
+Sorry to sound stupid but how do you use HPET?
+
+My latest kernel config has:
+
+> grep HPET /usr/src/linux-2.6.12.3/.config
+CONFIG_HPET_TIMER=y
+CONFIG_HPET=y
+# CONFIG_HPET_RTC_IRQ is not set
+CONFIG_HPET_MMAP=y
+
+So it should be enabled, right?
+
+The kernel config doc talks about a 'miscdevice' named /dev/hpec/
+
+I have this
+root@manies:/usr/src/linux-2.6.12.3 # ls -la /dev/hpet 
+crw-rw----  1 root root 10, 228 Aug 16 15:17 /dev/hpet
+
+I didn't find /usr/src/linux-2.6.12.3/Documentation/hpet.txt very
+explicit on what to do. I managed to compile the example code after
+tweeking it
+
+--- hpet.c.orig 2005-08-16 23:30:58.000000000 +0200
++++ hpet.c      2005-08-17 00:01:43.000000000 +0200
+@@ -1,3 +1,6 @@
++/**
++ * Compile with  gcc -s -I/usr/src/linux-`uname -r`/include -Wall
+-Wstrict-prototypes hpet.c -o hpet
++ */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+@@ -13,6 +16,8 @@
+ #include <fcntl.h>
+ #include <errno.h>
+ #include <sys/time.h>
++typedef u_int32_t u32;
++typedef u_int64_t u64;
+ #include <linux/hpet.h>
+ 
+ 
+But as I don't know which device_name to specify (I tried /dev/hpet
+and /dev/rtc), I am kinda stuck.
+
+
+I've also tried rtctest.c (from the rtc. documentation). When run, it
+ends by displaying:
+Typing "cat /proc/interrupts" will show 131 more events on IRQ 8.
+But it only add 117 interrupts for me.
+And when ran, this test program correctly counts the seconds. I.e.
+time is not too fast.
+
+I also see that the reported RTC time really differs from the time
+returned by the date command. I am a little bit confused.
+
+E.g. 
+
+with rtctestnew a modified version of rtctest.c that: displays current
+rtc time, register an alarm for 5 secs, waits for the event, and
+redisplays for the new rtc time.
+
+> date; ./rtctestnew ; date
+Tue Aug 16 22:49:18 CEST 2005
+Current RTC date/time is 17-8-2005, 03:03:20.
+Alarm time now set to 03:03:25.
+Waiting 5 seconds for alarm... okay. Alarm rang.
+Current RTC date/time is 17-8-2005, 03:03:25.
+                         *** Test complete ***
+Tue Aug 16 22:49:28 CEST 2005
+
+rtc time is now 7 hours more than current time. rtc time updates
+correctly (+5 seconds) while date is increased 10 seconds. timezone is
+correct.
+
+Any idea?
+
+> > I don't have visual on the boot sequence anymore (only remote access).
 > 
-> > I can retry this with a syncronously mounted /var, if the last lines
-> > of the Xorg logs might be interesting.
-> 
-> It would be even more interesting if you have a serial console, but if
-> this is the X server stomping on the PCI bus, you might just have a total
-> lockup - no oops, no nothing.
-> 
-Tricky - I have nothing to connect to the serial port.
+> Use serial console or netconsole. The boot information is logged. Try
+> dmesg.
 
-> One thing that might be interesting is to see if the old working kernel
-> has a different IO-map than the broken ones. A simple
-> 
-> 	cat /proc/ioports /proc/iomem > iomaps.kernel-version
-> 
-> and diffing the two might be an interesting thing to try. X has been known
-> to sometimes just try to re-configure things on its own without telling
-> (or asking) the kernel.
+serial will be hard. The machine is 2500 km away with a non geek in front of it.
 
-Diffing the iomaps thus obtained for 
-2.6.13-rc4-6ade43fbbcc3c12f0ddba112351d14d6c82ae476
-and 2.6.13-rc6 produce this:
-ba112351d14d6c82ae476 iomaps.2.6.13-rc6
-17a18
-> 5000-5007 : viapro-smbus
-52,53c53,54
-<   00100000-0041a94c : Kernel code
-<   0041a94d-00695337 : Kernel data
----
->   00100000-003fed39 : Kernel code
->   003fed3a-00662f77 : Kernel data
+Can I use netconsole over ppp ?
 
-rc6 has a somewhat smaller kernel, and a viapro-smbus.
-
-The X.org logs also got further, with the synchronous mount:
-
-The radeon log ended like this:
-        [31] -1 0       0x00009000 - 0x000090ff (0x100) IX[B]
-        [32] -1 0       0x00009800 - 0x000098ff (0x100) IX[B](B)
-        [33] 0  0       0x000003b0 - 0x000003bb (0xc) IS[B]
-        [34] 0  0       0x000003c0 - 0x000003df (0x20) IS[B]
-(II) Setting vga for screen 0.
-(II) RADEON(0): MMIO registers at 0xf6000000
-(II) RADEON(0): PCI bus 0 card 8 func 0
-(**) RADEON(0): Depth 24, (--) framebuffer bpp 32
-(II) RADEON(0): Pixel depth = 24 bits stored in 4 bytes (32 bpp pixmaps)
-(==) RADEON(0): Default visual is TrueColor
-(**) RADEON(0): Option "EnablePageFlip" "off"
-(**) RADEON(0): Option "DynamicClocks" "off"
-(II) Loading sub module "vgahw"
-(II) LoadModule: "vgahw"
-(II) Loading /usr/X11R6/lib/modules/libvgahw.a
-(II) Module vgahw: vendor="X.Org Foundation"
-        compiled for 6.8.2, module version = 0.1.0
-        ABI class: X.Org Video Driver, version 0.7
-(II) RADEON(0): vgaHWGetIOBase: hwp->IOBase is 0x03b0, hwp->PIOOffset is 0x0000
-(==) RADEON(0): RGB weight 888
-(II) RADEON(0): Using 8 bits per RGB (8 bit DAC)
-(II) Loading sub module "int10"
-(II) LoadModule: "int10"
-(II) Reloading /usr/X11R6/lib/modules/libint10.a
-(II) RADEON(0): initializing int10
-(**) RADEON(0): Option "InitPrimary" "on"
-
-It stopped here, while it normally goes on with:
-(II) Truncating PCI BIOS Length to 53248
-(--) RADEON(0): Chipset: "ATI Radeon 9200SE 5964 (AGP)" (ChipID = 0x5964)
-(--) RADEON(0): Linear framebuffer at 0xe0000000
-(--) RADEON(0): BIOS at 0x1ff00000
-(--) RADEON(0): VideoRAM: 131072 kByte (64 bit DDR SDRAM)
-(II) RADEON(0): PCI card detected
-(II) Loading sub module "ddc"
-...
-
-Seems like it died trying to perform int10 initialization?
-
-The matrox log stopped inside a listing of resource ranges after preInit:
-        [29] -1 0       0x0000ac00 - 0x0000ac0f (0x10) IX[B]
-        [30] -1 0       0x0000a800 - 0x0000a803 (0x4) IX[B]
-        [31] -1 0       0x0000a400 - 0x0000a407 (0x8) IX[B]
-        [32] -1 0       0x0000a000 - 0x0000a003 (0x4) IX[B]
-        [33] -1 0       0x00009c00 - 0x00009c07 (0x8) IX[B]
-        [34] -1 0       0x00009400 - 0x000094ff (0x100) IX[B]
-        [35] -1 0       0x00009000 - 0x000090ff (0x100) IX[B]
-        [36] 0  0       0x000003b0 - 0x000003bb (0xc) IS[B]
-
-Normally, this continues with:
-        [37] 0  0       0x000003c0 - 0x000003df (0x20) IS[B](OprU)
-(==) MGA(0): Write-combining range (0xf0000000,0x2000000)
-(II) MGA(0): vgaHWGetIOBase: hwp->IOBase is 0x03d0, hwp->PIOOffset is 0x0000
-(--) MGA(0): 16 DWORD fifo
-(==) MGA(0): Default visual is TrueColor
-(II) MGA(0): [drm] bpp: 16 depth: 16
-(II) MGA(0): [drm] Sarea 2200+664: 2864
-drmOpenDevice: node name is /dev/dri/card0
-drmOpenDevice: open result is 7, (OK)
-
-I guess the radeon hung the machine, and the matrox xserver simply wasn't
-scheduled after that.
-
-The lockup wasn't total - the numlock LED responded to the numlock key
-(and similar for capslock) until I did the sysrq+B.  There seemed to be
-no reaction, other than no more LED responses. 
-This kernel doesn't have ACPI so it can't turn the machine off
-when doing a normal shutdown, but it is usually capable rebooting.
-The console was black of course, no dumps of any kind.  
-
-I can try running the radeon xserver only, as the vga console is on the matrox
-card.
-
-Helge Hafting
+Jerome

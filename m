@@ -1,94 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVHPWEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVHPWEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVHPWEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 18:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbVHPWEI
+	id S1751104AbVHPWEN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 18:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbVHPWEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 18:04:08 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:9664 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1750744AbVHPWEH (ORCPT
+	Tue, 16 Aug 2005 18:04:13 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:11712 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1751104AbVHPWEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 18:04:07 -0400
-Message-ID: <430262C5.20503@adaptec.com>
-Date: Tue, 16 Aug 2005 18:03:49 -0400
+	Tue, 16 Aug 2005 18:04:11 -0400
+Message-ID: <430262D4.9060705@adaptec.com>
+Date: Tue, 16 Aug 2005 18:04:04 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>
-CC: Jim Houston <jim.houston@ccur.com>
-Subject: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
+       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Jim Houston <jim.houston@ccur.com>
+Subject: [PATCH 2.6.12.5 2/2] include/linux: enclose idr.h in #ifndef
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Aug 2005 22:01:30.0608 (UTC) FILETIME=[0ECA5F00:01C5A2AE]
+X-OriginalArrivalTime: 16 Aug 2005 22:01:45.0233 (UTC) FILETIME=[1781F810:01C5A2AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch allows idr to be used in irq context.
-
-idr_pre_get() is necessary to be called before
-idr_get_new() is called.  No locking is necessary when
-calling idr_pre_get().
-
-But idr_get_new(), idr_find() and idr_remove()
-must be serialized with respect to each other.
-
-All of the aforementioned, may end up in alloc_layer()
-or free_layer() which grabs the idp lock using spin_lock.
-
-If idr_get_new() or idr_remove() is used in IRQ context,
-then we may get a lockup when idr_pre_get was called
-in process context and an IRQ interrupted while it held
-the idp lock.
-
-This patch changes the spin_lock to spin_lock_irqsave,
-and spin_unlock to spin_unlock_irqrestore, to allow
-idr_get_new(), idr_find() and idr_remove() to be
-called from IRQ context, while idr_pre_get() to be
-called in process context.
+This patch encloses the idr.h header file in
+#ifndef __IDR_H__ macro.
 
 Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
---- linux-2.6.12.5/lib/idr.c.old	2005-08-16 17:20:08.000000000 -0400
-+++ linux-2.6.12.5/lib/idr.c	2005-08-16 17:22:16.000000000 -0400
-@@ -37,27 +37,29 @@
- static struct idr_layer *alloc_layer(struct idr *idp)
- {
- 	struct idr_layer *p;
-+	unsigned long flags;
+--- linux-2.6.12.5/include/linux/idr.h.old	2005-08-16 17:20:15.000000000 -0400
++++ linux-2.6.12.5/include/linux/idr.h	2005-08-16 17:21:11.000000000 -0400
+@@ -8,6 +8,10 @@
+  * Small id to pointer translation service avoiding fixed sized
+  * tables.
+  */
++
++#ifndef __IDR_H__
++#define __IDR_H__
++
+ #include <linux/types.h>
+ #include <linux/bitops.h>
  
--	spin_lock(&idp->lock);
-+	spin_lock_irqsave(&idp->lock, flags);
- 	if ((p = idp->id_free)) {
- 		idp->id_free = p->ary[0];
- 		idp->id_free_cnt--;
- 		p->ary[0] = NULL;
- 	}
--	spin_unlock(&idp->lock);
-+	spin_unlock_irqrestore(&idp->lock, flags);
- 	return(p);
- }
- 
- static void free_layer(struct idr *idp, struct idr_layer *p)
- {
-+	unsigned long flags;
- 	/*
- 	 * Depends on the return element being zeroed.
- 	 */
--	spin_lock(&idp->lock);
-+	spin_lock_irqsave(&idp->lock, flags);
- 	p->ary[0] = idp->id_free;
- 	idp->id_free = p;
- 	idp->id_free_cnt++;
--	spin_unlock(&idp->lock);
-+	spin_unlock_irqrestore(&idp->lock, flags);
- }
- 
- /**
+@@ -76,3 +80,5 @@
+ int idr_get_new_above(struct idr *idp, void *ptr, int starting_id, int *id);
+ void idr_remove(struct idr *idp, int id);
+ void idr_init(struct idr *idp);
++
++#endif /* __IDR_H__ */
 -
 To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
 the body of a message to majordomo@vger.kernel.org

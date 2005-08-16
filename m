@@ -1,86 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbVHPEjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbVHPEz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbVHPEjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 00:39:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbVHPEjP
+	id S965100AbVHPEz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 00:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbVHPEz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 00:39:15 -0400
-Received: from ozlabs.org ([203.10.76.45]:60614 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S965098AbVHPEjO (ORCPT
+	Tue, 16 Aug 2005 00:55:59 -0400
+Received: from smtpout.mac.com ([17.250.248.89]:3056 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932601AbVHPEz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 00:39:14 -0400
-Subject: Re: obsolete modparam change busted.
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050813182748.GG26633@redhat.com>
-References: <20050808184955.GA18779@redhat.com>
-	 <1123560076.13481.37.camel@localhost.localdomain>
-	 <20050813182748.GG26633@redhat.com>
-Content-Type: text/plain
-Date: Tue, 16 Aug 2005 14:39:10 +1000
-Message-Id: <1124167150.6292.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 16 Aug 2005 00:55:58 -0400
+In-Reply-To: <20050816043451.GA25224@taniwha.stupidest.org>
+References: <20050815200522.GA3667@sysman-doug.us.dell.com> <AC1976B5-FAFC-4809-B1B2-579D5F14FDFE@mac.com> <20050816043451.GA25224@taniwha.stupidest.org>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <C38BFC4F-E00F-4CE8-A4DD-89AE55B898D9@mac.com>
+Cc: Doug Warzecha <Douglas_Warzecha@dell.com>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
+Date: Tue, 16 Aug 2005 00:55:35 -0400
+To: Chris Wedgwood <cw@f00f.org>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-13 at 14:27 -0400, Dave Jones wrote:
-> We're now munching the end of the boot command line it seems.
+On Aug 16, 2005, at 00:34:51, Chris Wedgwood wrote:
+> On Mon, Aug 15, 2005 at 04:23:37PM -0400, Kyle Moffett wrote:
+>> Why can't you just implement the system management actions in the
+>> kernel driver?
+>
+> Why put things in the kernel unless it's really needed?
+>
+> I'm not thrillied about the lack of userspace support for this driver
+> but that still doesn't mean we need to shovel wads of crap into the
+> kernel.
 
-Wow, if we had testcases in the kernel source, I would not have to keep
-rewriting them (badly) every time I touched this code.
+I'm worried that it might be more of a mess in userspace than it  
+could be
+if done properly in the kernel.  Hardware drivers, especially for  
+something
+as critical as the BIOS, should probably be done in-kernel.  Look at the
+mess that X has become, it mmaps /dev/mem and pokes at the PCI busses
+directly.  I just don't want an MSI-driver to become another /dev/mem.
 
-Throw away that stupid patch, apply this stupid patch.
+Cheers,
+Kyle Moffett
 
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$ L++++(+ 
+++) E
+W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+ PGP+++ t+(+++) 5  
+X R?
+tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  !y?(-)
+------END GEEK CODE BLOCK------
 
-Name: Ignore trailing whitespace on kernel parameters correctly: Fixed version
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-Dave Jones says:
-
-... if the modprobe.conf has trailing whitespace, modules fail to load
-with the following helpful message..
-
-	snd_intel8x0: Unknown parameter `'
-
-Previous version truncated last argument.
-
-Index: linux-2.6.13-rc6-git7-Module/kernel/params.c
-===================================================================
---- linux-2.6.13-rc6-git7-Module.orig/kernel/params.c	2005-08-10 16:12:45.000000000 +1000
-+++ linux-2.6.13-rc6-git7-Module/kernel/params.c	2005-08-16 14:31:16.000000000 +1000
-@@ -80,8 +80,6 @@
- 	int in_quote = 0, quoted = 0;
- 	char *next;
- 
--	/* Chew any extra spaces */
--	while (*args == ' ') args++;
- 	if (*args == '"') {
- 		args++;
- 		in_quote = 1;
-@@ -121,6 +119,9 @@
- 		next = args + i + 1;
- 	} else
- 		next = args + i;
-+
-+	/* Chew up trailing spaces. */
-+	while (*next == ' ') next++;
- 	return next;
- }
- 
-@@ -134,6 +135,9 @@
- 	char *param, *val;
- 
- 	DEBUGP("Parsing ARGS: %s\n", args);
-+	
-+	/* Chew leading spaces */
-+	while (*args == ' ') args++;
- 
- 	while (*args) {
- 		int ret;
-
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
 

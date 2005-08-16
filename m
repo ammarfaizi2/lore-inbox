@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbVHPFfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbVHPFgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965113AbVHPFfs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 01:35:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbVHPFfs
+	id S965115AbVHPFgf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 01:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbVHPFgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 01:35:48 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:36808 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S965113AbVHPFfr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 01:35:47 -0400
-X-ORBL: [63.205.185.3]
-Date: Mon, 15 Aug 2005 22:35:41 -0700
-From: Chris Wedgwood <cw@f00f.org>
+	Tue, 16 Aug 2005 01:36:35 -0400
+Received: from h80ad2575.async.vt.edu ([128.173.37.117]:7401 "EHLO
+	h80ad2575.async.vt.edu") by vger.kernel.org with ESMTP
+	id S965116AbVHPFge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 01:36:34 -0400
+Message-Id: <200508160536.j7G5aKox017930@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
 To: Michael E Brown <Michael_E_Brown@dell.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org,
-       Doug Warzecha <Douglas_Warzecha@dell.com>
-Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
-Message-ID: <20050816053541.GA26150@taniwha.stupidest.org>
-References: <1124169589.10755.194.camel@soltek.michaels-house.net>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>,
+       Doug Warzecha <Douglas_Warzecha@dell.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support 
+In-Reply-To: Your message of "Mon, 15 Aug 2005 23:58:43 CDT."
+             <1124168323.10755.179.camel@soltek.michaels-house.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <1124168323.10755.179.camel@soltek.michaels-house.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1124169589.10755.194.camel@soltek.michaels-house.net>
+Content-Type: multipart/signed; boundary="==_Exmh_1124170579_3269P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 16 Aug 2005 01:36:19 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 16, 2005 at 12:19:49AM -0500, Michael E Brown wrote:
+--==_Exmh_1124170579_3269P
+Content-Type: text/plain; charset=us-ascii
 
-> Hmm... did I mention libsmbios? :-)
-> http://linux.dell.com/libsmbios/main.
+On Mon, 15 Aug 2005 23:58:43 CDT, Michael E Brown said:
 
-I'm aware of it --- it seems pretty limited right now and I'm still
-irked Dell isn't more forthcoming with documentation.
+> No, this is an _EXCELLENT_ reason why _LESS_ of this should be in the
+> kernel. Why should we have to duplicate a _TON_ of code inside the
+> kernel to figure out which platform we are on, and then look up in a
+> table which method to use for that platform? We have a _MUCH_ nicer
+> programming environment available to us in userspace where we can use
+> things like libsmbios to look up the platform type, then look in an
+> easily-updateable text file which smi type to use. In general, plugging
+> the wrong value here is a no-op.
 
-> SMI support is not yet implemented inside libsmbios, but I am
-> working feverishly on it (in-between emails to linux-kernel, of
-> course.) :-) We have a development mailing list, and I will make the
-> announcement there when it has been complete.
+You'll still need to do some *very* basic checking - there's fairly
+scary-looking 'outb' call in  callintf_smi()  and host_control_smi() that seems to
+be totally too trusting that The Right Thing is located at address CMOS_BASE_PORT:
 
-[...]
++		for (index = PE1300_CMOS_CMD_STRUCT_PTR;
++		     index < (PE1300_CMOS_CMD_STRUCT_PTR + 4);
++		     index++) {
++			outb(index,
++			     (CMOS_BASE_PORT + CMOS_PAGE2_INDEX_PORT_PIIX4));
++			outb(*data++,
++			     (CMOS_BASE_PORT + CMOS_PAGE2_DATA_PORT_PIIX4));
++		}
 
-> I cannot (at this point, I'm working on it, though), provide our
-> internal documentation of our SMI implementation directly. But, I am
-> authorized to add all of this to libsmbios, and I intend to very
-> clearly document all of the SMI calls in libsmbios.
+This Dell C840 has an 845, not a PIIX.  What just got toasted if this driver
+gets called?
 
-Given that why not resubmit the kernel driver when the userspace
-becomes usable for people without them having to use MonsterApp from
-Dell?
+Can we have a check that the machine is (a) a Dell and (b) has a PIIX and (c) the
+PIIX has a functional SMI behind it, before we start doing outb() calls?
 
-> Aside from that, for the most part, the only thing SMI ever does is
-> pass buffers back and forth.
 
-I meant to ask; does this have horrible latency or nasties like lots
-of laptop SMM stuff?
+
+--==_Exmh_1124170579_3269P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDAXtScC3lWbTT17ARAkH9AJwNuiQIhgPK6YvfDsMYaXEUwtXFNwCeNEu3
+jIzwUVhDfRaIB5Z7px1NXZQ=
+=oqFp
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1124170579_3269P--

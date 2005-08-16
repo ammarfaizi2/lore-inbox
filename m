@@ -1,124 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbVHPUOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbVHPUQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbVHPUOX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 16:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVHPUOX
+	id S932694AbVHPUQN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 16:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVHPUQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 16:14:23 -0400
-Received: from NS8.Sony.CO.JP ([137.153.0.33]:4249 "EHLO ns8.sony.co.jp")
-	by vger.kernel.org with ESMTP id S932692AbVHPUOW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 16:14:22 -0400
-Message-ID: <43024977.7020101@sm.sony.co.jp>
-Date: Wed, 17 Aug 2005 05:15:51 +0900
-From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] FAT dirent scan with hint
-Content-Type: multipart/mixed;
- boundary="------------040600040805070009060605"
+	Tue, 16 Aug 2005 16:16:13 -0400
+Received: from nproxy.gmail.com ([64.233.182.201]:53571 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932694AbVHPUQL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 16:16:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SWNLkE/mqDVxnH9qFipFnSy3fgQE7yjtWiaOkNnFflQ9v9mF2uVWc63tNx8gdpd4WOlpHCQj2HhRknN7fjBjem4M2izXvOhBaUrlHvojHG/rF/qeEIAP2HJLVmKkkNQCtwEBCmYbP567w8PoY31WRldOZRjva4E8fAjb8rhmrTA=
+Message-ID: <58cb370e05081613164027070@mail.gmail.com>
+Date: Tue, 16 Aug 2005 22:16:09 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH] IDE: don't offer IDE_GENERIC on ia64
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+In-Reply-To: <200508161316.32602.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200508111424.43150.bjorn.helgaas@hp.com>
+	 <200508151507.22776.bjorn.helgaas@hp.com>
+	 <58cb370e050816023845b57a74@mail.gmail.com>
+	 <200508161316.32602.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040600040805070009060605
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+On 8/16/05, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> On Tuesday 16 August 2005 3:38 am, Bartlomiej Zolnierkiewicz wrote:
+> > On 8/15/05, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> > > On Friday 12 August 2005 2:40 am, Alan Cox wrote:
+> > Agreed but I have few comments:
+> > * is this change OK w.r.t. IA64_HP_SIM?
+> 
+> Kernels for the HP simulator (ski) use a SCSI model, not IDE,
+> so they should be OK.
+> 
+> The SGI simulator *does* use IDE, and this will break that.  But
+> my friends at SGI are looking at exposing the simulated IDE device
+> via PCI, which should fix it.
 
+OK
 
-We realized that "ls -l" has taken so long time, over 1000 entries on
-directory in FAT/VFAT. Attached patch tries to solve the issue.
+> > * removing IDE_ARCH_OBSOLETE_INIT define has some implications,
+> >   * non-functional ide-cs driver (but there is no PCMCIA on IA64?)
+> 
+> PCMCIA might be of theoretical interest, but not important enough
+> by itself to keep IDE_ARCH_OBSOLETE_INIT, IMHO.  And it sounds like
+> ide-cs can be fixed fairly easily to not depend on it.
 
-This uses a simple solution which records position of the last found
-entry and uses it as start position of next scan. It would work well
-under following assumption;
-- in most case dirent will be examined by stat() or it's variants with
-  from top to bottom direction.
-- found entries would be cached with VFS level dentry cache.
+Yes, ide-cs needs fixing anyway.
 
-What do you think about this patch and above assumption?
-Do you have any other good solution about this issue?
+> >   * ordering change for ide-pnp interfaces in case of no IDE devices
+> >     on default IDE PCI ports, (but there aren't any ide-pnp devices on IA64?)
+> 
+> I'm not aware of any ide-pnp devices on IA64, so I don't think this
+> is a problem for us.  The SGI simulator could use ide-pnp via
+> PNPACPI, but ordering shouldn't be a problem there.
 
--- 
-Hiroyuki Machida		machida@sm.sony.co.jp		
-SSW Dept. HENC, Sony Corp.
+OK
 
---------------040600040805070009060605
-Content-Type: text/plain;
- name="fat-dirscan-with-hint.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="fat-dirscan-with-hint.patch"
+> But it is interesting that PNP IDE devices are discovered *after*
+> PCI devices.  For serial, we do PNP before PCI, on the theory that
+> PNP devices are usually built-in and shouldn't move if you just plug
+> in a new PCI card.
+> 
+> >   * non-functional HDIO_REGISTER_HWIF ioctl (ain't really working either)
+> 
+> HDIO_SCAN_HWIF - I don't know about this one.  How are we supposed to
+> follow the "new ports shouldn't define IDE_ARCH_OBSOLETE_INIT" injunction
+> if we lose all this functionality without it?  ia64 is about as close to
+> a new port as you get :-)
 
-VGhpcyBwYXRjaCBlbmFibGVzIHVzaW5nIGhpbnQgbmZvcm1hdGlvbiBvbiBzY2FubmluZyBk
-aXIuCkl0IHJlYWNoZXMgZXhjZWxlbnQgcGVyZm9ybWFuY2Ugd2l0aCAibHMgLWwiIGZvciBv
-dmVyIDEwMDAgZW50cmllcy4KSSdtIG5vdCB0aGUgb3JpZ2luYWwgYXV0aG9yLiBJIGp1c3Qg
-cG9ydGVkIGl0IHRvIDIuNi4xMiBhbmQgY2xlYW4gaXQgdXAuCgoKKiBmYXQtZGlyc2Nhbi13
-aXRoLWhpbnQucGF0Y2gKCiBmcy9mYXQvZGlyLmMgICAgICAgICAgICAgfCAgIDQ5ICsrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tCiBmcy9mYXQvaW5v
-ZGUuYyAgICAgICAgICAgfCAgICAyICsKIGluY2x1ZGUvbGludXgvbXNkb3NfZnMuaCB8ICAg
-IDEgCiAzIGZpbGVzIGNoYW5nZWQsIDM4IGluc2VydGlvbnMoKyksIDE0IGRlbGV0aW9ucygt
-KQoKU2lnbmVkLW9mZi1ieTogSGlyb3l1a2kgTWFjaGlkYSA8bWFjaGlkYUBzbS5zb255LmNv
-LmpwPiBmb3IgQ0VMRgoKKiBtb2RpZmllZCBmaWxlcwoKLS0tIG9yaWcvZnMvZmF0L2Rpci5j
-CisrKyBtb2QvZnMvZmF0L2Rpci5jCkBAIC0yMTgsMTMgKzIxOCwyMCBAQAogCWludCB1dGY4
-ID0gc2JpLT5vcHRpb25zLnV0Zjg7CiAJaW50IGFueWNhc2UgPSAoc2JpLT5vcHRpb25zLm5h
-bWVfY2hlY2sgIT0gJ3MnKTsKIAl1bnNpZ25lZCBzaG9ydCBvcHRfc2hvcnRuYW1lID0gc2Jp
-LT5vcHRpb25zLnNob3J0bmFtZTsKLQlsb2ZmX3QgY3BvcyA9IDA7CiAJaW50IGNobCwgaSwg
-aiwgbGFzdF91LCBlcnI7CisJbG9mZl90IGNwb3M7CisJbG9mZl90IHN0YXJ0ID0gY3BvcyA9
-IE1TRE9TX0koaW5vZGUpLT5pX2RpcnNjYW5faGludDsKKwlpbnQgcmVhY2hfYm90dG9tID0g
-MDsKIAogCWVyciA9IC1FTk9FTlQ7CiAJd2hpbGUoMSkgewotCQlpZiAoZmF0X2dldF9lbnRy
-eShpbm9kZSwgJmNwb3MsICZiaCwgJmRlKSA9PSAtMSkKLQkJCWdvdG8gRU9EaXI7CitUb3A6
-CisJCWlmIChyZWFjaF9ib3R0b20gJiYgY3BvcyA+PSBzdGFydCkgZ290byBFT0RpcjsKKwkJ
-aWYgKGZhdF9nZXRfZW50cnkoaW5vZGUsICZjcG9zLCAmYmgsICZkZSkgPT0gLTEpIHsKKwkJ
-CWlmICghc3RhcnQpIGdvdG8gRU9EaXI7CisJCQlyZWFjaF9ib3R0b20gKys7IGNwb3MgPSAw
-OworCQkJY29udGludWU7CisJCX0KIHBhcnNlX3JlY29yZDoKIAkJbnJfc2xvdHMgPSAwOwog
-CQlpZiAoZGUtPm5hbWVbMF0gPT0gREVMRVRFRF9GTEFHKQpAQCAtMjc0LDggKzI4MSwxMSBA
-QAogCQkJCWlmIChkcy0+aWQgJiAweDQwKSB7CiAJCQkJCXVuaWNvZGVbb2Zmc2V0ICsgMTNd
-ID0gMDsKIAkJCQl9Ci0JCQkJaWYgKGZhdF9nZXRfZW50cnkoaW5vZGUsICZjcG9zLCAmYmgs
-ICZkZSkgPCAwKQotCQkJCQlnb3RvIEVPRGlyOworCQkJCWlmIChmYXRfZ2V0X2VudHJ5KGlu
-b2RlLCAmY3BvcywgJmJoLCAmZGUpIDwwICkgeworCQkJCQlpZiAoIXN0YXJ0KSBnb3RvIEVP
-RGlyOworCQkJCQlyZWFjaF9ib3R0b20gKys7IGNwb3MgPSAwOworCQkJCQlnb3RvIFRvcDsK
-KwkJCQl9CiAJCQkJaWYgKHNsb3QgPT0gMCkKIAkJCQkJYnJlYWs7CiAJCQkJZHMgPSAoc3Ry
-dWN0IG1zZG9zX2Rpcl9zbG90ICopIGRlOwpAQCAtMzYzLDYgKzM3Myw3IEBACiAJc2luZm8t
-PmRlID0gZGU7CiAJc2luZm8tPmJoID0gYmg7CiAJc2luZm8tPmlfcG9zID0gZmF0X21ha2Vf
-aV9wb3Moc2IsIHNpbmZvLT5iaCwgc2luZm8tPmRlKTsKKwlNU0RPU19JKGlub2RlKS0+aV9k
-aXJzY2FuX2hpbnQgPSBzaW5mby0+c2xvdF9vZmY7CiAJZXJyID0gMDsKIEVPRGlyOgogCWlm
-ICh1bmljb2RlKQpAQCAtODM4LDE2ICs4NDksMjYgQEAKIAkgICAgIHN0cnVjdCBmYXRfc2xv
-dF9pbmZvICpzaW5mbykKIHsKIAlzdHJ1Y3Qgc3VwZXJfYmxvY2sgKnNiID0gZGlyLT5pX3Ni
-OworCWxvZmZfdCBzdGFydCA9IHNpbmZvLT5zbG90X29mZiA9IE1TRE9TX0koZGlyKS0+aV9k
-aXJzY2FuX2hpbnQ7CisJaW50IHJlYWNoX2JvdHRvbSA9IDA7CiAKLQlzaW5mby0+c2xvdF9v
-ZmYgPSAwOwotCXNpbmZvLT5iaCA9IE5VTEw7Ci0Jd2hpbGUgKGZhdF9nZXRfc2hvcnRfZW50
-cnkoZGlyLCAmc2luZm8tPnNsb3Rfb2ZmLCAmc2luZm8tPmJoLAotCQkJCSAgICZzaW5mby0+
-ZGUpID49IDApIHsKLQkJaWYgKCFzdHJuY21wKHNpbmZvLT5kZS0+bmFtZSwgbmFtZSwgTVNE
-T1NfTkFNRSkpIHsKLQkJCXNpbmZvLT5zbG90X29mZiAtPSBzaXplb2YoKnNpbmZvLT5kZSk7
-Ci0JCQlzaW5mby0+bnJfc2xvdHMgPSAxOwotCQkJc2luZm8tPmlfcG9zID0gZmF0X21ha2Vf
-aV9wb3Moc2IsIHNpbmZvLT5iaCwgc2luZm8tPmRlKTsKLQkJCXJldHVybiAwOworCXNpbmZv
-LT5iaD1OVUxMOworCXdoaWxlICgxKSB7CisJCWlmIChmYXRfZ2V0X3Nob3J0X2VudHJ5KGRp
-ciwgJnNpbmZvLT5zbG90X29mZiwgJnNpbmZvLT5iaCwKKwkJCQkJJnNpbmZvLT5kZSkgPj0g
-MCkgeworCQkJaWYgKCFzdHJuY21wKHNpbmZvLT5kZS0+bmFtZSwgbmFtZSwgTVNET1NfTkFN
-RSkpIHsKKwkJCQlzaW5mby0+c2xvdF9vZmYgLT0gc2l6ZW9mKCpzaW5mby0+ZGUpOworCQkJ
-CXNpbmZvLT5ucl9zbG90cyA9IDE7CisJCQkJc2luZm8tPmlfcG9zID0gZmF0X21ha2VfaV9w
-b3Moc2IsIHNpbmZvLT5iaCwgCisJCQkJCQkJICAgICAgc2luZm8tPmRlKTsKKwkJCQlNU0RP
-U19JKGRpciktPmlfZGlyc2Nhbl9oaW50ID0gc2luZm8tPnNsb3Rfb2ZmOworCQkJCXJldHVy
-biAwOworCQkJfQorCQkJaWYgKHJlYWNoX2JvdHRvbSAmJiAoc3RhcnQgPD0gc2luZm8tPnNs
-b3Rfb2ZmKSkgYnJlYWs7CisJCX0gZWxzZSB7CisJCQlpZiAoIXN0YXJ0KSBicmVhazsKKwkJ
-CXNpbmZvLT5zbG90X29mZiA9IDA7CisJCQlyZWFjaF9ib3R0b20rKzsKIAkJfQogCX0KIAly
-ZXR1cm4gLUVOT0VOVDsKCgotLS0gb3JpZy9mcy9mYXQvaW5vZGUuYworKysgbW9kL2ZzL2Zh
-dC9pbm9kZS5jCkBAIC0yMzYsNiArMjM2LDcgQEAKIAlzdHJ1Y3QgbXNkb3Nfc2JfaW5mbyAq
-c2JpID0gTVNET1NfU0IoaW5vZGUtPmlfc2IpOwogCWludCBlcnJvcjsKIAorCU1TRE9TX0ko
-aW5vZGUpLT5pX2RpcnNjYW5faGludCA9IDA7CiAJTVNET1NfSShpbm9kZSktPmlfcG9zID0g
-MDsKIAlpbm9kZS0+aV91aWQgPSBzYmktPm9wdGlvbnMuZnNfdWlkOwogCWlub2RlLT5pX2dp
-ZCA9IHNiaS0+b3B0aW9ucy5mc19naWQ7CkBAIC0xMDM0LDYgKzEwMzUsNyBAQAogCXN0cnVj
-dCBtc2Rvc19zYl9pbmZvICpzYmkgPSBNU0RPU19TQihzYik7CiAJaW50IGVycm9yOwogCisJ
-TVNET1NfSShpbm9kZSktPmlfZGlyc2Nhbl9oaW50ID0gMDsKIAlNU0RPU19JKGlub2RlKS0+
-aV9wb3MgPSAwOwogCWlub2RlLT5pX3VpZCA9IHNiaS0+b3B0aW9ucy5mc191aWQ7CiAJaW5v
-ZGUtPmlfZ2lkID0gc2JpLT5vcHRpb25zLmZzX2dpZDsKCgotLS0gb3JpZy9pbmNsdWRlL2xp
-bnV4L21zZG9zX2ZzLmgKKysrIG1vZC9pbmNsdWRlL2xpbnV4L21zZG9zX2ZzLmgKQEAgLTI1
-Nyw2ICsyNTcsNyBAQAogCXVuc2lnbmVkIGludCBjYWNoZV92YWxpZF9pZDsKIAogCWxvZmZf
-dCBtbXVfcHJpdmF0ZTsKKwlsb2ZmX3QgaV9kaXJzY2FuX2hpbnQ7CS8qIGxhc3Qgc2NhbmVk
-IGFuZCBmb3VuZCBwb3MgKi8KIAlpbnQgaV9zdGFydDsJCS8qIGZpcnN0IGNsdXN0ZXIgb3Ig
-MCAqLwogCWludCBpX2xvZ3N0YXJ0OwkJLyogbG9naWNhbCBmaXJzdCBjbHVzdGVyICovCiAJ
-aW50IGlfYXR0cnM7CQkvKiB1bnVzZWQgYXR0cmlidXRlIGJpdHMgKi8KCgoK
---------------040600040805070009060605--
+* new legacy style interfaces cannot be registered from user-space
+  (but they still can be using kernel parameter)
+* non-working coldplug support
+  (I'm working on sysfs interface for that)
+
+> > This changes default default MAX_HWIFS value from
+> > 10 (6 in case of !CONFIG_PCI) to 4 which is not desirable.
+> >
+> > IMO the best thing for now is to leave MAX_HWIFS alone.
+> 
+> IDE on ia64 is little-used, so I'm OK with leaving it alone, but
+> I do think it's wrong for an architecture with no real restriction
+> to specify MAX_HWIFS in ide.h.  Better to have the config option,
+> and make the default there larger if necessary.
+> 
+> > > I noticed that on a box with no devices on ide1, we probed
+> > > ide1 twice -- once via ide_setup_pci_device() and again via
+> > > ide_generic_init().  This isn't fatal, since the generic probe
+> > > uses the I/O ports setup by PCI IDE, but it's unnecessary
+> > > and a bit ugly.
+> > >
+> > > I stuck in a "hwif->noprobe = 1" at the point where probe_hwif()
+> > > decides the interface isn't present, which prevents the second
+> > > probe by ide_generic_init().
+> >
+> > Please separate this change out - it is a nice fix but it affects other
+> > archs/drivers and somebody needs to audit all IDE host drivers that
+> > they set hwif->noprobe = 0 correctly before probing in case of re-using
+> > hwif that was already owned/probed by other driver.
+> 
+> OK, I'll split this and look into it a bit more.
+
+Thanks.
+
+> > Please make IDE_GENERIC depend on !IA_64.
+> 
+> Huh?  The first patch I posted did exactly that, nothing more.  But
+> Alan pointed out that I should instead clean up asm-ia64/ide.h, which
+> I think leads to a nicer solution.
+
+Both changes are nice :-)
+
+Thanks,
+Bartlomiej

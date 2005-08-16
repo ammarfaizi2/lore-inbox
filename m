@@ -1,72 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbVHPPoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbVHPPoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbVHPPoD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 11:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVHPPoB
+	id S1030194AbVHPPoX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 11:44:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbVHPPoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 11:44:01 -0400
-Received: from pop.gmx.de ([213.165.64.20]:25058 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030192AbVHPPoA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 11:44:00 -0400
-X-Authenticated: #26200865
-Message-ID: <430209D2.1000307@gmx.net>
-Date: Tue, 16 Aug 2005 17:44:18 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: acpi-devel <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] PCI quirks not handled and config space differences
- on resume from S3
-References: <Pine.LNX.4.44L0.0508161131240.18233-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0508161131240.18233-100000@iolanthe.rowland.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 Aug 2005 11:44:23 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:19132 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030195AbVHPPoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 11:44:22 -0400
+Subject: Re: 2.6.13-rc6-rt5
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <1124206316.5764.14.camel@localhost.localdomain>
+References: <20050816121843.GA24308@elte.hu>
+	 <1124206316.5764.14.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 16 Aug 2005 11:44:06 -0400
+Message-Id: <1124207046.5764.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern schrieb:
-> On Tue, 16 Aug 2005, Carl-Daniel Hailfinger wrote:
-> 
-> 
->>Hi,
->>[...]
->>Besides that, a number of drivers do not restore the pci config
->>space of their associated devices properly on resume from S3.
->>
->>These drivers (and associated devices) are:
->>- uhci_hcd (USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller)
->>[...]
->>Diff between "lspci -vvvxxx" before and after resume for all
->>problematic devices on my machine is attached.
->>
->>Are there any patches I can try?
-> 
-> 
-> The uhci-hcd driver _does_ restore the config space for its devices 
-> properly.
-> 
->> [lspci dump]
-> 
-> 
-> Just because the before and after values are different doesn't mean 
-> anything is wrong.  Those particular bits are set by the hardware in 
-> response to various events.  They are used only by the BIOS, to provide 
-> USB keyboard and mouse services.  They don't affect the device's function 
-> or the Linux driver at all.
+Ouch, what was I thinking for that initializing flags to zero:
 
-Thanks for the information and sorry for bothering you.
+Sorry, lets try that again:
 
-> Alan Stern
+Signed-off-by: Steven Rostedt
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+
+Index: linux_realtime_ernie/kernel/latency.c
+===================================================================
+--- linux_realtime_ernie/kernel/latency.c	(revision 293)
++++ linux_realtime_ernie/kernel/latency.c	(working copy)
+@@ -1307,12 +1307,13 @@
+ 	T1 = cycles();
+ 	delta = T1-T0;
+ 
++	raw_local_save_flags(flags);
++
+ #ifndef CONFIG_CRITICAL_LATENCY_HIST
+ 	if (!report_latency(delta))
+ 		goto out;
+ #endif
+ 
+-	raw_local_save_flags(flags);
+ 	____trace(cpu, TRACE_FN, tr, CALLER_ADDR0, parent_eip, 0, 0, 0, flags);
+ 	/*
+ 	 * Update the timestamp, because the trace entry above
+@@ -1441,7 +1442,7 @@
+ 	_trace_cmdline(cpu, tr);
+ 
+ 	raw_local_save_flags(flags);
+-	____trace(cpu, TRACE_FN, tr, eip, parent_eip, 0, 0, 0);
++	____trace(cpu, TRACE_FN, tr, eip, parent_eip, 0, 0, 0, flags);
+ 
+ 	atomic_dec(&tr->disabled);
+ }
+@@ -1459,7 +1460,7 @@
+ 
+ 	atomic_inc(&tr->disabled);
+ 	raw_local_save_flags(flags);
+-	____trace(cpu, TRACE_FN, tr, eip, parent_eip, 0, 0, 0);
++	____trace(cpu, TRACE_FN, tr, eip, parent_eip, 0, 0, 0, flags);
+ 	check_critical_timing(cpu, tr, eip);
+ 	tr->critical_start = 0;
+ 	atomic_dec(&tr->disabled);
+
+

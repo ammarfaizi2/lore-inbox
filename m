@@ -1,43 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVHPWB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVHPWEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbVHPWB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 18:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbVHPWB3
+	id S1750744AbVHPWEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 18:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbVHPWEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 18:01:29 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:43145 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1751104AbVHPWB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 18:01:28 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Greg KH <greg@kroah.com>
-Subject: udev-067 and 2.6.12?
-Date: Tue, 16 Aug 2005 23:02:00 +0100
-User-Agent: KMail/1.8.90
-Cc: linux-kernel@vger.kernel.org
+	Tue, 16 Aug 2005 18:04:08 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:9664 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1750744AbVHPWEH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 18:04:07 -0400
+Message-ID: <430262C5.20503@adaptec.com>
+Date: Tue, 16 Aug 2005 18:03:49 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>
+CC: Jim Houston <jim.houston@ccur.com>
+Subject: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508162302.00900.s0348365@sms.ed.ac.uk>
+X-OriginalArrivalTime: 16 Aug 2005 22:01:30.0608 (UTC) FILETIME=[0ECA5F00:01C5A2AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I just tried upgrading udev 053 to 067 on a 2.6.12 system and although the 
-system booted, firmware_class failed to upload the firmware for my wireless 
-card, prism54 was no longer auto loaded, etc. Even manually loading the 
-driver didn't help.
+This patch allows idr to be used in irq context.
 
-Any reason why 067 wouldn't work with 2.6.12? Do you have to do something 
-special with hotplug prior to upgrading?
+idr_pre_get() is necessary to be called before
+idr_get_new() is called.  No locking is necessary when
+calling idr_pre_get().
 
--- 
-Cheers,
-Alistair.
+But idr_get_new(), idr_find() and idr_remove()
+must be serialized with respect to each other.
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+All of the aforementioned, may end up in alloc_layer()
+or free_layer() which grabs the idp lock using spin_lock.
+
+If idr_get_new() or idr_remove() is used in IRQ context,
+then we may get a lockup when idr_pre_get was called
+in process context and an IRQ interrupted while it held
+the idp lock.
+
+This patch changes the spin_lock to spin_lock_irqsave,
+and spin_unlock to spin_unlock_irqrestore, to allow
+idr_get_new(), idr_find() and idr_remove() to be
+called from IRQ context, while idr_pre_get() to be
+called in process context.
+
+Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
+
+--- linux-2.6.12.5/lib/idr.c.old	2005-08-16 17:20:08.000000000 -0400
++++ linux-2.6.12.5/lib/idr.c	2005-08-16 17:22:16.000000000 -0400
+@@ -37,27 +37,29 @@
+ static struct idr_layer *alloc_layer(struct idr *idp)
+ {
+ 	struct idr_layer *p;
++	unsigned long flags;
+ 
+-	spin_lock(&idp->lock);
++	spin_lock_irqsave(&idp->lock, flags);
+ 	if ((p = idp->id_free)) {
+ 		idp->id_free = p->ary[0];
+ 		idp->id_free_cnt--;
+ 		p->ary[0] = NULL;
+ 	}
+-	spin_unlock(&idp->lock);
++	spin_unlock_irqrestore(&idp->lock, flags);
+ 	return(p);
+ }
+ 
+ static void free_layer(struct idr *idp, struct idr_layer *p)
+ {
++	unsigned long flags;
+ 	/*
+ 	 * Depends on the return element being zeroed.
+ 	 */
+-	spin_lock(&idp->lock);
++	spin_lock_irqsave(&idp->lock, flags);
+ 	p->ary[0] = idp->id_free;
+ 	idp->id_free = p;
+ 	idp->id_free_cnt++;
+-	spin_unlock(&idp->lock);
++	spin_unlock_irqrestore(&idp->lock, flags);
+ }
+ 
+ /**
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

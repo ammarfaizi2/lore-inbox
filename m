@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbVHQL7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVHQMJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbVHQL7G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 07:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbVHQL7G
+	id S1751110AbVHQMJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 08:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbVHQMJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 07:59:06 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:1965 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751086AbVHQL7F convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 07:59:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=t2L2xJt9nFBTxux6F+34qHzzp68d05Sk30cbwBvkFgDqqhtAZjp+WKTfXVLmv1S/wBjtdcC7a9GUW+Jl67nFNsJlIry6nONfnw55bmMoJh3Jxn9ODOQK8XUj5GncvXAGqqVUTxHrd64uS2EOf99GCNKfxsM5WgTj9J/0lCk5EsY=
-Message-ID: <6bffcb0e05081704595bfccccf@mail.gmail.com>
-Date: Wed, 17 Aug 2005 13:59:04 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: Schedulers benchmark - Was: [ANNOUNCE][RFC] PlugSched-5.2.4 for 2.6.12 and 2.6.13-rc6
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <4302F0D8.6050409@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43001E18.8020707@bigpond.net.au>
-	 <6bffcb0e05081614498879a72@mail.gmail.com>
-	 <4302F0D8.6050409@bigpond.net.au>
+	Wed, 17 Aug 2005 08:09:40 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:57565 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751106AbVHQMJk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 08:09:40 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: help with PCI hotplug and a PCI device enabled after boot]
+Date: Wed, 17 Aug 2005 14:11:21 +0200
+User-Agent: KMail/1.8.2
+References: <1124269343.4423.35.camel@localhost> <200508171315.32704@bilbo.math.uni-mannheim.de> <1124279580.4423.50.camel@localhost>
+In-Reply-To: <1124279580.4423.50.camel@localhost>
+Cc: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart7509635.hWD2KkC328";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508171411.26865@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--nextPart7509635.hWD2KkC328
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On 8/17/05, Peter Williams <pwil3058@bigpond.net.au> wrote:
-> I was intrigued by the fact that zaphod(d,d) and zaphod(d,0) take longer
-> in real time but use less cpu.  I was assuming that this meant that some
-> other job was getting some cpu but the schedstats data doesn't support
-> that.  Also it wouldn't make sense anyway as you'd expect jobs doing the
-> same amount of work to use roughly the same amount of cpu.  My latest
-> theory is that your machine has hyper threads and this artifact is
-> caused by the mechanism in the scheduler for handling tasks with
-> differing priority in sibling hyper thread channels.  Does your system
-> have hyper threads?
+Mauro Carvalho Chehab wrote:
+>Em Qua, 2005-08-17 =E0s 13:15 +0200, Rolf Eike Beer escreveu:
 
-Yes. Please see my first mail:
-> info:
-> distro: debian 3.1
-> cpu: pentium 4 (ht enabled)
+>> Damn, I should stop editing diffs by hand.
+>
+>	I'm also have this old habbit ;-)
 
-Regards,
-Michal Piotrowski
+That doesn't make it any better :)
+
+>> Change this to
+>> pci_bus_assign_resources and it should work. Sorry.
+>
+>	It works, but produced an oops (attached).
+
+Looks like this is caused by your driver, I can't see any of my functions i=
+n=20
+the strace.
+
+Eike
+
+--nextPart7509635.hWD2KkC328
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBDAyluXKSJPmm5/E4RAo6sAJ9xkiMxXzMJ8yqT3U5xJ//To1X/pgCeLyli
+yMmYSoMuaNFc/0mqJ+rfFes=
+=VG35
+-----END PGP SIGNATURE-----
+
+--nextPart7509635.hWD2KkC328--

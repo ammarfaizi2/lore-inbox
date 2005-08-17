@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbVHQMb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVHQMdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbVHQMb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 08:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVHQMb4
+	id S1751112AbVHQMdv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 08:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVHQMdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 08:31:56 -0400
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:20424 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751105AbVHQMbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 08:31:55 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.4 for 2.6.12 and 2.6.13-rc6
-Date: Wed, 17 Aug 2005 22:31:39 +1000
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <43001E18.8020707@bigpond.net.au> <200508171800.56222.kernel@kolivas.org> <6bffcb0e05081704231ba09573@mail.gmail.com>
-In-Reply-To: <6bffcb0e05081704231ba09573@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Aug 2005 08:33:51 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:60827 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751112AbVHQMdu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 08:33:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IAEY5F7TScnRdBHAr03xaG2/fujp3kfsXz8N+D+RoDihcIP/WWYz23/NP2jEN0E2F6PtSxSPsu1Y6PTPU+Ke/LkgKkpil93oS9leFrCH8FO0FXBzbN+anRYYZT1HgTz61L1pvj+x6VbSEozxoikgFnTSx0j9ooWSz6MgQ3r9Y18=
+Message-ID: <21d7e9970508170533acfd8d@mail.gmail.com>
+Date: Wed, 17 Aug 2005 22:33:46 +1000
+From: Dave Airlie <airlied@gmail.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: 2.6.13-rc3-mm2/mm1 breaks DRI
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <21d7e997050729210379e221c3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200508172231.39403.kernel@kolivas.org>
+References: <20050727024330.78ee32c2.akpm@osdl.org>
+	 <200507282037.52292.tomlins@cam.org>
+	 <21d7e9970507281741fb51c98@mail.gmail.com>
+	 <200507290652.44418.tomlins@cam.org>
+	 <21d7e997050729210379e221c3@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Aug 2005 21:23, Michal Piotrowski wrote:
-> Hi,
->
-> On 8/17/05, Con Kolivas <kernel@kolivas.org> wrote:
-> > On Mon, 15 Aug 2005 22:29, Michal Piotrowski wrote:
-> > > Hi,
-> > > here are my benchmarks (part1):
-> >
-> > Want to try the staircase cpu scheduler in "compute" mode for the compute
-> > intensive workloads?
-> >
-> > Thanks,
-> > Con
->
-> Yes, I'll try interbench ;).
+> The most important question is if mainline 2.6.13-rc3 or -rc4 is okay?
+> 
+> If so then it is the -mm only that breaks  it, if -mm only can you
+> 
+> modprobe drm debug=1
+> modprobe radeon
+> 
 
-No that's not what I was saying at all. I know you're planning on trying 
-interbench. What I meant was you should enable "compute" mode for these 
-kernel compile based benchmarks.
-In a plugsched based kernel look in:
-/sys/cpusched/staircase/
-and set compute to 1
+Okay I've had time to think about this a bit...
 
-Cheers,
-Con
+It looks like the 32/64-bit changes might be affecting pure 64-bit..
+
+Thre output of the drm debug=1 and radeon then start X on
+2.6.13-rc5-mm1 would really help me out..
+
+Thanks.
+Dave.

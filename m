@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbVHQST3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbVHQSTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbVHQST3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 14:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVHQST3
+	id S1751194AbVHQSTO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 14:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVHQSTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 14:19:29 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:60868 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751196AbVHQST2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 14:19:28 -0400
-Subject: Re: [RFC] Cleanup line-wrapping in pgtable.h
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Adam Litke <agl@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1124300739.3139.16.camel@localhost.localdomain>
-References: <1124300739.3139.16.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 17 Aug 2005 11:19:13 -0700
-Message-Id: <1124302753.5879.11.camel@localhost>
+	Wed, 17 Aug 2005 14:19:14 -0400
+Received: from extgw-uk.mips.com ([62.254.210.129]:58896 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S1751194AbVHQSTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 14:19:14 -0400
+Date: Wed, 17 Aug 2005 19:18:35 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Joshua Wise <Joshua.Wise@sicortex.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
+       Aaron Brooks <aaron.brooks@sicortex.com>
+Subject: Re: NAPI poll routine happens in interrupt context?
+Message-ID: <20050817181835.GE2667@linux-mips.org>
+References: <200508170932.10441.Joshua.Wise@sicortex.com> <20050817094317.3437607e@dxpl.pdx.osdl.net> <200508171321.20094.Joshua.Wise@sicortex.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508171321.20094.Joshua.Wise@sicortex.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-17 at 12:45 -0500, Adam Litke wrote:
-> The line-wrapping in most of the include/asm/pgtable.h pte test/set
-> macros looks horrible in my 80 column terminal.  The following "test the
-> waters" patch is how I would like to see them laid out.  I realize that
-> the braces don't adhere to CodingStyle but the advantage is (when taking
-> wrapping into account) that the code takes up no additional space.  How
-> do people feel about making this change?  Any better suggestions?  I
-> personally wouldn't like a lone closing brace like normal functions
-> because of the extra lines eaten.  I volunteer to patch up the other
-> architectures if we reach a consensus.
+On Wed, Aug 17, 2005 at 01:21:18PM -0400, Joshua Wise wrote:
 
-I'd probably just leave it alone.  Those are things that are virtually
-never touched, and are quite unlikely to have any bugs in them.
+> > The bug is that ipv6 is doing an operation to handle MIB statistics and
+> > the MIPS architecture math routines seem to need to sleep.
 
-But, if you do decide to change them, it might also be a nice idea to
-consolidate some of the ones that are duplicated across architectures.
-They could probably even go into the existing
-include/asm-generic/pgtable.h.  Please use full, proper CodingStyle if
-you do decide to split them across several lines.
+Except nothing in the network stack is using fp - the use of FP inside the
+MIPS kernel is not supported in any way.  What happend is probably the
+fetching of the opcode of the instruction in the branch delay slot of
+the unaligned instruction emulator blew up because it uses a get_user which
+again calls might_sleep and that won't exactly work if not called from
+process context.
 
--- Dave
-
+  Ralf

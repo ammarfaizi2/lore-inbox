@@ -1,99 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVHQUzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVHQU4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbVHQUzK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 16:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVHQUzK
+	id S1751255AbVHQU4d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 16:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVHQU4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 16:55:10 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:20973 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751250AbVHQUzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 16:55:08 -0400
-Date: Wed, 17 Aug 2005 14:48:44 -0400
-From: Benjamin LaHaise <bcrl@linux.intel.com>
-To: linux-aio@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [bcrl@linux.intel.com: [AIO] aio-2.6.13-rc6-B1]
-Message-ID: <20050817184844.GA25332@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 17 Aug 2005 16:56:33 -0400
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:14485 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1751255AbVHQU4c convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 16:56:32 -0400
+X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] fix cciss DMA unmap brokenness
+Date: Wed, 17 Aug 2005 15:56:29 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF10AA4ADC2@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] fix cciss DMA unmap brokenness
+Thread-index: AcWjYCTFTwxco/7nSFuQCOdZXymhpAADcsDA
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Williamson, Alex (Linux Kernel Dev)" <alex.williamson@hp.com>,
+       "Jens Axboe" <axboe@suse.de>, <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Aug 2005 20:56:30.0633 (UTC) FILETIME=[24A32990:01C5A36E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if this comes through as a duplicate, but the mail client hung on 
-my first attempt at sending this through....
+Alex wrote:
+> 
+>    The CCISS driver seems to loose track of DMA mappings 
+> created by it's
+> fill_cmd() routine.  Neither callers of this routine are 
+> extracting the DMA address created in order to do the unmap.  
+> Instead, they simply try to unmap 0x0.  It's easy to see this 
+> problem on an x86_64 system when using the "swiotlb=force" 
+> boot option.  In this case, the driver is leaking resources 
+> of the swiotlb and not causing a sync of the bounce buffer.  Thanks
+> 
+> Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 
------ Forwarded message from Benjamin LaHaise <bcrl@linux.intel.com> -----
+Acked-by: Mike Miller <mike.miller@hp.com>
 
-Subject: [AIO] aio-2.6.13-rc6-B1
-From: Benjamin LaHaise <bcrl@linux.intel.com>
-To: linux-aio@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Date: Wed, 17 Aug 2005 14:44:07 -0400
-
-The bugfix followup to the last aio rollup is now available at:
-
-	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1-all.diff
-
-with the split up in:
-
-	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1/
-
-This fixes the bugs noticed in the -B0 variant.  Major changes in this 
-patchset are:
-
-	- added aio semaphore ops
-	- aio thread based fallbacks
-	- vectored aio file_operations
-	- aio sendmsg/recvmsg via thread fallbacks
-	- retry based aio pipe operations
-
-Comments?
-
-		-ben
-
- arch/i386/Kconfig              |    4 
- arch/i386/kernel/semaphore.c   |  185 +-----------
- arch/um/Kconfig_i386           |    4 
- arch/um/Kconfig_x86_64         |    4 
- arch/x86_64/Kconfig            |    4 
- arch/x86_64/kernel/Makefile    |    2 
- arch/x86_64/kernel/semaphore.c |  180 ------------
- arch/x86_64/lib/thunk.S        |    1 
- description                    |    9 
- drivers/usb/gadget/inode.c     |    7 
- fs/aio.c                       |  610 +++++++++++++++++++++++++++++++++++------
- fs/bad_inode.c                 |    2 
- fs/block_dev.c                 |    9 
- fs/buffer.c                    |    2 
- fs/ext2/file.c                 |    2 
- fs/ext3/file.c                 |   16 -
- fs/inode.c                     |    2 
- fs/jfs/file.c                  |    2 
- fs/ntfs/file.c                 |    2 
- fs/pipe.c                      |  194 ++++++++++---
- fs/read_write.c                |  182 ++++++++----
- fs/reiserfs/file.c             |   10 
- include/asm-i386/semaphore.h   |   42 ++
- include/asm-x86_64/semaphore.h |   44 ++
- include/linux/aio.h            |   38 ++
- include/linux/aio_abi.h        |   13 
- include/linux/fs.h             |    9 
- include/linux/net.h            |    4 
- include/linux/pagemap.h        |   29 +
- include/linux/sched.h          |   13 
- include/linux/wait.h           |   42 ++
- include/linux/writeback.h      |    2 
- kernel/exit.c                  |    2 
- kernel/fork.c                  |    7 
- kernel/sched.c                 |   14 
- kernel/wait.c                  |   40 +-
- lib/Makefile                   |    1 
- lib/semaphore-sleepers.c       |  253 +++++++++++++++++
- mm/filemap.c                   |  164 ++++++++---
- net/socket.c                   |   97 +++++-
- 40 files changed, 1593 insertions(+), 654 deletions(-)
-
------ End forwarded message -----
+> 
+> diff -r b9c8e9fdd6b2 drivers/block/cciss.c
+> --- a/drivers/block/cciss.c	Wed Aug 17 04:06:25 2005
+> +++ b/drivers/block/cciss.c	Wed Aug 17 12:53:40 2005
+> @@ -1420,8 +1420,10 @@
+>  		}
+>  	}	
+>  	/* unlock the buffers from DMA */
+> +	buff_dma_handle.val32.lower = c->SG[0].Addr.lower;
+> +	buff_dma_handle.val32.upper = c->SG[0].Addr.upper;
+>  	pci_unmap_single( h->pdev, (dma_addr_t) buff_dma_handle.val,
+> -			size, PCI_DMA_BIDIRECTIONAL);
+> +			c->SG[0].Len, PCI_DMA_BIDIRECTIONAL);
+>  	cmd_free(h, c, 0);
+>          return(return_status);
+>  
+> @@ -1860,8 +1862,10 @@
+>  		
+>  cleanup1:	
+>  	/* unlock the data buffer from DMA */
+> +	buff_dma_handle.val32.lower = c->SG[0].Addr.lower;
+> +	buff_dma_handle.val32.upper = c->SG[0].Addr.upper;
+>  	pci_unmap_single(info_p->pdev, (dma_addr_t) buff_dma_handle.val,
+> -				size, PCI_DMA_BIDIRECTIONAL);
+> +				c->SG[0].Len, PCI_DMA_BIDIRECTIONAL);
+>  	cmd_free(info_p, c, 1);
+>  	return (status);
+>  } 
+> 
+> 
+> 

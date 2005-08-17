@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVHQLRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbVHQLX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbVHQLRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 07:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbVHQLRJ
+	id S1751072AbVHQLX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 07:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbVHQLX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 07:17:09 -0400
-Received: from sipsolutions.net ([66.160.135.76]:59662 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S1751065AbVHQLRI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 07:17:08 -0400
-Subject: pmac_nvram problems
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: benh@kernel.crashing.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DnrwuaXU9nvaMrl7hxaQ"
-Date: Wed, 17 Aug 2005 13:16:55 +0200
-Message-Id: <1124277416.6336.11.camel@localhost>
+	Wed, 17 Aug 2005 07:23:56 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:47487 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751071AbVHQLX4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 07:23:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iDE9q40SRl74RUoGcqULOuZQDhpw56DkcaqX53l3DfrpWW2Ri4tLCxIgUyxAirJHedaMRLCiRvWa8qX1QCtoznh1GsSGGVTxufA3QKMZX5iT1Hr0Ymy/cAHb9mfgHntIEfySL3clDuRnfBPwsyGJxbC1XZubyJ1fzfQREVmW0xY=
+Message-ID: <6bffcb0e05081704231ba09573@mail.gmail.com>
+Date: Wed, 17 Aug 2005 13:23:50 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.4 for 2.6.12 and 2.6.13-rc6
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200508171800.56222.kernel@kolivas.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43001E18.8020707@bigpond.net.au>
+	 <6bffcb0e05081505291806f529@mail.gmail.com>
+	 <200508171800.56222.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-DnrwuaXU9nvaMrl7hxaQ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
 Hi,
 
-Please CC me on answers, I'm not subscribed. I wasn't too sure where to
-send this, so CC'ing to Benjamin Herrenschmidt as the author of the
-relevant driver.
+On 8/17/05, Con Kolivas <kernel@kolivas.org> wrote:
+> On Mon, 15 Aug 2005 22:29, Michal Piotrowski wrote:
+> > Hi,
+> > here are my benchmarks (part1):
+> 
+> Want to try the staircase cpu scheduler in "compute" mode for the compute
+> intensive workloads?
+> 
+> Thanks,
+> Con
+> 
+> 
 
-Note that this might apply to the copy in ppc64 as well, not sure.
+Yes, I'll try interbench ;).
 
-Currently, the pmac_nvram driver can be built as a module, but doesn't
-specify its license and also fails to load because it uses
-alloc_bootmem:
-| pmac_nvram: module license 'unspecified' taints kernel.
-| pmac_nvram: Unknown symbol __alloc_bootmem
-
-I'm not sure why alloc_bootmem is used at all (is the nvram larger than
-a couple of pages on any machine? And if it is, should it really be
-cached in RAM?), but I think it should be sufficient to just use kmalloc
-(well, it works for me).
-
-Secondly, this driver misses power management. Having suspended, I
-booted OSX which always resets the boot volume. But after resuming
-linux, nvsetvol(8) still reports 0 as the boot volume because the
-pmac_nvram driver caches the nvram contents. Fixing this would require
-converting the driver to the new model though, I think.
-
-johannes
-
---=-DnrwuaXU9nvaMrl7hxaQ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
-
-iQIVAwUAQwMcpaVg1VMiehFYAQLNJxAApPipdK+cvIMcy45vclfaRJyD1KKEvSDO
-sErQjg3xmH9TghsGbrhlSW4mDKrXSF+XwNFAR+5/dDvYsJObLPkhdfK+WIj10w1x
-nCL9tMNCZH0Gxat5u8ljl2/0A4kWmImMBxs7DDrjl1DloHdtuqIrQt+VvLnWIYXG
-DUyiLI+o0ny/DkKR7yUsfjdbLueu5WSbvnmJ1L7StUkVruovjmh9ZO3cv89ZtV8g
-HXvdwpVets67JQr+cEyKFmhgR6hRTHtMPgwJRbYrU9lDZXO20E8kJlL4ZTDmVg+P
-Pb1Y3dlg8sw6nvtNZ3y9MyXvmDuXU5vk06gnJeEpaqoQ1Pg9hEcl0Bv7ULB4I1OL
-/Pmj0gV21jvFu5uDGv+JS80psqNT0GkGE9LccrgxfbXNUr8k1kMvbKqaVdRx0Ccr
-6dINqnO74/oIf4eapEJ5vtKmJdMKE2V5VE2jOXLXEzHRf0RS6WAmSQgO88m6hcGJ
-Ss2b4Hc8Q8NBotlVALg7ELf+IyaVIsMcB+1lIZnsrUO95UH2Izb9u2JaZ03Fz8DM
-LQnLBvKDHa0ymTl1K1GOAV617xPBvRuA3ndzvHonJseIS8qlSYnZsrgpS78VLFyp
-mnfhvTY9srgJ5LVbEIKWQgYZLJWqXFDNTcXza2GiUflhFCGdNwU2F5geWsVNr4pF
-QDXoPeqbj9M=
-=83nK
------END PGP SIGNATURE-----
-
---=-DnrwuaXU9nvaMrl7hxaQ--
-
+Regards,
+Michal Piotrowski

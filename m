@@ -1,81 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbVHQRVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbVHQRde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbVHQRVd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 13:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbVHQRVd
+	id S1751187AbVHQRde (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 13:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVHQRde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 13:21:33 -0400
-Received: from static-151-204-232-50.bos.east.verizon.net ([151.204.232.50]:63638
-	"EHLO mail2.sicortex.com") by vger.kernel.org with ESMTP
-	id S1751179AbVHQRVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 13:21:32 -0400
-From: Joshua Wise <Joshua.Wise@sicortex.com>
-Organization: SiCortex
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: NAPI poll routine happens in interrupt context?
-Date: Wed, 17 Aug 2005 13:21:18 -0400
-User-Agent: KMail/1.8.1
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-mips@linux-mips.org, Aaron Brooks <aaron.brooks@sicortex.com>
-References: <200508170932.10441.Joshua.Wise@sicortex.com> <20050817094317.3437607e@dxpl.pdx.osdl.net>
-In-Reply-To: <20050817094317.3437607e@dxpl.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 17 Aug 2005 13:33:34 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:25055 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751185AbVHQRdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 13:33:33 -0400
+Subject: Re: 2.6.13-rc6-rt6
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050817064750.GA8395@elte.hu>
+References: <1124208507.5764.20.camel@localhost.localdomain>
+	 <20050816163202.GA5288@elte.hu> <20050816163730.GA7879@elte.hu>
+	 <20050816165247.GA10386@elte.hu> <20050816170805.GA12959@elte.hu>
+	 <1124214647.5764.40.camel@localhost.localdomain>
+	 <1124215631.5764.43.camel@localhost.localdomain>
+	 <1124218245.5764.52.camel@localhost.localdomain>
+	 <1124252419.5764.83.camel@localhost.localdomain>
+	 <1124257580.5764.105.camel@localhost.localdomain>
+	 <20050817064750.GA8395@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 17 Aug 2005 13:32:47 -0400
+Message-Id: <1124299967.5764.187.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508171321.20094.Joshua.Wise@sicortex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 August 2005 12:43, Stephen Hemminger wrote:
-> You will get more response to network issues on netdev@vger.kernel.org
-Okay. Thanks.
+On Wed, 2005-08-17 at 08:47 +0200, Ingo Molnar wrote:
 
-> NAPI poll is usually called from softirq context.  This means that
-> hardware interrupts are enabled, but it is not in a thread context that
-> can sleep.
-Okay. I wasn't aware of quite how it was "supposed" to be.
+> but stop_machine() looks quite preempt-unsafe to begin with. The 
+> local_irq_disable() would not be needed at all if prior the 
+> for_each_online_cpu() loop we'd use set_cpus_allowed. The current method 
+> of achieving 'no preemption' is simply racy even during normal 
+> CONFIG_PREEMPT.
 
-> You shouldn't be calling things that could sleep! If you are it
-> is a bug.
-I guess I'd better track down this bug, then :)
+The code does look flakey, but I think it still works, and it may need
+to have a raw_local_irq_disable.
 
-> Harald Welte is working on a generic virtual Ethernet device, perhaps
-> you could collaborate with him.
-I assume he is on this mailing list?
+The do_stop is bound to a CPU when it was created, so it doesn't need to
+have a set_cpus_allowed.
 
-> The bug is that ipv6 is doing an operation to handle MIB statistics and
-> the MIPS architecture math routines seem to need to sleep.
-> Previous versions of SNMP code may have done atomic operations, but
-> current 2.6 code uses per-cpu variables.
-> Also, there is no might sleep in the current 2.6 MIPS code either
-> so the problem is probably fixed if you use current 2.6.12 or later
-> kernel.
-Hm -- I am using 2.6.13-rc2.
-Here is a new trace, showing the same issue with IPv4:
+I guess this is what is happening:
 
-Debug: sleeping function called from invalid context at 
-arch/mips/math-emu/dsemul.c:137 
-in_atomic():1, irqs_disabled():0
-Call Trace:
- [<ffffffff801406e0>] __might_sleep+0x180/0x198 (kernel/sched.c:5223)
- [<ffffffff80101930>] mipsIRQ+0x130/0x1e0 (arch/mips/sc1000/mipsIRQ.S:95)
- [<ffffffff802860fc>] ip_rcv+0x9c/0x7b0 (net/ipv4/ip_input.c:381)
- [<ffffffff80140428>] do_dsemulret+0x68/0x1a0 
-(arch/mips/math-emu/dsemul.c:137)
- [<ffffffff8010b3a4>] do_ade+0x24/0x550 (arch/mips/kernel/unaligned.c:506)
- [<ffffffff80102964>] handle_adel_int+0x3c/0x58 (arch/mips/kernel/genex.S:281)
- [<ffffffff80268260>] netif_receive_skb+0x1b0/0x2e0 (net/core/dev.c:1646)
- [<ffffffff80286100>] ip_rcv+0xa0/0x7b0 (net/ipv4/ip_input.c:394)
- [<ffffffff8014da5c>] printk+0x2c/0x38 (kernel/printk.c:515)
- [<ffffffff80268260>] netif_receive_skb+0x1b0/0x2e0 (net/core/dev.c:1646)
- [<ffffffff802573c8>] lanlan_poll+0x3e0/0x440 (drivers/net/lanlan.c:246)
-etc, etc.
+--- 
 
-CC:'ing to linux-mips for obvious reasons. This seems to stem from an 
-unaligned access. If this is no longer appropriate for linux-kernel, feel 
-free to stop CCing to there, and I will follow.
+You start do_stop in a thread on the cpu that you want to run a function
+on. (it's bound to that cpu)
 
-Thanks,
-joshua
+do_stop creates a thread on all the other cpus that will run
+stopmachine.
+
+While it creates the threads, the ones that are already created yield in
+case a thread wakes up on its cpu, so that that thread can migrate to
+its own cpu. (all the threads are at FIFO MAX_RT_PRIO-1, so they should
+never be preempted.
+
+After all the threads are created and acknowledge themselves, the
+do_stop changes the state to PREPARE.
+
+In stopmachine, when PREPARE is seen, it turns off preemption and stops
+yielding.
+
+do_stop then changes the state to DISABLE_IRQ.
+
+In stopmachine, when DISABLE_IRQ is seen, it disables IRQs.
+
+Then the do_stop runs the function that is expected to run in the
+STOPPED STATE.
+
+---
+
+Notes:
+
+Each time the state is changed, the ack counter is zeroed and it wont
+continue until all the threads acknowledge they hit the expected point.
+
+I'm currious why it needs to go to preempt disable before going to
+irqs_disabled? It seems that once it is at the point to go, all
+processes should be locked on their CPUS and it would only need to goto
+irqs_disable.
+
+I'm also assuming that whatever function is being run expects to have
+interrupts off on all CPUs. So a raw_local_irq_disable may be in order.
+
+The comment above the stop_machine (called by do_stop) local_irq_disable
+looks incorrect. It says 
+/* Don't schedule us away at this point, please */  I don't see how it
+can be scheduled out if it is running FIFO MAX_RT_PRIO-1.  It just
+assume that it doesn't want any interrupts to go off.
+
+Do you still see a problem with stop_machine?
+
+-- Steve
+
+

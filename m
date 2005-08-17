@@ -1,101 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVHQUvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVHQUzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbVHQUvo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 16:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVHQUvo
+	id S1751250AbVHQUzK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 16:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVHQUzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 16:51:44 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:61655 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
-	id S1751243AbVHQUvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 16:51:43 -0400
-X-ORBL: [69.107.32.110]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:references:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:message-id;
-	b=RVqpuHYzsXwB7xe8kw/WEatfAEXQJLJ0J0nv3GZWwl7FMpgpci7NscSWTXqrNLQOX
-	npuozClwJSAKusVxXY8SA==
-Date: Wed, 17 Aug 2005 13:51:24 -0700
-From: David Brownell <david-b@pacbell.net>
-To: stern@rowland.harvard.edu
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc6-V0.7.53-11
-Cc: tglx@linutronix.de, some.nzguy@gmail.com, paulmck@us.ibm.com,
-       mingo@elte.hu, linux-kernel@vger.kernel.org, gregkh@suse.de,
-       a.p.zijlstra@chello.nl
-References: <Pine.LNX.4.44L0.0508170959410.4862-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0508170959410.4862-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
+	Wed, 17 Aug 2005 16:55:10 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:20973 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751250AbVHQUzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 16:55:08 -0400
+Date: Wed, 17 Aug 2005 14:48:44 -0400
+From: Benjamin LaHaise <bcrl@linux.intel.com>
+To: linux-aio@kvack.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [bcrl@linux.intel.com: [AIO] aio-2.6.13-rc6-B1]
+Message-ID: <20050817184844.GA25332@linux.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20050817205125.06ABCBF3E9@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > > Interrupts are disabled during usb_hcd_giveback_urb because that's
-> > > > > how it was done originally and nobody has made an effort to remove
-> > > > > this assumption from the USB device drivers.
-> > 
-> > Also Host Controller Drivers (HCDs).  You do sort of have to
-> > remember who's calling this routine.  It's normally an HCD in
-> > the middle of its IRQ processing, tending hardware.
-> > 
-> > I'd actually say the reason that has IRQs disabled is because
-> > of the amount of work that would have been involved in changing
-> > that assumption ...  I actually did look at what it'd take to
-> > let IRQs be enabled during USB completion callbacks a while back,
-> > and concluded it'd be a lot of work for hardly any return.
->
-> Maybe Ingo's priorities are sufficiently different that he thinks the
-> return _will_ be worthwhile.
+Sorry if this comes through as a duplicate, but the mail client hung on 
+my first attempt at sending this through....
 
-Maybe.  I think I didn't catch all the discussion either; what
-I saw was questioning the USB-specific changes related to the
-interrupt thread work.  That touches on a lot of other things
-too, more than a few of which raise interesting issues.  :)
+----- Forwarded message from Benjamin LaHaise <bcrl@linux.intel.com> -----
 
+Subject: [AIO] aio-2.6.13-rc6-B1
+From: Benjamin LaHaise <bcrl@linux.intel.com>
+To: linux-aio@kvack.org
+Cc: linux-kernel@vger.kernel.org
+Date: Wed, 17 Aug 2005 14:44:07 -0400
 
->		We've already mentioned the work involved in
-> auditing all the USB drivers.  You bring up the point that the HCDs may
-> need adjustments also.
+The bugfix followup to the last aio rollup is now available at:
 
-Yes, both HCDs and usbcore.
+	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1-all.diff
 
+with the split up in:
 
-> >   1 ALWAYS complete() with IRQs disabled
-> > 
-> >   2 NEVER complete() with them disabled
-> > 
-> >   3 SOMETIMEs complete() with them disabled.
-> > 
-> > Right now we're with #1 which is simple, consistent and guaranteed.
-> > 
-> > We couldn't switch to #2 with patches that simple.  They'd in fact
-> > be rather involved ...
->
-> I'm in favor of #2 on general principle.
+	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1/
 
-Which principle would that be, though?  :)
+This fixes the bugs noticed in the -B0 variant.  Major changes in this 
+patchset are:
 
-I think "Keep It Simple, Stupid" argues strongly against #3,
-and also -- at least for now -- against #2 as well.
+	- added aio semaphore ops
+	- aio thread based fallbacks
+	- vectored aio file_operations
+	- aio sendmsg/recvmsg via thread fallbacks
+	- retry based aio pipe operations
 
+Comments?
 
->		The issue you mention,
-> maintaining bandwidth reservations (and hardware data structures) for
-> periodic endpoint queues, is not all that difficult to handle.
+		-ben
 
-There were other places I remember logic that relied on such
-API guarantees, but I couldn't list them all now.
+ arch/i386/Kconfig              |    4 
+ arch/i386/kernel/semaphore.c   |  185 +-----------
+ arch/um/Kconfig_i386           |    4 
+ arch/um/Kconfig_x86_64         |    4 
+ arch/x86_64/Kconfig            |    4 
+ arch/x86_64/kernel/Makefile    |    2 
+ arch/x86_64/kernel/semaphore.c |  180 ------------
+ arch/x86_64/lib/thunk.S        |    1 
+ description                    |    9 
+ drivers/usb/gadget/inode.c     |    7 
+ fs/aio.c                       |  610 +++++++++++++++++++++++++++++++++++------
+ fs/bad_inode.c                 |    2 
+ fs/block_dev.c                 |    9 
+ fs/buffer.c                    |    2 
+ fs/ext2/file.c                 |    2 
+ fs/ext3/file.c                 |   16 -
+ fs/inode.c                     |    2 
+ fs/jfs/file.c                  |    2 
+ fs/ntfs/file.c                 |    2 
+ fs/pipe.c                      |  194 ++++++++++---
+ fs/read_write.c                |  182 ++++++++----
+ fs/reiserfs/file.c             |   10 
+ include/asm-i386/semaphore.h   |   42 ++
+ include/asm-x86_64/semaphore.h |   44 ++
+ include/linux/aio.h            |   38 ++
+ include/linux/aio_abi.h        |   13 
+ include/linux/fs.h             |    9 
+ include/linux/net.h            |    4 
+ include/linux/pagemap.h        |   29 +
+ include/linux/sched.h          |   13 
+ include/linux/wait.h           |   42 ++
+ include/linux/writeback.h      |    2 
+ kernel/exit.c                  |    2 
+ kernel/fork.c                  |    7 
+ kernel/sched.c                 |   14 
+ kernel/wait.c                  |   40 +-
+ lib/Makefile                   |    1 
+ lib/semaphore-sleepers.c       |  253 +++++++++++++++++
+ mm/filemap.c                   |  164 ++++++++---
+ net/socket.c                   |   97 +++++-
+ 40 files changed, 1593 insertions(+), 654 deletions(-)
 
-In any case, I'm not going to invest time to rewrite any HCDs to
-help make that happen.  I'm sure there are other people competent
-to do that though, and some of them would surely bring some new 
-insights into how the USB stack can be improved.
-
-In fact I think this sort of thing might usefully be looked at
-along with other performance related issues.  That whole stack
-seems functional enough now that it might well be time to look
-at thing that slow it down, or which it slows down.
-
-- Dave
-
+----- End forwarded message -----

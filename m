@@ -1,35 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVHQVYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbVHQVeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbVHQVYL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 17:24:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVHQVYL
+	id S1751298AbVHQVeu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 17:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVHQVeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 17:24:11 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9653
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751267AbVHQVYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 17:24:10 -0400
-Date: Wed, 17 Aug 2005 14:24:02 -0700 (PDT)
-Message-Id: <20050817.142402.43344792.davem@davemloft.net>
-To: tglx@linutronix.de
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] IPV4 long lasting timer function
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1124312341.23647.277.camel@tglx.tec.linutronix.de>
-References: <1124312341.23647.277.camel@tglx.tec.linutronix.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 17 Aug 2005 17:34:50 -0400
+Received: from gate.crashing.org ([63.228.1.57]:38348 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751298AbVHQVet (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 17:34:49 -0400
+Subject: [PATCH] ppc64: iommu vmerge fix]
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Date: Thu, 18 Aug 2005 07:32:18 +1000
+Message-Id: <1124314339.8849.32.camel@gaston>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Wed, 17 Aug 2005 22:59:01 +0200
+From: Brian King <brking@us.ibm.com>
 
-> Shouldn't this be converted to a workqueue, which gets triggered by a
-> timer instead of blocking the timer softirq and therefor the delivery of
-> other timer functions that long ?
+(Looks quite bad, should probably get in right away)
 
-We could, and I'd be happy to apply such a patch if someone
-writes it up.
+The patch below fixes a bug in the PPC64 iommu vmerge code
+which results in the potential for iommu_unmap_sg to go off
+unmapping more than it should. This was found on a test system
+which resulted in PCI bus errors due to PCI memory being
+unmapped while DMAs were still in progress.
+
+Signed-off-by: Brian King <brking@us.ibm.com>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+---
+
+ linux-2.6-bjking1/arch/ppc64/kernel/iommu.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff -puN arch/ppc64/kernel/iommu.c~ppc64_iommu_vmerge_fix arch/ppc64/kernel/iommu.c
+--- linux-2.6/arch/ppc64/kernel/iommu.c~ppc64_iommu_vmerge_fix	2005-08-17 15:34:50.000000000 -0500
++++ linux-2.6-bjking1/arch/ppc64/kernel/iommu.c	2005-08-17 15:35:19.000000000 -0500
+@@ -242,7 +242,7 @@ int iommu_map_sg(struct device *dev, str
+ 	dma_addr_t dma_next = 0, dma_addr;
+ 	unsigned long flags;
+ 	struct scatterlist *s, *outs, *segstart;
+-	int outcount;
++	int outcount, incount;
+ 	unsigned long handle;
+ 
+ 	BUG_ON(direction == DMA_NONE);
+@@ -252,6 +252,7 @@ int iommu_map_sg(struct device *dev, str
+ 
+ 	outs = s = segstart = &sglist[0];
+ 	outcount = 1;
++	incount = nelems;
+ 	handle = 0;
+ 
+ 	/* Init first segment length for backout at failure */
+@@ -338,10 +339,10 @@ int iommu_map_sg(struct device *dev, str
+ 
+ 	DBG("mapped %d elements:\n", outcount);
+ 
+-	/* For the sake of iommu_free_sg, we clear out the length in the
++	/* For the sake of iommu_unmap_sg, we clear out the length in the
+ 	 * next entry of the sglist if we didn't fill the list completely
+ 	 */
+-	if (outcount < nelems) {
++	if (outcount < incount) {
+ 		outs++;
+ 		outs->dma_address = DMA_ERROR_CODE;
+ 		outs->dma_length = 0;
+_
+

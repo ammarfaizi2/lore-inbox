@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbVHQWy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVHQXRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbVHQWy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 18:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVHQWy1
+	id S1751320AbVHQXRD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 19:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbVHQXRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 18:54:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8082 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751309AbVHQWy0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 18:54:26 -0400
-Date: Wed, 17 Aug 2005 15:56:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mmc: Multi-sector writes
-Message-Id: <20050817155641.12bb20fc.akpm@osdl.org>
-In-Reply-To: <42FF3C05.70606@drzeus.cx>
-References: <42FF3C05.70606@drzeus.cx>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 17 Aug 2005 19:17:03 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:4019 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751320AbVHQXRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 19:17:02 -0400
+Subject: Re: [rfc][patch] API for timer hooks
+From: Lee Revell <rlrevell@joe-job.com>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <430376B8.9040404@aknet.ru>
+References: <42FDF744.2070205@aknet.ru>
+	 <1124126354.8630.3.camel@cog.beaverton.ibm.com> <43024ADA.8030508@aknet.ru>
+	 <1124244580.30036.5.camel@mindpipe> <430363F2.7090009@aknet.ru>
+	 <1124296844.3591.7.camel@mindpipe>  <430376B8.9040404@aknet.ru>
+Content-Type: text/plain
+Date: Wed, 17 Aug 2005 19:16:59 -0400
+Message-Id: <1124320620.3591.14.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.3.7 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman <drzeus-list@drzeus.cx> wrote:
->
-> Adds support for writing multiple sectors at once. This allows
-> back-to-back transfers of sectors giving roughly double write throughput.
-> 
-> To be able to detect which sector is causing problems the system falls
-> back to single sector writes if a failure is detected.
-> 
-> ...
-> --- linux-wbsd/drivers/mmc/mmc_block.c	(revision 77)
-> +++ linux-wbsd/drivers/mmc/mmc_block.c	(working copy)
-> @@ -166,9 +166,25 @@
->  	struct mmc_blk_data *md = mq->data;
->  	struct mmc_card *card = md->queue.card;
->  	int ret;
-> +	
-> +#ifdef CONFIG_MMC_BULKTRANSFER
-> +	int failsafe;
-> +#endif
->  
->  	if (mmc_card_claim_host(card))
->  		goto cmd_err;
-> +	
-> +#ifdef CONFIG_MMC_BULKTRANSFER
-> +	/*
-> +	 * We first try transfering multiple blocks. If this fails
-> +	 * we fall back to single block transfers.
-> +	 *
-> +	 * This gives us good performance when all is well and the
-> +	 * possibility to determine which sector fails when all
-> +	 * is not well.
-> +	 */
-> +	failsafe = 0;
-> +#endif
-> 
+On Wed, 2005-08-17 at 21:41 +0400, Stas Sergeev wrote:
+> I guess now I realized how you (and Nish)
+> assume I could use it: is it that I
+> should set CONFIG_HZ to the value I
+> need at compile-time, and just remove
+> all the timer reprogramming from the
+> driver in a hope the dynamic-tick patch
+> will slow it down itself when necessary? 
 
-The fact that this is enabled under the experimental
-CONFIG_MMC_BULKTRANSFER seems unfortunate.  I mean, if the code works OK
-then we should just enable it unconditionally, no?
+The current implementations don't allow HZ to go higher than CONFIG_HZ
+but that's the next logical step.
 
-I'm thinking that it would be better to not have the config option there
-and then re-add it late in the 2.6.14 cycle if someone reports problems
-which cannot be fixed.  Or at least make it default to 'y' so we get more
-testing coverage, then remove the config option later.  Or something.
+Lee
 
-Thoughts?

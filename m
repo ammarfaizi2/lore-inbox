@@ -1,50 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVHQRrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbVHQRvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbVHQRrU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 13:47:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVHQRrU
+	id S1751185AbVHQRvN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 13:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVHQRvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 13:47:20 -0400
-Received: from [64.162.99.240] ([64.162.99.240]:13735 "EHLO
-	spamtest2.viacore.net") by vger.kernel.org with ESMTP
-	id S1751162AbVHQRrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 13:47:20 -0400
-Date: Wed, 17 Aug 2005 10:42:04 -0700 (PDT)
-From: joebob@spamtest.viacore.net
-X-X-Sender: joebob@spamtest2.viacore.net
-To: Jon Jahren <shaoran.85@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Atheros and rt2x00 driver
-In-Reply-To: <1124298943.22673.11.camel@gentoo.lan>
-Message-ID: <Pine.LNX.4.63.0508171041430.14004@spamtest2.viacore.net>
-References: <1124298943.22673.11.camel@gentoo.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Aug 2005 13:51:13 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:22421 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751185AbVHQRvM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 13:51:12 -0400
+Subject: [RFC] Cleanup line-wrapping in pgtable.h
+From: Adam Litke <agl@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: "ADAM G. LITKE [imap]" <agl@us.ibm.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 17 Aug 2005 12:45:39 -0500
+Message-Id: <1124300739.3139.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Aug 2005, Jon Jahren wrote:
-> Hello, I'm new to the mailling list, and couldn't find any traces of
-> discussing this anywhere. I was wondering why neither the atheros driver
-> http://madwifi.sourceforge.net, or the rt2x00 driver
-> http://rt2x00.serialmonkey.com/wiki/index.php/Main_Page is included in
-> the kernel?
+The line-wrapping in most of the include/asm/pgtable.h pte test/set
+macros looks horrible in my 80 column terminal.  The following "test the
+waters" patch is how I would like to see them laid out.  I realize that
+the braces don't adhere to CodingStyle but the advantage is (when taking
+wrapping into account) that the code takes up no additional space.  How
+do people feel about making this change?  Any better suggestions?  I
+personally wouldn't like a lone closing brace like normal functions
+because of the extra lines eaten.  I volunteer to patch up the other
+architectures if we reach a consensus.
 
-That's because a) these drivers are not "proven stable" -- ie they have
-not released a well-tested, known-good, working version of the software
-and b) they haven't asked for their software to be included in the kernel
-(at least in the case of madwifi, anyways). c) madwifi also will probably
-never be integrated into the mainstream kernel because it contains
-binary-only proprietary software licensed by atheros communications (under
-NDA by the developer). Since the kernel is released GPL, the source must
-be made available for all parts of the kernel if desired. Code released
-closed source cannot be included else we violate the terms of the GPL.
-I'm not sure about rt2x00, but it may have a similar deficiency.
+Signed-off-by: Adam Litke <agl@us.ibm.com>
 
-By the way, the best place to ask about why XX isn't included in the
-kernel is with the developers of XX unless they tell you to ask here :)
+ pgtable.h |   51 ++++++++++++++++++++++++++++++++++-----------------
+ 1 files changed, 34 insertions(+), 17 deletions(-)
+diff -upN reference/include/asm-i386/pgtable.h current/include/asm-i386/pgtable.h
+--- reference/include/asm-i386/pgtable.h
++++ current/include/asm-i386/pgtable.h
+@@ -215,28 +215,45 @@ extern unsigned long pg0[];
+  * The following only work if pte_present() is true.
+  * Undefined behaviour if not..
+  */
+-static inline int pte_user(pte_t pte)		{ return (pte).pte_low & _PAGE_USER; }
+-static inline int pte_read(pte_t pte)		{ return (pte).pte_low & _PAGE_USER; }
+-static inline int pte_dirty(pte_t pte)		{ return (pte).pte_low & _PAGE_DIRTY; }
+-static inline int pte_young(pte_t pte)		{ return (pte).pte_low & _PAGE_ACCESSED; }
+-static inline int pte_write(pte_t pte)		{ return (pte).pte_low & _PAGE_RW; }
++static inline int pte_user(pte_t pte)
++	{ return (pte).pte_low & _PAGE_USER; }
++static inline int pte_read(pte_t pte)
++	{ return (pte).pte_low & _PAGE_USER; }
++static inline int pte_dirty(pte_t pte)
++	{ return (pte).pte_low & _PAGE_DIRTY; }
++static inline int pte_young(pte_t pte)
++	{ return (pte).pte_low & _PAGE_ACCESSED; }
++static inline int pte_write(pte_t pte)
++	{ return (pte).pte_low & _PAGE_RW; }
+ 
+ /*
+  * The following only works if pte_present() is not true.
+  */
+-static inline int pte_file(pte_t pte)		{ return (pte).pte_low & _PAGE_FILE; }
++static inline int pte_file(pte_t pte)
++	{ return (pte).pte_low & _PAGE_FILE; }
+ 
+-static inline pte_t pte_rdprotect(pte_t pte)	{ (pte).pte_low &= ~_PAGE_USER; return pte; }
+-static inline pte_t pte_exprotect(pte_t pte)	{ (pte).pte_low &= ~_PAGE_USER; return pte; }
+-static inline pte_t pte_mkclean(pte_t pte)	{ (pte).pte_low &= ~_PAGE_DIRTY; return pte; }
+-static inline pte_t pte_mkold(pte_t pte)	{ (pte).pte_low &= ~_PAGE_ACCESSED; return pte; }
+-static inline pte_t pte_wrprotect(pte_t pte)	{ (pte).pte_low &= ~_PAGE_RW; return pte; }
+-static inline pte_t pte_mkread(pte_t pte)	{ (pte).pte_low |= _PAGE_USER; return pte; }
+-static inline pte_t pte_mkexec(pte_t pte)	{ (pte).pte_low |= _PAGE_USER; return pte; }
+-static inline pte_t pte_mkdirty(pte_t pte)	{ (pte).pte_low |= _PAGE_DIRTY; return pte; }
+-static inline pte_t pte_mkyoung(pte_t pte)	{ (pte).pte_low |= _PAGE_ACCESSED; return pte; }
+-static inline pte_t pte_mkwrite(pte_t pte)	{ (pte).pte_low |= _PAGE_RW; return pte; }
+-static inline pte_t pte_mkhuge(pte_t pte)	{ (pte).pte_low |= _PAGE_PRESENT | _PAGE_PSE; return pte; }
++static inline pte_t pte_rdprotect(pte_t pte)
++	{ (pte).pte_low &= ~_PAGE_USER; return pte; }
++static inline pte_t pte_exprotect(pte_t pte)
++	{ (pte).pte_low &= ~_PAGE_USER; return pte; }
++static inline pte_t pte_mkclean(pte_t pte)
++	{ (pte).pte_low &= ~_PAGE_DIRTY; return pte; }
++static inline pte_t pte_mkold(pte_t pte)
++	{ (pte).pte_low &= ~_PAGE_ACCESSED; return pte; }
++static inline pte_t pte_wrprotect(pte_t pte)
++	{ (pte).pte_low &= ~_PAGE_RW; return pte; }
++static inline pte_t pte_mkread(pte_t pte)
++	{ (pte).pte_low |= _PAGE_USER; return pte; }
++static inline pte_t pte_mkexec(pte_t pte)
++	{ (pte).pte_low |= _PAGE_USER; return pte; }
++static inline pte_t pte_mkdirty(pte_t pte)
++	{ (pte).pte_low |= _PAGE_DIRTY; return pte; }
++static inline pte_t pte_mkyoung(pte_t pte)
++	{ (pte).pte_low |= _PAGE_ACCESSED; return pte; }
++static inline pte_t pte_mkwrite(pte_t pte)
++	{ (pte).pte_low |= _PAGE_RW; return pte; }
++static inline pte_t pte_mkhuge(pte_t pte)
++	{ (pte).pte_low |= _PAGE_PRESENT | _PAGE_PSE; return pte; }
+ 
+ #ifdef CONFIG_X86_PAE
+ # include <asm/pgtable-3level.h>
 
-Hope this clears some stuff up for you. ciao.
-
--kelsey
 

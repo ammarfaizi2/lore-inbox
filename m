@@ -1,67 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbVHQOXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVHQOYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbVHQOXt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 10:23:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVHQOXt
+	id S1751140AbVHQOYK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 10:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbVHQOYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 10:23:49 -0400
-Received: from dns.suna-asobi.com ([210.151.31.146]:20616 "EHLO
-	dns.suna-asobi.com") by vger.kernel.org with ESMTP id S1751139AbVHQOXt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 10:23:49 -0400
-Date: Wed, 17 Aug 2005 23:30:13 +0900
-From: Akira Tsukamoto <akira-t@suna-asobi.com>
-To: arjan@infradead.org, linux-kernel@vger.kernel.org,
-       Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
-In-Reply-To: <98df96d305081622107ca969f@mail.gmail.com>
-References: <20050817.110503.97359275.taka@valinux.co.jp> <98df96d305081622107ca969f@mail.gmail.com>
-Message-Id: <20050817233001.6E7C.AKIRA-T@suna-asobi.com>
+	Wed, 17 Aug 2005 10:24:10 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:19898 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751140AbVHQOYJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 10:24:09 -0400
+Message-ID: <43034B17.3DEE0884@tv-sign.ru>
+Date: Wed, 17 Aug 2005 18:35:03 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: paulmck@us.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, Dipankar Sarma <dipankar@in.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
+References: <42FB41B5.98314BA5@tv-sign.ru> <20050812015607.GR1300@us.ibm.com> <42FC6305.E7A00C0A@tv-sign.ru> <20050815174403.GE1562@us.ibm.com> <4301D455.AC721EB7@tv-sign.ru> <20050816170714.GA1319@us.ibm.com> <20050817014857.GA3192@us.ibm.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.04 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Aug 2005 14:10:34 +0900
-Hiro Yoshioka <lkml.hyoshiok@gmail.com> mentioned:
-> On 8/17/05, Akira Tsukamoto <akira-t@s9.dion.ne.jp> wrote:
-> > Anyway, going back to copy_user topic,
-> > big remaining issues are
-> >   1)store/restore floating point register (80/64bytes) twice every time by
-> >      surrounding with kernel_fpu_begin()/kernel_fpu_end() is big penalty
-> 
-> I don't know. If nobody uses MMX/XMM, then there is no need
-> to save and restore.
+Paul E. McKenney wrote:
+>
+> > The other thing that jumped out at me is that signals are very different
+> > animals from a locking viewpoint depending on whether they are:
+> >
+> > 1.	ignored,
+> >
+> > 2.	caught by a single thread,
+> >
+> > 3.	fatal to multiple threads/processes (though I don't know
+> > 	of anything that shares sighand_struct between separate
+> > 	processes), or
+> >
+> > 4.	otherwise global to multiple threads/processes (such as
+> > 	SIGSTOP and SIGCONT).
+> >
+> > And there are probably other distinctions that I have not yet caught
+> > on to.
+> >
+> > One way to approach this would be to make your suggested lock_task_sighand()
+> > look at the signal and acquire the appropriate locks.  If, having acquired
+> > a given set of locks, it found that the needed set had changed (e.g., due
+> > to racing exec() or sigaction()), then it drops the locks and retries.
+>
+> OK, for this sort of approach to work, lock_task_sighand() must take and
+> return some sort of mask indicating what locks are held.  The mask returned
+> by lock_task_sighand() would then be passed to an unlock_task_sighand().
 
-I think you are misunderstanding between
- 1)lazy fpu save handling for user space task
- 2)kernel_fpu_begin()/kernel_fpu_end() inside the kernel
+Sorry, I don't understand you. CLONE_THREAD implies CLONE_SIGHAND,
+so we always need to lock one ->sighand. Could you please clarify?
 
-> >   2)after pagefault not always come back to copy function and corrupts fp register
-> 
-> I'm trying to understand this mechanism but I don't
-> understand very well.
+> > > +	if (!ret && sig && (sp = p->sighand)) {
+> > >  		if (!get_task_struct_rcu(p)) {
+> > >  			return -ESRCH;
+> > >  		}
+> > > -		spin_lock_irqsave(&p->sighand->siglock, flags);
+> > > +		spin_lock_irqsave(&sp->siglock, flags);
+> > > +		if (p->sighand != sp) {
+> > > +			spin_unlock_irqrestore(&sp->siglock, flags);
+> > > +			put_task_struct(p);
+> > > +			goto retry;
+> > > +		}
+> > >  		ret = __group_send_sig_info(sig, info, p);
+> > > -		spin_unlock_irqrestore(&p->sighand->siglock, flags);
+> > > +		spin_unlock_irqrestore(&sp->siglock, flags);
+> > >  		put_task_struct(p);
+> >
+> > Do we really need get_task_struct_rcu/put_task_struct here?
+> >
+> > The task_struct can't go away under us, it is rcu protected.
+> > When ->sighand is locked, and it is still the same after
+> > the re-check, it means that 'p' has not done __exit_signal()
+> > yet, so it is safe to send the signal.
+> >
+> > And if the task has ->usage == 0, it means that it also has
+> > ->sighand == NULL, and your code will notice that.
+> >
+> > No?
+>
+> Seems plausible.  I got paranoid after seeing the lock dropped in
+> handle_stop_signal(), though.
 
-My explanation was a bit ambiguous, see the code below. 
-Where the fp register saved? It saves fp register *inside* task_struct,
+Yes, this is bad and should be fixed, I agree.
 
-static inline void kernel_fpu_begin(void)
-+	if (tsk->flags & PF_USEDFPU) {
-+		asm volatile("rex64 ; fxsave %0 ; fnclex"
-+			       : "=m" (tsk->thread.i387.fxsave));
+But why do you think we need to bump task->usage? It can't make any
+difference, afaics. The task_struct can't dissapear, the caller was
+converted to use rcu_read_lock() or it holds tasklist_lock.
 
-static inline void save_init_fpu( struct task_struct *tsk )
-+	if ( cpu_has_fxsr ) {
-+		asm volatile( "fxrstor %0"
-+			      : : "m" (tsk->thread.i387.fxsave) );
+Nonzero task_struct->usage can't stop do_exit or sys_wait4, it will
+only postpone call_rcu(__put_task_struct_cb).
 
-What happens, during your copy function, if memory is not allocated and 
-generates pagefualt and goto reclaim memories and go into task switch
-and change to other task.
+And after we locked ->sighand we have sufficient memory barrier, so
+if we read the stale value into 'sp' we will notice that (if you were
+worried about this issue).
 
--- 
-Akira Tsukamoto
+Am I missed something?
 
+>  void exit_sighand(struct task_struct *tsk)
+>  {
+>  	write_lock_irq(&tasklist_lock);
+> -	__exit_sighand(tsk);
+> +	spin_lock(&tsk->sighand->siglock);
+> +	if (tsk->sighand != NULL) {
+> +		__exit_sighand(tsk);
+> +	}
+> +	spin_unlock(&tsk->sighand->siglock);
+>  	write_unlock_irq(&tasklist_lock);
+>  }
 
+Very strange code. Why this check? And what happens with
+
+	spin_unlock(&tsk->sighand->siglock);
+
+when tsk->sighand == NULL ?
+
+Oleg.

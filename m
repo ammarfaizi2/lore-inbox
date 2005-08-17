@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVHQLus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbVHQLpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbVHQLus (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 07:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVHQLus
+	id S1751100AbVHQLpu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 07:45:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVHQLpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 07:50:48 -0400
-Received: from mx2.suse.de ([195.135.220.15]:41153 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751101AbVHQLus (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 07:50:48 -0400
-Date: Wed, 17 Aug 2005 13:50:41 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Undefined behaviour with get_cpu_vendor
-Message-ID: <20050817115041.GK3996@wotan.suse.de>
-References: <20050817095423.625.qmail@thales.mathematik.uni-ulm.de>
+	Wed, 17 Aug 2005 07:45:50 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:53455 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751100AbVHQLpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 07:45:49 -0400
+Date: Wed, 17 Aug 2005 13:45:57 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Flash erase groups and filesystems
+Message-ID: <20050817114557.GD675@wohnheim.fh-wedel.de>
+References: <4300F963.5040905@drzeus.cx> <20050816162735.GB21462@wohnheim.fh-wedel.de> <43021DB8.70909@drzeus.cx> <20050816181336.GA2014@wohnheim.fh-wedel.de> <20050816185230.GA2931@wohnheim.fh-wedel.de> <430320EF.3070907@drzeus.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050817095423.625.qmail@thales.mathematik.uni-ulm.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <430320EF.3070907@drzeus.cx>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 17, 2005 at 11:54:23AM +0200, Christian Ehrhardt wrote:
+On Wed, 17 August 2005 13:35:11 +0200, Pierre Ossman wrote:
 > 
-> Hi,
+> Whilst we're on the subject, do the filesystems assume that the device
+> can tell them exactly where the write failed? I.e. if the driver knows
+> that 5 sectors were written correctly, but that it failed somewhere
+> beyond that. It might have failed at sector 6, but it might also have
+> failed at sector 10. The assumption that sectors contain either old or
+> new data is still true, we're just unsure which. This can be the case
+> when you feed a controller a lot of data and it can only report back
+> success or failure.
+
+Not really.  In the most common case, things have failed because the
+system died unexpectedly, either through power loss or kernel bugs or
+the like.  After such a clean unmount, a journal replay or fsck,
+depending on the fs type, will fix things for you.  That works without
+any knowledge, where the last write failed.
+
+If the error is really an IO error, the behaviour is heavily dependent
+on the fs you used.  Ext[23] will usually remount the fs read-only, so
+you can hopefully retrieve all your data from the failing "hard
+drive".  In that case, again, it doesn't matter much where things
+broke.
+
+> >So the only remaining option is to add a new interface that lets
+> >filesystems decide to support pre-erase in some form.  And one such
+> >interface would be the "forget" operation.  Nice attribute of forget
+> >is the fact that it would also help some FTL layers in the kernel.
+> >There is nothing MMC-specific about it.
 > 
-> Your Patch at (URL wrapped)
-> 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git; \
-> 		a=commit;h=99c6e60afff8a7bc6121aeb847dab27c556cf0c9
-> 
-> introduced an additional Parameter (int early) to get_cpu_vendor.
-> However, the same function is called in arch/i386/kernel/apic.c (via
-> an explicit extern declaration that doesn't have the new early parameter.
+> A bit too much work for me right now. But I'll be there with my erase
+> patch when someone implements it. :)
 
-Sigh. All people adding externs like this should be ...
+Good to know.
 
-But it won't change anything - the only difference with
-the flag being 0 is to read less fields, but since the function
-has been called earlier and the data has not changed
-the output is always the same.
+Jörn
 
-Anyways, the correct change is to just remove this call because it's
-not needed anymore because of the early CPU detection.
-
-> I don't know if this can cause actual problems but I think something like
-> the patch below is needed for correctness.
-
-It's not needed for correctness. 
-
--Andi
-
-Remove obsolete get_cpu_vendor call.
-
-Since early CPU identify is in this information is already available
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-
-Index: linux-2.6.13-rc6-misc/arch/i386/kernel/apic.c
-===================================================================
---- linux-2.6.13-rc6-misc.orig/arch/i386/kernel/apic.c
-+++ linux-2.6.13-rc6-misc/arch/i386/kernel/apic.c
-@@ -726,15 +726,11 @@ __setup("apic=", apic_set_verbosity);
- static int __init detect_init_APIC (void)
- {
- 	u32 h, l, features;
--	extern void get_cpu_vendor(struct cpuinfo_x86*);
- 
- 	/* Disabled by kernel option? */
- 	if (enable_local_apic < 0)
- 		return -1;
- 
--	/* Workaround for us being called before identify_cpu(). */
--	get_cpu_vendor(&boot_cpu_data);
--
- 	switch (boot_cpu_data.x86_vendor) {
- 	case X86_VENDOR_AMD:
- 		if ((boot_cpu_data.x86 == 6 && boot_cpu_data.x86_model > 1) ||
+-- 
+There is no worse hell than that provided by the regrets
+for wasted opportunities.
+-- Andre-Louis Moreau in Scarabouche

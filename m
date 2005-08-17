@@ -1,106 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVHQQmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVHQRII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbVHQQmt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 12:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVHQQmt
+	id S1751166AbVHQRII (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 13:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVHQRIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 12:42:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26522 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751160AbVHQQms (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 12:42:48 -0400
-Date: Wed, 17 Aug 2005 09:43:17 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Joshua Wise <Joshua.Wise@sicortex.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NAPI poll routine happens in interrupt context?
-Message-ID: <20050817094317.3437607e@dxpl.pdx.osdl.net>
-In-Reply-To: <200508170932.10441.Joshua.Wise@sicortex.com>
-References: <200508170932.10441.Joshua.Wise@sicortex.com>
-X-Mailer: Sylpheed-Claws 1.9.11 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Aug 2005 13:08:07 -0400
+Received: from [202.125.80.34] ([202.125.80.34]:38471 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S1751166AbVHQRIH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 13:08:07 -0400
+Content-class: urn:content-classes:message
+Subject: RE: The Linux FAT issue on SD Cards.. maintainer support please
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 17 Aug 2005 22:32:03 +0530
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B380C@mail.esn.co.in>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: The Linux FAT issue on SD Cards.. maintainer support please
+Thread-Index: AcWifLkpRaFGMCjpS++kxdn0FLXxzwAy4GQQ
+From: "Mukund JB`." <mukundjb@esntechnologies.co.in>
+To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
+Cc: <hirofumi@mail.parknet.co.jp>,
+       "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Aug 2005 09:32:10 -0400
-Joshua Wise <Joshua.Wise@sicortex.com> wrote:
 
-> Hello LKML,
+Dear Lennart,
 
-You will get more response to network issues on netdev@vger.kernel.org
- 
-> I have recently been working on a network driver for an emulated ultra-simple 
-> network card, and I've run into a few snags with the NAPI. My current issue 
-> is that it seems to me that my poll routine is being called from an atomic 
-> context, so when poll calls rx, and rx calls netif_receive_skb, I end up with 
-> lots of __might_sleep warnings in the various network layers.
+A have a new fining here.
 
-NAPI poll is usually called from softirq context.  This means that
-hardware interrupts are enabled, but it is not in a thread context that
-can sleep.
+fdisk -l -u /dev/tfa0:
+debdev1:~# fdisk -l -u /dev/tfa0
 
-> This is not so good. I need every cycle I can get, as this emulator is 
-> incredibly slow, so burning cycles by printing out the reported badness is 
-> not really acceptible. Conceivably the badness itself is also an issue.
+Disk /dev/tfa0: 14 MB, 14680064 bytes
+2 heads, 32 sectors/track, 448 cylinders, total 28672 sectors Units =
+sectors of 1 * 512 = 512 bytes
 
-You shouldn't be calling things that could sleep! If you are it
-is a bug.
+   Device Boot      Start         End      Blocks   Id  System
+/dev/ tfa0p1		57       28799       14371+   1  FAT12
 
-> Before posting here, I did search Google for "lkml napi poll interrupt", 
-> although I did not find anything relevant to my issue.
-> 
-> If interested, the code is available at http://joshuawise.com/lanlan.c . Some 
-> notes:
-> 
-> The virtual lan-lan is a very very simple device. It consists of an ioreg that 
-> maintains state of the device, as described by the ioreg bit defines. It also 
-> has an ioctlreg that can pass through ioctls to the Linux kernel tap device 
-> that it's sitting on top of. (This goes with the ifreq seen in the struct.) 
-> One must always write and read in word-aligned chunks to and from it, for 
-> simplicity's sake.
+On a keen look on the above fdisk output on my 16MB SD card, you can
+find the cylinder information as 448 where as my driver ioctl returns
+450.
 
-Harald Welte is working on a generic virtual Ethernet device, perhaps
-you could collaborate with him.
+I have found from the partition table that Total n/o sector for the
+primary partition is 28743 (total sectors).
+But my ioctl returns total cylinders as 450 i.e. 28800 sectors.
+As 28743 is NOT any multiple of 64(2*32)i.e sectors*heads, the fdisk
+tried manipulates it to get multiples of 64.
+So, finally the best multiple 448 cylinders (i.e. 28672 sector)
+So, finally that NOT a BUG in the driver instead is a generalization
+made by fdisk command.
 
-> Feel free to suggest any modifications that this device might need to make it 
-> more fully functional. Hopefully we can bring this driver to such a state 
-> where it will be usable as a replacement skeleton driver for the NAPI.
+Please find the inline comments.
 
-> Here is a trace:
-> Debug: sleeping function called from invalid context at 
-> arch/mips/math-emu/dsemul.c:137
-> in_atomic():1, irqs_disabled():0
-> Call Trace:
->  [<ffffffff801406e0>] __might_sleep+0x180/0x198
->  [<ffffffff802cec00>] ipv6_rcv+0xc0/0x440
->  [<ffffffff80140428>] do_dsemulret+0x68/0x1a0
->  [<ffffffff8010b3a4>] do_ade+0x24/0x550
->  [<ffffffff80102964>] handle_adel_int+0x3c/0x58
->  [<ffffffff80268160>] netif_receive_skb+0x1b0/0x2e0
->  [<ffffffff802cec04>] ipv6_rcv+0xc4/0x440
->  [<ffffffff80268160>] netif_receive_skb+0x1b0/0x2e0
->  [<ffffffff802572c8>] lanlan_poll+0x3e0/0x440
->  [<ffffffff8026868c>] net_rx_action+0x16c/0x370
->  [<ffffffff802686a8>] net_rx_action+0x188/0x370
->  [<ffffffff80154f28>] __do_softirq+0x118/0x250
->  [<ffffffff80154f28>] __do_softirq+0x118/0x250
->  [<ffffffff80155110>] do_softirq+0xb0/0xe0
->  [<ffffffff80101930>] mipsIRQ+0x130/0x1e0
->  [<ffffffff80101c90>] r4k_wait+0x0/0x10
->  [<ffffffff80103e6c>] cpu_idle+0x4c/0x68
->  [<ffffffff80103e64>] cpu_idle+0x44/0x68
->  [<ffffffff8037fcfc>] start_kernel+0x454/0x4e8
->  [<ffffffff8037fcf4>] start_kernel+0x44c/0x4e8
+>Well you can either support partitions fully by making your driver work
+>like the ide and scsi and such drivers do things, or you can just make
+>it simpler and only support devices without a partition table and those
+>with a single partition entry in the partition table.  That would
+>support probably 99.99% of cards you would encounter.  You just have to
+>check if a partition table exists, if it doesn't, just present the
+whole
+>device as the disk, while if a partition table exists, scan it for a
+>partition that is not a blank entry, then find the start of that
+>partition and present the device to the user starting at that sector.
 
-The bug is that ipv6 is doing an operation to handle MIB statistics and
-the MIPS architecture math routines seem to need to sleep. 
-Previous versions of SNMP code may have done atomic operations, but
-current 2.6 code uses per-cpu variables. 
-Also, there is no might sleep in the current 2.6 MIPS code either
-so the problem is probably fixed if you use current 2.6.12 or later 
-kernel.
+This is a policy & NO policy is the driver should be implemented.
+I think we need NOT handle all this in the driver. The upper layer of
+the mount application looks into verifying this.
 
-Thanks
-Steve
+>> The partition layout mentioned in the partition table is same for the
+>> Windows formatted SD & CAM formatted SD. I assume partition layout
+>> starts at 0x1BE.
+>
+>If there is a partition table then it starts there.
+
+There is a partition table in the CAM formatted device & it looks like
+there is also a partition table in the win formatted device.
+The details of there at offset 0x1BE are below.
+
+CAM formatted SD Details
+------------- 0x1BE offset detailed messages (decimal no
+)------------------ Reading data from sector '0' at offset
+0x1BE(Partition table start addr)
+
+bootable 		= 0x80	(0x1BE)
+beg-chs.heads 	= 0x1
+beg-chs.sect 	= 0x1A
+beg-chs.cylin 	= 0x0
+sys-type 		= 0x1
+end-chs.heads 	= 0x1
+end-chs.sect 	= 0x60
+end-chs.cylin 	= 0xC1
+start sect  	= 0x39
+n/o sec in part 	= 0x7047
+
+
+Win formatted SD Details
+------------- 0x1BE offset detailed messages (decimal no
+)------------------ Reading data from sector '0' at offset
+0x1BE(Partition table start addr)
+
+bootable 		= 0x6F	(0x1BE)
+beg-chs.heads 	= 0x74
+beg-chs.sect 	= 0x68
+beg-chs.cylin 	= 0x65
+sys-type 		= 0x72
+end-chs.heads 	= 0x20
+end-chs.sect 	= 0x6D
+end-chs.cylin 	= 0x65
+start sect  	= 0x2E61964
+n/o sec in part 	= 0x440A0DFF
+
+
+>> >> Sfdisk -l /dev/tfa0 ( CAM & win)
+>> >> Disk /dev/tfa0: 448 cylinders, 2 heads, 32 sectors/track
+>> >> Units = cylinders of 32768 bytes, blocks of 1024 bytes, counting
+from
+>> 0
+>> >>
+>> >>    Device Boot Start     End   #cyls    #blocks   Id  System
+>> >> /dev/tfa0p1   *      0+    449     450-     14371+   1  FAT12
+>> >> /dev/tfa0p2          0       -       0          0    0  Empty
+>> >> /dev/tfa0p3          0       -       0          0    0  Empty
+>> >> /dev/tfa0p4          0       -       0          0    0  Empty
+>> >> Warning: partition 1 extends past end of disk
+>> >>
+>> Can you quote your comments on the warning given by sfdisk command
+>> above?
+>
+>The warning means the driver is broken and says the wrong number of
+>cylinders for the device.
+
+NO, I think driver is NOT broken instead the partition tables speaks SO.
+sfdisk returns 448 cylinders for my 16MB SD card, where as my driver
+ioctl returns 450.
+
+I have found from the partition table that Total n/o sector for the
+primary partition is 28743 (total sectors) whereas my ioctl returns
+total cylinders as 450 i.e. 28800 sectors. 
+
+As 28743 is NOT any multiple of 64(2*32)i.e sectors*heads, the sfdisk
+manipulates it to get multiples of 64. The best multiple is 448
+cylinders (i.e. 28672 sector). This is where we are missing 128 sectors.
+
+So, finally that NOT a BUG in the driver instead is a generalization
+made by sfdisk command.
+
+>Perhaps one of the more modern ways of getting disk size would return
+>the full number of sectors instead.  For example the ioctl BLKSSZGET
+and
+>BLKGETSIZE and BLKGETSIZE64.
+I added BLKGETSIZE ioctl. When I tried to note the ioctl called at mount
+time I find it is all the time HDIO_GETGEO.
+
+At this angle it clear that sfdisk output is Not the result of BUG in
+the driver instead it is a result of partition table TOTAL SECTORS
+entry. 
+
+I have a doubt where Linux is treating this a separate class of device.
+I heard some thing about the FS found on the Floppies. 
+I guess FS on win & linux SD is such kind of FS & so I am able to mount
+it.
+
+How do I verify this? I am clean about the FS on Floppies. I will try to
+find it tomorrow on the NET.
+
+As CAM SD has altogether HD like info. And that is why we are NOT able
+to mount it.
+
+Can you comment on this?
+
+Regards,
+Mukund Jampala
+

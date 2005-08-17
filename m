@@ -1,207 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVHQTb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbVHQTef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbVHQTb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 15:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbVHQTb7
+	id S1751222AbVHQTef (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 15:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbVHQTef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 15:31:59 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:13702 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751199AbVHQTb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 15:31:58 -0400
+	Wed, 17 Aug 2005 15:34:35 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:46547 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751223AbVHQTef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 15:34:35 -0400
 Subject: Re: 2.6.13-rc6-rt6
 From: Steven Rostedt <rostedt@goodmis.org>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1124303466.5247.8.camel@localhost.localdomain>
-References: <20050816170805.GA12959@elte.hu>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <1124299967.5764.187.camel@localhost.localdomain>
+References: <1124208507.5764.20.camel@localhost.localdomain>
+	 <20050816163202.GA5288@elte.hu> <20050816163730.GA7879@elte.hu>
+	 <20050816165247.GA10386@elte.hu> <20050816170805.GA12959@elte.hu>
 	 <1124214647.5764.40.camel@localhost.localdomain>
 	 <1124215631.5764.43.camel@localhost.localdomain>
 	 <1124218245.5764.52.camel@localhost.localdomain>
 	 <1124252419.5764.83.camel@localhost.localdomain>
 	 <1124257580.5764.105.camel@localhost.localdomain>
 	 <20050817064750.GA8395@elte.hu>
-	 <1124287505.5764.141.camel@localhost.localdomain>
-	 <1124288677.5764.154.camel@localhost.localdomain>
-	 <1124295214.5764.163.camel@localhost.localdomain>
-	 <20050817162324.GA24495@elte.hu>  <43036F80.2020406@cybsft.com>
-	 <1124303466.5247.8.camel@localhost.localdomain>
+	 <1124299967.5764.187.camel@localhost.localdomain>
 Content-Type: text/plain
 Organization: Kihon Technologies
-Date: Wed, 17 Aug 2005 15:31:35 -0400
-Message-Id: <1124307095.5186.5.camel@localhost.localdomain>
+Date: Wed, 17 Aug 2005 15:34:18 -0400
+Message-Id: <1124307258.5186.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-17 at 14:31 -0400, Steven Rostedt wrote:
+On Wed, 2005-08-17 at 13:32 -0400, Steven Rostedt wrote:
+> On Wed, 2005-08-17 at 08:47 +0200, Ingo Molnar wrote:
+> 
+> > but stop_machine() looks quite preempt-unsafe to begin with. The 
+> > local_irq_disable() would not be needed at all if prior the 
+> > for_each_online_cpu() loop we'd use set_cpus_allowed. The current method 
+> > of achieving 'no preemption' is simply racy even during normal 
+> > CONFIG_PREEMPT.
+> 
+> The code does look flakey, but I think it still works, and it may need
+> to have a raw_local_irq_disable.
 
-> On my AMD SMP box, the system boots with no problems. 
-
-I shouldn't say no problems. I got this really nasty stuff on the serial
-but not on the vga.  Below is the patch.
-
-I'm currently compiling my laptop to try this out. I started converting
-to my AMD box and decided to try this first. Unfortunately, I modified
-enough to do a full compile from scratch again.
-
-
-BUG: stack overflow: only 984 bytes left! [c05c0424...(c05c0000-c05c2000)]
------------------------------>
-| new stack-footprint maximum: swapper/0, 7096 bytes (out of 8136 bytes).
-------------|
- [<c05c2000>] no_halt+0x0/0x20 (20)
- [<c01430cb>] __mcount+0x4b/0xe0 (20)
- [<c0142a77>] fill_worst_stack+0x67/0x70 (12)
- [<c0142c30>] debug_stackoverflow+0x70/0xd0 (16)
- [<c01223d0>] printk+0x20/0x30 (8)
- [<c01223ee>] vprintk+0xe/0x2b0 (4)
- [<c0113d8c>] mcount+0x14/0x18 (20)
- [<c01223ee>] vprintk+0xe/0x2b0 (20)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (8)
- [<c01223bb>] printk+0xb/0x30 (60)
- [<c0113d8c>] mcount+0x14/0x18 (20)
- [<c01223d0>] printk+0x20/0x30 (20)
- [<c0142aab>] __print_worst_stack+0x2b/0xf0 (20)
- [<c01457ac>] sub_preempt_count+0x1c/0x20 (8)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (24)
- [<c0142baf>] print_worst_stack+0x3f/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (4)
- [<c01425fb>] check_raw_flags+0xb/0x60 (4)
- [<c01430cb>] __mcount+0x4b/0xe0 (32)
- [<c02ec334>] _raw_spin_lock_irqsave+0x14/0xb0 (40)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (12)
- [<c0113d8c>] mcount+0x14/0x18 (8)
- [<c02ec334>] _raw_spin_lock_irqsave+0x14/0xb0 (20)
- [<c01425fb>] check_raw_flags+0xb/0x60 (4)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (12)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c01225dd>] vprintk+0x1fd/0x2b0 (12)
- [<c01430cb>] __mcount+0x4b/0xe0 (28)
- [<c01223bb>] printk+0xb/0x30 (40)
- [<c0113d8c>] mcount+0x14/0x18 (20)
- [<c01223bb>] printk+0xb/0x30 (20)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (20)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (32)
- [<c0142baf>] print_worst_stack+0x3f/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (4)
- [<c01425fb>] check_raw_flags+0xb/0x60 (4)
- [<c01430cb>] __mcount+0x4b/0xe0 (32)
- [<c02ec334>] _raw_spin_lock_irqsave+0x14/0xb0 (40)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (12)
- [<c0113d8c>] mcount+0x14/0x18 (8)
- [<c02ec334>] _raw_spin_lock_irqsave+0x14/0xb0 (20)
- [<c01425fb>] check_raw_flags+0xb/0x60 (4)
-[<c01425fb>] check_raw_flags+0xb/0x60 (4)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (12)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c01225dd>] vprintk+0x1fd/0x2b0 (12)
- [<c01430cb>] __mcount+0x4b/0xe0 (28)
- [<c01223bb>] printk+0xb/0x30 (40)
- [<c0113d8c>] mcount+0x14/0x18 (20)
- [<c01223bb>] printk+0xb/0x30 (20)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (20)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (32)
- [<c0142baf>] print_worst_stack+0x3f/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (4)
- [<c01425fb>] check_raw_flags+0xb/0x60 (4)
- [<c01430cb>] __mcount+0x4b/0xe0 (32)
- [<c02ec334>] _raw_spin_lock_irqsave+0x14/0xb0 (40)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (12)
- [<c0113d8c>] mcount+0x14/0x18 (8)
- [<c02ec334>] _raw_spin_lock_irqsave+0x14/0xb0 (20)
- [<c01425fb>] check_raw_flags+0xb/0x60 (4)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (12)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c01225dd>] vprintk+0x1fd/0x2b0 (12)
- [<c01430cb>] __mcount+0x4b/0xe0 (28)
- [<c01223bb>] printk+0xb/0x30 (40)
- [<c0113d8c>] mcount+0x14/0x18 (20)
- [<c01223bb>] printk+0xb/0x30 (20)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (20)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (32)
- [<c0142baf>] print_worst_stack+0x3f/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (4)
- [<c01425fb>] check_raw_flags+0xb/0x60 (4)
- [<c01430cb>] __mcount+0x4b/0xe0 (32)
- [<c02ec334>] _raw_spin_lock_irqsave+0x14/0xb0 (40)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (12)
- [<c0113d8c>] mcount+0x14/0x18 (8)
- [<c02ec334>] _raw_spin_lock_irqsave+0x14/0xb0 (20)
- [<c01425fb>] check_raw_flags+0xb/0x60 (4)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (12)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c01225dd>] vprintk+0x1fd/0x2b0 (12)
- [<c01430cb>] __mcount+0x4b/0xe0 (28)
- [<c01223bb>] printk+0xb/0x30 (40)
- [<c0113d8c>] mcount+0x14/0x18 (20)
- [<c01223bb>] printk+0xb/0x30 (20)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (20)
- [<c0142b8a>] print_worst_stack+0x1a/0x50 (32)
- [<c0142baf>] print_worst_stack+0x3f/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (4)
- [<c01425fb>] check_raw_flags+0xb/0x60 (4)
- [<c01430cb>] __mcount+0x4b/0xe0 (32)
- [<c02ec334>] _raw_spin_lock_irqsave+0x14/0xb0 (40)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (12)
-
-[...]
-
- [<c01223bb>] printk+0xb/0x30 (40)
- [<c0113d8c>] mcount+0x14/0x18 (20)
- [<c01223bb>] printk+0xb/0x30 (20)
- [<c0142ae1>] __print_worst_stack+0x61/0xf0 (20)
- [<c0122753>] release_console_sem+0x33/0xf0 (32)
- [<c0142baf>] print_worst_stack+0x3f/0x50 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (8)
- [<c0142c17>] debug_stackoverflow+0x57/0xd0 (20)
- [<c01430cb>] __mcount+0x4b/0xe0 (20)
- [<c0122184>] call_console_drivers+0x14/0x150 (40)
- [<c0113d8c>] mcount+0x14/0x18 (20)
- [<c0122184>] call_console_drivers+0x14/0x150 (20)
- [<c0122753>] release_console_sem+0x33/0xf0 (44)
- [<c0122628>] vprintk+0x248/0x2b0 (32)
- [<c01223bb>] printk+0xb/0x30 (68)
- [<c0113d8c>] mcount+0x14/0x18 (20)
- [<c01223d0>] printk+0x20/0x30 (20)
- [<c05d2d4c>] sched_init+0x12c/0x150 (20)
- [<c0113d8c>] mcount+0x14/0x18 (8)
- [<c05c2901>] start_kernel+0x51/0x220 (32)
-
-
+I added this patch to my AMD box is it runs fine.  So I'm assuming that
+we do actually want interrupts disabled here.
 
 -- Steve
 
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Index: linux_realtime_goliath/kernel/latency.c
+Index: linux_realtime_goliath/kernel/stop_machine.c
 ===================================================================
---- linux_realtime_goliath/kernel/latency.c	(revision 295)
-+++ linux_realtime_goliath/kernel/latency.c	(working copy)
-@@ -377,8 +377,11 @@
- 		print_worst_stack();
- 		tr->stack_check++;
- 	} else
--		if (worst_stack_printed != worst_stack_left)
-+		if (worst_stack_printed != worst_stack_left) {
-+			tr->stack_check--;
- 			print_worst_stack();
-+			tr->stack_check++;
-+		}
- out:
- 	atomic_dec(&tr->disabled);
+--- linux_realtime_goliath/kernel/stop_machine.c	(revision 295)
++++ linux_realtime_goliath/kernel/stop_machine.c	(working copy)
+@@ -40,7 +40,7 @@
+ 	while (stopmachine_state != STOPMACHINE_EXIT) {
+ 		if (stopmachine_state == STOPMACHINE_DISABLE_IRQ 
+ 		    && !irqs_disabled) {
+-			local_irq_disable();
++			raw_local_irq_disable();
+ 			irqs_disabled = 1;
+ 			/* Ack: irqs disabled. */
+ 			smp_mb(); /* Must read state first. */
+@@ -66,7 +66,7 @@
+ 	atomic_inc(&stopmachine_thread_ack);
+ 
+ 	if (irqs_disabled)
+-		local_irq_enable();
++		raw_local_irq_enable();
+ 	if (prepared)
+ 		preempt_enable();
+ 
+@@ -120,7 +120,7 @@
+ 	}
+ 
+ 	/* Don't schedule us away at this point, please. */
+-	local_irq_disable();
++	raw_local_irq_disable();
+ 
+ 	/* Now they are all started, make them hold the CPUs, ready. */
+ 	stopmachine_set_state(STOPMACHINE_PREPARE);
+@@ -134,7 +134,7 @@
+ static void restart_machine(void)
+ {
+ 	stopmachine_set_state(STOPMACHINE_EXIT);
+-	local_irq_enable();
++	raw_local_irq_enable();
  }
+ 
+ struct stop_machine_data
 
 

@@ -1,50 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVHQUKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbVHQUMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbVHQUKB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 16:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVHQUKB
+	id S1751226AbVHQUMK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 16:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbVHQUMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 16:10:01 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:29410 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751217AbVHQUKA (ORCPT
+	Wed, 17 Aug 2005 16:12:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15317 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751226AbVHQUMI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 16:10:00 -0400
-Message-Id: <200508172008.j7HK8gcp016433@laptop11.inf.utfsm.cl>
-To: Andi Kleen <ak@suse.de>
-cc: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Undefined behaviour with get_cpu_vendor 
-In-Reply-To: Message from Andi Kleen <ak@suse.de> 
-   of "Wed, 17 Aug 2005 13:50:41 +0200." <20050817115041.GK3996@wotan.suse.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Wed, 17 Aug 2005 16:08:42 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 17 Aug 2005 16:08:44 -0400 (CLT)
+	Wed, 17 Aug 2005 16:12:08 -0400
+Date: Wed, 17 Aug 2005 13:14:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrey Panin <pazke@donpac.ru>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 5/5] 2.6.13-rc5-mm1, driver for IBM Automatic Server
+ Restart watchdog
+Message-Id: <20050817131415.3bd1d5af.akpm@osdl.org>
+In-Reply-To: <11236699783884@donpac.ru>
+References: <11236699751680@donpac.ru>
+	<11236699783884@donpac.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
-> On Wed, Aug 17, 2005 at 11:54:23AM +0200, Christian Ehrhardt wrote:
-> > Your Patch at (URL wrapped)
-> > 
-> > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git; \
-> > 		a=commit;h=99c6e60afff8a7bc6121aeb847dab27c556cf0c9
-> > 
-> > introduced an additional Parameter (int early) to get_cpu_vendor.
-> > However, the same function is called in arch/i386/kernel/apic.c (via
-> > an explicit extern declaration that doesn't have the new early parameter.
+Andrey Panin <pazke@donpac.ru> wrote:
+>
 > 
-> Sigh. All people adding externs like this should be ...
+> This patch adds driver for IBM Automatic Server Restart watchdog hardware
+> found in some IBM eServer xSeries machines. This driver is based on the ugly
+> driver provided by IBM. Driver was tested on IBM eServer 226.
 > 
-> But it won't change anything - the only difference with
-> the flag being 0 is to read less fields, but since the function
-> has been called earlier and the data has not changed
-> the output is always the same.
+> ...
+> +
+> +	case ASMTYPE_JASPER:
+> +		type = "Jaspers ";
+> +
+> +		/* FIXME: need to use pci_config_lock here, but it's not exported */
 
-I'm not so sure that "argument not explicitly given" will always turn out
-zero...  more like "random" memory contents.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+That's gregkh material.
+
+> +
+> +/*		spin_lock_irqsave(&pci_config_lock, flags);*/
+> +
+> +		/* Select the SuperIO chip in the PCI I/O port register */
+> +		outl(0x8000f858, 0xcf8);
+> +
+> +		/* 
+> +		 * Read the base address for the SuperIO chip.
+> +		 * Only the lower 16 bits are valid, but the address is word 
+> +		 * aligned so the last bit must be masked off.
+> +		 */
+> +		asr_base = inl(0xcfc) & 0xfffe;
+> +
+> +/*		spin_unlock_irqrestore(&pci_config_lock, flags);*/
+>
+> ...
+>
+> +static int asr_ioctl(struct inode *inode, struct file *file,
+> +		     unsigned int cmd, unsigned long arg)
+> +{
+> +	static const struct watchdog_info ident = {
+> +		.options =	WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
+> +				WDIOF_MAGICCLOSE,
+> +		.identity =	"IBM ASR"
+> +	};
+> +	void __user *argp = (void __user *)arg;
+> +	int __user *p = argp;
+> +	int heartbeat;
+> +
+> +	switch (cmd) {
+> +		case WDIOC_GETSUPPORT:
+> +			return copy_to_user(argp, &ident, sizeof(ident)) ? 
+> +				-EFAULT : 0;
+> +
+> +		case WDIOC_GETSTATUS:
+> +		case WDIOC_GETBOOTSTATUS:
+> +			return put_user(0, p);
+> +
+> +		case WDIOC_KEEPALIVE:
+> +			asr_toggle();
+> +			return 0;
+> +
+> +
+> +		case WDIOC_SETTIMEOUT:
+> +			if (get_user(heartbeat, p))
+> +				return -EFAULT;
+> +			/* Fall */
+> +
+> +		case WDIOC_GETTIMEOUT:
+> +			heartbeat = 256;
+> +			return put_user(heartbeat, p);
+
+Something very wrong is happening with WDIOC_SETTIMEOUT and
+WDIOC_GETTIMEOUT.  They're both no-ops and the effect of WDIOC_SETTIMEOUT
+is immidiately overwritten.
+

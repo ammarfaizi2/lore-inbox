@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVHQDdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVHQDb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbVHQDdp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 23:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVHQDdp
+	id S1750814AbVHQDb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 23:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVHQDb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 23:33:45 -0400
-Received: from dsl027-180-204.sfo1.dsl.speakeasy.net ([216.27.180.204]:20663
-	"EHLO outer-richmond.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750816AbVHQDdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 23:33:44 -0400
-Date: Tue, 16 Aug 2005 20:33:12 -0700 (PDT)
-Message-Id: <20050816.203312.77701192.davem@davemloft.net>
-To: paulus@samba.org
-Cc: galak@freescale.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH] ppc32: removed usage of <asm/segment.h> 
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <17154.38156.13295.731022@cargo.ozlabs.ibm.com>
-References: <Pine.LNX.4.61.0508161700050.5751@nylon.am.freescale.net>
-	<17154.38156.13295.731022@cargo.ozlabs.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 16 Aug 2005 23:31:56 -0400
+Received: from gate.crashing.org ([63.228.1.57]:50115 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750814AbVHQDbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 23:31:55 -0400
+Subject: Re: [PATCH] [Fwd: Console locking and blanking]
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1124242875.8848.10.camel@gaston>
+References: <1124242875.8848.10.camel@gaston>
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 17 Aug 2005 13:29:40 +1000
+Message-Id: <1124249381.8848.19.camel@gaston>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Mackerras <paulus@samba.org>
-Date: Wed, 17 Aug 2005 11:38:20 +1000
+On Wed, 2005-08-17 at 11:41 +1000, Benjamin Herrenschmidt wrote:
 
-> Kumar Gala writes:
-> 
-> > Made <asm/segment.h> a dummy include like it is in ppc64 and removed any
-> > users if it in arch/ppc.
-> 
-> Why can't we just delete asm-ppc/segment.h (and asm-ppc64/segment.h
-> too, for that matter) entirely?
+> (I'm blind and I use a braille display. I use those functions to blank 
+> my laptop's screen so people don't read it, and hopefully to conserve 
+> power.)
 
-I concur, in fact we should really kill that thing off entirely.
+Oops ! I _am_not_ the one who is blind, though thanks a lot for some of
+the comments ;) I just forgot the line:
+
+From: Stéphane Doyon <s.doyon@videotron.ca>
+
+(I'm still stuck to Signed-off-by only lines)
+
+
+Stephane is to congratulate for this fix.
+
+Ben.
+
+

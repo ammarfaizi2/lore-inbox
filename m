@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVHQSLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbVHQST3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbVHQSLP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 14:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbVHQSLP
+	id S1751196AbVHQST3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 14:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVHQST3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 14:11:15 -0400
-Received: from nproxy.gmail.com ([64.233.182.204]:25188 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751193AbVHQSLO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 14:11:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=L+VYddH3YsiBiYtnfxfxqu+6JDno23Ix9NCnl0/agVRQd5ncVNGiYOAq9PhOrtP6X2h6/tTeVMD9XwbHphsAman0yJWwpDl3hE74Frgql3pjI8iy+tW6bE9wsdNtdGSr2D9+FqZI6SvfaKa/8cEPVIeQBOwSrPLFZ0znXJJ0pio=
-Message-ID: <6278d22205081711115b404a9b@mail.gmail.com>
-Date: Wed, 17 Aug 2005 19:11:11 +0100
-From: Daniel J Blueman <daniel.blueman@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Atheros and rt2x00 driver
-Cc: rt2400-general@lists.sourceforge.net
+	Wed, 17 Aug 2005 14:19:29 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:60868 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751196AbVHQST2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 14:19:28 -0400
+Subject: Re: [RFC] Cleanup line-wrapping in pgtable.h
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Adam Litke <agl@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1124300739.3139.16.camel@localhost.localdomain>
+References: <1124300739.3139.16.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 17 Aug 2005 11:19:13 -0700
+Message-Id: <1124302753.5879.11.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Aug 2005, Jon Jahren wrote:
-> Hello, I'm new to the mailling list, and couldn't find any traces of
-> discussing this anywhere. I was wondering why neither the atheros driver
-> http://madwifi.sourceforge.net, or the rt2x00 driver
-> http://rt2x00.serialmonkey.com /wiki/index.php/Main_Page is included in
-> the kernel? 
+On Wed, 2005-08-17 at 12:45 -0500, Adam Litke wrote:
+> The line-wrapping in most of the include/asm/pgtable.h pte test/set
+> macros looks horrible in my 80 column terminal.  The following "test the
+> waters" patch is how I would like to see them laid out.  I realize that
+> the braces don't adhere to CodingStyle but the advantage is (when taking
+> wrapping into account) that the code takes up no additional space.  How
+> do people feel about making this change?  Any better suggestions?  I
+> personally wouldn't like a lone closing brace like normal functions
+> because of the extra lines eaten.  I volunteer to patch up the other
+> architectures if we reach a consensus.
 
-There is a good chance the rt2x00 driver will get into the kernel tree
-in time, since there is no firmware to upload - Ralink Tech
-(www.ralink.com.tw) took a design decision to incorporate the firmware
-into an EEPROM on-board, allowing their driver to be GPL'd, and the
-rt2x00 is a Linux-specific rewrite which is stabilising well.
-___
-Daniel J Blueman
+I'd probably just leave it alone.  Those are things that are virtually
+never touched, and are quite unlikely to have any bugs in them.
+
+But, if you do decide to change them, it might also be a nice idea to
+consolidate some of the ones that are duplicated across architectures.
+They could probably even go into the existing
+include/asm-generic/pgtable.h.  Please use full, proper CodingStyle if
+you do decide to split them across several lines.
+
+-- Dave
+

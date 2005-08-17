@@ -1,103 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbVHQRde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbVHQRlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbVHQRde (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 13:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVHQRde
+	id S1751173AbVHQRlK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 13:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbVHQRlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 13:33:34 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:25055 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751185AbVHQRdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 13:33:33 -0400
-Subject: Re: 2.6.13-rc6-rt6
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050817064750.GA8395@elte.hu>
-References: <1124208507.5764.20.camel@localhost.localdomain>
-	 <20050816163202.GA5288@elte.hu> <20050816163730.GA7879@elte.hu>
-	 <20050816165247.GA10386@elte.hu> <20050816170805.GA12959@elte.hu>
-	 <1124214647.5764.40.camel@localhost.localdomain>
-	 <1124215631.5764.43.camel@localhost.localdomain>
-	 <1124218245.5764.52.camel@localhost.localdomain>
-	 <1124252419.5764.83.camel@localhost.localdomain>
-	 <1124257580.5764.105.camel@localhost.localdomain>
-	 <20050817064750.GA8395@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 17 Aug 2005 13:32:47 -0400
-Message-Id: <1124299967.5764.187.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Wed, 17 Aug 2005 13:41:10 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:42250 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751173AbVHQRlJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 13:41:09 -0400
+Message-ID: <430376B8.9040404@aknet.ru>
+Date: Wed, 17 Aug 2005 21:41:12 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc][patch] API for timer hooks
+References: <42FDF744.2070205@aknet.ru>	 <1124126354.8630.3.camel@cog.beaverton.ibm.com> <43024ADA.8030508@aknet.ru>	 <1124244580.30036.5.camel@mindpipe>  <430363F2.7090009@aknet.ru> <1124296844.3591.7.camel@mindpipe>
+In-Reply-To: <1124296844.3591.7.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-17 at 08:47 +0200, Ingo Molnar wrote:
+Hello.
 
-> but stop_machine() looks quite preempt-unsafe to begin with. The 
-> local_irq_disable() would not be needed at all if prior the 
-> for_each_online_cpu() loop we'd use set_cpus_allowed. The current method 
-> of achieving 'no preemption' is simply racy even during normal 
-> CONFIG_PREEMPT.
-
-The code does look flakey, but I think it still works, and it may need
-to have a raw_local_irq_disable.
-
-The do_stop is bound to a CPU when it was created, so it doesn't need to
-have a set_cpus_allowed.
-
-I guess this is what is happening:
-
---- 
-
-You start do_stop in a thread on the cpu that you want to run a function
-on. (it's bound to that cpu)
-
-do_stop creates a thread on all the other cpus that will run
-stopmachine.
-
-While it creates the threads, the ones that are already created yield in
-case a thread wakes up on its cpu, so that that thread can migrate to
-its own cpu. (all the threads are at FIFO MAX_RT_PRIO-1, so they should
-never be preempted.
-
-After all the threads are created and acknowledge themselves, the
-do_stop changes the state to PREPARE.
-
-In stopmachine, when PREPARE is seen, it turns off preemption and stops
-yielding.
-
-do_stop then changes the state to DISABLE_IRQ.
-
-In stopmachine, when DISABLE_IRQ is seen, it disables IRQs.
-
-Then the do_stop runs the function that is expected to run in the
-STOPPED STATE.
-
----
-
-Notes:
-
-Each time the state is changed, the ack counter is zeroed and it wont
-continue until all the threads acknowledge they hit the expected point.
-
-I'm currious why it needs to go to preempt disable before going to
-irqs_disabled? It seems that once it is at the point to go, all
-processes should be locked on their CPUS and it would only need to goto
-irqs_disable.
-
-I'm also assuming that whatever function is being run expects to have
-interrupts off on all CPUs. So a raw_local_irq_disable may be in order.
-
-The comment above the stop_machine (called by do_stop) local_irq_disable
-looks incorrect. It says 
-/* Don't schedule us away at this point, please */  I don't see how it
-can be scheduled out if it is running FIFO MAX_RT_PRIO-1.  It just
-assume that it doesn't want any interrupts to go off.
-
-Do you still see a problem with stop_machine?
-
--- Steve
-
+Lee Revell wrote:
+> Lots of things aren't doable with the current timer API, hence all the
+> recent work on dynamic tick. 
+I've found only this about the dynamic
+tick:
+http://lwn.net/Articles/138969/
+and it seems that it is intended only
+to slow down the interrupts when there
+is no work to do, rather than to allow
+setting an arbitrary frequencies or something
+like that.
+I guess now I realized how you (and Nish)
+assume I could use it: is it that I
+should set CONFIG_HZ to the value I
+need at compile-time, and just remove
+all the timer reprogramming from the
+driver in a hope the dynamic-tick patch
+will slow it down itself when necessary?
+Or am I misunderstanding the suggestion?
+That would be really excellent, but
+it there a patch around that allows to
+set an arbitrary CONFIG_HZ values, or should
+I try to code up one myself? I think
+I tried that a few years ago, and the
+code all around the kernel was resisting
+to work with HZ>1000, but I guess now
+it was all changed.
 

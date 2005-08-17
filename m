@@ -1,141 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVHQFmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbVHQFnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbVHQFmX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 01:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVHQFmX
+	id S1750894AbVHQFnh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 01:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbVHQFnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 01:42:23 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:10736 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750890AbVHQFmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 01:42:22 -0400
-Subject: [RFC][PATCH] Mobil Pentium 4 HT and the NMI
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 17 Aug 2005 01:42:17 -0400
-Message-Id: <1124257337.5764.101.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Wed, 17 Aug 2005 01:43:37 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:10902 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1750893AbVHQFng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 01:43:36 -0400
+In-Reply-To: <20050816.203312.77701192.davem@davemloft.net>
+References: <20050816.203312.77701192.davem@davemloft.net>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <032E6AED-9456-4271-9B06-C5DCE5970193@freescale.com>
+Cc: Paul Mackerras <paulus@samba.org>,
+       "Gala Kumar K.-galak" <galak@freescale.com>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Zachary Amsden <zach@vmware.com>
 Content-Transfer-Encoding: 7bit
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [PATCH] ppc32: removed usage of <asm/segment.h> 
+Date: Wed, 17 Aug 2005 00:43:37 -0500
+To: "David S. Miller" <davem@davemloft.net>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to get the nmi working with my laptop (IBM ThinkPad G41) and
-after debugging it a while, I found that the nmi code doesn't want to
-set it up for this particular CPU.
 
-Here I have:
+On Aug 16, 2005, at 10:33 PM, David S. Miller wrote:
 
-$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Mobile Intel(R) Pentium(R) 4 CPU 3.33GHz
-stepping        : 1
-cpu MHz         : 3320.084
-cache size      : 1024 KB
-physical id     : 0
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 3
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe pni
-monitor ds_cpl est tm2 cid xtpr
-bogomips        : 6642.39
+> From: Paul Mackerras <paulus@samba.org>
+> Date: Wed, 17 Aug 2005 11:38:20 +1000
+>
+>
+>> Kumar Gala writes:
+>>
+>>
+>>> Made <asm/segment.h> a dummy include like it is in ppc64 and removed
+>>>
+> any
+>
+>>> users if it in arch/ppc.
+>>>
+>>
+>> Why can't we just delete asm-ppc/segment.h (and asm-ppc64/segment.h
+>> too, for that matter) entirely?
+>>
+>
+> I concur, in fact we should really kill that thing off entirely.
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Mobile Intel(R) Pentium(R) 4 CPU 3.33GHz
-stepping        : 1
-cpu MHz         : 3320.084
-cache size      : 1024 KB
-physical id     : 0
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 3
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe pni
-monitor ds_cpl est tm2 cid xtpr
-bogomips        : 6637.46
+I'm all for killing it off entirely but got some feedback that on  
+i386 segment.h can be included by userspace programs.
 
+Here is the in kernel consumers that are outside of arch specific  
+directories:
 
+./drivers/char/mxser.c:#include <asm/segment.h>
+./drivers/isdn/hisax/hisax.h:#include <asm/segment.h>
+./drivers/media/video/adv7170.c:#include <asm/segment.h>
+./drivers/media/video/adv7175.c:#include <asm/segment.h>
+./drivers/media/video/bt819.c:#include <asm/segment.h>
+./drivers/media/video/bt856.c:#include <asm/segment.h>
+./drivers/media/video/saa7111.c:#include <asm/segment.h>
+./drivers/media/video/saa7114.c:#include <asm/segment.h>
+./drivers/media/video/saa7185.c:#include <asm/segment.h>
+./drivers/serial/68328serial.c:#include <asm/segment.h>
+./drivers/serial/crisv10.c:#include <asm/segment.h>
+./drivers/serial/icom.c:#include <asm/segment.h>
+./drivers/serial/mcfserial.c:#include <asm/segment.h>
+./drivers/video/q40fb.c:#include <asm/segment.h>
+./include/linux/isdn.h:#include <asm/segment.h>
+./sound/oss/os.h:#include <asm/segment.h>
 
-And the following code shows:
-
-$ cat linux-2.6.13-rc6/arch/i386/kernel/nmi.c
-
-[...]
-
-void setup_apic_nmi_watchdog (void)
-{
-        switch (boot_cpu_data.x86_vendor) {
-        case X86_VENDOR_AMD:
-                if (boot_cpu_data.x86 != 6 && boot_cpu_data.x86 != 15)
-                        return;
-                setup_k7_watchdog();
-                break;
-        case X86_VENDOR_INTEL:
-                 switch (boot_cpu_data.x86) {
-                case 6:
-                        if (boot_cpu_data.x86_model > 0xd)
-                                return;
-
-                        setup_p6_watchdog();
-                        break;
-                case 15:
-                        if (boot_cpu_data.x86_model > 0x3)
-                                return;
- 
-Here I get boot_cpu_data.x86_model == 0x4.  So I decided to change it
-and reboot.  I now seem to have a working NMI.  So, unless there's
-something know to be bad about this processor and the NMI. I'm
-submitting the following patch.
-
--- Steve
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
---- linux-2.6.13-rc6-git1/arch/i386/kernel/nmi.c.orig	2005-08-17 01:34:21.000000000 -0400
-+++ linux-2.6.13-rc6-git1/arch/i386/kernel/nmi.c	2005-08-17 01:40:13.000000000 -0400
-@@ -195,7 +195,7 @@ static void disable_lapic_nmi_watchdog(v
- 			wrmsr(MSR_P6_EVNTSEL0, 0, 0);
- 			break;
- 		case 15:
--			if (boot_cpu_data.x86_model > 0x3)
-+			if (boot_cpu_data.x86_model > 0x4)
- 				break;
- 
- 			wrmsr(MSR_P4_IQ_CCCR0, 0, 0);
-@@ -432,7 +432,7 @@ void setup_apic_nmi_watchdog (void)
- 			setup_p6_watchdog();
- 			break;
- 		case 15:
--			if (boot_cpu_data.x86_model > 0x3)
-+			if (boot_cpu_data.x86_model > 0x4)
- 				return;
- 
- 			if (!setup_p4_watchdog())
-
+- kumar
 

@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVHQHx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbVHQHxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbVHQHx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 03:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVHQHx5
+	id S1750961AbVHQHxt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 03:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVHQHxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 03:53:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18383 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750759AbVHQHx4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 03:53:56 -0400
-Date: Wed, 17 Aug 2005 09:56:13 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>
-Subject: Re: HDAPS, Need to park the head for real
-Message-ID: <20050817075611.GE6019@suse.de>
-References: <1124205914.4855.14.camel@localhost.localdomain> <20050816200708.GE3425@suse.de> <4302EB80.7060705@argo.co.il>
+	Wed, 17 Aug 2005 03:53:49 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:7567 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750759AbVHQHxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 03:53:48 -0400
+X-ORBL: [67.117.73.34]
+Date: Wed, 17 Aug 2005 00:53:21 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: vatsa@in.ibm.com, tuukka.tikkanen@elektrobit.com, akpm@osdl.org,
+       johnstul@us.ibm.com, linux-kernel@vger.kernel.org, ak@muc.de,
+       george@mvista.com
+Subject: Re: [ck] [PATCH] dynamic-tick patch modified for SMP
+Message-ID: <20050817075320.GC16992@atomide.com>
+References: <20050812201946.GA5327@in.ibm.com> <200508160230.52860.kernel@kolivas.org> <20050816131942.GD8608@in.ibm.com> <200508162323.33333.kernel@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4302EB80.7060705@argo.co.il>
+In-Reply-To: <200508162323.33333.kernel@kolivas.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 17 2005, Avi Kivity wrote:
-> Jens Axboe wrote:
+* Con Kolivas <kernel@kolivas.org> [050816 06:23]:
+> On Tue, 16 Aug 2005 23:19, Srivatsa Vaddagiri wrote:
+> > On Tue, Aug 16, 2005 at 02:30:51AM +1000, Con Kolivas wrote:
+> > > Time definitely was lost the longer the machine was running.
+> >
+> > I think I found the reason for time drift. Basically cur_timer->mark_offset
+> > doesnt expect to be called from non-timer interrupt handler. Hence it drops
+> > one jiffy from the lost count. I fixed this in some "crude" fashion and
+> > time has not drifted so far or is pretty much close to what it was in
+> > pre-smp version.  Will find a neat way to fix this and post a patch soon.
+> >
+> > > You mean disable it at runtime or not compile it in at all? Disabling it
+> > > at runtime caused what I described to you as PIT mode (long stalls etc).
+> >
+> > I think I have recreated this on a machine here. Disabling
+> > CONFIG_DYN_TICK_APIC at compile-time didnt seem to make any difference.
+> > Will look at this problem next.
 > 
-> >Ok, I'll give you some hints to get you started... What you really want
-> >to do, is:
-> >
-> >- Insert a park request at the front of the queue
-> >- On completion callback on that request, freeze the block queue and
-> > schedule it for unfreeze after a given time
-> >
-> > 
-> >
-> how will this interact with command queuing? there is a danger from both 
-> commands previously queued but not yet completed, and commands that are 
-> queued after the park request. or is the park request a barrier?
+> Excellent. 
+> 
+> Mind you the APIC dyntick never really worked well on the pre-smp version on 
+> any hardware I tried it on so if you get both the APIC and PIT version 
+> working well you're doing great.
 
-It doesn't interact with queueing, it doesn't matter what else is in the
-queue. The park itself is not a barrier, since it should be placed as
-next-to-execute at the front of the queue. Non-fs requests are never
-reordered once inserted (since sorting on them doesn't make sense, the
-io scheduler doesn't know what they are). Since the queue will not be
-processed after the park has completed (it is frozen). So if the queue
-currently looks like this:
+Sounds good! I only got the APIC stuff working properly on P3, but not on P4.
 
-[R0] <-> R1 <-> R2 <-> W1 <-> R3 <-> W2
-
-(R is read, W is write, R0 is currently being processed), when you issue
-the park the queue will look like:
-
-[R0] <-> PARK <-> R1 <-> R2 <-> W1 <-> R3 <-> W2
-
-Read completes, PARK will now be executed. While this happens, two more
-writes are inserted somewhere in the queue. If successful, queue is
-frozen in this state:
-
-[] <-> R1 <-> W4 <-> R2 <-> W1 <-> W3 <-> R3 <-> W2
-
-When the queue is thawed, R1 will be sent next.
-
--- 
-Jens Axboe
-
+Tony

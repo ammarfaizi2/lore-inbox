@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbVHQIRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVHQIXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbVHQIRS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 04:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbVHQIRS
+	id S1750989AbVHQIXW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 04:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbVHQIXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 04:17:18 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:48360 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1750980AbVHQIRR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 04:17:17 -0400
-Date: Wed, 17 Aug 2005 10:16:43 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Kumar Gala <kumar.gala@freescale.com>
-cc: "David S. Miller" <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       Zachary Amsden <zach@vmware.com>,
-       linux-kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       "Gala Kumar K.-galak" <galak@freescale.com>
-Subject: Re: [PATCH] ppc32: removed usage of <asm/segment.h> 
-In-Reply-To: <032E6AED-9456-4271-9B06-C5DCE5970193@freescale.com>
-Message-ID: <Pine.LNX.4.62.0508171016020.6073@numbat.sonytel.be>
-References: <20050816.203312.77701192.davem@davemloft.net>
- <032E6AED-9456-4271-9B06-C5DCE5970193@freescale.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Aug 2005 04:23:22 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:19134 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750987AbVHQIXV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 04:23:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=RckS9VtsSctNtPkL4H2FFKbhIwL+ww6LqFM/CCk+lNiX7Yf5GFGVb/Xpo27cSftUK6Cn2g0XW64ejJQzfbiAEEWmDhTF7wgAFBnvcNUU3Cqu2q1FPa7mxQt/Y7ZpAlYfpe6Agne7GBFFsArRXvfT4mhKfcYrxDT2eheA/3IfwO8=
+Message-ID: <67657b5d05081701236df21b0f@mail.gmail.com>
+Date: Wed, 17 Aug 2005 16:23:18 +0800
+From: first last <tcsdownload@gmail.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: can we power off PCI device?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Aug 2005, Kumar Gala wrote:
-> I'm all for killing it off entirely but got some feedback that on i386
-> segment.h can be included by userspace programs.
-> 
-> Here is the in kernel consumers that are outside of arch specific directories:
+Greetings:
+ We did a search on the net and found several related topics like PCI
+device power management but we are 100% sure if this is what we are
+looking for. Then, we would like to get some inputs from gurus like
+you....
 
-> ./drivers/video/q40fb.c:#include <asm/segment.h>
+ We are working a PCI device driver on kernel 2.4 (Redhat 9) and
+kernel 2.6 (Fedora) and we would like to power off then power on the
+PCI device, which is manufactured by our company. Is it possible to do
+that? Could you guys instrust me by
+giving us the functions we have to call?
 
-M68k-only, so doesn't affect ppc.
+many thanks
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+tcs

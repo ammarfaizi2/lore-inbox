@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbVHQJpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbVHQJyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbVHQJpf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 05:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbVHQJpf
+	id S1751029AbVHQJyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 05:54:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbVHQJyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 05:45:35 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:38086 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751027AbVHQJpe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 05:45:34 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: help with PCI hotplug and a PCI device enabled after boot]
-Date: Wed, 17 Aug 2005 11:47:14 +0200
-User-Agent: KMail/1.8.2
-References: <1124269343.4423.35.camel@localhost>
-In-Reply-To: <1124269343.4423.35.camel@localhost>
-Cc: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart10328853.gE0JLRbNsP";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508171147.22927@bilbo.math.uni-mannheim.de>
+	Wed, 17 Aug 2005 05:54:25 -0400
+Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:47250 "HELO
+	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
+	id S1751028AbVHQJyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 05:54:24 -0400
+Message-ID: <20050817095423.625.qmail@thales.mathematik.uni-ulm.de>
+Date: Wed, 17 Aug 2005 11:54:23 +0200
+From: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Undefined behaviour with get_cpu_vendor
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart10328853.gE0JLRbNsP
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Mauro Carvalho Chehab wrote:
->    I need some help with PCI hotplug for allowing a new driver at
->Video4Linux.
->
->    I need memory to set its internal registers. Is there a way to make
->PCI drivers to allocate a memory region for the board?
+Hi,
 
-Use dummyphp instead of fakephp. It should handle this case. You can find i=
-t=20
-here: http://opensource.sf-tec.de/kernel/dummyphp-2.6.13-rc1.diff
+Your Patch at (URL wrapped)
 
-Eike
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git; \
+		a=commit;h=99c6e60afff8a7bc6121aeb847dab27c556cf0c9
 
---nextPart10328853.gE0JLRbNsP
-Content-Type: application/pgp-signature
+introduced an additional Parameter (int early) to get_cpu_vendor.
+However, the same function is called in arch/i386/kernel/apic.c (via
+an explicit extern declaration that doesn't have the new early parameter.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+I don't know if this can cause actual problems but I think something like
+the patch below is needed for correctness.
 
-iD8DBQBDAweqXKSJPmm5/E4RAtWMAJ0TMb1/iFkAFu4WMn74ZjGZoqvi+ACggbmO
-fOjhsfRf5F94p3xF4fSDe5Y=
-=Cmn3
------END PGP SIGNATURE-----
+   regards    Christian
 
---nextPart10328853.gE0JLRbNsP--
+--- arch/i386/kernel/apic.c     2005-03-26 04:28:38.000000000 +0100
++++ arch/i386/kernel/apic.c.new 2005-08-17 11:54:48.070499352 +0200
+@@ -703,14 +703,14 @@
+ static int __init detect_init_APIC (void)
+ {
+        u32 h, l, features;
+-       extern void get_cpu_vendor(struct cpuinfo_x86*);
++       extern void get_cpu_vendor(struct cpuinfo_x86*, int);
+ 
+        /* Disabled by kernel option? */
+        if (enable_local_apic < 0)
+                return -1;
+ 
+        /* Workaround for us being called before identify_cpu(). */
+-       get_cpu_vendor(&boot_cpu_data);
++       get_cpu_vendor(&boot_cpu_data, 1);
+ 
+        switch (boot_cpu_data.x86_vendor) {
+        case X86_VENDOR_AMD:
+
+
+-- 
+THAT'S ALL FOLKS!

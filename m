@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVHQPUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbVHQPTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbVHQPUu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 11:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVHQPUt
+	id S1751146AbVHQPTp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 11:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbVHQPTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 11:20:49 -0400
-Received: from dns.suna-asobi.com ([210.151.31.146]:25480 "EHLO
-	dns.suna-asobi.com") by vger.kernel.org with ESMTP id S1751149AbVHQPUt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 11:20:49 -0400
-Date: Thu, 18 Aug 2005 00:27:14 +0900
-From: Akira Tsukamoto <akira-t@suna-asobi.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
-In-Reply-To: <20050817233001.6E7C.AKIRA-T@suna-asobi.com>
-References: <98df96d305081622107ca969f@mail.gmail.com> <20050817233001.6E7C.AKIRA-T@suna-asobi.com>
-Message-Id: <20050818002425.6E90.AKIRA-T@suna-asobi.com>
+	Wed, 17 Aug 2005 11:19:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34950 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751146AbVHQPTo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 11:19:44 -0400
+Date: Wed, 17 Aug 2005 08:19:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Airlie <airlied@gmail.com>
+cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: rc6 keeps hanging and blanking displays
+In-Reply-To: <21d7e997050817040523a1bf46@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0508170815370.3553@g5.osdl.org>
+References: <42F89F79.1060103@aitel.hist.no>  <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org>
+  <20050815221109.GA21279@aitel.hist.no>  <21d7e99705081516182e97b8a1@mail.gmail.com>
+  <21d7e99705081516241197164a@mail.gmail.com>  <20050816165242.GA10024@aitel.hist.no>
+  <Pine.LNX.4.58.0508160955270.3553@g5.osdl.org>  <20050816211424.GA14367@aitel.hist.no>
+  <21d7e99705081616504d28cca5@mail.gmail.com>  <43031A12.8020301@aitel.hist.no>
+ <21d7e997050817040523a1bf46@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.04 [ja]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I am resubmitting this because it seems to be lost when I posted 
-the before yesterday.
 
-------------------------------------
-Arjan van de Ven mentioned:
-> The only comment/question I have is about the use of prefetchnta; that
-> might have cache-evicting properties as well (eg evict the cache of the
-> original of the copy, eg the userspace memory). Is that really the right
-> approach? 
-> In addition, my measurements show that removing the prefetch from the
-> main copy loop is a gain because the modern cpus have an autoprefetcher
-> already in the hardware.
+On Wed, 17 Aug 2005, Dave Airlie wrote:
+>
+> > git is completely new to me - is there a git-specific way to get this
+> > patch, or should I download it the usual way from somewhere?
+> 
+> Just grab it from the link to comment #16 on 
+> http://bugzilla.kernel.org/show_bug.cgi?id=4965
 
-My computer with Athlon K7 was faster with manually prefetching,
-but I did not know it is already becoming obsolete.
+That's a good one to try (and if it matters, can you please do a full 
+"lspci -vvx" for before-and-after? In fact, it would probably be good to 
+do that _regardless_ - do it with an old known-good kernel, and with one 
+recent kernel).
 
-It was pretty while ago, but I also made a similar copy_user function;
-http://www.suna-asobi.com/~akira-t/linux/k7-copy-user/K7-copy-47.patch
-I add comments on each item in the copy function. It was basically 
-inspired from Takahashi's intel faster copy function.
+At the same time, something struck me. Does it happen to be much warmer in 
+your room lately? As in due to a heatwave? I'm just wondering if it might 
+be something as silly as a thermal shutdown.
 
-I also have some explanation about the speedup for pipelined cpu.
-http://www.suna-asobi.com/~akira-t/linux/k7-copy-user/copy_for_highlypipelined_cpu.txt
-
-It was originally discussed in this thread,
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103742983924070&w=2
-
-
-
+			Linus

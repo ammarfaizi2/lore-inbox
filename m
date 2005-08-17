@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVHQIXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbVHQIay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbVHQIXW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 04:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbVHQIXW
+	id S1750983AbVHQIay (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 04:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbVHQIay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 04:23:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:19134 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750987AbVHQIXV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 04:23:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=RckS9VtsSctNtPkL4H2FFKbhIwL+ww6LqFM/CCk+lNiX7Yf5GFGVb/Xpo27cSftUK6Cn2g0XW64ejJQzfbiAEEWmDhTF7wgAFBnvcNUU3Cqu2q1FPa7mxQt/Y7ZpAlYfpe6Agne7GBFFsArRXvfT4mhKfcYrxDT2eheA/3IfwO8=
-Message-ID: <67657b5d05081701236df21b0f@mail.gmail.com>
-Date: Wed, 17 Aug 2005 16:23:18 +0800
-From: first last <tcsdownload@gmail.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: can we power off PCI device?
+	Wed, 17 Aug 2005 04:30:54 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:41945 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750980AbVHQIax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 04:30:53 -0400
+Date: Wed, 17 Aug 2005 09:30:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Kumar Gala <kumar.gala@freescale.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Paul Mackerras <paulus@samba.org>,
+       "Gala Kumar K.-galak" <galak@freescale.com>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH] ppc32: removed usage of <asm/segment.h>
+Message-ID: <20050817083048.GA11892@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Kumar Gala <kumar.gala@freescale.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Paul Mackerras <paulus@samba.org>,
+	"Gala Kumar K.-galak" <galak@freescale.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel list <linux-kernel@vger.kernel.org>,
+	linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+	Zachary Amsden <zach@vmware.com>
+References: <20050816.203312.77701192.davem@davemloft.net> <032E6AED-9456-4271-9B06-C5DCE5970193@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <032E6AED-9456-4271-9B06-C5DCE5970193@freescale.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings:
- We did a search on the net and found several related topics like PCI
-device power management but we are 100% sure if this is what we are
-looking for. Then, we would like to get some inputs from gurus like
-you....
+On Wed, Aug 17, 2005 at 12:43:37AM -0500, Kumar Gala wrote:
+> >I concur, in fact we should really kill that thing off entirely.
+> 
+> I'm all for killing it off entirely but got some feedback that on  
+> i386 segment.h can be included by userspace programs.
 
- We are working a PCI device driver on kernel 2.4 (Redhat 9) and
-kernel 2.6 (Fedora) and we would like to power off then power on the
-PCI device, which is manufactured by our company. Is it possible to do
-that? Could you guys instrust me by
-giving us the functions we have to call?
+No kernel headers can be included by userland anymore.
 
-many thanks
-
-tcs

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVHQAlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVHQAxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbVHQAlj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 20:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVHQAlj
+	id S1750783AbVHQAxv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 20:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbVHQAxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 20:41:39 -0400
-Received: from adsl-67-65-14-122.dsl.austtx.swbell.net ([67.65.14.122]:21439
-	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
-	id S1750782AbVHQAlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 20:41:39 -0400
-Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base
-	Driver (dcdbas) with sysfs support
-From: Michael E Brown <Michael_E_Brown@dell.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p73br3x1ke0.fsf@verdi.suse.de>
-References: <4277B1B44843BA48B0173B5B0A0DED4352817E@ausx3mps301.aus.amer.dell.com.suse.lists.linux.kernel>
-	 <DEFA2736-585A-4F84-9262-C3EB53E8E2A0@mac.com.suse.lists.linux.kernel>
-	 <1124161828.10755.87.camel@soltek.michaels-house.net.suse.lists.linux.kernel>
-	 <20050816081622.GA22625@kroah.com.suse.lists.linux.kernel>
-	 <1124199265.10755.310.camel@soltek.michaels-house.net.suse.lists.linux.kernel>
-	 <20050816203706.GA27198@kroah.com.suse.lists.linux.kernel>
-	 <4277B1B44843BA48B0173B5B0A0DED43528192@ausx3mps301.aus.amer.dell.com.suse.lists.linux.kernel>
-	 <p73br3x1ke0.fsf@verdi.suse.de>
-Content-Type: text/plain
-Date: Tue, 16 Aug 2005 19:41:27 -0500
-Message-Id: <1124239287.10755.322.camel@soltek.michaels-house.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Tue, 16 Aug 2005 20:53:51 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:9200 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1750783AbVHQAxu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 20:53:50 -0400
+Message-ID: <43028A94.1050603@mvista.com>
+Date: Tue, 16 Aug 2005 17:53:40 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: [patch] KGDB for Real-Time Preemption systems
+References: <20050811110051.GA20872@elte.hu>
+In-Reply-To: <20050811110051.GA20872@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-17 at 02:23 +0200, Andi Kleen wrote:
-> <Michael_E_Brown@Dell.com> writes:
-> > 2) Dell OpenManage
-> >     The main use of this driver by openmanage will be to read the System 
-> > Event Log that BIOS keeps. Here are some other random relevant points:
-> 
-> Are there machine check events from the last boot in that event log? 
+I have put a version of KGDB for x86 RT kernels here:
+http://source.mvista.com/~ganzinger/
 
-I don't know. Either Doug or Abhay may, though. If they don't I can ask
-the BIOS guys.
+The common_kgdb_cfi_.... stuff creates debug records for entry.S and 
+friends so that you can "bt" through them.  Apply in this order:
+Ingo's patch
+kgdb-ga-rt.patch
+common_kgdb_cfi_annotations.patch
 
---
-Michael
-
+This is, more or less, the same kgdb that is in Andrew's mm tree changed 
+to fix the RT issues.
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

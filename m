@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVHQLYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbVHQLdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbVHQLYc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 07:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVHQLYc
+	id S1751087AbVHQLdE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 07:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbVHQLdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 07:24:32 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:11222 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751088AbVHQLYb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 07:24:31 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes. Also some X trouble.
-Date: Wed, 17 Aug 2005 13:26:15 +0200
-User-Agent: KMail/1.8.2
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Dave Airlie <airlied@gmail.com>, Linus Torvalds <torvalds@osdl.org>
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <21d7e99705080503515e3045d5@mail.gmail.com> <42F89F79.1060103@aitel.hist.no>
-In-Reply-To: <42F89F79.1060103@aitel.hist.no>
+	Wed, 17 Aug 2005 07:33:04 -0400
+Received: from [202.125.80.34] ([202.125.80.34]:55093 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S1751087AbVHQLdD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 07:33:03 -0400
+Content-class: urn:content-classes:message
+Subject: get_start_sect() NOTE HOW?...
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2262986.hpTXZNNCr0";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508171326.21948@bilbo.math.uni-mannheim.de>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 17 Aug 2005 16:56:54 +0530
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B37EE@mail.esn.co.in>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: get_start_sect() NOTE HOW?...
+Thread-Index: AcWjHpHYV62+yhHhRLy47fQw2YdjPQ==
+From: "Mukund JB`." <mukundjb@esntechnologies.co.in>
+To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2262986.hpTXZNNCr0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Helge Hafting wrote:
->Dave Airlie wrote:
->>     I switched back to 2.6.13-rc4-mm1 at this point for another reason,
->>     my X display aquired a nasty tendency to go blank for no reason
->>     during work,
->>     something I could fix by changing resolution baqck and forth.  X
->>     also tended to get
->>     stuck for a minute now and then - a problem I haven't seen since
->>     early 2.6.
->>
->>
->>
->> which head the radeon or MGA or both?
->
->The radeon 9200SE-pci gets stuck.  The MGA-agp seems to be fine. I have
->compiled
->dri support for both, but I can't use it at the moment.  I think that is
->caused by having ubuntu's xorg installed on debian.  I needed xorg
->in order to run an xserver that doesn't use any tty - this way I can use
->two keyboards and have two simultaneous users. Debians xorg wasn't ready
->at the moment. The setup is fine with 2.6.13-rc4-mm1 x86-64, no problems
->there.
+Dear all,
 
-I have some other issue with a MGA card (don't know exactly which, I have o=
-nly=20
-access to this on the weekend). With rc5 and rc6 kdm will not start on=20
-bootup, X complains about some unresolved symbols in the X mga driver. If I=
-=20
-log in as user and do startx it works fine, also if I switch back to=20
-2.6.12-rc-something. Something seems to confuse X somehow.
+Sorry for the MOST silly question in this list.
+I am mailing it here as this related to kernel.
 
-It's a PII-350 with more or less SuSE 9.3. The machine has no net access, s=
-o I=20
-can only try to narrow it down to one rc at the weekend.
+I am writing a block driver for MMC interface.
+In the HDIO_GETGEO ioctl, the hd_geometry structure is filled.
+I have doubt updating the 'start' field of the hd_geometry structure.
 
-Eike
+I am doing the following to get it.
+geo.start = get_start_sect(inode->i_bdev);
+What is the start expected to point to? Is it the start of FS?
 
---nextPart2262986.hpTXZNNCr0
-Content-Type: application/pgp-signature
+When I looked at the get_start_sect(), I found it is trying to pull out
+the data from the "bdev->bd_part->start_sect".
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+Do I need to handle any thing before this to get the proper start value.
+Or Is it taken care in the upper layers?
 
-iD8DBQBDAx7dXKSJPmm5/E4RAkKLAKCd6Xjsa0KUGjsOTV5x8joQOs1jdACfSRZN
-y5iLQ1uCzWIXzNijl/aklk8=
-=9Pt8
------END PGP SIGNATURE-----
+Can you please explain if is it any way wrong if I hard-code start to
+'0'?
 
---nextPart2262986.hpTXZNNCr0--
+Regards,
+Mukund Jampala
+

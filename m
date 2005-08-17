@@ -1,35 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVHQTFx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbVHQTQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbVHQTFx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 15:05:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbVHQTFx
+	id S1751210AbVHQTQX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 15:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVHQTQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 15:05:53 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28093
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751208AbVHQTFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 15:05:52 -0400
-Date: Wed, 17 Aug 2005 12:05:45 -0700 (PDT)
-Message-Id: <20050817.120545.13032587.davem@davemloft.net>
-To: paulmck@us.ibm.com
-Cc: steve@chygwyn.com, suzannew@cs.pdx.edu, linux-kernel@vger.kernel.org,
-       walpole@cs.pdx.edu, patrick@tykepenguin.com
-Subject: Re: rcu read-side protection
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050817141438.GD1300@us.ibm.com>
-References: <20050817020156.GF1319@us.ibm.com>
-	<20050817082552.GA25537@souterrain.chygwyn.com>
-	<20050817141438.GD1300@us.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 17 Aug 2005 15:16:23 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:15542 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1751210AbVHQTQW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 15:16:22 -0400
+Subject: [PATCH] fix cciss DMA unmap brokenness
+From: Alex Williamson <alex.williamson@hp.com>
+To: Mike Miller <Mike.Miller@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: LOSL
+Date: Wed, 17 Aug 2005 13:16:24 -0600
+Message-Id: <1124306185.6049.10.camel@tdi>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-Date: Wed, 17 Aug 2005 07:14:38 -0700
 
-> Fix RCU race condition in dn_neigh_construct().
+   The CCISS driver seems to loose track of DMA mappings created by it's
+fill_cmd() routine.  Neither callers of this routine are extracting the
+DMA address created in order to do the unmap.  Instead, they simply try
+to unmap 0x0.  It's easy to see this problem on an x86_64 system when
+using the "swiotlb=force" boot option.  In this case, the driver is
+leaking resources of the swiotlb and not causing a sync of the bounce
+buffer.  Thanks
 
-Applied, thanks Paul.
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+
+diff -r b9c8e9fdd6b2 drivers/block/cciss.c
+--- a/drivers/block/cciss.c	Wed Aug 17 04:06:25 2005
++++ b/drivers/block/cciss.c	Wed Aug 17 12:53:40 2005
+@@ -1420,8 +1420,10 @@
+ 		}
+ 	}	
+ 	/* unlock the buffers from DMA */
++	buff_dma_handle.val32.lower = c->SG[0].Addr.lower;
++	buff_dma_handle.val32.upper = c->SG[0].Addr.upper;
+ 	pci_unmap_single( h->pdev, (dma_addr_t) buff_dma_handle.val,
+-			size, PCI_DMA_BIDIRECTIONAL);
++			c->SG[0].Len, PCI_DMA_BIDIRECTIONAL);
+ 	cmd_free(h, c, 0);
+         return(return_status);
+ 
+@@ -1860,8 +1862,10 @@
+ 		
+ cleanup1:	
+ 	/* unlock the data buffer from DMA */
++	buff_dma_handle.val32.lower = c->SG[0].Addr.lower;
++	buff_dma_handle.val32.upper = c->SG[0].Addr.upper;
+ 	pci_unmap_single(info_p->pdev, (dma_addr_t) buff_dma_handle.val,
+-				size, PCI_DMA_BIDIRECTIONAL);
++				c->SG[0].Len, PCI_DMA_BIDIRECTIONAL);
+ 	cmd_free(info_p, c, 1);
+ 	return (status);
+ } 
+
+

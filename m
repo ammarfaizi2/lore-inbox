@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVHQAOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVHQAQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbVHQAOh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 20:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVHQAOh
+	id S1750768AbVHQAQh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 20:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVHQAQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 20:14:37 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:48261 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750765AbVHQAOg (ORCPT
+	Tue, 16 Aug 2005 20:16:37 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:39560 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750768AbVHQAQg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 20:14:36 -0400
-Date: Tue, 16 Aug 2005 17:14:10 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: john stultz <johnstul@us.ibm.com>
-cc: Roman Zippel <zippel@linux-m68k.org>, lkml <linux-kernel@vger.kernel.org>,
-       George Anzinger <george@mvista.com>, frank@tuxrocks.com,
-       Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-In-Reply-To: <1124236081.8630.110.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0508161710580.9829@schroedinger.engr.sgi.com>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com> 
- <1123726394.32531.33.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508152115480.3728@scrub.home>
-  <1124151001.8630.87.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0508161116270.7101@schroedinger.engr.sgi.com>
- <1124236081.8630.110.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Aug 2005 20:16:36 -0400
+Date: Wed, 17 Aug 2005 02:16:35 +0200
+From: Andi Kleen <ak@suse.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, zach@vmware.com, akpm@osdl.org, chrisl@vmware.com,
+       hpa@zytor.com, Keir.Fraser@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
+       m+Ian.Pratt@cl.cam.ac.uk, mbligh@mbligh.org, pratap@vmware.com,
+       virtualization@lists.osdl.org, zwane@arm.linux.org.uk
+Subject: Re: [PATCH 8/14] i386 / Add a per cpu gdt accessor
+Message-ID: <20050817001635.GC3996@wotan.suse.de>
+References: <200508110456.j7B4ue56019587@zach-dev.vmware.com> <20050816234725.GI27628@wotan.suse.de> <20050817000736.GU7762@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050817000736.GU7762@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Aug 2005, john stultz wrote:
+On Tue, Aug 16, 2005 at 05:07:36PM -0700, Chris Wright wrote:
+> * Andi Kleen (ak@suse.de) wrote:
+> > On Wed, Aug 10, 2005 at 09:56:40PM -0700, zach@vmware.com wrote:
+> > > Add an accessor function for getting the per-CPU gdt.  Callee must already
+> > > have the CPU.
+> > 
+> > What is the accessor good for? 
+> > 
+> > It looks just like code obfuscation to me.
+> 
+> Xen handles gdt differently (one page per cpu instead of per_cpu data).
+> So this is for handling that access cleanly.
 
-> This is basically what I do in my patch. I directly apply the NTP
-> adjustment to the timesource interval, and periodically increment the
-> NTP state machine by the timesource interval when we accumulate it.
+It would be much cleaner to use a per_cpu pointer then and just allocate
+it differently.
 
-Is there some way to tell the NTP code how much the time_interpolator time 
-deviates from xtime?
-
-If the NTP code would use getnstimeofday or 
-do_gettimeofday then it would already get interpolated time.
-
-The curious issue in the current arrangement is that the interpolator 
-knows much more accurately how much time has passed between interrupts 
-than the timer interrupt but it has no time to make that information 
-available to the NTP code.
-
-
+-Andi

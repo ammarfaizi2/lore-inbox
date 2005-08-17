@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbVHQRlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVHQRrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbVHQRlK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 13:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbVHQRlK
+	id S1751162AbVHQRrU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 13:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVHQRrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 13:41:10 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:42250 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1751173AbVHQRlJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 13:41:09 -0400
-Message-ID: <430376B8.9040404@aknet.ru>
-Date: Wed, 17 Aug 2005 21:41:12 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
+	Wed, 17 Aug 2005 13:47:20 -0400
+Received: from [64.162.99.240] ([64.162.99.240]:13735 "EHLO
+	spamtest2.viacore.net") by vger.kernel.org with ESMTP
+	id S1751162AbVHQRrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 13:47:20 -0400
+Date: Wed, 17 Aug 2005 10:42:04 -0700 (PDT)
+From: joebob@spamtest.viacore.net
+X-X-Sender: joebob@spamtest2.viacore.net
+To: Jon Jahren <shaoran.85@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Atheros and rt2x00 driver
+In-Reply-To: <1124298943.22673.11.camel@gentoo.lan>
+Message-ID: <Pine.LNX.4.63.0508171041430.14004@spamtest2.viacore.net>
+References: <1124298943.22673.11.camel@gentoo.lan>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: john stultz <johnstul@us.ibm.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc][patch] API for timer hooks
-References: <42FDF744.2070205@aknet.ru>	 <1124126354.8630.3.camel@cog.beaverton.ibm.com> <43024ADA.8030508@aknet.ru>	 <1124244580.30036.5.camel@mindpipe>  <430363F2.7090009@aknet.ru> <1124296844.3591.7.camel@mindpipe>
-In-Reply-To: <1124296844.3591.7.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Wed, 17 Aug 2005, Jon Jahren wrote:
+> Hello, I'm new to the mailling list, and couldn't find any traces of
+> discussing this anywhere. I was wondering why neither the atheros driver
+> http://madwifi.sourceforge.net, or the rt2x00 driver
+> http://rt2x00.serialmonkey.com/wiki/index.php/Main_Page is included in
+> the kernel?
 
-Lee Revell wrote:
-> Lots of things aren't doable with the current timer API, hence all the
-> recent work on dynamic tick. 
-I've found only this about the dynamic
-tick:
-http://lwn.net/Articles/138969/
-and it seems that it is intended only
-to slow down the interrupts when there
-is no work to do, rather than to allow
-setting an arbitrary frequencies or something
-like that.
-I guess now I realized how you (and Nish)
-assume I could use it: is it that I
-should set CONFIG_HZ to the value I
-need at compile-time, and just remove
-all the timer reprogramming from the
-driver in a hope the dynamic-tick patch
-will slow it down itself when necessary?
-Or am I misunderstanding the suggestion?
-That would be really excellent, but
-it there a patch around that allows to
-set an arbitrary CONFIG_HZ values, or should
-I try to code up one myself? I think
-I tried that a few years ago, and the
-code all around the kernel was resisting
-to work with HZ>1000, but I guess now
-it was all changed.
+That's because a) these drivers are not "proven stable" -- ie they have
+not released a well-tested, known-good, working version of the software
+and b) they haven't asked for their software to be included in the kernel
+(at least in the case of madwifi, anyways). c) madwifi also will probably
+never be integrated into the mainstream kernel because it contains
+binary-only proprietary software licensed by atheros communications (under
+NDA by the developer). Since the kernel is released GPL, the source must
+be made available for all parts of the kernel if desired. Code released
+closed source cannot be included else we violate the terms of the GPL.
+I'm not sure about rt2x00, but it may have a similar deficiency.
+
+By the way, the best place to ask about why XX isn't included in the
+kernel is with the developers of XX unless they tell you to ask here :)
+
+Hope this clears some stuff up for you. ciao.
+
+-kelsey
 

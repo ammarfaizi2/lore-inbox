@@ -1,102 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVHQOTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbVHQOXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbVHQOTu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 10:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbVHQOTu
+	id S1751139AbVHQOXt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 10:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVHQOXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 10:19:50 -0400
-Received: from static-151-204-232-50.bos.east.verizon.net ([151.204.232.50]:54146
-	"EHLO mail2.sicortex.com") by vger.kernel.org with ESMTP
-	id S1751138AbVHQOTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 10:19:49 -0400
-From: Joshua Wise <Joshua.Wise@sicortex.com>
-Organization: SiCortex
-To: linux-kernel@vger.kernel.org
-Subject: Re: NAPI poll routine happens in interrupt context?
-Date: Wed, 17 Aug 2005 10:19:45 -0400
-User-Agent: KMail/1.8.1
-Cc: Aaron Brooks <aaron.brooks@sicortex.com>
-References: <200508170932.10441.Joshua.Wise@sicortex.com>
-In-Reply-To: <200508170932.10441.Joshua.Wise@sicortex.com>
+	Wed, 17 Aug 2005 10:23:49 -0400
+Received: from dns.suna-asobi.com ([210.151.31.146]:20616 "EHLO
+	dns.suna-asobi.com") by vger.kernel.org with ESMTP id S1751139AbVHQOXt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 10:23:49 -0400
+Date: Wed, 17 Aug 2005 23:30:13 +0900
+From: Akira Tsukamoto <akira-t@suna-asobi.com>
+To: arjan@infradead.org, linux-kernel@vger.kernel.org,
+       Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+In-Reply-To: <98df96d305081622107ca969f@mail.gmail.com>
+References: <20050817.110503.97359275.taka@valinux.co.jp> <98df96d305081622107ca969f@mail.gmail.com>
+Message-Id: <20050817233001.6E7C.AKIRA-T@suna-asobi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508171019.45593.Joshua.Wise@sicortex.com>
+X-Mailer: Becky! ver. 2.21.04 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It has come to my attention that the link that I posted previously was 
-nonfunctional. It has been fixed.
+On Wed, 17 Aug 2005 14:10:34 +0900
+Hiro Yoshioka <lkml.hyoshiok@gmail.com> mentioned:
+> On 8/17/05, Akira Tsukamoto <akira-t@s9.dion.ne.jp> wrote:
+> > Anyway, going back to copy_user topic,
+> > big remaining issues are
+> >   1)store/restore floating point register (80/64bytes) twice every time by
+> >      surrounding with kernel_fpu_begin()/kernel_fpu_end() is big penalty
+> 
+> I don't know. If nobody uses MMX/XMM, then there is no need
+> to save and restore.
 
-As well, here are some other pertinent details:
+I think you are misunderstanding between
+ 1)lazy fpu save handling for user space task
+ 2)kernel_fpu_begin()/kernel_fpu_end() inside the kernel
 
-This is kernel 2.6.13-rc2, the latest that works with MIPS SMP.
+> >   2)after pagefault not always come back to copy function and corrupts fp register
+> 
+> I'm trying to understand this mechanism but I don't
+> understand very well.
 
-Here is a trace:
-Debug: sleeping function called from invalid context at 
-arch/mips/math-emu/dsemul.c:137
-in_atomic():1, irqs_disabled():0
-Call Trace:
- [<ffffffff801406e0>] __might_sleep+0x180/0x198
- [<ffffffff802cec00>] ipv6_rcv+0xc0/0x440
- [<ffffffff80140428>] do_dsemulret+0x68/0x1a0
- [<ffffffff8010b3a4>] do_ade+0x24/0x550
- [<ffffffff80102964>] handle_adel_int+0x3c/0x58
- [<ffffffff80268160>] netif_receive_skb+0x1b0/0x2e0
- [<ffffffff802cec04>] ipv6_rcv+0xc4/0x440
- [<ffffffff80268160>] netif_receive_skb+0x1b0/0x2e0
- [<ffffffff802572c8>] lanlan_poll+0x3e0/0x440
- [<ffffffff8026868c>] net_rx_action+0x16c/0x370
- [<ffffffff802686a8>] net_rx_action+0x188/0x370
- [<ffffffff80154f28>] __do_softirq+0x118/0x250
- [<ffffffff80154f28>] __do_softirq+0x118/0x250
- [<ffffffff80155110>] do_softirq+0xb0/0xe0
- [<ffffffff80101930>] mipsIRQ+0x130/0x1e0
- [<ffffffff80101c90>] r4k_wait+0x0/0x10
- [<ffffffff80103e6c>] cpu_idle+0x4c/0x68
- [<ffffffff80103e64>] cpu_idle+0x44/0x68
- [<ffffffff8037fcfc>] start_kernel+0x454/0x4e8
- [<ffffffff8037fcf4>] start_kernel+0x44c/0x4e8
+My explanation was a bit ambiguous, see the code below. 
+Where the fp register saved? It saves fp register *inside* task_struct,
 
-Apologies for any inconvenience.
+static inline void kernel_fpu_begin(void)
++	if (tsk->flags & PF_USEDFPU) {
++		asm volatile("rex64 ; fxsave %0 ; fnclex"
++			       : "=m" (tsk->thread.i387.fxsave));
 
-joshua
+static inline void save_init_fpu( struct task_struct *tsk )
++	if ( cpu_has_fxsr ) {
++		asm volatile( "fxrstor %0"
++			      : : "m" (tsk->thread.i387.fxsave) );
 
-On Wednesday 17 August 2005 09:32, Joshua Wise wrote:
-> Hello LKML,
->
-> I have recently been working on a network driver for an emulated
-> ultra-simple network card, and I've run into a few snags with the NAPI. My
-> current issue is that it seems to me that my poll routine is being called
-> from an atomic context, so when poll calls rx, and rx calls
-> netif_receive_skb, I end up with lots of __might_sleep warnings in the
-> various network layers.
->
-> This is not so good. I need every cycle I can get, as this emulator is
-> incredibly slow, so burning cycles by printing out the reported badness is
-> not really acceptible. Conceivably the badness itself is also an issue.
->
-> Before posting here, I did search Google for "lkml napi poll interrupt",
-> although I did not find anything relevant to my issue.
->
-> If interested, the code is available at http://joshuawise.com/lanlan.c .
-> Some notes:
->
-> The virtual lan-lan is a very very simple device. It consists of an ioreg
-> that maintains state of the device, as described by the ioreg bit defines.
-> It also has an ioctlreg that can pass through ioctls to the Linux kernel
-> tap device that it's sitting on top of. (This goes with the ifreq seen in
-> the struct.) One must always write and read in word-aligned chunks to and
-> from it, for simplicity's sake.
->
-> Feel free to suggest any modifications that this device might need to make
-> it more fully functional. Hopefully we can bring this driver to such a
-> state where it will be usable as a replacement skeleton driver for the
-> NAPI.
->
-> Please cc: Aaron and myself, as neither of us are subscribed to lkml.
->
-> Thanks in advance,
-> joshua
+What happens, during your copy function, if memory is not allocated and 
+generates pagefualt and goto reclaim memories and go into task switch
+and change to other task.
+
+-- 
+Akira Tsukamoto
+
+

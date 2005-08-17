@@ -1,84 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbVHQHlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVHQHrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbVHQHlM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 03:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbVHQHlM
+	id S1750958AbVHQHrS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 03:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVHQHrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 03:41:12 -0400
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:13989 "EHLO
-	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S1750946AbVHQHlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 03:41:11 -0400
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: john stultz <johnstul@us.ibm.com>
-Date: Wed, 17 Aug 2005 09:40:37 +0200
+	Wed, 17 Aug 2005 03:47:17 -0400
+Received: from [194.90.79.130] ([194.90.79.130]:40458 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1750957AbVHQHrR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 03:47:17 -0400
+Message-ID: <4302EB80.7060705@argo.co.il>
+Date: Wed, 17 Aug 2005 10:47:12 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-Cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
-       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
-       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>
-Message-ID: <43030614.30883.58B75E3@rkdvmks1.ngate.uni-regensburg.de>
-In-reply-to: <1124241449.8630.137.camel@cog.beaverton.ibm.com>
-References: <Pine.LNX.4.61.0508162337130.3728@scrub.home>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.26/Sophos-P=3.95.0+V=3.95+U=2.07.102+R=04 July 2005+T=107623@20050817.073300Z
+To: Jens Axboe <axboe@suse.de>
+CC: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>
+Subject: Re: HDAPS, Need to park the head for real
+References: <1124205914.4855.14.camel@localhost.localdomain> <20050816200708.GE3425@suse.de>
+In-Reply-To: <20050816200708.GE3425@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Aug 2005 07:47:13.0440 (UTC) FILETIME=[E18CFA00:01C5A2FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Aug 2005 at 18:17, john stultz wrote:
+Jens Axboe wrote:
 
-[...]
-> Maybe to focus this productively, I'll try to step back and outline the
-> goals at a high level and you can address those. 
-> 
-> My Assumptions:
-> 1. adjtimex() sets/gets NTP state values
-
-One of the greatest mistakes in the past which still affects us now was the 
-decision to piggy-back ntp_adjtime and ntp_gettime on top of adjtime() and thus 
-creating adjtimex(). Only to save a system-call number or two. WE REALLY SHOULD 
-GET RID OF THAT going back to Linux 0.something.
-
-> 2. Every tick we adjust those state values
-
-... which require it. 
-
-> 3. Every tick we use those values to make a nanosecond adjustment to
-> time.
-
-...or even more frequent. In my code I tried to scale the tick interpolation as 
-well, thus effectively making adjustments even within timer ticks (so far the 
-theory...). I was assuming however that ticks and interpolation clocks are derived 
-from one single source and would "float" the same way relative to each other.
-
-> 4. Those state values are otherwise unused.
-
-What is "otherwise"? Outside the "NTP clock model", or "between ticks"?
-
-> 
-> Goals:
-> 1. Isolate NTP code to clean up the tick based timekeeping, reducing the
-> spaghetti-like code interactions.
-
-First you need a new clock model that's compatible with NTP. Then you can consider 
-how to implement the NTP stuff. So the clock even without NTP has to be strictly 
-monotonic for any interval it is read, be it nanoseconds, microseconds, 
-milliseconds, seconds, minutes, hours, days, ... The clock delta (=increase of 
-time) over time should be as constant as possible (i.e. time shouldn't go up like 
-stairs).
-
-> 2. Add interfaces to allow for continuous, rather then tick based,
-> adjustments (much how ppc64 does currently, only shareable).
-
-Adjustments to the clock _model_ are asynchronous by definition, while adjustments 
-to the clock itself are, well, periodic. Whatever the period.
-
-Maybe this helps and can be agreed on.
-
-Regards,
-Ulrich
-
+>Ok, I'll give you some hints to get you started... What you really want
+>to do, is:
+>
+>- Insert a park request at the front of the queue
+>- On completion callback on that request, freeze the block queue and
+>  schedule it for unfreeze after a given time
+>
+>  
+>
+how will this interact with command queuing? there is a danger from both 
+commands previously queued but not yet completed, and commands that are 
+queued after the park request. or is the park request a barrier?

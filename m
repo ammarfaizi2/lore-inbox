@@ -1,57 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVHQVLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVHQVRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbVHQVLU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 17:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVHQVLU
+	id S1751284AbVHQVRO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 17:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbVHQVRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 17:11:20 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:13997 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1750810AbVHQVLT (ORCPT
+	Wed, 17 Aug 2005 17:17:13 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:30479 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751257AbVHQVRM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 17:11:19 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Corey Minyard <cminyard@mvista.com>
-Subject: Re: [PATCH 2.6.12.4] ACPI oops during ipmi_si driver init
-Date: Wed, 17 Aug 2005 15:09:17 -0600
-User-Agent: KMail/1.8.1
-Cc: Peter Martuccelli <peterm@redhat.com>, len.brown@intel.com, akpm@osdl.com,
-       linux-kernel@vger.kernel.org, minyard@mvista.com
-References: <200508121944.j7CJiifE005958@redrum.boston.redhat.com> <1124225401.7130.797.camel@redrum.boston.redhat.com> <43039E57.2020607@mvista.com>
-In-Reply-To: <43039E57.2020607@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Aug 2005 17:17:12 -0400
+Date: Wed, 17 Aug 2005 16:49:59 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: netdev@vger.kernel.org, linux-tr@linuxtr.net, mikep@linuxtr.net
+Cc: jgarzik@pobox.com, davem@davemloft.net, fubar@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: [patch 2.6.13-rc6] net/802/tr: use interrupt-safe locking
+Message-ID: <20050817204959.GA20186@tuxdriver.com>
+Mail-Followup-To: netdev@vger.kernel.org, linux-tr@linuxtr.net,
+	mikep@linuxtr.net, jgarzik@pobox.com, davem@davemloft.net,
+	fubar@us.ibm.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508171509.17627.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 August 2005 2:30 pm, Corey Minyard wrote:
-> Basically, the IPMI system interface needs information from a specific 
-> IPMI table to know how to configure itself.  Those tables can reference 
-> GPEs, so the driver can use those (though AFAIK it has never been tested).
+Change operations on rif_lock from spin_{un}lock_bh to
+spin_{un}lock_irq{save,restore} equivalents.  Some of the
+rif_lock critical sections are called from interrupt context via
+tr_type_trans->tr_add_rif_info.  The TR NIC drivers call tr_type_trans
+from their packet receive handlers.
 
-The information in the SPMI table *should* also be in the ACPI
-namespace.  In general, drivers should claim devices based on the
-namespace, not based on tables like SPMI.  The tables are mainly
-there for the times when you need a device before the ACPI namespace
-is available.
+Signed-off-by: Jay Vosburg <foobar@us.ibm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+It is my understanding that this same patch has been submitted multiple
+times in the past.  Some of those submissions were around a year ago,
+but it does not seem to have been committed.
 
-drivers/serial/8250_pnp.c is a basic example of claiming PNP
-devices.  In particular, see serial_pnp_probe(), which gets
-called for every device with a PNP ID found in pnp_dev_table[].
+FWIW, this patch is currently being carried in the Fedora and RHEL
+kernels.  It certainly looks like it is necessary to me.  Can we get
+some movement on this?
 
-drivers/serial/8250_acpi.c is an example of claiming a device
-directly from the ACPI namespace.  It claims everything with
-PNP ID "PNP0501".
+ net/802/tr.c |   22 ++++++++++++----------
+ 1 files changed, 12 insertions(+), 10 deletions(-)
 
-If you need to handle GPEs, you probably would need the
-8250_acpi.c style, since I don't think PNP can deal with
-those.  You would use acpi_register_driver(), and pass it
-an acpi_driver struct containing '.ids = "IPI0001"'.  The
-add() function you supply will get called for every active
-IPI0001 device in the namespace.  Use acpi_walk_resources()
-on its _CRS to extract the I/O port or MMIO address of the
-controller and its interrupt information.  If the _CRS
-contains no interrupt information, look for a _GPE method.
+diff --git a/net/802/tr.c b/net/802/tr.c
+--- a/net/802/tr.c
++++ b/net/802/tr.c
+@@ -251,10 +251,11 @@ void tr_source_route(struct sk_buff *skb
+ 	unsigned int hash;
+ 	struct rif_cache *entry;
+ 	unsigned char *olddata;
++	unsigned long flags;
+ 	static const unsigned char mcast_func_addr[] 
+ 		= {0xC0,0x00,0x00,0x04,0x00,0x00};
+ 	
+-	spin_lock_bh(&rif_lock);
++	spin_lock_irqsave(&rif_lock, flags);
+ 
+ 	/*
+ 	 *	Broadcasts are single route as stated in RFC 1042 
+@@ -323,7 +324,7 @@ printk("source routing for %02X:%02X:%02
+ 	else 
+ 		slack = 18 - ((ntohs(trh->rcf) & TR_RCF_LEN_MASK)>>8);
+ 	olddata = skb->data;
+-	spin_unlock_bh(&rif_lock);
++	spin_unlock_irqrestore(&rif_lock, flags);
+ 
+ 	skb_pull(skb, slack);
+ 	memmove(skb->data, olddata, sizeof(struct trh_hdr) - slack);
+@@ -337,10 +338,11 @@ printk("source routing for %02X:%02X:%02
+ static void tr_add_rif_info(struct trh_hdr *trh, struct net_device *dev)
+ {
+ 	unsigned int hash, rii_p = 0;
++	unsigned long flags;
+ 	struct rif_cache *entry;
+ 
+ 
+-	spin_lock_bh(&rif_lock);
++	spin_lock_irqsave(&rif_lock, flags);
+ 	
+ 	/*
+ 	 *	Firstly see if the entry exists
+@@ -378,7 +380,7 @@ printk("adding rif_entry: addr:%02X:%02X
+ 		if(!entry) 
+ 		{
+ 			printk(KERN_DEBUG "tr.c: Couldn't malloc rif cache entry !\n");
+-			spin_unlock_bh(&rif_lock);
++			spin_unlock_irqrestore(&rif_lock, flags);
+ 			return;
+ 		}
+ 
+@@ -420,7 +422,7 @@ printk("updating rif_entry: addr:%02X:%0
+ 		    }                                         
+            	entry->last_used=jiffies;               
+ 	}
+-	spin_unlock_bh(&rif_lock);
++	spin_unlock_irqrestore(&rif_lock, flags);
+ }
+ 
+ /*
+@@ -430,9 +432,9 @@ printk("updating rif_entry: addr:%02X:%0
+ static void rif_check_expire(unsigned long dummy) 
+ {
+ 	int i;
+-	unsigned long next_interval = jiffies + sysctl_tr_rif_timeout/2;
++	unsigned long flags, next_interval = jiffies + sysctl_tr_rif_timeout/2;
+ 
+-	spin_lock_bh(&rif_lock);
++	spin_lock_irqsave(&rif_lock, flags);
+ 	
+ 	for(i =0; i < RIF_TABLE_SIZE; i++) {
+ 		struct rif_cache *entry, **pentry;
+@@ -454,7 +456,7 @@ static void rif_check_expire(unsigned lo
+ 		}
+ 	}
+ 	
+-	spin_unlock_bh(&rif_lock);
++	spin_unlock_irqrestore(&rif_lock, flags);
+ 
+ 	mod_timer(&rif_timer, next_interval);
+ 
+@@ -485,7 +487,7 @@ static struct rif_cache *rif_get_idx(lof
+ 
+ static void *rif_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	spin_lock_bh(&rif_lock);
++	spin_lock_irq(&rif_lock);
+ 
+ 	return *pos ? rif_get_idx(*pos - 1) : SEQ_START_TOKEN;
+ }
+@@ -516,7 +518,7 @@ static void *rif_seq_next(struct seq_fil
+ 
+ static void rif_seq_stop(struct seq_file *seq, void *v)
+ {
+-	spin_unlock_bh(&rif_lock);
++	spin_unlock_irq(&rif_lock);
+ }
+ 
+ static int rif_seq_show(struct seq_file *seq, void *v)

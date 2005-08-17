@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbVHQJbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbVHQJpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbVHQJbj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 05:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbVHQJbj
+	id S1751027AbVHQJpf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 05:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbVHQJpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 05:31:39 -0400
-Received: from 250.70-85-212.reverse.theplanet.com ([70.85.212.250]:29325 "EHLO
-	sec.bppresence.com") by vger.kernel.org with ESMTP id S1750992AbVHQJbi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 05:31:38 -0400
-To: linux-kernel@vger.kernel.org
-X-Autorespond: Re: Protected Mail System
-X-Loop: linux-kernel@vger.kernel.org
-From: "BulletProof Software" <autoresponse@builtbp.com>
-Content-type: text/plain; charset=us-ascii
-Subject: Re: Re: Protected Mail System
-Message-Id: <E1E5KGk-00059h-H0@sec.bppresence.com>
-Date: Wed, 17 Aug 2005 04:31:34 -0500
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - sec.bppresence.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32005 506] / [47 12]
-X-AntiAbuse: Sender Address Domain - sec.bppresence.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 17 Aug 2005 05:45:35 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:38086 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751027AbVHQJpe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 05:45:34 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: help with PCI hotplug and a PCI device enabled after boot]
+Date: Wed, 17 Aug 2005 11:47:14 +0200
+User-Agent: KMail/1.8.2
+References: <1124269343.4423.35.camel@localhost>
+In-Reply-To: <1124269343.4423.35.camel@localhost>
+Cc: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart10328853.gE0JLRbNsP";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508171147.22927@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear linux-kernel@vger.kernel.org,
+--nextPart10328853.gE0JLRbNsP
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This is an automated e-mail. All sales and support queries for BulletProof products should be sent through our ticket based support system to ensure quick response, this is located at:
- http://support.bppresence.com/support/users/tickets.php
+Mauro Carvalho Chehab wrote:
+>    I need some help with PCI hotplug for allowing a new driver at
+>Video4Linux.
+>
+>    I need memory to set its internal registers. Is there a way to make
+>PCI drivers to allocate a memory region for the board?
 
-And found on the "support" link on our product websites.
+Use dummyphp instead of fakephp. It should handle this case. You can find i=
+t=20
+here: http://opensource.sf-tec.de/kernel/dummyphp-2.6.13-rc1.diff
+
+Eike
+
+--nextPart10328853.gE0JLRbNsP
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBDAweqXKSJPmm5/E4RAtWMAJ0TMb1/iFkAFu4WMn74ZjGZoqvi+ACggbmO
+fOjhsfRf5F94p3xF4fSDe5Y=
+=Cmn3
+-----END PGP SIGNATURE-----
+
+--nextPart10328853.gE0JLRbNsP--

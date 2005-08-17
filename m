@@ -1,54 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbVHQGGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbVHQGLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbVHQGGv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 02:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVHQGGv
+	id S1750878AbVHQGLh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 02:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVHQGLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 02:06:51 -0400
-Received: from xenotime.net ([66.160.160.81]:31423 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750874AbVHQGGu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 02:06:50 -0400
-Date: Tue, 16 Aug 2005 23:06:48 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, sudoyang@gmail.com
-Subject: Re: compiling only one module in kernel version 2.6?
-Message-Id: <20050816230648.7c43fe02.rdunlap@xenotime.net>
-In-Reply-To: <1124258090.5764.109.camel@localhost.localdomain>
-References: <4f52331f050816190957cec081@mail.gmail.com>
-	<1124248729.5764.70.camel@localhost.localdomain>
-	<20050816224101.295806c8.rdunlap@xenotime.net>
-	<1124257739.5764.107.camel@localhost.localdomain>
-	<1124258090.5764.109.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Aug 2005 02:11:37 -0400
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:29068 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S1750837AbVHQGLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 02:11:37 -0400
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Christoph Lameter <clameter@engr.sgi.com>
+Date: Wed, 17 Aug 2005 08:08:57 +0200
+MIME-Version: 1.0
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+Cc: Roman Zippel <zippel@linux-m68k.org>, lkml <linux-kernel@vger.kernel.org>,
+       George Anzinger <george@mvista.com>, frank@tuxrocks.com,
+       Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
+       Nishanth Aravamudan <nacc@us.ibm.com>
+Message-ID: <4302F098.11683.53787EA@rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <Pine.LNX.4.62.0508161116270.7101@schroedinger.engr.sgi.com>
+References: <1124151001.8630.87.camel@cog.beaverton.ibm.com>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=3.95.0+V=3.95+U=2.07.102+R=04 July 2005+T=107623@20050817.060247Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Aug 2005 01:54:50 -0400 Steven Rostedt wrote:
+On 16 Aug 2005 at 11:25, Christoph Lameter wrote:
 
-> On Wed, 2005-08-17 at 01:48 -0400, Steven Rostedt wrote:
-> > On Tue, 2005-08-16 at 22:41 -0700, Randy.Dunlap wrote:
-> > > 
-> > > Sam only added make .ko build support very recently,
-> > > so it could easily depend on what kernel verison Fong is using.
-> > 
-> > That could very well explain it. I'm doing this on 2.6.13-rc6-rt6
-> > (2.6.13-rc6 with Ingo's rt6 patch applied).  So I really do have a
-> > recent kernel.
-> > 
-> 
-> I just did this on a 2.6.9 vanilla kernel, and it still worked. How
-> "recent" did Sam do this?
+> You mentioned that the NTP code has some issues with time interpolation 
+> at the KS. This is due to the NTP layer not being aware of actual time 
+> differences between timer interrupts that the interpolator knows about. If 
+> the NTP layer would be aware of the actual intervals measured by the 
+> timesource (or interpolator) then presumably time could be adjusted in a 
+> more accurate way.
 
-2.6.9 did not handle "make one_module.ko" (for me on x86).
+Hi,
 
-2005-july-08:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=155ad605b3c9c5874ff068f23c6ea8537190e0a8
+whatever the implementation is, at some point there must exist an interface go get 
+and set "normal time", free of any jumps and jitter. That "frontend time" will be 
+used a a base of correction. Basically that means time should be as monotonic and 
+jitter free as possible for any measurement interval you like.
 
----
-~Randy
+Otherwise when extrapolating the time-error, it (NTP) will try to overcompensate 
+(or undercompensate), making the whole thing instable.
+
+Here's a sample from some ancient NTP distribution (pre-nanosecond), but you'll 
+get the idea what to check:
+
+more util/jitter.c
+/*
+ * This program can be used to calibrate the clock reading jitter of a
+ * particular CPU and operating system. It first tickles every element
+ * of an array, in order to force pages into memory, then repeatedly calls
+ * gettimeofday() and, finally, writes out the time values for later
+ * analysis. From this you can determine the jitter and if the clock ever
+ * runs backwards.
+ */
+#include <sys/time.h>
+#include <stdio.h>
+
+#define NBUF 20002
+
+void
+main()
+{
+        struct timeval ts, tr;
+        struct timezone tzp;
+        long temp, j, i, gtod[NBUF];
+
+        gettimeofday(&ts, &tzp);
+
+        /*
+         * Force pages into memory
+         */
+        for (i = 0; i < NBUF; i ++)
+                gtod[i] = 0;
+
+        /*
+         * Construct gtod array
+         */
+        for (i = 0; i < NBUF; i ++) {
+                gettimeofday(&tr, &tzp);
+                gtod[i] = (tr.tv_sec - ts.tv_sec) * 1000000 + tr.tv_usec;
+        }
+
+        /*
+         * Write out gtod array for later processing with S
+         */
+        for (i = 0; i < NBUF - 2; i++) {
+/*
+                printf("%lu\n", gtod[i]);
+*/
+                gtod[i] = gtod[i + 1] - gtod[i];
+                printf("%lu\n", gtod[i]);
+        }
+
+        /*
+         * Sort the gtod array and display deciles
+         */
+        for (i = 0; i < NBUF - 2; i++) {
+                for (j = 0; j <= i; j++) {
+                        if (gtod[j] > gtod[i]) {
+                                temp = gtod[j];
+                                gtod[j] = gtod[i];
+                                gtod[i] = temp;
+                        }
+                }
+        }
+        fprintf(stderr, "First rank\n");
+        for (i = 0; i < 10; i++)
+                fprintf(stderr, "%10ld%10ld\n", i, gtod[i]);
+        fprintf(stderr, "Last rank\n");
+        for (i = NBUF - 12; i < NBUF - 2; i++)
+                fprintf(stderr, "%10ld%10ld\n", i, gtod[i]);
+}
+
+Regards,
+Ulrich
+

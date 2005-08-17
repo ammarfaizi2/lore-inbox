@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVHQQSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVHQQVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVHQQSK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 12:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbVHQQSJ
+	id S1751163AbVHQQVA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 12:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVHQQVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 12:18:09 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:19397 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1751158AbVHQQSI (ORCPT
+	Wed, 17 Aug 2005 12:21:00 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:26884 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751163AbVHQQU7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 12:18:08 -0400
-Date: Wed, 17 Aug 2005 09:18:05 -0700
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, bunk@stusta.de,
-       jgarzik@pobox.com, mm-commits@vger.kernel.org
-Subject: Re: net-irda-possible-cleanups.patch added to -mm tree
-Message-ID: <20050817161805.GA6916@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <200508160719.j7G7J5i3008509@shell0.pdx.osdl.net> <20050816.204634.33976903.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050816.204634.33976903.davem@davemloft.net>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
+	Wed, 17 Aug 2005 12:20:59 -0400
+Message-ID: <430363F2.7090009@aknet.ru>
+Date: Wed, 17 Aug 2005 20:21:06 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc][patch] API for timer hooks
+References: <42FDF744.2070205@aknet.ru>	 <1124126354.8630.3.camel@cog.beaverton.ibm.com> <43024ADA.8030508@aknet.ru> <1124244580.30036.5.camel@mindpipe>
+In-Reply-To: <1124244580.30036.5.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 16, 2005 at 08:46:34PM -0700, David S. Miller wrote:
-> 
-> I've put this into the net-2.6.14 tree.
+Hello.
 
-	Great. Thanks !
+Lee Revell wrote:
+> Wow, your driver implements bass and treble controls by varying the
+> frequency of the timer interrupt.  That's a neat hack, but I'd expect it
+> to raise a few eyebrows if it's submitted for mainline...
+I realized that some time ago, and now,
+even though the code it still there,
+the treble/bass controls are no longer
+exported to the mixer. The driver now
+works on a fixed frequency. Well, you
+can still select one of the two base
+frequencies, but if need be, I can
+disallow also this. I am willing to
+reduce the requirements as much as possible,
+as long as it will help getting the thing
+in, but perhaps allowing a single higher
+frequency, or allowing just any frequency,
+is pretty much the same task, and doesn't
+look achievable within the currently existing
+timer API anyway.
 
-	Jean

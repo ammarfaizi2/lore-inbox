@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbVHQGAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbVHQGGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbVHQGAk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 02:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbVHQGAj
+	id S1750874AbVHQGGv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 02:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVHQGGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 02:00:39 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:54952 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750912AbVHQGAj (ORCPT
+	Wed, 17 Aug 2005 02:06:51 -0400
+Received: from xenotime.net ([66.160.160.81]:31423 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750874AbVHQGGu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 02:00:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=b3PL/vIES9WeRpeUk/mjSZtFZADTEGhYRkT9pDQRZtIrX7994d9KsStG7Q4DxuO+vV8u+98MndsjmSlFTIeU6QOXSW0fyy20+EF4HyLjMRWly9TtxWUXZ6+jSeo+gCSNv1EpP1eLYy4twSKrwbRbgPHSRmhUZq27uN/0jZsfiVk=
-Message-ID: <4302D277.2000805@gmail.com>
-Date: Wed, 17 Aug 2005 14:00:23 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: abonilla@linuxwireless.org
-CC: Steven Rostedt <rostedt@goodmis.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] [Fwd: Console locking and blanking]
-References: <1124242875.8848.10.camel@gaston>	 <1124249381.8848.19.camel@gaston>	 <1124250271.5764.76.camel@localhost.localdomain> <1124250948.4855.93.camel@localhost.localdomain>
-In-Reply-To: <1124250948.4855.93.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 17 Aug 2005 02:06:50 -0400
+Date: Tue, 16 Aug 2005 23:06:48 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, sudoyang@gmail.com
+Subject: Re: compiling only one module in kernel version 2.6?
+Message-Id: <20050816230648.7c43fe02.rdunlap@xenotime.net>
+In-Reply-To: <1124258090.5764.109.camel@localhost.localdomain>
+References: <4f52331f050816190957cec081@mail.gmail.com>
+	<1124248729.5764.70.camel@localhost.localdomain>
+	<20050816224101.295806c8.rdunlap@xenotime.net>
+	<1124257739.5764.107.camel@localhost.localdomain>
+	<1124258090.5764.109.camel@localhost.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alejandro Bonilla Beeche wrote:
-> On Tue, 2005-08-16 at 23:44 -0400, Steven Rostedt wrote:
->> On Wed, 2005-08-17 at 13:29 +1000, Benjamin Herrenschmidt wrote:
->>> On Wed, 2005-08-17 at 11:41 +1000, Benjamin Herrenschmidt wrote:
->>>
->>>> (I'm blind and I use a braille display. I use those functions to blank 
->>>> my laptop's screen so people don't read it, and hopefully to conserve 
->>>> power.)
->> At the OLS I learned that the backlight of a laptop (when the screen is
->> black, but still glows) actually spends more wattage than when the
->> screen is lit.  So, unless you actually turn the laptop display off,
->> switching it to black will actually burn the battery quicker.
+On Wed, 17 Aug 2005 01:54:50 -0400 Steven Rostedt wrote:
+
+> On Wed, 2005-08-17 at 01:48 -0400, Steven Rostedt wrote:
+> > On Tue, 2005-08-16 at 22:41 -0700, Randy.Dunlap wrote:
+> > > 
+> > > Sam only added make .ko build support very recently,
+> > > so it could easily depend on what kernel verison Fong is using.
+> > 
+> > That could very well explain it. I'm doing this on 2.6.13-rc6-rt6
+> > (2.6.13-rc6 with Ingo's rt6 patch applied).  So I really do have a
+> > recent kernel.
+> > 
 > 
-> This sounds stupid. Who told you this? The actual brightness is the one
-> that consumes the most battery.
-> 
-> Seriously, who told you such thing?
+> I just did this on a 2.6.9 vanilla kernel, and it still worked. How
+> "recent" did Sam do this?
 
-In TFT displays, nontransmissive pixels consume more power than transmissive
-pixels.  So a black background consumes more power than a white one. And
-if you are using these ioctl's to blank the screen, it will default to
-"normal blank" (if you don't set the vesa blanking mode first), which,
-in vgacon or most of the fbdev's, will just turn the color palette to all
-black.  So yes, you might be consuming more power with this method.
+2.6.9 did not handle "make one_module.ko" (for me on x86).
 
-You're probably better off turning the brightness down, if you cannot turn
-the backlight off. 
+2005-july-08:
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=155ad605b3c9c5874ff068f23c6ea8537190e0a8
 
-Tony
-
-PS: I don't know the resulting power consumption if you use the vesa
-blanking modes (TIOCL_SETVESABLANK) to blank while leaving the backlight on.
+---
+~Randy

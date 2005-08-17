@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbVHQJyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbVHQKIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbVHQJyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 05:54:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbVHQJyZ
+	id S1751041AbVHQKIq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 06:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbVHQKIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 05:54:25 -0400
-Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:47250 "HELO
-	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id S1751028AbVHQJyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 05:54:24 -0400
-Message-ID: <20050817095423.625.qmail@thales.mathematik.uni-ulm.de>
-Date: Wed, 17 Aug 2005 11:54:23 +0200
-From: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Undefined behaviour with get_cpu_vendor
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Wed, 17 Aug 2005 06:08:46 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:8207 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751036AbVHQKIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 06:08:46 -0400
+To: hch@infradead.org
+CC: kumar.gala@freescale.com, davem@davemloft.net, paulus@samba.org,
+       galak@freescale.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, zach@vmware.com
+In-reply-to: <20050817092041.GA12910@infradead.org> (message from Christoph
+	Hellwig on Wed, 17 Aug 2005 10:20:41 +0100)
+Subject: Re: [PATCH] ppc32: removed usage of <asm/segment.h>
+References: <20050816.203312.77701192.davem@davemloft.net> <032E6AED-9456-4271-9B06-C5DCE5970193@freescale.com> <20050817083048.GA11892@infradead.org> <E1E5Jii-0004Yc-00@dorka.pomaz.szeredi.hu> <20050817090920.GA12716@infradead.org> <E1E5K1L-0004bH-00@dorka.pomaz.szeredi.hu> <20050817092041.GA12910@infradead.org>
+Message-Id: <E1E5KpP-0004dy-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 17 Aug 2005 12:07:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > They are provided by _one_ kernel, not necessarily the running kernel.
+> 
+> No, they're provided by packages like glibc-kernheaders or similar
+> that are maintained separately.
 
-Hi,
+Yes.  And "maintenance" I presume means "copy" the kernel headers and
+do some cleanup to be compliant to the relevant standards (which the
+kernel maintainers couldn't be bothered to do).
 
-Your Patch at (URL wrapped)
+> They're split from the kernel headers and we don't need to keep
+> obsolete junk around.
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git; \
-		a=commit;h=99c6e60afff8a7bc6121aeb847dab27c556cf0c9
+I agree about obsolete junk.
 
-introduced an additional Parameter (int early) to get_cpu_vendor.
-However, the same function is called in arch/i386/kernel/apic.c (via
-an explicit extern declaration that doesn't have the new early parameter.
+However statements like "No kernel headers can be included by userland
+anymore" can be slightly misleading.
 
-I don't know if this can cause actual problems but I think something like
-the patch below is needed for correctness.
-
-   regards    Christian
-
---- arch/i386/kernel/apic.c     2005-03-26 04:28:38.000000000 +0100
-+++ arch/i386/kernel/apic.c.new 2005-08-17 11:54:48.070499352 +0200
-@@ -703,14 +703,14 @@
- static int __init detect_init_APIC (void)
- {
-        u32 h, l, features;
--       extern void get_cpu_vendor(struct cpuinfo_x86*);
-+       extern void get_cpu_vendor(struct cpuinfo_x86*, int);
- 
-        /* Disabled by kernel option? */
-        if (enable_local_apic < 0)
-                return -1;
- 
-        /* Workaround for us being called before identify_cpu(). */
--       get_cpu_vendor(&boot_cpu_data);
-+       get_cpu_vendor(&boot_cpu_data, 1);
- 
-        switch (boot_cpu_data.x86_vendor) {
-        case X86_VENDOR_AMD:
-
-
--- 
-THAT'S ALL FOLKS!
+Miklos

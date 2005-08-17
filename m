@@ -1,51 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbVHQLX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVHQLYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbVHQLX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 07:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbVHQLX4
+	id S1751088AbVHQLYc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 07:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVHQLYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 07:23:56 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:47487 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751071AbVHQLX4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 07:23:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iDE9q40SRl74RUoGcqULOuZQDhpw56DkcaqX53l3DfrpWW2Ri4tLCxIgUyxAirJHedaMRLCiRvWa8qX1QCtoznh1GsSGGVTxufA3QKMZX5iT1Hr0Ymy/cAHb9mfgHntIEfySL3clDuRnfBPwsyGJxbC1XZubyJ1fzfQREVmW0xY=
-Message-ID: <6bffcb0e05081704231ba09573@mail.gmail.com>
-Date: Wed, 17 Aug 2005 13:23:50 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.4 for 2.6.12 and 2.6.13-rc6
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200508171800.56222.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43001E18.8020707@bigpond.net.au>
-	 <6bffcb0e05081505291806f529@mail.gmail.com>
-	 <200508171800.56222.kernel@kolivas.org>
+	Wed, 17 Aug 2005 07:24:32 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:11222 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751088AbVHQLYb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 07:24:31 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes. Also some X trouble.
+Date: Wed, 17 Aug 2005 13:26:15 +0200
+User-Agent: KMail/1.8.2
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Dave Airlie <airlied@gmail.com>, Linus Torvalds <torvalds@osdl.org>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <21d7e99705080503515e3045d5@mail.gmail.com> <42F89F79.1060103@aitel.hist.no>
+In-Reply-To: <42F89F79.1060103@aitel.hist.no>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2262986.hpTXZNNCr0";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508171326.21948@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--nextPart2262986.hpTXZNNCr0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On 8/17/05, Con Kolivas <kernel@kolivas.org> wrote:
-> On Mon, 15 Aug 2005 22:29, Michal Piotrowski wrote:
-> > Hi,
-> > here are my benchmarks (part1):
-> 
-> Want to try the staircase cpu scheduler in "compute" mode for the compute
-> intensive workloads?
-> 
-> Thanks,
-> Con
-> 
-> 
+Helge Hafting wrote:
+>Dave Airlie wrote:
+>>     I switched back to 2.6.13-rc4-mm1 at this point for another reason,
+>>     my X display aquired a nasty tendency to go blank for no reason
+>>     during work,
+>>     something I could fix by changing resolution baqck and forth.  X
+>>     also tended to get
+>>     stuck for a minute now and then - a problem I haven't seen since
+>>     early 2.6.
+>>
+>>
+>>
+>> which head the radeon or MGA or both?
+>
+>The radeon 9200SE-pci gets stuck.  The MGA-agp seems to be fine. I have
+>compiled
+>dri support for both, but I can't use it at the moment.  I think that is
+>caused by having ubuntu's xorg installed on debian.  I needed xorg
+>in order to run an xserver that doesn't use any tty - this way I can use
+>two keyboards and have two simultaneous users. Debians xorg wasn't ready
+>at the moment. The setup is fine with 2.6.13-rc4-mm1 x86-64, no problems
+>there.
 
-Yes, I'll try interbench ;).
+I have some other issue with a MGA card (don't know exactly which, I have o=
+nly=20
+access to this on the weekend). With rc5 and rc6 kdm will not start on=20
+bootup, X complains about some unresolved symbols in the X mga driver. If I=
+=20
+log in as user and do startx it works fine, also if I switch back to=20
+2.6.12-rc-something. Something seems to confuse X somehow.
 
-Regards,
-Michal Piotrowski
+It's a PII-350 with more or less SuSE 9.3. The machine has no net access, s=
+o I=20
+can only try to narrow it down to one rc at the weekend.
+
+Eike
+
+--nextPart2262986.hpTXZNNCr0
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBDAx7dXKSJPmm5/E4RAkKLAKCd6Xjsa0KUGjsOTV5x8joQOs1jdACfSRZN
+y5iLQ1uCzWIXzNijl/aklk8=
+=9Pt8
+-----END PGP SIGNATURE-----
+
+--nextPart2262986.hpTXZNNCr0--

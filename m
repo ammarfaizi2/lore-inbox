@@ -1,128 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVHQBDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVHQBRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbVHQBDm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 21:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbVHQBDm
+	id S1750762AbVHQBRe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 21:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVHQBRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 21:03:42 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:50430 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S1750778AbVHQBDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 21:03:42 -0400
-Date: Tue, 16 Aug 2005 18:03:37 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: linux-kernel@vger.kernel.org
-Subject: routes disappear
-Message-ID: <Pine.LNX.4.62.0508161749310.25699@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 16 Aug 2005 21:17:34 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:59790 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750762AbVHQBRd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Aug 2005 21:17:33 -0400
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
+       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
+       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+In-Reply-To: <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+Content-Type: text/plain
+Date: Tue, 16 Aug 2005 18:17:28 -0700
+Message-Id: <1124241449.8630.137.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been having an intermittent problem over the last couple of years 
-where the addition of a network interface will cause all routes on the box 
-to vanish.
+On Wed, 2005-08-17 at 02:28 +0200, Roman Zippel wrote:
 
-the systems are a stripped down Debian 3.0 build with a 2.6.7 kernel and 
-the vast majority of the time they work just fine.
+> Let's look at the example patch below. I played a little with some code 
+> and this just demonstrates an accurate conversion of the tick/freq values 
+> into the internal values in ns resolution. It does a little more work 
+> ahead, but the interrupt code becomes simpler and most important it 
+> doesn't require any expensive 64bit math and you can't get it much more 
+> accurate than that. The current gettimeofday code for tick based sources 
+> is really cheap and I'd like to keep that (i.e. free of 64bit math). The 
+> accuracy can and should be fixed (the change to timespec wasn't really a 
+> major improvement, as it introduced new rounding errors).
 
-however once in a while I get a config where enabling an interface causes 
-netstat (and /proc/net/route) to report no routes. The system continues to 
-function so the routes are still there somehow, but they aren't reported.
+Hmm. It could really use some comments, but it looks interesting. Let me
+continue reading it and play around with it some more. 
 
-the latest box to do this has two interfaces (this one has tg3 interfaces, 
-but I've also seen this on adaptec starfire, tulip, and 3com nics) 
-192.168.242.142
-192.168.210.219
+> The other thing the example demonstrates is the interface from NTP to 
+> timer code. The NTP code provides the basic parameters and then leaves it 
+> to the clock implementation how they apply. The adjustment and phase 
+> variables are really private variables. 
 
-if I boot the box with the interfaces disabled and do ifup individually it 
-sometimes works (I haven't nailed down the difference between when it does 
-and when it doesn't), if I leave them enabled at boot by the time I can 
-login the routing table shows blank.
+If they are private clock variables, why are they in the generic
+timer.c? Everyone is using it in exactly the same way, no?  Why do you
+oppose having the adjustment and phase values behind an ntp_function()
+interface?
 
-I have a few days to fiddle with this system before I need to use it, 
-where should I look to dig up more info?
+Maybe to focus this productively, I'll try to step back and outline the
+goals at a high level and you can address those. 
 
-syslog shows the following
-Aug 16 16:33:04 scribe1a-p kernel: Adding 2048276k swap on /dev/sda1. 
-Priority:-1 extents:1
-Aug 16 16:33:04 scribe1a-p kernel: ttyS2: LSR safety check engaged!
-Aug 16 16:33:04 scribe1a-p kernel: ttyS2: LSR safety check engaged!
-Aug 16 16:33:04 scribe1a-p kernel: ttyS3: LSR safety check engaged!
-Aug 16 16:33:04 scribe1a-p kernel: ttyS3: LSR safety check engaged!
-Aug 16 16:33:04 scribe1a-p kernel: tg3: eth0: Link is up at 1000 Mbps, 
-full duplex.
-Aug 16 16:33:04 scribe1a-p kernel: tg3: eth0: Flow control is on for TX 
-and on for RX.
-Aug 16 16:33:04 scribe1a-p kernel: tg3: eth1: Link is up at 1000 Mbps, 
-full duplex.
-Aug 16 16:33:04 scribe1a-p kernel: tg3: eth1: Flow control is off for TX 
-and off for RX.
-Aug 16 16:33:04 scribe1a-p kernel: process `syslogd' is using obsolete 
-setsockopt SO_BSDCOMPAT
-Aug 16 16:33:05 scribe1a-p /usr/sbin/gpm[191]: Detected EXPS/2 protocol 
-mouse.
-Aug 16 16:33:07 scribe1a-p ntpd[298]: ntpd 4.1.0 Mon Mar 25 23:39:47 UTC 
-2002 (2)
-Aug 16 16:33:07 scribe1a-p ntpd[298]: precision = 11 usec
-Aug 16 16:33:07 scribe1a-p ntpd[298]: kernel time discipline status 0040
-Aug 16 16:33:07 scribe1a-p ntpd[298]: attempt to configure invalid address 
-127.127.1.0
-Aug 16 16:33:07 scribe1a-p /usr/sbin/cron[303]: (CRON) INFO (pidfile fd = 
-3)
-Aug 16 16:33:07 scribe1a-p /usr/sbin/cron[304]: (CRON) STARTUP (fork ok)
-Aug 16 16:33:07 scribe1a-p /usr/sbin/cron[304]: (CRON) INFO (Running 
-@reboot jobs)
-Aug 16 16:33:16 scribe1a-p ntpd[298]: sendto(192.168.252.132): Network is 
-unreachable
-Aug 16 16:33:23 scribe1a-p ntpd[298]: sendto(192.168.252.131): Network is 
-unreachable
-Aug 16 16:33:36 scribe1a-p kernel: 192.168.242.142 sent an invalid ICMP 
-type 3, code 1 error to a broadcast: 192.168.
-242.255 on lo
-Aug 16 16:33:36 scribe1a-p kernel: 192.168.242.142 sent an invalid ICMP 
-type 3, code 1 error to a broadcast: 192.168.
-242.255 on lo
-Aug 16 16:33:39 scribe1a-p kernel: tg3: eth0: Link is up at 1000 Mbps, 
-full duplex.
-Aug 16 16:33:39 scribe1a-p kernel: tg3: eth0: Flow control is on for TX 
-and on for RX.
-Aug 16 16:33:42 scribe1a-p kernel: 192.168.210.216 sent an invalid ICMP 
-type 3, code 1 error to a broadcast: 192.168.
-210.255 on lo
-Aug 16 16:33:42 scribe1a-p kernel: 192.168.210.216 sent an invalid ICMP 
-type 3, code 1 error to a broadcast: 192.168.
-210.255 on lo
-Aug 16 16:33:43 scribe1a-p kernel: tg3: eth1: Link is up at 1000 Mbps, 
-full duplex.
-Aug 16 16:33:43 scribe1a-p kernel: tg3: eth1: Flow control is off for TX 
-and off for RX.
-Aug 16 16:33:55 scribe1a-p kernel: tg3: eth1: Link is up at 1000 Mbps, 
-full duplex.
-Aug 16 16:33:55 scribe1a-p kernel: tg3: eth1: Flow control is off for TX 
-and off for RX.
-Aug 16 16:34:01 scribe1a-p /USR/SBIN/CRON[716]: (root) CMD (touch 
-/tmp/.crond_running >/dev/null 2>/dev/null)
-Aug 16 16:34:02 scribe1a-p kernel: 192.168.242.142 sent an invalid ICMP 
-type 3, code 1 error to a broadcast: 192.168.
-242.255 on lo
-Aug 16 16:34:02 scribe1a-p kernel: 192.168.242.142 sent an invalid ICMP 
-type 3, code 1 error to a broadcast: 192.168.
-242.255 on lo
-Aug 16 16:34:04 scribe1a-p kernel: tg3: eth0: Link is up at 1000 Mbps, 
-full duplex.
-Aug 16 16:34:04 scribe1a-p kernel: tg3: eth0: Flow control is on for TX 
-and on for RX.
-Aug 16 16:35:01 scribe1a-p /USR/SBIN/CRON[1126]: (root) CMD 
-(/usr/local/etc/newlogs >/dev/null 2>/dev/null)
-Aug 16 16:35:01 scribe1a-p /USR/SBIN/CRON[1128]: (root) CMD (touch 
-/tmp/.crond_running >/dev/null 2>/dev/null)
+My Assumptions:
+1. adjtimex() sets/gets NTP state values
+2. Every tick we adjust those state values
+3. Every tick we use those values to make a nanosecond adjustment to
+time.
+4. Those state values are otherwise unused.
+
+Goals:
+1. Isolate NTP code to clean up the tick based timekeeping, reducing the
+spaghetti-like code interactions.
+2. Add interfaces to allow for continuous, rather then tick based,
+adjustments (much how ppc64 does currently, only shareable).
 
 
-David Lang
+thanks
+-john
 
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbVHQAV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbVHQAWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbVHQAV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 20:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbVHQAV1
+	id S1750773AbVHQAWu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 20:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbVHQAWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 20:21:27 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:30602 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750771AbVHQAV0 (ORCPT
+	Tue, 16 Aug 2005 20:22:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43677 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750773AbVHQAWt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 20:21:26 -0400
-Date: Tue, 16 Aug 2005 17:21:01 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: john stultz <johnstul@us.ibm.com>
-cc: Roman Zippel <zippel@linux-m68k.org>, lkml <linux-kernel@vger.kernel.org>,
-       George Anzinger <george@mvista.com>, frank@tuxrocks.com,
-       Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-In-Reply-To: <1124237849.8630.112.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0508161718010.9893@schroedinger.engr.sgi.com>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com> 
- <1123726394.32531.33.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508152115480.3728@scrub.home>
-  <1124151001.8630.87.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0508161116270.7101@schroedinger.engr.sgi.com> 
- <1124236081.8630.110.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0508161710580.9829@schroedinger.engr.sgi.com>
- <1124237849.8630.112.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Aug 2005 20:22:49 -0400
+Date: Tue, 16 Aug 2005 17:22:39 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@osdl.org>, zach@vmware.com, akpm@osdl.org,
+       chrisl@vmware.com, hpa@zytor.com, Keir.Fraser@cl.cam.ac.uk,
+       linux-kernel@vger.kernel.org, m+Ian.Pratt@cl.cam.ac.uk,
+       mbligh@mbligh.org, pratap@vmware.com, virtualization@lists.osdl.org,
+       zwame@arm.linux.org.uk
+Subject: Re: [PATCH 1/14] i386 / Make write ldt return error code
+Message-ID: <20050817002239.GW7762@shell0.pdx.osdl.net>
+References: <200508110452.j7B4qpSE019505@zach-dev.vmware.com> <20050816234330.GF27628@wotan.suse.de> <20050817000618.GT7762@shell0.pdx.osdl.net> <20050817001226.GB3996@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050817001226.GB3996@wotan.suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Aug 2005, john stultz wrote:
+* Andi Kleen (ak@suse.de) wrote:
+> On Tue, Aug 16, 2005 at 05:06:18PM -0700, Chris Wright wrote:
+> > In this case the callers do propagate the error (unless you mean
+> > userspace doesn't check return value from syscall, which is same problem
+> > if copy_from_user failed, for example).  Xen has done some more wrapping
+> 
+> Nothing checks them in user space.
+> 
+> Also how would you handle them anyways? It just doesn't make sense.
 
-> That is why I'm suggesting time_interpolator users to move to my code
-> (when they're ready, of course :).
+Yes, I see your point, although copy_from_user failing has similar issue
+if userspace isn't checking errors.  But this one is not critical.
 
-Both are basically timesources. That is why I would suggest you upgrade 
-the interpolators to timesources. Doing that would enable a gradual 
-transition instead of a cutover to a new time subsystem. It should also 
-insure that the gains we have made in terms of accuracy of time will be 
-preserved in the new system. And the code would be able to use the 
-existing proven code that already allows system time with nanosecond 
-precision.
-
-
+thanks,
+-chris

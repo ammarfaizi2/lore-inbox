@@ -1,72 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbVHQLNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVHQLRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbVHQLNv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 07:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbVHQLNv
+	id S1751065AbVHQLRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 07:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbVHQLRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 07:13:51 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:5588 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751063AbVHQLNu (ORCPT
+	Wed, 17 Aug 2005 07:17:09 -0400
+Received: from sipsolutions.net ([66.160.135.76]:59662 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S1751065AbVHQLRI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 07:13:50 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+	Wed, 17 Aug 2005 07:17:08 -0400
+Subject: pmac_nvram problems
+From: Johannes Berg <johannes@sipsolutions.net>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: help with PCI hotplug and a PCI device enabled after boot]
-Date: Wed, 17 Aug 2005 13:15:22 +0200
-User-Agent: KMail/1.8.2
-References: <1124269343.4423.35.camel@localhost> <200508171147.22927@bilbo.math.uni-mannheim.de> <1124276090.4423.46.camel@localhost>
-In-Reply-To: <1124276090.4423.46.camel@localhost>
-Cc: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1281936.7LjSgiqYBP";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508171315.32704@bilbo.math.uni-mannheim.de>
+Cc: benh@kernel.crashing.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DnrwuaXU9nvaMrl7hxaQ"
+Date: Wed, 17 Aug 2005 13:16:55 +0200
+Message-Id: <1124277416.6336.11.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1281936.7LjSgiqYBP
-Content-Type: text/plain;
-  charset="iso-8859-1"
+
+--=-DnrwuaXU9nvaMrl7hxaQ
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Am Mittwoch, 17. August 2005 12:54 schrieb Mauro Carvalho Chehab:
->Rolf,
->
->Em Qua, 2005-08-17 =E0s 11:47 +0200, Rolf Eike Beer escreveu:
->> Mauro Carvalho Chehab wrote:
->> >    I need some help with PCI hotplug for allowing a new driver at
->> >Video4Linux.
->> >
->> >    I need memory to set its internal registers. Is there a way to make
->> >PCI drivers to allocate a memory region for the board?
->>
->> Use dummyphp instead of fakephp. It should handle this case. You can find
->> it here: http://opensource.sf-tec.de/kernel/dummyphp-2.6.13-rc1.diff
->
->	Didn't compile cleanly against -rc6. Do I need another patch or -mm
->series?
->
->WARNING: /lib/modules/2.6.13-rc6/kernel/drivers/pci/hotplug/dummyphp.ko
->needs unknown symbol pci_bus_add_resources
+Hi,
 
-Damn, I should stop editing diffs by hand. Change this to=20
-pci_bus_assign_resources and it should work. Sorry.
+Please CC me on answers, I'm not subscribed. I wasn't too sure where to
+send this, so CC'ing to Benjamin Herrenschmidt as the author of the
+relevant driver.
 
-Eike
+Note that this might apply to the copy in ppc64 as well, not sure.
 
---nextPart1281936.7LjSgiqYBP
-Content-Type: application/pgp-signature
+Currently, the pmac_nvram driver can be built as a module, but doesn't
+specify its license and also fails to load because it uses
+alloc_bootmem:
+| pmac_nvram: module license 'unspecified' taints kernel.
+| pmac_nvram: Unknown symbol __alloc_bootmem
+
+I'm not sure why alloc_bootmem is used at all (is the nvram larger than
+a couple of pages on any machine? And if it is, should it really be
+cached in RAM?), but I think it should be sufficient to just use kmalloc
+(well, it works for me).
+
+Secondly, this driver misses power management. Having suspended, I
+booted OSX which always resets the boot volume. But after resuming
+linux, nvsetvol(8) still reports 0 as the boot volume because the
+pmac_nvram driver caches the nvram contents. Fixing this would require
+converting the driver to the new model though, I think.
+
+johannes
+
+--=-DnrwuaXU9nvaMrl7hxaQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Johannes Berg (SIP Solutions)
 
-iD8DBQBDAxxUXKSJPmm5/E4RAsw7AKCnBNin08WADDdOuZRIlg4w8rGVOwCglf7N
-cYxBOcUqdWZTemehke1DFRg=
-=Pm6U
+iQIVAwUAQwMcpaVg1VMiehFYAQLNJxAApPipdK+cvIMcy45vclfaRJyD1KKEvSDO
+sErQjg3xmH9TghsGbrhlSW4mDKrXSF+XwNFAR+5/dDvYsJObLPkhdfK+WIj10w1x
+nCL9tMNCZH0Gxat5u8ljl2/0A4kWmImMBxs7DDrjl1DloHdtuqIrQt+VvLnWIYXG
+DUyiLI+o0ny/DkKR7yUsfjdbLueu5WSbvnmJ1L7StUkVruovjmh9ZO3cv89ZtV8g
+HXvdwpVets67JQr+cEyKFmhgR6hRTHtMPgwJRbYrU9lDZXO20E8kJlL4ZTDmVg+P
+Pb1Y3dlg8sw6nvtNZ3y9MyXvmDuXU5vk06gnJeEpaqoQ1Pg9hEcl0Bv7ULB4I1OL
+/Pmj0gV21jvFu5uDGv+JS80psqNT0GkGE9LccrgxfbXNUr8k1kMvbKqaVdRx0Ccr
+6dINqnO74/oIf4eapEJ5vtKmJdMKE2V5VE2jOXLXEzHRf0RS6WAmSQgO88m6hcGJ
+Ss2b4Hc8Q8NBotlVALg7ELf+IyaVIsMcB+1lIZnsrUO95UH2Izb9u2JaZ03Fz8DM
+LQnLBvKDHa0ymTl1K1GOAV617xPBvRuA3ndzvHonJseIS8qlSYnZsrgpS78VLFyp
+mnfhvTY9srgJ5LVbEIKWQgYZLJWqXFDNTcXza2GiUflhFCGdNwU2F5geWsVNr4pF
+QDXoPeqbj9M=
+=83nK
 -----END PGP SIGNATURE-----
 
---nextPart1281936.7LjSgiqYBP--
+--=-DnrwuaXU9nvaMrl7hxaQ--
+

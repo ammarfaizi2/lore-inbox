@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVHRKlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVHRKrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbVHRKlj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 06:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVHRKlj
+	id S932173AbVHRKrU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 06:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbVHRKrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 06:41:39 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:17637 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S932170AbVHRKli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 06:41:38 -0400
-Date: Thu, 18 Aug 2005 12:41:32 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: zero-copy read() interface
-Message-ID: <20050818104131.GH12313@vanheusden.com>
-References: <20050818100151.GF12313@vanheusden.com>
-	<20050818100536.GB16751@wohnheim.fh-wedel.de>
+	Thu, 18 Aug 2005 06:47:20 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57785 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932173AbVHRKrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 06:47:19 -0400
+Date: Wed, 17 Aug 2005 16:35:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: =?iso-8859-2?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Flash erase groups and filesystems
+Message-ID: <20050817143534.GC516@openzaurus.ucw.cz>
+References: <4300F963.5040905@drzeus.cx> <20050816162735.GB21462@wohnheim.fh-wedel.de> <43021DB8.70909@drzeus.cx>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="raC6veAxrt5nqIoY"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050818100536.GB16751@wohnheim.fh-wedel.de>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Fri Aug 19 10:38:19 CEST 2005
-X-MSMail-Priority: High
-X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
-	with PGP!
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <43021DB8.70909@drzeus.cx>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---raC6veAxrt5nqIoY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> >Question came up before, albeit with a different phrasing.  One
+> >possible approach to benefit from this ability would be to create a
+> >"forget" operation.  When a filesystem already knows that some data is
+> >unneeded (after a truncate or erase operation), it will ask the device
+> >to forget previously occupied blocks.
+> >
+> >The device then has the _option_ of handling the forget operation.
+> >Further reads on these blocks may return random data.
+> >
+> >And since noone stepped up to implement this yet, you can still get
+> >all the fame and glory yourself! ;)
+> >  
+> >
+> 
+> I'm not sure we're talking about the same thing. I'm not suggesting new
+> features in the VFS layer. I want to know if something breaks if I
+> implement this erase feature in the MMC layer. In essence the file
+> system has marked the sectors as "forget" by issuing a write to them.
+> The question is if it is assumed that they are unchanged if the write
+> fails half-way through.
 
-> > What about a zero-copy read-interface?
-> > An ioctl (or something) which enables the kernel to do dma directly to
-> > the userspace. Of course this should be limited to the root-user or a
-> > user with special capabilities (rights) since if a drive screws up, data
-> > from a different sector (or so) might end up in the proces' memory. Of
-> > course copying a sector from kernel- to userspace can be done pretty
-> > fast but i.m.h.o. all possible speedimprovements should be made unless
-> > unclean.
-> Just use mmap().  Unlike your proposal, it cooperates with the page
-> cache.
+Journaling filesystems may not like finding 0xff's all over their journal...
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-Doesn't that one also use copying? I've also heard that using mmap is
-expensive due to pagefaulting. I've found, for example, that copying a
-1.3GB file using read/write instead of mmap & memcpy is seconds faster.
-
-
-Folkert van Heusden
-
---=20
-Auto te koop, zie: http://www.vanheusden.com/daihatsu.php
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
-
---raC6veAxrt5nqIoY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iIMEARECAEMFAkMEZds8Gmh0dHA6Ly93d3cudmFuaGV1c2Rlbi5jb20vZGF0YS1z
-aWduaW5nLXdpdGgtcGdwLXBvbGljeS5odG1sAAoJEDAZDowfKNiuu6MAn3uJ+a25
-/GcuewtEvfAPK1+PZJqUAJ4h+bHncmBlAaHc9qKianNQluLGIw==
-=krUL
------END PGP SIGNATURE-----
-
---raC6veAxrt5nqIoY--

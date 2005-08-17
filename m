@@ -1,26 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVHQDx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVHQDz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbVHQDx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Aug 2005 23:53:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVHQDx1
+	id S1750828AbVHQDz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Aug 2005 23:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVHQDz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 23:53:27 -0400
-Received: from gate.crashing.org ([63.228.1.57]:62147 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750813AbVHQDx1 (ORCPT
+	Tue, 16 Aug 2005 23:55:58 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:9936
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1750828AbVHQDz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 23:53:27 -0400
+	Tue, 16 Aug 2005 23:55:58 -0400
 Subject: Re: [PATCH] [Fwd: Console locking and blanking]
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+Reply-To: abonilla@linuxwireless.org
 To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
 In-Reply-To: <1124250271.5764.76.camel@localhost.localdomain>
 References: <1124242875.8848.10.camel@gaston>
 	 <1124249381.8848.19.camel@gaston>
 	 <1124250271.5764.76.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 17 Aug 2005 13:51:02 +1000
-Message-Id: <1124250664.8849.21.camel@gaston>
+Date: Tue, 16 Aug 2005 21:55:48 -0600
+Message-Id: <1124250948.4855.93.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
@@ -40,10 +43,10 @@ On Tue, 2005-08-16 at 23:44 -0400, Steven Rostedt wrote:
 > screen is lit.  So, unless you actually turn the laptop display off,
 > switching it to black will actually burn the battery quicker.
 
-Actually, it's not the backlight. The backlight definitely eats less
-power when off. The panel itself, however, at least some of them afaik,
-will use a bit more power for opaque pixels than for transparent pixels.
+This sounds stupid. Who told you this? The actual brightness is the one
+that consumes the most battery.
 
-Ben.
+Seriously, who told you such thing?
 
+.Alejandro
 

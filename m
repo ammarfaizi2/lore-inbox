@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbVHQHGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbVHQHcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbVHQHGq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 03:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbVHQHGq
+	id S1750956AbVHQHcd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 03:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbVHQHcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 03:06:46 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51335 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750946AbVHQHGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 03:06:46 -0400
-Subject: Re: insmod error: Invalid module format.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Nikhil Dharashivkar <nikhildharashivkar@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <17db6d3a050816235729eff2c0@mail.gmail.com>
-References: <17db6d3a050816235729eff2c0@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 17 Aug 2005 09:06:34 +0200
-Message-Id: <1124262394.3220.14.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Wed, 17 Aug 2005 03:32:33 -0400
+Received: from smtpout.mac.com ([17.250.248.47]:50911 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750922AbVHQHcc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 03:32:32 -0400
+In-Reply-To: <20050817053259.GA24060@lists.us.dell.com>
+References: <4277B1B44843BA48B0173B5B0A0DED43528193@ausx3mps301.aus.amer.dell.com> <20050817053259.GA24060@lists.us.dell.com>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <BB22B747-C7A7-443F-8DD7-BFD19A62F25D@mac.com>
+Cc: Michael_E_Brown@Dell.com, greg@kroah.com, linux-kernel@vger.kernel.org,
+       Douglas_Warzecha@Dell.com, Chris Wedgwood <cw@f00f.org>,
+       Nathan Lutchansky <lutchann@litech.org>, Valdis.Kletnieks@vt.edu,
+       Andrey Panin <pazke@donpac.ru>, Andi Kleen <ak@suse.de>,
+       Pavel Machek <pavel@ucw.cz>
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 2.6.13-rc6] add Dell Systems Management Base Driver (dcdbas) with sysfs support
+Date: Wed, 17 Aug 2005 03:32:01 -0400
+To: Matt Domsch <Matt_Domsch@Dell.com>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-17 at 12:27 +0530, Nikhil Dharashivkar wrote:
-> Hi all,
->      I have RH9 installed with  2.6.7-1 kernel. I am able to compile
-> the module but , when i load this module using insmod i get an error
-> "insmod: error inserting './simple.o': -1 Invalid module format"
-> 
-> Please, any one tell me what is this meant ?
-> 
+On Aug 17, 2005, at 01:33:00, Matt Domsch wrote:
+> This is conceptually similar to how SCSI Generic (either
+> /dev/sg or ioctl(SG_IO)) works (userspace passes in preformated SCSI
+> CDBs and gets back the resultant CDBs and extended sense data).  The
+> sg driver doesn't look at the data being passed down to any great
+> extent.  It doesn't validate that the command will make sense to the
+> end device.
 
-this means that you didn't read the documentation on how to build
-modules for your 2.6.7 kernel.
+This is not true anymore.  Recently the SG driver obtained a basic
+form of SCSI command checking to prohibit vendor commands from those
+processes without CAP_RAW_IO, even if said process had full access
+to the device node itself.
+
+
+Cheers,
+Kyle Moffett
+
+--
+Simple things should be simple and complex things should be possible
+   -- Alan Kay
+
 
 

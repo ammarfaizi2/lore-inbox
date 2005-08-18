@@ -1,56 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVHRDBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVHRDNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbVHRDBD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 23:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbVHRDBC
+	id S932119AbVHRDNL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 23:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVHRDNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 23:01:02 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:50099 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932114AbVHRDBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 23:01:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=e6mhjy+Mnp35eXa3Go2tifvmKN76TRnLcyF9M25VvzJCM0IUbnDSdZBudV2RH0MurKviJv7v6h3uiSO0F7rwaEy+wPjQv3FRA9dD+nBNftMoJy8Grr+vIMcNsRhJ1QZl5AX6SlR+YxezFQuPy2mNQipW978vD2bFpsI9Hje6C2g=  ;
-Message-ID: <4303F9E6.8030607@yahoo.com.au>
-Date: Thu, 18 Aug 2005 13:00:54 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Eric Dumazet <dada1@cosmosbay.com>,
-       Benjamin LaHaise <bcrl@linux.intel.com>,
-       "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct file cleanup : the very large file_ra_state is
- now allocated only on demand.
-References: <20050810164655.GB4162@linux.intel.com> <20050810.135306.79296985.davem@davemloft.net> <20050810211737.GA21581@linux.intel.com> <430391F1.9080900@cosmosbay.com> <20050817211829.GK27628@wotan.suse.de> <4303AEC4.3060901@cosmosbay.com> <20050817215357.GU3996@wotan.suse.de> <4303D90E.2030103@cosmosbay.com> <20050818010524.GW3996@wotan.suse.de> <4303F7E8.5030705@yahoo.com.au> <20050818025727.GY3996@wotan.suse.de>
-In-Reply-To: <20050818025727.GY3996@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 17 Aug 2005 23:13:11 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:64189 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932119AbVHRDNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 23:13:10 -0400
+Subject: Re: Latency with Real-Time Preemption with 2.6.12
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Sundar Narayanaswamy <sundar007@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20050818023853.48406.qmail@web54406.mail.yahoo.com>
+References: <20050818023853.48406.qmail@web54406.mail.yahoo.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 17 Aug 2005 23:12:46 -0400
+Message-Id: <1124334766.5186.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Wed, 2005-08-17 at 19:38 -0700, Sundar Narayanaswamy wrote:
+> Hi,
+> I am trying to experiment using 2.6.12 kernel with the realtime-preempt 
+> V0.7.51-38 patch to determine the kernel preemption latencies with the 
+> CONFIG_PREEMPT_RT mode. The test program I wrote does the following on
+> a thread with highest priority (99) and SCHED_FIFO policy to simulate
+> a real time thread.
+> 
+> t1 = gettimeofday
+> nanosleep(for 3 ms)
+> t2 = gettimeofday
+> 
+> I was expecting to see the difference t2-t1 to be close to 3 ms. However, 
+> the smallest difference I see is 4 milliseconds under no system load, 
+> and the difference is as high as 25 milliseconds under moderate to 
+> heavy system load (mostly performing disk I/O).
 
->>You don't want to always have bad performance though, so you
->>could attempt to allocate if either the pointer is null _or_ it
->>points to the global structure?
->>
->
->Remember it's after a GFP_KERNEL OOM. If that fails most likely
->you have deadlocked somewhere else already because Linux's handling
->of that is so bad. Suboptimal readahead somewhere is the smallest
->of your problems.
->
->
+That version of Ingo's patch does not implement High-Resolution Timers.
+Thomas worked on merging this into the latest RT patch.  Without
+high-res timers, the best you may ever get is 4ms. This is because
+nanosleep is to guarantee _at_least_ 3 ms.  So you have the following
+situation:
 
-True. And in practice it may not even be able to happen at the
-moment if the page allocator still doesn't fail small order allocs.
+0               1               2                3               4 (ms)
++---------------+---------------+----------------+---------------+--->
+           ^                                        ^
+           |                                        |
+         Start here 0+3 = 3                      here we have the response
 
-But I guess the dream one day is to robustly handle any OOM :\
+If we look at this in smaller units than ms, we started on 0.8ms and
+responded at 3.2ms where we have 3.2 - 0.8 = 2.4 which is less than 3ms.
+So since Ingo's patch doesn't increase the resolution of the timers from
+a jiffy (which is currently 1ms) Linux is forced to add one more than
+you need.
+
+> 
+> Based on the articles and the mails I read on this list, I understand that 
+> worst case latencies of 1 ms (or less) should be possible using the RT 
+> Preemption patch, but I am unable to get anything less than 4 millseconds 
+> even with sleep times smaller than 3 ms. I am running the tests on a SBC 
+> with a 1.4G Pentium M, 512M RAM, 1GB compact flash (using IDE). 
+> 
+> I believe I have the high resolution timer working correctly, because if I 
+> comment out the sleep line above t2-t1 is consistenly 0 or 1 microsecond.
+
+I don't think you have the high res timer working, since there is no
+high res timer in that kernel.
+
+> 
+> Following earlier discussions (in July) in this list, I tried to set kernel 
+> configuration parameters like CONFIG_LATENCY_TRACE to get tracing/debug 
+> information, but I didn't find these parameters in my .config file.
+> 
+> I appreciate your suggestions/insights into the situation and steps that I 
+> should try to get more debug/tracing information that might help to understand 
+> the cause of high latency.
+
+It's not a high latency.  It's doing exactly as it is suppose to, since
+the nanosleep doesn't have high-res support (in that kernel).  If you
+really want to measure latency, you need to add a device or something
+and see what the response time of an interrupt going off to the time a
+thread is woken to respond to it.  Now with Ingo's that is really fast.
+
+-- Steve
 
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 

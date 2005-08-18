@@ -1,120 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVHRJx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVHRJxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVHRJx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 05:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVHRJx6
+	id S932136AbVHRJxk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 05:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVHRJxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 05:53:58 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:62607 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932152AbVHRJx5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 05:53:57 -0400
-Date: Thu, 18 Aug 2005 15:32:59 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Benjamin LaHaise <bcrl@linux.intel.com>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [AIO] aio-2.6.13-rc6-B1
-Message-ID: <20050818100259.GA7060@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20050817184406.GA24961@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Aug 2005 05:53:40 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:25559 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932136AbVHRJxj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 05:53:39 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.13-rc6-rt3
+Date: Thu, 18 Aug 2005 10:57:30 +0100
+User-Agent: KMail/1.8.90
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+References: <20050816121843.GA24308@elte.hu>
+In-Reply-To: <20050816121843.GA24308@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050817184406.GA24961@linux.intel.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200508181057.30828.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 17, 2005 at 02:44:07PM -0400, Benjamin LaHaise wrote:
-> The bugfix followup to the last aio rollup is now available at:
-> 
-> 	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1-all.diff
-> 
-> with the split up in:
-> 
-> 	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1/
-> 
-> This fixes the bugs noticed in the -B0 variant.  Major changes in this 
-> patchset are:
-> 
-> 	- added aio semaphore ops
-> 	- aio thread based fallbacks
-> 	- vectored aio file_operations
-> 	- aio sendmsg/recvmsg via thread fallbacks
-> 	- retry based aio pipe operations
-> 
-> Comments?
+On Tuesday 16 August 2005 13:18, Ingo Molnar wrote:
+> i have released the 2.6.13-rc6-rt3 tree, which can be downloaded from
+> the usual place:
+>
+>   http://redhat.com/~mingo/realtime-preempt/
+>
+> Changes since 2.6.13-rc6-rt2:
 
-Tried http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-all.diff  (since
-there is no aio-2.6.13-rc6-B1-all.diff). It hangs during bootup :(
+Ingo,
 
-...
-Initializing IPsec netlink socket
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-NET: Registered protocol family 15
-Starting balanced_irq
-Using IPI Shortcut mode
-VFS: Cannot open root device "sda6" or unknown-block(8,6)
-Please append a correct "root=" boot option
-Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,6)
+I haven't used any of the RT patches since V0.7.51-xx, but I upgraded to -rt8 
+yesterday and had a couple of problems. I've just noticed you released -rt9, 
+but I don't think my problem is listed as fixed.. I'll upgrade anyway, in a 
+minute.
 
+The problem I'm having is that when the kernel probes my IDE devices it slows 
+down, taking ages to complete the probe. Henceforth the kernel seems to work 
+at a slower speed doing just about anything (compiling, etc.), but 
+interactive performance is okay. It's a bizarre problem.
 
-Regards
-Suparna
+Of course, I assumed this was due to the latest timer changes, and so I 
+disabled CONFIG_HIGH_RES_TIMERS and went back to CONFIG_HPET_TIMER.
+This works perfectly.
 
-> 
-> 		-ben
-> 
->  arch/i386/Kconfig              |    4 
->  arch/i386/kernel/semaphore.c   |  185 +-----------
->  arch/um/Kconfig_i386           |    4 
->  arch/um/Kconfig_x86_64         |    4 
->  arch/x86_64/Kconfig            |    4 
->  arch/x86_64/kernel/Makefile    |    2 
->  arch/x86_64/kernel/semaphore.c |  180 ------------
->  arch/x86_64/lib/thunk.S        |    1 
->  description                    |    9 
->  drivers/usb/gadget/inode.c     |    7 
->  fs/aio.c                       |  610 +++++++++++++++++++++++++++++++++++------
->  fs/bad_inode.c                 |    2 
->  fs/block_dev.c                 |    9 
->  fs/buffer.c                    |    2 
->  fs/ext2/file.c                 |    2 
->  fs/ext3/file.c                 |   16 -
->  fs/inode.c                     |    2 
->  fs/jfs/file.c                  |    2 
->  fs/ntfs/file.c                 |    2 
->  fs/pipe.c                      |  194 ++++++++++---
->  fs/read_write.c                |  182 ++++++++----
->  fs/reiserfs/file.c             |   10 
->  include/asm-i386/semaphore.h   |   42 ++
->  include/asm-x86_64/semaphore.h |   44 ++
->  include/linux/aio.h            |   38 ++
->  include/linux/aio_abi.h        |   13 
->  include/linux/fs.h             |    9 
->  include/linux/net.h            |    4 
->  include/linux/pagemap.h        |   29 +
->  include/linux/sched.h          |   13 
->  include/linux/wait.h           |   42 ++
->  include/linux/writeback.h      |    2 
->  kernel/exit.c                  |    2 
->  kernel/fork.c                  |    7 
->  kernel/sched.c                 |   14 
->  kernel/wait.c                  |   40 +-
->  lib/Makefile                   |    1 
->  lib/semaphore-sleepers.c       |  253 +++++++++++++++++
->  mm/filemap.c                   |  164 ++++++++---
->  net/socket.c                   |   97 +++++-
->  40 files changed, 1593 insertions(+), 654 deletions(-)
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+For the moment, is it worth debugging problems in the high res timers set or 
+are there known (fixable) issues?
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Cheers,
+Alistair.
 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

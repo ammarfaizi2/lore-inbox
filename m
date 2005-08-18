@@ -1,61 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVHRCnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVHRCo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbVHRCnf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 22:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVHRCne
+	id S932096AbVHRCo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 22:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVHRCo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 22:43:34 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54177
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932091AbVHRCne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 22:43:34 -0400
-Date: Wed, 17 Aug 2005 19:43:15 -0700 (PDT)
-Message-Id: <20050817.194315.111196480.davem@davemloft.net>
-To: ak@suse.de
-Cc: dada1@cosmosbay.com, bcrl@linux.intel.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct file cleanup : the very large file_ra_state is
- now allocated only on demand.
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050818010524.GW3996@wotan.suse.de>
-References: <20050817215357.GU3996@wotan.suse.de>
-	<4303D90E.2030103@cosmosbay.com>
-	<20050818010524.GW3996@wotan.suse.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 17 Aug 2005 22:44:28 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:35482 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932096AbVHRCo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 22:44:27 -0400
+Subject: Re: 2.6.13-rc6-rt6
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <1124323379.5186.18.camel@localhost.localdomain>
+References: <20050816170805.GA12959@elte.hu>
+	 <1124214647.5764.40.camel@localhost.localdomain>
+	 <1124215631.5764.43.camel@localhost.localdomain>
+	 <1124218245.5764.52.camel@localhost.localdomain>
+	 <1124252419.5764.83.camel@localhost.localdomain>
+	 <1124257580.5764.105.camel@localhost.localdomain>
+	 <20050817064750.GA8395@elte.hu>
+	 <1124287505.5764.141.camel@localhost.localdomain>
+	 <1124288677.5764.154.camel@localhost.localdomain>
+	 <1124295214.5764.163.camel@localhost.localdomain>
+	 <20050817162324.GA24495@elte.hu>
+	 <1124323379.5186.18.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 17 Aug 2005 22:44:10 -0400
+Message-Id: <1124333050.5186.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Date: Thu, 18 Aug 2005 03:05:25 +0200
+On Wed, 2005-08-17 at 20:02 -0400, Steven Rostedt wrote:
 
-> I would just set the ra pointer to a single global structure if the
-> allocation fails. Then you can avoid all the other checks. It will
-> slow down things and trash some state, but not fail and nobody
-> should expect good performance after out of memory anyways. The only
-> check still needed would be on freeing.
+> So I went back to the laptop's original config, and did one change. I
+> disabled CONFIG_SCHED_SMT, rebooted, and the system booted up.  It
+> hasn't locked up after four boots.  It did once get into some crazy bug
+> with scheduling while atomic, but it just spit out so many of them that
+> I couldn't see what caused it. I'll turn back on netconsole to see if I
+> can capture that bug, but it seems to be related to someting different.
+> 
+> So I think something's wrong with the scheduling for hyper threading.
 
-I would think twice about that due to repeatability concerns.  Yes, we
-should care less when memory is so low, but if we can avoid this kind
-of scenerio easily we should.
+Spoke too soon.  I added netconsole and booted a couple of more times,
+and I got a crash again.  So it seems to happen less often with
+CONFIG_SCHED_SMT, (don't know why) but it is not the problem.
 
-Having said that, I would like to recommend looking into a scheme
-where the path leading to the filp allocation states whether the
-read-ahead bits are needed or not.  This has two benefits:
+Here's the latest dump. May be due to having HR timers configured.  I'll
+add my logger and do some more in depth debugging tomorrow.
 
-1) Repeatability, and error signalling at the correct place
-   should the memory allocation fail.
+(the bug happened same place, same time, but not all the time)
 
-2) We can avoid the pointer dereference overhead.  The read-ahead
-   state is always at (filp + 1).  Macro'ized or static inline
-   function'ized interfaces for this access can make it look
-   clean and perhaps even implement debugging of the case where
-   we try to get at the read-ahead state for a non-read-ahead
-   filp.
+-- Steve
 
-I do really think that would be a better approach.  A quick glance
-shows that it should be easy to propagate the "need_read_ahead"
-state, just by passing a boolean to get_unused_fd() via
-sock_map_fd().
+Freeing unused kernel memory: 296k freed
+softirq-timer/0/4[CPU#0]: BUG in set_new_owner at kernel/rt.c:916
+NMI watchdog detected lockup on CPU#1 (50000/50000)
+
+Pid: 14, comm:      softirq-timer/1
+EIP: 0060:[<c032ea3f>] CPU: 1
+EIP is at __down_mutex+0xdf/0x5d0
+ EFLAGS: 00000082    Not tainted  (2.6.13-rc6-rt8)
+EAX: c1831884 EBX: 00000000 ECX: 00000000 EDX: cf6bdeec
+ESI: cf6ba7c0 EDI: cf6bdefc EBP: c1831870 DS: 007b ES: 007b
+CR0: 8005003b CR2: 00000000 CR3: 00474000 CR4: 000006d0
+ [<c0141d44>] check_wakeup_timing+0xd4/0x170 (20)
+ [<c0141db8>] check_wakeup_timing+0x148/0x170 (12)
+ [<c0141c0a>] sub_preempt_count+0x1a/0x20 (64)
+ [<c011bd5e>] __wake_up+0x1e/0x80 (12)
+ [<c0330813>] _spin_lock_irqsave+0x23/0x60 (12)
+ [<c011bd5e>] __wake_up+0x1e/0x80 (8)
+ [<c0141a67>] add_preempt_count_ti+0x27/0x100 (4)
+ [<c011bd5e>] __wake_up+0x1e/0x80 (12)
+ [<c0141b5a>] add_preempt_count+0x1a/0x20 (16)
+ [<c012ba65>] run_timer_softirq+0x2b5/0x470 (32)
+ [<c0127680>] ksoftirqd+0xf0/0x170 (56)
+ [<c0127590>] ksoftirqd+0x0/0x170 (32)
+ [<c013979a>] kthread+0xba/0xc0 (4)
+ [<c01396e0>] kthread+0x0/0xc0 (28)
+ [<c0101385>] kernel_thread_helper+0x5/0x10 (16)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c0141b5a>] .... add_preempt_count+0x1a/0x20
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+
+------------------------------
+| showing all locks held by: |  (softirq-timer/1/14 [cf6ba7c0,  98]):
+------------------------------
+
+NMI watchdog detected lockup on CPU#0 (50000/50000)
+
+Pid: 4, comm:      softirq-timer/0
+EIP: 0060:[<c013ea5f>] CPU: 0
+EIP is at __down_trylock+0x9f/0x330
+ EFLAGS: 00000082    Not tainted  (2.6.13-rc6-rt8)
+EAX: c0392238 EBX: 00000000 ECX: 00008000 EDX: 00004773
+ESI: c0392224 EDI: cf69c000 EBP: 00000086 DS: 007b ES: 007b
+CR0: 8005003b CR2: fff3f000 CR3: 00474000 CR4: 000006d0
+ [<c0140b73>] rt_down_trylock+0x33/0x480 (44)
+ [<c01218f2>] vprintk+0x162/0x240 (8)
+ [<c02092cb>] vscnprintf+0x2b/0x40 (8)
+ [<c01218f2>] vprintk+0x162/0x240 (24)
+ [<c0141a67>] add_preempt_count_ti+0x27/0x100 (64)
+ [<c0141b5a>] add_preempt_count+0x1a/0x20 (28)
+ [<c0121787>] printk+0x17/0x20 (20)
+ [<c01220c7>] __WARN_ON+0x67/0x90 (12)
+ [<c032ec5a>] __down_mutex+0x2fa/0x5d0 (48)
+ [<c0331152>] _raw_spin_unlock+0x12/0x30 (100)
+ [<c011bd5e>] __wake_up+0x1e/0x80 (8)
+ [<c0330813>] _spin_lock_irqsave+0x23/0x60 (12)
+ [<c011bd5e>] __wake_up+0x1e/0x80 (8)
+ [<c0141a67>] add_preempt_count_ti+0x27/0x100 (4)
+ [<c011bd5e>] __wake_up+0x1e/0x80 (12)
+ [<c0141b5a>] add_preempt_count+0x1a/0x20 (16)
+ [<c012ba65>] run_timer_softirq+0x2b5/0x470 (32)
+ [<c0127680>] ksoftirqd+0xf0/0x170 (56)
+ [<c0127590>] ksoftirqd+0x0/0x170 (32)
+ [<c013979a>] kthread+0xba/0xc0 (4)
+ [<c01396e0>] kthread+0x0/0xc0 (28)
+ [<c0101385>] kernel_thread_helper+0x5/0x10 (16)
+---------------------------
+| preempt count: 00000003 ]
+| 3-level deep critical section nesting:
+----------------------------------------
+.. [<c0141b5a>] .... add_preempt_count+0x1a/0x20
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+.. [<c0141b5a>] .... add_preempt_count+0x1a/0x20
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+.. [<c0141b5a>] .... add_preempt_count+0x1a/0x20
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+
+------------------------------
+| showing all locks held by: |  (softirq-timer/0/4 [cf697840,  98]):
+------------------------------
+
+
+

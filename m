@@ -1,90 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbVHRH2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVHRHyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbVHRH2N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 03:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbVHRH2N
+	id S932123AbVHRHyK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 03:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVHRHyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 03:28:13 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:50857 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S932098AbVHRH2L (ORCPT
+	Thu, 18 Aug 2005 03:54:10 -0400
+Received: from smtp.istop.com ([66.11.167.126]:14554 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S932123AbVHRHyI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 03:28:11 -0400
-Subject: overflows in /proc/net/dev
-From: Sebastian =?ISO-8859-1?Q?Cla=DFen?= 
-	<Sebastian.Classen@freenet-ag.de>
-Reply-To: Sebastian.Classen@freenet-ag.de
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-Y428FtCqSDvpWy8AQnnp"
-Date: Thu, 18 Aug 2005 09:28:10 +0200
-Message-Id: <1124350090.29902.8.camel@basti79.freenet-ag.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Thu, 18 Aug 2005 03:54:08 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Guillermo =?iso-8859-1?q?L=F3pez_Alejos?= <glalejos@gmail.com>
+Subject: Re: Documenting the VFS
+Date: Thu, 18 Aug 2005 17:55:02 +1000
+User-Agent: KMail/1.7.2
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <4fec73ca05081312054f1d1dd9@mail.gmail.com>
+In-Reply-To: <4fec73ca05081312054f1d1dd9@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200508181755.04163.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 14 August 2005 05:05, Guillermo López Alejos wrote:
+> Hi,
+>
+> I'm writing documentation about the VFS.
 
---=-Y428FtCqSDvpWy8AQnnp
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Best of luck.  It is a complex topic, but if you manage to produce an accurate 
+reference, it will be widely read.
 
-Hi all...
+> More concretely, I want to 
+> document the following information about the methods defined in the
+> VFS interface (i.e. the struct *_operations):
+>     - Prototype.
+>     - Description (brief description of what the method has to do).
+>     - Description of the parameters (explanation of the purpose of
+> each parameter).
+>     - Return value (including possible error values).
+>     - Responsibility (what the method is expected to do, including
+> specific cases).
+>     - Default method (is there any method that can be used instead of
+> defining a new one?)
+>     - Mandatory (Is the method mandatory? or it can be assigned a NULL?)
 
-in struct net_device_stats all members are defined as unsgined long. In
-time of gigabit ethernet this takes not long to overflow. Are there any
-plans to change these coutners to unsigned long long? I saw in ifconfig
-source code the byte and packet counters are already defined as unsigned
-long long.
+Locking is a crucial topic.  Filesystem developers need to understand what 
+locking the VFS does for them and what they must do themselves.  You need to 
+cover this method by method and lock by lock.  Also note that you can't 
+really understand the vfs separately from things like the page cache, inode 
+cache and dentry cache, and respective operations.  It crosses over into 
+virtual memory topics too, because of mmap.  A discussion of the vfs would 
+not be complete without discussing the life cycles of all the objects 
+involved.
 
-I've tried the attached little patch which seems to work well. Are there
-any good reasons against this changes?
+> It is rather difficult to find this information by looking at the
+> kernel sources, and the documentation I have found does not provide
+> the details I'm looking for.
 
---=20
-Mit freundlichen Gr=FC=DFen / Yours sincerely
+You pretty much have to read the source to learn this since there is no 
+authoritative reference.  As others have mentioned, Richard Gootch's vfs.txt 
+document is helpful.  It is several years out of date though, and doesn't 
+cover things like aio, new security hooks, dnotify and inotify event 
+interface, cluster hooks, etc. etc.
 
-Sebastian Cla=DFen, Postmaster
-freenet.de AG, Willst=E4tterstra=DFe 13, D-40549 D=FCsseldorf
-Phone: +49 (0) 211 / 53087-522
-----------------------------------------------------------------------
-Vorsitzender des Aufsichtsrates: Prof. Dr. Helmut Thoma
-Vorstand: Eckhard Spoerr (Vors.), Axel Krieger,
-          Stephan Esch, Eric Berger
-Amtsgericht Hamburg HRB 74048
+> Where can I found an up to date documentation about the VFS interface?
 
---=-Y428FtCqSDvpWy8AQnnp
-Content-Disposition: attachment; filename=proc_net_dev.diff
-Content-Type: text/x-patch; name=proc_net_dev.diff; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+It's pretty sparse.
 
---- include/linux/netdevice.h.orig	2005-08-17 15:28:05.000000000 +0200
-+++ include/linux/netdevice.h	2005-08-17 15:27:02.000000000 +0200
-@@ -107,10 +107,10 @@ struct netpoll;
-  
- struct net_device_stats
- {
--	unsigned long rx_packets;		/* total packets received	*/
--	unsigned long tx_packets;		/* total packets transmitted	*/
--	unsigned long rx_bytes;		/* total bytes received 	*/
--	unsigned long tx_bytes;		/* total bytes transmitted	*/
-+	unsigned long long rx_packets;		/* total packets received	*/
-+	unsigned long long tx_packets;		/* total packets transmitted	*/
-+	unsigned long long rx_bytes;		/* total bytes received 	*/
-+	unsigned long long tx_bytes;		/* total bytes transmitted	*/
- 	unsigned long rx_errors;		/* bad packets received		*/
- 	unsigned long tx_errors;		/* packet transmit problems	*/
- 	unsigned long rx_dropped;		/* no space in linux buffers	*/
---- net/core/dev.c.orig	2005-08-17 15:29:40.000000000 +0200
-+++ net/core/dev.c	2005-08-17 15:30:53.000000000 +0200
-@@ -1984,8 +1984,8 @@ static void dev_seq_printf_stats(struct 
- 	if (dev->get_stats) {
- 		struct net_device_stats *stats = dev->get_stats(dev);
- 
--		seq_printf(seq, "%6s:%8lu %7lu %4lu %4lu %4lu %5lu %10lu %9lu "
--				"%8lu %7lu %4lu %4lu %4lu %5lu %7lu %10lu\n",
-+		seq_printf(seq, "%6s:%8llu %7llu %4lu %4lu %4lu %5lu %10lu %9lu "
-+				"%8llu %7llu %4lu %4lu %4lu %5lu %7lu %10lu\n",
- 			   dev->name, stats->rx_bytes, stats->rx_packets,
- 			   stats->rx_errors,
- 			   stats->rx_dropped + stats->rx_missed_errors,
+   http://lxr.linux.no/source/Documentation/filesystems/vfs.txt
+   http://lxr.linux.no/source/Documentation/filesystems/Locking
+   http://www.faqs.org/docs/kernel_2_4/lki-3.html
+   http://www.oreilly.com/catalog/linuxkernel/
+   http://lwn.net
 
---=-Y428FtCqSDvpWy8AQnnp--
+> If there is no such document, which is the correct mailing list to
+> submit my questions at?
 
+This is the right place, or fsdevel, or both.  You probably want to post your 
+drafts or pointers to your drafts here for corrections and additions.
+
+> Is there any IRC channel to chat about this? 
+> (I have visited a couple of times #kernelnewbies).
+
+#kernelnewbies is good, the name is a little deceiving.  Also, try Matt 
+Mackall's kernelmentors mailing list and Arnaldo Carvalho de Melo's kernel 
+janitors mailing list.
+
+> Thanks for your help and regards,
+
+Thanks for volunteering!
+
+Regards,
+
+Daniel

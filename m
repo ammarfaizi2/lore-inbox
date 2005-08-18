@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVHRJS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVHRJ12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbVHRJS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 05:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVHRJS0
+	id S932147AbVHRJ12 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 05:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVHRJ12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 05:18:26 -0400
-Received: from odin2.bull.net ([192.90.70.84]:26535 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S932141AbVHRJS0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 05:18:26 -0400
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: linux-kernel@vger.kernel.org
-Subject: Schedutils spec file for 1.5.0
-Date: Thu, 18 Aug 2005 11:21:08 +0200
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_EMFBDmlVW2LnL6N"
-Message-Id: <200508181121.08934.Serge.Noiraud@bull.net>
+	Thu, 18 Aug 2005 05:27:28 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:59286 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932136AbVHRJ11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 05:27:27 -0400
+Subject: Re: Multiple virtual address mapping for the same code on IA-64
+	linux kernel.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: vamsi krishna <vamsi.krishnak@gmail.com>,
+       "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0508171246070.17863@schroedinger.engr.sgi.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F04294461@scsmsx401.amr.corp.intel.com>
+	 <3faf0568050816142715f14c2c@mail.gmail.com>
+	 <Pine.LNX.4.62.0508171246070.17863@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 18 Aug 2005 10:54:38 +0100
+Message-Id: <1124358878.13511.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_EMFBDmlVW2LnL6N
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mer, 2005-08-17 at 12:52 -0700, Christoph Lameter wrote:
+> > compared to small, this may be the reason why amd64 is the fasttest
+> > 64-bit process ?
 
-Hi,
+> Itanium processors are the fastest 64bit processors at any given clock 
+> frequency.
 
-	I found a minor error in the spec file schedutils.spec.
+Perhaps, and the two statements don't contradict. All he was doing was
+asking a very sensible architecture question to understand why the IA64
+binary was so big.
 
---Boundary-00=_EMFBDmlVW2LnL6N
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="diff.schedutils-1.5.0.spec"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff.schedutils-1.5.0.spec"
+> Please do not make such inflammatory statements on the 
+> ia64 list.
 
---- schedutils-1.5.0/schedutils.spec.orig	2004-09-24 19:27:45.000000000 +0200
-+++ schedutils-1.5.0/schedutils.spec	2005-08-18 11:04:53.086563304 +0200
-@@ -4,7 +4,7 @@
- 
- Summary: Utilities for manipulating process scheduler attributes
- Name: schedutils
--Version: 1.4.0
-+Version: 1.5.0
- Release: 1
- License: GPL
- Group: Applications/System
+Since when has asking sensible questions been "inflammatory statements".
+If thats how you treat the people actually porting to IA64 then its out
+of order, at least for linux-kernel, which is where you cross posted.
 
---Boundary-00=_EMFBDmlVW2LnL6N--
+Alan
+

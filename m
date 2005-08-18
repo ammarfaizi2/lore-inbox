@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVHRWLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVHRWNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbVHRWLc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 18:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVHRWLc
+	id S932491AbVHRWNK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 18:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVHRWNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 18:11:32 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:6097 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932490AbVHRWLc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 18:11:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=LS7/uAVg8DDMwBjX6VdNRSepWg88pa3mWWXCGQAgEY6Vcc3yhCXgv/gSYZfLpzWCQ1VYTPgA3ydWoSazvsHON2JcIw7Ja/PwIW5TwsHhPcMwaYujxok1rd6cdw5voWz6Fsd2UxedXn2iOdGey2pMgCDFkl5tOyGDYnyneGfzFTg=
-Message-ID: <c26b9592050818151154ff1a89@mail.gmail.com>
-Date: Fri, 19 Aug 2005 03:41:30 +0530
-From: Imanpreet Arora <imanpreet@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux under 8MB
+	Thu, 18 Aug 2005 18:13:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63901 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932491AbVHRWNI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 18:13:08 -0400
+Date: Thu, 18 Aug 2005 15:13:01 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: cw@f00f.org, Sebastian.Classen@freenet-ag.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: overflows in /proc/net/dev
+Message-ID: <20050818151301.23c4bc1e@dxpl.pdx.osdl.net>
+In-Reply-To: <20050818.143248.58283961.davem@davemloft.net>
+References: <1124350090.29902.8.camel@basti79.freenet-ag.de>
+	<20050818163358.GA19554@taniwha.stupidest.org>
+	<20050818.143248.58283961.davem@davemloft.net>
+X-Mailer: Sylpheed-Claws 1.9.13 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thu, 18 Aug 2005 14:32:48 -0700 (PDT)
+"David S. Miller" <davem@davemloft.net> wrote:
 
-              For the last couple of days, I have been trying to set
-up linux kernel under 8MB. So far I have set up a linux 2.4.31, which
-just works under 8MB. However, I would be grateful if someone could
-help with the following queries
+> From: Chris Wedgwood <cw@f00f.org>
+> Date: Thu, 18 Aug 2005 09:33:58 -0700
+> 
+> > I thought the concensurs here was that because doing reliable atomic
+> > updates of 64-bit values isn't possible on some (most?) 32-bit
+> > architectures so we need additional locking to make this work which is
+> > undesirable?  (It might even be a FAQ by now as this comes up fairly
+> > often).
+> 
+> That's correct.
 
-a)          Is linux2.4 just the right option? What about linux 2.0.x?
-Or for that matter even <2.0
-b)          What are the specific issues that are to be considered
-while compiling an old kernel on a newer setup? I ask this because I
-compiled my current setup on a 2.6.11 machine and while doing "make
-modules_install", I got errors from depmod[%], complaining about
-depmod.old.  I had to kludge my way through by setting up a link from
-depmod.old to depmod.
-
-
-
-[%] Not to mention that on a FC4 machine, gcc 4,x meowed  while
-compiling the kernel.
-
-
-TIA,
--- 
-Imanpreet Singh Arora
-                  If I am given six hours to chop a tree, I will spend
-the first four sharpening the knife.
-                         -- A.L.
+Also width of fields in /proc/net/dev can't change without potentially
+breaking ABI of applications.

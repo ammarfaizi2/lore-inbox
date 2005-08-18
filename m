@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVHRG3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVHRGbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbVHRG3F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 02:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVHRG3F
+	id S1750820AbVHRGbE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 02:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVHRGbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 02:29:05 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:62341 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750800AbVHRG3E convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 02:29:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=B72Hh52jM5u86x6s9G2TxML/spVarLgSCVGUBmyrBdFT6zlWo3kqevcLel2mhoELkwfrU+uReX1+rRbSUKBjQbDTBJ6uDZP/yV6o6+eYEH3utkn9GLROnVU0yvbVEyZiPvmQbwtTrAtDp4ooBhhRVMufCtbtWuPMn+OOiuDYPY0=
-Message-ID: <29495f1d05081723293c2bd337@mail.gmail.com>
-Date: Wed, 17 Aug 2005 23:29:03 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: David Teigland <teigland@redhat.com>
-Subject: Re: [PATCH 1/3] dlm: use configfs
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-cluster@redhat.com
-In-Reply-To: <20050818060750.GA10133@redhat.com>
+	Thu, 18 Aug 2005 02:31:04 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25874 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750820AbVHRGbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 02:31:02 -0400
+Date: Thu, 18 Aug 2005 07:30:50 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, James.Smart@Emulex.Com,
+       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] add transport class symlink to device object
+Message-ID: <20050818073049.B2365@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
+	James.Smart@Emulex.Com, Andrew Morton <akpm@osdl.org>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <20050814232525.A27481@flint.arm.linux.org.uk> <20050815004303.GB9466@parcelfarce.linux.theplanet.co.uk> <20050815093244.A19811@flint.arm.linux.org.uk> <20050818052156.GC29301@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050818060750.GA10133@redhat.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050818052156.GC29301@kroah.com>; from greg@kroah.com on Wed, Aug 17, 2005 at 10:21:56PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/17/05, David Teigland <teigland@redhat.com> wrote:
-> Use configfs to configure lockspace members and node addresses.  This was
-> previously done with sysfs and ioctl.
+On Wed, Aug 17, 2005 at 10:21:56PM -0700, Greg KH wrote:
+> On Mon, Aug 15, 2005 at 09:32:44AM +0100, Russell King wrote:
+> > On Mon, Aug 15, 2005 at 01:43:03AM +0100, Matthew Wilcox wrote:
+> > > On Sun, Aug 14, 2005 at 11:25:25PM +0100, Russell King wrote:
+> > > > Eww.  Do you really want one struct device per tty with all the
+> > > > memory each one eats?
+> > > > 
+> > > > If that's really what you want you need to talk to Alan and not me.
+> > > > Alan looks after tty level stuff, I look after serial level stuff.
+> > > > The above is a tty level issue not a serial level issue.
+> > > 
+> > > mmm.  I don't know whether it's really a tty level issue or a serial
+> > > issue.  The only tty classes with corresponding devices are the serial
+> > > ones, at least on my system.  If this is the case, then the right fix
+> > > would seem to be something like creating a new struct device for each
+> > > serial port, then making that the uart_port->dev instead of the pci_dev
+> > > or whatever.
+> > 
+> > What's the reason for enforcing one struct device per struct class_dev ?
+> > I thought one of the points of class_dev was that you could have multiple
+> > of them per struct device.
 > 
-> Signed-off-by: David Teigland <teigland@redhat.com>
+> No such enforcement is needed at all, and not encouraged.
 
-Are you the official maintainer of the DLM subsystem? Could you submit
-a patch to add a MAINTAINERS entry? I was looking for a maintainer to
-send the dlm portion of my schedule_timeout() fixes to, but there
-wasn't one listed.
+The complaint is that serial is registering several different class_devs
+for the same class and device.
 
-Thanks,
-Nish
+So that's precisely what is being done by adding the symlink as per this
+sub-thread.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

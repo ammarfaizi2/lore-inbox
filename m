@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVHRRwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbVHRRwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbVHRRwK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 13:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbVHRRwJ
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 13:52:09 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:8091 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932355AbVHRRwH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932357AbVHRRwH (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 18 Aug 2005 13:52:07 -0400
-Message-Id: <200508181752.j7IHq2Qr001692@d03av02.boulder.ibm.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbVHRRwH
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 18 Aug 2005 13:52:07 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:61688 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932353AbVHRRwG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 13:52:06 -0400
+Message-Id: <200508181752.j7IHq2Qq001692@d03av02.boulder.ibm.com>
 From: Arnd Bergmann <arnd@arndb.de>
 To: linuxppc64-dev@ozlabs.org
-Subject: [PATCH 4/4] ppc64: small hacks for running on BPA hardware
-Date: Thu, 18 Aug 2005 19:42:13 +0200
+Subject: [PATCH 3/4] ppc64: add RTAS console driver
+Date: Thu, 18 Aug 2005 19:40:56 +0200
 User-Agent: KMail/1.7.2
 Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
 References: <200508181931.43481.arnd@arndb.de>
@@ -27,96 +27,62 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is not meant for inclusion in a generic kernel,
-but is currently needed to support the available HW.
-Most of the things done in here are workarounds for
-deficiencies in the present hardware or firmware that
-will be solved there in later releases.
+The RTAS console driver can be used by all machines that abstract
+the system console through the {get,put}-term-char interface.
+It replaces the hvconsole on BPA, because we don't run under
+a hypervisor.
 
+This driver needs to be redone as a special case of hvconsole,
+so there is no point in applying the patch to generic kernels.
+You will however need it if you intend to run on present Cell
+hardware.
+
+From: Utz Bacher <utz.bacher@de.ibm.com>
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
---- linux-cg.orig/arch/ppc64/Kconfig	2005-08-18 17:23:29.789907568 -0400
-+++ linux-cg/arch/ppc64/Kconfig	2005-08-18 17:23:52.529911976 -0400
-@@ -221,6 +221,12 @@ config SMP
+--- linux-cg.orig/drivers/char/Kconfig	2005-08-18 17:09:44.971886072 -0400
++++ linux-cg/drivers/char/Kconfig	2005-08-18 17:30:54.496933408 -0400
+@@ -560,6 +560,12 @@ config HVC_CONSOLE
+ 	  console. This driver allows each pSeries partition to have a console
+ 	  which is accessed via the HMC.
  
- 	  If you don't know what to do here, say Y.
- 
-+config BE_DD2
-+	bool "BE DD2.x Errata Workaround Support"
-+	depends on PPC_BPA
-+	---help---
-+	This support enables BE DD2.x errata workarounds.
++config RTASCONS
++        bool "RTAS firmware console support"
++        depends on PPC_RTAS
++        help
++          RTAS console support.
 +
- config NR_CPUS
- 	int "Maximum number of CPUs (2-128)"
- 	range 2 128
---- linux-cg.orig/arch/ppc64/kernel/Makefile	2005-08-18 17:22:05.500940704 -0400
-+++ linux-cg/arch/ppc64/kernel/Makefile	2005-08-18 17:23:52.668890848 -0400
-@@ -33,7 +33,7 @@ obj-$(CONFIG_PPC_PSERIES) += pSeries_pci
- 			     pSeries_nvram.o rtasd.o ras.o pSeries_reconfig.o \
- 			     pSeries_setup.o pSeries_iommu.o
- 
--obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_iommu.o bpa_nvram.o \
-+obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_iommu.o bpa_nvram.o bpa_pci.o \
- 			 bpa_iic.o spider-pic.o
- 
- obj-$(CONFIG_KEXEC)		+= machine_kexec.o
---- linux-cg.orig/arch/ppc64/kernel/bpa_iommu.c	2005-08-18 17:23:29.778909240 -0400
-+++ linux-cg/arch/ppc64/kernel/bpa_iommu.c	2005-08-18 17:23:52.472920640 -0400
-@@ -245,8 +245,6 @@ set_iocmd_config(void __iomem *base)
- }
- 
- /* FIXME: get these from the device tree */
--#define ioc_base	0x20000511000ull
--#define ioc_mmio_base	0x20000510000ull
- #define ioid		0x48a
- #define iopt_phys_offset (- 0x20000000) /* We have a 512MB offset from the SB */
- #define io_page_size	0x1000000
-@@ -278,12 +276,22 @@ static void bpa_map_iommu(void)
- 	void __iomem *base;
- 	ioste ioste;
- 	unsigned long index;
--
-+	struct device_node *node;
-+	unsigned long *handle, ioc_mmio_base, ioc_base;
-+	int nodelen;
-+
-+	for(node = of_find_node_by_type(NULL, "cpu");
-+	    node;
-+	    node = of_find_node_by_type(node, "cpu")) {
-+		handle = (unsigned long *) get_property(node, "ioc-translation", &nodelen); 
-+		ioc_base = *handle + 0x1000;
-+				
- 	base = __ioremap(ioc_base, 0x1000, _PAGE_NO_CACHE);
- 	pr_debug("%lx mapped to %p\n", ioc_base, base);
- 	set_iocmd_config(base);
- 	iounmap(base);
- 
-+		ioc_mmio_base = *handle;
- 	base = __ioremap(ioc_mmio_base, 0x1000, _PAGE_NO_CACHE);
- 	pr_debug("%lx mapped to %p\n", ioc_mmio_base, base);
- 
-@@ -302,6 +310,7 @@ static void bpa_map_iommu(void)
- 			map_iopt_entry(address));
- 	}
- 	iounmap(base);
-+	}
- }
- 
- 
---- linux-cg.orig/arch/ppc64/kernel/bpa_pci.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/arch/ppc64/kernel/bpa_pci.c	2005-08-18 17:28:39.211996792 -0400
-@@ -0,0 +1,83 @@
+ config HVCS
+ 	tristate "IBM Hypervisor Virtual Console Server support"
+ 	depends on PPC_PSERIES
+--- linux-cg.orig/drivers/char/Makefile	2005-08-18 17:09:44.974885616 -0400
++++ linux-cg/drivers/char/Makefile	2005-08-18 17:30:54.497933256 -0400
+@@ -40,6 +40,7 @@ obj-$(CONFIG_N_HDLC)		+= n_hdlc.o
+ obj-$(CONFIG_AMIGA_BUILTIN_SERIAL) += amiserial.o
+ obj-$(CONFIG_SX)		+= sx.o generic_serial.o
+ obj-$(CONFIG_RIO)		+= rio/ generic_serial.o
++obj-$(CONFIG_RTASCONS)		+= rtascons.o
+ obj-$(CONFIG_HVC_CONSOLE)	+= hvc_console.o hvc_vio.o hvsi.o
+ obj-$(CONFIG_RAW_DRIVER)	+= raw.o
+ obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
+--- linux-cg.orig/drivers/char/rtascons.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-cg/drivers/char/rtascons.c	2005-08-18 17:31:21.912892064 -0400
+@@ -0,0 +1,339 @@
 +/*
-+ * BPA specific PCI code
++ * console driver using RTAS calls
 + *
-+ * Copyright (C) 2005 IBM Corporation,
-+ 			Arnd Bergmann <arndb@de.ibm.com>
++ * (C) Copyright IBM Corp. 2004
++ * RTAS console driver
++ *
++ * Author: Utz Bacher <utz.bacher@de.ibm.com>
++ *
++ *    inspired by drivers/char/hvc_console.c
++ *    written by Anton Blanchard and Paul Mackerras
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
 + *
 + * This program is distributed in the hope that it will be useful,
 + * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -125,235 +91,320 @@ Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 + *
 + * You should have received a copy of the GNU General Public License
 + * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
 +
-+#include <linux/kernel.h>
-+#include <linux/pci.h>
++/* The whole driver assumes we only have one RTAS console. This makes
++ * things pretty easy. */
++
++#include <linux/console.h>
++#include <linux/cpumask.h>
++#include <linux/delay.h>
 +#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/major.h>
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/sysrq.h>
++#include <linux/tty.h>
++#include <linux/tty_flip.h>
++#include <asm/atomic.h>
++#include <asm/rtas.h>
++#include <asm/uaccess.h>
 +
-+#include <asm/prom.h>
-+#include <asm/machdep.h>
-+#include <asm/pci-bridge.h>
 +
-+#include "pci.h"
-+#include "bpa_iic.h"
++#define RTASCONS_MAJOR		229
++#define RTASCONS_MINOR		0
 +
-+void __init bpa_final_fixup(void)
++#define RTASCONS_SYSRQ_KEY	'\x0f'
++
++#define RTASCONS_PUT_ATTEMPTS	16
++#define RTASCONS_PUT_DELAY	100
++#define RTASCONS_BUFFER_SIZE	4096
++
++#define RTASCONS_MAX_POLL	50
++#define RTASCONS_WRITE_ROOM	200
++
++#define RTASCONS_TIMEOUT	((HZ + 99) / 100)
++
++
++static struct tty_driver *rtascons_ttydriver;
++
++static atomic_t rtascons_usecount = ATOMIC_INIT(0);
++static struct tty_struct *rtascons_tty;
++
++static int rtascons_put_char_token;
++static int rtascons_get_char_token;
++
++static spinlock_t rtascons_buffer_lock = SPIN_LOCK_UNLOCKED;
++static char rtascons_buffer[RTASCONS_BUFFER_SIZE];
++static int rtascons_buffer_head = 0;
++static int rtascons_buffer_used = 0;
++
++static int
++rtascons_get_char(void)
 +{
-+	struct pci_dev *dev = NULL;
++	int result;
 +
-+	phbs_remap_io();
++	if (rtas_call(rtascons_get_char_token, 0, 2, &result))
++		result = -1;
 +
-+	for_each_pci_dev(dev) {
-+	// FIXME: fix IRQ numbers for devices on second south bridge
++	return result;
++}
++
++/* assumes that rtascons_buffer_lock is held */
++static void
++rtascons_flush_chars(void)
++{
++	int result;
++	int attempts = RTASCONS_PUT_ATTEMPTS;
++
++	/* if there is more than one character to be displayed, wait a bit */
++	for (; rtascons_buffer_used && attempts; udelay(RTASCONS_PUT_DELAY)) {
++		attempts--;
++		result = rtas_call(rtascons_put_char_token, 1, 1, NULL,
++				   rtascons_buffer[rtascons_buffer_head]);
++
++		if (!result) {
++			rtascons_buffer_head = (rtascons_buffer_head + 1) %
++				RTASCONS_BUFFER_SIZE;
++			rtascons_buffer_used--;
++		}
 +	}
 +}
 +
-+static void fixup_spider_ipci_irq(struct pci_dev* dev)
++static void
++rtascons_put_char(char c)
 +{
-+	int irq_node_offset;
-+	pr_debug("fixup for %04x:%04x at %02x.%1x: ", dev->vendor, dev->device,
-+			 PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-+	switch (dev->devfn) {
-+		case PCI_DEVFN(3,0):
-+			/* ethernet */
-+			dev->irq = 8;
-+			break;
-+		case PCI_DEVFN(5,0):
-+			/* OHCI 0 */
-+			dev->irq = 10;
-+			break;
-+		case PCI_DEVFN(6,0):
-+			/* OHCI 1 */
-+			dev->irq = 11;
-+			break;
-+		case PCI_DEVFN(5,1):
-+			/* EHCI 0 */
-+			dev->irq = 10;
-+			break;
-+		case PCI_DEVFN(6,1):
-+			/* EHCI 1 */
-+			dev->irq = 11;
-+			break;
-+	}
++	spin_lock(&rtascons_buffer_lock);
 +
-+	irq_node_offset = IIC_NODE_STRIDE * (pci_domain_nr(dev->bus)-1);
-+	dev->irq += irq_node_offset;
++	if (rtascons_buffer_used >= (RTASCONS_BUFFER_SIZE / 2))
++		udelay(RTASCONS_PUT_DELAY); /* slow down if buffer tends
++					       to get full */
 +
-+	pr_debug("irq %0x\n", dev->irq);
++	if (rtascons_buffer_used >= RTASCONS_BUFFER_SIZE)
++		goto out; /* we're loosing characters. */
++
++	/* enqueue character */
++	rtascons_buffer[(rtascons_buffer_head + rtascons_buffer_used) %
++		RTASCONS_BUFFER_SIZE] = c;
++	rtascons_buffer_used++;
++out:
++	rtascons_flush_chars();
++
++	spin_unlock(&rtascons_buffer_lock);
 +}
 +
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_TOSHIBA_2,
-+		PCI_DEVICE_ID_TOSHIBA_SPIDER_NET, fixup_spider_ipci_irq);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_TOSHIBA_2,
-+		PCI_DEVICE_ID_TOSHIBA_SPIDER_OHCI, fixup_spider_ipci_irq);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_TOSHIBA_2,
-+		PCI_DEVICE_ID_TOSHIBA_SPIDER_EHCI, fixup_spider_ipci_irq);
---- linux-cg.orig/arch/ppc64/kernel/bpa_setup.c	2005-08-18 17:22:05.507939640 -0400
-+++ linux-cg/arch/ppc64/kernel/bpa_setup.c	2005-08-18 17:23:52.669890696 -0400
-@@ -54,6 +54,8 @@
- #define DBG(fmt...)
- #endif
- 
-+extern void bpa_final_fixup(void);
++static void
++rtascons_print_str(const char *buf, int count)
++{
++	int i = 0;
++	while (i < count) {
++		rtascons_put_char(buf[i]);
++		if (buf[i] == '\n')
++			rtascons_put_char('\r');
++		i++;
++	}
++}
 +
- void bpa_get_cpuinfo(struct seq_file *m)
- {
- 	struct device_node *root;
-@@ -129,6 +131,7 @@ struct machdep_calls __initdata bpa_md =
- 	.setup_arch		= bpa_setup_arch,
- 	.init_early		= bpa_init_early,
- 	.get_cpuinfo		= bpa_get_cpuinfo,
-+	.pcibios_fixup		= bpa_final_fixup,
- 	.restart		= rtas_restart,
- 	.power_off		= rtas_power_off,
- 	.halt			= rtas_halt,
---- linux-cg.orig/arch/ppc64/kernel/head.S	2005-08-18 17:23:29.782908632 -0400
-+++ linux-cg/arch/ppc64/kernel/head.S	2005-08-18 17:23:52.626897232 -0400
-@@ -312,6 +312,38 @@ label##_pSeries:					\
- 	RUNLATCH_ON(r13);				\
- 	EXCEPTION_PROLOG_PSERIES(PACA_EXGEN, label##_common)
- 
-+#define WORKAROUND_EXCEPTION_PSERIES(n, label)			\
-+	. = n;						\
-+	.globl label##_pSeries;				\
-+label##_pSeries:					\
-+	mtspr	SPRG1,r21;		/* save r21 */	\
-+        mfspr   r21, SPRN_CTRLF;			\
-+        oris    r21, r21, 0x00C0;			\
-+        mtspr   SPRN_CTRLT, r21;			\
-+	mfspr	r21,SPRG1;		/* restore r21 */	\
-+	mtspr	SPRG1,r13;		/* save r13 */	\
-+	EXCEPTION_PROLOG_PSERIES(PACA_EXGEN, label##_common)
++static int
++rtascons_open(struct tty_struct *tty, struct file *filp)
++{
++	/* only one console */
++	if (tty->index) {
++		/* close will be called and that decrement */
++		atomic_inc(&rtascons_usecount);
++		return -ENODEV;
++	}
 +
-+#define RES_EXCEPTION_PSERIES(n, label)			\
-+	. = n;						\
-+	.globl label##_pSeries;				\
-+label##_pSeries:					\
-+        mtspr   SPRG2,r20;              /* use SPRG2 as scratch reg */ \
-+        mtspr   SPRG1,r21;              /* use SPRG1 as scratch reg */ \
-+        mfspr   r20,SPRG3;              /* get paca virtual address */ \
-+        cmpdi   r20,0x0;                /* if SPRG3 zero,thread  */    \
-+	bne     20f;			/* shouldn't run */ \
-+18:					/* Stop current Thread */ \
-+	andi.	 r21,0,0;					 \
-+	mtspr    SPRN_CTRLT,r21;					 \
-+19:								\
-+	b	 19b;		 	/* Thread should be stopped */	 \
-+20:							\
-+	HMT_MEDIUM;					\
-+	mtspr	SPRG1,r13;		/* save r13 */	\
-+	RUNLATCH_ON(r13);				\
-+	EXCEPTION_PROLOG_PSERIES(PACA_EXGEN, label##_common)
++	if (atomic_inc_return(&rtascons_usecount) == 1) {
++		rtascons_tty = tty;
++	}
 +
- #define STD_EXCEPTION_ISERIES(n, label, area)		\
- 	.globl label##_iSeries;				\
- label##_iSeries:					\
-@@ -391,7 +423,11 @@ label##_common:						\
- 	.globl __start_interrupts
- __start_interrupts:
- 
-+#ifdef CONFIG_BE_DD2
-+	RES_EXCEPTION_PSERIES(0x100, system_reset)
++	tty->driver_data = &rtascons_ttydriver;
++
++	return 0;
++}
++
++static void
++rtascons_close(struct tty_struct *tty, struct file * filp)
++{
++	atomic_dec(&rtascons_usecount);
++}
++
++static void
++rtascons_hangup(struct tty_struct *tty)
++{
++}
++
++static int
++rtascons_write(struct tty_struct *tty, const unsigned char *buf, int count)
++{
++	if (!atomic_read(&rtascons_usecount))
++		return 0;
++
++	rtascons_print_str(buf, count);
++
++	return count;
++}
++
++static int
++rtascons_write_room(struct tty_struct *tty)
++{
++	return RTASCONS_WRITE_ROOM;
++}
++
++static int
++rtascons_chars_in_buffer(struct tty_struct *tty)
++{
++	return 0;
++}
++
++static void
++rtascons_poll(void)
++{
++	int i;
++	int do_poll = RTASCONS_MAX_POLL;
++#ifdef CONFIG_MAGIC_SYSRQ
++	static int sysrq_pressed = 0;
++#endif /* CONFIG_MAGIC_SYSRQ */
++
++	if (!atomic_read(&rtascons_usecount))
++		return;
++
++	while (do_poll--) {
++		i = rtascons_get_char();
++		if (i < 0)
++			break;
++
++#ifdef CONFIG_MAGIC_SYSRQ
++		if (i == RTASCONS_SYSRQ_KEY) {
++			sysrq_pressed = 1;
++			continue;
++		} else if (sysrq_pressed) {
++			handle_sysrq(i, NULL, rtascons_tty);
++			sysrq_pressed = 0;
++			continue;
++		}
++#endif /* CONFIG_MAGIC_SYSRQ */
++
++		tty_insert_flip_char(rtascons_tty, (unsigned char) i, 0);
++	}
++
++	tty_flip_buffer_push(rtascons_tty);
++}
++
++#if defined(CONFIG_XMON) && defined(CONFIG_SMP)
++extern cpumask_t cpus_in_xmon;
 +#else
- 	STD_EXCEPTION_PSERIES(0x100, system_reset)
++static const cpumask_t cpus_in_xmon = CPU_MASK_NONE;
 +#endif
- 
- 	. = 0x200
- _machine_check_pSeries:
-@@ -459,11 +495,15 @@ instruction_access_slb_pSeries:
- 	mfspr	r3,SRR0			/* SRR0 is faulting address */
- 	b	.do_slb_miss		/* Rel. branch works in real mode */
- 
--	STD_EXCEPTION_PSERIES(0x500, hardware_interrupt)
-+#ifdef CONFIG_BE_DD2
-+	WORKAROUND_EXCEPTION_PSERIES(0x500, hardware_interrupt)
-+#endif
- 	STD_EXCEPTION_PSERIES(0x600, alignment)
- 	STD_EXCEPTION_PSERIES(0x700, program_check)
- 	STD_EXCEPTION_PSERIES(0x800, fp_unavailable)
--	STD_EXCEPTION_PSERIES(0x900, decrementer)
-+#ifdef CONFIG_BE_DD2
-+	WORKAROUND_EXCEPTION_PSERIES(0x900, decrementer)
-+#endif
- 	STD_EXCEPTION_PSERIES(0xa00, trap_0a)
- 	STD_EXCEPTION_PSERIES(0xb00, trap_0b)
- 
---- linux-cg.orig/arch/ppc64/kernel/prom_init.c	2005-08-18 17:23:29.787907872 -0400
-+++ linux-cg/arch/ppc64/kernel/prom_init.c	2005-08-18 17:23:52.776874432 -0400
-@@ -1365,6 +1365,8 @@ static int __init prom_find_machine_type
- 				return PLATFORM_POWERMAC;
- 			if (strstr(p, RELOC("Momentum,Maple")))
- 				return PLATFORM_MAPLE;
-+			if (strstr(p, RELOC("IBM,CPB")))
-+				return PLATFORM_BPA;
- 			i += sl + 1;
- 		}
- 	}
---- linux-cg.orig/arch/ppc64/kernel/spider-pic.c	2005-08-18 17:23:29.780908936 -0400
-+++ linux-cg/arch/ppc64/kernel/spider-pic.c	2005-08-18 17:23:52.473920488 -0400
-@@ -84,10 +84,11 @@ static void __iomem *spider_get_irq_conf
- 
- static void spider_enable_irq(unsigned int irq)
- {
-+	int nodeid = (irq / IIC_NODE_STRIDE) * 0x10;
- 	void __iomem *cfg = spider_get_irq_config(irq);
- 	irq = spider_get_nr(irq);
- 
--	out_be32(cfg, in_be32(cfg) | 0x3107000eu);
-+	out_be32(cfg, in_be32(cfg) | 0x3107000eu | nodeid);
- 	out_be32(cfg + 4, in_be32(cfg + 4) | 0x00020000u | irq);
- }
- 
-@@ -150,13 +151,17 @@ int spider_get_irq(unsigned long int_pen
- void spider_init_IRQ(void)
- {
- 	int node;
-+#if 0
- 	struct device_node *dn;
- 	unsigned int *property;
-+#endif
- 	long spiderpic;
-+	long pics[] = { 0x24000008000, 0x34000008000 };
- 	int n;
- 
- /* FIXME: detect multiple PICs as soon as the device tree has them */
--	for (node = 0; node < 1; node++) {
-+	for (node = 0; node <= 1; node++) {
-+#if 0
- 		dn = of_find_node_by_path("/");
- 		n = prom_n_addr_cells(dn);
- 		property = (unsigned int *) get_property(dn,
-@@ -166,6 +171,8 @@ void spider_init_IRQ(void)
- 			continue;
- 		for (spiderpic = 0; n > 0; --n)
- 			spiderpic = (spiderpic << 32) + *property++;
-+#endif
-+		spiderpic = pics[node];
- 		printk(KERN_DEBUG "SPIDER addr: %lx\n", spiderpic);
- 		spider_pics[node] = __ioremap(spiderpic, 0x800, _PAGE_NO_CACHE);
- 		for (n = 0; n < IIC_NUM_EXT; n++) {
---- linux-cg.orig/include/asm-ppc64/processor.h	2005-08-18 17:23:29.773910000 -0400
-+++ linux-cg/include/asm-ppc64/processor.h	2005-08-18 17:23:52.423928088 -0400
-@@ -438,7 +438,7 @@ struct thread_struct {
- 	.fs = KERNEL_DS, \
- 	.fpr = {0}, \
- 	.fpscr = 0, \
--	.fpexc_mode = MSR_FE0|MSR_FE1, \
-+	.fpexc_mode = 0, \
- }
- 
- /*
---- linux-cg.orig/include/linux/pci_ids.h	2005-08-18 17:23:29.775909696 -0400
-+++ linux-cg/include/linux/pci_ids.h	2005-08-18 17:23:52.827004832 -0400
-@@ -1611,6 +1611,8 @@
- #define PCI_DEVICE_ID_TOSHIBA_TX4927	0x0180
- #define PCI_DEVICE_ID_TOSHIBA_TC86C001_MISC	0x0108
- #define PCI_DEVICE_ID_TOSHIBA_SPIDER_NET 0x01b3
-+#define PCI_DEVICE_ID_TOSHIBA_SPIDER_OHCI 0x01b6
-+#define PCI_DEVICE_ID_TOSHIBA_SPIDER_EHCI 0x01b5
- 
- #define PCI_VENDOR_ID_RICOH		0x1180
- #define PCI_DEVICE_ID_RICOH_RL5C465	0x0465
++
++static int
++krtasconsd(void *unused)
++{
++	daemonize("krtasconsd");
++
++	for (;;) {
++		if (cpus_empty(cpus_in_xmon)) {
++			rtascons_poll();
++			/* no need for atomic access */
++			if (rtascons_buffer_used) {
++				spin_lock(&rtascons_buffer_lock);
++				rtascons_flush_chars();
++				spin_unlock(&rtascons_buffer_lock);
++			}
++		}
++
++		set_current_state(TASK_INTERRUPTIBLE);
++		schedule_timeout(RTASCONS_TIMEOUT);
++	}
++}
++
++static struct tty_operations rtascons_ops = {
++	.open = rtascons_open,
++	.close = rtascons_close,
++	.write = rtascons_write,
++	.hangup = rtascons_hangup,
++	.write_room = rtascons_write_room,
++	.chars_in_buffer = rtascons_chars_in_buffer,
++};
++
++static int __init
++rtascons_init(void)
++{
++	rtascons_ttydriver = alloc_tty_driver(1);
++	if (!rtascons_ttydriver)
++		return -ENOMEM;
++
++	rtascons_ttydriver->owner = THIS_MODULE;
++	rtascons_ttydriver->devfs_name = "rtascons/";
++	rtascons_ttydriver->driver_name = "rtascons";
++	rtascons_ttydriver->name = "rtascons";
++	rtascons_ttydriver->major = RTASCONS_MAJOR;
++	rtascons_ttydriver->minor_start = RTASCONS_MINOR;
++	rtascons_ttydriver->type = TTY_DRIVER_TYPE_SYSTEM;
++	rtascons_ttydriver->subtype = SYSTEM_TYPE_CONSOLE;
++	rtascons_ttydriver->init_termios = tty_std_termios;
++	rtascons_ttydriver->flags = TTY_DRIVER_REAL_RAW;
++	tty_set_operations(rtascons_ttydriver, &rtascons_ops);
++
++	if (tty_register_driver(rtascons_ttydriver))
++		panic("Couldn't register RTAS console driver\n");
++
++	kernel_thread(krtasconsd, NULL, CLONE_KERNEL);
++
++	return 0;
++}
++
++static void __exit
++rtascons_exit(void)
++{
++}
++
++static void
++rtascons_print(struct console *con, const char *buf, unsigned count)
++{
++	rtascons_print_str(buf, count);
++}
++
++static struct tty_driver *rtascons_device(struct console *con, int *index)
++{
++	*index = con->index;
++	return rtascons_ttydriver;
++}
++
++static int __init
++rtascons_setup(struct console *con, char *options)
++{
++	return (con->index);
++}
++
++struct console rtascons_driver = {
++	.name		= "rtas",
++	.write		= rtascons_print,
++	.device		= rtascons_device,
++	.setup		= rtascons_setup,
++	.flags		= CON_PRINTBUFFER,
++	.index		= -1,
++};
++
++static int __init
++rtascons_register(void)
++{
++	rtascons_put_char_token = rtas_token("put-term-char");
++	if (rtascons_put_char_token == -1)
++		return -EIO;
++	rtascons_get_char_token = rtas_token("get-term-char");
++	if (rtascons_get_char_token == -1)
++		return -EIO;
++
++	register_console(&rtascons_driver);
++	return 0;
++}
++
++console_initcall(rtascons_register);
++
++module_init(rtascons_init);
++module_exit(rtascons_exit);
 

@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVHRSX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbVHRS3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932380AbVHRSX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 14:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbVHRSX5
+	id S932382AbVHRS3D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 14:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbVHRS3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 14:23:57 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:6108 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S932380AbVHRSX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 14:23:56 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Environment variables inside the kernel?
-References: <4fec73ca050818084467f04c31@mail.gmail.com>
-	<m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local>
-From: "Linh Dang" <linhd@nortel.com>
-Organization: Null
-Date: Thu, 18 Aug 2005 14:23:51 -0400
-In-Reply-To: <m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local> (Douglas
- McNaught's message of "Thu, 18 Aug 2005 12:37:14 -0400")
-Message-ID: <wn5slx75cjs.fsf@linhd-2.ca.nortel.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 18 Aug 2005 14:29:03 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:36567 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932382AbVHRS3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 14:29:01 -0400
+Date: Thu, 18 Aug 2005 13:27:19 -0500
+From: Robin Holt <holt@sgi.com>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Cc: Jack Steiner <steiner@sgi.com>
+Subject: Re: idle task's task_t allocation on NUMA machines
+Message-ID: <20050818182718.GA21490@lnx-holt.americas.sgi.com>
+References: <20050818140829.GB8123@implementation.labri.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050818140829.GB8123@implementation.labri.fr>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas McNaught <doug@mcnaught.org> wrote:
+On Thu, Aug 18, 2005 at 04:08:29PM +0200, Samuel Thibault wrote:
+> A solution would be to add to copy_process(), dup_task_struct(),
+> alloc_task_struct() and kmem_cache_alloc() the node number on which
+> allocation should be performed. This might also be useful if performing
+> node load balancing at fork(): one could then allocate task_t directly
+> on the new node. It might also be useful when allocating data for
+> another node.
 
->
-> If someone is insisting you use environment varaiables in kernel
-> code, challenge them to show you where they are implemented in the
-> kernel.  :)
->
-> -Doug
+Can this be abstracted some?
 
-They're in current process's vm. You just have to parse it yourself.
+Let me start with some background.  SGI has a kernel addition we made
+on our previous kernel release something we called dplace.  It has a
+userland piece and a library which gets configuration information passed
+into a kernel driver.
 
-something along the (untested) lines:
+Inside the kernel, we used Process Aggregates (pagg as found on
+oss.sgi.com) to track children of a starting process and migrate them
+to a desired cpu.
 
-        struct mm_struct *mm = current ? get_task_mm(current) : NULL;
+The problem we have with this method is the callout to pagg happens
+far too late after the fork to help with some of the more important
+user structures like page tables.  We find that most processes have
+their pgd and many parts of the pmd allocated remotely.  Although it
+is not a significant source of NUMA traffic, it does cause variability
+in process run times which becomes exaggerated on larger MPI jobs which
+rendezvous at a barrier.
 
-        if (mm) {
-                unsigned env_len = mm->env_end - mm->env_start;
-                char* env = kmalloc(env_len, GFP_KERNEL);
-                access_process_vm(current, mm->env_start, env,
-                                           env_len, 0);
+It would be nice to be able to, early in fork, decide on a destination
+numa node and cpu list for the task.  If this were done, then changing
+allocation of structures like the task_t and page tables could be handled
+on a case-by-case basis as we see benefit.  Additionally, it would be
+nice if we could make the placement decision logic provide a callback
+so we could add tailored placement.
 
-                /* env is now a big buffer containing null-terminated
-                   strings representing evironment variables */
+I realize this is a very vague sketch of what I think needs to be done,
+but I am sort of in a rush right now and wanted to at least start the
+discussion.
 
-                mmput(mm);
-        }
-
--- 
-Linh Dang
+Thanks,
+Robin

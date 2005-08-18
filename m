@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbVHRVdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbVHRVif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbVHRVdo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 17:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVHRVdo
+	id S932473AbVHRVif (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 17:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbVHRVie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 17:33:44 -0400
-Received: from dsl027-180-204.sfo1.dsl.speakeasy.net ([216.27.180.204]:52122
-	"EHLO outer-richmond.davemloft.net") by vger.kernel.org with ESMTP
-	id S932465AbVHRVdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 17:33:43 -0400
-Date: Thu, 18 Aug 2005 14:32:48 -0700 (PDT)
-Message-Id: <20050818.143248.58283961.davem@davemloft.net>
-To: cw@f00f.org
-Cc: Sebastian.Classen@freenet-ag.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: overflows in /proc/net/dev
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050818163358.GA19554@taniwha.stupidest.org>
-References: <1124350090.29902.8.camel@basti79.freenet-ag.de>
-	<20050818163358.GA19554@taniwha.stupidest.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 18 Aug 2005 17:38:34 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10933 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932473AbVHRVie (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 17:38:34 -0400
+Date: Thu, 18 Aug 2005 23:38:23 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Adam Goode <adam@evdebs.org>
+Cc: Jens Axboe <axboe@suse.de>,
+       Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>
+Subject: Re: HDAPS, Need to park the head for real
+Message-ID: <20050818213823.GA4275@elf.ucw.cz>
+References: <1124205914.4855.14.camel@localhost.localdomain> <20050816200708.GE3425@suse.de> <20050818204904.GE516@openzaurus.ucw.cz> <1124399756.28353.0.camel@lynx.auton.cs.cmu.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124399756.28353.0.camel@lynx.auton.cs.cmu.edu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Chris Wedgwood <cw@f00f.org>
-Date: Thu, 18 Aug 2005 09:33:58 -0700
+Hi!
 
-> I thought the concensurs here was that because doing reliable atomic
-> updates of 64-bit values isn't possible on some (most?) 32-bit
-> architectures so we need additional locking to make this work which is
-> undesirable?  (It might even be a FAQ by now as this comes up fairly
-> often).
+> > Please make it "echo 1 > frozen", then userspace can do "echo 0 > frozen"
+> > after five seconds.
+> 
+> What if the code to do "echo 0 > frozen" is swapped out to disk? ;)
 
-That's correct.
+Emergency head parker needs to be pagelocked for other reasons. You do
+not want to page it from disk while your notebook is in free fall.
+
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

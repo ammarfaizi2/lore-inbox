@@ -1,61 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbVHRAPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbVHRARt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751394AbVHRAPI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 20:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbVHRAPA
+	id S1751393AbVHRARt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 20:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbVHRARs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 20:15:00 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:29567 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751396AbVHRAOv (ORCPT
+	Wed, 17 Aug 2005 20:17:48 -0400
+Received: from fmr15.intel.com ([192.55.52.69]:35027 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751393AbVHRARr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 20:14:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:message-id:content-type:content-transfer-encoding;
-        b=uc+RGaPdGgmAkgtLMbPRBCW1mncW0ihstAfHsbH3HvMy1ZeQcNzy6vLvoC6AwpuL0Obp2wWS19WI6GCC/RP4GKd2aniHXCCkEQI1VAjmA7sbWF23HfrMxtg6+pVA0Y7TZjJ4mZKNe7JAfIRq2jrC+F55yUpRt4K8/KWxLjcLXig=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 0/7] rename locking functions
-Date: Thu, 18 Aug 2005 02:15:07 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, jesper.juhl@gmail.com
+	Wed, 17 Aug 2005 20:17:47 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200508180215.08100.jesper.juhl@gmail.com>
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Question regarding HPET the 2.6 series kernel.
+Date: Wed, 17 Aug 2005 17:15:12 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6005787642@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Question regarding HPET the 2.6 series kernel.
+Thread-Index: AcWguhxc+M3IWYJkT96HbWWiS8vZlgCz6xvg
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Justin Piszcz" <jpiszcz@lucidpixels.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Aug 2005 00:15:13.0660 (UTC) FILETIME=[E750B3C0:01C5A389]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Consider the naming of these functions :
 
- sema_init()
- init_MUTEX()
- init_MUTEX_LOCKED()
- init_rwsem()
+When it is supported in BIOS, you will see a HPET line similar to below
+in initial ACPI messages.
 
-They are not named very consistent, the naming is confusing and ugly with 
-the mix of case and some are named init_* and some *_init.
-
-I propose to clean that up by renaming the functions so they end up as :
-
- init_sema()
- init_mutex()
- init_mutex_locked()
- init_rwsem()
-
-Since these are very widely used functions a transition period is needed, so 
-the patches I'm posting create wrapper functions with the old names for
-people to use until they get their code updated.
-The patches also change all in-kernel code calling these functions to use the
-new names.
-
-I'm only able to test on i386, so please look carefully at these changes. I'm 
-currently running a kernel with the patches applied and everything seems fine.
+ACPI: OEMB (v001 A M I  AMI_OEM  0x05000510 MSFT 0x00000097) @
+0xdffdf040
+ACPI: HPET (v001 A M I  OEMHPET  0x05000510 MSFT 0x00000097) @
+0xdffd7480
 
 
+And when it is supported in BIOS, kernel always uses it.
 
- --
- Jesper Juhl
+Thanks,
+Venki
+  
 
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Justin Piszcz
+>Sent: Sunday, August 14, 2005 3:22 AM
+>To: linux-kernel@vger.kernel.org
+>Subject: Question regarding HPET the 2.6 series kernel.
+>
+>
+>[*] HPET Timer Support
+>[*]   Provide RTC interrupt
+>
+>[*] HPET - High Precision Event Timer
+>[*]   Allow mmap of HPET
+>
+>http://tlug.up.ac.za/guides/lkcg/arch_i386.html
+>
+>HPET Timer Support	HPET_TIMER
+>This enables the use of the HPET for the kernel's internal 
+>timer. HPET is 
+>the next generation timer replacing legacy 8254s. You can 
+>safely choose Y 
+>here. However, HPET will only be activated if the platform and 
+>the BIOS 
+>support this feature. Otherwise the 8254 will be used for 
+>timing services. 
+>Choose N to continue using the legacy 8254 timer.
+>
+>How do I determine if my BIOS has this feature?
+>
+>$ dmesg | grep -i hpet
+>$ dmesg | grep -i 8254
+>$ dmesg | grep -i timer
+>..TIMER: vector=0x31 pin1=2 pin2=-1
+>PCI: Setting latency timer of device 0000:02:01.0 to 64
+>$
+>
+>Assuming it does, is there any reason to use or not to use 
+>this feature?
+>
+>Thanks,
+>
+>Justin.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>

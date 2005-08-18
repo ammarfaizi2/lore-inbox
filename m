@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVHRKEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVHRKGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVHRKEE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 06:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbVHRKED
+	id S932166AbVHRKGa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 06:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVHRKGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 06:04:03 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:16091 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S932160AbVHRKEC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 06:04:02 -0400
-Date: Thu, 18 Aug 2005 12:07:33 +0200
-From: DervishD <lkml@dervishd.net>
-To: jeff shia <tshxiayu@gmail.com>
+	Thu, 18 Aug 2005 06:06:30 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25318 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932166AbVHRKG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 06:06:29 -0400
+Date: Thu, 18 Aug 2005 11:06:28 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Folkert van Heusden <folkert@vanheusden.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: can I write to the cdrom through writing to the device file sr0?
-Message-ID: <20050818100733.GA110@DervishD>
-Mail-Followup-To: jeff shia <tshxiayu@gmail.com>,
+Subject: Re: zero-copy read() interface
+Message-ID: <20050818100628.GA5629@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Folkert van Heusden <folkert@vanheusden.com>,
 	linux-kernel@vger.kernel.org
-References: <7cd5d4b4050818014042740322@mail.gmail.com>
+References: <20050818100151.GF12313@vanheusden.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <7cd5d4b4050818014042740322@mail.gmail.com>
+In-Reply-To: <20050818100151.GF12313@vanheusden.com>
 User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Jeff :)
+On Thu, Aug 18, 2005 at 12:01:52PM +0200, Folkert van Heusden wrote:
+> What about a zero-copy read-interface?
+> An ioctl (or something) which enables the kernel to do dma directly to
+> the userspace. Of course this should be limited to the root-user or a
+> user with special capabilities (rights) since if a drive screws up, data
+> from a different sector (or so) might end up in the proces' memory. Of
+> course copying a sector from kernel- to userspace can be done pretty
+> fast but i.m.h.o. all possible speedimprovements should be made unless
+> unclean.
 
- * jeff shia <tshxiayu@gmail.com> dixit:
-> I want to write a cdrw user space driver just like cdreord,but the
-> cdrecord is too complex and huge!can I write to the cdrom through
-> writing to the device file sr0,here sr0 is the device file of the
-> cdrw.
+It's called O_DIRECT, and doesn't need root, just some alignment-constraints.
 
-    Although someone may say that the size of cdrecord is
-proportional to the author's ego, the crude reality is that cdrecord
-has to be such complex and huge (well, I don't think it is huge,
-but...). It has to be complex because cdwriting *is* complex. Take a
-look at the code and see if you can get rid of things. Nowadays I
-think that most of the writers out there are SCSI-3/MMC compliant, so
-you can just use that driver, but that won't probably remove much
-code.
-
-    Try joining a cdrecord alternative. I don't remember the name,
-but a project to build a cd recording library exists.
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...

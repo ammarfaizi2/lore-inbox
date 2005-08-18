@@ -1,36 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVHRMsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVHRMtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbVHRMsj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 08:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbVHRMsj
+	id S932151AbVHRMtD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 08:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbVHRMtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 08:48:39 -0400
-Received: from r3az252.chello.upc.cz ([213.220.243.252]:8064 "EHLO
-	aquarius.doma") by vger.kernel.org with ESMTP id S1750890AbVHRMsi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 08:48:38 -0400
-Message-ID: <430483A2.9010605@ribosome.natur.cuni.cz>
-Date: Thu, 18 Aug 2005 14:48:34 +0200
-From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
-	<mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050815
-X-Accept-Language: cs, en-us, en
+	Thu, 18 Aug 2005 08:49:02 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:20307 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932151AbVHRMtA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 08:49:00 -0400
+Message-ID: <430483BB.4090209@tls.msk.ru>
+Date: Thu, 18 Aug 2005 16:48:59 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: openafs is really faster on linux-2.4. than 2.6
-References: <43032109.6030709@ribosome.natur.cuni.cz> <4303293D.10805@ribosome.natur.cuni.cz> <430339AF.7080102@ribosome.natur.cuni.cz> <4303B70B.9080707@ribosome.natur.cuni.cz> <4304686F.20602@ribosome.natur.cuni.cz>
-In-Reply-To: <4304686F.20602@ribosome.natur.cuni.cz>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=us-ascii
+To: jeff shia <tshxiayu@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: can I write to the cdrom through writing to the device file sr0?
+References: <7cd5d4b4050818014042740322@mail.gmail.com>	 <20050818100733.GA110@DervishD> <7cd5d4b40508180538133ca00f@mail.gmail.com>
+In-Reply-To: <7cd5d4b40508180538133ca00f@mail.gmail.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the problem here is outside afs.
-Just doing this dd test but writing data directly to the ext2
-target gives same behaviour, i.e. on 2.4 kernel I see most of the
-CPU idle but on 2.6 kernel all that CPU amount is shown as in
-wait state. And the numbers from 2.4 kernel show higher throughput
-compared to the 2.6 kernel (regardless the the PREEMPT or no PREEMPT
-was used).
-M.
+jeff shia wrote:
+> thank you ,DervishD.
+> another question:What is the difference between cdrtools and cdrecord?
+> It seems that the fomer is bigger.
+
+cdrtools is a package which includes cdrecord.  Or, the other
+way 'round, cdrecord is a part of cdrtools package.  Nowadays,
+anyway.
+
+> On 8/18/05, DervishD <lkml@dervishd.net> wrote:
+> 
+>>   Hi Jeff :)
+>>
+>> * jeff shia <tshxiayu@gmail.com> dixit:
+>>
+>>>I want to write a cdrw user space driver just like cdreord,but the
+>>>cdrecord is too complex and huge!can I write to the cdrom through
+>>>writing to the device file sr0,here sr0 is the device file of the
+>>>cdrw.
+>>
+>>   Although someone may say that the size of cdrecord is
+>>proportional to the author's ego, the crude reality is that cdrecord
+>>has to be such complex and huge (well, I don't think it is huge,
+>>but...). It has to be complex because cdwriting *is* complex. Take a
+>>look at the code and see if you can get rid of things. Nowadays I
+>>think that most of the writers out there are SCSI-3/MMC compliant, so
+>>you can just use that driver, but that won't probably remove much
+>>code.
+
+Well, yes and no.  If you have re-writable media, there's a packet
+driver for it in recent kernels, and it is possible to (indirectly)
+mount and use a cdrw device as normal block device.  Ofcourse it'll
+only work for data "tracks", not for audio disks.
+
+/mjt

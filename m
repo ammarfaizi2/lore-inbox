@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbVHRGNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVHRGUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbVHRGNA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 02:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVHRGM7
+	id S1750827AbVHRGUb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 02:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVHRGUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 02:12:59 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:40392 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750817AbVHRGM7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 02:12:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ka83GxgqujvURzD8CT+WdbHXBBz2G2UD+Fsfrv0/qRDqmatVk0t200fCz5D9Mkrq0vXwHb7wVBWg/Z3cEFqZEbyYmdGHKNA9LAuZ3Wf2Bo9gqlE9sdybsWTWHqRdVL6KBJm4EREQPbQXD4CllloK0QegUm2FetZuYXEZ5SjaJYE=
-Message-ID: <3aa654a4050817231235710bc@mail.gmail.com>
-Date: Wed, 17 Aug 2005 23:12:57 -0700
-From: Avuton Olrich <avuton@gmail.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: ACPI Standby and nvidia ethernet driver causes network errors and drops
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43041DDC.8050000@colorfullife.com>
+	Thu, 18 Aug 2005 02:20:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23707 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750827AbVHRGUa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 02:20:30 -0400
+Date: Thu, 18 Aug 2005 14:26:02 +0800
+From: David Teigland <teigland@redhat.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, mark.fasheh@oracle.com
+Subject: [PATCH] configfs: export config_group_find_obj
+Message-ID: <20050818062602.GD10133@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <43041DDC.8050000@colorfullife.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/17/05, Manfred Spraul <manfred@colorfullife.com> wrote:
+In the dlm I use config_group_find_obj() which isn't exported.
 
-> Could you try the attached patch? Lots of error are often caused by half
-> duplex/full duplex mismatches, and such a bug was just fixed.
+Signed-off-by: David Teigland <teigland@redhat.com>
 
-Absolutely, it's compiled, I'm testing it right now, if you don't hear
-from me in 24 hours it worked :)
-
-Thanks for the quick response,
-avuton
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+diff -urpN a/fs/configfs/item.c b/fs/configfs/item.c
+--- a/fs/configfs/item.c	2005-08-17 17:19:23.000000000 +0800
++++ b/fs/configfs/item.c	2005-08-18 14:15:51.681973168 +0800
+@@ -224,4 +224,5 @@ EXPORT_SYMBOL(config_item_init);
+ EXPORT_SYMBOL(config_group_init);
+ EXPORT_SYMBOL(config_item_get);
+ EXPORT_SYMBOL(config_item_put);
++EXPORT_SYMBOL(config_group_find_obj);
+ 

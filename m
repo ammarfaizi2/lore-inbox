@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVHRSRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVHRSX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbVHRSRo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 14:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVHRSRo
+	id S932380AbVHRSX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 14:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbVHRSX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 14:17:44 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:52644 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932377AbVHRSRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 14:17:44 -0400
-Subject: Re: [PATCH 2.6.13-rc6 1/2] New Syscall: get rlimits of any process
-	(update)
-From: Lee Revell <rlrevell@joe-job.com>
-To: e8607062@student.tuwien.ac.at
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Elliot Lee <sopwith@redhat.com>
-In-Reply-To: <1124381951.6251.14.camel@w2>
-References: <1124326652.8359.3.camel@w2>  <p7364u40zld.fsf@verdi.suse.de>
-	 <1124381951.6251.14.camel@w2>
-Content-Type: text/plain
-Date: Thu, 18 Aug 2005 14:17:40 -0400
-Message-Id: <1124389061.5973.33.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.7 
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Aug 2005 14:23:57 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:6108 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S932380AbVHRSX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 14:23:56 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Environment variables inside the kernel?
+References: <4fec73ca050818084467f04c31@mail.gmail.com>
+	<m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local>
+From: "Linh Dang" <linhd@nortel.com>
+Organization: Null
+Date: Thu, 18 Aug 2005 14:23:51 -0400
+In-Reply-To: <m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local> (Douglas
+ McNaught's message of "Thu, 18 Aug 2005 12:37:14 -0400")
+Message-ID: <wn5slx75cjs.fsf@linhd-2.ca.nortel.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-18 at 18:19 +0200, Wieland Gmeiner wrote:
-> As an example: It seems to be a common problem with numerous services
-> to run out of available file descriptors. There are several
-> workarounds to this problem, the most common seems to be increasing
-> the systemwide max number of filedescriptors and restarting the
-> service. If you google for e.g. 'linux "too many open files"' you get
-> a bunch of mailing list support requests about that problem. 
+Douglas McNaught <doug@mcnaught.org> wrote:
 
-Maybe the distros need to just increase the default FD limit to 1024.  I
-hit this constantly with gtk-gnutella, if try to download a file that's
-available on more than 1024 hosts it will open sockets until it hits
-that limit then bomb out.
+>
+> If someone is insisting you use environment varaiables in kernel
+> code, challenge them to show you where they are implemented in the
+> kernel.  :)
+>
+> -Doug
 
-1024 seems way too low these days given the proliferation of "swarming"
-P2P protocols like gnutella and bittorrent.
+They're in current process's vm. You just have to parse it yourself.
 
-Lee
+something along the (untested) lines:
 
+        struct mm_struct *mm = current ? get_task_mm(current) : NULL;
+
+        if (mm) {
+                unsigned env_len = mm->env_end - mm->env_start;
+                char* env = kmalloc(env_len, GFP_KERNEL);
+                access_process_vm(current, mm->env_start, env,
+                                           env_len, 0);
+
+                /* env is now a big buffer containing null-terminated
+                   strings representing evironment variables */
+
+                mmput(mm);
+        }
+
+-- 
+Linh Dang

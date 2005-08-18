@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVHRNaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVHRNan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbVHRNaw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 09:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVHRNaw
+	id S932222AbVHRNan (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 09:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbVHRNan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 09:30:52 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:64174 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932224AbVHRNav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 09:30:51 -0400
-Subject: Re: [PATCH,RFC] quirks for VIA VT8237 southbridge
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200508181436.54880.annabellesgarden@yahoo.de>
-References: <200508131710.38569.annabellesgarden@yahoo.de>
-	 <200508160949.10607.bjorn.helgaas@hp.com>
-	 <1124212816.20707.5.camel@localhost.localdomain>
-	 <200508181436.54880.annabellesgarden@yahoo.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 18 Aug 2005 14:57:57 +0100
-Message-Id: <1124373477.16072.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Thu, 18 Aug 2005 09:30:43 -0400
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:29824 "EHLO
+	aquarius.doma") by vger.kernel.org with ESMTP id S932222AbVHRNan
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 09:30:43 -0400
+Message-ID: <43048D81.80402@ribosome.natur.cuni.cz>
+Date: Thu, 18 Aug 2005 15:30:41 +0200
+From: =?UTF-8?B?TWFydGluIE1PS1JFSsWg?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050815
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: openafs is really faster on linux-2.4. than 2.6
+References: <43032109.6030709@ribosome.natur.cuni.cz> <4304686F.20602@ribosome.natur.cuni.cz> <430483A2.9010605@ribosome.natur.cuni.cz> <200508182257.35544.kernel@kolivas.org>
+In-Reply-To: <200508182257.35544.kernel@kolivas.org>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-08-18 at 14:36 +0200, Karsten Wiese wrote:
-> Solutions: either calculate correct new_irq (= PIN-Number & 0x0F)
->  or don't apply likely wrong value.
-> 
-> Following diff takes the 2nd way.
-> 
-> Well, VT8237 ignores the wrong new_irq in IOAPIC-Mode,
-> but its irritating to see dmesg print out nonsense then. 
+But that is very short and does not affect the interpretation here.
+The throughput is clearly lower on 2.6 kernel and definitely the
+CPU is in my eyes unnecessarily blocked... Why is the CPU in the
+wait state instead of idle (this is teh problem on 2.6 series
+but CPU is free on 2.4 series)? That's the main problem I think at the
+moment.
+M.
 
-The docs and my poking around with a later board seem to imply you need
-to set the IRQ value > 15 to get it to the IO-APIC. The data sheet
-doesn't seem clear if you need to set it all up by hand or if ACPI does
-it.
-
+Con Kolivas wrote:
+> On Thu, 18 Aug 2005 22:48, Martin MOKREJŠ wrote:
+> 
+>>I think the problem here is outside afs.
+>>Just doing this dd test but writing data directly to the ext2
+>>target gives same behaviour, i.e. on 2.4 kernel I see most of the
+>>CPU idle but on 2.6 kernel all that CPU amount is shown as in
+>>wait state. And the numbers from 2.4 kernel show higher throughput
+>>compared to the 2.6 kernel (regardless the the PREEMPT or no PREEMPT
+>>was used).
+> 
+> 
+> Don't forget to include sync time.

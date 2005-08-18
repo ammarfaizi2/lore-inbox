@@ -1,99 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVHRHyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVHRHyD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbVHRHyK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 03:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVHRHyK
+	id S932110AbVHRHyD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 03:54:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVHRHyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 03:54:10 -0400
-Received: from smtp.istop.com ([66.11.167.126]:14554 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S932123AbVHRHyI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 03:54:08 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Guillermo =?iso-8859-1?q?L=F3pez_Alejos?= <glalejos@gmail.com>
-Subject: Re: Documenting the VFS
-Date: Thu, 18 Aug 2005 17:55:02 +1000
-User-Agent: KMail/1.7.2
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <4fec73ca05081312054f1d1dd9@mail.gmail.com>
-In-Reply-To: <4fec73ca05081312054f1d1dd9@mail.gmail.com>
+	Thu, 18 Aug 2005 03:54:03 -0400
+Received: from [202.125.80.34] ([202.125.80.34]:10099 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S932110AbVHRHyA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 03:54:00 -0400
+Content-class: urn:content-classes:message
+Subject: RE: How to support partitions in driver?
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200508181755.04163.phillips@arcor.de>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 18 Aug 2005 13:17:51 +0530
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B3849@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: How to support partitions in driver?
+Thread-Index: AcWjwq/cCTQMFyysTN6j/pyTlajVsAABN9Sg
+From: "Mukund JB`." <mukundjb@esntechnologies.co.in>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>
+Cc: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 14 August 2005 05:05, Guillermo López Alejos wrote:
-> Hi,
+Dear Russel,
+
+I have a full-fledged driver working with NO problems. It has been
+developed long back.
+Now the issue here is to add the partitions support to the existing
+driver.
+
+I guess it will involve enough amount of work. If NOT, please provide me
+the documentation if available, HOW-TO use the MMC layer.
+
+If the requirement was BIG & bulky what you suggested might have been
+apt.
+If I can solve it in less effort why go for more effort.
+I can always integrate it with main-steam kernel letter. This is the
+PEAK time & I am required to submit the patch as soon as possible.
+
+Please understand the reason behind it.
+
+I assure you that I will use the kernel MMC & accomplish what u said
+within  next month?
+But for now how to implement the partition support in the driver will be
+very helpfull.
+
+Thanks & Regards,
+Mukund Jampala
+
+
+
+>> I have few basic queries regarding my partition implementation in my
+Sd
+>> driver.
+>> Sorry for asking such petty things here. But, somehow it's not
+working &
+>> I am made to ask it here.
 >
-> I'm writing documentation about the VFS.
-
-Best of luck.  It is a complex topic, but if you manage to produce an accurate 
-reference, it will be widely read.
-
-> More concretely, I want to 
-> document the following information about the methods defined in the
-> VFS interface (i.e. the struct *_operations):
->     - Prototype.
->     - Description (brief description of what the method has to do).
->     - Description of the parameters (explanation of the purpose of
-> each parameter).
->     - Return value (including possible error values).
->     - Responsibility (what the method is expected to do, including
-> specific cases).
->     - Default method (is there any method that can be used instead of
-> defining a new one?)
->     - Mandatory (Is the method mandatory? or it can be assigned a NULL?)
-
-Locking is a crucial topic.  Filesystem developers need to understand what 
-locking the VFS does for them and what they must do themselves.  You need to 
-cover this method by method and lock by lock.  Also note that you can't 
-really understand the vfs separately from things like the page cache, inode 
-cache and dentry cache, and respective operations.  It crosses over into 
-virtual memory topics too, because of mmap.  A discussion of the vfs would 
-not be complete without discussing the life cycles of all the objects 
-involved.
-
-> It is rather difficult to find this information by looking at the
-> kernel sources, and the documentation I have found does not provide
-> the details I'm looking for.
-
-You pretty much have to read the source to learn this since there is no 
-authoritative reference.  As others have mentioned, Richard Gootch's vfs.txt 
-document is helpful.  It is several years out of date though, and doesn't 
-cover things like aio, new security hooks, dnotify and inotify event 
-interface, cluster hooks, etc. etc.
-
-> Where can I found an up to date documentation about the VFS interface?
-
-It's pretty sparse.
-
-   http://lxr.linux.no/source/Documentation/filesystems/vfs.txt
-   http://lxr.linux.no/source/Documentation/filesystems/Locking
-   http://www.faqs.org/docs/kernel_2_4/lki-3.html
-   http://www.oreilly.com/catalog/linuxkernel/
-   http://lwn.net
-
-> If there is no such document, which is the correct mailing list to
-> submit my questions at?
-
-This is the right place, or fsdevel, or both.  You probably want to post your 
-drafts or pointers to your drafts here for corrections and additions.
-
-> Is there any IRC channel to chat about this? 
-> (I have visited a couple of times #kernelnewbies).
-
-#kernelnewbies is good, the name is a little deceiving.  Also, try Matt 
-Mackall's kernelmentors mailing list and Arnaldo Carvalho de Melo's kernel 
-janitors mailing list.
-
-> Thanks for your help and regards,
-
-Thanks for volunteering!
-
-Regards,
-
-Daniel
+>Why don't you use the MMC/SD layer already merged into the kernel
+>instead of rewriting your own.  Grab a copy of Andrew Morton's
+>kernel, and look at the code in drivers/mmc and include/linux/mmc.
+>
+>There are three host drivers there already.  I'm sure you can work
+>out how to interface the existing framework to your device.
+>
+>And suddenly you can take advantage of the already existing mmc
+>block device support, which does support partitions, and does
+>manage to get hot swapping block devices more or less correct.
+>(and if it doesn't, it'll be one less driver to fix later.)
+>
+>--
+>Russell King
+> Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+> maintainer of:  2.6 Serial core

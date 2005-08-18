@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVHRCs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVHRCww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbVHRCs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 22:48:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbVHRCs2
+	id S932108AbVHRCww (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 22:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVHRCww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 22:48:28 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7899
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932104AbVHRCs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 22:48:28 -0400
-Date: Wed, 17 Aug 2005 19:48:22 -0700 (PDT)
-Message-Id: <20050817.194822.92757361.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: riel@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFT 4/5] CLOCK-Pro page replacement
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050817173818.098462b5.akpm@osdl.org>
-References: <20050810200943.809832000@jumble.boston.redhat.com>
-	<20050810.133125.08323684.davem@davemloft.net>
-	<20050817173818.098462b5.akpm@osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 17 Aug 2005 22:52:52 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:50333 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932108AbVHRCwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 22:52:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=fjYNROJtSaM1kriSmatpuYPiX341/G3HG/GPCtj9nBD1v83CKrui3wbd5fevIXxO2G7iHp2Y7pVc2Ox4GDneT79EE9Po74GQtstb3GJVWULIgsAfh3ZwmBfS8DsoVXZSfGcHHhw5RWR9T29Bf0be1vruiWd7lB9749qobTviuWk=  ;
+Message-ID: <4303F7E8.5030705@yahoo.com.au>
+Date: Thu, 18 Aug 2005 12:52:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Eric Dumazet <dada1@cosmosbay.com>,
+       Benjamin LaHaise <bcrl@linux.intel.com>,
+       "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct file cleanup : the very large file_ra_state is
+ now allocated only on demand.
+References: <20050810164655.GB4162@linux.intel.com> <20050810.135306.79296985.davem@davemloft.net> <20050810211737.GA21581@linux.intel.com> <430391F1.9080900@cosmosbay.com> <20050817211829.GK27628@wotan.suse.de> <4303AEC4.3060901@cosmosbay.com> <20050817215357.GU3996@wotan.suse.de> <4303D90E.2030103@cosmosbay.com> <20050818010524.GW3996@wotan.suse.de>
+In-Reply-To: <20050818010524.GW3996@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Wed, 17 Aug 2005 17:38:18 -0700
+Andi Kleen wrote:
 
-> I'm prety sure we fixed that somehow.  But I forget how.
+>
+>I would just set the ra pointer to a single global structure if the allocation
+>fails. Then you can avoid all the other checks. It will slow down
+>things and trash some state, but not fail and nobody should expect good 
+>performance after out of memory anyways. The only check still
+>needed would be on freeing.
+>
+>
 
-I wish you could remember :-)  I honestly don't think we did.
-The DEFINE_PER_CPU() definition still looks the same, and the
-way the .data.percpu section is layed out in the vmlinux.lds.S
-is still the same as well.
+You don't want to always have bad performance though, so you
+could attempt to allocate if either the pointer is null _or_ it
+points to the global structure?
 
-The places which are not handled currently are in not-often-used areas
-such as IPVS, some S390 drivers, and some other platform specific
-code (likely platforms where the gcc problem in question never
-existed).
 
-I do note two important spots where the initialization is not
-present, the loopback driver statistics and the scsi_done_q.
-Hmmm...
-
-If we are handling it somehow, that would be nice to know for
-certain, because we could thus remove all of the ugly
-initializers.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

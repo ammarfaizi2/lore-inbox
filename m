@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbVHRSlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVHRSmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbVHRSlM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 14:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVHRSlM
+	id S932351AbVHRSmz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 14:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVHRSmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 14:41:12 -0400
-Received: from apate.telenet-ops.be ([195.130.132.57]:6302 "EHLO
-	apate.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S932313AbVHRSlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 14:41:11 -0400
-Date: Thu, 18 Aug 2005 20:41:09 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch 2.6.13-rc6] watchdog: fix oops in softdog driver
-Message-ID: <20050818184109.GB19487@infomag.infomag.iguana.be>
-References: <200508180113_MC3-1-A77D-A127@compuserve.com>
-Mime-Version: 1.0
+	Thu, 18 Aug 2005 14:42:55 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:16600 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S932351AbVHRSmz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 14:42:55 -0400
+Message-ID: <4304D6AC.4060606@trash.net>
+Date: Thu, 18 Aug 2005 20:42:52 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ollie Wild <aaw@rincewind.tv>
+CC: linux-kernel@vger.kernel.org, Maillist netdev <netdev@oss.sgi.com>
+Subject: Re: [PATCH] fix dst_entry leak in icmp_push_reply()
+References: <43039C3F.2000207@rincewind.tv> <4303CEC5.3010502@trash.net> <43042D94.4030303@rincewind.tv>
+In-Reply-To: <43042D94.4030303@rincewind.tv>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508180113_MC3-1-A77D-A127@compuserve.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chuck,
-
->   The softdog watchdog timer has a bug that can create an oops:
+Ollie Wild wrote:
+> Patrick McHardy wrote:
 > 
->   1.  Load the module without the nowayout option.
->   2.  Open the driver and close it without writing 'V' before close.
->   3.  Unload the module.  The timer will continue to run...
->   4.  Oops happens when timer fires.
+>> Ollie Wild wrote:
+>>
+>>> If the ip_append_data() call in icmp_push_reply() fails,
+>>> ip_flush_pending_frames() needs to be called.  Otherwise, ip_rt_put()
+>>> is never called on inet_sk(icmp_socket->sk)->cork.rt, which prevents
+>>> the route (and net_device) from ever being freed.
+>>
+>> Your patch doesn't fit your description, the else-condition you're
+>> adding triggers when the queue is empty, so what is the point?
 > 
->   Reported Sun, 10 Oct 2004, by Michael Schierl <schierlm@gmx.de>
-> 
->   Fix is easy: always take a reference on the module on open.
-> Release it only when the device is closed and no timer is running.
-> Tested on 2.6.13-rc6 using the soft_noboot option.  While the
-> timer is running and the device is closed, the module use count
-> stays at 1.  After the timer fires, it drops to 0.  Repeatedly
-> opening and closing the driver caused no problems.  Please apply.
+> Since we're only calling ip_append_data() once here, the two conditions
+> are identical.
 
-I'll add this to the watchdog tree.
-
-Thanks,
-Wim.
-
+You're right, I misread your patch. It would be easier to understand
+if you just checked the return value of ip_append_data, as done in
+udp.c or raw.c.

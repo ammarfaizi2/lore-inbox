@@ -1,374 +1,281 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVHRVwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVHRV4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbVHRVwe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 17:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVHRVwe
+	id S932488AbVHRV4l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 17:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVHRV4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 17:52:34 -0400
-Received: from iron.pdx.net ([207.149.241.18]:26061 "EHLO iron.pdx.net")
-	by vger.kernel.org with ESMTP id S932481AbVHRVwd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 17:52:33 -0400
-Subject: 2.6.13-rc6-git10 test report [x86_64]
-From: Sean Bruno <sean.bruno@dsl-only.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-qekd5Lpu036QUCQwBOd0"
-Date: Thu, 18 Aug 2005 14:52:30 -0700
-Message-Id: <1124401950.14825.13.camel@home-lap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 18 Aug 2005 17:56:41 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:8953 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S932484AbVHRV4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 17:56:40 -0400
+Date: Thu, 18 Aug 2005 23:37:49 +0200 (CEST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] ide update
+Message-ID: <Pine.GSO.4.62.0508182332470.22579@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-qekd5Lpu036QUCQwBOd0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Just finished building the latest git for my dual-opteron box(ASUS
-K8N-DL with 6GB Ram).  No new issues noted, works about as well as
-2.6.12 for me.  ASUS still has not addressed their ACPI Table and I am
-doubtful that they ever will.
+3 obvious fixes + support for 2 new controllers
+(just new PCI IDs).
 
-In order to boot any kernel, I am disabling ACPI in the BIOS.  If I
-enable ACPI, I now get a lock-up referencing the fact the machine has
-6GB of RAM and no IOMMU.
+Please pull from:
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/bart/ide-2.6.git
 
-I have attached the "dmesg" of the boot with ACPI disabled if you folks
-are interested.
-
-Sean
-
-P.S.  ASUS TechSupport is only slightly better than Belkin(Their KVM's
-suck) TechSupport!
+diffstat/changelog/patch below
+--
+Bartlomiej
 
 
---=-qekd5Lpu036QUCQwBOd0
-Content-Disposition: attachment; filename=dmesg.txt
-Content-Type: text/plain; name=dmesg.txt; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+  drivers/ide/Kconfig           |    1 +
+  drivers/ide/ide-floppy.c      |    2 +-
+  drivers/ide/pci/generic.c     |    7 +++++++
+  drivers/ide/pci/serverworks.c |   23 +++++++++++++++++++++++
+  drivers/ide/ppc/pmac.c        |    2 +-
+  drivers/ide/setup-pci.c       |    1 +
+  include/linux/pci_ids.h       |    6 +++++-
+  7 files changed, 39 insertions(+), 3 deletions(-)
 
-Bootdata ok (command line is ro root=/dev/VolGroup00/LogVol00 rhgb quiet iommu=memaper=3)
-Linux version 2.6.13-rc6-git10 (root@home-desk) (gcc version 4.0.1 20050727 (Red Hat 4.0.1-5)) #1 SMP Thu Aug 18 13:52:20 PDT 2005
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009e400 (usable)
- BIOS-e820: 000000000009e400 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000c0000000 (usable)
- BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
- BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
- BIOS-e820: 0000000100000000 - 00000001c0000000 (usable)
-ACPI: Unable to locate RSDP
-Scanning NUMA topology in Northbridge 24
-Number of nodes 2
-Node 0 MemBase 0000000000000000 Limit 000000013fffffff
-Node 1 MemBase 0000000140000000 Limit 00000001bfffffff
-Using 25 for the hash shift. Max adder is 1bfffffff 
-Using node hash shift of 25
-Bootmem setup node 0 0000000000000000-000000013fffffff
-Bootmem setup node 1 0000000140000000-00000001bfffffff
-On node 0 totalpages: 1310719
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 1306623 pages, LIFO batch:31
-  HighMem zone: 0 pages, LIFO batch:1
-On node 1 totalpages: 524287
-  DMA zone: 0 pages, LIFO batch:1
-  Normal zone: 524287 pages, LIFO batch:31
-  HighMem zone: 0 pages, LIFO batch:1
-Nvidia board detected. Ignoring ACPI timer override.
-Intel MultiProcessor Specification v1.4
-    Virtual Wire compatibility mode.
-OEM ID: OEM00000 <6>Product ID: PROD00000000 <6>APIC at: 0xFEE00000
-Processor #0 15:5 APIC version 17
-Processor #1 15:5 APIC version 17
-I/O APIC #4 Version 17 at 0xFEC00000.
-Setting APIC routing to flat
-Processors: 2
-Allocating PCI resources starting at c0000000 (gap: c0000000:20000000)
-Checking aperture...
-CPU 0: aperture @ 10000000 size 32 MB
-Aperture from northbridge cpu 0 too small (32 MB)
-Your BIOS doesn't leave a aperture memory hole
-Please enable the IOMMU option in the BIOS setup
-This costs you 256 MB of RAM
-Mapping aperture over 262144 KB of RAM @ 10000000
-Built 2 zonelists
-Kernel command line: ro root=/dev/VolGroup00/LogVol00 rhgb quiet iommu=memaper=3
-Initializing CPU#0
-PID hash table entries: 4096 (order: 12, 131072 bytes)
-time.c: Using 1.193182 MHz PIT timer.
-time.c: Detected 2010.311 MHz processor.
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
-Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
-Memory: 5908512k/7340032k available (2448k kernel code, 0k reserved, 1303k data, 224k init)
-Calibrating delay using timer specific routine.. 4024.90 BogoMIPS (lpj=8049811)
-Security Framework v1.0.0 initialized
-SELinux:  Initializing.
-SELinux:  Starting in permissive mode
-selinux_register_security:  Registering secondary module capability
-Capability LSM initialized as secondary
-Mount-cache hash table entries: 256
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 0(1) -> Node 0 -> Core 0
-mtrr: v2.0 (20020519)
-Using IO-APIC 4
-..MP-BIOS bug: 8254 timer not connected to IO-APIC
-works.
-Using local APIC timer interrupts.
-Detected 12.564 MHz APIC timer.
-Booting processor 1/2 APIC 0x1
-Initializing CPU#1
-Calibrating delay using timer specific routine.. 4020.89 BogoMIPS (lpj=8041798)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 1(1) -> Node 1 -> Core 0
-AMD Opteron(tm) Processor 246 stepping 0a
-CPU 1: Syncing TSC to CPU 0.
-CPU 1: synchronized TSC with CPU 0 (last diff -112 cycles, maxerr 788 cycles)
-Brought up 2 CPUs
-time.c: Using PIT/TSC based timekeeping.
-testing NMI watchdog ... OK.
-checking if image is initramfs... it is
-NET: Registered protocol family 16
-PCI: Using configuration type 1
-ACPI: Subsystem revision 20050408
-ACPI: Interpreter disabled.
-Linux Plug and Play Support v0.97 (c) Adam Belay
-pnp: PnP ACPI: disabled
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-PCI: Probing PCI hardware
-PCI: Probing PCI hardware (bus 00)
-PCI: Transparent bridge - 0000:00:09.0
-Boot video device is 0000:04:00.0
-PCI->APIC IRQ transform: 0000:00:01.1[A] -> IRQ 11
-PCI->APIC IRQ transform: 0000:00:02.0[A] -> IRQ 9
-PCI->APIC IRQ transform: 0000:00:02.1[B] -> IRQ 3
-PCI->APIC IRQ transform: 0000:00:04.0[A] -> IRQ 5
-PCI->APIC IRQ transform: 0000:00:07.0[A] -> IRQ 5
-PCI->APIC IRQ transform: 0000:00:08.0[A] -> IRQ 11
-PCI->APIC IRQ transform: 0000:01:08.0[A] -> IRQ 9
-PCI->APIC IRQ transform: 0000:01:09.0[A] -> IRQ 3
-PCI->APIC IRQ transform: 0000:02:00.0[A] -> IRQ 9
-PCI->APIC IRQ transform: 0000:04:00.0[A] -> IRQ 11
-PCI: Bridge: 0000:00:09.0
-  IO window: d000-dfff
-  MEM window: fe800000-fe8fffff
-  PREFETCH window: fe900000-fe9fffff
-PCI: Bridge: 0000:00:0c.0
-  IO window: c000-cfff
-  MEM window: fe700000-fe7fffff
-  PREFETCH window: fe600000-fe6fffff
-PCI: Bridge: 0000:00:0d.0
-  IO window: b000-bfff
-  MEM window: fe500000-fe5fffff
-  PREFETCH window: fe400000-fe4fffff
-PCI: Bridge: 0000:00:0e.0
-  IO window: a000-afff
-  MEM window: fb000000-fdffffff
-  PREFETCH window: d0000000-dfffffff
-PCI: Setting latency timer of device 0000:00:09.0 to 64
-PCI: Setting latency timer of device 0000:00:0c.0 to 64
-PCI: Setting latency timer of device 0000:00:0d.0 to 64
-PCI: Setting latency timer of device 0000:00:0e.0 to 64
-PCI-DMA: Disabling AGP.
-PCI-DMA: aperture base @ 10000000 size 262144 KB
-PCI-DMA: Reserving 256MB of IOMMU area in the AGP aperture
-IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
-audit: initializing netlink socket (disabled)
-audit(1124400632.648:1): initialized
-Total HugeTLB memory allocated, 0
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
-SELinux:  Registering netfilter hooks
-Initializing Cryptographic API
-pci_hotplug: PCI Hot Plug PCI Core version: 0.5
-PCI: Setting latency timer of device 0000:00:0c.0 to 64
-pcie_portdrv_probe->Dev[005d:10de] has invalid IRQ. Check vendor BIOS
-assign_interrupt_mode Found MSI capability
-Allocate Port Service[pcie00]
-PCI: Setting latency timer of device 0000:00:0d.0 to 64
-pcie_portdrv_probe->Dev[005d:10de] has invalid IRQ. Check vendor BIOS
-assign_interrupt_mode Found MSI capability
-Allocate Port Service[pcie00]
-PCI: Setting latency timer of device 0000:00:0e.0 to 64
-pcie_portdrv_probe->Dev[005d:10de] has invalid IRQ. Check vendor BIOS
-assign_interrupt_mode Found MSI capability
-Allocate Port Service[pcie00]
-Real Time Clock Driver v1.12
-Linux agpgart interface v0.101 (c) Dave Jones
-PNP: No PS/2 controller found. Probing ports directly.
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-Serial: 8250/16550 driver $Revision: 1.90 $ 32 ports, IRQ sharing enabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-io scheduler noop registered
-io scheduler anticipatory registered
-io scheduler deadline registered
-io scheduler cfq registered
-RAMDISK driver initialized: 16 RAM disks of 16384K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-NFORCE-CK804: IDE controller at PCI slot 0000:00:06.0
-NFORCE-CK804: chipset revision 242
-NFORCE-CK804: not 100% native mode: will probe irqs later
-NFORCE-CK804: 0000:00:06.0 (rev f2) UDMA133 controller
-    ide0: BM-DMA at 0xfa00-0xfa07, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xfa08-0xfa0f, BIOS settings: hdc:DMA, hdd:DMA
-Probing IDE interface ide0...
-Probing IDE interface ide1...
-hdc: Pioneer DVD-ROM ATAPIModel DVD-105S 013, ATAPI CD/DVD-ROM drive
-hdd: Polaroid BurnMAX48, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-Probing IDE interface ide0...
-hdc: ATAPI 40X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-hdd: ATAPI 48X CD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-ide-floppy driver 0.99.newide
-usbcore: registered new driver hiddev
-usbcore: registered new driver usbhid
-drivers/usb/input/hid-core.c: v2.01:USB HID core driver
-mice: PS/2 mouse device common for all mice
-md: md driver 0.90.2 MAX_MD_DEVS=256, MD_SB_DISKS=27
-md: bitmap version 3.38
-NET: Registered protocol family 2
-input: AT Translated Set 2 keyboard on isa0060/serio0
-IP route cache hash table entries: 262144 (order: 9, 2097152 bytes)
-TCP established hash table entries: 262144 (order: 10, 4194304 bytes)
-TCP bind hash table entries: 65536 (order: 8, 1048576 bytes)
-TCP: Hash tables configured (established 262144 bind 65536)
-TCP reno registered
-TCP bic registered
-Initializing IPsec netlink socket
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-powernow-k8: Found 2 AMD Athlon 64 / Opteron processors (version 1.50.3)
-powernow-k8: MP systems not supported by PSB BIOS structure
-powernow-k8: MP systems not supported by PSB BIOS structure
-Freeing unused kernel memory: 224k freed
-SCSI subsystem initialized
-libata version 1.11 loaded.
-sata_sil version 0.9
-ata1: SATA max UDMA/100 cmd 0xFFFFC2000000E080 ctl 0xFFFFC2000000E08A bmdma 0xFFFFC2000000E000 irq 3
-ata2: SATA max UDMA/100 cmd 0xFFFFC2000000E0C0 ctl 0xFFFFC2000000E0CA bmdma 0xFFFFC2000000E008 irq 3
-ata3: SATA max UDMA/100 cmd 0xFFFFC2000000E280 ctl 0xFFFFC2000000E28A bmdma 0xFFFFC2000000E200 irq 3
-ata4: SATA max UDMA/100 cmd 0xFFFFC2000000E2C0 ctl 0xFFFFC2000000E2CA bmdma 0xFFFFC2000000E208 irq 3
-input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
-ata1: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3c68 86:3c01 87:4003 88:20ff
-ata1: dev 0 ATA, max UDMA7, 312581808 sectors: lba48
-ata1: dev 0 configured for UDMA/100
-scsi0 : sata_sil
-ata2: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3c69 86:3e01 87:4003 88:20ff
-ata2: dev 0 ATA, max UDMA7, 312581808 sectors: lba48
-ata2: dev 0 configured for UDMA/100
-scsi1 : sata_sil
-ata3: no device found (phy stat 00000000)
-scsi2 : sata_sil
-ata4: no device found (phy stat 00000000)
-scsi3 : sata_sil
-  Vendor: ATA       Model: SAMSUNG SP1614C   Rev: SW10
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
-SCSI device sda: drive cache: write back
- sda: sda1 sda2
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-  Vendor: ATA       Model: SAMSUNG SP1614C   Rev: SW10
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sdb: 312581808 512-byte hdwr sectors (160042 MB)
-SCSI device sdb: drive cache: write back
-SCSI device sdb: 312581808 512-byte hdwr sectors (160042 MB)
-SCSI device sdb: drive cache: write back
- sdb: sdb1
-Attached scsi disk sdb at scsi1, channel 0, id 0, lun 0
-sata_nv version 0.6
-PCI: Setting latency timer of device 0000:00:07.0 to 64
-ata5: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xF500 irq 5
-ata6: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xF508 irq 5
-ata5: no device found (phy stat 00000000)
-scsi4 : sata_nv
-ata6: no device found (phy stat 00000000)
-scsi5 : sata_nv
-PCI: Setting latency timer of device 0000:00:08.0 to 64
-ata7: SATA max UDMA/133 cmd 0x9E0 ctl 0xBE2 bmdma 0xF000 irq 11
-ata8: SATA max UDMA/133 cmd 0x960 ctl 0xB62 bmdma 0xF008 irq 11
-ata7: no device found (phy stat 00000000)
-scsi6 : sata_nv
-ata8: no device found (phy stat 00000000)
-scsi7 : sata_nv
-device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
-cdrom: open failed.
-cdrom: open failed.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-SELinux:  Disabled at runtime.
-SELinux:  Unregistering netfilter hooks
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-tg3.c:v3.35 (August 6, 2005)
-PCI: Setting latency timer of device 0000:02:00.0 to 64
-eth0: Tigon3 [partno(BCM95751) rev 4101 PHY(5750)] (PCIX:100MHz:32-bit) 10/100/1000BaseT Ethernet 00:11:d8:d3:08:05
-eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1] 
-eth0: dma_rwctrl[76180000]
-PCI: Setting latency timer of device 0000:00:04.0 to 64
-intel8x0_measure_ac97_clock: measured 58778 usecs
-intel8x0: clocking to 47023
-shpchp: acpi_shpchprm:get_device PCI ROOT HID fail=0x1001
-shpchp: acpi_shpchprm:get_device PCI ROOT HID fail=0x1001
-shpchp: acpi_shpchprm:get_device PCI ROOT HID fail=0x1001
-i2c_adapter i2c-0: nForce2 SMBus adapter at 0x4c00
-i2c_adapter i2c-1: nForce2 SMBus adapter at 0x4c40
-nvidia: module license 'NVIDIA' taints kernel.
-PCI: Setting latency timer of device 0000:04:00.0 to 64
-NVRM: loading NVIDIA Linux x86_64 NVIDIA Kernel Module  1.0-7667  Fri Jun 17 07:14:03 PDT 2005
-PCI: Setting latency timer of device 0000:00:02.1 to 64
-ehci_hcd 0000:00:02.1: EHCI Host Controller
-ehci_hcd 0000:00:02.1: debug port 1
-ehci_hcd 0000:00:02.1: new USB bus registered, assigned bus number 1
-ehci_hcd 0000:00:02.1: irq 3, io mem 0xfeb00000
-PCI: cache line size of 64 is not supported by device 0000:00:02.1
-ehci_hcd 0000:00:02.1: park 0
-ehci_hcd 0000:00:02.1: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 10 ports detected
-ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-PCI: Setting latency timer of device 0000:00:02.0 to 64
-ohci_hcd 0000:00:02.0: OHCI Host Controller
-ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 2
-ohci_hcd 0000:00:02.0: irq 9, io mem 0xfeaff000
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 10 ports detected
-ieee1394: Initialized config rom entry `ip1394'
-ohci1394: $Rev: 1299 $ Ben Collins <bcollins@debian.org>
-ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[9]  MMIO=[fe8ff000-fe8ff7ff]  Max Packet=[2048]
-usb 2-3: new low speed USB device using ohci_hcd and address 2
-input: USB HID v1.10 Mouse [Logitech USB Mouse] on usb-0000:00:02.0-3
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[0011d80000277ca6]
-NET: Registered protocol family 10
-Disabled Privacy Extensions on device ffffffff8045c3a0(lo)
-IPv6 over IPv4 tunneling driver
-audit(1124400650.993:2): user pid=1450 uid=0 auid=4294967295 msg='hwclock: op=changing system time id=0 res=success'
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: ... autorun DONE.
-cdrom: open failed.
-cdrom: open failed.
-cdrom: open failed.
-cdrom: open failed.
-EXT3 FS on dm-0, internal journal
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sda1, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-Adding 2031608k swap on /dev/VolGroup00/LogVol01.  Priority:-1 extents:1
-tg3: eth0: Link is up at 100 Mbps, full duplex.
-tg3: eth0: Flow control is off for TX and off for RX.
-parport0: PC-style at 0x378 [PCSPP,TRISTATE]
-lp0: using parport0 (polling).
-lp0: console ready
-eth0: no IPv6 routers present
 
---=-qekd5Lpu036QUCQwBOd0--
+commit 84f57fbc724e3b56dc87c37dddac89f82cf75ef6
+Author: Narendra Sankar <nsankar@broadcom.com>
+Date:   Thu Aug 18 22:30:35 2005 +0200
 
+     [PATCH] serverworks: add support for new southbridge IDE
+
+     BCM5785 (HT1000) is a Opteron Southbridge from Serverworks/Broadcom that
+     incorporates a single channel ATA100 IDE controller that is functionally
+     identical to the Serverworks CSB6 IDE controller.  This patch adds support
+     for the new PCI device ID and also the support for this controller.
+
+     Signed-off-by: Narendra Sankar <nsankar@broadcom.com>
+     Acked-by: Jeff Garzik <jgarzik@pobox.com>
+
+commit 2f09a7f4af131bf23c013ead89373deba1c7593c
+Author: Matt Gillette <matt.gillette@netcell.com>
+Date:   Thu Aug 18 22:27:07 2005 +0200
+
+     [PATCH] ide: add support for Netcell Revolution to pci-ide generic driver
+
+     Adds support for Netcell Revolution to pci-ide generic driver by including
+     it in the list of devices matched.  Includes the Revolution in the list of
+     simplex devices forced into DMA mode.
+
+     Signed-off-by: Matt Gillette <matt.gillette@netcell.com>
+     Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+     Cc: Jeff Garzik <jgarzik@pobox.com>
+     Signed-off-by: Andrew Morton <akpm@osdl.org>
+
+commit b07e5eccaf512ae3209beae5cd2e3a27c92c300b
+Author: Grant Coady <gcoady@gmail.com>
+Date:   Thu Aug 18 22:19:55 2005 +0200
+
+     [PATCH] ide: fix PCI_DEVIEC_ID_APPLE_UNI_N_ATA spelling
+
+     Signed-off-by: Grant Coady <gcoady@gmail.com>
+
+commit 0ac72b351bdf29252e4181b07fa7feed8501b5d2
+Author: Juha-Matti Tapio <jmtapio@verkkotelakka.net>
+Date:   Thu Aug 18 22:13:44 2005 +0200
+
+     [PATCH] ide: fix the BLK_DEV_IDEDMA_PCI dependency for drivers/ide/ppc/pmac.c
+
+     drivers/ide/ppc/pmac.c uses symbols ide_build_sglist,
+     __ide_dma_off_quietly, __ide_dma_on and __ide_dma_timeout when
+     CONFIG_BLK_DEV_IDEDMA_PMAC is defined. The declarations for these
+     symbols (in ide.h) depend on CONFIG_BLK_DEV_IDEDMA_PCI. There is a
+     missing dependency for this in drivers/ide/Kconfig which causes
+     drivers/ide/ppc/pmac.c to fail to build if CONFIG_BLK_DEV_IDEDMA_PMAC
+     is selected but CONFIG_BLK_DEV_IDEDMA_PCI is not.
+
+     Signed-off-by: Juha-Matti Tapio <jmtapio@verkkotelakka.net>
+
+commit c40d3d38a8f04fff4394c7323db239bce780db60
+Author: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+Date:   Thu Aug 18 22:09:21 2005 +0200
+
+     [PATCH] ide-floppy: fix IDEFLOPPY_TICKS_DELAY
+
+     * IDEFLOPPY_TICKS_DELAY assumed HZ == 100, fix it
+     * increase the delay to 50ms (to match comment in the code)
+
+     Thanks to Manfred Scherer <manfred.scherer.mhm@t-online.de>
+     for reporting the problem and testing the patch.
+
+
+
+diff --git a/drivers/ide/Kconfig b/drivers/ide/Kconfig
+--- a/drivers/ide/Kconfig
++++ b/drivers/ide/Kconfig
+@@ -764,6 +764,7 @@ config BLK_DEV_IDE_PMAC_ATA100FIRST
+  config BLK_DEV_IDEDMA_PMAC
+  	bool "PowerMac IDE DMA support"
+  	depends on BLK_DEV_IDE_PMAC
++	select BLK_DEV_IDEDMA_PCI
+  	help
+  	  This option allows the driver for the built-in IDE controller on
+  	  Power Macintoshes and PowerBooks to use DMA (direct memory access)
+diff --git a/drivers/ide/ide-floppy.c b/drivers/ide/ide-floppy.c
+--- a/drivers/ide/ide-floppy.c
++++ b/drivers/ide/ide-floppy.c
+@@ -317,7 +317,7 @@ typedef struct ide_floppy_obj {
+  	unsigned long flags;
+  } idefloppy_floppy_t;
+
+-#define IDEFLOPPY_TICKS_DELAY	3	/* default delay for ZIP 100 */
++#define IDEFLOPPY_TICKS_DELAY	HZ/20	/* default delay for ZIP 100 (50ms) */
+
+  /*
+   *	Floppy flag bits values.
+diff --git a/drivers/ide/pci/generic.c b/drivers/ide/pci/generic.c
+--- a/drivers/ide/pci/generic.c
++++ b/drivers/ide/pci/generic.c
+@@ -173,6 +173,12 @@ static ide_pci_device_t generic_chipsets
+  		.channels	= 2,
+  		.autodma	= NOAUTODMA,
+  		.bootable	= ON_BOARD,
++	},{	/* 14 */
++		.name		= "Revolution",
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.bootable	= OFF_BOARD,
+  	}
+  };
+
+@@ -231,6 +237,7 @@ static struct pci_device_id generic_pci_
+  	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO,     PCI_ANY_ID, PCI_ANY_ID, 0, 0, 11},
+  	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_1,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12},
+  	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_2,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 13},
++	{ PCI_VENDOR_ID_NETCELL,PCI_DEVICE_ID_REVOLUTION,          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14},
+  	/* Must come last. If you add entries adjust this table appropriately and the init_one code */
+  	{ PCI_ANY_ID,		PCI_ANY_ID,			   PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_STORAGE_IDE << 8, 0xFFFFFF00UL, 0},
+  	{ 0, },
+diff --git a/drivers/ide/pci/serverworks.c b/drivers/ide/pci/serverworks.c
+--- a/drivers/ide/pci/serverworks.c
++++ b/drivers/ide/pci/serverworks.c
+@@ -21,6 +21,9 @@
+   *
+   *   CSB6: `Champion South Bridge' IDE Interface (optional: third channel)
+   *
++ *   HT1000: AKA BCM5785 - Hypertransport Southbridge for Opteron systems. IDE
++ *   controller same as the CSB6. Single channel ATA100 only.
++ *
+   * Documentation:
+   *	Available under NDA only. Errata info very hard to get.
+   *
+@@ -71,6 +74,8 @@ static u8 svwks_ratemask (ide_drive_t *d
+  	if (!svwks_revision)
+  		pci_read_config_byte(dev, PCI_REVISION_ID, &svwks_revision);
+
++	if (dev->device == PCI_DEVICE_ID_SERVERWORKS_HT1000IDE)
++		return 2;
+  	if (dev->device == PCI_DEVICE_ID_SERVERWORKS_OSB4IDE) {
+  		u32 reg = 0;
+  		if (isa_dev)
+@@ -109,6 +114,7 @@ static u8 svwks_csb_check (struct pci_de
+  		case PCI_DEVICE_ID_SERVERWORKS_CSB5IDE:
+  		case PCI_DEVICE_ID_SERVERWORKS_CSB6IDE:
+  		case PCI_DEVICE_ID_SERVERWORKS_CSB6IDE2:
++		case PCI_DEVICE_ID_SERVERWORKS_HT1000IDE:
+  			return 1;
+  		default:
+  			break;
+@@ -438,6 +444,13 @@ static unsigned int __devinit init_chips
+  			btr |= (svwks_revision >= SVWKS_CSB5_REVISION_NEW) ? 0x3 : 0x2;
+  		pci_write_config_byte(dev, 0x5A, btr);
+  	}
++	/* Setup HT1000 SouthBridge Controller - Single Channel Only */
++	else if (dev->device == PCI_DEVICE_ID_SERVERWORKS_HT1000IDE) {
++		pci_read_config_byte(dev, 0x5A, &btr);
++		btr &= ~0x40;
++		btr |= 0x3;
++		pci_write_config_byte(dev, 0x5A, btr);
++	}
+
+  	return (dev->irq) ? dev->irq : 0;
+  }
+@@ -629,6 +642,15 @@ static ide_pci_device_t serverworks_chip
+  		.channels	= 1,	/* 2 */
+  		.autodma	= AUTODMA,
+  		.bootable	= ON_BOARD,
++	},{	/* 4 */
++		.name		= "SvrWks HT1000",
++		.init_setup	= init_setup_svwks,
++		.init_chipset	= init_chipset_svwks,
++		.init_hwif	= init_hwif_svwks,
++		.init_dma	= init_dma_svwks,
++		.channels	= 1,	/* 2 */
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
+  	}
+  };
+
+@@ -653,6 +675,7 @@ static struct pci_device_id svwks_pci_tb
+  	{ PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_CSB5IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
+  	{ PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_CSB6IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
+  	{ PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_CSB6IDE2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3},
++	{ PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_HT1000IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4},
+  	{ 0, },
+  };
+  MODULE_DEVICE_TABLE(pci, svwks_pci_tbl);
+diff --git a/drivers/ide/ppc/pmac.c b/drivers/ide/ppc/pmac.c
+--- a/drivers/ide/ppc/pmac.c
++++ b/drivers/ide/ppc/pmac.c
+@@ -1664,7 +1664,7 @@ static struct macio_driver pmac_ide_maci
+  };
+
+  static struct pci_device_id pmac_ide_pci_match[] = {
+-	{ PCI_VENDOR_ID_APPLE, PCI_DEVIEC_ID_APPLE_UNI_N_ATA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
++	{ PCI_VENDOR_ID_APPLE, PCI_DEVICE_ID_APPLE_UNI_N_ATA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+  	{ PCI_VENDOR_ID_APPLE, PCI_DEVICE_ID_APPLE_IPID_ATA100, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+  	{ PCI_VENDOR_ID_APPLE, PCI_DEVICE_ID_APPLE_K2_ATA100, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+  	{ PCI_VENDOR_ID_APPLE, PCI_DEVICE_ID_APPLE_SH_ATA,
+diff --git a/drivers/ide/setup-pci.c b/drivers/ide/setup-pci.c
+--- a/drivers/ide/setup-pci.c
++++ b/drivers/ide/setup-pci.c
+@@ -229,6 +229,7 @@ second_chance_to_dma:
+  			case PCI_DEVICE_ID_AMD_VIPER_7409:
+  			case PCI_DEVICE_ID_CMD_643:
+  			case PCI_DEVICE_ID_SERVERWORKS_CSB5IDE:
++			case PCI_DEVICE_ID_REVOLUTION:
+  				simplex_stat = hwif->INB(dma_base + 2);
+  				hwif->OUTB((simplex_stat&0x60),(dma_base + 2));
+  				simplex_stat = hwif->INB(dma_base + 2);
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -881,7 +881,7 @@
+  #define PCI_DEVICE_ID_APPLE_UNI_N_PCI15	0x002e
+  #define PCI_DEVICE_ID_APPLE_UNI_N_FW2	0x0030
+  #define PCI_DEVICE_ID_APPLE_UNI_N_GMAC2	0x0032
+-#define PCI_DEVIEC_ID_APPLE_UNI_N_ATA	0x0033
++#define PCI_DEVICE_ID_APPLE_UNI_N_ATA	0x0033
+  #define PCI_DEVICE_ID_APPLE_UNI_N_AGP2	0x0034
+  #define PCI_DEVICE_ID_APPLE_IPID_ATA100	0x003b
+  #define PCI_DEVICE_ID_APPLE_KEYLARGO_I	0x003e
+@@ -1580,6 +1580,7 @@
+  #define PCI_DEVICE_ID_SERVERWORKS_OSB4IDE 0x0211
+  #define PCI_DEVICE_ID_SERVERWORKS_CSB5IDE 0x0212
+  #define PCI_DEVICE_ID_SERVERWORKS_CSB6IDE 0x0213
++#define PCI_DEVICE_ID_SERVERWORKS_HT1000IDE 0x0214
+  #define PCI_DEVICE_ID_SERVERWORKS_CSB6IDE2 0x0217
+  #define PCI_DEVICE_ID_SERVERWORKS_OSB4USB 0x0220
+  #define PCI_DEVICE_ID_SERVERWORKS_CSB5USB PCI_DEVICE_ID_SERVERWORKS_OSB4USB
+@@ -2184,6 +2185,9 @@
+  #define PCI_VENDOR_ID_SIBYTE		0x166d
+  #define PCI_DEVICE_ID_BCM1250_HT	0x0002
+
++#define PCI_VENDOR_ID_NETCELL		0x169c
++#define PCI_DEVICE_ID_REVOLUTION	0x0044
++
+  #define PCI_VENDOR_ID_LINKSYS		0x1737
+  #define PCI_DEVICE_ID_LINKSYS_EG1032	0x1032
+  #define PCI_DEVICE_ID_LINKSYS_EG1064	0x1064

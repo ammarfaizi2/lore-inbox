@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVHRUBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbVHRUDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbVHRUBx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 16:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVHRUBw
+	id S932266AbVHRUDE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 16:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbVHRUDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 16:01:52 -0400
-Received: from main.gmane.org ([80.91.229.2]:16268 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932418AbVHRUBv (ORCPT
+	Thu, 18 Aug 2005 16:03:04 -0400
+Received: from mailfe16.tele2.fr ([212.247.155.236]:13739 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S932266AbVHRUDD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 16:01:51 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: egallego@telefonica.net (Emilio =?utf-8?Q?Jes=C3=BAs?= Gallego Arias)
-Subject: Re: Environment variables inside the kernel?
-Date: Thu, 18 Aug 2005 21:43:31 +0200
-Message-ID: <87wtmjhvz0.fsf@telefonica.net>
-References: <4fec73ca050818084467f04c31@mail.gmail.com>
-	<m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local>
-	<wn5slx75cjs.fsf@linhd-2.ca.nortel.com>
-	<4fec73ca05081811488ec518e@mail.gmail.com>
+	Thu, 18 Aug 2005 16:03:03 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Thu, 18 Aug 2005 22:02:55 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: idle task's task_t allocation on NUMA machines
+Message-ID: <20050818200255.GI8822@bouh.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
+	lse-tech@lists.sourceforge.net
+References: <20050818140829.GB8123@implementation.labri.fr> <4304A6DF.6040703@cosmosbay.com> <20050818194941.GH8822@bouh.labri.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: glalejos@gmail.com
-X-Gmane-NNTP-Posting-Host: 89.red-83-44-14.pooles.rima-tde.net
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50 (gnu/linux)
-Cancel-Lock: sha1:9TqRYyPU2oHXhgIikPi3ee/w5QQ=
+In-Reply-To: <20050818194941.GH8822@bouh.labri.fr>
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillermo LÃ³pez Alejos <glalejos@gmail.com> writes:
+Samuel Thibault, le Thu 18 Aug 2005 21:49:41 +0200, a écrit :
+> Eric Dumazet, le Thu 18 Aug 2005 17:18:55 +0200, a écrit :
+> > I believe IRQ stacks are also allocated on node 0, that seems more serious.
+> 
+> For the i386 architecture at least, yes: they are statically defined in
+> arch/i386/kernel/irq.c, while they could be per_cpu.
 
-> Whoa!, I did not expect so many replies. Thank you for your answers.
->
-> The thing is that the Computer Architecture area of the University I
-> am studying at is developing a parallel filesystem. Currently it works
-> as a stand-alone program (this is why it uses resources like
-> environment variables), and I have been told to integrate it in the
-> Linux kernel.
->
-> I have to justify changes on this filesystem code (like avoiding the
-> use of environment variables) to my tutor. In this case I needed to
-> find why it is not possible to use environment variables in kernel
-> space.
->
-> I was looking for a reference documentation which give a definition of
-> environment variables that exclude their use inside the kernel, or,
-> simply, I expected to find a design decision to justify this. But I
-> think I have enough information with your answers, I will be able to
-> elaborate a satisfactory conclusion.
+Hum, but the per_cpu areas for i386 are not numa-aware... I'm wondering:
+isn't the current x86_64 numa-aware implementation of per_cpu generic
+enough for any architecture?
 
-A good reference is in Debian Policy Section 9.9, where it is stated:
-
-A program must not depend on environment variables to get reasonable
-defaults. (That's because these environment variables would have to be
-set in a system-wide configuration file like /etc/profile, which is
-not supported by all shells.)
-
-Although this is not applicable to the kernel, goggling about this
-section of the Debian Policy will give you some arguments against
-environment variables in general.
-
-
+Regards,
+Samuel

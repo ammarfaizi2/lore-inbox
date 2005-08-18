@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbVHRWxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbVHRWyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbVHRWxX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 18:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbVHRWxX
+	id S1750905AbVHRWyS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 18:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbVHRWyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 18:53:23 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22023 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750705AbVHRWxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 18:53:22 -0400
-Date: Fri, 19 Aug 2005 00:53:12 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Imanpreet Arora <imanpreet@gmail.com>
+	Thu, 18 Aug 2005 18:54:18 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:25225
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750710AbVHRWyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 18:54:17 -0400
+Date: Thu, 18 Aug 2005 15:54:21 -0700 (PDT)
+Message-Id: <20050818.155421.65905823.davem@davemloft.net>
+To: seb@highlab.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux under 8MB
-Message-ID: <20050818225312.GG3822@stusta.de>
-References: <c26b9592050818151154ff1a89@mail.gmail.com>
+Subject: Re: 2.6.12.5 bug? per-socket TCP keepalive settings
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <E1E5sXs-00048w-Rv@highlab.com>
+References: <E1E5sXs-00048w-Rv@highlab.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c26b9592050818151154ff1a89@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 03:41:30AM +0530, Imanpreet Arora wrote:
-> Hi all,
-> 
->               For the last couple of days, I have been trying to set
-> up linux kernel under 8MB. So far I have set up a linux 2.4.31, which
-> just works under 8MB. However, I would be grateful if someone could
-> help with the following queries
-> 
-> a)          Is linux2.4 just the right option? What about linux 2.0.x?
-> Or for that matter even <2.0
+From: Sebastian Kuzminsky <seb@highlab.com>
+Date: Thu, 18 Aug 2005 16:07:32 -0600
 
-The more interesting case would ne a recent 2.6 kernel with
+> Linux provides 3 non-standard TCP socket options for tweaking the
+> keepalive behavior of individual sockets: TCP_KEEPIDLE, TCP_KEEPCNT,
+> and TCP_KEEPINTVL.  The values set on a socket with these options should
+> override the system-wide default.
 
-  General setup
-    Configure standard kernel features (for small systems)
+There is a fourth setting, the SO_KEEPALIVE socket option, which
+also must be enabled explicitly by the application to enable keepalives.
+It defaults to off.  Your application sets this, so all is fine so far.
 
-enabled and appropriate options below this option selected.
+> The right thing is to wait IDLE seconds, then send CNT probes INTVL
+> seconds apart, then reset the TCP connection.
+>
+> The wrong behavior I'm seeing is the first probe goes out on schedule,
+> and sometimes a few more probes go out on schedule, but then it stops
+> sending anything at all.  It doesnt send the last of the probes, and it
+> doesnt send the reset.  The connection is stuck in the ESTABLISHED state,
+> according to netstat.
 
-> b)          What are the specific issues that are to be considered
-> while compiling an old kernel on a newer setup? I ask this because I
-> compiled my current setup on a 2.6.11 machine and while doing "make
-> modules_install", I got errors from depmod[%], complaining about
-> depmod.old.  I had to kludge my way through by setting up a link from
-> depmod.old to depmod.
+Your test case is questionable, because you do not receive even one
+ACK in established state, thus the tp->rcv_tstamp variable has no
+way to get initialized.  The only ACK you receive is the one in
+response to the connection setup SYN, and we don't initialize
+tp->rcv_stamp for that ACK.
 
-What userspace do you want to use on the 8MB machine?
-You need a userspace that supports such an old kernel.
+The keepalive time checks absolutely require that tp->rcv_tstamp
+has a valid value, and until you process an ACK in ESTABLISHED
+state it does not.
 
-> [%] Not to mention that on a FC4 machine, gcc 4,x meowed  while
-> compiling the kernel.
-
-gcc 4.0 is not a working compiler for _any_ kernel below 2.6.12.
-
-> TIA,
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+If you send successfully or receive successfully at least one byte
+over the connection, and thusly process at least one ACK in
+ESTABLISHED state, I think you'll find that the keepalives behave
+properly.

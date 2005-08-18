@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVHRLkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVHRLqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbVHRLkO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 07:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVHRLkO
+	id S932206AbVHRLqL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 07:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVHRLqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 07:40:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14019 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932204AbVHRLkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 07:40:13 -0400
-Date: Thu, 18 Aug 2005 12:43:02 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg KH <greg@kroah.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, James.Smart@Emulex.Com,
-       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] add transport class symlink to device object
-Message-ID: <20050818114302.GC5113@parcelfarce.linux.theplanet.co.uk>
-References: <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <20050814232525.A27481@flint.arm.linux.org.uk> <20050815004303.GB9466@parcelfarce.linux.theplanet.co.uk> <20050815093244.A19811@flint.arm.linux.org.uk> <20050818052156.GC29301@kroah.com> <20050818073049.B2365@flint.arm.linux.org.uk> <20050818064129.GA2280@kroah.com> <20050818075027.D2365@flint.arm.linux.org.uk> <20050818070442.GA8258@kroah.com>
+	Thu, 18 Aug 2005 07:46:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:48953 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932206AbVHRLqG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 07:46:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e7ahHDQp4m5VQY0e/vXNyx3fF59N6EODL9i836MtMpVIDcl0MgBmKo419pqwQTi8OFgN8QXhPS8IoCyEJPi7fcvpVJx9uoYXaOEuX260orUVDNpgq2EjmVT1Gue/9rktINQFqpY22xFPTZzQLzVutYon87Fs8wnudRoq8rrTI7M=
+Message-ID: <9a87484905081804464a8e24b7@mail.gmail.com>
+Date: Thu, 18 Aug 2005 13:46:05 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/7] rename locking functions - convert sema_init users
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050818031039.545dd53e.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050818070442.GA8258@kroah.com>
-User-Agent: Mutt/1.4.1i
+References: <200508180204.33470.jesper.juhl@gmail.com>
+	 <20050818031039.545dd53e.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 18, 2005 at 12:04:42AM -0700, Greg KH wrote:
-> Matthew, this work for you?
+On 8/18/05, Andrew Morton <akpm@osdl.org> wrote:
+> Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> >
+> > --- linux-2.6.13-rc6-git9-orig/fs/xfs/linux-2.6/sema.h        2005-06-17 21:48:29.000000000 +0200
+> >  +++ linux-2.6.13-rc6-git9/fs/xfs/linux-2.6/sema.h    2005-08-18 00:46:41.000000000 +0200
+> >  @@ -43,9 +43,9 @@
+> >
+> >   typedef struct semaphore sema_t;
+> >
+> >  -#define init_sema(sp, val, c, d)    sema_init(sp, val)
+> >  -#define initsema(sp, val)           sema_init(sp, val)
+> >  -#define initnsema(sp, val, name)    sema_init(sp, val)
+> >  +#define init_sema(sp, val, c, d)    init_sema(sp, val)
+> >  +#define initsema(sp, val)           init_sema(sp, val)
+> >  +#define initnsema(sp, val, name)    init_sema(sp, val)
+> 
+> Well that's pretty nonsensical.  I'll drop the patches - please don't send
+> things which haven't been compiled.
+> 
 
-Yep, that's fine by me.  Thanks.
+I did build a kernel for my own box with all the patches applied, but
+it must obviously have not included this bit. Sorry about that. I'll
+be more thorough next time.
+
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

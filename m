@@ -1,35 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVHRKGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVHRKGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbVHRKGa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 06:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVHRKGa
+	id S932161AbVHRKGG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 06:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVHRKGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 06:06:30 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:25318 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932166AbVHRKG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 06:06:29 -0400
-Date: Thu, 18 Aug 2005 11:06:28 +0100
-From: Christoph Hellwig <hch@infradead.org>
+	Thu, 18 Aug 2005 06:06:06 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:63401 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932161AbVHRKGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 06:06:05 -0400
+Date: Thu, 18 Aug 2005 12:05:36 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
 To: Folkert van Heusden <folkert@vanheusden.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: zero-copy read() interface
-Message-ID: <20050818100628.GA5629@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Folkert van Heusden <folkert@vanheusden.com>,
-	linux-kernel@vger.kernel.org
+Message-ID: <20050818100536.GB16751@wohnheim.fh-wedel.de>
 References: <20050818100151.GF12313@vanheusden.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <20050818100151.GF12313@vanheusden.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 18, 2005 at 12:01:52PM +0200, Folkert van Heusden wrote:
+On Thu, 18 August 2005 12:01:52 +0200, Folkert van Heusden wrote:
+> 
 > What about a zero-copy read-interface?
 > An ioctl (or something) which enables the kernel to do dma directly to
 > the userspace. Of course this should be limited to the root-user or a
@@ -39,5 +36,13 @@ On Thu, Aug 18, 2005 at 12:01:52PM +0200, Folkert van Heusden wrote:
 > fast but i.m.h.o. all possible speedimprovements should be made unless
 > unclean.
 
-It's called O_DIRECT, and doesn't need root, just some alignment-constraints.
+Just use mmap().  Unlike your proposal, it cooperates with the page
+cache.
 
+Jörn
+
+-- 
+Don't worry about people stealing your ideas. If your ideas are any good,
+you'll have to ram them down people's throats.
+-- Howard Aiken quoted by Ken Iverson quoted by Jim Horning quoted by
+   Raph Levien, 1979

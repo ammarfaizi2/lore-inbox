@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVHRUrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVHRUuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbVHRUrm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 16:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbVHRUrm
+	id S932411AbVHRUuM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 16:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVHRUuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 16:47:42 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:52963 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S1750849AbVHRUrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 16:47:41 -0400
-Date: Thu, 18 Aug 2005 22:47:35 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add PCI ID for GeForce 6200 TurboCache(TM)
-Message-ID: <20050818204735.GM18386@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20050818202024.GK18386@cip.informatik.uni-erlangen.de> <4304F173.6000108@pobox.com>
+	Thu, 18 Aug 2005 16:50:12 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3806 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932411AbVHRUuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 16:50:10 -0400
+Date: Thu, 18 Aug 2005 22:49:04 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>
+Subject: Re: HDAPS, Need to park the head for real
+Message-ID: <20050818204904.GE516@openzaurus.ucw.cz>
+References: <1124205914.4855.14.camel@localhost.localdomain> <20050816200708.GE3425@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4304F173.6000108@pobox.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050816200708.GE3425@suse.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
-> Add this to the PCI IDs database as sourceforge.net.  The pci.ids files 
-> in the kernel is mirrored from that database, and also, it will soon be 
-> removed from the kernel itself.
+> I would suggest some sysfs file for doing this. The best approach would
 
-done.
+Actually it is usefull for other devices, too... for power saving.
 
-Thanks,
-	Thomas
+Some people call it "runtime power managment".
+
+> sysfs attribute for this and we integrate a proper solution once the
+> request type stuff is finalized. As the user api, I would suggest just
+> echoing a timeout in seconds to the file. So:
+> 
+> # echo 5 > /sys/block/hda/device/freeze
+> 
+> would park the head, freeze queue, and unfreeze in 5 seconds.
+
+Please make it "echo 1 > frozen", then userspace can do "echo 0 > frozen"
+after five seconds.
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

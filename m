@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbVHRRYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVHRRWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbVHRRYw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 13:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbVHRRYw
+	id S932291AbVHRRWD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 13:22:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVHRRWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 13:24:52 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:35784 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932320AbVHRRYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 13:24:52 -0400
-Date: Thu, 18 Aug 2005 10:20:59 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: idle task's task_t allocation on NUMA machines
-In-Reply-To: <20050818153932.GH8123@implementation.labri.fr>
-Message-ID: <Pine.LNX.4.62.0508181019240.26282@schroedinger.engr.sgi.com>
-References: <20050818140829.GB8123@implementation.labri.fr>
- <4304A6DF.6040703@cosmosbay.com> <20050818153932.GH8123@implementation.labri.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Aug 2005 13:22:03 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:8834 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S932291AbVHRRWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 13:22:01 -0400
+Subject: Re: [PATCH 2.6.13-rc6 1/2] New Syscall: get rlimits of any process
+	(update)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: e8607062@student.tuwien.ac.at
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Elliot Lee <sopwith@redhat.com>
+In-Reply-To: <1124381951.6251.14.camel@w2>
+References: <1124326652.8359.3.camel@w2>  <p7364u40zld.fsf@verdi.suse.de>
+	 <1124381951.6251.14.camel@w2>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 18 Aug 2005 18:49:01 +0100
+Message-Id: <1124387342.16072.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Aug 2005, Samuel Thibault wrote:
+> Also some documention for specific services show that there is a need to
+> adjust rlimits per process at runtime, e.g.:
+> http://www.squid-cache.org/Doc/FAQ/FAQ-11.html#ss11.4
+> http://slacksite.com/apache/logging.html
+> http://staff.in2.hr/denis/oracle/10g1install_fedora3_en.html#n2
 
-> Indeed, but I guess there are a lot of such little optimizations here
-> and there that could be relatively easily fixed, for a not-so little
-> benefit.
-
-Get on it :-) I hope the kmalloc_node stuff etc that was recently added is 
-enough for most structur4es. Note that there is a new rev of the slab 
-allocator in Andrew's tree that will make kmalloc_node as fast as kmalloc.
+Perhaps those application authors should provide a management interface
+to do so within the soft limit range at least. Its not clear to me that
+growing the fd array on a process is even safe. Some programs do size
+arrays at startup after querying the rlimit data.
 

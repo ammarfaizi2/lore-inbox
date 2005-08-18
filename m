@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVHRQdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVHRQeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbVHRQdB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 12:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVHRQdB
+	id S932287AbVHRQeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 12:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVHRQeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 12:33:01 -0400
-Received: from ns.suse.de ([195.135.220.2]:5593 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932285AbVHRQdA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 12:33:00 -0400
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] Why isn't there a unregister_die_notifier?
-References: <1124377142.5186.45.camel@localhost.localdomain.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 18 Aug 2005 18:32:59 +0200
-In-Reply-To: <1124377142.5186.45.camel@localhost.localdomain.suse.lists.linux.kernel>
-Message-ID: <p73br3vtdc4.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Thu, 18 Aug 2005 12:34:08 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:42129 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S932287AbVHRQeH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 12:34:07 -0400
+X-ORBL: [63.205.185.3]
+Date: Thu, 18 Aug 2005 09:33:58 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Sebastian Cla?en <Sebastian.Classen@freenet-ag.de>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: overflows in /proc/net/dev
+Message-ID: <20050818163358.GA19554@taniwha.stupidest.org>
+References: <1124350090.29902.8.camel@basti79.freenet-ag.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124350090.29902.8.camel@basti79.freenet-ag.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> writes:
+On Thu, Aug 18, 2005 at 09:28:10AM +0200, Sebastian Cla?en wrote:
 
-> Hi, I have a debugging module that I want to register a die notifier.
-> But I just noticed that I can't unregister it.  So for now I either just
-> keep the module loaded and never unloaded it, compile it into the
-> kernel, or ifdef out the register_die_notifier when loaded as a module.
-> 
-> Is there some reason that there isn't such a call, or maybe there is,
-> and I don't see it (called something else). Or is this something that
-> should be added?
+> in struct net_device_stats all members are defined as unsgined
+> long. In time of gigabit ethernet this takes not long to overflow.
 
-I didn't add one original because unloading debuggers is very tricky.
-There is no locking and no reference counting and they can be entered
-in any context.  Adding it would require some RCU tricks at least and
-might still have some non trivial races.
+It should still take an appreciable amount of time surely?  We can
+detect those wraps in userspace and deal with it as needed.
 
--Andi
+> Are there any plans to change these coutners to unsigned long long?
+
+It comes up from time to time (see below).
+
+> I saw in ifconfig source code the byte and packet counters are
+> already defined as unsigned long long.
+
+ifconfig is userspace.
+
+
+[...]
+
+>  struct net_device_stats
+>  {
+> -	unsigned long rx_packets;		/* total packets received	*/
+> -	unsigned long tx_packets;		/* total packets transmitted	*/
+> -	unsigned long rx_bytes;		/* total bytes received 	*/
+> -	unsigned long tx_bytes;		/* total bytes transmitted	*/
+> +	unsigned long long rx_packets;		/* total packets received	*/
+> +	unsigned long long tx_packets;		/* total packets transmitted	*/
+> +	unsigned long long rx_bytes;		/* total bytes received 	*/
+> +	unsigned long long tx_bytes;		/* total bytes transmitted	*/
+
+I thought the concensurs here was that because doing reliable atomic
+updates of 64-bit values isn't possible on some (most?) 32-bit
+architectures so we need additional locking to make this work which is
+undesirable?  (It might even be a FAQ by now as this comes up fairly
+often).
+

@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVHRQPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVHRQTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVHRQPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 12:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbVHRQPJ
+	id S932280AbVHRQTe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 12:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVHRQTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 12:15:09 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:15514 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932279AbVHRQPH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 12:15:07 -0400
-Date: Thu, 18 Aug 2005 21:52:50 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Benjamin LaHaise <bcrl@linux.intel.com>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [AIO] aio-2.6.13-rc6-B1
-Message-ID: <20050818162250.GA9928@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20050817184406.GA24961@linux.intel.com> <20050818100259.GA7060@in.ibm.com> <20050817231649.GA25997@linux.intel.com>
+	Thu, 18 Aug 2005 12:19:34 -0400
+Received: from chello062178225197.14.15.tuwien.teleweb.at ([62.178.225.197]:9961
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932280AbVHRQTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 12:19:33 -0400
+Subject: Re: [PATCH 2.6.13-rc6 1/2] New Syscall: get rlimits of any process
+	(update)
+From: Wieland Gmeiner <e8607062@student.tuwien.ac.at>
+Reply-To: e8607062@student.tuwien.ac.at
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Elliot Lee <sopwith@redhat.com>
+In-Reply-To: <p7364u40zld.fsf@verdi.suse.de>
+References: <1124326652.8359.3.camel@w2>  <p7364u40zld.fsf@verdi.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 18 Aug 2005 18:19:11 +0200
+Message-Id: <1124381951.6251.14.camel@w2>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050817231649.GA25997@linux.intel.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 17, 2005 at 07:16:49PM -0400, Benjamin LaHaise wrote:
-> On Thu, Aug 18, 2005 at 03:32:59PM +0530, Suparna Bhattacharya wrote:
-> > Using IPI Shortcut mode
-> > VFS: Cannot open root device "sda6" or unknown-block(8,6)
-> > Please append a correct "root=" boot option
-> > Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,6)
-> 
-> Are you sure the scsi driver is configured in?  This doesn't look related 
-> to any of the changes in the patch.  I'm going to be away from email for 
-> the next week, so you'll have to figure this out.
+On Thu, 2005-08-18 at 04:05 +0200, Andi Kleen wrote:
 
-You are right, it does look like a different problem - happens even without
-the patchset, just with vanilla 2.6.13-rc6. I'll refresh my build and try
-again to see if it is a real problem..
+> Is there a realistic use case where this new system call is actually useful
+> and solves something that cannot be solved without it?
 
-Regards
-Suparna
+As an example: It seems to be a common problem with numerous services to
+run out of available file descriptors. There are several workarounds to
+this problem, the most common seems to be increasing the systemwide max
+number of filedescriptors and restarting the service. If you google for
+e.g. 'linux "too many open files"' you get a bunch of mailing list
+support requests about that problem.
 
-> 
-> 		-ben
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+Also some documention for specific services show that there is a need to
+adjust rlimits per process at runtime, e.g.:
+http://www.squid-cache.org/Doc/FAQ/FAQ-11.html#ss11.4
+http://slacksite.com/apache/logging.html
+http://staff.in2.hr/denis/oracle/10g1install_fedora3_en.html#n2
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
-
+Thanks,
+Wieland

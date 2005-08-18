@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVHRQwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVHRQ73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbVHRQwS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 12:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVHRQwS
+	id S932193AbVHRQ73 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 12:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbVHRQ73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 12:52:18 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:44791 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932299AbVHRQwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 12:52:17 -0400
-Subject: Re: [QUESTION] Why isn't there a unregister_die_notifier?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p73br3vtdc4.fsf@verdi.suse.de>
-References: <1124377142.5186.45.camel@localhost.localdomain.suse.lists.linux.kernel>
-	 <p73br3vtdc4.fsf@verdi.suse.de>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 18 Aug 2005 12:52:09 -0400
-Message-Id: <1124383929.5186.69.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 18 Aug 2005 12:59:29 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:43268 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S932193AbVHRQ72 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 12:59:28 -0400
+Message-ID: <4304BE76.5090003@aknet.ru>
+Date: Thu, 18 Aug 2005 20:59:34 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc][patch] API for timer hooks
+References: <42FDF744.2070205@aknet.ru>	 <1124126354.8630.3.camel@cog.beaverton.ibm.com> <43024ADA.8030508@aknet.ru>	 <1124244580.30036.5.camel@mindpipe> <430363F2.7090009@aknet.ru>	 <1124296844.3591.7.camel@mindpipe>  <430376B8.9040404@aknet.ru> <1124320620.3591.14.camel@mindpipe>
+In-Reply-To: <1124320620.3591.14.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-18 at 18:32 +0200, Andi Kleen wrote:
-> Steven Rostedt <rostedt@goodmis.org> writes:
-> 
-> > Hi, I have a debugging module that I want to register a die notifier.
-> > But I just noticed that I can't unregister it.  So for now I either just
-> > keep the module loaded and never unloaded it, compile it into the
-> > kernel, or ifdef out the register_die_notifier when loaded as a module.
-> > 
-> > Is there some reason that there isn't such a call, or maybe there is,
-> > and I don't see it (called something else). Or is this something that
-> > should be added?
-> 
-> I didn't add one original because unloading debuggers is very tricky.
-> There is no locking and no reference counting and they can be entered
-> in any context.  Adding it would require some RCU tricks at least and
-> might still have some non trivial races.
+Hello.
 
-Yeah, I use macros to call all the debugger code and spinlocks to
-protect them. The macros change when the module is built into the kernel
-to not do any protection, since it isn't needed.  It's not the most
-efficient thing, and RCU would probably be better. But I can insert and
-remove this module over and over with the debugging going on, and it
-hasn't broke yet. But I guess, I'll just do without for now.
-
--- Steve
-
+Lee Revell wrote:
+>> should set CONFIG_HZ to the value I
+>> need at compile-time, and just remove
+>> all the timer reprogramming from the
+>> driver in a hope the dynamic-tick patch
+>> will slow it down itself when necessary?
+> The current implementations don't allow HZ to go higher than CONFIG_HZ
+> but that's the next logical step.
+What I was thinking about, is that I can
+just set CONFIG_HZ to the value I need.
+It would be a very high value, but with
+the dynamic-tick patch it shouldn't hurt. I
+don't see how can I use the dynamic-tick
+patch otherwise, I actually though this is
+how you implied I should use it.
+The question with that approach is just how
+to set CONFIG_HZ to an arbitrary values
+rather than to the 3 pre-defined constants
+(shouldn't be difficult), and whether or not
+the dynamic-tick patch will be able to slow
+the timer down _that_ much:)
+That would actually probably be an ideal
+solution for my problem - suddenly I don't
+need to change the timer speed at all. The
+only limitation would be that when the
+speaker driver is enabled in the config,
+the ability to manually select the CONFIG_HZ
+will be lost, but maybe it is not that bad
+at all...
 

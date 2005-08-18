@@ -1,85 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVHRFeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVHRFln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbVHRFeb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 01:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVHRFeb
+	id S1750754AbVHRFln (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 01:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVHRFln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 01:34:31 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:10395 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S1750735AbVHRFeb (ORCPT
+	Thu, 18 Aug 2005 01:41:43 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7147 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750754AbVHRFlm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 01:34:31 -0400
-Message-ID: <43041DDC.8050000@colorfullife.com>
-Date: Thu, 18 Aug 2005 07:34:20 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.5.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Avuton Olrich <avuton@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ACPI Standby and nvidia ethernet driver causes network errors
- and drops
-Content-Type: multipart/mixed;
- boundary="------------040603080705040808050108"
+	Thu, 18 Aug 2005 01:41:42 -0400
+Date: Wed, 17 Aug 2005 22:21:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <matthew@wil.cx>, James.Smart@Emulex.Com,
+       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] add transport class symlink to device object
+Message-ID: <20050818052156.GC29301@kroah.com>
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <20050814232525.A27481@flint.arm.linux.org.uk> <20050815004303.GB9466@parcelfarce.linux.theplanet.co.uk> <20050815093244.A19811@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050815093244.A19811@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040603080705040808050108
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Aug 15, 2005 at 09:32:44AM +0100, Russell King wrote:
+> On Mon, Aug 15, 2005 at 01:43:03AM +0100, Matthew Wilcox wrote:
+> > On Sun, Aug 14, 2005 at 11:25:25PM +0100, Russell King wrote:
+> > > Eww.  Do you really want one struct device per tty with all the
+> > > memory each one eats?
+> > > 
+> > > If that's really what you want you need to talk to Alan and not me.
+> > > Alan looks after tty level stuff, I look after serial level stuff.
+> > > The above is a tty level issue not a serial level issue.
+> > 
+> > mmm.  I don't know whether it's really a tty level issue or a serial
+> > issue.  The only tty classes with corresponding devices are the serial
+> > ones, at least on my system.  If this is the case, then the right fix
+> > would seem to be something like creating a new struct device for each
+> > serial port, then making that the uart_port->dev instead of the pci_dev
+> > or whatever.
+> 
+> What's the reason for enforcing one struct device per struct class_dev ?
+> I thought one of the points of class_dev was that you could have multiple
+> of them per struct device.
 
-Hi Avuton,
+No such enforcement is needed at all, and not encouraged.
 
+thanks,
 
->I have not been able to duplicate this without going into standby,
->thus this bug may have existed before 2.6.12, as I just started using
->ACPI standby.
->
->  
->
-Could you try the attached patch? Lots of error are often caused by half 
-duplex/full duplex mismatches, and such a bug was just fixed.
-
---
-    Manfred
-
---------------040603080705040808050108
-Content-Type: text/plain;
- name="patch-forcedeth-042-forcelinkinit"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-forcedeth-042-forcelinkinit"
-
---- 2.6/drivers/net/forcedeth.c	2005-08-14 11:17:03.000000000 +0200
-+++ build-2.6/drivers/net/forcedeth.c	2005-08-14 11:16:53.000000000 +0200
-@@ -93,6 +93,8 @@
-  *      0.40: 19 Jul 2005: Add support for mac address change.
-  *      0.41: 30 Jul 2005: Write back original MAC in nv_close instead
-  *			   of nv_remove
-+ *      0.42: 06 Aug 2005: Fix lack of link speed initialization
-+ *			   in the second (and later) nv_open call
-  *
-  * Known bugs:
-  * We suspect that on some hardware no TX done interrupts are generated.
-@@ -104,7 +106,7 @@
-  * DEV_NEED_TIMERIRQ will not harm you on sane hardware, only generating a few
-  * superfluous timer interrupts from the nic.
-  */
--#define FORCEDETH_VERSION		"0.41"
-+#define FORCEDETH_VERSION		"0.42"
- #define DRV_NAME			"forcedeth"
- 
- #include <linux/module.h>
-@@ -2178,6 +2180,9 @@
- 		writel(NVREG_MIISTAT_MASK, base + NvRegMIIStatus);
- 		dprintk(KERN_INFO "startup: got 0x%08x.\n", miistat);
- 	}
-+	/* set linkspeed to invalid value, thus force nv_update_linkspeed
-+	 * to init hw */
-+	np->linkspeed = 0;
- 	ret = nv_update_linkspeed(dev);
- 	nv_start_rx(dev);
- 	nv_start_tx(dev);
-
---------------040603080705040808050108--
+greg k-h

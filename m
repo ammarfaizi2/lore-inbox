@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVHRXeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbVHRXkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbVHRXeU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 19:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbVHRXeU
+	id S932406AbVHRXkc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 19:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVHRXkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 19:34:20 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:23697 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S932368AbVHRXeT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 19:34:19 -0400
-Date: Thu, 18 Aug 2005 16:34:18 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Folkert van Heusden <folkert@vanheusden.com>
-cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: zero-copy read() interface
-In-Reply-To: <20050818104131.GH12313@vanheusden.com>
-Message-ID: <Pine.LNX.4.63.0508181633510.20705@twinlark.arctic.org>
-References: <20050818100151.GF12313@vanheusden.com> <20050818100536.GB16751@wohnheim.fh-wedel.de>
- <20050818104131.GH12313@vanheusden.com>
+	Thu, 18 Aug 2005 19:40:31 -0400
+Received: from ozlabs.org ([203.10.76.45]:60639 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932406AbVHRXkb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 19:40:31 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17157.7275.960362.923238@cargo.ozlabs.ibm.com>
+Date: Fri, 19 Aug 2005 09:40:27 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Kumar Gala <kumar.gala@freescale.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, <hch@infradead.org>,
+       <davem@davemloft.net>, "Gala Kumar K.-galak" <galak@freescale.com>,
+       <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linuxppc-dev@ozlabs.org>, <zach@vmware.com>
+Subject: Re: [PATCH] ppc32: removed usage of <asm/segment.h>
+In-Reply-To: <A4C8B92D-B390-4BF8-A6D5-106ACBD0E716@freescale.com>
+References: <E1E5KpP-0004dy-00@dorka.pomaz.szeredi.hu>
+	<A4C8B92D-B390-4BF8-A6D5-106ACBD0E716@freescale.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Aug 2005, Folkert van Heusden wrote:
+Kumar Gala writes:
 
-> Doesn't that one also use copying? I've also heard that using mmap is
-> expensive due to pagefaulting. I've found, for example, that copying a
-> 1.3GB file using read/write instead of mmap & memcpy is seconds faster.
+> So after all of this its not clear to me if its acceptable to kill  
+> all users of <asm/segment.h> in the kernel and to move code that  
+> exists in <asm/segment.h> to <asm/uaccess.h> for arch's that need it.
 
-why would you memcpy if you're using mmap()?  just write() the mmap()d 
-region.
+<asm/segment.h> doesn't describe any part of the user/kernel ABI, so
+we should be OK to kill it.  I would say we should remove the ppc and
+ppc64 versions of it once 2.6.13 is out, and offer the other arch
+maintainers a patch that moves their stuff as you suggest.  I think
+also we could submit patches to remove the places where it is included
+in generic kernel code post 2.6.13.
 
--dean
+Paul.

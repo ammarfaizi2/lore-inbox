@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVHRCa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVHRCjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbVHRCa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 22:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbVHRCa6
+	id S932103AbVHRCjF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 22:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVHRCjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 22:30:58 -0400
-Received: from dns.suna-asobi.com ([210.151.31.146]:31368 "EHLO
-	dns.suna-asobi.com") by vger.kernel.org with ESMTP id S932080AbVHRCa6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 22:30:58 -0400
-Date: Thu, 18 Aug 2005 11:37:21 +0900
-From: Akira Tsukamoto <akira-t@suna-asobi.com>
-To: arjan@infradead.org, linux-kernel@vger.kernel.org,
-       Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
-In-Reply-To: <20050817233001.6E7C.AKIRA-T@suna-asobi.com>
-References: <98df96d305081622107ca969f@mail.gmail.com> <20050817233001.6E7C.AKIRA-T@suna-asobi.com>
-Message-Id: <20050818111044.BE62.AKIRA-T@suna-asobi.com>
+	Wed, 17 Aug 2005 22:39:05 -0400
+Received: from web54406.mail.yahoo.com ([206.190.49.136]:16021 "HELO
+	web54406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932103AbVHRCjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 22:39:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=Z/IWZYNKDIysTXlQA3YvHoMqQSFoHk3Ic8KV5DV7hL++XdfgcW0dcxJtNcQe2LUWpS8aKsrSj2nzLzOnoq95x4W5oDt3LYzgh+DKvBnT2RGAxS6tP++R/Crel7kZ8fj6ec02q/8otDcIAI7pDkhgTIOmDEc7/t+tItMVuR6mho0=  ;
+Message-ID: <20050818023853.48406.qmail@web54406.mail.yahoo.com>
+Date: Wed, 17 Aug 2005 19:38:53 -0700 (PDT)
+From: Sundar Narayanaswamy <sundar007@yahoo.com>
+Subject: Latency with Real-Time Preemption with 2.6.12
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.04 [ja]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I am trying to experiment using 2.6.12 kernel with the realtime-preempt 
+V0.7.51-38 patch to determine the kernel preemption latencies with the 
+CONFIG_PREEMPT_RT mode. The test program I wrote does the following on
+a thread with highest priority (99) and SCHED_FIFO policy to simulate
+a real time thread.
 
-On Wed, 17 Aug 2005 23:30:13 +0900
-Akira Tsukamoto <akira-t@suna-asobi.com> mentioned:
-> > I'm trying to understand this mechanism but I don't
-> > understand very well.
-> 
-> My explanation was a bit ambiguous, see the code below. 
-> Where the fp register saved? It saves fp register *inside* task_struct,
+t1 = gettimeofday
+nanosleep(for 3 ms)
+t2 = gettimeofday
 
-More clarification, to make fp_save generic,
-after exception, such as pagefault, copy function might get nested,
-during page allocation.
-First it has user space fp content, but nested copy needs to save 
-kernel space fp content which came from the first copy function.
-So saving into task_struct is bit problem.
+I was expecting to see the difference t2-t1 to be close to 3 ms. However, 
+the smallest difference I see is 4 milliseconds under no system load, 
+and the difference is as high as 25 milliseconds under moderate to 
+heavy system load (mostly performing disk I/O).
 
-XMM_SAVE/XMM_RESTORE uses stack for it. 
-Surrounding copy loop with XMM_SAVE/XMM_RESTORE should work.
+Based on the articles and the mails I read on this list, I understand that 
+worst case latencies of 1 ms (or less) should be possible using the RT 
+Preemption patch, but I am unable to get anything less than 4 millseconds 
+even with sleep times smaller than 3 ms. I am running the tests on a SBC 
+with a 1.4G Pentium M, 512M RAM, 1GB compact flash (using IDE). 
 
-Some might claim that, saving/restore every time might a big overhead,,,
-but i think it is better than having a lot of cache miss hit.
+I believe I have the high resolution timer working correctly, because if I 
+comment out the sleep line above t2-t1 is consistenly 0 or 1 microsecond.
 
-Isn't there some way to avoid long preemption disabling?
+Following earlier discussions (in July) in this list, I tried to set kernel 
+configuration parameters like CONFIG_LATENCY_TRACE to get tracing/debug 
+information, but I didn't find these parameters in my .config file.
 
--- 
-Akira Tsukamoto <akira-t@suna-asobi.com, at541@columbia.edu>
+I appreciate your suggestions/insights into the situation and steps that I 
+should try to get more debug/tracing information that might help to understand 
+the cause of high latency.
+
+Thanks for your help,
+sundar.
 
 
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

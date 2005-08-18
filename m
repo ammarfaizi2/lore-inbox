@@ -1,38 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVHROXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVHROYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVHROXM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 10:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVHROXM
+	id S932102AbVHROYI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 10:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVHROYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 10:23:12 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:23202 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S932107AbVHROXL
+	Thu, 18 Aug 2005 10:24:08 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:15524 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S932102AbVHROYH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 10:23:11 -0400
+	Thu, 18 Aug 2005 10:24:07 -0400
 X-ORBL: [63.205.185.3]
-Date: Thu, 18 Aug 2005 07:23:00 -0700
+Date: Thu, 18 Aug 2005 07:23:59 -0700
 From: Chris Wedgwood <cw@f00f.org>
-To: Lion Vollnhals <webmaster@schiggl.de>, wrlk@riede.org,
-       linux-kernel@vger.kernel.org, Allen Martin <AMartin@nvidia.com>
-Subject: Re: NCQ support NVidia NForce4 (CK804) SATAII
-Message-ID: <20050818142300.GA17145@taniwha.stupidest.org>
-References: <fa.psg95ip.1emqnop@ifi.uio.no> <pan.2005.08.14.13.28.56.704434@riede.org> <1124032724.9323.1.camel@localhost.localdomain> <20050815134237.GZ6026@ns.snowman.net>
+To: Christoph Hellwig <hch@infradead.org>,
+       Henrik Brix Andersen <brix@gentoo.org>, Olaf Hering <olh@suse.de>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Watchdog device node name unification
+Message-ID: <20050818142359.GB17145@taniwha.stupidest.org>
+References: <1123969015.13656.13.camel@sponge.fungus> <20050813232519.GA20256@infradead.org> <20050813234322.GA30563@suse.de> <1123978962.13656.21.camel@sponge.fungus> <20050814084715.GA15668@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050815134237.GZ6026@ns.snowman.net>
+In-Reply-To: <20050814084715.GA15668@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 15, 2005 at 09:42:37AM -0400, Stephen Frost wrote:
+On Sun, Aug 14, 2005 at 09:47:15AM +0100, Christoph Hellwig wrote:
 
-> I also agree and am rather disappointed by this news.
-> Unfortunately, I've already bought an A8N-SLI.
+> Looks like people never learn.  We had horrible problems with devfs
+> because it decided to overload existing name fields, but the udev
+> brigade does the same idiocy again..
 
-If you can send it back citing the driver issues as the reason.
-
-Linux sales are probably a tiny blip on the radar for them so I don't
-expect this to make a big difference immediately but keeping constant
-pressure of vendors like nvidia about openness is probably the best we
-can do right now (obviously this means avoiding buying their products
-as much as possible).
+It's not too late to fix this.  We can add a new field and rename the
+old one with minimal effort.

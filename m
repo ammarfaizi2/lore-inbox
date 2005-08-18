@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVHRDnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVHREHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbVHRDnh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 23:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVHRDnh
+	id S932117AbVHREHT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 00:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVHREHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 23:43:37 -0400
-Received: from tierw.net.avaya.com ([198.152.13.100]:1791 "EHLO
-	tierw.net.avaya.com") by vger.kernel.org with ESMTP id S932122AbVHRDng convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 23:43:36 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Debugging kernel semaphore contention and priority inversion
-Date: Wed, 17 Aug 2005 21:43:27 -0600
-Message-ID: <21FFE0795C0F654FAD783094A9AE1DFC0830FCD7@cof110avexu4.global.avaya.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Debugging kernel semaphore contention and priority inversion
-Thread-Index: AcWjhAuEzwJli9N0R8S9D9XMl6b32gAIgPiQ
-From: "Davda, Bhavesh P \(Bhavesh\)" <bhavesh@avaya.com>
-To: "Keith Mannthey" <kmannth@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
+	Thu, 18 Aug 2005 00:07:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58327 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932117AbVHREHS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 00:07:18 -0400
+Date: Wed, 17 Aug 2005 21:05:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: riel@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH/RFT 4/5] CLOCK-Pro page replacement
+Message-Id: <20050817210532.54ace193.akpm@osdl.org>
+In-Reply-To: <20050817.194822.92757361.davem@davemloft.net>
+References: <20050810200943.809832000@jumble.boston.redhat.com>
+	<20050810.133125.08323684.davem@davemloft.net>
+	<20050817173818.098462b5.akpm@osdl.org>
+	<20050817.194822.92757361.davem@davemloft.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Keith Mannthey [mailto:kmannth@gmail.com] 
-> Sent: Wednesday, August 17, 2005 5:33 PM
+"David S. Miller" <davem@davemloft.net> wrote:
+>
+> From: Andrew Morton <akpm@osdl.org>
+> Date: Wed, 17 Aug 2005 17:38:18 -0700
 > 
-> On 8/17/05, Davda, Bhavesh P (Bhavesh) <bhavesh@avaya.com> wrote:
-> > Is there a way to know which task has a particular (struct 
-> semaphore 
-> > *) down()ed, leading to another task's down() blocking on it?
+> > I'm prety sure we fixed that somehow.  But I forget how.
 > 
-> I would add a field to struct semaphore that tracks the 
-> current process.
-> In your various up and downs have that field tracks the 
-> "current" process. 
+> I wish you could remember :-)  I honestly don't think we did.
+> The DEFINE_PER_CPU() definition still looks the same, and the
+> way the .data.percpu section is layed out in the vmlinux.lds.S
+> is still the same as well.
 
-Yeah, I thought about that. Unfortunately, it doesn't meet my need for
-not Heisenberg'ing the system. I can't instrument the struct semaphore
-{} in a running system.
+Argh, can't remember, can't find it with archive grep.  I just have a
+mental note that it got fixed somehow.  Perhaps by uprevving the compiler
+version?  We certainly have a ton of uninitialised DEFINE_PER_CPUs in there
+nowadays and people's kernels aren't crashing.
 
-> 
-> Do you know what semaphore it is?
-
-Yes. It is an inode->i_sem semaphore for a file being written to by the
-high-priority SCHED_FIFO task.
-
-> 
-> This way you dump the semaphore you can see what task it is 
-> holding it.  Have the module dump the semaphore and you can 
-> id the task
->  
-> > It would be helpful to get a kernel stacktrace for the culprit too.
-> 
-> Have you tried sysrq t?  See the Documentation/sysrq.txt file.
-
-This is a headless system.
-
->  
-> How stuck is the system? 
-> 
-> Keith
-
-Very. Only pingable, but can't login via telnet/ssh/anything. Reason is
-the same reason the low priority mystery task is unable to run and
-release the held semaphore.
-
-Thanks
-
-- Bhavesh
-
-
-Bhavesh P. Davda | Distinguished Member of Technical Staff | Avaya |
-1300 West 120th Avenue | B3-B03 | Westminster, CO 80234 | U.S.A. |
-Voice/Fax: 303.538.4438 | bhavesh@avaya.com 
+Rusty, do you recall if/how we fixed the
+DEFINE_PER_CPU-needs-explicit-initialisation thing?

@@ -1,96 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVHRQIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbVHRQNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbVHRQIL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 12:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbVHRQIL
+	id S932278AbVHRQNF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 12:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbVHRQNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 12:08:11 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:42430
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932276AbVHRQIK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 12:08:10 -0400
-Subject: Re: 2.6.13-rc6-rt9
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1124378663.23647.346.camel@tglx.tec.linutronix.de>
-References: <20050818060126.GA13152@elte.hu>
-	 <1124378663.23647.346.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain
-Organization: linutronix
-Date: Thu, 18 Aug 2005 18:08:35 +0200
-Message-Id: <1124381316.23647.350.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 18 Aug 2005 12:13:05 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:40588 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932278AbVHRQNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 12:13:04 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Guillermo =?iso-8859-1?q?L=F3pez_Alejos?= <glalejos@gmail.com>
+Subject: Re: Environment variables inside the kernel?
+Date: Thu, 18 Aug 2005 18:12:27 +0200
+User-Agent: KMail/1.7.2
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <4fec73ca050818084467f04c31@mail.gmail.com>
+In-Reply-To: <4fec73ca050818084467f04c31@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1252022.rtJgvbK4nt";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200508181812.36086.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-18 at 17:24 +0200, Thomas Gleixner wrote:
+--nextPart1252022.rtJgvbK4nt
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Oops, mailer madness.
+Hi Guillermo,
 
-tglx
+On Thursday 18 August 2005 17:44, Guillermo L=F3pez Alejos wrote:
+> I have a piece of code which uses environment variables. I have been
+> told that it is not going to work in kernel space because the concept
+> of environment is not applicable inside the kernel.
+>=20
+> I belive that, but I need to demonstrate it. I do not know how to
+> proof this, perhaps referring to a solid reference about Linux design
+> that points to the idea that it has no sense to use environment
+> variables in kernel space.
 
+The Linux kernel is technically one big process with lots of threads.
 
-diff -uprN --exclude-from=/usr/local/bin/diffit.exclude linux-2.6.13-rc6-rt8/kernel/irq/handle.c linux-2.6.13-rc6-rt-debug/kernel/irq/handle.c
---- linux-2.6.13-rc6-rt8/kernel/irq/handle.c	2005-08-17 17:53:13.000000000 +0200
-+++ linux-2.6.13-rc6-rt-debug/kernel/irq/handle.c	2005-08-18 16:32:54.000000000 +0200
-@@ -171,7 +171,7 @@ fastcall notrace unsigned int __do_IRQ(u
- 		 */
- 		desc->handler->ack(irq);
- 		action_ret = handle_IRQ_event(irq, regs, desc->action);
--		end_irq(desc, irq);
-+		desc->handler->end(irq);
- 		return 1;
- 	}
- 
-@@ -241,7 +241,7 @@ out:
- 	 * The end-handler has to deal with interrupts which got
- 	 * disabled while the handler was running:
- 	 */
--	end_irq(desc, irq);
-+	desc->handler->end(irq);
- out_no_end:
- 	spin_unlock(&desc->lock);
- 
-diff -uprN --exclude-from=/usr/local/bin/diffit.exclude linux-2.6.13-rc6-rt8/kernel/irq/internals.h linux-2.6.13-rc6-rt-debug/kernel/irq/internals.h
---- linux-2.6.13-rc6-rt8/kernel/irq/internals.h	2005-08-17 17:53:13.000000000 +0200
-+++ linux-2.6.13-rc6-rt-debug/kernel/irq/internals.h	2005-08-18 16:39:56.000000000 +0200
-@@ -6,21 +6,6 @@ extern int noirqdebug;
- 
- void recalculate_desc_flags(struct irq_desc *desc);
- 
--/*
-- * On PREEMPT_HARDIRQS, the ->ack handler masks interrupts, so that
-- * they can be redirected to an IRQ thread, if needed. So here we
-- * have to unmask the interrupt line, if needed:
-- */
--static inline void end_irq(irq_desc_t *desc, unsigned int irq)
--{
--#ifdef CONFIG_PREEMPT_HARDIRQS
--	if (!(desc->status & IRQ_DISABLED))
--		desc->handler->enable(irq);
--#else
--	desc->handler->end(irq);
--#endif
--}
--
- #ifdef CONFIG_PROC_FS
- extern void register_irq_proc(unsigned int irq);
- extern void register_handler_proc(unsigned int irq, struct irqaction *action);
-diff -uprN --exclude-from=/usr/local/bin/diffit.exclude linux-2.6.13-rc6-rt8/kernel/irq/manage.c linux-2.6.13-rc6-rt-debug/kernel/irq/manage.c
---- linux-2.6.13-rc6-rt8/kernel/irq/manage.c	2005-08-17 17:53:13.000000000 +0200
-+++ linux-2.6.13-rc6-rt-debug/kernel/irq/manage.c	2005-08-18 16:31:46.000000000 +0200
-@@ -442,7 +442,7 @@ static void do_hardirq(struct irq_desc *
- 		 * The end-handler has to deal with interrupts which got
- 		 * disabled while the handler was running:
- 		 */
--		end_irq(desc, irq);
-+		desc->handler->end(irq);
- 	}
- 	spin_unlock_irq(&desc->lock);
- 
+An environment variable is per process and is usally to be threated
+read only within it.
+
+Also the Linux kernel is the first "process" ever.=20
+Who should set up it's environment variables?
+
+That's why there are none.
+
+These arguments are no real proof in a mathematical sense,
+but should help you argumenting.
 
 
+Regards
+
+Ingo Oeser
+
+
+--nextPart1252022.rtJgvbK4nt
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDBLN0U56oYWuOrkARAkoKAJ48GNBuvRO9YiMWvcSubBni+wEHDACgxqhw
+AJKYy6vGV9aqmbUnZLBGVVg=
+=ugLQ
+-----END PGP SIGNATURE-----
+
+--nextPart1252022.rtJgvbK4nt--

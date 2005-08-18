@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVHRVOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVHRVQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbVHRVOj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 17:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVHRVOj
+	id S932450AbVHRVQO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 17:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbVHRVQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 17:14:39 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:52625 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932449AbVHRVOi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 17:14:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MtmRyKiE23nkSM7pWfY2wlKgSNBf63CGq+QFklLhhz0LdBQv3omCd1xsRhiaDswCVp63NI9Odzm0ruQrDRoC3JqnrcoUkOE61uXkvbT8RP+CGF2w09a9/bdDpXg1SAYRepKG2tmNNhSpCJUJIAcWqa5JWDbwwBg/QBSVa7xvY1M=
-Message-ID: <9a87484905081814145a58d160@mail.gmail.com>
-Date: Thu, 18 Aug 2005 23:14:38 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 1/7] rename locking functions - do the rename
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050818110051.GA6606@infradead.org>
+	Thu, 18 Aug 2005 17:16:14 -0400
+Received: from server262.com ([64.14.68.15]:26066 "EHLO server262.com")
+	by vger.kernel.org with ESMTP id S932450AbVHRVQO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 17:16:14 -0400
+Subject: Re: HDAPS, Need to park the head for real
+From: Adam Goode <adam@evdebs.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jens Axboe <axboe@suse.de>,
+       Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>
+In-Reply-To: <20050818204904.GE516@openzaurus.ucw.cz>
+References: <1124205914.4855.14.camel@localhost.localdomain>
+	 <20050816200708.GE3425@suse.de>  <20050818204904.GE516@openzaurus.ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-BKqeCwEKzffEa5rzVKxi"
+Date: Thu, 18 Aug 2005 17:15:55 -0400
+Message-Id: <1124399756.28353.0.camel@lynx.auton.cs.cmu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200508180207.14574.jesper.juhl@gmail.com>
-	 <20050818110051.GA6606@infradead.org>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/18/05, Christoph Hellwig <hch@infradead.org> wrote:
-> On Thu, Aug 18, 2005 at 02:07:14AM +0200, Jesper Juhl wrote:
-> > This patch renames sema_init to init_sema, init_MUTEX to init_mutex and
-> > init_MUTEX_LOCKED to init_mutex_locked  and at the same time creates 3
-> > (deprecated) wrapper functions with the old names.
-> 
-> What's the point?  There's not need for totally gratious renaming.
-> 
-I don't consider this "gratious renaming". I didn't do this just
-because I could. I did it because the names used in the locking API
-are quite inconsistent and not exactely pretty. I did it to make
-things cleaner, neater, more consistent - to do everyone a favour.
 
-Yes, it's just renaming of functions, it doesn't actually change any
-behaviour, but why should we have to live with less-than-perfect
-naming when we can clean it up?
+--=-BKqeCwEKzffEa5rzVKxi
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+On Thu, 2005-08-18 at 22:49 +0200, Pavel Machek wrote:
+> Please make it "echo 1 > frozen", then userspace can do "echo 0 > frozen"
+> after five seconds.
+
+
+What if the code to do "echo 0 > frozen" is swapped out to disk? ;)
+
+
+Thanks,
+
+Adam
+
+
+--=-BKqeCwEKzffEa5rzVKxi
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDBPqLlenB4PQRJawRAr8RAJ9fxYF5ul/wCJsWasHlY6gF7b4DNACgtl5Y
+KlW44ESW5jwr0yxuo32kbfQ=
+=TYa8
+-----END PGP SIGNATURE-----
+
+--=-BKqeCwEKzffEa5rzVKxi--
+

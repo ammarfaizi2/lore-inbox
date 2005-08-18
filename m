@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVHRXCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVHRXDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbVHRXCp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 19:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbVHRXCp
+	id S932262AbVHRXDv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 19:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVHRXDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 19:02:45 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:50133 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932283AbVHRXCo (ORCPT
+	Thu, 18 Aug 2005 19:03:51 -0400
+Received: from mail.suse.de ([195.135.220.2]:63659 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932361AbVHRXDu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 19:02:44 -0400
-Date: Fri, 19 Aug 2005 09:02:35 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rename locking functions - fix a blunder in initial patches
-Message-ID: <20050819090235.D4075975@wobbly.melbourne.sgi.com>
-References: <200508182309.35274.jesper.juhl@gmail.com>
+	Thu, 18 Aug 2005 19:03:50 -0400
+Date: Fri, 19 Aug 2005 01:03:49 +0200
+From: Andi Kleen <ak@suse.de>
+To: Sean Bruno <sean.bruno@dsl-only.net>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-git10 test report [x86_64]
+Message-ID: <20050818230349.GC22993@wotan.suse.de>
+References: <1124401950.14825.13.camel@home-lap.suse.lists.linux.kernel> <p73u0hmsy83.fsf@verdi.suse.de> <1124405533.14825.24.camel@home-lap>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200508182309.35274.jesper.juhl@gmail.com>; from jesper.juhl@gmail.com on Thu, Aug 18, 2005 at 11:09:33PM +0200
+In-Reply-To: <1124405533.14825.24.camel@home-lap>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 18, 2005 at 11:09:33PM +0200, Jesper Juhl wrote:
-> ...
-> have if getting rid of the defines is prefered, then that's something that
-> can easily be done later.
+On Thu, Aug 18, 2005 at 03:52:13PM -0700, Sean Bruno wrote:
+> With earlier kernels(2.6.11) I was able to boot my machine with ACPI
+> enabled, but most devices(sound, onboard ethernet, SATA controllers,
+> USB) were unusuable but they were detected.  I was able to work around
+> this issue by disabling ACPI in my system BIOS.  
 
-I tend to agree with Christoph on this - this level of internal API
-churn is unnecessary and can be error prone (as you cunningly showed ;)
-- please just leave it as is, and move on to greener pastures.
+Keeping it on and using pci=noacpi might be better.
 
-thanks.
+> available.  Since 2.6.12, when I re-activate ACPI in my system BIOS, I
+> can't boot my machine as it gives me an error about no IOMMU and having
+> 6GB of RAM.  This error was not listed in the dmesg posted before as I
+> can't boot my machine past this error.
+> 
+> Here is the exact output when booting 2.6.13 with ACPI enabled:
+> 
+> Decompressing Linux ... Done
+> Booting the kernel
+> PCI-DMA:  More that 4GB of RAM and no IOMMU
+> PCI-DMA:  32bit PCI IO may malfunction.<6>PCI-DMA:  Disabling IOMMU
 
--- 
-Nathan
+This has nothing to do with ACPI. The problem here is that you 
+didn't enable the IOMMU code in the kernel .config
+
+-Andi

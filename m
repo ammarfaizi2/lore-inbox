@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVHRJ12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVHRJdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbVHRJ12 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 05:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVHRJ12
+	id S932148AbVHRJdj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 05:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVHRJdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 05:27:28 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:59286 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932136AbVHRJ11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 05:27:27 -0400
-Subject: Re: Multiple virtual address mapping for the same code on IA-64
-	linux kernel.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: vamsi krishna <vamsi.krishnak@gmail.com>,
-       "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
+	Thu, 18 Aug 2005 05:33:39 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:58003 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932148AbVHRJdi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 05:33:38 -0400
+Message-ID: <430455D1.6000409@drzeus.cx>
+Date: Thu, 18 Aug 2005 11:33:05 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.6-3 (X11/20050806)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0508171246070.17863@schroedinger.engr.sgi.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F04294461@scsmsx401.amr.corp.intel.com>
-	 <3faf0568050816142715f14c2c@mail.gmail.com>
-	 <Pine.LNX.4.62.0508171246070.17863@schroedinger.engr.sgi.com>
-Content-Type: text/plain
+Subject: Re: [PATCH] mmc: Multi-sector writes
+References: <42FF3C05.70606@drzeus.cx>	 <20050817155641.12bb20fc.akpm@osdl.org> <43042114.7010503@drzeus.cx>	 <20050817224805.17f29cfb.akpm@osdl.org>	 <20050818073824.C2365@flint.arm.linux.org.uk>  <4304380B.5070406@drzeus.cx> <1124358169.13511.3.camel@localhost.localdomain>
+In-Reply-To: <1124358169.13511.3.camel@localhost.localdomain>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Thu, 18 Aug 2005 10:54:38 +0100
-Message-Id: <1124358878.13511.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-08-17 at 12:52 -0700, Christoph Lameter wrote:
-> > compared to small, this may be the reason why amd64 is the fasttest
-> > 64-bit process ?
+Alan Cox wrote:
 
-> Itanium processors are the fastest 64bit processors at any given clock 
-> frequency.
+>On Iau, 2005-08-18 at 09:26 +0200, Pierre Ossman wrote:
+>  
+>
+>>everything out first and then fall back on sector-by-sector to determine
+>>where an error occurs. This will only break if the problematic sector
+>>keeps shifting around, but at that point the card is probably toast
+>>anyway (if the thing keeps moving how can you bad block it?).
+>>    
+>>
+>
+>Providing the sectors are not finally completed to higher levels until
+>they are written that works fine. 
+>
 
-Perhaps, and the two statements don't contradict. All he was doing was
-asking a very sensible architecture question to understand why the IA64
-binary was so big.
+I don't think there's any risk of that. What _might_ happen is that more
+data gets written to disk than is reported to the upper layers because
+of these buffering issues.
 
-> Please do not make such inflammatory statements on the 
-> ia64 list.
-
-Since when has asking sensible questions been "inflammatory statements".
-If thats how you treat the people actually porting to IA64 then its out
-of order, at least for linux-kernel, which is where you cross posted.
-
-Alan
+Rgds
+Pierre
 

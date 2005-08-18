@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVHRKIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbVHRKMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbVHRKIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 06:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVHRKIQ
+	id S932167AbVHRKMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 06:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVHRKMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 06:08:16 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:42454 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S932159AbVHRKIQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 06:08:16 -0400
-Message-ID: <43045DD3.1050903@namesys.com>
-Date: Thu, 18 Aug 2005 14:07:15 +0400
-From: "Vladimir V. Saveliev" <vs@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040804
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gia@ticard.ru
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux
-References: <1120.195.94.234.226.1124224104.squirrel@ticard.ru>
-In-Reply-To: <1120.195.94.234.226.1124224104.squirrel@ticard.ru>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 18 Aug 2005 06:12:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1212 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932167AbVHRKME (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 06:12:04 -0400
+Date: Thu, 18 Aug 2005 03:10:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, jesper.juhl@gmail.com
+Subject: Re: [PATCH 2/7] rename locking functions - convert sema_init users
+Message-Id: <20050818031039.545dd53e.akpm@osdl.org>
+In-Reply-To: <200508180204.33470.jesper.juhl@gmail.com>
+References: <200508180204.33470.jesper.juhl@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>
+> --- linux-2.6.13-rc6-git9-orig/fs/xfs/linux-2.6/sema.h	2005-06-17 21:48:29.000000000 +0200
+>  +++ linux-2.6.13-rc6-git9/fs/xfs/linux-2.6/sema.h	2005-08-18 00:46:41.000000000 +0200
+>  @@ -43,9 +43,9 @@
+>   
+>   typedef struct semaphore sema_t;
+>   
+>  -#define init_sema(sp, val, c, d)	sema_init(sp, val)
+>  -#define initsema(sp, val)		sema_init(sp, val)
+>  -#define initnsema(sp, val, name)	sema_init(sp, val)
+>  +#define init_sema(sp, val, c, d)	init_sema(sp, val)
+>  +#define initsema(sp, val)		init_sema(sp, val)
+>  +#define initnsema(sp, val, name)	init_sema(sp, val)
 
-gia@ticard.ru wrote:
-> Hello from Russia. Can you send me a Linux documentation, i want to learn
-> Unix.I am asking you because, i have only email access to internet.Please
-> help.
+Well that's pretty nonsensical.  I'll drop the patches - please don't send
+things which haven't been compiled.
 
-Amount of documentation about linux and unix is too big. You should specify more precisely what you are interested in.

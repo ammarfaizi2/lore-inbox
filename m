@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVHRKrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbVHRKse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbVHRKrU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 06:47:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbVHRKrU
+	id S932175AbVHRKse (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 06:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVHRKse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 06:47:20 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57785 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932173AbVHRKrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 06:47:19 -0400
-Date: Wed, 17 Aug 2005 16:35:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: =?iso-8859-2?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Flash erase groups and filesystems
-Message-ID: <20050817143534.GC516@openzaurus.ucw.cz>
-References: <4300F963.5040905@drzeus.cx> <20050816162735.GB21462@wohnheim.fh-wedel.de> <43021DB8.70909@drzeus.cx>
-Mime-Version: 1.0
+	Thu, 18 Aug 2005 06:48:34 -0400
+Received: from dns.toxicfilms.tv ([150.254.220.184]:51941 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S932175AbVHRKse
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 06:48:34 -0400
+X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-QSS-TOXIC: 1.25st (Clear:RC:1(213.238.97.46):. Processed in 0.102501 secs Process 3387)
+Date: Thu, 18 Aug 2005 12:48:35 +0200
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <761879244.20050818124835@dns.toxicfilms.tv>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sched_yield() makes OpenLDAP slow
+In-Reply-To: <200508181047.26008.kernel@kolivas.org>
+References: <4303DB48.8010902@develer.com>
+ <200508181047.26008.kernel@kolivas.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43021DB8.70909@drzeus.cx>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello Con,
 
-> >Question came up before, albeit with a different phrasing.  One
-> >possible approach to benefit from this ability would be to create a
-> >"forget" operation.  When a filesystem already knows that some data is
-> >unneeded (after a truncate or erase operation), it will ask the device
-> >to forget previously occupied blocks.
-> >
-> >The device then has the _option_ of handling the forget operation.
-> >Further reads on these blocks may return random data.
-> >
-> >And since noone stepped up to implement this yet, you can still get
-> >all the fame and glory yourself! ;)
-> >  
-> >
-> 
-> I'm not sure we're talking about the same thing. I'm not suggesting new
-> features in the VFS layer. I want to know if something breaks if I
-> implement this erase feature in the MMC layer. In essence the file
-> system has marked the sectors as "forget" by issuing a write to them.
-> The question is if it is assumed that they are unchanged if the write
-> fails half-way through.
+Thursday, August 18, 2005, 2:47:25 AM, you wrote:
+> sched_yield behaviour changed in 2.5 series more than 3 years ago and
+> applications that use this as a locking primitive should be updated.
+I remember open office had a problem with excessive use of sched_yield()
+during 2.5. I guess they changed it but I have not checked.
+Does anyone know ?
 
-Journaling filesystems may not like finding 0xff's all over their journal...
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Back then oo was having serious latency problems on 2.5
+
+Regards,
+Maciej
+
 

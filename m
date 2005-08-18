@@ -1,71 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVHRMNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbVHRMeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbVHRMNl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 08:13:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVHRMNl
+	id S932158AbVHRMeU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 08:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVHRMeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 08:13:41 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:28806 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932210AbVHRMNk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 08:13:40 -0400
-Message-ID: <43047DF6.3E74B6EF@tv-sign.ru>
-Date: Thu, 18 Aug 2005 16:24:22 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: paulmck@us.ibm.com, Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Dipankar Sarma <dipankar@in.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
-References: <42FB41B5.98314BA5@tv-sign.ru> <20050812015607.GR1300@us.ibm.com> <42FC6305.E7A00C0A@tv-sign.ru> <20050815174403.GE1562@us.ibm.com> <4301D455.AC721EB7@tv-sign.ru> <20050816170714.GA1319@us.ibm.com> <20050817014857.GA3192@us.ibm.com> <43034B17.3DEE0884@tv-sign.ru> <20050817211957.GN1300@us.ibm.com>
-Content-Type: text/plain; charset=koi8-r
+	Thu, 18 Aug 2005 08:34:20 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:37860 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932158AbVHRMeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 08:34:19 -0400
+Subject: Re: PROBLEM: mmap_kmem()
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Valentin Rabinovich <vrabin@cs.joensuu.fi>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1124355224.43044c984be40@wwwmail.joensuu.fi>
+References: <1124355224.43044c984be40@wwwmail.joensuu.fi>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 18 Aug 2005 08:34:09 -0400
+Message-Id: <1124368449.5186.38.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Replying to wrong message, sorry).
+On Thu, 2005-08-18 at 11:53 +0300, Valentin Rabinovich wrote:
+> Bug in mmap_kmem(), drivers/char/mem.c.
+> When mapping the kmem, page alingning seems to mess the address:
+> 
+>   unsigned long long val;
+>   val = (u64)vma->vm_pgoff << PAGE_SHIFT;
+>   vma->vm_pgoff = ((unsigned long)val >> PAGE_SHIFT) - PAGE_OFFSET;
+>   vma->vm_pgoff = __pa(val) >> PAGE_SHIFT;
+> 
+> Subtracting 0xc0000000 and shifting is made in wrong order.
+> Kernel: 2.6.12.3, 2.6.12.4
 
-Thomas Gleixner wrote:
->
-> --- linux-2.6.13-rc6-rt8/kernel/fork.c	2005-08-17 12:57:08.000000000 +0200
-> +++ linux-2.6.13-rc6-rt/kernel/fork.c	2005-08-17 11:17:46.000000000 +0200
-> @@ -1198,7 +1198,8 @@ bad_fork_cleanup_mm:
->  bad_fork_cleanup_signal:
->  	exit_signal(p);
->  bad_fork_cleanup_sighand:
-> -	exit_sighand(p);
-> +	if (p->sighand) /* exit_signal() could have freed p->sighand */
-> +		exit_sighand(p);
+This is already fixed in 2.6.13-rc6-git9, so you need to wait for it in
+the 2.6.13 release, or better yet, download and test the git release.
+
+-- Steve
 
 
-Looks like now it is the only user of exit_signal(), and I think
-we can kill this function and just do:
-
-bad_fork_cleanup_sighand:
-
-	if (p->sighand) {
-
-		// p->sighand can't change here, we don't need tasklist lock
-
-		if (atomic_dec_and_test(p->sighand->count))
-
-			// If we get here we are not sharing ->sighand with anybody else.
-			// It means, in particular, that p had no CLONE_THREAD flag.
-			// Nobody can see this process yet, we didn't call attach_pid(),
-			// otherwise ->sighand was freed from __exit_signal. Thus nobody
-			// can see this sighand.
-
-			sighand_free(p->sighand);
-	}
-
-It is not an optimization, this path is rare, just to make things
-more clear and to reduce "false positives" from grep tasklist_lock.
-
-And I think it makes sense to
-
-#define	put_sighand(sig)	\
-	do if atomic_dec_and_test(sig->count) sighand_free(sig); while (0)
-
-Oleg.

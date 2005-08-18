@@ -1,62 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbVHRGie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVHRGiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbVHRGie (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 02:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVHRGid
+	id S1750840AbVHRGiM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 02:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVHRGiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 02:38:33 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62730 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750841AbVHRGi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 02:38:29 -0400
-Date: Thu, 18 Aug 2005 07:38:24 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mmc: Multi-sector writes
-Message-ID: <20050818073824.C2365@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-References: <42FF3C05.70606@drzeus.cx> <20050817155641.12bb20fc.akpm@osdl.org> <43042114.7010503@drzeus.cx> <20050817224805.17f29cfb.akpm@osdl.org>
+	Thu, 18 Aug 2005 02:38:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:54935 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750823AbVHRGiL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 02:38:11 -0400
+Date: Wed, 17 Aug 2005 23:37:12 -0700
+From: Greg KH <greg@kroah.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, James.Smart@Emulex.Com,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk@arm.linux.org.uk>, Dmitry Torokhov <dtor@mail.ru>
+Subject: Re: [PATCH] add transport class symlink to device object
+Message-ID: <20050818063712.GA25321@kroah.com>
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <1124145677.5089.68.camel@mulgrave> <20050818052311.GD29301@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050817224805.17f29cfb.akpm@osdl.org>; from akpm@osdl.org on Wed, Aug 17, 2005 at 10:48:05PM -0700
+In-Reply-To: <20050818052311.GD29301@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 17, 2005 at 10:48:05PM -0700, Andrew Morton wrote:
-> Pierre Ossman <drzeus-list@drzeus.cx> wrote:
-> >
-> > >I'm thinking that it would be better to not have the config option there
-> >  >and then re-add it late in the 2.6.14 cycle if someone reports problems
-> >  >which cannot be fixed.  Or at least make it default to 'y' so we get more
-> >  >testing coverage, then remove the config option later.  Or something.
-> >  >
-> >  >Thoughts?
-> >  >  
-> >  >
-> > 
-> >  Removing it would be preferable by me. All that #ifdef tends to clutter
-> >  up the code. After som initial problem with a buggy card everything has
-> >  worked flawlesly.
+On Wed, Aug 17, 2005 at 10:23:11PM -0700, Greg KH wrote:
+> On Mon, Aug 15, 2005 at 05:41:17PM -0500, James Bottomley wrote:
+> > Actually, isn't the fix to all of this to combine Greg and James'
+> > patches?
 > 
-> OK..  Please send an additional patch for that sometime?
+> Yes it is.
+> 
+> > The Greg one fails in SCSI because we don't have unique class device
+> > names (by convention we use the same name as the device bus_id) and
+> > James' one fails for ttys because the class name isn't unique.  However,
+> > if the link were derived from something like
+> > 
+> > <class name>:<class device name>
+> > 
+> > Then is would be unique in both cases.
+> 
+> I agree.
+> 
+> > Unless anyone can think of any more failing cases?
+> 
+> I'll try this out and see if anything breaks :)
 
-I'd rather not.  The problem is that we have a host (thanks Intel)
-which is unable to report how many bytes were transferred before an
-error occurs.  My fear is that doing anything other than sector by
-sector write will lead to corruption should an error occur.
+Ok, here's the patch.  I like it, and I think it will prevent any
+duplicate symlinks from happening.  Anyone have any objections?
 
-However, I've no way to induce such an error, so I can only base
-this on theory.
+thanks,
 
-It may work perfectly for the case when everything's operating
-correctly, but I suspect if you're going to do multi-sector writes,
-it'll all fall apart on the first error, especially on this host.
+greg k-h
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+--------------
+
+Driver core: link device and all class devices derived from it.
+
+To ease the task of locating class devices derived from a certain
+device create symlinks from parent device to its class devices.
+Change USB host class device name from usbX to usb_hostX to avoid
+conflict when creating aforementioned links.
+
+Tweaked by Greg to have the symlink be "class_name:class_device_name"
+in order to prevent duplicate links.
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ drivers/base/class.c   |   33 +++++++++++++++++++++++++++++++--
+ drivers/usb/core/hcd.c |    2 +-
+ 2 files changed, 32 insertions(+), 3 deletions(-)
+
+--- gregkh-2.6.orig/drivers/base/class.c	2005-08-17 23:27:02.000000000 -0700
++++ gregkh-2.6/drivers/base/class.c	2005-08-17 23:27:25.000000000 -0700
+@@ -452,10 +452,29 @@ void class_device_initialize(struct clas
+ 	INIT_LIST_HEAD(&class_dev->node);
+ }
+ 
++static char *make_class_name(struct class_device *class_dev)
++{
++	char *name;
++	int size;
++
++	size = strlen(class_dev->class->name) +
++		strlen(kobject_name(&class_dev->kobj)) + 2;
++
++	name = kmalloc(size, GFP_KERNEL);
++	if (!name)
++		return ERR_PTR(-ENOMEM);
++
++	strcpy(name, class_dev->class->name);
++	strcat(name, ":");
++	strcat(name, kobject_name(&class_dev->kobj));
++	return name;
++}
++
+ int class_device_add(struct class_device *class_dev)
+ {
+ 	struct class * parent = NULL;
+ 	struct class_interface * class_intf;
++	char *class_name = NULL;
+ 	int error;
+ 
+ 	class_dev = class_device_get(class_dev);
+@@ -500,9 +519,13 @@ int class_device_add(struct class_device
+ 	}
+ 
+ 	class_device_add_attrs(class_dev);
+-	if (class_dev->dev)
++	if (class_dev->dev) {
++		class_name = make_class_name(class_dev);
+ 		sysfs_create_link(&class_dev->kobj,
+ 				  &class_dev->dev->kobj, "device");
++		sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
++				  class_name);
++	}
+ 
+ 	/* notify any interfaces this device is now here */
+ 	if (parent) {
+@@ -519,6 +542,7 @@ int class_device_add(struct class_device
+ 	if (error && parent)
+ 		class_put(parent);
+ 	class_device_put(class_dev);
++	kfree(class_name);
+ 	return error;
+ }
+ 
+@@ -584,6 +608,7 @@ void class_device_del(struct class_devic
+ {
+ 	struct class * parent = class_dev->class;
+ 	struct class_interface * class_intf;
++	char *class_name = NULL;
+ 
+ 	if (parent) {
+ 		down(&parent->sem);
+@@ -594,8 +619,11 @@ void class_device_del(struct class_devic
+ 		up(&parent->sem);
+ 	}
+ 
+-	if (class_dev->dev)
++	if (class_dev->dev) {
++		class_name = make_class_name(class_dev);
+ 		sysfs_remove_link(&class_dev->kobj, "device");
++		sysfs_remove_link(&class_dev->dev->kobj, class_name);
++	}
+ 	if (class_dev->devt_attr)
+ 		class_device_remove_file(class_dev, class_dev->devt_attr);
+ 	class_device_remove_attrs(class_dev);
+@@ -605,6 +633,7 @@ void class_device_del(struct class_devic
+ 
+ 	if (parent)
+ 		class_put(parent);
++	kfree(class_name);
+ }
+ 
+ void class_device_unregister(struct class_device *class_dev)
+--- gregkh-2.6.orig/drivers/usb/core/hcd.c	2005-08-17 23:26:55.000000000 -0700
++++ gregkh-2.6/drivers/usb/core/hcd.c	2005-08-17 23:27:04.000000000 -0700
+@@ -782,7 +782,7 @@ static int usb_register_bus(struct usb_b
+ 		return -E2BIG;
+ 	}
+ 
+-	bus->class_dev = class_device_create(usb_host_class, MKDEV(0,0), bus->controller, "usb%d", busnum);
++	bus->class_dev = class_device_create(usb_host_class, MKDEV(0,0), bus->controller, "usb_host%d", busnum);
+ 	if (IS_ERR(bus->class_dev)) {
+ 		clear_bit(busnum, busmap.busmap);
+ 		up(&usb_bus_list_lock);

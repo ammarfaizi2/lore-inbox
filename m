@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVHRQeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbVHRQhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbVHRQeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 12:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVHRQeI
+	id S932290AbVHRQhf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 12:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbVHRQhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 12:34:08 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:42129 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S932287AbVHRQeH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 12:34:07 -0400
-X-ORBL: [63.205.185.3]
-Date: Thu, 18 Aug 2005 09:33:58 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Sebastian Cla?en <Sebastian.Classen@freenet-ag.de>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: overflows in /proc/net/dev
-Message-ID: <20050818163358.GA19554@taniwha.stupidest.org>
-References: <1124350090.29902.8.camel@basti79.freenet-ag.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1124350090.29902.8.camel@basti79.freenet-ag.de>
+	Thu, 18 Aug 2005 12:37:35 -0400
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:39697 "EHLO
+	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
+	id S932288AbVHRQhe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 12:37:34 -0400
+To: Guillermo =?iso-8859-1?Q?L=F3pez?= Alejos <glalejos@gmail.com>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Environment variables inside the kernel?
+References: <4fec73ca050818084467f04c31@mail.gmail.com>
+From: Douglas McNaught <doug@mcnaught.org>
+Date: Thu, 18 Aug 2005 12:37:14 -0400
+In-Reply-To: <4fec73ca050818084467f04c31@mail.gmail.com> (Guillermo
+ =?iso-8859-1?Q?L=F3pez?= Alejos's message of "Thu, 18 Aug 2005 17:44:19
+ +0200")
+Message-ID: <m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (darwin)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 18, 2005 at 09:28:10AM +0200, Sebastian Cla?en wrote:
+Guillermo López Alejos <glalejos@gmail.com> writes:
 
-> in struct net_device_stats all members are defined as unsgined
-> long. In time of gigabit ethernet this takes not long to overflow.
+> Hi,
+>
+> I have a piece of code which uses environment variables. I have been
+> told that it is not going to work in kernel space because the concept
+> of environment is not applicable inside the kernel.
 
-It should still take an appreciable amount of time surely?  We can
-detect those wraps in userspace and deal with it as needed.
+Correct.
 
-> Are there any plans to change these coutners to unsigned long long?
+> I belive that, but I need to demonstrate it. I do not know how to
+> proof this, perhaps referring to a solid reference about Linux design
+> that points to the idea that it has no sense to use environment
+> variables in kernel space.
 
-It comes up from time to time (see below).
+Environment variables are a part of the API that Unix supplies to
+userspace programs.  The kernel is not a userspace program, and as far
+as I know it doesn't even do most of the work of maintaining the
+environment for a process--that's done by the C library and the
+userspace program loader.
 
-> I saw in ifconfig source code the byte and packet counters are
-> already defined as unsigned long long.
+> Do anyone knows about the existence of such document?
 
-ifconfig is userspace.
+No, probably because it's such an obvious concept.  You might get hold
+of one of the several books on Linux kernel programming and see if
+they mention it.
 
+If someone is insisting you use environment varaiables in kernel code,
+challenge them to show you where they are implemented in the kernel.  :)
 
-[...]
-
->  struct net_device_stats
->  {
-> -	unsigned long rx_packets;		/* total packets received	*/
-> -	unsigned long tx_packets;		/* total packets transmitted	*/
-> -	unsigned long rx_bytes;		/* total bytes received 	*/
-> -	unsigned long tx_bytes;		/* total bytes transmitted	*/
-> +	unsigned long long rx_packets;		/* total packets received	*/
-> +	unsigned long long tx_packets;		/* total packets transmitted	*/
-> +	unsigned long long rx_bytes;		/* total bytes received 	*/
-> +	unsigned long long tx_bytes;		/* total bytes transmitted	*/
-
-I thought the concensurs here was that because doing reliable atomic
-updates of 64-bit values isn't possible on some (most?) 32-bit
-architectures so we need additional locking to make this work which is
-undesirable?  (It might even be a FAQ by now as this comes up fairly
-often).
-
+-Doug

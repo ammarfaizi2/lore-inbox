@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVHRVcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVHRVcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbVHRVcn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 17:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVHRVcn
+	id S932469AbVHRVcl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 17:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVHRVck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 17:32:43 -0400
-Received: from ns1.suse.de ([195.135.220.2]:41377 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932466AbVHRVcm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 17:32:42 -0400
-Date: Thu, 18 Aug 2005 23:32:37 +0200
-From: Andi Kleen <ak@suse.de>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: idle task's task_t allocation on NUMA machines
-Message-ID: <20050818213236.GC3953@verdi.suse.de>
-References: <20050818140829.GB8123@implementation.labri.fr> <4304A6DF.6040703@cosmosbay.com> <20050818194941.GH8822@bouh.labri.fr> <20050818200255.GI8822@bouh.labri.fr>
+	Thu, 18 Aug 2005 17:32:40 -0400
+Received: from dsl027-180-204.sfo1.dsl.speakeasy.net ([216.27.180.204]:46241
+	"EHLO outer-richmond.davemloft.net") by vger.kernel.org with ESMTP
+	id S932466AbVHRVck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 17:32:40 -0400
+Date: Thu, 18 Aug 2005 14:32:24 -0700 (PDT)
+Message-Id: <20050818.143224.111875937.davem@davemloft.net>
+To: aaw@rincewind.tv
+Cc: kaber@trash.net, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] fix dst_entry leak in icmp_push_reply()
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <4304DBFB.5010906@rincewind.tv>
+References: <4304D763.4090001@rincewind.tv>
+	<4304DA99.2080205@trash.net>
+	<4304DBFB.5010906@rincewind.tv>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050818200255.GI8822@bouh.labri.fr>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 18, 2005 at 10:02:55PM +0200, Samuel Thibault wrote:
-> Samuel Thibault, le Thu 18 Aug 2005 21:49:41 +0200, a ?crit :
-> > Eric Dumazet, le Thu 18 Aug 2005 17:18:55 +0200, a ?crit :
-> > > I believe IRQ stacks are also allocated on node 0, that seems more serious.
-> > 
-> > For the i386 architecture at least, yes: they are statically defined in
-> > arch/i386/kernel/irq.c, while they could be per_cpu.
+From: Ollie Wild <aaw@rincewind.tv>
+Date: Thu, 18 Aug 2005 12:05:31 -0700
+
+> Patrick McHardy wrote:
 > 
-> Hum, but the per_cpu areas for i386 are not numa-aware... I'm wondering:
-> isn't the current x86_64 numa-aware implementation of per_cpu generic
-> enough for any architecture?
+> >Checking the return value of ip_append_data seems cleaner to me.
+> >Patch attached.
+> >  
+> >
+> Works for me.
 
-Actually it's broken for many x86-64 configurations now that use SRAT because
-we assign the nodes to CPUs only after this code runs. I was considering
-to remove it.
-
--Andi
+Applied, thanks everyone.

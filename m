@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbVHRKMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVHRKhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbVHRKMF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 06:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVHRKMF
+	id S932135AbVHRKhg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 06:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVHRKhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 06:12:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1212 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932167AbVHRKME (ORCPT
+	Thu, 18 Aug 2005 06:37:36 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:11281 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S932135AbVHRKhg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 06:12:04 -0400
-Date: Thu, 18 Aug 2005 03:10:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, jesper.juhl@gmail.com
-Subject: Re: [PATCH 2/7] rename locking functions - convert sema_init users
-Message-Id: <20050818031039.545dd53e.akpm@osdl.org>
-In-Reply-To: <200508180204.33470.jesper.juhl@gmail.com>
-References: <200508180204.33470.jesper.juhl@gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 18 Aug 2005 06:37:36 -0400
+Message-ID: <430464EA.5050007@rainbow-software.org>
+Date: Thu, 18 Aug 2005 12:37:30 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chuck Ebbert <76306.1226@compuserve.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FPU-intensive programs crashing with floating point  exception
+ on Cyrix MII
+References: <200508171453_MC3-1-A76E-CAE6@compuserve.com>
+In-Reply-To: <200508171453_MC3-1-A76E-CAE6@compuserve.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <jesper.juhl@gmail.com> wrote:
->
-> --- linux-2.6.13-rc6-git9-orig/fs/xfs/linux-2.6/sema.h	2005-06-17 21:48:29.000000000 +0200
->  +++ linux-2.6.13-rc6-git9/fs/xfs/linux-2.6/sema.h	2005-08-18 00:46:41.000000000 +0200
->  @@ -43,9 +43,9 @@
->   
->   typedef struct semaphore sema_t;
->   
->  -#define init_sema(sp, val, c, d)	sema_init(sp, val)
->  -#define initsema(sp, val)		sema_init(sp, val)
->  -#define initnsema(sp, val, name)	sema_init(sp, val)
->  +#define init_sema(sp, val, c, d)	init_sema(sp, val)
->  +#define initsema(sp, val)		init_sema(sp, val)
->  +#define initnsema(sp, val, name)	init_sema(sp, val)
+Chuck Ebbert wrote:
+> On Wed, 17 Aug 2005 at 18:13:55 +0200, Ondrej Zary wrote:
+> 
+> 
+>>When I run a program that uses FPU, it sometimes crashes with "flaoting 
+>>point exception"
+> 
+> 
+> 
+>>+     printk("MATH ERROR %d\n",((~cwd) & swd & 0x3f) | (swd & 0x240));
+> 
+> 
+>   Could you modify this to print the full values of cwd and swd like this?
+> 
+>         printk("MATH ERROR: cwd = 0x%hx, swd = 0x%hx\n", cwd, swd);
+> 
+> Then post the result.
+MATH ERROR: cwd = 0x37f, swd = 0x5020
+MATH ERROR: cwd = 0x37f, swd = 0x20
+MATH ERROR: cwd = 0x37f, swd = 0x20
+MATH ERROR: cwd = 0x37f, swd = 0x2020
+MATH ERROR: cwd = 0x37f, swd = 0x20
+MATH ERROR: cwd = 0x37f, swd = 0x1820
+MATH ERROR: cwd = 0x37f, swd = 0x1820
+MATH ERROR: cwd = 0x37f, swd = 0x2020
+MATH ERROR: cwd = 0x37f, swd = 0x20
+MATH ERROR: cwd = 0x37f, swd = 0x2800
+MATH ERROR: cwd = 0x37f, swd = 0x1820
+MATH ERROR: cwd = 0x37f, swd = 0x820
+MATH ERROR: cwd = 0x37f, swd = 0x2820
+MATH ERROR: cwd = 0x37f, swd = 0x2820
+MATH ERROR: cwd = 0x37f, swd = 0x1820
+MATH ERROR: cwd = 0x37f, swd = 0x820
+MATH ERROR: cwd = 0x37f, swd = 0x1a20
 
-Well that's pretty nonsensical.  I'll drop the patches - please don't send
-things which haven't been compiled.
+Running prime95 for almost 2 hours:
+Torture Test ran 1 hours, 54 minutes - 0 errors, 0 warnings.
+and playing some mpeg clips.
 
+-- 
+Ondrej Zary

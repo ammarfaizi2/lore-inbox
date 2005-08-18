@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVHQX5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbVHRADN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbVHQX5A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 19:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbVHQX5A
+	id S1751373AbVHRADN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 20:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbVHRADN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 19:57:00 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:33983 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751340AbVHQX46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 19:56:58 -0400
-Message-ID: <4303CEC5.3010502@trash.net>
-Date: Thu, 18 Aug 2005 01:56:53 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ollie Wild <aaw@rincewind.tv>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix dst_entry leak in icmp_push_reply()
-References: <43039C3F.2000207@rincewind.tv>
-In-Reply-To: <43039C3F.2000207@rincewind.tv>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 17 Aug 2005 20:03:13 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:16817 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751373AbVHRADM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 20:03:12 -0400
+Subject: Re: 2.6.13-rc6-rt6
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050817162324.GA24495@elte.hu>
+References: <20050816170805.GA12959@elte.hu>
+	 <1124214647.5764.40.camel@localhost.localdomain>
+	 <1124215631.5764.43.camel@localhost.localdomain>
+	 <1124218245.5764.52.camel@localhost.localdomain>
+	 <1124252419.5764.83.camel@localhost.localdomain>
+	 <1124257580.5764.105.camel@localhost.localdomain>
+	 <20050817064750.GA8395@elte.hu>
+	 <1124287505.5764.141.camel@localhost.localdomain>
+	 <1124288677.5764.154.camel@localhost.localdomain>
+	 <1124295214.5764.163.camel@localhost.localdomain>
+	 <20050817162324.GA24495@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 17 Aug 2005 20:02:59 -0400
+Message-Id: <1124323379.5186.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ollie Wild wrote:
-> If the ip_append_data() call in icmp_push_reply() fails, 
-> ip_flush_pending_frames() needs to be called.  Otherwise, ip_rt_put() is 
-> never called on inet_sk(icmp_socket->sk)->cork.rt, which prevents the 
-> route (and net_device) from ever being freed.
+On Wed, 2005-08-17 at 18:23 +0200, Ingo Molnar wrote:
+> > 
+> > Using IPI Shortcut mode
+> > khelper/794[CPU#0]: BUG in set_new_owner at kernel/rt.c:916
 > 
-> I've attached a patch which fixes the problem.
-> 
-> Ollie Wild
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
-> --- a/net/ipv4/icmp.c
-> +++ b/net/ipv4/icmp.c
-> @@ -368,6 +368,8 @@ static void icmp_push_reply(struct icmp_
->  		icmph->checksum = csum_fold(csum);
->  		skb->ip_summed = CHECKSUM_NONE;
->  		ip_push_pending_frames(icmp_socket->sk);
-> +	} else {
-> +		ip_flush_pending_frames(icmp_socket->sk);
->
+> this is a 'must not happen'. Somehow lock->held list got non-empty.  
+> Maybe some use-after-free thing? Havent seen it myself.
 
-Your patch doesn't fit your description, the else-condition you're
-adding triggers when the queue is empty, so what is the point?
+Well, I added all my patches and the laptop still locked up.
+
+I then used my AMD SMP box config on my laptop and just changed the
+processor, and it booted.  Not very well, since I didn't bother to
+change any of the other configurations. But it didn't lock up.
+
+So I went back to the laptop's original config, and did one change. I
+disabled CONFIG_SCHED_SMT, rebooted, and the system booted up.  It
+hasn't locked up after four boots.  It did once get into some crazy bug
+with scheduling while atomic, but it just spit out so many of them that
+I couldn't see what caused it. I'll turn back on netconsole to see if I
+can capture that bug, but it seems to be related to someting different.
+
+So I think something's wrong with the scheduling for hyper threading.
+
+-- Steve
+
+

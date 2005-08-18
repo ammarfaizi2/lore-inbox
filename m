@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbVHRKBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVHRKEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbVHRKBz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 06:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVHRKBy
+	id S932160AbVHRKEE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 06:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbVHRKED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 06:01:54 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:42217 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S932155AbVHRKBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 06:01:54 -0400
-Date: Thu, 18 Aug 2005 12:01:52 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: linux-kernel@vger.kernel.org
-Subject: zero-copy read() interface
-Message-ID: <20050818100151.GF12313@vanheusden.com>
+	Thu, 18 Aug 2005 06:04:03 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:16091 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S932160AbVHRKEC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 06:04:02 -0400
+Date: Thu, 18 Aug 2005 12:07:33 +0200
+From: DervishD <lkml@dervishd.net>
+To: jeff shia <tshxiayu@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can I write to the cdrom through writing to the device file sr0?
+Message-ID: <20050818100733.GA110@DervishD>
+Mail-Followup-To: jeff shia <tshxiayu@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <7cd5d4b4050818014042740322@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Tue Aug 16 15:30:48 CEST 2005
-X-MSMail-Priority: High
-X-Message-Flag: www.vanheusden.com
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7cd5d4b4050818014042740322@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Jeff :)
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ * jeff shia <tshxiayu@gmail.com> dixit:
+> I want to write a cdrw user space driver just like cdreord,but the
+> cdrecord is too complex and huge!can I write to the cdrom through
+> writing to the device file sr0,here sr0 is the device file of the
+> cdrw.
 
-What about a zero-copy read-interface?
-An ioctl (or something) which enables the kernel to do dma directly to
-the userspace. Of course this should be limited to the root-user or a
-user with special capabilities (rights) since if a drive screws up, data
-=66rom a different sector (or so) might end up in the proces' memory. Of
-course copying a sector from kernel- to userspace can be done pretty
-fast but i.m.h.o. all possible speedimprovements should be made unless
-unclean.
+    Although someone may say that the size of cdrecord is
+proportional to the author's ego, the crude reality is that cdrecord
+has to be such complex and huge (well, I don't think it is huge,
+but...). It has to be complex because cdwriting *is* complex. Take a
+look at the code and see if you can get rid of things. Nowadays I
+think that most of the writers out there are SCSI-3/MMC compliant, so
+you can just use that driver, but that won't probably remove much
+code.
 
+    Try joining a cdrecord alternative. I don't remember the name,
+but a project to build a cd recording library exists.
 
-Folkert van Heusden
+    Raúl Núñez de Arenas Coronado
 
---=20
-Auto te koop, zie: http://www.vanheusden.com/daihatsu.php
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
-
---d6Gm4EdcadzBjdND
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iIMEARECAEMFAkMEXI88Gmh0dHA6Ly93d3cudmFuaGV1c2Rlbi5jb20vZGF0YS1z
-aWduaW5nLXdpdGgtcGdwLXBvbGljeS5odG1sAAoJEDAZDowfKNiuDfoAn0ezwFfk
-/n8MgNBB5HksmE+4COm2AKCZEdQWyYk3slWx+JjImvq+AX5pBQ==
-=gVNn
------END PGP SIGNATURE-----
-
---d6Gm4EdcadzBjdND--
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

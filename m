@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVHRCjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVHRCnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbVHRCjF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Aug 2005 22:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVHRCjF
+	id S932105AbVHRCnf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Aug 2005 22:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVHRCne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 22:39:05 -0400
-Received: from web54406.mail.yahoo.com ([206.190.49.136]:16021 "HELO
-	web54406.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932103AbVHRCjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 22:39:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Z/IWZYNKDIysTXlQA3YvHoMqQSFoHk3Ic8KV5DV7hL++XdfgcW0dcxJtNcQe2LUWpS8aKsrSj2nzLzOnoq95x4W5oDt3LYzgh+DKvBnT2RGAxS6tP++R/Crel7kZ8fj6ec02q/8otDcIAI7pDkhgTIOmDEc7/t+tItMVuR6mho0=  ;
-Message-ID: <20050818023853.48406.qmail@web54406.mail.yahoo.com>
-Date: Wed, 17 Aug 2005 19:38:53 -0700 (PDT)
-From: Sundar Narayanaswamy <sundar007@yahoo.com>
-Subject: Latency with Real-Time Preemption with 2.6.12
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 17 Aug 2005 22:43:34 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54177
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932091AbVHRCne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Aug 2005 22:43:34 -0400
+Date: Wed, 17 Aug 2005 19:43:15 -0700 (PDT)
+Message-Id: <20050817.194315.111196480.davem@davemloft.net>
+To: ak@suse.de
+Cc: dada1@cosmosbay.com, bcrl@linux.intel.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct file cleanup : the very large file_ra_state is
+ now allocated only on demand.
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050818010524.GW3996@wotan.suse.de>
+References: <20050817215357.GU3996@wotan.suse.de>
+	<4303D90E.2030103@cosmosbay.com>
+	<20050818010524.GW3996@wotan.suse.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am trying to experiment using 2.6.12 kernel with the realtime-preempt 
-V0.7.51-38 patch to determine the kernel preemption latencies with the 
-CONFIG_PREEMPT_RT mode. The test program I wrote does the following on
-a thread with highest priority (99) and SCHED_FIFO policy to simulate
-a real time thread.
+From: Andi Kleen <ak@suse.de>
+Date: Thu, 18 Aug 2005 03:05:25 +0200
 
-t1 = gettimeofday
-nanosleep(for 3 ms)
-t2 = gettimeofday
+> I would just set the ra pointer to a single global structure if the
+> allocation fails. Then you can avoid all the other checks. It will
+> slow down things and trash some state, but not fail and nobody
+> should expect good performance after out of memory anyways. The only
+> check still needed would be on freeing.
 
-I was expecting to see the difference t2-t1 to be close to 3 ms. However, 
-the smallest difference I see is 4 milliseconds under no system load, 
-and the difference is as high as 25 milliseconds under moderate to 
-heavy system load (mostly performing disk I/O).
+I would think twice about that due to repeatability concerns.  Yes, we
+should care less when memory is so low, but if we can avoid this kind
+of scenerio easily we should.
 
-Based on the articles and the mails I read on this list, I understand that 
-worst case latencies of 1 ms (or less) should be possible using the RT 
-Preemption patch, but I am unable to get anything less than 4 millseconds 
-even with sleep times smaller than 3 ms. I am running the tests on a SBC 
-with a 1.4G Pentium M, 512M RAM, 1GB compact flash (using IDE). 
+Having said that, I would like to recommend looking into a scheme
+where the path leading to the filp allocation states whether the
+read-ahead bits are needed or not.  This has two benefits:
 
-I believe I have the high resolution timer working correctly, because if I 
-comment out the sleep line above t2-t1 is consistenly 0 or 1 microsecond.
+1) Repeatability, and error signalling at the correct place
+   should the memory allocation fail.
 
-Following earlier discussions (in July) in this list, I tried to set kernel 
-configuration parameters like CONFIG_LATENCY_TRACE to get tracing/debug 
-information, but I didn't find these parameters in my .config file.
+2) We can avoid the pointer dereference overhead.  The read-ahead
+   state is always at (filp + 1).  Macro'ized or static inline
+   function'ized interfaces for this access can make it look
+   clean and perhaps even implement debugging of the case where
+   we try to get at the read-ahead state for a non-read-ahead
+   filp.
 
-I appreciate your suggestions/insights into the situation and steps that I 
-should try to get more debug/tracing information that might help to understand 
-the cause of high latency.
-
-Thanks for your help,
-sundar.
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+I do really think that would be a better approach.  A quick glance
+shows that it should be easy to propagate the "need_read_ahead"
+state, just by passing a boolean to get_unused_fd() via
+sock_map_fd().

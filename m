@@ -1,79 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbVHRSrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbVHRSsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbVHRSrg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 14:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbVHRSrf
+	id S932398AbVHRSsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 14:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVHRSsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 14:47:35 -0400
-Received: from fmr14.intel.com ([192.55.52.68]:23274 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932389AbVHRSrf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 14:47:35 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: CONFIG_PRINTK_TIME woes
-Date: Thu, 18 Aug 2005 11:47:32 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F042C7DA7@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CONFIG_PRINTK_TIME woes
-Thread-Index: AcWkJUqnqkXjVIhyRFqxCnpJUuwr/w==
-From: "Luck, Tony" <tony.luck@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Jason Uhlenkott" <jasonuhl@sgi.com>
-X-OriginalArrivalTime: 18 Aug 2005 18:47:33.0363 (UTC) FILETIME=[4B473430:01C5A425]
+	Thu, 18 Aug 2005 14:48:08 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:147 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932398AbVHRSsH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 14:48:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XEjh+v2NgU25KFLmQMKqMurcWwRcLrKWRxK/6npulJh5F+lax0t6E8ou4I4fAXERUmmJDd8ceP+BV1jQ9sbTxpC+IeqT9faA0j1evMLihTuNQF8ZOxIE2CYjJcrj0t5+XLQVdHP3Lvc9StSsWS2ZlC0V3dY8si98tp+S/rz05gE=
+Message-ID: <4fec73ca05081811488ec518e@mail.gmail.com>
+Date: Thu, 18 Aug 2005 20:48:04 +0200
+From: =?ISO-8859-1?Q?Guillermo_L=F3pez_Alejos?= <glalejos@gmail.com>
+To: Linh Dang <linhd@nortel.com>
+Subject: Re: Environment variables inside the kernel?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <wn5slx75cjs.fsf@linhd-2.ca.nortel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4fec73ca050818084467f04c31@mail.gmail.com>
+	 <m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local>
+	 <wn5slx75cjs.fsf@linhd-2.ca.nortel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It has been pointed out to me that ia64 doesn't boot
-with CONFIG_PRINTK_TIME=y.  The issue is the call to
-sched_clock() ... which on ia64 accesses some per-cpu
-data to adjust for possible variations in processor
-speed between different cpus.  Since the per-cpu page
-is not set up for the first few printk() calls, we die.
+Whoa!, I did not expect so many replies. Thank you for your answers.
 
-Is this an issue on any other architecture?  Most versions
-of sched_clock() seem to just scale jiffies into nanoseconds,
-so I guess they don't.  s390, sparc64, x86 and x86_64 all
-have more sophisticated versions but they don't appear to me
-to have limitations on how early they might be called.
+The thing is that the Computer Architecture area of the University I
+am studying at is developing a parallel filesystem. Currently it works
+as a stand-alone program (this is why it uses resources like
+environment variables), and I have been told to integrate it in the
+Linux kernel.
 
-Possible solutions:
+I have to justify changes on this filesystem code (like avoiding the
+use of environment variables) to my tutor. In this case I needed to
+find why it is not possible to use environment variables in kernel
+space.
 
-1) Fix ia64 version of sched_clock() to check whether
-the per-cpu page hase been initialized before using it.
+I was looking for a reference documentation which give a definition of
+environment variables that exclude their use inside the kernel, or,
+simply, I expected to find a design decision to justify this. But I
+think I have enough information with your answers, I will be able to
+elaborate a satisfactory conclusion.
 
-I don't like this solution as it will make sched_clock()
-slower for its primary uses in kernel/sched.c ... none of
-which can be called before the per-cpu area is initialized.
+Excuse me if the topic was so obvious (it was not to me) and thank you again,
 
+On 8/18/05, Linh Dang <linhd@nortel.com> wrote:
+> Douglas McNaught <doug@mcnaught.org> wrote:
+> 
+> >
+> > If someone is insisting you use environment varaiables in kernel
+> > code, challenge them to show you where they are implemented in the
+> > kernel.  :)
+> >
+> > -Doug
+> 
+> They're in current process's vm. You just have to parse it yourself.
+> 
+> something along the (untested) lines:
+> 
+>         struct mm_struct *mm = current ? get_task_mm(current) : NULL;
+> 
+>         if (mm) {
+>                 unsigned env_len = mm->env_end - mm->env_start;
+>                 char* env = kmalloc(env_len, GFP_KERNEL);
+>                 access_process_vm(current, mm->env_start, env,
+>                                            env_len, 0);
+> 
+>                 /* env is now a big buffer containing null-terminated
+>                    strings representing evironment variables */
+> 
+>                 mmput(mm);
+>         }
 
-2) Add some test to the printk() path along the lines of:
-
-  t = (can_call_sched_clock) ? sched_clock() : 0;
-
-This is somewhat ugly ... perhaps too unpleasant for words in
-that can_call_sched_clock is a per-cpu concept!
-
-3) Make the printk() code get the time in some other way.
-
-Using sched_clock() here seems wrong.  The ia64 version
-has a big fat comment about not comparing the results of
-two calls from different cpus ... but since printk() calls
-can come from any cpu ... it seems likely that a user who
-turns on PRINTK_TIME might subtract timestamps from two
-lines to see how long it was between the messages.  This
-could have significant error on a system that has been up
-for a long time.
-
-But I don't have a better suggestion from existing code.  I
-assume that sched_clock() was picked as it is both fast and
-lockless.
-
--Tony
-
+-- 
+Guillermo

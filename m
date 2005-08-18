@@ -1,175 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVHRGiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVHRGiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbVHRGiM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 02:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVHRGiM
+	id S1750831AbVHRGiT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 02:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVHRGiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 02:38:12 -0400
-Received: from mail.kroah.org ([69.55.234.183]:54935 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750823AbVHRGiL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 02:38:11 -0400
-Date: Wed, 17 Aug 2005 23:37:12 -0700
-From: Greg KH <greg@kroah.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, James.Smart@Emulex.Com,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk@arm.linux.org.uk>, Dmitry Torokhov <dtor@mail.ru>
-Subject: Re: [PATCH] add transport class symlink to device object
-Message-ID: <20050818063712.GA25321@kroah.com>
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <1124145677.5089.68.camel@mulgrave> <20050818052311.GD29301@kroah.com>
-Mime-Version: 1.0
+	Thu, 18 Aug 2005 02:38:19 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:32399 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750831AbVHRGiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 02:38:18 -0400
+X-ORBL: [69.107.32.110]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:cc:references:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:message-id;
+	b=U7OkS96narakY6HBNYRa6+VW0bGPrL9zvrrkzWk+drcYmpxFj7SuavNqhD4PS3voY
+	eeH7vdfZg8DXcb4rIXtZw==
+Date: Wed, 17 Aug 2005 23:37:50 -0700
+From: David Brownell <david-b@pacbell.net>
+To: mingo@elte.hu
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc6-V0.7.53-11
+Cc: tglx@linutronix.de, stern@rowland.harvard.edu, some.nzguy@gmail.com,
+       paulmck@us.ibm.com, linux-kernel@vger.kernel.org, gregkh@suse.de,
+       akpm@osdl.org, a.p.zijlstra@chello.nl
+References: <Pine.LNX.4.44L0.0508170959410.4862-100000@iolanthe.rowland.org>
+ <20050817205125.06ABCBF3E9@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+ <20050818045257.GC9768@elte.hu>
+In-Reply-To: <20050818045257.GC9768@elte.hu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050818052311.GD29301@kroah.com>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+Message-Id: <20050818063750.036C685F16@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 17, 2005 at 10:23:11PM -0700, Greg KH wrote:
-> On Mon, Aug 15, 2005 at 05:41:17PM -0500, James Bottomley wrote:
-> > Actually, isn't the fix to all of this to combine Greg and James'
-> > patches?
-> 
-> Yes it is.
-> 
-> > The Greg one fails in SCSI because we don't have unique class device
-> > names (by convention we use the same name as the device bus_id) and
-> > James' one fails for ttys because the class name isn't unique.  However,
-> > if the link were derived from something like
+> > > > We couldn't switch to #2 with patches that simple.  They'd in fact
+> > > > be rather involved ...
+> > >
+> > > I'm in favor of #2 on general principle.
 > > 
-> > <class name>:<class device name>
-> > 
-> > Then is would be unique in both cases.
-> 
-> I agree.
-> 
-> > Unless anyone can think of any more failing cases?
-> 
-> I'll try this out and see if anything breaks :)
+> > Which principle would that be, though?  :)
+>
+> it's the basic Linux kernel principle of never disabling interrupts, 
+> unless really, really necessary.
 
-Ok, here's the patch.  I like it, and I think it will prevent any
-duplicate symlinks from happening.  Anyone have any objections?
+And "really, really" depends on context.  I know that you're
+working in some contexts where "really, really" means "virtually
+never", but that's not the only context folk work with.
 
-thanks,
+Of course, "never ... unless really really necessary" can fight
+against the principle of "as simple as practical".  Tradeoffs
+somehow never seem far away in engineering, somehow.
 
-greg k-h
 
---------------
+> but the main issue isnt with disabling interrupts in general, the issue 
+> is with "naked" (i.e. lock-less) disabling of interrupts. Let me try to 
+> explain. Stuff like:
+>
+> 	spin_lock_irq(&lock);
+> 	stuff1();
+> 	spin_unlock(&lock);
+> 	stuff2();
+> 	local_irq_enable();
+>
+> is outright dangerous, because it could hide SMP bugs that do not 
+> trigger on UP.
 
-Driver core: link device and all class devices derived from it.
+Sure, but NONE of the code in question started out that way.  And last
+time I audited USB locking code, there was none like that.  So I don't
+know where that pseudocode came from; if any code is like that today, it
+could be hiding non-SMP bugs too.  The only cases where "local_irq_enable"
+is used, it's paired with "local_irq_disable".
 
-To ease the task of locating class devices derived from a certain
-device create symlinks from parent device to its class devices.
-Change USB host class device name from usbX to usb_hostX to avoid
-conflict when creating aforementioned links.
+And the only places either is used relate to some tricky lock hierarchy
+games that need to be played when canceling URBs ...  where usbcore has to
+account for the fact that the URB being canceled may _at that instant_
+be in the middle of being given back to the device driver (from the
+HCD, via usbcore) by an IRQ handler on another CPU.  There's no "naked
+disabling" at all; it's used exclusively when two different irq-safe
+locks need to be coordinated.
 
-Tweaked by Greg to have the symlink be "class_name:class_device_name"
-in order to prevent duplicate links.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> so in the process of identifying naked IRQ-flags use i asked why the USB 
+> code was doing it, and i'm happy that the answer is "no good reason, 
+> mostly historic". (naked IRQ flags use also happens to be a problem for 
+> PREEMPT_RT, where i also have a debug warning about such IRQ flags 
+> assymetries, but you need not worry about that one.)
 
----
- drivers/base/class.c   |   33 +++++++++++++++++++++++++++++++--
- drivers/usb/core/hcd.c |    2 +-
- 2 files changed, 32 insertions(+), 3 deletions(-)
+But as I pointed out, that answer was incomplete.  Or maybe it
+only addressed some of the code paths, not all of them.  Not
+all the issues are "mostly historic".
 
---- gregkh-2.6.orig/drivers/base/class.c	2005-08-17 23:27:02.000000000 -0700
-+++ gregkh-2.6/drivers/base/class.c	2005-08-17 23:27:25.000000000 -0700
-@@ -452,10 +452,29 @@ void class_device_initialize(struct clas
- 	INIT_LIST_HEAD(&class_dev->node);
- }
- 
-+static char *make_class_name(struct class_device *class_dev)
-+{
-+	char *name;
-+	int size;
-+
-+	size = strlen(class_dev->class->name) +
-+		strlen(kobject_name(&class_dev->kobj)) + 2;
-+
-+	name = kmalloc(size, GFP_KERNEL);
-+	if (!name)
-+		return ERR_PTR(-ENOMEM);
-+
-+	strcpy(name, class_dev->class->name);
-+	strcat(name, ":");
-+	strcat(name, kobject_name(&class_dev->kobj));
-+	return name;
-+}
-+
- int class_device_add(struct class_device *class_dev)
- {
- 	struct class * parent = NULL;
- 	struct class_interface * class_intf;
-+	char *class_name = NULL;
- 	int error;
- 
- 	class_dev = class_device_get(class_dev);
-@@ -500,9 +519,13 @@ int class_device_add(struct class_device
- 	}
- 
- 	class_device_add_attrs(class_dev);
--	if (class_dev->dev)
-+	if (class_dev->dev) {
-+		class_name = make_class_name(class_dev);
- 		sysfs_create_link(&class_dev->kobj,
- 				  &class_dev->dev->kobj, "device");
-+		sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
-+				  class_name);
-+	}
- 
- 	/* notify any interfaces this device is now here */
- 	if (parent) {
-@@ -519,6 +542,7 @@ int class_device_add(struct class_device
- 	if (error && parent)
- 		class_put(parent);
- 	class_device_put(class_dev);
-+	kfree(class_name);
- 	return error;
- }
- 
-@@ -584,6 +608,7 @@ void class_device_del(struct class_devic
- {
- 	struct class * parent = class_dev->class;
- 	struct class_interface * class_intf;
-+	char *class_name = NULL;
- 
- 	if (parent) {
- 		down(&parent->sem);
-@@ -594,8 +619,11 @@ void class_device_del(struct class_devic
- 		up(&parent->sem);
- 	}
- 
--	if (class_dev->dev)
-+	if (class_dev->dev) {
-+		class_name = make_class_name(class_dev);
- 		sysfs_remove_link(&class_dev->kobj, "device");
-+		sysfs_remove_link(&class_dev->dev->kobj, class_name);
-+	}
- 	if (class_dev->devt_attr)
- 		class_device_remove_file(class_dev, class_dev->devt_attr);
- 	class_device_remove_attrs(class_dev);
-@@ -605,6 +633,7 @@ void class_device_del(struct class_devic
- 
- 	if (parent)
- 		class_put(parent);
-+	kfree(class_name);
- }
- 
- void class_device_unregister(struct class_device *class_dev)
---- gregkh-2.6.orig/drivers/usb/core/hcd.c	2005-08-17 23:26:55.000000000 -0700
-+++ gregkh-2.6/drivers/usb/core/hcd.c	2005-08-17 23:27:04.000000000 -0700
-@@ -782,7 +782,7 @@ static int usb_register_bus(struct usb_b
- 		return -E2BIG;
- 	}
- 
--	bus->class_dev = class_device_create(usb_host_class, MKDEV(0,0), bus->controller, "usb%d", busnum);
-+	bus->class_dev = class_device_create(usb_host_class, MKDEV(0,0), bus->controller, "usb_host%d", busnum);
- 	if (IS_ERR(bus->class_dev)) {
- 		clear_bit(busnum, busmap.busmap);
- 		up(&usb_bus_list_lock);
+
+> to make such cleanups of irq-flags use easier i'm also thinking about 
+> automating the process of checking for the irq-safety of spinlocks, by 
+> adding a new spinlock type via:
+>
+> 	DEFINE_SPINLOCK_IRQSAFE(lock2);
+>
+> (and a spin_lock_init_irqsafe() function too)
+
+I think all the locks inside usbcore and the HCDs will end up
+being "irqsafe"... 
+
+
+> this will be useful for the whole kernel, not properly managing the irq 
+> flags is a common locking mistake. With this new debug feature enabled, 
+> the kernel will warn if an irq-safe lock is taken with interrupts still 
+> enabled.
+>
+> furthermore, the debug feature will also warn if a spinlock _not_ marked 
+> irqsafe is used from an interrupt context. This is another common type 
+> of locking mistake.
+
+That seems like a good idea.  New Linux developers have often gotten
+confused about the rules associated with a given spinlock; and even
+when something starts out with good comments, it likely doesn't stay
+that way.  Automatic warning about simple mistakes will be a big win.
+
+- Dave
+

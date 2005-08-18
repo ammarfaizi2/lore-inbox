@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVHRQTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVHRQZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbVHRQTe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 12:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVHRQTe
+	id S932261AbVHRQZh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 12:25:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVHRQZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 12:19:34 -0400
-Received: from chello062178225197.14.15.tuwien.teleweb.at ([62.178.225.197]:9961
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932280AbVHRQTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 12:19:33 -0400
-Subject: Re: [PATCH 2.6.13-rc6 1/2] New Syscall: get rlimits of any process
-	(update)
-From: Wieland Gmeiner <e8607062@student.tuwien.ac.at>
-Reply-To: e8607062@student.tuwien.ac.at
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Elliot Lee <sopwith@redhat.com>
-In-Reply-To: <p7364u40zld.fsf@verdi.suse.de>
-References: <1124326652.8359.3.camel@w2>  <p7364u40zld.fsf@verdi.suse.de>
-Content-Type: text/plain
+	Thu, 18 Aug 2005 12:25:37 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:23228 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S932261AbVHRQZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 12:25:37 -0400
+In-Reply-To: <E1E5KpP-0004dy-00@dorka.pomaz.szeredi.hu>
+References: <E1E5KpP-0004dy-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A4C8B92D-B390-4BF8-A6D5-106ACBD0E716@freescale.com>
+Cc: <hch@infradead.org>, <davem@davemloft.net>, <paulus@samba.org>,
+       "Gala Kumar K.-galak" <galak@freescale.com>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linuxppc-dev@ozlabs.org>,
+       <zach@vmware.com>
 Content-Transfer-Encoding: 7bit
-Date: Thu, 18 Aug 2005 18:19:11 +0200
-Message-Id: <1124381951.6251.14.camel@w2>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [PATCH] ppc32: removed usage of <asm/segment.h>
+Date: Thu, 18 Aug 2005 11:25:19 -0500
+To: Miklos Szeredi <miklos@szeredi.hu>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-18 at 04:05 +0200, Andi Kleen wrote:
 
-> Is there a realistic use case where this new system call is actually useful
-> and solves something that cannot be solved without it?
+On Aug 17, 2005, at 5:07 AM, Miklos Szeredi wrote:
 
-As an example: It seems to be a common problem with numerous services to
-run out of available file descriptors. There are several workarounds to
-this problem, the most common seems to be increasing the systemwide max
-number of filedescriptors and restarting the service. If you google for
-e.g. 'linux "too many open files"' you get a bunch of mailing list
-support requests about that problem.
+>>> They are provided by _one_ kernel, not necessarily the running
+>>>
+> kernel.
+>
+>>
+>> No, they're provided by packages like glibc-kernheaders or similar
+>> that are maintained separately.
+>>
+>
+> Yes.  And "maintenance" I presume means "copy" the kernel headers and
+> do some cleanup to be compliant to the relevant standards (which the
+> kernel maintainers couldn't be bothered to do).
+>
+>
+>> They're split from the kernel headers and we don't need to keep
+>> obsolete junk around.
+>>
+>
+> I agree about obsolete junk.
+>
+> However statements like "No kernel headers can be included by userland
+> anymore" can be slightly misleading.
 
-Also some documention for specific services show that there is a need to
-adjust rlimits per process at runtime, e.g.:
-http://www.squid-cache.org/Doc/FAQ/FAQ-11.html#ss11.4
-http://slacksite.com/apache/logging.html
-http://staff.in2.hr/denis/oracle/10g1install_fedora3_en.html#n2
+So after all of this its not clear to me if its acceptable to kill  
+all users of <asm/segment.h> in the kernel and to move code that  
+exists in <asm/segment.h> to <asm/uaccess.h> for arch's that need it.
 
-Thanks,
-Wieland
+- kumar

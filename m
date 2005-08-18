@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVHRNN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVHRNaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbVHRNN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 09:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVHRNN1
+	id S932224AbVHRNaw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 09:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVHRNaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 09:13:27 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:29113 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932209AbVHRNN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 09:13:27 -0400
-Date: Thu, 18 Aug 2005 15:13:27 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: zero-copy read() interface
-Message-ID: <20050818131327.GA21830@wohnheim.fh-wedel.de>
-References: <20050818100151.GF12313@vanheusden.com> <20050818100536.GB16751@wohnheim.fh-wedel.de> <20050818104131.GH12313@vanheusden.com>
+	Thu, 18 Aug 2005 09:30:52 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:64174 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932224AbVHRNav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 09:30:51 -0400
+Subject: Re: [PATCH,RFC] quirks for VIA VT8237 southbridge
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <200508181436.54880.annabellesgarden@yahoo.de>
+References: <200508131710.38569.annabellesgarden@yahoo.de>
+	 <200508160949.10607.bjorn.helgaas@hp.com>
+	 <1124212816.20707.5.camel@localhost.localdomain>
+	 <200508181436.54880.annabellesgarden@yahoo.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 18 Aug 2005 14:57:57 +0100
+Message-Id: <1124373477.16072.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050818104131.GH12313@vanheusden.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 August 2005 12:41:32 +0200, Folkert van Heusden wrote:
->
-> > Just use mmap().  Unlike your proposal, it cooperates with the page
-> > cache.
+On Iau, 2005-08-18 at 14:36 +0200, Karsten Wiese wrote:
+> Solutions: either calculate correct new_irq (= PIN-Number & 0x0F)
+>  or don't apply likely wrong value.
 > 
-> Doesn't that one also use copying? I've also heard that using mmap is
-> expensive due to pagefaulting. I've found, for example, that copying a
-> 1.3GB file using read/write instead of mmap & memcpy is seconds faster.
+> Following diff takes the 2nd way.
+> 
+> Well, VT8237 ignores the wrong new_irq in IOAPIC-Mode,
+> but its irritating to see dmesg print out nonsense then. 
 
-Since you don't consider device DMA to be a copy, no, it doesn't.  The
-data is transferred into page cache, then the pages are mapped into
-your processes memory without an additional copy.
+The docs and my poking around with a later board seem to imply you need
+to set the IRQ value > 15 to get it to the IO-APIC. The data sheet
+doesn't seem clear if you need to set it all up by hand or if ACPI does
+it.
 
-The pagefaulting isn't free either, I agree.  And for streaming
-accesses like your copy of a large file, taking one fault per 4k
-copied is not an ideal case.
-
-Most likely you'd want Linus' pipe stuff for copying a large file
-without ever looking at the data.  That work is still unfinished,
-though, and I'm currently lacking time to work on it.
-
-Jörn
-
--- 
-He that composes himself is wiser than he that composes a book.
--- B. Franklin

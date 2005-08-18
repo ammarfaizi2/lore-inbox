@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVHRQZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVHRQdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbVHRQZh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 12:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVHRQZh
+	id S932285AbVHRQdB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 12:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVHRQdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 12:25:37 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:23228 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S932261AbVHRQZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 12:25:37 -0400
-In-Reply-To: <E1E5KpP-0004dy-00@dorka.pomaz.szeredi.hu>
-References: <E1E5KpP-0004dy-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A4C8B92D-B390-4BF8-A6D5-106ACBD0E716@freescale.com>
-Cc: <hch@infradead.org>, <davem@davemloft.net>, <paulus@samba.org>,
-       "Gala Kumar K.-galak" <galak@freescale.com>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linuxppc-dev@ozlabs.org>,
-       <zach@vmware.com>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [PATCH] ppc32: removed usage of <asm/segment.h>
-Date: Thu, 18 Aug 2005 11:25:19 -0500
-To: Miklos Szeredi <miklos@szeredi.hu>
-X-Mailer: Apple Mail (2.734)
+	Thu, 18 Aug 2005 12:33:01 -0400
+Received: from ns.suse.de ([195.135.220.2]:5593 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932285AbVHRQdA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 12:33:00 -0400
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [QUESTION] Why isn't there a unregister_die_notifier?
+References: <1124377142.5186.45.camel@localhost.localdomain.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 18 Aug 2005 18:32:59 +0200
+In-Reply-To: <1124377142.5186.45.camel@localhost.localdomain.suse.lists.linux.kernel>
+Message-ID: <p73br3vtdc4.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Rostedt <rostedt@goodmis.org> writes:
 
-On Aug 17, 2005, at 5:07 AM, Miklos Szeredi wrote:
+> Hi, I have a debugging module that I want to register a die notifier.
+> But I just noticed that I can't unregister it.  So for now I either just
+> keep the module loaded and never unloaded it, compile it into the
+> kernel, or ifdef out the register_die_notifier when loaded as a module.
+> 
+> Is there some reason that there isn't such a call, or maybe there is,
+> and I don't see it (called something else). Or is this something that
+> should be added?
 
->>> They are provided by _one_ kernel, not necessarily the running
->>>
-> kernel.
->
->>
->> No, they're provided by packages like glibc-kernheaders or similar
->> that are maintained separately.
->>
->
-> Yes.  And "maintenance" I presume means "copy" the kernel headers and
-> do some cleanup to be compliant to the relevant standards (which the
-> kernel maintainers couldn't be bothered to do).
->
->
->> They're split from the kernel headers and we don't need to keep
->> obsolete junk around.
->>
->
-> I agree about obsolete junk.
->
-> However statements like "No kernel headers can be included by userland
-> anymore" can be slightly misleading.
+I didn't add one original because unloading debuggers is very tricky.
+There is no locking and no reference counting and they can be entered
+in any context.  Adding it would require some RCU tricks at least and
+might still have some non trivial races.
 
-So after all of this its not clear to me if its acceptable to kill  
-all users of <asm/segment.h> in the kernel and to move code that  
-exists in <asm/segment.h> to <asm/uaccess.h> for arch's that need it.
-
-- kumar
+-Andi

@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVHRGbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbVHRGie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbVHRGbE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 02:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVHRGbE
+	id S1750841AbVHRGie (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 02:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVHRGid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 02:31:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25874 "EHLO
+	Thu, 18 Aug 2005 02:38:33 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62730 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750820AbVHRGbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 02:31:02 -0400
-Date: Thu, 18 Aug 2005 07:30:50 +0100
+	id S1750841AbVHRGi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 02:38:29 -0400
+Date: Thu, 18 Aug 2005 07:38:24 +0100
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, James.Smart@Emulex.Com,
-       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] add transport class symlink to device object
-Message-ID: <20050818073049.B2365@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
-	James.Smart@Emulex.Com, Andrew Morton <akpm@osdl.org>,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <20050814232525.A27481@flint.arm.linux.org.uk> <20050815004303.GB9466@parcelfarce.linux.theplanet.co.uk> <20050815093244.A19811@flint.arm.linux.org.uk> <20050818052156.GC29301@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mmc: Multi-sector writes
+Message-ID: <20050818073824.C2365@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
+References: <42FF3C05.70606@drzeus.cx> <20050817155641.12bb20fc.akpm@osdl.org> <43042114.7010503@drzeus.cx> <20050817224805.17f29cfb.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050818052156.GC29301@kroah.com>; from greg@kroah.com on Wed, Aug 17, 2005 at 10:21:56PM -0700
+In-Reply-To: <20050817224805.17f29cfb.akpm@osdl.org>; from akpm@osdl.org on Wed, Aug 17, 2005 at 10:48:05PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 17, 2005 at 10:21:56PM -0700, Greg KH wrote:
-> On Mon, Aug 15, 2005 at 09:32:44AM +0100, Russell King wrote:
-> > On Mon, Aug 15, 2005 at 01:43:03AM +0100, Matthew Wilcox wrote:
-> > > On Sun, Aug 14, 2005 at 11:25:25PM +0100, Russell King wrote:
-> > > > Eww.  Do you really want one struct device per tty with all the
-> > > > memory each one eats?
-> > > > 
-> > > > If that's really what you want you need to talk to Alan and not me.
-> > > > Alan looks after tty level stuff, I look after serial level stuff.
-> > > > The above is a tty level issue not a serial level issue.
-> > > 
-> > > mmm.  I don't know whether it's really a tty level issue or a serial
-> > > issue.  The only tty classes with corresponding devices are the serial
-> > > ones, at least on my system.  If this is the case, then the right fix
-> > > would seem to be something like creating a new struct device for each
-> > > serial port, then making that the uart_port->dev instead of the pci_dev
-> > > or whatever.
+On Wed, Aug 17, 2005 at 10:48:05PM -0700, Andrew Morton wrote:
+> Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+> >
+> > >I'm thinking that it would be better to not have the config option there
+> >  >and then re-add it late in the 2.6.14 cycle if someone reports problems
+> >  >which cannot be fixed.  Or at least make it default to 'y' so we get more
+> >  >testing coverage, then remove the config option later.  Or something.
+> >  >
+> >  >Thoughts?
+> >  >  
+> >  >
 > > 
-> > What's the reason for enforcing one struct device per struct class_dev ?
-> > I thought one of the points of class_dev was that you could have multiple
-> > of them per struct device.
+> >  Removing it would be preferable by me. All that #ifdef tends to clutter
+> >  up the code. After som initial problem with a buggy card everything has
+> >  worked flawlesly.
 > 
-> No such enforcement is needed at all, and not encouraged.
+> OK..  Please send an additional patch for that sometime?
 
-The complaint is that serial is registering several different class_devs
-for the same class and device.
+I'd rather not.  The problem is that we have a host (thanks Intel)
+which is unable to report how many bytes were transferred before an
+error occurs.  My fear is that doing anything other than sector by
+sector write will lead to corruption should an error occur.
 
-So that's precisely what is being done by adding the symlink as per this
-sub-thread.
+However, I've no way to induce such an error, so I can only base
+this on theory.
+
+It may work perfectly for the case when everything's operating
+correctly, but I suspect if you're going to do multi-sector writes,
+it'll all fall apart on the first error, especially on this host.
 
 -- 
 Russell King

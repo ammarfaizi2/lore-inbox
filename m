@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbVHRHFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVHRHH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbVHRHFF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 03:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVHRHFF
+	id S1750770AbVHRHH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 03:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVHRHH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 03:05:05 -0400
-Received: from mail.kroah.org ([69.55.234.183]:45218 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750890AbVHRHFE (ORCPT
+	Thu, 18 Aug 2005 03:07:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37552 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750770AbVHRHH0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 03:05:04 -0400
-Date: Thu, 18 Aug 2005 00:04:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <matthew@wil.cx>, James.Smart@Emulex.Com,
-       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] add transport class symlink to device object
-Message-ID: <20050818070442.GA8258@kroah.com>
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <20050814232525.A27481@flint.arm.linux.org.uk> <20050815004303.GB9466@parcelfarce.linux.theplanet.co.uk> <20050815093244.A19811@flint.arm.linux.org.uk> <20050818052156.GC29301@kroah.com> <20050818073049.B2365@flint.arm.linux.org.uk> <20050818064129.GA2280@kroah.com> <20050818075027.D2365@flint.arm.linux.org.uk>
+	Thu, 18 Aug 2005 03:07:26 -0400
+Date: Thu, 18 Aug 2005 15:12:50 +0800
+From: David Teigland <teigland@redhat.com>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1/3] dlm: use configfs
+Message-ID: <20050818071250.GE10133@redhat.com>
+References: <20050818060750.GA10133@redhat.com> <29495f1d05081723293c2bd337@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050818075027.D2365@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <29495f1d05081723293c2bd337@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 18, 2005 at 07:50:27AM +0100, Russell King wrote:
-> On Wed, Aug 17, 2005 at 11:41:29PM -0700, Greg KH wrote:
-> > On Thu, Aug 18, 2005 at 07:30:50AM +0100, Russell King wrote:
-> > > On Wed, Aug 17, 2005 at 10:21:56PM -0700, Greg KH wrote:
-> > > > On Mon, Aug 15, 2005 at 09:32:44AM +0100, Russell King wrote:
-> > > > > On Mon, Aug 15, 2005 at 01:43:03AM +0100, Matthew Wilcox wrote:
-> > > > > > On Sun, Aug 14, 2005 at 11:25:25PM +0100, Russell King wrote:
-> > > > > > > Eww.  Do you really want one struct device per tty with all the
-> > > > > > > memory each one eats?
-> > > > > > > 
-> > > > > > > If that's really what you want you need to talk to Alan and not me.
-> > > > > > > Alan looks after tty level stuff, I look after serial level stuff.
-> > > > > > > The above is a tty level issue not a serial level issue.
-> > > > > > 
-> > > > > > mmm.  I don't know whether it's really a tty level issue or a serial
-> > > > > > issue.  The only tty classes with corresponding devices are the serial
-> > > > > > ones, at least on my system.  If this is the case, then the right fix
-> > > > > > would seem to be something like creating a new struct device for each
-> > > > > > serial port, then making that the uart_port->dev instead of the pci_dev
-> > > > > > or whatever.
-> > > > > 
-> > > > > What's the reason for enforcing one struct device per struct class_dev ?
-> > > > > I thought one of the points of class_dev was that you could have multiple
-> > > > > of them per struct device.
-> > > > 
-> > > > No such enforcement is needed at all, and not encouraged.
-> > > 
-> > > The complaint is that serial is registering several different class_devs
-> > > for the same class and device.
-> > 
-> > That's because they are unique class devices, right?  I don't see a
-> > problem here at all.
-> 
-> They are class devices called ttyS0, ttyS1, ttyS2 so you can say
-> they're uniquely named.
-> 
-> The problem is that Matthew wants to add a symlink from the device
-> device to the class device to complement the class device to device
-> symlink, since we end up with multiple symlinks in the devices subdir
-> all called the same.
-> 
-> This causes serial a problem because we have multiple class devices
-> per device.
+> Are you the official maintainer of the DLM subsystem? Could you submit
+> a patch to add a MAINTAINERS entry? I was looking for a maintainer to
 
-Ah, yeah, but the patch I just posted fixes it:
+yes
 
-$ tree /sys/devices/platform/serial8250/
-/sys/devices/platform/serial8250/
-|-- bus -> ../../../bus/platform
-|-- driver -> ../../../bus/platform/drivers/serial8250
-|-- power
-|   `-- state
-|-- tty:ttyS0 -> ../../../class/tty/ttyS0
-|-- tty:ttyS1 -> ../../../class/tty/ttyS1
-|-- tty:ttyS2 -> ../../../class/tty/ttyS2
-`-- tty:ttyS3 -> ../../../class/tty/ttyS3
+Signed-off-by: David Teigland <teigland@redhat.com>
 
-
-Matthew, this work for you?
-
-thanks,
-
-greg k-h
+diff -urpN a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS	2005-08-17 17:19:23.000000000 +0800
++++ b/MAINTAINERS	2005-08-18 15:08:41.270122528 +0800
+@@ -748,6 +748,13 @@ M:	jack@suse.cz
+ L:	linux-kernel@vger.kernel.org
+ S:	Maintained
+ 
++DLM, DISTRIBUTED LOCK MANAGER
++P:	David Teigland
++M:	teigland@redhat.com
++L:	linux-cluster@redhat.com
++W:	http://sources.redhat.com/cluster
++S:	Maintained
++
+ DAVICOM FAST ETHERNET (DMFE) NETWORK DRIVER
+ P:	Tobias Ringstrom
+ M:	tori@unhappy.mine.nu

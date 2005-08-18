@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbVHRH0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVHRH2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbVHRH0g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 03:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbVHRH0g
+	id S932081AbVHRH2K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 03:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbVHRH2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 03:26:36 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:50579 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1750848AbVHRH0g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 03:26:36 -0400
-Message-ID: <4304380B.5070406@drzeus.cx>
-Date: Thu, 18 Aug 2005 09:26:03 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-3 (X11/20050806)
+	Thu, 18 Aug 2005 03:28:10 -0400
+Received: from grisu.bik-gmbh.de ([217.110.154.194]:33763 "EHLO
+	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP id S932081AbVHRH2J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 03:28:09 -0400
+Message-ID: <430438AB.1010104@hars.de>
+Date: Thu, 18 Aug 2005 09:28:43 +0200
+From: Florian Hars <florian@hars.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mmc: Multi-sector writes
-References: <42FF3C05.70606@drzeus.cx> <20050817155641.12bb20fc.akpm@osdl.org> <43042114.7010503@drzeus.cx> <20050817224805.17f29cfb.akpm@osdl.org> <20050818073824.C2365@flint.arm.linux.org.uk>
-In-Reply-To: <20050818073824.C2365@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+To: Denis Vlasenko <vda@ilport.com.ua>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12.4: Continuous Sound from internal speaker from boot to
+ shutdown
+References: <43002D8A.70701@hars.de> <200508151018.39232.vda@ilport.com.ua>
+In-Reply-To: <200508151018.39232.vda@ilport.com.ua>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+Denis Vlasenko wrote:
+> Sounds like ( ;] ) it's a userspace program or a loaded module.
+> boot with init=/bin/sh and then reproduce normal boot manually entering
+> relevant commands (you need to be familiar with boot process
 
->
->I'd rather not.  The problem is that we have a host (thanks Intel)
->which is unable to report how many bytes were transferred before an
->error occurs.  My fear is that doing anything other than sector by
->sector write will lead to corruption should an error occur.
->
->However, I've no way to induce such an error, so I can only base
->this on theory.
->
->It may work perfectly for the case when everything's operating
->correctly, but I suspect if you're going to do multi-sector writes,
->it'll all fall apart on the first error, especially on this host.
->
->  
->
+Actually, you don't need to unterstand much about the boot process, just
+pretend you're /bin/sh and execute whatever is defined in /etc/inittab :-).
+So I found the culprit to be a call to /usr/bin/sensors -s in one of the
+init scripts. I disabled the script for the time being (no big loss, the
+sensors reported complete junk unter 2.6.8, anyway).
 
-We had this discussion on LKML and Alan Cox' comment on it was that a
-solution like this would be acceptable, where we try and shove
-everything out first and then fall back on sector-by-sector to determine
-where an error occurs. This will only break if the problematic sector
-keeps shifting around, but at that point the card is probably toast
-anyway (if the thing keeps moving how can you bad block it?).
+>>pcie_portdrv_probe->Dev[005d:10de] has invalid IRQ. Check vendor BIOS
+> Output of lspci? lspci -n?
 
-Rgds
-Pierre
+I look at that later, I'm away from the machine right now.
 
+Yours, Florian.
+-- 
+#!/bin/sh -
+set - `type -p $0` 'tr [a-m][n-z]RUXJAKBOZ [n-z][a-m]EH$W/@OBM' fu XUBZRA.fvt\
+angher echo;while [ "$5" != "" ];do shift;done;$4 "gbhpu $3;znvy sKunef.qr<$3\
+&&frq -a -rc "`$4 "$0"|$1`">$3;rpub 'Jr ner Svtangher bs Obet.'"|$1|`$4 $2|$1`

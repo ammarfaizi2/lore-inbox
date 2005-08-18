@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbVHRAPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbVHRAPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbVHRAPw (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751389AbVHRAPw (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 17 Aug 2005 20:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVHRAPM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbVHRAPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Aug 2005 20:15:12 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:27249 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751390AbVHRAOo (ORCPT
+	Wed, 17 Aug 2005 20:15:17 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:64374 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751389AbVHRAOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Aug 2005 20:14:44 -0400
+	Wed, 17 Aug 2005 20:14:41 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=QtnXKZgI4dbf+s7yvOnlvKA+aYwsrC3MrPFPtQ46W4iZIyO1IJBVThpsCP/FIG0CIxhIjWhkVthV50c6pjk9mQwUV6nWIyzG4b4naVQJ+AN5yu0Hd95MonSWe/a1ZTL1hxV/8l0269nH7vqtw6447gPBexTf/T8oBhVlnWD1eKk=
+        b=XxnUpkMH/Zj8Qx8UhUIyMAaelMvZ18Rypt6KpVfb6X2FOxswsA7hlKvZF4iuan0FLxUuY7NQPer3RCQjXm3HLC3kb9NWW2H7BUXq5LSgiMao0VLZjl7Zxb3Evw/b3PiGE7yZs2tghqM/H9gCzh0T8qmSoi8uyB73/pYmqDdHZH8=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: [PATCH 5/7] rename locking functions - convert init_MUTEX* users, part 3
-Date: Thu, 18 Aug 2005 02:10:28 +0200
+Subject: [PATCH 4/7] rename locking functions - convert init_MUTEX* users, part 2
+Date: Thu, 18 Aug 2005 02:09:04 +0200
 User-Agent: KMail/1.8.2
 Cc: Andrew Morton <akpm@osdl.org>, jesper.juhl@gmail.com
 MIME-Version: 1.0
@@ -24,1183 +24,1155 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200508180210.29126.jesper.juhl@gmail.com>
+Message-Id: <200508180209.04955.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Convert users of init_MUTEX and init_MUTEX_LOCKED to
-init_mutex and init_mutex_locked - part 3.
+init_mutex and init_mutex_locked - part 2.
 
 
 Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
 
- drivers/s390/net/ctctty.c           |    2 +-
- drivers/s390/s390mach.c             |    2 +-
- drivers/sbus/char/vfc_dev.c         |    2 +-
- drivers/scsi/3w-9xxx.c              |    2 +-
- drivers/scsi/3w-xxxx.c              |    2 +-
- drivers/scsi/aacraid/commctrl.c     |    2 +-
- drivers/scsi/aacraid/commsup.c      |    2 +-
- drivers/scsi/aic7xxx/aic79xx_osm.c  |    6 +++---
- drivers/scsi/aic7xxx/aic7xxx_osm.c  |    2 +-
- drivers/scsi/ch.c                   |    2 +-
- drivers/scsi/hosts.c                |    2 +-
- drivers/scsi/megaraid.c             |    2 +-
- drivers/scsi/osst.c                 |    2 +-
- drivers/scsi/qla2xxx/qla_os.c       |    4 ++--
- drivers/scsi/scsi_transport_spi.c   |    2 +-
- drivers/scsi/st.c                   |    2 +-
- drivers/serial/serial_core.c        |    2 +-
- drivers/usb/atm/cxacru.c            |    2 +-
- drivers/usb/atm/usbatm.c            |    2 +-
- drivers/usb/class/bluetty.c         |    2 +-
- drivers/usb/class/usblp.c           |    2 +-
- drivers/usb/core/usb.c              |    2 +-
- drivers/usb/gadget/inode.c          |    2 +-
- drivers/usb/image/mdc800.c          |    2 +-
- drivers/usb/image/microtek.c        |    2 +-
- drivers/usb/media/dabusb.c          |    2 +-
- drivers/usb/media/ov511.c           |   10 +++++-----
- drivers/usb/media/pwc/pwc-if.c      |    2 +-
- drivers/usb/media/se401.c           |    2 +-
- drivers/usb/media/sn9c102_core.c    |    4 ++--
- drivers/usb/media/stv680.c          |    2 +-
- drivers/usb/media/usbvideo.c        |    4 ++--
- drivers/usb/media/vicam.c           |    2 +-
- drivers/usb/media/w9968cf.c         |    4 ++--
- drivers/usb/misc/auerswald.c        |    6 +++---
- drivers/usb/misc/idmouse.c          |    2 +-
- drivers/usb/misc/ldusb.c            |    2 +-
- drivers/usb/misc/legousbtower.c     |    2 +-
- drivers/usb/misc/rio500.c           |    2 +-
- drivers/usb/misc/sisusbvga/sisusb.c |    2 +-
- drivers/usb/misc/usbtest.c          |    2 +-
- drivers/usb/mon/mon_text.c          |    2 +-
- drivers/usb/storage/usb.c           |    4 ++--
- drivers/video/backlight/backlight.c |    2 +-
- drivers/video/backlight/lcd.c       |    2 +-
- drivers/video/pxafb.c               |    2 +-
- drivers/video/sa1100fb.c            |    2 +-
- drivers/w1/w1_int.c                 |    2 +-
- fs/affs/super.c                     |    6 +++---
- fs/autofs4/inode.c                  |    2 +-
- fs/cifs/connect.c                   |    2 +-
- fs/cifs/dir.c                       |    2 +-
- fs/cifs/file.c                      |    2 +-
- fs/cifs/misc.c                      |    4 ++--
- fs/eventpoll.c                      |    2 +-
- fs/ext3/super.c                     |    2 +-
- fs/fat/fatent.c                     |    2 +-
- fs/hfs/btree.c                      |    4 ++--
- fs/hfs/inode.c                      |    4 ++--
- fs/hfs/super.c                      |    2 +-
- fs/hfsplus/btree.c                  |    2 +-
- fs/hfsplus/inode.c                  |    4 ++--
- fs/hfsplus/super.c                  |    2 +-
- fs/hpfs/super.c                     |    6 +++---
- fs/isofs/compress.c                 |    2 +-
- fs/jbd/journal.c                    |    4 ++--
- fs/jffs/jffs_fm.c                   |    2 +-
- fs/jffs2/readinode.c                |    2 +-
- fs/jffs2/super.c                    |    6 +++---
- fs/jfs/jfs_dmap.c                   |    2 +-
- fs/jfs/jfs_imap.c                   |    4 ++--
- fs/jfs/jfs_logmgr.c                 |    2 +-
- fs/jfs/super.c                      |    2 +-
- fs/libfs.c                          |    2 +-
- fs/lockd/host.c                     |    2 +-
- fs/lockd/svcsubs.c                  |    2 +-
- fs/ncpfs/inode.c                    |    6 +++---
- fs/nfs/idmap.c                      |    4 ++--
- fs/nfs/nfs4state.c                  |    4 ++--
- fs/ntfs/inode.c                     |    4 ++--
- fs/smbfs/inode.c                    |    2 +-
- fs/sysfs/file.c                     |    2 +-
- fs/udf/super.c                      |    2 +-
- 83 files changed, 113 insertions(+), 113 deletions(-)
+ drivers/infiniband/ulp/ipoib/ipoib_main.c   |    4 ++--
+ drivers/input/gameport/gameport.c           |    2 +-
+ drivers/input/input.c                       |    2 +-
+ drivers/input/joystick/db9.c                |    2 +-
+ drivers/input/joystick/gamecon.c            |    2 +-
+ drivers/input/joystick/iforce/iforce-main.c |    2 +-
+ drivers/input/joystick/turbografx.c         |    2 +-
+ drivers/input/keyboard/hil_kbd.c            |    2 +-
+ drivers/input/misc/hp_sdc_rtc.c             |    4 ++--
+ drivers/input/mouse/hil_ptr.c               |    2 +-
+ drivers/input/serio/hil_mlc.c               |    6 +++---
+ drivers/input/serio/hp_sdc.c                |    4 ++--
+ drivers/input/serio/libps2.c                |    2 +-
+ drivers/input/serio/serio.c                 |    2 +-
+ drivers/isdn/capi/capi.c                    |    2 +-
+ drivers/isdn/capi/kcapi.c                   |    2 +-
+ drivers/isdn/i4l/isdn_common.c              |    2 +-
+ drivers/isdn/i4l/isdn_tty.c                 |    2 +-
+ drivers/macintosh/mediabay.c                |    2 +-
+ drivers/macintosh/therm_windtunnel.c        |    2 +-
+ drivers/md/dm.c                             |    2 +-
+ drivers/md/kcopyd.c                         |    2 +-
+ drivers/md/md.c                             |    2 +-
+ drivers/media/common/saa7146_core.c         |    4 ++--
+ drivers/media/common/saa7146_vbi.c          |    2 +-
+ drivers/media/common/saa7146_video.c        |    2 +-
+ drivers/media/dvb/bt8xx/dvb-bt8xx.c         |    4 ++--
+ drivers/media/dvb/cinergyT2/cinergyT2.c     |    2 +-
+ drivers/media/dvb/dvb-core/dvb_frontend.c   |    6 +++---
+ drivers/media/radio/miropcm20-rds-core.c    |    2 +-
+ drivers/media/radio/radio-aimslab.c         |    2 +-
+ drivers/media/radio/radio-aztech.c          |    2 +-
+ drivers/media/radio/radio-maestro.c         |    2 +-
+ drivers/media/radio/radio-maxiradio.c       |    2 +-
+ drivers/media/radio/radio-sf16fmi.c         |    2 +-
+ drivers/media/radio/radio-sf16fmr2.c        |    2 +-
+ drivers/media/radio/radio-typhoon.c         |    2 +-
+ drivers/media/radio/radio-zoltrix.c         |    2 +-
+ drivers/media/video/arv.c                   |    2 +-
+ drivers/media/video/bttv-driver.c           |    4 ++--
+ drivers/media/video/bw-qcam.c               |    2 +-
+ drivers/media/video/c-qcam.c                |    2 +-
+ drivers/media/video/cpia.c                  |    4 ++--
+ drivers/media/video/cx88/cx88-mpeg.c        |    2 +-
+ drivers/media/video/cx88/cx88-video.c       |    2 +-
+ drivers/media/video/meye.c                  |    2 +-
+ drivers/media/video/planb.c                 |    2 +-
+ drivers/media/video/pms.c                   |    2 +-
+ drivers/media/video/saa5246a.c              |    2 +-
+ drivers/media/video/saa5249.c               |    2 +-
+ drivers/media/video/saa7134/saa7134-core.c  |    2 +-
+ drivers/media/video/saa7134/saa7134-oss.c   |    2 +-
+ drivers/media/video/video-buf-dvb.c         |    2 +-
+ drivers/media/video/video-buf.c             |    2 +-
+ drivers/media/video/videodev.c              |    2 +-
+ drivers/media/video/vino.c                  |    2 +-
+ drivers/media/video/zoran_card.c            |    2 +-
+ drivers/message/i2o/device.c                |    2 +-
+ drivers/message/i2o/iop.c                   |    2 +-
+ drivers/mmc/mmc_queue.c                     |    2 +-
+ drivers/mtd/devices/blkmtd.c                |    2 +-
+ drivers/mtd/devices/block2mtd.c             |    2 +-
+ drivers/mtd/devices/doc2000.c               |    2 +-
+ drivers/mtd/mtd_blkdevs.c                   |    2 +-
+ drivers/mtd/mtdblock.c                      |    2 +-
+ drivers/net/3c527.c                         |    2 +-
+ drivers/net/hamradio/6pack.c                |    2 +-
+ drivers/net/irda/sir_dev.c                  |    2 +-
+ drivers/net/irda/vlsi_ir.c                  |    2 +-
+ drivers/net/plip.c                          |    2 +-
+ drivers/net/ppp_async.c                     |    2 +-
+ drivers/net/ppp_synctty.c                   |    2 +-
+ drivers/net/sungem.c                        |    2 +-
+ drivers/net/wan/cosa.c                      |    4 ++--
+ drivers/parport/share.c                     |    2 +-
+ drivers/pci/hotplug/acpiphp_glue.c          |    2 +-
+ drivers/pci/hotplug/cpci_hotplug_core.c     |    4 ++--
+ drivers/pci/hotplug/cpqphp_core.c           |    2 +-
+ drivers/pci/hotplug/cpqphp_ctrl.c           |    6 +++---
+ drivers/pci/hotplug/ibmphp_hpc.c            |    6 +++---
+ drivers/pci/hotplug/pciehp_ctrl.c           |    4 ++--
+ drivers/pci/hotplug/pciehp_hpc.c            |    2 +-
+ drivers/pci/hotplug/rpaphp_core.c           |    2 +-
+ drivers/pci/hotplug/shpchp_ctrl.c           |    4 ++--
+ drivers/pci/hotplug/shpchp_hpc.c            |    2 +-
+ drivers/pcmcia/cs.c                         |    2 +-
+ drivers/s390/char/vmcp.c                    |    2 +-
+ drivers/s390/cio/qdio.c                     |    2 +-
+ 88 files changed, 107 insertions(+), 107 deletions(-)
 
---- linux-2.6.13-rc6-git9-orig/drivers/s390/net/ctctty.c	2005-08-17 21:51:53.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/s390/net/ctctty.c	2005-08-18 00:55:12.000000000 +0200
-@@ -1171,7 +1171,7 @@ ctc_tty_init(void)
- 	driver->ctc_tty_device = device;
- 	for (i = 0; i < CTC_TTY_MAX_DEVICES; i++) {
- 		info = &driver->info[i];
+--- linux-2.6.13-rc6-git9-orig/drivers/infiniband/ulp/ipoib/ipoib_main.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/infiniband/ulp/ipoib/ipoib_main.c	2005-08-18 00:55:11.000000000 +0200
+@@ -838,8 +838,8 @@ static void ipoib_setup(struct net_devic
+ 	spin_lock_init(&priv->lock);
+ 	spin_lock_init(&priv->tx_lock);
+ 
+-	init_MUTEX(&priv->mcast_mutex);
+-	init_MUTEX(&priv->vlan_mutex);
++	init_mutex(&priv->mcast_mutex);
++	init_mutex(&priv->vlan_mutex);
+ 
+ 	INIT_LIST_HEAD(&priv->path_list);
+ 	INIT_LIST_HEAD(&priv->child_intfs);
+--- linux-2.6.13-rc6-git9-orig/drivers/input/gameport/gameport.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/gameport/gameport.c	2005-08-18 00:55:11.000000000 +0200
+@@ -516,7 +516,7 @@ static void gameport_init_port(struct ga
+ 
+ 	__module_get(THIS_MODULE);
+ 
+-	init_MUTEX(&gameport->drv_sem);
++	init_mutex(&gameport->drv_sem);
+ 	device_initialize(&gameport->dev);
+ 	snprintf(gameport->dev.bus_id, sizeof(gameport->dev.bus_id),
+ 		 "gameport%lu", (unsigned long)atomic_inc_return(&gameport_no) - 1);
+--- linux-2.6.13-rc6-git9-orig/drivers/input/input.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/input.c	2005-08-18 00:55:11.000000000 +0200
+@@ -602,7 +602,7 @@ void input_register_device(struct input_
+ 
+ 	set_bit(EV_SYN, dev->evbit);
+ 
+-	init_MUTEX(&dev->sem);
++	init_mutex(&dev->sem);
+ 
+ 	/*
+ 	 * If delay and period are pre-set by the driver, then autorepeating
+--- linux-2.6.13-rc6-git9-orig/drivers/input/joystick/db9.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/joystick/db9.c	2005-08-18 00:55:11.000000000 +0200
+@@ -577,7 +577,7 @@ static struct db9 __init *db9_probe(int 
+ 		return NULL;
+ 	}
+ 
+-	init_MUTEX(&db9->sem);
++	init_mutex(&db9->sem);
+ 	db9->mode = config[1];
+ 	init_timer(&db9->timer);
+ 	db9->timer.data = (long) db9;
+--- linux-2.6.13-rc6-git9-orig/drivers/input/joystick/gamecon.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/joystick/gamecon.c	2005-08-18 00:55:11.000000000 +0200
+@@ -559,7 +559,7 @@ static struct gc __init *gc_probe(int *c
+ 		return NULL;
+ 	}
+ 
+-	init_MUTEX(&gc->sem);
++	init_mutex(&gc->sem);
+ 
+ 	gc->pd = parport_register_device(pp, "gamecon", NULL, NULL, NULL, PARPORT_DEV_EXCL, NULL);
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/input/joystick/iforce/iforce-main.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/joystick/iforce/iforce-main.c	2005-08-18 00:55:11.000000000 +0200
+@@ -344,7 +344,7 @@ int iforce_init_device(struct iforce *if
+ 
+ 	init_waitqueue_head(&iforce->wait);
+ 	spin_lock_init(&iforce->xmit_lock);
+-	init_MUTEX(&iforce->mem_mutex);
++	init_mutex(&iforce->mem_mutex);
+ 	iforce->xmit.buf = iforce->xmit_data;
+ 
+ 	iforce->dev.ff_effects_max = 10;
+--- linux-2.6.13-rc6-git9-orig/drivers/input/joystick/turbografx.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/joystick/turbografx.c	2005-08-18 00:55:11.000000000 +0200
+@@ -183,7 +183,7 @@ static struct tgfx __init *tgfx_probe(in
+ 		return NULL;
+ 	}
+ 
+-	init_MUTEX(&tgfx->sem);
++	init_mutex(&tgfx->sem);
+ 
+ 	tgfx->pd = parport_register_device(pp, "turbografx", NULL, NULL, NULL, PARPORT_DEV_EXCL, NULL);
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/input/keyboard/hil_kbd.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/keyboard/hil_kbd.c	2005-08-18 00:55:11.000000000 +0200
+@@ -262,7 +262,7 @@ static void hil_kbd_connect(struct serio
+ 	kbd->serio = serio;
+ 	kbd->dev.private = kbd;
+ 
+-	init_MUTEX_LOCKED(&(kbd->sem));
++	init_mutex_locked(&(kbd->sem));
+ 
+ 	/* Get device info.  MLC driver supplies devid/status/etc. */
+ 	serio->write(serio, 0);
+--- linux-2.6.13-rc6-git9-orig/drivers/input/misc/hp_sdc_rtc.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/misc/hp_sdc_rtc.c	2005-08-18 00:55:11.000000000 +0200
+@@ -105,7 +105,7 @@ static int hp_sdc_rtc_do_read_bbrtc (str
+ 	t.endidx =		91;
+ 	t.seq =			tseq;
+ 	t.act.semaphore =	&tsem;
+-	init_MUTEX_LOCKED(&tsem);
++	init_mutex_locked(&tsem);
+ 	
+ 	if (hp_sdc_enqueue_transaction(&t)) return -1;
+ 	
+@@ -698,7 +698,7 @@ static int __init hp_sdc_rtc_init(void)
+ {
+ 	int ret;
+ 
+-	init_MUTEX(&i8042tregs);
++	init_mutex(&i8042tregs);
+ 
+ 	if ((ret = hp_sdc_request_timer_irq(&hp_sdc_rtc_isr)))
+ 		return ret;
+--- linux-2.6.13-rc6-git9-orig/drivers/input/mouse/hil_ptr.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/mouse/hil_ptr.c	2005-08-18 00:55:11.000000000 +0200
+@@ -256,7 +256,7 @@ static void hil_ptr_connect(struct serio
+ 	ptr->serio = serio;
+ 	ptr->dev.private = ptr;
+ 
+-	init_MUTEX_LOCKED(&(ptr->sem));
++	init_mutex_locked(&(ptr->sem));
+ 
+ 	/* Get device info.  MLC driver supplies devid/status/etc. */
+ 	serio->write(serio, 0);
+--- linux-2.6.13-rc6-git9-orig/drivers/input/serio/hil_mlc.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/serio/hil_mlc.c	2005-08-18 00:55:11.000000000 +0200
+@@ -849,15 +849,15 @@ int hil_mlc_register(hil_mlc *mlc) {
+         mlc->ostarted = 0;
+ 
+         rwlock_init(&mlc->lock);
+-        init_MUTEX(&(mlc->osem));
++        init_mutex(&(mlc->osem));
+ 
+-        init_MUTEX(&(mlc->isem));
++        init_mutex(&(mlc->isem));
+         mlc->icount = -1;
+         mlc->imatch = 0;
+ 
+ 	mlc->opercnt = 0;
+ 
+-        init_MUTEX_LOCKED(&(mlc->csem));
++        init_mutex_locked(&(mlc->csem));
+ 
+ 	hil_mlc_clear_di_scratch(mlc);
+ 	hil_mlc_clear_di_map(mlc, 0);
+--- linux-2.6.13-rc6-git9-orig/drivers/input/serio/hp_sdc.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/serio/hp_sdc.c	2005-08-18 00:55:11.000000000 +0200
+@@ -842,7 +842,7 @@ static int __init hp_sdc_init(void)
+ 	ts_sync[1]	= 0x0f;
+ 	ts_sync[2] = ts_sync[3]	= ts_sync[4] = ts_sync[5] = 0;
+ 	t_sync.act.semaphore = &s_sync;
+-	init_MUTEX_LOCKED(&s_sync);
++	init_mutex_locked(&s_sync);
+ 	hp_sdc_enqueue_transaction(&t_sync);
+ 	down(&s_sync); /* Wait for t_sync to complete */
+ 
+@@ -953,7 +953,7 @@ static int __init hp_sdc_register(void)
+ 		return hp_sdc.dev_err;
+ 	}
+ 
+-	init_MUTEX_LOCKED(&tq_init_sem);
++	init_mutex_locked(&tq_init_sem);
+ 
+ 	tq_init.actidx		= 0;
+ 	tq_init.idx		= 1;
+--- linux-2.6.13-rc6-git9-orig/drivers/input/serio/libps2.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/serio/libps2.c	2005-08-18 00:55:11.000000000 +0200
+@@ -281,7 +281,7 @@ int ps2_schedule_command(struct ps2dev *
+ 
+ void ps2_init(struct ps2dev *ps2dev, struct serio *serio)
+ {
+-	init_MUTEX(&ps2dev->cmd_sem);
++	init_mutex(&ps2dev->cmd_sem);
+ 	init_waitqueue_head(&ps2dev->wait);
+ 	ps2dev->serio = serio;
+ }
+--- linux-2.6.13-rc6-git9-orig/drivers/input/serio/serio.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/input/serio/serio.c	2005-08-18 00:55:11.000000000 +0200
+@@ -520,7 +520,7 @@ static void serio_init_port(struct serio
+ 	__module_get(THIS_MODULE);
+ 
+ 	spin_lock_init(&serio->lock);
+-	init_MUTEX(&serio->drv_sem);
++	init_mutex(&serio->drv_sem);
+ 	device_initialize(&serio->dev);
+ 	snprintf(serio->dev.bus_id, sizeof(serio->dev.bus_id),
+ 		 "serio%ld", (long)atomic_inc_return(&serio_no) - 1);
+--- linux-2.6.13-rc6-git9-orig/drivers/isdn/capi/capi.c	2005-08-17 21:51:41.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/isdn/capi/capi.c	2005-08-18 00:55:11.000000000 +0200
+@@ -381,7 +381,7 @@ static struct capidev *capidev_alloc(voi
+ 		return NULL;
+ 	memset(cdev, 0, sizeof(struct capidev));
+ 
+-	init_MUTEX(&cdev->ncci_list_sem);
++	init_mutex(&cdev->ncci_list_sem);
+ 	skb_queue_head_init(&cdev->recvqueue);
+ 	init_waitqueue_head(&cdev->recvwait);
+ 	write_lock_irqsave(&capidev_list_lock, flags);
+--- linux-2.6.13-rc6-git9-orig/drivers/isdn/capi/kcapi.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/isdn/capi/kcapi.c	2005-08-18 00:55:11.000000000 +0200
+@@ -524,7 +524,7 @@ u16 capi20_register(struct capi20_appl *
+ 	ap->nsentctlpkt = 0;
+ 	ap->nsentdatapkt = 0;
+ 	ap->callback = NULL;
+-	init_MUTEX(&ap->recv_sem);
++	init_mutex(&ap->recv_sem);
+ 	skb_queue_head_init(&ap->recv_queue);
+ 	INIT_WORK(&ap->recv_work, recv_handler, (void *)ap);
+ 	ap->release_in_progress = 0;
+--- linux-2.6.13-rc6-git9-orig/drivers/isdn/i4l/isdn_common.c	2005-08-17 21:51:42.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/isdn/i4l/isdn_common.c	2005-08-18 00:55:11.000000000 +0200
+@@ -2176,7 +2176,7 @@ static int __init isdn_init(void)
+ #ifdef MODULE
+ 	dev->owner = THIS_MODULE;
+ #endif
+-	init_MUTEX(&dev->sem);
++	init_mutex(&dev->sem);
+ 	init_waitqueue_head(&dev->info_waitq);
+ 	for (i = 0; i < ISDN_MAX_CHANNELS; i++) {
+ 		dev->drvmap[i] = -1;
+--- linux-2.6.13-rc6-git9-orig/drivers/isdn/i4l/isdn_tty.c	2005-08-17 21:51:42.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/isdn/i4l/isdn_tty.c	2005-08-18 00:55:11.000000000 +0200
+@@ -1929,7 +1929,7 @@ isdn_tty_modem_init(void)
+ 		info->owner = THIS_MODULE;
+ #endif
+ 		spin_lock_init(&info->readlock);
 -		init_MUTEX(&info->write_sem);
 +		init_mutex(&info->write_sem);
- 		tasklet_init(&info->tasklet, ctc_tty_task,
- 				(unsigned long) info);
- 		info->magic = CTC_ASYNC_MAGIC;
---- linux-2.6.13-rc6-git9-orig/drivers/s390/s390mach.c	2005-08-17 21:51:53.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/s390/s390mach.c	2005-08-18 00:55:12.000000000 +0200
-@@ -442,7 +442,7 @@ s390_do_machine_check(struct pt_regs *re
- static int
- machine_check_init(void)
- {
--	init_MUTEX_LOCKED(&m_sem);
-+	init_mutex_locked(&m_sem);
- 	ctl_clear_bit(14, 25);	/* disable external damage MCH */
- 	ctl_set_bit(14, 27);    /* enable system recovery MCH */
- #ifdef CONFIG_MACHCHK_WARNING
---- linux-2.6.13-rc6-git9-orig/drivers/sbus/char/vfc_dev.c	2005-08-17 21:51:53.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/sbus/char/vfc_dev.c	2005-08-18 00:55:12.000000000 +0200
-@@ -135,7 +135,7 @@ int init_vfc_hw(struct vfc_dev *dev) 
- int init_vfc_devstruct(struct vfc_dev *dev, int instance) 
- {
- 	dev->instance=instance;
--	init_MUTEX(&dev->device_lock_sem);
-+	init_mutex(&dev->device_lock_sem);
- 	dev->control_reg=0;
- 	dev->busy=0;
- 	return 0;
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/3w-9xxx.c	2005-08-17 21:51:53.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/3w-9xxx.c	2005-08-18 00:55:12.000000000 +0200
-@@ -1156,7 +1156,7 @@ static int twa_initialize_device_extensi
- 	tw_dev->error_sequence_id = 1;
- 	tw_dev->chrdev_request_id = TW_IOCTL_CHRDEV_FREE;
+ 		sprintf(info->last_cause, "0000");
+ 		sprintf(info->last_num, "none");
+ 		info->last_dir = 0;
+--- linux-2.6.13-rc6-git9-orig/drivers/macintosh/mediabay.c	2005-08-17 21:51:42.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/macintosh/mediabay.c	2005-08-18 00:55:11.000000000 +0200
+@@ -672,7 +672,7 @@ static int __devinit media_bay_attach(st
+ 	bay->index = i;
+ 	bay->ops = match->data;
+ 	bay->sleeping = 0;
+-	init_MUTEX(&bay->lock);
++	init_mutex(&bay->lock);
  
--	init_MUTEX(&tw_dev->ioctl_sem);
-+	init_mutex(&tw_dev->ioctl_sem);
- 	init_waitqueue_head(&tw_dev->ioctl_wqueue);
+ 	/* Init HW probing */
+ 	if (bay->ops->init)
+--- linux-2.6.13-rc6-git9-orig/drivers/macintosh/therm_windtunnel.c	2005-08-17 21:51:42.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/macintosh/therm_windtunnel.c	2005-08-18 00:55:11.000000000 +0200
+@@ -488,7 +488,7 @@ g4fan_init( void )
+ 	struct apple_thermal_info *info;
+ 	struct device_node *np;
  
- 	retval = 0;
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/3w-xxxx.c	2005-08-17 21:51:53.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/3w-xxxx.c	2005-08-18 00:55:12.000000000 +0200
-@@ -1270,7 +1270,7 @@ static int tw_initialize_device_extensio
- 	tw_dev->pending_tail = TW_Q_START;
- 	tw_dev->chrdev_request_id = TW_IOCTL_CHRDEV_FREE;
+-	init_MUTEX( &x.lock );
++	init_mutex( &x.lock );
  
--	init_MUTEX(&tw_dev->ioctl_sem);
-+	init_mutex(&tw_dev->ioctl_sem);
- 	init_waitqueue_head(&tw_dev->ioctl_wqueue);
+ 	if( !(np=of_find_node_by_name(NULL, "power-mgt")) )
+ 		return -ENODEV;
+--- linux-2.6.13-rc6-git9-orig/drivers/md/dm.c	2005-08-17 21:51:42.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/md/dm.c	2005-08-18 00:55:11.000000000 +0200
+@@ -748,7 +748,7 @@ static struct mapped_device *alloc_dev(u
  
- 	return 0;
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/aacraid/commctrl.c	2005-08-17 21:51:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/aacraid/commctrl.c	2005-08-18 00:55:12.000000000 +0200
-@@ -170,7 +170,7 @@ static int open_getadapter_fib(struct aa
- 		/*
- 		 *	Initialize the mutex used to wait for the next AIF.
- 		 */
--		init_MUTEX_LOCKED(&fibctx->wait_sem);
-+		init_mutex_locked(&fibctx->wait_sem);
- 		fibctx->wait = 0;
- 		/*
- 		 *	Initialize the fibs and set the count of fibs on
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/aacraid/commsup.c	2005-08-17 21:51:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/aacraid/commsup.c	2005-08-18 00:55:12.000000000 +0200
-@@ -112,7 +112,7 @@ int fib_setup(struct aac_dev * dev)
- 		fibptr->hw_fib = hw_fib_va;
- 		fibptr->data = (void *) fibptr->hw_fib->data;
- 		fibptr->next = fibptr+1;	/* Forward chain the fibs */
--		init_MUTEX_LOCKED(&fibptr->event_wait);
-+		init_mutex_locked(&fibptr->event_wait);
- 		spin_lock_init(&fibptr->event_lock);
- 		hw_fib_va->header.XferState = cpu_to_le32(0xffffffff);
- 		hw_fib_va->header.SenderSize = cpu_to_le16(dev->max_fib_size);
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/aic7xxx/aic79xx_osm.c	2005-08-17 21:51:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/aic7xxx/aic79xx_osm.c	2005-08-18 00:55:12.000000000 +0200
-@@ -2172,9 +2172,9 @@ ahd_platform_alloc(struct ahd_softc *ahd
- 	ahd->platform_data->completeq_timer.data = (u_long)ahd;
- 	ahd->platform_data->completeq_timer.function =
- 	    (ahd_linux_callback_t *)ahd_linux_thread_run_complete_queue;
--	init_MUTEX_LOCKED(&ahd->platform_data->eh_sem);
--	init_MUTEX_LOCKED(&ahd->platform_data->dv_sem);
--	init_MUTEX_LOCKED(&ahd->platform_data->dv_cmd_sem);
-+	init_mutex_locked(&ahd->platform_data->eh_sem);
-+	init_mutex_locked(&ahd->platform_data->dv_sem);
-+	init_mutex_locked(&ahd->platform_data->dv_cmd_sem);
- 	ahd_setup_runq_tasklet(ahd);
- 	ahd->seltime = (aic79xx_seltime & 0x3) << 4;
- 	return (0);
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-08-17 21:51:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-08-18 00:55:12.000000000 +0200
-@@ -1127,7 +1127,7 @@ ahc_platform_alloc(struct ahc_softc *ahc
- 	memset(ahc->platform_data, 0, sizeof(struct ahc_platform_data));
- 	ahc->platform_data->irq = AHC_LINUX_NOIRQ;
- 	ahc_lockinit(ahc);
--	init_MUTEX_LOCKED(&ahc->platform_data->eh_sem);
-+	init_mutex_locked(&ahc->platform_data->eh_sem);
- 	ahc->seltime = (aic7xxx_seltime & 0x3) << 4;
- 	ahc->seltime_b = (aic7xxx_seltime & 0x3) << 4;
- 	if (aic7xxx_pci_parity == 0)
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/ch.c	2005-08-17 21:51:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/ch.c	2005-08-18 00:55:12.000000000 +0200
-@@ -934,7 +934,7 @@ static int ch_probe(struct device *dev)
- 	memset(ch,0,sizeof(*ch));
- 	ch->minor = ch_devcount;
- 	sprintf(ch->name,"ch%d",ch->minor);
--	init_MUTEX(&ch->lock);
-+	init_mutex(&ch->lock);
- 	ch->device = sd;
- 	ch_readconfig(ch);
- 	if (init)
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/hosts.c	2005-08-17 21:51:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/hosts.c	2005-08-18 00:55:12.000000000 +0200
-@@ -232,7 +232,7 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	INIT_LIST_HEAD(&shost->starved_list);
- 	init_waitqueue_head(&shost->host_wait);
+ 	memset(md, 0, sizeof(*md));
+ 	init_rwsem(&md->io_lock);
+-	init_MUTEX(&md->suspend_lock);
++	init_mutex(&md->suspend_lock);
+ 	rwlock_init(&md->map_lock);
+ 	atomic_set(&md->holders, 1);
+ 	atomic_set(&md->event_nr, 0);
+--- linux-2.6.13-rc6-git9-orig/drivers/md/kcopyd.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/md/kcopyd.c	2005-08-18 00:55:11.000000000 +0200
+@@ -549,7 +549,7 @@ int kcopyd_copy(struct kcopyd_client *kc
+ 		dispatch_job(job);
  
--	init_MUTEX(&shost->scan_mutex);
-+	init_mutex(&shost->scan_mutex);
- 
- 	shost->host_no = scsi_host_next_hn++; /* XXX(hch): still racy */
- 	shost->dma_channel = 0xff;
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/megaraid.c	2005-08-17 21:51:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/megaraid.c	2005-08-18 00:55:12.000000000 +0200
-@@ -4842,7 +4842,7 @@ megaraid_probe_one(struct pci_dev *pdev,
- 		adapter->has_64bit_addr = 0;
+ 	else {
+-		init_MUTEX(&job->lock);
++		init_mutex(&job->lock);
+ 		job->progress = 0;
+ 		split_job(job);
  	}
- 		
--	init_MUTEX(&adapter->int_mtx);
-+	init_mutex(&adapter->int_mtx);
- 	init_completion(&adapter->int_waitq);
+--- linux-2.6.13-rc6-git9-orig/drivers/md/md.c	2005-08-17 21:51:42.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/md/md.c	2005-08-18 00:55:11.000000000 +0200
+@@ -218,7 +218,7 @@ static mddev_t * mddev_find(dev_t unit)
+ 	else
+ 		new->md_minor = MINOR(unit) >> MdpMinorShift;
  
- 	adapter->this_id = DEFAULT_INITIATOR_ID;
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/osst.c	2005-08-17 21:51:55.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/osst.c	2005-08-18 00:55:12.000000000 +0200
-@@ -5793,7 +5793,7 @@ static int osst_probe(struct device *dev
- 	tpnt->modes[2].defined = 1;
- 	tpnt->density_changed = tpnt->compression_changed = tpnt->blksize_changed = 0;
+-	init_MUTEX(&new->reconfig_sem);
++	init_mutex(&new->reconfig_sem);
+ 	INIT_LIST_HEAD(&new->disks);
+ 	INIT_LIST_HEAD(&new->all_mddevs);
+ 	init_timer(&new->safemode_timer);
+--- linux-2.6.13-rc6-git9-orig/drivers/media/common/saa7146_core.c	2005-08-17 21:51:42.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/common/saa7146_core.c	2005-08-18 00:55:11.000000000 +0200
+@@ -407,11 +407,11 @@ static int saa7146_init_one(struct pci_d
  
--	init_MUTEX(&tpnt->lock);
-+	init_mutex(&tpnt->lock);
- 	osst_nr_dev++;
- 	write_unlock(&os_scsi_tapes_lock);
- 	{
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/qla2xxx/qla_os.c	2005-08-17 21:51:55.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/qla2xxx/qla_os.c	2005-08-18 00:55:12.000000000 +0200
-@@ -1406,8 +1406,8 @@ int qla2x00_probe_one(struct pci_dev *pd
- 	/* load the F/W, read paramaters, and init the H/W */
- 	ha->instance = num_hosts;
+ 	pci_set_drvdata(pci, dev);
  
--	init_MUTEX(&ha->mbx_cmd_sem);
--	init_MUTEX_LOCKED(&ha->mbx_intr_sem);
-+	init_mutex(&ha->mbx_cmd_sem);
-+	init_mutex_locked(&ha->mbx_intr_sem);
+-        init_MUTEX(&dev->lock);
++        init_mutex(&dev->lock);
+ 	spin_lock_init(&dev->int_slock);
+ 	spin_lock_init(&dev->slock);
  
- 	INIT_LIST_HEAD(&ha->list);
- 	INIT_LIST_HEAD(&ha->fcports);
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/scsi_transport_spi.c	2005-08-17 21:51:55.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/scsi_transport_spi.c	2005-08-18 00:55:12.000000000 +0200
-@@ -233,7 +233,7 @@ static int spi_setup_transport_attrs(str
- 	spi_pcomp_en(starget) = 0;
- 	spi_dv_pending(starget) = 0;
- 	spi_initial_dv(starget) = 0;
--	init_MUTEX(&spi_dv_sem(starget));
-+	init_mutex(&spi_dv_sem(starget));
+-	init_MUTEX(&dev->i2c_lock);
++	init_mutex(&dev->i2c_lock);
+ 
+ 	dev->module = THIS_MODULE;
+ 	init_waitqueue_head(&dev->i2c_wq);
+--- linux-2.6.13-rc6-git9-orig/drivers/media/common/saa7146_vbi.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/common/saa7146_vbi.c	2005-08-18 00:55:11.000000000 +0200
+@@ -410,7 +410,7 @@ static int vbi_open(struct saa7146_dev *
+ 			    V4L2_FIELD_SEQ_TB, // FIXME: does this really work?
+ 			    sizeof(struct saa7146_buf),
+ 			    file);
+-	init_MUTEX(&fh->vbi_q.lock);
++	init_mutex(&fh->vbi_q.lock);
+ 
+ 	init_timer(&fh->vbi_read_timeout);
+ 	fh->vbi_read_timeout.function = vbi_read_timeout;
+--- linux-2.6.13-rc6-git9-orig/drivers/media/common/saa7146_video.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/common/saa7146_video.c	2005-08-18 00:55:11.000000000 +0200
+@@ -1419,7 +1419,7 @@ static int video_open(struct saa7146_dev
+ 			    sizeof(struct saa7146_buf),
+ 			    file);
+ 
+-	init_MUTEX(&fh->video_q.lock);
++	init_mutex(&fh->video_q.lock);
  
  	return 0;
  }
---- linux-2.6.13-rc6-git9-orig/drivers/scsi/st.c	2005-08-17 21:51:55.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/scsi/st.c	2005-08-18 00:55:12.000000000 +0200
-@@ -3958,7 +3958,7 @@ static int st_probe(struct device *dev)
- 
- 	tpnt->density_changed = tpnt->compression_changed =
- 	    tpnt->blksize_changed = 0;
--	init_MUTEX(&tpnt->lock);
-+	init_mutex(&tpnt->lock);
- 
- 	st_nr_dev++;
- 	write_unlock(&st_dev_arr_lock);
---- linux-2.6.13-rc6-git9-orig/drivers/serial/serial_core.c	2005-08-17 21:51:56.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/serial/serial_core.c	2005-08-18 00:55:12.000000000 +0200
-@@ -2135,7 +2135,7 @@ int uart_register_driver(struct uart_dri
- 		state->close_delay     = 500;	/* .5 seconds */
- 		state->closing_wait    = 30000;	/* 30 seconds */
- 
--		init_MUTEX(&state->sem);
-+		init_mutex(&state->sem);
- 	}
- 
- 	retval = tty_register_driver(normal);
---- linux-2.6.13-rc6-git9-orig/drivers/usb/atm/cxacru.c	2005-08-17 21:51:56.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/atm/cxacru.c	2005-08-18 00:55:12.000000000 +0200
-@@ -723,7 +723,7 @@ static int cxacru_bind(struct usbatm_dat
- 			cxacru_blocking_completion, &instance->snd_done, 4);
- 	instance->snd_urb->transfer_flags |= URB_ASYNC_UNLINK;
- 
--	init_MUTEX(&instance->cm_serialize);
-+	init_mutex(&instance->cm_serialize);
- 
- 	INIT_WORK(&instance->poll_work, (void *)cxacru_poll_status, instance);
- 
---- linux-2.6.13-rc6-git9-orig/drivers/usb/atm/usbatm.c	2005-08-17 21:51:56.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/atm/usbatm.c	2005-08-18 00:55:12.000000000 +0200
-@@ -1005,7 +1005,7 @@ int usbatm_usb_probe(struct usb_interfac
- 	/* private fields */
- 
- 	kref_init(&instance->refcount);		/* dropped in usbatm_usb_disconnect */
--	init_MUTEX(&instance->serialize);
-+	init_mutex(&instance->serialize);
- 
- 	instance->thread_pid = -1;
- 	init_completion(&instance->thread_started);
---- linux-2.6.13-rc6-git9-orig/drivers/usb/class/bluetty.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/class/bluetty.c	2005-08-18 00:55:12.000000000 +0200
-@@ -1063,7 +1063,7 @@ static int usb_bluetooth_probe (struct u
- 	bluetooth->dev = dev;
- 	bluetooth->minor = minor;
- 	INIT_WORK(&bluetooth->work, bluetooth_softint, bluetooth);
--	init_MUTEX(&bluetooth->lock);
-+	init_mutex(&bluetooth->lock);
- 
- 	/* record the interface number for the control out */
- 	bluetooth->control_out_bInterfaceNum = control_out_endpoint;
---- linux-2.6.13-rc6-git9-orig/drivers/usb/class/usblp.c	2005-08-17 21:51:56.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/class/usblp.c	2005-08-18 00:55:12.000000000 +0200
-@@ -863,7 +863,7 @@ static int usblp_probe(struct usb_interf
- 	}
- 	memset(usblp, 0, sizeof(struct usblp));
- 	usblp->dev = dev;
--	init_MUTEX (&usblp->sem);
-+	init_mutex (&usblp->sem);
- 	init_waitqueue_head(&usblp->wait);
- 	usblp->ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
- 	usblp->intf = intf;
---- linux-2.6.13-rc6-git9-orig/drivers/usb/core/usb.c	2005-08-17 21:51:56.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/core/usb.c	2005-08-18 00:55:12.000000000 +0200
-@@ -758,7 +758,7 @@ usb_alloc_dev(struct usb_device *parent,
- 	dev->parent = parent;
- 	INIT_LIST_HEAD(&dev->filelist);
- 
--	init_MUTEX(&dev->serialize);
-+	init_mutex(&dev->serialize);
- 
- 	return dev;
- }
---- linux-2.6.13-rc6-git9-orig/drivers/usb/gadget/inode.c	2005-08-17 21:51:56.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/gadget/inode.c	2005-08-18 00:55:12.000000000 +0200
-@@ -1590,7 +1590,7 @@ static int activate_ep_files (struct dev
- 			goto enomem;
- 		memset (data, 0, sizeof data);
- 		data->state = STATE_EP_DISABLED;
--		init_MUTEX (&data->lock);
-+		init_mutex (&data->lock);
- 		init_waitqueue_head (&data->wait);
- 
- 		strncpy (data->name, ep->name, sizeof (data->name) - 1);
---- linux-2.6.13-rc6-git9-orig/drivers/usb/image/mdc800.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/image/mdc800.c	2005-08-18 00:55:12.000000000 +0200
-@@ -988,7 +988,7 @@ static int __init usb_mdc800_init (void)
- 	mdc800->dev = NULL;
- 	mdc800->open=0;
- 	mdc800->state=NOT_CONNECTED;
--	init_MUTEX (&mdc800->io_lock);
-+	init_mutex (&mdc800->io_lock);
- 
- 	init_waitqueue_head (&mdc800->irq_wait);
- 	init_waitqueue_head (&mdc800->write_wait);
---- linux-2.6.13-rc6-git9-orig/drivers/usb/image/microtek.c	2005-08-17 21:51:59.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/image/microtek.c	2005-08-18 00:55:13.000000000 +0200
-@@ -784,7 +784,7 @@ static int mts_usb_probe(struct usb_inte
- 
- 	new_desc->usb_dev = dev;
- 	new_desc->usb_intf = intf;
--	init_MUTEX(&new_desc->lock);
-+	init_mutex(&new_desc->lock);
- 
- 	/* endpoints */
- 	new_desc->ep_out = ep_out;
---- linux-2.6.13-rc6-git9-orig/drivers/usb/media/dabusb.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/media/dabusb.c	2005-08-18 00:55:13.000000000 +0200
-@@ -831,7 +831,7 @@ static int __init dabusb_init (void)
- 	for (u = 0; u < NRDABUSB; u++) {
- 		pdabusb_t s = &dabusb[u];
- 		memset (s, 0, sizeof (dabusb_t));
--		init_MUTEX (&s->mutex);
-+		init_mutex (&s->mutex);
- 		s->usbdev = NULL;
- 		s->total_buffer_size = buffers;
- 		init_waitqueue_head (&s->wait);
---- linux-2.6.13-rc6-git9-orig/drivers/usb/media/ov511.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/media/ov511.c	2005-08-18 00:55:13.000000000 +0200
-@@ -5851,11 +5851,11 @@ ov51x_probe(struct usb_interface *intf, 
- 
- 	init_waitqueue_head(&ov->wq);
- 
--	init_MUTEX(&ov->lock);	/* to 1 == available */
--	init_MUTEX(&ov->buf_lock);
--	init_MUTEX(&ov->param_lock);
--	init_MUTEX(&ov->i2c_lock);
--	init_MUTEX(&ov->cbuf_lock);
-+	init_mutex(&ov->lock);	/* to 1 == available */
-+	init_mutex(&ov->buf_lock);
-+	init_mutex(&ov->param_lock);
-+	init_mutex(&ov->i2c_lock);
-+	init_mutex(&ov->cbuf_lock);
- 
- 	ov->buf_state = BUF_NOT_ALLOCATED;
- 
---- linux-2.6.13-rc6-git9-orig/drivers/usb/media/pwc/pwc-if.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/media/pwc/pwc-if.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1893,7 +1893,7 @@ static int usb_pwc_probe(struct usb_inte
- 		pdev->angle_range.tilt_max =  2500;
- 	}
- 
--	init_MUTEX(&pdev->modlock);
-+	init_mutex(&pdev->modlock);
- 	spin_lock_init(&pdev->ptrlock);
- 
- 	pdev->udev = udev;
---- linux-2.6.13-rc6-git9-orig/drivers/usb/media/se401.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/media/se401.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1365,7 +1365,7 @@ static int se401_probe(struct usb_interf
- 	memcpy(&se401->vdev, &se401_template, sizeof(se401_template));
- 	memcpy(se401->vdev.name, se401->camera_name, strlen(se401->camera_name));
- 	init_waitqueue_head(&se401->wq);
--	init_MUTEX(&se401->lock);
-+	init_mutex(&se401->lock);
- 	wmb();
- 
- 	if (video_register_device(&se401->vdev, VFL_TYPE_GRABBER, video_nr) == -1) {
---- linux-2.6.13-rc6-git9-orig/drivers/usb/media/sn9c102_core.c	2005-08-17 21:51:59.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/media/sn9c102_core.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1382,7 +1382,7 @@ static int sn9c102_init(struct sn9c102_d
- 	}
- 
- 	if (!(cam->state & DEV_INITIALIZED)) {
--		init_MUTEX(&cam->fileop_sem);
-+		init_mutex(&cam->fileop_sem);
- 		spin_lock_init(&cam->queue_lock);
- 		init_waitqueue_head(&cam->wait_frame);
- 		init_waitqueue_head(&cam->wait_stream);
-@@ -2575,7 +2575,7 @@ sn9c102_usb_probe(struct usb_interface* 
- 		goto fail;
- 	}
- 
--	init_MUTEX(&cam->dev_sem);
-+	init_mutex(&cam->dev_sem);
- 
- 	r = sn9c102_read_reg(cam, 0x00);
- 	if (r < 0 || r != 0x10) {
---- linux-2.6.13-rc6-git9-orig/drivers/usb/media/stv680.c	2005-08-17 21:51:59.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/media/stv680.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1408,7 +1408,7 @@ static int stv680_probe (struct usb_inte
- 
- 	memcpy (stv680->vdev->name, stv680->camera_name, strlen (stv680->camera_name));
- 	init_waitqueue_head (&stv680->wq);
--	init_MUTEX (&stv680->lock);
-+	init_mutex (&stv680->lock);
- 	wmb ();
- 
- 	if (video_register_device (stv680->vdev, VFL_TYPE_GRABBER, video_nr) == -1) {
---- linux-2.6.13-rc6-git9-orig/drivers/usb/media/usbvideo.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/media/usbvideo.c	2005-08-18 00:55:13.000000000 +0200
-@@ -715,7 +715,7 @@ int usbvideo_register(
- 	cams->md_module = md;
- 	if (cams->md_module == NULL)
- 		warn("%s: module == NULL!", __FUNCTION__);
--	init_MUTEX(&cams->lock);	/* to 1 == available */
-+	init_mutex(&cams->lock);	/* to 1 == available */
- 
- 	for (i = 0; i < num_cams; i++) {
- 		struct uvd *up = &cams->cam[i];
-@@ -936,7 +936,7 @@ static int usbvideo_find_struct(struct u
- 		if (!uvd->uvd_used) /* This one is free */
- 		{
- 			uvd->uvd_used = 1;	/* In use now */
--			init_MUTEX(&uvd->lock);	/* to 1 == available */
-+			init_mutex(&uvd->lock);	/* to 1 == available */
- 			uvd->dev = NULL;
- 			rv = u;
- 			break;
---- linux-2.6.13-rc6-git9-orig/drivers/usb/media/vicam.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/media/vicam.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1309,7 +1309,7 @@ vicam_probe( struct usb_interface *intf,
- 
- 	cam->shutter_speed = 15;
- 
--	init_MUTEX(&cam->cam_lock);
-+	init_mutex(&cam->cam_lock);
- 
- 	memcpy(&cam->vdev, &vicam_template,
- 	       sizeof (vicam_template));
---- linux-2.6.13-rc6-git9-orig/drivers/usb/media/w9968cf.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/media/w9968cf.c	2005-08-18 00:55:13.000000000 +0200
-@@ -2442,7 +2442,7 @@ w9968cf_configure_camera(struct w9968cf_
-                          enum w9968cf_model_id mod_id,
-                          const unsigned short dev_nr)
- {
--	init_MUTEX(&cam->fileop_sem);
-+	init_mutex(&cam->fileop_sem);
- 	init_waitqueue_head(&cam->open);
- 	spin_lock_init(&cam->urb_lock);
- 	spin_lock_init(&cam->flist_lock);
-@@ -3532,7 +3532,7 @@ w9968cf_usb_probe(struct usb_interface* 
- 
- 	memset(cam, 0, sizeof(*cam));
- 
--	init_MUTEX(&cam->dev_sem);
-+	init_mutex(&cam->dev_sem);
- 	down(&cam->dev_sem);
- 
- 	cam->usbdev = udev;
---- linux-2.6.13-rc6-git9-orig/drivers/usb/misc/auerswald.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/misc/auerswald.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1392,8 +1392,8 @@ static int auerchar_open (struct inode *
- 
- 	/* Initialize device descriptor */
- 	memset( ccp, 0, sizeof(auerchar_t));
--	init_MUTEX( &ccp->mutex);
--	init_MUTEX( &ccp->readmutex);
-+	init_mutex( &ccp->mutex);
-+	init_mutex( &ccp->readmutex);
-         auerbuf_init (&ccp->bufctl);
-         ccp->scontext.id = AUH_UNASSIGNED;
-         ccp->scontext.dispatch = auerchar_ctrlread_dispatch;
-@@ -1928,7 +1928,7 @@ static int auerswald_probe (struct usb_i
- 
- 	/* Initialize device descriptor */
- 	memset (cp, 0, sizeof(auerswald_t));
--	init_MUTEX (&cp->mutex);
-+	init_mutex (&cp->mutex);
- 	cp->usbdev = usbdev;
- 	auerchain_init (&cp->controlchain);
-         auerbuf_init (&cp->bufctl);
---- linux-2.6.13-rc6-git9-orig/drivers/usb/misc/idmouse.c	2005-08-17 21:51:59.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/misc/idmouse.c	2005-08-18 00:55:13.000000000 +0200
-@@ -359,7 +359,7 @@ static int idmouse_probe(struct usb_inte
- 		return -ENOMEM;
- 	memset(dev, 0x00, sizeof(*dev));
- 
--	init_MUTEX(&dev->sem);
-+	init_mutex(&dev->sem);
- 	dev->udev = udev;
- 	dev->interface = interface;
- 
---- linux-2.6.13-rc6-git9-orig/drivers/usb/misc/ldusb.c	2005-08-17 21:51:59.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/misc/ldusb.c	2005-08-18 00:55:13.000000000 +0200
-@@ -625,7 +625,7 @@ static int ld_usb_probe(struct usb_inter
- 		goto exit;
- 	}
- 	memset(dev, 0x00, sizeof(*dev));
--	init_MUTEX(&dev->sem);
-+	init_mutex(&dev->sem);
- 	dev->intf = intf;
- 	init_waitqueue_head(&dev->read_wait);
- 	init_waitqueue_head(&dev->write_wait);
---- linux-2.6.13-rc6-git9-orig/drivers/usb/misc/legousbtower.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/misc/legousbtower.c	2005-08-18 00:55:13.000000000 +0200
-@@ -868,7 +868,7 @@ static int tower_probe (struct usb_inter
- 		goto exit;
- 	}
- 
--	init_MUTEX (&dev->sem);
-+	init_mutex (&dev->sem);
- 
- 	dev->udev = udev;
- 	dev->open_count = 0;
---- linux-2.6.13-rc6-git9-orig/drivers/usb/misc/rio500.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/misc/rio500.c	2005-08-18 00:55:13.000000000 +0200
-@@ -481,7 +481,7 @@ static int probe_rio(struct usb_interfac
- 	}
- 	dbg("probe_rio: ibuf address:%p", rio->ibuf);
- 
--	init_MUTEX(&(rio->lock));
-+	init_mutex(&(rio->lock));
- 
- 	usb_set_intfdata (intf, rio);
- 	rio->present = 1;
---- linux-2.6.13-rc6-git9-orig/drivers/usb/misc/sisusbvga/sisusb.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/misc/sisusbvga/sisusb.c	2005-08-18 00:55:13.000000000 +0200
-@@ -2923,7 +2923,7 @@ static int sisusb_probe(struct usb_inter
- 	memset(sisusb, 0, sizeof(*sisusb));
- 	kref_init(&sisusb->kref);
- 
--	init_MUTEX(&(sisusb->lock));
-+	init_mutex(&(sisusb->lock));
- 
- 	/* Register device */
- 	if ((retval = usb_register_dev(intf, &usb_sisusb_class))) {
---- linux-2.6.13-rc6-git9-orig/drivers/usb/misc/usbtest.c	2005-08-17 21:51:59.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/misc/usbtest.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1878,7 +1878,7 @@ usbtest_probe (struct usb_interface *int
- 	memset (dev, 0, sizeof *dev);
- 	info = (struct usbtest_info *) id->driver_info;
- 	dev->info = info;
--	init_MUTEX (&dev->sem);
-+	init_mutex (&dev->sem);
- 
- 	dev->intf = intf;
- 
---- linux-2.6.13-rc6-git9-orig/drivers/usb/mon/mon_text.c	2005-08-17 21:51:59.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/mon/mon_text.c	2005-08-18 00:55:13.000000000 +0200
-@@ -228,7 +228,7 @@ static int mon_text_open(struct inode *i
- 	memset(rp, 0, sizeof(struct mon_reader_text));
- 	INIT_LIST_HEAD(&rp->e_list);
- 	init_waitqueue_head(&rp->wait);
--	init_MUTEX(&rp->printf_lock);
-+	init_mutex(&rp->printf_lock);
- 
- 	rp->printf_size = PRINTF_DFL;
- 	rp->printf_buf = kmalloc(rp->printf_size, GFP_KERNEL);
---- linux-2.6.13-rc6-git9-orig/drivers/usb/storage/usb.c	2005-08-17 21:51:59.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/usb/storage/usb.c	2005-08-18 00:55:13.000000000 +0200
-@@ -888,8 +888,8 @@ static int storage_probe(struct usb_inte
- 
- 	us = host_to_us(host);
- 	memset(us, 0, sizeof(struct us_data));
--	init_MUTEX(&(us->dev_semaphore));
--	init_MUTEX_LOCKED(&(us->sema));
-+	init_mutex(&(us->dev_semaphore));
-+	init_mutex_locked(&(us->sema));
- 	init_completion(&(us->notify));
- 	init_waitqueue_head(&us->delay_wait);
- 
---- linux-2.6.13-rc6-git9-orig/drivers/video/backlight/backlight.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/video/backlight/backlight.c	2005-08-18 00:55:13.000000000 +0200
-@@ -176,7 +176,7 @@ struct backlight_device *backlight_devic
- 	if (unlikely(!new_bd))
- 		return ERR_PTR(ENOMEM);
- 
--	init_MUTEX(&new_bd->sem);
-+	init_mutex(&new_bd->sem);
- 	new_bd->props = bp;
- 	memset(&new_bd->class_dev, 0, sizeof(new_bd->class_dev));
- 	new_bd->class_dev.class = &backlight_class;
---- linux-2.6.13-rc6-git9-orig/drivers/video/backlight/lcd.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/video/backlight/lcd.c	2005-08-18 00:55:13.000000000 +0200
-@@ -175,7 +175,7 @@ struct lcd_device *lcd_device_register(c
- 	if (unlikely(!new_ld))
- 		return ERR_PTR(ENOMEM);
- 
--	init_MUTEX(&new_ld->sem);
-+	init_mutex(&new_ld->sem);
- 	new_ld->props = lp;
- 	memset(&new_ld->class_dev, 0, sizeof(new_ld->class_dev));
- 	new_ld->class_dev.class = &lcd_class;
---- linux-2.6.13-rc6-git9-orig/drivers/video/pxafb.c	2005-08-17 21:53:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/video/pxafb.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1082,7 +1082,7 @@ static struct pxafb_info * __init pxafb_
- 
- 	init_waitqueue_head(&fbi->ctrlr_wait);
- 	INIT_WORK(&fbi->task, pxafb_task, fbi);
--	init_MUTEX(&fbi->ctrlr_sem);
-+	init_mutex(&fbi->ctrlr_sem);
- 
- 	return fbi;
- }
---- linux-2.6.13-rc6-git9-orig/drivers/video/sa1100fb.c	2005-08-17 21:53:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/video/sa1100fb.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1448,7 +1448,7 @@ static struct sa1100fb_info * __init sa1
- 
- 	init_waitqueue_head(&fbi->ctrlr_wait);
- 	INIT_WORK(&fbi->task, sa1100fb_task, fbi);
--	init_MUTEX(&fbi->ctrlr_sem);
-+	init_mutex(&fbi->ctrlr_sem);
- 
- 	return fbi;
- }
---- linux-2.6.13-rc6-git9-orig/drivers/w1/w1_int.c	2005-08-17 21:52:00.000000000 +0200
-+++ linux-2.6.13-rc6-git9/drivers/w1/w1_int.c	2005-08-18 00:55:13.000000000 +0200
-@@ -74,7 +74,7 @@ static struct w1_master * w1_alloc_dev(u
- 	atomic_set(&dev->refcnt, 2);
- 
- 	INIT_LIST_HEAD(&dev->slist);
--	init_MUTEX(&dev->mutex);
-+	init_mutex(&dev->mutex);
- 
- 	init_completion(&dev->dev_released);
- 	init_completion(&dev->dev_exited);
---- linux-2.6.13-rc6-git9-orig/fs/affs/super.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/affs/super.c	2005-08-18 00:55:13.000000000 +0200
-@@ -89,8 +89,8 @@ static void init_once(void * foo, kmem_c
- 
- 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
- 	    SLAB_CTOR_CONSTRUCTOR) {
--		init_MUTEX(&ei->i_link_lock);
--		init_MUTEX(&ei->i_ext_lock);
-+		init_mutex(&ei->i_link_lock);
-+		init_mutex(&ei->i_ext_lock);
- 		inode_init_once(&ei->vfs_inode);
- 	}
- }
-@@ -284,7 +284,7 @@ static int affs_fill_super(struct super_
- 		return -ENOMEM;
- 	sb->s_fs_info = sbi;
- 	memset(sbi, 0, sizeof(*sbi));
--	init_MUTEX(&sbi->s_bmlock);
-+	init_mutex(&sbi->s_bmlock);
- 
- 	if (!parse_options(data,&uid,&gid,&i,&reserved,&root_block,
- 				&blocksize,&sbi->s_prefix,
---- linux-2.6.13-rc6-git9-orig/fs/autofs4/inode.c	2005-08-17 21:52:00.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/autofs4/inode.c	2005-08-18 00:55:13.000000000 +0200
-@@ -271,7 +271,7 @@ int autofs4_fill_super(struct super_bloc
- 	sbi->sb = s;
- 	sbi->version = 0;
- 	sbi->sub_version = 0;
--	init_MUTEX(&sbi->wq_sem);
-+	init_mutex(&sbi->wq_sem);
- 	spin_lock_init(&sbi->fs_lock);
- 	sbi->queues = NULL;
- 	s->s_blocksize = 1024;
---- linux-2.6.13-rc6-git9-orig/fs/cifs/connect.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/cifs/connect.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1592,7 +1592,7 @@ cifs_mount(struct super_block *sb, struc
- 			to the struct since the kernel thread not created yet
- 			so no need to spinlock this init of tcpStatus */
- 			srvTcp->tcpStatus = CifsNew;
--			init_MUTEX(&srvTcp->tcpSem);
-+			init_mutex(&srvTcp->tcpSem);
- 			rc = (int)kernel_thread((void *)(void *)cifs_demultiplex_thread, srvTcp,
- 				      CLONE_FS | CLONE_FILES | CLONE_VM);
- 			if(rc < 0) {
---- linux-2.6.13-rc6-git9-orig/fs/cifs/dir.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/cifs/dir.c	2005-08-18 00:55:13.000000000 +0200
-@@ -248,7 +248,7 @@ cifs_create(struct inode *inode, struct 
- 			pCifsFile->pInode = newinode;
- 			pCifsFile->invalidHandle = FALSE;
- 			pCifsFile->closePend     = FALSE;
--			init_MUTEX(&pCifsFile->fh_sem);
-+			init_mutex(&pCifsFile->fh_sem);
- 			/* set the following in open now 
- 				pCifsFile->pfile = file; */
- 			write_lock(&GlobalSMBSeslock);
---- linux-2.6.13-rc6-git9-orig/fs/cifs/file.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/cifs/file.c	2005-08-18 00:55:13.000000000 +0200
-@@ -42,7 +42,7 @@ static inline struct cifsFileInfo *cifs_
- 	memset(private_data, 0, sizeof(struct cifsFileInfo));
- 	private_data->netfid = netfid;
- 	private_data->pid = current->tgid;	
--	init_MUTEX(&private_data->fh_sem);
-+	init_mutex(&private_data->fh_sem);
- 	private_data->pfile = file; /* needed for writepage */
- 	private_data->pInode = inode;
- 	private_data->invalidHandle = FALSE;
---- linux-2.6.13-rc6-git9-orig/fs/cifs/misc.c	2005-08-17 21:53:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/cifs/misc.c	2005-08-18 00:55:13.000000000 +0200
-@@ -80,7 +80,7 @@ sesInfoAlloc(void)
- 		atomic_inc(&sesInfoAllocCount);
- 		ret_buf->status = CifsNew;
- 		list_add(&ret_buf->cifsSessionList, &GlobalSMBSessionList);
--		init_MUTEX(&ret_buf->sesSem);
-+		init_mutex(&ret_buf->sesSem);
- 		write_unlock(&GlobalSMBSeslock);
- 	}
- 	return ret_buf;
-@@ -124,7 +124,7 @@ tconInfoAlloc(void)
- 			 &GlobalTreeConnectionList);
- 		ret_buf->tidStatus = CifsNew;
- 		INIT_LIST_HEAD(&ret_buf->openFileList);
--		init_MUTEX(&ret_buf->tconSem);
-+		init_mutex(&ret_buf->tconSem);
- #ifdef CONFIG_CIFS_STATS
- 		spin_lock_init(&ret_buf->stat_lock);
- #endif
---- linux-2.6.13-rc6-git9-orig/fs/eventpoll.c	2005-08-17 21:52:00.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/eventpoll.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1611,7 +1611,7 @@ static int __init eventpoll_init(void)
- {
- 	int error;
- 
--	init_MUTEX(&epsem);
-+	init_mutex(&epsem);
- 
- 	/* Initialize the structure used to perform safe poll wait head wake ups */
- 	ep_poll_safewake_init(&psw);
---- linux-2.6.13-rc6-git9-orig/fs/ext3/super.c	2005-08-17 21:52:00.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/ext3/super.c	2005-08-18 00:55:13.000000000 +0200
-@@ -467,7 +467,7 @@ static void init_once(void * foo, kmem_c
- #ifdef CONFIG_EXT3_FS_XATTR
- 		init_rwsem(&ei->xattr_sem);
- #endif
--		init_MUTEX(&ei->truncate_sem);
-+		init_mutex(&ei->truncate_sem);
- 		inode_init_once(&ei->vfs_inode);
- 	}
- }
---- linux-2.6.13-rc6-git9-orig/fs/fat/fatent.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/fat/fatent.c	2005-08-18 00:55:13.000000000 +0200
-@@ -279,7 +279,7 @@ void fat_ent_access_init(struct super_bl
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
- 
--	init_MUTEX(&sbi->fat_lock);
-+	init_mutex(&sbi->fat_lock);
- 
- 	switch (sbi->fat_bits) {
- 	case 32:
---- linux-2.6.13-rc6-git9-orig/fs/hfs/btree.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/hfs/btree.c	2005-08-18 00:55:13.000000000 +0200
-@@ -26,7 +26,7 @@ struct hfs_btree *hfs_btree_open(struct 
- 		return NULL;
- 	memset(tree, 0, sizeof(*tree));
- 
--	init_MUTEX(&tree->tree_lock);
-+	init_mutex(&tree->tree_lock);
- 	spin_lock_init(&tree->hash_lock);
- 	/* Set the correct compare function */
- 	tree->sb = sb;
-@@ -41,7 +41,7 @@ struct hfs_btree *hfs_btree_open(struct 
- 	{
- 	struct hfs_mdb *mdb = HFS_SB(sb)->mdb;
- 	HFS_I(tree->inode)->flags = 0;
--	init_MUTEX(&HFS_I(tree->inode)->extents_lock);
-+	init_mutex(&HFS_I(tree->inode)->extents_lock);
- 	switch (id) {
- 	case HFS_EXT_CNID:
- 		hfs_inode_read_fork(tree->inode, mdb->drXTExtRec, mdb->drXTFlSize,
---- linux-2.6.13-rc6-git9-orig/fs/hfs/inode.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/hfs/inode.c	2005-08-18 00:55:13.000000000 +0200
-@@ -158,7 +158,7 @@ struct inode *hfs_new_inode(struct inode
- 	if (!inode)
- 		return NULL;
- 
--	init_MUTEX(&HFS_I(inode)->extents_lock);
-+	init_mutex(&HFS_I(inode)->extents_lock);
- 	INIT_LIST_HEAD(&HFS_I(inode)->open_dir_list);
- 	hfs_cat_build_key((btree_key *)&HFS_I(inode)->cat_key, dir->i_ino, name);
- 	inode->i_ino = HFS_SB(sb)->next_id++;
-@@ -290,7 +290,7 @@ static int hfs_read_inode(struct inode *
- 
- 	HFS_I(inode)->flags = 0;
- 	HFS_I(inode)->rsrc_inode = NULL;
--	init_MUTEX(&HFS_I(inode)->extents_lock);
-+	init_mutex(&HFS_I(inode)->extents_lock);
- 	INIT_LIST_HEAD(&HFS_I(inode)->open_dir_list);
- 
- 	/* Initialize the inode */
---- linux-2.6.13-rc6-git9-orig/fs/hfs/super.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/hfs/super.c	2005-08-18 00:55:13.000000000 +0200
-@@ -302,7 +302,7 @@ static int hfs_fill_super(struct super_b
- 
- 	sb->s_op = &hfs_super_operations;
- 	sb->s_flags |= MS_NODIRATIME;
--	init_MUTEX(&sbi->bitmap_lock);
-+	init_mutex(&sbi->bitmap_lock);
- 
- 	res = hfs_mdb_get(sb);
- 	if (res) {
---- linux-2.6.13-rc6-git9-orig/fs/hfsplus/btree.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/hfsplus/btree.c	2005-08-18 00:55:13.000000000 +0200
-@@ -29,7 +29,7 @@ struct hfs_btree *hfs_btree_open(struct 
- 		return NULL;
- 	memset(tree, 0, sizeof(*tree));
- 
--	init_MUTEX(&tree->tree_lock);
-+	init_mutex(&tree->tree_lock);
- 	spin_lock_init(&tree->hash_lock);
- 	/* Set the correct compare function */
- 	tree->sb = sb;
---- linux-2.6.13-rc6-git9-orig/fs/hfsplus/inode.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/hfsplus/inode.c	2005-08-18 00:55:13.000000000 +0200
-@@ -166,7 +166,7 @@ static struct dentry *hfsplus_file_looku
- 
- 	inode->i_ino = dir->i_ino;
- 	INIT_LIST_HEAD(&HFSPLUS_I(inode).open_dir_list);
--	init_MUTEX(&HFSPLUS_I(inode).extents_lock);
-+	init_mutex(&HFSPLUS_I(inode).extents_lock);
- 	HFSPLUS_I(inode).flags = HFSPLUS_FLG_RSRC;
- 
- 	hfs_find_init(HFSPLUS_SB(sb).cat_tree, &fd);
-@@ -331,7 +331,7 @@ struct inode *hfsplus_new_inode(struct s
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
- 	inode->i_blksize = HFSPLUS_SB(sb).alloc_blksz;
- 	INIT_LIST_HEAD(&HFSPLUS_I(inode).open_dir_list);
--	init_MUTEX(&HFSPLUS_I(inode).extents_lock);
-+	init_mutex(&HFSPLUS_I(inode).extents_lock);
- 	atomic_set(&HFSPLUS_I(inode).opencnt, 0);
- 	HFSPLUS_I(inode).flags = 0;
- 	memset(HFSPLUS_I(inode).first_extents, 0, sizeof(hfsplus_extent_rec));
---- linux-2.6.13-rc6-git9-orig/fs/hfsplus/super.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/hfsplus/super.c	2005-08-18 00:55:13.000000000 +0200
-@@ -47,7 +47,7 @@ static void hfsplus_read_inode(struct in
- 	atomic_inc(&HFSPLUS_SB(inode->i_sb).inode_cnt);
- 	hfsplus_inode_check(inode->i_sb);
- 	INIT_LIST_HEAD(&HFSPLUS_I(inode).open_dir_list);
--	init_MUTEX(&HFSPLUS_I(inode).extents_lock);
-+	init_mutex(&HFSPLUS_I(inode).extents_lock);
- 	HFSPLUS_I(inode).flags = 0;
- 	HFSPLUS_I(inode).rsrc_inode = NULL;
- 
---- linux-2.6.13-rc6-git9-orig/fs/hpfs/super.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/hpfs/super.c	2005-08-18 00:55:13.000000000 +0200
-@@ -181,8 +181,8 @@ static void init_once(void * foo, kmem_c
- 
- 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
- 	    SLAB_CTOR_CONSTRUCTOR) {
--		init_MUTEX(&ei->i_sem);
--		init_MUTEX(&ei->i_parent);
-+		init_mutex(&ei->i_sem);
-+		init_mutex(&ei->i_parent);
- 		inode_init_once(&ei->vfs_inode);
- 	}
- }
-@@ -468,7 +468,7 @@ static int hpfs_fill_super(struct super_
- 	sbi->sb_bmp_dir = NULL;
- 	sbi->sb_cp_table = NULL;
- 
--	init_MUTEX(&sbi->hpfs_creation_de);
-+	init_mutex(&sbi->hpfs_creation_de);
- 
- 	uid = current->uid;
- 	gid = current->gid;
---- linux-2.6.13-rc6-git9-orig/fs/isofs/compress.c	2005-08-17 21:52:00.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/isofs/compress.c	2005-08-18 00:55:13.000000000 +0200
-@@ -330,7 +330,7 @@ int __init zisofs_init(void)
- 	zisofs_zlib_workspace = vmalloc(zlib_inflate_workspacesize());
- 	if ( !zisofs_zlib_workspace )
- 		return -ENOMEM;
--	init_MUTEX(&zisofs_zlib_semaphore);
-+	init_mutex(&zisofs_zlib_semaphore);
- 
- 	initialized = 1;
- 	return 0;
---- linux-2.6.13-rc6-git9-orig/fs/jbd/journal.c	2005-08-17 21:52:00.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/jbd/journal.c	2005-08-18 00:55:13.000000000 +0200
-@@ -671,8 +671,8 @@ static journal_t * journal_init_common (
- 	init_waitqueue_head(&journal->j_wait_checkpoint);
- 	init_waitqueue_head(&journal->j_wait_commit);
- 	init_waitqueue_head(&journal->j_wait_updates);
--	init_MUTEX(&journal->j_barrier);
--	init_MUTEX(&journal->j_checkpoint_sem);
-+	init_mutex(&journal->j_barrier);
-+	init_mutex(&journal->j_checkpoint_sem);
- 	spin_lock_init(&journal->j_revoke_lock);
- 	spin_lock_init(&journal->j_list_lock);
- 	spin_lock_init(&journal->j_state_lock);
---- linux-2.6.13-rc6-git9-orig/fs/jffs/jffs_fm.c	2005-08-17 21:52:00.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/jffs/jffs_fm.c	2005-08-18 00:55:13.000000000 +0200
-@@ -138,7 +138,7 @@ jffs_build_begin(struct jffs_control *c,
- 	fmc->tail = NULL;
- 	fmc->head_extra = NULL;
- 	fmc->tail_extra = NULL;
--	init_MUTEX(&fmc->biglock);
-+	init_mutex(&fmc->biglock);
- 	return fmc;
- }
- 
---- linux-2.6.13-rc6-git9-orig/fs/jffs2/readinode.c	2005-08-17 21:52:00.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/jffs2/readinode.c	2005-08-18 00:55:13.000000000 +0200
-@@ -482,7 +482,7 @@ int jffs2_do_crccheck_inode(struct jffs2
+--- linux-2.6.13-rc6-git9-orig/drivers/media/dvb/bt8xx/dvb-bt8xx.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/dvb/bt8xx/dvb-bt8xx.c	2005-08-18 00:55:11.000000000 +0200
+@@ -659,7 +659,7 @@ static int dvb_bt8xx_probe(struct device
  		return -ENOMEM;
  
- 	memset(f, 0, sizeof(*f));
--	init_MUTEX_LOCKED(&f->sem);
-+	init_mutex_locked(&f->sem);
- 	f->inocache = ic;
+ 	memset(card, 0, sizeof(*card));
+-	init_MUTEX(&card->lock);
++	init_mutex(&card->lock);
+ 	card->bttv_nr = sub->core->nr;
+ 	strncpy(card->card_name, sub->core->name, sizeof(sub->core->name));
+ 	card->i2c_adapter = &sub->core->i2c_adap;
+@@ -754,7 +754,7 @@ static int dvb_bt8xx_probe(struct device
  
- 	ret = jffs2_do_read_inode_internal(c, f, &n);
---- linux-2.6.13-rc6-git9-orig/fs/jffs2/super.c	2005-08-17 21:52:00.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/jffs2/super.c	2005-08-18 00:55:13.000000000 +0200
-@@ -51,7 +51,7 @@ static void jffs2_i_init_once(void * foo
- 
- 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
- 	    SLAB_CTOR_CONSTRUCTOR) {
--		init_MUTEX_LOCKED(&ei->sem);
-+		init_mutex_locked(&ei->sem);
- 		inode_init_once(&ei->vfs_inode);
- 	}
- }
-@@ -142,8 +142,8 @@ static struct super_block *jffs2_get_sb_
- 
- 	/* Initialize JFFS2 superblock locks, the further initialization will be
- 	 * done later */
--	init_MUTEX(&c->alloc_sem);
--	init_MUTEX(&c->erase_free_sem);
-+	init_mutex(&c->alloc_sem);
-+	init_mutex(&c->erase_free_sem);
- 	init_waitqueue_head(&c->erase_wait);
- 	init_waitqueue_head(&c->inocache_wq);
- 	spin_lock_init(&c->erase_completion_lock);
---- linux-2.6.13-rc6-git9-orig/fs/jfs/jfs_dmap.c	2005-08-17 21:52:01.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/jfs/jfs_dmap.c	2005-08-18 00:55:13.000000000 +0200
-@@ -64,7 +64,7 @@
-  *	to the persistent bitmaps in dmaps) is guarded by (busy) buffers.
-  */
- 
--#define BMAP_LOCK_INIT(bmp)	init_MUTEX(&bmp->db_bmaplock)
-+#define BMAP_LOCK_INIT(bmp)	init_mutex(&bmp->db_bmaplock)
- #define BMAP_LOCK(bmp)		down(&bmp->db_bmaplock)
- #define BMAP_UNLOCK(bmp)	up(&bmp->db_bmaplock)
- 
---- linux-2.6.13-rc6-git9-orig/fs/jfs/jfs_imap.c	2005-08-17 21:52:01.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/jfs/jfs_imap.c	2005-08-18 00:55:13.000000000 +0200
-@@ -60,12 +60,12 @@
-  * imap locks
-  */
- /* iag free list lock */
--#define IAGFREE_LOCK_INIT(imap)		init_MUTEX(&imap->im_freelock)
-+#define IAGFREE_LOCK_INIT(imap)		init_mutex(&imap->im_freelock)
- #define IAGFREE_LOCK(imap)		down(&imap->im_freelock)
- #define IAGFREE_UNLOCK(imap)		up(&imap->im_freelock)
- 
- /* per ag iag list locks */
--#define AG_LOCK_INIT(imap,index)	init_MUTEX(&(imap->im_aglock[index]))
-+#define AG_LOCK_INIT(imap,index)	init_mutex(&(imap->im_aglock[index]))
- #define AG_LOCK(imap,agno)		down(&imap->im_aglock[agno])
- #define AG_UNLOCK(imap,agno)		up(&imap->im_aglock[agno])
- 
---- linux-2.6.13-rc6-git9-orig/fs/jfs/jfs_logmgr.c	2005-08-17 21:53:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/jfs/jfs_logmgr.c	2005-08-18 00:55:13.000000000 +0200
-@@ -87,7 +87,7 @@ DECLARE_WAIT_QUEUE_HEAD(jfs_IO_thread_wa
- /*
-  *	log read/write serialization (per log)
-  */
--#define LOG_LOCK_INIT(log)	init_MUTEX(&(log)->loglock)
-+#define LOG_LOCK_INIT(log)	init_mutex(&(log)->loglock)
- #define LOG_LOCK(log)		down(&((log)->loglock))
- #define LOG_UNLOCK(log)		up(&((log)->loglock))
- 
---- linux-2.6.13-rc6-git9-orig/fs/jfs/super.c	2005-08-17 21:53:54.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/jfs/super.c	2005-08-18 00:55:13.000000000 +0200
-@@ -575,7 +575,7 @@ static void init_once(void *foo, kmem_ca
- 		memset(jfs_ip, 0, sizeof(struct jfs_inode_info));
- 		INIT_LIST_HEAD(&jfs_ip->anon_inode_list);
- 		init_rwsem(&jfs_ip->rdwrlock);
--		init_MUTEX(&jfs_ip->commit_sem);
-+		init_mutex(&jfs_ip->commit_sem);
- 		init_rwsem(&jfs_ip->xattr_sem);
- 		spin_lock_init(&jfs_ip->ag_lock);
- 		jfs_ip->active_ag = -1;
---- linux-2.6.13-rc6-git9-orig/fs/libfs.c	2005-08-17 21:52:01.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/libfs.c	2005-08-18 00:55:13.000000000 +0200
-@@ -548,7 +548,7 @@ int simple_attr_open(struct inode *inode
- 	attr->set = set;
- 	attr->data = inode->u.generic_ip;
- 	attr->fmt = fmt;
--	init_MUTEX(&attr->sem);
-+	init_mutex(&attr->sem);
- 
- 	file->private_data = attr;
- 
---- linux-2.6.13-rc6-git9-orig/fs/lockd/host.c	2005-08-17 21:52:01.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/lockd/host.c	2005-08-18 00:55:13.000000000 +0200
-@@ -111,7 +111,7 @@ nlm_lookup_host(int server, struct socka
- 	host->h_version    = version;
- 	host->h_proto      = proto;
- 	host->h_rpcclnt    = NULL;
--	init_MUTEX(&host->h_sema);
-+	init_mutex(&host->h_sema);
- 	host->h_nextrebind = jiffies + NLM_HOST_REBIND;
- 	host->h_expires    = jiffies + NLM_HOST_EXPIRE;
- 	atomic_set(&host->h_count, 1);
---- linux-2.6.13-rc6-git9-orig/fs/lockd/svcsubs.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/lockd/svcsubs.c	2005-08-18 00:55:13.000000000 +0200
-@@ -81,7 +81,7 @@ nlm_lookup_file(struct svc_rqst *rqstp, 
- 	memset(file, 0, sizeof(*file));
- 	memcpy(&file->f_handle, f, sizeof(struct nfs_fh));
- 	file->f_hash = hash;
--	init_MUTEX(&file->f_sema);
-+	init_mutex(&file->f_sema);
- 
- 	/* Open the file. Note that this must not sleep for too long, else
- 	 * we would lock up lockd:-) So no NFS re-exports, folks.
---- linux-2.6.13-rc6-git9-orig/fs/ncpfs/inode.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/ncpfs/inode.c	2005-08-18 00:55:13.000000000 +0200
-@@ -63,7 +63,7 @@ static void init_once(void * foo, kmem_c
- 
- 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
- 	    SLAB_CTOR_CONSTRUCTOR) {
--		init_MUTEX(&ei->open_sem);
-+		init_mutex(&ei->open_sem);
- 		inode_init_once(&ei->vfs_inode);
- 	}
- }
-@@ -518,7 +518,7 @@ static int ncp_fill_super(struct super_b
  	}
  
- /*	server->lock = 0;	*/
--	init_MUTEX(&server->sem);
-+	init_mutex(&server->sem);
- 	server->packet = NULL;
- /*	server->buffer_size = 0;	*/
- /*	server->conn_status = 0;	*/
-@@ -555,7 +555,7 @@ static int ncp_fill_super(struct super_b
- 	server->dentry_ttl = 0;	/* no caching */
+-	init_MUTEX(&card->bt->gpio_lock);
++	init_mutex(&card->bt->gpio_lock);
+ 	card->bt->bttv_nr = sub->core->nr;
  
- 	INIT_LIST_HEAD(&server->tx.requests);
--	init_MUTEX(&server->rcv.creq_sem);
-+	init_mutex(&server->rcv.creq_sem);
- 	server->tx.creq		= NULL;
- 	server->rcv.creq	= NULL;
- 	server->data_ready	= sock->sk->sk_data_ready;
---- linux-2.6.13-rc6-git9-orig/fs/nfs/idmap.c	2005-08-17 21:52:01.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/nfs/idmap.c	2005-08-18 00:55:13.000000000 +0200
-@@ -112,8 +112,8 @@ nfs_idmap_new(struct nfs4_client *clp)
+ 	if ( (ret = dvb_bt8xx_load_card(card, sub->core->type)) ) {
+--- linux-2.6.13-rc6-git9-orig/drivers/media/dvb/cinergyT2/cinergyT2.c	2005-08-17 21:51:42.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/dvb/cinergyT2/cinergyT2.c	2005-08-18 00:55:11.000000000 +0200
+@@ -782,7 +782,7 @@ static int cinergyt2_probe (struct usb_i
+ 	memset (cinergyt2, 0, sizeof (struct cinergyt2));
+ 	usb_set_intfdata (intf, (void *) cinergyt2);
+ 
+-	init_MUTEX(&cinergyt2->sem);
++	init_mutex(&cinergyt2->sem);
+ 	init_waitqueue_head (&cinergyt2->poll_wq);
+ 	INIT_WORK(&cinergyt2->query_work, cinergyt2_query, cinergyt2);
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-08-17 21:51:42.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-08-18 00:55:11.000000000 +0200
+@@ -556,7 +556,7 @@ static void dvb_frontend_stop(struct dvb
+ 		printk("dvb_frontend_stop: thread PID %d already died\n",
+ 				fepriv->thread_pid);
+ 		/* make sure the mutex was not held by the thread */
+-		init_MUTEX (&fepriv->sem);
++		init_mutex (&fepriv->sem);
  		return;
  	}
  
--        init_MUTEX(&idmap->idmap_lock);
--        init_MUTEX(&idmap->idmap_im_lock);
-+        init_mutex(&idmap->idmap_lock);
-+        init_mutex(&idmap->idmap_im_lock);
- 	init_waitqueue_head(&idmap->idmap_wq);
- 	idmap->idmap_user_hash.h_type = IDMAP_TYPE_USER;
- 	idmap->idmap_group_hash.h_type = IDMAP_TYPE_GROUP;
---- linux-2.6.13-rc6-git9-orig/fs/nfs/nfs4state.c	2005-08-17 21:52:01.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/nfs/nfs4state.c	2005-08-18 00:55:13.000000000 +0200
-@@ -267,7 +267,7 @@ nfs4_alloc_state_owner(void)
- 	sp = kmalloc(sizeof(*sp),GFP_KERNEL);
- 	if (!sp)
- 		return NULL;
--	init_MUTEX(&sp->so_sema);
-+	init_mutex(&sp->so_sema);
- 	sp->so_seqid = 0;                 /* arbitrary */
- 	INIT_LIST_HEAD(&sp->so_states);
- 	INIT_LIST_HEAD(&sp->so_delegations);
-@@ -359,7 +359,7 @@ nfs4_alloc_open_state(void)
- 	memset(state->stateid.data, 0, sizeof(state->stateid.data));
- 	atomic_set(&state->count, 1);
- 	INIT_LIST_HEAD(&state->lock_states);
--	init_MUTEX(&state->lock_sema);
-+	init_mutex(&state->lock_sema);
- 	spin_lock_init(&state->state_lock);
- 	return state;
- }
---- linux-2.6.13-rc6-git9-orig/fs/ntfs/inode.c	2005-08-17 21:52:01.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/ntfs/inode.c	2005-08-18 00:55:13.000000000 +0200
-@@ -381,7 +381,7 @@ void __ntfs_init_inode(struct super_bloc
- 	atomic_set(&ni->count, 1);
- 	ni->vol = NTFS_SB(sb);
- 	ntfs_init_runlist(&ni->runlist);
--	init_MUTEX(&ni->mrec_lock);
-+	init_mutex(&ni->mrec_lock);
- 	ni->page = NULL;
- 	ni->page_ofs = 0;
- 	ni->attr_list_size = 0;
-@@ -393,7 +393,7 @@ void __ntfs_init_inode(struct super_bloc
- 	ni->itype.index.collation_rule = 0;
- 	ni->itype.index.block_size_bits = 0;
- 	ni->itype.index.vcn_size_bits = 0;
--	init_MUTEX(&ni->extent_lock);
-+	init_mutex(&ni->extent_lock);
- 	ni->nr_extents = 0;
- 	ni->ext.base_ntfs_ino = NULL;
- }
---- linux-2.6.13-rc6-git9-orig/fs/smbfs/inode.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/smbfs/inode.c	2005-08-18 00:55:13.000000000 +0200
-@@ -528,7 +528,7 @@ static int smb_fill_super(struct super_b
- 	server->mnt = NULL;
- 	server->sock_file = NULL;
- 	init_waitqueue_head(&server->conn_wq);
--	init_MUTEX(&server->sem);
-+	init_mutex(&server->sem);
- 	INIT_LIST_HEAD(&server->entry);
- 	INIT_LIST_HEAD(&server->xmitq);
- 	INIT_LIST_HEAD(&server->recvq);
---- linux-2.6.13-rc6-git9-orig/fs/sysfs/file.c	2005-08-17 21:52:02.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/sysfs/file.c	2005-08-18 00:55:13.000000000 +0200
-@@ -304,7 +304,7 @@ static int check_perm(struct inode * ino
- 	buffer = kmalloc(sizeof(struct sysfs_buffer),GFP_KERNEL);
- 	if (buffer) {
- 		memset(buffer,0,sizeof(struct sysfs_buffer));
--		init_MUTEX(&buffer->sem);
-+		init_mutex(&buffer->sem);
- 		buffer->needs_read_fill = 1;
- 		buffer->ops = ops;
- 		file->private_data = buffer;
---- linux-2.6.13-rc6-git9-orig/fs/udf/super.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-git9/fs/udf/super.c	2005-08-18 00:55:13.000000000 +0200
-@@ -1504,7 +1504,7 @@ static int udf_fill_super(struct super_b
- 	sb->s_fs_info = sbi;
- 	memset(UDF_SB(sb), 0x00, sizeof(struct udf_sb_info));
+@@ -908,10 +908,10 @@ int dvb_register_frontend(struct dvb_ada
+ 	fepriv = fe->frontend_priv;
+ 	memset(fe->frontend_priv, 0, sizeof(struct dvb_frontend_private));
  
--	init_MUTEX(&sbi->s_alloc_sem);
-+	init_mutex(&sbi->s_alloc_sem);
+-	init_MUTEX (&fepriv->sem);
++	init_mutex (&fepriv->sem);
+ 	init_waitqueue_head (&fepriv->wait_queue);
+ 	init_waitqueue_head (&fepriv->events.wait_queue);
+-	init_MUTEX (&fepriv->events.sem);
++	init_mutex (&fepriv->events.sem);
+ 	fe->dvb = dvb;
+ 	fepriv->inversion = INVERSION_OFF;
+ 	fepriv->tone = SEC_TONE_OFF;
+--- linux-2.6.13-rc6-git9-orig/drivers/media/radio/miropcm20-rds-core.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/radio/miropcm20-rds-core.c	2005-08-18 00:55:11.000000000 +0200
+@@ -200,7 +200,7 @@ EXPORT_SYMBOL(aci_rds_cmd);
  
- 	if (!udf_parse_options((char *)options, &uopt))
- 		goto error_out;
+ int __init attach_aci_rds(void)
+ {
+-	init_MUTEX(&aci_rds_sem);
++	init_mutex(&aci_rds_sem);
+ 	return 0;
+ }
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/media/radio/radio-aimslab.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/radio/radio-aimslab.c	2005-08-18 00:55:11.000000000 +0200
+@@ -336,7 +336,7 @@ static int __init rtrack_init(void)
+ 
+ 	/* Set up the I/O locking */
+ 	
+-	init_MUTEX(&lock);
++	init_mutex(&lock);
+ 	
+  	/* mute card - prevents noisy bootups */
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/media/radio/radio-aztech.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/radio/radio-aztech.c	2005-08-18 00:55:11.000000000 +0200
+@@ -282,7 +282,7 @@ static int __init aztech_init(void)
+ 		return -EBUSY;
+ 	}
+ 
+-	init_MUTEX(&lock);
++	init_mutex(&lock);
+ 	aztech_radio.priv=&aztech_unit;
+ 	
+ 	if(video_register_device(&aztech_radio, VFL_TYPE_RADIO, radio_nr)==-1)
+--- linux-2.6.13-rc6-git9-orig/drivers/media/radio/radio-maestro.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/radio/radio-maestro.c	2005-08-18 00:55:11.000000000 +0200
+@@ -311,7 +311,7 @@ static __u16 radio_install(struct pci_de
+ 	
+ 	radio_unit.io = pcidev->resource[0].start + GPIO_DATA;
+ 	maestro_radio.priv = &radio_unit;
+-	init_MUTEX(&radio_unit.lock);
++	init_mutex(&radio_unit.lock);
+ 	
+ 	if(radio_power_on(&radio_unit)) {
+ 		if(video_register_device(&maestro_radio, VFL_TYPE_RADIO, radio_nr)==-1) {
+--- linux-2.6.13-rc6-git9-orig/drivers/media/radio/radio-maxiradio.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/radio/radio-maxiradio.c	2005-08-18 00:55:11.000000000 +0200
+@@ -289,7 +289,7 @@ static int __devinit maxiradio_init_one(
+ 	        goto err_out_free_region;
+ 
+ 	radio_unit.io = pci_resource_start(pdev, 0);
+-	init_MUTEX(&radio_unit.lock);
++	init_mutex(&radio_unit.lock);
+ 	maxiradio_radio.priv = &radio_unit;
+ 
+ 	if(video_register_device(&maxiradio_radio, VFL_TYPE_RADIO, radio_nr)==-1) {
+--- linux-2.6.13-rc6-git9-orig/drivers/media/radio/radio-sf16fmi.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/radio/radio-sf16fmi.c	2005-08-18 00:55:11.000000000 +0200
+@@ -295,7 +295,7 @@ static int __init fmi_init(void)
+ 	fmi_unit.flags = VIDEO_TUNER_LOW;
+ 	fmi_radio.priv = &fmi_unit;
+ 	
+-	init_MUTEX(&lock);
++	init_mutex(&lock);
+ 	
+ 	if (video_register_device(&fmi_radio, VFL_TYPE_RADIO, radio_nr) == -1) {
+ 		release_region(io, 2);
+--- linux-2.6.13-rc6-git9-orig/drivers/media/radio/radio-sf16fmr2.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/radio/radio-sf16fmr2.c	2005-08-18 00:55:11.000000000 +0200
+@@ -379,7 +379,7 @@ static int __init fmr2_init(void)
+ 	fmr2_unit.card_type = 0;
+ 	fmr2_radio.priv = &fmr2_unit;
+ 
+-	init_MUTEX(&lock);
++	init_mutex(&lock);
+ 
+ 	if (request_region(io, 2, "sf16fmr2"))
+ 	{
+--- linux-2.6.13-rc6-git9-orig/drivers/media/radio/radio-typhoon.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/radio/radio-typhoon.c	2005-08-18 00:55:11.000000000 +0200
+@@ -336,7 +336,7 @@ static int __init typhoon_init(void)
+ #endif /* MODULE */
+ 
+ 	printk(KERN_INFO BANNER);
+-	init_MUTEX(&typhoon_unit.lock);
++	init_mutex(&typhoon_unit.lock);
+ 	io = typhoon_unit.iobase;
+ 	if (!request_region(io, 8, "typhoon")) {
+ 		printk(KERN_ERR "radio-typhoon: port 0x%x already in use\n",
+--- linux-2.6.13-rc6-git9-orig/drivers/media/radio/radio-zoltrix.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/radio/radio-zoltrix.c	2005-08-18 00:55:11.000000000 +0200
+@@ -349,7 +349,7 @@ static int __init zoltrix_init(void)
+ 	}
+ 	printk(KERN_INFO "Zoltrix Radio Plus card driver.\n");
+ 
+-	init_MUTEX(&zoltrix_unit.lock);
++	init_mutex(&zoltrix_unit.lock);
+ 	
+ 	/* mute card - prevents noisy bootups */
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/arv.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/arv.c	2005-08-18 00:55:12.000000000 +0200
+@@ -824,7 +824,7 @@ static int __init ar_init(void)
+ 		ar->line_bytes	= AR_LINE_BYTES_QVGA;
+ 		ar->mode	= AR_MODE_INTERLACE;
+ 	}
+-	init_MUTEX(&ar->lock);
++	init_mutex(&ar->lock);
+ 	init_waitqueue_head(&ar->wait);
+ 
+ #if USE_INT
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/bttv-driver.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/bttv-driver.c	2005-08-18 00:55:12.000000000 +0200
+@@ -3844,8 +3844,8 @@ static int __devinit bttv_probe(struct p
+ 	sprintf(btv->c.name,"bttv%d",btv->c.nr);
+ 
+ 	/* initialize structs / fill in defaults */
+-        init_MUTEX(&btv->lock);
+-        init_MUTEX(&btv->reslock);
++        init_mutex(&btv->lock);
++        init_mutex(&btv->reslock);
+         spin_lock_init(&btv->s_lock);
+         spin_lock_init(&btv->gpio_lock);
+         init_waitqueue_head(&btv->gpioq);
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/bw-qcam.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/bw-qcam.c	2005-08-18 00:55:12.000000000 +0200
+@@ -168,7 +168,7 @@ static struct qcam_device *qcam_init(str
+ 	
+ 	memcpy(&q->vdev, &qcam_template, sizeof(qcam_template));
+ 	
+-	init_MUTEX(&q->lock);
++	init_mutex(&q->lock);
+ 
+ 	q->port_mode = (QC_ANY | QC_NOTSET);
+ 	q->width = 320;
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/c-qcam.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/c-qcam.c	2005-08-18 00:55:12.000000000 +0200
+@@ -726,7 +726,7 @@ static struct qcam_device *qcam_init(str
+ 	
+ 	memcpy(&q->vdev, &qcam_template, sizeof(qcam_template));
+ 
+-	init_MUTEX(&q->lock);
++	init_mutex(&q->lock);
+ 	q->width = q->ccd_width = 320;
+ 	q->height = q->ccd_height = 240;
+ 	q->mode = QC_MILLIONS | QC_DECIMATION_1;
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/cpia.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/cpia.c	2005-08-18 00:55:12.000000000 +0200
+@@ -3935,8 +3935,8 @@ static void init_camera_struct(struct ca
+ 	memset(cam, 0, sizeof(struct cam_data));
+ 
+ 	cam->ops = ops;
+-	init_MUTEX(&cam->param_lock);
+-	init_MUTEX(&cam->busy_lock);
++	init_mutex(&cam->param_lock);
++	init_mutex(&cam->busy_lock);
+ 
+ 	reset_camera_struct(cam);
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/cx88/cx88-mpeg.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/cx88/cx88-mpeg.c	2005-08-18 00:55:12.000000000 +0200
+@@ -387,7 +387,7 @@ int cx8802_init_common(struct cx8802_dev
+ 	       dev->pci_lat,pci_resource_start(dev->pci,0));
+ 
+ 	/* initialize driver struct */
+-        init_MUTEX(&dev->lock);
++        init_mutex(&dev->lock);
+ 	spin_lock_init(&dev->slock);
+ 
+ 	/* init dma queue */
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/cx88/cx88-video.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/cx88/cx88-video.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1798,7 +1798,7 @@ static int __devinit cx8800_initdev(stru
+ 	}
+ 
+ 	/* initialize driver struct */
+-        init_MUTEX(&dev->lock);
++        init_mutex(&dev->lock);
+ 	spin_lock_init(&dev->slock);
+ 	core->tvnorm = tvnorms;
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/meye.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/meye.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1911,7 +1911,7 @@ static int __devinit meye_probe(struct p
+ 		goto outvideoreg;
+ 	}
+ 
+-	init_MUTEX(&meye.lock);
++	init_mutex(&meye.lock);
+ 	init_waitqueue_head(&meye.proc_list);
+ 	meye.picture.depth = 16;
+ 	meye.picture.palette = VIDEO_PALETTE_YUV422;
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/planb.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/planb.c	2005-08-18 00:55:12.000000000 +0200
+@@ -2067,7 +2067,7 @@ static int init_planb(struct planb *pb)
+ #endif
+ 	pb->tab_size = PLANB_MAXLINES + 40;
+ 	pb->suspend = 0;
+-	init_MUTEX(&pb->lock);
++	init_mutex(&pb->lock);
+ 	pb->ch1_cmd = 0;
+ 	pb->ch2_cmd = 0;
+ 	pb->mask = 0;
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/pms.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/pms.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1028,7 +1028,7 @@ static int __init init_pms_cards(void)
+ 		return -ENODEV;
+ 	}
+ 	memcpy(&pms_device, &pms_template, sizeof(pms_template));
+-	init_MUTEX(&pms_device.lock);
++	init_mutex(&pms_device.lock);
+ 	pms_device.height=240;
+ 	pms_device.width=320;
+ 	pms_swsense(75);
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/saa5246a.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/saa5246a.c	2005-08-18 00:55:12.000000000 +0200
+@@ -91,7 +91,7 @@ static int saa5246a_attach(struct i2c_ad
+ 	}
+ 	memset(t, 0, sizeof(*t));
+ 	strlcpy(client->name, IF_NAME, I2C_NAME_SIZE);
+-	init_MUTEX(&t->lock);
++	init_mutex(&t->lock);
+ 
+ 	/*
+ 	 *	Now create a video4linux device
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/saa5249.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/saa5249.c	2005-08-18 00:55:12.000000000 +0200
+@@ -159,7 +159,7 @@ static int saa5249_attach(struct i2c_ada
+ 	}
+ 	memset(t, 0, sizeof(*t));
+ 	strlcpy(client->name, IF_NAME, I2C_NAME_SIZE);
+-	init_MUTEX(&t->lock);
++	init_mutex(&t->lock);
+ 	
+ 	/*
+ 	 *	Now create a video4linux device
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/saa7134/saa7134-core.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/saa7134/saa7134-core.c	2005-08-18 00:55:12.000000000 +0200
+@@ -637,7 +637,7 @@ static int saa7134_hwinit1(struct saa713
+ 
+ 	saa_writel(SAA7134_IRQ1, 0);
+ 	saa_writel(SAA7134_IRQ2, 0);
+-        init_MUTEX(&dev->lock);
++        init_mutex(&dev->lock);
+ 	spin_lock_init(&dev->slock);
+ 
+ 	saa7134_track_gpio(dev,"pre-init");
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/saa7134/saa7134-oss.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/saa7134/saa7134-oss.c	2005-08-18 00:55:12.000000000 +0200
+@@ -771,7 +771,7 @@ struct file_operations saa7134_mixer_fop
+ int saa7134_oss_init1(struct saa7134_dev *dev)
+ {
+ 	/* general */
+-        init_MUTEX(&dev->oss.lock);
++        init_mutex(&dev->oss.lock);
+ 	init_waitqueue_head(&dev->oss.wq);
+ 
+ 	switch (dev->pci->device) {
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/video-buf-dvb.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/video-buf-dvb.c	2005-08-18 00:55:12.000000000 +0200
+@@ -139,7 +139,7 @@ int videobuf_dvb_register(struct videobu
+ {
+ 	int result;
+ 
+-	init_MUTEX(&dvb->lock);
++	init_mutex(&dvb->lock);
+ 
+ 	/* register adapter */
+ 	result = dvb_register_adapter(&dvb->adapter, dvb->name, module);
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/video-buf.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/video-buf.c	2005-08-18 00:55:12.000000000 +0200
+@@ -389,7 +389,7 @@ void videobuf_queue_init(struct videobuf
+ 	q->ops     = ops;
+ 	q->priv_data = priv;
+ 
+-	init_MUTEX(&q->lock);
++	init_mutex(&q->lock);
+ 	INIT_LIST_HEAD(&q->stream);
+ }
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/videodev.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/videodev.c	2005-08-18 00:55:12.000000000 +0200
+@@ -332,7 +332,7 @@ int video_register_device(struct video_d
+ 	sprintf(vfd->devfs_name, "v4l/%s%d", name_base, i - base);
+ 	devfs_mk_cdev(MKDEV(VIDEO_MAJOR, vfd->minor),
+ 			S_IFCHR | S_IRUSR | S_IWUSR, vfd->devfs_name);
+-	init_MUTEX(&vfd->lock);
++	init_mutex(&vfd->lock);
+ 
+ 	/* sysfs class */
+         memset(&vfd->class_dev, 0x00, sizeof(vfd->class_dev));
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/vino.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/vino.c	2005-08-18 00:55:12.000000000 +0200
+@@ -283,7 +283,7 @@ static int __init vino_init(void)
+         vino->a.fifo_thres = threshold_a;
+ 	vino->b.fifo_thres = threshold_b;
+ 
+-	init_MUTEX(&Vino->input_lock);
++	init_mutex(&Vino->input_lock);
+ 
+ 	if (request_irq(SGI_VINO_IRQ, vino_interrupt, 0, vinostr, NULL)) {
+ 		printk(KERN_ERR "VINO: irq%02d registration failed\n",
+--- linux-2.6.13-rc6-git9-orig/drivers/media/video/zoran_card.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/media/video/zoran_card.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1209,7 +1209,7 @@ find_zr36057 (void)
+ 		zr->id = zoran_num;
+ 		snprintf(ZR_DEVNAME(zr), sizeof(ZR_DEVNAME(zr)), "MJPEG[%u]", zr->id);
+ 		spin_lock_init(&zr->spinlock);
+-		init_MUTEX(&zr->resource_lock);
++		init_mutex(&zr->resource_lock);
+ 		if (pci_enable_device(dev))
+ 			continue;
+ 		zr->zr36057_adr = pci_resource_start(zr->pci_dev, 0);
+--- linux-2.6.13-rc6-git9-orig/drivers/message/i2o/device.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/message/i2o/device.c	2005-08-18 00:55:12.000000000 +0200
+@@ -189,7 +189,7 @@ static struct i2o_device *i2o_device_all
+ 	memset(dev, 0, sizeof(*dev));
+ 
+ 	INIT_LIST_HEAD(&dev->list);
+-	init_MUTEX(&dev->lock);
++	init_mutex(&dev->lock);
+ 
+ 	dev->device.bus = &i2o_bus_type;
+ 	dev->device.release = &i2o_device_release;
+--- linux-2.6.13-rc6-git9-orig/drivers/message/i2o/iop.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/message/i2o/iop.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1105,7 +1105,7 @@ struct i2o_controller *i2o_iop_alloc(voi
+ 
+ 	INIT_LIST_HEAD(&c->devices);
+ 	spin_lock_init(&c->lock);
+-	init_MUTEX(&c->lct_lock);
++	init_mutex(&c->lct_lock);
+ 	c->unit = unit++;
+ 	sprintf(c->name, "iop%d", c->unit);
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/mmc/mmc_queue.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/mmc/mmc_queue.c	2005-08-18 00:55:12.000000000 +0200
+@@ -156,7 +156,7 @@ int mmc_init_queue(struct mmc_queue *mq,
+ 
+ 	init_completion(&mq->thread_complete);
+ 	init_waitqueue_head(&mq->thread_wq);
+-	init_MUTEX(&mq->thread_sem);
++	init_mutex(&mq->thread_sem);
+ 
+ 	ret = kernel_thread(mmc_queue_thread, mq, CLONE_KERNEL);
+ 	if (ret >= 0) {
+--- linux-2.6.13-rc6-git9-orig/drivers/mtd/devices/blkmtd.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/mtd/devices/blkmtd.c	2005-08-18 00:55:12.000000000 +0200
+@@ -662,7 +662,7 @@ static struct blkmtd_dev *add_device(cha
+ 	memset(dev, 0, sizeof(struct blkmtd_dev));
+ 	dev->blkdev = bdev;
+ 	if(!readonly) {
+-		init_MUTEX(&dev->wrbuf_mutex);
++		init_mutex(&dev->wrbuf_mutex);
+ 	}
+ 
+ 	dev->mtd_info.size = dev->blkdev->bd_inode->i_size & PAGE_MASK;
+--- linux-2.6.13-rc6-git9-orig/drivers/mtd/devices/block2mtd.c	2005-08-17 21:51:46.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/mtd/devices/block2mtd.c	2005-08-18 00:55:12.000000000 +0200
+@@ -310,7 +310,7 @@ static struct block2mtd_dev *add_device(
+ 		goto devinit_err;
+ 	}
+ 
+-	init_MUTEX(&dev->write_mutex);
++	init_mutex(&dev->write_mutex);
+ 
+ 	/* Setup the MTD structure */
+ 	/* make the name contain the block device in */
+--- linux-2.6.13-rc6-git9-orig/drivers/mtd/devices/doc2000.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/mtd/devices/doc2000.c	2005-08-18 00:55:12.000000000 +0200
+@@ -605,7 +605,7 @@ static void DoC2k_init(struct mtd_info *
+ 
+ 	this->curfloor = -1;
+ 	this->curchip = -1;
+-	init_MUTEX(&this->lock);
++	init_mutex(&this->lock);
+ 
+ 	/* Ident all the chips present. */
+ 	DoC_ScanChips(this, maxchips);
+--- linux-2.6.13-rc6-git9-orig/drivers/mtd/mtd_blkdevs.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/mtd/mtd_blkdevs.c	2005-08-18 00:55:12.000000000 +0200
+@@ -275,7 +275,7 @@ int add_mtd_blktrans_dev(struct mtd_blkt
+ 		return -EBUSY;
+ 	}
+ 
+-	init_MUTEX(&new->sem);
++	init_mutex(&new->sem);
+ 	list_add_tail(&new->list, &tr->devs);
+  added:
+ 	if (!tr->writesect)
+--- linux-2.6.13-rc6-git9-orig/drivers/mtd/mtdblock.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/mtd/mtdblock.c	2005-08-18 00:55:12.000000000 +0200
+@@ -282,7 +282,7 @@ static int mtdblock_open(struct mtd_blkt
+ 	mtdblk->count = 1;
+ 	mtdblk->mtd = mtd;
+ 
+-	init_MUTEX (&mtdblk->cache_sem);
++	init_mutex (&mtdblk->cache_sem);
+ 	mtdblk->cache_state = STATE_EMPTY;
+ 	if ((mtdblk->mtd->flags & MTD_CAP_RAM) != MTD_CAP_RAM &&
+ 	    mtdblk->mtd->erasesize) {
+--- linux-2.6.13-rc6-git9-orig/drivers/net/3c527.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/net/3c527.c	2005-08-18 00:55:12.000000000 +0200
+@@ -514,7 +514,7 @@ static int __init mc32_probe1(struct net
+ 	lp->tx_len 		= lp->exec_box->data[9];   /* Transmit list count */ 
+ 	lp->rx_len 		= lp->exec_box->data[11];  /* Receive list count */
+ 
+-	init_MUTEX_LOCKED(&lp->cmd_mutex);
++	init_mutex_locked(&lp->cmd_mutex);
+ 	init_completion(&lp->execution_cmd);
+ 	init_completion(&lp->xceiver_cmd);
+ 	
+--- linux-2.6.13-rc6-git9-orig/drivers/net/hamradio/6pack.c	2005-08-17 21:53:53.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/net/hamradio/6pack.c	2005-08-18 00:55:12.000000000 +0200
+@@ -625,7 +625,7 @@ static int sixpack_open(struct tty_struc
+ 
+ 	spin_lock_init(&sp->lock);
+ 	atomic_set(&sp->refcnt, 1);
+-	init_MUTEX_LOCKED(&sp->dead_sem);
++	init_mutex_locked(&sp->dead_sem);
+ 
+ 	/* !!! length of the buffers. MTU is IP MTU, not PACLEN!  */
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/net/irda/sir_dev.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/net/irda/sir_dev.c	2005-08-18 00:55:12.000000000 +0200
+@@ -612,7 +612,7 @@ struct sir_dev * sirdev_get_instance(con
+ 	dev->tx_skb = NULL;
+ 
+ 	spin_lock_init(&dev->tx_lock);
+-	init_MUTEX(&dev->fsm.sem);
++	init_mutex(&dev->fsm.sem);
+ 
+ 	INIT_LIST_HEAD(&dev->fsm.rq.lh_request);
+ 	dev->fsm.rq.pending = 0;
+--- linux-2.6.13-rc6-git9-orig/drivers/net/irda/vlsi_ir.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/net/irda/vlsi_ir.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1664,7 +1664,7 @@ vlsi_irda_probe(struct pci_dev *pdev, co
+ 	idev = ndev->priv;
+ 
+ 	spin_lock_init(&idev->lock);
+-	init_MUTEX(&idev->sem);
++	init_mutex(&idev->sem);
+ 	down(&idev->sem);
+ 	idev->pdev = pdev;
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/net/plip.c	2005-08-17 21:51:47.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/net/plip.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1125,7 +1125,7 @@ plip_close(struct net_device *dev)
+ 
+ 	if (dev->irq == -1)
+ 	{
+-		init_MUTEX_LOCKED (&nl->killed_timer_sem);
++		init_mutex_locked (&nl->killed_timer_sem);
+ 		atomic_set (&nl->kill_timer, 1);
+ 		down (&nl->killed_timer_sem);
+ 	}
+--- linux-2.6.13-rc6-git9-orig/drivers/net/ppp_async.c	2005-08-17 21:51:47.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/net/ppp_async.c	2005-08-18 00:55:12.000000000 +0200
+@@ -178,7 +178,7 @@ ppp_asynctty_open(struct tty_struct *tty
+ 	tasklet_init(&ap->tsk, ppp_async_process, (unsigned long) ap);
+ 
+ 	atomic_set(&ap->refcnt, 1);
+-	init_MUTEX_LOCKED(&ap->dead_sem);
++	init_mutex_locked(&ap->dead_sem);
+ 
+ 	ap->chan.private = ap;
+ 	ap->chan.ops = &async_ops;
+--- linux-2.6.13-rc6-git9-orig/drivers/net/ppp_synctty.c	2005-08-17 21:51:47.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/net/ppp_synctty.c	2005-08-18 00:55:12.000000000 +0200
+@@ -226,7 +226,7 @@ ppp_sync_open(struct tty_struct *tty)
+ 	tasklet_init(&ap->tsk, ppp_sync_process, (unsigned long) ap);
+ 
+ 	atomic_set(&ap->refcnt, 1);
+-	init_MUTEX_LOCKED(&ap->dead_sem);
++	init_mutex_locked(&ap->dead_sem);
+ 
+ 	ap->chan.private = ap;
+ 	ap->chan.ops = &sync_ops;
+--- linux-2.6.13-rc6-git9-orig/drivers/net/sungem.c	2005-08-17 21:51:48.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/net/sungem.c	2005-08-18 00:55:12.000000000 +0200
+@@ -3038,7 +3038,7 @@ static int __devinit gem_init_one(struct
+ 
+ 	spin_lock_init(&gp->lock);
+ 	spin_lock_init(&gp->tx_lock);
+-	init_MUTEX(&gp->pm_sem);
++	init_mutex(&gp->pm_sem);
+ 
+ 	init_timer(&gp->link_timer);
+ 	gp->link_timer.function = gem_link_timer;
+--- linux-2.6.13-rc6-git9-orig/drivers/net/wan/cosa.c	2005-08-17 21:51:48.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/net/wan/cosa.c	2005-08-18 00:55:12.000000000 +0200
+@@ -825,8 +825,8 @@ static struct net_device_stats *cosa_net
+ 
+ static void chardev_channel_init(struct channel_data *chan)
+ {
+-	init_MUTEX(&chan->rsem);
+-	init_MUTEX(&chan->wsem);
++	init_mutex(&chan->rsem);
++	init_mutex(&chan->wsem);
+ }
+ 
+ static ssize_t cosa_read(struct file *file,
+--- linux-2.6.13-rc6-git9-orig/drivers/parport/share.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/parport/share.c	2005-08-18 00:55:12.000000000 +0200
+@@ -311,7 +311,7 @@ struct parport *parport_register_port(un
+ 	spin_lock_init(&tmp->pardevice_lock);
+ 	tmp->ieee1284.mode = IEEE1284_MODE_COMPAT;
+ 	tmp->ieee1284.phase = IEEE1284_PH_FWD_IDLE;
+-	init_MUTEX_LOCKED (&tmp->ieee1284.irq); /* actually a semaphore at 0 */
++	init_mutex_locked (&tmp->ieee1284.irq); /* actually a semaphore at 0 */
+ 	tmp->spintime = parport_default_spintime;
+ 	atomic_set (&tmp->ref_count, 1);
+ 	INIT_LIST_HEAD(&tmp->full_list);
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/acpiphp_glue.c	2005-08-17 21:51:49.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/acpiphp_glue.c	2005-08-18 00:55:12.000000000 +0200
+@@ -185,7 +185,7 @@ register_slot(acpi_handle handle, u32 lv
+ 		slot->device = device;
+ 		slot->sun = sun;
+ 		INIT_LIST_HEAD(&slot->funcs);
+-		init_MUTEX(&slot->crit_sect);
++		init_mutex(&slot->crit_sect);
+ 
+ 		slot->next = bridge->slots;
+ 		bridge->slots = slot;
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/cpci_hotplug_core.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/cpci_hotplug_core.c	2005-08-18 00:55:12.000000000 +0200
+@@ -599,8 +599,8 @@ cpci_start_thread(void)
+ 	int pid;
+ 
+ 	/* initialize our semaphores */
+-	init_MUTEX_LOCKED(&event_semaphore);
+-	init_MUTEX_LOCKED(&thread_exit);
++	init_mutex_locked(&event_semaphore);
++	init_mutex_locked(&thread_exit);
+ 	thread_finished = 0;
+ 
+ 	if (controller->irq)
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/cpqphp_core.c	2005-08-17 21:51:49.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/cpqphp_core.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1057,7 +1057,7 @@ static int cpqhpc_probe(struct pci_dev *
+ 	dbg("bus device function rev: %d %d %d %d\n", ctrl->bus,
+ 		PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn), ctrl->rev);
+ 
+-	init_MUTEX(&ctrl->crit_sect);
++	init_mutex(&ctrl->crit_sect);
+ 	init_waitqueue_head(&ctrl->queue);
+ 
+ 	/* initialize our threads if they haven't already been started up */
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/cpqphp_ctrl.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/cpqphp_ctrl.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1822,9 +1822,9 @@ int cpqhp_event_start_thread(void)
+ 	int pid;
+ 
+ 	/* initialize our semaphores */
+-	init_MUTEX(&delay_sem);
+-	init_MUTEX_LOCKED(&event_semaphore);
+-	init_MUTEX_LOCKED(&event_exit);
++	init_mutex(&delay_sem);
++	init_mutex_locked(&event_semaphore);
++	init_mutex_locked(&event_exit);
+ 	event_finished=0;
+ 
+ 	pid = kernel_thread(event_thread, NULL, 0);
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/ibmphp_hpc.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/ibmphp_hpc.c	2005-08-18 00:55:12.000000000 +0200
+@@ -131,9 +131,9 @@ void __init ibmphp_hpc_initvars (void)
+ {
+ 	debug ("%s - Entry\n", __FUNCTION__);
+ 
+-	init_MUTEX (&sem_hpcaccess);
+-	init_MUTEX (&semOperations);
+-	init_MUTEX_LOCKED (&sem_exit);
++	init_mutex (&sem_hpcaccess);
++	init_mutex (&semOperations);
++	init_mutex_locked (&sem_exit);
+ 	to_debug = FALSE;
+ 	ibmphp_shutdown = FALSE;
+ 	tid_poll = 0;
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/pciehp_ctrl.c	2005-08-17 21:53:53.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/pciehp_ctrl.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1521,10 +1521,10 @@ int pciehp_event_start_thread(void)
+ 	int pid;
+ 
+ 	/* initialize our semaphores */
+-	init_MUTEX_LOCKED(&event_exit);
++	init_mutex_locked(&event_exit);
+ 	event_finished=0;
+ 
+-	init_MUTEX_LOCKED(&event_semaphore);
++	init_mutex_locked(&event_semaphore);
+ 	pid = kernel_thread(event_thread, NULL, 0);
+ 
+ 	if (pid < 0) {
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/pciehp_hpc.c	2005-08-17 21:53:53.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/pciehp_hpc.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1353,7 +1353,7 @@ int pcie_init(struct controller * ctrl,
+ 	if (pci_enable_device(pdev))
+ 		goto abort_free_ctlr;
+ 	
+-	init_MUTEX(&ctrl->crit_sect);
++	init_mutex(&ctrl->crit_sect);
+ 	/* setup wait queue */
+ 	init_waitqueue_head(&ctrl->queue);
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/rpaphp_core.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/rpaphp_core.c	2005-08-18 00:55:12.000000000 +0200
+@@ -427,7 +427,7 @@ static void init_slots(void)
+ static int __init init_rpa(void)
+ {
+ 
+-	init_MUTEX(&rpaphp_sem);
++	init_mutex(&rpaphp_sem);
+ 
+ 	/* initialize internal data structure etc. */
+ 	init_slots();
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/shpchp_ctrl.c	2005-08-17 21:53:53.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/shpchp_ctrl.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1691,10 +1691,10 @@ int shpchp_event_start_thread (void)
+ 	int pid;
+ 
+ 	/* initialize our semaphores */
+-	init_MUTEX_LOCKED(&event_exit);
++	init_mutex_locked(&event_exit);
+ 	event_finished=0;
+ 
+-	init_MUTEX_LOCKED(&event_semaphore);
++	init_mutex_locked(&event_semaphore);
+ 	pid = kernel_thread(event_thread, NULL, 0);
+ 
+ 	if (pid < 0) {
+--- linux-2.6.13-rc6-git9-orig/drivers/pci/hotplug/shpchp_hpc.c	2005-08-17 21:53:53.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pci/hotplug/shpchp_hpc.c	2005-08-18 00:55:12.000000000 +0200
+@@ -1506,7 +1506,7 @@ int shpc_init(struct controller * ctrl,
+ 	dbg("%s: php_ctlr->creg %p\n", __FUNCTION__, php_ctlr->creg);
+ 	dbg("%s: physical addr %p\n", __FUNCTION__, (void*)pci_resource_start(pdev, 0));
+ 
+-	init_MUTEX(&ctrl->crit_sect);
++	init_mutex(&ctrl->crit_sect);
+ 	/* Setup wait queue */
+ 	init_waitqueue_head(&ctrl->queue);
+ 
+--- linux-2.6.13-rc6-git9-orig/drivers/pcmcia/cs.c	2005-08-17 21:51:49.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/pcmcia/cs.c	2005-08-18 00:55:12.000000000 +0200
+@@ -237,7 +237,7 @@ int pcmcia_register_socket(struct pcmcia
+ 	init_completion(&socket->socket_released);
+ 	init_completion(&socket->thread_done);
+ 	init_waitqueue_head(&socket->thread_wait);
+-	init_MUTEX(&socket->skt_sem);
++	init_mutex(&socket->skt_sem);
+ 	spin_lock_init(&socket->thread_lock);
+ 
+ 	ret = kernel_thread(pccardd, socket, CLONE_KERNEL);
+--- linux-2.6.13-rc6-git9-orig/drivers/s390/char/vmcp.c	2005-08-17 21:51:53.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/s390/char/vmcp.c	2005-08-18 00:55:12.000000000 +0200
+@@ -40,7 +40,7 @@ static int vmcp_open(struct inode *inode
+ 	session->bufsize = PAGE_SIZE;
+ 	session->response = NULL;
+ 	session->resp_size = 0;
+-	init_MUTEX(&session->mutex);
++	init_mutex(&session->mutex);
+ 	file->private_data = session;
+ 	return nonseekable_open(inode, file);
+ }
+--- linux-2.6.13-rc6-git9-orig/drivers/s390/cio/qdio.c	2005-08-17 21:51:53.000000000 +0200
++++ linux-2.6.13-rc6-git9/drivers/s390/cio/qdio.c	2005-08-18 00:55:12.000000000 +0200
+@@ -2641,7 +2641,7 @@ qdio_allocate(struct qdio_initialize *in
+ 
+ 	memset(irq_ptr,0,sizeof(struct qdio_irq));
+ 
+-	init_MUTEX(&irq_ptr->setting_up_sema);
++	init_mutex(&irq_ptr->setting_up_sema);
+ 
+ 	/* QDR must be in DMA area since CCW data address is only 32 bit */
+ 	irq_ptr->qdr=kmalloc(sizeof(struct qdr), GFP_KERNEL | GFP_DMA);
 
 

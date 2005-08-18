@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbVHRUhj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbVHRUlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbVHRUhj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 16:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVHRUhj
+	id S932421AbVHRUlK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 16:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVHRUlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 16:37:39 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:39129 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932139AbVHRUhi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 16:37:38 -0400
-Message-ID: <4304F173.6000108@pobox.com>
-Date: Thu, 18 Aug 2005 16:37:07 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add PCI ID for GeForce 6200 TurboCache(TM)
-References: <20050818202024.GK18386@cip.informatik.uni-erlangen.de>
-In-Reply-To: <20050818202024.GK18386@cip.informatik.uni-erlangen.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 18 Aug 2005 16:41:10 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:45021 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932421AbVHRUlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 16:41:09 -0400
+Date: Thu, 18 Aug 2005 22:19:20 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mmc: Multi-sector writes
+Message-ID: <20050818201919.GD516@openzaurus.ucw.cz>
+References: <42FF3C05.70606@drzeus.cx> <20050817155641.12bb20fc.akpm@osdl.org> <43042114.7010503@drzeus.cx> <20050817224805.17f29cfb.akpm@osdl.org> <20050818073824.C2365@flint.arm.linux.org.uk> <4304380B.5070406@drzeus.cx> <20050818092321.B3966@flint.arm.linux.org.uk> <43044B7A.6090102@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43044B7A.6090102@drzeus.cx>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Glanzmann wrote:
-> [PATCH] Add PCI ID for GeForce 6200 TurboCache(TM)
+Hi!
+
+> >>We had this discussion on LKML and Alan Cox' comment on it was that a
+> >>solution like this would be acceptable, where we try and shove
+> >>everything out first and then fall back on sector-by-sector to determine
+> >>where an error occurs. This will only break if the problematic sector
+> >>keeps shifting around, but at that point the card is probably toast
+> >>anyway (if the thing keeps moving how can you bad block it?).
+> >>    
+> >>
+> >
+> >There are two different kinds of error - the ones at the transport
+> >level which we are able to force a result of "no sectors transferred"
+> >for.  For all other errors and successful completions, the driver
+> >reports "all sectors tranferred" since the driver level doesn't know
+> >that an error occurred.
+> >
+> >This causes us to tell the upper levels that we were successful,
+> >even if we weren't.  Hence the problem.
+> >
+> >  
+> >
 > 
-> This adds the PCI ID for GeForce 6200 TurboCache(TM) as pointed out in
-> ftp://download.nvidia.com/XFree86/Linux-x86/1.0-7676/README.txt
+> I still don't understand where you see the problem. As you said there
+> are two problems that can occur:
 > 
-> Signed-off-by: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+> * Transport problem. The driver will report back a CRC error, timeout or
+> whatnot and break. We might not know how many sectors survived so we try
+> again, going sector-by-sector. We might get a transfer error again,
+> possibly even before the previous one. But at this point the transport
+> is probably so noisy that we have little chans of doing a clean umount
+> anyway. So when the device gets fixed, either by replaying the journal
 
-Add this to the PCI IDs database as sourceforge.net.  The pci.ids files 
-in the kernel is mirrored from that database, and also, it will soon be 
-removed from the kernel itself.
+Well, but then you can get:
 
-	Jeff
+good data #1
+trash #2
+good data #2
+trash #1
 
+I'm not sure how much journalling filesystems will like that in their journals...
 
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVHRPWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbVHRPWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbVHRPWD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 11:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVHRPWD
+	id S932245AbVHRPWj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 11:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbVHRPWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 11:22:03 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:52875 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932243AbVHRPWB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 11:22:01 -0400
-Message-ID: <4304A6DF.6040703@cosmosbay.com>
-Date: Thu, 18 Aug 2005 17:18:55 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: idle task's task_t allocation on NUMA machines
-References: <20050818140829.GB8123@implementation.labri.fr>
-In-Reply-To: <20050818140829.GB8123@implementation.labri.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 18 Aug 2005 17:18:57 +0200 (CEST)
+	Thu, 18 Aug 2005 11:22:38 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:9389 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932245AbVHRPWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 11:22:37 -0400
+Subject: Re: [xfs-masters] Re: [PATCH] pull XFS support out of Kconfig
+	submenu
+From: Russell Cattelan <cattelan@thebarn.com>
+To: xfs-masters@oss.sgi.com
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, nathans@sgi.com,
+       linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050818135356.GA16845@taniwha.stupidest.org>
+References: <200508172245.49043.jesper.juhl@gmail.com>
+	 <20050818135356.GA16845@taniwha.stupidest.org>
+Content-Type: text/plain
+Date: Thu, 18 Aug 2005 10:22:26 -0500
+Message-Id: <1124378546.25069.107.camel@naboo.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3-4mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Thibault a écrit :
-> Hi,
+On Thu, 2005-08-18 at 06:53 -0700, Chris Wedgwood wrote:
+> On Wed, Aug 17, 2005 at 10:45:48PM +0200, Jesper Juhl wrote:
 > 
-> Currently, the task_t structure of the idle task is always allocated
-> on CPU0, hence on node 0: while booting, for each CPU, CPU 0 calls
-> fork_idle(), hence copy_process(), hence dup_task_struct(), hence
-> alloc_task_struct(), hence kmem_cache_alloc(), which picks up memory
-> from the allocation cache of the current CPU, i.e. on node 0.
+> > It seems slightly odd to me that XFS support should be in a separate
+> > submenu, when all the other filesystems are not using submenus but
+> > are directly selectable from the Filesystems menu.
 > 
-> This is a bad idea: every write needs be written back to node 0 at some
-> time, so that node 0 can get a small bit busy especially when other
-> nodes are idle.
+> XFS also has an out-of-tree version.  Making it a submenu is probably
+> to make maintenance easier (ie. replace files, not merge).
 > 
-> A solution would be to add to copy_process(), dup_task_struct(),
-> alloc_task_struct() and kmem_cache_alloc() the node number on which
-> allocation should be performed. This might also be useful if performing
-> node load balancing at fork(): one could then allocate task_t directly
-> on the new node. It might also be useful when allocating data for
-> another node.
-> 
-> Regards,
-> Samuel
+That is why the Kconfig options for xfs moved from fs/Kconfig to
+fs/xfs/Kconfig but using submenu was simply a convince thing 
+to group all the XFS options together.
 
-An idle task should block itself, hence not touching its task_t structure very much.
+If the submenu is really causing people distress go ahead and 
+remove it. Since it's a cosmetic change it's not going to impact
+anything.
 
-I believe IRQ stacks are also allocated on node 0, that seems more serious.
+-Russell
 
-Eric

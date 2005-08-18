@@ -1,72 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbVHRTu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVHRT7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbVHRTu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 15:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVHRTu0
+	id S932417AbVHRT7n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 15:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbVHRT7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 15:50:26 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:53150 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932412AbVHRTuX convert rfc822-to-8bit
+	Thu, 18 Aug 2005 15:59:42 -0400
+Received: from dsl3-63-249-67-204.cruzio.com ([63.249.67.204]:6313 "EHLO
+	cichlid.com") by vger.kernel.org with ESMTP id S932417AbVHRT7m
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 15:50:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YL28B+dOG4FRcY1M/VJaA2yujlog9/LgEJG90YCr5kYkwKFLn60ZMrXG03OT1F9ySm0AUK+lsaLfrs8chYDmA7ZR34PnM93CyRYbKzses5m4oVACuobxGr4a1ZM/ixQ4gpTv1qvhaUqhzk5MbaqE3bktSytMS3xMdz5ie9KTAcY=
-Message-ID: <d120d500050818125031d1bc98@mail.gmail.com>
-Date: Thu, 18 Aug 2005 14:50:19 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] add transport class symlink to device object
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Matthew Wilcox <matthew@wil.cx>, James.Smart@emulex.com,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk@arm.linux.org.uk>, Dmitry Torokhov <dtor@mail.ru>
-In-Reply-To: <20050818063712.GA25321@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com>
-	 <20050813213955.GB19235@kroah.com>
-	 <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk>
-	 <1124145677.5089.68.camel@mulgrave> <20050818052311.GD29301@kroah.com>
-	 <20050818063712.GA25321@kroah.com>
+	Thu, 18 Aug 2005 15:59:42 -0400
+Date: Thu, 18 Aug 2005 12:58:17 -0700
+From: Andrew Burgess <aab@cichlid.com>
+Message-Id: <200508181958.j7IJwHIf011275@cichlid.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-rt3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/18/05, Greg KH <greg@kroah.com> wrote:
-> @@ -500,9 +519,13 @@ int class_device_add(struct class_device
->        }
-> 
->        class_device_add_attrs(class_dev);
-> -       if (class_dev->dev)
-> +       if (class_dev->dev) {
-> +               class_name = make_class_name(class_dev);
->                sysfs_create_link(&class_dev->kobj,
->                                  &class_dev->dev->kobj, "device");
-> +               sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
-> +                                 class_name);
-> +       }
-> 
+>I haven't used any of the RT patches since V0.7.51-xx, but I upgraded to -rt8 
+>yesterday and had a couple of problems. I've just noticed you released -rt9, 
+>but I don't think my problem is listed as fixed.. I'll upgrade anyway, in a 
+>minute.
 
-I wonder if we need to grab a reference to class_dev->dev here:
+>The problem I'm having is that when the kernel probes my IDE devices it slows 
+>down, taking ages to complete the probe. Henceforth the kernel seems to work 
+>at a slower speed doing just about anything (compiling, etc.), but 
+>interactive performance is okay. It's a bizarre problem.
 
-        dev = device_get(class_dev->dev);
-        if (dev) {
-             ....
-        }
+Similar symptoms happened to me recently and it turned out I had accidently
+omitted support for my mb ide chipset (ata_piix) while shrinking my config so
+the kernel was unable to set dma mode. Took me a while to find because everything
+was working (in PIO mode) just really slowly :-)
 
-Otherwise, if device gets unregistered/deleted before class device is
-deleted we'll get into trouble when removing the link since
-class_dev->dev will be garbage.
-
-.. But grabbing that reference will cause pains in SCSI system which,
-when I looked, removed class devices from device's release function.
-
--- 
-Dmitry

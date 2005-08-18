@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVHRKGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVHRKIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbVHRKGG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 06:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVHRKGG
+	id S932159AbVHRKIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 06:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVHRKIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 06:06:06 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:63401 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932161AbVHRKGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 06:06:05 -0400
-Date: Thu, 18 Aug 2005 12:05:36 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: zero-copy read() interface
-Message-ID: <20050818100536.GB16751@wohnheim.fh-wedel.de>
-References: <20050818100151.GF12313@vanheusden.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050818100151.GF12313@vanheusden.com>
-User-Agent: Mutt/1.3.28i
+	Thu, 18 Aug 2005 06:08:16 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:42454 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S932159AbVHRKIQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 06:08:16 -0400
+Message-ID: <43045DD3.1050903@namesys.com>
+Date: Thu, 18 Aug 2005 14:07:15 +0400
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040804
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gia@ticard.ru
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux
+References: <1120.195.94.234.226.1124224104.squirrel@ticard.ru>
+In-Reply-To: <1120.195.94.234.226.1124224104.squirrel@ticard.ru>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 August 2005 12:01:52 +0200, Folkert van Heusden wrote:
-> 
-> What about a zero-copy read-interface?
-> An ioctl (or something) which enables the kernel to do dma directly to
-> the userspace. Of course this should be limited to the root-user or a
-> user with special capabilities (rights) since if a drive screws up, data
-> from a different sector (or so) might end up in the proces' memory. Of
-> course copying a sector from kernel- to userspace can be done pretty
-> fast but i.m.h.o. all possible speedimprovements should be made unless
-> unclean.
+Hello
 
-Just use mmap().  Unlike your proposal, it cooperates with the page
-cache.
+gia@ticard.ru wrote:
+> Hello from Russia. Can you send me a Linux documentation, i want to learn
+> Unix.I am asking you because, i have only email access to internet.Please
+> help.
 
-Jörn
-
--- 
-Don't worry about people stealing your ideas. If your ideas are any good,
-you'll have to ram them down people's throats.
--- Howard Aiken quoted by Ken Iverson quoted by Jim Horning quoted by
-   Raph Levien, 1979
+Amount of documentation about linux and unix is too big. You should specify more precisely what you are interested in.

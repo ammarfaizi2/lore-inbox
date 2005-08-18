@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbVHRFB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbVHRFEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbVHRFB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 01:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVHRFB0
+	id S1750704AbVHRFEa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 01:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbVHRFEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 01:01:26 -0400
-Received: from gate.crashing.org ([63.228.1.57]:3024 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750825AbVHRFBZ (ORCPT
+	Thu, 18 Aug 2005 01:04:30 -0400
+Received: from gate.crashing.org ([63.228.1.57]:5328 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750704AbVHRFE3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 01:01:25 -0400
-Subject: Re: [PATCH]  Add pci_walk_bus function to PCI core (nonrecursive)
+	Thu, 18 Aug 2005 01:04:29 -0400
+Subject: Re: pmac_nvram problems
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Greg KH <greg@kroah.com>, linux-pci@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linas@austin.ibm.com
-In-Reply-To: <17156.3965.483826.692623@cargo.ozlabs.ibm.com>
-References: <17156.3965.483826.692623@cargo.ozlabs.ibm.com>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1124277416.6336.11.camel@localhost>
+References: <1124277416.6336.11.camel@localhost>
 Content-Type: text/plain
-Date: Thu, 18 Aug 2005 14:58:28 +1000
-Message-Id: <1124341108.8849.75.camel@gaston>
+Date: Thu, 18 Aug 2005 15:00:12 +1000
+Message-Id: <1124341212.8848.78.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-18 at 14:33 +1000, Paul Mackerras wrote:
-> The PCI error recovery infrastructure needs to be able to contact all
-> the drivers affected by a PCI error event, which may mean traversing
-> all the devices under a given PCI-PCI bridge.  This patch adds a
-> function to the PCI core that traverses all the PCI devices on a PCI
-> bus and under any PCI-PCI bridges on that bus (and so on), calling a
-> given function for each device.  This provides a way for the error
-> recovery code to iterate through all devices that are affected by an
-> error event.
 
- .../...
+> I'm not sure why alloc_bootmem is used at all (is the nvram larger than
+> a couple of pages on any machine? And if it is, should it really be
+> cached in RAM?), but I think it should be sufficient to just use kmalloc
+> (well, it works for me).
 
-Note that it's racy vs. removal of devices, but I suspect a good bunch
-of the PCI code is. The whole idea that list*_safe routines pay you
-anything in that regard need to be shot. Afaik, they are only safe about
-the caller removing the current element.
+There used to be cases where we used the nvram stuff before kmalloc()
+was available. I'll check if this is still the case.
+ 
+> Secondly, this driver misses power management. Having suspended, I
+> booted OSX which always resets the boot volume. But after resuming
+> linux, nvsetvol(8) still reports 0 as the boot volume because the
+> pmac_nvram driver caches the nvram contents. Fixing this would require
+> converting the driver to the new model though, I think.
 
-I wonder if it's finally time to implement proper race free list
-iterators in the kernel. Not that difficult... A small struct iterator
-with a list head and the current elem pointer, and the "interated" list
-containing the list itself, a list of iterators and a lock. Iterators
-can then be "fixed" up on element removal with a fine grained lock on
-list structure access.
+Well... the driver doesn't expect you to boot a different OS while
+suspended to disk :)
+
+Regarding caching the data in memory, this is done becaues nvram is
+actually a flash on recent machines, and you really want to limit the
+number of write cycles to it.
 
 Ben.
 

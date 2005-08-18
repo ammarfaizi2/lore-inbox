@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVHRPcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVHRPjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbVHRPcL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 11:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbVHRPcL
+	id S932241AbVHRPjd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 11:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbVHRPjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 11:32:11 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:23009 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932257AbVHRPcK (ORCPT
+	Thu, 18 Aug 2005 11:39:32 -0400
+Received: from iona.labri.fr ([147.210.8.143]:55747 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S932241AbVHRPjc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 11:32:10 -0400
-Message-ID: <4304A9F5.2070004@sgi.com>
-Date: Thu, 18 Aug 2005 10:32:05 -0500
-From: Eric Sandeen <sandeen@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Macintosh/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: xfs-masters@oss.sgi.com
-CC: Jesper Juhl <jesper.juhl@gmail.com>, nathans@sgi.com,
-       linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [xfs-masters] Re: [PATCH] pull XFS support out of Kconfig submenu
-References: <200508172245.49043.jesper.juhl@gmail.com> <20050818135356.GA16845@taniwha.stupidest.org> <4304A7D6.3000307@sgi.com>
-In-Reply-To: <4304A7D6.3000307@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Aug 2005 11:39:32 -0400
+Date: Thu, 18 Aug 2005 17:39:32 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: idle task's task_t allocation on NUMA machines
+Message-ID: <20050818153932.GH8123@implementation.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
+	lse-tech@lists.sourceforge.net
+References: <20050818140829.GB8123@implementation.labri.fr> <4304A6DF.6040703@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4304A6DF.6040703@cosmosbay.com>
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Sandeen wrote:
-> I have no problem with removing the submenu.
+Eric Dumazet, le Thu 18 Aug 2005 17:18:55 +0200, a écrit :
+> An idle task should block itself, hence not touching its task_t structure 
+> very much.
 
-Hm, however, if this is a purely cosmetic thing, let's go all the way 
-and format the xfs options like the others, with indentation etc:
+Indeed, but I guess there are a lot of such little optimizations here
+and there that could be relatively easily fixed, for a not-so little
+benefit.
 
-  config XFS_RT
--       bool "Realtime support (EXPERIMENTAL)"
-+       bool "  XFS Realtime support (EXPERIMENTAL)"
+> I believe IRQ stacks are also allocated on node 0, that seems more serious.
 
+Such as this :)
 
-May be simpler to just make this change internally & let Nathan push it 
-out.  I do agree that it looks better.  :)
-
--Eric
+Regards,
+Samuel

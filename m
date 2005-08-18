@@ -1,89 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbVHRG7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbVHRHFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750889AbVHRG7E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 02:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbVHRG7E
+	id S1750897AbVHRHFF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 03:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVHRHFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 02:59:04 -0400
-Received: from [202.125.80.34] ([202.125.80.34]:55661 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S1750890AbVHRG7D convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 02:59:03 -0400
-Content-class: urn:content-classes:message
-Subject: How to support partitions in driver?
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Thu, 18 Aug 2005 12:22:55 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B3845@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to support partitions in driver?
-Thread-Index: AcWjwXW4k4E899noRXOBkNEpDNx1eQ==
-From: "Mukund JB`." <mukundjb@esntechnologies.co.in>
-To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+	Thu, 18 Aug 2005 03:05:05 -0400
+Received: from mail.kroah.org ([69.55.234.183]:45218 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750890AbVHRHFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 03:05:04 -0400
+Date: Thu, 18 Aug 2005 00:04:42 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <matthew@wil.cx>, James.Smart@Emulex.Com,
+       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] add transport class symlink to device object
+Message-ID: <20050818070442.GA8258@kroah.com>
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <20050814232525.A27481@flint.arm.linux.org.uk> <20050815004303.GB9466@parcelfarce.linux.theplanet.co.uk> <20050815093244.A19811@flint.arm.linux.org.uk> <20050818052156.GC29301@kroah.com> <20050818073049.B2365@flint.arm.linux.org.uk> <20050818064129.GA2280@kroah.com> <20050818075027.D2365@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050818075027.D2365@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 18, 2005 at 07:50:27AM +0100, Russell King wrote:
+> On Wed, Aug 17, 2005 at 11:41:29PM -0700, Greg KH wrote:
+> > On Thu, Aug 18, 2005 at 07:30:50AM +0100, Russell King wrote:
+> > > On Wed, Aug 17, 2005 at 10:21:56PM -0700, Greg KH wrote:
+> > > > On Mon, Aug 15, 2005 at 09:32:44AM +0100, Russell King wrote:
+> > > > > On Mon, Aug 15, 2005 at 01:43:03AM +0100, Matthew Wilcox wrote:
+> > > > > > On Sun, Aug 14, 2005 at 11:25:25PM +0100, Russell King wrote:
+> > > > > > > Eww.  Do you really want one struct device per tty with all the
+> > > > > > > memory each one eats?
+> > > > > > > 
+> > > > > > > If that's really what you want you need to talk to Alan and not me.
+> > > > > > > Alan looks after tty level stuff, I look after serial level stuff.
+> > > > > > > The above is a tty level issue not a serial level issue.
+> > > > > > 
+> > > > > > mmm.  I don't know whether it's really a tty level issue or a serial
+> > > > > > issue.  The only tty classes with corresponding devices are the serial
+> > > > > > ones, at least on my system.  If this is the case, then the right fix
+> > > > > > would seem to be something like creating a new struct device for each
+> > > > > > serial port, then making that the uart_port->dev instead of the pci_dev
+> > > > > > or whatever.
+> > > > > 
+> > > > > What's the reason for enforcing one struct device per struct class_dev ?
+> > > > > I thought one of the points of class_dev was that you could have multiple
+> > > > > of them per struct device.
+> > > > 
+> > > > No such enforcement is needed at all, and not encouraged.
+> > > 
+> > > The complaint is that serial is registering several different class_devs
+> > > for the same class and device.
+> > 
+> > That's because they are unique class devices, right?  I don't see a
+> > problem here at all.
+> 
+> They are class devices called ttyS0, ttyS1, ttyS2 so you can say
+> they're uniquely named.
+> 
+> The problem is that Matthew wants to add a symlink from the device
+> device to the class device to complement the class device to device
+> symlink, since we end up with multiple symlinks in the devices subdir
+> all called the same.
+> 
+> This causes serial a problem because we have multiple class devices
+> per device.
 
-Dear all,
+Ah, yeah, but the patch I just posted fixes it:
 
-I have few basic queries regarding my partition implementation in my Sd
-driver. 
-Sorry for asking such petty things here. But, somehow it's not working &
-I am made to ask it here.
+$ tree /sys/devices/platform/serial8250/
+/sys/devices/platform/serial8250/
+|-- bus -> ../../../bus/platform
+|-- driver -> ../../../bus/platform/drivers/serial8250
+|-- power
+|   `-- state
+|-- tty:ttyS0 -> ../../../class/tty/ttyS0
+|-- tty:ttyS1 -> ../../../class/tty/ttyS1
+|-- tty:ttyS2 -> ../../../class/tty/ttyS2
+`-- tty:ttyS3 -> ../../../class/tty/ttyS3
 
-I am working on 2.6.10 kernel(x86 architecture).
-I have a working SD driver for my multimedia controller.
-I have four interfaces for my board.
-I call then tfa0, tfa1, tfa2, tfa3 respectively.
 
-I defined then as below...
+Matthew, this work for you?
 
-mknod /dev/tfa0 b 252 0	//device node for first partition of socket 0
-mknod /dev/tfa0p1 b 252 1
-mknod /dev/tfa0p2 b 252 2
-.....
-mknod /dev/tfa1 b 252 4	 //device node for first partition of socket 1
-....
-mknod /dev/tfa2 b 252 8	 //device node for first partition of socket 2
-.....
-mknod /dev/tfa3 b 252 12 //device node for first partition of socket 3
-.....
+thanks,
 
-I implemented the gendisk partition support with the following calls in
-the driver.
-
-#define MAX_PARTS 4 // maximum no partitions per device
-alloc_disk (4);
-gend.first_minor = (SockNo*MAX_PARTS); // SockNo: Current socket card is
-// inserted 
-
-Socket 0 & 3 support SD interfaces.
-I am able to mount the SD with when inserted in socket 0.
-At the same time, I am NOT able to mount the SD when inserted in socket
-3. It fails as follows.
-
-mount /dev/tfa3 /mnt 
-/dev/tfa3: No such device or address
-sfdisk: cannot open /dev/tfa3 for reading.
-
-/proc/Partitions looks ok.
-Cat/proc/partitions
-252 0 14336 tfa3	// first inserted
-252 0 14336 tfa0	 
-252 0 14336 tfa2	
-
-The updates to the /proc/partitions are done on and when the card is
-inserted into that particular socket.
-
-Can you please update me if I am missing anything that has to be
-implemented in the driver apart from the above code?
-
-Why am I not able to mount card in socket 3?
-
-Regards,
-Mukund Jampala
-
+greg k-h

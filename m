@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVHROHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVHROI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbVHROHS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 10:07:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbVHROHR
+	id S932234AbVHROI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 10:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVHROI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 10:07:17 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:46301 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932232AbVHROHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 10:07:16 -0400
-Subject: Re: [PATCH] Fix mmap_kmem (was: [question] What's the
-	difference	between /dev/kmem and /dev/mem)
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <130440000.1124031022@[10.10.2.4]>
-References: <1123796188.17269.127.camel@localhost.localdomain>
-	 <1123809302.17269.139.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0508120930150.3295@g5.osdl.org>
-	 <1123951810.3187.20.camel@laptopd505.fenrus.org>
-	 <130440000.1124031022@[10.10.2.4]>
-Content-Type: text/plain
-Date: Thu, 18 Aug 2005 16:07:05 +0200
-Message-Id: <1124374025.3220.14.camel@laptopd505.fenrus.org>
+	Thu, 18 Aug 2005 10:08:29 -0400
+Received: from iona.labri.fr ([147.210.8.143]:59329 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S932234AbVHROI2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 10:08:28 -0400
+Date: Thu, 18 Aug 2005 16:08:29 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: idle task's task_t allocation on NUMA machines
+Message-ID: <20050818140829.GB8123@implementation.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> Whilst there's no normal legitimite usage for it, it is useful for debugging.
-> One thing I often do is create a circular log buffer, then fish it back 
-> out by mmaping /dev/mem or /dev/kmem, and going by system.map offsets.
-> No, nobody could claim it was clean or elegant, but it *is* useful.
+Currently, the task_t structure of the idle task is always allocated
+on CPU0, hence on node 0: while booting, for each CPU, CPU 0 calls
+fork_idle(), hence copy_process(), hence dup_task_struct(), hence
+alloc_task_struct(), hence kmem_cache_alloc(), which picks up memory
+from the allocation cache of the current CPU, i.e. on node 0.
 
-relayfs.
+This is a bad idea: every write needs be written back to node 0 at some
+time, so that node 0 can get a small bit busy especially when other
+nodes are idle.
 
+A solution would be to add to copy_process(), dup_task_struct(),
+alloc_task_struct() and kmem_cache_alloc() the node number on which
+allocation should be performed. This might also be useful if performing
+node load balancing at fork(): one could then allocate task_t directly
+on the new node. It might also be useful when allocating data for
+another node.
 
-
+Regards,
+Samuel

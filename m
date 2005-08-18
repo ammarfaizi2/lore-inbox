@@ -1,249 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVHRJp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVHRJx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbVHRJp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 05:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVHRJpz
+	id S932152AbVHRJx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 05:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVHRJx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 05:45:55 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:49018 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932149AbVHRJpz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 05:45:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FHn6WLBu3KIF4URaeewltBkr5qrcrA5eFogVyie28Xv+9bWMgaUAxpEJGPhJWpOf+icbFHprbUjp7fB4yNS8HxERfKyYm3O26B5SR6xtmhtZBCDrtjuHpmx8V0uUcZHNyMet+mCX26ltx0OhqNGKZS6S7AqBhfnSqfc3JTJ3/SA=
-Message-ID: <98df96d30508180245a79bd31@mail.gmail.com>
-Date: Thu, 18 Aug 2005 18:45:52 +0900
-From: Hiro Yoshioka <lkml.hyoshiok@gmail.com>
-Reply-To: hyoshiok@miraclelinux.com
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org, taka@valinux.co.jp,
-       Hiro Yoshioka <hyoshiok@miraclelinux.com>,
-       Akira Tsukamoto <akira-t@s9.dion.ne.jp>
-In-Reply-To: <200508171121_MC3-1-A776-594E@compuserve.com>
+	Thu, 18 Aug 2005 05:53:58 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:62607 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932152AbVHRJx5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 05:53:57 -0400
+Date: Thu, 18 Aug 2005 15:32:59 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Benjamin LaHaise <bcrl@linux.intel.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [AIO] aio-2.6.13-rc6-B1
+Message-ID: <20050818100259.GA7060@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20050817184406.GA24961@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200508171121_MC3-1-A776-594E@compuserve.com>
+In-Reply-To: <20050817184406.GA24961@linux.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck,
-
-On 8/18/05, Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> On Wed, 17 Aug 2005 at 13:50:22 +0900 (JST), Hiro Yoshioka wrote:
+On Wed, Aug 17, 2005 at 02:44:07PM -0400, Benjamin LaHaise wrote:
+> The bugfix followup to the last aio rollup is now available at:
 > 
-> > 3) page faults/exceptions/...
-> > 3-1  TS flag is set by the CPU (Am I right?)
+> 	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1-all.diff
 > 
->   TS will _not_ be set if a trap/fault or interrupt occurs.  The only
-> way that could happen automatically would be to use a separate hardware
-> task with its own TSS to handle those.
-
-OK.
-
->   And since the kernel does not have any state information of its own
-> (no task_struct) any attempt to save the kernel-mode FPU state would
-> overwrite the current user-mode state anyway.
+> with the split up in:
 > 
->   Interrupt and fault handlers will not use FP instructions anyway.
-> The only thing you have to worry about is getting scheduled away
-> while your code is running, and I guess that's why you have to worry
-> about page faults.  And as Arjan pointed out, if you are doing
-> __copy_from_user_inatomic you cannot sleep (==switch to another task.)
+> 	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1/
 > 
->   So I would try the code from include/asm-i386/xor.h, modify it to
-> save as many registers as you plan to use and see what happens.  It will
-> do all the right things. See the xor_sse_2() for how to save and restore
-> properly -- you will need to put your xmm_save area on the stack.
+> This fixes the bugs noticed in the -B0 variant.  Major changes in this 
+> patchset are:
+> 
+> 	- added aio semaphore ops
+> 	- aio thread based fallbacks
+> 	- vectored aio file_operations
+> 	- aio sendmsg/recvmsg via thread fallbacks
+> 	- retry based aio pipe operations
+> 
+> Comments?
 
-My hack is the following. I just change from using kernel_fpu_begin()
-and kernel_fpu_end() to using a stack.
+Tried http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-all.diff  (since
+there is no aio-2.6.13-rc6-B1-all.diff). It hangs during bootup :(
 
-My test does not find any regressions.
+...
+Initializing IPsec netlink socket
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+NET: Registered protocol family 15
+Starting balanced_irq
+Using IPI Shortcut mode
+VFS: Cannot open root device "sda6" or unknown-block(8,6)
+Please append a correct "root=" boot option
+Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,6)
 
---- usercopy.c.orig     2005-08-05 16:04:37.000000000 +0900
-+++ usercopy.c  2005-08-18 16:53:37.000000000 +0900
-@@ -10,6 +10,7 @@
- #include <linux/highmem.h>
- #include <linux/blkdev.h>
- #include <linux/module.h>
-+#include <asm/i387.h>
- #include <asm/uaccess.h>
- #include <asm/mmx.h>
 
-@@ -511,6 +512,144 @@
-                : "memory");                                            \
- } while (0)
+Regards
+Suparna
 
-+#define MMX_SAVE do {                           \
-+        preempt_disable();                      \
-+        __asm__ __volatile__ (                  \
-+                "movl %%cr0,%0          ;\n\t"  \
-+                "clts                   ;\n\t"  \
-+                "movq %%mm0,(%1)     ;\n\t"     \
-+                "movq %%mm1,8(%1) ;\n\t"     \
-+                "movq %%mm2,16(%1) ;\n\t"     \
-+                "movq %%mm3,24(%1) ;\n\t"     \
-+                : "=&r" (cr0)                   \
-+                : "r" (mmx_save)                \
-+                : "memory");                    \
-+} while(0)
-+
-+#define MMX_RESTORE do {                       \
-+        __asm__ __volatile__ (                  \
-+                "sfence                 ;\n\t"  \
-+                "movq (%1),%%mm0     ;\n\t"  \
-+                "movq 8(%1),%%mm1 ;\n\t"  \
-+                "movq 16(%1),%%mm2 ;\n\t"  \
-+                "movq 24(%1),%%mm3 ;\n\t"  \
-+                "movl   %0,%%cr0        ;\n\t"  \
-+                :                               \
-+                : "r" (cr0), "r" (mmx_save)     \
-+                : "memory");                    \
-+        preempt_enable();                       \
-+} while(0)
-+
-+#define ALIGN8 __attribute__((aligned(8)))
-+
-+/* Non Temporal Hint version of mmx_memcpy */
-+/* It is cache aware                       */
-+/* hyoshiok@miraclelinux.com               */
-+static unsigned long
-+__copy_user_zeroing_nocache(void *to, const void *from, size_t len)
-+{
-+        /* Note! gcc doesn't seem to align stack variables properly, so we
-+         * need to make use of unaligned loads and stores.
-+         */
-+       void *p;
-+       int i;
-+        char mmx_save[8*4] ALIGN8;
-+        int cr0;
-+
-+       if (unlikely(in_interrupt())){
-+               __copy_user_zeroing(to, from, len);
-+               return len;
-+       }
-+
-+       p = to;
-+       i = len >> 6; /* len/64 */
-+
-+       /*        kernel_fpu_begin();*/
-+       MMX_SAVE;
-+
-+       __asm__ __volatile__ (
-+               "1: prefetchnta (%0)\n"         /* This set is 28 bytes */
-+               "   prefetchnta 64(%0)\n"
-+               "   prefetchnta 128(%0)\n"
-+               "   prefetchnta 192(%0)\n"
-+               "   prefetchnta 256(%0)\n"
-+               "2:  \n"
-+               ".section .fixup, \"ax\"\n"
-+               "3: movw $0x1AEB, 1b\n" /* jmp on 26 bytes */
-+               "   jmp 2b\n"
-+               ".previous\n"
-+               ".section __ex_table,\"a\"\n"
-+               "       .align 4\n"
-+               "       .long 1b, 3b\n"
-+               ".previous"
-+               : : "r" (from) );
-+
-+       for(; i>5; i--)
-+       {
-+               __asm__ __volatile__ (
-+               "1:  prefetchnta 320(%0)\n"
-+                "2:  movq (%0), %%mm0\n"
-+                "  movq 8(%0), %%mm1\n"
-+                "  movq 16(%0), %%mm2\n"
-+                "  movq 24(%0), %%mm3\n"
-+                "  movntq %%mm0, (%1)\n"
-+                "  movntq %%mm1, 8(%1)\n"
-+                "  movntq %%mm2, 16(%1)\n"
-+                "  movntq %%mm3, 24(%1)\n"
-+                "  movq 32(%0), %%mm0\n"
-+                "  movq 40(%0), %%mm1\n"
-+                "  movq 48(%0), %%mm2\n"
-+                "  movq 56(%0), %%mm3\n"
-+                "  movntq %%mm0, 32(%1)\n"
-+                "  movntq %%mm1, 40(%1)\n"
-+                "  movntq %%mm2, 48(%1)\n"
-+                "  movntq %%mm3, 56(%1)\n"
-+               ".section .fixup, \"ax\"\n"
-+               "3: movw $0x05EB, 1b\n" /* jmp on 5 bytes */
-+               "   jmp 2b\n"
-+               ".previous\n"
-+               ".section __ex_table,\"a\"\n"
-+               "       .align 4\n"
-+               "       .long 1b, 3b\n"
-+               ".previous"
-+               : : "r" (from), "r" (to) : "memory");
-+               from+=64;
-+               to+=64;
-+       }
-+
-+       for(; i>0; i--)
-+       {
-+               __asm__ __volatile__ (
-+                "  movq (%0), %%mm0\n"
-+                "  movq 8(%0), %%mm1\n"
-+                "  movq 16(%0), %%mm2\n"
-+                "  movq 24(%0), %%mm3\n"
-+                "  movntq %%mm0, (%1)\n"
-+                "  movntq %%mm1, 8(%1)\n"
-+                "  movntq %%mm2, 16(%1)\n"
-+                "  movntq %%mm3, 24(%1)\n"
-+                "  movq 32(%0), %%mm0\n"
-+                "  movq 40(%0), %%mm1\n"
-+                "  movq 48(%0), %%mm2\n"
-+                "  movq 56(%0), %%mm3\n"
-+                "  movntq %%mm0, 32(%1)\n"
-+                "  movntq %%mm1, 40(%1)\n"
-+                "  movntq %%mm2, 48(%1)\n"
-+                "  movntq %%mm3, 56(%1)\n"
-+               : : "r" (from), "r" (to) : "memory");
-+               from+=64;
-+               to+=64;
-+       }
-+       /*
-+        *      Now do the tail of the block
-+        */
-+       /*      kernel_fpu_end();*/
-+       MMX_RESTORE;
-+       if(i=(len&63))
-+         __copy_user_zeroing(to, from, i);
-+       return i;
-+}
-+
-
- unsigned long __copy_to_user_ll(void __user *to, const void *from,
-unsigned long n)
- {
-@@ -582,6 +721,21 @@
-        return n;
- }
-
-+unsigned long
-+__copy_from_user_ll_nocache(void *to, const void __user *from, unsigned long n)
-+{
-+       BUG_ON((long)n < 0);
-+        if (n < 512) {
-+          if (movsl_is_ok(to, from, n))
-+                __copy_user_zeroing(to, from, n);
-+          else
-+                n = __copy_user_zeroing_intel(to, from, n);
-+        }
-+        else
-+          n = __copy_user_zeroing_nocache(to, from, n);
-+       return n;
-+}
-+
- /**
-  * copy_to_user: - Copy a block of data into user space.
-  * @to:   Destination address, in user space.
+> 
+> 		-ben
+> 
+>  arch/i386/Kconfig              |    4 
+>  arch/i386/kernel/semaphore.c   |  185 +-----------
+>  arch/um/Kconfig_i386           |    4 
+>  arch/um/Kconfig_x86_64         |    4 
+>  arch/x86_64/Kconfig            |    4 
+>  arch/x86_64/kernel/Makefile    |    2 
+>  arch/x86_64/kernel/semaphore.c |  180 ------------
+>  arch/x86_64/lib/thunk.S        |    1 
+>  description                    |    9 
+>  drivers/usb/gadget/inode.c     |    7 
+>  fs/aio.c                       |  610 +++++++++++++++++++++++++++++++++++------
+>  fs/bad_inode.c                 |    2 
+>  fs/block_dev.c                 |    9 
+>  fs/buffer.c                    |    2 
+>  fs/ext2/file.c                 |    2 
+>  fs/ext3/file.c                 |   16 -
+>  fs/inode.c                     |    2 
+>  fs/jfs/file.c                  |    2 
+>  fs/ntfs/file.c                 |    2 
+>  fs/pipe.c                      |  194 ++++++++++---
+>  fs/read_write.c                |  182 ++++++++----
+>  fs/reiserfs/file.c             |   10 
+>  include/asm-i386/semaphore.h   |   42 ++
+>  include/asm-x86_64/semaphore.h |   44 ++
+>  include/linux/aio.h            |   38 ++
+>  include/linux/aio_abi.h        |   13 
+>  include/linux/fs.h             |    9 
+>  include/linux/net.h            |    4 
+>  include/linux/pagemap.h        |   29 +
+>  include/linux/sched.h          |   13 
+>  include/linux/wait.h           |   42 ++
+>  include/linux/writeback.h      |    2 
+>  kernel/exit.c                  |    2 
+>  kernel/fork.c                  |    7 
+>  kernel/sched.c                 |   14 
+>  kernel/wait.c                  |   40 +-
+>  lib/Makefile                   |    1 
+>  lib/semaphore-sleepers.c       |  253 +++++++++++++++++
+>  mm/filemap.c                   |  164 ++++++++---
+>  net/socket.c                   |   97 +++++-
+>  40 files changed, 1593 insertions(+), 654 deletions(-)
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
 -- 
-Hiro Yoshioka
-mailto:hyoshiok at miraclelinux.com
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

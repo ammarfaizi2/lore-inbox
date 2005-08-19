@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbVHSQWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVHSQak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbVHSQWL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 12:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbVHSQWL
+	id S965015AbVHSQak (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 12:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVHSQak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 12:22:11 -0400
-Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:57093 "EHLO
-	panta-1.pantasys.com") by vger.kernel.org with ESMTP
-	id S964985AbVHSQWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 12:22:09 -0400
-Message-ID: <43060731.10002@pantasys.com>
-Date: Fri, 19 Aug 2005 09:22:09 -0700
-From: Peter Buckingham <peter@pantasys.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sean Bruno <sean.bruno@dsl-only.net>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc6-git10 test report [x86_64](WITHOUT NVIDIA MODULE)
-References: <1124401950.14825.13.camel@home-lap.suse.lists.linux.kernel>	 <p73u0hmsy83.fsf@verdi.suse.de> <1124405533.14825.24.camel@home-lap>	 <20050818230349.GC22993@wotan.suse.de> <1124410753.14825.32.camel@home-lap>	 <4305FCF1.6020905@pantasys.com> <20050819154639.GL22993@wotan.suse.de>	 <4306002F.4000000@pantasys.com> <20050819155332.GM22993@wotan.suse.de>	 <430601C5.5080505@pantasys.com> <1124467902.14825.41.camel@home-lap>
-In-Reply-To: <1124467902.14825.41.camel@home-lap>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Aug 2005 16:21:54.0859 (UTC) FILETIME=[1D230FB0:01C5A4DA]
+	Fri, 19 Aug 2005 12:30:40 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:39052 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965015AbVHSQaj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 12:30:39 -0400
+Date: Fri, 19 Aug 2005 11:30:30 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  Add pci_walk_bus function to PCI core (nonrecursive)
+Message-ID: <20050819163030.GA15648@austin.ibm.com>
+References: <17156.3965.483826.692623@cargo.ozlabs.ibm.com> <1124341108.8849.75.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124341108.8849.75.camel@gaston>
+User-Agent: Mutt/1.5.9i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Bruno wrote:
-> Well, there doesn't appear to be any reference to a setting in my BIOS
-> for this size(IOMMU).  So I don't think that I can change it!  :(
+Hi,
 
-well, it doesn't really matter since the kernel enables the IOMMU 
-anyway. if you want to change the size you can pass that as a parameter 
-on the command line.
+On Thu, Aug 18, 2005 at 02:58:28PM +1000, Benjamin Herrenschmidt was heard to remark:
+> On Thu, 2005-08-18 at 14:33 +1000, Paul Mackerras wrote:
+> > This patch adds a
+> > function to the PCI core that traverses all the PCI devices on a PCI
+> > bus and under any PCI-PCI bridges on that bus (and so on), calling a
+> > given function for each device.  
 
-> The machine is working quite a bit better with pci=noacpi in leu of
-> disabling ACPI in the BIOS, but there are still those nasty errors in
-> reference to the ACPI tables being broken:
->     ACPI-0362: *** Error: Looking up [\_SB_.PCI0.LNK0] in namespace,
-> AE_NOT_FOUND
-> search_node ffff8101428572c0 start_node ffff8101428572c0 return_node
-> 0000000000000000
+Paul, thanks, I'll use this in the next version, which I'm trying to
+assemble now.
 
-since it doesn't look like you'll get a bios fix for this you may want 
-to look at building a custom dsdt. the kernel can load a custom dsdt 
-from an initrd/initramfs. have a look at the acpi site (acpi.sf.net?). 
-they talk about what's needed to do this. basically you can get your 
-dsdt from /proc/acpi/dsdt and disassemble it using the iasl tools, fix 
-it and then load it with an initrd. note that this is not really a 
-trivial task :-(
+> Note that it's racy vs. removal of devices, 
 
-> And this one about the 8254 timer:
-> ..MP-BIOS bug: 8254 timer not connected to IO-APIC
+...
 
-i've seen this before.. i think this may be related to the timer 
-override not being done for your system (again strangely a bios bug...). 
-why don't you try passing acpi_skip_timer_override on the command line.
+> The whole idea that list*_safe routines pay you
 
-> And finally, I think that something else kind of wierd is happening with
-> the on-board sensors.  lm_sensors is having trouble detecting the fan
-> speeds and temperatures of the main board, but I will take that up with
-> their developers.
+OK, well, that makes me feel better, as I've stared at that code before, 
+and wondered what magic made it work.
 
-i think this may well be related to the ACPI issues you are having, 
-since this is how the information is normally gathered.
+> I wonder if it's finally time to implement proper race free list
+> iterators in the kernel. Not that difficult... A small struct iterator
+> with a list head and the current elem pointer, and the "interated" list
+> containing the list itself, a list of iterators and a lock. Iterators
+> can then be "fixed" up on element removal with a fine grained lock on
+> list structure access.
 
-peter
+Wow. A list of iterators to be fixed up ... I get the idea, but it does
+add a fair amount of complexity.  
+
+Would it be easier (and simpler to maintain/debug) to "get" all items
+on the list first, before iterating on them, and only then iterate?
+This should work, as long as removing an item doesn't trash its "next" 
+pointer.  The "next" pointer gets whacked only when the use-count goes 
+to zero.
+
+The idea is that while traversing the list, its OK if the "next" pointer
+is pointing to a node that has removed from the list; in fact, its OK to
+traverse to that node; eventually, traversing will eventually lead back
+to a valid head.
+
+I know that the above sounds crazy, but I think it could work, and be 
+a relatively low-tech but capable solution.  It does presume that elems
+have generic get/put routines.
+
+--linas

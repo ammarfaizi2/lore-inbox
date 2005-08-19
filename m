@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVHSI7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVHSJC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbVHSI7d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 04:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVHSI7d
+	id S932547AbVHSJC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 05:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbVHSJC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 04:59:33 -0400
-Received: from [202.125.80.34] ([202.125.80.34]:14121 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S932546AbVHSI7c convert rfc822-to-8bit
+	Fri, 19 Aug 2005 05:02:56 -0400
+Received: from nproxy.gmail.com ([64.233.182.205]:2271 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932547AbVHSJCz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 04:59:32 -0400
-Content-class: urn:content-classes:message
-Subject: Fix to Linux FAT12 mount issue?
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 19 Aug 2005 14:23:11 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B38E4@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Fix to Linux FAT12 mount issue?
-Thread-Index: AcWkm22JV2+kZAaLSz6Xs/9lGWAGtA==
-From: "Mukund JB`." <mukundjb@esntechnologies.co.in>
-To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+	Fri, 19 Aug 2005 05:02:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=liyAVzufXbNtMTkpmveQJT4+3c7tvXv6qsIFW8hPw/dlCV7CYKmyIdowvPvU1rcOHkwFpvddwBUTbd8jxM5iQiYGDSTx9GUY9GaTjqoe0rTV2ls6M36V0BkntZJe66wi8Ukw0tsZtC/xyCR93tkw9cZOi6poyAsKgXcqeeT66EM=
+Message-ID: <58cb370e0508190202b0c5a5a@mail.gmail.com>
+Date: Fri, 19 Aug 2005 11:02:53 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [git patches] ide update
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1124406535.20755.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.GSO.4.62.0508182332470.22579@mion.elka.pw.edu.pl>
+	 <1124406535.20755.12.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+On 8/19/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Iau, 2005-08-18 at 23:37 +0200, Bartlomiej Zolnierkiewicz wrote:
+> > +     },{     /* 14 */
+> > +             .name           = "Revolution",
+> > +             .init_hwif      = init_hwif_generic,
+> > +             .channels       = 2,
+> > +             .autodma        = AUTODMA,
+> > +             .bootable       = OFF_BOARD,
+> >       }
+> 
+> This seems rather odd - the driver asks for AUTODMA yet because its IDE
+> generic contains no code to retune the device interface for DMA ?
 
-Its time that there should be a fix applied to the FAT12 subsystem in
-Linux.
-I have noted that removable device FAT12 formatted in Camera like
-digital media does NOT have the FAT12 in sector 0 instead it has a
-partition table that speaks about the FAT12 fs start sector.
+It is fine, grep drivers/ide/setup-pci.c for "d->autodma".
+You are confusing 'autodma' fields in ide_hwif_t and ide_pci_device_t.
 
-Such devices that do NOT have the file system in sector 0 instead have
-the partition table are failing to mount under Linux.
-Why is it so?
+> BTW whats the status on the CS5535 driver that someone submitted a while
+> back ?
 
-I have even tested USB mounted device suspecting the in-built
-card-reader driver I am using?
+lkml.org/lkml/2005/1/27/20
 
-Even it fails.
-Who has to handle this? which layer?
+AFAIK CS5535 driver was never ported to 2.6.x.  Somebody needs to
+port it to 2.6.x kernel, cleanup to match kernel coding standards and test.
 
-Regards,
-Mukund Jampala
+Bartlomiej

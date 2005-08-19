@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbVHSMAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932501AbVHSMlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbVHSMAU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 08:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932665AbVHSMAU
+	id S932501AbVHSMlX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 08:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbVHSMlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 08:00:20 -0400
-Received: from imf16aec.mail.bellsouth.net ([205.152.59.64]:12784 "EHLO
-	imf16aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S932658AbVHSMAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 08:00:20 -0400
-Date: Fri, 19 Aug 2005 08:03:14 -0400
-From: David Meybohm <dmeybohmlkml@bellsouth.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] preempt race in getppid
-Message-ID: <20050819120314.GA1210@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Fri, 19 Aug 2005 08:41:23 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:54175
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S932501AbVHSMlW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 08:41:22 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Jens Axboe'" <axboe@suse.de>, "'Jon Escombe'" <lists@dresco.co.uk>
+Cc: "'Pavel Machek'" <pavel@suse.cz>, "'Adam Goode'" <adam@evdebs.org>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       "'hdaps devel'" <hdaps-devel@lists.sourceforge.net>
+Subject: RE: [Hdaps-devel] Re: HDAPS, Need to park the head for real
+Date: Fri, 19 Aug 2005 06:41:11 -0600
+Message-ID: <002b01c5a4bb$484db920$a20cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20050819102314.GN6273@suse.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With CONFIG_PREEMPT && !CONFIG_SMP, it's possible for sys_getppid to
-return a bogus value if the parent's task_struct gets reallocated after
-current->group_leader->real_parent is read:
 
-        asmlinkage long sys_getppid(void)
-        {
-                int pid;
-                struct task_struct *me = current;
-                struct task_struct *parent;
+> On Fri, Aug 19 2005, Jon Escombe wrote:
+> > For hard disk protection, I prefer the idea of the userspace code
+> > thawing the drive based on current accelerometer data, rather than
+> > simply waking up after x seconds (maybe you're running for
+> a bus rather
+> > than falling off a table)...
+> >
+> > To get the best of both worlds, could we maybe take a
+> watchdog timer
+> > approach, and have the timeout reset by the userspace component
+> > periodically re-requesting freeze?
+>
+> That would work, you can just define the semantics to be that echo
+> foo > frozen would add foo seconds to the timeout (or thaw
+> it, if foo is
+> 0).
 
-                parent = me->group_leader->real_parent;
-RACE HERE =>    for (;;) {
-                        pid = parent->tgid;       
-        #ifdef CONFIG_SMP
-        {
-                        struct task_struct *old = parent;
+This one is really a hard one to ask for. I mean, if we can make it the way
+that it will keep knowing that the accel is changing heavily, then it would
+be great. This way we/users can implement other actions as well, not only
+for HDAPS, but the fact of kicking any other daemon that we want to. i.e.
+The theft system, kicking in laptop_mode if there is soft vibration for a
+certain amount of seconds, making festival tell you that the PC is being
+moved... Anything!
 
-                        /*
-                         * Make sure we read the pid before re-reading the
-                         * parent pointer:
-                         */
-                        smp_rmb();
-                        parent = me->group_leader->real_parent;
-                        if (old != parent)
-                                continue;
-        }
-        #endif
-                        break;
-                }
-                return pid;
-        }
+The fact is also that if we would only make a driver for HDAPS, we could
+simply make it freeze for 8 seconds and done. How often do you drop the
+laptop? How long does it take even if it rolls down the stairs? 4 Seconds
+tops? But then, the driver would be boring. ;-)
 
-If the process gets preempted at the indicated point, the parent process
-can go ahead and call exit() and then get wait()'d on to reap its
-task_struct. When the preempted process gets resumed, it will not do any
-further checks of the parent pointer on !CONFIG_SMP: it will read the
-bad pid and return.
+.Alejandro
 
-So, the same algorithm used when SMP is enabled should be used when
-preempt is enabled, which will recheck ->real_parent in this case.
-
-Signed-off-by: David Meybohm <dmeybohmlkml@bellsouth.net>
----
-
- kernel/timer.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: v2.6/kernel/timer.c
-===================================================================
---- v2.6.orig/kernel/timer.c	2005-08-19 07:29:29.000000000 -0400
-+++ v2.6/kernel/timer.c	2005-08-19 07:31:25.000000000 -0400
-@@ -999,7 +999,7 @@ asmlinkage long sys_getppid(void)
- 	parent = me->group_leader->real_parent;
- 	for (;;) {
- 		pid = parent->tgid;
--#ifdef CONFIG_SMP
-+#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
- {
- 		struct task_struct *old = parent;
- 

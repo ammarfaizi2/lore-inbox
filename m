@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932744AbVHSXMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVHSXKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932744AbVHSXMc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 19:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932745AbVHSXMc
+	id S932321AbVHSXKU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 19:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbVHSXKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 19:12:32 -0400
-Received: from smtp-1.llnl.gov ([128.115.250.81]:60390 "EHLO smtp-1.llnl.gov")
-	by vger.kernel.org with ESMTP id S932744AbVHSXMb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 19:12:31 -0400
-Date: Fri, 19 Aug 2005 16:12:28 -0700 (PDT)
-From: Chuck Harding <charding@llnl.gov>
-Subject: Re: 2.6.13-rc6-rt9
-In-reply-to: <Pine.LNX.4.63.0508191541350.5383@ghostwheel.llnl.gov>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.63.0508191612001.8736@ghostwheel.llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
-References: <200508191241.39340.annabellesgarden@yahoo.de>
- <Pine.LNX.4.63.0508191541350.5383@ghostwheel.llnl.gov>
+	Fri, 19 Aug 2005 19:10:20 -0400
+Received: from highlandsun.propagation.net ([66.221.212.168]:29194 "EHLO
+	highlandsun.propagation.net") by vger.kernel.org with ESMTP
+	id S932321AbVHSXKU (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Fri, 19 Aug 2005 19:10:20 -0400
+Message-ID: <430666DB.70802@symas.com>
+Date: Fri, 19 Aug 2005 16:10:19 -0700
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b4) Gecko/20050810 SeaMonkey/1.0a
+MIME-Version: 1.0
+To: Nikita Danilov <nikita@clusterfs.com>
+CC: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: sched_yield() makes OpenLDAP slow
+References: <43057641.70700@symas.com> <17157.45712.877795.437505@gargle.gargle.HOWL>
+In-Reply-To: <17157.45712.877795.437505@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Aug 2005, Chuck Harding wrote:
+Nikita Danilov wrote:
+>  Howard Chu <hyc@symas.com> writes:
+> > concurrency. It is the nature of such a system to encounter
+> > deadlocks over the normal course of operations. When a deadlock is
+> > detected, some thread must be chosen (by one of a variety of
+> > algorithms) to abort its transaction, in order to allow other
+> > operations to proceed to completion. In this situation, the chosen
+> > thread must get control of the CPU long enough to clean itself up,
 
-> Sure did. At least on a normal reboot. I will try
-> SysRq+B and see what happens. Thanks.
->
+>  What prevents transaction monitor from using, say, condition
+>  variables to "yield cpu"? That would have an additional advantage of
+>  blocking thread precisely until specific event occurs, instead of
+>  blocking for some vague indeterminate load and platform dependent
+>  amount of time.
 
-And no oops with SysRq+B either. Thanks.
-
+Condition variables offer no control over which thread is waken up. 
+We're wandering into the design of the SleepyCat BerkeleyDB library 
+here, and we don't exert any control over that either. BerkeleyDB 
+doesn't appear to use pthread condition variables; it seems to construct 
+its own synchronization mechanisms on top of mutexes (and yield calls). 
+In this specific example, we use whatever BerkeleyDB provides and we're 
+certainly not about to write our own transactional embedded database 
+engine just for this.
 -- 
-Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
-Senior Computer Associate         ICCD            Fax: 925-423-6961
-Lawrence Livermore National Laboratory      Computation Directorate
-Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
------------------- http://tinyurl.com/5w5ey -----------------------
--- The world is coming to an end... save your buffers! --
+  -- Howard Chu
+  Chief Architect, Symas Corp.  http://www.symas.com
+  Director, Highland Sun        http://highlandsun.com/hyc
+  OpenLDAP Core Team            http://www.openldap.org/project/
+

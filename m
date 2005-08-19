@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbVHSSqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbVHSSx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965004AbVHSSqj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 14:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbVHSSqj
+	id S965024AbVHSSx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 14:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbVHSSx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 14:46:39 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:38593 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932699AbVHSSqh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 14:46:37 -0400
-Message-ID: <4306290B.6080608@adaptec.com>
-Date: Fri, 19 Aug 2005 14:46:35 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: libata error handling
-References: <20050729050654.GA10413@havoc.gtf.org> <20050807054850.GA13335@htj.dyndns.org> <430556BF.5070004@pobox.com>
-In-Reply-To: <430556BF.5070004@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Aug 2005 18:46:36.0063 (UTC) FILETIME=[5389AAF0:01C5A4EE]
+	Fri, 19 Aug 2005 14:53:29 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:28025 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965024AbVHSSx2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 14:53:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=L9Umcp9OEC0VVbmWEpjhtliDQCVpqodp0wZeQi47A7K2R4dW1W+op6n0mEOjRHn2ttpfyKiqqrouPbrv1xo9pfx+1xWtxTBl/THA/Rt5eq/6FolK9qTh6zkoG3DUVy2OgKZMEbYrCuAYEzoIbFvXn49hUszPYkoAsn2IxsebGzY=
+Message-ID: <9a8748490508191153512e2db4@mail.gmail.com>
+Date: Fri, 19 Aug 2005 20:53:26 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: VIA USB Controller - (Wrong ID) ??
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/18/05 23:49, Jeff Garzik wrote:
-> 1) The fine-grained hooks of the SCSI layer are somewhat standard for 
-> block devices.  The events they signify -- timeout, abort cmd, dev 
-> reset, bus reset, and host reset -- map precisely to the events that we 
-> must deal with at the ATA level.
+I've just noticed that my USB controller(s) show up as having "Wrong
+ID" and now I'm wondering what exactely that means and what I can do
+about it  (kernel 2.6.13-rc6-mm1 in case it matters).
 
-"dev reset, bus reset" -- non existant, as I'm sure you're aware of,
-depending on what _transport_ you use. ;-)
+Is it a wrong PCI ID? If so, how's the controller recognized at all?
 
-> 2) When libata SAT translation layer becomes optional, and libata drives 
-> a "true" block device,
+I stopped by http://pci-ids.ucw.cz/iii// which had an entry saying :
 
-Yes, this will be very cool! (when (S)ATA(PI) devices become true block
-devices.
+0925	VIA Technologies, Inc. (Wrong ID)
+    	Wrong ID used in subsystem ID of VIA USB controllers.
 
-> use of ->eh_strategy_handler() will actually be 
-> an obstacle due to false sharing of code paths.  ->eh_strategy_handler() 
-
-I fully agree.
-
-> is indeed a single "do it all" EH entrypoint, but within that entrypoint 
-> you must perform several SCSI-specific tasks.
-> 
-> 3) ->eh_strategy_handler() has continually proven to be a method of 
-> error handling poorly supported by the SCSI layer.  There are many 
-> assumption coded into the SCSI layer that this is -not- the path taken 
-> by LLD EH code, and libata must constantly work around these assumptions.
-
-I agree.
-
-> 
-> 4) libata is the -only- user of ->eh_strategy_handler(), and oddballs 
-
-Not any more ;-)
-
-Using the command time out hook and the strategy routine, gives _complete_
-control over host recovery, and I really do mean _complete_.
-
-	Luben
+but that doesn't whed much light for me.
 
 
-> must be stomped out.  It creates a maintenance burden on the SCSI layer 
-> that should be eliminated.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Here's a snippet from lspci : 
 
+00:04.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0
+controller] (rev 16) (prog-if 00 [UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 3
+        Region 4: I/O ports at d400 [size=32]
+        Capabilities: <available only to root>
+
+00:04.3 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0
+controller] (rev 16) (prog-if 00 [UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 3
+        Region 4: I/O ports at d000 [size=32]
+        Capabilities: <available only to root>
+
+
+Can anyone explain this to me?     The controllers are working just
+fine, so it's not too important, I'm just a currious nature :)
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

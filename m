@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVHSPi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVHSPoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbVHSPi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 11:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbVHSPi0
+	id S1751170AbVHSPoM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 11:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbVHSPoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 11:38:26 -0400
-Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:22783 "EHLO
-	panta-1.pantasys.com") by vger.kernel.org with ESMTP
-	id S1751165AbVHSPi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 11:38:26 -0400
-Message-ID: <4305FCF1.6020905@pantasys.com>
-Date: Fri, 19 Aug 2005 08:38:25 -0700
-From: Peter Buckingham <peter@pantasys.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Fri, 19 Aug 2005 11:44:12 -0400
+Received: from aeimail.aei.ca ([206.123.6.84]:42189 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S1751170AbVHSPoM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 11:44:12 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-rc6-mm1
+Date: Fri, 19 Aug 2005 11:45:58 -0400
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <20050819043331.7bc1f9a9.akpm@osdl.org>
+In-Reply-To: <20050819043331.7bc1f9a9.akpm@osdl.org>
 MIME-Version: 1.0
-To: Sean Bruno <sean.bruno@dsl-only.net>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc6-git10 test report [x86_64](WITHOUT NVIDIA MODULE)
-References: <1124401950.14825.13.camel@home-lap.suse.lists.linux.kernel>	 <p73u0hmsy83.fsf@verdi.suse.de> <1124405533.14825.24.camel@home-lap>	 <20050818230349.GC22993@wotan.suse.de> <1124410753.14825.32.camel@home-lap>
-In-Reply-To: <1124410753.14825.32.camel@home-lap>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Aug 2005 15:38:11.0390 (UTC) FILETIME=[016D75E0:01C5A4D4]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200508191145.58835.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sean,
+On Friday 19 August 2005 07:33, Andrew Morton wrote:
+> - Lots of fixes, updates and cleanups all over the place.
+> 
+> - If you have the right debugging options set, this kernel will generate
+>   a storm of sleeping-in-atomic-code warnings at boot, from the scsi code.
+>   It is being worked on.
+> 
+> 
+> Changes since 2.6.13-rc5-mm1:
+> 
 
-Sean Bruno wrote:
-> Well, I do have IOMMU enabled in my kernel .config.  I have attached it
-> to this message as well.  I would appreciate any guidance as I pretty
-> much have no idea what 99% of the items in here are for.  This is
-> the .config that I used to build the kernel from the dmesg output that
-> is attached to this email.
+Hi,
 
-the error that you see is because you haven't set a big enough size in 
-the BIOS for the IOMMU. The error message is just saying that the kernel 
-is enabling the IOMMU anyway. It used to be that it would enable 64MB, 
-it looks like it's defaulting now to 256MB. When you enable a big enough 
-size in the bios this error will go away (assuming that your bios fills 
-in the registers correctly).
+It does not compile here:
 
-peter
+  CC      drivers/acpi/sleep/main.o
+In file included from drivers/acpi/sleep/main.c:15:
+include/linux/dmi.h:55: error: field 'list' has incomplete type
+make[3]: *** [drivers/acpi/sleep/main.o] Error 1
+make[2]: *** [drivers/acpi/sleep] Error 2
+make[1]: *** [drivers/acpi] Error 2
+make: *** [drivers] Error 2
+ed@grover:/usr/src/13-6-1$          
+
+Probably a missing include?  Note that this is a non smp x86_64 build.
+
+Thanks
+Ed Tomlinson

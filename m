@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbVHSQRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbVHSQSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbVHSQRc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 12:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVHSQRc
+	id S964992AbVHSQSa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 12:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbVHSQSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 12:17:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7643 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751218AbVHSQRb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 12:17:31 -0400
-Date: Fri, 19 Aug 2005 00:29:47 -0700
-From: Greg KH <gregkh@suse.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sysfs: write returns ENOMEM?
-Message-ID: <20050819072947.GA6894@kroah.com>
-References: <200508190055.25747.dtor_core@ameritech.net>
+	Fri, 19 Aug 2005 12:18:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24793 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S964984AbVHSQS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 12:18:29 -0400
+Date: Fri, 19 Aug 2005 17:21:21 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, vandrove@vc.cvut.cz,
+       Andrew Morton <akpm@osdl.org>, linware@sh.cvut.cz,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel bug: Bad page state: related to generic symlink code and mmap
+Message-ID: <20050819162121.GC29811@parcelfarce.linux.theplanet.co.uk>
+References: <1124450088.2294.31.camel@imp.csi.cam.ac.uk> <20050819142025.GA29811@parcelfarce.linux.theplanet.co.uk> <1124466246.2294.65.camel@imp.csi.cam.ac.uk> <Pine.LNX.4.58.0508190855350.3412@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200508190055.25747.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <Pine.LNX.4.58.0508190855350.3412@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 12:55:25AM -0500, Dmitry Torokhov wrote:
-> [Apologies if you see this message twice - I accidentially sent it in HTML
->  format first time around and I am pretty sure LKML will eat it]
-> 
-> Hi,
-> 
-> According to the SuS write() can not return ENOMEM, only ENOBUFS is allowed
-> (surprisingly read() is allowed to use both ENOMEM and ENOBUFS):
-> 
-> http://www.opengroup.org/onlinepubs/000095399/functions/write.html
-> 
-> Should we adjust sysfs write to follow the standard?
+On Fri, Aug 19, 2005 at 09:07:35AM -0700, Linus Torvalds wrote:
+> Hmm.. NFS _does_ use the page cache for symlinks, but uses it slightly 
+> differently: instead of relying on the page cache entry being the same 
+> when freeing the page, it just caches the page it looked up in the page 
+> cache (ie "nfs_follow_link()" does look up the page cache, but then hides 
+> the page pointer inside the page data itself (uglee), and thus does not 
+> depend on the mapping staying the same (nfs_put_link() just takes the page 
+> from the symlink data).
 
-Sure, I don't have a problem with this.  Anyone else object?
-
-thanks,
-
-greg k-h
+For NFS that was done exactly to deal with cache invalidation.  IIRC, I've
+convinced myself that it wasn't going to happen on ncpfs and happily
+abstained from duplicating the NFS variant.

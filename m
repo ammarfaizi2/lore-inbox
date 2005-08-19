@@ -1,64 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932750AbVHSXge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbVHSXkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932750AbVHSXge (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 19:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932753AbVHSXge
+	id S932346AbVHSXkL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 19:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932758AbVHSXkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 19:36:34 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:7955 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932750AbVHSXgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 19:36:33 -0400
-Date: Sat, 20 Aug 2005 01:36:31 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: [-mm patch] drivers/cdrom/sbpcd.c: fix the compilation
-Message-ID: <20050819233631.GB3615@stusta.de>
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>
+	Fri, 19 Aug 2005 19:40:10 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:65173 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932346AbVHSXkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 19:40:08 -0400
+Subject: Re: [git patches] ide update
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <58cb370e0508190202b0c5a5a@mail.gmail.com>
+References: <Pine.GSO.4.62.0508182332470.22579@mion.elka.pw.edu.pl>
+	 <1124406535.20755.12.camel@localhost.localdomain>
+	 <58cb370e0508190202b0c5a5a@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 19 Aug 2005 19:06:07 +0100
+Message-Id: <1124474768.32050.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050819043331.7bc1f9a9.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 04:33:31AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.13-rc5-mm1:
->...
-> +drivers-cdrom-fix-up-schedule_timeout-usage.patch
->...
-
-I sell copies of gcc at reasonable prices...
-
-<--  snip  -->
-
-...
-  CC      drivers/cdrom/sbpcd.o
-...
-drivers/cdrom/sbpcd.c:830: warning: implicit declaration of function 'schedule_interruptible_timeout'
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function `sbp_sleep':sbpcd.c:
-(.text+0x7c4592): undefined reference to `schedule_interruptible_timeout'
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
+On Gwe, 2005-08-19 at 11:02 +0200, Bartlomiej Zolnierkiewicz wrote:
+> lkml.org/lkml/2005/1/27/20
+> 
+> AFAIK CS5535 driver was never ported to 2.6.x.  Somebody needs to
+> port it to 2.6.x kernel, cleanup to match kernel coding standards and test.
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.13-rc6-mm1-full/drivers/cdrom/sbpcd.c.old	2005-08-19 20:43:18.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-full/drivers/cdrom/sbpcd.c	2005-08-19 20:44:46.000000000 +0200
-@@ -827,7 +827,7 @@
- static void sbp_sleep(u_int time)
- {
- 	sti();
--	schedule_interruptible_timeout(time);
-+	schedule_timeout_interruptible(time);
- 	sti();
- }
- /*==========================================================================*/
+That was done some time ago and posted to various people.
 

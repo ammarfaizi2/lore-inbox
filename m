@@ -1,93 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965180AbVHSVsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932725AbVHSVz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965180AbVHSVsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 17:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVHSVsQ
+	id S932725AbVHSVz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 17:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932728AbVHSVz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 17:48:16 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:32716 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965180AbVHSVsP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 17:48:15 -0400
-Message-ID: <43065440.5050608@us.ibm.com>
-Date: Fri, 19 Aug 2005 14:50:56 -0700
-From: Darren Hart <dvhltc@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
-X-Accept-Language: en-us, en
+	Fri, 19 Aug 2005 17:55:58 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:31958 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932725AbVHSVz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 17:55:58 -0400
+Date: Fri, 19 Aug 2005 16:55:52 -0500 (CDT)
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: linux-kernel@vger.kernel.org
+cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 0/2] external interrupts
+Message-ID: <20050819160716.U87000@chenjesu.americas.sgi.com>
+Organization: "Silicon Graphics, Inc."
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, "lkml, " <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.13-rc6-rt9
-References: <20050818060126.GA13152@elte.hu>
-In-Reply-To: <20050818060126.GA13152@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i have released the 2.6.13-rc6-rt9 tree, which can be downloaded from 
-> the usual place:
-> 
->   http://redhat.com/~mingo/realtime-preempt/
-> 
+Here is a set of patches that implements an external interrupt capability
+in Linux, along with a device driver for a specific hardware device.  I
+submitted the patches several weeks ago, and they drew no comments, which
+I take to be a good sign.  Anyway, I'm hoping these can be picked up for
+-mm in time for 2.6.14.
 
-I'm looking into getting HRT and RT booting on a SUMMIT NUMA machine 
-(cyclone timer), but after s/error/warning/ in arch/i386/timers/timer.c 
-for the HRT cyclone ifdef, I still get the following link error:
+External interrupts, in short, encompass the ability to respond quickly
+via an interrupt routine to an externally applied voltage signal.  This
+finds use primarily in real time systems which must react to an event
+generated outside the computer.  External interrupts also encompass
+the ability to generate such signals in order to notify other computer
+systems (or even the same system, depending on cabling and configuration)
+of an event of interest.  This is explained in greater detail in the
+Documentation/extint.txt and Documentation/sgi-ioc4.txt files which are
+part of these patches.
 
+The first patch implements an abstraction layer which creates a sysfs
+class "extint".  This class provides device control via several (hopefully)
+common attributes of an external interrupt device.  For example, an
+application can control the source of ingested interrupts if multiple
+input jacks are present on the specific hardware, or control the output
+waveform and repetition period on the output side.  Mechanisms are
+provided to allow a low-level driver to enumerate these capabilities
+where appropriate.
 
-   LD      .tmp_vmlinux1
-net/built-in.o(.init.text+0xdae): In function `sock_ioctl':
-net/socket.c:868: undefined reference to `__you_cannot_kmalloc_that_much'
-make: *** [.tmp_vmlinux1] Error 1
+This first patch is motivated by several factors.  The first is a clean
+seperation of device-specific knowledge from the more general concept, thus
+isolating applications from needing to be aware of device characteristics.
+The second is the simplification of low-level external interrupt drivers
+by centralizing the common factors (e.g. a global counter, a list of
+actions to invoke at each interrupt, etc) in the abstraction layer.
+Finally, it enables easy support for additional or alternative low-level
+(i.e. device-specific) external interrupt drivers in the future.
 
+The second patch implements the low-level external interrupt driver for
+the SGI IOC4 I/O controller chip.  For the most part this driver simply
+registers itself with the extint abstraction layer, and of course takes
+care of all the hardware bit-twiddling to effect appropriate operation.
+In addition, this driver provides its own character special device which
+can be mmap'd directly into the user address space.  This provides the
+ability to control interrupt output generation without going through
+the abstraction layer's sysfs attribute's read/write routines by directly
+poking values in the appropriate hardware register (which lives in its
+own page of memory seperate from all others).  This capability enables
+the application to more expediently generate output where this bit of
+overhead might matter (remember, this is typically used in real time
+or near real time systems).
 
-I was expecting to be able to build the kernel, and have it crash on 
-boot (due to unsynched TSCs I'm guessing) and then start debugging/devel 
-from there.  But the the rt9 patch won't build (HRT standalone for 
-2.6.10 does build).  Anyone else seeing this?
+I do realize this whole thing is slightly overengineered if only to enable
+the IOC4 device's external interrupt capability.  However, like all
+hardware, someday IOC4 will be a long-forgotten memory, and SGI (me in
+particular) would like to put a suitable mechanism in place to enable
+different types of hardware with similar capabilities in the future.
+Hopefully any interested third-party hardware vendors will add their
+own low-level external interrupt drivers.
 
-> it's a fixes-only release. Changes since 2.6.13-rc6-rt3:
-> 
->  - USB irq flags use cleanups (Alan Stern)
-> 
->  - RCU tasklist-lock fixes (Paul McKenney, Thomas Gleixner)
-> 
->  - HR-timers waitqueue splitup, better HRT latencies (Thomas Gleixner)
-> 
->  - latency tracer fixes, irq flags tracing cleanups (Steven Rostedt, me)
-> 
->  - NFSd BKL unlock fix (Steven Rostedt)
-> 
->  - stackfootprint-max-printer fix (Steven Rostedt)
-> 
->  - stop_machine fix (Steven Rostedt)
-> 
->  - lpptest fix (me)
-> 
->  - turned off IOAPIC_POSTFLUSH when CONFIG_X86_IOAPIC_FAST. Now with
->    Karsten's VIA fixes my testbox does not show PCI-POST weirnesses
->    anymore. In case of IRQ problems please turn off IOAPIC_FAST. (me)
-> 
-> to build a 2.6.13-rc6-rt9 tree, the following patches should be applied:
-> 
->    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
->    http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc6.bz2
->    http://redhat.com/~mingo/realtime-preempt/patch-2.6.13-rc6-rt9
-> 
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+And while I mentioned real time as the primary application of external
+interrupts, I'm sure there are other creative uses to be found.  My
+imagination, however, is limited. :)
 
+Thanks,
+Brent Casavant
 
 -- 
-Darren Hart
-IBM Linux Technology Center
-Linux Kernel Team
-Phone: 503 578 3185
-   T/L: 775 3185
+Brent Casavant                          If you had nothing to fear,
+bcasavan@sgi.com                        how then could you be brave?
+Silicon Graphics, Inc.                    -- Queen Dama, Source Wars

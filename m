@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbVHSPKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbVHSPNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964979AbVHSPKF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 11:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVHSPKB
+	id S1750865AbVHSPNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 11:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVHSPNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 11:10:01 -0400
-Received: from rgminet02.oracle.com ([148.87.122.31]:16786 "EHLO
-	rgminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S964979AbVHSPKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 11:10:00 -0400
-Date: Fri, 19 Aug 2005 08:09:28 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: David Teigland <teigland@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, mark.fasheh@oracle.com
-Subject: Re: [PATCH] configfs: export config_group_find_obj
-Message-ID: <20050819150928.GC18991@ca-server1.us.oracle.com>
-Mail-Followup-To: David Teigland <teigland@redhat.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, mark.fasheh@oracle.com
-References: <20050818062602.GD10133@redhat.com> <20050818211749.GD22742@insight>
+	Fri, 19 Aug 2005 11:13:16 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:62149 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750865AbVHSPNP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 11:13:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Vm3wQLrWUo6MmXr+Wi7slcpKwM65lZ7AEbilunCIl3M/vkYfpepAnmTimO9PRmBdoO1Rr+hZcwaL0AnKcahzsH5bqOjMWGg238qIeyza8nhz7FRZOR1F9AaeRIbVxVv0fKwp+nu9OYgjH/J8CjRp2QLu+wCrHHTctSQs+2USzcQ=
+Message-ID: <605adbb05081908137d6c8ed7@mail.gmail.com>
+Date: Fri, 19 Aug 2005 23:13:11 +0800
+From: gnome boxer <gnome.boxer@gmail.com>
+To: roucaries bastien <roucaries.bastien@gmail.com>
+Subject: Re: kernel 2.6.10-2.6.13-rc4 hang reboot from linux(not from windows or from BIOS),but 2.6.8 and 2.6.9 haven't
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <195c7a900508190807504a988a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050818211749.GD22742@insight>
-User-Agent: Mutt/1.5.10i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+References: <605adbb05081907323d3bd70c@mail.gmail.com>
+	 <195c7a900508190807504a988a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 18, 2005 at 02:17:49PM -0700, Joel Becker wrote:
-> On Thu, Aug 18, 2005 at 02:26:02PM +0800, David Teigland wrote:
-> > In the dlm I use config_group_find_obj() which isn't exported.
+2005/8/19, roucaries bastien <roucaries.bastien@gmail.com>:
+> On 8/19/05, gnome boxer <gnome.boxer@gmail.com> wrote:
+> > I use fedora core 4,when I rebooted from linux(not from windows or
+> > BIOS),it will hang after the system POST before grub display the stage
+> > 1.5 on the screen,so I must reboot again from there using CRTL+ALT+DEL
+> >
+> > I don't know whether this belongs to grub or belongs to the linux
+> > reboot changes from 2.6.8 and 2.6.9
 > 
-> 	Did you notice the /* XXX Locking */?  Let me go see how you use
-> it, if it is the best way, we'll need to revisit the function and be
-> sure it's happy.
+> did you try to add to the kernel command line reboot=cold or
+> reboot=bios or reboot=hard.
+> 
+I tried the reboot=c reboot=b reboot=s
 
-	Yeah, your usage is unsafe, but the fault lies with find_obj().
-Needs fixing.
-
-Joel
+They all have this
 
 
--- 
 
-"Vote early and vote often." 
-        - Al Capone
+> Seems your bios reboot routine is buggy. The preevious option are workarround.
 
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+I think it's linux's reboot routine's fault 
 
+
+> > This only happens in rebooting from Linux kernel within
+> > 2.6.10-2.6.13-rc4(not from BIOS or windows).when I use grub to handle
+> > boot ,the grub will hang after the system POST,must reboot again from
+> > BIOS to boot correct in the grub menu.
+> >
+> >
+> > It only happened *reboot* from Linux,if I directly cold boot
+> > everything is ok,or if I reboot from windows it 's booted ok also
+> >
+> >
+> > I tested the older kernel version from 2.6.13-rc4 to 2.6.8 .I found
+> > the 2.6.8 and the 2.6.9 worked well without above
+> > reboot_from_linux_with_hang_after_POST,and the 2.6.10-2.6.13-rc4 were
+> > all have
+> >
+> > The motherboard is GIGABYTE GA8IPE-1000 ,865PE chipset INTEL ICH5R,
+> > prescott 3.0E
+> >
+> >
+> > I wait somebody to report this bug  for a long time and to be fixed
+> > but seldom people meet and seems like none fix this.
+> >
+> > My kernel config and dmesg in the attachment
+> Bastien
+> >
+>

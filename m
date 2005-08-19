@@ -1,58 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVHSJC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbVHSJPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbVHSJC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 05:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbVHSJC4
+	id S932563AbVHSJPG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 05:15:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVHSJPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 05:02:56 -0400
-Received: from nproxy.gmail.com ([64.233.182.205]:2271 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932547AbVHSJCz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 05:02:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=liyAVzufXbNtMTkpmveQJT4+3c7tvXv6qsIFW8hPw/dlCV7CYKmyIdowvPvU1rcOHkwFpvddwBUTbd8jxM5iQiYGDSTx9GUY9GaTjqoe0rTV2ls6M36V0BkntZJe66wi8Ukw0tsZtC/xyCR93tkw9cZOi6poyAsKgXcqeeT66EM=
-Message-ID: <58cb370e0508190202b0c5a5a@mail.gmail.com>
-Date: Fri, 19 Aug 2005 11:02:53 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [git patches] ide update
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1124406535.20755.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.GSO.4.62.0508182332470.22579@mion.elka.pw.edu.pl>
-	 <1124406535.20755.12.camel@localhost.localdomain>
+	Fri, 19 Aug 2005 05:15:06 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:62549 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S932563AbVHSJPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 05:15:03 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.96,124,1122847200"; 
+   d="scan'208"; a="14313210:sNHT27964328"
+To: linux-kernel@vger.kernel.org
+Subject: Re: SATA status report updated
+References: <4AA7B-4jm-5@gated-at.bofh.it> <4DagM-7c8-43@gated-at.bofh.it>
+Organization: Fujitsu Siemens Computers VP BC E SW OS
+From: Rainer Koenig <Rainer.Koenig@fujitsu-siemens.com>
+Date: Fri, 19 Aug 2005 11:14:45 +0200
+In-Reply-To: <4DagM-7c8-43@gated-at.bofh.it> (Simon Oosthoek's message of
+ "Fri, 19 Aug 2005 10:20:16 +0200")
+Message-ID: <871x4ql24a.fsf@ABG3595C.abg.fsc.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/19/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Iau, 2005-08-18 at 23:37 +0200, Bartlomiej Zolnierkiewicz wrote:
-> > +     },{     /* 14 */
-> > +             .name           = "Revolution",
-> > +             .init_hwif      = init_hwif_generic,
-> > +             .channels       = 2,
-> > +             .autodma        = AUTODMA,
-> > +             .bootable       = OFF_BOARD,
-> >       }
-> 
-> This seems rather odd - the driver asks for AUTODMA yet because its IDE
-> generic contains no code to retune the device interface for DMA ?
+Hi Simon,
 
-It is fine, grep drivers/ide/setup-pci.c for "d->autodma".
-You are confusing 'autodma' fields in ide_hwif_t and ide_pci_device_t.
+Simon Oosthoek <simon.oosthoek@ti-wmc.nl> writes:
 
-> BTW whats the status on the CS5535 driver that someone submitted a while
-> back ?
+> I'm wondering how the support for the SIS 182 controller is doing, I
+> noticed they have a GPL driver on their website for kernel 2.6.10,
+> which is not a drop in replacement for sata_sis.c in 2.6.12.5, I
+> haven't tried compiling it as an add-on module outside the tree,
+> though...
 
-lkml.org/lkml/2005/1/27/20
+I tried the sources from the SiS website (that seem to add more
+details than my simple patch that just adds the device ID) as a drop
+in for the Fedora installation kernel 2.6.11-1.1369_FC4, but the
+kernel build process ran into an error at the sata_sis module. The
+problem is that the source from SiS has a conditional code that
+depends on the definition of a symbol "KERN_2_6_10" which is defined
+by their "outside build makefile", but not in the standard kernel
+build process. I added a #define KERN_2_6_10 to the source and then it
+compiled also inside the kernel build process.
 
-AFAIK CS5535 driver was never ported to 2.6.x.  Somebody needs to
-port it to 2.6.x kernel, cleanup to match kernel coding standards and test.
+> Adding the 0x182 identifier to the 180 driver does compile (duh!), but
+> I haven't tried it on hardware.
 
-Bartlomiej
+Working at a PC manufacturer I have access to hardware and I tried out
+a lot and didn't run into any problem so far. 
+
+> As a temporary measure, there was a patch posted to this list [1] a
+> while ago, would it be a good idea to include this while full support
+> is being worked on?
+
+Seeing that the source from the SiS website is much more going into the
+details than my simple adding of the device ID (of course SiS has hopefully
+a much deeper knowledge of their hardware than I have ;-) I would rather
+go for integrating the SiS source in the current kernel. 
+
+And this problem is quite urgent since its a sort of "showstopper" for 
+brandnew hardware. We have a query from an university that wants to buy
+7000 PCs with that hardware in the next 4 years, but until yesterday they
+were unable to install Fedora Core 4 on the machine since the installer
+doesn't see any hard disks. I succeeded to make a simple quick&dirty
+driver disk to get Linux at least installed on the hard disk. But the
+problem also applies for every other Linux distribution, so we urgently
+need to get support for that device in the mainstream kernel hoping 
+that it will be inherited to the installation kernels of the distributions
+soon. 
+
+Generally SATA is replacing parallel ATA in the new PC platforms and we
+already got anouncements that future platforms will come with SATA only.
+So can't emphasize enought that SATA support is absolutely important for
+Linux on the desktop. 
+
+If there is something I can do to help or contribute let me know. 
+
+Best regards
+Rainer
+-- 
+Dipl.-Inf. (FH) Rainer Koenig
+Project Manager Linux
+Business Clients
+Fujitsu Siemens Computers 
+VP BC E SW OS
+Phone: +49-821-804-3321
+Fax:   +49-821-804-2131
+ 

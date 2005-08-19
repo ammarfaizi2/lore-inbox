@@ -1,518 +1,287 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932728AbVHSV4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbVHSV4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932728AbVHSV4M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 17:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932729AbVHSV4M
+	id S965187AbVHSV4U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 17:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVHSV4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 17:56:12 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:38102 "EHLO
+	Fri, 19 Aug 2005 17:56:20 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:38614 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932728AbVHSV4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 17:56:09 -0400
-Date: Fri, 19 Aug 2005 16:55:58 -0500 (CDT)
+	id S932731AbVHSV4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 17:56:12 -0400
+Date: Fri, 19 Aug 2005 16:56:04 -0500 (CDT)
 From: Brent Casavant <bcasavan@sgi.com>
 Reply-To: Brent Casavant <bcasavan@sgi.com>
 To: linux-kernel@vger.kernel.org
 cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/2] external interrupts: abstraction layer
-Message-ID: <20050819161054.I87000@chenjesu.americas.sgi.com>
+Subject: [PATCH 2/2] external interrupts: IOC4 driver
+Message-ID: <20050819161213.B87000@chenjesu.americas.sgi.com>
 Organization: "Silicon Graphics, Inc."
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements an abstraction layer for external interrupt devices.
-It creates a new sysfs class "extint" which provides a number of read-write
-and a few read-only attributes which can be used to control a lower-level
-hardware-specific external interrupt device driver.
+This patch implements a device driver for the external interrupt
+capabilities of the SGI IOC4 I/O controller chip.  This driver
+depends upon the ioc4 driver and the extint abstraction layer
+(provided in the first patch of this series).
 
-The abstraction layer provides a mechanism to insulate applications from
-the details of the capabilities and mechanisms of a particular external
-interrupt device.  It also greatly simplifies low-level drivers.
+In addition to the base capabilities present in the abstracted
+external interrupt interface, this driver also provides a character
+special device to expose the user-mappable register capability of
+the IOC4.  This allows a user application to mmap the device in
+order to directly poke at the external interrupt output control
+register, thereby reducing read/write system call overhead which is
+necessary when going through the abstraction layer class attribute
+files.
 
 Signed-off-by: Brent Casavant <bcasavan@sgi.com>
 
- Documentation/extint.txt        |  431 +++++++++++++++++++++++++
+ Documentation/sgi-ioc4.txt      |  177 ++++++++
  arch/ia64/configs/sn2_defconfig |    1 
  arch/ia64/defconfig             |    1 
- drivers/char/Kconfig            |    7 
+ drivers/char/Kconfig            |    9 
  drivers/char/Makefile           |    1 
- drivers/char/extint.c           |  673 ++++++++++++++++++++++++++++++++++++++++
- include/linux/extint.h          |  115 ++++++
- 7 files changed, 1229 insertions(+)
+ drivers/char/ioc4_extint.c      |  791 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/ioc4.h            |    1 
+ 7 files changed, 976 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/extint.txt b/Documentation/extint.txt
-new file mode 100644
---- /dev/null
-+++ b/Documentation/extint.txt
-@@ -0,0 +1,431 @@
-+		  External Interrupt Abstraction Layer Driver
-+		       Brent Casavant <bcasavan@sgi.com>
+diff --git a/Documentation/sgi-ioc4.txt b/Documentation/sgi-ioc4.txt
+--- a/Documentation/sgi-ioc4.txt
++++ b/Documentation/sgi-ioc4.txt
+@@ -3,18 +3,19 @@ it are in order.
+ 
+ First, even though the IOC4 performs multiple functions, such as an
+ IDE controller, a serial controller, a PS/2 keyboard/mouse controller,
+-and an external interrupt mechanism, it's not implemented as a
++and an external interrupt mechanism, it is not implemented as a
+ multifunction device.  The consequence of this from a software
+ standpoint is that all these functions share a single IRQ, and
+ they can't all register to own the same PCI device ID.  To make
+ matters a bit worse, some of the register blocks (and even registers
+ themselves) present in IOC4 are mixed-purpose between these several
+-functions, meaning that there's no clear "owning" device driver.
++functions, meaning that there's no clear "owning" device driver as
++far as PCI resources are concerned.
+ 
+ The solution is to organize the IOC4 driver into several independent
+-drivers, "ioc4", "sgiioc4", and "ioc4_serial".  Note that there is no
+-PS/2 controller driver as this functionality has never been wired up
+-on a shipping IO card.
++drivers, "ioc4", "sgiioc4", "ioc4_serial", and "ioc4_extint".  Note
++that there is no PS/2 controller driver as this functionality has never
++been wired up on a shipping IO card.
+ 
+ ioc4
+ ====
+@@ -43,3 +44,169 @@ ioc4_serial
+ This is the serial driver for IOC4.  There's not much to say about it
+ other than it hooks up to the ioc4 driver via the appropriate registration,
+ probe, and remove functions.
 +
-+Things you might ask yourself right away
-+========================================
++ioc4_extint
++===========
++Since external interrupts may not be obvious in purpose from their
++name, here's a brief rundown.
 +
-+What is an external interrupt?
-+------------------------------
++Sometimes it's useful to be able to react to an physical event totally
++outside the system, or generate such an event for another system or device
++to notice.  In particular, this is useful for realtime (both soft and hard)
++systems.  IOC4-based IO controller cards provide an electrical interface
++to the outside world which can be used to ingest and generate a simple
++signal for these purposes.
 +
-+Some types of applications, particuarly realtime process-control or
-+simulations, need the ability to react to some simple external event.
-+One way of doing this is special hardware that generates an interrupt
-+whenever some external signal is applied to it.  A good example is
-+the IO9 and IO10 cards on SGI Altix machines, which have an 1/8"
-+stereo-style jack where a 0-5V signal can be fed into it.  Some
-+outside piece of hardware can wiggle this line to cause the IOC4
-+chip on these cards to generate an interrupt.
++On the output side, one of the jacks can provide a small selection
++of output modes (low, high, a single strobe, as well as toggling or
++pulses at a specified interval) that create a 0-5V electrical output.
++On the input side, one of the jacks will cause the IOC4 to generate
++a PCI interrupt on the transition edge of an electrical signal.
 +
-+Anything else to it?
-+--------------------
++For the most part this driver simply registers with the "extint"
++abstracted external interrupt driver, and lets it take care of
++the user-facing details.  You are directed the Documentation/extint.txt
++file for a description thereof.  However, there are some exceptions.
++The details of the driver interface follow.
 +
-+Besides being able to receive these interrupts, sometimes you'd like to
-+generate similar signals for use by the outside world.  The abstraction
-+layer also provides a signal output control mechanism.
-+
-+Why an abstraction layer?
++external interrupt output
 +-------------------------
-+
-+Different chips might implement the external interrupt feature in
-+very different ways, but in the end you just want to know when an
-+interrupt occurs, perhaps have an ongoing count of these interrupts,
-+and select the source of those interrupts.  An abstraction layer
-+gives us this capability without needing to depend on specifics
-+of the device being used.
-+
-+What an application or user cares about
-+=======================================
-+
-+The external interrupt abstraction layer provides a character device,
-+and several sysfs attributes to control operation.  Assuming the
-+usual /sys mount-point for sysfs, these files are:
-+
-+	/sys/class/extint/extint#/dev
-+				  mode
-+				  modelist
-+				  period
-+				  provider
-+				  quantum
-+				  source
-+				  sourcelist
-+
-+The "extint#" component of this path is determined by the extint driver
-+itself, with the "#" replaced by a number (possibly multi-digit), one
-+per external interrupt device beginning at zero.  There will be one of
-+these dirctories per external interrupt device.
-+
-+The "dev" attribute contains the major and minor number of the abstracted
-+external interrupt device.  If Linux's sysfs, hotplug, and udev are
-+configured appropriately, udev will automatically create a /dev/extint#
-+character special device file with this major and minor number.  If
-+you prefer, you may manually invoke mknod(1) to create the character
-+special device file.
-+
-+Once created, this device file provides a counter that can be used by
-+applications in a variety of ways.  It can be memory mapped read-only
-+as a single page, in which case the first unsigned long word of the
-+page contains a counter that is incremented each time an interrupt
-+occurs.  You can use poll(2) and select(2) for reading on a read-only
-+file descriptor opened on the device, in which case the poll will
-+indicate whether an interrupt has occurred since the last read(2)
-+or open(2) of the file, and select will return when the next interrupt
-+is received.  The file can also be the subject of read(2), in which
-+case it returns an string representation of the value of the counter.
-+
-+The "source" attribute can be written to set the hardware source of
-+interrupts (e.g. SGI's IOC4 chip can trigger either from the external
-+pin, or an internal loopback from its interrupt output section).  It
-+can be read to determine the current setting of the source.
-+
-+The "sourcelist" attribute can be read to determine the list of available
-+interrupt sources, one per line.  These strings are the legal values
-+which can be written to the "source" attribute.
-+
-+The "mode" attribute can be written to set the shape of the output
-+signal for interrupt generation.  For example, SGI's IOC4 chip can
-+set the output to a logic low, a logic high, strobe from low to high
-+to low one time, set up a repeating strobe, or repeatedly toggle between
-+high and low.  It can be read to determine the current setting of the
-+mode.
-+
-+The "modelist" attribute can be read to determine the list of available
-+output modes, one per line.  These strings are the legal values which
-+can be written to the "mode" attribute.  (Note that at least in the
-+case of the SGI IOC4 chip, there are other values which may be read
-+from the "mode" attribute which don't appear in "modelist"; these
-+represent invalid hardware states.  Only the modes present from
-+the modelist are valid settings to be written to the mode attribute.)
-+
-+The "period" attribute can be written to set the repetition interval
-+for periodic output signals (e.g. repeated strobes, automatic toggling).
-+This period should be specified in nanoseconds, and should be written
-+as a string.  It can be read to determine the current period setting.
-+
-+The "quantum" attribute can be read to determine the interval to which
-+any writes of the "period" attribute will be rounded.  External
-+interrupt output hardware may not support nanosecond granularity
-+for output periods -- this attribute allows you to determine the
-+supported granularity.  The behavior of the interrupt output when
-+a value which is not a multiple of the quantum is written to the
-+"period" attribute is determined by the specific low-level external
-+interrupt driver, however generally the low-level driver should round
-+to the nearest available quantum multiple.
-+
-+The "provider" attribute can be read to obtain an indication of which
-+low-level hardware driver and device instance is attached to the
-+external interrupt interface.  This string is free-form and determined
-+by the low-level driver.  For example, the SGI IOC4 low-level driver
-+will return a string of the form "ioc4_intout#".
-+
-+What a low-level external interrupt driver writer cares about
-+=============================================================
-+
-+The interface to the abstraction layer driver is provided through
-+the extint_properties and extint_device structures as defined in
-+<linux/extint.h>, and the function prototypes contained therein.
-+
-+Driver registration
-+-------------------
-+To register the low-level driver with the abstraction layer, a
-+call is made to:
-+
-+	struct extint_device*
-+	extint_device_register(struct extint_properties *ep,
-+			       void *devdata);
-+
-+The "ep" argument is a pointer to an extint_properties structure, which
-+specifies the particular low-level driver functions the abstraction layer
-+should call when reading/writing the attributes described in the previous
-+section.  This is described below.
-+
-+The "devdata" argument is an opaque pointer which is stored by the
-+extint code.  This value can be retrieved or modified via
-+
-+	void* extint_get_devdata(const struct extint_device *ed);
-+	void extint_set_devdata(struct extint_device *ed, void* devdata);
-+
-+respectively.  This value can be used by the low-level driver to
-+determine which of multiple devices it is operating upon, or whatever
-+purpose may be desired.  This is described below.
-+
-+The return value is either a pointer to a struct extint_device (which
-+should be saved for later interrupt notification and driver deregistration),
-+or a negative error value in case of registration failure.  The driver
-+should be prepared to deal with such failures.
-+
-+Implementation functions
-+------------------------
-+
-+The struct extint_properties is as follows:
-+
-+struct extint_properties {
-+	struct module *owner;
-+	ssize_t (*get_mode)(struct extint_device *ed, char *buf);
-+	ssize_t (*set_mode)(struct extint_device *ed, const char *buf,
-+			    size_t count);
-+	ssize_t (*get_modelist)(struct extint_device *ed, char *buf);
-+	unsigned long (*get_period)(struct extint_device *ed);
-+	ssize_t (*set_period)(struct extint_device *ed, unsigned long period);
-+	ssize_t (*get_provider)(struct extint_device *ed, char *buf);
-+	unsigned long (*get_quantum)(struct extint_device *ed);
-+	ssize_t (*get_source)(struct extint_device *ed, char *buf);
-+	ssize_t (*set_source)(struct extint_device *ed, const char *buf,
-+			      size_t count);
-+	ssize_t (*get_sourcelist)(struct extint_device *ed, char *buf);
-+};
-+
-+(Note: Additional fields not of interest to the low-level external interrupt
-+driver may be present -- drivers are encouraged to include linux/extint.h
-+to acquire this structure definition.)
-+
-+"owner" should be set to the module which contains the functions
-+pointed to by the remaining structure members.
-+
-+The remaining functions implement low-level aspects of the abstraction
-+layer attributes.  They all take a pointer to the struct extint_device
-+as was returned from the registration function.  In all of these functions,
-+the value passed as the "devdata" argument to the registration function
-+can be retrieved via:
-+
-+	extint_get_devdata(ed);
-+
-+And can be updated via:
-+
-+	extint_set_devdata(ed, newvalue);
-+
-+Typically this value is a pointer to driver-specific data for the
-+individual device being operated upon.  It may, for example, contain
-+pointers to mapped PCI regions where control registers reside.
-+
-+"get_mode" and "set_mode" implement the "mode" attribute of the abstraction
-+layer.  "get_mode" should write the current mode into the single-page sized
-+buffer passed as the second argument, and return the length of the written
-+string.  "set_mode" should read the mode specified in the buffer passed as
-+the second argument, and as sized by the third, and return the number of
-+characters consumed (or a negative error number in event of failure).
-+It should of course also cause the output mode to be set as requested.
-+
-+"get_modelist" implements the "modelist" attribute of the abstraction
-+layer.  "get_modelist" should write strings representing the available
-+interrupt output generation modes into the single-page sized buffer
-+passed as the second argument, one mode per line.  It should return
-+the number of bytes written into this buffer.
-+
-+"get_period" and "set_period" implement the "period" attribute of the
-+abstraction layer.  "get_period" should return an unsigned long which
-+represents the current repetition period in nanoseconds.  "set_period"
-+should accept an unsigned long as the new value for the repetition
-+period, specified in nanoseconds, and returning either 0 or a negative
-+error number indicating a failure.  If the requested repetition period
-+is not a value which can be exactly set into the underlying hardware,
-+the driver is free to adjust the value as it sees fit, though tyipically
-+it should round the value to the nearest available value.
-+
-+"get_provider" implements the "provider" attribute of the abstraction
-+layer.  "get_provider" should write a human-readable string which
-+identifies the low-level driver and a particular instance of a the
-+driven hardware device.  For example, if the low-level driver provides
-+its own additional device files for extra functionality not present
-+in the abstraction layer, this routine might emit the name of the
-+driver module and the names (or device numbers) of the low-level
-+driver's own character special device files.
-+
-+"get_quantum" implements the "quantum" attribute of the abstraction
-+layer.  "get_quantum" should return an unsigned long which represents
-+the granularity to which the interrupt output repetition period can
-+be set, in nanoseconds.
-+
-+"get_source" and "set_source" implement the "source" attribute of the
-+abstraction layer.  "get_source" should write the current interrupt
-+input source into the single-page sized buffer passed as the second
-+argument, and return the length of the written string.  "set_source"
-+should read the source specified in the buffer passed as the second
-+argument, and as sized by the third, and return the number of characters
-+consumed (or a negative error number in event of failure).   It should
-+of course also cause the input source to be selected as requested.
-+
-+"get_sourcelist" implements the "sourcelist" attribute of the abstraction
-+layer.  "get_sourcelist" should write strings representing the available
-+interrupt input sources into the single-page sized buffer passed as the
-+second argument, one source per line.  It should return the number of
-+bytes written into this buffer.
-+
-+When an interrupt occurs
-+------------------------
-+
-+When an external interrupt signal triggers an interrupt that is
-+handled by the low-level driver, the driver should call:
-+
-+	void
-+	extint_interrupt(struct extint_device *ed);
-+
-+This allows the abstraction layer to perform any appropriate
-+abstracted actions (i.e. update the interrupt count, trigger
-+poll/select actions, etc).  The sole argument is the struct
-+extint_device which was returned from the registration call.
-+
-+Driver deregistration
-+---------------------
-+
-+When the driver desires to unregister a particular device previously
-+registered with the abstraction layer, it should call:
-+
-+	void
-+	extint_device_unregister(struct extint_device *ed);
-+
-+The sole argument is the struct extint_device which was returned
-+from the registration call.  There is no error return from this
-+call, however if invalid data is passed to it the likelihood of
-+a kernel panic is very high indeed.
-+
-+What a kernel-level external interrupt user cares about
-+=======================================================
-+
-+In addition to the user-visible aspects of the external interrupt
-+abstraction layer, there is a kernel-only interface available for
-+interrupt notification.  This interface provides the ability for
-+other kernel modules to register a callout to be invoked whenever
-+an external interrupt is ingested for a particular device.
-+
-+Callout registration
-+--------------------
-+
-+To register a callout to be invoked upon interrupt ingest, a
-+struct extint_callout should be allocated, filled in, and
-+passed to:
-+
-+	int
-+	extint_callout_register(struct extint_device *ed,
-+				struct extint_callout *ec);
-+
-+The first argument is the struct extint_device corresponding to
-+the particular abstracted external interrupt hardware device of
-+interest.  How exactly this structure is found is up to the
-+caller, however the "file_to_extint_device" function will convert
-+a struct file pointer to a struct extint_device pointer.  This
-+function will return -EINVAL if an inappropriate file descriptor
-+is passed to it.
-+
-+The second argument is one of the following structures:
-+
-+struct extint_callout {
-+	struct module* owner;
-+	void (*function)(void *);
-+	void *data;
-+};
-+
-+(Note: Additional fields not of interest to the external interrupt user
-+may be present -- drivers are encouraged to include linux/extint.h
-+to acquire this structure definition.)
-+
-+The "owner" field should be set to the module containing the function
-+and data pointed to by the remaining fields.
-+
-+The "function" pointer is a callout function which is to be invoked
-+whenever an interrupt is ingested by the abstraction layer for the
-+device of interest.  It will be passed as its sole argument the
-+"data" field, which is used opaquely and is provided solely for use
-+by the caller.  That is, the abstraction layer will invoke:
-+
-+	ec->function(data);
-+
-+upon each interrupt of the specified device.
-+
-+Multiple callouts can be registered for the same abstracted external
-+interrupt device.  They will be invoked in no guaranteed order, but
-+will be invoked one at a time.
-+
-+The interrupt counter will be incremented before the callouts are
-+invoked, but before any signal/poll notifications occur.
-+
-+The module specified by the "owner" field in the callout structure,
-+as well as the module corresponding to the low-level external interrupt
-+device driver, will have their reference counts increased by one until
-+the callout is deregistered.
-+
-+Callout deregistration
-+----------------------
-+
-+To remove a callout, simply call:
-+
-+	extern void
-+	extint_callout_unregister(struct extint_device *ed,
-+				  struct extint_callout *ec);
-+
-+With the same arguments as provided during callout registration.
-+Both active and orphaned callouts can be removed in this manner
-+with no distinction between the two.
-+
-+The callout function must continue to be able to be invoked
-+until the call to extint_callout_unregister completes.
-+
-+Things you might ask yourself at the end
-+========================================
-+
-+What if my hardware device supports a capability not in the abstraction?
-+------------------------------------------------------------------------
-+
-+There are two possibilities.  The first would be to add a new attribute
-+to the abstraction, modify struct extint_properties to add appropriate
-+interface routines, and update any existing drivers as necessary.
-+
-+The second, and generally preferable method, is for the the
-+low-level driver to create its own device class and corresponding
-+attributes and/or character special devices.  This is definitely
-+the correct route to take if the capability is dependent on the
-+hardware in a method that cannot be abstracted.
-+
-+A good example is the SGI IOC4's ability to map the interrupt output
-+control register directly into a user application to avoid the kernel
-+overhead of reading/writing the abstracted attribute files.  Using
-+this capability means that the application must have intimate knowledge
-+of the format of the control register -- something which both cannot
-+be abstracted away by the kernel, and which is very specific to this
-+particular IO controller chip.  This capability is provided by the
-+ioc4_extint driver supplying its own character special device along
-+with an ioc4_intout device class.
-+
-+Is there an example low-level driver to pattern mine after?
-+-----------------------------------------------------------
-+
-+Sure.  linux/drivers/char/ioc4_extint.c
-+
-+Note that this low-level driver in addition to providing the
-+abstraction interface, creates an IOC4-specific character
-+special device and an IOC4-specific device class, as mentioned
-+in the answer to the previous question.
-+
-+Why the callout mechanism?
-+--------------------------
-+
-+For systems (not just applications, we're taking a higher-level view
-+here) which are critically interested in responding as quickly as
-+possible to an externally triggered event, waiting for a poll/select
-+operation, or even busy-waiting on the value of the interrupt counter
-+to change may not provide appropriate response times or have other
-+deleterious effects (i.e. tieing up a CPU spinning on a value).  This
-+gives the system architecht a tool to gain minimal-latency notification
-+of events, and react accordingly, by writing their own kernel module.
-+
-+It also provides an extension capability that might be of interest
-+in certain scenarios.  For example, there could be an application
-+that wants a interrupt counter page much as maintained by the
-+abstraction layer, but which starts counting at zero when the
-+device special file is opened.  Or, there could be an application
-+which wants a signal to be generated and delivered to the process
-+when an interrupt is ingested.  These examples are more esoteric
-+than the simple counter page, and are best provided by a seperate
-+module rather than cluttering the main external interrupt abstraction
-+code.
-+
-+Why wasn't this made compatible with IRIX's ei(7) driver from an
-+application perspective?
-+----------------------------------------------------------------
-+
-+IRIX's driver uses ioctl(2) calls to interact with user space.  This
-+is frowned upon in Linux, and generally doesn't perform very well on
-+Linux due to kernel locking issues.
-+
-+One advantage gained by this mechanism is control methods which are
-+easily utilized from the command-line, rather than requiring specially
-+written and compiled applications to function the device.
++The output section provides several modes of output.  Modes "low" and
++"high" sets the output to either logic low or logic high.  "strobe"
++sets the output to logic high for 3 ticks (see below), then returns
++to logic low.  "toggle" alternates the output between logic low and
++logic high as configured by the period setting (see below).  "pulse"
++sets the output to logic high for 3 ticks then returns to logic low
++for an interval configured by the period setting, then repeats.
++The mode should be configurable by the abstraction layer device's
++"mode" attribute, and available modes can be found from the abstraction
++layer device's "modelist" attribute.
++
++The period can be set to a range of values determined by the PCI
++clock speed of the IOC4 device.  For the "toggle" and "pulse"
++output modes, this period determines how often the toggle or
++pulse occurs.  The IOC4 hardware is designed to divide the PCI clock
++signal by 520, and use this as the "tick" length for external
++interrupt output.  The output period can be set only to a multiple
++of this length (rounding will occur automatically in the driver).
++The "pulse" and "strobe" output modes have an logic high pulsewidth
++equal to three ticks.  The period should be configurable by the
++abstraction layer device's "period" attribute, and the tick length
++can be found from the abstraction layer device's "quantum" attribute.
++
++For reference, on a 66MHz PCI bus, the tick length is 7.8 microseconds.
++On a 33MHz PCI bus, the tick length is 15.6 microseconds.  However,
++the IOC4 driver calibrates itself to a more precise value than these
++somewhat coarse numbers, depending on actual bus speed which may vary
++slightly from bus to bus or even reboot to reboot.  Note however, that
++IOC4 is only officially supported when running at 66MHz.
++
++One device file is provided, which can be memory mapped.  The first
++32-bit quantity in the mapped area is aliased to the hardware register
++which controls output.  Direct manipulation of the register, both for
++reading and writing, may be performed in order to avoid the kernel
++overhead which would be necessary if using the abstracted interfaces.
++Assuming the typical sysfs mount point, the device number files for
++these devices can be found at:
++
++	/sys/class/ioc4_intout/intout*/dev
++
++This capability is not abstracted into the external interrupt abstraction
++layer as it is critical for an application to know that this is an IOC4
++device in order to know the format of the mapped register.  The format
++of the register is:
++
++	Bits	Field	Reset	RW	Comment
++	-----	-----	-----	--	------------------------------------
++	15:0	COUNT	X	RW	This value is reloaded into the
++					counter each time it reaches 0x0.
++					The count period is actually
++					(COUNT+1).
++	18:16	MODE	000	RW	Sets the mode for INT_OUT control:
++					000: Load a '0' to INT_OUT
++					100: Load a '1' to INT_OUT
++					101: Pulse INT_OUT high for 3 ticks
++					110: Pulse INT_OUT for 3 ticks every
++					     COUNT
++					111: Toggle INTOUT for 3 ticks every
++					     COUNT
++					001, 010, 011: NOOP
++	29:19	reserved	RO	Read as '0', writes are ignored
++	30	DIAG	0	RW	Bypass clock base divider.
++	31	INT_OUT	0x0	RO	Current state of INT_OUT signal.
++
++Note that this register should always be read and written as a 32-bit word.
++Subword accesses will read the wrong end of the register.
++
++Physical interface
++..................
++All IOC4-based external interrupt implementations utilize female 1/8 inch
++audio jacks (i.e. identical to the jacks portable stereo headphones would
++plug into).  The wiring for the output jack is:
++
++	Tip: +5V output
++	Ring: Interrupt output, open collector (active low)
++	Sleeve: Chassis ground/cable shield
++
++A two conductor shielded cable should be used to connect external
++interrupt output and input, with the two cable conductors wired to the
+++5V and interrupt conductors, and the sleeves connected to the cable
++shield at both ends to maintain EMI integrity.
++
++The internal driver circuit for the the output connector is as follows:
++
++	+5 ---/\/\/\-------- 	(output +5V connector)
++
++		+-----------	(output interrupt connector)
++		|	     	open collector driver
++		|
++	      |/
++	   ---|
++	      |\
++		v
++		|
++		=		(ground)
++
++external interrupt ingest
++-------------------------
++The ingest section provides one control, the source of interrupt
++signals.  The "external" source is a circuit connected to the external
++jack provided on IOC4-based IO controller cards.  The "loopback" source
++is the output of the IOC4's interrupt output section.  The source should
++be configurable by the abstraction layer device's "source" attribute,
++and available sources can be found from the abstraction layer device's
++"sourcelist" attribute.
++
++Physical interface
++..................
++All IOC4-based external interrupt implementations utilize female 1/8 inch
++audio jacks (i.e. identical to the jacks portable stereo headphones would
++plug into).  The wiring for the input jack is:
++
++	Tip: +5V input
++	Ring: Interrupt input (active low, optoisolated)
++	Sleeve: Chassis ground/cable shield
++
++The input signal passes through an opto-isolator that has a damping effect.
++The input signal must be of sufficient duration to drive the output of the
++opto-isolator low in order for the interrupt to be recognized by the
++receiving machine.  Current experimentation shows that the threshold is
++about 2.5 microseconds.  To be safe, the driver sets its default outgoing
++pulse width to 10 microseconds.  Any hardware not from Silicon Graphics that
++is driving this line should do the same.
++
++The internal receiver circuit for the input connector is as follows:
++
++		(input +5V connector)	--------+
++						|
++					       ---
++			optoisolator LED       \ /
++					       ---
++						|
++	  (input interrupt connector)	--------+
++
++An output connector can be wired directly to an input connector, taking
++care to connect the +5V output to the +5V input and the interrupt output
++to the interrupt input.  If some other device is used to drive the input,
++it must be a +5V source current limited with a 420 ohm resistor in series,
++to avoid damaging the optoisolator.
 diff --git a/arch/ia64/configs/sn2_defconfig b/arch/ia64/configs/sn2_defconfig
 --- a/arch/ia64/configs/sn2_defconfig
 +++ b/arch/ia64/configs/sn2_defconfig
-@@ -667,6 +667,7 @@ CONFIG_MMTIMER=y
- #
+@@ -668,6 +668,7 @@ CONFIG_MMTIMER=y
  # Misc devices
  #
-+CONFIG_EXTINT=m
+ CONFIG_EXTINT=m
++CONFIG_EXTINT_SGI_IOC4=m
  
  #
  # Multimedia devices
 diff --git a/arch/ia64/defconfig b/arch/ia64/defconfig
 --- a/arch/ia64/defconfig
 +++ b/arch/ia64/defconfig
-@@ -717,6 +717,7 @@ CONFIG_MMTIMER=y
- #
+@@ -718,6 +718,7 @@ CONFIG_MMTIMER=y
  # Misc devices
  #
-+CONFIG_EXTINT=m
+ CONFIG_EXTINT=m
++CONFIG_EXTINT_SGI_IOC4=m
  
  #
  # Multimedia devices
 diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
 --- a/drivers/char/Kconfig
 +++ b/drivers/char/Kconfig
-@@ -413,6 +413,13 @@ config SGI_MBCS
-          If you have an SGI Altix with an attached SABrick
-          say Y or M here, otherwise say N.
+@@ -420,6 +420,15 @@ config EXTINT
+ 	  interrupt devices (such as SGI IOC3 and IOC4 IO controllers).
+ 	  If you have such a device, say Y. Otherwise, say N.
  
-+config EXTINT
-+	tristate "Abstraction layer for external interrupt devices"
++config EXTINT_SGI_IOC4
++	tristate "Device driver for SGI IOC4 external interrupts"
++	depends on (IA64_GENERIC || IA64_SGI_SN2) && EXTINT && BLK_DEV_SGIIOC4
 +	help
-+	  This option provides an abstraction layer for external
-+	  interrupt devices (such as SGI IOC3 and IOC4 IO controllers).
-+	  If you have such a device, say Y. Otherwise, say N.
++	  This option enables support for the external interrupt ingest
++	  and generation capabilities of SGI IOC4 IO controllers.  If
++	  you have an SGI Altix with an IOC4 based IO card, say Y.
++	  Otherwise, say N.
 +
  source "drivers/serial/Kconfig"
  
@@ -520,19 +289,19 @@ diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
 diff --git a/drivers/char/Makefile b/drivers/char/Makefile
 --- a/drivers/char/Makefile
 +++ b/drivers/char/Makefile
-@@ -82,6 +82,7 @@ obj-$(CONFIG_NWFLASH) += nwflash.o
- obj-$(CONFIG_SCx200_GPIO) += scx200_gpio.o
+@@ -83,6 +83,7 @@ obj-$(CONFIG_SCx200_GPIO) += scx200_gpio
  obj-$(CONFIG_GPIO_VR41XX) += vr41xx_giu.o
  obj-$(CONFIG_TANBAC_TB0219) += tb0219.o
-+obj-$(CONFIG_EXTINT) += extint.o
+ obj-$(CONFIG_EXTINT) += extint.o
++obj-$(CONFIG_EXTINT_SGI_IOC4) += ioc4_extint.o
  
  obj-$(CONFIG_WATCHDOG)	+= watchdog/
  obj-$(CONFIG_MWAVE) += mwave/
-diff --git a/drivers/char/extint.c b/drivers/char/extint.c
+diff --git a/drivers/char/ioc4_extint.c b/drivers/char/ioc4_extint.c
 new file mode 100644
 --- /dev/null
-+++ b/drivers/char/extint.c
-@@ -0,0 +1,673 @@
++++ b/drivers/char/ioc4_extint.c
+@@ -0,0 +1,791 @@
 +/*
 + * This file is subject to the terms and conditions of the GNU General Public
 + * License.  See the file "COPYING" in the main directory of this archive
@@ -541,413 +310,291 @@ new file mode 100644
 + * Copyright (C) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 + */
 +
-+/* This file provides an abstraction for lowlevel external interrupt
-+ * operation.
++/* This file contains the SGI IOC4 subdriver module for external interrupts.
 + *
-+ * External interrupts are hardware mechanisms to generate or ingest
-+ * a simple interrupt signal.
++ * External interrupt output is used to notify an outside agent (typically
++ * another system's external interrupt input) of an event.  It provides
++ * periodic, one-shot, or level-based notification by pulling a voltage
++ * level on an 1/8" stereo-style jack on the rear of the card.
 + *
-+ * Generation typically involves driving an output circuit voltage
-+ * level, with a variety of single or recurring waveforms (e.g.
-+ * a one-shot pulse, a square wave, etc.)  The repetition period
-+ * for recurring waveforms can be set within hardware restrictions.
++ * External interrupt input is used to signal an event of interest to
++ * the system from an external agent (typically another system's external
++ * interrupt output).  A level or edge-sensitive (configurable) interrupt
++ * is generated when a voltage is pulled on an 1/8" stereo-style jack on
++ * the rear of the card.
 + *
-+ * Ingest typically involves responding to an input circuit voltage
-+ * level or transition.  Multiple input sources may be available.
++ * IOC4 has the additional capability for the output to be directly
++ * controlled by a user process memory-mapping the INT_OUT register
++ * via a register alias page.  This provides lower latency operation
++ * for applications.  This ability is provided by a device file which
++ * can be mmap'd (and not much else).  Since the format of the register
++ * aliased in this page is not something which can be abstracted away,
++ * it is provided directly by this ioc4_extint driver.
 + *
-+ * 2005.07.27	Brent Casavant <bcasavan@sgi.com> Initial code
++ * 2005.07.19	Brent Casavant <bcasavan@sgi.com> Initial code
 + */
-+
 +#include <linux/module.h>
 +#include <linux/fs.h>
 +#include <linux/cdev.h>
-+#include <linux/ctype.h>
 +#include <linux/err.h>
 +#include <linux/extint.h>
-+#include <linux/gfp.h>
-+#include <linux/init.h>
-+#include <linux/kallsyms.h>
-+#include <linux/device.h>
-+#include <linux/poll.h>
++#include <linux/ioc4.h>
++#include <linux/mm.h>
++#include <linux/pci.h>
 +
 +/**********************
 + * Module global data *
 + **********************/
 +
-+/* Device numbers */
-+#define EXTINT_NUMDEVS	255	/* Number of minor devices to reserve */
-+static dev_t firstdev;		/* Start of dynamic range */
-+static dev_t nextdev;		/* Next number to assign */
++/* A 16K page can be mapped from IOC4 into a user process for direct
++ * manipulation of the INT_OUT register, avoiding syscall overhead.
++ */
++#define IOC4_A_INT_OUT_OFFSET	0x4000	/* From PCI bar0 */
++#define IOC4_A_INT_OUT_LENGTH	0x4000	/* 16KB */
++
++/* Values for INT_OUT MODE field */
++#define IOC4_INT_OUT_MODE_LOW 0x0
++#define IOC4_INT_OUT_MODE_NOOP1 0x1
++#define IOC4_INT_OUT_MODE_NOOP2 0x2
++#define IOC4_INT_OUT_MODE_NOOP3 0x3
++#define IOC4_INT_OUT_MODE_HIGH 0x4
++#define IOC4_INT_OUT_MODE_STROBE 0x5
++#define IOC4_INT_OUT_MODE_PULSE 0x6
++#define IOC4_INT_OUT_MODE_TOGGLE 0x7
++
++/* OTHER_IR field values of interest */
++#define IOC4_OTHER_IR_GEN_INT_1	0x2	/* Generic pin bit for extint input */
++
++/* Module-level globals */
++
++static char* ioc4_extint_modenames[] = {
++	[IOC4_INT_OUT_MODE_LOW]	= "low",
++	[IOC4_INT_OUT_MODE_NOOP1] = "noop",
++	[IOC4_INT_OUT_MODE_NOOP2] = "noop",
++	[IOC4_INT_OUT_MODE_NOOP3] = "noop",
++	[IOC4_INT_OUT_MODE_HIGH] = "high",
++	[IOC4_INT_OUT_MODE_STROBE] = "strobe",
++	[IOC4_INT_OUT_MODE_PULSE] = "pulse",
++	[IOC4_INT_OUT_MODE_TOGGLE] = "toggle",
++};
++
++static dev_t firstdev;		/* First dynamically allocated char dev */
++static dev_t nextdev;		/* Next device number to assign */
 +static DEFINE_SPINLOCK(nextdev_lock);
 +
-+/* Device status.  Controls whether new callouts can be registered. */
-+enum extint_state {
-+	EXTINT_COMING,
-+	EXTINT_ALIVE,
-+	EXTINT_GOING,
-+	EXTINT_DEAD
++struct ioc4_extint_device {
++	struct ioc4_driver_data *idd;	/* IOC4 of interest */
++	struct	cdev out_cdev;		/* Mappable device for alias page */
++	dev_t	devt;		/* Corresponding device number */
++	struct class_device class_dev;	/* intout device class */
++	uint32_t *a_int_out;		/* INT_OUT register alias page */
 +};
 +
-+/**********************
-+ * Abstracted devices *
-+ **********************/
++/**************************************
++ * extint driver abstraction routines *
++ **************************************/
 +
-+static struct page *extint_counter_vma_nopage(struct vm_area_struct *vma,
-+					      unsigned long address, int *type)
++static ssize_t ioc4_extint_get_mode(struct extint_device *ed, char *buf)
 +{
-+	struct extint_device *ed = vma->vm_private_data;
-+	struct page *page;
++	union ioc4_int_out io;
++	struct ioc4_extint_device *ied = extint_get_devdata(ed);
 +
-+	/* Only a single page is ever mapped */
-+	if (address >= vma->vm_start + PAGE_SIZE)
-+		return NOPAGE_SIGBUS;
++	io.raw = readl(&ied->idd->idd_misc_regs->int_out.raw);
 +
-+	/* virt_to_page can be expensive, but this is executed
-+	 * only once each time the counter page is mapped.
++	return sprintf(buf, "%s\n", ioc4_extint_modenames[io.fields.mode]);
++}
++
++static ssize_t ioc4_extint_set_mode(struct extint_device *ed, const char *buf,
++				    size_t count)
++{
++	union ioc4_int_out io;
++	int mode;
++	struct ioc4_extint_device *ied = extint_get_devdata(ed);
++
++	/* Search modename array in reverse because most
++	 * of the interesting values are near the end.
 +	 */
-+	page = virt_to_page(ed->counter_page);
-+	get_page(page);
-+
-+	if (type)
-+		*type = VM_FAULT_MINOR;
-+
-+	return page;
-+}
-+
-+static struct vm_operations_struct extint_counter_vm_ops = {
-+	.nopage = extint_counter_vma_nopage,
-+};
-+
-+static int extint_counter_open(struct inode *inode, struct file *filp)
-+{
-+	struct extint_device *ed = file_to_extint_device(filp);
-+
-+	/* Counter is always read-only */
-+	if (filp->f_mode & FMODE_WRITE)
-+		return -EPERM;
-+
-+	/* Prevent low-level module from unloading while
-+	 * corresponding abstracted device is open
-+	 */
-+	if (!try_module_get(ed->props->owner))
-+		return -ENXIO;
-+
-+	/* Snapshot initial value, for later use by poll */
-+	filp->private_data = (void *)*ed->counter_page;
-+
-+	return 0;
-+}
-+
-+static int extint_counter_release(struct inode *inode, struct file *filp)
-+{
-+	struct extint_device *ed = file_to_extint_device(filp);
-+
-+	/* Allow low-level module to unload now that the
-+	 * corresponding abstracted device is really closed.
-+	 */
-+	module_put(ed->props->owner);
-+
-+	return 0;
-+}
-+
-+static ssize_t
-+extint_counter_read(struct file *filp, char *buff, size_t count, loff_t * offp)
-+{
-+	struct extint_device *ed = file_to_extint_device(filp);
-+	char outbuff[21];	/* 20 chars for value of 2^64, plus \0 */
-+
-+	/* Snapshot last value read, for later use by poll */
-+	memset(outbuff, 0, 21);
-+	filp->private_data = (void *)*ed->counter_page;
-+	snprintf(outbuff, 21, "%ld", (unsigned long)filp->private_data);
-+	outbuff[20] = '\0';
-+
-+	return simple_read_from_buffer(buff, count, offp, outbuff,
-+				       strlen(outbuff));
-+}
-+
-+static int extint_counter_mmap(struct file *filp, struct vm_area_struct *vma)
-+{
-+	struct extint_device *ed = file_to_extint_device(filp);
-+
-+	if ((PAGE_SIZE != vma->vm_end - vma->vm_start) || (0 != vma->vm_pgoff))
++	for (mode = IOC4_INT_OUT_MODE_TOGGLE; mode >= 0; mode--)
++		if (0 == strncmp(buf, ioc4_extint_modenames[mode],
++				 strlen(ioc4_extint_modenames[mode])))
++			break;
++	if (mode < 0 ||
++	    mode == IOC4_INT_OUT_MODE_NOOP1 ||
++	    mode == IOC4_INT_OUT_MODE_NOOP2 ||
++	    mode == IOC4_INT_OUT_MODE_NOOP3)
 +		return -EINVAL;
 +
-+	vma->vm_ops = &extint_counter_vm_ops;
-+	vma->vm_flags |= VM_RESERVED;
-+	vma->vm_flags &= ~(VM_WRITE | VM_MAYWRITE);	/* Read-only */
-+	vma->vm_private_data = ed;
-+	return 0;
++	io.raw = readl(&ied->idd->idd_misc_regs->int_out.raw);
++	io.fields.mode = mode;
++	writel(io.raw, &ied->idd->idd_misc_regs->int_out.raw);
++	mmiowb();
++	return count;
 +}
 +
-+static unsigned int
-+extint_counter_poll(struct file *filp, struct poll_table_struct *wait)
++/* IOC4 supports five external interrupt generation modes (waveforms).
++ *
++ * The "high" and "low" modes set the output logically high or low,
++ * respectively.  Note that the physical output signal is active-low.
++ *
++ * The "pulse" mode sets the output to logic high for three ticks,
++ * returns to logic low, and repeats when the INT_OUT COUNT field
++ * expires.
++ *
++ * The "strobe" mode sets the output to logic high for three ticks
++ * then returns to logic low.
++ *
++ * The "toggle" mode toggles the output logic state when the INT_OUT
++ * COUNT field expires.
++ */
++static ssize_t ioc4_extint_get_modelist(struct extint_device *ed, char *buf) {
++	return sprintf(buf, "high\nlow\npulse\nstrobe\ntoggle\n");
++}
++
++/* Periodic IOC4 external interrupt generation modes trigger every
++ * COUNT+1 ticks.  The IOC4 COUNT tick length is hard-wired into the
++ * hardware as either IOC4_EXTINT_COUNT_DIVISOR PCI clock ticks (in
++ * normal operation) or 1 PCI clock tick (when the INT_OUT DIAG field
++ * is set to 1).
++ */
++static unsigned long ioc4_extint_get_period(struct extint_device *ed)
 +{
-+	struct extint_device *ed = file_to_extint_device(filp);
++	union ioc4_int_out io;
++	unsigned long period;
++	struct ioc4_extint_device *ied = extint_get_devdata(ed);
 +
-+	poll_wait(filp, &ed->counter_queue, wait);
++	io.raw = readl(&ied->idd->idd_misc_regs->int_out.raw);
++	period = (io.fields.count + 1) * ied->idd->count_period /
++		 (io.fields.diag ? IOC4_EXTINT_COUNT_DIVISOR : 1);
++	return period;
++}
 +
-+	/* Check counter against last value read from it */
-+	if (*ed->counter_page != (unsigned long)filp->private_data)
-+		return (POLLIN | POLLRDNORM);
++/* Periodic IOC4 external interrupt generation modes trigger every
++ * COUNT+1 ticks.  The IOC4 COUNT tick length is hard-wired into the
++ * hardware as either IOC4_EXTINT_COUNT_DIVISOR PCI clock ticks (in
++ * normal operation) or 1 PCI clock tick (when the INT_OUT DIAG field
++ * is set to 1).  We will round the requested period to the nearest
++ * quantum.
++ */
++static ssize_t ioc4_extint_set_period(struct extint_device *ed,
++				      unsigned long period)
++{
++	union ioc4_int_out io;
++	unsigned long count;
++	struct ioc4_extint_device *ied = extint_get_devdata(ed);
 +
++	count = ((period + ied->idd->count_period / 2)
++		 / ied->idd->count_period) - 1;
++
++	/* Requested period must fit inside 16-bit INT_OUT COUNT field */
++	if (unlikely(count > 65535))
++		return -EINVAL;
++
++	io.raw = readl(&ied->idd->idd_misc_regs->int_out.raw);
++	io.fields.diag = 0;	/* Ensure normal mode for COUNT divisor */
++	io.fields.count = count;
++	writel(io.raw, &ied->idd->idd_misc_regs->int_out.raw);
 +	return 0;
 +}
 +
-+static struct file_operations extint_fops = {
++/* Emit enough information so that an extint user can find the corresponding
++ * ioc4_intout device.
++ */
++static ssize_t ioc4_extint_get_provider(struct extint_device *ed, char *buf)
++{
++	struct ioc4_extint_device *ied = extint_get_devdata(ed);
++
++	return sprintf(buf, "ioc4_intout%d\n", MINOR(ied->devt));
++}
++
++/* The core IOC4 driver determines the duration of each INT_OUT COUNT
++ * tick at device probe time and holds onto that value.  The granularity
++ * of any INT_OUT timing setting is one tick, thus that is our quantum.
++ */
++static unsigned long ioc4_extint_get_quantum(struct extint_device *ed)
++{
++	struct ioc4_extint_device *ied = extint_get_devdata(ed);
++	return ied->idd->count_period;
++}
++
++/* IOC4 supports two external interrupt ingest sources.
++ *
++ * The "external" source comes from the voltage detected on the input
++ * jack provided on IO9 and IO10 cards.
++ *
++ * The "loopback" source comes from the INT_OUT section of the IOC4,
++ * regardless of whether the output jack is being driven.
++ */
++static ssize_t ioc4_extint_get_source(struct extint_device *ed, char *buf)
++{
++	union ioc4_other_int other_ie;
++	struct ioc4_extint_device *ied = extint_get_devdata(ed);
++
++	other_ie.raw = readl(&ied->idd->idd_misc_regs->other_ies.raw);
++	return sprintf(buf, "%s\n",
++		       other_ie.fields.rt_int ? "loopback" : "external");
++}
++
++static ssize_t ioc4_extint_set_source(struct extint_device *ed, const char *buf,
++				      size_t count)
++{
++	union ioc4_other_int other_iec, other_ies, other_ir;
++	struct ioc4_extint_device *ied = extint_get_devdata(ed);
++
++	if (0 == strncmp(buf, "loopback", 8)) {
++		other_ies.fields.rt_int = 1;
++		other_iec.fields.gen_int = IOC4_OTHER_IR_GEN_INT_1;
++	} else if (0 == strncmp(buf, "external", 8)) {
++		other_iec.fields.rt_int = 1;
++		other_ies.fields.gen_int = IOC4_OTHER_IR_GEN_INT_1;
++	} else
++		return -EINVAL;
++
++	/* Pending interrupts to clear */
++	other_ir.raw = 0;
++	other_ir.fields.rt_int = 1;
++	other_ir.fields.gen_int = IOC4_OTHER_IR_GEN_INT_1;
++
++	/* Turn off old input source */
++	writel(other_iec.raw, &ied->idd->idd_misc_regs->other_iec.raw);
++	/* Clear pending interrupts */
++	mmiowb();
++	writel(other_ir.raw, &ied->idd->idd_misc_regs->other_ir.raw);
++	mmiowb();
++	/* Turn on new input source */
++	writel(other_ies.raw, &ied->idd->idd_misc_regs->other_ies.raw);
++
++	return count;
++}
++
++static ssize_t ioc4_extint_get_sourcelist(struct extint_device *ed, char *buf)
++{
++	return sprintf(buf, "external\nloopback\n");
++}
++
++static struct extint_properties ioc4_extint_properties = {
 +	.owner = THIS_MODULE,
-+	.open = extint_counter_open,
-+	.release = extint_counter_release,
-+	.read = extint_counter_read,
-+	.mmap = extint_counter_mmap,
-+	.poll = extint_counter_poll,
++	.get_mode = ioc4_extint_get_mode,
++	.set_mode = ioc4_extint_set_mode,
++	.get_modelist = ioc4_extint_get_modelist,
++	.get_period = ioc4_extint_get_period,
++	.set_period = ioc4_extint_set_period,
++	.get_provider = ioc4_extint_get_provider,
++	.get_quantum = ioc4_extint_get_quantum,
++	.get_source = ioc4_extint_get_source,
++	.set_source = ioc4_extint_set_source,
++	.get_sourcelist = ioc4_extint_get_sourcelist,
 +};
-+
-+static int extint_device_create(struct extint_device *ed)
-+{
-+	int ret;
-+
-+	/* Allocate counter page */
-+	ed->counter_page = (unsigned long *)get_zeroed_page(GFP_KERNEL);
-+	if (!ed->counter_page) {
-+		printk(KERN_WARNING
-+		       "%s: failed to allocate extint counter page.\n",
-+		       __FUNCTION__);
-+		ret = -ENOMEM;
-+		goto out_page;
-+	}
-+
-+	/* Set up device */
-+	init_waitqueue_head(&ed->counter_queue);
-+	cdev_init(&ed->counter_cdev, &extint_fops);
-+	ed->counter_cdev.owner = THIS_MODULE;
-+	kobject_set_name(&ed->counter_cdev.kobj, "extint_counter%d",
-+			 MINOR(ed->devt));
-+	ret = cdev_add(&ed->counter_cdev, ed->devt, 1);
-+	if (ret) {
-+		printk(KERN_WARNING
-+		       "%s: failed to add cdev for extint_counter%d.\n",
-+		       __FUNCTION__, MINOR(ed->devt));
-+		goto out_cdev;
-+	}
-+
-+	return 0;
-+
-+out_cdev:
-+	kobject_put(&ed->counter_cdev.kobj);
-+	free_page((unsigned long)ed->counter_page);
-+out_page:
-+	return ret;
-+}
-+
-+static void extint_device_destroy(struct extint_device *ed)
-+{
-+	BUG_ON(waitqueue_active(&ed->counter_queue));
-+	cdev_del(&ed->counter_cdev);
-+}
 +
 +/**************************
 + * Misc. class attributes *
 + **************************/
 +
-+static ssize_t extint_show_dev(struct class_device *cdev, char *buf)
++static ssize_t ioc4_extint_show_dev(struct class_device *class_dev, char *buf)
 +{
-+	struct extint_device *ed = class_get_devdata(cdev);
++	struct ioc4_extint_device *ied = class_get_devdata(class_dev);
 +
-+	return print_dev_t(buf, ed->devt);
++	return print_dev_t(buf, ied->devt);
 +}
-+
-+/********************************
-+ * Abstracted device attributes *
-+ ********************************/
-+
-+#define classdev_to_extint_device(obj)	\
-+	container_of(obj, struct extint_device, class_dev)
-+
-+/* Gets current mode (shape) of interrupt generation */
-+static ssize_t extint_show_mode(struct class_device *cdev, char *buf)
-+{
-+	int rc;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	down(&ed->sem);
-+	if (likely(ed->props && ed->props->get_mode))
-+		rc = ed->props->get_mode(ed, buf);
-+	else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+/* Sets the mode (shape) of interrupt generation */
-+static ssize_t extint_store_mode(struct class_device *cdev, const char *buf,
-+				 size_t count)
-+{
-+	int rc;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	down(&ed->sem);
-+	if (likely(ed->props && ed->props->set_mode))
-+		rc = ed->props->set_mode(ed, buf, count);
-+	else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+/* Gets available modes of interrupt generation */
-+static ssize_t extint_show_modelist(struct class_device *cdev, char *buf)
-+{
-+	int rc;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	down(&ed->sem);
-+	if (likely(ed->props && ed->props->get_modelist))
-+		rc = ed->props->get_modelist(ed, buf);
-+	else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+/* Gets period (nanoseconds) of periodic modes of interrupt generation */
-+static ssize_t extint_show_period(struct class_device *cdev, char *buf)
-+{
-+	int rc;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	down(&ed->sem);
-+	if (likely(ed->props && ed->props->get_period))
-+		rc = sprintf(buf, "%ld\n", ed->props->get_period(ed));
-+	else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+static ssize_t extint_show_provider(struct class_device *cdev, char *buf)
-+{
-+	int rc;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	down(&ed->sem);
-+	if (likely(ed->props && ed->props->get_provider))
-+		rc = ed->props->get_provider(ed, buf);
-+	else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+/* Sets period (nanoseconds) of periodic modes of interrupt generation */
-+static ssize_t extint_store_period(struct class_device *cdev, const char *buf,
-+				   size_t count)
-+{
-+	int rc;
-+	char *endp;
-+	unsigned long period;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	period = simple_strtoul(buf, &endp, 0);
-+	if (*endp && !isspace(*endp))
-+		return -EINVAL;
-+
-+	down(&ed->sem);
-+	if (likely(ed->props && ed->props->set_period)) {
-+		rc = ed->props->set_period(ed, period);
-+		if (!rc)
-+			rc = count;	/* Swallow entire input */
-+	} else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+/* Gets rounding increment for interrupt generation periodic modes */
-+static ssize_t extint_show_quantum(struct class_device *cdev, char *buf)
-+{
-+	int rc;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	down(&ed->sem);
-+	if (likely(ed->props))
-+		rc = sprintf(buf, "%ld\n", ed->props->get_quantum(ed));
-+	else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+/* Gets current source of interrupt ingest */
-+static ssize_t extint_show_source(struct class_device *cdev, char *buf)
-+{
-+	int rc;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	down(&ed->sem);
-+	if (likely(ed->props && ed->props->get_source))
-+		rc = ed->props->get_source(ed, buf);
-+	else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+/* Sets source of interrupt ingest */
-+static ssize_t extint_store_source(struct class_device *cdev, const char *buf,
-+				   size_t count)
-+{
-+	int rc;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	down(&ed->sem);
-+	if (likely(ed->props && ed->props->set_source))
-+		rc = ed->props->set_source(ed, buf, count);
-+	else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+/* Gets list of available sources of interrupt ingest */
-+static ssize_t extint_show_sourcelist(struct class_device *cdev, char *buf)
-+{
-+	int rc;
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	down(&ed->sem);
-+	if (likely(ed->props && ed->props->get_sourcelist))
-+		rc = ed->props->get_sourcelist(ed, buf);
-+	else
-+		rc = -ENXIO;
-+	up(&ed->sem);
-+
-+	return rc;
-+}
-+
-+/* Release allocated memory when last reference to a device goes away */
-+static void extint_class_release(struct class_device *cdev)
-+{
-+	struct extint_device *ed = classdev_to_extint_device(cdev);
-+
-+	BUG_ON(ed->state != EXTINT_DEAD);
-+	BUG_ON(!list_empty(&ed->callouts));
-+	kfree(ed);
-+}
-+
-+static struct class extint_class = {
-+	.name = "extint",
-+	.release = extint_class_release,
-+};
 +
 +#define DECLARE_ATTR(_name,_mode,_show,_store)	\
 +{					 	\
@@ -958,374 +605,505 @@ new file mode 100644
 +	.store	= _store,			\
 +}
 +
-+static struct class_device_attribute extint_class_device_attributes[] = {
-+	DECLARE_ATTR(dev, 0444, extint_show_dev, NULL),
-+	DECLARE_ATTR(mode, 0644, extint_show_mode, extint_store_mode),
-+	DECLARE_ATTR(modelist, 0444, extint_show_modelist, NULL),
-+	DECLARE_ATTR(period, 0644, extint_show_period, extint_store_period),
-+	DECLARE_ATTR(provider, 0444, extint_show_provider, NULL),
-+	DECLARE_ATTR(quantum, 0444, extint_show_quantum, NULL),
-+	DECLARE_ATTR(source, 0644, extint_show_source, extint_store_source),
-+	DECLARE_ATTR(sourcelist, 0444, extint_show_sourcelist, NULL),
++static struct class_device_attribute ioc4_extint_class_device_attributes[] = {
++	DECLARE_ATTR(dev, 0444, ioc4_extint_show_dev, NULL),
 +};
 +
-+/*************
-+ * Interface *
-+ *************/
++/*************************
++ * IOC4-specific devices *
++ *************************/
 +
-+/* Register a low-level driver with the abstraction layer */
-+struct extint_device *extint_device_register(struct extint_properties *ep,
-+					     void *devdata)
++static int ioc4_extint_mmap(struct file *filp, struct vm_area_struct *vma)
 +{
-+	struct extint_device *ed;
-+	int rc;
++	struct ioc4_extint_device *ied;
++	unsigned long a_int_out;
++
++	/* Can only map a single 16K page at the beginning of the file */
++	if ((IOC4_A_INT_OUT_LENGTH != vma->vm_end - vma->vm_start) ||
++	    (0 != vma->vm_pgoff))
++		return -EINVAL;
++
++	ied = container_of(filp->f_dentry->d_inode->i_cdev,
++			   struct ioc4_extint_device, out_cdev);
++
++	/* INT_OUT register alias page wasn't set up.  Either the system
++	 * page size is too large, or there was a failure during device setup.
++	 */
++	a_int_out = (unsigned long) ied->a_int_out;
++	if (!a_int_out)
++		return -ENXIO;
++
++	vma->vm_flags |= VM_IO | VM_RESERVED;
++	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
++
++	return io_remap_pfn_range(vma, vma->vm_start, a_int_out >> PAGE_SHIFT,
++				  IOC4_A_INT_OUT_LENGTH, vma->vm_page_prot);
++}
++
++static struct file_operations ioc4_extint_fops = {
++	.owner = THIS_MODULE,
++	.mmap = ioc4_extint_mmap,
++};
++
++/* Class doesn't really do anything */
++static struct class ioc4_intout_class = {
++	.name = "ioc4_intout",
++};
++
++static int ioc4_extint_device_create(struct ioc4_extint_device *ied)
++{
 +	int i;
++	int ret;
 +
-+	/* Create new control structure and initialize */
-+	ed = kmalloc(sizeof(struct extint_device), GFP_KERNEL);
-+	if (unlikely(!ed))
-+		return ERR_PTR(-ENOMEM);
-+	memset(ed, 0, sizeof(struct extint_device));
-+
-+	ed->state = EXTINT_COMING;
-+	init_MUTEX(&ed->sem);
-+	ed->props = ep;
-+	INIT_LIST_HEAD(&ed->callouts);
-+	spin_lock_init(&ed->callouts_lock);
-+	extint_set_devdata(ed, devdata);
-+
-+	/* Allocate device number */
++	/* Get next minor device number */
 +	spin_lock(&nextdev_lock);
-+	ed->devt = nextdev++;
++	ied->devt = nextdev++;
 +	spin_unlock(&nextdev_lock);
-+	if (ed->devt > (firstdev + EXTINT_NUMDEVS)) {
-+		rc = -ENOSPC;
-+		goto out_devnum;
++
++	/* Add the character device */
++	cdev_init(&ied->out_cdev, &ioc4_extint_fops);
++	ied->out_cdev.owner = THIS_MODULE;
++	kobject_set_name(&ied->out_cdev.kobj, "ioc4_intout%d",
++			 MINOR(ied->devt));
++	ret = cdev_add(&ied->out_cdev, ied->devt, 1);
++	if (ret) {
++		printk(KERN_WARNING
++		       "%s: failed to add cdev for IOC4 device ioc4_intout%d "
++		       "for pci_dev 0x%p.\n",
++		       __FUNCTION__, MINOR(ied->devt), ied->idd->idd_pdev);
++		goto out_cdev;
 +	}
 +
-+	/* Add this device to the class */
-+	ed->class_dev.class = &extint_class;
-+	snprintf(ed->class_dev.class_id, BUS_ID_SIZE, "extint%d",
-+		 MINOR(ed->devt));
-+	class_set_devdata(&ed->class_dev, ed);
-+	rc = class_device_register(&ed->class_dev);
-+	if (rc)
++	/* Register as an IOC4-specific device */
++	ied->class_dev.class = &ioc4_intout_class;
++	snprintf(ied->class_dev.class_id, BUS_ID_SIZE, "intout%d",
++		 MINOR(ied->devt));
++	class_set_devdata(&ied->class_dev, ied);
++	ret = class_device_register(&ied->class_dev);
++	if (ret) {
++		printk(KERN_WARNING
++		       "%s: failed to add class device for IOC4 device "
++		       "intout%d "
++		       "for pci_dev 0x%p.\n",
++		       __FUNCTION__, MINOR(ied->devt), ied->idd->idd_pdev);
 +		goto out_class;
-+
-+	/* Create character device */
-+	rc = extint_device_create(ed);
-+	if (rc)
-+		goto out_device;
++	}
 +
 +	/* Create attributes */
-+	for (i = 0; i < ARRAY_SIZE(extint_class_device_attributes); i++) {
-+		rc = class_device_create_file(&ed->class_dev,
-+					      &extint_class_device_attributes
-+					      [i]);
-+		if (rc)
++	for (i = 0; i < ARRAY_SIZE(ioc4_extint_class_device_attributes); i++) {
++		ret = class_device_create_file(&ied->class_dev,
++					       &ioc4_extint_class_device_attributes[i]);
++		if (ret)
 +			goto out_attr;
 +	}
 +
-+	ed->state = EXTINT_ALIVE;
-+	return ed;
++	return 0;
 +
-+out_class:
-+out_devnum:
-+	ed->state = EXTINT_DEAD;
-+	kfree(ed);
-+	return ERR_PTR(rc);
++out_cdev:
++	kobject_put(&ied->out_cdev.kobj);
++	return ret;
 +
 +out_attr:
 +	while (--i >= 0)
-+		class_device_remove_file(&ed->class_dev,
-+					 &extint_class_device_attributes[i]);
-+out_device:
-+	ed->state = EXTINT_DEAD;
-+	class_device_unregister(&ed->class_dev);
-+	/* extint_class_release frees ed for us */
-+	return ERR_PTR(rc);
-+}
++		class_device_remove_file(&ied->class_dev,
++					 &ioc4_extint_class_device_attributes[i]);
++	class_device_unregister(&ied->class_dev);
 +
-+EXPORT_SYMBOL(extint_device_register);
-+
-+/* Unregister a previously registered low-level driver */
-+void extint_device_unregister(struct extint_device *ed)
-+{
-+	int i;
-+
-+	if (!ed)
-+		return;
-+
-+	/* Remove counter device */
-+	ed->state = EXTINT_GOING;
-+	BUG_ON(!list_empty(&ed->callouts));
-+	extint_device_destroy(ed);
-+
-+	/* Remove all abstracted attributes */
-+	for (i = 0; i < ARRAY_SIZE(extint_class_device_attributes); i++)
-+		class_device_remove_file(&ed->class_dev,
-+					 &extint_class_device_attributes[i]);
-+
-+	/* Make sure device-specific functions are never invoked again */
-+	down(&ed->sem);
-+	ed->props = NULL;
-+	up(&ed->sem);
-+	ed->state = EXTINT_DEAD;
-+
-+	/* Remove this device from the class */
-+	class_device_unregister(&ed->class_dev);
-+}
-+
-+EXPORT_SYMBOL(extint_device_unregister);
-+
-+/* Obtain extint_device structure from an open file */
-+struct extint_device *file_to_extint_device(const struct file *filp)
-+{
-+	/* Validate that this really is an extint device file */
-+	if (filp->f_dentry->d_inode->i_cdev->dev < firstdev ||
-+	    filp->f_dentry->d_inode->i_cdev->dev > (firstdev + EXTINT_NUMDEVS))
-+		return ERR_PTR(-EINVAL);
-+
-+	return container_of(filp->f_dentry->d_inode->i_cdev,
-+			    struct extint_device, counter_cdev);
-+}
-+
-+EXPORT_SYMBOL(file_to_extint_device);
-+
-+/* Register a callout function to invoke when an interrupt is ingested */
-+int extint_callout_register(struct extint_device *ed, struct extint_callout *ec)
-+{
-+	int ret;
-+	unsigned long flags;
-+
-+	/* Disallow unload of callout owner */
-+	if (!try_module_get(ec->owner))
-+		return -ENXIO;
-+
-+	/* Disallow unload of low-level driver */
-+	if (!try_module_get(ed->props->owner)) {
-+		module_put(ec->owner);
-+		return -ENXIO;
-+	}
-+
-+	spin_lock_irqsave(&ed->callouts_lock, flags);
-+	switch (ed->state) {
-+	case EXTINT_COMING:
-+		ret = -EAGAIN;
-+		module_put(ed->props->owner);
-+		module_put(ec->owner);
-+		break;
-+	case EXTINT_ALIVE:
-+		list_add(&ec->list, &ed->callouts);
-+		ret = 0;
-+		break;
-+	default:
-+		ret = -EBUSY;
-+		module_put(ed->props->owner);
-+		module_put(ec->owner);
-+		break;
-+	}
-+	spin_unlock_irqrestore(&ed->callouts_lock, flags);
-+
++out_class:
++	cdev_del(&ied->out_cdev);
 +	return ret;
 +}
 +
-+EXPORT_SYMBOL(extint_callout_register);
-+
-+/* Unregister a previously registered callout function */
-+void extint_callout_unregister(struct extint_device *ed,
-+			       struct extint_callout *ec)
++static void ioc4_extint_device_destroy(struct ioc4_extint_device *ied)
 +{
-+	unsigned long flags;
++	int i;
 +
-+	spin_lock_irqsave(&ed->callouts_lock, flags);
-+	list_del(&ec->list);
-+	spin_unlock_irqrestore(&ed->callouts_lock, flags);
-+
-+	/* Allow callout owner to unload */
-+	module_put(ec->owner);
-+	/* Allow low-level driver to unload */
-+	module_put(ed->props->owner);
++	/* Remove all abstracted attributes */
++	for (i = 0; i < ARRAY_SIZE(ioc4_extint_class_device_attributes); i++)
++		class_device_remove_file(&ied->class_dev,
++					 &ioc4_extint_class_device_attributes[i]);
++	class_device_unregister(&ied->class_dev);
++	cdev_del(&ied->out_cdev);
 +}
 +
-+EXPORT_SYMBOL(extint_callout_unregister);
++/**********************
++ * Interrupt handling *
++ **********************/
 +
-+/* Allows a low-level driver to notify the
-+ * abstraction layer of an ingested interrupt.
-+ */
-+void extint_interrupt(struct extint_device *ed)
++static irqreturn_t ioc4_extint_handler(int irq, void *arg, struct pt_regs *regs)
 +{
-+	struct extint_callout *ec;
++	struct ioc4_driver_data *idd = arg;
++	union ioc4_other_int other_ir, other_ir_ack;
 +
-+	/* Bump global counter */
-+	(*ed->counter_page)++;
++	/* Check if this is an extint interrupt (vs. serial or IDE) */
++	other_ir.raw = readl(&idd->idd_misc_regs->other_ir.raw);
++	if (!(other_ir.fields.gen_int & IOC4_OTHER_IR_GEN_INT_1) &&
++	    !other_ir.fields.rt_int)
++		return IRQ_NONE;
 +
-+	/* Invoke all registered callouts */
-+	spin_lock(&ed->callouts_lock);
-+	list_for_each_entry(ec, &ed->callouts, list)
-+		ec->function(ec->data);
-+	spin_unlock(&ed->callouts_lock);
++	/* Notify abstraction layer */
++	extint_interrupt(idd->idd_extint_data);
 +
-+	/* Wake up poll/select waiters */
-+	wake_up_all(&ed->counter_queue);
++	/* Acknowledge interrupt */
++	other_ir_ack.raw = 0;
++	other_ir_ack.fields.gen_int |= other_ir.fields.gen_int &
++					IOC4_OTHER_IR_GEN_INT_1;
++	other_ir_ack.fields.rt_int |= other_ir.fields.rt_int;
++	writel(other_ir_ack.raw, &idd->idd_misc_regs->other_ir.raw);
++	mmiowb();
++
++	return IRQ_HANDLED;
 +}
 +
-+EXPORT_SYMBOL(extint_interrupt);
++/**************************
++ * Device probing/removal *
++ **************************/
++
++static void ioc4_extint_output_setup(struct ioc4_extint_device *ied)
++{
++	unsigned long a_int_out;
++	union ioc4_gpcr gpcr;
++
++	/* Reset to power-on state */
++	writel(0, &ied->idd->idd_misc_regs->int_out.raw);
++
++	/* Enable output */
++	gpcr.raw = 0;
++	gpcr.fields.dir = IOC4_GPCR_DIR_0;
++	gpcr.fields.int_out_en = 1;
++	writel(gpcr.raw, &ied->idd->idd_misc_regs->gpcr_s.raw);
++	mmiowb();
++
++#if PAGE_SIZE <= IOC4_A_INT_OUT_LENGTH
++	/* Only set up INT_OUT register alias page if the system page size
++	 * is equal to or less than the register alias page size.  Otherwise
++	 * the user would have access to registers other than INT_OUT.
++	 */
++	a_int_out = pci_resource_start(ied->idd->idd_pdev, 0) +
++	    IOC4_A_INT_OUT_OFFSET;
++	if (!a_int_out) {
++		printk(KERN_WARNING
++		       "%s: Unable to get IOC4 int_out alias mapping "
++		       "for pci_dev 0x%p.\n", __FUNCTION__, ied->idd->idd_pdev);
++		goto skip_alias;
++	}
++	if (!request_region(a_int_out, IOC4_A_INT_OUT_LENGTH,
++			    "ioc4_a_int_out")) {
++		printk(KERN_WARNING
++		       "%s: Unable to request IOC4 int_out alias region "
++		       "for pci_dev 0x%p.\n", __FUNCTION__, ied->idd->idd_pdev);
++		goto skip_alias;
++	}
++	ied->a_int_out = ioremap_nocache(a_int_out, IOC4_A_INT_OUT_LENGTH);
++	if (!ied->a_int_out) {
++		printk(KERN_WARNING
++		       "%s: unable to remap IOC4 int_out alias page "
++		       "for pci_dev 0x%p.\n", __FUNCTION__, ied->idd->idd_pdev);
++		release_region(a_int_out, IOC4_A_INT_OUT_LENGTH);
++	}
++skip_alias:
++#endif
++	return;
++}
++
++static void ioc4_extint_output_teardown(struct ioc4_extint_device *ied)
++{
++	union ioc4_gpcr gpcr;
++	unsigned long a_int_out;
++
++	/* Disable output */
++	gpcr.raw = 0;
++	gpcr.fields.dir = IOC4_GPCR_DIR_1;
++	gpcr.fields.int_out_en = 1;
++	writel(gpcr.raw, &ied->idd->idd_misc_regs->gpcr_c.raw);
++
++	/* Reset to power-on state */
++	writel(0, &ied->idd->idd_misc_regs->int_out.raw);
++
++	/* Release INT_OUT register alias page */
++	if (!ied->a_int_out)	/* Nothing to do if not set up */
++		return;
++
++	iounmap(ied->a_int_out);
++	a_int_out = pci_resource_start(ied->idd->idd_pdev, 0) +
++			IOC4_A_INT_OUT_OFFSET;
++	if (!a_int_out) {
++		printk(KERN_WARNING
++		       "%s: Unable to get IOC4 extint register alias mapping "
++		       "for pci_dev 0x%p.\n", __FUNCTION__, ied->idd->idd_pdev);
++	}
++	release_region(a_int_out, IOC4_A_INT_OUT_LENGTH);
++}
++
++static void ioc4_extint_input_setup(struct ioc4_extint_device *ied)
++{
++	union ioc4_other_int other_ie;
++	union ioc4_gpcr gpcr;
++
++	/* Disable all interrupt sources */
++	other_ie.raw = 0;
++	other_ie.fields.rt_int = 1;
++	other_ie.fields.gen_int = IOC4_OTHER_IR_GEN_INT_1;
++	writel(other_ie.raw, &ied->idd->idd_misc_regs->other_iec.raw);
++
++	/* Make external pin edge-sensitive */
++	gpcr.raw = 0;
++	gpcr.fields.edge = IOC4_OTHER_IR_GEN_INT_1;
++	writel(gpcr.raw, &ied->idd->idd_misc_regs->gpcr_s.raw);
++
++	/* Make external pin an input */
++	gpcr.raw = 0;
++	gpcr.fields.dir = IOC4_GPCR_EDGE_1;	/* Pin 1 */
++	writel(gpcr.raw, &ied->idd->idd_misc_regs->gpcr_c.raw);
++}
++
++static int ioc4_extint_input_enable(struct ioc4_extint_device *ied)
++{
++	union ioc4_other_int other_ie, other_ir;
++	int ret;
++
++	/* Clear pending interrupts */
++	other_ir.raw = 0;
++	other_ir.fields.rt_int = 1;	/* Clear INT_OUT section output */
++	other_ir.fields.gen_int = IOC4_OTHER_IR_GEN_INT_1; /* Clr pin inputs */
++	mmiowb();
++	writel(other_ir.raw, &ied->idd->idd_misc_regs->other_ir.raw);
++	mmiowb();
++
++	/* Register interrupt handler */
++	ret = request_irq(ied->idd->idd_pdev->irq, ioc4_extint_handler,
++			  SA_SHIRQ, "ioc4_extint", (void *)ied->idd);
++	if (ret) {
++		printk(KERN_WARNING
++		       "%s: Request for IRQ %d failed "
++		       "for pci_dev 0x%p.\n",
++		       __FUNCTION__, ied->idd->idd_pdev->irq,
++		       ied->idd->idd_pdev);
++		goto out;
++	}
++
++	/* Enable external pin and disable loopback (i.e. select
++	 * external pin as default input source)
++	 */
++	other_ie.raw = 0;
++	other_ie.fields.gen_int = IOC4_OTHER_IR_GEN_INT_1;
++	writel(other_ie.raw, &ied->idd->idd_misc_regs->other_ies.raw);
++	other_ie.raw = 0;
++	other_ie.fields.rt_int = 1;
++	writel(other_ie.raw, &ied->idd->idd_misc_regs->other_iec.raw);
++
++out:
++	return ret;
++}
++
++static void ioc4_extint_input_disable(struct ioc4_extint_device *ied)
++{
++	union ioc4_other_int other_ie, other_ir;
++
++	/* Disable interrupt sources (pin and loopback) */
++	other_ie.raw = 0;
++	other_ie.fields.rt_int = 1;
++	other_ie.fields.gen_int = IOC4_OTHER_IR_GEN_INT_1;
++	writel(other_ie.raw, &ied->idd->idd_misc_regs->other_iec.raw);
++	mmiowb();
++
++	/* Clear pending interrupts */
++	other_ir.raw = 0;
++	other_ir.fields.rt_int = 1;
++	other_ir.fields.gen_int = IOC4_OTHER_IR_GEN_INT_1;
++	writel(other_ir.raw, &ied->idd->idd_misc_regs->other_ir.raw);
++	mmiowb();
++
++	/* Remove interrupt handler */
++	free_irq(ied->idd->idd_pdev->irq, (void *)ied->idd);
++}
++
++static void ioc4_extint_input_teardown(struct ioc4_extint_device *ied)
++{
++	union ioc4_gpcr gpcr;
++
++	/* Make external pin level-sensitive */
++	gpcr.raw = 0;
++	gpcr.fields.edge = IOC4_GPCR_EDGE_1;
++	writel(gpcr.raw, &ied->idd->idd_misc_regs->gpcr_c.raw);
++
++	/* Make external pin an output */
++	gpcr.raw = 0;
++	gpcr.fields.dir = IOC4_GPCR_DIR_1;
++	writel(gpcr.raw, &ied->idd->idd_misc_regs->gpcr_s.raw);
++	mmiowb();
++}
++
++static int ioc4_extint_probe(struct ioc4_driver_data *idd)
++{
++	struct ioc4_extint_device *ied;
++	int ret;
++
++	/* Allocate and initialize control structure */
++	ied = kmalloc(sizeof(struct ioc4_extint_device), GFP_KERNEL);
++	if (!ied) {
++		printk(KERN_WARNING
++		       "%s: failed to allocate IOC4 extint device structure "
++		       "for pci_dev 0x%p.\n", __FUNCTION__, idd->idd_pdev);
++		ret = -ENOMEM;
++		goto out;
++	}
++	memset(ied, 0, sizeof(struct ioc4_extint_device));
++	ied->idd = idd;
++
++	/* Set everything to known state */
++	ioc4_extint_output_setup(ied);
++	ioc4_extint_input_setup(ied);
++
++	/* Create IOC4-specific external interrupt devices */
++	ret = ioc4_extint_device_create(ied);
++	if (ret)
++		goto out_device;
++
++	/* Register with extint abstraction layer */
++	idd->idd_extint_data =
++		extint_device_register(&ioc4_extint_properties, ied);
++	if (IS_ERR(idd->idd_extint_data)) {
++		ret = PTR_ERR(idd->idd_extint_data);
++		idd->idd_extint_data = NULL;
++		goto out_register;
++	}
++
++	/* Enable interrupt input */
++	ret = ioc4_extint_input_enable(ied);
++	if (ret)
++		goto out_enable;
++
++	return 0;
++
++out_enable:
++	extint_device_unregister(idd->idd_extint_data);
++out_register:
++	ioc4_extint_device_destroy(ied);
++out_device:
++	ioc4_extint_input_teardown(ied);
++	ioc4_extint_output_teardown(ied);
++	kfree(ied);
++out:
++	return ret;
++}
++
++static int ioc4_extint_remove(struct ioc4_driver_data *idd)
++{
++	struct extint_device *ed = idd->idd_extint_data;
++	struct ioc4_extint_device *ied;
++
++	/* If probe failed, avoid trying to remove */
++	if (ed)
++		ied = extint_get_devdata(ed);
++	else
++		return -ENXIO;
++
++	/* Disable interrupt input */
++	ioc4_extint_input_disable(ied);
++
++	/* Unregister with extint abstraction layer */
++	extint_device_unregister(ed);
++
++	/* Destroy IOC4-specific external interupt devices */
++	ioc4_extint_device_destroy(ied);
++
++	/* Set everything to default state */
++	ioc4_extint_input_teardown(ied);
++	ioc4_extint_output_teardown(ied);
++
++	/* Free memory */
++	kfree(ied);
++
++	return 0;
++}
++
++static struct ioc4_submodule ioc4_extint_submodule = {
++	.is_name = "ioc4_extint",
++	.is_owner = THIS_MODULE,
++	.is_probe = ioc4_extint_probe,
++	.is_remove = ioc4_extint_remove,
++};
 +
 +/*********************
 + * Module management *
 + *********************/
 +
-+static int __devinit extint_init(void)
++static int __devinit
++ioc4_extint_init(void)
 +{
 +	int ret;
 +
 +	/* Reserve a block of device numbers */
-+	ret = alloc_chrdev_region(&firstdev, 0, EXTINT_NUMDEVS, "extint");
++	ret = alloc_chrdev_region(&firstdev, 0, 255, "ioc4_intout");
 +	if (ret) {
 +		printk(KERN_WARNING
-+		       "%s: failed to allocate external interrupt "
++		       "%s: failed to allocate IOC4 external interrupt output"
 +		       "device numbers.\n", __FUNCTION__);
-+		return ret;
++		goto out;
 +	}
 +	nextdev = firstdev;
 +
-+	return class_register(&extint_class);
++	/* Simple class that allows userland to find the device numbers
++	 * allocated to IOC4-specific devices.
++	 */
++	ret = class_register(&ioc4_intout_class);
++	if (ret) {
++		printk(KERN_WARNING
++			"%s: failed to create IOC4 intout device class.\n",
++			__FUNCTION__);
++		goto out_class;
++	}
++
++	/* Submodule probe function may be called during this next call */
++	ret = ioc4_register_submodule(&ioc4_extint_submodule);
++	if (ret) {
++		printk(KERN_WARNING
++			"%s: failed to register IOC4 extint subdriver.\n",
++			__FUNCTION__);
++		goto out_submodule;
++	}
++
++	return 0;
++
++out_submodule:
++	class_unregister(&ioc4_intout_class);
++out_class:
++	unregister_chrdev_region(firstdev, 255);
++out:
++	return ret;
 +}
 +
-+static void __devexit extint_exit(void)
++static void __devexit
++ioc4_extint_exit(void)
 +{
-+	class_unregister(&extint_class);
++	/* Unhook submodule from main IOC4 module */
++	ioc4_unregister_submodule(&ioc4_extint_submodule);
 +
-+	unregister_chrdev_region(firstdev, EXTINT_NUMDEVS);
++	/* Unregister IOC4-specific device class */
++	class_unregister(&ioc4_intout_class);
++
++	/* Release reserved device numbers */
++	unregister_chrdev_region(firstdev, 255);
 +}
 +
-+module_init(extint_init);
-+module_exit(extint_exit);
++module_init(ioc4_extint_init);
++module_exit(ioc4_extint_exit);
 +
 +MODULE_AUTHOR("Brent Casavant - Silicon Graphics, Inc. <bcasavan@sgi.com>");
-+MODULE_DESCRIPTION("External interrupt abstraction class module");
++MODULE_DESCRIPTION("External interrupt driver for SGI IOC4 IO controller");
 +MODULE_LICENSE("GPL");
-diff --git a/include/linux/extint.h b/include/linux/extint.h
-new file mode 100644
---- /dev/null
-+++ b/include/linux/extint.h
-@@ -0,0 +1,115 @@
-+/*
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ *
-+ * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-+ */
-+
-+/* External interrupt control abstraction */
-+
-+#ifndef _LINUX_EXTINT_H
-+#define _LINUX_EXTINT_H
-+
-+#include <linux/device.h>
-+
-+struct extint_device;
-+
-+struct extint_properties {
-+	/* Owner module */
-+	struct module *owner;
-+
-+	/* Get/set generation mode */
-+	ssize_t (*get_mode)(struct extint_device * ed, char *buf);
-+	ssize_t (*set_mode)(struct extint_device * ed, const char *buf,
-+			     size_t count);
-+
-+	/* Get generation mode list */
-+	ssize_t (*get_modelist)(struct extint_device * ed, char *buf);
-+
-+	/* Get/set generation period */
-+	unsigned long (*get_period)(struct extint_device * ed);
-+	ssize_t (*set_period)(struct extint_device * ed, unsigned long period);
-+
-+	/* Get low-level provider name */
-+	ssize_t (*get_provider)(struct extint_device *ed, char *buf);
-+
-+	/* Generation period quantum */
-+	unsigned long (*get_quantum)(struct extint_device * ed);
-+
-+	/* Get/set ingest source */
-+	ssize_t (*get_source)(struct extint_device * ed, char *buf);
-+	ssize_t (*set_source)(struct extint_device * ed, const char *buf,
-+			      size_t count);
-+
-+	/* Get ingest source list */
-+	ssize_t (*get_sourcelist)(struct extint_device * ed, char *buf);
-+};
-+
-+struct extint_device {
-+	/* Current status of device */
-+	int state;
-+
-+	/* Semaphore protects 'props' field.  If 'props' is NULL, the
-+	 * driver that registered this device has been unloaded, and
-+	 * if class_get_devdata() points to something in the body of
-+	 * that driver, it is also invalid.
-+	 */
-+	struct semaphore sem;
-+	struct extint_properties *props;	/* Downcalls */
-+
-+	/* A list of callouts to invoke whenever this device ingests
-+	 * an interrupt.
-+	 */
-+	struct list_head callouts;
-+	spinlock_t callouts_lock;
-+
-+	/* Mappable counter page support */
-+	struct cdev counter_cdev;		/* Character dev */
-+	unsigned long *counter_page;		/* Mappable page */
-+	wait_queue_head_t counter_queue;	/* Poll/select queue */
-+
-+	/* The class device structure */
-+	struct class_device class_dev;
-+
-+	/* Device number of abstracted counter */
-+	dev_t devt;
-+
-+	/* Private device data for device-specific drivers */
-+	void* devdata;
-+};
-+
-+static inline void* extint_get_devdata(const struct extint_device *ed) {
-+	return ed->devdata;
-+}
-+
-+static inline void extint_set_devdata(struct extint_device *ed, void* devdata) {
-+	ed->devdata = devdata;
-+}
-+
-+struct extint_callout {
-+	struct list_head list;
-+	struct module *owner;		/* Callout function and data owner */
-+	void (*function) (void *);	/* Callout to invoke */
-+	void *data;			/* Passed to callout */
-+};
-+
-+extern struct extint_device *extint_device_register(struct extint_properties
-+						    *ep, void *devdata);
-+extern void extint_device_unregister(struct extint_device *ed);
-+
-+/* Used by other kernel modules to request a function be invoked each
-+ * time an interrupt is ingested
-+ */
-+extern struct extint_device *file_to_extint_device(const struct file *filp);
-+extern int extint_callout_register(struct extint_device *ed,
-+				   struct extint_callout *ec);
-+extern void extint_callout_unregister(struct extint_device *ed,
-+				      struct extint_callout *ec);
-+
-+/* Used by external interrupt low-level drivers to trigger invocation
-+ * of per-interrupt actions.
-+ */
-+extern void extint_interrupt(struct extint_device *ed);
-+
-+#endif
+diff --git a/include/linux/ioc4.h b/include/linux/ioc4.h
+--- a/include/linux/ioc4.h
++++ b/include/linux/ioc4.h
+@@ -156,6 +156,7 @@ struct ioc4_driver_data {
+ 	struct __iomem ioc4_misc_regs *idd_misc_regs;
+ 	unsigned long count_period;
+ 	void *idd_serial_data;
++	void *idd_extint_data;
+ };
+ 
+ /* One per submodule */
 
 -- 
 Brent Casavant                          If you had nothing to fear,

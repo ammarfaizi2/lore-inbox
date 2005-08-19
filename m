@@ -1,93 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbVHSJPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932598AbVHSJhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932563AbVHSJPG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 05:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVHSJPG
+	id S932598AbVHSJhL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 05:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbVHSJhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 05:15:06 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:62549 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S932563AbVHSJPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 05:15:03 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.96,124,1122847200"; 
-   d="scan'208"; a="14313210:sNHT27964328"
+	Fri, 19 Aug 2005 05:37:11 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:62104 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S932598AbVHSJhI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 05:37:08 -0400
+Date: Fri, 19 Aug 2005 11:37:01 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: SATA status report updated
-References: <4AA7B-4jm-5@gated-at.bofh.it> <4DagM-7c8-43@gated-at.bofh.it>
-Organization: Fujitsu Siemens Computers VP BC E SW OS
-From: Rainer Koenig <Rainer.Koenig@fujitsu-siemens.com>
-Date: Fri, 19 Aug 2005 11:14:45 +0200
-In-Reply-To: <4DagM-7c8-43@gated-at.bofh.it> (Simon Oosthoek's message of
- "Fri, 19 Aug 2005 10:20:16 +0200")
-Message-ID: <871x4ql24a.fsf@ABG3595C.abg.fsc.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: 2.6.12.5: P4 2.0GHz detected as 2.6GHz?
+Message-ID: <20050819113701.26d14c5a@phoebee>
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
+Mime-Version: 1.0
+Content-Type: multipart/signed;
+ boundary=Signature_Fri__19_Aug_2005_11_37_01_+0200_S+XttQ2Ygo.WYlEG;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Simon,
+--Signature_Fri__19_Aug_2005_11_37_01_+0200_S+XttQ2Ygo.WYlEG
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Simon Oosthoek <simon.oosthoek@ti-wmc.nl> writes:
+Did someone overclock our router or is this a misdetection?
 
-> I'm wondering how the support for the SIS 182 controller is doing, I
-> noticed they have a GPL driver on their website for kernel 2.6.10,
-> which is not a drop in replacement for sata_sis.c in 2.6.12.5, I
-> haven't tried compiling it as an add-on module outside the tree,
-> though...
+dmesg:
+Linux version 2.6.12.5 (root@router) (gcc version 3.3.5 (Debian
+1:3.3.5-13)) #1  Thu Aug 18 11:23:14 CEST 2005
+...
+Kernel command line: auto BOOT_IMAGE=3DLinux2.6.12.5 ro root=3D303
+Local APIC disabled by BIOS -- you can enable it with "lapic"
+mapped APIC to ffffd000 (01201000)
+Initializing CPU#0
+PID hash table entries: 1024 (order: 10, 16384 bytes)
+Detected 2655.765 MHz processor.
+Using tsc for high-res timesource
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+Memory: 254876k/262080k available (2571k kernel code, 6632k reserved,
+971k data, 188k init, 0k highmem)
+Checking if this processor honours the WP bit even in supervisor mode...
+Ok. Calibrating delay loop... 5242.88 BogoMIPS (lpj=3D2621440)
+Mount-cache hash table entries: 512
+CPU: After generic identify, caps: bfebf9ff 00000000 00000000 00000000
+00000400  00000000 00000000
+CPU: After vendor identify, caps: bfebf9ff 00000000 00000000 00000000
+00000400 0 0000000 00000000
+CPU: Trace cache: 12K uops, L1 D cache: 8K
+CPU: L2 cache: 128K
+CPU: After all inits, caps: bfebf9ff 00000000 00000000 00000080 00000400
+0000000 0 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
+CPU0: Thermal monitoring enabled
+CPU: Intel(R) Celeron(R) CPU 2.00GHz stepping 07
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+ACPI: setting ELCR to 0200 (from 1820)
 
-I tried the sources from the SiS website (that seem to add more
-details than my simple patch that just adds the device ID) as a drop
-in for the Fedora installation kernel 2.6.11-1.1369_FC4, but the
-kernel build process ran into an error at the sata_sis module. The
-problem is that the source from SiS has a conditional code that
-depends on the definition of a symbol "KERN_2_6_10" which is defined
-by their "outside build makefile", but not in the standard kernel
-build process. I added a #define KERN_2_6_10 to the source and then it
-compiled also inside the kernel build process.
 
-> Adding the 0x182 identifier to the 180 driver does compile (duh!), but
-> I haven't tried it on hardware.
 
-Working at a PC manufacturer I have access to hardware and I tried out
-a lot and didn't run into any problem so far. 
+# cat /proc/cpuinfo=20
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Celeron(R) CPU 2.00GHz
+stepping        : 7
+cpu MHz         : 2655.765
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
+cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
+bogomips        : 5242.88
 
-> As a temporary measure, there was a patch posted to this list [1] a
-> while ago, would it be a good idea to include this while full support
-> is being worked on?
 
-Seeing that the source from the SiS website is much more going into the
-details than my simple adding of the device ID (of course SiS has hopefully
-a much deeper knowledge of their hardware than I have ;-) I would rather
-go for integrating the SiS source in the current kernel. 
+--=20
+MyExcuse:
+your keyboard's space bar is generating spurious keycodes.
 
-And this problem is quite urgent since its a sort of "showstopper" for 
-brandnew hardware. We have a query from an university that wants to buy
-7000 PCs with that hardware in the next 4 years, but until yesterday they
-were unable to install Fedora Core 4 on the machine since the installer
-doesn't see any hard disks. I succeeded to make a simple quick&dirty
-driver disk to get Linux at least installed on the hard disk. But the
-problem also applies for every other Linux distribution, so we urgently
-need to get support for that device in the mainstream kernel hoping 
-that it will be inherited to the installation kernels of the distributions
-soon. 
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
 
-Generally SATA is replacing parallel ATA in the new PC platforms and we
-already got anouncements that future platforms will come with SATA only.
-So can't emphasize enought that SATA support is absolutely important for
-Linux on the desktop. 
+TechnoTrend AG <http://www.technotrend.de>
 
-If there is something I can do to help or contribute let me know. 
+--Signature_Fri__19_Aug_2005_11_37_01_+0200_S+XttQ2Ygo.WYlEG
+Content-Type: application/pgp-signature
 
-Best regards
-Rainer
--- 
-Dipl.-Inf. (FH) Rainer Koenig
-Project Manager Linux
-Business Clients
-Fujitsu Siemens Computers 
-VP BC E SW OS
-Phone: +49-821-804-3321
-Fax:   +49-821-804-2131
- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDBag9mjLYGS7fcG0RAoopAKCFGRzTd7Si6k2focK0ualv/yMw/ACeJh7k
+ktOUi4WRpDQ9mvKTVunsSgA=
+=8wOm
+-----END PGP SIGNATURE-----
+
+--Signature_Fri__19_Aug_2005_11_37_01_+0200_S+XttQ2Ygo.WYlEG--

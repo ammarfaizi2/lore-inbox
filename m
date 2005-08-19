@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbVHSRLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVHSRVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbVHSRLg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 13:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbVHSRLg
+	id S932345AbVHSRVe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 13:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVHSRVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 13:11:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4315 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932678AbVHSRLf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 13:11:35 -0400
-Date: Fri, 19 Aug 2005 13:11:17 -0400 (EDT)
-From: Elliot Lee <sopwith@redhat.com>
-X-X-Sender: sopwith@devserv.devel.redhat.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: e8607062@student.tuwien.ac.at, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13-rc6 1/2] New Syscall: get rlimits of any process
- (update)
-In-Reply-To: <1124387342.16072.13.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0508181929010.32738@devserv.devel.redhat.com>
-References: <1124326652.8359.3.camel@w2>  <p7364u40zld.fsf@verdi.suse.de> 
- <1124381951.6251.14.camel@w2> <1124387342.16072.13.camel@localhost.localdomain>
+	Fri, 19 Aug 2005 13:21:34 -0400
+Received: from pasta.sw.starentnetworks.com ([12.33.234.10]:34482 "EHLO
+	pasta.sw.starentnetworks.com") by vger.kernel.org with ESMTP
+	id S932345AbVHSRVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 13:21:33 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17158.5404.508348.433079@cortez.sw.starentnetworks.com>
+Date: Fri, 19 Aug 2005 13:21:32 -0400
+From: Dave Johnson <djohnson+linux-kernel@sw.starentnetworks.com>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       davem@davemloft.net
+Subject: [PATCH] negative timer loop with lots of IPv4 peers
+X-Mailer: VM 7.07 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Aug 2005, Alan Cox wrote:
 
-> > Also some documention for specific services show that there is a need to
-> > adjust rlimits per process at runtime, e.g.:
-> > http://www.squid-cache.org/Doc/FAQ/FAQ-11.html#ss11.4
-> > http://slacksite.com/apache/logging.html
-> > http://staff.in2.hr/denis/oracle/10g1install_fedora3_en.html#n2
-> 
-> Perhaps those application authors should provide a management interface
-> to do so within the soft limit range at least. Its not clear to me that
-> growing the fd array on a process is even safe. Some programs do size
-> arrays at startup after querying the rlimit data.
+Found this bug while doing some scaling testing that created 500K inet
+peers.
 
-This is getting hung up on one particular example, while missing the
-bigger picture.
+peer_check_expire() in net/ipv4/inetpeer.c isn't using
+inet_peer_gc_mintime correctly and will end up creating an expire timer
+with less than the minimum duration, and even zero/negative if enough
+active peers are present.
 
-Being able to set rlimits for other processes is useful in general, just
-as things like nice() and sched_setscheduler() are. Maybe it is reducing
-max RSS on certain processes and increasing it on other processes, so that
-the memory tends to be used for higher-priority processes. Maybe it is 
-setting max cpu time to T+5 minutes, so that if a seemingly stuck process 
-has not exited in five minutes, it will die. Maybe it is limiting  the 
-number of processes that a daemon can spawn.
+If >65K peers, the timer will be less than inet_peer_gc_mintime, and
+with >70K peers, the timer duration will reach zero and go negative.
 
-In addition, it's not always practical to have application authors provide 
-a management interface.
+The timer handler will continue to schedule another zero/negative
+timer in a loop until peers can be aged.  This can continue for
+at least a few minutes or even longer if the peers remain active due
+to arriving packets while the loop is occurring.
 
-You're right that there can be potential problems with adjusting rlimits 
-on the fly, but that doesn't seem like a sufficient reason to avoid 
-including the feature.
+Bug is present in both 2.4 and 2.6. Same patch will apply to both just
+fine.
 
-Best,
--- Elliot
-Pioneers get the Arrows. Settlers get the Land.
+-- 
+Dave Johnson
+Starent Networks
+
+
+===== net/ipv4/inetpeer.c 1.12 vs edited =====
+--- 1.12/net/ipv4/inetpeer.c	2005-06-24 16:16:59 -04:00
++++ edited/net/ipv4/inetpeer.c	2005-08-19 10:34:00 -04:00
+@@ -490,10 +490,13 @@
+ 	/* Trigger the timer after inet_peer_gc_mintime .. inet_peer_gc_maxtime
+ 	 * interval depending on the total number of entries (more entries,
+ 	 * less interval). */
+-	peer_periodic_timer.expires = jiffies
+-		+ inet_peer_gc_maxtime
+-		- (inet_peer_gc_maxtime - inet_peer_gc_mintime) / HZ *
+-			peer_total / inet_peer_threshold * HZ;
++	if (peer_total >= inet_peer_threshold)
++		peer_periodic_timer.expires = jiffies + inet_peer_gc_mintime;
++	else
++		peer_periodic_timer.expires = jiffies
++			+ inet_peer_gc_maxtime
++			- (inet_peer_gc_maxtime - inet_peer_gc_mintime) / HZ *
++				peer_total / inet_peer_threshold * HZ;
+ 	add_timer(&peer_periodic_timer);
+ }
+ 
+

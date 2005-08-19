@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965197AbVHSXoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVHSXp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965197AbVHSXoq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 19:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965201AbVHSXop
+	id S932347AbVHSXp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 19:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbVHSXp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 19:44:45 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:14099 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965197AbVHSXoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 19:44:44 -0400
-Date: Sat, 20 Aug 2005 01:44:43 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/adfs/adfs.h: "extern inline" doesn't make sense
-Message-ID: <20050819234443.GG3615@stusta.de>
-References: <20050819234119.GD3615@stusta.de>
+	Fri, 19 Aug 2005 19:45:28 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:7691 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932347AbVHSXp1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 19:45:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oVT4Gnz3hJw4K7xMh1yCAuC+NOxWOvzloIG8KHwDZfo8xyHqpr56Kathj7c6Y9Ms+0TM9k1aIOA16+pc8T+If3hFn6qomqnWxeVzUa6vtyLPyFVHv631U1ry2pIExPCx4Dte2qJkSwfGhF6B2tkoLxPSZ9C/tWrMHK9+mHjaci8=
+Message-ID: <29495f1d05081916457009220c@mail.gmail.com>
+Date: Fri, 19 Aug 2005 16:45:24 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [-mm patch] drivers/cdrom/sbpcd.c: fix the compilation
+Cc: Andrew Morton <akpm@osdl.org>, Nishanth Aravamudan <nacc@us.ibm.com>,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+In-Reply-To: <20050819233631.GB3615@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050819234119.GD3615@stusta.de>
-User-Agent: Mutt/1.5.9i
+References: <20050819043331.7bc1f9a9.akpm@osdl.org>
+	 <20050819233631.GB3615@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time with a better subject ]
+On 8/19/05, Adrian Bunk <bunk@stusta.de> wrote:
+> On Fri, Aug 19, 2005 at 04:33:31AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.13-rc5-mm1:
+> >...
+> > +drivers-cdrom-fix-up-schedule_timeout-usage.patch
+> >...
+> 
+> I sell copies of gcc at reasonable prices...
+> 
+> <--  snip  -->
+> 
+> ...
+>   CC      drivers/cdrom/sbpcd.o
+> ...
+> drivers/cdrom/sbpcd.c:830: warning: implicit declaration of function 'schedule_interruptible_timeout'
+> ...
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o: In function `sbp_sleep':sbpcd.c:
+> (.text+0x7c4592): undefined reference to `schedule_interruptible_timeout'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> <--  snip  -->
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.13-rc6-mm1-full/drivers/cdrom/sbpcd.c.old 2005-08-19 20:43:18.000000000 +0200
+> +++ linux-2.6.13-rc6-mm1-full/drivers/cdrom/sbpcd.c     2005-08-19 20:44:46.000000000 +0200
+> @@ -827,7 +827,7 @@
+>  static void sbp_sleep(u_int time)
+>  {
+>         sti();
+> -       schedule_interruptible_timeout(time);
+> +       schedule_timeout_interruptible(time);
 
-"extern inline" doesn't make sense.
+::sigh:: Thanks, Adrian!
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.13-rc6-mm1-full/fs/adfs/adfs.h.old	2005-08-19 23:21:33.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-full/fs/adfs/adfs.h	2005-08-19 23:22:07.000000000 +0200
-@@ -97,7 +97,7 @@
- extern struct inode_operations adfs_file_inode_operations;
- extern struct file_operations adfs_file_operations;
- 
--extern inline __u32 signed_asl(__u32 val, signed int shift)
-+static inline __u32 signed_asl(__u32 val, signed int shift)
- {
- 	if (shift >= 0)
- 		val <<= shift;
-@@ -112,7 +112,7 @@
-  *
-  * The root directory ID should always be looked up in the map [3.4]
-  */
--extern inline int
-+static inline int
- __adfs_block_map(struct super_block *sb, unsigned int object_id,
- 		 unsigned int block)
- {
-
+-Nish

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbVHSQMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbVHSQRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964968AbVHSQMU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 12:12:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbVHSQMT
+	id S1751218AbVHSQRc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 12:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVHSQRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 12:12:19 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:21748 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751224AbVHSQMR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 12:12:17 -0400
-Subject: Re: 2.6.13-rc6-mm1
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mark Fasheh <mark.fasheh@oracle.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050819043331.7bc1f9a9.akpm@osdl.org>
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 19 Aug 2005 11:11:51 -0500
-Message-Id: <1124467911.9329.11.camel@kleikamp.austin.ibm.com>
+	Fri, 19 Aug 2005 12:17:32 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7643 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751218AbVHSQRb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 12:17:31 -0400
+Date: Fri, 19 Aug 2005 00:29:47 -0700
+From: Greg KH <gregkh@suse.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sysfs: write returns ENOMEM?
+Message-ID: <20050819072947.GA6894@kroah.com>
+References: <200508190055.25747.dtor_core@ameritech.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508190055.25747.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that git-ocfs2.patch duplicates the
-update-filesystems-for-new-delete_inode-behavior.patch.  I noticed it
-adds duplicate statements like:
+On Fri, Aug 19, 2005 at 12:55:25AM -0500, Dmitry Torokhov wrote:
+> [Apologies if you see this message twice - I accidentially sent it in HTML
+>  format first time around and I am pretty sure LKML will eat it]
+> 
+> Hi,
+> 
+> According to the SuS write() can not return ENOMEM, only ENOBUFS is allowed
+> (surprisingly read() is allowed to use both ENOMEM and ENOBUFS):
+> 
+> http://www.opengroup.org/onlinepubs/000095399/functions/write.html
+> 
+> Should we adjust sysfs write to follow the standard?
 
-diff -puN fs/ext2/inode.c~git-ocfs2 fs/ext2/inode.c
-diff -puN fs/ext3/inode.c~git-ocfs2 fs/ext3/inode.c
---- devel/fs/ext3/inode.c~git-ocfs2     2005-08-18 22:00:35.000000000 -0700
-+++ devel-akpm/fs/ext3/inode.c  2005-08-18 22:00:37.000000000 -0700
-@@ -189,6 +189,8 @@ void ext3_delete_inode (struct inode * i
+Sure, I don't have a problem with this.  Anyone else object?
 
-        truncate_inode_pages(&inode->i_data, 0);
+thanks,
 
-+       truncate_inode_pages(&inode->i_data, 0);
-+
-        if (is_bad_inode(inode))
-                goto no_delete;
-
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
-
+greg k-h

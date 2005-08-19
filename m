@@ -1,84 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbVHSLp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932644AbVHSLqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932594AbVHSLp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 07:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbVHSLp3
+	id S932644AbVHSLqV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 07:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbVHSLqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 07:45:29 -0400
-Received: from [202.125.80.34] ([202.125.80.34]:29237 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S932594AbVHSLp3 convert rfc822-to-8bit
+	Fri, 19 Aug 2005 07:46:20 -0400
+Received: from mailhub.lss.emc.com ([168.159.2.31]:36421 "EHLO
+	mailhub.lss.emc.com") by vger.kernel.org with ESMTP id S932644AbVHSLqT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 07:45:29 -0400
-Content-class: urn:content-classes:message
-Subject: RE: The Linux FAT issue on SD Cards.. maintainer support please
+	Fri, 19 Aug 2005 07:46:19 -0400
+Message-ID: <4305C5AA.20200@emc.com>
+Date: Fri, 19 Aug 2005 07:42:34 -0400
+From: Brett Russ <russb@emc.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 19 Aug 2005 17:09:06 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B391B@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: The Linux FAT issue on SD Cards.. maintainer support please
-Thread-Index: AcWkGTYhA/29mEB/RCiTQ1ztHJ88VQAlkgfw
-From: "Mukund JB`." <mukundjb@esntechnologies.co.in>
-To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
-Cc: <hirofumi@mail.parknet.co.jp>,
-       "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-ide@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [git] libata-dev queue updated
+References: <20050819035437.GA18324@havoc.gtf.org>
+In-Reply-To: <20050819035437.GA18324@havoc.gtf.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.8.19.6
+X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='EMC_FROM_00+ -0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
 
-Dear Lennart,
-
->> I found that both of then do NOT have the partition table.
+>In such cases, patches are divided into branches by category: ncq (NCQ
+>queueing support), chs-support (C/H/S support), adma (new ADMA driver),
+>sil24 (new Silicon Image 312x driver), passthru (ATA passthrough/SMART
+>support), etc.
+>  
 >
->If you don't use fdisk to create a partition on the card, then you
-won't
->have one.  
+Jeff,
+The below doesn't seem to include NCQ. Is this an oversight?
+Thanks,
+BR
 
-I am having the partition table on the cam formatted CARD 
-i.e. the partition 0.
-
-> If you mkdosfs on /dev/tfa0 then you loose the partition
->table and get a filesystem on just the whole disk.  If you do it with
->/dev/tfa0p1 then you do it on the first partition which would then have
->the FAT filesystem starting at the offset of the first partition (as it
->should).
-
-Ok, I understood it. It looks like we have to verify the partition
-support we have implemented in the driver.
-
->That is right.  Although I believe if windows sees one with a partition
->table it will just use the first valid partition table entry it finds
->and ignore the rest.
-
-To handle it in a similarly in Linux we need to support this driver with
-partitions. There looks a loop hole in the driver. 
-I will verify and fix it today.
-
->> Please see the Images-All-MS-512.tar.gz.
+>Albert Lee:
+>  [libata] C/H/S support, for older devices
+>  [libata] add driver for Promise PATA 2027x
+>  libata-dev-2.6: pdc2027x add ata_scsi_ioctl
+>  libata-dev-2.6: pdc2027x change comments
+>  libata-dev-2.6: pdc2027x move the PLL counter reading code
+>  libata-dev-2.6: pdc2027x PLL input clock detection fix
+>  libata ata_data_xfer() fix
+>  libata handle the case when device returns/needs extra data
+>  libata-dev: Convert pdc2027x from PIO to MMIO
+>  libata-dev: pdc2027x use "long" for counter data type
+>  libata-dev: pdc2027x ATAPI DMA lost irq problem workaround
 >
->Well to mount anything without a partition table, you would mount the
->whole device (/dev/tfa0) and to mount one with a partition table on it,
->you would mount /dev/tfa0p1 or tfa0p4 or whichever partition it is.
+>Daniel Drake:
+>  sata_nv: Support MCP51/MCP55 device IDs
 >
->Zip drives used to be the same way.  Some were formated with 1
-partition
->(usually 1 or 4) and some had no partition table at all and used the
->whole disk for the filesystem.  I always had a /zip and /zip4 mount
->point I used depending on the particular disk I was looking at.
-Just out of inquisitive ness.
-
-What r u the minor numbers of those zip devices.
-ll /dev/zip 
-ll /dev/zip4
-
-Thanks for ur support.
-I will check with partition support in the driver & update it.
-Let me fix it there and come back.
-
-Regards,
-Mukund Jampala
-
+>Douglas Gilbert:
+>  [libata scsi] add START STOP UNIT translation
+>
+>Erik Benada:
+>  [libata sata_promise] support PATA ports on SATA controllers
+>
+>Jason Gaston:
+>  ahci: AHCI mode SATA patch for Intel ICH7-M DH
+>
+>Jeff Garzik:
+>  [libata] add new driver ata_adma
+>  [libata adma] enable PCI MWI during controller initialization
+>  [libata] ATA passthru (arbitrary ATA command execution)
+>  [libata] ata_adma: update for recent ->host_stop() API changes
+>  [libata] pata_pdc2027x: update for recent ->host_stop() API changes
+>  libata: Update 'passthru' branch for latest libata
+>  libata: trim trailing whitespace.
+>
+>Tejun Heo:
+>  SATA: rewritten sil24 driver
+>  sil24: add FIXME comment above ata_device_add
+>  sil24: remove irq disable code on spurious interrupt
+>  sil24: add testing for PCI fault
+>  sil24: move error handling out of hot interrupt path
+>  sil24: remove PORT_TF
+>  sil24: replace pp->port w/ ap->ioaddr.cmd_addr
+>  sil24: fix PORT_CTRL_STAT constants
+>  sil24: add more comments for constants
+>  
+>

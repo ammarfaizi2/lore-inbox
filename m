@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVHSIxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVHSI7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbVHSIxX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 04:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbVHSIxX
+	id S932546AbVHSI7d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 04:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVHSI7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 04:53:23 -0400
-Received: from smtp3.nextra.sk ([195.168.1.142]:26893 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S932542AbVHSIxX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 04:53:23 -0400
-Message-ID: <43059DF8.2060209@rainbow-software.org>
-Date: Fri, 19 Aug 2005 10:53:12 +0200
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Fri, 19 Aug 2005 04:59:33 -0400
+Received: from [202.125.80.34] ([202.125.80.34]:14121 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S932546AbVHSI7c convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 04:59:32 -0400
+Content-class: urn:content-classes:message
+Subject: Fix to Linux FAT12 mount issue?
 MIME-Version: 1.0
-To: Imanpreet Arora <imanpreet@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux under 8MB
-References: <c26b9592050818151154ff1a89@mail.gmail.com>
-In-Reply-To: <c26b9592050818151154ff1a89@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 19 Aug 2005 14:23:11 +0530
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B38E4@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Fix to Linux FAT12 mount issue?
+Thread-Index: AcWkm22JV2+kZAaLSz6Xs/9lGWAGtA==
+From: "Mukund JB`." <mukundjb@esntechnologies.co.in>
+To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've made a printserver with i386DX/25, 8MB RAM and 170MB HDD. Kernel is 
-2.6.12 (very light - 1.2MB uncompressed), userspace is based on 
-Slackware 9.0 (init scripts modified), print server is CUPS. It boots in 
-about a minute. It ran with 4MB too but the boot time was around 15 
-minutes :-) (with original init scripts).
+Dear all,
 
-root@printserver:~# uname -a
-Linux printserver 2.6.12-printserver #6 Fri Jul 1 23:40:17 CEST 2005 
-i386 unknown
-root@printserver:~# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : unknown
-cpu family      : 3
-model           : 0
-model name      : 386
-stepping        : unknown
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : no
-fpu_exception   : no
-cpuid level     : -1
-wp              : no
-flags           :
-bogomips        : 4.28
+Its time that there should be a fix applied to the FAT12 subsystem in
+Linux.
+I have noted that removable device FAT12 formatted in Camera like
+digital media does NOT have the FAT12 in sector 0 instead it has a
+partition table that speaks about the FAT12 fs start sector.
 
-root@printserver:~# free
-              total       used       free     shared    buffers     cached
-Mem:          6752       6196        556          0        528       3980
--/+ buffers/cache:       1688       5064
-Swap:        32000          0      32000
+Such devices that do NOT have the file system in sector 0 instead have
+the partition table are failing to mount under Linux.
+Why is it so?
 
--- 
-Ondrej Zary
+I have even tested USB mounted device suspecting the in-built
+card-reader driver I am using?
+
+Even it fails.
+Who has to handle this? which layer?
+
+Regards,
+Mukund Jampala

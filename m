@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVHSKVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVHSK2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932615AbVHSKVM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 06:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbVHSKVL
+	id S932467AbVHSK2r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 06:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVHSK2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 06:21:11 -0400
-Received: from [80.71.243.242] ([80.71.243.242]:10458 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S932615AbVHSKVJ (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Fri, 19 Aug 2005 06:21:09 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17157.45712.877795.437505@gargle.gargle.HOWL>
-Date: Fri, 19 Aug 2005 14:21:04 +0400
-To: Howard Chu <hyc@symas.com>
-Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Subject: Re: sched_yield() makes OpenLDAP slow
-In-Reply-To: <43057641.70700@symas.com>
-References: <43057641.70700@symas.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+	Fri, 19 Aug 2005 06:28:47 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:22623 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932467AbVHSK2q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 06:28:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JUpwiWWNs2MZl//umadjjKct7bi+VmNQumW7r7AxaIqpPu4gDc9gkVy1fI1QdanqujZol9u53Ow6CReHNbLmvw0IiO2DMT8JAJyXx0mL0nbYWf9YGlK2+Pd2hz4CarN1iq+oDjwS7G/tuakdTdVuq3FBuNSnruxhKwrYUodo0AM=
+Message-ID: <4fec73ca0508190328f8b9df9@mail.gmail.com>
+Date: Fri, 19 Aug 2005 12:28:43 +0200
+From: =?ISO-8859-1?Q?Guillermo_L=F3pez_Alejos?= <glalejos@gmail.com>
+To: "Peter M. Groen" <pgroen@osdev.xs4all.nl>
+Subject: Re: Environment variables inside the kernel?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200508190055.16515.pgroen@osdev.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4fec73ca050818084467f04c31@mail.gmail.com>
+	 <wn5slx75cjs.fsf@linhd-2.ca.nortel.com>
+	 <1124406748.20755.14.camel@localhost.localdomain>
+	 <200508190055.16515.pgroen@osdev.xs4all.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howard Chu <hyc@symas.com> writes:
+> On Friday 19 August 2005 01:12, Alan Cox wrote:
+> ---------------[ 8< ]-------------
+> > Essentially environment is user space business and you can't get at it
+> > from the kernel.
+> -[ 8< ]------------
+> 
+> I think the OP has his answer here. If someone knows what he is talking about,
+> it's Alan or Linus. And if a teacher or manager doesn't believe those two...
+> Let *him* prove that AC and LT are wrong, and not the other way around..
 
-[...]
+This definition given by Alan Cox is enough for me, and I think that
+it will be enough for my tutor too.
 
-> concurrency. It is the nature of such a system to encounter deadlocks
-> over the normal course of operations. When a deadlock is detected, some
-> thread must be chosen (by one of a variety of algorithms) to abort its
-> transaction, in order to allow other operations to proceed to
-> completion. In this situation, the chosen thread must get control of the
-> CPU long enough to clean itself up,
+Thanks again,
 
-What prevents transaction monitor from using, say, condition variables
-to "yield cpu"? That would have an additional advantage of blocking
-thread precisely until specific event occurs, instead of blocking for
-some vague indeterminate load and platform dependent amount of time.
-
->                                     and then it must yield the CPU in
-> order to allow any other competing threads to complete their
-> transaction.
-
-Again, this sounds like thing doable with standard POSIX synchronization
-primitives.
-
->
-> -- 
->   -- Howard Chu
-
-Nikita.
+-- 
+Guillermo

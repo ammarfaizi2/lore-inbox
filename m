@@ -1,41 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbVHSVqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965180AbVHSVsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965153AbVHSVqY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 17:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbVHSVqY
+	id S965180AbVHSVsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 17:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVHSVsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 17:46:24 -0400
-Received: from nproxy.gmail.com ([64.233.182.196]:13917 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965153AbVHSVqX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 17:46:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=D/q5JmYdAH3lE06xdcYOXIf2zx6Er3AgnWQGppTQxuJz70xl7Fvhd2xut2f6eJ02qViCLESvQpz1cmverV/NqSN93QbIabSN7MNk/9iNjiO4K06mGHWKsCPxAUGIIt+7xa+QA/zKnNygDmcL/Jn1mmQi+/BSmwbrGv5+lzDVrhw=
-Message-ID: <84144f02050819144660238be4@mail.gmail.com>
-Date: Sat, 20 Aug 2005 00:46:22 +0300
-From: Pekka Enberg <penberg@gmail.com>
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-Subject: Re: [Documentation] Use doxygen or another tool to generate a documentation ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050819213447.GA9538@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050819213447.GA9538@localhost.localdomain>
+	Fri, 19 Aug 2005 17:48:16 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:32716 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965180AbVHSVsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 17:48:15 -0400
+Message-ID: <43065440.5050608@us.ibm.com>
+Date: Fri, 19 Aug 2005 14:50:56 -0700
+From: Darren Hart <dvhltc@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>, "lkml, " <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.13-rc6-rt9
+References: <20050818060126.GA13152@elte.hu>
+In-Reply-To: <20050818060126.GA13152@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/20/05, Stephane Wirtel <stephane.wirtel@belgacom.net> wrote:
-> I don't know if there is a project based on Doxygen to make
-> (or generate) a documentation of the kernel.
+Ingo Molnar wrote:
+> i have released the 2.6.13-rc6-rt9 tree, which can be downloaded from 
+> the usual place:
 > 
-> Do you think that will be interesting to make a such document ?
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
 
-The kernel already has it's own API documentation generator called
-kerneldoc. See the file Documentation/kernel-doc-nano-HOWTO.txt for
-details.
+I'm looking into getting HRT and RT booting on a SUMMIT NUMA machine 
+(cyclone timer), but after s/error/warning/ in arch/i386/timers/timer.c 
+for the HRT cyclone ifdef, I still get the following link error:
 
-                      Pekka
+
+   LD      .tmp_vmlinux1
+net/built-in.o(.init.text+0xdae): In function `sock_ioctl':
+net/socket.c:868: undefined reference to `__you_cannot_kmalloc_that_much'
+make: *** [.tmp_vmlinux1] Error 1
+
+
+I was expecting to be able to build the kernel, and have it crash on 
+boot (due to unsynched TSCs I'm guessing) and then start debugging/devel 
+from there.  But the the rt9 patch won't build (HRT standalone for 
+2.6.10 does build).  Anyone else seeing this?
+
+> it's a fixes-only release. Changes since 2.6.13-rc6-rt3:
+> 
+>  - USB irq flags use cleanups (Alan Stern)
+> 
+>  - RCU tasklist-lock fixes (Paul McKenney, Thomas Gleixner)
+> 
+>  - HR-timers waitqueue splitup, better HRT latencies (Thomas Gleixner)
+> 
+>  - latency tracer fixes, irq flags tracing cleanups (Steven Rostedt, me)
+> 
+>  - NFSd BKL unlock fix (Steven Rostedt)
+> 
+>  - stackfootprint-max-printer fix (Steven Rostedt)
+> 
+>  - stop_machine fix (Steven Rostedt)
+> 
+>  - lpptest fix (me)
+> 
+>  - turned off IOAPIC_POSTFLUSH when CONFIG_X86_IOAPIC_FAST. Now with
+>    Karsten's VIA fixes my testbox does not show PCI-POST weirnesses
+>    anymore. In case of IRQ problems please turn off IOAPIC_FAST. (me)
+> 
+> to build a 2.6.13-rc6-rt9 tree, the following patches should be applied:
+> 
+>    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
+>    http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc6.bz2
+>    http://redhat.com/~mingo/realtime-preempt/patch-2.6.13-rc6-rt9
+> 
+> 	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+
+-- 
+Darren Hart
+IBM Linux Technology Center
+Linux Kernel Team
+Phone: 503 578 3185
+   T/L: 775 3185

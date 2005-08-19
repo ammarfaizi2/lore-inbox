@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbVHSFzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbVHSFy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbVHSFzc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 01:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbVHSFzc
+	id S932561AbVHSFy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 01:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbVHSFyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 01:55:32 -0400
-Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:18336 "HELO
-	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932565AbVHSFzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 01:55:31 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: sysfs: write returns ENOMEM?
-Date: Fri, 19 Aug 2005 00:55:25 -0500
-User-Agent: KMail/1.8.2
-Cc: Greg KH <gregkh@suse.de>
+	Fri, 19 Aug 2005 01:54:55 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:12507 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932561AbVHSFyy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 01:54:54 -0400
+Message-ID: <43057421.5090306@pobox.com>
+Date: Fri, 19 Aug 2005 01:54:41 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Tejun Heo <htejun@gmail.com>
+CC: linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: libata error handling
+References: <20050729050654.GA10413@havoc.gtf.org> <20050807054850.GA13335@htj.dyndns.org> <430556BF.5070004@pobox.com> <430570B5.60109@gmail.com>
+In-Reply-To: <430570B5.60109@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508190055.25747.dtor_core@ameritech.net>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Apologies if you see this message twice - I accidentially sent it in HTML
- format first time around and I am pretty sure LKML will eat it]
+Tejun Heo wrote:
+>  Heh... Maybe I'm just reluctant to let go of my patches.  Anyways, I'll 
+> now stand down and see how things go and try to help.
 
-Hi,
 
-According to the SuS write() can not return ENOMEM, only ENOBUFS is allowed
-(surprisingly read() is allowed to use both ENOMEM and ENOBUFS):
+Note that my email simply describes a long term target.  For the short 
+term, and perhaps medium term, libata will continue to use 
+->eh_strategy_handler().
 
-http://www.opengroup.org/onlinepubs/000095399/functions/write.html
+Given Mark's messages, my own knowledge, and other reports, there 
+continues to be room for improvement in the current EH code.
 
-Should we adjust sysfs write to follow the standard?
+In general, we need to distinguish between PCI bus errors, SATA bus 
+errors, and ATA device errors, and handle each error class 
+appropriately.  In the SCSI layer, ->eh_strategy_handler() or no, this 
+will likely consist of taking the SCSI device offline and dealing with 
+the error(s).
 
--- 
-Dmitry
+	Jeff
 
-===================================================================
-sysfs: write should return ENOBUFS
 
-According to SuS ENOMEM is not a valid return code for write(),
-ENOBUFS should be returned.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- fs/sysfs/file.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: work/fs/sysfs/file.c
-===================================================================
---- work.orig/fs/sysfs/file.c
-+++ work/fs/sysfs/file.c
-@@ -180,7 +180,7 @@ fill_write_buffer(struct sysfs_buffer * 
- 	if (!buffer->page)
- 		buffer->page = (char *)get_zeroed_page(GFP_KERNEL);
- 	if (!buffer->page)
--		return -ENOMEM;
-+		return -ENOBUFS;
- 
- 	if (count >= PAGE_SIZE)
- 		count = PAGE_SIZE;

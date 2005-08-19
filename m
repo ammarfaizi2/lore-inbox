@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbVHSUMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932705AbVHSUNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965130AbVHSUMn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 16:12:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbVHSUMn
+	id S932705AbVHSUNh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 16:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932715AbVHSUNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 16:12:43 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:16534 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932699AbVHSUMl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 16:12:41 -0400
-Date: Fri, 19 Aug 2005 13:11:21 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: libata error handling
-Message-ID: <20050819201121.GA2523@us.ibm.com>
-References: <20050729050654.GA10413@havoc.gtf.org> <20050807054850.GA13335@htj.dyndns.org> <430556BF.5070004@pobox.com> <4306290B.6080608@adaptec.com> <20050819193853.GA1549@us.ibm.com> <43063B03.8050008@adaptec.com>
+	Fri, 19 Aug 2005 16:13:37 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:27042 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932705AbVHSUNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 16:13:36 -0400
+Subject: Re: Schedulers benchmark - Was: [ANNOUNCE][RFC] PlugSched-5.2.4
+	for 2.6.12 and 2.6.13-rc6
+From: Lee Revell <rlrevell@joe-job.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200508191436.42881.kernel@kolivas.org>
+References: <43001E18.8020707@bigpond.net.au>
+	 <200508191341.24821.kernel@kolivas.org> <430562E5.1070208@bigpond.net.au>
+	 <200508191436.42881.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Fri, 19 Aug 2005 16:13:30 -0400
+Message-Id: <1124482411.25424.49.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43063B03.8050008@adaptec.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.3.7 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 04:03:15PM -0400, Luben Tuikov wrote:
-> On 08/19/05 15:38, Patrick Mansfield wrote:
-> > On Fri, Aug 19, 2005 at 02:46:35PM -0400, Luben Tuikov wrote:
-> > 
-> > 
-> >>Using the command time out hook and the strategy routine, gives _complete_
-> >>control over host recovery, and I really do mean _complete_.
-> >>
-> > 
-> > 
-> > I assume you mean hostt->eh_timed_out.
+On Fri, 2005-08-19 at 14:36 +1000, Con Kolivas wrote:
+> On Fri, 19 Aug 2005 02:41 pm, Peter Williams wrote:
+> > Maybe we could use interbench to find a nice value for X that doesn't
+> > destroy Audio and Video?  The results that I just posted for
+> > spa_no_frills with X reniced to -10 suggest that the other schedulers
+> > could cope with something closer to zero.
 > 
-> Hi Patrick, how are you?
+> I don't see the point. X works fine as is without renicing not withstanding 
+> these extreme loads in interbench. Furthermore, reworking of xorg code to not 
+> spin the cpu unnecessarily when the gpu is busy is underway and tuning the 
+> cpu scheduler unfairly for an X server that will no longer behave so badly is 
+> inappropriate.
 
-Good thanks :)
+See, that's where we disagree, I certainly don't believe X "works fine".
+Compared to MacOS and (especially) Windows the Linux desktop is WAY
+sluggish.
 
-> > I was looking at using it in an LLDD, but hit two problems, and have
-> > started to work on an alternate approach of cancelling (aborting or wtf you
-> > want to call it) a list of commands in the eh thread.
-> 
-> The eh_timed_out + eh_strategy_handler is actually pretty perfect,
-> and _complete_, for any application and purpose in recovering a
+For example when I cycle through windows with alt-tab in X, it can take
+5-10 seconds for each to render.  I can see the application's widgets
+being drawn one at a time, then finally the border.  Repeated
+alt-tabbing between the same two windows seems to cause a CPU intensive
+redraw of the entire window.  It's as if X just discards the rendered
+contents of a window as soon as it's obscured.
 
-One other point: Another problems is that we quiesce all shost IO before
-waking up the eh. 
+On Windows this works as expected - cycling through windows whose
+contents have already been rendered is *instantaneous*.
 
-I was changing it to wakeup the eh even while other IO is outstanding, so
-the eh can wakeup and cancel individual commands while other IO is still
-using the HBA.
+I agree that tweaking the scheduler is probably pointless, as long as X
+is burning gazillions of CPU cycles redrawing things that don't need to
+be redrawn.
 
-> > The two problems I see with the hook are:
-> > 
-> > It calls the driver in interrupt context, so the called function can't
-> > sleep.
-> 
-> Consider this: When SCSI Core told you that the command timed out,
-> 	A) it has already finished,
-> 	B) it hasn't already finished.
-> 
-> In case A, you can return EH_HANDLED.  In case B, you return
-> EH_NOT_HANDLED, and deal with it in the eh_strategy_handler.
+Then again even the OSX scheduler has hooks for the GUI.  Presumably
+they concluded that the desktop responsiveness problem could not be
+adequately solved within the framework of a general purpose UNIX
+scheduler.
 
-So, for EH_NOT_HANDLED, do you add the scmd to a LLDD list in your
-eh_timed_out, then wait for the eh to run?
+Lee
 
-Or maybe your host can_queue is 1 :)
-
-> (Hint: you can still "finish" it from there.)
-> 
-> EH_RESET_TIMER is not really needed provided that
-> 	- your interface infrastructure is in place,
-> 	- you set the timeout value properly in slave_configure.
-> 
-> > There is no queueing or list mechanism, so LLDD's that can only cancel one
-> > command at a time will have problem.
-> 
-> See above.
-
-I don't see it ... hence my question above.
-
--- Patrick Mansfield

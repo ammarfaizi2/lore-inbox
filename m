@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbVHSJ4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932608AbVHSKFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932603AbVHSJ4e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 05:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbVHSJ4e
+	id S932608AbVHSKFM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 06:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVHSKFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 05:56:34 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:35309 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S932603AbVHSJ4d (ORCPT
+	Fri, 19 Aug 2005 06:05:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:53974 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932608AbVHSKFK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 05:56:33 -0400
-Message-ID: <4305AC77.3010907@cs.aau.dk>
-Date: Fri, 19 Aug 2005 11:55:03 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [Alsa drivers] Creatives X-Fi chip
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Aug 2005 06:05:10 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20050818222721.GC4275@elf.ucw.cz> 
+References: <20050818222721.GC4275@elf.ucw.cz>  <20050816135900.GA3326@elf.ucw.cz> <200508121329.46533.phillips@istop.com> <200508110812.59986.phillips@arcor.de> <20050808145430.15394c3c.akpm@osdl.org> <26569.1123752390@warthog.cambridge.redhat.com> <5278.1123850479@warthog.cambridge.redhat.com> <7489.1124375598@warthog.cambridge.redhat.com> 
+To: Pavel Machek <pavel@suse.cz>
+Cc: David Howells <dhowells@redhat.com>, Daniel Phillips <phillips@istop.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
+Date: Fri, 19 Aug 2005 11:04:42 +0100
+Message-ID: <8880.1124445882@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Pavel Machek <pavel@suse.cz> wrote:
 
-I did try to look for Alsa drivers for the new X-Fi chip from Creatives
-(http://www.tomshardware.com/consumer/20050818/), but I didn't find any.
+> > I disagree again. I don't think PageFsMisc() is particularly ugly or
+> > unreadable; and it makes it a touch more likely that someone reading code
+> > that uses it will notice that it's a miscellaneous flag specifically for
+> > filesystem use (you can't rely on them going and looking in the header
+> > file for a comment).
+> 
+> Well, is it PageFsMisc or PageFSMisc? Subject gets second variant, and
+> I like it better, too. (That does not mean I like it).
 
-I there something running around this chip ? Or no plan yet ?
+The Subject wasn't set by me. Somehow the PageFsMisc variant looks better to
+me, but I could just be biased.
 
-Regards
--- 
-Emmanuel Fleury
-
-Assistant Professor          | Office: B1-201
-Computer Science Department, | Phone:  +45 96 35 72 23
-Aalborg University,          | Mobile: +45 26 22 98 03
-Fredriks Bajersvej 7E,       | E-mail: fleury@cs.aau.dk
-9220 Aalborg East, Denmark   | URL: www.cs.aau.dk/~fleury
+David

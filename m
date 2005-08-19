@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbVHSH6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVHSIH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbVHSH6T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 03:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbVHSH6T
+	id S932168AbVHSIH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 04:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVHSIH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 03:58:19 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40410 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964905AbVHSH6T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 03:58:19 -0400
-Date: Fri, 19 Aug 2005 09:58:09 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mmc: Multi-sector writes
-Message-ID: <20050819075808.GB1825@elf.ucw.cz>
-References: <42FF3C05.70606@drzeus.cx> <20050817155641.12bb20fc.akpm@osdl.org> <43042114.7010503@drzeus.cx> <20050817224805.17f29cfb.akpm@osdl.org> <20050818073824.C2365@flint.arm.linux.org.uk> <4304380B.5070406@drzeus.cx> <20050818092321.B3966@flint.arm.linux.org.uk> <43044B7A.6090102@drzeus.cx> <20050818201919.GD516@openzaurus.ucw.cz> <4305676E.5080401@drzeus.cx>
+	Fri, 19 Aug 2005 04:07:56 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:6796 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932168AbVHSIHz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 04:07:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=g2+qKekru1WjKZj7GlwsDAK4x5wp178ijy256/6ATP7QCd/pKHs+r3gNjDxaITtsJf2EVjVWajzYpLmBKIZvXb4Wx6yxO4V1iQGwkpm/yCqeyzPYRHYpJYTZdU6UdApU2T7Vec5C2mSBCTMgwW88tizUhxwROiYdQm0VOLgAcxc=
+Message-ID: <605adbb050819010770dcfaad@mail.gmail.com>
+Date: Fri, 19 Aug 2005 16:07:55 +0800
+From: gnome boxer <gnome.boxer@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Reboot from linux,it will hang after the system POST
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4305676E.5080401@drzeus.cx>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I use fedora core 4,when I reboot from linux(not from windows or
+BIOS),it will hang after the system POST
 
-> >>* Transport problem. The driver will report back a CRC error, timeout or
-> >>whatnot and break. We might not know how many sectors survived so we try
-> >>again, going sector-by-sector. We might get a transfer error again,
-> >>possibly even before the previous one. But at this point the transport
-> >>is probably so noisy that we have little chans of doing a clean umount
-> >>anyway. So when the device gets fixed, either by replaying the journal
-> >>    
-> >>
-> >
-> >Well, but then you can get:
-> >
-> >good data #1
-> >trash #2
-> >good data #2
-> >trash #1
-> >
-> >I'm not sure how much journalling filesystems will like that in their journals...
-> 
-> Unless the card is horribly broken it will not write sectors that cannot
-> be transfered successfully. If there would be a transport error that
-> goes undetected by the CRC we would just continue, believing that
-> everything is peachy.
-> 
-> The scenario you're describing could show up in the case of a media
-> error though. But that would mean that a sector went bad in an extremely
-> short time, which isn't likely unless the wear leveling has gone crazy
-> or the card is completely worn out. Either way the card is no longer useful.
+This only happens in reboot from linux kernel within
+2.6.10-2.6.13-rc4(not from BIOS or windows).when I use grub to handle
+boot ,the grub will hang after the system POST,must reboot again from
+BIOS to boot correct in the grub menu.
 
-Maybe the card is pretty close to going to crash, but... two disk
-successive disk errors still should not be cause for journal
-corruption.
 
-[Also errors could be corelated. Imagine severe overheat. You'll
-successive failing writes, but if you let cool it down, you'll still
-have working media... only with corrupt journal :-)]
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+It only happened *reboot* from linux,if I directly cold boot
+everything is ok,or if I reboot from windows it 's booted ok also
+
+
+I tested the older kernel version from 2.6.13-rc4 to 2.6.8 .I found
+the 2.6.8 and the 2.6.9 worked well without above
+reboot_from_linux_with_hang_after_POST,and the 2.6.10-2.6.13-rc4 were
+all have
+
+
+I haven't subscribe to the LKML only for this one bug,just sendmail to me,please

@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932743AbVHSXCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932747AbVHSXMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932743AbVHSXCy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 19:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbVHSXCx
+	id S932747AbVHSXMw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 19:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbVHSXMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 19:02:53 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:49324 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932743AbVHSXCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 19:02:53 -0400
-Subject: Re: 2.6.13-rc6-rt6
-From: Steven Rostedt <rostedt@goodmis.org>
-To: paulmck@us.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050819224758.GJ1298@us.ibm.com>
-References: <1124215631.5764.43.camel@localhost.localdomain>
-	 <1124218245.5764.52.camel@localhost.localdomain>
-	 <1124252419.5764.83.camel@localhost.localdomain>
-	 <1124257580.5764.105.camel@localhost.localdomain>
-	 <20050817064750.GA8395@elte.hu>
-	 <1124287505.5764.141.camel@localhost.localdomain>
-	 <1124288677.5764.154.camel@localhost.localdomain>
-	 <1124295214.5764.163.camel@localhost.localdomain>
-	 <20050817162324.GA24495@elte.hu>
-	 <1124486548.18408.18.camel@localhost.localdomain>
-	 <20050819224758.GJ1298@us.ibm.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 19 Aug 2005 19:02:42 -0400
-Message-Id: <1124492562.18408.35.camel@localhost.localdomain>
+	Fri, 19 Aug 2005 19:12:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20903 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S932746AbVHSXMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 19:12:45 -0400
+Date: Sat, 20 Aug 2005 00:15:42 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, vandrove@vc.cvut.cz,
+       Andrew Morton <akpm@osdl.org>, linware@sh.cvut.cz,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel bug: Bad page state: related to generic symlink code and mmap
+Message-ID: <20050819231542.GJ29811@parcelfarce.linux.theplanet.co.uk>
+References: <1124450088.2294.31.camel@imp.csi.cam.ac.uk> <20050819142025.GA29811@parcelfarce.linux.theplanet.co.uk> <1124466246.2294.65.camel@imp.csi.cam.ac.uk> <Pine.LNX.4.58.0508190855350.3412@g5.osdl.org> <Pine.LNX.4.58.0508190913570.3412@g5.osdl.org> <Pine.LNX.4.58.0508190934470.3412@g5.osdl.org> <Pine.LNX.4.60.0508192144590.7312@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.58.0508191352540.3412@g5.osdl.org> <Pine.LNX.4.60.0508192220440.7312@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.58.0508191502050.3412@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0508191502050.3412@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-19 at 15:47 -0700, Paul E. McKenney wrote:
-
-> Good catch -- but a few changes needed to be perfectly safe:
+On Fri, Aug 19, 2005 at 03:04:52PM -0700, Linus Torvalds wrote:
 > 
-> 	static inline void *netpoll_poll_lock(struct net_device *dev)
-> 	{
 > 
-> 		struct netpoll_info *npi;
+> On Fri, 19 Aug 2005, Anton Altaparmakov wrote:
+> > 
+> > Yes, sure.  I have applied your patch to our 2.6.11.4 tree (with the one 
+> > liner change I emailed you just now) and have kicked off a compile.
 > 
-> 		rcu_read_lock();
-> 		npi = rcu_dereference(dev)->npinfo;
-> 		if (have) {
-
-Here I'm sure you mean "if (npi) {" :-)
-
-> 			spin_lock(&npi->poll_lock);
-> 			npi->poll_owner = smp_processor_id();
-> 			return npi;
-> 		}
-> 		return NULL;
-> 	}
+> Actually, hold on. The original patch had another problem: it returned an
+> uninitialized "page" pointer when page_getlink() failed.
 > 
-> The earlier version could get in trouble if dev->npinfo was set
-> to NULL while this was executing.
-
-Truth be told,  I was just fixing the race with getting the npinfo
-pointer set between netpoll_poll_lock and netpoll_poll_unlock.  I wrote
-a patch that fixed that but nothing with the rcu_locks.  Then I looked
-at the current git tree and saw that they already had my changes, but
-also included the rcu locks.  So I just (blindly) added them.
-
-
+> This one should have that fixed, and has converted a few other 
+> filesystems. Most of them trivially, but I took the opportunity to just 
+> simplify NFS while I was at it, since it now has no reason to need to save 
+> off the "struct page *" any more.
 > 
-> Again, I do not fully understand this code, so a grain of salt might
-> come in handy.  But there definitely need to be some rcu_dereference()
-> and rcu_assign_pointer() primitives in there somewhere.  ;-)
-> 
-> The following changes look good to me, but, as I said earlier, I do
-> not claim to fully understand this code.
+> It's still not tested, but at least I've looked at it a bit more ;)
 
-netpoll has changed quite a bit in the last few releases. I've seen lots
-of fixup code sent in (which usually means there's lots of new broken
-code ;-)
+That looks OK except for
+	* jffs2 is b0rken (see patch in another mail)
+	* afs, autofs4, befs, devfs, freevxfs, jffs2, jfs, ncpfs, procfs,
+smbfs, sysvfs, ufs, xfs - prototype change for ->follow_link()
+	* befs, smbfs, xfs - same for ->put_link()
+	* ncpfs fix is actually missing here
 
-Anyway, I don't quite fully understand RCU. I read a few of the
-documents on your web site, but I haven't had time to really digest it.
-Have you taken a look at the latest git tree?  The rcu_locks are used
-for net poll quite a bit more there.
-
--- Steve
-
-
+Prototype changes are covered by patch below (incremental on top of your +
+jffs2 fix upthread).  No ncpfs changes - these will go separately, assuming
+you haven't done them yet; just a plain janitor stuff.

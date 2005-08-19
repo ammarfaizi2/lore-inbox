@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbVHSLBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbVHSLMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932618AbVHSLBe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 07:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbVHSLBe
+	id S932626AbVHSLMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 07:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932628AbVHSLMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 07:01:34 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:57795 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932618AbVHSLBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 07:01:33 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: george@mvista.com
-Subject: Re: Multiple virtual address mapping for the same code on IA-64 linux kernel.
-Date: Fri, 19 Aug 2005 13:00:52 +0200
-User-Agent: KMail/1.7.2
-Cc: "David S. Miller" <davem@davemloft.net>, anton@samba.org,
-       clameter@engr.sgi.com, vamsi.krishnak@gmail.com, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <3faf0568050816142715f14c2c@mail.gmail.com> <20050818.142840.82684573.davem@davemloft.net> <4305093C.9040400@mvista.com>
-In-Reply-To: <4305093C.9040400@mvista.com>
+	Fri, 19 Aug 2005 07:12:09 -0400
+Received: from smtp06.web.de ([217.72.192.224]:26521 "EHLO smtp06.web.de")
+	by vger.kernel.org with ESMTP id S932626AbVHSLMH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 07:12:07 -0400
+Message-ID: <4305BE82.8030003@web.de>
+Date: Fri, 19 Aug 2005 13:12:02 +0200
+From: Alexander Fieroch <fieroch@web.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: de-de, en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4979535.yrvFtk15hd";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: Alexey Dobriyan <adobriyan@gmail.com>, Michael Thonke <iogl64nx@gmail.com>,
+       linux-kernel@vger.kernel.org, Jesper Juhl <jesper.juhl@gmail.com>,
+       axboe@suse.de,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>,
+       Parag Warudkar <kaernel-stuff@comcast.net>
+Subject: Re: PROBLEM: "drive appears confused" and "irq 18: nobody cared!"
+References: <d6gf8j$jnb$1@sea.gmane.org> <42EAAFD4.4010303@web.de>	 <42EAD086.4010904@gmail.com>	 <200507291905.37339.kernel-stuff@comcast.net>	 <20050730014237.GA20131@mipter.zuzino.mipt.ru>	 <42EE33F6.6040606@web.de> <m3oe8h7978.fsf@defiant.localdomain> <58cb370e050801122831a97873@mail.gmail.com>
+In-Reply-To: <58cb370e050801122831a97873@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508191301.01534.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4979535.yrvFtk15hd
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Andrew Morton wrote:
+> If
+> any bugs remain, please raise entries for them at bugzilla.kernel.org,
+> thanks.
 
-Hi,
+I've raised an entry for that bug at
+http://bugzilla.kernel.org/show_bug.cgi?id=5084
+Perhaps you want to add your address to the CC-list and perhaps you get
+new ideas with the different syslogs and complete informations I've
+summarized?
 
-On Friday 19 August 2005 00:18, George Anzinger wrote:
-> Not to say that is wrong but just to make it clear that saying the=20
-> itanium speed is <X> is like saying that a cummings diesel is fast with=20
-> out saying what sort of car/truck it is mounted in.
-
-Yes, esp. since we all known that the fastest diesel is actually
-Vin Diesel :-)
+Regards,
+Alexander
 
 
-Have Fun!
 
-Ingo Oeser
-
-
---nextPart4979535.yrvFtk15hd
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDBbvtU56oYWuOrkARAscIAJsEoecNH8VEfo7ptECxdHK1bGL1owCfQkgF
-WzKJjqjyf8V7f4hgrL9Po0w=
-=Zhqx
------END PGP SIGNATURE-----
-
---nextPart4979535.yrvFtk15hd--

@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932749AbVHSXUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVHSXXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932749AbVHSXUj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 19:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbVHSXUj
+	id S932344AbVHSXXu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 19:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbVHSXXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 19:20:39 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:13482 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932749AbVHSXUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 19:20:38 -0400
-Subject: Re: 2.6.13-rc6-rt6
-From: Steven Rostedt <rostedt@goodmis.org>
-To: paulmck@us.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, netdev@oss.sgi.com,
+	Fri, 19 Aug 2005 19:23:49 -0400
+Received: from mirapoint2.brutele.be ([212.68.199.149]:52334 "EHLO
+	mirapoint2.brutele.be") by vger.kernel.org with ESMTP
+	id S932344AbVHSXXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 19:23:49 -0400
+Date: Sat, 20 Aug 2005 01:23:40 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
+To: Pekka Enberg <penberg@gmail.com>
+Cc: Stephane Wirtel <stephane.wirtel@belgacom.net>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20050819231223.GN1298@us.ibm.com>
-References: <1124252419.5764.83.camel@localhost.localdomain>
-	 <1124257580.5764.105.camel@localhost.localdomain>
-	 <20050817064750.GA8395@elte.hu>
-	 <1124287505.5764.141.camel@localhost.localdomain>
-	 <1124288677.5764.154.camel@localhost.localdomain>
-	 <1124295214.5764.163.camel@localhost.localdomain>
-	 <20050817162324.GA24495@elte.hu>
-	 <1124486548.18408.18.camel@localhost.localdomain>
-	 <20050819224758.GJ1298@us.ibm.com>
-	 <1124492562.18408.35.camel@localhost.localdomain>
-	 <20050819231223.GN1298@us.ibm.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 19 Aug 2005 19:20:20 -0400
-Message-Id: <1124493620.18408.40.camel@localhost.localdomain>
+Subject: Re: [Documentation] Use doxygen or another tool to generate a documentation ?
+Message-ID: <20050819232340.GB9538@localhost.localdomain>
+References: <20050819213447.GA9538@localhost.localdomain> <84144f02050819144660238be4@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <84144f02050819144660238be4@mail.gmail.com>
+X-Operating-System: Linux debian 2.6.12-1-k7
+User-Agent: Mutt/1.5.10i
+X-Junkmail-Status: score=10/50, host=mirapoint2.brutele.be
+X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090202.43066761.0006-F-L0BeBC04zsV01UPbcJcIKw==, ip=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-19 at 16:12 -0700, Paul E. McKenney wrote:
+Le Saturday 20 August 2005 a 00:08, Pekka Enberg ecrivait: 
+> On 8/20/05, Stephane Wirtel <stephane.wirtel@belgacom.net> wrote:
+> > I don't know if there is a project based on Doxygen to make
+> > (or generate) a documentation of the kernel.
+> > 
+> > Do you think that will be interesting to make a such document ?
 > 
-> Hmmm....  Guess it is time for me to stop procrastinating on better
-> understanding git...
+> The kernel already has it's own API documentation generator called
+> kerneldoc. See the file Documentation/kernel-doc-nano-HOWTO.txt for
+> details.
 
-Why? I still don't.  Just go to http://www.kernel.org/ and download the
-latest git release (as of now it's -git11).
+Ok, with scripts/kernel-doc, I can produce some html files containing 
+the functions' documentation.
 
-Of course you need to know the special combination :-)
+make pdfdocs or others targets don't work :|
 
-http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
-http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc6.bz2
-http://kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.13-rc6-git11.bz2
+Do you have ideas ?
 
--- Steve
+Thanks
+-- 
+Stephane Wirtel <stephane.wirtel@belgacom.net>
+                <stephane.wirtel@gmail.com>
+
 

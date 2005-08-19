@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVHSKHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbVHSKMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbVHSKHF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 06:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbVHSKHE
+	id S964917AbVHSKMj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 06:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbVHSKMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 06:07:04 -0400
-Received: from pythagoras.zen.co.uk ([212.23.3.140]:391 "EHLO
-	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
-	id S964891AbVHSKHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 06:07:01 -0400
-Message-ID: <4305AECE.3020508@dresco.co.uk>
-Date: Fri, 19 Aug 2005 11:05:02 +0100
-From: Jon Escombe <lists@dresco.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Pavel Machek <pavel@suse.cz>, Adam Goode <adam@evdebs.org>,
-       Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>
-Subject: Re: [Hdaps-devel] Re: HDAPS, Need to park the head for real
-References: <1124205914.4855.14.camel@localhost.localdomain> <20050816200708.GE3425@suse.de> <20050818204904.GE516@openzaurus.ucw.cz> <1124399756.28353.0.camel@lynx.auton.cs.cmu.edu> <20050818213823.GA4275@elf.ucw.cz> <20050819063602.GD6273@suse.de>
-In-Reply-To: <20050819063602.GD6273@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Hops: 1
-X-Originating-Pythagoras-IP: [82.68.23.174]
+	Fri, 19 Aug 2005 06:12:39 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:20163 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932467AbVHSKMj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 06:12:39 -0400
+Date: Fri, 19 Aug 2005 12:12:03 +0200 (MEST)
+Message-Id: <200508191012.j7JAC31j010985@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: akpm@osdl.org, rostedt@goodmis.org
+Subject: Re: [PATCH] Mobil Pentium 4 HT and the NMI
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->>>>Please make it "echo 1 > frozen", then userspace can do "echo 0 > frozen"
->>>>after five seconds.
->>>>        
->>>>
->>>What if the code to do "echo 0 > frozen" is swapped out to disk? ;)
->>>      
->>>
->>Emergency head parker needs to be pagelocked for other reasons. You do
->>not want to page it from disk while your notebook is in free fall.
->>    
+On Thu, 18 Aug 2005 20:23:00 -0700, Andrew Morton wrote:
+>Steven Rostedt <rostedt@goodmis.org> wrote:
 >>
+>> Hi,
+>> 
+>> I'm resending this since I don't see it in git yet, and I'm wondering if
+>> there is a problem with this patch.  I have a IBM ThinkPad G41 with a
+>> Mobile Pentium 4 HT.  Without this patch, the NMI won't be setup.  Is
+>> there a reason that if the x86_model is greater than 0x3 it will return.
+>> Since my processor has a 0x4 x86_model, I upped it to that. Otherwise my
+>> laptop won't be able to use the NMI.
+>> 
 >
->It's still a very bad idea imho, what if the head parker daemon is
->killed for other reasons? The automatic timeout thawing the drive is
->much saner.
->  
+>Well I was hoping that someone with knowledge of the low-level Intel model
+>differences would pipe up, but they all seem to be in hiding.  (Wildly
+>bcc's lots of x86 people).
 >
-For hard disk protection, I prefer the idea of the userspace code 
-thawing the drive based on current accelerometer data, rather than 
-simply waking up after x seconds (maybe you're running for a bus rather 
-than falling off a table)...
+>> 
+>> Description:
+>>   This patch is to allow the Mobile Penitum 4 HT to use the NMI.
+>> 
+>> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-To get the best of both worlds, could we maybe take a watchdog timer 
-approach, and have the timeout reset by the userspace component 
-periodically re-requesting freeze?
+The patch is OK, but it doesn't fix a bug or regression.
+Since Linus' kernel seems to be in bug-fix-only mode, it
+shouldn't go in there until after 2.6.13.
 
-Regards,
-Jon.
+Acked-by: Mikael Pettersson <mikpe@csd.uu.se>
 
-
-______________________________________________________________
-Email via Mailtraq4Free from Enstar (www.mailtraqdirect.co.uk)
+>> 
+>> --- linux-2.6.13-rc6-git10/arch/i386/kernel/nmi.c.orig	2005-08-18 21:51:11.000000000 -0400
+>> +++ linux-2.6.13-rc6-git10/arch/i386/kernel/nmi.c	2005-08-18 21:52:03.000000000 -0400
+>> @@ -195,7 +195,7 @@ static void disable_lapic_nmi_watchdog(v
+>>  			wrmsr(MSR_P6_EVNTSEL0, 0, 0);
+>>  			break;
+>>  		case 15:
+>> -			if (boot_cpu_data.x86_model > 0x3)
+>> +			if (boot_cpu_data.x86_model > 0x4)
+>>  				break;
+>>  
+>>  			wrmsr(MSR_P4_IQ_CCCR0, 0, 0);
+>> @@ -432,7 +432,7 @@ void setup_apic_nmi_watchdog (void)
+>>  			setup_p6_watchdog();
+>>  			break;
+>>  		case 15:
+>> -			if (boot_cpu_data.x86_model > 0x3)
+>> +			if (boot_cpu_data.x86_model > 0x4)
+>>  				return;
+>>  
+>>  			if (!setup_p4_watchdog())
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>

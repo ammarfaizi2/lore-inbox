@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbVHSHIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVHSHM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbVHSHIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 03:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVHSHIZ
+	id S964892AbVHSHM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 03:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVHSHM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 03:08:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4077 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964886AbVHSHIY (ORCPT
+	Fri, 19 Aug 2005 03:12:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12696 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964892AbVHSHM2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 03:08:24 -0400
-Date: Fri, 19 Aug 2005 15:13:44 +0800
-From: David Teigland <teigland@redhat.com>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-cluster@redhat.com
-Subject: Re: [PATCH 1/3] dlm: use configfs
-Message-ID: <20050819071344.GB10864@redhat.com>
-References: <20050818060750.GA10133@redhat.com> <20050818212348.GW21228@ca-server1.us.oracle.com>
+	Fri, 19 Aug 2005 03:12:28 -0400
+Date: Fri, 19 Aug 2005 00:10:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: davem@davemloft.net, riel@redhat.com, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFT 4/5] CLOCK-Pro page replacement
+Message-Id: <20050819001030.52ec1364.akpm@osdl.org>
+In-Reply-To: <1124435027.23757.0.camel@localhost.localdomain>
+References: <20050817173818.098462b5.akpm@osdl.org>
+	<20050817.194822.92757361.davem@davemloft.net>
+	<20050817210532.54ace193.akpm@osdl.org>
+	<20050817.214845.120320066.davem@davemloft.net>
+	<1124435027.23757.0.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050818212348.GW21228@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 18, 2005 at 02:23:48PM -0700, Mark Fasheh wrote:
-> On Thu, Aug 18, 2005 at 02:07:50PM +0800, David Teigland wrote:
-
-> > + * /config/dlm/<cluster>/spaces/<space>/nodes/<node>/nodeid
-> > + * /config/dlm/<cluster>/spaces/<space>/nodes/<node>/weight
-> > + * /config/dlm/<cluster>/comms/<comm>/nodeid
-> > + * /config/dlm/<cluster>/comms/<comm>/local
-> > + * /config/dlm/<cluster>/comms/<comm>/addr
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 >
-> So what happened to factoring out the common parts of ocfs2_nodemanager?
-> I was quite a big fan of that approach :) Or am I just misunderstanding
-> what these patches do?
+> On Wed, 2005-08-17 at 21:48 -0700, David S. Miller wrote:
+> > From: Andrew Morton <akpm@osdl.org>
+> > Date: Wed, 17 Aug 2005 21:05:32 -0700
+> > 
+> > > Perhaps by uprevving the compiler version?
+> > 
+> > Can't be, we definitely support gcc-2.95 and that compiler
+> > definitely has the bug on sparc64.
+> 
+> I believe we just ignored sparc64.  That usually works for solving these
+> kind of bugs. 8)
 
-The nodemanager RFC I sent a month ago
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=112166723919347&w=2
+heh.  iirc, it was demonstrable on x86 also.
 
-amounts to half of dlm/config.c (everything under comms/ above) moved into
-a separate kernel module.  That would be trivial to do, and is still an
-option to bat around.
-
-I question whether factoring such a small chunk into a separate module is
-really worth it, though?  Making all of config.c (all of /config/dlm/
-above) into a separate module wouldn't seem quite so strange.  It would
-require just a few lines of code to turn it into a stand alone module.
-
-Dave
-
+Dunno, it beats me.  But it is the case that we now have lots of
+uninitialised DEFINE_PER_CPUs and nobody's crashing.  hm..

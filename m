@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbVHSU7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965135AbVHSVCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbVHSU7S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 16:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbVHSU7S
+	id S965135AbVHSVCg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 17:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbVHSVCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 16:59:18 -0400
-Received: from aeimail.aei.ca ([206.123.6.84]:56531 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S932255AbVHSU7R (ORCPT
+	Fri, 19 Aug 2005 17:02:36 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:47848 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S965114AbVHSVCf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 16:59:17 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Benoit Boissinot <bboissin@gmail.com>
-Subject: Re: 2.6.13-rc6-mm1
-Date: Fri, 19 Aug 2005 17:01:05 -0400
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050819043331.7bc1f9a9.akpm@osdl.org> <200508191145.58835.tomlins@cam.org> <40f323d0050819090473d2c268@mail.gmail.com>
-In-Reply-To: <40f323d0050819090473d2c268@mail.gmail.com>
+	Fri, 19 Aug 2005 17:02:35 -0400
+Message-ID: <430648E8.9070902@adaptec.com>
+Date: Fri, 19 Aug 2005 17:02:32 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Mike Anderson <andmike@us.ibm.com>
+CC: Patrick Mansfield <patmans@us.ibm.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: libata error handling
+References: <20050729050654.GA10413@havoc.gtf.org> <20050807054850.GA13335@htj.dyndns.org> <430556BF.5070004@pobox.com> <4306290B.6080608@adaptec.com> <20050819193853.GA1549@us.ibm.com> <43063B03.8050008@adaptec.com> <20050819202954.GA22563@us.ibm.com>
+In-Reply-To: <20050819202954.GA22563@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508191701.05925.tomlins@cam.org>
+X-OriginalArrivalTime: 19 Aug 2005 21:02:33.0116 (UTC) FILETIME=[51852DC0:01C5A501]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Adding the include to dmi.h allows the compile to get past this point though I
-wonder if this is the correct place to put it?  (Thanks Benoit)
-
-I now get:
-
-  CC [M]  net/ipv4/ipvs/ip_vs_ctl.o
-net/ipv4/ipvs/ip_vs_ctl.c:1601: error: static declaration of 'ipv4_table' follows non-static declaration
-include/net/ip.h:376: error: previous declaration of 'ipv4_table' was here
-make[3]: *** [net/ipv4/ipvs/ip_vs_ctl.o] Error 1
-make[2]: *** [net/ipv4/ipvs] Error 2
-make[1]: *** [net/ipv4] Error 2
-make: *** [net] Error 2
-
-Ideas?
-
-TIA
-Ed Tomlinson
-
-On Friday 19 August 2005 12:04, Benoit Boissinot wrote:
-> On 8/19/05, Ed Tomlinson <tomlins@cam.org> wrote:
-> > On Friday 19 August 2005 07:33, Andrew Morton wrote:
-> > > - Lots of fixes, updates and cleanups all over the place.
-> > >
-> > > - If you have the right debugging options set, this kernel will generate
-> > > a storm of sleeping-in-atomic-code warnings at boot, from the scsi code.
-> > > It is being worked on.
-> > >
-> > >
-> > > Changes since 2.6.13-rc5-mm1:
-> > >
-> > 
-> > Hi,
-> > 
-> > It does not compile here:
-> > 
-> >   CC      drivers/acpi/sleep/main.o
-> > In file included from drivers/acpi/sleep/main.c:15:
-> > include/linux/dmi.h:55: error: field 'list' has incomplete type
-> > make[3]: *** [drivers/acpi/sleep/main.o] Error 1
-> > make[2]: *** [drivers/acpi/sleep] Error 2
-> > make[1]: *** [drivers/acpi] Error 2
-> > make: *** [drivers] Error 2
-> > ed@grover:/usr/src/13-6-1$
-> > 
-> > Probably a missing include?  Note that this is a non smp x86_64 build.
-> > 
-> including <linux/list.h> in dmi.h should work
-> 
-> regards,
-> 
-> Benoit
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On 08/19/05 16:29, Mike Anderson wrote:
+> Luben Tuikov <luben_tuikov@adaptec.com> wrote:
+>>Consider this: When SCSI Core told you that the command timed out,
+>>	A) it has already finished,
+>>	B) it hasn't already finished.
+>>
+>>In case A, you can return EH_HANDLED.  In case B, you return
+>>EH_NOT_HANDLED, and deal with it in the eh_strategy_handler.
+>>(Hint: you can still "finish" it from there.)
+>>
 > 
 > 
+> But dealing with it in the eh_strategy_handler means that you may be
+> stopping all IO on the host instance as the first lun returns
+> EH_NOT_HANDLED for LUN based canceling.
+
+Hi Mike, how are you?
+
+Yes, this is true.  See my email to Patrick.
+ 
+> I still think we can do better here for an LLDD that cannot execute a
+> cancel in interrupt context.
+
+This is the key!
+
+Think about this:
+	You do not need to cancel a command to cancel a command. ;-)
+ 
+> Having a error handler that works is a plus, I would hope that
+> some factoring would happen over time from the eh_strategy_handler to
+> some transport (or other factor point) error handler. I would think from a
+> testing, support, and block level multipath predictability sharing code
+> would be a good goal.
+
+Yes, definitely.  Hopefully I'll be posting code soon.
+
+	Luben
+
+
+

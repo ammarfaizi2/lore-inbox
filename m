@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932689AbVHSSi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932697AbVHSSm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932689AbVHSSi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 14:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbVHSSi4
+	id S932697AbVHSSm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 14:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbVHSSm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 14:38:56 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:8663 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932689AbVHSSiz (ORCPT
+	Fri, 19 Aug 2005 14:42:57 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:49894 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932697AbVHSSm5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 14:38:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=S4jDleDC6zOx/bMZefBel7lRw4xU7bdaAY18m9dcKxAD79Ldfhpueqyu0/EZbuRkM0XpHCzzYcpcrC+Xzlx+xiEQeFwJExeZ5YWi1xT2TOFJQRr5zShjelvyg07RYQJlpvTLaV2Npqd8spJl6sNUUdeJD72/C5D7Cnn9VKE6plo=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] add `applying-patches.txt' to Documentation/00-INDEX
-Date: Fri, 19 Aug 2005 20:39:31 +0200
-User-Agent: KMail/1.8.2
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       Paul Gortmaker <p_gortmaker@yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Aug 2005 14:42:57 -0400
+Date: Fri, 19 Aug 2005 11:43:34 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostdt@goodmis.org>
+Subject: Re: 2.6.13-rc6-rt9
+Message-ID: <20050819184334.GG1298@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050818060126.GA13152@elte.hu> <1124470574.17311.4.camel@twins> <1124476205.17311.8.camel@twins>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508192039.31624.jesper.juhl@gmail.com>
+In-Reply-To: <1124476205.17311.8.camel@twins>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Fri, Aug 19, 2005 at 08:30:05PM +0200, Peter Zijlstra wrote:
+> On Fri, 2005-08-19 at 18:56 +0200, Peter Zijlstra wrote:
+> > Hi Ingo, Paul, others,
+> > 
+> > I'm trying to run a user-mode-linux guest under the RT kernel however
+> > the uml process never gets out of the calibrate delay loop. It seems as
+> > if the signal never gets through.
+> > 
+> one clarification: the guest kernel is a non -rt kernel, a modified
+> 2.6.13-rc6 in my case.
+> 
+> > A non -rt host kernel does work (with a similar .config).
+> > 
+> > Could this be related to pauls task list changes?
 
-When I sent the patch to add the new documentation 
-file `applying-patches.txt', I forgot to add it to 
-00-INDEX as well. This patch corrects that oversight.
+Possibly.  What signal?  This is a signal to a single process, right?
 
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- Documentation/00-INDEX |    2 ++
- 1 files changed, 2 insertions(+)
-
---- linux-2.6.13-rc6-mm1-orig/Documentation/00-INDEX	2005-08-19 19:20:58.000000000 +0200
-+++ linux-2.6.13-rc6-mm1/Documentation/00-INDEX	2005-08-19 20:31:00.000000000 +0200
-@@ -46,6 +46,8 @@
- 	- procedure to get a source patch included into the kernel tree.
- VGA-softcursor.txt
- 	- how to change your VGA cursor from a blinking underscore.
-+applying-patches.txt
-+	- description of various trees and how to apply their patches.
- arm/
- 	- directory with info about Linux on the ARM architecture.
- basic_profiling.txt
-
-
+						Thanx, Paul

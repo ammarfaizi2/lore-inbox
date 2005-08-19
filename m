@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVHSKzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbVHSLBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbVHSKzq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 06:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbVHSKzq
+	id S932618AbVHSLBe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 07:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbVHSLBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 06:55:46 -0400
-Received: from sipsolutions.net ([66.160.135.76]:20490 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S932616AbVHSKzq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 06:55:46 -0400
-Subject: Re: pmac_nvram problems
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1124401227.5182.14.camel@gaston>
-References: <1124277416.6336.11.camel@localhost>
-	 <1124341212.8848.78.camel@gaston>  <1124370184.30888.5.camel@localhost>
-	 <1124401227.5182.14.camel@gaston>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JSpEiK9aw6X5NUQUiE9G"
-Date: Fri, 19 Aug 2005 12:55:20 +0200
-Message-Id: <1124448920.24113.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 19 Aug 2005 07:01:34 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:57795 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932618AbVHSLBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 07:01:33 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: george@mvista.com
+Subject: Re: Multiple virtual address mapping for the same code on IA-64 linux kernel.
+Date: Fri, 19 Aug 2005 13:00:52 +0200
+User-Agent: KMail/1.7.2
+Cc: "David S. Miller" <davem@davemloft.net>, anton@samba.org,
+       clameter@engr.sgi.com, vamsi.krishnak@gmail.com, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <3faf0568050816142715f14c2c@mail.gmail.com> <20050818.142840.82684573.davem@davemloft.net> <4305093C.9040400@mvista.com>
+In-Reply-To: <4305093C.9040400@mvista.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart4979535.yrvFtk15hd";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508191301.01534.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-JSpEiK9aw6X5NUQUiE9G
-Content-Type: text/plain
+--nextPart4979535.yrvFtk15hd
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Fri, 2005-08-19 at 07:40 +1000, Benjamin Herrenschmidt wrote:
+Hi,
 
-> Just a question: Why do you want to have the nvram low level code as a
-> module ? It's sort-of an intergral part of the arch code ...
+On Friday 19 August 2005 00:18, George Anzinger wrote:
+> Not to say that is wrong but just to make it clear that saying the=20
+> itanium speed is <X> is like saying that a cummings diesel is fast with=20
+> out saying what sort of car/truck it is mounted in.
 
-Because I Can (TM). Actually, I just did this because of the suspend
-issue where OSX would reset some values (notably the boot sound volume),
-but Linux wouldn't see this. So I figured that if I can compile it as a
-module (the Kconfig option is a tristate after all) I could just unload
-it. But that failed because of the alloc_bootmem issue.
+Yes, esp. since we all known that the fastest diesel is actually
+Vin Diesel :-)
 
-I wouldn't mind having it built-in at all, if it would re-read the
-cached values when resuming from suspend.
 
-johannes
+Have Fun!
 
---=-JSpEiK9aw6X5NUQUiE9G
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Ingo Oeser
+
+
+--nextPart4979535.yrvFtk15hd
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iQIVAwUAQwW6l6Vg1VMiehFYAQKFgRAAooJeSH57Ba7zob4s0V2yDGmIuzD52SD6
-ezI5PaxsfiP/nUsJJTFr5H4sGumi2EcTcBRdr2YPyWD9AVGmQRNXX43eR8wphf88
-gu2XcYBO/sUrYfAut3peyljA83KoOYTULSkiH9n4ePyRrVVy+t4qfM3WhDDfyvW5
-ChelkJEr+awiSX7uy1Oqgj8DEwkUSWIu8jyuw8XQNEKyOKuOlDspeqicRNxBDc2w
-L5CvKnoolvcaXaSgYlc2IlGM/OYE4EBVHXGszmfgLqWcp9tS65Cu04wLg3wfS7YQ
-T2A/wDagnJR7wU58fIq8fryChx1k6RO3USdChp/m+H9qQpJQ5kklap+tHmXGWhoA
-4aOmVAeLtSI3A7+nJI8QbmJiIkvlGDiANiaRmHcxb/WKdbGjOVuBGcEZkr7AkBZ0
-3LWqsZgZPLOdS9GPbjcgEnCftFpGYGaYrLnLowRjwuw6HX3q9B1RRBAUxZI+wf0H
-iZoWtMc8isZxa2hSTp4IVANXaqAZ8GlLkT75+1WtTVLbPiGwqTbxPvh37aqydvG/
-YbHlebCco6Pdu/6uPPQQvl+IXDERN1ZQFWHEM1AMmaXZSEZqnYBP7hkHCK5fO2j7
-kp3cOikORkK4GjYxD46U/I+de/8p8tVPh9UukOw2cc5IHlF5tmvekXA2SuE/5BSm
-v4g7lV8/yXo=
-=CAkz
+iD8DBQBDBbvtU56oYWuOrkARAscIAJsEoecNH8VEfo7ptECxdHK1bGL1owCfQkgF
+WzKJjqjyf8V7f4hgrL9Po0w=
+=Zhqx
 -----END PGP SIGNATURE-----
 
---=-JSpEiK9aw6X5NUQUiE9G--
-
+--nextPart4979535.yrvFtk15hd--

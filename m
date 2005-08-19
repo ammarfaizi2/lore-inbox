@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932723AbVHSUnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932726AbVHSUqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932723AbVHSUnp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 16:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbVHSUnp
+	id S932726AbVHSUqm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 16:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbVHSUqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 16:43:45 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:38371 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932255AbVHSUnn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 16:43:43 -0400
-Message-ID: <4306447D.7090204@adaptec.com>
-Date: Fri, 19 Aug 2005 16:43:41 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Fri, 19 Aug 2005 16:46:42 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:7394 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932719AbVHSUql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 16:46:41 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Fri, 19 Aug 2005 21:46:28 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, vandrove@vc.cvut.cz,
+       Andrew Morton <akpm@osdl.org>, linware@sh.cvut.cz,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel bug: Bad page state: related to generic symlink code and
+ mmap
+In-Reply-To: <Pine.LNX.4.58.0508190934470.3412@g5.osdl.org>
+Message-ID: <Pine.LNX.4.60.0508192144590.7312@hermes-1.csi.cam.ac.uk>
+References: <1124450088.2294.31.camel@imp.csi.cam.ac.uk> 
+ <20050819142025.GA29811@parcelfarce.linux.theplanet.co.uk>
+ <1124466246.2294.65.camel@imp.csi.cam.ac.uk> <Pine.LNX.4.58.0508190855350.3412@g5.osdl.org>
+ <Pine.LNX.4.58.0508190913570.3412@g5.osdl.org> <Pine.LNX.4.58.0508190934470.3412@g5.osdl.org>
 MIME-Version: 1.0
-To: Patrick Mansfield <patmans@us.ibm.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: libata error handling
-References: <20050729050654.GA10413@havoc.gtf.org> <20050807054850.GA13335@htj.dyndns.org> <430556BF.5070004@pobox.com> <4306290B.6080608@adaptec.com> <20050819193853.GA1549@us.ibm.com> <43063B03.8050008@adaptec.com> <20050819201121.GA2523@us.ibm.com>
-In-Reply-To: <20050819201121.GA2523@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Aug 2005 20:43:41.0868 (UTC) FILETIME=[AF3E6EC0:01C5A4FE]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/19/05 16:11, Patrick Mansfield wrote:
-> On Fri, Aug 19, 2005 at 04:03:15PM -0400, Luben Tuikov wrote:
->>The eh_timed_out + eh_strategy_handler is actually pretty perfect,
->>and _complete_, for any application and purpose in recovering a
+On Fri, 19 Aug 2005, Linus Torvalds wrote:
+> On Fri, 19 Aug 2005, Linus Torvalds wrote:
+> > 
+> >  - document this as a fundamental fact, and apply the ncpfs patch. Local 
+> >    filesystems can still continue to use the generic helper functions 
+> >    (all other users _are_ local filesystems).
 > 
-> 
-> One other point: Another problems is that we quiesce all shost IO before
-> waking up the eh. 
+> Actually, looking at the ncpfs patch, I'd rather not apply that patch 
+> as-is. It looks like it will totally disable symlink caching, which would 
+> be kind of sad. Somebody willing to do the same thing NFS does?
 
-Yes, this is true.
- 
-> I was changing it to wakeup the eh even while other IO is outstanding, so
-> the eh can wakeup and cancel individual commands while other IO is still
-> using the HBA.
+It does disable link caching.  But I didn't make this up.  This is exactly 
+what smbfs uses.  I just copied smbfs given ncpfs copies almost everything 
+smbfs does anyway...
 
-Hmm, if you want to do this, then SCSI Core needs to know about:
-	- Domain,
-	- Domain device and
-	- LU.
+Best regards,
 
-The reason, is that you do not know why a task timed out.
-Is it the LU, is it the device, is it the domain?
-
-(Those are concepts talked about in SAM.)
-
-Since currently, SCSI Core has no clue about those concepts,
-the current infrastructure, stalling IO to the host on eh,
-satisfies.
-
-> So, for EH_NOT_HANDLED, do you add the scmd to a LLDD list in your
-> eh_timed_out, then wait for the eh to run?
-
-No, no Patrick, I don't.  The SCSI Core does this for me, and then
-calls my eh_strategy routine and all the commands are on the list.
-
-> Or maybe your host can_queue is 1 :)
-
-No, it is actually pretty huge for a controller, and have to 
-more than halve it and give that to SCSI Core.
- 
-> I don't see it ... hence my question above.
-
-Hmm, let me know if I'm missing something out.
-
-	Luben
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

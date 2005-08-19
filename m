@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVHSV15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVHSVdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbVHSV15 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 17:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbVHSV15
+	id S932293AbVHSVdf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 17:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbVHSVdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 17:27:57 -0400
-Received: from mf00.sitadelle.com ([212.94.174.67]:24892 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932302AbVHSV14
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 17:27:56 -0400
-Message-ID: <43064ED1.40805@cosmosbay.com>
-Date: Fri, 19 Aug 2005 23:27:45 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Fri, 19 Aug 2005 17:33:35 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:28025 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S932293AbVHSVde (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 17:33:34 -0400
+To: linux-kernel@vger.kernel.org
+CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+Subject: [PATCH 2.6.13-rc6] aoe [2/2]: update driver version number to
+ twelve
+From: Ed L Cashin <ecashin@coraid.com>
+References: <87fyt5k5po.fsf@coraid.com>
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 19 Aug 2005 17:05:21 -0400
+Message-ID: <874q9lk57y.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [RFC] f_maxcount seems to be deprecated ?
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>	<1124467911.9329.11.camel@kleikamp.austin.ibm.com> <20050819122122.0852de3a.akpm@osdl.org>
-In-Reply-To: <20050819122122.0852de3a.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew
+Update driver version number to twelve.
 
-Considering :
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
 
-[root@dada1 linux-2.6.13-rc6]# find .|xargs grep f_maxcount
-./fs/file_table.c:      f->f_maxcount = INT_MAX;
-./fs/read_write.c:      if (unlikely(count > file->f_maxcount))
-./include/linux/fs.h:   size_t                  f_maxcount;
+Index: 2.6.13-rc6-aoe/drivers/block/aoe/aoe.h
+===================================================================
+--- 2.6.13-rc6-aoe.orig/drivers/block/aoe/aoe.h	2005-08-19 11:57:04.000000000 -0400
++++ 2.6.13-rc6-aoe/drivers/block/aoe/aoe.h	2005-08-19 11:57:05.000000000 -0400
+@@ -1,5 +1,5 @@
+ /* Copyright (c) 2004 Coraid, Inc.  See COPYING for GPL terms. */
+-#define VERSION "10"
++#define VERSION "12"
+ #define AOE_MAJOR 152
+ #define DEVICE_NAME "aoe"
+ 
 
 
-I was wondering if f_maxcount has a real use these days...
+-- 
+  Ed L. Cashin <ecashin@coraid.com>
 
-Eric

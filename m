@@ -1,86 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965171AbVHSVWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbVHSVZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965171AbVHSVWY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 17:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965166AbVHSVWX
+	id S965175AbVHSVZR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 17:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbVHSVZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 17:22:23 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:15481 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S965173AbVHSVWW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 17:22:22 -0400
-To: linux-kernel@vger.kernel.org
-CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
-Subject: [PATCH 2.6.13-rc6] aoe [1/2]: support 16 AoE slot addresses per AoE
- shelf
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Fri, 19 Aug 2005 16:54:43 -0400
-Message-ID: <87fyt5k5po.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 19 Aug 2005 17:25:17 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:36529 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S965173AbVHSVZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 17:25:15 -0400
+Date: Fri, 19 Aug 2005 23:24:59 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-mm1
+Message-ID: <20050819212459.GA10414@ens-lyon.fr>
+References: <20050819043331.7bc1f9a9.akpm@osdl.org> <200508191145.58835.tomlins@cam.org> <40f323d0050819090473d2c268@mail.gmail.com> <200508191701.05925.tomlins@cam.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508191701.05925.tomlins@cam.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change the number of supported AoE slot addresses per AoE shelf
-address to 16.
+On Fri, Aug 19, 2005 at 05:01:05PM -0400, Ed Tomlinson wrote:
+> Hi,
+> 
+> Adding the include to dmi.h allows the compile to get past this point though I
+> wonder if this is the correct place to put it?  (Thanks Benoit)
+> 
+> I now get:
+> 
+>   CC [M]  net/ipv4/ipvs/ip_vs_ctl.o
+> net/ipv4/ipvs/ip_vs_ctl.c:1601: error: static declaration of 'ipv4_table' follows non-static declaration
+> include/net/ip.h:376: error: previous declaration of 'ipv4_table' was here
+> make[3]: *** [net/ipv4/ipvs/ip_vs_ctl.o] Error 1
+> make[2]: *** [net/ipv4/ipvs] Error 2
+> make[1]: *** [net/ipv4] Error 2
+> make: *** [net] Error 2
+> 
+> Ideas?
+> 
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+I think the following is patch needed because ipv4_table is local to
+ipvs.
 
-Index: 2.6.13-rc6-aoe/Documentation/aoe/mkshelf.sh
-===================================================================
---- 2.6.13-rc6-aoe.orig/Documentation/aoe/mkshelf.sh	2005-08-19 11:15:21.000000000 -0400
-+++ 2.6.13-rc6-aoe/Documentation/aoe/mkshelf.sh	2005-08-19 11:57:04.000000000 -0400
-@@ -8,13 +8,15 @@
- n_partitions=${n_partitions:-16}
- dir=$1
- shelf=$2
-+nslots=16
-+maxslot=`echo $nslots 1 - p | dc`
- MAJOR=152
- 
- set -e
- 
--minor=`echo 10 \* $shelf \* $n_partitions | bc`
-+minor=`echo $nslots \* $shelf \* $n_partitions | bc`
- endp=`echo $n_partitions - 1 | bc`
--for slot in `seq 0 9`; do
-+for slot in `seq 0 $maxslot`; do
- 	for part in `seq 0 $endp`; do
- 		name=e$shelf.$slot
- 		test "$part" != "0" && name=${name}p$part
-Index: 2.6.13-rc6-aoe/drivers/block/aoe/aoe.h
-===================================================================
---- 2.6.13-rc6-aoe.orig/drivers/block/aoe/aoe.h	2005-08-19 11:15:21.000000000 -0400
-+++ 2.6.13-rc6-aoe/drivers/block/aoe/aoe.h	2005-08-19 11:57:04.000000000 -0400
-@@ -7,12 +7,12 @@
-  * default is 16, which is 15 partitions plus the whole disk
-  */
- #ifndef AOE_PARTITIONS
--#define AOE_PARTITIONS 16
-+#define AOE_PARTITIONS (16)
- #endif
- 
--#define SYSMINOR(aoemajor, aoeminor) ((aoemajor) * 10 + (aoeminor))
--#define AOEMAJOR(sysminor) ((sysminor) / 10)
--#define AOEMINOR(sysminor) ((sysminor) % 10)
-+#define SYSMINOR(aoemajor, aoeminor) ((aoemajor) * NPERSHELF + (aoeminor))
-+#define AOEMAJOR(sysminor) ((sysminor) / NPERSHELF)
-+#define AOEMINOR(sysminor) ((sysminor) % NPERSHELF)
- #define WHITESPACE " \t\v\f\n"
- 
- enum {
-@@ -83,7 +83,7 @@
- 
- enum {
- 	MAXATADATA = 1024,
--	NPERSHELF = 10,
-+	NPERSHELF = 16,		/* number of slots per shelf address */
- 	FREETAG = -1,
- 	MIN_BUFS = 8,
+Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+
+--- ./net/ipv4/ipvs/ip_vs_lblc.c	2004-12-24 22:35:28.000000000 +0100
++++ ./net/ipv4/ipvs/ip_vs_lblc.c.new	2005-08-19 23:22:09.000000000 +0200
+@@ -131,7 +131,7 @@ static ctl_table vs_table[] = {
+ 	{ .ctl_name = 0 }
  };
-
-
--- 
-  Ed L. Cashin <ecashin@coraid.com>
-
+ 
+-static ctl_table ipv4_table[] = {
++static ctl_table ipv4_vs_table[] = {
+ 	{
+ 		.ctl_name	= NET_IPV4,
+ 		.procname	= "ipv4", 
+@@ -146,7 +146,7 @@ static ctl_table lblc_root_table[] = {
+ 		.ctl_name	= CTL_NET,
+ 		.procname	= "net", 
+ 		.mode		= 0555, 
+-		.child		= ipv4_table
++		.child		= ipv4_vs_table
+ 	},
+ 	{ .ctl_name = 0 }
+ };
+--- ./net/ipv4/ipvs/ip_vs_lblcr.c	2004-12-24 22:35:24.000000000 +0100
++++ ./net/ipv4/ipvs/ip_vs_lblcr.c.new	2005-08-19 23:22:25.000000000 +0200
+@@ -320,7 +320,7 @@ static ctl_table vs_table[] = {
+ 	{ .ctl_name = 0 }
+ };
+ 
+-static ctl_table ipv4_table[] = {
++static ctl_table ipv4_vs_table[] = {
+ 	{
+ 		.ctl_name	= NET_IPV4,
+ 		.procname	= "ipv4", 
+@@ -335,7 +335,7 @@ static ctl_table lblcr_root_table[] = {
+ 		.ctl_name	= CTL_NET,
+ 		.procname	= "net", 
+ 		.mode		= 0555, 
+-		.child		= ipv4_table
++		.child		= ipv4_vs_table
+ 	},
+ 	{ .ctl_name = 0 }
+ };

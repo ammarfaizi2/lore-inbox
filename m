@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbVHSH1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbVHSHjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbVHSH1I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 03:27:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVHSH1I
+	id S932566AbVHSHjn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 03:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVHSHjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 03:27:08 -0400
-Received: from ozlabs.org ([203.10.76.45]:45961 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964882AbVHSH1H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 03:27:07 -0400
-Subject: Re: [PATCH/RFT 4/5] CLOCK-Pro page replacement
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davem@davemloft.net, riel@redhat.com, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050819001030.52ec1364.akpm@osdl.org>
-References: <20050817173818.098462b5.akpm@osdl.org>
-	 <20050817.194822.92757361.davem@davemloft.net>
-	 <20050817210532.54ace193.akpm@osdl.org>
-	 <20050817.214845.120320066.davem@davemloft.net>
-	 <1124435027.23757.0.camel@localhost.localdomain>
-	 <20050819001030.52ec1364.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 19 Aug 2005 17:27:06 +1000
-Message-Id: <1124436426.23757.5.camel@localhost.localdomain>
+	Fri, 19 Aug 2005 03:39:43 -0400
+Received: from nproxy.gmail.com ([64.233.182.192]:4631 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964888AbVHSHjn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 03:39:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=P6Xsow481v0UGs9RHDdXFWvGLugyNL0qPHUKE1ZfYsTG7Jr0NoOyjOl58jMouGfx+TjtWvWNDk8+DdaZKXSAoGYwBeOn03JShLJgij0KCD/2A4BCzt784XTunSVr0XLB6dy6FpBVsfujMYLG14pPGseFT3NY+aKJhpDnotSo3Fw=
+Message-ID: <84144f020508190039322a486c@mail.gmail.com>
+Date: Fri, 19 Aug 2005 10:39:39 +0300
+From: Pekka Enberg <penberg@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: sysfs: write returns ENOMEM?
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+In-Reply-To: <200508190055.25747.dtor_core@ameritech.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200508190055.25747.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-19 at 00:10 -0700, Andrew Morton wrote:
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > I believe we just ignored sparc64.  That usually works for solving these
-> > kind of bugs. 8)
+Hi Dmitry,
+
+On 8/19/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> According to the SuS write() can not return ENOMEM, only ENOBUFS is allowed
+> (surprisingly read() is allowed to use both ENOMEM and ENOBUFS):
 > 
-> heh.  iirc, it was demonstrable on x86 also.
+> http://www.opengroup.org/onlinepubs/000095399/functions/write.html
+> 
+> Should we adjust sysfs write to follow the standard?
 
-No.  gcc-2.95 on Sparc64 put uninititialized vars into the bss, ignoring
-the __attribute__((section(".data.percpu"))) directive.  x86 certainly
-doesn't have this, I just tested it w/2.95.
+Please note that sysfs is not the only one to do this. A quick peek
+reveals XFS and CIFS returing ENOMEM for write() and there are
+probably others as well. Perhaps we should replace ENOMEM with ENOBUFS
+in vfs_write() instead?
 
-Really, it's Sparc64 + gcc-2.95.  Send an urgent telegram to the user
-telling them to upgrade.
+linvfs_write
+	xfs_write
+		xfs_zero_eof
+			xfs_zero_last_block
+				xfs_iozero
+					-> Returns -ENOMEM
 
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+cifs_user_write
+	cifs_reopen_file
+		-> Returns -ENOMEM
 
+                            Pekka

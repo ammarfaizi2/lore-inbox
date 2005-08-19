@@ -1,32 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbVHSDeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVHSDfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751107AbVHSDeU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 23:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbVHSDeT
+	id S932118AbVHSDfk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 23:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVHSDfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 23:34:19 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:53392 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751107AbVHSDeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 23:34:19 -0400
-Subject: Re: [PATCH] Mobil Pentium 4 HT and the NMI
-From: Steven Rostedt <rostedt@goodmis.org>
+	Thu, 18 Aug 2005 23:35:40 -0400
+Received: from fsmlabs.com ([168.103.115.128]:50337 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932118AbVHSDfX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 23:35:23 -0400
+Date: Thu, 18 Aug 2005 21:41:22 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@osdl.org
+cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, torvalds@osdl.org
+Subject: Re: [PATCH] Mobil Pentium 4 HT and the NMI
 In-Reply-To: <20050818202300.254410f4.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0508182137290.28588@montezuma.fsmlabs.com>
 References: <1124416748.5186.94.camel@localhost.localdomain>
-	 <20050818202300.254410f4.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 18 Aug 2005 23:34:10 -0400
-Message-Id: <1124422450.5186.98.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+ <20050818202300.254410f4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-18 at 20:23 -0700, Andrew Morton wrote:
+On Thu, 18 Aug 2005, Andrew Morton wrote:
+
 > Steven Rostedt <rostedt@goodmis.org> wrote:
 > >
 > > Hi,
@@ -42,14 +41,8 @@ On Thu, 2005-08-18 at 20:23 -0700, Andrew Morton wrote:
 > Well I was hoping that someone with knowledge of the low-level Intel model
 > differences would pipe up, but they all seem to be in hiding.  (Wildly
 > bcc's lots of x86 people).
-> 
 
-If this is any consolation, I've been using this patch all day today
-debugging a deadlock in Ingo's RT patch.  It seems to work fine with me.
+Looks ok to me, they haven't changed the performance counter setup on 
+those processors.
 
-Who knows, maybe in two days my Laptop will be dead because this set up
-some self destruct register. (knocks on wood).
-
--- Steve
-
-
+Acked-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>

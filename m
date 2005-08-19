@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVHSTTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVHSTWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbVHSTTL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 15:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbVHSTTL
+	id S965061AbVHSTWt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 15:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVHSTWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 15:19:11 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:43786 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S965051AbVHSTTK (ORCPT
+	Fri, 19 Aug 2005 15:22:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36556 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965061AbVHSTWt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 15:19:10 -0400
-Date: Fri, 19 Aug 2005 15:19:04 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [patch] libata passthrough - return register data from HDIO_* commands
-Message-ID: <20050819191902.GC2736@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <42FE2FBA.3000605@dresco.co.uk> <430112F6.3090906@dresco.co.uk> <20050819190625.GB2736@tuxdriver.com>
+	Fri, 19 Aug 2005 15:22:49 -0400
+Date: Fri, 19 Aug 2005 12:21:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: mark.fasheh@oracle.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-mm1
+Message-Id: <20050819122122.0852de3a.akpm@osdl.org>
+In-Reply-To: <1124467911.9329.11.camel@kleikamp.austin.ibm.com>
+References: <20050819043331.7bc1f9a9.akpm@osdl.org>
+	<1124467911.9329.11.camel@kleikamp.austin.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050819190625.GB2736@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 03:06:27PM -0400, John W. Linville wrote:
-> On Mon, Aug 15, 2005 at 11:11:02PM +0100, Jon Escombe wrote:
-> > 
-> > >Here is a first attempt at a patch to return register data from the 
-> > >libata passthrough HDIO ioctl handlers, I needed this as the ATA 
-> > >'unload immediate' command returns the success in the lbal register. 
-
-> Overall, I like the patch.  I trust your assertion that it actually
-> works... :-)
+Dave Kleikamp <shaggy@austin.ibm.com> wrote:
+>
+> It seems that git-ocfs2.patch duplicates the
+> update-filesystems-for-new-delete_inode-behavior.patch.  I noticed it
+> adds duplicate statements like:
 > 
-> I have a few comments...
+> diff -puN fs/ext2/inode.c~git-ocfs2 fs/ext2/inode.c
+> diff -puN fs/ext3/inode.c~git-ocfs2 fs/ext3/inode.c
+> --- devel/fs/ext3/inode.c~git-ocfs2     2005-08-18 22:00:35.000000000 -0700
+> +++ devel-akpm/fs/ext3/inode.c  2005-08-18 22:00:37.000000000 -0700
+> @@ -189,6 +189,8 @@ void ext3_delete_inode (struct inode * i
+> 
+>         truncate_inode_pages(&inode->i_data, 0);
+> 
+> +       truncate_inode_pages(&inode->i_data, 0);
+> +
+>         if (is_bad_inode(inode))
+>                 goto no_delete;
 
-Well, apparently "Jon Escombe <lists@dresco.co.uk>" is not a good
-address.  I got a delivery failur notification email from his mail
-server.  Hopefully Jon reads the lists... :-)
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+Oh crap, thanks.  I'll fix that up differently somehow.

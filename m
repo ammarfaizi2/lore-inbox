@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVHSQIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbVHSQLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbVHSQIB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 12:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVHSQIB
+	id S964814AbVHSQLp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 12:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbVHSQLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 12:08:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46740 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751209AbVHSQIA (ORCPT
+	Fri, 19 Aug 2005 12:11:45 -0400
+Received: from iron.pdx.net ([207.149.241.18]:42916 "EHLO iron.pdx.net")
+	by vger.kernel.org with ESMTP id S1751215AbVHSQLp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 12:08:00 -0400
-Date: Fri, 19 Aug 2005 09:07:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, vandrove@vc.cvut.cz,
-       Andrew Morton <akpm@osdl.org>, linware@sh.cvut.cz,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel bug: Bad page state: related to generic symlink code and
- mmap
-In-Reply-To: <1124466246.2294.65.camel@imp.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.58.0508190855350.3412@g5.osdl.org>
-References: <1124450088.2294.31.camel@imp.csi.cam.ac.uk> 
- <20050819142025.GA29811@parcelfarce.linux.theplanet.co.uk>
- <1124466246.2294.65.camel@imp.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Aug 2005 12:11:45 -0400
+Subject: Re: 2.6.13-rc6-git10 test report [x86_64](WITHOUT NVIDIA MODULE)
+From: Sean Bruno <sean.bruno@dsl-only.net>
+To: Peter Buckingham <peter@pantasys.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <430601C5.5080505@pantasys.com>
+References: <1124401950.14825.13.camel@home-lap.suse.lists.linux.kernel>
+	 <p73u0hmsy83.fsf@verdi.suse.de> <1124405533.14825.24.camel@home-lap>
+	 <20050818230349.GC22993@wotan.suse.de> <1124410753.14825.32.camel@home-lap>
+	 <4305FCF1.6020905@pantasys.com> <20050819154639.GL22993@wotan.suse.de>
+	 <4306002F.4000000@pantasys.com> <20050819155332.GM22993@wotan.suse.de>
+	 <430601C5.5080505@pantasys.com>
+Content-Type: text/plain
+Date: Fri, 19 Aug 2005 09:11:42 -0700
+Message-Id: <1124467902.14825.41.camel@home-lap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-08-19 at 08:59 -0700, Peter Buckingham wrote:
+> Andi Kleen wrote:
+> > On Fri, Aug 19, 2005 at 08:52:15AM -0700, Peter Buckingham wrote:
+> > 
+> >>Andi Kleen wrote:
+> >>
+> >>>At least his original error message can only happen when  CONFIG_GART_IOMMU
+> >>>is disabled.
+> >>>
+> >>>PCI-DMA:  More that 4GB of RAM and no IOMMU                                
+> >>>PCI-DMA:  32bit PCI IO may malfunction.<6>PCI-DMA:  Disabling IOMMU        
+> >>
+> >>Yeah, I agree. In the later dmesgs, though, it seems to be enabled.
+> > 
+> > 
+> > Those don't show any failure.
+> 
+> no they don't. basically it just says your bios hasn't configured enough 
+> IOMMU space, so the kernel is going to do it anyway. it's really just a 
+> warning or an fyi rather than an error. i may have chosen the word 
+> poorly ;-)
+> 
+> in short Sean, this isn't a big deal. you only really need to change 
+> this if you want to remove a warning from your dmesg output.
+> 
+> peter
+
+Well, there doesn't appear to be any reference to a setting in my BIOS
+for this size(IOMMU).  So I don't think that I can change it!  :(
+
+The machine is working quite a bit better with pci=noacpi in leu of
+disabling ACPI in the BIOS, but there are still those nasty errors in
+reference to the ACPI tables being broken:
+    ACPI-0362: *** Error: Looking up [\_SB_.PCI0.LNK0] in namespace,
+AE_NOT_FOUND
+search_node ffff8101428572c0 start_node ffff8101428572c0 return_node
+0000000000000000
+
+And this one about the 8254 timer:
+..MP-BIOS bug: 8254 timer not connected to IO-APIC
+
+And finally, I think that something else kind of wierd is happening with
+the on-board sensors.  lm_sensors is having trouble detecting the fan
+speeds and temperatures of the main board, but I will take that up with
+their developers.
+
+Sean
 
 
-On Fri, 19 Aug 2005, Anton Altaparmakov wrote:
->
-> 		struct page *page;
-> 		page = find_get_page(dentry->d_inode->i_mapping, 0);
-> 		if (!page)
-> ---->			BUG();
-
-Something has truncated the mapping. 
-
-My guess is that you had a cache invalidate event that removed the page
-from the mapping while it was being used. That might also explain why this
-only happens for ncpfs. I bet that in the other cases, the mapping was 
-also invalidated, but re-filled immediately, and your strace slowed the 
-other process down enough that it didn't get to re-fill the cache it 
-invalidated or something like that.
-
-The fact that it happens only for cross-volume things might also be 
-explained that way - is there something ncpfs does when switching volumes 
-that might trigger a cache invalidate for another volume (either on the 
-client side or the server side - maybe the server tends to try to break 
-the connection for the old volume when you start traversing a new one?)
-
-The generic "page cache for symlinks" code does _not_ support invalidating 
-the cache while it's being used. A local filesystem will obviously never 
-invalidate the cache at all. 
-
-Hmm.. NFS _does_ use the page cache for symlinks, but uses it slightly 
-differently: instead of relying on the page cache entry being the same 
-when freeing the page, it just caches the page it looked up in the page 
-cache (ie "nfs_follow_link()" does look up the page cache, but then hides 
-the page pointer inside the page data itself (uglee), and thus does not 
-depend on the mapping staying the same (nfs_put_link() just takes the page 
-from the symlink data).
-
-		Linus

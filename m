@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbVHSP4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVHSP7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbVHSP4F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 11:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVHSP4F
+	id S1751147AbVHSP7E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 11:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVHSP7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 11:56:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34257 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S1751191AbVHSP4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 11:56:02 -0400
-Date: Fri, 19 Aug 2005 16:58:58 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: vandrove@vc.cvut.cz, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linware@sh.cvut.cz,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel bug: Bad page state: related to generic symlink code and mmap
-Message-ID: <20050819155858.GB29811@parcelfarce.linux.theplanet.co.uk>
-References: <1124450088.2294.31.camel@imp.csi.cam.ac.uk> <20050819142025.GA29811@parcelfarce.linux.theplanet.co.uk> <1124466246.2294.65.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1124466246.2294.65.camel@imp.csi.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Aug 2005 11:59:04 -0400
+Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:55044 "EHLO
+	panta-1.pantasys.com") by vger.kernel.org with ESMTP
+	id S1751147AbVHSP7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 11:59:01 -0400
+Message-ID: <430601C5.5080505@pantasys.com>
+Date: Fri, 19 Aug 2005 08:59:01 -0700
+From: Peter Buckingham <peter@pantasys.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Sean Bruno <sean.bruno@dsl-only.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-git10 test report [x86_64](WITHOUT NVIDIA MODULE)
+References: <1124401950.14825.13.camel@home-lap.suse.lists.linux.kernel> <p73u0hmsy83.fsf@verdi.suse.de> <1124405533.14825.24.camel@home-lap> <20050818230349.GC22993@wotan.suse.de> <1124410753.14825.32.camel@home-lap> <4305FCF1.6020905@pantasys.com> <20050819154639.GL22993@wotan.suse.de> <4306002F.4000000@pantasys.com> <20050819155332.GM22993@wotan.suse.de>
+In-Reply-To: <20050819155332.GM22993@wotan.suse.de>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Aug 2005 15:58:46.0984 (UTC) FILETIME=[E1E62480:01C5A4D6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 04:44:06PM +0100, Anton Altaparmakov wrote:
-> I tried stracing nautilus to answer your question.  And this time for
-> the first time instead of a Bad page state I got a BUG() triggered in
-> fs/namei.c, the arrow below marks the spot:
+Andi Kleen wrote:
+> On Fri, Aug 19, 2005 at 08:52:15AM -0700, Peter Buckingham wrote:
 > 
-> void page_put_link(struct dentry *dentry, struct nameidata *nd)
-> {
-> 	if (!IS_ERR(nd_get_link(nd))) {
-> 		struct page *page;
-> 		page = find_get_page(dentry->d_inode->i_mapping, 0);
-> 		if (!page)
-> ---->			BUG();
+>>Andi Kleen wrote:
+>>
+>>>At least his original error message can only happen when  CONFIG_GART_IOMMU
+>>>is disabled.
+>>>
+>>>PCI-DMA:  More that 4GB of RAM and no IOMMU                                
+>>>PCI-DMA:  32bit PCI IO may malfunction.<6>PCI-DMA:  Disabling IOMMU        
+>>
+>>Yeah, I agree. In the later dmesgs, though, it seems to be enabled.
+> 
+> 
+> Those don't show any failure.
 
-Ergo, something had blown page cache for our inode.  Interesting...
+no they don't. basically it just says your bios hasn't configured enough 
+IOMMU space, so the kernel is going to do it anyway. it's really just a 
+warning or an fyi rather than an error. i may have chosen the word 
+poorly ;-)
+
+in short Sean, this isn't a big deal. you only really need to change 
+this if you want to remove a warning from your dmesg output.
+
+peter

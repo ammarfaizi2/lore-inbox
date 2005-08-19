@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVHSK2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbVHSKkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbVHSK2r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 06:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVHSK2r
+	id S932614AbVHSKkb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 06:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbVHSKkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 06:28:47 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:22623 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932467AbVHSK2q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 06:28:46 -0400
+	Fri, 19 Aug 2005 06:40:31 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:392 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932614AbVHSKkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 06:40:31 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JUpwiWWNs2MZl//umadjjKct7bi+VmNQumW7r7AxaIqpPu4gDc9gkVy1fI1QdanqujZol9u53Ow6CReHNbLmvw0IiO2DMT8JAJyXx0mL0nbYWf9YGlK2+Pd2hz4CarN1iq+oDjwS7G/tuakdTdVuq3FBuNSnruxhKwrYUodo0AM=
-Message-ID: <4fec73ca0508190328f8b9df9@mail.gmail.com>
-Date: Fri, 19 Aug 2005 12:28:43 +0200
-From: =?ISO-8859-1?Q?Guillermo_L=F3pez_Alejos?= <glalejos@gmail.com>
-To: "Peter M. Groen" <pgroen@osdev.xs4all.nl>
-Subject: Re: Environment variables inside the kernel?
+  s=s1024; d=yahoo.de;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=WNWUSRse750WToRKTYTfz2qqc4riYK1JzpSEOiF4AtVbMu7vd4TqIZWUbWOMgnk7tNb2pfMsD1h/s4RKy6aYFOD5nd3jPoHDOIPvhvx1jmQ1CWJQe7Seg1F3NryZVCzc4O+j9Z2ktalqzku6RjQK74HwMLTO1i+uxE1NmjDXZyg=  ;
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: Ingo Molnar <mingo@elte.hu>, Chuck Harding <charding@llnl.gov>
+Subject: Re: 2.6.13-rc6-rt9
+Date: Fri, 19 Aug 2005 12:41:39 +0200
+User-Agent: KMail/1.8.1
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200508190055.16515.pgroen@osdev.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <4fec73ca050818084467f04c31@mail.gmail.com>
-	 <wn5slx75cjs.fsf@linhd-2.ca.nortel.com>
-	 <1124406748.20755.14.camel@localhost.localdomain>
-	 <200508190055.16515.pgroen@osdev.xs4all.nl>
+Message-Id: <200508191241.39340.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Friday 19 August 2005 01:12, Alan Cox wrote:
-> ---------------[ 8< ]-------------
-> > Essentially environment is user space business and you can't get at it
-> > from the kernel.
-> -[ 8< ]------------
-> 
-> I think the OP has his answer here. If someone knows what he is talking about,
-> it's Alan or Linus. And if a teacher or manager doesn't believe those two...
-> Let *him* prove that AC and LT are wrong, and not the other way around..
+Chuck wrote:
+> I'm still getting the same oops when rebooting. the same process (reboot)
+> similar call trace (some addresses are slightly different but the functions
+> are the same:
+> disable_IO_APIC+0x5a/0x90 (8)
+> machine_restart+0x5/0x9 (28)
+> sys_reboot+0x147/0x156 (4)
+> netdev_run_todo+0xa4/0x209 (4)
+> etc.
 
-This definition given by Alan Cox is enough for me, and I think that
-it will be enough for my tutor too.
+Does this patch help?
 
-Thanks again,
+------
+diff -up arch/i386/kernel/io_apic.c.rt9 arch/i386/kernel/io_apic.c
+--- arch/i386/kernel/io_apic.c.rt9      2005-08-19 12:28:42.000000000 +0200
++++ arch/i386/kernel/io_apic.c  2005-08-19 12:29:30.000000000 +0200
+@@ -1758,8 +1758,8 @@ void disable_IO_APIC(void)
+                 * Add it to the IO-APIC irq-routing table:
+                 */
+                spin_lock_irqsave(&ioapic_lock, flags);
+-               io_apic_write(0, 0x11+2*pin, *(((int *)&entry)+1));
+-               io_apic_write(0, 0x10+2*pin, *(((int *)&entry)+0));
++               io_apic_write(ioapic_data[0], 0x11+2*pin, *(((int *)&entry)+1));
++               io_apic_write(ioapic_data[0], 0x10+2*pin, *(((int *)&entry)+0));
+                spin_unlock_irqrestore(&ioapic_lock, flags);
+        }
+        disconnect_bsp_APIC(pin != -1);
+------
 
--- 
-Guillermo
+   Karsten
+
+	
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

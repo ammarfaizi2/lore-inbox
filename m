@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbVHSIek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVHSIxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbVHSIek (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 04:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVHSIek
+	id S932542AbVHSIxX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 04:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbVHSIxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 04:34:40 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:22144 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932477AbVHSIej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 04:34:39 -0400
-Date: Fri, 19 Aug 2005 10:33:32 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: Folkert van Heusden <folkert@vanheusden.com>, linux-kernel@vger.kernel.org
-Subject: Re: zero-copy read() interface
-Message-ID: <20050819083332.GC29333@wohnheim.fh-wedel.de>
-References: <20050818100151.GF12313@vanheusden.com> <20050818100536.GB16751@wohnheim.fh-wedel.de> <20050818104131.GH12313@vanheusden.com> <Pine.LNX.4.63.0508181633510.20705@twinlark.arctic.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.63.0508181633510.20705@twinlark.arctic.org>
-User-Agent: Mutt/1.3.28i
+	Fri, 19 Aug 2005 04:53:23 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:26893 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S932542AbVHSIxX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 04:53:23 -0400
+Message-ID: <43059DF8.2060209@rainbow-software.org>
+Date: Fri, 19 Aug 2005 10:53:12 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Imanpreet Arora <imanpreet@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux under 8MB
+References: <c26b9592050818151154ff1a89@mail.gmail.com>
+In-Reply-To: <c26b9592050818151154ff1a89@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 August 2005 16:34:18 -0700, dean gaudet wrote:
-> On Thu, 18 Aug 2005, Folkert van Heusden wrote:
-> 
-> > Doesn't that one also use copying? I've also heard that using mmap is
-> > expensive due to pagefaulting. I've found, for example, that copying a
-> > 1.3GB file using read/write instead of mmap & memcpy is seconds faster.
-> 
-> why would you memcpy if you're using mmap()?  just write() the mmap()d 
-> region.
+I've made a printserver with i386DX/25, 8MB RAM and 170MB HDD. Kernel is 
+2.6.12 (very light - 1.2MB uncompressed), userspace is based on 
+Slackware 9.0 (init scripts modified), print server is CUPS. It boots in 
+about a minute. It ran with 4MB too but the boot time was around 15 
+minutes :-) (with original init scripts).
 
-Still unnecessary.  Userspace doesn't want to see the data at all, so
-it shouldn't.  The solution should either be sendfile(2), which Linus
-doesn't like much, or the upcoming pipe stuff.
+root@printserver:~# uname -a
+Linux printserver 2.6.12-printserver #6 Fri Jul 1 23:40:17 CEST 2005 
+i386 unknown
+root@printserver:~# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : unknown
+cpu family      : 3
+model           : 0
+model name      : 386
+stepping        : unknown
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : no
+fpu_exception   : no
+cpuid level     : -1
+wp              : no
+flags           :
+bogomips        : 4.28
 
-Jörn
+root@printserver:~# free
+              total       used       free     shared    buffers     cached
+Mem:          6752       6196        556          0        528       3980
+-/+ buffers/cache:       1688       5064
+Swap:        32000          0      32000
 
 -- 
-Linux [...] existed just for discussion between people who wanted
-to show off how geeky they were.
--- Rob Enderle
+Ondrej Zary

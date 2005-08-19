@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVHSINx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbVHSIek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbVHSINx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 04:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVHSINx
+	id S932477AbVHSIek (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 04:34:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVHSIek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 04:13:53 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:36272 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S932258AbVHSINx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 04:13:53 -0400
-From: "Peter T. Breuer" <ptb@inv.it.uc3m.es>
-Message-Id: <200508190813.j7J8Dml28378@inv.it.uc3m.es>
-Subject: sleep under spinlock, sequencer.c, 2.6.12.5
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Fri, 19 Aug 2005 10:13:48 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@inv.it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Fri, 19 Aug 2005 04:34:40 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:22144 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932477AbVHSIej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 04:34:39 -0400
+Date: Fri, 19 Aug 2005 10:33:32 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Folkert van Heusden <folkert@vanheusden.com>, linux-kernel@vger.kernel.org
+Subject: Re: zero-copy read() interface
+Message-ID: <20050819083332.GC29333@wohnheim.fh-wedel.de>
+References: <20050818100151.GF12313@vanheusden.com> <20050818100536.GB16751@wohnheim.fh-wedel.de> <20050818104131.GH12313@vanheusden.com> <Pine.LNX.4.63.0508181633510.20705@twinlark.arctic.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.63.0508181633510.20705@twinlark.arctic.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 18 August 2005 16:34:18 -0700, dean gaudet wrote:
+> On Thu, 18 Aug 2005, Folkert van Heusden wrote:
+> 
+> > Doesn't that one also use copying? I've also heard that using mmap is
+> > expensive due to pagefaulting. I've found, for example, that copying a
+> > 1.3GB file using read/write instead of mmap & memcpy is seconds faster.
+> 
+> why would you memcpy if you're using mmap()?  just write() the mmap()d 
+> region.
 
-The following "sleep under spinlock" is still present as of linux
-2.6.12.5 in sound/oss/sequencer.c in midi_outc:
+Still unnecessary.  Userspace doesn't want to see the data at all, so
+it shouldn't.  The solution should either be sendfile(2), which Linus
+doesn't like much, or the upcoming pipe stuff.
 
+Jörn
 
-        n = 3 * HZ;             /* Timeout */
-
-        spin_lock_irqsave(&lock,flags);
-        while (n && !midi_devs[dev]->outputc(dev, data)) {
-                interruptible_sleep_on_timeout(&seq_sleeper, HZ/25);
-                n--;
-        }
-        spin_unlock_irqrestore(&lock,flags);
-
-
-I haven't thought about it, just noted it. It's been there forever
-(some others in the sound architecture have been gradually disappearing
-as newer kernels come out).
-
-
-This code found during an analysis of about 1.5 million lines of kernel
-code by the static kernel code analyser at
-
-   ftp://oboe.it.uc3m.es/pub/Programs/c-1.2.*.tgz
-
-(and yes, I am the author - if anyone wants to help please contact me).
-
-Peter
+-- 
+Linux [...] existed just for discussion between people who wanted
+to show off how geeky they were.
+-- Rob Enderle

@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbVHSDVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbVHSDY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbVHSDVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 23:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbVHSDVZ
+	id S1751067AbVHSDY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 23:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751070AbVHSDY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 23:21:25 -0400
-Received: from fsmlabs.com ([168.103.115.128]:24481 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1751033AbVHSDVY (ORCPT
+	Thu, 18 Aug 2005 23:24:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4574 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751047AbVHSDY5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 23:21:24 -0400
-Date: Thu, 18 Aug 2005 21:27:40 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andi Kleen <ak@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386 !NUMA node_to_cpumask broken in early boot
-In-Reply-To: <20050819030615.GH22993@wotan.suse.de>
-Message-ID: <Pine.LNX.4.61.0508182116510.28588@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0508181919230.28588@montezuma.fsmlabs.com>
- <20050819021216.GF22993@wotan.suse.de> <Pine.LNX.4.61.0508182043310.28588@montezuma.fsmlabs.com>
- <20050819030615.GH22993@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Aug 2005 23:24:57 -0400
+Date: Thu, 18 Aug 2005 20:23:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@osdl.org
+Subject: Re: [PATCH] Mobil Pentium 4 HT and the NMI
+Message-Id: <20050818202300.254410f4.akpm@osdl.org>
+In-Reply-To: <1124416748.5186.94.camel@localhost.localdomain>
+References: <1124416748.5186.94.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Aug 2005, Andi Kleen wrote:
-
-> > Thanks for the feedback, ugly indeed, i was really trying to avoid adding 
-> > a new API function or extra cpu_* variables. Ok, here is an 
-> > early_node_to_cpumask instead.
+Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> Hi,
 > 
-> Thinking about it again it's most likely broken with CPU hotplug anyways
-> whatever you're doing. So how does your code handle adding new 
-> CPUs?  If it does can the normal CPU bootup be handled in the 
-> same way. Then this wouldn't be needed at all.
+> I'm resending this since I don't see it in git yet, and I'm wondering if
+> there is a problem with this patch.  I have a IBM ThinkPad G41 with a
+> Mobile Pentium 4 HT.  Without this patch, the NMI won't be setup.  Is
+> there a reason that if the x86_model is greater than 0x3 it will return.
+> Since my processor has a 0x4 x86_model, I upped it to that. Otherwise my
+> laptop won't be able to use the NMI.
+> 
 
-The code is populating IDTs before APs are online, so for a given set of 
-processors i would want to install new IDT entries like so;
+Well I was hoping that someone with knowledge of the low-level Intel model
+differences would pipe up, but they all seem to be in hiding.  (Wildly
+bcc's lots of x86 people).
 
-node_set_intr_gate()
-{
-	cpumask_t mask = node_to_cpumask(node);
-	for_each_cpu_mask(cpu, mask)
-		set_intr_gate(per_cpu_ptr(cpu_idt_table, cpu)....
-	....
-}
-
-Which before resulted in only setting the IDT entry for the BSP.
-
-During boot, i prepare all processor IDTs so they are always 
-ready for processors coming online and should take care of hotplug cpu 
-too. The only problem with normal bootup is that the node_to_cpumask is
-unreliable.
-
-	Zwane
-
+> 
+> Description:
+>   This patch is to allow the Mobile Penitum 4 HT to use the NMI.
+> 
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+> 
+> --- linux-2.6.13-rc6-git10/arch/i386/kernel/nmi.c.orig	2005-08-18 21:51:11.000000000 -0400
+> +++ linux-2.6.13-rc6-git10/arch/i386/kernel/nmi.c	2005-08-18 21:52:03.000000000 -0400
+> @@ -195,7 +195,7 @@ static void disable_lapic_nmi_watchdog(v
+>  			wrmsr(MSR_P6_EVNTSEL0, 0, 0);
+>  			break;
+>  		case 15:
+> -			if (boot_cpu_data.x86_model > 0x3)
+> +			if (boot_cpu_data.x86_model > 0x4)
+>  				break;
+>  
+>  			wrmsr(MSR_P4_IQ_CCCR0, 0, 0);
+> @@ -432,7 +432,7 @@ void setup_apic_nmi_watchdog (void)
+>  			setup_p6_watchdog();
+>  			break;
+>  		case 15:
+> -			if (boot_cpu_data.x86_model > 0x3)
+> +			if (boot_cpu_data.x86_model > 0x4)
+>  				return;
+>  
+>  			if (!setup_p4_watchdog())

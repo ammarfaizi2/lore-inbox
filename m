@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbVHSHlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVHSHtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbVHSHlM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 03:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbVHSHlM
+	id S964899AbVHSHtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 03:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVHSHtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 03:41:12 -0400
-Received: from claven.physics.ucsb.edu ([128.111.16.29]:9381 "EHLO
-	claven.physics.ucsb.edu") by vger.kernel.org with ESMTP
-	id S964888AbVHSHlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 03:41:11 -0400
-Date: Fri, 19 Aug 2005 00:41:07 -0700 (PDT)
-From: Nathan Becker <nbecker@physics.ucsb.edu>
-To: linux-kernel@vger.kernel.org
-Subject: lost ticks and Hangcheck
-Message-ID: <Pine.LNX.4.63.0508182351460.6338@claven.physics.ucsb.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 19 Aug 2005 03:49:16 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29966 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964899AbVHSHtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 03:49:15 -0400
+Date: Fri, 19 Aug 2005 08:49:11 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] MMC host class
+Message-ID: <20050819084911.A1154@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <42D538D4.7050803@drzeus.cx> <20050715093114.B25428@flint.arm.linux.org.uk> <42D81AD7.3000407@drzeus.cx> <20050718184554.A31022@flint.arm.linux.org.uk> <42F74425.90908@drzeus.cx> <20050819000903.B11254@flint.arm.linux.org.uk> <430578C3.7020406@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <430578C3.7020406@drzeus.cx>; from drzeus-list@drzeus.cx on Fri, Aug 19, 2005 at 08:14:27AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Aug 19, 2005 at 08:14:27AM +0200, Pierre Ossman wrote:
+> * Things that assume there's a name for every kobject.
 
-I'm running kernel 2.6.12.5 with x86_64 target on an AMD X2 4800+ and 
-Gigabyte GA-K8NXP-SLI motherboard (bios version F8).  I'm having a problem 
-with lost clock ticks.  The dmesg says
+The name is assigned when the host is added to the mmc subsystem,
+not when it's allocated.  This is the same behaviour as other
+subsystems (eg, networking) and I don't see a problem with that.
 
-warning: many lost ticks.
-Your time source seems to be instable or some driver is hogging interupts
+> * Things that assume that a kobject's name cannot change.
 
-Also if I enable hangcheck, then I get a huge number of Hangcheck messages 
-in dmesg.
+The mmc host name will never change once its initially set.
 
-The main other symptom is that the system clock runs fast and 
-inaccurately.  It seems to run more inaccurately when I'm using the CPU, 
-and be basically OK when idling.
+> Otherwise I'm just waiting to see this committed.
 
-I've tried various workarounds that I found suggested on this list and 
-others but the problem is still there.  I tried using noapic, turning on 
-RTC interrupt, also no_timer_check.  I also tried patching the CPU 
-frequency scaling code with the latest version from the AMD website 
-(1.50.03), and then finally turning that option off. Nothing helped.
+Post 2.6.13, probably at akpm's discression.  As I mentioned in other
+mails, I will be away from kernel work next week, which is probably
+when 2.6.13 will be released.
 
-I'm not sure if this is a bug in the kernel or if I'm just doing something 
-incorrectly.  Any thoughts or suggestions, or if is a bug then ETA for a 
-fix, would be much appreciated.
-
-I'm not a regular subscriber to this list, so please cc any responses 
-directly to me.
-
-thanks very much,
-
-Nathan
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

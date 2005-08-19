@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbVHRXkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVHSACk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbVHRXkc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 19:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVHRXkb
+	id S932413AbVHSACk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 20:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbVHSACk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 19:40:31 -0400
-Received: from ozlabs.org ([203.10.76.45]:60639 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932406AbVHRXkb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 19:40:31 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Aug 2005 20:02:40 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:62685 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932413AbVHSACj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 20:02:39 -0400
+Subject: Re: [PATCH 2.6.13-rc6 1/2] New Syscall: get rlimits of any process
+	(update)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: e8607062@student.tuwien.ac.at, linux-kernel <linux-kernel@vger.kernel.org>,
+       Elliot Lee <sopwith@redhat.com>
+In-Reply-To: <1124407014.10991.31.camel@mindpipe>
+References: <1124326652.8359.3.camel@w2>  <p7364u40zld.fsf@verdi.suse.de>
+	 <1124381951.6251.14.camel@w2>  <1124389061.5973.33.camel@mindpipe>
+	 <1124406811.20755.16.camel@localhost.localdomain>
+	 <1124407014.10991.31.camel@mindpipe>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <17157.7275.960362.923238@cargo.ozlabs.ibm.com>
-Date: Fri, 19 Aug 2005 09:40:27 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Kumar Gala <kumar.gala@freescale.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, <hch@infradead.org>,
-       <davem@davemloft.net>, "Gala Kumar K.-galak" <galak@freescale.com>,
-       <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <linuxppc-dev@ozlabs.org>, <zach@vmware.com>
-Subject: Re: [PATCH] ppc32: removed usage of <asm/segment.h>
-In-Reply-To: <A4C8B92D-B390-4BF8-A6D5-106ACBD0E716@freescale.com>
-References: <E1E5KpP-0004dy-00@dorka.pomaz.szeredi.hu>
-	<A4C8B92D-B390-4BF8-A6D5-106ACBD0E716@freescale.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Date: Fri, 19 Aug 2005 01:29:48 +0100
+Message-Id: <1124411388.20755.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kumar Gala writes:
+On Iau, 2005-08-18 at 19:16 -0400, Lee Revell wrote:
+> A search for a 200MB file tells you it's available on 2000 hosts, all of
+> whom are on dialup.  
 
-> So after all of this its not clear to me if its acceptable to kill  
-> all users of <asm/segment.h> in the kernel and to move code that  
-> exists in <asm/segment.h> to <asm/uaccess.h> for arch's that need it.
+What about the real world ?
 
-<asm/segment.h> doesn't describe any part of the user/kernel ABI, so
-we should be OK to kill it.  I would say we should remove the ppc and
-ppc64 versions of it once 2.6.13 is out, and offer the other arch
-maintainers a patch that moves their stuff as you suggest.  I think
-also we could submit patches to remove the places where it is included
-in generic kernel code post 2.6.13.
-
-Paul.

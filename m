@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbVHSIJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbVHSIMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbVHSIJg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 04:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVHSIJf
+	id S932260AbVHSIMK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 04:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVHSIMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 04:09:35 -0400
-Received: from darla.ti-wmc.nl ([217.114.97.45]:39812 "EHLO smtp.wmc")
-	by vger.kernel.org with ESMTP id S932239AbVHSIJe (ORCPT
+	Fri, 19 Aug 2005 04:12:09 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:26004 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932260AbVHSIMI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 04:09:34 -0400
-Message-ID: <430593AA.50201@ti-wmc.nl>
-Date: Fri, 19 Aug 2005 10:09:14 +0200
-From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+	Fri, 19 Aug 2005 04:12:08 -0400
+Message-ID: <43059455.4060505@drzeus.cx>
+Date: Fri, 19 Aug 2005 10:12:05 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: SATA status report updated
-References: <42FC2EF8.7030404@pobox.com>
-In-Reply-To: <42FC2EF8.7030404@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: Pavel Machek <pavel@ucw.cz>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mmc: Multi-sector writes
+References: <42FF3C05.70606@drzeus.cx> <20050817155641.12bb20fc.akpm@osdl.org> <43042114.7010503@drzeus.cx> <20050817224805.17f29cfb.akpm@osdl.org> <20050818073824.C2365@flint.arm.linux.org.uk> <4304380B.5070406@drzeus.cx> <20050818092321.B3966@flint.arm.linux.org.uk> <43044B7A.6090102@drzeus.cx> <20050818201919.GD516@openzaurus.ucw.cz> <4305676E.5080401@drzeus.cx> <20050819075808.GB1825@elf.ucw.cz>
+In-Reply-To: <20050819075808.GB1825@elf.ucw.cz>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> Things in SATA-land have been moving along recently, so I updated the 
-> software status report:
-> 
->     http://linux.yyz.us/sata/software-status.html
-> 
-> Although I have not updated it in several weeks, folks may wish to refer 
-> to the hardware status report as well:
-> 
->     http://linux.yyz.us/sata/sata-status.html
-> 
-> Thanks to all the hard-working SATA contributors!
-> 
+Pavel Machek wrote:
 
-Good overview!
+>
+>Maybe the card is pretty close to going to crash, but... two disk
+>successive disk errors still should not be cause for journal
+>corruption.
+>
+>[Also errors could be corelated. Imagine severe overheat. You'll
+>successive failing writes, but if you let cool it down, you'll still
+>have working media... only with corrupt journal :-)]
+>								Pavel
+>  
+>
 
-I'm wondering how the support for the SIS 182 controller is doing, I 
-noticed they have a GPL driver on their website for kernel 2.6.10, which 
-is not a drop in replacement for sata_sis.c in 2.6.12.5, I haven't tried 
-compiling it as an add-on module outside the tree, though...
+Hmm... So how is this handled in other systems? E.g. if you yank a USB
+device whilst there is a lot of outstanding data inside the device that
+hasn't been ack:d yet.
 
-Adding the 0x182 identifier to the 180 driver does compile (duh!), but I 
-haven't tried it on hardware.
+The way I see it, filesystems should assume the following at a failed write:
 
-As a temporary measure, there was a patch posted to this list [1] a 
-while ago, would it be a good idea to include this while full support is 
-being worked on?
+* 0-n sectors were written successfully.
+* 0-1 sectors have corrupt data.
+* 0-m sectors have old data.
+* The lower layer will report back 0-k successfully written sectors,
+where k <= n.
 
-Cheers
+So perhaps the best course of action is to remove the sector-by-sector
+failsafe? It will increase the chance of k < n, but it will not break
+above assumption.
 
-Simon
-
-[1]
-Patch signed-off-by: Rainer Koenig <Rainer.Koenig@fujitsu-siemens.com>
-
---- linux-2.6.12.4/drivers/scsi/sata_sis.c	2005-08-05 09:04:37.000000000 
-+0200
-+++ linux/drivers/scsi/sata_sis.c	2005-08-11 10:22:07.000000000 +0200
-@@ -62,6 +62,7 @@
-  static struct pci_device_id sis_pci_tbl[] = {
-  	{ PCI_VENDOR_ID_SI, 0x180, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
-  	{ PCI_VENDOR_ID_SI, 0x181, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
-+        { PCI_VENDOR_ID_SI, 0x182, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
-  	{ }	/* terminate list */
-  };
+Rgds
+Pierre
 

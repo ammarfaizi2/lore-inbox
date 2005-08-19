@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbVHSPCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbVHSPJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbVHSPCM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 11:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbVHSPCM
+	id S964961AbVHSPJt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 11:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVHSPJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 11:02:12 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:42766 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964952AbVHSPCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 11:02:11 -0400
-Date: Fri, 19 Aug 2005 17:02:09 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>,
-       Raghavendra Koushik <raghavendra.koushik@neterion.com>,
-       jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: 2.6.13-rc6-mm1: drivers/net/s2io.c: compile error with gcc 4.0
-Message-ID: <20050819150209.GD3682@stusta.de>
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>
+	Fri, 19 Aug 2005 11:09:49 -0400
+Received: from agminet02.oracle.com ([141.146.126.229]:5371 "EHLO
+	agminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S964961AbVHSPJs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 11:09:48 -0400
+Date: Fri, 19 Aug 2005 08:09:21 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: David Teigland <teigland@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, mark.fasheh@oracle.com
+Subject: Re: [PATCH] configfs: export config_group_find_obj
+Message-ID: <20050819150921.GB18991@ca-server1.us.oracle.com>
+Mail-Followup-To: David Teigland <teigland@redhat.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, mark.fasheh@oracle.com
+References: <20050818062602.GD10133@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050819043331.7bc1f9a9.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050818062602.GD10133@redhat.com>
+User-Agent: Mutt/1.5.10i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 04:33:31AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.13-rc5-mm1:
->...
-> -git-netdev-chelsio.patch
-> -git-netdev-e100.patch
-> -git-netdev-sis190.patch
-> -git-netdev-smc91x-eeprom.patch
-> -git-netdev-ieee80211-wifi.patch
-> -git-netdev-upstream.patch
-> +git-netdev-all.patch
+On Thu, Aug 18, 2005 at 02:26:02PM +0800, David Teigland wrote:
+> In the dlm I use config_group_find_obj() which isn't exported.
+
+	Did you notice the /* XXX Locking */?  Let me go see how you use
+it, if it is the best way, we'll need to revisit the function and be
+sure it's happy.
+
+Joel
+
 > 
->  And a consolidated netdev tree
->...
-
-This patch causes the following compile error with gcc 4.0:
-
-<--  snip  -->
-
-...
-  CC      drivers/net/s2io.o
-In file included from drivers/net/s2io.c:65:
-drivers/net/s2io.h: In function 'readq':
-drivers/net/s2io.h:765: error: invalid lvalue in assignment
-drivers/net/s2io.h:766: error: invalid lvalue in assignment
-drivers/net/s2io.c: In function 'init_shared_mem':
-drivers/net/s2io.c:541: warning: cast from pointer to integer of different size
-drivers/net/s2io.c:544: warning: cast to pointer from integer of different size
-drivers/net/s2io.c:550: warning: cast from pointer to integer of different size
-drivers/net/s2io.c:553: warning: cast to pointer from integer of different size
-make[2]: *** [drivers/net/s2io.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
+> Signed-off-by: David Teigland <teigland@redhat.com>
+> 
+> diff -urpN a/fs/configfs/item.c b/fs/configfs/item.c
+> --- a/fs/configfs/item.c	2005-08-17 17:19:23.000000000 +0800
+> +++ b/fs/configfs/item.c	2005-08-18 14:15:51.681973168 +0800
+> @@ -224,4 +224,5 @@ EXPORT_SYMBOL(config_item_init);
+>  EXPORT_SYMBOL(config_group_init);
+>  EXPORT_SYMBOL(config_item_get);
+>  EXPORT_SYMBOL(config_item_put);
+> +EXPORT_SYMBOL(config_group_find_obj);
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+"Time is an illusion, lunchtime doubly so."
+        -Douglas Adams
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org
 

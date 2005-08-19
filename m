@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVHWPQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVHWPRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbVHWPQe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 11:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbVHWPQe
+	id S932202AbVHWPRT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 11:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVHWPRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 11:16:34 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:52191 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932194AbVHWPQe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 11:16:34 -0400
-Subject: Re: 2.6.13-rc6 JFS Oops trace
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Mateusz Berezecki <mateuszb@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050822070520.GA5011@oepkgtn.mshome.net>
-References: <20050822070520.GA5011@oepkgtn.mshome.net>
-Content-Type: text/plain
-Date: Tue, 23 Aug 2005 10:16:17 -0500
-Message-Id: <1124810177.9271.14.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Aug 2005 11:17:18 -0400
+Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:2596 "EHLO
+	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id S932201AbVHWPRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 11:17:17 -0400
+Message-ID: <4305D437.4000703@tu-harburg.de>
+Date: Fri, 19 Aug 2005 14:44:39 +0200
+From: Jan Blunck <j.blunck@tu-harburg.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+CC: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][RESEND] don't allow sys_readahead() on files opened with
+ O_DIRECT
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------000306080506000606030003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-22 at 09:05 +0200, Mateusz Berezecki wrote:
-> Hello list readers,
-> 
-> I attach the oops trace for 2.6.13-rc6 kernel. I believe the bug is 100%
-> reproducible but I don't know what triggers it yet. It appears that
-> kernel crashes when dealing with large amount of small files (possible
-> fs issue - i.e. jfs ?) 
-> 
-> I attach oops trace and config for my kernel
+This is a multi-part message in MIME format.
+--------------000306080506000606030003
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-It looks to me like cache_alloc_refill is trapping on line 2065 of
-slab.c:
-	list_del(&slabp->list);
+IMO sys_readahead() doesn't make sense if the file is opened with
+O_DIRECT, because the page cache is stuffed but never used. Therefore
+this patch changes that by letting the call return with -EINVAL.
 
-I think slabp->list.next is corrupted.
+Signed-off-by: Jan Blunck <j.blunck@tu-harburg.de>
 
-Could you try to reproduce it with CONFIG_DEBUG_SLAB defined?
 
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
+--------------000306080506000606030003
+Content-Type: text/x-patch;
+ name="filemap.c_direct_IO_readahead.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="filemap.c_direct_IO_readahead.diff"
+
+ mm/filemap.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+Index: experimental-jb/mm/filemap.c
+===================================================================
+--- experimental-jb.orig/mm/filemap.c
++++ experimental-jb/mm/filemap.c
+@@ -1111,7 +1111,8 @@ static ssize_t
+ do_readahead(struct address_space *mapping, struct file *filp,
+ 	     unsigned long index, unsigned long nr)
+ {
+-	if (!mapping || !mapping->a_ops || !mapping->a_ops->readpage)
++	if (!mapping || !mapping->a_ops || !mapping->a_ops->readpage
++	    || (filp->f_flags & O_DIRECT))
+ 		return -EINVAL;
+ 
+ 	force_page_cache_readahead(mapping, filp, index,
+
+--------------000306080506000606030003--
 

@@ -1,68 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932599AbVHSJtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932613AbVHSJzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932599AbVHSJtr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 05:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbVHSJtr
+	id S932613AbVHSJzx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 05:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbVHSJzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 05:49:47 -0400
-Received: from downeast.net ([12.149.251.230]:45773 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S932599AbVHSJtq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 05:49:46 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Subject: Re: 2.6.12.5: P4 2.0GHz detected as 2.6GHz?
-Date: Fri, 19 Aug 2005 05:49:07 -0400
-User-Agent: KMail/1.8.50
-Cc: linux-kernel@vger.kernel.org
-References: <20050819113701.26d14c5a@phoebee>
-In-Reply-To: <20050819113701.26d14c5a@phoebee>
+	Fri, 19 Aug 2005 05:55:53 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:60474 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932467AbVHSJzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 05:55:52 -0400
+Message-ID: <4305ACA7.6010101@gentoo.org>
+Date: Fri, 19 Aug 2005 10:55:51 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2421887.VqlXtV2F50";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [git] libata-dev queue updated
+References: <20050819035437.GA18324@havoc.gtf.org>
+In-Reply-To: <20050819035437.GA18324@havoc.gtf.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508190549.16098.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2421887.VqlXtV2F50
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi Jeff,
 
-On Friday 19 August 2005 05:37 am, Martin Zwickel wrote:
-> Did someone overclock our router or is this a misdetection?
+Jeff Garzik wrote:
+> I finally got around to creating something that has been missing since
+> BitKeeper disappeared, and something that Andrew has been wanting
+> from me for a while:  an amalgamation of all the libata-dev branches
+> that I maintain internally.
 
-> Detected 2655.765 MHz processor.
+You are missing two sata_promise ID additions which were sent 2-3 weeks ago. 
+Should I resend?
 
-> CPU: Intel(R) Celeron(R) CPU 2.00GHz stepping 07
-
-> model name      : Intel(R) Celeron(R) CPU 2.00GHz
-
-> cpu MHz         : 2655.765
-
-I bet its overclocked.
-
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
-
---nextPart2421887.VqlXtV2F50
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBDBasb8Gvouk7G1cURAq+3AJ9VMeEgsacL+1CxUbMdkCkzDZen2wCfft7/
-8YnfCOF4tAenQtti6rrwOY8=
-=bvMG
------END PGP SIGNATURE-----
-
---nextPart2421887.VqlXtV2F50--
+Thanks,
+Daniel

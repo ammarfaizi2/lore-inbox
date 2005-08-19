@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbVHSD2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVHSDaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbVHSD2v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 23:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbVHSD2v
+	id S1751071AbVHSDaT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 23:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbVHSDaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 23:28:51 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:1232 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750977AbVHSD2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 23:28:51 -0400
-Subject: Re: Schedulers benchmark - Was: [ANNOUNCE][RFC] PlugSched-5.2.4
-	for 2.6.12 and 2.6.13-rc6
-From: Lee Revell <rlrevell@joe-job.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Con Kolivas <kernel@kolivas.org>, Peter Williams <pwil3058@bigpond.net.au>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <6bffcb0e050818200936bad1d3@mail.gmail.com>
-References: <43001E18.8020707@bigpond.net.au>
-	 <200508180916.08454.kernel@kolivas.org> <4303CCB9.6000403@bigpond.net.au>
-	 <200508180945.50185.kernel@kolivas.org>
-	 <6bffcb0e050818200936bad1d3@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 18 Aug 2005 23:28:47 -0400
-Message-Id: <1124422128.25424.7.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.7 
+	Thu, 18 Aug 2005 23:30:18 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:57492 "HELO
+	develer.com") by vger.kernel.org with SMTP id S1751073AbVHSDaR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 23:30:17 -0400
+Message-ID: <43055246.6020207@develer.com>
+Date: Fri, 19 Aug 2005 05:30:14 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+User-Agent: Mozilla Thunderbird 1.0.6-4 (X11/20050815)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       Giovanni Bajo <rasky@develer.com>
+Subject: Re: sched_yield() makes OpenLDAP slow
+References: <4303DB48.8010902@develer.com.suse.lists.linux.kernel>	<20050818010703.GA13127@nineveh.rivenstone.net.suse.lists.linux.kernel>	<4303F967.6000404@yahoo.com.au.suse.lists.linux.kernel>	<43054D9A.7090509@develer.com.suse.lists.linux.kernel> <p73oe7usjee.fsf@verdi.suse.de>
+In-Reply-To: <p73oe7usjee.fsf@verdi.suse.de>
+X-Enigmail-Version: 0.91.0.0
+OpenPGP: id=FC6A66CA;
+	url=https://www.develer.com/~bernie/gpgkey.txt
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-19 at 05:09 +0200, Michal Piotrowski wrote:
-> Hi,
-> here are interbench v0.29 resoults:
+Andi Kleen wrote:
+> Bernardo Innocenti <bernie@develer.com> writes:
+> 
+> It's really more a feature than a bug that it breaks so easily
+> because they should be really using futexes instead, which
+> have much better behaviour than any sched_yield ever could
+> (they will directly wake up another process waiting for the
+> lock and avoid the thundering herd for contended locks) 
 
-The X test under simulated "Compile" load looks most interesting.
+Actually, I believe they should be using pthread synchronization
+primitives instead of relying on Linux-specific functionality.
+Glibc already uses futexes internally, so it's almost as efficient.
 
-Most of the schedulers do quite poorly on this test - only Zaphod with
-default max_ia_bonus and max_tpt_bonus manages to deliver under 100ms
-max latency.  As expected with interactivity bonus disabled it performs
-horribly.
+I've already suggested this to the OpenLDAP people, but with
+my limited knowledge of slapd threading requirements, there
+may well be a very good reason for busy-waiting with
+sched_yield().  Waiting for their answer.
 
-I'd like to see some results with X reniced to -10.  Despite what the
-2.6 release notes say, this still seems to make a difference.
-
-Lee
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 

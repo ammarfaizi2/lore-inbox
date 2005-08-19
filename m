@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVHSXKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932745AbVHSXMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbVHSXKU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 19:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbVHSXKU
+	id S932745AbVHSXMj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 19:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932746AbVHSXMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 19:10:20 -0400
-Received: from highlandsun.propagation.net ([66.221.212.168]:29194 "EHLO
-	highlandsun.propagation.net") by vger.kernel.org with ESMTP
-	id S932321AbVHSXKU (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Fri, 19 Aug 2005 19:10:20 -0400
-Message-ID: <430666DB.70802@symas.com>
-Date: Fri, 19 Aug 2005 16:10:19 -0700
-From: Howard Chu <hyc@symas.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b4) Gecko/20050810 SeaMonkey/1.0a
-MIME-Version: 1.0
-To: Nikita Danilov <nikita@clusterfs.com>
-CC: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Subject: Re: sched_yield() makes OpenLDAP slow
-References: <43057641.70700@symas.com> <17157.45712.877795.437505@gargle.gargle.HOWL>
-In-Reply-To: <17157.45712.877795.437505@gargle.gargle.HOWL>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Aug 2005 19:12:39 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:10203 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932745AbVHSXMi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 19:12:38 -0400
+Date: Fri, 19 Aug 2005 16:12:23 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-rt6
+Message-ID: <20050819231223.GN1298@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1124252419.5764.83.camel@localhost.localdomain> <1124257580.5764.105.camel@localhost.localdomain> <20050817064750.GA8395@elte.hu> <1124287505.5764.141.camel@localhost.localdomain> <1124288677.5764.154.camel@localhost.localdomain> <1124295214.5764.163.camel@localhost.localdomain> <20050817162324.GA24495@elte.hu> <1124486548.18408.18.camel@localhost.localdomain> <20050819224758.GJ1298@us.ibm.com> <1124492562.18408.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124492562.18408.35.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
->  Howard Chu <hyc@symas.com> writes:
-> > concurrency. It is the nature of such a system to encounter
-> > deadlocks over the normal course of operations. When a deadlock is
-> > detected, some thread must be chosen (by one of a variety of
-> > algorithms) to abort its transaction, in order to allow other
-> > operations to proceed to completion. In this situation, the chosen
-> > thread must get control of the CPU long enough to clean itself up,
+On Fri, Aug 19, 2005 at 07:02:42PM -0400, Steven Rostedt wrote:
+> On Fri, 2005-08-19 at 15:47 -0700, Paul E. McKenney wrote:
+> 
+> > Good catch -- but a few changes needed to be perfectly safe:
+> > 
+> > 	static inline void *netpoll_poll_lock(struct net_device *dev)
+> > 	{
+> > 
+> > 		struct netpoll_info *npi;
+> > 
+> > 		rcu_read_lock();
+> > 		npi = rcu_dereference(dev)->npinfo;
+> > 		if (have) {
+> 
+> Here I'm sure you mean "if (npi) {" :-)
 
->  What prevents transaction monitor from using, say, condition
->  variables to "yield cpu"? That would have an additional advantage of
->  blocking thread precisely until specific event occurs, instead of
->  blocking for some vague indeterminate load and platform dependent
->  amount of time.
+Right you are!  ;-)
 
-Condition variables offer no control over which thread is waken up. 
-We're wandering into the design of the SleepyCat BerkeleyDB library 
-here, and we don't exert any control over that either. BerkeleyDB 
-doesn't appear to use pthread condition variables; it seems to construct 
-its own synchronization mechanisms on top of mutexes (and yield calls). 
-In this specific example, we use whatever BerkeleyDB provides and we're 
-certainly not about to write our own transactional embedded database 
-engine just for this.
--- 
-  -- Howard Chu
-  Chief Architect, Symas Corp.  http://www.symas.com
-  Director, Highland Sun        http://highlandsun.com/hyc
-  OpenLDAP Core Team            http://www.openldap.org/project/
+> > 			spin_lock(&npi->poll_lock);
+> > 			npi->poll_owner = smp_processor_id();
+> > 			return npi;
+> > 		}
+> > 		return NULL;
+> > 	}
+> > 
+> > The earlier version could get in trouble if dev->npinfo was set
+> > to NULL while this was executing.
+> 
+> Truth be told,  I was just fixing the race with getting the npinfo
+> pointer set between netpoll_poll_lock and netpoll_poll_unlock.  I wrote
+> a patch that fixed that but nothing with the rcu_locks.  Then I looked
+> at the current git tree and saw that they already had my changes, but
+> also included the rcu locks.  So I just (blindly) added them.
 
+Understood!
+
+> > Again, I do not fully understand this code, so a grain of salt might
+> > come in handy.  But there definitely need to be some rcu_dereference()
+> > and rcu_assign_pointer() primitives in there somewhere.  ;-)
+> > 
+> > The following changes look good to me, but, as I said earlier, I do
+> > not claim to fully understand this code.
+> 
+> netpoll has changed quite a bit in the last few releases. I've seen lots
+> of fixup code sent in (which usually means there's lots of new broken
+> code ;-)
+> 
+> Anyway, I don't quite fully understand RCU. I read a few of the
+> documents on your web site, but I haven't had time to really digest it.
+> Have you taken a look at the latest git tree?  The rcu_locks are used
+> for net poll quite a bit more there.
+
+Hmmm....  Guess it is time for me to stop procrastinating on better
+understanding git...
+
+						Thanx, Paul

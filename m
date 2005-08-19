@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVHSVdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932687AbVHSVfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbVHSVdf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 17:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbVHSVdf
+	id S932687AbVHSVfG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 17:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbVHSVfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 17:33:35 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:28025 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S932293AbVHSVde (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 17:33:34 -0400
+	Fri, 19 Aug 2005 17:35:05 -0400
+Received: from mirapoint3.brutele.be ([212.68.199.148]:53353 "EHLO
+	mirapoint3.brutele.be") by vger.kernel.org with ESMTP
+	id S932687AbVHSVfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 17:35:04 -0400
+Date: Fri, 19 Aug 2005 23:34:48 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
 To: linux-kernel@vger.kernel.org
-CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
-Subject: [PATCH 2.6.13-rc6] aoe [2/2]: update driver version number to
- twelve
-From: Ed L Cashin <ecashin@coraid.com>
-References: <87fyt5k5po.fsf@coraid.com>
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 19 Aug 2005 17:05:21 -0400
-Message-ID: <874q9lk57y.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+Subject: [Documentation] Use doxygen or another tool to generate a documentation ?
+Message-ID: <20050819213447.GA9538@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+X-Operating-System: Linux debian 2.6.12-1-k7
+User-Agent: Mutt/1.5.10i
+X-Junkmail-Status: score=10/50, host=mirapoint3.brutele.be
+X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090205.43064E0D.0002-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
+	=?ISO-8859-1?Q?p=3D=C0=F5=08=08?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update driver version number to twelve.
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+Hi all, 
 
-Index: 2.6.13-rc6-aoe/drivers/block/aoe/aoe.h
-===================================================================
---- 2.6.13-rc6-aoe.orig/drivers/block/aoe/aoe.h	2005-08-19 11:57:04.000000000 -0400
-+++ 2.6.13-rc6-aoe/drivers/block/aoe/aoe.h	2005-08-19 11:57:05.000000000 -0400
-@@ -1,5 +1,5 @@
- /* Copyright (c) 2004 Coraid, Inc.  See COPYING for GPL terms. */
--#define VERSION "10"
-+#define VERSION "12"
- #define AOE_MAJOR 152
- #define DEVICE_NAME "aoe"
- 
+I don't know if there is a project based on Doxygen to make 
+(or generate) a documentation of the kernel.
 
+Do you think that will be interesting to make a such document ?
+
+I want to learn the kernel's engine, but I don't know how to help the
+kernel hackers.
+
+Best regards, 
+
+Stephane
 
 -- 
-  Ed L. Cashin <ecashin@coraid.com>
+Stephane Wirtel <stephane.wirtel@belgacom.net>
+                <stephane.wirtel@gmail.com>
+
 

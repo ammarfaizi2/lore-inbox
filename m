@@ -1,100 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932753AbVHSXib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932750AbVHSXge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932753AbVHSXib (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 19:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932754AbVHSXib
+	id S932750AbVHSXge (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 19:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932753AbVHSXge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 19:38:31 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8979 "HELO
+	Fri, 19 Aug 2005 19:36:34 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:7955 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932753AbVHSXia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 19:38:30 -0400
-Date: Sat, 20 Aug 2005 01:38:28 +0200
+	id S932750AbVHSXgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 19:36:33 -0400
+Date: Sat, 20 Aug 2005 01:36:31 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] remove the second arg of do_timer_interrupt()
-Message-ID: <20050819233828.GC3615@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: [-mm patch] drivers/cdrom/sbpcd.c: fix the compilation
+Message-ID: <20050819233631.GB3615@stusta.de>
+References: <20050819043331.7bc1f9a9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050819043331.7bc1f9a9.akpm@osdl.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The second arg of do_timer_interrupt() is not used in the functions, and 
-all callers pass NULL.
+On Fri, Aug 19, 2005 at 04:33:31AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.13-rc5-mm1:
+>...
+> +drivers-cdrom-fix-up-schedule_timeout-usage.patch
+>...
 
-Is there any reason not to remove it?
+I sell copies of gcc at reasonable prices...
+
+<--  snip  -->
+
+...
+  CC      drivers/cdrom/sbpcd.o
+...
+drivers/cdrom/sbpcd.c:830: warning: implicit declaration of function 'schedule_interruptible_timeout'
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `sbp_sleep':sbpcd.c:
+(.text+0x7c4592): undefined reference to `schedule_interruptible_timeout'
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
- arch/i386/kernel/time.c |    5 ++---
- arch/sh/kernel/time.c   |    4 ++--
- arch/sh64/kernel/time.c |    4 ++--
- 3 files changed, 6 insertions(+), 7 deletions(-)
-
---- linux-2.6.13-rc6-mm1-full/arch/i386/kernel/time.c.old	2005-08-20 00:10:36.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-full/arch/i386/kernel/time.c	2005-08-20 00:11:02.000000000 +0200
-@@ -252,8 +252,7 @@
-  * timer_interrupt() needs to keep up the real-time clock,
-  * as well as call the "do_timer()" routine every clocktick
-  */
--static inline void do_timer_interrupt(int irq, void *dev_id,
--					struct pt_regs *regs)
-+static inline void do_timer_interrupt(int irq, struct pt_regs *regs)
+--- linux-2.6.13-rc6-mm1-full/drivers/cdrom/sbpcd.c.old	2005-08-19 20:43:18.000000000 +0200
++++ linux-2.6.13-rc6-mm1-full/drivers/cdrom/sbpcd.c	2005-08-19 20:44:46.000000000 +0200
+@@ -827,7 +827,7 @@
+ static void sbp_sleep(u_int time)
  {
- #ifdef CONFIG_X86_IO_APIC
- 	if (timer_ack) {
-@@ -307,7 +306,7 @@
- 
- 	cur_timer->mark_offset();
-  
--	do_timer_interrupt(irq, NULL, regs);
-+	do_timer_interrupt(irq, regs);
- 
- 	write_sequnlock(&xtime_lock);
- 	return IRQ_HANDLED;
---- linux-2.6.13-rc6-mm1-full/arch/sh/kernel/time.c.old	2005-08-20 00:11:21.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-full/arch/sh/kernel/time.c	2005-08-20 00:11:35.000000000 +0200
-@@ -234,7 +234,7 @@
-  * timer_interrupt() needs to keep up the real-time clock,
-  * as well as call the "do_timer()" routine every clocktick
-  */
--static inline void do_timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+static inline void do_timer_interrupt(int irq, struct pt_regs *regs)
- {
- 	do_timer(regs);
- #ifndef CONFIG_SMP
-@@ -285,7 +285,7 @@
- 	 * locally disabled. -arca
- 	 */
- 	write_seqlock(&xtime_lock);
--	do_timer_interrupt(irq, NULL, regs);
-+	do_timer_interrupt(irq, regs);
- 	write_sequnlock(&xtime_lock);
- 
- 	return IRQ_HANDLED;
---- linux-2.6.13-rc6-mm1-full/arch/sh64/kernel/time.c.old	2005-08-20 00:11:49.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-full/arch/sh64/kernel/time.c	2005-08-20 00:12:00.000000000 +0200
-@@ -303,7 +303,7 @@
-  * timer_interrupt() needs to keep up the real-time clock,
-  * as well as call the "do_timer()" routine every clocktick
-  */
--static inline void do_timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+static inline void do_timer_interrupt(int irq, struct pt_regs *regs)
- {
- 	unsigned long long current_ctc;
- 	asm ("getcon cr62, %0" : "=r" (current_ctc));
-@@ -361,7 +361,7 @@
- 	 * locally disabled. -arca
- 	 */
- 	write_lock(&xtime_lock);
--	do_timer_interrupt(irq, NULL, regs);
-+	do_timer_interrupt(irq, regs);
- 	write_unlock(&xtime_lock);
- 
- 	return IRQ_HANDLED;
+ 	sti();
+-	schedule_interruptible_timeout(time);
++	schedule_timeout_interruptible(time);
+ 	sti();
+ }
+ /*==========================================================================*/
 

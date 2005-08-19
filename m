@@ -1,95 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVHSAuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbVHSBXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbVHSAuM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Aug 2005 20:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVHSAuL
+	id S964793AbVHSBXS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Aug 2005 21:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbVHSBXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Aug 2005 20:50:11 -0400
-Received: from ciistr1.ist.utl.pt ([193.136.128.1]:28331 "EHLO
-	ciistr1.ist.utl.pt") by vger.kernel.org with ESMTP id S932544AbVHSAuK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Aug 2005 20:50:10 -0400
-From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux under 8MB
-Date: Fri, 19 Aug 2005 01:47:15 +0000
-User-Agent: KMail/1.8.2
-Cc: Imanpreet Arora <imanpreet@gmail.com>
-References: <c26b9592050818151154ff1a89@mail.gmail.com>
-In-Reply-To: <c26b9592050818151154ff1a89@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2289894.Ess3iG5Ucu";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 18 Aug 2005 21:23:18 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:6877 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964793AbVHSBXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Aug 2005 21:23:17 -0400
+Subject: Re: Latency with Real-Time Preemption with 2.6.12
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Sundar Narayanaswamy <sundar007@yahoo.com>
+Cc: george@mvista.com, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20050819002336.74150.qmail@web54405.mail.yahoo.com>
+References: <20050819002336.74150.qmail@web54405.mail.yahoo.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 18 Aug 2005 21:22:49 -0400
+Message-Id: <1124414569.5186.82.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508190147.18207.pjvenda@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2289894.Ess3iG5Ucu
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, 2005-08-18 at 17:23 -0700, Sundar Narayanaswamy wrote:
 
-On Thursday 18 August 2005 22:11, Imanpreet Arora wrote:
-> Hi all,
->
->               For the last couple of days, I have been trying to set
-> up linux kernel under 8MB. So far I have set up a linux 2.4.31, which
-> just works under 8MB. However, I would be grateful if someone could
-> help with the following queries
+> The SBC has two serial ports, ttyS0 and ttyS1 that are connected by the
+> serial port cable. A program writes characters on ttyS0 while another
+> program (with RealTime priority thread) reads the char from ttyS1 and
+> echoes it back immediately). The first program then measures the time it
+> takes for it to get back the written char. Without any system load, 
+> I noticed that this time is about 4ms, which I think is fine. However,
+> as the system load (primarly disk I/O) increases, the time increases to about 
+> 30-40 ms and this increase (with moderate system load) surprises me. With
+> realtime preemption patch, I was hoping this time would remain about 4ms.
 
-hi,
+I'm assuming that your config is using full RT preemption.  Also, you
+need to raise the priority of the interrupt thread of the serial, so
+that both the program reading the serial and the serial interrupt are
+higher than all else running on the system.  This should keep the
+timings down.
+> 
+> My initial guess was that the driver (IDE controller, due to disk I/O load) 
+> has non-preemptible sections that is causing the additional delay, and 
+> that was why I tried the nanosleep test program. 
 
-what do you mean 8MB? RAM or storage space? what do you intend to acomplish=
-=20
-with such project?
+There shouldn't be any drivers that are showing long latencies.  Again,
+make sure your program and the serial interrupt are above all else.
 
-I've been working on something simillar. I've been able to create a micro=20
-distro which runs from a floppy disk (kernel+initrd.gz+bootloader<=3D1.44MB=
-)=20
-and boots well with as low as 5MB of RAM (tested with qemu). The kernel I'v=
-e=20
-used was 2.6.9, but 2.6.12 should work as well.
+> 
+> Now, I am not sure if  I am not setting up something right, or if I 
+> am missing something. I appreciate your time and feedback. Please let me know 
+> if there is something obvious that I should look into, or a setup (config) 
+> I might be missing. I'll look into George's suggestion to try timers 
+> tomorrow.
 
-> a)          Is linux2.4 just the right option? What about linux 2.0.x?
-> Or for that matter even <2.0
+If you want, you can send a compressed version of your config.
 
-2.6 has serious advantage over others when considering embedded environment=
-s=20
-(not sure if it applies to you)
+-- Steve
 
-> b)          What are the specific issues that are to be considered
-> while compiling an old kernel on a newer setup? I ask this because I
-> compiled my current setup on a 2.6.11 machine and while doing "make
-> modules_install", I got errors from depmod[%], complaining about
-> depmod.old.  I had to kludge my way through by setting up a link from
-> depmod.old to depmod.
 
-I did use uClibc and busybox (crosso compiled and linked to uClibc) to keep=
-=20
-the distro as small as possible. (see buildroot from the maker of uClibc an=
-d=20
-busybox)
-
-regards,
-=2D-=20
-
-Pedro Jo=E3o Lopes Venda
-email: pjvenda < at > rnl.ist.utl.pt
-http://arrakis.dhis.org
-
---nextPart2289894.Ess3iG5Ucu
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDBTomeRy7HWZxjWERAot1AJ9yIOg8wUYEc2q89tPAHL/onVof7gCff/YU
-QfBLWLKhgz+DWS0C4yo0+Aw=
-=aRwv
------END PGP SIGNATURE-----
-
---nextPart2289894.Ess3iG5Ucu--

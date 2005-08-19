@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbVHSPU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVHSPXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751019AbVHSPU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 11:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbVHSPU7
+	id S1751142AbVHSPXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 11:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbVHSPXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 11:20:59 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:48577 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1751019AbVHSPU6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 11:20:58 -0400
-Date: Sat, 20 Aug 2005 00:20:10 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: [PATCH] mips: add pcibios_select_root
-Message-Id: <20050820002010.4e81cdcd.yuasa@hh.iij4u.or.jp>
-In-Reply-To: <20050819043331.7bc1f9a9.akpm@osdl.org>
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Fri, 19 Aug 2005 11:23:08 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:11789 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751142AbVHSPXH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 11:23:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MeeipY40XQEa2zJqWw7nIbbqp4eGc1GTsIF5VT1eaki+nVaiwo3A7+CzdtImPZlNGTfUjqlOTBXezhv4plWk+9z8DvhSDByLNZEUbFNPC8Ui14jztGwRyhfcuESOjiJ19FxWXUQyh0WZkI+k03QESNI/nYEEHMZnPqD86SkS8gI=
+Message-ID: <605adbb0508190823a30dc1a@mail.gmail.com>
+Date: Fri, 19 Aug 2005 23:23:06 +0800
+From: gnome boxer <gnome.boxer@gmail.com>
+To: roucaries bastien <roucaries.bastien@gmail.com>
+Subject: Re: kernel 2.6.10-2.6.13-rc4 hang reboot from linux(not from windows or from BIOS),but 2.6.8 and 2.6.9 haven't
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <195c7a900508190807504a988a@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <605adbb05081907323d3bd70c@mail.gmail.com>
+	 <195c7a900508190807504a988a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+2005/8/19, roucaries bastien <roucaries.bastien@gmail.com>:
+> On 8/19/05, gnome boxer <gnome.boxer@gmail.com> wrote:
+> > I use fedora core 4,when I rebooted from linux(not from windows or
+> > BIOS),it will hang after the system POST before grub display the stage
+> > 1.5 on the screen,so I must reboot again from there using CRTL+ALT+DEL
+> >
+> > I don't know whether this belongs to grub or belongs to the linux
+> > reboot changes from 2.6.8 and 2.6.9
+> 
+> did you try to add to the kernel command line reboot=cold or
+> reboot=bios or reboot=hard.
 
-This patch has added pcibios_select_root to MIPS.
-Please apply.
+Yeah,I've tried the reboot=w option
 
-Yoichi
-
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-
-diff -urN -X dontdiff mm1-orig/include/asm-mips/pci.h mm1/include/asm-mips/pci.h
---- mm1-orig/include/asm-mips/pci.h	2005-08-20 00:04:18.000000000 +0900
-+++ mm1/include/asm-mips/pci.h	2005-08-19 23:53:04.000000000 +0900
-@@ -167,4 +167,17 @@
- /* Do platform specific device initialization at pci_enable_device() time */
- extern int pcibios_plat_dev_init(struct pci_dev *dev);
- 
-+static inline struct resource *
-+pcibios_select_root(struct pci_dev *pdev, struct resource *res)
-+{
-+	struct resource *root = NULL;
-+
-+	if (res->flags & IORESOURCE_IO)
-+		root = &ioport_resource;
-+	if (res->flags & IORESOURCE_MEM)
-+		root = &iomem_resource;
-+
-+	return root;
-+}
-+
- #endif /* _ASM_PCI_H */
-
-
+and it've this buggy also

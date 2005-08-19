@@ -1,155 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932685AbVHSSdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932693AbVHSSeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932685AbVHSSdf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 14:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbVHSSdf
+	id S932693AbVHSSeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 14:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbVHSSeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 14:33:35 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:5299 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932685AbVHSSde (ORCPT
+	Fri, 19 Aug 2005 14:34:15 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:56541 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965004AbVHSSeO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 14:33:34 -0400
-Date: Fri, 19 Aug 2005 11:34:08 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Ingo Molnar <mingo@elte.hu>, Dipankar Sarma <dipankar@in.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] Use RCU to protect tasklist for unicast signals
-Message-ID: <20050819183408.GC1298@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <42FC6305.E7A00C0A@tv-sign.ru> <20050815174403.GE1562@us.ibm.com> <4301D455.AC721EB7@tv-sign.ru> <20050816170714.GA1319@us.ibm.com> <20050817014857.GA3192@us.ibm.com> <43034B17.3DEE0884@tv-sign.ru> <20050817211957.GN1300@us.ibm.com> <43047570.4089FCF1@tv-sign.ru> <20050819012918.GG1372@us.ibm.com> <4305DE3C.EC56B48C@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4305DE3C.EC56B48C@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Aug 2005 14:34:14 -0400
+Message-ID: <43062623.607@pobox.com>
+Date: Fri, 19 Aug 2005 14:34:11 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rainer Koenig <Rainer.Koenig@fujitsu-siemens.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA status report updated
+References: <4AA7B-4jm-5@gated-at.bofh.it> <4DagM-7c8-43@gated-at.bofh.it> <871x4ql24a.fsf@ABG3595C.abg.fsc.net>
+In-Reply-To: <871x4ql24a.fsf@ABG3595C.abg.fsc.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 05:27:24PM +0400, Oleg Nesterov wrote:
-> Paul E. McKenney wrote:
-> >
-> > I have indeed been thinking along these lines, but all of the devil plans
-> > that I have come up thus far are quite intrusive, and might have some
-> > performance problems in some situations.  So it seems best to remove
-> > tasklist_lock in steps:
-> >
-> > 1.	Single-recipient catch and ignore cases.
-> >
-> > 2.	Single-recipient stop/continue cases.
-> >
-> > 3.	Single-recipient fatal cases.
-> >
-> > 4.	Single-process multi-threaded stop/continue cases.
-> >
-> > 5.	Single-process multi-threaded fatal cases.
-> >
-> > 6.	And on to process-group cases.
+Rainer Koenig wrote:
+> Hi Simon,
 > 
-> Paul, I am not an expert at all, but honestly I don't see how
-> this could be achieved. This lock is heavily overloaded for
-> quite different purposes. I think that may be it makes sense
-> to try other steps, for example (random order):
+> Simon Oosthoek <simon.oosthoek@ti-wmc.nl> writes:
 > 
->   1. Tasklist protects ->sighand changing (de_thread) - rework
->      sighand access/locking.
-
-We have a start on this, and this is the first area I am making tests
-for.
-
->   2. Tasklist protects reparenting - fix this.
-
-Good point...  Will require thought.  And tests that target this race.
-The tests are what I am working now.
-
->   .......
 > 
->   N. PTRACE!!! Well, I close my eyes immediately when I see this
->      word in the sources.
-
-This one as well.  Hmmm....  The tests could be fun -- race gdb
-grabbing a process with sending that process a signal.  Might
-need to instead make a small program that pretends to be gdb,
-will play with it.
-
-Some others that come to mind:
-
-N+1.	Process-group leader dies while process-group signal is being
-	received.
-
-N+2.	Process-group members are wildly creating new processes while
-	a fatal signal is being received (which should result in -all-
-	processes in the group dying).
-
-N+3.	Threads are being wildly created in a multithreaded process while
-	a fatal signal is being received...
-
-N+4.	The tsk->signal->curr_target in a multithreaded process changes
-	while a signal is being received.
-
-N+5.	The handler state (default/ignored/caught) changes while a
-	signal is being received.  But siglock should cover this.
-
-N+6.	Different signal reception orders for different tasks in
-	a given set of groups (e.g., fatal signal to process group
-	at same time as fatal signal to multithreaded process within
-	that group).  Don't believe that this one matters, but thought
-	I should call it out anyway.
-
-	o	SIGHUP/SIGCONT from tty going away vs. SIGSTOP
-		from elsewhere.
-
-	o	tty signal (ctrl-Z, ctrl-C, ...) vs. signal to
-		specific process in the tty's process group.
-
-And there are probably more, but this should keep me busy for a bit.
-
-> Only then we can eliminate tasklist locking from signal sending
-> path. But I don't see the easy way to solve any of these 1 - N
-> problems.
-
-If it was easy, someone would likely already have done it...
-
-> Currently I don't see how your patch could be "fixed" for SIGCONT
-> case, except very ugly:
+>>I'm wondering how the support for the SIS 182 controller is doing, I
+>>noticed they have a GPL driver on their website for kernel 2.6.10,
+>>which is not a drop in replacement for sata_sis.c in 2.6.12.5, I
+>>haven't tried compiling it as an add-on module outside the tree,
+>>though...
 > 
-> 	kill_proc_info(sig)
-> 	{
-> 		p = find_task_by_pid(pid);
-> 		if (sig == SIGCONT)
-> 			read_lock(&tasklist_lock);
 > 
-> 		error = group_send_sig_info(...);
-> 		...
-> 	}
-
-I was indeed thinking along these lines.
-
-> But there are other problems too.
+> I tried the sources from the SiS website (that seem to add more
+> details than my simple patch that just adds the device ID) as a drop
+> in for the Fedora installation kernel 2.6.11-1.1369_FC4, but the
+> kernel build process ran into an error at the sata_sis module. The
+> problem is that the source from SiS has a conditional code that
+> depends on the definition of a symbol "KERN_2_6_10" which is defined
+> by their "outside build makefile", but not in the standard kernel
+> build process. I added a #define KERN_2_6_10 to the source and then it
+> compiled also inside the kernel build process.
 > 
-> Look at __group_complete_signal(), it scans p->pids[PIDTYPE_TGID].pid_list
-> list to find a a suitable thread. What if 'p' does clone(CLONE_THREAD) now?
-> Let's look at copy_process(), it does attach_pid(p, PIDTYPE_TGID, p->tgid)
-> under the lovely tasklist_lock again.
+> 
+>>Adding the 0x182 identifier to the 180 driver does compile (duh!), but
+>>I haven't tried it on hardware.
+> 
+> 
+> Working at a PC manufacturer I have access to hardware and I tried out
+> a lot and didn't run into any problem so far. 
+> 
+> 
+>>As a temporary measure, there was a patch posted to this list [1] a
+>>while ago, would it be a good idea to include this while full support
+>>is being worked on?
+> 
+> 
+> Seeing that the source from the SiS website is much more going into the
+> details than my simple adding of the device ID (of course SiS has hopefully
+> a much deeper knowledge of their hardware than I have ;-) I would rather
+> go for integrating the SiS source in the current kernel. 
 
-Another approach that I am considering for the class of problem is to
-have the code paths that create or change tasks momentarily acquire
-locks corresponding to the groups of tasks that can receive signals.
-There are a number of problems with this, for example, the logical place
-for the lock corresponding to a process group is the process-group leader.
-There has to be a way to handling the case where the process-group leader
-dies before the rest of the processes do.  And so on, for similar changes.
+Yes, that's why I have resisted the "just add the PCI ID" patches that 
+have cropped up.
 
-> So, I don't beleive we can solve even the simplest case (single-recipient,
-> non fatal, non stop/cont) without significant locking rework.
+SiS submitted patches that duplicated portions of libata inside their 
+driver, rather than simply fixing libata as would be proper.
 
-Agreed, hence the "Not-signed-off-by:" on my original patch.
+So we are stuck in the middle :(
 
-> I hope that your patch will stimulate this work.
+Someone needs to work with the SiS submission until it's kosher with the 
+upstream kernel, then everybody will be happy.
 
-Me too, will continue working it.  Your comments have been very helpful!
+	Jeff
 
-If nothing else, this thread has shown that there are some worthwhile
-benefits from getting rid of tasklist_lock...
 
-							Thanx, Paul

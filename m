@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVHSTkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbVHSTj5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965093AbVHSTkL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 15:40:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVHSTkL
+	id S965069AbVHSTj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 15:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbVHSTj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 15:40:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56964 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S965088AbVHSTkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 15:40:09 -0400
-Date: Fri, 19 Aug 2005 20:43:06 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Anton Altaparmakov <aia21@cam.ac.uk>, vandrove@vc.cvut.cz,
-       Andrew Morton <akpm@osdl.org>, linware@sh.cvut.cz,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel bug: Bad page state: related to generic symlink code and mmap
-Message-ID: <20050819194306.GH29811@parcelfarce.linux.theplanet.co.uk>
-References: <20050819142025.GA29811@parcelfarce.linux.theplanet.co.uk> <1124466246.2294.65.camel@imp.csi.cam.ac.uk> <Pine.LNX.4.58.0508190855350.3412@g5.osdl.org> <Pine.LNX.4.58.0508190913570.3412@g5.osdl.org> <Pine.LNX.4.58.0508190934470.3412@g5.osdl.org> <20050819165332.GD29811@parcelfarce.linux.theplanet.co.uk> <20050819180218.GE29811@parcelfarce.linux.theplanet.co.uk> <20050819180037.GA5686@infradead.org> <20050819193834.GF29811@parcelfarce.linux.theplanet.co.uk> <20050819194129.GB2756@parcelfarce.linux.theplanet.co.uk>
+	Fri, 19 Aug 2005 15:39:56 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:8161 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965016AbVHSTjz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 15:39:55 -0400
+Date: Fri, 19 Aug 2005 12:38:54 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: libata error handling
+Message-ID: <20050819193853.GA1549@us.ibm.com>
+References: <20050729050654.GA10413@havoc.gtf.org> <20050807054850.GA13335@htj.dyndns.org> <430556BF.5070004@pobox.com> <4306290B.6080608@adaptec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050819194129.GB2756@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <4306290B.6080608@adaptec.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 08:41:29PM +0100, Matthew Wilcox wrote:
-> > is getting crowded.  Linus, do you have any objections to that or suggestions
-> > on filename here?
-> 
-> fs/symlink.c?
+On Fri, Aug 19, 2005 at 02:46:35PM -0400, Luben Tuikov wrote:
 
-Or fs/lib/symlink.c...
+> 
+> Using the command time out hook and the strategy routine, gives _complete_
+> control over host recovery, and I really do mean _complete_.
+> 
+
+I assume you mean hostt->eh_timed_out.
+
+Is anyone implmenting (or has implemented) a ->eh_timed_out function? I see
+none in mainline kernel.
+
+I was looking at using it in an LLDD, but hit two problems, and have
+started to work on an alternate approach of cancelling (aborting or wtf you
+want to call it) a list of commands in the eh thread.
+
+The two problems I see with the hook are:
+
+It calls the driver in interrupt context, so the called function can't
+sleep.
+
+There is no queueing or list mechanism, so LLDD's that can only cancel one
+command at a time will have problem.
+
+-- Patrick Mansfield

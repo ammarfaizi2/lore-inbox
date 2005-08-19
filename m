@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVHSIH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbVHSIJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbVHSIH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 04:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVHSIH4
+	id S932324AbVHSIJg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 04:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVHSIJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 04:07:56 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:6796 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932168AbVHSIHz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 04:07:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=g2+qKekru1WjKZj7GlwsDAK4x5wp178ijy256/6ATP7QCd/pKHs+r3gNjDxaITtsJf2EVjVWajzYpLmBKIZvXb4Wx6yxO4V1iQGwkpm/yCqeyzPYRHYpJYTZdU6UdApU2T7Vec5C2mSBCTMgwW88tizUhxwROiYdQm0VOLgAcxc=
-Message-ID: <605adbb050819010770dcfaad@mail.gmail.com>
-Date: Fri, 19 Aug 2005 16:07:55 +0800
-From: gnome boxer <gnome.boxer@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Reboot from linux,it will hang after the system POST
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 19 Aug 2005 04:09:35 -0400
+Received: from darla.ti-wmc.nl ([217.114.97.45]:39812 "EHLO smtp.wmc")
+	by vger.kernel.org with ESMTP id S932239AbVHSIJe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 04:09:34 -0400
+Message-ID: <430593AA.50201@ti-wmc.nl>
+Date: Fri, 19 Aug 2005 10:09:14 +0200
+From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: SATA status report updated
+References: <42FC2EF8.7030404@pobox.com>
+In-Reply-To: <42FC2EF8.7030404@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use fedora core 4,when I reboot from linux(not from windows or
-BIOS),it will hang after the system POST
+Jeff Garzik wrote:
+> 
+> Things in SATA-land have been moving along recently, so I updated the 
+> software status report:
+> 
+>     http://linux.yyz.us/sata/software-status.html
+> 
+> Although I have not updated it in several weeks, folks may wish to refer 
+> to the hardware status report as well:
+> 
+>     http://linux.yyz.us/sata/sata-status.html
+> 
+> Thanks to all the hard-working SATA contributors!
+> 
 
-This only happens in reboot from linux kernel within
-2.6.10-2.6.13-rc4(not from BIOS or windows).when I use grub to handle
-boot ,the grub will hang after the system POST,must reboot again from
-BIOS to boot correct in the grub menu.
+Good overview!
 
+I'm wondering how the support for the SIS 182 controller is doing, I 
+noticed they have a GPL driver on their website for kernel 2.6.10, which 
+is not a drop in replacement for sata_sis.c in 2.6.12.5, I haven't tried 
+compiling it as an add-on module outside the tree, though...
 
-It only happened *reboot* from linux,if I directly cold boot
-everything is ok,or if I reboot from windows it 's booted ok also
+Adding the 0x182 identifier to the 180 driver does compile (duh!), but I 
+haven't tried it on hardware.
 
+As a temporary measure, there was a patch posted to this list [1] a 
+while ago, would it be a good idea to include this while full support is 
+being worked on?
 
-I tested the older kernel version from 2.6.13-rc4 to 2.6.8 .I found
-the 2.6.8 and the 2.6.9 worked well without above
-reboot_from_linux_with_hang_after_POST,and the 2.6.10-2.6.13-rc4 were
-all have
+Cheers
 
+Simon
 
-I haven't subscribe to the LKML only for this one bug,just sendmail to me,please
+[1]
+Patch signed-off-by: Rainer Koenig <Rainer.Koenig@fujitsu-siemens.com>
+
+--- linux-2.6.12.4/drivers/scsi/sata_sis.c	2005-08-05 09:04:37.000000000 
++0200
++++ linux/drivers/scsi/sata_sis.c	2005-08-11 10:22:07.000000000 +0200
+@@ -62,6 +62,7 @@
+  static struct pci_device_id sis_pci_tbl[] = {
+  	{ PCI_VENDOR_ID_SI, 0x180, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
+  	{ PCI_VENDOR_ID_SI, 0x181, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
++        { PCI_VENDOR_ID_SI, 0x182, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
+  	{ }	/* terminate list */
+  };
+

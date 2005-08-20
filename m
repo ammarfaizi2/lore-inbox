@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbVHTGqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVHTGrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbVHTGqr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 02:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbVHTGqr
+	id S1751240AbVHTGrv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 02:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVHTGru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 02:46:47 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:61833 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751233AbVHTGqq (ORCPT
+	Sat, 20 Aug 2005 02:47:50 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:28356 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S1751085AbVHTGrt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 02:46:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=UF1utTs6L/D9KxLTISj/3CPtpr5nTBnHSwkiBMfKVmPtRHTAJjGTswi7CN5l6pxFrZEfehOu3fT0qhDH3XI4T5rFa0VgQOL5g7KxlI4A2szAV571CqC+uXLJuiPy457UANsrHCWm/9YTPn0PJyY2Arr6/JeOXRNhighhlcktZR0=
-Date: Sat, 20 Aug 2005 10:55:34 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] befs, freevxfs: fix breakage introduced by symlink fixes
-Message-ID: <20050820065534.GA15354@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Sat, 20 Aug 2005 02:47:49 -0400
+Message-ID: <4306D254.3000401@cs.aau.dk>
+Date: Sat, 20 Aug 2005 08:48:52 +0200
+From: Emmanuel Fleury <fleury@cs.aau.dk>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       alsa-devel@lists.sourceforge.net
+Subject: Re: [Alsa drivers] Creatives X-Fi chip
+References: <4305AC77.3010907@cs.aau.dk> <1124491956.25424.95.camel@mindpipe>
+In-Reply-To: <1124491956.25424.95.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Somehow only prototypes and return values were converted for
-befs_follow_link() and vxfs_immed_follow_link().
+Lee Revell wrote:
+> On Fri, 2005-08-19 at 11:55 +0200, Emmanuel Fleury wrote:
+> 
+>>Hi all,
+>>
+>>I did try to look for Alsa drivers for the new X-Fi chip from Creatives
+>>(http://www.tomshardware.com/consumer/20050818/), but I didn't find any.
+>>
+>>I there something running around this chip ? Or no plan yet ?
+> 
+> 
+> Are these even on the market yet?
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+If not yet, it will be soon.
 
- fs/befs/linuxvfs.c       |    2 +-
- fs/freevxfs/vxfs_immed.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+> If this is the long awaited emu10k3, then there's a good chance we can
+> support it.  But we'll need at the very least a hardware sample from
+> Creative.
 
---- linux-vanilla/fs/befs/linuxvfs.c
-+++ linux-follow_the_white_rabbit/fs/befs/linuxvfs.c
-@@ -461,7 +461,7 @@ befs_destroy_inodecache(void)
-  * The data stream become link name. Unless the LONG_SYMLINK
-  * flag is set.
-  */
--static int
-+static void *
- befs_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	befs_inode_info *befs_ino = BEFS_I(dentry->d_inode);
---- linux-vanilla/fs/freevxfs/vxfs_immed.c
-+++ linux-follow_the_white_rabbit/fs/freevxfs/vxfs_immed.c
-@@ -72,7 +72,7 @@ struct address_space_operations vxfs_imm
-  * Returns:
-  *   Zero on success, else a negative error code.
-  */
--static int
-+static void *
- vxfs_immed_follow_link(struct dentry *dp, struct nameidata *np)
- {
- 	struct vxfs_inode_info		*vip = VXFS_INO(dp->d_inode);
+No, it seems to me to be a totally new chip (ca20k1). I don't think you
+can use any existing driver to start with. :-/
 
+As you say, documentation from Creatives about the chip will be needed.
+
+So, there is no project about this yet ?
+
+Regards
+-- 
+Emmanuel Fleury
+
+Assistant Professor          | Office: B1-201
+Computer Science Department, | Phone:  +45 96 35 72 23
+Aalborg University,          | Mobile: +45 26 22 98 03
+Fredriks Bajersvej 7E,       | E-mail: fleury@cs.aau.dk
+9220 Aalborg East, Denmark   | URL: www.cs.aau.dk/~fleury

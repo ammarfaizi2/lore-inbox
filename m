@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbVHTESr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVHTFMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbVHTESr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 00:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbVHTESr
+	id S1751039AbVHTFMc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 01:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbVHTFMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 00:18:47 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:40882 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030214AbVHTESq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 00:18:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=GnY3UteFtCU63dhiOQAccSCMKW2re5S1HZu0TApf7AaTESu57damwUDS2JfyKT8R/zAvJ7uHLCnxshdt0d2eLsoC0hnvVMrQeOkzU9urVxH8kNoRhnrEglFlkOkNwiGx/blmKaDe+Cd03o2fz62Kbp6CObwTOx9BnERQRQUsdcs=  ;
-Message-ID: <4306AF26.3030106@yahoo.com.au>
-Date: Sat, 20 Aug 2005 14:18:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+	Sat, 20 Aug 2005 01:12:32 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:10464 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750863AbVHTFMb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 01:12:31 -0400
+Message-ID: <4306BBB9.4060201@pobox.com>
+Date: Sat, 20 Aug 2005 01:12:25 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sched_yield() makes OpenLDAP slow
-References: <4D8eT-4rg-31@gated-at.bofh.it> <4306A176.3090907@shaw.ca>
-In-Reply-To: <4306A176.3090907@shaw.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Peer.Chen@uli.com.tw
+CC: Alexey Dobriyan <adobriyan@gmail.com>, Alan Cox <alan@redhat.com>,
+       Clear.Zhang@uli.com.tw, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Emily.Jiang@uli.com.tw
+Subject: Re: [patch] net/tulip: LAN driver for ULI M5261/M5263
+References: <OF308CFA6C.C728268D-ON4825705F.00365A7A@uli.com.tw>
+In-Reply-To: <OF308CFA6C.C728268D-ON4825705F.00365A7A@uli.com.tw>
+Content-Type: text/plain; charset=GB2312
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-
+Peer.Chen@uli.com.tw wrote:
+> Jeff:
+> The attached file is the incremental patch to the original uli526x.c I send
+> you first time,
+> I modify the source according to your advice, thanks.
 > 
-> I fail to see how sched_yield is going to be very helpful in this 
-> situation. Since that call can sleep from a range of time ranging from 
-> zero to a long time, it's going to give unpredictable results.
-> 
+> Signed-off-by: Peer Chen <Peer.Chen@uli.com.tw>
+> (See attached file: patch_uli526x_inc)
 
-Well, not sleep technically, but yield the CPU for some undefined
-amount of time.
+Patch applied, thanks much.
 
-> It seems to me that this sort of thing is why we have POSIX pthread 
-> synchronization primitives.. sched_yield is basically there for a 
-> process to indicate that "what I'm doing doesn't matter much, let other 
-> stuff run". Any other use of it generally constitutes some kind of hack.
-> 
+I notice you removed the following code, rather than fixing it.  It is
+OK to remove this code??
 
-In SCHED_OTHER mode, you're right, sched_yield is basically meaningless.
 
-In a realtime system, there is a very well defined and probably useful
-behaviour.
+-       //add by clearzhang 2004/7/8
+-       pci_read_config_dword(pdev,0x0,&configval);
+-       m526x_id = configval;
+-       if(configval == 0x526310b9)
+-       {
+-               //printk("is m5263\n");
+-               pci_read_config_dword(pdev,0x0c,&configval);
+-               configval = ((configval & 0xffff00ff) | 0x8000);
+-               pci_write_config_dword(pdev,0x0c,configval);
+-       }
 
-Eg. If 2 SCHED_FIFO processes are running at the same priority, One can
-call sched_yield to deterministically give the CPU to the other guy.
+Thanks,
 
--- 
-SUSE Labs, Novell Inc.
+	Jeff
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+

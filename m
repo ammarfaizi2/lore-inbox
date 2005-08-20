@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932783AbVHTTCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932786AbVHTTDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932783AbVHTTCp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 15:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932784AbVHTTCp
+	id S932786AbVHTTDh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 15:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932796AbVHTTDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 15:02:45 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15627 "HELO
+	Sat, 20 Aug 2005 15:03:36 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17931 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932783AbVHTTCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 15:02:44 -0400
-Date: Sat, 20 Aug 2005 21:02:42 +0200
+	id S932793AbVHTTDL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 15:03:11 -0400
+Date: Sat, 20 Aug 2005 21:03:09 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] adapt scripts/ver_linux to new util-linux version strings
-Message-ID: <20050820190242.GY3615@stusta.de>
-References: <20050820035853.GM3615@stusta.de> <20050820055532.GA15577@mipter.zuzino.mipt.ru>
+To: Andrew Morton <akpm@osdl.org>, davem@davemloft.net
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [-mm patch] net/core/sysctl_net_core.c: fix PROC_FS=n compile
+Message-ID: <20050820190309.GB3615@stusta.de>
+References: <20050819043331.7bc1f9a9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050820055532.GA15577@mipter.zuzino.mipt.ru>
+In-Reply-To: <20050819043331.7bc1f9a9.akpm@osdl.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 20, 2005 at 09:55:32AM +0400, Alexey Dobriyan wrote:
-> On Sat, Aug 20, 2005 at 05:58:53AM +0200, Adrian Bunk wrote:
-> > --- linux-2.6.13-rc6-mm1-full/scripts/ver_linux.old
-> > +++ linux-2.6.13-rc6-mm1-full/scripts/ver_linux
-> 
-> > -fdformat --version | awk -F\- '{print "util-linux            ", $NF}'
-> > +fdformat --version | awk '{print "util-linux            ", $NF}' \
-> > +| awk -F\) '{print $1}'
-> >  
-> > -mount --version | awk -F\- '{print "mount                 ", $NF}'
-> > +mount --version | awk '{print "mount                 ", $NF}' | \
-> > +awk -F\) '{print $1}'
-> 
-> -util-linux             2.12i
-> -mount                  2.12i
-> +util-linux             util-linux-2.12i
-> +mount                  mount-2.12i
-> 			^^^^^^
-> 
-> Is this intentional?
+On Fri, Aug 19, 2005 at 04:33:31AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.13-rc5-mm1:
+>...
+>  git-net.patch
+>...
+>  Subsystem trees
+>...
 
-After this patch, the new format is parsed correctly instead of 
-completely wrong.
+This breaks the compilation with CONFIG_PROC_FS=n:
 
-You've found the small regression parsing the old format.
+<--  snip  -->
 
-IMHO this is not a problem. If you disagree, feel free to send a better 
-patch.
+...
+  CC      net/core/sysctl_net_core.o
+net/core/sysctl_net_core.c:50: error: 'sysctl_wmem_default' undeclared here (not in a function)
+net/core/sysctl_net_core.c:58: error: 'sysctl_rmem_default' undeclared here (not in a function)
+make[2]: *** [net/core/sysctl_net_core.o] Error 1
 
-cu
-Adrian
+<--  snip  -->
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+The fix is simple.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.13-rc6-mm1-full/include/net/sock.h.old	2005-08-20 15:39:23.000000000 +0200
++++ linux-2.6.13-rc6-mm1-full/include/net/sock.h	2005-08-20 15:39:39.000000000 +0200
+@@ -1372,9 +1372,7 @@
+ extern int sysctl_optmem_max;
+ #endif
+ 
+-#ifdef CONFIG_PROC_FS
+ extern __u32 sysctl_wmem_default;
+ extern __u32 sysctl_rmem_default;
+-#endif
+ 
+ #endif	/* _SOCK_H */
 

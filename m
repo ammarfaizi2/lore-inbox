@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbVHTSBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932736AbVHTSdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932662AbVHTSBF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 14:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932664AbVHTSBF
+	id S932736AbVHTSdI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 14:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932759AbVHTSdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 14:01:05 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:5771 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932662AbVHTSBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 14:01:02 -0400
-Subject: Re: open("foo", 3)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
-       Miklos Szeredi <miklos@szeredi.hu>
-In-Reply-To: <Pine.LNX.4.58.0508200958260.3317@g5.osdl.org>
-References: <E1E6WCz-0005ym-00@dorka.pomaz.szeredi.hu>
-	 <Pine.LNX.4.58.0508200958260.3317@g5.osdl.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sat, 20 Aug 2005 14:00:26 -0400
-Message-Id: <1124560826.18408.93.camel@localhost.localdomain>
+	Sat, 20 Aug 2005 14:33:08 -0400
+Received: from mail.rktmb.org ([83.143.18.13]:29873 "EHLO mail.rktmb.org")
+	by vger.kernel.org with ESMTP id S932736AbVHTSdH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 14:33:07 -0400
+Subject: RTL8139, the final patch ?
+From: Rakotomandimby Mihamina 
+	<mihamina.rakotomandimby@etu.univ-orleans.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sat, 20 Aug 2005 20:38:16 +0200
+Message-Id: <1124563096.3075.48.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-20 at 10:30 -0700, Linus Torvalds wrote:
-> 
-> On Sat, 20 Aug 2005, Miklos Szeredi wrote:
-> > 
-> > My question is: is this deliberate or accidental?  Wouldn't it be more
-> > logical to not require any permission to open such file?  Or is there
-> > some security concern with that?
-> 
-> It's deliberate but historical. It's been a long time since I worked on
-> it, but it was meant for "special opens".
-> 
-> I _think_ it was used for things like "open block device without media
-> check" etc (we use O_NONBLOCK for that now), and it was used for directory
-> opens before we had O_DIRECTORY. (It's literally been years, so my 
-> recollection may be bogus).
-> 
-> I don't think anything uses it any more, and it should probably be 
-> deprecated rather than extended upon.
+Hi,
 
-It may also be dangerous, since I see several drivers using 
+I now use a notebook that uses RTL8139, and I encounter exactly the same
+problems as this:
 
-if ((filp->f_flags & O_ACCMODE) != RD_ONLY) {
-  /* do something assuming we have write access */
-   ...
-}
+http://www.ussg.iu.edu/hypermail/linux/kernel/0402.3/1289.html
 
+I know use Fedora Core 4 on this box.
+With a Linux FC4 kernel (not customized yet).
 
-Perhaps that access mode may not allow for getting to code like this,
-but, since it's so old, you may have those that forget about the 3 mode,
-and we lose the protection somewhere along the line.
+As well as I still encounter the problem, I guess the solution has not
+been found. 
 
-It probably be better to not allow for it.  Or maybe an audit of such
-code needs to be replaced with:
+Is there a summary of what should be done to resolv it? 
 
-if (filp->f_mode & FMODE_WRITE) {
-  ...
-}
+I would like to apply the needed patches. The only problem is I am not a
+very very good C coder so that I could do it the wrong way.
 
-Just my $0.02
+Thank you :-)
 
--- Steve
-
-
+-- 
+Administration & Formation à l'administration
+de serveurs dédiés:
+http://www.google.fr/search?q=aspo+infogerance+serveur
 

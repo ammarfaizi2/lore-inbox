@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932787AbVHTTDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932785AbVHTTCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932787AbVHTTDG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 15:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932788AbVHTTDF
+	id S932785AbVHTTCy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 15:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932787AbVHTTCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 15:03:05 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:17163 "HELO
+	Sat, 20 Aug 2005 15:02:54 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:16395 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932786AbVHTTDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 15:03:00 -0400
-Date: Sat, 20 Aug 2005 21:02:58 +0200
+	id S932785AbVHTTCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 15:02:53 -0400
+Date: Sat, 20 Aug 2005 21:02:51 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: perex@suse.cz
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] sound/core/memalloc.c: fix PROC_FS=n compilation
-Message-ID: <20050820190258.GA3615@stusta.de>
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: [2.6 patch] drivers/ide/: possible cleanups
+Message-ID: <20050820190251.GZ3615@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,38 +22,73 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the following compile error with CONFIG_PROC_FS=n:
-
-<--  snip  -->
-
-...
-  CC      sound/core/memalloc.o
-sound/core/memalloc.c: In function 'snd_mem_exit':
-sound/core/memalloc.c:658: error: 'snd_mem_proc' undeclared (first use in this function)
-sound/core/memalloc.c:658: error: (Each undeclared identifier is reported only once
-sound/core/memalloc.c:658: error: for each function it appears in.)
-make[2]: *** [sound/core/memalloc.o] Error 1
-
-<--  snip  -->
-
-
+This patch contains the following possible cleanups:
+- pci/cy82c693.c: make a needlessly global function static
+- remove the following unneeded EXPORT_SYMBOL's:
+  - ide-taskfile.c: do_rw_taskfile
+  - ide-iops.c: default_hwif_iops
+  - ide-iops.c: default_hwif_transport
+  - ide-iops.c: wait_for_ready
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.13-rc6-mm1-full/sound/core/memalloc.c.old	2005-08-20 15:12:55.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-full/sound/core/memalloc.c	2005-08-20 15:16:55.000000000 +0200
-@@ -506,13 +506,13 @@
- 	up(&list_mutex);
+---
+
+ drivers/ide/ide-iops.c     |    6 ------
+ drivers/ide/ide-taskfile.c |    2 --
+ drivers/ide/pci/cy82c693.c |    2 +-
+ 3 files changed, 1 insertion(+), 9 deletions(-)
+
+--- linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c.old	2005-02-05 02:57:03.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c	2005-02-05 02:57:12.000000000 +0100
+@@ -161,8 +161,6 @@
+ 	return ide_stopped;
  }
  
-+static struct proc_dir_entry *snd_mem_proc;
- 
- #ifdef CONFIG_PROC_FS
+-EXPORT_SYMBOL(do_rw_taskfile);
+-
  /*
-  * proc file interface
+  * set_multmode_intr() is invoked on completion of a WIN_SETMULT cmd.
   */
- #define SND_MEM_PROC_FILE	"driver/snd-page-alloc"
--static struct proc_dir_entry *snd_mem_proc;
+
+--- linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c.old	2005-04-17 21:11:22.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c	2005-04-17 21:11:30.000000000 +0200
+@@ -469,7 +469,7 @@
  
- static int snd_mem_proc_read(char *page, char **start, off_t off,
- 			     int count, int *eof, void *data)
+ static __initdata ide_hwif_t *primary;
+ 
+-void __devinit init_iops_cy82c693(ide_hwif_t *hwif)
++static void __devinit init_iops_cy82c693(ide_hwif_t *hwif)
+ {
+ 	if (PCI_FUNC(hwif->pci_dev->devfn) == 1)
+ 		primary = hwif;
+--- linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c.old	2005-04-17 21:12:44.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c	2005-04-17 21:12:54.000000000 +0200
+@@ -104,8 +104,6 @@
+ 	hwif->INSL	= ide_insl;
+ }
+ 
+-EXPORT_SYMBOL(default_hwif_iops);
+-
+ /*
+  *	MMIO operations, typically used for SATA controllers
+  */
+@@ -329,8 +327,6 @@
+ 	hwif->atapi_output_bytes	= atapi_output_bytes;
+ }
+ 
+-EXPORT_SYMBOL(default_hwif_transport);
+-
+ /*
+  * Beginning of Taskfile OPCODE Library and feature sets.
+  */
+@@ -525,8 +525,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(wait_for_ready);
+-
+ /*
+  * This routine busy-waits for the drive status to be not "busy".
+  * It then checks the status for all of the "good" bits and none
+

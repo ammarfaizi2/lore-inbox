@@ -1,102 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbVHTRjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbVHTRqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbVHTRjh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 13:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932624AbVHTRjh
+	id S932651AbVHTRqz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 13:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbVHTRqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 13:39:37 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:65408 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932617AbVHTRjg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 13:39:36 -0400
-Message-ID: <43076D64.1C86C0C5@tv-sign.ru>
-Date: Sat, 20 Aug 2005 21:50:28 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sat, 20 Aug 2005 13:46:55 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:23206 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S932651AbVHTRqy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 13:46:54 -0400
+X-ORBL: [69.107.75.50]
+Date: Sat, 20 Aug 2005 10:46:48 -0700
+From: David Brownell <david-b@pacbell.net>
+To: Nathan Lutchansky <lutchann@litech.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/5] improve i2c probing
 MIME-Version: 1.0
-To: tglx@linutronix.de
-Cc: Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
-       George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [PATCH 2.6.13-rc6-rt9]  PI aware dynamic priority adjustment
-References: <20050818060126.GA13152@elte.hu>
-		 <1124495303.23647.579.camel@tglx.tec.linutronix.de>
-		 <430739D4.681DB651@tv-sign.ru> <1124553848.23647.635.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20050820174648.650B8E3259@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> 
-> On Sat, 2005-08-20 at 18:10 +0400, Oleg Nesterov wrote:
-> 
-> > posix_timer_event() first checks that the thread (SIGEV_THREAD_ID
-> > case) does not have PF_EXITING flag, then it calls send_sigqueue()
-> > which locks task list. But if the thread exits in between the kernel
-> > will oops.
-> 
-> > posix_timer_event() runs under k_itimer.it_lock, but this does not
-> > help if that thread was not the only one in thread group, in this
-> > case we don't call exit_itimers().
-> 
-> I added exit_notify_itimers() for that case. It is synchronized vs.
-> posix_timer_event() via the timer lock and therefor protects against the
-> race described above.
-> 
-> It solves the problem for the only user of send_sigqueue for now, but I
-> think we should have a more general interface to such functionality to
-> allow simple usage.
-> 
-> tglx
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> 
-> diff -uprN --exclude-from=/usr/local/bin/diffit.exclude linux-2.6.13-rc6/include/linux/sched.h linux-2.6.13-rc6.work/include/linux/sched.h
-> --- linux-2.6.13-rc6/include/linux/sched.h      2005-08-13 12:25:56.000000000 +0200
-> +++ linux-2.6.13-rc6.work/include/linux/sched.h 2005-08-20 17:43:36.000000000 +0200
-> @@ -1051,6 +1051,7 @@ extern void __exit_signal(struct task_st
->  extern void exit_sighand(struct task_struct *);
->  extern void __exit_sighand(struct task_struct *);
->  extern void exit_itimers(struct signal_struct *);
-> +extern void exit_notify_itimers(struct signal_struct *);
-> 
->  extern NORET_TYPE void do_group_exit(int);
-> 
-> diff -uprN --exclude-from=/usr/local/bin/diffit.exclude linux-2.6.13-rc6/kernel/posix-timers.c linux-2.6.13-rc6.work/kernel/posix-timers.c
-> --- linux-2.6.13-rc6/kernel/posix-timers.c      2005-08-13 12:25:58.000000000 +0200
-> +++ linux-2.6.13-rc6.work/kernel/posix-timers.c 2005-08-20 17:43:36.000000000 +0200
-> @@ -1169,6 +1169,33 @@ void exit_itimers(struct signal_struct *
->  }
-> 
->  /*
-> + * This is called by __exit_signal, when there are still references to
-> + * the shared signal_struct
-> + */
-> +void exit_notify_itimers(struct signal_struct *sig)
-> +{
-> +       struct k_itimer *timer;
-> +       struct list_head *tmp;
-> +       unsigned long flags;
-> +
-> +       list_for_each(tmp, &sig->posix_timers) {
-> +
-> +               timer = list_entry(tmp, struct k_itimer, list);
-> +
-> +               /* Protect against posix_timer_fn */
-> +               spin_lock_irqsave(&timer->it_lock, flags);
+Hmm, some of this resembles my prototype from last month:
 
-I think this is deadlockable. We already (release_task) hold
-tasklist_lock here. What if this timer has no SIGEV_THREAD_ID ?
+   http://lists.lm-sensors.org/pipermail/lm-sensors/2005-July/013012.html
 
-posix_timer_fn locks timer->it_lock first, then locks tasklist_lock
-in send_group_sigqueue().
+Both ended up with new driver probe() methods attaching to *devices* not
+to busses, and used the probe signature the i2c core already handles.
+That helps eliminate one of the surprises hitting anyone starting to use
+the I2C driver stack.  But not the more fundamental one...
 
-Also, sys_timer_delete() locks ->it_lock, then ->sighand.lock.
+What would you think about actually making I2C probing work more like
+standard driver model probing, instead?  That is, have the probe method
+signature look like this:
 
-I think the better fix would be re-check ->sighand in send_sigqueue,
-like Paul's patches do.
+    int probe(struct i2c_client *dev, void *driver_data)
 
-Oleg.
+In normal driver model usage, infrastructure creates the devices, and the
+device drivers just bind to them.  But I2C doesn't support that even for
+the submodel where it's very appropriate:  devices that have been probed,
+or which (as with platform_bus) were explicitly declared to exist.
+
+I2C drivers would either continue the old school way ... or could start
+acting more like they do in other mainstream Linux driver frameworks.
+
+- Dave
+
+

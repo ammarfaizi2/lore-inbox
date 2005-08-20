@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbVHTMth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVHTNXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbVHTMth (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 08:49:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbVHTMth
+	id S1750714AbVHTNXp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 09:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbVHTNXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 08:49:37 -0400
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:62151 "EHLO
-	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750721AbVHTMtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 08:49:36 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Sat, 20 Aug 2005 13:49:28 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, vandrove@vc.cvut.cz,
-       Andrew Morton <akpm@osdl.org>, linware@sh.cvut.cz,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel bug: Bad page state: related to generic symlink code and
- mmap
-In-Reply-To: <Pine.LNX.4.58.0508191502050.3412@g5.osdl.org>
-Message-ID: <Pine.LNX.4.60.0508201342420.18687@hermes-1.csi.cam.ac.uk>
-References: <1124450088.2294.31.camel@imp.csi.cam.ac.uk> 
- <20050819142025.GA29811@parcelfarce.linux.theplanet.co.uk>
- <1124466246.2294.65.camel@imp.csi.cam.ac.uk> <Pine.LNX.4.58.0508190855350.3412@g5.osdl.org>
- <Pine.LNX.4.58.0508190913570.3412@g5.osdl.org> <Pine.LNX.4.58.0508190934470.3412@g5.osdl.org>
- <Pine.LNX.4.60.0508192144590.7312@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.58.0508191352540.3412@g5.osdl.org>
- <Pine.LNX.4.60.0508192220440.7312@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.58.0508191502050.3412@g5.osdl.org>
+	Sat, 20 Aug 2005 09:23:45 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:51592 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S1750714AbVHTNXo (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sat, 20 Aug 2005 09:23:44 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17159.11995.869374.370114@gargle.gargle.HOWL>
+Date: Sat, 20 Aug 2005 17:23:39 +0400
+To: Howard Chu <hyc@symas.com>
+Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: sched_yield() makes OpenLDAP slow
+In-Reply-To: <430666DB.70802@symas.com>
+References: <43057641.70700@symas.com>
+	<17157.45712.877795.437505@gargle.gargle.HOWL>
+	<430666DB.70802@symas.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Howard Chu writes:
+ > Nikita Danilov wrote:
 
-On Fri, 19 Aug 2005, Linus Torvalds wrote:
-> On Fri, 19 Aug 2005, Anton Altaparmakov wrote:
-> > Yes, sure.  I have applied your patch to our 2.6.11.4 tree (with the one 
-> > liner change I emailed you just now) and have kicked off a compile.
-> 
-> Actually, hold on. The original patch had another problem: it returned an
-> uninitialized "page" pointer when page_getlink() failed.
+[...]
 
-I copied the fix to that problem from your new patch by hand and 
-recompiled the kernel (that way I didn't have to rebuild the modules 
-again).  Note I did not apply any of the fs specific changes.  I only did 
-the VFS part of your patch that was actually necessary.  And I reverted my 
-ncpfs fix so it is now again using the vfs supplied symlink helpers.
+ > 
+ > >  What prevents transaction monitor from using, say, condition
+ > >  variables to "yield cpu"? That would have an additional advantage of
+ > >  blocking thread precisely until specific event occurs, instead of
+ > >  blocking for some vague indeterminate load and platform dependent
+ > >  amount of time.
+ > 
+ > Condition variables offer no control over which thread is waken up. 
 
-Having booted the new kernel and trying nautilus it worked fine accessing 
-the same symlink that failed before, so your patch fixes the ncpfs 
-problem as one would expect but always good to be sure.  (-:
+When only one thread waits on a condition variable, which is exactly a
+scenario involved, --sorry if I weren't clear enough-- condition signal
+provides precise control over which thread is woken up.
 
-btw. It may be an idea to switch smbfs to use the fixed generic symlink 
-functions, too, so it benefits from symlink caching...
+ > We're wandering into the design of the SleepyCat BerkeleyDB library 
+ > here, and we don't exert any control over that either. BerkeleyDB 
+ > doesn't appear to use pthread condition variables; it seems to construct 
+ > its own synchronization mechanisms on top of mutexes (and yield calls). 
 
-Best regards,
+That returns us to the core of the problem: sched_yield() is used to
+implement a synchronization primitive and non-portable assumptions are
+made about its behavior: SUS defines that after sched_yield() thread
+ceases to run on the CPU "until it again becomes the head of its thread
+list", and "thread list" discipline is only defined for real-time
+scheduling policies. E.g., 
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+int sched_yield(void)
+{
+       return 0;
+}
+
+and
+
+int sched_yield(void)
+{
+       sleep(100);
+       return 0;
+}
+
+are both valid sched_yield() implementation for non-rt (SCHED_OTHER)
+threads.
+
+Nikita.

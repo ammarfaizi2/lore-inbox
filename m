@@ -1,32 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVHTKqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbVHTL0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbVHTKqR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 06:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVHTKqR
+	id S932218AbVHTL0g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 07:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVHTL0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 06:46:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49824 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751078AbVHTKqQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 06:46:16 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <200508200231.19341.phillips@istop.com> 
-References: <200508200231.19341.phillips@istop.com>  <20050818222721.GC4275@elf.ucw.cz> <7489.1124375598@warthog.cambridge.redhat.com> <8880.1124445882@warthog.cambridge.redhat.com> 
-To: Daniel Phillips <phillips@istop.com>
-Cc: David Howells <dhowells@redhat.com>, Pavel Machek <pavel@suse.cz>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS 
-X-Mailer: MH-E 7.84; nmh 1.0.4; GNU Emacs 22.0.50.1
-Date: Sat, 20 Aug 2005 11:45:47 +0100
-Message-ID: <24247.1124534747@warthog.cambridge.redhat.com>
+	Sat, 20 Aug 2005 07:26:36 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46343 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751078AbVHTL0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 07:26:35 -0400
+Date: Sat, 20 Aug 2005 13:26:28 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Jochen Friedrich <jochen@scram.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6-mm] tms380tr: remove prototypes in Space.c
+Message-ID: <20050820112628.GP3615@stusta.de>
+References: <Pine.LNX.4.58.0507301039430.5597@localhost> <4305851D.1050205@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4305851D.1050205@pobox.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@istop.com> wrote:
+On Fri, Aug 19, 2005 at 03:07:09AM -0400, Jeff Garzik wrote:
 
-> Biased.  Fs is a mixed case acronym, nuff said.
+> these two patches look OK to me, but didn't apply.
+> 
+> Can you please resend, according to
+> 
+> 	http://linux.yyz.us/patch-format.html
+> 
+> ?
 
-But I'm still right:-)
+It seems the second of Jochen's patches does no longer apply (at least 
+against the latest -mm), but what was wrong with the format of his 
+patches?
 
-David
+> 	Jeff
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

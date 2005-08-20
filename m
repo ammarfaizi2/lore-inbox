@@ -1,94 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932785AbVHTTCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932796AbVHTTEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932785AbVHTTCy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 15:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932787AbVHTTCy
+	id S932796AbVHTTEa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 15:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbVHTTE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 15:02:54 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:16395 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932785AbVHTTCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 15:02:53 -0400
-Date: Sat, 20 Aug 2005 21:02:51 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: [2.6 patch] drivers/ide/: possible cleanups
-Message-ID: <20050820190251.GZ3615@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sat, 20 Aug 2005 15:04:29 -0400
+Received: from mta10.adelphia.net ([68.168.78.202]:1757 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S932793AbVHTTE2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 15:04:28 -0400
+Message-ID: <43077EBB.5060705@adelphia.net>
+Date: Sat, 20 Aug 2005 15:04:27 -0400
+From: mikep <mikpolniak@adelphia.net>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050808)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: SCSI- unexpected disconnect with kernel-2.6.13-r6
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- pci/cy82c693.c: make a needlessly global function static
-- remove the following unneeded EXPORT_SYMBOL's:
-  - ide-taskfile.c: do_rw_taskfile
-  - ide-iops.c: default_hwif_iops
-  - ide-iops.c: default_hwif_transport
-  - ide-iops.c: wait_for_ready
+I am using a LSIU160/Symbios 53c1010 Ultra3 scsi adapter and it works at 
+full speed (75 MB/sec) with kernel-2.6.12. And dmesg shows:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+kernel:  target0:0:0: Beginning Domain Validation
+kernel:  target0:0:0: asynchronous.
+kernel: WIDTH IS 1
+kernel:  target0:0:0: wide asynchronous.
+kernel:  target0:0:0: FAST-80 WIDE SCSI 160.0 MB/s DT (12.5 ns, offset 62)
+kernel:  target0:0:0: Ending Domain Validation
+kernel: sym1: <1010-33> rev 0x1 at pci 0000:01:07.1 irq 11
+kernel: sym1: Symbios NVRAM, ID 7, Fast-80, SE, parity checking
+kernel: sym1: open drain IRQ line driver
+kernel: sym1: using LOAD/STORE-based firmware.
+kernel: sym1: handling phase mismatch from SCRIPTS.
+kernel: sym1: SCSI BUS has been reset.
+kernel: scsi1 : sym-2.2.0
+kernel: libata version 1.11 loaded.
 
----
+With kernel-2.6.13-r6 the speed drops back to 2.70 MB/sec because of
+validation failure and dmesg shows:
 
- drivers/ide/ide-iops.c     |    6 ------
- drivers/ide/ide-taskfile.c |    2 --
- drivers/ide/pci/cy82c693.c |    2 +-
- 3 files changed, 1 insertion(+), 9 deletions(-)
+kernel:  target0:0:0: Beginning Domain Validation
+kernel:  target0:0:0: asynchronous.
+kernel:  target0:0:0: wide asynchronous.
+kernel:  target0:0:0: FAST-80 WIDE SCSI 160.0 MB/s DT IU QAS (
+kernel: sym0: unexpected disconnect
+kernel:  target0:0:0: Write Buffer failure 700ff
+kernel:  target0:0:0: Domain Validation Disabing Information units
+kernel:  0:0:0:0: phase change 6-7 11@3fb3c3a8 resid=10.
+kernel:  target0:0:0: asynchronous.
+kernel: sym0: unexpected disconnect
+target0:0:0: Write Buffer failure 700ff
+target0:0:0: Domain Validation detected failure, dropping back
+kernel:  target0:0:0: asynchronous.
+target0:0:0: Ending Domain Validation
+kernel: sym1: <1010-33> rev 0x1 at pci 0000:01:07.1 irq 11
+kernel: sym1: Symbios NVRAM, ID 7, Fast-80, SE, parity checkingkernel: 
+sym1:
+ open drain IRQ line driver, using on-chip SRAM
+kernel: sym1: using LOAD/STORE-based firmware.
+kernel: sym1: handling phase mismatch from SCRIPTS.
+kernel: sym1: SCSI BUS has been reset.
+kernel: scsi1 : sym-2.2.1
+kernel: libata version 1.11 loaded.
 
---- linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c.old	2005-02-05 02:57:03.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c	2005-02-05 02:57:12.000000000 +0100
-@@ -161,8 +161,6 @@
- 	return ide_stopped;
- }
- 
--EXPORT_SYMBOL(do_rw_taskfile);
--
- /*
-  * set_multmode_intr() is invoked on completion of a WIN_SETMULT cmd.
-  */
+The kernel config has:
 
---- linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c.old	2005-04-17 21:11:22.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c	2005-04-17 21:11:30.000000000 +0200
-@@ -469,7 +469,7 @@
- 
- static __initdata ide_hwif_t *primary;
- 
--void __devinit init_iops_cy82c693(ide_hwif_t *hwif)
-+static void __devinit init_iops_cy82c693(ide_hwif_t *hwif)
- {
- 	if (PCI_FUNC(hwif->pci_dev->devfn) == 1)
- 		primary = hwif;
---- linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c.old	2005-04-17 21:12:44.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c	2005-04-17 21:12:54.000000000 +0200
-@@ -104,8 +104,6 @@
- 	hwif->INSL	= ide_insl;
- }
- 
--EXPORT_SYMBOL(default_hwif_iops);
--
- /*
-  *	MMIO operations, typically used for SATA controllers
-  */
-@@ -329,8 +327,6 @@
- 	hwif->atapi_output_bytes	= atapi_output_bytes;
- }
- 
--EXPORT_SYMBOL(default_hwif_transport);
--
- /*
-  * Beginning of Taskfile OPCODE Library and feature sets.
-  */
-@@ -525,8 +525,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(wait_for_ready);
--
- /*
-  * This routine busy-waits for the drive status to be not "busy".
-  * It then checks the status for all of the "good" bits and none
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+# CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
 

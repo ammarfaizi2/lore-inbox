@@ -1,110 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932612AbVHTBAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932778AbVHTBId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932612AbVHTBAg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 21:00:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932775AbVHTBAf
+	id S932778AbVHTBId (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 21:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932773AbVHTBId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 21:00:35 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:45773 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S932612AbVHTBAf (ORCPT
+	Fri, 19 Aug 2005 21:08:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9392 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932597AbVHTBIc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 21:00:35 -0400
-Date: Sat, 20 Aug 2005 10:00:07 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: akpm@osdl.org
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org,
-       Jesper Juhl <jesper.juhl@gmail.com>
-Subject: [PATCH] fix warning of TANBAC_TB0219 in drivers/char/Kconfig
-Message-Id: <20050820100007.719cf942.yuasa@hh.iij4u.or.jp>
-In-Reply-To: <9a87484905081911036dcedf57@mail.gmail.com>
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>
-	<9a87484905081911036dcedf57@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Aug 2005 21:08:32 -0400
+Date: Fri, 19 Aug 2005 18:08:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>, vandrove@vc.cvut.cz,
+       Andrew Morton <akpm@osdl.org>, linware@sh.cvut.cz,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel bug: Bad page state: related to generic symlink code and
+ mmap
+In-Reply-To: <20050819231542.GJ29811@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0508191805410.3412@g5.osdl.org>
+References: <1124450088.2294.31.camel@imp.csi.cam.ac.uk>
+ <20050819142025.GA29811@parcelfarce.linux.theplanet.co.uk>
+ <1124466246.2294.65.camel@imp.csi.cam.ac.uk> <Pine.LNX.4.58.0508190855350.3412@g5.osdl.org>
+ <Pine.LNX.4.58.0508190913570.3412@g5.osdl.org> <Pine.LNX.4.58.0508190934470.3412@g5.osdl.org>
+ <Pine.LNX.4.60.0508192144590.7312@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.58.0508191352540.3412@g5.osdl.org>
+ <Pine.LNX.4.60.0508192220440.7312@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.58.0508191502050.3412@g5.osdl.org>
+ <20050819231542.GJ29811@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Aug 2005 20:03:26 +0200
-Jesper Juhl <jesper.juhl@gmail.com> wrote:
 
-> On 8/19/05, Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm1/
-> > 
+
+On Sat, 20 Aug 2005, Al Viro wrote:
 > 
-> menuconfig complains a little :
-> 
-> $ make menuconfig
-> scripts/kconfig/mconf arch/i386/Kconfig
-> drivers/char/Kconfig:847:warning: 'select' used by config symbol
-> 'TANBAC_TB0219' refer to undefined symbol 'PCI_VR41XX'
-> 
-> otherwise things seem to be ok here.
-> 
+> That looks OK except for
+> 	* ncpfs fix is actually missing here
 
-Here is a patch for this warning fix.
+Well, the thing is, with the change to page_follow_link() and 
+page_put_link(), ncpfs should now work fine - it doesn't need any fixing 
+any more.
 
-Yoichi
+It was makign an assumption that used to be incorrect, but that assumption
+became ok with the calling convention change - now the page_follow_link()
+and page_put_link() functions work fine even if the page cache might get 
+invalidated in between the calls.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+So with your patch, things should be fine (and external filesystems will 
+generate warnings on compiles, but should work fine, since the change 
+maintains the ABI even if the API changed - which is pretty unusual).
 
-diff -urN -X dontdiff rc6-mm1-orig/arch/mips/Kconfig rc6-mm1/arch/mips/Kconfig
---- rc6-mm1-orig/arch/mips/Kconfig	2005-08-20 08:32:28.000000000 +0900
-+++ rc6-mm1/arch/mips/Kconfig	2005-08-20 08:41:42.000000000 +0900
-@@ -91,8 +91,6 @@
- 	select DMA_NONCOHERENT
- 	select IRQ_CPU
- 	select HW_HAS_PCI
--	select PCI
--	select PCI_VR41XX
- 
- config ROCKHOPPER
- 	bool "Support for Rockhopper baseboard"
-@@ -133,8 +131,6 @@
- config TANBAC_TB0226
- 	bool "Support for TANBAC Mbase(TB0226)"
- 	depends on TANBAC_TB022X
--	select PCI
--	select PCI_VR41XX
- 	select GPIO_VR41XX
- 	help
- 	  The TANBAC Mbase(TB0226) is a MIPS-based platform manufactured by TANBAC.
-@@ -147,8 +143,6 @@
- 	select DMA_NONCOHERENT
- 	select IRQ_CPU
- 	select HW_HAS_PCI
--	select PCI
--	select PCI_VR41XX
- 
- config ZAO_CAPCELLA
- 	bool "Support for ZAO Networks Capcella"
-@@ -157,12 +151,12 @@
- 	select DMA_NONCOHERENT
- 	select IRQ_CPU
- 	select HW_HAS_PCI
--	select PCI
--	select PCI_VR41XX
- 
- config PCI_VR41XX
- 	bool "Add PCI control unit support of NEC VR4100 series"
--	depends on MACH_VR41XX && PCI
-+	depends on MACH_VR41XX && HW_HAS_PCI
-+	default y
-+	select PCI
- 
- config VRC4173
- 	tristate "Add NEC VRC4173 companion chip support"
-diff -urN -X dontdiff rc6-mm1-orig/drivers/char/Kconfig rc6-mm1/drivers/char/Kconfig
---- rc6-mm1-orig/drivers/char/Kconfig	2005-08-20 08:32:35.000000000 +0900
-+++ rc6-mm1/drivers/char/Kconfig	2005-08-20 09:41:43.000000000 +0900
-@@ -843,8 +843,6 @@
- config TANBAC_TB0219
- 	tristate "TANBAC TB0219 base board support"
- 	depends TANBAC_TB022X
--	select PCI
--	select PCI_VR41XX
- 
- menu "Ftape, the floppy tape device driver"
- 
+		Linus

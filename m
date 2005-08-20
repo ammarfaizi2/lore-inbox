@@ -1,195 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVHTOtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVHTOnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbVHTOtO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 10:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbVHTOtO
+	id S1751246AbVHTOnn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 10:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVHTOnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 10:49:14 -0400
-Received: from dvhart.com ([64.146.134.43]:61313 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1751245AbVHTOtN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 10:49:13 -0400
-Date: Sat, 20 Aug 2005 07:49:06 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: 2.6.13-rc6-mm1
-Message-ID: <2050000.1124549345@[10.10.2.4]>
-In-Reply-To: <20050819043331.7bc1f9a9.akpm@osdl.org>
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 20 Aug 2005 10:43:43 -0400
+Received: from ns1.iitis.gliwice.pl ([212.106.181.5]:18854 "EHLO
+	intel.iitis.gliwice.pl") by vger.kernel.org with ESMTP
+	id S1751246AbVHTOnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 10:43:42 -0400
+Message-ID: <4440.144.82.192.113.1124549018.squirrel@mail.iitis.gliwice.pl>
+Date: Sat, 20 Aug 2005 16:43:38 +0200 (CEST)
+Subject: CLOCK_TICK_RATE for slowing down the system clock?
+From: ijs@iitis.gliwice.pl
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
+X-IITiS-MailScanner-Information: Please contact the ISP for more information
+X-IITiS-MailScanner: Found to be clean
+X-MailScanner-From: ijs@iitis.gliwice.pl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Andrew Morton <akpm@osdl.org> wrote (on Friday, August 19, 2005 04:33:31 -0700):
+For my own purpose I would like to slow down the clock maintained by
+the Linux kernel.
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm1/
-> 
-> - Lots of fixes, updates and cleanups all over the place.
-> 
-> - If you have the right debugging options set, this kernel will generate
->   a storm of sleeping-in-atomic-code warnings at boot, from the scsi code.
->   It is being worked on.
+I want to simulate 10Gb/s network connection with roughly 10000 TCP
+connections.  For this I want to use two (perhaps dual processor if
+need be) PC computers connected with 1Gb/s Ethernet.  To achieve this
+goal I need to trick the Linux TCP implementation that it's running on
+a 10x faster setup.
 
-Get a couple of debug warnings as you mention ... but then it panics.
+Therefore I have the following idea, which I partially tested.  So far
+I have not tested the TCP performance, but only some general system
+performance.  I did some simple tests with Linux 2.6.12 on my laptop
+with Pentium 4, 2.8 GHz, no hyperthreading.
+
+The idea is to slow down 10 times the clock maintained by the Linux
+kernel.  Software that relies on the system clock (such as the TCP
+Linux kernel implementation, and other software such as the top
+command) should be tricked to think that it runs on a 10 times faster
+computer with a 10Gb/s link.
+
+The simplest hack I have came up with to slow down the clock is to
+compile the kernel with a different frequency of the hardware clock as
+defined in the linux-2.6.12/include/asm-i386/timex.h file:
+
+#  define CLOCK_TICK_RATE 1193182 /* Underlying HZ */
+
+I multiplied this value by 10:
+
+#  define CLOCK_TICK_RATE 11931820 /* Underlying HZ */
+
+I recompiled and installed the new kernel.  Once we are running (with
+the noapic option at boot time) the new kernel, a simple way of making
+sure the system clock is running slower is to use the date command and
+see how slow the time is passing.  And yes, the system clock was
+running 10 times slower.  But unfortunately, not only the system clock
+was running slower...
+
+Some tasks were running slower.  Linux would boot 5 times slower, and
+it would shut down 5 times slower, which might be caused by the sleep
+and usleep commands used in the /etc/init.d scripts.  Naturally, I
+expected some software to run 10 times slower, such as the top
+command, which is supposed to report results every 3 seconds.
+
+My simple test was to copy a 1GB file between two disc partitions.  On
+a regular kernel I ran:
+
+~ >time cp 1GB /jaguar/ijs/
+real    1m50.529s
+user    0m0.185s
+sys     0m6.869s
+
+Then on the slow kernel I ran:
+
+~ >time cp 1GB /jaguar/ijs/
+
+real    0m10.444s
+user    0m0.013s
+sys     0m0.578s
+
+Sometimes I had an impression that on the slow kernel some things
+worked slightly slower, such as logging in.
+
+Overall, however, it seems that the system was performing 10 times
+faster when measured with the slowed down system clock.  Therefore my
+simple tests give me some courage to pursue this path.  But before I
+start working on this and spend more time on testing and implementing
+my software, I want to make sure that I hope for too much and that my
+plan is viable.
+
+MY QUESTION IS: Are there some pitfalls or problems which I failed to
+notice?
+
+Thanks for reading!
 
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
-        <Adaptec aic7899 Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
-        <Adaptec aic7899 Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
-
-  Vendor: IBM       Model: GNHv1 S2          Rev: 0   
-  Type:   Processor                          ANSI SCSI revision: 02
- target1:0:9: Beginning Domain Validation
- target1:0:9: Ending Domain Validation
-  Vendor: IBM-ESXS  Model: DTN036C1UCDY10F   Rev: S25J
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi1:A:12:0: Tagged Queuing enabled.  Depth 253
- target1:0:12: Beginning Domain Validation
- target1:0:12: wide asynchronous.
- target1:0:12: FAST-80 WIDE SCSI 160.0 MB/s DT (12.5 ns, offset 127)
- target1:0:12: Ending Domain Validation
-  Vendor: IBM-ESXS  Model: DTN036C1UCDY10F   Rev: S25J
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi1:A:13:0: Tagged Queuing enabled.  Depth 253
- target1:0:13: Beginning Domain Validation
- target1:0:13: wide asynchronous.
- target1:0:13: FAST-80 WIDE SCSI 160.0 MB/s DT (12.5 ns, offset 127)
- target1:0:13: Ending Domain Validation
-scsi2 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
-        <Adaptec aic7899 Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-
-scheduling while atomic: swapper/0x00000100/0
- [<c02f65c5>] schedule+0x45/0x724
- [<c0115a15>] __wake_up+0x31/0x3c
- [<c016892a>] dcache_shrinker_del+0x2e/0x38
- [<c0168c62>] dput_recursive+0x232/0x270
- [<c0168c95>] dput_recursive+0x265/0x270
- [<c02f7d0f>] __down+0x7f/0x108
- [<c0115978>] default_wake_function+0x0/0x1c
- [<c02f6517>] __down_failed+0x7/0xc
- [<c0233612>] .text.lock.attribute_container+0x8b/0xc1
- [<c02337eb>] transport_remove_device+0xf/0x14
- [<c0233784>] transport_remove_classdev+0x0/0x58
- [<c0265b62>] scsi_target_reap+0x86/0xb4
- [<c02670c0>] scsi_device_dev_release+0x134/0x15c
- [<c022f5b8>] device_release+0x14/0x4c
- [<c01bc2c3>] kobject_cleanup+0x47/0x6c
- [<c01bc2e8>] kobject_release+0x0/0x14
- [<c01bc2f5>] kobject_release+0xd/0x14
- [<c01bcb95>] kref_put+0x79/0x89
- [<c01bc312>] kobject_put+0x16/0x1c
- [<c01bc2e8>] kobject_release+0x0/0x14
- [<c022f925>] put_device+0x11/0x18
- [<c025ecad>] scsi_put_command+0xa5/0xb0
- [<c0263df5>] scsi_next_command+0x11/0x1c
- [<c0263ed9>] scsi_end_request+0xa9/0xb4
- [<c02644c1>] scsi_io_completion+0x489/0x494
- [<c02646da>] scsi_generic_done+0x32/0x38
- [<c025f618>] scsi_finish_command+0xa0/0xa8
- [<c025f52d>] scsi_softirq+0x139/0x154
- [<c011e32d>] __do_softirq+0x8d/0x100
- [<c011e3cf>] do_softirq+0x2f/0x34
- [<c011e474>] irq_exit+0x34/0x38
- [<c0104840>] do_IRQ+0x20/0x28
- [<c01033ae>] common_interrupt+0x1a/0x20
- [<c0100c00>] default_idle+0x0/0x2c
- [<c0100c23>] default_idle+0x23/0x2c
- [<c0100cf3>] cpu_idle+0x7b/0x8c
- [<c01002c8>] rest_init+0x28/0x2c
- [<c03de87f>] start_kernel+0x197/0x19c
-scheduling while atomic: swapper/0x00000100/0
- [<c02f65c5>] schedule+0x45/0x724
- [<c011598f>] default_wake_function+0x17/0x1c
- [<c01159cb>] __wake_up_common+0x37/0x50
- [<c0115a15>] __wake_up+0x31/0x3c
- [<c02f6d34>] wait_for_completion+0x90/0xe8
- [<c0115978>] default_wake_function+0x0/0x1c
- [<c0115978>] default_wake_function+0x0/0x1c
- [<c01280c8>] call_usermodehelper_keys+0x144/0x15a
- [<c0127f38>] __call_usermodehelper+0x0/0x4c
- [<c0127f38>] __call_usermodehelper+0x0/0x4c
- [<c01bca4d>] kobject_hotplug+0x255/0x280
- [<c0231c39>] class_device_del+0x8d/0xa8
- [<c0233541>] attribute_container_class_device_del+0x11/0x18
- [<c02337d3>] transport_remove_classdev+0x4f/0x58
- [<c02333ef>] attribute_container_device_trigger+0x7f/0xb8
- [<c02337eb>] transport_remove_device+0xf/0x14
- [<c0233784>] transport_remove_classdev+0x0/0x58
- [<c0265b62>] scsi_target_reap+0x86/0xb4
- [<c02670c0>] scsi_device_dev_release+0x134/0x15c
- [<c022f5b8>] device_release+0x14/0x4c
- [<c01bc2c3>] kobject_cleanup+0x47/0x6c
- [<c01bc2e8>] kobject_release+0x0/0x14
- [<c01bc2f5>] kobject_release+0xd/0x14
- [<c01bcb95>] kref_put+0x79/0x89
- [<c01bc312>] kobject_put+0x16/0x1c
- [<c01bc2e8>] kobject_release+0x0/0x14
- [<c022f925>] put_device+0x11/0x18
- [<c025ecad>] scsi_put_command+0xa5/0xb0
- [<c0263df5>] scsi_next_command+0x11/0x1c
- [<c0263ed9>] scsi_end_request+0xa9/0xb4
- [<c02644c1>] scsi_io_completion+0x489/0x494
- [<c02646da>] scsi_generic_done+0x32/0x38
- [<c025f618>] scsi_finish_command+0xa0/0xa8
- [<c025f52d>] scsi_softirq+0x139/0x154
- [<c011e32d>] __do_softirq+0x8d/0x100
- [<c011e3cf>] do_softirq+0x2f/0x34
- [<c011e474>] irq_exit+0x34/0x38
- [<c0104840>] do_IRQ+0x20/0x28
- [<c01033ae>] common_interrupt+0x1a/0x20
- [<c0100c00>] default_idle+0x0/0x2c
- [<c0100c23>] default_idle+0x23/0x2c
- [<c0100cf3>] cpu_idle+0x7b/0x8c
- [<c01002c8>] rest_init+0x28/0x2c
- [<c03de87f>] start_kernel+0x197/0x19c
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c0263cf2
-*pde = 0042c001
-*pte = 00000000
-Oops: 0000 [#1]
-SMP 
-last sysfs file: 
-CPU:    0
-EIP:    0060:[<c0263cf2>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.13-rc6-mm1-autokern1) 
-EIP is at scsi_run_queue+0xe/0xb4
-eax: d777ce30   ebx: d777ce30   ecx: 00000282   edx: d6c4cc00
-esi: d777ce30   edi: 00000000   ebp: 00000246   esp: c03dde98
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=c03dc000 task=c0373be0)
-Stack: d777ce30 d777ce30 d76fb500 00000246 c0263dfb d777ce30 d76fb500 d777d70c 
-       c0263ed9 d76fb500 d777d70c d6c4c400 d6c4cc00 00000024 d76fb500 c02644c1 
-       d76fb500 00000000 00000024 00000001 d6c4c400 d6c4cc00 d76fb500 d76fb500 
-Call Trace:
- [<c0263dfb>] scsi_next_command+0x17/0x1c
- [<c0263ed9>] scsi_end_request+0xa9/0xb4
- [<c02644c1>] scsi_io_completion+0x489/0x494
- [<c02646da>] scsi_generic_done+0x32/0x38
- [<c025f618>] scsi_finish_command+0xa0/0xa8
- [<c025f52d>] scsi_softirq+0x139/0x154
- [<c011e32d>] __do_softirq+0x8d/0x100
- [<c011e3cf>] do_softirq+0x2f/0x34
- [<c011e474>] irq_exit+0x34/0x38
- [<c0104840>] do_IRQ+0x20/0x28
- [<c01033ae>] common_interrupt+0x1a/0x20
- [<c0100c00>] default_idle+0x0/0x2c
- [<c0100c23>] default_idle+0x23/0x2c
- [<c0100cf3>] cpu_idle+0x7b/0x8c
- [<c01002c8>] rest_init+0x28/0x2c
- [<c03de87f>] start_kernel+0x197/0x19c
-
+Best,
+Irek
 

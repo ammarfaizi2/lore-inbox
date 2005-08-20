@@ -1,51 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbVHTK5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVHTKqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbVHTK5F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 06:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVHTK5F
+	id S932180AbVHTKqR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 06:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVHTKqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 06:57:05 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30983 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751239AbVHTK5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 06:57:02 -0400
-Date: Sat, 20 Aug 2005 12:56:55 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch 2.6.13-rc6] docs: fix misinformation about overcommit_memory
-Message-ID: <20050820105654.GO3615@stusta.de>
-References: <200508192318_MC3-1-A7AE-1D7A@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508192318_MC3-1-A7AE-1D7A@compuserve.com>
-User-Agent: Mutt/1.5.9i
+	Sat, 20 Aug 2005 06:46:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49824 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751078AbVHTKqQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 06:46:16 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200508200231.19341.phillips@istop.com> 
+References: <200508200231.19341.phillips@istop.com>  <20050818222721.GC4275@elf.ucw.cz> <7489.1124375598@warthog.cambridge.redhat.com> <8880.1124445882@warthog.cambridge.redhat.com> 
+To: Daniel Phillips <phillips@istop.com>
+Cc: David Howells <dhowells@redhat.com>, Pavel Machek <pavel@suse.cz>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS 
+X-Mailer: MH-E 7.84; nmh 1.0.4; GNU Emacs 22.0.50.1
+Date: Sat, 20 Aug 2005 11:45:47 +0100
+Message-ID: <24247.1124534747@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 11:14:39PM -0400, Chuck Ebbert wrote:
+Daniel Phillips <phillips@istop.com> wrote:
 
-> Someone complained about the docs for vm_overcommit_memory being wrong.
-> This patch copies the text from the vm documentation into procfs.
-> Please apply.
->...
+> Biased.  Fs is a mixed case acronym, nuff said.
 
-Do we really need two copies of the same text?
+But I'm still right:-)
 
-Couldn't you instead write some kind of "please look at 
-Documentation/vm/overcommit-accounting"?
-
-> Chuck
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+David

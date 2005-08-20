@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbVHTQUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbVHTQ30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbVHTQUs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 12:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbVHTQUs
+	id S932394AbVHTQ30 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 12:29:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbVHTQ30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 12:20:48 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14608 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932474AbVHTQUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 12:20:48 -0400
-Date: Sat, 20 Aug 2005 17:20:42 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fs/adfs/adfs.h: "extern inline" doesn't make sense
-Message-ID: <20050820172042.B27756@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	linux-kernel@vger.kernel.org
-References: <20050819234119.GD3615@stusta.de> <20050819234443.GG3615@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050819234443.GG3615@stusta.de>; from bunk@stusta.de on Sat, Aug 20, 2005 at 01:44:43AM +0200
+	Sat, 20 Aug 2005 12:29:26 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:32785 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932394AbVHTQ3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 12:29:25 -0400
+To: torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
+CC: linux-kernel@vger.kernel.org
+Subject: open("foo", 3)
+Message-Id: <E1E6WCz-0005ym-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 20 Aug 2005 18:28:38 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 20, 2005 at 01:44:43AM +0200, Adrian Bunk wrote:
-> "extern inline" doesn't make sense.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Linus et Al,
 
-Thanks Adrian - I've committed it to my tree.
+Access mode of 3 is undocumented but it does do something halfway sane
+on all linuxes (checked back to 2.0.X).
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+The open requires both read and write permission to succeed, but the
+resulting file descriptor can neither be read nor written.
+
+The responsible code in filp_open() is this:
+
+	namei_flags = flags;
+	if ((namei_flags+1) & O_ACCMODE)
+		namei_flags++;
+
+	/* ... */
+
+	error = open_namei(filename, namei_flags, mode, &nd);
+	if (!error)
+		return dentry_open(nd.dentry, nd.mnt, flags);
+
+And in dentry_open():
+
+	f->f_mode = ((flags+1) & O_ACCMODE) | /* ... */
+
+Note, that open_namei() is checking permissions, and dentry_open()
+sets f->f_mode, but calculates it differently.
+
+My question is: is this deliberate or accidental?  Wouldn't it be more
+logical to not require any permission to open such file?  Or is there
+some security concern with that?
+
+Thanks,
+Miklos

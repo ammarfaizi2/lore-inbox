@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVHTNXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVHTNm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbVHTNXp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 09:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbVHTNXp
+	id S1750730AbVHTNm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 09:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVHTNm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 09:23:45 -0400
-Received: from [80.71.243.242] ([80.71.243.242]:51592 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S1750714AbVHTNXo (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sat, 20 Aug 2005 09:23:44 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Aug 2005 09:42:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:37508 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750730AbVHTNm3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 09:42:29 -0400
+Subject: Re: 2.6.13-rc6-mm1
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Reuben Farrelly <reuben-lkml@reub.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050819183600.49f620b0.akpm@osdl.org>
+References: <20050819043331.7bc1f9a9.akpm@osdl.org>
+	 <4305DCC6.70906@reub.net> <20050819103435.2c88a9f2.akpm@osdl.org>
+	 <430686EA.3000901@reub.net>  <20050819183600.49f620b0.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 20 Aug 2005 14:40:31 +0100
+Message-Id: <1124545232.3407.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17159.11995.869374.370114@gargle.gargle.HOWL>
-Date: Sat, 20 Aug 2005 17:23:39 +0400
-To: Howard Chu <hyc@symas.com>
-Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Subject: Re: sched_yield() makes OpenLDAP slow
-In-Reply-To: <430666DB.70802@symas.com>
-References: <43057641.70700@symas.com>
-	<17157.45712.877795.437505@gargle.gargle.HOWL>
-	<430666DB.70802@symas.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howard Chu writes:
- > Nikita Danilov wrote:
+On Fri, 2005-08-19 at 18:36 -0700, Andrew Morton wrote:
+> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> >
+> > ...
+> > >> 4. PAM is complaining about "PAM audit_open() failed: Protocol not suppor
+> > >> ted" and I can't log in as any user including root.  I would have picked this 
+> > >> was a userspace problem, but it doesn't break with -rc5-mm1, yet reproduceably 
+> > >> breaks with -rc6-mm1.  Weird.
+> > > 
+> > > hm.  How come you're able to use the machine then?
+> > 
+> > Machine was booting up ok, and things were being written to syslog.  Rebooted 
+> > into -rc5-mm1 to investigate, and of course could boot into rc6-mm1 in single 
+> > user mode, test and bring services up one by one from there.  Having two boxes 
+> > helped too.
+> > 
+> > > Is it possible to get an strace of this failure somehow?
+> > 
+> > Not sure if this is needed anymore, as I found that the problem goes away when 
+> > I compile in kernel auditing.  This not required for -rc5-mm1.  Is that change 
+> > intended?
+> > 
+> 
+> Sounds wrong to me, especially if 2.6.13-rc6 doesn't do that.
 
-[...]
+Hm. It sounds like you'd configured PAM to require the pam_loginuid
+module even though you didn't have auditing enabled in your kernel. That
+seems strange and wrong to me, and _is_ a userspace problem.
 
- > 
- > >  What prevents transaction monitor from using, say, condition
- > >  variables to "yield cpu"? That would have an additional advantage of
- > >  blocking thread precisely until specific event occurs, instead of
- > >  blocking for some vague indeterminate load and platform dependent
- > >  amount of time.
- > 
- > Condition variables offer no control over which thread is waken up. 
+I'd also agree that it shouldn't have changed with the new kernel though
+-- and I can't think of anything I changed recently which would have
+that effect. An strace would still be useful.
 
-When only one thread waits on a condition variable, which is exactly a
-scenario involved, --sorry if I weren't clear enough-- condition signal
-provides precise control over which thread is woken up.
+Can you double-check that you didn't have auditing enabled in your
+older, working kernel?
 
- > We're wandering into the design of the SleepyCat BerkeleyDB library 
- > here, and we don't exert any control over that either. BerkeleyDB 
- > doesn't appear to use pthread condition variables; it seems to construct 
- > its own synchronization mechanisms on top of mutexes (and yield calls). 
+-- 
+dwmw2
 
-That returns us to the core of the problem: sched_yield() is used to
-implement a synchronization primitive and non-portable assumptions are
-made about its behavior: SUS defines that after sched_yield() thread
-ceases to run on the CPU "until it again becomes the head of its thread
-list", and "thread list" discipline is only defined for real-time
-scheduling policies. E.g., 
-
-int sched_yield(void)
-{
-       return 0;
-}
-
-and
-
-int sched_yield(void)
-{
-       sleep(100);
-       return 0;
-}
-
-are both valid sched_yield() implementation for non-rt (SCHED_OTHER)
-threads.
-
-Nikita.

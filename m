@@ -1,106 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVHTOnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbVHTOue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbVHTOnn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 10:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVHTOnn
+	id S932305AbVHTOue (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 10:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbVHTOue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 10:43:43 -0400
-Received: from ns1.iitis.gliwice.pl ([212.106.181.5]:18854 "EHLO
-	intel.iitis.gliwice.pl") by vger.kernel.org with ESMTP
-	id S1751246AbVHTOnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 10:43:42 -0400
-Message-ID: <4440.144.82.192.113.1124549018.squirrel@mail.iitis.gliwice.pl>
-Date: Sat, 20 Aug 2005 16:43:38 +0200 (CEST)
-Subject: CLOCK_TICK_RATE for slowing down the system clock?
-From: ijs@iitis.gliwice.pl
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
+	Sat, 20 Aug 2005 10:50:34 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56551 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751253AbVHTOud (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 10:50:33 -0400
+Date: Sat, 20 Aug 2005 07:50:16 -0700
+To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu, pj@sgi.com, dino@in.ibm.com, nickpiggin@yahoo.com.au,
+       akpm@osdl.org
+Subject: [PATCH] ia64 cpuset + build_sched_domains() mangles structures
+Message-ID: <43074328.MailOXV1UXUHF@jackhammer.engr.sgi.com>
+User-Agent: nail 10.6 11/15/03
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
-X-IITiS-MailScanner-Information: Please contact the ISP for more information
-X-IITiS-MailScanner: Found to be clean
-X-MailScanner-From: ijs@iitis.gliwice.pl
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: hawkes@jackhammer.engr.sgi.com (John Hawkes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For my own purpose I would like to slow down the clock maintained by
-the Linux kernel.
+I've already sent this to the maintainers, and this is now being sent to a
+larger community audience.  I have fixed a problem with the ia64 version of
+build_sched_domains(), but a similar fix still needs to be made to the
+generic build_sched_domains() in kernel/sched.c.
 
-I want to simulate 10Gb/s network connection with roughly 10000 TCP
-connections.  For this I want to use two (perhaps dual processor if
-need be) PC computers connected with 1Gb/s Ethernet.  To achieve this
-goal I need to trick the Linux TCP implementation that it's running on
-a 10x faster setup.
+The "dynamic sched domains" functionality has recently been merged into
+2.6.13-rcN that sees the dynamic declaration of a cpu-exclusive (a.k.a.
+"isolated") cpuset and rebuilds the CPU Scheduler sched domains and sched
+groups to separate away the CPUs in this cpu-exclusive cpuset from the
+remainder of the non-isolated CPUs.  This allows the non-isolated CPUs to
+completely ignore the isolated CPUs when doing load-balancing.
 
-Therefore I have the following idea, which I partially tested.  So far
-I have not tested the TCP performance, but only some general system
-performance.  I did some simple tests with Linux 2.6.12 on my laptop
-with Pentium 4, 2.8 GHz, no hyperthreading.
+Unfortunately, build_sched_domains() expects that a sched domain will
+include all the CPUs of each node in the domain, i.e., that no node will
+belong in both an isolated cpuset and a non-isolated cpuset.  Declaring
+a cpuset that violates this presumption will produce flawed data
+structures and will oops the kernel.
 
-The idea is to slow down 10 times the clock maintained by the Linux
-kernel.  Software that relies on the system clock (such as the TCP
-Linux kernel implementation, and other software such as the top
-command) should be tricked to think that it runs on a 10 times faster
-computer with a 10Gb/s link.
+To trigger the problem (on a NUMA system with >1 CPUs per node):
+   cd /dev/cpuset
+   mkdir newcpuset
+   cd newcpuset
+   echo 0 >cpus
+   echo 0 >mems
+   echo 1 >cpu_exclusive
 
-The simplest hack I have came up with to slow down the clock is to
-compile the kernel with a different frequency of the hardware clock as
-defined in the linux-2.6.12/include/asm-i386/timex.h file:
+I have fixed this shortcoming for ia64 NUMA (with multiple CPUs per node).
+A similar shortcoming exists in the generic build_sched_domains() (in
+kernel/sched.c) for NUMA, and that needs to be fixed also.  The fix involves
+dynamically allocating sched_group_nodes[] and sched_group_allnodes[] for
+each invocation of build_sched_domains(), rather than using global arrays
+for these structures.  Care must be taken to remember kmalloc() addresses
+so that arch_destroy_sched_domains() can properly kfree() the new dynamic
+structures.
 
-#  define CLOCK_TICK_RATE 1193182 /* Underlying HZ */
+This is a patch against 2.6.13-rc6.
 
-I multiplied this value by 10:
+Signed-off-by: John Hawkes <hawkes@sgi.com>
 
-#  define CLOCK_TICK_RATE 11931820 /* Underlying HZ */
-
-I recompiled and installed the new kernel.  Once we are running (with
-the noapic option at boot time) the new kernel, a simple way of making
-sure the system clock is running slower is to use the date command and
-see how slow the time is passing.  And yes, the system clock was
-running 10 times slower.  But unfortunately, not only the system clock
-was running slower...
-
-Some tasks were running slower.  Linux would boot 5 times slower, and
-it would shut down 5 times slower, which might be caused by the sleep
-and usleep commands used in the /etc/init.d scripts.  Naturally, I
-expected some software to run 10 times slower, such as the top
-command, which is supposed to report results every 3 seconds.
-
-My simple test was to copy a 1GB file between two disc partitions.  On
-a regular kernel I ran:
-
-~ >time cp 1GB /jaguar/ijs/
-real    1m50.529s
-user    0m0.185s
-sys     0m6.869s
-
-Then on the slow kernel I ran:
-
-~ >time cp 1GB /jaguar/ijs/
-
-real    0m10.444s
-user    0m0.013s
-sys     0m0.578s
-
-Sometimes I had an impression that on the slow kernel some things
-worked slightly slower, such as logging in.
-
-Overall, however, it seems that the system was performing 10 times
-faster when measured with the slowed down system clock.  Therefore my
-simple tests give me some courage to pursue this path.  But before I
-start working on this and spend more time on testing and implementing
-my software, I want to make sure that I hope for too much and that my
-plan is viable.
-
-MY QUESTION IS: Are there some pitfalls or problems which I failed to
-notice?
-
-Thanks for reading!
-
-
-Best,
-Irek
-
+Index: linux/arch/ia64/kernel/domain.c
+===================================================================
+--- linux.orig/arch/ia64/kernel/domain.c	2005-08-19 08:54:00.000000000 -0700
++++ linux/arch/ia64/kernel/domain.c	2005-08-20 07:39:32.000000000 -0700
+@@ -120,10 +120,10 @@
+  * gets dynamically allocated.
+  */
+ static DEFINE_PER_CPU(struct sched_domain, node_domains);
+-static struct sched_group *sched_group_nodes[MAX_NUMNODES];
++static struct sched_group **sched_group_nodes_bycpu[NR_CPUS];
+ 
+ static DEFINE_PER_CPU(struct sched_domain, allnodes_domains);
+-static struct sched_group sched_group_allnodes[MAX_NUMNODES];
++static struct sched_group *sched_group_allnodes_bycpu[NR_CPUS];
+ 
+ static int cpu_to_allnodes_group(int cpu)
+ {
+@@ -138,6 +138,21 @@
+ void build_sched_domains(const cpumask_t *cpu_map)
+ {
+ 	int i;
++#ifdef CONFIG_NUMA
++	struct sched_group **sched_group_nodes = NULL;
++	struct sched_group *sched_group_allnodes = NULL;
++
++	/*
++	 * Allocate the per-node list of sched groups
++	 */
++	sched_group_nodes = kmalloc(sizeof(struct sched_group*)*MAX_NUMNODES,
++					   GFP_ATOMIC);
++	if (!sched_group_nodes) {
++		printk(KERN_WARNING "Can not alloc sched group node list\n");
++		return;
++	}
++	sched_group_nodes_bycpu[first_cpu(*cpu_map)] = sched_group_nodes;
++#endif
+ 
+ 	/*
+ 	 * Set up domains for cpus specified by the cpu_map.
+@@ -150,8 +165,21 @@
+ 		cpus_and(nodemask, nodemask, *cpu_map);
+ 
+ #ifdef CONFIG_NUMA
+-		if (num_online_cpus()
++		if (cpus_weight(*cpu_map)
+ 				> SD_NODES_PER_DOMAIN*cpus_weight(nodemask)) {
++			if (!sched_group_allnodes) {
++				sched_group_allnodes
++					= kmalloc(sizeof(struct sched_group)
++							* MAX_NUMNODES,
++						  GFP_KERNEL);
++				if (!sched_group_allnodes) {
++					printk(KERN_WARNING
++					"Can not alloc allnodes sched group\n");
++					break;
++				}
++				sched_group_allnodes_bycpu[i]
++						= sched_group_allnodes;
++			}
+ 			sd = &per_cpu(allnodes_domains, i);
+ 			*sd = SD_ALLNODES_INIT;
+ 			sd->span = *cpu_map;
+@@ -214,8 +242,9 @@
+ 	}
+ 
+ #ifdef CONFIG_NUMA
+-	init_sched_build_groups(sched_group_allnodes, *cpu_map,
+-				&cpu_to_allnodes_group);
++	if (sched_group_allnodes)
++		init_sched_build_groups(sched_group_allnodes, *cpu_map,
++					&cpu_to_allnodes_group);
+ 
+ 	for (i = 0; i < MAX_NUMNODES; i++) {
+ 		/* Set up node groups */
+@@ -226,8 +255,10 @@
+ 		int j;
+ 
+ 		cpus_and(nodemask, nodemask, *cpu_map);
+-		if (cpus_empty(nodemask))
++		if (cpus_empty(nodemask)) {
++			sched_group_nodes[i] = NULL;
+ 			continue;
++		}
+ 
+ 		domainspan = sched_domain_node_span(i);
+ 		cpus_and(domainspan, domainspan, *cpu_map);
+@@ -341,7 +372,7 @@
+ #endif
+ 
+ 	/* Attach the domains */
+-	for_each_online_cpu(i) {
++	for_each_cpu_mask(i, *cpu_map) {
+ 		struct sched_domain *sd;
+ #ifdef CONFIG_SCHED_SMT
+ 		sd = &per_cpu(cpu_domains, i);
+@@ -372,25 +403,42 @@
+ {
+ #ifdef CONFIG_NUMA
+ 	int i;
+-	for (i = 0; i < MAX_NUMNODES; i++) {
+-		cpumask_t nodemask = node_to_cpumask(i);
+-		struct sched_group *oldsg, *sg = sched_group_nodes[i];
++	int cpu;
+ 
+-		cpus_and(nodemask, nodemask, *cpu_map);
+-		if (cpus_empty(nodemask))
+-			continue;
++	for_each_cpu_mask(cpu, *cpu_map) {
++		struct sched_group *sched_group_allnodes
++			= sched_group_allnodes_bycpu[cpu];
++		struct sched_group **sched_group_nodes
++			= sched_group_nodes_bycpu[cpu];
++
++		if (sched_group_allnodes) {
++			kfree(sched_group_allnodes);
++			sched_group_allnodes_bycpu[cpu] = NULL;
++		}
+ 
+-		if (sg == NULL)
++		if (!sched_group_nodes)
+ 			continue;
+-		sg = sg->next;
++
++		for (i = 0; i < MAX_NUMNODES; i++) {
++			cpumask_t nodemask = node_to_cpumask(i);
++			struct sched_group *oldsg, *sg = sched_group_nodes[i];
++
++			cpus_and(nodemask, nodemask, *cpu_map);
++			if (cpus_empty(nodemask))
++				continue;
++
++			if (sg == NULL)
++				continue;
++			sg = sg->next;
+ next_sg:
+-		oldsg = sg;
+-		sg = sg->next;
+-		kfree(oldsg);
+-		if (oldsg != sched_group_nodes[i])
+-			goto next_sg;
+-		sched_group_nodes[i] = NULL;
++			oldsg = sg;
++			sg = sg->next;
++			kfree(oldsg);
++			if (oldsg != sched_group_nodes[i])
++				goto next_sg;
++		}
++		kfree(sched_group_nodes);
++		sched_group_nodes_bycpu[cpu] = NULL;
+ 	}
+ #endif
+ }
+-

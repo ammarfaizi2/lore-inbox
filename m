@@ -1,135 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932798AbVHTCOd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbVHTCck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932798AbVHTCOd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 22:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932799AbVHTCOd
+	id S932630AbVHTCck (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 22:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbVHTCck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 22:14:33 -0400
-Received: from pasta.sw.starentnetworks.com ([12.33.234.10]:30648 "EHLO
-	pasta.sw.starentnetworks.com") by vger.kernel.org with ESMTP
-	id S932798AbVHTCOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 22:14:32 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Aug 2005 22:32:40 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:48351 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932630AbVHTCcj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 22:32:39 -0400
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
+       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
+       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+In-Reply-To: <Pine.LNX.4.61.0508182213100.3728@scrub.home>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>
+Content-Type: text/plain
+Date: Fri, 19 Aug 2005 19:32:31 -0700
+Message-Id: <1124505151.22195.78.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17158.37382.186238.855566@cortez.sw.starentnetworks.com>
-Date: Fri, 19 Aug 2005 22:14:30 -0400
-From: Dave Johnson <djohnson+linux-kernel@sw.starentnetworks.com>
-To: Phillip Lougher <phillip@lougher.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] fix cramfs making duplicate entries in inode cache
-In-Reply-To: <17158.26734.542604.606241@cortez.sw.starentnetworks.com>
-References: <17158.15932.939201.786982@cortez.sw.starentnetworks.com>
-	<43064E46.3040706@lougher.demon.co.uk>
-	<17158.26734.542604.606241@cortez.sw.starentnetworks.com>
-X-Mailer: VM 7.07 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Johnson writes:
-> Phillip Lougher writes:
-> > Doesn't iget_locked() assume inode numbers are unique?
+On Fri, 2005-08-19 at 02:27 +0200, Roman Zippel wrote:
+> On Tue, 16 Aug 2005, john stultz wrote:
+> > Maybe to focus this productively, I'll try to step back and outline the
+> > goals at a high level and you can address those. 
 > > 
-> > In Cramfs inode numbers are set to 1 for non-data inodes (fifos, 
-> > sockets, devices, empty directories), i.e
+> > My Assumptions:
+> > 1. adjtimex() sets/gets NTP state values
+> > 2. Every tick we adjust those state values
+> > 3. Every tick we use those values to make a nanosecond adjustment to
+> > time.
+> > 4. Those state values are otherwise unused.
 > > 
-> > %stat device namedpipe
-> >    File: `device'
-> >    Size: 0               Blocks: 0          IO Block: 4096   character 
-> > special file
-> > Device: 700h/1792d      Inode: 1           Links: 1     Device type: 1,1
-> > Access: (0644/crw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
-> > Access: 1970-01-01 01:00:00.000000000 +0100
-> > Modify: 1970-01-01 01:00:00.000000000 +0100
-> > Change: 1970-01-01 01:00:00.000000000 +0100
-> >    File: `namedpipe'
-> >    Size: 0               Blocks: 0          IO Block: 4096   fifo
-> > Device: 700h/1792d      Inode: 1           Links: 1
-> > Access: (0644/prw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
-> > Access: 1970-01-01 01:00:00.000000000 +0100
-> > Modify: 1970-01-01 01:00:00.000000000 +0100
-> > Change: 1970-01-01 01:00:00.000000000 +0100
-> > 
-> > Should iget5_locked() be used here?
+> > Goals:
+> > 1. Isolate NTP code to clean up the tick based timekeeping, reducing the
+> > spaghetti-like code interactions.
+> > 2. Add interfaces to allow for continuous, rather then tick based,
+> > adjustments (much how ppc64 does currently, only shareable).
 > 
-> Yep, that was busted.  Below patch should be better.
+> Cleaning up the code would be nice, but that shouldn't be the priority 
+> right now, first we should get the math right.
+> I looked a bit more on this aspect of your patch and I think it's overly 
+> complex even for continuous time sources. You can reduce the complexity 
+> by updating the clock in more regular intervals. 
 
-Doh, 2nd attempt wasn't verifying the inode number in the test
-function to protect against hash collisions (iget_locked does this but
-iget5_locked doesn't)
+I feel in some ways I do this (inside the second overflow loop), but
+maybe I'm misunderstanding you.
 
-It should be good now.
 
--- 
-Dave Johnson
-Starent Networks
+> What basically is needed to update in constant intervals (n cycles) a 
+> reference time controlled via NTP and the system time. The difference 
+> between those two can be used to adjust the cycle multiplier for the next 
+> n cycles to speed up or slow down the system clock.
+> Calculating the offset in constant intervals makes the math a lot simpler, 
+> basically the current code is just a special case of that, where it 
+> directly updates the system time from the reference time at every tick.
+> (In the end the differences between tick based and continuous sources may 
+> be even smaller than your current patches suggest. :) )
 
-===== fs/cramfs/inode.c 1.42 vs edited =====
---- 1.42/fs/cramfs/inode.c	2005-07-14 12:24:48 -04:00
-+++ edited/fs/cramfs/inode.c	2005-08-19 22:06:44 -04:00
-@@ -42,12 +42,46 @@
- #define CRAMINO(x)	((x)->offset?(x)->offset<<2:1)
- #define OFFSET(x)	((x)->i_ino)
- 
-+
-+static int cramfs_iget5_test(struct inode *inode, void *opaque)
-+{
-+	struct cramfs_inode * cramfs_inode = (struct cramfs_inode *)opaque;
-+
-+	if (inode->i_ino != CRAMINO(cramfs_inode))
-+		return 0; /* does not match */
-+
-+	if (inode->i_ino != 1)
-+		return 1;
-+
-+	/* all empty directories, char, block, pipe, and sock, share inode #1 */
-+  
-+	if ((inode->i_mode != cramfs_inode->mode) ||
-+	    (inode->i_gid != cramfs_inode->gid) ||
-+	    (inode->i_uid != cramfs_inode->uid))
-+		return 0; /* does not match */
-+  
-+	if ((S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode)) &&
-+	    (inode->i_rdev != old_decode_dev(cramfs_inode->size)))
-+		return 0; /* does not match */
-+
-+	return 1; /* matches */
-+}
-+
-+static int cramfs_iget5_set(struct inode *inode, void *opaque)
-+{
-+	struct cramfs_inode * cramfs_inode = (struct cramfs_inode *)opaque;
-+	inode->i_ino = CRAMINO(cramfs_inode);
-+	return 0;
-+}
-+
- static struct inode *get_cramfs_inode(struct super_block *sb, struct cramfs_inode * cramfs_inode)
- {
--	struct inode * inode = new_inode(sb);
-+	struct inode * inode = iget5_locked(sb, CRAMINO(cramfs_inode),
-+					    cramfs_iget5_test, cramfs_iget5_set,
-+					    cramfs_inode);
- 	static struct timespec zerotime;
- 
--	if (inode) {
-+	if (inode && (inode->i_state & I_NEW)) {
- 		inode->i_mode = cramfs_inode->mode;
- 		inode->i_uid = cramfs_inode->uid;
- 		inode->i_size = cramfs_inode->size;
-@@ -63,7 +99,6 @@
- 		   but it's the best we can do without reading the directory
- 	           contents.  1 yields the right result in GNU find, even
- 		   without -noleaf option. */
--		insert_inode_hash(inode);
- 		if (S_ISREG(inode->i_mode)) {
- 			inode->i_fop = &generic_ro_fops;
- 			inode->i_data.a_ops = &cramfs_aops;
-@@ -75,6 +110,7 @@
- 			init_special_inode(inode, inode->i_mode,
- 				old_decode_dev(cramfs_inode->size));
- 		}
-+		unlock_new_inode(inode);
- 	}
- 	return inode;
- }
+That would be great! So, would you mind helping me scratch out some
+pseudo code for your idea?
+
+Currently we have something like: 
+===============================================
+do_adjtimex():
+	set ntp_status/maxerror/esterror/constant values
+	set ntp_freq
+	set ntp_tick
+	if (singleshot_mode):
+		set ntp_adjtime_offset
+	else:
+		set ntp_offset
+		if appropriate, adjust ntp_freq
+
+
+timer_interrupt():
+	if (second_overflow):
+		adjust ntp_maxerror/status
+		/* calculate per tick phase adjustment 
+		   using ntp_offset and ntp_freq
+		*/
+		sub_offset = math(ntp_offset)
+		ntp_offset -= sub_offset
+		phase_adj = math(sub_offset)		
+		phase_adj += math(ntp_freq)
+
+		leapsecond_stuff()
+
+	tick_adjustment = 0;
+
+	/* calculate singleshot adjustment */
+	if (ntp_adjtime_offset):
+		adj = min(ntp_adjtime_offset, tick_adj)
+		ntp_adjtime_offset -= adj
+	
+		tick_adjustment += adj
+
+	/* calculate the phase adjustment */
+	phase += phase_adj
+	if (phase > UNIT):
+		phase -= UNIT
+		tick_adjustment += UNIT
+
+
+	xtime += ntp_tick + tick_adjustment
+
+
+
+gettimeofday():
+	return xtime + hardware_offset()
+
+
+
+
+For continuous timesources, I'd like to see something like:
+===============================================
+do_adjtimex():
+	no changes, only the addition of
+	ntp_tick_ppm = calulate_ppm(ntp_tick)
+
+
+timekeeping_perioidic_hook():
+
+	/* get ntp adjusted interval length*/
+	interval_length = get_timesource_interval(ppm)
+
+	/* accumulate the NTP adjusted interval */
+	xtime += interval_length
+
+	/* inform NTP state machine that we have 
+	   applied the last calculated adjustment for 
+	   the interval length
+	*/
+
+	ntp_interval += interval_length
+	while (ntp_interval > SECOND): /* just like second_overflow */
+		adjust ntp_maxerror/status
+		/* calculate the offset ppm adjustment */
+		sub_offset = math(ntp_offset)
+		ntp_offset -= sub_offset
+		offset_ppm = math(sub_offset)
+
+		/* same thing for single shot ntp_adjtime_offset */
+		sub_ss_offset = math(ntp_adjtime_offset)
+		ntp_adjtime_offset -= sub_ss_offset
+		ss_offset_ppm = math(sub_ss_offset)
+
+
+	/* sum up the ppm adjustments into a single ntp adjustment */
+	ppm = offset_ppm + ntp_freq + ss_offset_ppm + ntp_tick_ppm
+
+	leapsecond_stuff()
+
+do_gettimeofday():
+	interval = get_timesource_interval(ppm)
+	return xtime + interval
+
+
+
+Now could you adapt this to better show me what you're thinking of?
+
+thanks
+-john
+
+
+
 

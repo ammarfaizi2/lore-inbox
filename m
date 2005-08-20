@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVHTAWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932766AbVHTA3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbVHTAWS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 20:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbVHTAWS
+	id S932766AbVHTA3S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 20:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932765AbVHTA3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 20:22:18 -0400
-Received: from claven.physics.ucsb.edu ([128.111.16.29]:37542 "EHLO
-	claven.physics.ucsb.edu") by vger.kernel.org with ESMTP
-	id S932364AbVHTAWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 20:22:17 -0400
-Date: Fri, 19 Aug 2005 17:22:12 -0700 (PDT)
-From: Nathan Becker <nbecker@physics.ucsb.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: lost ticks and Hangcheck
-In-Reply-To: <20050819094500.GB16279@kurtwerks.com>
-Message-ID: <Pine.LNX.4.63.0508191714150.8252@claven.physics.ucsb.edu>
-References: <Pine.LNX.4.63.0508182351460.6338@claven.physics.ucsb.edu>
- <20050819094500.GB16279@kurtwerks.com>
+	Fri, 19 Aug 2005 20:29:18 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:60126 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932582AbVHTA3R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 20:29:17 -0400
+Message-ID: <4306794F.4080402@pobox.com>
+Date: Fri, 19 Aug 2005 20:29:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.13-rc6-mm1: why is PHYLIB a user-visible option?
+References: <20050819043331.7bc1f9a9.akpm@osdl.org> <20050820002027.GJ3615@stusta.de>
+In-Reply-To: <20050820002027.GJ3615@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I use the no_timer_check kernel parm and that keeps the clock from
-> running at double speed. I still see some other annoying boot-time
+Adrian Bunk wrote:
+> Is there any reason why PHYLIB is a user-visible option?
+> 
+> As far as I understand it, PHYLIB and the MII PHY device drivers are an 
+> internal library drivers should start to use roughly similar to MII.
+> 
+> But in this case, the options shouldn't be user-visible.
 
-As I mentioned, no_timer_check doesn't fix it for me.  In fact it makes 
-the problem significantly worse.  I tried it again just to be sure.  Also 
-I tried noapic again and it doesn't help either.
+This code is still shaking out, so don't worry much about it right now.
 
-I found there was an upgrade to the NVIDIA graphics driver that addressed 
-a clock issue (I don't know if it's related to my problem).  I upgraded 
-from version 7667 to 7676.  That seemed to help a little bit, at least in 
-prolonging the amount of time I could reasonably use the system.  Someone 
-in another thread mentioned that they thought this problem might be caused 
-by something in x.org, which I am using.
+	Jeff
 
-Any other ideas or patches would be much appreciated.
 
-thanks for your help,
 
-Nathan

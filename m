@@ -1,83 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVHTWIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVHTWRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbVHTWIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 18:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbVHTWIQ
+	id S1750716AbVHTWRv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 18:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbVHTWRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 18:08:16 -0400
-Received: from [80.71.243.242] ([80.71.243.242]:57755 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S1750707AbVHTWIQ (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sat, 20 Aug 2005 18:08:16 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Sat, 20 Aug 2005 18:17:51 -0400
+Received: from mail.linicks.net ([217.204.244.146]:37382 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1750716AbVHTWRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 18:17:51 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RTL8139, the final patch ?
+Date: Sat, 20 Aug 2005 23:17:46 +0100
+User-Agent: KMail/1.8.1
+References: <200508202153.17837.nick@linicks.net>
+In-Reply-To: <200508202153.17837.nick@linicks.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17159.43478.693740.446153@gargle.gargle.HOWL>
-Date: Sun, 21 Aug 2005 02:08:22 +0400
-To: Howard Chu <hyc@symas.com>
-Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Subject: Re: sched_yield() makes OpenLDAP slow
-In-Reply-To: <43078954.2030905@symas.com>
-References: <43057641.70700@symas.com>
-	<17157.45712.877795.437505@gargle.gargle.HOWL>
-	<430666DB.70802@symas.com>
-	<17159.11995.869374.370114@gargle.gargle.HOWL>
-	<43078954.2030905@symas.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+Message-Id: <200508202317.46937.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howard Chu writes:
- > Nikita Danilov wrote:
- > > That returns us to the core of the problem: sched_yield() is used to
- > > implement a synchronization primitive and non-portable assumptions are
- > > made about its behavior: SUS defines that after sched_yield() thread
- > > ceases to run on the CPU "until it again becomes the head of its thread
- > > list", and "thread list" discipline is only defined for real-time
- > > scheduling policies. E.g., 
- > >
- > > int sched_yield(void)
- > > {
- > >        return 0;
- > > }
- > >
- > > and
- > >
- > > int sched_yield(void)
- > > {
- > >        sleep(100);
- > >        return 0;
- > > }
- > >
- > > are both valid sched_yield() implementation for non-rt (SCHED_OTHER)
- > > threads.
- > I think you're mistaken:
- > http://groups.google.com/group/comp.programming.threads/browse_frm/thread/0d4eaf3703131e86/da051ebe58976b00#da051ebe58976b00
- > 
- > sched_yield() is required to be supported even if priority scheduling is 
- > not supported, and it is required to cause the calling thread (not 
- > process) to yield the processor.
+On Saturday 20 August 2005 21:53, you wrote:
+> I have a problem with it:
+> It's about patching, reverting, patching, reverting,...
+> I got lost. That's why I asked for a... "straighter" one :-)
 
-Of course sched_yield() is required to be supported, the question is for
-how long CPU is yielded. Here is the quote from the SUS (actually the
-complete definition of sched_yield()):
+>> But I looked at what he said and found the real problem on my system (after 
+>> all that):
+>> http://www.ussg.iu.edu/hypermail/linux/kernel/0403.1/1537.html
 
-    The sched_yield() function shall force the running thread to
-    relinquish the processor until it again becomes the head of its
-    thread list.
+> It's about a configuration option in the kernel?
+> The patch is about adding the option, if i'm right.
 
-As far as I can see, SUS doesn't specify how "thread list" is maintained
-for non-RT scheduling policy, and implementation that immediately places
-SCHED_OTHER thread that called sched_yield() back at the head of its
-thread list is perfectly valid. Also valid is an implementation that
-waits for 100 seconds and then places sched_yield() caller to the head
-of the list, etc. Basically, while semantics of sched_yield() are well
-defined for RT scheduling policy, for SCHED_OTHER policy standard leaves
-it implementation defined.
+No, what happened was on 2.6.2 all was well.  When 2.6.3 came out I got these 
+timeout errors on the NIC's - but using the 2.6.2 8139too.c file in 2.6.3 
+worked.  Mr Hirofumi then took up the challenge and sent me patches.  Slowly 
+he resolved the issue, but the conclusion was it wasn't the code causing it.
 
- > 
- > -- 
- >   -- Howard Chu
+It was an option in my BIOS PCI level/edge settings as I posted.  People on 
+laptops get this error, like you, but there is no BIOS option as such... :-/
 
-Nikita.
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

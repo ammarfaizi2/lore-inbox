@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbVHTUV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbVHTUgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbVHTUV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 16:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVHTUV7
+	id S1751060AbVHTUgA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 16:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbVHTUgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 16:21:59 -0400
-Received: from smtp.istop.com ([66.11.167.126]:3484 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1751012AbVHTUV7 (ORCPT
+	Sat, 20 Aug 2005 16:36:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9175 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751052AbVHTUf7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 16:21:59 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [RFC][PATCH] Rename PageChecked as PageMiscFS
-Date: Sun, 21 Aug 2005 06:21:52 +1000
-User-Agent: KMail/1.7.2
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Hugh Dickins <hugh@veritas.com>
-References: <200508200231.19341.phillips@istop.com> <8880.1124445882@warthog.cambridge.redhat.com> <24247.1124534747@warthog.cambridge.redhat.com>
-In-Reply-To: <24247.1124534747@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Aug 2005 16:35:59 -0400
+Date: Sat, 20 Aug 2005 16:35:38 -0400
+From: Dave Jones <davej@redhat.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Linus Torvalds <torvalds@g5.osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       g@parcelfarce.linux.theplanet.co.uk
+Subject: Re: Fix up befs compile.
+Message-ID: <20050820203538.GA19728@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	Linus Torvalds <torvalds@g5.osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	g@parcelfarce.linux.theplanet.co.uk
+References: <20050820194840.GA8455@redhat.com> <20050820195807.GD29811@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508210621.53456.phillips@istop.com>
+In-Reply-To: <20050820195807.GD29811@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 August 2005 20:45, David Howells wrote:
-> Daniel Phillips <phillips@istop.com> wrote:
-> > Biased.  Fs is a mixed case acronym, nuff said.
->
-> But I'm still right:-)
+On Sat, Aug 20, 2005 at 08:58:07PM +0100, Al Viro wrote:
+ > On Sat, Aug 20, 2005 at 03:48:40PM -0400, Dave Jones wrote:
+ > > fs/befs/linuxvfs.c:466: error: conflicting types for 'befs_follow_link'
+ > > fs/befs/linuxvfs.c:44: error: previous declaration of 'befs_follow_link' was here
+ > > fs/befs/linuxvfs.c: In function 'befs_follow_link':
+ > > fs/befs/linuxvfs.c:490: warning: return makes integer from pointer without a cast
+ > 
+ > It should be void *, not void.
 
-Of course you are!  We're only impugning your taste, not your logic ;-)
+Duh. Yes. of course.
 
-OK, the questions re your global consistency model are a bazillion times more 
-significant.  I have not forgotten about that, please stay tuned.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Regards,
+--- linux-2.6.12/fs/befs/linuxvfs.c~	2005-08-20 15:46:30.000000000 -0400
++++ linux-2.6.12/fs/befs/linuxvfs.c	2005-08-20 15:47:25.000000000 -0400
+@@ -461,7 +461,7 @@ befs_destroy_inodecache(void)
+  * The data stream become link name. Unless the LONG_SYMLINK
+  * flag is set.
+  */
+-static int
++static void *
+ befs_follow_link(struct dentry *dentry, struct nameidata *nd)
+ {
+ 	befs_inode_info *befs_ino = BEFS_I(dentry->d_inode);
 
-Daniel
+		Dave
+

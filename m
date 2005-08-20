@@ -1,181 +1,248 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbVHTCck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932799AbVHTC6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932630AbVHTCck (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 22:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbVHTCck
+	id S932799AbVHTC6r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 22:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932803AbVHTC6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 22:32:40 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:48351 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932630AbVHTCcj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 22:32:39 -0400
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
-       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
-       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-In-Reply-To: <Pine.LNX.4.61.0508182213100.3728@scrub.home>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
-	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
-	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
-	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>
-Content-Type: text/plain
-Date: Fri, 19 Aug 2005 19:32:31 -0700
-Message-Id: <1124505151.22195.78.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 19 Aug 2005 22:58:47 -0400
+Received: from liaag2ae.mx.compuserve.com ([149.174.40.156]:50570 "EHLO
+	liaag2ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932799AbVHTC6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 22:58:46 -0400
+Date: Fri, 19 Aug 2005 22:54:39 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch 2.6.13-rc6] i386: semaphore ownership tracking
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Message-ID: <200508192258_MC3-1-A7A8-D72@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-19 at 02:27 +0200, Roman Zippel wrote:
-> On Tue, 16 Aug 2005, john stultz wrote:
-> > Maybe to focus this productively, I'll try to step back and outline the
-> > goals at a high level and you can address those. 
-> > 
-> > My Assumptions:
-> > 1. adjtimex() sets/gets NTP state values
-> > 2. Every tick we adjust those state values
-> > 3. Every tick we use those values to make a nanosecond adjustment to
-> > time.
-> > 4. Those state values are otherwise unused.
-> > 
-> > Goals:
-> > 1. Isolate NTP code to clean up the tick based timekeeping, reducing the
-> > spaghetti-like code interactions.
-> > 2. Add interfaces to allow for continuous, rather then tick based,
-> > adjustments (much how ppc64 does currently, only shareable).
-> 
-> Cleaning up the code would be nice, but that shouldn't be the priority 
-> right now, first we should get the math right.
-> I looked a bit more on this aspect of your patch and I think it's overly 
-> complex even for continuous time sources. You can reduce the complexity 
-> by updating the clock in more regular intervals. 
+  This patch enables tracking semaphore ownership.  It saves a pointer to the
+thread_info struct of the last process that got a semaphore.  I couldn't
+think of a better way to print out the info, so I hacked up the code that
+dumps a process's kernel stack so it prints out the PID of the owning process
+when it finds another process waiting for a semaphore.
 
-I feel in some ways I do this (inside the second overflow loop), but
-maybe I'm misunderstanding you.
+  So far it has worked under some light testing and should be fairly safe to use.
+In general, if a process is sleeping on a semaphore, that semaphore shouldn't
+disappear while this code is referencing it and neither should the owner.
+Since this is really meant for finding deadlocks and not for general use I
+think it should be OK.
 
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-> What basically is needed to update in constant intervals (n cycles) a 
-> reference time controlled via NTP and the system time. The difference 
-> between those two can be used to adjust the cycle multiplier for the next 
-> n cycles to speed up or slow down the system clock.
-> Calculating the offset in constant intervals makes the math a lot simpler, 
-> basically the current code is just a special case of that, where it 
-> directly updates the system time from the reference time at every tick.
-> (In the end the differences between tick based and continuous sources may 
-> be even smaller than your current patches suggest. :) )
+ arch/i386/kernel/semaphore.c |   16 ++++++++++
+ arch/i386/kernel/traps.c     |   10 ++++++
+ include/asm-i386/semaphore.h |   66 ++++++++++++++++++++++++++++++++++++++-----
+ lib/Kconfig.debug            |    9 +++++
+ 4 files changed, 94 insertions(+), 7 deletions(-)
 
-That would be great! So, would you mind helping me scratch out some
-pseudo code for your idea?
-
-Currently we have something like: 
-===============================================
-do_adjtimex():
-	set ntp_status/maxerror/esterror/constant values
-	set ntp_freq
-	set ntp_tick
-	if (singleshot_mode):
-		set ntp_adjtime_offset
-	else:
-		set ntp_offset
-		if appropriate, adjust ntp_freq
-
-
-timer_interrupt():
-	if (second_overflow):
-		adjust ntp_maxerror/status
-		/* calculate per tick phase adjustment 
-		   using ntp_offset and ntp_freq
-		*/
-		sub_offset = math(ntp_offset)
-		ntp_offset -= sub_offset
-		phase_adj = math(sub_offset)		
-		phase_adj += math(ntp_freq)
-
-		leapsecond_stuff()
-
-	tick_adjustment = 0;
-
-	/* calculate singleshot adjustment */
-	if (ntp_adjtime_offset):
-		adj = min(ntp_adjtime_offset, tick_adj)
-		ntp_adjtime_offset -= adj
-	
-		tick_adjustment += adj
-
-	/* calculate the phase adjustment */
-	phase += phase_adj
-	if (phase > UNIT):
-		phase -= UNIT
-		tick_adjustment += UNIT
-
-
-	xtime += ntp_tick + tick_adjustment
-
-
-
-gettimeofday():
-	return xtime + hardware_offset()
-
-
-
-
-For continuous timesources, I'd like to see something like:
-===============================================
-do_adjtimex():
-	no changes, only the addition of
-	ntp_tick_ppm = calulate_ppm(ntp_tick)
-
-
-timekeeping_perioidic_hook():
-
-	/* get ntp adjusted interval length*/
-	interval_length = get_timesource_interval(ppm)
-
-	/* accumulate the NTP adjusted interval */
-	xtime += interval_length
-
-	/* inform NTP state machine that we have 
-	   applied the last calculated adjustment for 
-	   the interval length
-	*/
-
-	ntp_interval += interval_length
-	while (ntp_interval > SECOND): /* just like second_overflow */
-		adjust ntp_maxerror/status
-		/* calculate the offset ppm adjustment */
-		sub_offset = math(ntp_offset)
-		ntp_offset -= sub_offset
-		offset_ppm = math(sub_offset)
-
-		/* same thing for single shot ntp_adjtime_offset */
-		sub_ss_offset = math(ntp_adjtime_offset)
-		ntp_adjtime_offset -= sub_ss_offset
-		ss_offset_ppm = math(sub_ss_offset)
-
-
-	/* sum up the ppm adjustments into a single ntp adjustment */
-	ppm = offset_ppm + ntp_freq + ss_offset_ppm + ntp_tick_ppm
-
-	leapsecond_stuff()
-
-do_gettimeofday():
-	interval = get_timesource_interval(ppm)
-	return xtime + interval
-
-
-
-Now could you adapt this to better show me what you're thinking of?
-
-thanks
--john
-
-
-
-
+--- 2.6.13-rc6c.orig/include/asm-i386/semaphore.h
++++ 2.6.13-rc6c/include/asm-i386/semaphore.h
+@@ -45,15 +45,29 @@ struct semaphore {
+ 	atomic_t count;
+ 	int sleepers;
+ 	wait_queue_head_t wait;
++#ifdef CONFIG_SEMAPHORE_OWNER
++	struct thread_info *owner;
++#endif
+ };
+ 
+-
++#ifdef CONFIG_SEMAPHORE_OWNER
++void __down_return(void);
++void __down_intr_return(void);
++#define __SEMAPHORE_INITIALIZER(name, n)				\
++{									\
++	.count		= ATOMIC_INIT(n),				\
++	.sleepers	= 0,						\
++	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait),	\
++	.owner		= NULL,						\
++}
++#else
+ #define __SEMAPHORE_INITIALIZER(name, n)				\
+ {									\
+ 	.count		= ATOMIC_INIT(n),				\
+ 	.sleepers	= 0,						\
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
++#endif /* CONFIG_SEMAPHORE_OWNER */
+ 
+ #define __MUTEX_INITIALIZER(name) \
+ 	__SEMAPHORE_INITIALIZER(name,1)
+@@ -75,6 +89,9 @@ static inline void sema_init (struct sem
+ 	atomic_set(&sem->count, val);
+ 	sem->sleepers = 0;
+ 	init_waitqueue_head(&sem->wait);
++#ifdef CONFIG_SEMAPHORE_OWNER
++	sem->owner = NULL;
++#endif
+ }
+ 
+ static inline void init_MUTEX (struct semaphore *sem)
+@@ -105,13 +122,22 @@ static inline void down(struct semaphore
+ 		LOCK "decl %0\n\t"     /* --sem->count */
+ 		"js 2f\n"
+ 		"1:\n"
++#ifdef CONFIG_SEMAPHORE_OWNER
++		"andl %%esp,%1\n"
++#endif
+ 		LOCK_SECTION_START("")
+ 		"2:\tlea %0,%%eax\n\t"
+ 		"call __down_failed\n\t"
+ 		"jmp 1b\n"
+ 		LOCK_SECTION_END
+ 		:"=m" (sem->count)
++#ifdef CONFIG_SEMAPHORE_OWNER
++			, "=r" (sem->owner)
++#endif
+ 		:
++#ifdef CONFIG_SEMAPHORE_OWNER
++		 "1" (~(THREAD_SIZE - 1))
++#endif
+ 		:"memory","ax");
+ }
+ 
+@@ -127,16 +153,29 @@ static inline int down_interruptible(str
+ 	__asm__ __volatile__(
+ 		"# atomic interruptible down operation\n\t"
+ 		LOCK "decl %1\n\t"     /* --sem->count */
+-		"js 2f\n\t"
++		"js 3f\n\t"
+ 		"xorl %0,%0\n"
+ 		"1:\n"
++#ifdef CONFIG_SEMAPHORE_OWNER
++		"or %0,%0\n"
++		"jnz 2f\n"
++		"andl %%esp,%3\n"
++		"movl %3,%2\n"
++		"2:\n"
++#endif
+ 		LOCK_SECTION_START("")
+-		"2:\tlea %1,%%eax\n\t"
++		"3:\tlea %1,%%eax\n\t"
+ 		"call __down_failed_interruptible\n\t"
+ 		"jmp 1b\n"
+ 		LOCK_SECTION_END
+-		:"=a" (result), "=m" (sem->count)
++		:"=&a" (result), "=m" (sem->count)
++#ifdef CONFIG_SEMAPHORE_OWNER
++			, "=m" (sem->owner)
++#endif
+ 		:
++#ifdef CONFIG_SEMAPHORE_OWNER
++		 "r" (~(THREAD_SIZE - 1))
++#endif
+ 		:"memory");
+ 	return result;
+ }
+@@ -152,16 +191,29 @@ static inline int down_trylock(struct se
+ 	__asm__ __volatile__(
+ 		"# atomic interruptible down operation\n\t"
+ 		LOCK "decl %1\n\t"     /* --sem->count */
+-		"js 2f\n\t"
++		"js 3f\n\t"
+ 		"xorl %0,%0\n"
+ 		"1:\n"
++#ifdef CONFIG_SEMAPHORE_OWNER
++		"or %0,%0\n"
++		"jnz 2f\n"
++		"andl %%esp,%3\n"
++		"movl %3,%2\n"
++		"2:\n"
++#endif
+ 		LOCK_SECTION_START("")
+-		"2:\tlea %1,%%eax\n\t"
++		"3:\tlea %1,%%eax\n\t"
+ 		"call __down_failed_trylock\n\t"
+ 		"jmp 1b\n"
+ 		LOCK_SECTION_END
+-		:"=a" (result), "=m" (sem->count)
++		:"=&a" (result), "=m" (sem->count)
++#ifdef CONFIG_SEMAPHORE_OWNER
++			, "=m" (sem->owner)
++#endif
+ 		:
++#ifdef CONFIG_SEMAPHORE_OWNER
++		 "r" (~(THREAD_SIZE - 1))
++#endif
+ 		:"memory");
+ 	return result;
+ }
+--- 2.6.13-rc6c.orig/arch/i386/kernel/semaphore.c
++++ 2.6.13-rc6c/arch/i386/kernel/semaphore.c
+@@ -198,7 +198,15 @@ asm(
+ #endif
+ 	"pushl %edx\n\t"
+ 	"pushl %ecx\n\t"
++#if defined(CONFIG_SEMAPHORE_OWNER)
++	"pushl %eax\n\t"
++#endif
+ 	"call __down\n\t"
++#if defined(CONFIG_SEMAPHORE_OWNER)
++"\n.globl __down_return\n"
++"__down_return:\n\t"
++	"popl %ecx\n\t"
++#endif
+ 	"popl %ecx\n\t"
+ 	"popl %edx\n\t"
+ #if defined(CONFIG_FRAME_POINTER)
+@@ -219,7 +227,15 @@ asm(
+ #endif
+ 	"pushl %edx\n\t"
+ 	"pushl %ecx\n\t"
++#if defined(CONFIG_SEMAPHORE_OWNER)
++	"pushl %eax\n\t"
++#endif
+ 	"call __down_interruptible\n\t"
++#if defined(CONFIG_SEMAPHORE_OWNER)
++"\n.globl __down_intr_return\n"
++"__down_intr_return:\n\t"
++	"popl %ecx\n\t"
++#endif
+ 	"popl %ecx\n\t"
+ 	"popl %edx\n\t"
+ #if defined(CONFIG_FRAME_POINTER)
+--- 2.6.13-rc6c.orig/lib/Kconfig.debug
++++ 2.6.13-rc6c/lib/Kconfig.debug
+@@ -159,3 +159,12 @@ config FRAME_POINTER
+ 	  If you don't debug the kernel, you can say N, but we may not be able
+ 	  to solve problems without frame pointers.
+ 
++config SEMAPHORE_OWNER
++	bool "Track semaphore owners"
++	depends on DEBUG_KERNEL && FRAME_POINTER && (X86 && !X86_64)
++	default n
++	help
++	  Say Y to enable tracking of semaphore owners.
++
++	  If unsure, say N.
++
+--- 2.6.13-rc6c.orig/arch/i386/kernel/traps.c
++++ 2.6.13-rc6c/arch/i386/kernel/traps.c
+@@ -123,6 +123,16 @@ static inline unsigned long print_contex
+ 		addr = *(unsigned long *)(ebp + 4);
+ 		printk(" [<%08lx>] ", addr);
+ 		print_symbol("%s", addr);
++#ifdef CONFIG_SEMAPHORE_OWNER
++		if (addr == (unsigned long)__down_return
++		    || addr == (unsigned long)__down_intr_return) {
++			struct semaphore *sem = *(struct semaphore **)(ebp + 8);
++			if (sem && !((unsigned long)sem->owner & (THREAD_SIZE - 1)))
++				printk(" sem owner %s %d",
++					sem->owner ? "pid" : "(none)",
++					sem->owner ? sem->owner->task->pid : 0);
++		}
++#endif
+ 		printk("\n");
+ 		ebp = *(unsigned long *)ebp;
+ 	}
+__
+Chuck

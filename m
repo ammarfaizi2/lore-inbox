@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbVHTDbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932802AbVHTDeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932652AbVHTDbn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 23:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932802AbVHTDbn
+	id S932802AbVHTDeX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 23:34:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932814AbVHTDeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 23:31:43 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:28990 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932652AbVHTDbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 23:31:42 -0400
-Date: Fri, 19 Aug 2005 21:20:22 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: sched_yield() makes OpenLDAP slow
-In-reply-to: <4D8eT-4rg-31@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4306A176.3090907@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <4D8eT-4rg-31@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Fri, 19 Aug 2005 23:34:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:40084 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932802AbVHTDeX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 23:34:23 -0400
+Date: Fri, 19 Aug 2005 20:33:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Daniel Phillips <phillips@istop.com>
+Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Permissions don't stick on ConfigFS attributes
+Message-ID: <20050820033337.GA1173@kroah.com>
+References: <200508201050.51982.phillips@istop.com> <20050820030117.GA775@kroah.com> <200508201323.29355.phillips@istop.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508201323.29355.phillips@istop.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howard Chu wrote:
-> You assume that spinlocks are the only reason a developer may want to 
-> yield the processor. This assumption is unfounded. Case in point - the 
-> primary backend in OpenLDAP uses a transactional database with 
-> page-level locking of its data structures to provide high levels of 
-> concurrency. It is the nature of such a system to encounter deadlocks 
-> over the normal course of operations. When a deadlock is detected, some 
-> thread must be chosen (by one of a variety of algorithms) to abort its 
-> transaction, in order to allow other operations to proceed to 
-> completion. In this situation, the chosen thread must get control of the 
-> CPU long enough to clean itself up, and then it must yield the CPU in 
-> order to allow any other competing threads to complete their 
-> transaction. The thread with the aborted transaction relinquishes all of 
-> its locks and then waits to get another shot at the CPU to try 
-> everything over again. Again, this is all fundamental to the nature of 
-> transactional programming. If the 2.6 kernel makes this programming 
-> model unreasonably slow, then quite simply this kernel is not viable as 
-> a database platform.
+On Sat, Aug 20, 2005 at 01:23:29PM +1000, Daniel Phillips wrote:
+> On Saturday 20 August 2005 13:01, Greg KH wrote:
+> > On Sat, Aug 20, 2005 at 10:50:51AM +1000, Daniel Phillips wrote:
+> > > So: Integrate with sysfs.
+> >
+> > No, don't.  Do you think that Joel would not have already worked with
+> > the sysfs people prior to submitting this?  No, he did, and we all
+> > agreed that it should be kept separate.
+> 
+> Would you care to recap the reasoning, please?
 
-I fail to see how sched_yield is going to be very helpful in this 
-situation. Since that call can sleep from a range of time ranging from 
-zero to a long time, it's going to give unpredictable results.
+They do two different things, and people interact with them in two
+different ways.  So, they should be two different file systems.
 
-It seems to me that this sort of thing is why we have POSIX pthread 
-synchronization primitives.. sched_yield is basically there for a 
-process to indicate that "what I'm doing doesn't matter much, let other 
-stuff run". Any other use of it generally constitutes some kind of hack.
+> > > Terminology skew.  It is a very bad idea to call your configfs files
+> > > "attributes".
+> >
+> > That's what sysfs calls its files.  They used the same naming scheme
+> > there.  This is nothing that a user ever cares about or sees.
+> 
+> It's wrrrrronnnggg.  The best you can defend this with is "it's entrenched".
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Will a user ever see the word "attribute"?  Also, these files represent
+attributes of the main object in which they are attached to.  Hence the
+name.
 
+> > > Memory requirements.  ConfigFS pins way too much kernel memory for inodes
+> > > and dentries.
+> >
+> > configfs is not going to have that many nodes at all in memory (compared
+> > to sysfs), so I don't think this is a big problem.
+> 
+> The current bloat is unconscionable, for the amount of data that is carried.  
+> Are you arguing against fixing it?  And what makes you think configfs will 
+> never have lots of nodes?
+
+Doesn't it currently work the same way as sysfs with the backing store
+being created on the fly?  If not, it should be pretty simple to convert
+over if people are really worried about memory consumption, but again,
+why don't we see how many nodes are really used on most systems (don't
+want to add more complexity and kernel code if you never really need
+it.)
+
+thanks,
+
+greg k-h

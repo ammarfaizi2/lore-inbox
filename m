@@ -1,54 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932794AbVHTBkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932798AbVHTCOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932794AbVHTBkj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 21:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932793AbVHTBkj
+	id S932798AbVHTCOd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 22:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932799AbVHTCOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 21:40:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63666 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932794AbVHTBkj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 21:40:39 -0400
-Date: Fri, 19 Aug 2005 18:36:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: 2.6.13-rc6-mm1
-Message-Id: <20050819183600.49f620b0.akpm@osdl.org>
-In-Reply-To: <430686EA.3000901@reub.net>
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>
-	<4305DCC6.70906@reub.net>
-	<20050819103435.2c88a9f2.akpm@osdl.org>
-	<430686EA.3000901@reub.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 19 Aug 2005 22:14:33 -0400
+Received: from pasta.sw.starentnetworks.com ([12.33.234.10]:30648 "EHLO
+	pasta.sw.starentnetworks.com") by vger.kernel.org with ESMTP
+	id S932798AbVHTCOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 22:14:32 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17158.37382.186238.855566@cortez.sw.starentnetworks.com>
+Date: Fri, 19 Aug 2005 22:14:30 -0400
+From: Dave Johnson <djohnson+linux-kernel@sw.starentnetworks.com>
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] fix cramfs making duplicate entries in inode cache
+In-Reply-To: <17158.26734.542604.606241@cortez.sw.starentnetworks.com>
+References: <17158.15932.939201.786982@cortez.sw.starentnetworks.com>
+	<43064E46.3040706@lougher.demon.co.uk>
+	<17158.26734.542604.606241@cortez.sw.starentnetworks.com>
+X-Mailer: VM 7.07 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
->
-> ...
-> >> 4. PAM is complaining about "PAM audit_open() failed: Protocol not suppor
-> >> ted" and I can't log in as any user including root.  I would have picked this 
-> >> was a userspace problem, but it doesn't break with -rc5-mm1, yet reproduceably 
-> >> breaks with -rc6-mm1.  Weird.
+Dave Johnson writes:
+> Phillip Lougher writes:
+> > Doesn't iget_locked() assume inode numbers are unique?
 > > 
-> > hm.  How come you're able to use the machine then?
+> > In Cramfs inode numbers are set to 1 for non-data inodes (fifos, 
+> > sockets, devices, empty directories), i.e
+> > 
+> > %stat device namedpipe
+> >    File: `device'
+> >    Size: 0               Blocks: 0          IO Block: 4096   character 
+> > special file
+> > Device: 700h/1792d      Inode: 1           Links: 1     Device type: 1,1
+> > Access: (0644/crw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+> > Access: 1970-01-01 01:00:00.000000000 +0100
+> > Modify: 1970-01-01 01:00:00.000000000 +0100
+> > Change: 1970-01-01 01:00:00.000000000 +0100
+> >    File: `namedpipe'
+> >    Size: 0               Blocks: 0          IO Block: 4096   fifo
+> > Device: 700h/1792d      Inode: 1           Links: 1
+> > Access: (0644/prw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+> > Access: 1970-01-01 01:00:00.000000000 +0100
+> > Modify: 1970-01-01 01:00:00.000000000 +0100
+> > Change: 1970-01-01 01:00:00.000000000 +0100
+> > 
+> > Should iget5_locked() be used here?
 > 
-> Machine was booting up ok, and things were being written to syslog.  Rebooted 
-> into -rc5-mm1 to investigate, and of course could boot into rc6-mm1 in single 
-> user mode, test and bring services up one by one from there.  Having two boxes 
-> helped too.
-> 
-> > Is it possible to get an strace of this failure somehow?
-> 
-> Not sure if this is needed anymore, as I found that the problem goes away when 
-> I compile in kernel auditing.  This not required for -rc5-mm1.  Is that change 
-> intended?
-> 
+> Yep, that was busted.  Below patch should be better.
 
-Sounds wrong to me, especially if 2.6.13-rc6 doesn't do that.
+Doh, 2nd attempt wasn't verifying the inode number in the test
+function to protect against hash collisions (iget_locked does this but
+iget5_locked doesn't)
 
-David?
+It should be good now.
+
+-- 
+Dave Johnson
+Starent Networks
+
+===== fs/cramfs/inode.c 1.42 vs edited =====
+--- 1.42/fs/cramfs/inode.c	2005-07-14 12:24:48 -04:00
++++ edited/fs/cramfs/inode.c	2005-08-19 22:06:44 -04:00
+@@ -42,12 +42,46 @@
+ #define CRAMINO(x)	((x)->offset?(x)->offset<<2:1)
+ #define OFFSET(x)	((x)->i_ino)
+ 
++
++static int cramfs_iget5_test(struct inode *inode, void *opaque)
++{
++	struct cramfs_inode * cramfs_inode = (struct cramfs_inode *)opaque;
++
++	if (inode->i_ino != CRAMINO(cramfs_inode))
++		return 0; /* does not match */
++
++	if (inode->i_ino != 1)
++		return 1;
++
++	/* all empty directories, char, block, pipe, and sock, share inode #1 */
++  
++	if ((inode->i_mode != cramfs_inode->mode) ||
++	    (inode->i_gid != cramfs_inode->gid) ||
++	    (inode->i_uid != cramfs_inode->uid))
++		return 0; /* does not match */
++  
++	if ((S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode)) &&
++	    (inode->i_rdev != old_decode_dev(cramfs_inode->size)))
++		return 0; /* does not match */
++
++	return 1; /* matches */
++}
++
++static int cramfs_iget5_set(struct inode *inode, void *opaque)
++{
++	struct cramfs_inode * cramfs_inode = (struct cramfs_inode *)opaque;
++	inode->i_ino = CRAMINO(cramfs_inode);
++	return 0;
++}
++
+ static struct inode *get_cramfs_inode(struct super_block *sb, struct cramfs_inode * cramfs_inode)
+ {
+-	struct inode * inode = new_inode(sb);
++	struct inode * inode = iget5_locked(sb, CRAMINO(cramfs_inode),
++					    cramfs_iget5_test, cramfs_iget5_set,
++					    cramfs_inode);
+ 	static struct timespec zerotime;
+ 
+-	if (inode) {
++	if (inode && (inode->i_state & I_NEW)) {
+ 		inode->i_mode = cramfs_inode->mode;
+ 		inode->i_uid = cramfs_inode->uid;
+ 		inode->i_size = cramfs_inode->size;
+@@ -63,7 +99,6 @@
+ 		   but it's the best we can do without reading the directory
+ 	           contents.  1 yields the right result in GNU find, even
+ 		   without -noleaf option. */
+-		insert_inode_hash(inode);
+ 		if (S_ISREG(inode->i_mode)) {
+ 			inode->i_fop = &generic_ro_fops;
+ 			inode->i_data.a_ops = &cramfs_aops;
+@@ -75,6 +110,7 @@
+ 			init_special_inode(inode, inode->i_mode,
+ 				old_decode_dev(cramfs_inode->size));
+ 		}
++		unlock_new_inode(inode);
+ 	}
+ 	return inode;
+ }
+

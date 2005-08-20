@@ -1,98 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVHTOzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVHTPOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbVHTOzm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 10:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVHTOzm
+	id S932308AbVHTPOU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 11:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbVHTPOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 10:55:42 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:61713 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932264AbVHTOzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 10:55:41 -0400
-Date: Sat, 20 Aug 2005 16:30:19 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo.tosatti@cyclades.com
-Subject: Linux-2.4.31-hf4
-Message-ID: <20050820143019.GA14526@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+	Sat, 20 Aug 2005 11:14:20 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:47054 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932308AbVHTPOT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 11:14:19 -0400
+Message-ID: <430748B2.1090703@us.ibm.com>
+Date: Sat, 20 Aug 2005 08:13:54 -0700
+From: Darren Hart <dvhltc@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tglx@linutronix.de
+CC: Ingo Molnar <mingo@elte.hu>, "lkml," <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.13-rc6-rt9
+References: <20050818060126.GA13152@elte.hu>  <4306596D.1000403@us.ibm.com> <1124492403.23647.543.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1124492403.23647.543.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+Thomas Gleixner wrote:
+> On Fri, 2005-08-19 at 15:13 -0700, Darren Hart wrote:
+> 
+>>I was trying to use another HRT clock source and couldn't get menuconfig 
+>>to let me select acpi-pm-timer, turns out it has been disabled in 
+>>arch/i386/Kconfig, but the description is still in the help...
+>>
+>>
+>># config HIGH_RES_TIMER_ACPI_PM
+>>#       bool "ACPI-pm-timer"
+>>
+>>Is the pm timer incompatible with the RT portion of this patch?
+> 
+> 
+> The only timesource I came around to fixup is TSC in combination with
+> PIT or preferred Local APIC. Add "lapic" to your kernel command line for
+> UP boxen. Therefor it is disabled for now.
+> 
+> 
+>>I'm looking into getting HRT and RT booting on a SUMMIT NUMA machine 
+>>(cyclone timer), but after s/error/warning/ in arch/i386/timers/timer.c 
+>>for the HRT cyclone ifdef, I still get the following link error:
+> 
+> 
+> It should be simple to fix this. Just not right now. I have no such box
+> and restricted time resources. Can you test a patch when I find a slot?
 
-After having accumulated a few weeks delay, the fourth hotfix for kernel
-2.4.31 is finally out. It was also the right time to release it now that
-the isofs and zlib stories came to an end.
+Absolutely.
 
-Because of the ZISOFS security fix, users of older -hf or plain 2.4.X
-should upgrade either to latest -hf or to 2.4.32-pre3. Other fixes are
-less important.
+> But of course you are heartely invited to fix it yourself :)
 
-As usual, I've also updated 2.4.29 and 2.4.30. So all 3 Kernels 2.4.29-hf14,
-2.4.30-hf7 and 2.4.31-hf4 are available as individual, full, and incremental
-patches here:
+As always :-)
 
-    http://linux.exosec.net/kernel/2.4/2.4-hf/
+> 
+> tglx
 
-The changelog is appended to this mail. I've built 2.4.31-hf4 with all
-modules, and nothing more yet, but Grant Coady will soon report the
-full build and run test here :
 
-    http://bugsplatter.mine.nu/test/linux-2.4/  (warning! URL changed)
+Thanks for the response, I wanted to hear your take on this rather than making 
+any assumptions as to the state of the patch.
 
-Regards,
-Willy
+> 
+> 
+> 
 
---
 
-Changelog From 2.4.31-hf3 to 2.4.31-hf4
----------------------------------------
-'+' = added ; '-' = removed
-
-- 2.4.31-zlib-security-bugs-1                                    (Tim Yamin)
-+ 2.4.31-zlib-security-bugs-2                     (Tim Yamin, Sergey Vlasov)
-
-  Reverted the Z_OK to Z_DATA_ERROR changes in inftrees.c (& PPC).
-
-+ 2.4.31-zisofs-check-deflatebound-1                        (Linus Torvalds)
-
-  [PATCH] PATCH: Fix outstanding gzip/zlib security issues
-  Add fakey 'deflateBound()' function to the in-kernel zlib routines.
-  It's not the real deflateBound() in newer zlib libraries, partly because
-  the upcoming usage of it won't have the "stream" available, so we can't
-  have the same interfaces anyway. Problem noted by Tim Yamin.
-
-+ 2.4.31-nat-fix-memory-corruption-1                       (Patrick McHardy)
-
-  [NETFILTER]: Fix potential memory corruption in NAT code (aka memory NAT)
-
-+ 2.4.31-isofs-option-parse-fix-1               (Horms + Andrey J.Melnikoff)
-
-  Fix isofs option parser. If iocharset, map or session are matched,
-  then none of the if or else if clauses under sbsector will match
-  (that is none of these clauses match iocharset, map or session),
-  and thus the else clause will be hit, and the function will return
-  1 without parsing any furhter options. Also fix gcc-3.4 warnings.
-
-+ 2.4.31-netfilter-tcp-unclean-1.diff                      (Patrick McHardy)
-
-  [NETFILTER]: Ignore PSH on SYN/ACK in ipt_unclean
-
-+ 2.4.31-redblacktree-missing-returns-1              (deep-blue@t-online.de)
-
-  [PATCH] fix RedBlackTree rb_next/rb_prev functions. I have found a
-  bug in the source of rbtree.c file in /lib. In Kernel 2.6 it's ok,
-  but 2.4.31 has this error. We try to use it with the jffs2 source
-  code and only with this fix it works fine.
-
-+ 2.4.31-alpha-cabriolet-needs-ns87312-1                       (Bill Dupree)
-
-  [PATCH] Fix Alpha AXP Cabriolet build. Alpha AXP Cabriolet build
-  fails with unresolved reference to ns87312_enable_ide().
-
--- END --
-
+-- 
+Darren Hart
+IBM Linux Technology Center
+Linux Kernel Team
+Phone: 503 578 3185
+   T/L: 775 3185

@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbVHTUxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbVHTU5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbVHTUxj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 16:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVHTUxj
+	id S1751145AbVHTU5V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 16:57:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVHTU5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 16:53:39 -0400
-Received: from mail.linicks.net ([217.204.244.146]:64005 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1751151AbVHTUxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 16:53:38 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RTL8139, the final patch ?
-Date: Sat, 20 Aug 2005 21:53:17 +0100
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Sat, 20 Aug 2005 16:57:21 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52646 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751145AbVHTU5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 16:57:21 -0400
+Subject: Re: sched_yield() makes OpenLDAP slow
+From: Lee Revell <rlrevell@joe-job.com>
+To: Howard Chu <hyc@symas.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4307788E.1040209@symas.com>
+References: <4D8eT-4rg-31@gated-at.bofh.it> <4306A176.3090907@shaw.ca>
+	 <4306AF26.3030106@yahoo.com.au>  <4307788E.1040209@symas.com>
+Content-Type: text/plain
+Date: Sat, 20 Aug 2005 16:57:16 -0400
+Message-Id: <1124571437.2115.3.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.7 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508202153.17837.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rakotomandimby Mihamina wrote:
+On Sat, 2005-08-20 at 11:38 -0700, Howard Chu wrote:
+> But I also found that I needed to add a new 
+> yield(), to work around yet another unexpected issue on this system -
+> we have a number of threads waiting on a condition variable, and the
+> thread holding the mutex signals the var, unlocks the mutex, and then 
+> immediately relocks it. The expectation here is that upon unlocking
+> the mutex, the calling thread would block while some waiting thread
+> (that just got signaled) would get to run. In fact what happened is
+> that the calling thread unlocked and relocked the mutex without
+> allowing any of the waiting threads to run. In this case the only
+> solution was to insert a yield() after the mutex_unlock(). 
 
-> Hi,
-> 
-> I now use a notebook that uses RTL8139, and I encounter exactly the same
-> problems as this:
-> 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0402.3/1289.html
-> 
-> I know use Fedora Core 4 on this box.
-> With a Linux FC4 kernel (not customized yet).
-> 
-> As well as I still encounter the problem, I guess the solution has not
-> been found.
+That's exactly the behavior I would expect.  Why would you expect
+unlocking a mutex to cause a reschedule, if the calling thread still has
+timeslice left?
 
-Hi, this was my original post.
+Lee
 
-I did indeed get a solution - and occasionally I see people still have this 
-issue and some of them mail me, so I have a prepared mail :-)
-
-
-Here is the 'final' post after Mr Hirofumi 
-found the cause of my issues:
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0402.3/1709.html
-
-But I looked at what he said and found the real problem on my system (after 
-all that):
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0403.1/1537.html
-
-Nick
-
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."

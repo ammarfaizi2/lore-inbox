@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932772AbVHTAL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965212AbVHTALn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932772AbVHTAL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 20:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932773AbVHTAL0
+	id S965212AbVHTALn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 20:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbVHTALn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 20:11:26 -0400
-Received: from gate.crashing.org ([63.228.1.57]:42211 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932772AbVHTAL0 (ORCPT
+	Fri, 19 Aug 2005 20:11:43 -0400
+Received: from kent.litech.org ([72.9.242.215]:50699 "EHLO kent.litech.org")
+	by vger.kernel.org with ESMTP id S965202AbVHTALj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 20:11:26 -0400
-Subject: Re: [PATCH]  Add pci_walk_bus function to PCI core (nonrecursive)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-       linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050819163030.GA15648@austin.ibm.com>
-References: <17156.3965.483826.692623@cargo.ozlabs.ibm.com>
-	 <1124341108.8849.75.camel@gaston>  <20050819163030.GA15648@austin.ibm.com>
-Content-Type: text/plain
-Date: Sat, 20 Aug 2005 10:10:30 +1000
-Message-Id: <1124496631.5197.96.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Aug 2005 20:11:39 -0400
+Date: Fri, 19 Aug 2005 20:11:35 -0400 (EDT)
+From: Nathan Lutchansky <lutchann@litech.org>
+To: Greg KH <greg@kroah.com>
+cc: LKML <linux-kernel@vger.kernel.org>,
+       lm-sensors <lm-sensors@lm-sensors.org>
+Subject: Re: [PATCH 0/5] improve i2c probing
+In-Reply-To: <20050818185401.GA32684@kroah.com>
+Message-ID: <Pine.LNX.4.58.0508192010390.31004@puck.litech.org>
+References: <20050815175106.GA24959@litech.org> <20050818185401.GA32684@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Wow. A list of iterators to be fixed up ... I get the idea, but it does
-> add a fair amount of complexity.  
-
-Not that much, been there done that, it's actually quite simple :)
-
-> Would it be easier (and simpler to maintain/debug) to "get" all items
-> on the list first, before iterating on them, and only then iterate?
-
-How do you protect against change of your "next" pointer ? by taking a
-global lock, peeking at it, getting it, unlocking ? That would work in
-that case I suppose ...
-
-> This should work, as long as removing an item doesn't trash its "next" 
-> pointer.  The "next" pointer gets whacked only when the use-count goes 
-> to zero.
-
-A fine grained lock used when adding/removing items and when "peeking"
-at next might work there..
-
-> The idea is that while traversing the list, its OK if the "next" pointer
-> is pointing to a node that has removed from the list; in fact, its OK to
-> traverse to that node; eventually, traversing will eventually lead back
-> to a valid head.
-
-It's just making the race less likely to happen, but it's still there.
-Once the object you are peeking (or your next object, whatever) is
-unhooked from the list, that means that the next point it contains is
-crap. At any  time while you are playing with it, somebody may free the
-"next" object, and since you are unhooked form the list, your own "next"
-pointer will not be updated -> kaboom.
-
-> I know that the above sounds crazy, but I think it could work, and be 
-> a relatively low-tech but capable solution.  It does presume that elems
-> have generic get/put routines.
+On Thu, 18 Aug 2005, Greg KH wrote:
+> On Mon, Aug 15, 2005 at 01:51:06PM -0400, Nathan Lutchansky wrote:
+> > This patch series makes a couple of improvements to the i2c device
+> > probing process.
 > 
-> --linas
+> <snip>
+> 
+> These all generally look quite good, thanks.  But it looks like you and
+> Jean went back and forth on a few issues, care to repost an updated
+> series of patches based on that exchange so I can have them get some
+> testing in the -mm tree?
 
+Yup, I'm going to break the series into two parts and post the first one 
+probably tomorrow.  I haven't been in a hurry since Jean's been away this 
+week.  -Nathan

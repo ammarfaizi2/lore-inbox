@@ -1,49 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932761AbVHSXwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932767AbVHTABi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932761AbVHSXwS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 19:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932764AbVHSXwS
+	id S932767AbVHTABi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 20:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932768AbVHTABi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 19:52:18 -0400
-Received: from nproxy.gmail.com ([64.233.182.198]:44972 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932761AbVHSXwR convert rfc822-to-8bit
+	Fri, 19 Aug 2005 20:01:38 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:9659 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932767AbVHTABi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 19:52:17 -0400
+	Fri, 19 Aug 2005 20:01:38 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EkQCKiULAjKiCZJ4qxigdkvWcLHReFVkkc2qWHyTgTPhF/UkOfbCEKgE+04VE0v52WlUCk31KbMw/WzYom+Ic/z2SRU79KLJBgPYjM5V0rL6XZXMn742duf2JFkfyzoK4GIygLNt8faL+QMQ5PceLzVrpAgkU8eKoMJtCoMp3UE=
-Message-ID: <58cb370e05081916523e96195e@mail.gmail.com>
-Date: Sat, 20 Aug 2005 01:52:16 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+        b=tyI5fXUWyc5xPkUAi8qWfeVI4Xoy1inL/JIMvZ0aPiMuajU3Ijleu1sANROI4Y+Ubl2ExUP3cIZBXtGux/9Cl9ykex9Vs5Td15wgz/4Jss+5EwAXZHkv0pDgYDH8Y/iW8bmPw4ri8kYuxmXhPWBB7op6xr1uyMaaJGFToQGDvP4=
+Message-ID: <29495f1d05081917012fbb57aa@mail.gmail.com>
+Date: Fri, 19 Aug 2005 17:01:37 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [git patches] ide update
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <58cb370e050819165162278e61@mail.gmail.com>
+Subject: Re: sleep under spinlock, sequencer.c, 2.6.12.5
+Cc: ptb@inv.it.uc3m.es, linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1124474829.32050.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <Pine.GSO.4.62.0508182332470.22579@mion.elka.pw.edu.pl>
-	 <1124406535.20755.12.camel@localhost.localdomain>
-	 <58cb370e0508190202b0c5a5a@mail.gmail.com>
-	 <1124474768.32050.4.camel@localhost.localdomain>
-	 <58cb370e050819165162278e61@mail.gmail.com>
+References: <200508190813.j7J8Dml28378@inv.it.uc3m.es>
+	 <1124474829.32050.6.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/20/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
-> On 8/19/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > On Gwe, 2005-08-19 at 11:02 +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > lkml.org/lkml/2005/1/27/20
-> > >
-> > > AFAIK CS5535 driver was never ported to 2.6.x.  Somebody needs to
-> > > port it to 2.6.x kernel, cleanup to match kernel coding standards and test.
+On 8/19/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Gwe, 2005-08-19 at 10:13 +0200, Peter T. Breuer wrote:
+> > The following "sleep under spinlock" is still present as of linux
+> > 2.6.12.5 in sound/oss/sequencer.c in midi_outc:
 > >
-> > That was done some time ago and posted to various people.
+> >
+> >         n = 3 * HZ;             /* Timeout */
+> >
+> >         spin_lock_irqsave(&lock,flags);
+> >         while (n && !midi_devs[dev]->outputc(dev, data)) {
+> >                 interruptible_sleep_on_timeout(&seq_sleeper, HZ/25);
+> >                 n--;
+> >         }
+> >         spin_unlock_irqrestore(&lock,flags);
+> >
+> >
+> > I haven't thought about it, just noted it. It's been there forever
+> > (some others in the sound architecture have been gradually disappearing
+> > as newer kernels come out).
 > 
-> This is a good news that cs5530 driver was ported.
+> Yep thats a blind substition of lock_kernel in an old tree it seems.
+> Probably my fault. Should drop it before the sleep and take it straight
+> after.
 
-s/cs5530/cs5535/
+Also, the use of n makes no sense. Indicates total sleep for 3
+seconds, but actually sleep for 40 milliseconds 3*HZ times
+(potentially)?
+
+In any case, probably should be:
+
+timeout = jiffies + 3*HZ;
+
+spin_lock_irqsave(&lock, flags);
+while (time_before(jiffies, timeout) && !midi_devs[dev]->outputc(dev, data)) {
+     spin_unlock_irqrestore(&lock, flags);
+     interruptible_sleep_on_timeout(&seq_sleeper, msecs_to_jiffies(40));
+     spin_lock_irqsave(&lock, flags);
+}
+spin_lock_irqrestore(&lock, flags);
+
+Or something similar....
+
+If those locks weren't there, we could use
+wait_event_interruptible_timeout(). Should we create a locked version?
+
+Thanks,
+Nish

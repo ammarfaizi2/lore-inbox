@@ -1,217 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbVHTOue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVHTOzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbVHTOue (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 10:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbVHTOue
+	id S932264AbVHTOzm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 10:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVHTOzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 10:50:34 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:56551 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751253AbVHTOud (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 10:50:33 -0400
-Date: Sat, 20 Aug 2005 07:50:16 -0700
-To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: mingo@elte.hu, pj@sgi.com, dino@in.ibm.com, nickpiggin@yahoo.com.au,
-       akpm@osdl.org
-Subject: [PATCH] ia64 cpuset + build_sched_domains() mangles structures
-Message-ID: <43074328.MailOXV1UXUHF@jackhammer.engr.sgi.com>
-User-Agent: nail 10.6 11/15/03
-MIME-Version: 1.0
+	Sat, 20 Aug 2005 10:55:42 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:61713 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932264AbVHTOzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 10:55:41 -0400
+Date: Sat, 20 Aug 2005 16:30:19 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: linux-kernel@vger.kernel.org
+Cc: marcelo.tosatti@cyclades.com
+Subject: Linux-2.4.31-hf4
+Message-ID: <20050820143019.GA14526@alpha.home.local>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: hawkes@jackhammer.engr.sgi.com (John Hawkes)
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've already sent this to the maintainers, and this is now being sent to a
-larger community audience.  I have fixed a problem with the ia64 version of
-build_sched_domains(), but a similar fix still needs to be made to the
-generic build_sched_domains() in kernel/sched.c.
+Hello !
 
-The "dynamic sched domains" functionality has recently been merged into
-2.6.13-rcN that sees the dynamic declaration of a cpu-exclusive (a.k.a.
-"isolated") cpuset and rebuilds the CPU Scheduler sched domains and sched
-groups to separate away the CPUs in this cpu-exclusive cpuset from the
-remainder of the non-isolated CPUs.  This allows the non-isolated CPUs to
-completely ignore the isolated CPUs when doing load-balancing.
+After having accumulated a few weeks delay, the fourth hotfix for kernel
+2.4.31 is finally out. It was also the right time to release it now that
+the isofs and zlib stories came to an end.
 
-Unfortunately, build_sched_domains() expects that a sched domain will
-include all the CPUs of each node in the domain, i.e., that no node will
-belong in both an isolated cpuset and a non-isolated cpuset.  Declaring
-a cpuset that violates this presumption will produce flawed data
-structures and will oops the kernel.
+Because of the ZISOFS security fix, users of older -hf or plain 2.4.X
+should upgrade either to latest -hf or to 2.4.32-pre3. Other fixes are
+less important.
 
-To trigger the problem (on a NUMA system with >1 CPUs per node):
-   cd /dev/cpuset
-   mkdir newcpuset
-   cd newcpuset
-   echo 0 >cpus
-   echo 0 >mems
-   echo 1 >cpu_exclusive
+As usual, I've also updated 2.4.29 and 2.4.30. So all 3 Kernels 2.4.29-hf14,
+2.4.30-hf7 and 2.4.31-hf4 are available as individual, full, and incremental
+patches here:
 
-I have fixed this shortcoming for ia64 NUMA (with multiple CPUs per node).
-A similar shortcoming exists in the generic build_sched_domains() (in
-kernel/sched.c) for NUMA, and that needs to be fixed also.  The fix involves
-dynamically allocating sched_group_nodes[] and sched_group_allnodes[] for
-each invocation of build_sched_domains(), rather than using global arrays
-for these structures.  Care must be taken to remember kmalloc() addresses
-so that arch_destroy_sched_domains() can properly kfree() the new dynamic
-structures.
+    http://linux.exosec.net/kernel/2.4/2.4-hf/
 
-This is a patch against 2.6.13-rc6.
+The changelog is appended to this mail. I've built 2.4.31-hf4 with all
+modules, and nothing more yet, but Grant Coady will soon report the
+full build and run test here :
 
-Signed-off-by: John Hawkes <hawkes@sgi.com>
+    http://bugsplatter.mine.nu/test/linux-2.4/  (warning! URL changed)
 
-Index: linux/arch/ia64/kernel/domain.c
-===================================================================
---- linux.orig/arch/ia64/kernel/domain.c	2005-08-19 08:54:00.000000000 -0700
-+++ linux/arch/ia64/kernel/domain.c	2005-08-20 07:39:32.000000000 -0700
-@@ -120,10 +120,10 @@
-  * gets dynamically allocated.
-  */
- static DEFINE_PER_CPU(struct sched_domain, node_domains);
--static struct sched_group *sched_group_nodes[MAX_NUMNODES];
-+static struct sched_group **sched_group_nodes_bycpu[NR_CPUS];
- 
- static DEFINE_PER_CPU(struct sched_domain, allnodes_domains);
--static struct sched_group sched_group_allnodes[MAX_NUMNODES];
-+static struct sched_group *sched_group_allnodes_bycpu[NR_CPUS];
- 
- static int cpu_to_allnodes_group(int cpu)
- {
-@@ -138,6 +138,21 @@
- void build_sched_domains(const cpumask_t *cpu_map)
- {
- 	int i;
-+#ifdef CONFIG_NUMA
-+	struct sched_group **sched_group_nodes = NULL;
-+	struct sched_group *sched_group_allnodes = NULL;
-+
-+	/*
-+	 * Allocate the per-node list of sched groups
-+	 */
-+	sched_group_nodes = kmalloc(sizeof(struct sched_group*)*MAX_NUMNODES,
-+					   GFP_ATOMIC);
-+	if (!sched_group_nodes) {
-+		printk(KERN_WARNING "Can not alloc sched group node list\n");
-+		return;
-+	}
-+	sched_group_nodes_bycpu[first_cpu(*cpu_map)] = sched_group_nodes;
-+#endif
- 
- 	/*
- 	 * Set up domains for cpus specified by the cpu_map.
-@@ -150,8 +165,21 @@
- 		cpus_and(nodemask, nodemask, *cpu_map);
- 
- #ifdef CONFIG_NUMA
--		if (num_online_cpus()
-+		if (cpus_weight(*cpu_map)
- 				> SD_NODES_PER_DOMAIN*cpus_weight(nodemask)) {
-+			if (!sched_group_allnodes) {
-+				sched_group_allnodes
-+					= kmalloc(sizeof(struct sched_group)
-+							* MAX_NUMNODES,
-+						  GFP_KERNEL);
-+				if (!sched_group_allnodes) {
-+					printk(KERN_WARNING
-+					"Can not alloc allnodes sched group\n");
-+					break;
-+				}
-+				sched_group_allnodes_bycpu[i]
-+						= sched_group_allnodes;
-+			}
- 			sd = &per_cpu(allnodes_domains, i);
- 			*sd = SD_ALLNODES_INIT;
- 			sd->span = *cpu_map;
-@@ -214,8 +242,9 @@
- 	}
- 
- #ifdef CONFIG_NUMA
--	init_sched_build_groups(sched_group_allnodes, *cpu_map,
--				&cpu_to_allnodes_group);
-+	if (sched_group_allnodes)
-+		init_sched_build_groups(sched_group_allnodes, *cpu_map,
-+					&cpu_to_allnodes_group);
- 
- 	for (i = 0; i < MAX_NUMNODES; i++) {
- 		/* Set up node groups */
-@@ -226,8 +255,10 @@
- 		int j;
- 
- 		cpus_and(nodemask, nodemask, *cpu_map);
--		if (cpus_empty(nodemask))
-+		if (cpus_empty(nodemask)) {
-+			sched_group_nodes[i] = NULL;
- 			continue;
-+		}
- 
- 		domainspan = sched_domain_node_span(i);
- 		cpus_and(domainspan, domainspan, *cpu_map);
-@@ -341,7 +372,7 @@
- #endif
- 
- 	/* Attach the domains */
--	for_each_online_cpu(i) {
-+	for_each_cpu_mask(i, *cpu_map) {
- 		struct sched_domain *sd;
- #ifdef CONFIG_SCHED_SMT
- 		sd = &per_cpu(cpu_domains, i);
-@@ -372,25 +403,42 @@
- {
- #ifdef CONFIG_NUMA
- 	int i;
--	for (i = 0; i < MAX_NUMNODES; i++) {
--		cpumask_t nodemask = node_to_cpumask(i);
--		struct sched_group *oldsg, *sg = sched_group_nodes[i];
-+	int cpu;
- 
--		cpus_and(nodemask, nodemask, *cpu_map);
--		if (cpus_empty(nodemask))
--			continue;
-+	for_each_cpu_mask(cpu, *cpu_map) {
-+		struct sched_group *sched_group_allnodes
-+			= sched_group_allnodes_bycpu[cpu];
-+		struct sched_group **sched_group_nodes
-+			= sched_group_nodes_bycpu[cpu];
-+
-+		if (sched_group_allnodes) {
-+			kfree(sched_group_allnodes);
-+			sched_group_allnodes_bycpu[cpu] = NULL;
-+		}
- 
--		if (sg == NULL)
-+		if (!sched_group_nodes)
- 			continue;
--		sg = sg->next;
-+
-+		for (i = 0; i < MAX_NUMNODES; i++) {
-+			cpumask_t nodemask = node_to_cpumask(i);
-+			struct sched_group *oldsg, *sg = sched_group_nodes[i];
-+
-+			cpus_and(nodemask, nodemask, *cpu_map);
-+			if (cpus_empty(nodemask))
-+				continue;
-+
-+			if (sg == NULL)
-+				continue;
-+			sg = sg->next;
- next_sg:
--		oldsg = sg;
--		sg = sg->next;
--		kfree(oldsg);
--		if (oldsg != sched_group_nodes[i])
--			goto next_sg;
--		sched_group_nodes[i] = NULL;
-+			oldsg = sg;
-+			sg = sg->next;
-+			kfree(oldsg);
-+			if (oldsg != sched_group_nodes[i])
-+				goto next_sg;
-+		}
-+		kfree(sched_group_nodes);
-+		sched_group_nodes_bycpu[cpu] = NULL;
- 	}
- #endif
- }
--
+Regards,
+Willy
+
+--
+
+Changelog From 2.4.31-hf3 to 2.4.31-hf4
+---------------------------------------
+'+' = added ; '-' = removed
+
+- 2.4.31-zlib-security-bugs-1                                    (Tim Yamin)
++ 2.4.31-zlib-security-bugs-2                     (Tim Yamin, Sergey Vlasov)
+
+  Reverted the Z_OK to Z_DATA_ERROR changes in inftrees.c (& PPC).
+
++ 2.4.31-zisofs-check-deflatebound-1                        (Linus Torvalds)
+
+  [PATCH] PATCH: Fix outstanding gzip/zlib security issues
+  Add fakey 'deflateBound()' function to the in-kernel zlib routines.
+  It's not the real deflateBound() in newer zlib libraries, partly because
+  the upcoming usage of it won't have the "stream" available, so we can't
+  have the same interfaces anyway. Problem noted by Tim Yamin.
+
++ 2.4.31-nat-fix-memory-corruption-1                       (Patrick McHardy)
+
+  [NETFILTER]: Fix potential memory corruption in NAT code (aka memory NAT)
+
++ 2.4.31-isofs-option-parse-fix-1               (Horms + Andrey J.Melnikoff)
+
+  Fix isofs option parser. If iocharset, map or session are matched,
+  then none of the if or else if clauses under sbsector will match
+  (that is none of these clauses match iocharset, map or session),
+  and thus the else clause will be hit, and the function will return
+  1 without parsing any furhter options. Also fix gcc-3.4 warnings.
+
++ 2.4.31-netfilter-tcp-unclean-1.diff                      (Patrick McHardy)
+
+  [NETFILTER]: Ignore PSH on SYN/ACK in ipt_unclean
+
++ 2.4.31-redblacktree-missing-returns-1              (deep-blue@t-online.de)
+
+  [PATCH] fix RedBlackTree rb_next/rb_prev functions. I have found a
+  bug in the source of rbtree.c file in /lib. In Kernel 2.6 it's ok,
+  but 2.4.31 has this error. We try to use it with the jffs2 source
+  code and only with this fix it works fine.
+
++ 2.4.31-alpha-cabriolet-needs-ns87312-1                       (Bill Dupree)
+
+  [PATCH] Fix Alpha AXP Cabriolet build. Alpha AXP Cabriolet build
+  fails with unresolved reference to ns87312_enable_ide().
+
+-- END --
+

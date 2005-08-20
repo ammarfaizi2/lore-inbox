@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVHTVuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVHTVyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbVHTVuF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 17:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVHTVuF
+	id S1751249AbVHTVyv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 17:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVHTVyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 17:50:05 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:56745 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751247AbVHTVuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 17:50:04 -0400
-Subject: Re: sched_yield() makes OpenLDAP slow
-From: Lee Revell <rlrevell@joe-job.com>
-To: Howard Chu <hyc@symas.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4307788E.1040209@symas.com>
-References: <4D8eT-4rg-31@gated-at.bofh.it> <4306A176.3090907@shaw.ca>
-	 <4306AF26.3030106@yahoo.com.au>  <4307788E.1040209@symas.com>
-Content-Type: text/plain
-Date: Sat, 20 Aug 2005 17:50:01 -0400
-Message-Id: <1124574601.2628.9.camel@mindpipe>
+	Sat, 20 Aug 2005 17:54:51 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:44643 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751249AbVHTVyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 17:54:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=aHaTeKt4sFFCZpaId+ow+SXrbI36b/2NNiQ9ZGbxFIk0VAC26WP8jmCla3gAYMWsjUErqYiwzyR1+TeLl6L7+ZgRe/rd3qcM2XJ/HM4oaxvLahHUodtbzy83BWdlL9Fdqi5UK4Dj2p3UuvCp57hga+CyhZewiNzLCAkdRd/U4Gk=
+Date: Sat, 20 Aug 2005 17:54:35 -0400
+To: Hiroyuki Machida <machida@sm.sony.co.jp>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Posix file attribute support on VFAT (take #2)
+Message-ID: <20050820215435.GC13127@nineveh.rivenstone.net>
+Mail-Followup-To: Hiroyuki Machida <machida@sm.sony.co.jp>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+References: <43023957.1020909@sm.sony.co.jp> <20050816212531.GA2479@infradead.org> <43046867.4030707@sm.sony.co.jp>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.7 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43046867.4030707@sm.sony.co.jp>
+User-Agent: Mutt/1.5.6+20040907i
+From: jfannin@gmail.com (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-20 at 11:38 -0700, Howard Chu wrote:
-> Nick Piggin wrote:
-> >  Robert Hancock wrote:
-> > > I fail to see how sched_yield is going to be very helpful in this
-> > > situation. Since that call can sleep from a range of time ranging
-> > > from zero to a long time, it's going to give unpredictable results.
-> 
-> >  Well, not sleep technically, but yield the CPU for some undefined
-> >  amount of time.
-> 
-> Since the slapd server was not written to run in realtime, nor is it 
-> commonly run on realtime operating systems, I don't believe predictable 
-> timing here is a criteria we care about. One could say the same of 
-> sigsuspend() by the way - it can pause a process for a range of time 
-> ranging from zero to a long time. Should we tell application writers not 
-> to use this function either, regardless of whether the developer thinks 
-> they have a good reason to use it?
+On Thu, Aug 18, 2005 at 07:52:23PM +0900, Hiroyuki Machida wrote:
+> Christoph Hellwig wrote:
+> >On Wed, Aug 17, 2005 at 04:07:03AM +0900, Machida, Hiroyuki wrote:
 
-Of course not.  We should tell them that if they use sigsuspend() they
-cannot assume that the process will not wake up immediately.
+> >>This is a take 2 of posix file attribute support on VFAT.
+> >
+> >
+> >Sorry, but this is far too scary.  Please just use one of the sane
+> >filesystems linux supports.
+> >
+>
+> I would say that purpose of the feature is having ability to
+> build root fs for small embedded device, not support full posix 
+> attributes top of VFAT. I think the situation is like uclinux, 
+> which has no MMU support and many restriction, however it's still
+> very helpful for small embedded device.
 
-Lee
+    This doesn't seem so different from umsdos to me -- which was only
+removed from the kernel because it was unmaintained.  It might have
+its place.
 
+    However, I'd guess you'd need to demonstrate that someone is
+actually going to use and maintain this feature before it would be
+considered for inclusion in the kernel.
 
+--
+Joseph Fannin
+jfannin@gmail.com
+
+"Bull in pure form is rare; there is usually some contamination by data."
+    -- William Graves Perry Jr.

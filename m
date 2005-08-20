@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVHTTtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbVHTTtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbVHTTtB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 15:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbVHTTtA
+	id S1750949AbVHTTtv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 15:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750950AbVHTTtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 15:49:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60107 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750712AbVHTTtA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 15:49:00 -0400
-Date: Sat, 20 Aug 2005 15:48:40 -0400
-From: Dave Jones <davej@redhat.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Linus Torvalds <torvalds@g5.osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Fix up befs compile.
-Message-ID: <20050820194840.GA8455@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Linus Torvalds <torvalds@g5.osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 20 Aug 2005 15:49:51 -0400
+Received: from highlandsun.propagation.net ([66.221.212.168]:4878 "EHLO
+	highlandsun.propagation.net") by vger.kernel.org with ESMTP
+	id S1750846AbVHTTtu (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sat, 20 Aug 2005 15:49:50 -0400
+Message-ID: <43078954.2030905@symas.com>
+Date: Sat, 20 Aug 2005 12:49:40 -0700
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b4) Gecko/20050810 SeaMonkey/1.0a
+MIME-Version: 1.0
+To: Nikita Danilov <nikita@clusterfs.com>
+CC: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: sched_yield() makes OpenLDAP slow
+References: <43057641.70700@symas.com>	<17157.45712.877795.437505@gargle.gargle.HOWL>	<430666DB.70802@symas.com> <17159.11995.869374.370114@gargle.gargle.HOWL>
+In-Reply-To: <17159.11995.869374.370114@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fs/befs/linuxvfs.c:466: error: conflicting types for 'befs_follow_link'
-fs/befs/linuxvfs.c:44: error: previous declaration of 'befs_follow_link' was here
-fs/befs/linuxvfs.c: In function 'befs_follow_link':
-fs/befs/linuxvfs.c:490: warning: return makes integer from pointer without a cast
+Nikita Danilov wrote:
+> That returns us to the core of the problem: sched_yield() is used to
+> implement a synchronization primitive and non-portable assumptions are
+> made about its behavior: SUS defines that after sched_yield() thread
+> ceases to run on the CPU "until it again becomes the head of its thread
+> list", and "thread list" discipline is only defined for real-time
+> scheduling policies. E.g., 
+>
+> int sched_yield(void)
+> {
+>        return 0;
+> }
+>
+> and
+>
+> int sched_yield(void)
+> {
+>        sleep(100);
+>        return 0;
+> }
+>
+> are both valid sched_yield() implementation for non-rt (SCHED_OTHER)
+> threads.
+I think you're mistaken:
+http://groups.google.com/group/comp.programming.threads/browse_frm/thread/0d4eaf3703131e86/da051ebe58976b00#da051ebe58976b00
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+sched_yield() is required to be supported even if priority scheduling is 
+not supported, and it is required to cause the calling thread (not 
+process) to yield the processor.
 
+-- 
+  -- Howard Chu
+  Chief Architect, Symas Corp.  http://www.symas.com
+  Director, Highland Sun        http://highlandsun.com/hyc
+  OpenLDAP Core Team            http://www.openldap.org/project/
 
---- linux-2.6.12/fs/befs/linuxvfs.c~	2005-08-20 15:46:30.000000000 -0400
-+++ linux-2.6.12/fs/befs/linuxvfs.c	2005-08-20 15:47:25.000000000 -0400
-@@ -461,7 +461,7 @@ befs_destroy_inodecache(void)
-  * The data stream become link name. Unless the LONG_SYMLINK
-  * flag is set.
-  */
--static int
-+static void
- befs_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	befs_inode_info *befs_ino = BEFS_I(dentry->d_inode);
-@@ -487,7 +487,6 @@ befs_follow_link(struct dentry *dentry, 
- 	}
- 
- 	nd_set_link(nd, link);
--	return NULL;
- }
- 
- static void befs_put_link(struct dentry *dentry, struct nameidata *nd, void *p)

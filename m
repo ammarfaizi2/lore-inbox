@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932760AbVHTAcU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965202AbVHTAeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932760AbVHTAcU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 20:32:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932765AbVHTAcU
+	id S965202AbVHTAeu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 20:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbVHTAet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 20:32:20 -0400
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:40841 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932760AbVHTAcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 20:32:19 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Schedulers benchmark - Was: [ANNOUNCE][RFC] PlugSched-5.2.4 for 2.6.12 and 2.6.13-rc6
-Date: Sat, 20 Aug 2005 10:31:59 +1000
-User-Agent: KMail/1.8.2
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <43001E18.8020707@bigpond.net.au> <200508191436.42881.kernel@kolivas.org> <1124482411.25424.49.camel@mindpipe>
-In-Reply-To: <1124482411.25424.49.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 19 Aug 2005 20:34:49 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:54013 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965202AbVHTAet
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 20:34:49 -0400
+Subject: Re: lost ticks and Hangcheck
+From: john stultz <johnstul@us.ibm.com>
+To: Nathan Becker <nbecker@physics.ucsb.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.63.0508191714150.8252@claven.physics.ucsb.edu>
+References: <Pine.LNX.4.63.0508182351460.6338@claven.physics.ucsb.edu>
+	 <20050819094500.GB16279@kurtwerks.com>
+	 <Pine.LNX.4.63.0508191714150.8252@claven.physics.ucsb.edu>
+Content-Type: text/plain
+Date: Fri, 19 Aug 2005 17:34:43 -0700
+Message-Id: <1124498084.2932.3.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508201031.59981.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Aug 2005 06:13, Lee Revell wrote:
-> On Fri, 2005-08-19 at 14:36 +1000, Con Kolivas wrote:
-> > On Fri, 19 Aug 2005 02:41 pm, Peter Williams wrote:
-> > > Maybe we could use interbench to find a nice value for X that doesn't
-> > > destroy Audio and Video?  The results that I just posted for
-> > > spa_no_frills with X reniced to -10 suggest that the other schedulers
-> > > could cope with something closer to zero.
-> >
-> > I don't see the point. X works fine as is without renicing not
-> > withstanding these extreme loads in interbench. Furthermore, reworking of
-> > xorg code to not spin the cpu unnecessarily when the gpu is busy is
-> > underway and tuning the cpu scheduler unfairly for an X server that will
-> > no longer behave so badly is inappropriate.
->
-> See, that's where we disagree, I certainly don't believe X "works fine".
-> Compared to MacOS and (especially) Windows the Linux desktop is WAY
-> sluggish.
->
-> For example when I cycle through windows with alt-tab in X, it can take
-> 5-10 seconds for each to render.  I can see the application's widgets
-> being drawn one at a time, then finally the border.  Repeated
-> alt-tabbing between the same two windows seems to cause a CPU intensive
-> redraw of the entire window.  It's as if X just discards the rendered
-> contents of a window as soon as it's obscured.
->
-> On Windows this works as expected - cycling through windows whose
-> contents have already been rendered is *instantaneous*.
->
-> I agree that tweaking the scheduler is probably pointless, as long as X
-> is burning gazillions of CPU cycles redrawing things that don't need to
-> be redrawn.
->
-> Then again even the OSX scheduler has hooks for the GUI.  Presumably
-> they concluded that the desktop responsiveness problem could not be
-> adequately solved within the framework of a general purpose UNIX
-> scheduler.
+On Fri, 2005-08-19 at 17:22 -0700, Nathan Becker wrote:
+> > I use the no_timer_check kernel parm and that keeps the clock from
+> > running at double speed. I still see some other annoying boot-time
+> 
+> As I mentioned, no_timer_check doesn't fix it for me.  In fact it makes 
+> the problem significantly worse.  I tried it again just to be sure.  Also 
+> I tried noapic again and it doesn't help either.
+> 
+> I found there was an upgrade to the NVIDIA graphics driver that addressed 
+> a clock issue (I don't know if it's related to my problem).  I upgraded 
+> from version 7667 to 7676.  That seemed to help a little bit, at least in 
+> prolonging the amount of time I could reasonably use the system.  Someone 
+> in another thread mentioned that they thought this problem might be caused 
+> by something in x.org, which I am using.
 
-It's an X problem and it's being fixed. Get over it, we're not tuning the 
-scheduler for a broken app.
+Please make sure this issue is reproducible without any binary only
+drivers.
 
-Con
+> Any other ideas or patches would be much appreciated.
+
+
+If it happens w/o binary only drivers, could you open a bug at
+bugzilla.kernel.org and provide full dmesg output?
+
+Also check bug #3341 to see if it is at all similar to what you are
+seeing.
+
+thanks
+-john
+
+

@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932802AbVHTDeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbVHTDjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932802AbVHTDeX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 23:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932814AbVHTDeX
+	id S1030184AbVHTDjh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 23:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbVHTDjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 23:34:23 -0400
-Received: from mail.kroah.org ([69.55.234.183]:40084 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932802AbVHTDeX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 23:34:23 -0400
-Date: Fri, 19 Aug 2005 20:33:37 -0700
-From: Greg KH <greg@kroah.com>
-To: Daniel Phillips <phillips@istop.com>
-Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permissions don't stick on ConfigFS attributes
-Message-ID: <20050820033337.GA1173@kroah.com>
-References: <200508201050.51982.phillips@istop.com> <20050820030117.GA775@kroah.com> <200508201323.29355.phillips@istop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508201323.29355.phillips@istop.com>
-User-Agent: Mutt/1.5.10i
+	Fri, 19 Aug 2005 23:39:37 -0400
+Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:22982 "EHLO
+	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030184AbVHTDjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 23:39:37 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12-ck6
+Date: Sat, 20 Aug 2005 13:39:26 +1000
+User-Agent: KMail/1.8.2
+Cc: ck list <ck@vds.kolivas.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1627733.QL1AahCfEk";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508201339.28730.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 20, 2005 at 01:23:29PM +1000, Daniel Phillips wrote:
-> On Saturday 20 August 2005 13:01, Greg KH wrote:
-> > On Sat, Aug 20, 2005 at 10:50:51AM +1000, Daniel Phillips wrote:
-> > > So: Integrate with sysfs.
-> >
-> > No, don't.  Do you think that Joel would not have already worked with
-> > the sysfs people prior to submitting this?  No, he did, and we all
-> > agreed that it should be kept separate.
-> 
-> Would you care to recap the reasoning, please?
+--nextPart1627733.QL1AahCfEk
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-They do two different things, and people interact with them in two
-different ways.  So, they should be two different file systems.
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck* patch is aimed at th=
+e=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
-> > > Terminology skew.  It is a very bad idea to call your configfs files
-> > > "attributes".
-> >
-> > That's what sysfs calls its files.  They used the same naming scheme
-> > there.  This is nothing that a user ever cares about or sees.
-> 
-> It's wrrrrronnnggg.  The best you can defend this with is "it's entrenched".
+Apply to 2.6.12 (This includes all patches in 2.6.12.5):
+http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck6/patch-2.6.12-ck6.bz2
+or for server version:
+http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck6/patch-2.6.12-ck6-server=
+=2Ebz2
 
-Will a user ever see the word "attribute"?  Also, these files represent
-attributes of the main object in which they are attached to.  Hence the
-name.
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
 
-> > > Memory requirements.  ConfigFS pins way too much kernel memory for inodes
-> > > and dentries.
-> >
-> > configfs is not going to have that many nodes at all in memory (compared
-> > to sysfs), so I don't think this is a big problem.
-> 
-> The current bloat is unconscionable, for the amount of data that is carried.  
-> Are you arguing against fixing it?  And what makes you think configfs will 
-> never have lots of nodes?
 
-Doesn't it currently work the same way as sysfs with the backing store
-being created on the fly?  If not, it should be pretty simple to convert
-over if people are really worried about memory consumption, but again,
-why don't we see how many nodes are really used on most systems (don't
-want to add more complexity and kernel code if you never really need
-it.)
+Changes since 2.6.12-ck5:
+=2Dpatch-2.6.12.4.bz2
++patch-2.6.12.5.bz2
+Latest stable version
 
-thanks,
++s11.4_s11.6.diff
+Updated staircase to account for delayed timer ticks.
 
-greg k-h
++smpnice6-smpnice7.diff
+A fix for a rare race in the smp nice code
+
+=2D2612ck5-version.diff
++2612ck6-version.diff
+Version
+
+
+Cheers,
+Con
+
+--nextPart1627733.QL1AahCfEk
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDBqXwZUg7+tp6mRURAm37AJ9BwOc36LH9lDqkvKhYk4MJsbKT3QCgk+dS
+48ZA/eCW2XgbVYjdCDf8ls0=
+=5QNQ
+-----END PGP SIGNATURE-----
+
+--nextPart1627733.QL1AahCfEk--

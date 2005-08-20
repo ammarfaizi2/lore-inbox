@@ -1,78 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932767AbVHTABi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932771AbVHTAC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932767AbVHTABi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 20:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932768AbVHTABi
+	id S932771AbVHTAC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 20:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbVHTAC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 20:01:38 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:9659 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932767AbVHTABi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 20:01:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tyI5fXUWyc5xPkUAi8qWfeVI4Xoy1inL/JIMvZ0aPiMuajU3Ijleu1sANROI4Y+Ubl2ExUP3cIZBXtGux/9Cl9ykex9Vs5Td15wgz/4Jss+5EwAXZHkv0pDgYDH8Y/iW8bmPw4ri8kYuxmXhPWBB7op6xr1uyMaaJGFToQGDvP4=
-Message-ID: <29495f1d05081917012fbb57aa@mail.gmail.com>
-Date: Fri, 19 Aug 2005 17:01:37 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: sleep under spinlock, sequencer.c, 2.6.12.5
-Cc: ptb@inv.it.uc3m.es, linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1124474829.32050.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200508190813.j7J8Dml28378@inv.it.uc3m.es>
-	 <1124474829.32050.6.camel@localhost.localdomain>
+	Fri, 19 Aug 2005 20:02:57 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:54750 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932768AbVHTAC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 20:02:56 -0400
+Message-ID: <43067328.3020200@pobox.com>
+Date: Fri, 19 Aug 2005 20:02:48 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Simon Oosthoek <s.oosthoek@home.nl>
+CC: linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: SATA status report updated
+References: <4AA7B-4jm-5@gated-at.bofh.it> <4DagM-7c8-43@gated-at.bofh.it> <871x4ql24a.fsf@ABG3595C.abg.fsc.net> <43062623.607@pobox.com> <430664C8.1090000@home.nl>
+In-Reply-To: <430664C8.1090000@home.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/19/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Gwe, 2005-08-19 at 10:13 +0200, Peter T. Breuer wrote:
-> > The following "sleep under spinlock" is still present as of linux
-> > 2.6.12.5 in sound/oss/sequencer.c in midi_outc:
-> >
-> >
-> >         n = 3 * HZ;             /* Timeout */
-> >
-> >         spin_lock_irqsave(&lock,flags);
-> >         while (n && !midi_devs[dev]->outputc(dev, data)) {
-> >                 interruptible_sleep_on_timeout(&seq_sleeper, HZ/25);
-> >                 n--;
-> >         }
-> >         spin_unlock_irqrestore(&lock,flags);
-> >
-> >
-> > I haven't thought about it, just noted it. It's been there forever
-> > (some others in the sound architecture have been gradually disappearing
-> > as newer kernels come out).
+Simon Oosthoek wrote:
+> I know Mandriva is on the ball and a bug with some information and an 
+> updated patch is on the kernel bugme...
 > 
-> Yep thats a blind substition of lock_kernel in an old tree it seems.
-> Probably my fault. Should drop it before the sleep and take it straight
-> after.
+> http://qa.mandriva.com/show_bug.cgi?id=17654
+> http://bugme.osdl.org/show_bug.cgi?id=4192
+> 
+> I'd say it's important to get some proper fix in a distribution soon (so 
+> I can use my new PC ;-)
 
-Also, the use of n makes no sense. Indicates total sleep for 3
-seconds, but actually sleep for 40 milliseconds 3*HZ times
-(potentially)?
 
-In any case, probably should be:
+That's not an updated patch.  That's the patch that duplicates kernel 
+infrastructure, implementing things in the driver that should instead be 
+implemented in libata core.
 
-timeout = jiffies + 3*HZ;
+That's how Windows drivers are written: work around the OS, rather than 
+fix it.
 
-spin_lock_irqsave(&lock, flags);
-while (time_before(jiffies, timeout) && !midi_devs[dev]->outputc(dev, data)) {
-     spin_unlock_irqrestore(&lock, flags);
-     interruptible_sleep_on_timeout(&seq_sleeper, msecs_to_jiffies(40));
-     spin_lock_irqsave(&lock, flags);
-}
-spin_lock_irqrestore(&lock, flags);
+Here is a list of problems with the patch.  I'll paste this into the bug 
+as well:
 
-Or something similar....
+1) duplicates SATA phy reset
 
-If those locks weren't there, we could use
-wait_event_interruptible_timeout(). Should we create a locked version?
+2) abuses infrastructure to support PATA, rather than doing it properly. 
+  doing it properly involves an approach similar to that found in the 
+'promise-sata-pata' branch of libata-dev.git.  Same problem as Promise 
+SATA+PATA, with the same solution.
 
-Thanks,
-Nish
+3) duplicates ATA bus reset, except, does it poorly
+
+4) duplicates ata_busy_sleep()
+
+5) appears to do strange things with PATA devices, when one uses the 
+->scr_write() and ->scr_read() hooks -- hooks used to talk to SATA PHYs 
+(never PATA devices).
+
+6) [maybe] sets DMA/PIO timings even for SATA devices.  This -may- be 
+needed, depending on PATA<->SATA bridge presence in the host controller
+
+7) Pads DMA to 32-bit boundary.  Should be done in libata core, this is 
+needed for all host controllers.
+
+8) The DMA pad code is very buggy.  It uses the dma_map_single() to map 
+a buffer, but never synchronizes nor flushes the buffer.  This can and 
+will lead to data corruption, particularly on x86-64 platform.
+
+Regards,
+
+	Jeff
+
+

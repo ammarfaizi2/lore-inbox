@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932777AbVHTBMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbVHTBWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932777AbVHTBMy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Aug 2005 21:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932780AbVHTBMx
+	id S965223AbVHTBWh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Aug 2005 21:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932794AbVHTBWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Aug 2005 21:12:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50352 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932777AbVHTBMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Aug 2005 21:12:52 -0400
-Date: Sat, 20 Aug 2005 02:15:49 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, vandrove@vc.cvut.cz,
-       Andrew Morton <akpm@osdl.org>, linware@sh.cvut.cz,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel bug: Bad page state: related to generic symlink code and mmap
-Message-ID: <20050820011549.GM29811@parcelfarce.linux.theplanet.co.uk>
-References: <1124466246.2294.65.camel@imp.csi.cam.ac.uk> <Pine.LNX.4.58.0508190855350.3412@g5.osdl.org> <Pine.LNX.4.58.0508190913570.3412@g5.osdl.org> <Pine.LNX.4.58.0508190934470.3412@g5.osdl.org> <Pine.LNX.4.60.0508192144590.7312@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.58.0508191352540.3412@g5.osdl.org> <Pine.LNX.4.60.0508192220440.7312@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.58.0508191502050.3412@g5.osdl.org> <20050819231542.GJ29811@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0508191805410.3412@g5.osdl.org>
+	Fri, 19 Aug 2005 21:22:37 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:13196 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932791AbVHTBWg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Aug 2005 21:22:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VQm7dK46zI3+0YT1mVriiEvuWjXFpkSNpjVTY98KLH947baTGZ5jsT400KQvUGBNu6hxwWTtdOdwnnJIIj/hnyC9f7qJppLR4CqFLR0DGNooxqpITtz21eqj/BjWs3K/QR8ba+GXXMmuHgLcCn4Le2cZWX/iNTSpRdaEJYX4Y3I=
+Message-ID: <9e473391050819182249e67dea@mail.gmail.com>
+Date: Fri, 19 Aug 2005 21:22:30 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+To: Daniel Phillips <phillips@istop.com>
+Subject: Re: [PATCH] Permissions don't stick on ConfigFS attributes
+Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200508201050.51982.phillips@istop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0508191805410.3412@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+References: <200508201050.51982.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 06:08:12PM -0700, Linus Torvalds wrote:
+On 8/19/05, Daniel Phillips <phillips@istop.com> wrote:
+> Hi Joel,
 > 
-> 
-> On Sat, 20 Aug 2005, Al Viro wrote:
-> > 
-> > That looks OK except for
-> > 	* ncpfs fix is actually missing here
-> 
-> Well, the thing is, with the change to page_follow_link() and 
-> page_put_link(), ncpfs should now work fine - it doesn't need any fixing 
-> any more.
+> Permissions set on ConfigFS attributes (aka files) do not stick.  The reason
+> is that configfs attribute inodes are not pinned and simply disappear after
+> each file operation.  This is good because it saves memory, but it is not
+> good to throw the permissions away - you then don't have any way to expose
+> configuration tweaks to normal users.  The patch below fixes this by copying
+> each file's mode back into the non-transient backing structure on dentry
+> delete.
 
-Ah - right, it's using normal methods...
+A patch for making sysfs attributes persistent has recently made it
+into Linus' tree.
+
+http://article.gmane.org/gmane.linux.hotplug.devel/7927/match=sysfs+permissions
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

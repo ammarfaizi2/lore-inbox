@@ -1,54 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbVHTHKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbVHTHIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbVHTHKp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 03:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVHTHKp
+	id S1751085AbVHTHIK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 03:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVHTHIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 03:10:45 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:53969
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S932077AbVHTHKo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 03:10:44 -0400
-Subject: Re: [OT]Linus trademarks Linux?!!
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Reply-To: abonilla@linuxwireless.org
-To: LKML <linux-kernel@vger.kernel.org>, Alexey Dobriyan <adobriyan@gmail.com>
-Cc: alan <alan@clueserver.org>, Kernel Hacker <kernel@dacodecz.org>
-In-Reply-To: <20050820070640.GA15402@mipter.zuzino.mipt.ru>
-References: <Pine.LNX.4.44.0508192211350.1941-100000@www.fnordora.org>
-	 <1124520347.4849.2.camel@localhost.localdomain>
-	 <20050820070640.GA15402@mipter.zuzino.mipt.ru>
+	Sat, 20 Aug 2005 03:08:10 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:49106 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751085AbVHTHIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 03:08:09 -0400
+Subject: Re: [Alsa drivers] Creatives X-Fi chip
+From: Lee Revell <rlrevell@joe-job.com>
+To: Emmanuel Fleury <fleury@cs.aau.dk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       alsa-devel@lists.sourceforge.net
+In-Reply-To: <4306D254.3000401@cs.aau.dk>
+References: <4305AC77.3010907@cs.aau.dk>
+	 <1124491956.25424.95.camel@mindpipe>  <4306D254.3000401@cs.aau.dk>
 Content-Type: text/plain
-Date: Sat, 20 Aug 2005 01:10:16 -0600
-Message-Id: <1124521816.4849.6.camel@localhost.localdomain>
+Date: Sat, 20 Aug 2005 03:08:07 -0400
+Message-Id: <1124521688.26949.15.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.3.7 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-20 at 11:06 +0400, Alexey Dobriyan wrote:
-> On Sat, Aug 20, 2005 at 12:45:46AM -0600, Alejandro Bonilla Beeche wrote:
-> > OK, now I would like to see a more official statement about this. Does
-> > the linuxjournal.com pay $5000?
-> 
-> Counting someone else money?
+On Sat, 2005-08-20 at 08:48 +0200, Emmanuel Fleury wrote:
+> So, there is no project about this yet
 
-I'm not counting anyone's money. Is an example. (But Now I know they
-don't need to)
+No, not yet.  The ALSA team has a contact at Creative, I guess the next
+step is to ask them.
 
-> 
-> > If I ever do something commercial with linuxwireless.org, I will need to
-> > pay $5000?
-> 
-> Go to their website and ask. They have a "Contact Us" form. Please, stop
-> Cc'ing linux-kernel.
-
-Sorry, I did not start the thread and I have all the info under this URL
-http://www.groklaw.net/article.php?story=20050816092029989
-
-.Alejandro
-
-Done
+Lee
 

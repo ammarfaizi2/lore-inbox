@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVHTWRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVHTW1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbVHTWRv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 18:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbVHTWRv
+	id S1750700AbVHTW1a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 18:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbVHTW1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 18:17:51 -0400
-Received: from mail.linicks.net ([217.204.244.146]:37382 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1750716AbVHTWRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 18:17:51 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RTL8139, the final patch ?
-Date: Sat, 20 Aug 2005 23:17:46 +0100
-User-Agent: KMail/1.8.1
-References: <200508202153.17837.nick@linicks.net>
-In-Reply-To: <200508202153.17837.nick@linicks.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Aug 2005 18:27:30 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:17162 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1750700AbVHTW13
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 18:27:29 -0400
+Date: Sat, 20 Aug 2005 17:24:46 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostdt@goodmis.org>
+Subject: Re: 2.6.13-rc6-rt9
+Message-ID: <20050820212446.GA9822@ccure.user-mode-linux.org>
+References: <20050818060126.GA13152@elte.hu> <1124470574.17311.4.camel@twins> <1124476205.17311.8.camel@twins> <20050819184334.GG1298@us.ibm.com> <1124566045.17311.11.camel@twins>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508202317.46937.nick@linicks.net>
+In-Reply-To: <1124566045.17311.11.camel@twins>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 August 2005 21:53, you wrote:
-> I have a problem with it:
-> It's about patching, reverting, patching, reverting,...
-> I got lost. That's why I asked for a... "straighter" one :-)
+On Sat, Aug 20, 2005 at 09:27:25PM +0200, Peter Zijlstra wrote:
+> Jeff, could you help us out here?
+> What exactly does uml need to get out of the calibrate delay loop?
 
->> But I looked at what he said and found the real problem on my system (after 
->> all that):
->> http://www.ussg.iu.edu/hypermail/linux/kernel/0403.1/1537.html
+Interrupts, it's not too demanding :-)
 
-> It's about a configuration option in the kernel?
-> The patch is about adding the option, if i'm right.
+If it's not seeing VTALRM, then it will never leave the calibration loop.
 
-No, what happened was on 2.6.2 all was well.  When 2.6.3 came out I got these 
-timeout errors on the NIC's - but using the 2.6.2 8139too.c file in 2.6.3 
-worked.  Mr Hirofumi then took up the challenge and sent me patches.  Slowly 
-he resolved the issue, but the conclusion was it wasn't the code causing it.
+Try stracing it and see what it's getting.
 
-It was an option in my BIOS PCI level/edge settings as I posted.  People on 
-laptops get this error, like you, but there is no BIOS option as such... :-/
-
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+				Jeff

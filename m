@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbVHTRqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbVHTSBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932651AbVHTRqz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 13:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbVHTRqz
+	id S932662AbVHTSBF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 14:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932664AbVHTSBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 13:46:55 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:23206 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S932651AbVHTRqy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 13:46:54 -0400
-X-ORBL: [69.107.75.50]
-Date: Sat, 20 Aug 2005 10:46:48 -0700
-From: David Brownell <david-b@pacbell.net>
-To: Nathan Lutchansky <lutchann@litech.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] improve i2c probing
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Aug 2005 14:01:05 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:5771 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932662AbVHTSBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 14:01:02 -0400
+Subject: Re: open("foo", 3)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
+       Miklos Szeredi <miklos@szeredi.hu>
+In-Reply-To: <Pine.LNX.4.58.0508200958260.3317@g5.osdl.org>
+References: <E1E6WCz-0005ym-00@dorka.pomaz.szeredi.hu>
+	 <Pine.LNX.4.58.0508200958260.3317@g5.osdl.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Sat, 20 Aug 2005 14:00:26 -0400
+Message-Id: <1124560826.18408.93.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Message-Id: <20050820174648.650B8E3259@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm, some of this resembles my prototype from last month:
+On Sat, 2005-08-20 at 10:30 -0700, Linus Torvalds wrote:
+> 
+> On Sat, 20 Aug 2005, Miklos Szeredi wrote:
+> > 
+> > My question is: is this deliberate or accidental?  Wouldn't it be more
+> > logical to not require any permission to open such file?  Or is there
+> > some security concern with that?
+> 
+> It's deliberate but historical. It's been a long time since I worked on
+> it, but it was meant for "special opens".
+> 
+> I _think_ it was used for things like "open block device without media
+> check" etc (we use O_NONBLOCK for that now), and it was used for directory
+> opens before we had O_DIRECTORY. (It's literally been years, so my 
+> recollection may be bogus).
+> 
+> I don't think anything uses it any more, and it should probably be 
+> deprecated rather than extended upon.
 
-   http://lists.lm-sensors.org/pipermail/lm-sensors/2005-July/013012.html
+It may also be dangerous, since I see several drivers using 
 
-Both ended up with new driver probe() methods attaching to *devices* not
-to busses, and used the probe signature the i2c core already handles.
-That helps eliminate one of the surprises hitting anyone starting to use
-the I2C driver stack.  But not the more fundamental one...
+if ((filp->f_flags & O_ACCMODE) != RD_ONLY) {
+  /* do something assuming we have write access */
+   ...
+}
 
-What would you think about actually making I2C probing work more like
-standard driver model probing, instead?  That is, have the probe method
-signature look like this:
 
-    int probe(struct i2c_client *dev, void *driver_data)
+Perhaps that access mode may not allow for getting to code like this,
+but, since it's so old, you may have those that forget about the 3 mode,
+and we lose the protection somewhere along the line.
 
-In normal driver model usage, infrastructure creates the devices, and the
-device drivers just bind to them.  But I2C doesn't support that even for
-the submodel where it's very appropriate:  devices that have been probed,
-or which (as with platform_bus) were explicitly declared to exist.
+It probably be better to not allow for it.  Or maybe an audit of such
+code needs to be replaced with:
 
-I2C drivers would either continue the old school way ... or could start
-acting more like they do in other mainstream Linux driver frameworks.
+if (filp->f_mode & FMODE_WRITE) {
+  ...
+}
 
-- Dave
+Just my $0.02
+
+-- Steve
+
 
 

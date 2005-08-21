@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVHUFIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVHUFQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbVHUFIf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 01:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVHUFIf
+	id S1750801AbVHUFQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 01:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbVHUFQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 01:08:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51095 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S1750799AbVHUFIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 01:08:34 -0400
-Date: Sun, 21 Aug 2005 06:11:31 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: s390 build fix.
-Message-ID: <20050821051131.GH29811@parcelfarce.linux.theplanet.co.uk>
-References: <20050821043839.GA28550@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050821043839.GA28550@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 21 Aug 2005 01:16:16 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:39054 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1750801AbVHUFQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 01:16:16 -0400
+Message-ID: <43080E22.1070103@m1k.net>
+Date: Sun, 21 Aug 2005 01:16:18 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Harald Dunkel <harald.dunkel@t-online.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12.5: psmouse mouse detection doesn't work
+References: <4308062F.7080208@t-online.de>
+In-Reply-To: <4308062F.7080208@t-online.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 21, 2005 at 12:38:39AM -0400, Dave Jones wrote:
-> {standard input}: Assembler messages:
-> {standard input}:397: Error: symbol `.Litfits' is already defined
-> {standard input}:585: Error: symbol `.Litfits' is already defined
-> 
-> Newer gcc's inline this it seems, which blows up.
+Harald Dunkel wrote:
 
-Eeek...  Much easier (and already sent to Linus):
+>At boot time my Logitech mouse is detected as
+>
+>I: Bus=0011 Vendor=0002 Product=0001 Version=0000
+>N: Name="PS/2 Generic Mouse"
+>P: Phys=isa0060/serio1/input0
+>H: Handlers=event1 ts0 mouse0
+>B: EV=7
+>B: KEY=70000 0 0 0 0
+>B: REL=3
+>
+>After manually reloading psmouse I get the expected
+>
+>I: Bus=0011 Vendor=0002 Product=0002 Version=0049
+>N: Name="PS2++ Logitech Mouse"
+>P: Phys=isa0060/serio1/input0
+>H: Handlers=event1 ts0 mouse0
+>B: EV=7
+>B: KEY=f0000 0 0 0 0
+>B: REL=3
+>
+>Using psmouse_noext=1 at boot time does not help.
+>
+>How comes that this doesn't work on the first run?
+>
+>I asked this more than a year ago, and somebody posted
+>a fix, but obviously it wasn't accepted.
+>
+>What needs to be done to fix this?
+>  
+>
+Harri-
 
-diff -urN RC13-rc6-git2-arm-float/arch/s390/kernel/cpcmd.c RC13-rc6-git2-s390/arch/s390/kernel/cpcmd.c
---- RC13-rc6-git2-arm-float/arch/s390/kernel/cpcmd.c	2005-08-10 10:37:46.000000000 -0400
-+++ RC13-rc6-git2-s390/arch/s390/kernel/cpcmd.c	2005-08-10 20:38:56.000000000 -0400
-@@ -46,9 +46,9 @@
- 				"lra	3,0(%4)\n"
- 				"lr	5,%5\n"
- 				"diag	2,4,0x8\n"
--				"brc	8, .Litfits\n"
-+				"brc	8, 1f\n"
- 				"ar	5, %5\n"
--				".Litfits: \n"
-+				"1: \n"
- 				"lr	%0,4\n"
- 				"lr	%1,5\n"
- 				: "=d" (return_code), "=d" (return_len)
-@@ -64,9 +64,9 @@
- 				"sam31\n"
- 				"diag	2,4,0x8\n"
- 				"sam64\n"
--				"brc	8, .Litfits\n"
-+				"brc	8, 1f\n"
- 				"agr	5, %5\n"
--				".Litfits: \n"
-+				"1: \n"
- 				"lgr	%0,4\n"
- 				"lgr	%1,5\n"
- 				: "=d" (return_code), "=d" (return_len)
+I was having problems with my psmouse also.  Try the kernel boot option 
+"usb-handoff", see if that helps.  This is just a suggestion.  I have 
+nothing to do with the development of that driver.
+
+Good Luck.
+
+-- 
+Michael Krufky
+

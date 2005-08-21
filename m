@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVHUCDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVHUCRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbVHUCDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 22:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVHUCDQ
+	id S1750763AbVHUCRy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 22:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbVHUCRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 22:03:16 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:7808 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP
-	id S1750762AbVHUCDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 22:03:16 -0400
-X-ORBL: [63.205.185.3]
-Date: Sat, 20 Aug 2005 19:03:06 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: linux-kernel@vger.kernel.org
-Cc: staubach@redhat.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: largefile-support-for-accounting.patch added to -mm tree
-Message-ID: <20050821020306.GA17353@taniwha.stupidest.org>
-References: <200508210034.j7L0YoH1003173@shell0.pdx.osdl.net>
+	Sat, 20 Aug 2005 22:17:54 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:38797 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S1750763AbVHUCRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 22:17:53 -0400
+Date: Sun, 21 Aug 2005 04:17:16 +0200
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: Problems with connect/disconnect cycles
+Message-ID: <20050821021716.GA523@gamma.logic.tuwien.ac.at>
+References: <20050821013257.GA31597@gamma.logic.tuwien.ac.at> <Pine.LNX.4.44L0.0508202151130.1374-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <200508210034.j7L0YoH1003173@shell0.pdx.osdl.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44L0.0508202151130.1374-100000@netrider.rowland.org>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 20, 2005 at 05:33:27PM -0700, akpm@osdl.org wrote:
+On Sam, 20 Aug 2005, Alan Stern wrote:
+> Speaking in broad terms, it's normal to see new device connection and
+> configuration messages like the ones above when a USB device is plugged in
+> to your computer.  What's not normal is to see disconnects.  So you should
 
-> Another annoying problem is that once the system reaches this 2GB
-> limit, then every process which exits will receive a signal,
-> SIGXFSZ.  This signal is generated because an attempt was made to
-> write beyond the limit for the file descriptor.  This signal makes
-> it look like every process has exited due to a signal, when in fact,
-> they have not.
+Mind that this is an *internal* builtin card reader on my laptop. I will
+go through the log files and look if I find patterns.
 
-Eeek.
+> why is the card reader disconnecting?  Turning on CONFIG_USB_DEBUG may 
 
-> The solution is to add the O_LARGEFILE flag to the list of flags
-> used to open the accounting file.  The rest of the accounting
-> support is already largefile safe.
+ok.
 
-That fixes the larger accounting file problem but it doesn't address
-the fact that signals resulting writes to the accounting file are
-delivered incorrectly.
+Best wishes
 
-We could still have issues if the accounting file as over quota for
-example.  Surely all accounting file writes should be insulated from
-the processes involved?
+Norbert
 
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+AASLEAGH (n.)
+A liqueur made only for drinking at the end of a revoltingly long
+bottle party when all the drinkable drink has been drunk.
+			--- Douglas Adams, The Meaning of Liff

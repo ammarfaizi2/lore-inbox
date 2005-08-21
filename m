@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVHUVo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbVHUVoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbVHUVo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVHUVo0
+	id S1751197AbVHUVoj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVHUVoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:44:26 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:3790 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751130AbVHUVoZ (ORCPT
+	Sun, 21 Aug 2005 17:44:38 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:6606 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751187AbVHUVoi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 17:44:25 -0400
-Message-ID: <4308B5C1.2040304@danbbs.dk>
-Date: Sun, 21 Aug 2005 19:11:29 +0200
-From: Mogens Valentin <monz@danbbs.dk>
-Reply-To: monz@danbbs.dk
-Organization: Mr Dev
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+	Sun, 21 Aug 2005 17:44:38 -0400
+Message-ID: <4308AD9D.5090003@trash.net>
+Date: Sun, 21 Aug 2005 18:36:45 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux IDE Mailing List <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: SATA status report updated
-References: <42FC2EF8.7030404@pobox.com>
-In-Reply-To: <42FC2EF8.7030404@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: danial_thom@yahoo.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 Performance problems
+References: <20050821161805.74083.qmail@web33309.mail.mud.yahoo.com>
+In-Reply-To: <20050821161805.74083.qmail@web33309.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Although I have not updated it in several weeks, folks may wish to refer 
-> to the hardware status report as well:
+Danial Thom wrote:
+> --- Patrick McHardy <kaber@trash.net> wrote:
+>
+>>Do you have netfilter enabled? Briging
+>>netfilter was
+>>added in 2.6, enabling it will influence
+>>performance
+>>negatively. Otherwise, is this performance drop
+>>visible in other setups besides bridging as
+>>well? 
 > 
->     http://linux.yyz.us/sata/sata-status.html
+> Yes, bridging is clean. I also routed with the
+> same performance drop.
 
-Jeff, is it possible for you at this time to comment on support for the 
-JMicron JMB360 sataII chip?  Possible timeframe?
-It's starting to be used with the ULi M1695/M1567 chipset.
-
--- 
-Kind regards,
-Mogens Valentin
+In that case please send more information, like both 2.4
+and 2.6 configs, dmesg output from booting, lspci output,
+other hardware details, ..
 

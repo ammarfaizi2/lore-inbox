@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVHUXTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVHUXhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbVHUXTk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 19:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVHUXTk
+	id S1751133AbVHUXhz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 19:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVHUXhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 19:19:40 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:41124 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751124AbVHUXTj (ORCPT
+	Sun, 21 Aug 2005 19:37:54 -0400
+Received: from rain.plan9.de ([193.108.181.162]:11696 "EHLO rain.plan9.de")
+	by vger.kernel.org with ESMTP id S1751133AbVHUXhy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 19:19:39 -0400
-Date: Mon, 22 Aug 2005 01:19:04 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
-       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
-       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-In-Reply-To: <1124505151.22195.78.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.61.0508202204240.3728@scrub.home>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com> 
- <1123726394.32531.33.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508152115480.3728@scrub.home>
-  <1124151001.8630.87.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508162337130.3728@scrub.home>
-  <1124241449.8630.137.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.61.0508182213100.3728@scrub.home> <1124505151.22195.78.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 21 Aug 2005 19:37:54 -0400
+Date: Mon, 22 Aug 2005 01:37:53 +0200
+From: Marc Lehmann <schmorp@schmorp.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at "fs/exec.c":777
+Message-ID: <20050821233753.GB5027@schmorp.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050818021908.GA11047@schmorp.de> <20050821014945.52df641e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050821014945.52df641e.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 19 Aug 2005, john stultz wrote:
-
-> timekeeping_perioidic_hook():
+On Sun, Aug 21, 2005 at 01:49:45AM -0700, Andrew Morton <akpm@osdl.org> wrote:
+> Marc Lehmann <schmorp@schmorp.de> wrote:
+> >
+> > If wanted, I can probably reproduce
+> > that without the nvidia kernel module loaded.
+> > 
 > 
-> 	/* get ntp adjusted interval length*/
-> 	interval_length = get_timesource_interval(ppm)
+> Yes, please do that, thanks.
 
-Here starts the problem, this requires more expensive math than necessary, 
-as every time you first have to scale the values.
+Ooops, you are not Alexander Nyberg :) Sorry, to give my previous reply
+more context: I had a conversation with Alexander Nyberg who wanted to
+debug this problem this weekend, and I gave detailed instructions on how
+to reproduce it (which is a bit awkward). I also wrote a script that
+doesn't rely on X running, but triggers the bug much less often (in fact,
+only twice for me so far), and then it seems only the first time after
+reboot (which *could* be caused by the very different timing of the
+stat()-threads due to the extra disk access).
 
-Let's take a standard PIT timer as an example. With HZ=100 we program it 
-with 11932, for simplicity let's assume this corresponds to 10^7ns and 
-scale this by 2^8. This means the timer multiplier is initially 214549, 
-this updates the system time by 214549*11932 and the reference time by 
-10^7*2^8 every tick. We can now just ignore the error or as soon as it 
-exceeds 11932/2 we increase/decrease the mutiplier. The error calculation 
-is rather simple, usually just adds and shifts, only if the error exceeds 
-2*11932 it gets a little more complicated, but even here the possible 
-divide is avoidable.
-The gettimeofday would then basically be "xtime + (cycle_offset * mult + 
-error_offset) / 2^8". Depending on the update frequency and the required 
-precision it's even possible to keep this within 32bit. The ntp part stays 
-pretty much the same and the time source can add anything it wants on top 
-of that. The basic math is also pretty much the same so we can generate 
-most of the code depending on various parameters.
+Let's see what Alexander found out (if he found time). The problem does
+not happen (or is not reproducible) with newer IO::AIO releases, as that
+one doesn't start threads in the child after the fork/before the exec.
 
-bye, Roman
+-- 
+                The choice of a
+      -----==-     _GNU_
+      ----==-- _       generation     Marc Lehmann
+      ---==---(_)__  __ ____  __      pcg@goof.com
+      --==---/ / _ \/ // /\ \/ /      http://schmorp.de/
+      -=====/_/_//_/\_,_/ /_/\_\      XX11-RIPE

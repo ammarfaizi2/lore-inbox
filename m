@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVHUVlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVHUVlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbVHUVlz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVHUVlw
+	id S1751161AbVHUVlv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVHUVlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:41:52 -0400
+	Sun, 21 Aug 2005 17:41:51 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:42445 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751164AbVHUVlu (ORCPT
+	by vger.kernel.org with ESMTP id S1751162AbVHUVlt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 17:41:50 -0400
-Message-ID: <20050821172758.36512.qmail@web51608.mail.yahoo.com>
-X-RocketYMMF: ltuikov
-Date: Sun, 21 Aug 2005 10:27:58 -0700 (PDT)
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-Reply-To: luben_tuikov@adaptec.com
-Subject: Re: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
-To: James Bottomley <James.Bottomley@steeleye.com>, luben_tuikov@adaptec.com
-Cc: Andrew Morton <akpm@osdl.org>, Jim Houston <jim.houston@ccur.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <1124640387.5068.2.camel@mulgrave>
+	Sun, 21 Aug 2005 17:41:49 -0400
+From: "Hesse, Christian" <mail@earthworm.de>
+To: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+Subject: IRQ problem with PCMCIA
+Date: Sun, 21 Aug 2005 20:43:50 +0200
+User-Agent: KMail/1.8.2
+X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)k
+	:nv*xqk4C@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)n#Q.o
+	kE~&T]0cQX6]<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<3O7GY9y_i!qG&Vv\D8/
+	%4@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed;
+  boundary="nextPart6434333.k1MGe9Z7Nz";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508212043.58331.mail@earthworm.de>
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- James Bottomley <James.Bottomley@SteelEye.com> wrote:
-> On Sun, 2005-08-21 at 08:49 -0700, Luben Tuikov wrote:
-> > The caller is the aic94xx SAS LLDD.  It uses IDR to generate unique
-> > task tag for each SCSI task being submitted.  It is then used to lookup
-> > the task given the task tag, in effect using IDR as a fast lookup table.
-> > 
-> > Yes, I'm also not aware of any other users of IDR from mixed process/IRQ
-> > context or for SCSI Task tag purposes.
-> 
-> Just a minute, that's not what idr was designed for.  It was really
-> designed for enumerations (like disk) presented to the user.  That's why
-> using it in IRQ context hasn't been considered.
+--nextPart6434333.k1MGe9Z7Nz
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Hi James, how are you?
+Hello everybody,
 
-Is this the only use _you_ could find for a *radix tree*? ;-)
-Since of course sd.c uses it just as an enumeration, according to
-you this must be the only use? :-)
+seems like I have a problem with PCMCIA/PCCARD. If I transfer data to or fr=
+om=20
+a CF card inserted via adapter system waits for interrupts most of the time:
 
-It was designed as a general purpose id to pointer translation
-service, just as the comment in it says.
+Cpu(s): 21.2% us,  7.9% sy,  0.0% ni,  0.0% id,  1.7% wa, 69.2% hi,  0.0% si
 
-> However, there is an infrastructure in the block layer called the
-> generic tag infrastructure which was designed precisely for this purpose
-> and which is designed to operate in IRQ context.
+This results in a very unresponsive system and a transfer rate of up to 1MB=
+/s=20
+(my new camera writes with up to 10MB/s on the card...).
 
-James, I'm sure you're well aware that,
-   - a request_queue is LU-bound,
-   - a SCSI _transport_ (*ANY*) can _only_ address domain devices, but
-     _not_ LUs.  LUs are *not* seen on the domain.
+Any idea what could be the reason? This is with 2.6.12/pcmcia-cs and with=20
+2.6.13-rc*/pcmciautils. The CF card is a Lexar 1GB.
 
-See the different associations?  Then why are you posting such emails?
+root@logo:~# cat /proc/interrupts | grep yenta
+ 11:    5914154          XT-PIC  yenta, yenta, uhci_hcd:usb2, Intel=20
+82801DB-ICH4, ide2
 
-Andrew, please apply this patch.
+=2D-=20
+Regards,
+Christian
 
-Thanks,
-     Luben
+--nextPart6434333.k1MGe9Z7Nz
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.18 (GNU/Linux)
+
+iD8DBQBDCMttlZfG2c8gdSURAkjIAKD37Ww3Xxu5PKv38xE9nUnaZAIpQgCfVAD5
+B73Nx3ex3q5sddZZcKVY1o4=
+=/7aC
+-----END PGP SIGNATURE-----
+
+--nextPart6434333.k1MGe9Z7Nz--

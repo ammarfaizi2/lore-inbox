@@ -1,90 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbVHUVgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVHUVfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbVHUVgF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVHUVgF
+	id S1751140AbVHUVfk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVHUVfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:36:05 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:45260 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751138AbVHUVfr (ORCPT
+	Sun, 21 Aug 2005 17:35:40 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:41676 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751139AbVHUVfj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 17:35:47 -0400
-Date: Sun, 21 Aug 2005 10:52:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: Ondrej Zary <linux@rainbow-software.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: FPU-intensive programs crashing with floating point   exception
- on Cyrix MII
-In-Reply-To: <200508210550_MC3-1-A7CF-D29E@compuserve.com>
-Message-ID: <Pine.LNX.4.58.0508211043520.3317@g5.osdl.org>
-References: <200508210550_MC3-1-A7CF-D29E@compuserve.com>
+	Sun, 21 Aug 2005 17:35:39 -0400
+Message-ID: <4308C428.5070302@m1k.net>
+Date: Sun, 21 Aug 2005 14:12:56 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
+Subject: [PATCH] fix documentation for dvb-bt8xx Kconfig description change
+References: <200508180445.j7I4jiRn030994@shell0.pdx.osdl.net>
+In-Reply-To: <200508180445.j7I4jiRn030994@shell0.pdx.osdl.net>
+Content-Type: multipart/mixed;
+ boundary="------------080402000306000708070901"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------080402000306000708070901
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
+akpm@osdl.org wrote:
 
-On Sun, 21 Aug 2005, Chuck Ebbert wrote:
+>DVB: Clarify description text for dvb-bt8xx in Kconfig
 >
-> > MATH ERROR: cwd = 0x37f, swd = 0x2800     <===========
-> 
->  The error I marked has no exception flags set.  The rest are all (masked)
-> denormal exceptions.  Why your Cyrix MII would cause an FPU exception in these
-> cases is beyond me.  Could you try the statically-linked mprime program?
+>-	tristate "Nebula/Pinnacle PCTV/Twinhan PCI cards"
+>+	tristate "BT8xx based PCI cards"
+>
+I forgot to update the documentation with this change... Please apply 
+this to -mm, and (if possible) fold it into 
+dvb-clarify-description-text-for-dvb-bt8xx-in-kconfig.patch
 
-Also, please try this one, to see where it happens.
+This patch updates bt8xx documentation with the newer Kconfig 
+description of dvb-bt8xx.
+"Nebula/Pinnacle PCTV/Twinhan PCI cards" --> "BT8xx based PCI cards"
 
-			Linus
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 
----
-diff --git a/arch/i386/kernel/i8259.c b/arch/i386/kernel/i8259.c
---- a/arch/i386/kernel/i8259.c
-+++ b/arch/i386/kernel/i8259.c
-@@ -357,11 +357,11 @@ void init_8259A(int auto_eoi)
+
+
+--------------080402000306000708070901
+Content-Type: text/plain;
+ name="doc-dvb-bt8xx-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="doc-dvb-bt8xx-fix.patch"
+
+ linux/Documentation/dvb/bt8xx.txt |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -u linux-2.6.13/Documentation/dvb/bt8xx.txt linux/Documentation/dvb/bt8xx.txt
+--- linux-2.6.13/Documentation/dvb/bt8xx.txt	2005-08-20 10:57:24.000000000 +0000
++++ linux/Documentation/dvb/bt8xx.txt	2005-08-21 13:54:27.000000000 +0000
+@@ -16,7 +16,7 @@
+ "Device drivers" => "Multimedia devices"
+  => "Video For Linux" => "BT848 Video For Linux"
+ "Device drivers" => "Multimedia devices" => "Digital Video Broadcasting Devices"
+- => "DVB for Linux" "DVB Core Support" "Nebula/Pinnacle PCTV/TwinHan PCI Cards"
++ => "DVB for Linux" "DVB Core Support" "BT8xx based PCI cards"
  
- static irqreturn_t math_error_irq(int cpl, void *dev_id, struct pt_regs *regs)
- {
--	extern void math_error(void __user *);
-+	extern void math_error(struct pt_regs *);
- 	outb(0,0xF0);
- 	if (ignore_fpu_irq || !boot_cpu_data.hard_math)
- 		return IRQ_NONE;
--	math_error((void __user *)regs->eip);
-+	math_error(regs);
- 	return IRQ_HANDLED;
- }
- 
-diff --git a/arch/i386/kernel/traps.c b/arch/i386/kernel/traps.c
---- a/arch/i386/kernel/traps.c
-+++ b/arch/i386/kernel/traps.c
-@@ -774,8 +774,9 @@ clear_TF_reenable:
-  * the correct behaviour even in the presence of the asynchronous
-  * IRQ13 behaviour
-  */
--void math_error(void __user *eip)
-+void math_error(struct pt_regs *regs)
- {
-+	void __user *eip = (void __user *)regs->eip;
- 	struct task_struct * task;
- 	siginfo_t info;
- 	unsigned short cwd, swd;
-@@ -805,6 +806,7 @@ void math_error(void __user *eip)
- 	swd = get_fpu_swd(task);
- 	switch (((~cwd) & swd & 0x3f) | (swd & 0x240)) {
- 		case 0x000:
-+			show_regs(regs);
- 		default:
- 			break;
- 		case 0x001: /* Invalid Op */
-@@ -833,7 +835,7 @@ void math_error(void __user *eip)
- fastcall void do_coprocessor_error(struct pt_regs * regs, long error_code)
- {
- 	ignore_fpu_irq = 1;
--	math_error((void __user *)regs->eip);
-+	math_error(regs);
- }
- 
- static void simd_math_error(void __user *eip)
+ 3) Loading Modules, described by two approaches
+ ===============================================
+
+--------------080402000306000708070901--

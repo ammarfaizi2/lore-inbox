@@ -1,78 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVHUVpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbVHUVqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbVHUVpT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVHUVpR
+	id S1751210AbVHUVqK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVHUVov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:45:17 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:32699 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S1751169AbVHUVo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 17:44:57 -0400
-Date: Sun, 21 Aug 2005 23:44:36 +0200
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.13-rc6-mm1
-Message-ID: <20050821214436.GA6935@ens-lyon.fr>
-References: <20050819043331.7bc1f9a9.akpm@osdl.org> <40f323d005082109303c0865a3@mail.gmail.com> <9e47339105082110405b2a48c8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e47339105082110405b2a48c8@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+	Sun, 21 Aug 2005 17:44:51 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:6606 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751199AbVHUVoq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 17:44:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=ybh0V+eaLMsgJVgSLgXarezl8cYnmx8F54+MktAoyEeA27OBB1iD+zbBY2/qMPfylbC+L5zFiQnz9S+yJVPFbnG5HUVQgC0xBQR2Rom8D4f+C3MUPym7eTBlRrynvOFGMKctFVUKCJUoZZrr//Hpv2L/XATxgXMEPrBp+3eqTvU=  ;
+Message-ID: <20050821161805.74083.qmail@web33309.mail.mud.yahoo.com>
+Date: Sun, 21 Aug 2005 09:18:05 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: 2.6.12 Performance problems
+To: Patrick McHardy <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4308A8A0.9060402@trash.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 21, 2005 at 01:40:31PM -0400, Jon Smirl wrote:
-> On 8/21/05, Benoit Boissinot <bboissin@gmail.com> wrote:
-> > On 8/19/05, Andrew Morton <akpm@osdl.org> wrote:
-> > >
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm1/
-> > >
-> > > - Lots of fixes, updates and cleanups all over the place.
-> > >
-> > > - If you have the right debugging options set, this kernel will generate
-> > >   a storm of sleeping-in-atomic-code warnings at boot, from the scsi code.
-> > >   It is being worked on.
-> > >
-> > >
-> > > Changes since 2.6.13-rc5-mm1:
-> > > [...]
-> > > +gregkh-driver-sysfs-strip_leading_trailing_whitespace.patch
-> > > [...]
-> > 
-> > 
-> > it broke loading of firmware for me.(dmesg was flooded with
-> > "firmware_loading_store:  unexpected value (0)")
-> > 
-> > firmware.agent uses echo so there is a trailing newline. If i changes
-> > firmware.agent to uses echo -n it works correctly.
-> > 
-> > Is this a bug or the correct behaviour ?
+
+
+--- Patrick McHardy <kaber@trash.net> wrote:
+
+> Danial Thom wrote:
+> > I just started fiddling with 2.6.12, and
+> there
+> > seems to be a big drop-off in performance
+> from
+> > 2.4.x in terms of networking on a
+> uniprocessor
+> > system. Just bridging packets through the
+> > machine, 2.6.12 starts dropping packets at
+> > ~100Kpps, whereas 2.4.x doesn't start
+> dropping
+> > until over 350Kpps on the same hardware
+> (2.0Ghz
+> > Opteron with e1000 driver). This is pitiful
+> > prformance for this hardware. I've 
+> > increased the rx ring in the e1000 driver to
+> 512
+> > with little change (interrupt moderation is
+> set
+> > to 8000 Ints/second). Has "tuning" for MP 
+> > destroyed UP performance altogether, or is
+> there
+> > some tuning parameter that could make a
+> 4-fold
+> > difference? All debugging is off and there
+> are 
+> > no messages on the console or in the error
+> logs.
+> > The kernel is the standard kernel.org dowload
+> > config with SMP turned off and the intel
+> ethernet
+> > card drivers as modules without any other
+> > changes, which is exactly the config for my
+> 2.4
+> > kernels.
 > 
-> Somewhere there is a mistake in the white space processing code of the
-> firmware driver. Before this patch we had inconsistent handling of
-> whitespace and sysfs attributes. This patch forces it to be consistent
-> and will shake out all of the places in the drivers where it is
-> handled wrong. Sysfs attributes are now stripped of leading and
-> trailing white space before being handed to the device driver.
-
-ok, i found it. If i do echo 1, it will read '1\n', will
-remove the '\n' and send '1' to ops->store.
-Then it will re-read '\n' and send '' to ops->store.
-And it will loop...
-
-Maybe sysfs should return the old count instead of ops->store ?
+> Do you have netfilter enabled? Briging
+> netfilter was
+> added in 2.6, enabling it will influence
+> performance
+> negatively. Otherwise, is this performance drop
+> visible in other setups besides bridging as
+> well?
 > 
-> Fbdev sysfs attributes are also broken for white space handling and
-> need to be fixed. Overall the patch should be correct and it is the
-> drivers that are broken.
-> 
-Regards,
 
-Benoit Boissinot
+Yes, bridging is clean. I also routed with the
+same performance drop.
 
--- 
-powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
+Danial
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

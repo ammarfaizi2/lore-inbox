@@ -1,35 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVHUU5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbVHUU6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbVHUU5j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 16:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbVHUU5j
+	id S1751063AbVHUU6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 16:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbVHUU6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 16:57:39 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:58823 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750934AbVHUU5i (ORCPT
+	Sun, 21 Aug 2005 16:58:24 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:9416 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751063AbVHUU6X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 16:57:38 -0400
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Howard Chu <hyc@symas.com>, linux-kernel@vger.kernel.org
-Subject: Re: sched_yield() makes OpenLDAP slow
-References: <43057641.70700@symas.com.suse.lists.linux.kernel>
-	<17157.45712.877795.437505@gargle.gargle.HOWL.suse.lists.linux.kernel>
-	<430666DB.70802@symas.com.suse.lists.linux.kernel>
-	<p73oe7syb1h.fsf@verdi.suse.de>
-Date: Sun, 21 Aug 2005 21:47:51 +0200
-In-Reply-To: <p73oe7syb1h.fsf@verdi.suse.de> (Andi Kleen's message of "20 Aug
-	2005 15:48:10 +0200")
-Message-ID: <87fyt3vzq0.fsf@mid.deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 Aug 2005 16:58:23 -0400
+Subject: Re: [OT]Linus trademarks Linux?!!
+From: Alan <alan@clueserver.org>
+To: abonilla@linuxwireless.org
+Cc: Linus Torvalds <torvalds@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Kernel Hacker <kernel@dacodecz.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1124644193.4867.4.camel@localhost.localdomain>
+References: <Pine.LNX.4.44.0508192211350.1941-100000@www.fnordora.org>
+	 <1124520347.4849.2.camel@localhost.localdomain>
+	 <9a87484905082014364e4cb653@mail.gmail.com>
+	 <Pine.LNX.4.58.0508201706330.3317@g5.osdl.org>
+	 <1124644193.4867.4.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 21 Aug 2005 13:14:37 -0700
+Message-Id: <1124655277.3366.8.camel@dagon.fnordora.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen:
+On Sun, 2005-08-21 at 11:09 -0600, Alejandro Bonilla Beeche wrote:
+> On Sat, 2005-08-20 at 17:42 -0700, Linus Torvalds wrote:
+> > So to answer a particular question that came up here on Linux-kernel:  
+> > "Does the linuxjournal.com pay $5000?".
+> Linus,
+> 
+> 	Thanks for the answer and your time. I just kind of freaked out with my
+> newbie understandment and my linuxwireless.org... ;-)
+> 
+> dammed those websites who confused me.
 
-> Has anybody contacted the Sleepycat people with a description of the 
-> problem yet?
+They don't call it "net of a thousand lies" for nothing.
 
-Berkeley DB does not call sched_yield, but OpenLDAP does in some
-wrapper code around the Berkeley DB backend.
+-- 
+Alan <alan@clueserver.org>
+

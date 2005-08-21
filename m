@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbVHUXLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVHUXPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbVHUXLK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 19:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbVHUXLK
+	id S1751119AbVHUXPV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 19:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVHUXPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 19:11:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28309 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750932AbVHUXLJ (ORCPT
+	Sun, 21 Aug 2005 19:15:21 -0400
+Received: from pop.gmx.net ([213.165.64.20]:25038 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751119AbVHUXPV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 19:11:09 -0400
-Date: Sun, 21 Aug 2005 16:10:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ondrej Zary <linux@rainbow-software.org>
-cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: FPU-intensive programs crashing with floating point   exception
- on Cyrix MII
-In-Reply-To: <4308F1EF.9020609@rainbow-software.org>
-Message-ID: <Pine.LNX.4.58.0508211606310.3317@g5.osdl.org>
-References: <200508210550_MC3-1-A7CF-D29E@compuserve.com>
- <Pine.LNX.4.58.0508211043520.3317@g5.osdl.org> <4308F1EF.9020609@rainbow-software.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 21 Aug 2005 19:15:21 -0400
+X-Authenticated: #12114349
+Message-Id: <6.2.1.2.2.20050822010109.026b97d0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.2
+Date: Mon, 22 Aug 2005 01:14:59 +0200
+To: linux-kernel@vger.kernel.org
+From: Konstantin Koll <konstantinkoll@gmx.de>
+Subject: Driver for proprietary Sony Memorystick drive
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear readers,
 
+I'm the owner of a Sony VAIO notebook with a PCI-based memorystick drive, 
+PCI ID is 104D/808A. So far, no Linux driver has been developed. I am quite 
+experienced with driver development, though not for Linux.
 
-On Sun, 21 Aug 2005, Ondrej Zary wrote:
-> 
-> MATH ERROR: cwd = 0x37f, swd = 0x1820
-> 
-> Pid: 1699, comm:               mprime
-> EIP: 0073:[<08181c73>] CPU: 0
-> EIP is at 0x8181c73
->   ESP: 007b:bf927ab4 EFLAGS: 00010202    Not tainted  (2.6.12-pentium)
-> EAX: 00000001 EBX: 00000000 ECX: 0000808d EDX: b7f09480
-> ESI: b7455340 EDI: 080e01f0 EBP: bf927bf8 DS: 007b ES: 007b
-> CR0: 8005003b CR2: b7ed6058 CR3: 006f0000 CR4: 00000080
+Background:
+I work on a DOS-based OS ( http://www.deskwork.de/ ), written in Borland 
+Pascal and Assembler for Protected Mode, thus I'm fairly experienced with 
+driver development from scratch. My plan is to write a driver in BP and 
+release it along with lots of comments and a neat PDF specification into 
+the public domain, ready to be ported to Linux, Zeta or whatever.
 
-Ahh, so it's actually all in user space. I was thinking that the Cyrix
-chip might use the old external interrupt-based (as opposed to exception
-16) FP error reporting, and that it could be some kind of asynchronous
-error that raced with the kernel task switching (ie the interrupt had
-triggered, and then the FPU control register had been modified before the
-irq handler actually got to run).
+How far I got:
+I was able to assign 1 KB of I/O memory to the device (the amount it gets 
+under Windows). At offset 100h, a 512 byte buffer is located. The byte at 
+offset 08h indicates whether a stick is inserted (=01h) or not (=00h). The 
+512 byte buffer shows strange behaviour (no details here), and I cannot 
+read or write anything yet.
 
-But that doesn't seem to be the case.
+Needed:
+It would be helpful to get in touch with people who develop drivers and/or 
+own a Sony laptop with said drive for testing. I think it's still a quite 
+long way to go. I am currently not subscribed to the kernel mailing list.
 
-I don't see _why_ that exception would happen, other than a CPU bug.
+Kind regards,
+Konstantin Koll
+Hansmannstr. 17
+44227 Dortmund
+konstantinkoll@gmx.de
 
-Can you dump more of the FP state (the kernel doesn't have helpers for
-doing that, so you'd have to write the code to print out the state by
-hand)? Maybe there's some clue there - denormals or something..
-
-		Linus

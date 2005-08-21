@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVHUVeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVHUVfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbVHUVeh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVHUVeg
+	id S1751137AbVHUVfh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVHUVfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:34:36 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:30668 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751129AbVHUVeg (ORCPT
+	Sun, 21 Aug 2005 17:35:37 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:41676 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751137AbVHUVfg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 17:34:36 -0400
-Date: Sun, 21 Aug 2005 20:32:42 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Sam Ravnborg <sam@ravnborg.org>,
-       Stephane Wirtel <stephane.wirtel@belgacom.net>,
-       Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Documentation] Use doxygen or another tool to generate a documentation ?
-Message-ID: <20050821183242.GA18020@localhost.localdomain>
-References: <20050819213447.GA9538@localhost.localdomain> <84144f02050819144660238be4@mail.gmail.com> <20050819232340.GB9538@localhost.localdomain> <20050820074106.GA15162@mars.ravnborg.org> <20050820091941.GA15936@localhost.localdomain> <20050820173706.GA11079@mars.ravnborg.org> <20050821151231.GE9530@admingilde.org>
+	Sun, 21 Aug 2005 17:35:36 -0400
+Date: Sun, 21 Aug 2005 11:01:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org, jasonuhl@sgi.com
+Subject: Re: CONFIG_PRINTK_TIME woes
+Message-Id: <20050821110127.3b601268.akpm@osdl.org>
+In-Reply-To: <4308649D.7060008@yahoo.com.au>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F042C7DA7@scsmsx401.amr.corp.intel.com>
+	<20050821021322.3986dd4a.akpm@osdl.org>
+	<20050821021616.6bbf2a14.akpm@osdl.org>
+	<430848F5.3040308@yahoo.com.au>
+	<20050821023249.0e143030.akpm@osdl.org>
+	<4308649D.7060008@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20050821151231.GE9530@admingilde.org>
-X-Operating-System: Linux debian 2.6.12-1-k7
-User-Agent: Mutt/1.5.10i
-X-Junkmail-Status: score=10/50, host=mirapoint2.brutele.be
-X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090201.4308C614.0006-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
-	=?ISO-8859-1?Q?p=3D=C0=D4?=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> On Sat, Aug 20, 2005 at 07:37:06PM +0200, Sam Ravnborg wrote:
-> > > In make_docs.log.tar.bz2, you can find log files from make htmldocs,
-> > > make psdocs and make pdfdocs.
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> Andrew Morton wrote:
+> 
 > > 
-> > From your log-files I could not see what went wrong. It seems to be
-> > error in the generated files.
+> > yup.
+> > 
+> > 
+> >>Why not use something like do_gettimeofday? (or I'm sure one
+> >>of our time keepers can suggest the right thing to use).
+> > 
+> > 
+> > do_gettimeofday() takes locks, so a) we can't do printk from inside it and
 > 
-> kerneldoc could not understand a macro definition.
+> Dang, yeah maybe this is the showstopper.
 > 
-> please try
-> http://tali.admingilde.org/patches/linux-docbook/docbook-fixes.patch
-Martin, your patch works for the htmldocs target, but not for the
-pdfdocs, I think there is a bug in a latex package. I don't know which
-one, but it's the same error.
+> > b) if you do a printk-from-interupt and the interrupted code was running
+> > do_gettimeofday(), deadlock.
+> > 
+> 
+> What about just using jiffies, then?
+> 
+> Really, sched_clock() is very broken for this (I know you're
+> not arguing against that).
+>
+> It can go backwards when called twice from the same CPU, and the
+> number returned by one CPU need have no correlation with that
+> returned by another.
 
-Thanks for your patch, 
+jiffies wouldn't have sufficient resolution for this application.  Bear in
+mind that this is just a debugging thing - it's better to have good
+resolution with occasional theoretical weirdness than to have poor
+resolution plus super-consistency, IMO.
 
-Stephane
+> However, I understand you probably just want something quick and
+> dirty for 2.6.13 and would be happy just if it isn't more broken
+> than before ;)
 
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-                <stephane.wirtel@gmail.com>
-
-
+We're OK for 2.6.13, I think.  ia64 people will quickly learn to not turn
+the option on.

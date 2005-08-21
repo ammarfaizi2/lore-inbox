@@ -1,95 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVHUWVW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVHUWWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbVHUWVW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 18:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVHUWVW
+	id S1751162AbVHUWWe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 18:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVHUWWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 18:21:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:59746 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750767AbVHUWVV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 18:21:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ENL6fCv+0HwO/ibHde/liJsSdW0iy15dwIEWBw/DvGSUgGN3NXb2QNw0AmkZCPaUSDFWOIIGnONsTXIZ4I7KZD2AAm4vtYMlqDaON+HcX8vmoILXwMBnmSKSFlfw4SFvcSM2J+5pUjSnwSFSDmZNAI7DLLm2DgZVDyq7pq2eh+o=
-Message-ID: <9e473391050821152141b404c7@mail.gmail.com>
-Date: Sun, 21 Aug 2005 18:21:20 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
-Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-In-Reply-To: <9e473391050728132757a75d5f@mail.gmail.com>
+	Sun, 21 Aug 2005 18:22:34 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:41407 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S1751162AbVHUWWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 18:22:33 -0400
+Date: Mon, 22 Aug 2005 00:22:29 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.13-rc6-mm1
+Message-ID: <20050821222229.GC6935@ens-lyon.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9e47339105072719057c833e62@mail.gmail.com>
-	 <20050728040544.GA12476@kroah.com>
-	 <9e47339105072721495d3788a8@mail.gmail.com>
-	 <20050728054914.GA13904@kroah.com>
-	 <20050728070455.GF9985@gaz.sfgoth.com>
-	 <9e47339105072805545766f97d@mail.gmail.com>
-	 <20050728190352.GA29092@kroah.com>
-	 <9e47339105072812575e567531@mail.gmail.com>
-	 <20050728202214.GA9041@gaz.sfgoth.com>
-	 <9e473391050728132757a75d5f@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/28/05, Jon Smirl <jonsmirl@gmail.com> wrote:
-> Even simpler version....
-> 
-> --
-> Jon Smirl
-> jonsmirl@gmail.com
-> 
-> Remove leading and trailing whitespace when text sysfs attribute is set
-> signed-off-by: Jon Smirl <jonsmirl@gmail.com>
-> 
-> diff --git a/fs/sysfs/file.c b/fs/sysfs/file.c
-> --- a/fs/sysfs/file.c
-> +++ b/fs/sysfs/file.c
-> @@ -6,6 +6,7 @@
->  #include <linux/fsnotify.h>
->  #include <linux/kobject.h>
->  #include <linux/namei.h>
-> +#include <linux/ctype.h>
->  #include <asm/uaccess.h>
->  #include <asm/semaphore.h>
-> 
-> @@ -207,8 +208,23 @@ flush_write_buffer(struct dentry * dentr
->         struct attribute * attr = to_attr(dentry);
->         struct kobject * kobj = to_kobj(dentry->d_parent);
->         struct sysfs_ops * ops = buffer->ops;
-> +       char *x;
-> 
-> -       return ops->store(kobj,attr,buffer->page,count);
-> +       /* locate trailing white space */
-> +       while ((count > 0) && isspace(buffer->page[count - 1]))
-> +               count--;
-> +
-> +       /* locate leading white space */
-> +       x = buffer->page;
-> +       if (count > 0) {
-> +               while (isspace(*x))
-> +                       x++;
-> +               count -= (x - buffer->page);
-> +       }
-> +       /* terminate the string */
-> +       x[count] = '\0';
+----- Forwarded message from Benoit Boissinot <benoit.boissinot@ens-lyon.org> -----
+sorry, i forgot to reply all...
 
-Should we add a check for a NULL string here?  It seems not all
-drivers were prepared to handle a zero length store().
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: 2.6.13-rc6-mm1
+User-Agent: Mutt/1.5.10i
 
-If (count == 0)
-      return 0;
-
-> +
-> +       return ops->store(kobj, attr, x, count);
->  }
+On Sun, Aug 21, 2005 at 06:11:57PM -0400, Jon Smirl wrote:
+> On 8/21/05, Benoit Boissinot <benoit.boissinot@ens-lyon.org> wrote:
+> > On Sun, Aug 21, 2005 at 01:40:31PM -0400, Jon Smirl wrote:
+> > > On 8/21/05, Benoit Boissinot <bboissin@gmail.com> wrote:
+> > > [snip]
+> > >
+> > > Somewhere there is a mistake in the white space processing code of the
+> > > firmware driver. Before this patch we had inconsistent handling of
+> > > whitespace and sysfs attributes. This patch forces it to be consistent
+> > > and will shake out all of the places in the drivers where it is
+> > > handled wrong. Sysfs attributes are now stripped of leading and
+> > > trailing white space before being handed to the device driver.
+> > 
+> > ok, i found it. If i do echo 1, it will read '1\n', will
+> > remove the '\n' and send '1' to ops->store.
+> > Then it will re-read '\n' and send '' to ops->store.
+> > And it will loop...
 > 
+> Look at the length being passed in, isn't it set to zero for the second case?
+> 
+yes, it is set to zero, but the '\n' will be stripped and stay in the buffer.
+Since flush_write_buffer returns 0, ppos will not be incremented and we
+have an endless loop.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
+
+----- End forwarded message -----
+
+-- 
+powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS

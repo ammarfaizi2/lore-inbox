@@ -1,95 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbVHUWL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbVHUWSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbVHUWL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 18:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVHUWL7
+	id S1751195AbVHUWSA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 18:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVHUWR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 18:11:59 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:29429 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751187AbVHUWL6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 18:11:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=B265X0zZPdbLX3qDmhgQue1Ipa8uMwN44MjOAHuNIMXH7S5izP03h+WAigDlV24g+g9F1kCY+kfSWmEuAtL16YnY708Dp6yyBOFq9sx5fUXat0ObHYV8+a3X/sXev7FFUfkfiwI7mIf3+FxR9ByhnD3ArIFVglL9YS545oCbR+E=
-Message-ID: <9e47339105082115111ac583a8@mail.gmail.com>
-Date: Sun, 21 Aug 2005 18:11:57 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Subject: Re: 2.6.13-rc6-mm1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20050821214436.GA6935@ens-lyon.fr>
+	Sun, 21 Aug 2005 18:17:59 -0400
+Received: from a.mail.sonic.net ([64.142.16.245]:64949 "EHLO a.mail.sonic.net")
+	by vger.kernel.org with ESMTP id S1751195AbVHUWR7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 18:17:59 -0400
+Date: Sun, 21 Aug 2005 15:17:39 -0700
+From: David Hinds <dhinds@sonic.net>
+To: "Hesse, Christian" <mail@earthworm.de>
+Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+Subject: Re: IRQ problem with PCMCIA
+Message-ID: <20050821221739.GA18925@sonic.net>
+References: <200508212043.58331.mail@earthworm.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>
-	 <40f323d005082109303c0865a3@mail.gmail.com>
-	 <9e47339105082110405b2a48c8@mail.gmail.com>
-	 <20050821214436.GA6935@ens-lyon.fr>
+In-Reply-To: <200508212043.58331.mail@earthworm.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/21/05, Benoit Boissinot <benoit.boissinot@ens-lyon.org> wrote:
-> On Sun, Aug 21, 2005 at 01:40:31PM -0400, Jon Smirl wrote:
-> > On 8/21/05, Benoit Boissinot <bboissin@gmail.com> wrote:
-> > > On 8/19/05, Andrew Morton <akpm@osdl.org> wrote:
-> > > >
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm1/
-> > > >
-> > > > - Lots of fixes, updates and cleanups all over the place.
-> > > >
-> > > > - If you have the right debugging options set, this kernel will generate
-> > > >   a storm of sleeping-in-atomic-code warnings at boot, from the scsi code.
-> > > >   It is being worked on.
-> > > >
-> > > >
-> > > > Changes since 2.6.13-rc5-mm1:
-> > > > [...]
-> > > > +gregkh-driver-sysfs-strip_leading_trailing_whitespace.patch
-> > > > [...]
-> > >
-> > >
-> > > it broke loading of firmware for me.(dmesg was flooded with
-> > > "firmware_loading_store:  unexpected value (0)")
-> > >
-> > > firmware.agent uses echo so there is a trailing newline. If i changes
-> > > firmware.agent to uses echo -n it works correctly.
-> > >
-> > > Is this a bug or the correct behaviour ?
-> >
-> > Somewhere there is a mistake in the white space processing code of the
-> > firmware driver. Before this patch we had inconsistent handling of
-> > whitespace and sysfs attributes. This patch forces it to be consistent
-> > and will shake out all of the places in the drivers where it is
-> > handled wrong. Sysfs attributes are now stripped of leading and
-> > trailing white space before being handed to the device driver.
+On Sun, Aug 21, 2005 at 08:43:50PM +0200, Hesse, Christian wrote:
+> Hello everybody,
 > 
-> ok, i found it. If i do echo 1, it will read '1\n', will
-> remove the '\n' and send '1' to ops->store.
-> Then it will re-read '\n' and send '' to ops->store.
-> And it will loop...
+> seems like I have a problem with PCMCIA/PCCARD. If I transfer data
+> to or from a CF card inserted via adapter system waits for
+> interrupts most of the time: Cpu(s): 21.2% us, 7.9% sy, 0.0% ni,
+> 0.0% id, 1.7% wa, 69.2% hi, 0.0% si This results in a very
+> unresponsive system and a transfer rate of up to 1MB/s (my new
+> camera writes with up to 10MB/s on the card...).
 
-Look at the length being passed in, isn't it set to zero for the second case?
+The drivers are working correctly; the problem is with the CF flash
+adapter you're using.  There are two kinds of CF-to-PCMCIA adapters.
+Some are 16-bit PCMCIA cards, which are in most cases limited to a bus
+throughput of ~1 MB/sec, regardless of what the CF card is capable
+of.  There are also 32-bit CF adapter cards, that are much faster,
+limited only by the speed of the CF device.  Here are two:
 
-> 
-> Maybe sysfs should return the old count instead of ops->store ?
-> >
-> > Fbdev sysfs attributes are also broken for white space handling and
-> > need to be fixed. Overall the patch should be correct and it is the
-> > drivers that are broken.
-> >
-> Regards,
-> 
-> Benoit Boissinot
-> 
-> --
-> powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
-> 
+http://www.delkin.com/delkin_products_adapters_cardbus.html
+http://www.lexarmedia.com/readers/cf32bit.html
 
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+-- Dave

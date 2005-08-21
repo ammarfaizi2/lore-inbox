@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbVHUVmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVHUVnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbVHUVmp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVHUVmp
+	id S1751188AbVHUVnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVHUVmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:42:45 -0400
+	Sun, 21 Aug 2005 17:42:46 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:45517 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751179AbVHUVmm (ORCPT
+	by vger.kernel.org with ESMTP id S1751187AbVHUVmm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 21 Aug 2005 17:42:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com;
   h=Message-ID:Received:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=2BNQsrNbeXz3EO18iv2qsT5uic8OvTCoBrLTbv3e7p3M197u8kF+8elidofowluqP/C/E4Wxcqwi1aCOjxofPkX3kqdzsXv/4QVNMOgmHF/pDIOBY7Z+XqEcYf7yRaqK9d3hR5cbaRNBTwm2oUy1WL6IKcCC0Lt0SLPonBVZoAI=  ;
-Message-ID: <20050821165723.5531.qmail@web33304.mail.mud.yahoo.com>
-Date: Sun, 21 Aug 2005 09:57:22 -0700 (PDT)
+  b=iVWz5PGo0QgAoPu1jdr+yx6fKw3NwvEbXqyL47yu+u+iL7k/phaJEaHqQUiL6IQlrNIbLebIwoJpDd4+Wxl4GwNAgt3/FEQSvEtj5cnw6rImvJSXuRoHU5otpEri9QkhnnyS0yjMd05UuzclliYyiJS8YN8OrsHpaHHmuS40mxQ=  ;
+Message-ID: <20050821170719.5562.qmail@web33313.mail.mud.yahoo.com>
+Date: Sun, 21 Aug 2005 10:07:19 -0700 (PDT)
 From: Danial Thom <danial_thom@yahoo.com>
 Reply-To: danial_thom@yahoo.com
 Subject: Re: 2.6.12 Performance problems

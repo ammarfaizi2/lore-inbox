@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbVHUOrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbVHUPMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbVHUOrV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 10:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbVHUOrV
+	id S1751050AbVHUPMg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 11:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbVHUPMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 10:47:21 -0400
-Received: from a82-92-179-183.adsl.xs4all.nl ([82.92.179.183]:31815 "EHLO
-	samwel.tk") by vger.kernel.org with ESMTP id S1751030AbVHUOrU (ORCPT
+	Sun, 21 Aug 2005 11:12:36 -0400
+Received: from admingilde.org ([213.95.32.146]:6563 "EHLO mail.admingilde.org")
+	by vger.kernel.org with ESMTP id S1751049AbVHUPMg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 10:47:20 -0400
-Message-ID: <43089400.1060603@samwel.tk>
-Date: Sun, 21 Aug 2005 16:47:28 +0200
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: andrea gelmini <andrea.gelmini@linux.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: DMA problem with kernel >2.6.10
-References: <20050807164824.GA3312@gelma.net>
-In-Reply-To: <20050807164824.GA3312@gelma.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
+	Sun, 21 Aug 2005 11:12:36 -0400
+Date: Sun, 21 Aug 2005 17:12:31 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Stephane Wirtel <stephane.wirtel@belgacom.net>,
+       Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Documentation] Use doxygen or another tool to generate a documentation ?
+Message-ID: <20050821151231.GE9530@admingilde.org>
+Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
+	Stephane Wirtel <stephane.wirtel@belgacom.net>,
+	Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org
+References: <20050819213447.GA9538@localhost.localdomain> <84144f02050819144660238be4@mail.gmail.com> <20050819232340.GB9538@localhost.localdomain> <20050820074106.GA15162@mars.ravnborg.org> <20050820091941.GA15936@localhost.localdomain> <20050820173706.GA11079@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qz2CZ664xQdCRdPu"
+Content-Disposition: inline
+In-Reply-To: <20050820173706.GA11079@mars.ravnborg.org>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andrea gelmini wrote:
-> 	Hardware: Toshiba Satellite P20 (P4-3200 MHz, 512MB RAM) [1]
-> 	Software: Debian Unstable
-> 	GCC: 3.4.5 [2]
-> 	Memtest86+: v.1.60 (stress tools, CPU/RAM and so on, are all happy)
-> 	Problem: with kernel <=2.6.10 everything is all right...
-> 	but with any kernel released after 2.6.10 (pre, rc, stable, mm, and
-> 	so on), I've got this:
-> 
-> hda: dma_timer_expiry: dma status == 0x21
-> hda: DMA timeout error
-> hda: dma timeout error: status=0xd0 { Busy }
-[...]
-> 	It happen quickly if I do also something like this:
-> 	
-> 	cd /proc/sys/vm
-> 	echo 100 > dirty_background_ratio
-> 	echo 1000000 > dirty_expire_centisecs
-> 	echo 100 > dirty_ratio
-> 	echo 1000000 > dirty_writeback_centisecs
 
-I've had a report about this before, from someone who was using laptop 
-mode -- same error message. Funny thing is, the laptop mode tools 
-scripts also modify the above values, so it's probably the same problem. 
-Until now I thought it was a Thinkpad hardware problem, because I only 
-heard about these problems on Thinkpads, but apparently it's a kernel 
-problem after all. Don't know anything about the causes though.
+--Qz2CZ664xQdCRdPu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---Bart
+hoi :)
+
+On Sat, Aug 20, 2005 at 07:37:06PM +0200, Sam Ravnborg wrote:
+> > In make_docs.log.tar.bz2, you can find log files from make htmldocs,
+> > make psdocs and make pdfdocs.
+>=20
+> From your log-files I could not see what went wrong. It seems to be
+> error in the generated files.
+
+kerneldoc could not understand a macro definition.
+
+please try
+http://tali.admingilde.org/patches/linux-docbook/docbook-fixes.patch
+
+--=20
+Martin Waitz
+
+--Qz2CZ664xQdCRdPu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDCJnfj/Eaxd/oD7IRAv1vAJ9ChYXOdAcJLHR1pOtqWo5MoGxy3QCdGkNo
+cmWf/HdkqUP1EJPpBuhlCsE=
+=5Rza
+-----END PGP SIGNATURE-----
+
+--Qz2CZ664xQdCRdPu--

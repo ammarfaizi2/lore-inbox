@@ -1,95 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbVHUJul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbVHUKa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbVHUJul (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 05:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbVHUJul
+	id S1750946AbVHUKa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 06:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbVHUKa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 05:50:41 -0400
-Received: from siaag2ah.compuserve.com ([149.174.40.141]:22623 "EHLO
-	siaag2ah.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750917AbVHUJul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 05:50:41 -0400
-Date: Sun, 21 Aug 2005 05:47:35 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: FPU-intensive programs crashing with floating point 
-  exception on Cyrix MII
-To: Ondrej Zary <linux@rainbow-software.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Message-ID: <200508210550_MC3-1-A7CF-D29E@compuserve.com>
+	Sun, 21 Aug 2005 06:30:56 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:50922 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750945AbVHUKaz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 06:30:55 -0400
+Message-ID: <43085A6E.C7D249F0@tv-sign.ru>
+Date: Sun, 21 Aug 2005 14:41:50 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: tglx@linutronix.de
+Cc: Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
+       George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] fix send_sigqueue() vs thread exit race
+References: <20050818060126.GA13152@elte.hu>
+		 <1124495303.23647.579.camel@tglx.tec.linutronix.de>
+		 <43076138.C37ED380@tv-sign.ru> <1124617458.23647.643.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Aug 2005 12:37:30 +0200, Ondrej Zary wrote:
+Thomas Gleixner wrote:
+> 
+> On Sat, 2005-08-20 at 20:58 +0400, Oleg Nesterov wrote:
+> > [PATCH] fix send_sigqueue() vs thread exit race
+> >
+> > .....
+> > -     read_lock(&tasklist_lock);
+> > +     read_lock(&tasklist_lock);
+> > +
+> > +     if (unlikely(p->flags & PF_EXITING)) {
+> > +             ret = -1;
+> > +             goto out_err;
+> > +     }
+> > +
+> 
+> It's still racy. tasklist_lock does not protect anything here.
 
-> >   Could you modify this to print the full values of cwd and swd like this?
-> > 
-> >         printk("MATH ERROR: cwd = 0x%hx, swd = 0x%hx\n", cwd, swd);
-> > 
-> > Then post the result.
-> MATH ERROR: cwd = 0x37f, swd = 0x5020
-> MATH ERROR: cwd = 0x37f, swd = 0x20
-> MATH ERROR: cwd = 0x37f, swd = 0x20
-> MATH ERROR: cwd = 0x37f, swd = 0x2020
-> MATH ERROR: cwd = 0x37f, swd = 0x20
-> MATH ERROR: cwd = 0x37f, swd = 0x1820
-> MATH ERROR: cwd = 0x37f, swd = 0x1820
-> MATH ERROR: cwd = 0x37f, swd = 0x2020
-> MATH ERROR: cwd = 0x37f, swd = 0x20
-> MATH ERROR: cwd = 0x37f, swd = 0x2800     <===========
-> MATH ERROR: cwd = 0x37f, swd = 0x1820
-> MATH ERROR: cwd = 0x37f, swd = 0x820
-> MATH ERROR: cwd = 0x37f, swd = 0x2820
-> MATH ERROR: cwd = 0x37f, swd = 0x2820
-> MATH ERROR: cwd = 0x37f, swd = 0x1820
-> MATH ERROR: cwd = 0x37f, swd = 0x820
-> MATH ERROR: cwd = 0x37f, swd = 0x1a20
+I hope no, but please clarify if I am wrong.
 
- The error I marked has no exception flags set.  The rest are all (masked)
-denormal exceptions.  Why your Cyrix MII would cause an FPU exception in these
-cases is beyond me.  Could you try the statically-linked mprime program?
-
- I had hoped someone who knew more about FPU error handling would jump in.
-The below code from arch/i386/kernel/traps.c sends a signal back to
-userspace even when the status word shows a masked (or no) exception has
-occurred.  The 'case 0x000' strongly suggests this is deliberate but I
-don't know why.
+tasklist_lock protects against release_task()->__exit_sigxxx()
+here.
 
 
-        /*
-         * (~cwd & swd) will mask out exceptions that are not set to unmasked
-         * status.  0x3f is the exception bits in these regs, 0x200 is the
-         * C1 reg you need in case of a stack fault, 0x040 is the stack
-         * fault bit.  We should only be taking one exception at a time,
-         * so if this combination doesn't produce any single exception,
-         * then we have a bad program that isn't syncronizing its FPU usage
-         * and it will suffer the consequences since we won't be able to
-         * fully reproduce the context of the exception
-         */
-        cwd = get_fpu_cwd(task);
-        swd = get_fpu_swd(task);
-        switch (((~cwd) & swd & 0x3f) | (swd & 0x240)) {
-                case 0x000:
-                default:
-                        break;
-                case 0x001: /* Invalid Op */
-                case 0x041: /* Stack Fault */
-                case 0x241: /* Stack Fault | Direction */
-                        info.si_code = FPE_FLTINV;
-                        /* Should we clear the SF or let user space do it ???? */
-                        break;
+>  arm timer
+>  exit
 
+If this is the last thread in thread group, exit_itimers()
+will stop and clear ->posix_timers.
 
-(And it looks like there is a small bug in there.  The switch should be:
+If not:
 
-        switch (((~cwd) & swd & 0x3f) | (swd & 1 ? swd & 0x240 : 0)) {
+>  timer event
+>         timr->it_process references a freed structure
+> 
 
-because the SF and CC1 bits are only relevant when IE is set.)
+No, create_timer() does get_task_struct(timr->it_process), this
+task may be EXIT_DEAD now, but the task_struct itself is valid,
+and it's ->flags has PF_EXITING flag.
 
-__
-Chuck
+Oleg.

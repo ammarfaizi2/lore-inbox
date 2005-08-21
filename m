@@ -1,71 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVHUVfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbVHUVgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbVHUVfh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVHUVfh
+	id S1751139AbVHUVgF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVHUVgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:35:37 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:41676 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751137AbVHUVfg (ORCPT
+	Sun, 21 Aug 2005 17:36:05 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:45260 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751138AbVHUVfr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 17:35:36 -0400
-Date: Sun, 21 Aug 2005 11:01:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org, jasonuhl@sgi.com
-Subject: Re: CONFIG_PRINTK_TIME woes
-Message-Id: <20050821110127.3b601268.akpm@osdl.org>
-In-Reply-To: <4308649D.7060008@yahoo.com.au>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F042C7DA7@scsmsx401.amr.corp.intel.com>
-	<20050821021322.3986dd4a.akpm@osdl.org>
-	<20050821021616.6bbf2a14.akpm@osdl.org>
-	<430848F5.3040308@yahoo.com.au>
-	<20050821023249.0e143030.akpm@osdl.org>
-	<4308649D.7060008@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Aug 2005 17:35:47 -0400
+Date: Sun, 21 Aug 2005 10:52:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: Ondrej Zary <linux@rainbow-software.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: FPU-intensive programs crashing with floating point   exception
+ on Cyrix MII
+In-Reply-To: <200508210550_MC3-1-A7CF-D29E@compuserve.com>
+Message-ID: <Pine.LNX.4.58.0508211043520.3317@g5.osdl.org>
+References: <200508210550_MC3-1-A7CF-D29E@compuserve.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+
+On Sun, 21 Aug 2005, Chuck Ebbert wrote:
 >
-> Andrew Morton wrote:
+> > MATH ERROR: cwd = 0x37f, swd = 0x2800     <===========
 > 
-> > 
-> > yup.
-> > 
-> > 
-> >>Why not use something like do_gettimeofday? (or I'm sure one
-> >>of our time keepers can suggest the right thing to use).
-> > 
-> > 
-> > do_gettimeofday() takes locks, so a) we can't do printk from inside it and
-> 
-> Dang, yeah maybe this is the showstopper.
-> 
-> > b) if you do a printk-from-interupt and the interrupted code was running
-> > do_gettimeofday(), deadlock.
-> > 
-> 
-> What about just using jiffies, then?
-> 
-> Really, sched_clock() is very broken for this (I know you're
-> not arguing against that).
->
-> It can go backwards when called twice from the same CPU, and the
-> number returned by one CPU need have no correlation with that
-> returned by another.
+>  The error I marked has no exception flags set.  The rest are all (masked)
+> denormal exceptions.  Why your Cyrix MII would cause an FPU exception in these
+> cases is beyond me.  Could you try the statically-linked mprime program?
 
-jiffies wouldn't have sufficient resolution for this application.  Bear in
-mind that this is just a debugging thing - it's better to have good
-resolution with occasional theoretical weirdness than to have poor
-resolution plus super-consistency, IMO.
+Also, please try this one, to see where it happens.
 
-> However, I understand you probably just want something quick and
-> dirty for 2.6.13 and would be happy just if it isn't more broken
-> than before ;)
+			Linus
 
-We're OK for 2.6.13, I think.  ia64 people will quickly learn to not turn
-the option on.
+---
+diff --git a/arch/i386/kernel/i8259.c b/arch/i386/kernel/i8259.c
+--- a/arch/i386/kernel/i8259.c
++++ b/arch/i386/kernel/i8259.c
+@@ -357,11 +357,11 @@ void init_8259A(int auto_eoi)
+ 
+ static irqreturn_t math_error_irq(int cpl, void *dev_id, struct pt_regs *regs)
+ {
+-	extern void math_error(void __user *);
++	extern void math_error(struct pt_regs *);
+ 	outb(0,0xF0);
+ 	if (ignore_fpu_irq || !boot_cpu_data.hard_math)
+ 		return IRQ_NONE;
+-	math_error((void __user *)regs->eip);
++	math_error(regs);
+ 	return IRQ_HANDLED;
+ }
+ 
+diff --git a/arch/i386/kernel/traps.c b/arch/i386/kernel/traps.c
+--- a/arch/i386/kernel/traps.c
++++ b/arch/i386/kernel/traps.c
+@@ -774,8 +774,9 @@ clear_TF_reenable:
+  * the correct behaviour even in the presence of the asynchronous
+  * IRQ13 behaviour
+  */
+-void math_error(void __user *eip)
++void math_error(struct pt_regs *regs)
+ {
++	void __user *eip = (void __user *)regs->eip;
+ 	struct task_struct * task;
+ 	siginfo_t info;
+ 	unsigned short cwd, swd;
+@@ -805,6 +806,7 @@ void math_error(void __user *eip)
+ 	swd = get_fpu_swd(task);
+ 	switch (((~cwd) & swd & 0x3f) | (swd & 0x240)) {
+ 		case 0x000:
++			show_regs(regs);
+ 		default:
+ 			break;
+ 		case 0x001: /* Invalid Op */
+@@ -833,7 +835,7 @@ void math_error(void __user *eip)
+ fastcall void do_coprocessor_error(struct pt_regs * regs, long error_code)
+ {
+ 	ignore_fpu_irq = 1;
+-	math_error((void __user *)regs->eip);
++	math_error(regs);
+ }
+ 
+ static void simd_math_error(void __user *eip)

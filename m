@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVHUVlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbVHUVmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVHUVlv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVHUVlv
+	id S1751185AbVHUVmo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVHUVmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:41:51 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:42445 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751162AbVHUVlt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 17:41:49 -0400
-From: "Hesse, Christian" <mail@earthworm.de>
-To: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-Subject: IRQ problem with PCMCIA
-Date: Sun, 21 Aug 2005 20:43:50 +0200
-User-Agent: KMail/1.8.2
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)k
-	:nv*xqk4C@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)n#Q.o
-	kE~&T]0cQX6]<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<3O7GY9y_i!qG&Vv\D8/
-	%4@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6434333.k1MGe9Z7Nz";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508212043.58331.mail@earthworm.de>
-X-Spam-Flag: NO
+	Sun, 21 Aug 2005 17:42:43 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:45517 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751175AbVHUVmm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 17:42:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Qfqfj9WQ6LhlgOEWg/uyosm61Vywh+cPKRj976Z1hnqO00mKEMh2v1n9wiVnyqfZdYcm9ziPgFw8XE4q8hGb4LOaoyhL4GtOrplLLooXvJjtr9Fszjp0QJKBc6sFYpqAFLsguSKKAKciaJMz/wSrscp+6sEpXWTxfKvYSLPB0ko=
+Message-ID: <9e47339105082110405b2a48c8@mail.gmail.com>
+Date: Sun, 21 Aug 2005 13:40:31 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+To: Benoit Boissinot <bboissin@gmail.com>
+Subject: Re: 2.6.13-rc6-mm1
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <40f323d005082109303c0865a3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050819043331.7bc1f9a9.akpm@osdl.org>
+	 <40f323d005082109303c0865a3@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6434333.k1MGe9Z7Nz
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 8/21/05, Benoit Boissinot <bboissin@gmail.com> wrote:
+> On 8/19/05, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm1/
+> >
+> > - Lots of fixes, updates and cleanups all over the place.
+> >
+> > - If you have the right debugging options set, this kernel will generate
+> >   a storm of sleeping-in-atomic-code warnings at boot, from the scsi code.
+> >   It is being worked on.
+> >
+> >
+> > Changes since 2.6.13-rc5-mm1:
+> > [...]
+> > +gregkh-driver-sysfs-strip_leading_trailing_whitespace.patch
+> > [...]
+> 
+> 
+> it broke loading of firmware for me.(dmesg was flooded with
+> "firmware_loading_store:  unexpected value (0)")
+> 
+> firmware.agent uses echo so there is a trailing newline. If i changes
+> firmware.agent to uses echo -n it works correctly.
+> 
+> Is this a bug or the correct behaviour ?
 
-Hello everybody,
+Somewhere there is a mistake in the white space processing code of the
+firmware driver. Before this patch we had inconsistent handling of
+whitespace and sysfs attributes. This patch forces it to be consistent
+and will shake out all of the places in the drivers where it is
+handled wrong. Sysfs attributes are now stripped of leading and
+trailing white space before being handed to the device driver.
 
-seems like I have a problem with PCMCIA/PCCARD. If I transfer data to or fr=
-om=20
-a CF card inserted via adapter system waits for interrupts most of the time:
+Fbdev sysfs attributes are also broken for white space handling and
+need to be fixed. Overall the patch should be correct and it is the
+drivers that are broken.
 
-Cpu(s): 21.2% us,  7.9% sy,  0.0% ni,  0.0% id,  1.7% wa, 69.2% hi,  0.0% si
-
-This results in a very unresponsive system and a transfer rate of up to 1MB=
-/s=20
-(my new camera writes with up to 10MB/s on the card...).
-
-Any idea what could be the reason? This is with 2.6.12/pcmcia-cs and with=20
-2.6.13-rc*/pcmciautils. The CF card is a Lexar 1GB.
-
-root@logo:~# cat /proc/interrupts | grep yenta
- 11:    5914154          XT-PIC  yenta, yenta, uhci_hcd:usb2, Intel=20
-82801DB-ICH4, ide2
-
-=2D-=20
-Regards,
-Christian
-
---nextPart6434333.k1MGe9Z7Nz
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.18 (GNU/Linux)
-
-iD8DBQBDCMttlZfG2c8gdSURAkjIAKD37Ww3Xxu5PKv38xE9nUnaZAIpQgCfVAD5
-B73Nx3ex3q5sddZZcKVY1o4=
-=/7aC
------END PGP SIGNATURE-----
-
---nextPart6434333.k1MGe9Z7Nz--
+-- 
+Jon Smirl
+jonsmirl@gmail.com

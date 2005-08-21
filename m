@@ -1,125 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVHUVYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbVHUV2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbVHUVYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVHUVYJ
+	id S1751123AbVHUV2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVHUV2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:24:09 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:46291
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751101AbVHUVYI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 17:24:08 -0400
-Subject: Re: [PATCH] fix send_sigqueue() vs thread exit race
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
-       George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <43085E97.4EC3908B@tv-sign.ru>
-References: <20050818060126.GA13152@elte.hu>
-	 <1124495303.23647.579.camel@tglx.tec.linutronix.de>
-	 <43076138.C37ED380@tv-sign.ru>
-	 <1124617458.23647.643.camel@tglx.tec.linutronix.de>
-	 <43085E97.4EC3908B@tv-sign.ru>
-Content-Type: text/plain
-Organization: linutronix
-Date: Sun, 21 Aug 2005 23:24:28 +0200
-Message-Id: <1124659468.23647.695.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sun, 21 Aug 2005 17:28:24 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:61711 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1751123AbVHUV2X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 17:28:23 -0400
+Message-ID: <4308F1EF.9020609@rainbow-software.org>
+Date: Sun, 21 Aug 2005 23:28:15 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: FPU-intensive programs crashing with floating point   exception
+ on Cyrix MII
+References: <200508210550_MC3-1-A7CF-D29E@compuserve.com> <Pine.LNX.4.58.0508211043520.3317@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0508211043520.3317@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg,
-
-On Sun, 2005-08-21 at 14:59 +0400, Oleg Nesterov wrote:
-> CPU_0					CPU_1
+Linus Torvalds wrote:
 > 
-> release_task:				posix_timer_fn:
-> 	write_lock(tasklist);			lock(timer->it_lock);
+> On Sun, 21 Aug 2005, Chuck Ebbert wrote:
 > 
-> 	exit_timers:				send_sigxxx();
-> 		lock(timer->it_lock)			read_lock(tasklist);
-> 				
-> Deadlock.
-> 
-> Dear cc-list, what do you think?
+>>>MATH ERROR: cwd = 0x37f, swd = 0x2800     <===========
+>>
+>> The error I marked has no exception flags set.  The rest are all (masked)
+>>denormal exceptions.  Why your Cyrix MII would cause an FPU exception in these
+>>cases is beyond me.  Could you try the statically-linked mprime program?
 
-The patch below on top of your patch should solve this. We don't need
-tasklist_lock to check p->flags. As you pointed out p cannot be invalid
-in send_sigqueue as it's protected by get_task_struct() in
-create_timer()
+I use only the statically linked mprime.
 
-For send_group_sigqueue it's protected by exit_itimers() waiting for
-k_itimer.it_lock.
+> Also, please try this one, to see where it happens.
+I did some modification to the code so it calls show_regs() in both 
+cases where I get problems and also added the return so it does not 
+crash. The code looks like this:
+---
+         printk("MATH ERROR: cwd = 0x%hx, swd = 0x%hx\n", cwd, swd);
+         switch (((~cwd) & swd & 0x3f) | (swd & 0x240)) {
+                 case 0x000:
+                 case 0x200:
+                         show_regs(regs);
+                         return;
+---
+Here are the results.
 
-It still does not solve the ugly dependency on tasklist_lock but at
-least the race and the deadlock are fixed.
+MATH ERROR: cwd = 0x37f, swd = 0x1820
 
-tglx
+Pid: 1699, comm:               mprime
+EIP: 0073:[<08181c73>] CPU: 0
+EIP is at 0x8181c73
+  ESP: 007b:bf927ab4 EFLAGS: 00010202    Not tainted  (2.6.12-pentium)
+EAX: 00000001 EBX: 00000000 ECX: 0000808d EDX: b7f09480
+ESI: b7455340 EDI: 080e01f0 EBP: bf927bf8 DS: 007b ES: 007b
+CR0: 8005003b CR2: b7ed6058 CR3: 006f0000 CR4: 00000080
+MATH ERROR: cwd = 0x37f, swd = 0x1020
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Pid: 1699, comm:               mprime
+EIP: 0073:[<0818ca5f>] CPU: 0
+EIP is at 0x818ca5f
+  ESP: 007b:bf927ab0 EFLAGS: 00010207    Not tainted  (2.6.12-pentium)
+EAX: 00000005 EBX: 00000000 ECX: 00008407 EDX: b7f08140
+ESI: b789aea0 EDI: b7f08200 EBP: bf927bf8 DS: 007b ES: 007b
+CR0: 8005003b CR2: b75c6000 CR3: 006f0000 CR4: 00000080
+MATH ERROR: cwd = 0x37f, swd = 0x2820
 
+Pid: 1699, comm:               mprime
+EIP: 0073:[<0818c4b1>] CPU: 0
+EIP is at 0x818c4b1
+  ESP: 007b:bf927ab0 EFLAGS: 00010247    Not tainted  (2.6.12-pentium)
+EAX: 00000000 EBX: 00000000 ECX: 0000880f EDX: b7f09480
+ESI: b741fc20 EDI: 080e0160 EBP: bf927bf8 DS: 007b ES: 007b
+CR0: 8005003b CR2: b75c6000 CR3: 006f0000 CR4: 00000080
+MATH ERROR: cwd = 0x37f, swd = 0x20
 
---- linux-2.6.13-rc6.signal/kernel/signal.oleg.c	2005-08-21 23:07:03.000000000 +0200
-+++ linux-2.6.13-rc6.signal/kernel/signal.c	2005-08-21 23:09:07.000000000 +0200
-@@ -1381,11 +1381,14 @@ send_sigqueue(int sig, struct sigqueue *
- 	int ret = 0;
- 
- 	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
--	read_lock(&tasklist_lock);
- 
--	if (unlikely(p->flags & PF_EXITING)) {
--		ret = -1;
--		goto out_err;
-+retry:
-+	if (unlikely(p->flags & PF_EXITING))
-+		return -1;
-+
-+	if ((unlikely(!read_trylock(&tasklist_lock))) {
-+		cpu_relax();
-+		goto retry;
- 	}
- 
- 	spin_lock_irqsave(&p->sighand->siglock, flags);
-@@ -1414,7 +1417,6 @@ send_sigqueue(int sig, struct sigqueue *
- 
- out:
- 	spin_unlock_irqrestore(&p->sighand->siglock, flags);
--out_err:
- 	read_unlock(&tasklist_lock);
- 
- 	return ret;
-@@ -1427,7 +1429,14 @@ send_group_sigqueue(int sig, struct sigq
- 	int ret = 0;
- 
- 	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
--	read_lock(&tasklist_lock);
-+retry:
-+	if (unlikely(p->flags & PF_EXITING))
-+		return -1;
-+
-+	if (unlikely(!read_trylock(&tasklist_lock))) {
-+		cpu_relax();
-+		goto retry;
-+	}
- 	spin_lock_irqsave(&p->sighand->siglock, flags);
- 	handle_stop_signal(sig, p);
- 
---- linux-2.6.13-rc6.signal/kernel/posix-timers.oleg.c	2005-08-21 23:09:58.000000000 +0200
-+++ linux-2.6.13-rc6.signal/kernel/posix-timers.c	2005-08-21 23:19:42.000000000 +0200
-@@ -501,7 +501,8 @@ static void posix_timer_fn(unsigned long
- 			remove_from_abslist(timr);
- 		}
- 
--		if (posix_timer_event(timr, si_private))
-+		/* Do not rearm the timer, when we are exiting */
-+		if (posix_timer_event(timr, si_private) > 0)
- 			/*
- 			 * signal was not sent because of sig_ignor
- 			 * we will not get a call back to restart it AND
+Pid: 1699, comm:               mprime
+EIP: 0073:[<08181ca1>] CPU: 0
+EIP is at 0x8181ca1
+  ESP: 007b:bf927ab4 EFLAGS: 00010202    Not tainted  (2.6.12-pentium)
+EAX: 00000002 EBX: 00000000 ECX: 00000084 EDX: b7f09480
+ESI: b74f86c0 EDI: 080e01f0 EBP: bf927bf8 DS: 007b ES: 007b
+CR0: 8005003b CR2: b75c6000 CR3: 006f0000 CR4: 00000080
+MATH ERROR: cwd = 0x37f, swd = 0x1a20
 
+Pid: 1699, comm:               mprime
+EIP: 0073:[<08193c68>] CPU: 0
+EIP is at 0x8193c68
+  ESP: 007b:bf927ab8 EFLAGS: 00010206    Not tainted  (2.6.12-pentium)
+EAX: 00000042 EBX: 00000000 ECX: 00154306 EDX: b7e3ba40
+ESI: b7a1e680 EDI: b7e3be40 EBP: bf927bf8 DS: 007b ES: 007b
+CR0: 8005003b CR2: b7499000 CR3: 006f0000 CR4: 00000080
 
+MATH ERROR: cwd = 0x37f, swd = 0x20
+
+Pid: 1699, comm:               mprime
+EIP: 0073:[<0818de05>] CPU: 0
+EIP is at 0x818de05
+  ESP: 007b:bf927ab4 EFLAGS: 00010247    Not tainted  (2.6.12-pentium)
+EAX: 00000004 EBX: 00000000 ECX: 0000880f EDX: b7f06b40
+ESI: b7426400 EDI: 080e1960 EBP: bf927bf8 DS: 007b ES: 007b
+CR0: 8005003b CR2: b7499000 CR3: 006f0000 CR4: 00000080
+MATH ERROR: cwd = 0x37f, swd = 0x20
+
+Pid: 1699, comm:               mprime
+EIP: 0073:[<0818dfe4>] CPU: 0
+EIP is at 0x818dfe4
+  ESP: 007b:bf927ab4 EFLAGS: 00010247    Not tainted  (2.6.12-pentium)
+EAX: 00000200 EBX: 00000000 ECX: 0000880f EDX: b7f06b40
+ESI: b742a680 EDI: 080e1c60 EBP: bf927bf8 DS: 007b ES: 007b
+CR0: 8005003b CR2: b7499000 CR3: 006f0000 CR4: 00000080
+
+-- 
+Ondrej Zary

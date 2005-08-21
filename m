@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVHUWHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVHUWMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbVHUWHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 18:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVHUWHE
+	id S1751191AbVHUWMS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 18:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVHUWMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 18:07:04 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:56232 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751156AbVHUWHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 18:07:01 -0400
-Subject: Re: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: luben_tuikov@adaptec.com
-Cc: Andrew Morton <akpm@osdl.org>, Jim Houston <jim.houston@ccur.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <20050821172758.36512.qmail@web51608.mail.yahoo.com>
-References: <20050821172758.36512.qmail@web51608.mail.yahoo.com>
-Content-Type: text/plain
-Date: Sun, 21 Aug 2005 17:03:50 -0500
-Message-Id: <1124661830.5068.19.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Aug 2005 18:12:18 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21634 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751191AbVHUWMQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 18:12:16 -0400
+To: =?iso-8859-1?q?Guillermo_L=F3pez_Alejos?= <glalejos@gmail.com>
+Cc: Linh Dang <linhd@nortel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Environment variables inside the kernel?
+References: <4fec73ca050818084467f04c31@mail.gmail.com>
+	<m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local>
+	<wn5slx75cjs.fsf@linhd-2.ca.nortel.com>
+	<4fec73ca05081811488ec518e@mail.gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 21 Aug 2005 16:12:02 -0600
+In-Reply-To: <4fec73ca05081811488ec518e@mail.gmail.com> (
+ =?iso-8859-1?q?Guillermo_L=F3pez_Alejos's_message_of?= "Thu, 18 Aug 2005
+ 20:48:04 +0200")
+Message-ID: <m1fyt3ueh9.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-08-21 at 10:27 -0700, Luben Tuikov wrote:
-> Is this the only use _you_ could find for a *radix tree*? ;-)
-> Since of course sd.c uses it just as an enumeration, according to
-> you this must be the only use? :-)
+Guillermo López Alejos <glalejos@gmail.com> writes:
 
-And Dicto Simpliciter to you too.
+> Whoa!, I did not expect so many replies. Thank you for your answers.
+>
+> The thing is that the Computer Architecture area of the University I
+> am studying at is developing a parallel filesystem. Currently it works
+> as a stand-alone program (this is why it uses resources like
+> environment variables), and I have been told to integrate it in the
+> Linux kernel.
 
-> It was designed as a general purpose id to pointer translation
-> service, just as the comment in it says.
+??
+Usually when I hear stand-alone program I think of program that runs
+without the need of a kernel.  You have an environment in that context?
 
-idr was specifically designed with unlocked pre-allocation in mind.  The
-change you're proposing wants to allow pre allocation from irq context.
-This really doesn't look like a good change because the whole point of
-pre allocation is to do it at a point in time when the system can sleep
-if it has to.
+> I have to justify changes on this filesystem code (like avoiding the
+> use of environment variables) to my tutor. In this case I needed to
+> find why it is not possible to use environment variables in kernel
+> space.
 
-What I don't understand is why you need to pre allocate this tag from
-irq context.  Best practise is to allocate when you have user context
-but make use of it in IRQ context.
+Be very careful.  Generally I think at least until the filesystem
+is very stable running your filesystem server in the kernel is a mistake.
 
-> > However, there is an infrastructure in the block layer called the
-> > generic tag infrastructure which was designed precisely for this purpose
-> > and which is designed to operate in IRQ context.
-> 
-> James, I'm sure you're well aware that,
->    - a request_queue is LU-bound,
->    - a SCSI _transport_ (*ANY*) can _only_ address domain devices, but
->      _not_ LUs.  LUs are *not* seen on the domain.
-> 
-> See the different associations?  Then why are you posting such emails?
+And the concept of a parallel filesystem with just one server just
+sounds wrong from any context.
 
-So you're planning to do some type of tag command queueing outside of
-the block framework?  Could you just look at what it would take to do it
-within the existing framework first?  I seem to have wasted quite a bit
-of time recently pulling spurious queueing code out of Adaptec drivers.
-
-Remember that the code is adaptable ... we have non-block devices that
-use block queues for instance.
-
-James
-
-
+Eric

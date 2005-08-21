@@ -1,43 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbVHUWTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVHUWVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbVHUWTv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 18:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVHUWTv
+	id S1751138AbVHUWVW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 18:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVHUWVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 18:19:51 -0400
-Received: from b.mail.sonic.net ([64.142.19.5]:46464 "EHLO b.mail.sonic.net")
-	by vger.kernel.org with ESMTP id S1751157AbVHUWTv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 18:19:51 -0400
-Date: Sun, 21 Aug 2005 15:19:35 -0700
-From: David Hinds <dhinds@sonic.net>
-To: "Hesse, Christian" <mail@earthworm.de>
-Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-Subject: Re: IRQ problem with PCMCIA
-Message-ID: <20050821221935.GB18925@sonic.net>
-References: <200508212043.58331.mail@earthworm.de> <20050821221739.GA18925@sonic.net>
+	Sun, 21 Aug 2005 18:21:22 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:59746 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750767AbVHUWVV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 18:21:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ENL6fCv+0HwO/ibHde/liJsSdW0iy15dwIEWBw/DvGSUgGN3NXb2QNw0AmkZCPaUSDFWOIIGnONsTXIZ4I7KZD2AAm4vtYMlqDaON+HcX8vmoILXwMBnmSKSFlfw4SFvcSM2J+5pUjSnwSFSDmZNAI7DLLm2DgZVDyq7pq2eh+o=
+Message-ID: <9e473391050821152141b404c7@mail.gmail.com>
+Date: Sun, 21 Aug 2005 18:21:20 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+In-Reply-To: <9e473391050728132757a75d5f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050821221739.GA18925@sonic.net>
-User-Agent: Mutt/1.4.2.1i
+References: <9e47339105072719057c833e62@mail.gmail.com>
+	 <20050728040544.GA12476@kroah.com>
+	 <9e47339105072721495d3788a8@mail.gmail.com>
+	 <20050728054914.GA13904@kroah.com>
+	 <20050728070455.GF9985@gaz.sfgoth.com>
+	 <9e47339105072805545766f97d@mail.gmail.com>
+	 <20050728190352.GA29092@kroah.com>
+	 <9e47339105072812575e567531@mail.gmail.com>
+	 <20050728202214.GA9041@gaz.sfgoth.com>
+	 <9e473391050728132757a75d5f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 21, 2005 at 03:17:39PM -0700, David Hinds wrote:
+On 7/28/05, Jon Smirl <jonsmirl@gmail.com> wrote:
+> Even simpler version....
 > 
-> The drivers are working correctly; the problem is with the CF flash
-> adapter you're using.  There are two kinds of CF-to-PCMCIA adapters.
-> Some are 16-bit PCMCIA cards, which are in most cases limited to a bus
-> throughput of ~1 MB/sec, regardless of what the CF card is capable
-> of.  There are also 32-bit CF adapter cards, that are much faster,
-> limited only by the speed of the CF device.  Here are two:
+> --
+> Jon Smirl
+> jonsmirl@gmail.com
 > 
-> http://www.delkin.com/delkin_products_adapters_cardbus.html
-> http://www.lexarmedia.com/readers/cf32bit.html
+> Remove leading and trailing whitespace when text sysfs attribute is set
+> signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+> 
+> diff --git a/fs/sysfs/file.c b/fs/sysfs/file.c
+> --- a/fs/sysfs/file.c
+> +++ b/fs/sysfs/file.c
+> @@ -6,6 +6,7 @@
+>  #include <linux/fsnotify.h>
+>  #include <linux/kobject.h>
+>  #include <linux/namei.h>
+> +#include <linux/ctype.h>
+>  #include <asm/uaccess.h>
+>  #include <asm/semaphore.h>
+> 
+> @@ -207,8 +208,23 @@ flush_write_buffer(struct dentry * dentr
+>         struct attribute * attr = to_attr(dentry);
+>         struct kobject * kobj = to_kobj(dentry->d_parent);
+>         struct sysfs_ops * ops = buffer->ops;
+> +       char *x;
+> 
+> -       return ops->store(kobj,attr,buffer->page,count);
+> +       /* locate trailing white space */
+> +       while ((count > 0) && isspace(buffer->page[count - 1]))
+> +               count--;
+> +
+> +       /* locate leading white space */
+> +       x = buffer->page;
+> +       if (count > 0) {
+> +               while (isspace(*x))
+> +                       x++;
+> +               count -= (x - buffer->page);
+> +       }
+> +       /* terminate the string */
+> +       x[count] = '\0';
 
-One caveat: I'm not sure if CardBus IDE devices are working under
-Linux??  I'd think they should work with 2.6, but don't actually know
-that for a fact.
+Should we add a check for a NULL string here?  It seems not all
+drivers were prepared to handle a zero length store().
 
--- Dave
+If (count == 0)
+      return 0;
+
+> +
+> +       return ops->store(kobj, attr, x, count);
+>  }
+> 
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

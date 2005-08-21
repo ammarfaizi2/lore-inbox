@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVHULrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbVHUMKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbVHULrI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 07:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVHULrH
+	id S1750978AbVHUMKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 08:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbVHUMKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 07:47:07 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:3628 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750965AbVHULrG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 07:47:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tth6t6/ctPchJPb/X5PKl4+uny/l2wjly7EmLYniDbHjKWD7Ho/n10vBqrDTzSyHNCXOp2OkfT4FLCBUsHrC5HmELomJGVTQrGgW6sNyDNHYQUfgz70T2+rg1wjAlXaRHt585DrtJqT6Ie2LbQX/w7iAagjjR7XWq/yGtQArzW4=
-Message-ID: <9a87484905082104477cae9ba4@mail.gmail.com>
-Date: Sun, 21 Aug 2005 13:47:06 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: use of uninitialized pointer in jffs_create()
-Cc: linux-kernel@vger.kernel.org, jffs-dev@axis.com
-In-Reply-To: <20050821091401.GA23626@mipter.zuzino.mipt.ru>
+	Sun, 21 Aug 2005 08:10:20 -0400
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:46788 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S1750975AbVHUMKT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 08:10:19 -0400
+Date: Sun, 21 Aug 2005 21:10:11 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mips: add pcibios_bus_to_resource
+Message-Id: <20050821211011.10b7f4e7.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a87484905082015284c1686ec@mail.gmail.com>
-	 <20050821091401.GA23626@mipter.zuzino.mipt.ru>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/21/05, Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> On Sun, Aug 21, 2005 at 12:28:08AM +0200, Jesper Juhl wrote:
-> > gcc kindly pointed me at jffs_create() with this warning :
-> >
-> > fs/jffs/inode-v23.c:1279: warning: `inode' might be used uninitialized
-> > in this function
-> 
-> I don't see a warning with latest gcc-4.1 snapshot.
-> 
+Hi,
 
-I'm using gcc 3.3.6, and the kernel that shows this warning is 2.6.13-rc6-mm1
+This patch has added pcibios_bus_to_resource to MIPS.
+Please apply.
+
+Yoichi
+
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+
+diff -urN -X dontdiff mm1-orig/arch/mips/pci/pci.c mm1/arch/mips/pci/pci.c
+--- mm1-orig/arch/mips/pci/pci.c	2005-08-21 01:35:21.000000000 +0900
++++ mm1/arch/mips/pci/pci.c	2005-08-21 01:38:06.000000000 +0900
+@@ -292,8 +292,25 @@
+ 	region->end = res->end - offset;
+ }
+ 
++void __devinit
++pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
++			struct pci_bus_region *region)
++{
++	struct pci_controller *hose = (struct pci_controller *)dev->sysdata;
++	unsigned long offset = 0;
++
++	if (res->flags & IORESOURCE_IO)
++		offset = hose->io_offset;
++	else if (res->flags & IORESOURCE_MEM)
++		offset = hose->mem_offset;
++
++	res->start = region->start + offset;
++	res->end = region->end + offset;
++}
++
+ #ifdef CONFIG_HOTPLUG
+ EXPORT_SYMBOL(pcibios_resource_to_bus);
++EXPORT_SYMBOL(pcibios_bus_to_resource);
+ EXPORT_SYMBOL(PCIBIOS_MIN_IO);
+ EXPORT_SYMBOL(PCIBIOS_MIN_MEM);
+ #endif
+diff -urN -X dontdiff mm1-orig/include/asm-mips/pci.h mm1/include/asm-mips/pci.h
+--- mm1-orig/include/asm-mips/pci.h	2005-08-21 01:38:19.000000000 +0900
++++ mm1/include/asm-mips/pci.h	2005-08-21 01:41:01.000000000 +0900
+@@ -142,6 +142,8 @@
+ 
+ extern void pcibios_resource_to_bus(struct pci_dev *dev,
+ 	struct pci_bus_region *region, struct resource *res);
++extern void pcibios_bus_to_resource(struct pci_dev *dev,
++	struct resource *res, struct pci_bus_region *region);
+ 
+ #ifdef CONFIG_PCI_DOMAINS
+ 
 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

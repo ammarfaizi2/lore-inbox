@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVHUXPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVHUXTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbVHUXPV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 19:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVHUXPV
+	id S1751124AbVHUXTk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 19:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVHUXTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 19:15:21 -0400
-Received: from pop.gmx.net ([213.165.64.20]:25038 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751119AbVHUXPV (ORCPT
+	Sun, 21 Aug 2005 19:19:40 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:41124 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751124AbVHUXTj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 19:15:21 -0400
-X-Authenticated: #12114349
-Message-Id: <6.2.1.2.2.20050822010109.026b97d0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.2
-Date: Mon, 22 Aug 2005 01:14:59 +0200
-To: linux-kernel@vger.kernel.org
-From: Konstantin Koll <konstantinkoll@gmx.de>
-Subject: Driver for proprietary Sony Memorystick drive
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Y-GMX-Trusted: 0
+	Sun, 21 Aug 2005 19:19:39 -0400
+Date: Mon, 22 Aug 2005 01:19:04 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
+       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
+       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+In-Reply-To: <1124505151.22195.78.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0508202204240.3728@scrub.home>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com> 
+ <1123726394.32531.33.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+  <1124151001.8630.87.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+  <1124241449.8630.137.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.61.0508182213100.3728@scrub.home> <1124505151.22195.78.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear readers,
+Hi,
 
-I'm the owner of a Sony VAIO notebook with a PCI-based memorystick drive, 
-PCI ID is 104D/808A. So far, no Linux driver has been developed. I am quite 
-experienced with driver development, though not for Linux.
+On Fri, 19 Aug 2005, john stultz wrote:
 
-Background:
-I work on a DOS-based OS ( http://www.deskwork.de/ ), written in Borland 
-Pascal and Assembler for Protected Mode, thus I'm fairly experienced with 
-driver development from scratch. My plan is to write a driver in BP and 
-release it along with lots of comments and a neat PDF specification into 
-the public domain, ready to be ported to Linux, Zeta or whatever.
+> timekeeping_perioidic_hook():
+> 
+> 	/* get ntp adjusted interval length*/
+> 	interval_length = get_timesource_interval(ppm)
 
-How far I got:
-I was able to assign 1 KB of I/O memory to the device (the amount it gets 
-under Windows). At offset 100h, a 512 byte buffer is located. The byte at 
-offset 08h indicates whether a stick is inserted (=01h) or not (=00h). The 
-512 byte buffer shows strange behaviour (no details here), and I cannot 
-read or write anything yet.
+Here starts the problem, this requires more expensive math than necessary, 
+as every time you first have to scale the values.
 
-Needed:
-It would be helpful to get in touch with people who develop drivers and/or 
-own a Sony laptop with said drive for testing. I think it's still a quite 
-long way to go. I am currently not subscribed to the kernel mailing list.
+Let's take a standard PIT timer as an example. With HZ=100 we program it 
+with 11932, for simplicity let's assume this corresponds to 10^7ns and 
+scale this by 2^8. This means the timer multiplier is initially 214549, 
+this updates the system time by 214549*11932 and the reference time by 
+10^7*2^8 every tick. We can now just ignore the error or as soon as it 
+exceeds 11932/2 we increase/decrease the mutiplier. The error calculation 
+is rather simple, usually just adds and shifts, only if the error exceeds 
+2*11932 it gets a little more complicated, but even here the possible 
+divide is avoidable.
+The gettimeofday would then basically be "xtime + (cycle_offset * mult + 
+error_offset) / 2^8". Depending on the update frequency and the required 
+precision it's even possible to keep this within 32bit. The ntp part stays 
+pretty much the same and the time source can add anything it wants on top 
+of that. The basic math is also pretty much the same so we can generate 
+most of the code depending on various parameters.
 
-Kind regards,
-Konstantin Koll
-Hansmannstr. 17
-44227 Dortmund
-konstantinkoll@gmx.de
-
+bye, Roman

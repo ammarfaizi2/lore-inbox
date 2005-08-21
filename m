@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVHUVov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVHUVpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbVHUVov (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 17:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVHUVok
+	id S1751199AbVHUVpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 17:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVHUVox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 17:44:40 -0400
+	Sun, 21 Aug 2005 17:44:53 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:6606 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751169AbVHUVoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	by vger.kernel.org with ESMTP id S1751198AbVHUVoj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 21 Aug 2005 17:44:39 -0400
-Message-ID: <4308A8A0.9060402@trash.net>
-Date: Sun, 21 Aug 2005 18:15:28 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: danial_thom@yahoo.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 Performance problems
-References: <20050821154654.63788.qmail@web33303.mail.mud.yahoo.com>
-In-Reply-To: <20050821154654.63788.qmail@web33303.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LtS5MiCJlvtMgGgA3xthXEZsHqaVrjdPDA+2HujAmUojqcrJwrnuMTpuE1/wI/d/xGkllyPc2Z8iE1Q33a5yQAwi5flKGuWVgzRS22dPC31mA4RSQe1auvtw+EhG6bOVTmbOQpom8JjbjG9hn2nHvMrV8+Yq+ZPGzfibppchWY8=
+Message-ID: <40f323d005082109303c0865a3@mail.gmail.com>
+Date: Sun, 21 Aug 2005 18:30:50 +0200
+From: Benoit Boissinot <bboissin@gmail.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: 2.6.13-rc6-mm1
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <20050819043331.7bc1f9a9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050819043331.7bc1f9a9.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danial Thom wrote:
-> I just started fiddling with 2.6.12, and there
-> seems to be a big drop-off in performance from
-> 2.4.x in terms of networking on a uniprocessor
-> system. Just bridging packets through the
-> machine, 2.6.12 starts dropping packets at
-> ~100Kpps, whereas 2.4.x doesn't start dropping
-> until over 350Kpps on the same hardware (2.0Ghz
-> Opteron with e1000 driver). This is pitiful
-> prformance for this hardware. I've 
-> increased the rx ring in the e1000 driver to 512
-> with little change (interrupt moderation is set
-> to 8000 Ints/second). Has "tuning" for MP 
-> destroyed UP performance altogether, or is there
-> some tuning parameter that could make a 4-fold
-> difference? All debugging is off and there are 
-> no messages on the console or in the error logs.
-> The kernel is the standard kernel.org dowload
-> config with SMP turned off and the intel ethernet
-> card drivers as modules without any other
-> changes, which is exactly the config for my 2.4
-> kernels.
+On 8/19/05, Andrew Morton <akpm@osdl.org> wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm1/
+> 
+> - Lots of fixes, updates and cleanups all over the place.
+> 
+> - If you have the right debugging options set, this kernel will generate
+>   a storm of sleeping-in-atomic-code warnings at boot, from the scsi code.
+>   It is being worked on.
+> 
+> 
+> Changes since 2.6.13-rc5-mm1:
+> [...]
+> +gregkh-driver-sysfs-strip_leading_trailing_whitespace.patch
+> [...]
 
-Do you have netfilter enabled? Briging netfilter was
-added in 2.6, enabling it will influence performance
-negatively. Otherwise, is this performance drop
-visible in other setups besides bridging as well?
+
+it broke loading of firmware for me.(dmesg was flooded with
+"firmware_loading_store:  unexpected value (0)")
+
+firmware.agent uses echo so there is a trailing newline. If i changes
+firmware.agent to uses echo -n it works correctly.
+
+Is this a bug or the correct behaviour ?
+
+regards,
+
+Benoit

@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbVHUQGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbVHUUnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbVHUQGl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 12:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVHUQGl
+	id S1751093AbVHUUnq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 16:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVHUUnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 12:06:41 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:31654 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751072AbVHUQGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 12:06:40 -0400
+	Sun, 21 Aug 2005 16:43:46 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:63685 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751093AbVHUUn1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 16:43:27 -0400
+Message-ID: <20050821204020.80730.qmail@web51612.mail.yahoo.com>
+X-RocketYMMF: ltuikov
+Date: Sun, 21 Aug 2005 13:40:20 -0700 (PDT)
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+Reply-To: luben_tuikov@adaptec.com
 Subject: Re: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: luben_tuikov@adaptec.com
+To: James Bottomley <James.Bottomley@SteelEye.com>, luben_tuikov@adaptec.com
 Cc: Andrew Morton <akpm@osdl.org>, Jim Houston <jim.houston@ccur.com>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>,
        Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <20050821154919.91440.qmail@web51609.mail.yahoo.com>
-References: <20050821154919.91440.qmail@web51609.mail.yahoo.com>
-Content-Type: text/plain
-Date: Sun, 21 Aug 2005 11:06:26 -0500
-Message-Id: <1124640387.5068.2.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-08-21 at 08:49 -0700, Luben Tuikov wrote:
-> The caller is the aic94xx SAS LLDD.  It uses IDR to generate unique
-> task tag for each SCSI task being submitted.  It is then used to lookup
-> the task given the task tag, in effect using IDR as a fast lookup table.
+--- Luben Tuikov <luben_tuikov@adaptec.com> wrote:
+> --- James Bottomley <James.Bottomley@SteelEye.com> wrote:
+> > However, there is an infrastructure in the block layer called the
+> > generic tag infrastructure which was designed precisely for this purpose
+> > and which is designed to operate in IRQ context.
 > 
-> Yes, I'm also not aware of any other users of IDR from mixed process/IRQ
-> context or for SCSI Task tag purposes.
+> James, I'm sure you're well aware that,
+>    - a request_queue is LU-bound,
+>    - a SCSI _transport_ (*ANY*) can _only_ address domain devices, but
+>      _not_ LUs.  LUs are *not* seen on the domain.
 
-Just a minute, that's not what idr was designed for.  It was really
-designed for enumerations (like disk) presented to the user.  That's why
-using it in IRQ context hasn't been considered.
+Another thing very important to mention is that the layering
+infrastructure should _not_ be broken, whereby LLDD are required
+to use block layer tags.
 
-However, there is an infrastructure in the block layer called the
-generic tag infrastructure which was designed precisely for this purpose
-and which is designed to operate in IRQ context.
+First, there may not be one to one correspondence accross layers.
 
-James
+Second, a tag on a layer identifies that particular _layer_ object.
+It should not be used across layers or across several layers:
+Block->Scsi Core->LLDD.
 
+Third, although SCSI task tags are a SAM concept, they are defined
+by the protocol in use and generated and assigned by the Initiator
+port.  The block layer is _not_ an Initiator port.  SCSI Core is
+also _not_ an Initiator port.
+
+SCSI Core should be impervious to task tags, i.e. to the Q in
+I_T_L_Q nexus.  The Q is never visible to it.
+
+      Luben
 

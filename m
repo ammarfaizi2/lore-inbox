@@ -1,86 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVHUGkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVHUGnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVHUGkf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 02:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbVHUGke
+	id S1750775AbVHUGnE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 02:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVHUGnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 02:40:34 -0400
-Received: from tornado.reub.net ([202.89.145.182]:23227 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1750720AbVHUGke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 02:40:34 -0400
-Message-ID: <430821E1.8040308@reub.net>
-Date: Sun, 21 Aug 2005 18:40:33 +1200
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.6a1 (Windows/20050820)
+	Sun, 21 Aug 2005 02:43:01 -0400
+Received: from [209.18.121.242] ([209.18.121.242]:32016 "EHLO
+	mailrelay.wirelesslogixgroup.com") by vger.kernel.org with ESMTP
+	id S1750775AbVHUGnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 02:43:01 -0400
+Message-ID: <43082267.2030009@jtholmes.com>
+Date: Sun, 21 Aug 2005 02:42:47 -0400
+From: "j.t. holmes" <linux@jtholmes.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc6-mm1
-References: <fa.h617rae.h64dpq@ifi.uio.no>
-In-Reply-To: <fa.h617rae.h64dpq@ifi.uio.no>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12.5 stalls on boot
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On 19/08/2005 11:37 a.m., Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm1/
-> 
-> - Lots of fixes, updates and cleanups all over the place.
-> 
-> - If you have the right debugging options set, this kernel will generate
->   a storm of sleeping-in-atomic-code warnings at boot, from the scsi code.
->   It is being worked on.
-> 
-> 
-> Changes since 2.6.13-rc5-mm1:
-> 
->  linus.patch
+2.6.12.5 and others below that to 2.6.10  stall on boot. The problem is 
+udev.
 
-Noted this in my log earlier today.
+It stalls between 1 to 3 minutes.
 
-Is this inotify related?
+I have the latest 
 
-Aug 21 08:33:04 tornado kernel: idr_remove called for id=2048 which is not 
-allocated.
-Aug 21 08:33:04 tornado kernel:  [<c0103a00>] dump_stack+0x17/0x19
-Aug 21 08:33:04 tornado kernel:  [<c01c9f9a>] idr_remove_warning+0x1b/0x1d
-Aug 21 08:33:04 tornado kernel:  [<c01ca024>] sub_remove+0x88/0xea
-Aug 21 08:33:04 tornado kernel:  [<c01ca0a1>] idr_remove+0x1b/0x7f
-Aug 21 08:33:04 tornado kernel:  [<c018176a>] remove_watch_no_event+0x7a/0x12e
-Aug 21 08:33:04 tornado kernel:  [<c0181f64>] inotify_release+0x8f/0x1af
-Aug 21 08:33:04 tornado kernel:  [<c015ca80>] __fput+0xaf/0x199
-Aug 21 08:33:04 tornado kernel:  [<c015c9b8>] fput+0x22/0x3b
-Aug 21 08:33:04 tornado kernel:  [<c015b2ed>] filp_close+0x41/0x67
-Aug 21 08:33:04 tornado kernel:  [<c015b383>] sys_close+0x70/0x92
-Aug 21 08:33:04 tornado kernel:  [<c0102a9b>] sysenter_past_esp+0x54/0x75
-Aug 21 08:33:04 tornado kernel: idr_remove called for id=3072 which is not 
-allocated.
-Aug 21 08:33:05 tornado kernel:  [<c0103a00>] dump_stack+0x17/0x19
-Aug 21 08:33:05 tornado kernel:  [<c01c9f9a>] idr_remove_warning+0x1b/0x1d
-Aug 21 08:33:05 tornado kernel:  [<c01ca024>] sub_remove+0x88/0xea
-Aug 21 08:33:05 tornado kernel:  [<c01ca0a1>] idr_remove+0x1b/0x7f
-Aug 21 08:33:05 tornado kernel:  [<c018176a>] remove_watch_no_event+0x7a/0x12e
-Aug 21 08:33:05 tornado kernel:  [<c0181f64>] inotify_release+0x8f/0x1af
-Aug 21 08:33:05 tornado kernel:  [<c015ca80>] __fput+0xaf/0x199
-Aug 21 08:33:05 tornado kernel:  [<c015c9b8>] fput+0x22/0x3b
-Aug 21 08:33:05 tornado kernel:  [<c015b2ed>] filp_close+0x41/0x67
-Aug 21 08:33:05 tornado kernel:  [<c015b383>] sys_close+0x70/0x92
-Aug 21 08:33:05 tornado kernel:  [<c0102a9b>] sysenter_past_esp+0x54/0x75
+udev
+hotplug
+klibc
 
-This would have been triggered by using dovecot IMAP which is configured to 
-use inotify on Maildir.
-I'm also seeing some userspace errors logged for dovecot:
+u name it
 
-"Aug 21 04:17:22 Error: IMAP(reuben): inotify_rm_watch() failed: Invalid argument"
+Something happened about 2.6.11.X and I see others writing about
+similar items
 
-I'll deal with those with the guy who wrote the inotify code in dovecot.
+The base system is Suse 9.2  and I am beginning to wonder if
+there is something that Suse wrote that is interferring w/the boot.
+Since they shipped 9.2 with a 2.6.8-24 and there have been a lot
+of changes up to 2.6.12.5
 
-I'm not so sure userspace should be able or need to cause the kernel to dump 
-stack traces like that though?
+In any case the  boot  stalls  just after it prints these two lines
 
-reuben
+input: AT Translated Set 2 keyboard on isa0060/serio0
+input: PS/2 Generic Mouse on isa0060/serio4
+
+and about 2 mins + -  later it prints this
+
+EXT2-fs warning (device hda6): ext2_fill_super: mounting ext3 filesystem 
+as ext2
+and then continue normal boot
+
+I sent in  an  ALT SYSREQ  P  and T  trace a few weeks ago
+but didnt get an answer.
+
+Am I incorrect in assuming that everything up until the root disk is mounted
+is primarily kernel activity? If not then where else can I look.
+
+I can provide any info desired.
+
+Just in case this is Suse related I am going to load  9.3  early next week
+and compile  2.6.12.5 on it and see it I encounter the stall problem. I will
+post the results from the activity.
+
+
+
+
+
 

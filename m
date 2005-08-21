@@ -1,70 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVHUAgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVHUAnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbVHUAgE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Aug 2005 20:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVHUAgE
+	id S1750732AbVHUAnx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Aug 2005 20:43:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVHUAnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Aug 2005 20:36:04 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:21101 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750739AbVHUAgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Aug 2005 20:36:01 -0400
+	Sat, 20 Aug 2005 20:43:53 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:24886 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750732AbVHUAnw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Aug 2005 20:43:52 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=MWJmucQZqCzKopB/d1DO1VpW2tfR1gFuQejdLY45KqGgVk9FwRumtyJl841BBOcLm19UkR/jMpKRMxQuemybd+ePuDcdfNqypxv0omkFpfGpoEFLifd62GQJ3KZ5ygBvWldKJ5I/4SRTgIWa0T05iDPmN+y2Fqfm6DloHYtLjEI=  ;
-Message-ID: <4307CC76.8060308@yahoo.com.au>
-Date: Sun, 21 Aug 2005 10:36:06 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
+        b=JrDE+aJE9d8Mb/c6OgnxJhDisSJ31RHU/9S3nG3a7cF/d56cgBLFMU+w3KnZT1WUQOrTgWfUs6i7MXEzEOtkVGnSG5l6u/df8AqVQLeX9LPQGQeen6fTSf2DZt6Uw+mw30yPkI1XOPaY8OQ8BsMPaAIYDlgOjb3gg2EGyMZfBas=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATHC] remove a redundant variable in sys_prctl()
+Date: Sun, 21 Aug 2005 02:44:31 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Howard Chu <hyc@symas.com>
-CC: Lee Revell <rlrevell@joe-job.com>, Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sched_yield() makes OpenLDAP slow
-References: <4D8eT-4rg-31@gated-at.bofh.it> <4306A176.3090907@shaw.ca>	 <4306AF26.3030106@yahoo.com.au>  <4307788E.1040209@symas.com> <1124571437.2115.3.camel@mindpipe> <43079FA9.700@symas.com>
-In-Reply-To: <43079FA9.700@symas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200508210244.31401.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howard Chu wrote:
-> Lee Revell wrote:
-> 
->>  On Sat, 2005-08-20 at 11:38 -0700, Howard Chu wrote:
->> > But I also found that I needed to add a new yield(), to work around
->> > yet another unexpected issue on this system - we have a number of
->> > threads waiting on a condition variable, and the thread holding the
->> > mutex signals the var, unlocks the mutex, and then immediately
->> > relocks it. The expectation here is that upon unlocking the mutex,
->> > the calling thread would block while some waiting thread (that just
->> > got signaled) would get to run. In fact what happened is that the
->> > calling thread unlocked and relocked the mutex without allowing any
->> > of the waiting threads to run. In this case the only solution was
->> > to insert a yield() after the mutex_unlock().
->>
->>  That's exactly the behavior I would expect.  Why would you expect
->>  unlocking a mutex to cause a reschedule, if the calling thread still
->>  has timeslice left?
-> 
-> 
-> That's beside the point. Folks are making an assertion that 
-> sched_yield() is meaningless; this example demonstrates that there are 
-> cases where sched_yield() is essential.
-> 
+Here's a re-send of a small patch I sent on Aug. 9.
 
-The point is, with SCHED_OTHER scheduling, sched_yield() need not
-do anything. It may not let any other tasks run.
+The patch removes a redundant variable `sig' from sys_prctl().
 
-The fact that it does on Linux is because we do attempt to do
-something expected... but the simple matter is that you can't realy
-on it to do what you expect.
+For some reason, when sys_prctl is called with option == PR_SET_PDEATHSIG
+then the value of arg2 is assigned to an int variable named sig. Then sig
+is tested with valid_signal() and later used to set the value of 
+current->pdeath_signal . 
+There is no reason to use this intermediate variable since valid_signal() 
+takes a unsigned long argument, so it can handle being passed arg2 directly, 
+and if the call to valid_signal is OK, then we know the value of arg2 is in 
+the range  zero to _NSIG and thus it'll easily fit in a plain int and thus 
+there's no problem assigning it later to current->pdeath_signal (which is 
+an int).
 
-I'm not sure exactly how you would solve the above problem, but I'm
-sure it can be achieved using mutexes (for example, you could have
-a queue where every thread waits on its own private mutex).... but I
-don't do much userspace C programming sorry.
+The patch gets rid of the pointless variable `sig'.
+This reduces the size of kernel/sys.o in 2.6.13-rc6-mm1 by 32 bytes on my 
+system.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Patch has been compile tested, boot tested, and just to make damn sure I 
+didn't break anything I wrote a quick test app that calls 
+prctl(PR_SET_PDEATHSIG ...) with the entire range of values for a 
+unsigned long, and it behaves as expected with and without the patch.
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ kernel/sys.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+--- linux-2.6.13-rc6-mm1-orig/kernel/sys.c	2005-08-19 19:21:25.000000000 +0200
++++ linux-2.6.13-rc6-mm1/kernel/sys.c	2005-08-21 01:30:03.000000000 +0200
+@@ -1709,7 +1709,6 @@ asmlinkage long sys_prctl(int option, un
+ 			  unsigned long arg4, unsigned long arg5)
+ {
+ 	long error;
+-	int sig;
+ 
+ 	error = security_task_prctl(option, arg2, arg3, arg4, arg5);
+ 	if (error)
+@@ -1717,12 +1716,11 @@ asmlinkage long sys_prctl(int option, un
+ 
+ 	switch (option) {
+ 		case PR_SET_PDEATHSIG:
+-			sig = arg2;
+-			if (!valid_signal(sig)) {
++			if (!valid_signal(arg2)) {
+ 				error = -EINVAL;
+ 				break;
+ 			}
+-			current->pdeath_signal = sig;
++			current->pdeath_signal = arg2;
+ 			break;
+ 		case PR_GET_PDEATHSIG:
+ 			error = put_user(current->pdeath_signal, (int __user *)arg2);
+
+
+

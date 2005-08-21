@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbVHUPrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVHUPt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbVHUPrE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 11:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbVHUPrE
+	id S1751065AbVHUPt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 11:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbVHUPt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 11:47:04 -0400
-Received: from web33303.mail.mud.yahoo.com ([68.142.206.118]:56236 "HELO
-	web33303.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751056AbVHUPrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 11:47:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=BwuQoHUzfBGgV5+koRcKx0bPOYZHBK17gDAl702stw3u3B6xoCui1N/D4iBCLqVYN5V66QFi101bEoY1pDyJ2NJDSUbv4OImVTxz9Wzpf3UpJ2mJS3eFRT3sskpDv+/QIbcyHU69yYA1BRRF/4umxSPylZVjI0EYY9KUFxCS/34=  ;
-Message-ID: <20050821154654.63788.qmail@web33303.mail.mud.yahoo.com>
-Date: Sun, 21 Aug 2005 08:46:54 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: 2.6.12 Performance problems
-To: linux-kernel@vger.kernel.org
+	Sun, 21 Aug 2005 11:49:26 -0400
+Received: from web51609.mail.yahoo.com ([206.190.38.214]:44221 "HELO
+	web51609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751064AbVHUPtZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 11:49:25 -0400
+Message-ID: <20050821154919.91440.qmail@web51609.mail.yahoo.com>
+X-RocketYMMF: ltuikov
+Date: Sun, 21 Aug 2005 08:49:19 -0700 (PDT)
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+Reply-To: luben_tuikov@adaptec.com
+Subject: Re: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
+To: Andrew Morton <akpm@osdl.org>, Jim Houston <jim.houston@ccur.com>
+Cc: luben_tuikov@adaptec.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, davej@redhat.com, jgarzik@pobox.com
+In-Reply-To: <20050821012506.5b106dab.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just started fiddling with 2.6.12, and there
-seems to be a big drop-off in performance from
-2.4.x in terms of networking on a uniprocessor
-system. Just bridging packets through the
-machine, 2.6.12 starts dropping packets at
-~100Kpps, whereas 2.4.x doesn't start dropping
-until over 350Kpps on the same hardware (2.0Ghz
-Opteron with e1000 driver). This is pitiful
-prformance for this hardware. I've 
-increased the rx ring in the e1000 driver to 512
-with little change (interrupt moderation is set
-to 8000 Ints/second). Has "tuning" for MP 
-destroyed UP performance altogether, or is there
-some tuning parameter that could make a 4-fold
-difference? All debugging is off and there are 
-no messages on the console or in the error logs.
-The kernel is the standard kernel.org dowload
-config with SMP turned off and the intel ethernet
-card drivers as modules without any other
-changes, which is exactly the config for my 2.4
-kernels.
+--- Andrew Morton <akpm@osdl.org> wrote:
 
-Danial
+> Jim Houston <jim.houston@ccur.com> wrote:
+> >
+> > On Tue, 2005-08-16 at 18:03, Luben Tuikov wrote:
+> > 
+> > > If idr_get_new() or idr_remove() is used in IRQ context,
+> > > then we may get a lockup when idr_pre_get was called
+> > > in process context and an IRQ interrupted while it held
+> > > the idp lock.
+> > 
+> > Hi Everyone,
+> > 
+> > Luben's changes make sense please merge them.
+> > 
+> 
+> Well yes, the change makes sense if there's actually a caller which needs it.
+> 
+> If there is such a caller then Luben should identify it, please.
 
+Hi Andrew,
 
-		
-____________________________________________________
-Start your day with Yahoo! - make it your home page 
-http://www.yahoo.com/r/hs 
- 
+The caller is the aic94xx SAS LLDD.  It uses IDR to generate unique
+task tag for each SCSI task being submitted.  It is then used to lookup
+the task given the task tag, in effect using IDR as a fast lookup table.
+
+Yes, I'm also not aware of any other users of IDR from mixed process/IRQ
+context or for SCSI Task tag purposes.
+
+    Luben
+

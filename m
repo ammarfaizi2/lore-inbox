@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbVHULbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbVHULZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbVHULbK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 07:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVHULbK
+	id S1750951AbVHULZK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 07:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbVHULZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 07:31:10 -0400
-Received: from mtaout3.barak.net.il ([212.150.49.173]:14177 "EHLO
-	mtaout3.barak.net.il") by vger.kernel.org with ESMTP
-	id S1750957AbVHULbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 07:31:09 -0400
-Date: Sun, 21 Aug 2005 14:30:56 +0300
-From: Leonid Podolny <leonidp.lkml@gmail.com>
-Subject: x86_64 vm design
-To: linux-kernel@vger.kernel.org
-Message-id: <430865F0.40307@gmail.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.91.0.0
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+	Sun, 21 Aug 2005 07:25:10 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:17821 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750951AbVHULZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 07:25:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Bw8sUcS63ns6OQ8GfhsfRxweDX+7brpDDS1QxiaVGtduz6Gt6BBlfvTt0LRzSlrO4cyWyWBX7ZO6PyULNm2YnSaQ4ONrYWMzIwBI95rMJO4tr/dHD9PG88C7NzgUDuu3s9uxrxHdtovUVPaWvpxTsipUG6VhyhsiJIXIKIEDukk=  ;
+Message-ID: <4308649D.7060008@yahoo.com.au>
+Date: Sun, 21 Aug 2005 21:25:17 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: tony.luck@intel.com, linux-kernel@vger.kernel.org, jasonuhl@sgi.com
+Subject: Re: CONFIG_PRINTK_TIME woes
+References: <B8E391BBE9FE384DAA4C5C003888BE6F042C7DA7@scsmsx401.amr.corp.intel.com>	<20050821021322.3986dd4a.akpm@osdl.org>	<20050821021616.6bbf2a14.akpm@osdl.org>	<430848F5.3040308@yahoo.com.au> <20050821023249.0e143030.akpm@osdl.org>
+In-Reply-To: <20050821023249.0e143030.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andrew Morton wrote:
 
-Hi,
-I'm trying to figure out the virtual memory manager implementation at
-x86_64. I'm relatively a newbie in this part of kernel code, so I'd
-rather read some document with general principles of x86_64
-implementation before reading the code. Does such document (Wiki page or
-mayble lkml posting I missed) exist or am I being too naive?
-- --
+> 
+> yup.
+> 
+> 
+>>Why not use something like do_gettimeofday? (or I'm sure one
+>>of our time keepers can suggest the right thing to use).
+> 
+> 
+> do_gettimeofday() takes locks, so a) we can't do printk from inside it and
 
+Dang, yeah maybe this is the showstopper.
 
+> b) if you do a printk-from-interupt and the interrupted code was running
+> do_gettimeofday(), deadlock.
+> 
 
+What about just using jiffies, then?
 
-- ------------------------------------------------------------------------
- Leonid Podolny       |   /"\
-                      |   \ /     ASCII Ribbon Campaign
- leonidp(at)gmail.com |    x      Against HTML Mail
- +972-54-5696948      |   / \
-- ------------------------------------------------------------------------
-PGP fingerprint:      51B2 F1DB 485E 2C48 2E17  94D1 7EC4 E524 B156 B9F0
-PGP key:    http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xB156B9F0
-- ------------------------------------------------------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Really, sched_clock() is very broken for this (I know you're
+not arguing against that).
 
-iD8DBQFDCGXwfsTlJLFWufARAhCJAJ9ta+ieQFWSHYerNSUuh2brqQTQ/gCfT5cu
-hmZ9bCMcOV0/t7ky+RCZs7Y=
-=EkSE
------END PGP SIGNATURE-----
+It can go backwards when called twice from the same CPU, and the
+number returned by one CPU need have no correlation with that
+returned by another.
+
+However, I understand you probably just want something quick and
+dirty for 2.6.13 and would be happy just if it isn't more broken
+than before ;)
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbVHUJeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbVHUJnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbVHUJeR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Aug 2005 05:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbVHUJeR
+	id S1750913AbVHUJnu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Aug 2005 05:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbVHUJnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Aug 2005 05:34:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39387 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750900AbVHUJeQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Aug 2005 05:34:16 -0400
-Date: Sun, 21 Aug 2005 02:32:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org, jasonuhl@sgi.com
-Subject: Re: CONFIG_PRINTK_TIME woes
-Message-Id: <20050821023249.0e143030.akpm@osdl.org>
-In-Reply-To: <430848F5.3040308@yahoo.com.au>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F042C7DA7@scsmsx401.amr.corp.intel.com>
-	<20050821021322.3986dd4a.akpm@osdl.org>
-	<20050821021616.6bbf2a14.akpm@osdl.org>
-	<430848F5.3040308@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 21 Aug 2005 05:43:49 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:15569
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750907AbVHUJnt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Aug 2005 05:43:49 -0400
+Subject: Re: [PATCH] fix send_sigqueue() vs thread exit race
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
+       George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <43076138.C37ED380@tv-sign.ru>
+References: <20050818060126.GA13152@elte.hu>
+	 <1124495303.23647.579.camel@tglx.tec.linutronix.de>
+	 <43076138.C37ED380@tv-sign.ru>
+Content-Type: text/plain
+Organization: linutronix
+Date: Sun, 21 Aug 2005 11:44:18 +0200
+Message-Id: <1124617458.23647.643.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Sat, 2005-08-20 at 20:58 +0400, Oleg Nesterov wrote:
+> [PATCH] fix send_sigqueue() vs thread exit race
+> 
+> posix_timer_event() first checks that the thread (SIGEV_THREAD_ID
+> case) does not have PF_EXITING flag, then it calls send_sigqueue()
+> which locks task list. But if the thread exits in between the kernel
+> will oops (->sighand == NULL after __exit_sighand).
+> 
+> This patch moves the PF_EXITING check into the send_sigqueue(), it
+> must be done atomically under tasklist_lock. When send_sigqueue()
+> detects exiting thread it returns -1. In that case posix_timer_event
+> will send the signal to thread group.
+> 
+> Also, this patch fixes task_struct use-after-free in posix_timer_event.
 >
-> Andrew Morton wrote:
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> >>How about we give each arch a printk_clock()?
-> > 
-> > 
-> > Which might be as simple as this..
-> > 
-> > 
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 > 
-> sched_clock() shouldn't really be taken outside kernel/sched.c,
-> especially for things like this.
-> 
-> It actually has some fundamental problems even in its current
-> use in the scheduler (which need to be fixed). But basically it
-> is a very nasty interface with a rather tenuous relationship to
-> time.
+> --- 2.6.13-rc6/kernel/signal.c~	2005-08-18 23:10:28.000000000 +0400
+> +++ 2.6.13-rc6/kernel/signal.c	2005-08-20 23:05:21.000000000 +0400
+> @@ -1366,16 +1366,16 @@ send_sigqueue(int sig, struct sigqueue *
+>  	unsigned long flags;
+>  	int ret = 0;
+>  
+> -	/*
+> -	 * We need the tasklist lock even for the specific
+> -	 * thread case (when we don't need to follow the group
+> -	 * lists) in order to avoid races with "p->sighand"
+> -	 * going away or changing from under us.
+> -	 */
+>  	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
+> -	read_lock(&tasklist_lock);  
+> +	read_lock(&tasklist_lock);
+> +
+> +	if (unlikely(p->flags & PF_EXITING)) {
+> +		ret = -1;
+> +		goto out_err;
+> +	}
+> +
 
-yup.
+It's still racy. tasklist_lock does not protect anything here. 
 
-> Why not use something like do_gettimeofday? (or I'm sure one
-> of our time keepers can suggest the right thing to use).
+ arm timer
+ exit
+ timer event
+	timr->it_process references a freed structure
 
-do_gettimeofday() takes locks, so a) we can't do printk from inside it and
-b) if you do a printk-from-interupt and the interrupted code was running
-do_gettimeofday(), deadlock.
+
+tglx
+
+
+
+
+

@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbVHVW4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbVHVW4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbVHVW4G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbVHVW4F
+	id S1751439AbVHVW4y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbVHVW4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:56:05 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:9358 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751266AbVHVW4C convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:56:02 -0400
-Date: Sun, 21 Aug 2005 20:48:27 -0700
+	Mon, 22 Aug 2005 18:56:37 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:15502 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751434AbVHVW4e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 18:56:34 -0400
+Date: Sun, 21 Aug 2005 20:52:14 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?Um9n6XJpbw==?= Brito <rbrito@ime.usp.br>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: 2.6.13-rc6-mm1
-Message-Id: <20050821204827.377d3d9d.akpm@osdl.org>
-In-Reply-To: <20050822011528.GA12602@ime.usp.br>
-References: <20050819043331.7bc1f9a9.akpm@osdl.org>
-	<20050822011528.GA12602@ime.usp.br>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: luben_tuikov@adaptec.com, jim.houston@ccur.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       davej@redhat.com, jgarzik@pobox.com
+Subject: Re: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
+Message-Id: <20050821205214.2a75b3cf.akpm@osdl.org>
+In-Reply-To: <1124680540.5068.37.camel@mulgrave>
+References: <20050822003325.33507.qmail@web51613.mail.yahoo.com>
+	<1124680540.5068.37.camel@mulgrave>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogério Brito <rbrito@ime.usp.br> wrote:
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
 >
-> Unfortunately, it seems that current kernels (including vanilla -rc
->  kernels) don't compile correctly on ppc if I have APM emulation enabled,
->  but PMU disabled (only CUDA enabled).
-> 
->  Here is what I get from a compilation try:
-> 
->  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
->  debian:~/kernel/linux# make vmlinux
->    CHK     include/linux/version.h
->  make[1]: `arch/ppc/kernel/asm-offsets.s' is up to date.
->    CHK     include/linux/compile.h
->    CHK     usr/initramfs_list
->    CC      sound/oss/dmasound/dmasound_awacs.o
->  sound/oss/dmasound/dmasound_awacs.c:262: warning: 'struct pmu_sleep_notifier' declared inside parameter list
->  sound/oss/dmasound/dmasound_awacs.c:262: warning: its scope is only this definition or declaration, which is probably not what you want
->  sound/oss/dmasound/dmasound_awacs.c:263: error: variable 'awacs_sleep_notifier' has initializer but incomplete type
->  sound/oss/dmasound/dmasound_awacs.c:264: warning: excess elements in struct initializer
->  sound/oss/dmasound/dmasound_awacs.c:264: warning: (near initialization for 'awacs_sleep_notifier')
->  sound/oss/dmasound/dmasound_awacs.c:264: error: 'SLEEP_LEVEL_SOUND' undeclared here (not in a function)
->  sound/oss/dmasound/dmasound_awacs.c:264: warning: excess elements in struct initializer
->  sound/oss/dmasound/dmasound_awacs.c:264: warning: (near initialization for 'awacs_sleep_notifier')
->  sound/oss/dmasound/dmasound_awacs.c:1424: error: conflicting types for 'awacs_sleep_notify'
->  sound/oss/dmasound/dmasound_awacs.c:262: error: previous declaration of 'awacs_sleep_notify' was here
->  sound/oss/dmasound/dmasound_awacs.c: In function 'awacs_sleep_notify':
->  sound/oss/dmasound/dmasound_awacs.c:1428: error: 'PBOOK_SLEEP_NOW' undeclared (first use in this function)
+> Since you won't post the usage code, just answer this: how does what
+>  you're doing with idr differ from its originally designed consumer: the
+>  posix timers which also do the idr_remove() in IRQ context?
 
-Could you send the .config please?
+erp.  posix_timers has its own irq-safe lock, so we're doing extra,
+unneeded locking in that code path.
+
+I think providing locking inside idr.c was always a mistake - generally we
+rely on caller-provided locking for such things.

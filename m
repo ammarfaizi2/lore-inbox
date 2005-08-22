@@ -1,99 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVHVUoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbVHVUpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbVHVUoy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 16:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVHVUov
+	id S1751175AbVHVUpn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 16:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVHVUot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 16:44:51 -0400
+	Mon, 22 Aug 2005 16:44:49 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:41959 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751172AbVHVUoh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 16:44:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nNC1eiwM81vT/Nvbn0qmsY2DYNRur1XNOEntkughuoqZYBcOxdK705rOmr3W178S29sNy6xwWxi0BR0ecWxqx7IwYc7afM7/Ej8l4Q7geD0wNeyJSaKPWX+tCo7trJXroGeEck6SgnONCoMsYU29fzYtYM7ZvUeZjrxaRZpWll0=
-Message-ID: <29495f1d050822092210719787@mail.gmail.com>
-Date: Mon, 22 Aug 2005 09:22:40 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: ptb@inv.it.uc3m.es
-Subject: Re: sleep under spinlock, sequencer.c, 2.6.12.5
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200508221517.j7MFHiu10054@inv.it.uc3m.es>
+	by vger.kernel.org with ESMTP id S1751166AbVHVUoi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 16:44:38 -0400
+Date: Mon, 22 Aug 2005 18:20:44 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>
+Subject: [2.6 patch] remove ACPI S4bios support
+Message-ID: <20050822162044.GA9927@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <29495f1d05081917012fbb57aa@mail.gmail.com>
-	 <200508221517.j7MFHiu10054@inv.it.uc3m.es>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/22/05, Peter T. Breuer <ptb@inv.it.uc3m.es> wrote:
-> "Also sprach Nish Aravamudan:"
-> > On 8/19/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > > On Gwe, 2005-08-19 at 10:13 +0200, Peter T. Breuer wrote:
-> > > > The following "sleep under spinlock" is still present as of linux
-> > > > 2.6.12.5 in sound/oss/sequencer.c in midi_outc:
-> > > >
-> > > >
-> > > >         n = 3 * HZ;             /* Timeout */
-> > > >
-> > > >         spin_lock_irqsave(&lock,flags);
-> > > >         while (n && !midi_devs[dev]->outputc(dev, data)) {
-> > > >                 interruptible_sleep_on_timeout(&seq_sleeper, HZ/25);
-> > > >                 n--;
-> > > >         }
-> > > >         spin_unlock_irqrestore(&lock,flags);
-> > > >
-> > > >
-> > > > I haven't thought about it, just noted it. It's been there forever
-> > > > (some others in the sound architecture have been gradually disappearing
-> > > > as newer kernels come out).
-> > >
-> > > Yep thats a blind substition of lock_kernel in an old tree it seems.
-> > > Probably my fault. Should drop it before the sleep and take it straight
-> > > after.
-> >
-> > Also, the use of n makes no sense. Indicates total sleep for 3
-> 
-> Well spotted.
-> 
-> > seconds, but actually sleep for 40 milliseconds 3*HZ times
-> > (potentially)?
-> 
-> I presume it should be
-> 
->       n -= HZ/25;
+Remove S4BIOS support. It is pretty useless, and only ever worked for
+_me_ once. (I do not think anyone else ever tried it). It was in
+feature-removal for a long time, and it should have been removed before.
 
-Well that's the problem; you're presuming that an (eventual)
-schedule_timeout(HZ/25) call would actually sleep for HZ/25 jiffies.
-More than likely, though, it may sleep a little longer. Generally,
-code that is trying to sleep up to a certain time from now should use
-time_after() or time_before().
+From: Pavel Machek <pavel@suse.cz>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> (and "n > 0", of course).
-> 
-> > In any case, probably should be:
-> >
-> > timeout = jiffies + 3*HZ;
-> >
-> > spin_lock_irqsave(&lock, flags);
-> > while (time_before(jiffies, timeout) && !midi_devs[dev]->outputc(dev, data)) {
-> >      spin_unlock_irqrestore(&lock, flags);
-> >      interruptible_sleep_on_timeout(&seq_sleeper, msecs_to_jiffies(40));
-> 
-> Well, you'd know. Is there something there really not taken care of by
-> "HZ"?
+---
 
-1) Makes this code consistent with other users in the kernel (Although
-I have tried to reduce the number of users of the sleep_on() family).
+This patch was sent by Pavel Machek on:
+- 12 Aug 2005
 
-2) If HZ eventually is allowed to take other values (e.g., 864 for
-x86), then HZ/25 leads to rounding issues. msecs_to_jiffies() takes
-care of those issues *and* makes it a little clear what you're doing,
-IMO.
+I made the following changes to it:
+- drivers/acpi/sleep/proc.c chunk did no longer apply due to
+  unrelated context changes
+- remove the feature-removal-schedule.txt entry
 
-Thanks,
-Nish
+ Documentation/feature-removal-schedule.txt |    8 --------
+ arch/i386/kernel/acpi/wakeup.S             |    6 ------
+ drivers/acpi/sleep/main.c                  |    8 --------
+ drivers/acpi/sleep/poweroff.c              |    4 +---
+ drivers/acpi/sleep/proc.c                  |    2 --
+ 5 files changed, 1 insertion(+), 27 deletions(-)
+
+--- linux-2.6.13-rc6-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-08-22 00:32:08.000000000 +0200
++++ linux-2.6.13-rc6-mm1-full/Documentation/feature-removal-schedule.txt	2005-08-22 00:32:17.000000000 +0200
+@@ -17,14 +17,6 @@
+ 
+ ---------------------------
+ 
+-What:	ACPI S4bios support
+-When:	May 2005
+-Why:	Noone uses it, and it probably does not work, anyway. swsusp is
+-	faster, more reliable, and people are actually using it.
+-Who:	Pavel Machek <pavel@suse.cz>
+-
+----------------------------
+-
+ What:	io_remap_page_range() (macro or function)
+ When:	September 2005
+ Why:	Replaced by io_remap_pfn_range() which allows more memory space
+--- a/arch/i386/kernel/acpi/wakeup.S
++++ b/arch/i386/kernel/acpi/wakeup.S
+@@ -320,12 +320,6 @@ ret_point:
+ 	call	restore_processor_state
+ 	ret
+ 
+-ENTRY(do_suspend_lowlevel_s4bios)
+-	call save_processor_state
+-	call save_registers
+-	call acpi_enter_sleep_state_s4bios
+-	ret
+-
+ ALIGN
+ # saved registers
+ saved_gdt:	.long	0,0
+diff --git a/drivers/acpi/sleep/main.c b/drivers/acpi/sleep/main.c
+--- a/drivers/acpi/sleep/main.c
++++ b/drivers/acpi/sleep/main.c
+@@ -23,7 +23,6 @@ u8 sleep_states[ACPI_S_STATE_COUNT];
+ 
+ static struct pm_ops acpi_pm_ops;
+ 
+-extern void do_suspend_lowlevel_s4bios(void);
+ extern void do_suspend_lowlevel(void);
+ 
+ static u32 acpi_suspend_states[] = {
+@@ -98,8 +97,6 @@ static int acpi_pm_enter(suspend_state_t
+ 	case PM_SUSPEND_DISK:
+ 		if (acpi_pm_ops.pm_disk_mode == PM_DISK_PLATFORM)
+ 			status = acpi_enter_sleep_state(acpi_state);
+-		else
+-			do_suspend_lowlevel_s4bios();
+ 		break;
+ 	case PM_SUSPEND_MAX:
+ 		acpi_power_off();
+@@ -206,11 +203,6 @@ static int __init acpi_sleep_init(void)
+ 			printk(" S%d", i);
+ 		}
+ 		if (i == ACPI_STATE_S4) {
+-			if (acpi_gbl_FACS->S4bios_f) {
+-				sleep_states[i] = 1;
+-				printk(" S4bios");
+-				acpi_pm_ops.pm_disk_mode = PM_DISK_FIRMWARE;
+-			}
+ 			if (sleep_states[i])
+ 				acpi_pm_ops.pm_disk_mode = PM_DISK_PLATFORM;
+ 		}
+diff --git a/drivers/acpi/sleep/poweroff.c b/drivers/acpi/sleep/poweroff.c
+--- a/drivers/acpi/sleep/poweroff.c
++++ b/drivers/acpi/sleep/poweroff.c
+@@ -21,9 +21,7 @@ int acpi_sleep_prepare(u32 acpi_state)
+ {
+ #ifdef CONFIG_ACPI_SLEEP
+ 	/* do we have a wakeup address for S2 and S3? */
+-	/* Here, we support only S4BIOS, those we set the wakeup address */
+-	/* S4OS is only supported for now via swsusp.. */
+-	if (acpi_state == ACPI_STATE_S3 || acpi_state == ACPI_STATE_S4) {
++	if (acpi_state == ACPI_STATE_S3) {
+ 		if (!acpi_wakeup_address) {
+ 			return -EFAULT;
+ 		}
+--- linux-2.6.13-rc6-mm1-full/drivers/acpi/sleep/proc.c.old	2005-08-22 00:33:58.000000000 +0200
++++ linux-2.6.13-rc6-mm1-full/drivers/acpi/sleep/proc.c	2005-08-22 00:34:55.000000000 +0200
+@@ -25,8 +25,6 @@
+ 	for (i = 0; i <= ACPI_STATE_S5; i++) {
+ 		if (sleep_states[i]) {
+ 			seq_printf(seq, "S%d ", i);
+-			if (i == ACPI_STATE_S4 && acpi_gbl_FACS->S4bios_f)
+-				seq_printf(seq, "S4bios ");
+ 		}
+ 	}
+ 
+

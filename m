@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVHVUlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVHVUnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbVHVUlg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 16:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVHVUlg
+	id S1751127AbVHVUnV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 16:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbVHVUnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 16:41:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:12762 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751098AbVHVUlf (ORCPT
+	Mon, 22 Aug 2005 16:43:21 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:33255 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751127AbVHVUnU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 16:41:35 -0400
-Date: Mon, 22 Aug 2005 16:33:54 -0400
-From: Dave Jones <davej@redhat.com>
+	Mon, 22 Aug 2005 16:43:20 -0400
+Date: Mon, 22 Aug 2005 18:21:01 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, mlindner@syskonnect.de
-Subject: Re: skge missing ifdefs.
-Message-ID: <20050822203354.GB3425@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org, mlindner@syskonnect.de
-References: <20050801203442.GD2473@redhat.com> <20050801203818.GA7497@havoc.gtf.org> <20050822195913.GF27344@redhat.com> <20050822132333.2ff893e6.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] arch/i386/kernel/traps.c: fix SYSFS=n compile
+Message-ID: <20050822162101.GE9927@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050822132333.2ff893e6.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 22, 2005 at 01:23:33PM -0700, Andrew Morton wrote:
- > Dave Jones <davej@redhat.com> wrote:
- > >
- > > On Mon, Aug 01, 2005 at 04:38:18PM -0400, Jeff Garzik wrote:
- > >  > On Mon, Aug 01, 2005 at 04:34:42PM -0400, Dave Jones wrote:
- > >  > > with CONFIG_PM undefined, the build breaks due to 
- > >  > > undefined symbols.
- > >  > 
- > >  > akpm already sent a fix to Linus.
- > > 
- > > This is still broken afaics in todays -git.
- > > 
- > 
- > Works for me.  CONFIG_PM=n, CONFIG_SKGE=y or m, CONFIG_SK98LIN=y or m.
+This patch fixes the following compile error with CONFIG_SYSFS=n 
+introduced by sysfs-crash-debugging.patch:
 
-I missed the ..
+<--  snip  -->
 
-#define skge_suspend NULL
-#define skge_resume NULL
+...
+  LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o: In function `die':
+: undefined reference to `last_sysfs_file'
+make: *** [.tmp_vmlinux1] Error 1
 
-in drivers/net/sk98lin/skge.c, and wondered why my drivers/net/skge.c style fix
-still applied.
+<--  snip  -->
 
-Never mind, both drivers seem fine.
 
-		Dave
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.13-rc6-mm1-full/arch/i386/kernel/traps.c.old	2005-08-22 03:19:52.000000000 +0200
++++ linux-2.6.13-rc6-mm1-full/arch/i386/kernel/traps.c	2005-08-22 03:20:23.000000000 +0200
+@@ -370,7 +370,9 @@
+ #endif
+ 		if (nl)
+ 			printk("\n");
++#ifdef CONFIG_SYSFS
+ 		printk(KERN_ALERT "last sysfs file: %s\n", last_sysfs_file);
++#endif
+ #ifdef CONFIG_KGDB
+ 	/* This is about the only place we want to go to kgdb even if in
+ 	 * user mode.  But we must go in via a trap so within kgdb we will
 

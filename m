@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbVHVWJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbVHVWLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbVHVWJv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVHVWJv
+	id S1751289AbVHVWLv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbVHVWLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:09:51 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:59920 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
-	id S1750812AbVHVWJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:09:50 -0400
-Date: Tue, 23 Aug 2005 00:07:56 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Cc: brian@visionpro.com
-Subject: Re: Binding a thread (or specific process) to a designated CPU
-Message-ID: <20050822220756.GA20694@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org, brian@visionpro.com
-References: <14CFC56C96D8554AA0B8969DB825FEA096FF8B@chicken.machinevisionproducts.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
+	Mon, 22 Aug 2005 18:11:50 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:53638 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751258AbVHVWLq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 18:11:46 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: danial_thom@yahoo.com, Jesper Juhl <jesper.juhl@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 Performance problems
+Date: Mon, 22 Aug 2005 14:46:09 +0300
+User-Agent: KMail/1.5.4
+References: <20050821202141.78795.qmail@web33305.mail.mud.yahoo.com>
+In-Reply-To: <20050821202141.78795.qmail@web33305.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA096FF8B@chicken.machinevisionproducts.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200508221446.09100.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 21 August 2005 23:21, Danial Thom wrote:
+> > You problem could very well be something else
+> > entirely, but try a
+> > kernel build with PREEMPT_NONE and HZ=100 and
+> > see if it makes a big
+> > difference (or if that's your current config,
+> > then try the opposite,
+> > HZ=1000 and PREEMPT). If it does make a
+> > difference, then that's a
+> > valuable piece of information to report on the
+> > list. If it turns out
+> > it makes next to no difference at all, then
+> > that as well is relevant
+> > information as then people will know that HZ &
+> > preempt is not the
+> > cause and can focus on finding the problem
+> > elsewhere.
+>
+> Yes. Hz isn't going to make much difference on a
+> 2.0Ghz opteron, but I can see how premption can
+> cause packet loss. Shouldn't packet processing be
+> the highest priority process? It seems pointless
+> to "keep the audio buffers full" if you're
+> dropping packets as a result. 
+> 
+> Also some clown typing on the keyboard shouldn't
+> cause packet loss. Trading network integrity for
+> snappy responsiveness is a bad trade.
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You do not need to argue about usefulness of preempt
+(or lack thereof). You need to try non-PREEMPT kernel
+as suggested (if you really are interested in fixing
+performance degradation you observe, that is).
 
-On Mon, Aug 22, 2005 at 02:56:47PM -0700, Brian D. McGrew wrote:
-> Using FC3 or FC4 with the 2.6.9 or later kernel, we're looking for a way
-> to bind a thread (or an entire process) to a designated CPU.=20
+http://www.catb.org/~esr/faqs/smart-questions.html
+--
+vda
 
- man sched_setaffinity
-
---=20
-Tomasz Torcz                        To co nierealne - tutaj jest normalne.
-zdzichu@irc.-nie.spam-.pl          Ziomale na =BFycie maj=B1 tu patenty spe=
-cjalne.
-
-
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
-
-iD8DBQFDCky8ThhlKowQALQRAiDHAKCkVxnn+ndZhdCdZwSIN2QWw0y9UgCfcI19
-l0Ks672p2II8U4teRP+WDh0=
-=ctC0
------END PGP SIGNATURE-----
-
---h31gzZEtNLTqOjlF--

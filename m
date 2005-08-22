@@ -1,97 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbVHVUos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVHVUoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbVHVUos (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 16:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVHVUos
+	id S1751166AbVHVUoy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 16:44:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVHVUov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 16:44:48 -0400
+	Mon, 22 Aug 2005 16:44:51 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:41959 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751171AbVHVUoi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 16:44:38 -0400
+	by vger.kernel.org with ESMTP id S1751172AbVHVUoh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 16:44:37 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=tkzYj76hZAf79Q6JFpmLZM8ZBLJm2gDdVH7lSUdMa6iyuVM8Gm59bYrOo7eh9nsXolbttmvq+WvHkIDzmwlVGEci9XyPY4DucJ6HoUO8/UKICSRxJxBk4OojMI0+fc35YccNFDtwkWSVELNXatah6w8gQXsyunWVrFO2FwYTBUU=
-Message-ID: <9e473391050822094451d11b58@mail.gmail.com>
-Date: Mon, 22 Aug 2005 12:44:01 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Subject: Re: 2.6.13-rc6-mm1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20050822143713.GA12947@ens-lyon.fr>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nNC1eiwM81vT/Nvbn0qmsY2DYNRur1XNOEntkughuoqZYBcOxdK705rOmr3W178S29sNy6xwWxi0BR0ecWxqx7IwYc7afM7/Ej8l4Q7geD0wNeyJSaKPWX+tCo7trJXroGeEck6SgnONCoMsYU29fzYtYM7ZvUeZjrxaRZpWll0=
+Message-ID: <29495f1d050822092210719787@mail.gmail.com>
+Date: Mon, 22 Aug 2005 09:22:40 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: ptb@inv.it.uc3m.es
+Subject: Re: sleep under spinlock, sequencer.c, 2.6.12.5
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200508221517.j7MFHiu10054@inv.it.uc3m.es>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_823_2440857.1124729041155"
-References: <20050821222229.GC6935@ens-lyon.fr>
-	 <9e47339105082115347bde79bb@mail.gmail.com>
-	 <20050822143713.GA12947@ens-lyon.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <29495f1d05081917012fbb57aa@mail.gmail.com>
+	 <200508221517.j7MFHiu10054@inv.it.uc3m.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_823_2440857.1124729041155
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On 8/22/05, Benoit Boissinot <benoit.boissinot@ens-lyon.org> wrote:
-> On Sun, Aug 21, 2005 at 06:34:48PM -0400, Jon Smirl wrote:
-> > This should fix it, but I'm not on a machine where I can test it. Can
-> > you give it a try and let me know?
+On 8/22/05, Peter T. Breuer <ptb@inv.it.uc3m.es> wrote:
+> "Also sprach Nish Aravamudan:"
+> > On 8/19/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > > On Gwe, 2005-08-19 at 10:13 +0200, Peter T. Breuer wrote:
+> > > > The following "sleep under spinlock" is still present as of linux
+> > > > 2.6.12.5 in sound/oss/sequencer.c in midi_outc:
+> > > >
+> > > >
+> > > >         n = 3 * HZ;             /* Timeout */
+> > > >
+> > > >         spin_lock_irqsave(&lock,flags);
+> > > >         while (n && !midi_devs[dev]->outputc(dev, data)) {
+> > > >                 interruptible_sleep_on_timeout(&seq_sleeper, HZ/25);
+> > > >                 n--;
+> > > >         }
+> > > >         spin_unlock_irqrestore(&lock,flags);
+> > > >
+> > > >
+> > > > I haven't thought about it, just noted it. It's been there forever
+> > > > (some others in the sound architecture have been gradually disappearing
+> > > > as newer kernels come out).
+> > >
+> > > Yep thats a blind substition of lock_kernel in an old tree it seems.
+> > > Probably my fault. Should drop it before the sleep and take it straight
+> > > after.
 > >
->=20
-> it works ok.
-> But there is still at least one problem: if ops->store returns an error,
-> then there will be a substraction and the write will loop (i could do it
-> with a store wich returned EINVAL and a 22 length string).
->=20
-> I don't know if you can put a '\0' at buffer->page[count] if
-> count =3D=3D PAGE_SIZE.
->=20
-> Moreover, i think it is more correct to add only the leading
-> whitespace from the count because if the ops->store doesn't read
-> everything it will do something weird:
->=20
-> For example, if we have ' 123    ' and ops->store read only one char,
-> then the function will return 7 (1 leading + 4 trailing + 1 read).  For
-> the next call the buffer will be filled only by spaces which is
-> incorrect (it should be '23    ').
+> > Also, the use of n makes no sense. Indicates total sleep for 3
+> 
+> Well spotted.
+> 
+> > seconds, but actually sleep for 40 milliseconds 3*HZ times
+> > (potentially)?
+> 
+> I presume it should be
+> 
+>       n -= HZ/25;
 
-The attached version tries to fix these issues. I am still not
-somewhere where I can test, so please check it out.
+Well that's the problem; you're presuming that an (eventual)
+schedule_timeout(HZ/25) call would actually sleep for HZ/25 jiffies.
+More than likely, though, it may sleep a little longer. Generally,
+code that is trying to sleep up to a certain time from now should use
+time_after() or time_before().
 
---=20
-Jon Smirl
-jonsmirl@gmail.com
+> (and "n > 0", of course).
+> 
+> > In any case, probably should be:
+> >
+> > timeout = jiffies + 3*HZ;
+> >
+> > spin_lock_irqsave(&lock, flags);
+> > while (time_before(jiffies, timeout) && !midi_devs[dev]->outputc(dev, data)) {
+> >      spin_unlock_irqrestore(&lock, flags);
+> >      interruptible_sleep_on_timeout(&seq_sleeper, msecs_to_jiffies(40));
+> 
+> Well, you'd know. Is there something there really not taken care of by
+> "HZ"?
 
-------=_Part_823_2440857.1124729041155
-Content-Type: text/x-diff; name="gregkh-driver-sysfs-strip_leading_trailing_whitespace-3.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="gregkh-driver-sysfs-strip_leading_trailing_whitespace-3.patch"
+1) Makes this code consistent with other users in the kernel (Although
+I have tried to reduce the number of users of the sleep_on() family).
 
-ZGlmZiAtLWdpdCBhL2ZzL3N5c2ZzL2ZpbGUuYyBiL2ZzL3N5c2ZzL2ZpbGUuYwotLS0gYS9mcy9z
-eXNmcy9maWxlLmMKKysrIGIvZnMvc3lzZnMvZmlsZS5jCkBAIC02LDYgKzYsNyBAQAogI2luY2x1
-ZGUgPGxpbnV4L2Zzbm90aWZ5Lmg+CiAjaW5jbHVkZSA8bGludXgva29iamVjdC5oPgogI2luY2x1
-ZGUgPGxpbnV4L25hbWVpLmg+CisjaW5jbHVkZSA8bGludXgvY3R5cGUuaD4KICNpbmNsdWRlIDxh
-c20vdWFjY2Vzcy5oPgogI2luY2x1ZGUgPGFzbS9zZW1hcGhvcmUuaD4KIApAQCAtMjA3LDggKzIw
-OCw0MSBAQCBmbHVzaF93cml0ZV9idWZmZXIoc3RydWN0IGRlbnRyeSAqIGRlbnRyCiAJc3RydWN0
-IGF0dHJpYnV0ZSAqIGF0dHIgPSB0b19hdHRyKGRlbnRyeSk7CiAJc3RydWN0IGtvYmplY3QgKiBr
-b2JqID0gdG9fa29iaihkZW50cnktPmRfcGFyZW50KTsKIAlzdHJ1Y3Qgc3lzZnNfb3BzICogb3Bz
-ID0gYnVmZmVyLT5vcHM7CisJc2l6ZV90IHdzX2NvdW50ID0gY291bnQsIGxlYWRpbmcgPSAwOwor
-CWludCByZXQgPSAwOworCWNoYXIgKng7CiAKLQlyZXR1cm4gb3BzLT5zdG9yZShrb2JqLGF0dHIs
-YnVmZmVyLT5wYWdlLGNvdW50KTsKKwkvKiBsb2NhdGUgdHJhaWxpbmcgd2hpdGUgc3BhY2UgKi8K
-Kwl3aGlsZSAoKHdzX2NvdW50ID4gMCkgJiYgaXNzcGFjZShidWZmZXItPnBhZ2Vbd3NfY291bnQg
-LSAxXSkpCisJCXdzX2NvdW50LS07CisJaWYgKHdzX2NvdW50ID09IDApCisJCXJldHVybiBjb3Vu
-dDsKKworCS8qIGxvY2F0ZSBsZWFkaW5nIHdoaXRlIHNwYWNlICovCisJeCA9IGJ1ZmZlci0+cGFn
-ZTsKKwl3aGlsZSAoaXNzcGFjZSgqeCkpCisJCXgrKzsKKwlsZWFkaW5nID0geCAtIGJ1ZmZlci0+
-cGFnZTsKKwl3c19jb3VudCAtPSBsZWFkaW5nOworCisJLyogaW50ZXJmYWNlIGlzIHN0aWxsIGFt
-Ymlnb3VzIGFib3V0IHRoaXMgKi8KKwkvKiBzdHJpbmcgaXMgYm90aCBwYXNzZWQgYnkgbGVuZ3Ro
-IGFuZCB0ZXJtaW5hdGVkICovCisJaWYgKHdzX2NvdW50ICE9IFBBR0VfU0laRSkKKwkJeFt3c19j
-b3VudF0gPSAnXDAnOworCisJcmV0ID0gb3BzLT5zdG9yZShrb2JqLCBhdHRyLCB4LCB3c19jb3Vu
-dCk7CisKKwkvKiBpcyBpdCBhbiBlcnJvcj8gKi8KKwlpZiAocmV0IDwgMCkgCisJCXJldHVybiBy
-ZXQ7CisKKwkvKiB0aGUgd2hvbGUgc3RyaW5nIHdhcyBjb25zdW1lZCAqLworCWlmIChyZXQgPT0g
-d3NfY291bnQpCisJCXJldHVybiBjb3VudDsKKworCS8qIG9ubHkgcGFydCBvZiB0aGUgc3RyaW5n
-IHdhcyBjb25zdW1lZCAqLworCS8qIHJldHVybiBjb3VudCBjYW4gbm90IGluY2x1ZGUgdHJhaWxp
-bmcgc3BhY2UgKi8KKwlyZXR1cm4gbGVhZGluZyArIHJldDsKIH0KIAogCg==
-------=_Part_823_2440857.1124729041155--
+2) If HZ eventually is allowed to take other values (e.g., 864 for
+x86), then HZ/25 leads to rounding issues. msecs_to_jiffies() takes
+care of those issues *and* makes it a little clear what you're doing,
+IMO.
+
+Thanks,
+Nish

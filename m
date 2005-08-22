@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVHVXIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVHVXKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbVHVXIG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 19:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbVHVXIF
+	id S932359AbVHVXKT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 19:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVHVXKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 19:08:05 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27140 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932282AbVHVXIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 19:08:01 -0400
-Date: Tue, 23 Aug 2005 01:07:58 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       jffs-dev@axis.com
-Subject: Re: use of uninitialized pointer in jffs_create()
-Message-ID: <20050822230758.GL9927@stusta.de>
-References: <9a87484905082015284c1686ec@mail.gmail.com> <20050822104559.GA11876@wohnheim.fh-wedel.de>
+	Mon, 22 Aug 2005 19:10:19 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:56464 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932359AbVHVXKQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 19:10:16 -0400
+Subject: Re: New maintainer needed for the Linux smb filesystem
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <p73wtmf11f5.fsf@verdi.suse.de>
+References: <20050821143457.GA5726@stusta.de.suse.lists.linux.kernel>
+	 <p73wtmf11f5.fsf@verdi.suse.de>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Sun, 21 Aug 2005 20:48:36 -0400
+Message-Id: <1124671716.5208.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050822104559.GA11876@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 22, 2005 at 12:45:59PM +0200, Jörn Engel wrote:
-> On Sun, 21 August 2005 00:28:08 +0200, Jesper Juhl wrote:
-> > 
-> > gcc kindly pointed me at jffs_create() with this warning : 
-> > 
-> > fs/jffs/inode-v23.c:1279: warning: `inode' might be used uninitialized
-> > in this function
+On Sun, 2005-08-21 at 22:26 +0200, Andi Kleen wrote:
+> Adrian Bunk <bunk@stusta.de> writes:
 > 
-> Real fix would be to finally remove that code.  Except for the usual
-> "change this function in the whole kernel" stuff, noone has touched it
-> for ages.
+> > Since Urban Widmark was not active for some time, and I didn't have any 
+> > success trying to reach him, it seems we need a new maintainer for the 
+> > smb filesystem in the Linux kernel.
+> > 
+> > Is there anyone who both feels qualified and wants to become the new 
+> > maintainer?
+> 
+> One way would be to just deprecate and later drop it and let people
+> use cifs instead which is maintained. It only doesn't work with
+> some extremly old smb servers which are probably not very numerous
+> anymore.
 
-That's wrong, this -mm specific bug comes git-ocfs2.patch .
+Or you could deprecate it and later drop it and when people complain,
+you just found your new maintainer :-)
 
-> Jörn
+-- Steve
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

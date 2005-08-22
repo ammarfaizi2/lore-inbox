@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbVHVWf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbVHVWfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbVHVWf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbVHVWeW
+	id S1751380AbVHVWfy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:35:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbVHVWe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:34:22 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:46218 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751469AbVHVWeU (ORCPT
+	Mon, 22 Aug 2005 18:34:58 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:53386 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751473AbVHVWe1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:34:20 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: Re: [patch 8/8] [PATCH] Module per-cpu alignment cannot always be met
-Date: Mon, 22 Aug 2005 09:58:17 +0300
-User-Agent: KMail/1.5.4
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, rusty@rustcorp.com.au,
-       Daniel Drake <dsd@gentoo.org>, Chris Wright <chrisw@osdl.org>
-References: <20050811225445.404816000@localhost.localdomain> <20050811225649.386948000@localhost.localdomain>
-In-Reply-To: <20050811225649.386948000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Aug 2005 18:34:27 -0400
+Date: Mon, 22 Aug 2005 09:13:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Marcel Holtmann <marcel@holtmann.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] race condition with drivers/char/vt.c (bug in vt_ioctl.c)
+Message-ID: <20050822071330.GA18456@elte.hu>
+References: <1124508087.18408.79.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508220958.17800.vda@ilport.com.ua>
+In-Reply-To: <1124508087.18408.79.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 August 2005 01:54, Chris Wright wrote:
-> -stable review patch.  If anyone has any  objections, please let us know.
-> ------------------
+
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> I googled a little and found where this may have already happened in 
+> the main line kernel:
 > 
-> The module code assumes noone will ever ask for a per-cpu area more than
-> SMP_CACHE_BYTES aligned.  However, as these cases show, gcc asks sometimes
-> asks for 32-byte alignment for the per-cpu section on a module, and if
-> CONFIG_X86_L1_CACHE_SHIFT is 4, we hit that BUG_ON().  This is obviously an
-> unusual combination, as there have been few reports, but better to warn
-> than die.
+> http://seclists.org/lists/linux-kernel/2005/Aug/1603.html
+> 
+> So here's my proposal: 
+> 
+>   Instead of checking for tty->count == 1 in con_open, which we see is
+> not reliable.  Just check for tty->driver_data == NULL.
+> 
+> This should work since it should always be NULL when we need to assign 
+> it.  If we switch the events of the race, so that the init_dev went 
+> first, the driver_data would not be NULL and would not need to be 
+> allocated, because after init_dev tty->count would be greater than 1 
+> (this is assuming the case that it is already allocated) and the 
+> con_close would not deallocate it.  The tty_sem and console_sem and 
+> order of events protect the tty->driver_data but not the tty->count.
+> 
+> Without the patch, I was able to get the system to BUG on bootup every 
+> other time.  With the patch applied, I was able to bootup 6 out of 6 
+> times without a single crash.
 
-gcc gets increasingly sadistic about alignment:
+cool fix. I'm wondering, there's a whole lot of other 'tty->count == 1' 
+checks in drivers/char/*.c, could some of those be racy too?
 
-"char global_var[] = "larger than 32 bytes"; uses silly amounts of alignment even with -Os"
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=22158
-
-Please, everybody who thinks that _32_ _byte_ alignment
-is outright silly, add your comments to this bugzilla entry.
---
-vda
-
+	Ingo

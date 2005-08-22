@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVHVTnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVHVToo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbVHVTnz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 15:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVHVTnz
+	id S1750746AbVHVToo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 15:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVHVToo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 15:43:55 -0400
-Received: from smtp.istop.com ([66.11.167.126]:26556 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1750741AbVHVTny (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 15:43:54 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] Permissions don't stick on ConfigFS attributes
-Date: Mon, 22 Aug 2005 15:44:07 -0400
-User-Agent: KMail/1.8
-Cc: Greg KH <greg@kroah.com>, Joel Becker <Joel.Becker@oracle.com>,
-       linux-kernel@vger.kernel.org
-References: <200508201050.51982.phillips@istop.com> <20050820030117.GA775@kroah.com> <m18xyuvanj.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m18xyuvanj.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
+	Mon, 22 Aug 2005 15:44:44 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56337 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750746AbVHVTon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 15:44:43 -0400
+Date: Mon, 22 Aug 2005 21:44:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fs/adfs/adfs.h: "extern inline" doesn't make sense
+Message-ID: <20050822194441.GF9927@stusta.de>
+References: <20050819234119.GD3615@stusta.de> <20050819234443.GG3615@stusta.de> <43087A08.3080400@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508221544.07223.phillips@istop.com>
+In-Reply-To: <43087A08.3080400@drzeus.cx>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 August 2005 00:49, Eric W. Biederman wrote:
-> I am confused.  I am beginning to see shades of the devfs problems coming
-> up again.  sysfs is built to be world readable by everyone who has it
-> mounted in their namespace.  Writable files in sysfs I have never
-> understood.
+On Sun, Aug 21, 2005 at 02:56:40PM +0200, Pierre Ossman wrote:
+> Adrian Bunk wrote:
+> > [ this time with a better subject ]
+> > 
+> > "extern inline" doesn't make sense.
+> > 
+> > 
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
+> 
+> Isn't 'extern inline' an old gcc trick to force inlining? (instead of
+> just hinting)
 
-Sysfs is not like devfs by nature, it is more like procfs.  It exposes 
-properties of a device, not the device itself.  It makes perfect sense that 
-some of the properties should be writeable.
+For gcc >= 3.1, we are already telling the compiler that it should 
+either inline the code or abort compilation.
 
-> Given that we now have files which do not conform to one uniform
-> policy for everyone is there any reason why we do not want to allocate
-> a character device major number for all config values and dynamically
-> allocate a minor number for each config value?  Giving each config
-> value its own unique entry under /dev.
+"extern inline" doesn't make much sense. And it gives a warning with 
+-Wmissing-prototypes.
 
-/dev is already busy enough without adding masses of entries that are not 
-devices.  I don't see that this would simplify the internal implementation 
-either, the opposite actually.  The user certainly will not have any use for 
-temporary device numbers in this context.
+I'm currently cleaning up warnings with -Wmissing-prototypes to get them 
+to an acceptable level. -Wmissing-prototypes will help us to enforce a 
+coding style that will avoid a class of nasty runtime errors that are 
+currently sometimes hitting us.
 
-On the other hand, it is clunky to force an application to go through the same 
-parse/format interface as the user just to get/set a simple integer.  Perhaps 
-sysfs needs to be taught how to ioctl these properties.  I see exposing 
-property names and operating on them as orthogonal issues that are currently 
-joined at the hip in an unnatural, but fixable way.
+cu
+Adrian
 
-> Device nodes for each writable config value trivially handles
-> persistence and user policy and should be easy to implement in the
-> kernel.  We already have a policy engine in userspace, udev to handle
-> all of the chaos.
->
-> Why do we need another mechanism?
+-- 
 
-We need the mechanism that exposes subsystem instance properties as they 
-appear and disappear with changing configuration.  This is a new mechanism 
-anyway, so implementing it using device nodes does not save anything, it only 
-introduces a new requirement to allocate device numbers.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-> Are device nodes out of fashion these days?
-
-They are, at least for putting things in /dev that are not actual hardware.
-
-Regards,
-
-Daniel

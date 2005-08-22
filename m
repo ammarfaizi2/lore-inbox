@@ -1,77 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVHVUoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVHVUqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbVHVUoy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 16:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbVHVUox
+	id S1751193AbVHVUqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 16:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVHVUqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 16:44:53 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:41959 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751110AbVHVUog (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 16:44:36 -0400
-Message-ID: <430A012E.1CAF0A2F@tv-sign.ru>
-Date: Mon, 22 Aug 2005 20:45:34 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: tglx@linutronix.de
-Cc: Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
-       George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] fix send_sigqueue() vs thread exit race
-References: <20050818060126.GA13152@elte.hu>
-		 <1124495303.23647.579.camel@tglx.tec.linutronix.de>
-		 <43076138.C37ED380@tv-sign.ru>
-		 <1124617458.23647.643.camel@tglx.tec.linutronix.de>
-		 <43085E97.4EC3908B@tv-sign.ru>
-		 <1124659468.23647.695.camel@tglx.tec.linutronix.de>
-		 <1124661032.23647.698.camel@tglx.tec.linutronix.de>
-		 <4309731E.ED621149@tv-sign.ru>
-		 <1124698127.23647.716.camel@tglx.tec.linutronix.de>
-		 <43099235.65BC4757@tv-sign.ru> <1124705208.23647.737.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Aug 2005 16:46:24 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43794 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751184AbVHVUqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 16:46:17 -0400
+Date: Mon, 22 Aug 2005 22:46:15 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: jkmaline@cc.hut.fi
+Cc: hostap@shmoo.com, jgarzik@pobox.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] include/net/ieee80211.h: "extern inline" -> "static inline"
+Message-ID: <20050822204615.GJ9927@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
->
-> It exists. It triggers on preempt-RT and I can trigger it on vanilla SMP
-> by waiting for the timer expiry in release_task() before the
-> __exit_signal() call. That's reasonable, as it can happen that way by
-> chance too. It requires that the timer expires on a different CPU, but I
-> don't see a reason why this should not happen.
+"extern inline" doesn't make much sense.
 
-Ok, exit_itimers()->itimer_delete() called when the last thread exits
-or does exec.
 
-kernel/posix-timers.c:common_timer_del() calls del_timer_sync(), after
-that nobody can access this timer, so we don't need to lock timer->it_lock
-at all in this case. No lock - no deadlock.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-But I know nothing about kernel/posix-cpu-timers.c, I doubt it will work
-for posix_cpu_timer_del(). I don't have time to study posix-cpu-timers now.
-However, I see that __exit_signal() calls posix_cpu_timers_exit_xxx(), so
-may be it can work?
+---
 
-   380  int posix_cpu_timer_del(struct k_itimer *timer)
-   381  {
-   382          struct task_struct *p = timer->it.cpu.task;
-   383
-   384          if (timer->it.cpu.firing)
-   385                  return TIMER_RETRY;
-   386
-   387          if (unlikely(p == NULL))
-   388                  return 0;
-   389
-   390          if (!list_empty(&timer->it.cpu.entry)) {
-   391                  read_lock(&tasklist_lock);
+ include/net/ieee80211.h |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-Surely, it should be impossible to happen when process exists, otherwise
-it would deadlock immediately, we did write_lock(tasklist).
+--- linux-2.6.13-rc6-mm1-full/include/net/ieee80211.h.old	2005-08-22 02:48:16.000000000 +0200
++++ linux-2.6.13-rc6-mm1-full/include/net/ieee80211.h	2005-08-22 02:48:28.000000000 +0200
+@@ -710,12 +710,12 @@
+ #define IEEE_G            (1<<2)
+ #define IEEE_MODE_MASK    (IEEE_A|IEEE_B|IEEE_G)
+ 
+-extern inline void *ieee80211_priv(struct net_device *dev)
++static inline void *ieee80211_priv(struct net_device *dev)
+ {
+ 	return ((struct ieee80211_device *)netdev_priv(dev))->priv;
+ }
+ 
+-extern inline int ieee80211_is_empty_essid(const char *essid, int essid_len)
++static inline int ieee80211_is_empty_essid(const char *essid, int essid_len)
+ {
+ 	/* Single white space is for Linksys APs */
+ 	if (essid_len == 1 && essid[0] == ' ')
+@@ -731,7 +731,7 @@
+ 	return 1;
+ }
+ 
+-extern inline int ieee80211_is_valid_mode(struct ieee80211_device *ieee, int mode)
++static inline int ieee80211_is_valid_mode(struct ieee80211_device *ieee, int mode)
+ {
+ 	/*
+ 	 * It is possible for both access points and our device to support
+@@ -757,7 +757,7 @@
+ 	return 0;
+ }
+ 
+-extern inline int ieee80211_get_hdrlen(u16 fc)
++static inline int ieee80211_get_hdrlen(u16 fc)
+ {
+ 	int hdrlen = IEEE80211_3ADDR_LEN;
+ 
+@@ -817,12 +817,12 @@
+ 				   union iwreq_data *wrqu, char *key);
+ 
+ 
+-extern inline void ieee80211_increment_scans(struct ieee80211_device *ieee)
++static inline void ieee80211_increment_scans(struct ieee80211_device *ieee)
+ {
+ 	ieee->scans++;
+ }
+ 
+-extern inline int ieee80211_get_scans(struct ieee80211_device *ieee)
++static inline int ieee80211_get_scans(struct ieee80211_device *ieee)
+ {
+ 	return ieee->scans;
+ }
 
-Thomas, do you know something about posix-cpu-timers.c?
-
-Oleg.

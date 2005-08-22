@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVHVUgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbVHVUgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbVHVUgD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 16:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbVHVUgD
+	id S1751141AbVHVUgE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 16:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVHVUgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 16:36:03 -0400
+	Mon, 22 Aug 2005 16:36:04 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:62181 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751134AbVHVUgB (ORCPT
+	by vger.kernel.org with ESMTP id S1751146AbVHVUgD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 16:36:01 -0400
-Date: Mon, 22 Aug 2005 18:20:56 +0200
+	Mon, 22 Aug 2005 16:36:03 -0400
+Date: Mon, 22 Aug 2005 18:20:47 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
+To: David Teigland <teigland@redhat.com>,
+       Patrick Caulfield <pcaulfie@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] fs/super.c: unexport user_get_super
-Message-ID: <20050822162056.GD9927@stusta.de>
+Subject: [-mm patch] DLM must depend on SYSFS
+Message-ID: <20050822162047.GB9927@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,27 +23,28 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I didn't find any modular usage in the kernel.
+CONFIG_DLM=y and CONFIG_SYSFS=n results in the following compile error:
+
+<--  snip  -->
+
+...
+  LD      vmlinux
+drivers/built-in.o:(.data+0x282340): undefined reference to `kernel_subsys'
+make: *** [vmlinux] Error 1
+
+<--  snip  -->
+
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
-This patch was already sent on:
-- 30 May 2005
-- 13 May 2005
-- 1 May 2005
-- 23 Apr 2005
-
---- linux-2.6.12-rc2-mm3-full/fs/super.c.old	2005-04-23 02:45:59.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/super.c	2005-04-23 02:46:07.000000000 +0200
-@@ -467,8 +467,6 @@
- 	return NULL;
- }
+--- linux-2.6.13-rc6-mm1-full/drivers/dlm/Kconfig.old	2005-08-22 01:56:18.000000000 +0200
++++ linux-2.6.13-rc6-mm1-full/drivers/dlm/Kconfig	2005-08-22 01:56:38.000000000 +0200
+@@ -3,6 +3,7 @@
  
--EXPORT_SYMBOL(user_get_super);
--
- asmlinkage long sys_ustat(unsigned dev, struct ustat __user * ubuf)
- {
-         struct super_block *s;
+ config DLM
+ 	tristate "Distributed Lock Manager (DLM)"
++	depends on SYSFS
+ 	depends on IPV6 || IPV6=n
+ 	select IP_SCTP
+ 	select CONFIGFS_FS
 

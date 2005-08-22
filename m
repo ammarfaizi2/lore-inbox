@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVHVT4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVHVT4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbVHVT4d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 15:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVHVT4d
+	id S1750768AbVHVT4J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 15:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVHVT4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 15:56:33 -0400
+	Mon, 22 Aug 2005 15:56:09 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:18906 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750783AbVHVT4V (ORCPT
+	by vger.kernel.org with ESMTP id S1750768AbVHVT4I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 15:56:21 -0400
-Date: Mon, 22 Aug 2005 20:13:05 +0200
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.13-rc6-mm1
-Message-ID: <20050822181304.GA24076@ens-lyon.fr>
-References: <20050821222229.GC6935@ens-lyon.fr> <9e47339105082115347bde79bb@mail.gmail.com> <20050822143713.GA12947@ens-lyon.fr> <9e473391050822094451d11b58@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e473391050822094451d11b58@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+	Mon, 22 Aug 2005 15:56:08 -0400
+Message-ID: <430A1DB5.9070000@symas.com>
+Date: Mon, 22 Aug 2005 11:47:17 -0700
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b4) Gecko/20050821 SeaMonkey/1.0a
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Florian Weimer <fw@deneb.enyo.de>, linux-kernel@vger.kernel.org
+Subject: Re: sched_yield() makes OpenLDAP slow
+References: <43057641.70700@symas.com.suse.lists.linux.kernel> <17157.45712.877795.437505@gargle.gargle.HOWL.suse.lists.linux.kernel> <430666DB.70802@symas.com.suse.lists.linux.kernel> <p73oe7syb1h.fsf@verdi.suse.de> <87fyt3vzq0.fsf@mid.deneb.enyo.de> <43095E10.3010003@symas.com> <20050822130618.GA19007@wotan.suse.de>
+In-Reply-To: <20050822130618.GA19007@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 22, 2005 at 12:44:01PM -0400, Jon Smirl wrote:
-> On 8/22/05, Benoit Boissinot <benoit.boissinot@ens-lyon.org> wrote:
-> > On Sun, Aug 21, 2005 at 06:34:48PM -0400, Jon Smirl wrote:
-> > > This should fix it, but I'm not on a machine where I can test it. Can
-> > > you give it a try and let me know?
-> > >
-> > 
-> > it works ok.
-> > But there is still at least one problem: if ops->store returns an error,
-> > then there will be a substraction and the write will loop (i could do it
-> > with a store wich returned EINVAL and a 22 length string).
-> > 
-> > I don't know if you can put a '\0' at buffer->page[count] if
-> > count == PAGE_SIZE.
-> > 
-> > Moreover, i think it is more correct to add only the leading
-> > whitespace from the count because if the ops->store doesn't read
-> > everything it will do something weird:
-> > 
-> > For example, if we have ' 123    ' and ops->store read only one char,
-> > then the function will return 7 (1 leading + 4 trailing + 1 read).  For
-> > the next call the buffer will be filled only by spaces which is
-> > incorrect (it should be '23    ').
-> 
-> The attached version tries to fix these issues. I am still not
-> somewhere where I can test, so please check it out.
-> 
+Andi Kleen wrote:
+> > processes (PTHREAD_SCOPE_SYSTEM). The previous comment about slapd
+> > only needing to yield within a single process is inaccurate; since
+> > we allow slapcat to run concurrently with slapd (to allow hot
+> > backups) we need BerkeleyDB's locking/yield functions to work in
+> > System scope.
 
-Yes it works fine, thanks.
+>  That's broken by design - it means you can be arbitarily starved by
+>  other processes running in parallel. You are basically assuming your
+>  application is the only thing running on the system which is wrong.
+>  Also there are enough synchronization primitives that can synchronize
+>  multiple processes without making such broken assumptions.
 
-Benoit Boissinot
+Again, I think you overstate the problem. "Arbitrarily starved by other 
+processes" implies that the process scheduler will do a poor job and 
+will allow the slapd process to be starved. We do not assume we're the 
+only app on the system, we just assume that eventually we will get the 
+CPU back. If that's not a valid assumption, then there is something 
+wrong with the underlying system environment.
+
+Something you ought to keep in mind - correctness and compliance are 
+well and good, but worthless if the end result isn't useful. Windows NT 
+has a POSIX-compliant subsystem but it is utterly useless. That's what 
+you wind up with when all you do is conform to the letter of the spec.
 
 -- 
-powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
+  -- Howard Chu
+  Chief Architect, Symas Corp.  http://www.symas.com
+  Director, Highland Sun        http://highlandsun.com/hyc
+  OpenLDAP Core Team            http://www.openldap.org/project/
+

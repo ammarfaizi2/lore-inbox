@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVHVUm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVHVUmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbVHVUm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 16:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVHVUm1
+	id S1751126AbVHVUmd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 16:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVHVUmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 16:42:27 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:15591 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751118AbVHVUm0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 16:42:26 -0400
-Date: Mon, 22 Aug 2005 18:20:50 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: chrisw@osdl.org, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SECURITY must depend on SYSFS
-Message-ID: <20050822162050.GC9927@stusta.de>
+	Mon, 22 Aug 2005 16:42:33 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28311
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751126AbVHVUmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 16:42:32 -0400
+Date: Mon, 22 Aug 2005 13:42:26 -0700 (PDT)
+Message-Id: <20050822.134226.35468933.davem@davemloft.net>
+To: jasonuhl@sgi.com
+Cc: tony.luck@intel.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PRINTK_TIME woes
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050822203306.GA897956@dragonfly.engr.sgi.com>
+References: <200508221742.j7MHgMJI020020@agluck-lia64.sc.intel.com>
+	<20050822.132052.65406121.davem@davemloft.net>
+	<20050822203306.GA897956@dragonfly.engr.sgi.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_SECURITY=y and CONFIG_SYSFS=n results in the following compile 
-error:
+From: Jason Uhlenkott <jasonuhl@sgi.com>
+Date: Mon, 22 Aug 2005 13:33:06 -0700
 
-<--  snip  -->
+> On Mon, Aug 22, 2005 at 01:20:52PM -0700, David S. Miller wrote:
+> > Not really, when I'm debugging TCP events over gigabit
+> > these timestamps are exceptionally handy.
+> 
+> Yes, but how many of those figures are really significant?  I strongly
+> suspect that the overhead of printk() is high enough, even when we're
+> just spewing to the dmesg buffer and not the console, that we have a
+> lot more precision than accuracy at nanosecond resolution.
 
-...
-  LD      vmlinux
-security/built-in.o: In function `securityfs_init':
-inode.c:(.init.text+0x1c2): undefined reference to `kernel_subsys'
-make: *** [vmlinux] Error 1
+I turn off VC logging, and I turn off disk sync'ing, so it goes
+straight to the page cache.
 
-<--  snip  -->
+I really do need sub-microsecond timings when I put a lot of
+printk tracing into the stack.
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 24 Jul 2005
-
---- linux-2.6.13-rc3-mm1-full/security/Kconfig.old	2005-07-23 20:21:09.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/security/Kconfig	2005-07-23 20:22:22.000000000 +0200
-@@ -35,6 +35,7 @@
- 
- config SECURITY
- 	bool "Enable different security models"
-+	depends on SYSFS
- 	help
- 	  This allows you to choose different security modules to be
- 	  configured into your kernel.
-
+This is a useful feature, please do not labotomize it just because
+it's difficult to implement on ia64.  Just make a
+"printk_get_timestamp_because_ia64_sucks()" interface or something
+like that :-)

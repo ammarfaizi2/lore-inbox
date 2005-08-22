@@ -1,72 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVHVXlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVHVXqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbVHVXlG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 19:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbVHVXlG
+	id S1751310AbVHVXqp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 19:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVHVXqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 19:41:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15780 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751281AbVHVXlF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 19:41:05 -0400
-Date: Mon, 22 Aug 2005 16:40:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Airlie <airlied@gmail.com>
-cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Subject: Re: rc6 keeps hanging and blanking displays
-In-Reply-To: <21d7e9970508221607bb74cc7@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0508221628140.3317@g5.osdl.org>
-References: <20050815221109.GA21279@aitel.hist.no>  <21d7e99705081516241197164a@mail.gmail.com>
-  <20050816165242.GA10024@aitel.hist.no>  <Pine.LNX.4.58.0508160955270.3553@g5.osdl.org>
-  <20050816211424.GA14367@aitel.hist.no>  <21d7e99705081616504d28cca5@mail.gmail.com>
-  <43031A12.8020301@aitel.hist.no>  <21d7e997050817040523a1bf46@mail.gmail.com>
-  <Pine.LNX.4.58.0508170815370.3553@g5.osdl.org>  <20050822214453.GA31266@aitel.hist.no>
- <21d7e9970508221607bb74cc7@mail.gmail.com>
+	Mon, 22 Aug 2005 19:46:45 -0400
+Received: from siaag2ai.mx.compuserve.com ([149.174.40.147]:6081 "EHLO
+	siaag2ai.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751310AbVHVXqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 19:46:44 -0400
+Date: Mon, 22 Aug 2005 19:43:57 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch 2.6.13-rc6] i386: fix incorrect FP signal delivery
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Message-ID: <200508221945_MC3-1-A7EF-CB11@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This patch fixes a problem with incorrect floating-point exception
+signal delivery on i386 kernels.  In some cases, an error code of zero
+is delivered instead of the correct code, as the output from my test
+program shows:
 
 
-On Tue, 23 Aug 2005, Dave Airlie wrote:
-> 
-> Can we revert the PCI assign resources patch?
+Before patch:
 
-I'd rather not revert the whole PCI assign thing, because it's good.
+$ ./fpsig
+handler: signum = 8, errno = 0, code = 0
+handler: fpu cwd = 0xb40, fpu swd = 0xbaa0
 
-But disabling the ROM assignment might be a good idea. Almost nobody ever 
-really wants to assign the ROM anyway, and there are cards where there are 
-some strange rules about ROM alignment (read: doesn't follow spec).
 
-That may be the problem with MGA - I think some gfx cards used the same
-decoder for ROM and for the video RAM aperture, so that you were supposed
-to only enable ROM when the RAM thing was quiescent or something, and 
-always use the same address too (the current code doesn't _enable_ the 
-ROM, but I think it allocates and programs the base address. Which 
-should be harmless, but..).
+After:
 
-Ivan? Does something like this make a difference?
+$ ./fpsig
+handler: signum = 8, errno = 0, code = 6
+handler: fpu cwd = 0xb40, fpu swd = 0xbaa0
 
-		Linus
 
----
-diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -52,10 +52,12 @@ pci_update_resource(struct pci_dev *dev,
+2.4 also has this problem; the patch applies with offsets on 2.4.31
+but I didn't test it beyond that.  Patch also applies to 2.6.13-rc6-mm1
+with offsets.
+
+x86-64 also looks to be affected but I have no way to test it
+
+
+Test program:
+
+/* i387 fp signal test */
+
+#define _GNU_SOURCE
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <signal.h>
+#include <errno.h>
+
+__attribute__ ((aligned(4096))) unsigned char altstack[4096];
+unsigned short cw = 0x0b40; /* unmask all exceptions, round up */
+struct sigaction sa;
+stack_t ss = {
+	.ss_sp   = &altstack[2047],
+	.ss_size = sizeof(altstack)/2,
+};
+
+static void handler(int nr, siginfo_t *si, void *uc)
+{
+	printf("handler: signum = %d, errno = %d, code = %d\n",
+		si->si_signo, si->si_errno, si->si_code);
+	printf("handler: fpu cwd = 0x%hx, fpu swd = 0x%hx\n",
+		*(unsigned short *)&altstack[0xd84],
+		*(unsigned short *)&altstack[0xd88]);
+	exit(1);
+}
+
+int main(int argc, char * const argv[])
+{
+	sa.sa_sigaction = handler;
+	sa.sa_flags     = SA_ONSTACK | SA_SIGINFO;
+
+	if (sigaltstack(&ss, 0))
+		perror("sigaltstack");
+	if (sigaction(SIGFPE, &sa, NULL))
+		perror("sigaction");
+
+	asm volatile ("fnclex ; fldcw %0" : : "m" (cw));
+	asm volatile ( /*  st(1) = 3.0, st = 1.0  */
+	    "fld1 ; fld1 ; faddp ; fld1 ; faddp ; fld1");
+	asm volatile (
+	    "fdivp ; fwait");  /*  1.0 / 3.0  */
+
+	return 0;
+}
+
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+
+ arch/i386/kernel/traps.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
+
+--- 2.6.13-rc6a.orig/arch/i386/kernel/traps.c
++++ 2.6.13-rc6a/arch/i386/kernel/traps.c
+@@ -778,7 +778,7 @@ void math_error(void __user *eip)
+ {
+ 	struct task_struct * task;
+ 	siginfo_t info;
+-	unsigned short cwd, swd;
++	unsigned short cwd, swd, wd;
  
- 	if (resno < 6) {
- 		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
-+#if 0
- 	} else if (resno == PCI_ROM_RESOURCE) {
- 		new |= res->flags & IORESOURCE_ROM_ENABLE;
- 		reg = dev->rom_base_reg;
- 	} else {
-+#endif
- 		/* Hmm, non-standard resource. */
- 	
- 		return;		/* kill uninitialised var warning */
+ 	/*
+ 	 * Save the info for the exception handler and clear the error.
+@@ -803,7 +803,11 @@ void math_error(void __user *eip)
+ 	 */
+ 	cwd = get_fpu_cwd(task);
+ 	swd = get_fpu_swd(task);
+-	switch (((~cwd) & swd & 0x3f) | (swd & 0x240)) {
++	wd = swd & 0x3f & ~cwd;
++	if (wd & 1)
++		wd |= swd & 0x240;
++
++	switch (wd) {
+ 		case 0x000:
+ 		default:
+ 			break;
+__
+Chuck

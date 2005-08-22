@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVHVVlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVHVVoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbVHVVlv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 17:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVHVVlv
+	id S1751255AbVHVVoI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 17:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVHVVoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 17:41:51 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:4738 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751264AbVHVVlu (ORCPT
+	Mon, 22 Aug 2005 17:44:08 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:32130 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751255AbVHVVoH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 17:41:50 -0400
-Date: Mon, 22 Aug 2005 15:06:18 +0200
-From: Andi Kleen <ak@suse.de>
-To: Howard Chu <hyc@symas.com>
-Cc: Florian Weimer <fw@deneb.enyo.de>, Andi Kleen <ak@suse.de>,
+	Mon, 22 Aug 2005 17:44:07 -0400
+Date: Mon, 22 Aug 2005 15:42:35 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Chris Wedgwood <cw@f00f.org>
+cc: 7eggert@gmx.de, cHitman <samartsev@gmail.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: sched_yield() makes OpenLDAP slow
-Message-ID: <20050822130618.GA19007@wotan.suse.de>
-References: <43057641.70700@symas.com.suse.lists.linux.kernel> <17157.45712.877795.437505@gargle.gargle.HOWL.suse.lists.linux.kernel> <430666DB.70802@symas.com.suse.lists.linux.kernel> <p73oe7syb1h.fsf@verdi.suse.de> <87fyt3vzq0.fsf@mid.deneb.enyo.de> <43095E10.3010003@symas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43095E10.3010003@symas.com>
+Subject: Re: PATCH for changing of DVD speed via ioctl() call
+In-Reply-To: <20050822023755.GA22851@taniwha.stupidest.org>
+Message-ID: <Pine.LNX.4.58.0508221536240.2418@be1.lrz>
+References: <4E0p1-3vc-23@gated-at.bofh.it> <E1E6vvy-0000hI-Hj@be1.lrz>
+ <20050822023755.GA22851@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> processes (PTHREAD_SCOPE_SYSTEM). The previous comment about slapd only 
-> needing to yield within a single process is inaccurate; since we allow 
-> slapcat to run concurrently with slapd (to allow hot backups) we need 
-> BerkeleyDB's locking/yield functions to work in System scope.
+On Sun, 21 Aug 2005, Chris Wedgwood wrote:
+> On Sun, Aug 21, 2005 at 09:56:45PM +0200, Bodo Eggert wrote:
 
-That's broken by design - it means you can be arbitarily starved 
-by other processes running in parallel. You are basically assuming
-your application is the only thing running on the system
-which is wrong. Also there are enough synchronization primitives
-that can synchronize multiple processes without making
-such broken assumptions.
+> > The parameter value should IMHO be a pointer to a struct {
+> >  unsigned long long maxspeed; // (with 0 being the magic max. value?)
+> >  int facility; /* 0=general speed, 2=general read, 4=read data,
+> >                   6=read audio, 8=read raw ... whatever is supported
+> >                   n+1 = s/read/write/ */
+> > }
+> 
+> Passing pointers inside ioctl's is horrible IMO and if we can avoid it
+> we should.  It's just asking for problems.
 
--Andi
-
+It's used in all ioctls not requiring a read-only int or a void. See man 
+ioctl_list (2).
+-- 
+Top 100 things you don't want the sysadmin to say:
+26. What happens to a Hard Disk when you drop it?

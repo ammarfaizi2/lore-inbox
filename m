@@ -1,63 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVHVVKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbVHVVJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVHVVKE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 17:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVHVVJl
+	id S1751204AbVHVVJO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 17:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVHVVJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 17:09:41 -0400
-Received: from outmx019.isp.belgacom.be ([195.238.2.200]:39313 "EHLO
-	outmx019.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1751207AbVHVVJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 17:09:37 -0400
-Message-ID: <430A3F55.7090909@246tNt.com>
-Date: Mon, 22 Aug 2005 23:10:45 +0200
-From: Sylvain Munaut <tnt@246tNt.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050610)
-X-Accept-Language: en-us, en
+	Mon, 22 Aug 2005 17:09:14 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:35307 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751204AbVHVVJN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 17:09:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=rMTyStJMlPhR3tAU8OchyesmsUu0UkfcrHT3fH08A/8Epe5ss6BVcXvZm6Rz5AaUidZZ00nuJeXdrRXb9SF02218iRcOIqDN8ihHNF5VvAs6sU3u+XrtarIuGP+UaeoFaKZb/tycDsWSkPeLE0ZwlzH1hnBxRTblXdlRwc75XtI=  ;
+Message-ID: <20050822154111.4058.qmail@web33304.mail.mud.yahoo.com>
+Date: Mon, 22 Aug 2005 08:41:11 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: 2.6.12 Performance problems
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <2230.192.167.206.189.1124721719.squirrel@new.host.name>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Obtaining official minor device number : How ? (tried device@lanana.org,
- no answer)
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+*confused by the top-posting..*
 
-I'd like to obtain some minor device number and I'm not sure how to do
-so. I've seen that a request must be sent to device@lanana.org, and I've
-done it, following the instructions (I think). I've sent it twice, a
-first time two month ago, then again a little less than a month ago.
-Each time with no anwer ;(
+--- Luigi Genoni
+<genoni@darkstar.linuxpratico.net> wrote:
 
-Here is the mail I sent each time (greeting & thanks snipped) :
+> maybe it is possible to be more clear.
+> 
+> voluntary kernel preemption adds explicit
+> preemption points into the
+> kernel and  full kernel preemption makes all
+> kernel code preemptible. This
+> way even when a process is executing some
+> syscall in kernel space, it can
+> be volontary or involontary preempted.
+> 
+> For interactive users the systems seems to be
+> smarter, but when the system
+> is doing a lot of work in kernel space, then
+> you of course have to lose
+> something.
+> 
+> Also just to check id it's the case or not to
+> preempt means you lose
+> something. This something is usually troughput.
+> In your case I would not
+> use a preemptible kernel.
+> 
+> SOmething similar could be said about Timer
+> frequency, but here the lost
+> is connected to the number to interrupts you
+> have to manage.
+> 
+> The point is that a desktop where the users
+> simple need a smooth sysstem
+> to be userd interactivelly, but not real CPU
+> power, and a server where you
+> need hourse power are different topics and need
+> different kernel
+> behaviour.
+> 
+> 
+> 
+> On Sun, August 21, 2005 19:07, Danial Thom
+> wrote:
+> 
+> > Ok, well you'll have to explain this one:
+> >
+> >
+> > "Low latency comes at the cost of decreased
+> > throughput - can't have both"
+> >
+> > Seems to be a bit backwards. Threading the
+> kernel
+> > adds latency, so its the additional latency
+> in the kernel that causes the
+> > drop in throughput. Do you mean that kernel
+> performance has been sacrificed
+> > in order to be able to service other threads
+> more quickly, even when there
+> > are no other threads to be serviced?
+> >
+> > Danial
 
-----<CUT>----
-I'd like to obtain an official range in the low-density serial port
-(major=204) for the serial ports on the SoC MPC5200. This chip has 6 PSC
-that can act as serial port. I'd suggest naming them ttyPSC[0-5] and
-just using "PPC PSC - port n" as decription since freescale might decide
-to reuse the PSC for future chips in the same family.
+The issue I have with that logic is that you seem
+to use "kernel" in a general sense without regard
+to what its doing. Dropping packets is always
+detrimental to the user regardless of what he's
+using the computer for. An audio stream that
+drops packets isn't going to be "smooth" at the
+user level.
 
-Something like that I'd guess
+All of this aside, I need to measure the raw
+capabilities of the kernel. With 'bsd OSes I can
+tell what the breaking point is by driving the
+machine to livelock. Linux seems to have a soft,
+floating capacity in that it will drop packets
+here and there for no isolatable reason. I'm
+having difficulty making a case for its use in a
+networking appliance, as dropped packets are not
+acceptable. How do I tune the "its ok to drop
+packets when x occurs" algorithm to be "its never
+ok to drop packets unless x occurs" (such as a
+queue depth)? Is it possible?
 
-                 148 = /dev/ttyPSC0              PPC PSC - port 0
-                    ...
-                 153 = /dev/ttyPSC5              PPC PSC - port 5
-
-
-Currently the driver (drivers/serial/mpc52xx_uart.c) uses the "standard"
-/dev/ttySx but that causes conflicts when for example a pcmcia serial
-card is present since both driver want the same serial. Apparently the
-"low density serial port" major is there for theses kind of ports so  ;)
-----<CUT>----
-
-
-Is there some critical information missing ? Something I don't get ?
-
+Danial
 
 
-	Sylvain
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

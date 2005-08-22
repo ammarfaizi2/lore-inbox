@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVHVT73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbVHVT7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbVHVT73 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 15:59:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbVHVT73
+	id S1750914AbVHVT7x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 15:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbVHVT7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 15:59:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1730 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750783AbVHVT71 (ORCPT
+	Mon, 22 Aug 2005 15:59:53 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:51162 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750914AbVHVT7w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 15:59:27 -0400
-Date: Mon, 22 Aug 2005 15:59:13 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, Mirko Lindner <mlindner@syskonnect.de>,
-       akpm@osdl.org
-Subject: Re: skge missing ifdefs.
-Message-ID: <20050822195913.GF27344@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-	Mirko Lindner <mlindner@syskonnect.de>, akpm@osdl.org
-References: <20050801203442.GD2473@redhat.com> <20050801203818.GA7497@havoc.gtf.org>
+	Mon, 22 Aug 2005 15:59:52 -0400
+Date: Mon, 22 Aug 2005 10:30:03 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, chrisw@osdl.org,
+       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] SECURITY must depend on SYSFS
+Message-ID: <20050822173003.GS7762@shell0.pdx.osdl.net>
+References: <20050822162050.GC9927@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050801203818.GA7497@havoc.gtf.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20050822162050.GC9927@stusta.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 04:38:18PM -0400, Jeff Garzik wrote:
- > On Mon, Aug 01, 2005 at 04:34:42PM -0400, Dave Jones wrote:
- > > with CONFIG_PM undefined, the build breaks due to 
- > > undefined symbols.
- > 
- > akpm already sent a fix to Linus.
+* Adrian Bunk (bunk@stusta.de) wrote:
+>  config SECURITY
+>  	bool "Enable different security models"
+> +	depends on SYSFS
 
-This is still broken afaics in todays -git.
+Hmm, what about select instead?
 
-		Dave
-
+thanks,
+-chris

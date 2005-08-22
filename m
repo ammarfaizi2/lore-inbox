@@ -1,70 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVHVV0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbVHVV0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbVHVV0J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 17:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVHVV0F
+	id S1751236AbVHVV0E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 17:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVHVV0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 17:26:05 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:64237 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751028AbVHVVZo (ORCPT
+	Mon, 22 Aug 2005 17:26:02 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:5614 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751229AbVHVVZz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 17:25:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=QYh/GKi+zsAHl2gu4uzQTL6LAVWRl0aw3PC6PQOTbhB7ciPUbQg2bxRYl6a0JfXW0baGTA4qSGjsZKFAJD7ZAY+rX6IoC4jq32mxbYm8vmTMIoEDwizAd4vWmKTKf2k+ov6AJEGchPBCypeCyLM02qTK9+Ox471TqvoJMU5xPYo=  ;
-Message-ID: <20050822140634.92263.qmail@web51612.mail.yahoo.com>
-Date: Mon, 22 Aug 2005 07:06:33 -0700 (PDT)
-From: Luben Tuikov <ltuikov@yahoo.com>
-Reply-To: ltuikov@yahoo.com
-Subject: Re: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
-To: James Bottomley <James.Bottomley@SteelEye.com>, luben_tuikov@adaptec.com
-Cc: Andrew Morton <akpm@osdl.org>, Jim Houston <jim.houston@ccur.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <1124640387.5068.2.camel@mulgrave>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 22 Aug 2005 17:25:55 -0400
+Date: Mon, 22 Aug 2005 16:37:13 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.13-rc6-mm1
+Message-ID: <20050822143713.GA12947@ens-lyon.fr>
+References: <20050821222229.GC6935@ens-lyon.fr> <9e47339105082115347bde79bb@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e47339105082115347bde79bb@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- James Bottomley <James.Bottomley@SteelEye.com> wrote:
-> On Sun, 2005-08-21 at 08:49 -0700, Luben Tuikov wrote:
-> > The caller is the aic94xx SAS LLDD.  It uses IDR to generate unique
-> > task tag for each SCSI task being submitted.  It is then used to lookup
-> > the task given the task tag, in effect using IDR as a fast lookup table.
-> > 
-> > Yes, I'm also not aware of any other users of IDR from mixed process/IRQ
-> > context or for SCSI Task tag purposes.
+On Sun, Aug 21, 2005 at 06:34:48PM -0400, Jon Smirl wrote:
+> This should fix it, but I'm not on a machine where I can test it. Can
+> you give it a try and let me know?
 > 
-> Just a minute, that's not what idr was designed for.  It was really
-> designed for enumerations (like disk) presented to the user.  That's why
-> using it in IRQ context hasn't been considered.
 
-Hi James, how are you?
+it works ok.
+But there is still at least one problem: if ops->store returns an error,
+then there will be a substraction and the write will loop (i could do it
+with a store wich returned EINVAL and a 22 length string).
 
-Is this the only use _you_ could find for a *radix tree*? ;-)
-Since of course sd.c uses it just as an enumeration, according to
-you this must be the only use? :-)
+I don't know if you can put a '\0' at buffer->page[count] if
+count == PAGE_SIZE.
 
-It was designed as a general purpose id to pointer translation
-service, just as the comment in it says.
+Moreover, i think it is more correct to add only the leading
+whitespace from the count because if the ops->store doesn't read
+everything it will do something weird:
 
-> However, there is an infrastructure in the block layer called the
-> generic tag infrastructure which was designed precisely for this purpose
-> and which is designed to operate in IRQ context.
+For example, if we have ' 123    ' and ops->store read only one char,
+then the function will return 7 (1 leading + 4 trailing + 1 read).  For
+the next call the buffer will be filled only by spaces which is
+incorrect (it should be '23    ').
 
-James, I'm sure you're well aware that,
-   - a request_queue is LU-bound,
-   - a SCSI _transport_ (*ANY*) can _only_ address domain devices, but
-     _not_ LUs.  LUs are *not* seen on the domain.
-
-See the different associations?  Then why are you posting such emails?
-
-Andrew, please apply this patch.
-
-Thanks,
-     Luben
-
+> diff --git a/fs/sysfs/file.c b/fs/sysfs/file.c
+> --- a/fs/sysfs/file.c
+> +++ b/fs/sysfs/file.c
+> @@ -6,6 +6,7 @@
+>  #include <linux/fsnotify.h>
+>  #include <linux/kobject.h>
+>  #include <linux/namei.h>
+> +#include <linux/ctype.h>
+>  #include <asm/uaccess.h>
+>  #include <asm/semaphore.h>
+>  
+> @@ -207,8 +208,28 @@ flush_write_buffer(struct dentry * dentr
+>  	struct attribute * attr = to_attr(dentry);
+>  	struct kobject * kobj = to_kobj(dentry->d_parent);
+>  	struct sysfs_ops * ops = buffer->ops;
+> +	int ws_count = count;
+> +	char *x;
+>  
+> -	return ops->store(kobj,attr,buffer->page,count);
+> +	/* locate trailing white space */
+> +	while ((count > 0) && isspace(buffer->page[count - 1]))
+> +		count--;
+> +
+> +	/* locate leading white space */
+> +	x = buffer->page;
+> +	if (count > 0) {
+> +		while (isspace(*x))
+> +			x++;
+> +		count -= (x - buffer->page);
+> +	}
+> +	/* terminate the string */
+> +	x[count] = '\0';
+	 what if count == PAGE_SIZE ?
+> +	ws_count -= count;
+> +
+> +	if (count != 0)
+> +		count = ops->store(kobj, attr, x, count);
+> +
+> +	return count + ws_count;
+	return (count < 0) ? count : count + ws_count;
+>  }
+>  
+>  
+-- 
+powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS

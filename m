@@ -1,93 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVHVXy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVHVX4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbVHVXy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 19:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbVHVXy1
+	id S1751272AbVHVX4X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 19:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVHVX4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 19:54:27 -0400
-Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:55055
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S1751256AbVHVXy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 19:54:26 -0400
-Date: Mon, 22 Aug 2005 16:48:16 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Drake <dsd@gentoo.org>,
-       CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: IT8212/ITE RAID
-In-Reply-To: <58cb370e0508220228770415f7@mail.gmail.com>
-Message-ID: <Pine.LNX.4.10.10508221643170.6541-100000@master.linux-ide.org>
+	Mon, 22 Aug 2005 19:56:23 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:33990 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751272AbVHVX4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 19:56:22 -0400
+X-ORBL: [69.107.75.50]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:cc:references:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:message-id;
+	b=HXkMjg8sGUrGD6z7Q2DlvftSSTNA0TbNlFEfgy0Nw8uD9rdt2n+pvYw9NC0qobqnO
+	P9r3kcGcLUdpxm9GmfaVg==
+Date: Mon, 22 Aug 2005 16:56:03 -0700
+From: David Brownell <david-b@pacbell.net>
+To: ytht.net@gmail.com
+Subject: Re: [PATCH 2.6.12.5]fix gl_skb/skb type error in genelink driver in 
+ usbnet in 2.6
+Cc: linux-kernel@vger.kernel.org
+References: <20050822060239.GA4155@gsy2.lepton.home>
+In-Reply-To: <20050822060239.GA4155@gsy2.lepton.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20050822235603.963C8BFE91@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>    I think there is a type error when port genelink driver to 2.6..
+>    With this error, a linux host will panic when it link with a windows
+>    host.
+>    
+>    See the following patch.
+>
 
-WHOA Gents!
+Looks right to me; thanks!  Would you happen to know if this
+GL620a chip is still manufactured?
 
-Let me get some popcorn to watch this p-contest.
-The way you guys are sniping at each other sounds like the good-old days,
-when everyone railed me and the subsystem and ended up railing back
+If this oops fix doesn't make 2.6.13, I'll roll this change into
+the upcoming split of "usbnet" into eight minidrivers around a
+shared core library.
 
-Guess nothing was learned from the 6+ years of flamage.
+- Dave
 
-I have mellowed out with age ...
 
-Bart, give Alan a break ... his is genrally right at the end of the day.
-
-Alan, give Bart a break ... cause there is no way I am coming back for a
-three-pete.
-
-Cheers,
-
-Andre
-
-On Mon, 22 Aug 2005, Bartlomiej Zolnierkiewicz wrote:
-
-> Any news about URLs?  It shouldn't be too hard find them unless they
-> never existed in the first place. I will work on the issues immediately.
-> 
-> Bartlomiej
-> 
-> On 8/14/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
-> > On 8/14/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > > On Sul, 2005-08-14 at 17:56 +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > > * your stuff was accepted after all (and some stuff like ide-cd
-> > > >   fixes was never splitted from the -ac patchset and submitted)
-> > >
-> > > They were.
-> > 
-> > I remember discussion about end-of-media ide-cd fixes but the patch
-> > was never submitted.  If you have *URL* to the patch I'll work on the patch.
-> > 
-> > > > * you've never provided any technical details on "the stuff I broke"
-> > >
-> > > I did, several times. I had some detailed locking discussions with
-> > > Manfred and others on it as a result. The locking in the base IDE is
-> > > still broken, in fact its become worse - the random locking around
-> > > timing changes now causes some PIIX users to see double spinlock debug
-> > > with the base kernel as an example.
-> > 
-> > Huh?  *WHICH* my patch causes this?
-> > 
-> > I don't remember this discussion et all, care to give some pointers?
-> > 
-> > > > > Would make sense, but I thought I had the right bits masked. Will take a
-> > > >
-> > > > WIN_RESTORE is send unconditionally (as it always was),
-> > > >
-> > > > This is not the right thing, somebody should go over all ATA/ATAPI
-> > > > drafts and come with the correct strategy of handling WIN_RESTORE.
-> > >
-> > > Ok that would make sense. Matthew Garrett also reported some problems in
-> > > that area with suspend/resume (BIOS restoring its idea of things...)
-> > 
-> > Quite likely, WIN_RESTORE is not sent on resume etc.
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> --- linux-2.6-curr/drivers/usb/net/usbnet.c	2005-06-30 07:00:53.000000000 +0800
+> +++ linux-2.6-curr-lepton/drivers/usb/net/usbnet.c	2005-08-22 13:55:18.000000000 +0800
+> @@ -1922,7 +1922,7 @@ static int genelink_rx_fixup (struct usb
+>  
+>  			// copy the packet data to the new skb
+>  			memcpy(skb_put(gl_skb, size), packet->packet_data, size);
+> -			skb_return (dev, skb);
+> +			skb_return (dev, gl_skb);
+>  		}
+>  
+>  		// advance to the next packet
+>
 

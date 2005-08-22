@@ -1,40 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVHVXhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVHVXlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbVHVXhY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 19:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbVHVXhX
+	id S1751281AbVHVXlG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 19:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbVHVXlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 19:37:23 -0400
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:7955 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S1751088AbVHVXhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 19:37:22 -0400
-To: "Terry" <tmacmill@rivernet.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Incorrect RAM Detected at kernel init
-References: <001001c5a6c9$7a0e1df0$6301a8c0@finian.net>
-From: Douglas McNaught <doug@mcnaught.org>
-Date: Mon, 22 Aug 2005 19:36:59 -0400
-In-Reply-To: <001001c5a6c9$7a0e1df0$6301a8c0@finian.net> (Terry's message of "Sun, 21 Aug 2005 23:27:51 -0400")
-Message-ID: <m23bp11r38.fsf@Douglas-McNaughts-Powerbook.local>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (darwin)
+	Mon, 22 Aug 2005 19:41:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15780 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751281AbVHVXlF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 19:41:05 -0400
+Date: Mon, 22 Aug 2005 16:40:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Airlie <airlied@gmail.com>
+cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Subject: Re: rc6 keeps hanging and blanking displays
+In-Reply-To: <21d7e9970508221607bb74cc7@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0508221628140.3317@g5.osdl.org>
+References: <20050815221109.GA21279@aitel.hist.no>  <21d7e99705081516241197164a@mail.gmail.com>
+  <20050816165242.GA10024@aitel.hist.no>  <Pine.LNX.4.58.0508160955270.3553@g5.osdl.org>
+  <20050816211424.GA14367@aitel.hist.no>  <21d7e99705081616504d28cca5@mail.gmail.com>
+  <43031A12.8020301@aitel.hist.no>  <21d7e997050817040523a1bf46@mail.gmail.com>
+  <Pine.LNX.4.58.0508170815370.3553@g5.osdl.org>  <20050822214453.GA31266@aitel.hist.no>
+ <21d7e9970508221607bb74cc7@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Terry" <tmacmill@rivernet.net> writes:
 
-> The kernel appears to compile perfectly, installs fine, but after reboot it
-> is only reporting 16M of RAM. I have tried with and without the mem=768M
 
-I've seen this happen with BIOSes of your vintage when there's a
-"memory hole at 16M" turned on--the kernel doesn't see anything beyond
-it.  See if you can get into the Setup program and turn that off.
+On Tue, 23 Aug 2005, Dave Airlie wrote:
+> 
+> Can we revert the PCI assign resources patch?
 
-Since earlier kernels work, the later kernels are probably trusting
-the e820 tables which may not be set up properly...
+I'd rather not revert the whole PCI assign thing, because it's good.
 
-[Not that I know that much about this stuff]
+But disabling the ROM assignment might be a good idea. Almost nobody ever 
+really wants to assign the ROM anyway, and there are cards where there are 
+some strange rules about ROM alignment (read: doesn't follow spec).
 
--Doug
+That may be the problem with MGA - I think some gfx cards used the same
+decoder for ROM and for the video RAM aperture, so that you were supposed
+to only enable ROM when the RAM thing was quiescent or something, and 
+always use the same address too (the current code doesn't _enable_ the 
+ROM, but I think it allocates and programs the base address. Which 
+should be harmless, but..).
+
+Ivan? Does something like this make a difference?
+
+		Linus
+
+---
+diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -52,10 +52,12 @@ pci_update_resource(struct pci_dev *dev,
+ 
+ 	if (resno < 6) {
+ 		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
++#if 0
+ 	} else if (resno == PCI_ROM_RESOURCE) {
+ 		new |= res->flags & IORESOURCE_ROM_ENABLE;
+ 		reg = dev->rom_base_reg;
+ 	} else {
++#endif
+ 		/* Hmm, non-standard resource. */
+ 	
+ 		return;		/* kill uninitialised var warning */

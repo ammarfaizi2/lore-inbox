@@ -1,110 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbVHVU16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbVHVUaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbVHVU16 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 16:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbVHVU16
+	id S1751062AbVHVUaL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 16:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbVHVUaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 16:27:58 -0400
-Received: from dns.toxicfilms.tv ([150.254.220.184]:49567 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S1751058AbVHVU15
+	Mon, 22 Aug 2005 16:30:11 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:17625 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751062AbVHVUaK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 16:27:57 -0400
-Date: 22 Aug 2005 22:27:40 +0200
-Message-ID: <20050822202740.9793.qmail@dns.toxicfilms.tv>
-From: solt@dns.toxicfilms.tv
-To: linux-kernel@vger.kernel.org
-Subject: 3com 3c59x stopped working with 2.6.13-rc[56]
+	Mon, 22 Aug 2005 16:30:10 -0400
+Date: Mon, 22 Aug 2005 22:38:05 +0200
+To: Guillermo =?iso-8859-1?Q?L=F3pez?= Alejos <glalejos@gmail.com>
+Cc: Linh Dang <linhd@nortel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Environment variables inside the kernel?
+Message-ID: <20050822203805.GA29754@aitel.hist.no>
+References: <4fec73ca050818084467f04c31@mail.gmail.com> <m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local> <wn5slx75cjs.fsf@linhd-2.ca.nortel.com> <4fec73ca05081811488ec518e@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4fec73ca05081811488ec518e@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Aug 18, 2005 at 08:48:04PM +0200, Guillermo López Alejos wrote:
+> Whoa!, I did not expect so many replies. Thank you for your answers.
+> 
+> The thing is that the Computer Architecture area of the University I
+> am studying at is developing a parallel filesystem. Currently it works
+> as a stand-alone program (this is why it uses resources like
+> environment variables), and I have been told to integrate it in the
+> Linux kernel.
+> 
+> I have to justify changes on this filesystem code (like avoiding the
+> use of environment variables) to my tutor. In this case I needed to
+> find why it is not possible to use environment variables in kernel
+> space.
+> 
+> I was looking for a reference documentation which give a definition of
+> environment variables that exclude their use inside the kernel, or,
+> simply, I expected to find a design decision to justify this. But I
+> think I have enough information with your answers, I will be able to
+> elaborate a satisfactory conclusion.
+> 
+> Excuse me if the topic was so obvious (it was not to me) and thank you again,
 
-i tried to boot 2.6.13-rc5-git4 and 2.6.13-rc6-git13 both with the same
-result: my 3com (3c59x driver on 3com 905c) card not working.
-Here is what I saw in the logs.
-Notice the regularity of the log barfs. They continue the same every 10secs.
+It is obvious to someone who knows what the kernel is. A kernel and
+a process is very different things.  A comparison to something
+different:
 
-The upgrade was committed using:
-cd /usr/src/linux
-patch -p1 < ../patch-2.6.13-rc5
-patch -p1 < ../patch-2.6.13-rc5-git4
-make oldconfig
-make bzImage modules modules_install install
+A book always have a "page 1".  It is usually only the title, so it
+is a nice place for writing some notes as well. 
+(similiar to how a process have an environment.)
 
-gcc-4.0.1 from Debian testing.
+A library is a big collection of books, (similiar to how the kernel
+manages a collection of processes.)  Still, it does not make sense
+at all to talk about "page 1 of the library!"  Even if it _is_ useful
+to write some library-specific notes somewhere.
 
-Any ideas?
-Regards,
-Maciej
+The kernel does not have an environment of its own.  It manages all
+the processes, and jave equal access all of the environmnts 
+(albeit in a hackish way only) for process envirnments are _not_
+part of the kernel/process communication interface.  
 
+|1
+Helge Hafting
 
-18:27:47: eth1: Setting full-duplex based on MII #24 link partner capability of 05e1.
-18:32:02: NETDEV WATCHDOG: eth1: transmit timed out
-18:32:02: eth1: transmit timed out, tx_status 00 status e601.
-18:32:02:   diagnostics: net 0cfa media 8880 dma 0000003a fifo 8800
-18:32:02: eth1: Interrupt posted but not delivered -- IRQ blocked by another device?
-18:32:02:   Flags; bus-master 1, dirty 16(0) current 16(0)
-18:32:02:   Transmit list 00000000 vs. dff2c200.
-18:32:02:   0: @dff2c200  length 80000020 status 00010020
-18:32:02:   1: @dff2c2a0  length 8000002a status 0001002a
-18:32:02:   2: @dff2c340  length 8000002a status 0001002a
-18:32:02:   3: @dff2c3e0  length 80000076 status 00010076
-18:32:02:   4: @dff2c480  length 8000002a status 0001002a
-18:32:02:   5: @dff2c520  length 8000002a status 0001002a
-18:32:02:   6: @dff2c5c0  length 8000002a status 0001002a
-18:32:02:   7: @dff2c660  length 8000002a status 0001002a
-18:32:02:   8: @dff2c700  length 8000002a status 0001002a
-18:32:02:   9: @dff2c7a0  length 8000002a status 0001002a
-18:32:02:   10: @dff2c840  length 8000002a status 0001002a
-18:32:02:   11: @dff2c8e0  length 80000020 status 00010020
-18:32:02:   12: @dff2c980  length 80000020 status 00010020
-18:32:02:   13: @dff2ca20  length 80000020 status 00010020
-18:32:02:   14: @dff2cac0  length 80000076 status 80010076
-18:32:02:   15: @dff2cb60  length 80000020 status 80010020
-18:32:02: eth1: Resetting the Tx ring pointer.
-18:38:02: NETDEV WATCHDOG: eth1: transmit timed out
-18:38:02: eth1: transmit timed out, tx_status 00 status e601.
-18:38:02:   diagnostics: net 0cfa media 8880 dma 0000003a fifo 8000
-18:38:02: eth1: Interrupt posted but not delivered -- IRQ blocked by another device?
-18:38:02:   Flags; bus-master 1, dirty 32(0) current 32(0)
-18:38:02:   Transmit list 00000000 vs. dff2c200.
-18:38:02:   0: @dff2c200  length 80000020 status 00010020
-18:38:02:   1: @dff2c2a0  length 80000020 status 00010020
-18:38:02:   2: @dff2c340  length 80000020 status 00010020
-18:38:02:   3: @dff2c3e0  length 8000002a status 0001002a
-18:38:02:   4: @dff2c480  length 8000002a status 0001002a
-18:38:02:   5: @dff2c520  length 8000002a status 0001002a
-18:38:02:   6: @dff2c5c0  length 8000002a status 0001002a
-18:38:02:   7: @dff2c660  length 8000002a status 0001002a
-18:38:02:   8: @dff2c700  length 8000002a status 0001002a
-18:38:02:   9: @dff2c7a0  length 8000002a status 0001002a
-18:38:02:   10: @dff2c840  length 8000002a status 0001002a
-18:38:02:   11: @dff2c8e0  length 8000002a status 0001002a
-18:38:02:   12: @dff2c980  length 80000020 status 00010020
-18:38:02:   13: @dff2ca20  length 80000076 status 00010076
-18:38:02:   14: @dff2cac0  length 80000020 status 80010020
-18:38:02:   15: @dff2cb60  length 80000020 status 80010020
-18:38:02: eth1: Resetting the Tx ring pointer.
-18:38:12: NETDEV WATCHDOG: eth1: transmit timed out
-18:38:12: eth1: transmit timed out, tx_status 00 status e601.
-18:38:12:   diagnostics: net 0cfa media 8880 dma 0000003a fifo 0000
-18:38:12: eth1: Interrupt posted but not delivered -- IRQ blocked by another device?
-18:38:12:   Flags; bus-master 1, dirty 48(0) current 48(0)
-18:38:12:   Transmit list 00000000 vs. dff2c200.
-18:38:12:   0: @dff2c200  length 8000002a status 0001002a
-18:38:12:   1: @dff2c2a0  length 8000002a status 0001002a
-18:38:12:   2: @dff2c340  length 8000002a status 0001002a
-18:38:12:   3: @dff2c3e0  length 8000002a status 0001002a
-18:38:12:   4: @dff2c480  length 8000002a status 0001002a
-18:38:12:   5: @dff2c520  length 8000002a status 0001002a
-18:38:12:   6: @dff2c5c0  length 8000002a status 0001002a
-18:38:12:   7: @dff2c660  length 8000002a status 0001002a
-18:38:12:   8: @dff2c700  length 8000002a status 0001002a
-18:38:12:   9: @dff2c7a0  length 8000002a status 0001002a
-18:38:12:   10: @dff2c840  length 8000002a status 0001002a
-18:38:12:   11: @dff2c8e0  length 8000002a status 0001002a
-18:38:12:   12: @dff2c980  length 8000002a status 0001002a
-18:38:12:   13: @dff2ca20  length 8000002a status 0001002a
-18:38:12:   14: @dff2cac0  length 8000002a status 8001002a
-18:38:12:   15: @dff2cb60  length 8000002a status 8001002a
-18:38:12: eth1: Resetting the Tx ring pointer.

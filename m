@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbVHVWLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbVHVWLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbVHVWLv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbVHVWLu
+	id S1751013AbVHVWLR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbVHVWLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:11:50 -0400
+	Mon, 22 Aug 2005 18:11:17 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:53638 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751258AbVHVWLq (ORCPT
+	by vger.kernel.org with ESMTP id S1750997AbVHVWLQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:11:46 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: danial_thom@yahoo.com, Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 Performance problems
-Date: Mon, 22 Aug 2005 14:46:09 +0300
-User-Agent: KMail/1.5.4
-References: <20050821202141.78795.qmail@web33305.mail.mud.yahoo.com>
-In-Reply-To: <20050821202141.78795.qmail@web33305.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Aug 2005 18:11:16 -0400
+Date: Mon, 22 Aug 2005 13:03:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: [patch] only compile kernel/power when neccessary
+Message-ID: <20050822110306.GA6739@elf.ucw.cz>
+References: <20050822082649.GA5614@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508221446.09100.vda@ilport.com.ua>
+In-Reply-To: <20050822082649.GA5614@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 August 2005 23:21, Danial Thom wrote:
-> > You problem could very well be something else
-> > entirely, but try a
-> > kernel build with PREEMPT_NONE and HZ=100 and
-> > see if it makes a big
-> > difference (or if that's your current config,
-> > then try the opposite,
-> > HZ=1000 and PREEMPT). If it does make a
-> > difference, then that's a
-> > valuable piece of information to report on the
-> > list. If it turns out
-> > it makes next to no difference at all, then
-> > that as well is relevant
-> > information as then people will know that HZ &
-> > preempt is not the
-> > cause and can focus on finding the problem
-> > elsewhere.
->
-> Yes. Hz isn't going to make much difference on a
-> 2.0Ghz opteron, but I can see how premption can
-> cause packet loss. Shouldn't packet processing be
-> the highest priority process? It seems pointless
-> to "keep the audio buffers full" if you're
-> dropping packets as a result. 
-> 
-> Also some clown typing on the keyboard shouldn't
-> cause packet loss. Trading network integrity for
-> snappy responsiveness is a bad trade.
+Hi!
 
-You do not need to argue about usefulness of preempt
-(or lack thereof). You need to try non-PREEMPT kernel
-as suggested (if you really are interested in fixing
-performance degradation you observe, that is).
+> Only compile kernel/power if sleep support is going to be used.
 
-http://www.catb.org/~esr/faqs/smart-questions.html
---
-vda
+I'm sorry, this patch is wrong. It broke compilation on ARM. I could
+fix it, but then I found out that it is probably not worth the
+effort. Only refrigerator stuff can be compiled-out on ARM, and that's
+single file. Probably best to revert...
 
+								Pavel
+
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

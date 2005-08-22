@@ -1,60 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVHVUPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbVHVUU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbVHVUPK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 16:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbVHVUPH
+	id S1751014AbVHVUU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 16:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbVHVUU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 16:15:07 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:35507 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750830AbVHVUPC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 16:15:02 -0400
-Date: Tue, 23 Aug 2005 01:46:26 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: John Hawkes <hawkes@jackhammer.engr.sgi.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pj@sgi.com, nickpiggin@yahoo.com.au,
-       akpm@osdl.org
-Subject: Re: [PATCH] ia64 cpuset + build_sched_domains() mangles structures
-Message-ID: <20050822201626.GC7686@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <43074328.MailOXV1UXUHF@jackhammer.engr.sgi.com> <20050822070834.GA16722@elte.hu> <20050822141414.GB7686@in.ibm.com> <20050822160719.GB6652@elte.hu>
+	Mon, 22 Aug 2005 16:20:57 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:903
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751013AbVHVUU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 16:20:56 -0400
+Date: Mon, 22 Aug 2005 13:20:52 -0700 (PDT)
+Message-Id: <20050822.132052.65406121.davem@davemloft.net>
+To: tony.luck@intel.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jasonuhl@sgi.com
+Subject: Re: CONFIG_PRINTK_TIME woes
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <200508221742.j7MHgMJI020020@agluck-lia64.sc.intel.com>
+References: <20050821021322.3986dd4a.akpm@osdl.org>
+	<20050821021616.6bbf2a14.akpm@osdl.org>
+	<200508221742.j7MHgMJI020020@agluck-lia64.sc.intel.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050822160719.GB6652@elte.hu>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 22, 2005 at 06:07:19PM +0200, Ingo Molnar wrote:
-> great! Andrew, i'd suggest we try the merged patch attached below in 
-> -mm.
-> 
+From: tony.luck@intel.com
+Date: Mon, 22 Aug 2005 10:42:22 -0700
 
-Ingo, unfortunately I am hitting panic's on stress testing. The panic
-screen is attached in the .png below.
+> At the other extreme ... the current use of sched_clock() with
+> potentially nano-second resolution is way over the top.
 
-On debugging I found that the panic happens consistently in this line
- of code in function find_busiest_group
-
-	*imbalance = min((max_load - avg_load) * busiest->cpu_power,
-                                (avg_load - this_load) * this->cpu_power)
-                        / SCHED_LOAD_SCALE;
-
-Here I find that the "this" pointer is still NULL. I verified this by
-a quick hack as below in the same function and with this hack it seems 
-to run for hours
-
--	if (!busiest || this_load >= max_load)
-+	if (!this || !busiest || this_load >= max_load)
-
-This can only happen if the none of the sched groups pointed to by the 
-'sd' of the current cpu contain the current cpu. I was wondering if
-this had anything to do with the way that we are using RCU to assign/
-read the 'sd' pointer.
-
-Any thoughts ??
-
-	-Dinakar
-
+Not really, when I'm debugging TCP events over gigabit
+these timestamps are exceptionally handy.

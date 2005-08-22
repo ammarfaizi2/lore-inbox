@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbVHVW0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbVHVW3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751441AbVHVW0F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbVHVW0C
+	id S1751425AbVHVW3V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbVHVW2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:26:02 -0400
+	Mon, 22 Aug 2005 18:28:12 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:17289 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751435AbVHVWZa (ORCPT
+	by vger.kernel.org with ESMTP id S1751433AbVHVWZ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:25:30 -0400
-Date: Mon, 22 Aug 2005 10:26:49 +0200
+	Mon, 22 Aug 2005 18:25:29 -0400
+Date: Mon, 22 Aug 2005 10:15:28 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: [patch] only compile kernel/power when neccessary
-Message-ID: <20050822082649.GA5614@elf.ucw.cz>
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch] suspend: update warnings
+Message-ID: <20050822081528.GA4418@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,69 +23,56 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only compile kernel/power if sleep support is going to be used.
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Update suspend documentation. Warnings were a bit overstated, and did
+not point out important stuff.
 
 ---
-commit 847ddd5de8a88b2d47e759bc94186a77140bc673
-tree 5b7cb15723ef57e4cf3f72124c92176e394566b0
-parent 790df7223ac29afec81e7201adc879973311f27e
-author <pavel@amd.(none)> Mon, 22 Aug 2005 10:25:05 +0200
-committer <pavel@amd.(none)> Mon, 22 Aug 2005 10:25:05 +0200
+commit 790df7223ac29afec81e7201adc879973311f27e
+tree 97fa2017f8f5aded0c44cfc75ba4903fbdb7f0a4
+parent 63393fcbf056a6fd68142a49ed4e1258560dce2c
+author <pavel@amd.(none)> Mon, 22 Aug 2005 10:13:51 +0200
+committer <pavel@amd.(none)> Mon, 22 Aug 2005 10:13:51 +0200
 
- drivers/acpi/Kconfig |    1 +
- kernel/Makefile      |    2 +-
- kernel/power/Kconfig |    7 ++++++-
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ Documentation/power/swsusp.txt |   60 ++++++++++++++++++++++++++++++++--------
+ Documentation/power/video.txt  |    9 +++++-
+ 2 files changed, 56 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
---- a/drivers/acpi/Kconfig
-+++ b/drivers/acpi/Kconfig
-@@ -57,6 +57,7 @@ config ACPI_SLEEP
- 	bool "Sleep States (EXPERIMENTAL)"
- 	depends on X86 && (!SMP || SUSPEND_SMP)
- 	depends on EXPERIMENTAL && PM
-+	select SLEEP
- 	default y
- 	---help---
- 	  This option adds support for ACPI suspend states. 
-diff --git a/kernel/Makefile b/kernel/Makefile
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -15,7 +15,7 @@ obj-$(CONFIG_SMP) += cpu.o spinlock.o
- obj-$(CONFIG_UID16) += uid16.o
- obj-$(CONFIG_MODULES) += module.o
- obj-$(CONFIG_KALLSYMS) += kallsyms.o
--obj-$(CONFIG_PM) += power/
-+obj-$(CONFIG_SLEEP) += power/
- obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_KEXEC) += kexec.o
- obj-$(CONFIG_COMPAT) += compat.o
-diff --git a/kernel/power/Kconfig b/kernel/power/Kconfig
---- a/kernel/power/Kconfig
-+++ b/kernel/power/Kconfig
-@@ -18,6 +18,10 @@ config PM
- 	  will issue the hlt instruction if nothing is to be done, thereby
- 	  sending the processor to sleep and saving power.
+diff --git a/Documentation/power/swsusp.txt b/Documentation/power/swsusp.txt
+--- a/Documentation/power/swsusp.txt
++++ b/Documentation/power/swsusp.txt
+@@ -1,22 +1,20 @@
+-From kernel/suspend.c:
++Some warnings, first.
  
-+config SLEEP
-+	bool
-+	depends on PM
-+
- config PM_DEBUG
- 	bool "Power Management Debug Support"
- 	depends on PM
-@@ -28,7 +32,8 @@ config PM_DEBUG
+  * BIG FAT WARNING *********************************************************
+  *
+- * If you have unsupported (*) devices using DMA...
+- *				...say goodbye to your data.
+- *
+  * If you touch anything on disk between suspend and resume...
+  *				...kiss your data goodbye.
+  *
+- * If your disk driver does not support suspend... (IDE does)
+- *				...you'd better find out how to get along
+- *				   without your data.
+- *
+- * If you change kernel command line between suspend and resume...
+- *			        ...prepare for nasty fsck or worse.
++ * If you do resume from initrd after your filesystems are mounted...
++ *				...bye bye root partition.
++ *			[this is actually same case as above]
+  *
+- * If you change your hardware while system is suspended...
+- *			        ...well, it was not good idea.
++ * If you have unsupported (*) devices using DMA, you may have some
++ * problems. If your disk driver does not support suspend... (IDE does),
++ * it may cause some problems, too. If you change kernel command line 
++ * between suspend and resume, it may do something wrong. If you change 
++ * your hardware while system is suspended... well, it was not good idea;
++ * but it wil probably only crash.
+  *
+  * (*) suspend/resume support is needed to make it safe.
  
- config SOFTWARE_SUSPEND
- 	bool "Software Suspend"
--	depends on EXPERIMENTAL && PM && SWAP && ((X86 && SMP) || ((FVR || PPC32 || X86) && !SMP))
-+	depends on PM && SWAP && (X86 || ((FVR || PPC32) && !SMP))
-+	select SLEEP
- 	---help---
- 	  Enable the possibility of suspending the machine.
- 	  It doesn't need APM.
 
 -- 
 if you have sharp zaurus hardware you don't need... you know my address

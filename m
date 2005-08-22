@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbVHVWdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbVHVWf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751427AbVHVWdY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbVHVWdW
+	id S1751372AbVHVWf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbVHVWeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:33:22 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:31370 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751434AbVHVWdT (ORCPT
+	Mon, 22 Aug 2005 18:34:22 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:46218 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751469AbVHVWeU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:33:19 -0400
-Date: Mon, 22 Aug 2005 09:19:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Ondrej Zary <linux@rainbow-software.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: FPU-intensive programs crashing with floating point
-Message-ID: <20050822071911.GA18589@elte.hu>
-References: <200508210550_MC3-1-A7CF-D29E@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 22 Aug 2005 18:34:20 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [patch 8/8] [PATCH] Module per-cpu alignment cannot always be met
+Date: Mon, 22 Aug 2005 09:58:17 +0300
+User-Agent: KMail/1.5.4
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, rusty@rustcorp.com.au,
+       Daniel Drake <dsd@gentoo.org>, Chris Wright <chrisw@osdl.org>
+References: <20050811225445.404816000@localhost.localdomain> <20050811225649.386948000@localhost.localdomain>
+In-Reply-To: <20050811225649.386948000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200508210550_MC3-1-A7CF-D29E@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200508220958.17800.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Chuck Ebbert <76306.1226@compuserve.com> wrote:
-
-> (And it looks like there is a small bug in there.  The switch should 
-> be:
+On Friday 12 August 2005 01:54, Chris Wright wrote:
+> -stable review patch.  If anyone has any  objections, please let us know.
+> ------------------
 > 
->         switch (((~cwd) & swd & 0x3f) | (swd & 1 ? swd & 0x240 : 0)) {
-> 
-> because the SF and CC1 bits are only relevant when IE is set.)
+> The module code assumes noone will ever ask for a per-cpu area more than
+> SMP_CACHE_BYTES aligned.  However, as these cases show, gcc asks sometimes
+> asks for 32-byte alignment for the per-cpu section on a module, and if
+> CONFIG_X86_L1_CACHE_SHIFT is 4, we hit that BUG_ON().  This is obviously an
+> unusual combination, as there have been few reports, but better to warn
+> than die.
 
-please send a separate patch for that against -mm to Andrew, we want 
-this fixed too.
+gcc gets increasingly sadistic about alignment:
 
-	Ingo
+"char global_var[] = "larger than 32 bytes"; uses silly amounts of alignment even with -Os"
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=22158
+
+Please, everybody who thinks that _32_ _byte_ alignment
+is outright silly, add your comments to this bugzilla entry.
+--
+vda
+

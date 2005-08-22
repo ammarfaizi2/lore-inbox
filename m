@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbVHVWfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbVHVWe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751380AbVHVWfy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:35:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbVHVWe6
+	id S1751478AbVHVWe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbVHVWey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:34:58 -0400
+	Mon, 22 Aug 2005 18:34:54 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:53386 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751473AbVHVWe1 (ORCPT
+	by vger.kernel.org with ESMTP id S1751479AbVHVWeb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:34:27 -0400
-Date: Mon, 22 Aug 2005 09:13:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Marcel Holtmann <marcel@holtmann.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] race condition with drivers/char/vt.c (bug in vt_ioctl.c)
-Message-ID: <20050822071330.GA18456@elte.hu>
-References: <1124508087.18408.79.camel@localhost.localdomain>
+	Mon, 22 Aug 2005 18:34:31 -0400
+Date: Mon, 22 Aug 2005 09:45:18 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Stephane Wirtel <stephane.wirtel@belgacom.net>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Pekka Enberg <penberg@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Documentation] Use doxygen or another tool to generate a documentation ?
+Message-ID: <20050822074518.GF9530@admingilde.org>
+Mail-Followup-To: Stephane Wirtel <stephane.wirtel@belgacom.net>,
+	Sam Ravnborg <sam@ravnborg.org>, Pekka Enberg <penberg@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20050819213447.GA9538@localhost.localdomain> <84144f02050819144660238be4@mail.gmail.com> <20050819232340.GB9538@localhost.localdomain> <20050820074106.GA15162@mars.ravnborg.org> <20050820091941.GA15936@localhost.localdomain> <20050820173706.GA11079@mars.ravnborg.org> <20050821151231.GE9530@admingilde.org> <20050821183242.GA18020@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0rSojgWGcpz+ezC3"
 Content-Disposition: inline
-In-Reply-To: <1124508087.18408.79.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050821183242.GA18020@localhost.localdomain>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+--0rSojgWGcpz+ezC3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I googled a little and found where this may have already happened in 
-> the main line kernel:
-> 
-> http://seclists.org/lists/linux-kernel/2005/Aug/1603.html
-> 
-> So here's my proposal: 
-> 
->   Instead of checking for tty->count == 1 in con_open, which we see is
-> not reliable.  Just check for tty->driver_data == NULL.
-> 
-> This should work since it should always be NULL when we need to assign 
-> it.  If we switch the events of the race, so that the init_dev went 
-> first, the driver_data would not be NULL and would not need to be 
-> allocated, because after init_dev tty->count would be greater than 1 
-> (this is assuming the case that it is already allocated) and the 
-> con_close would not deallocate it.  The tty_sem and console_sem and 
-> order of events protect the tty->driver_data but not the tty->count.
-> 
-> Without the patch, I was able to get the system to BUG on bootup every 
-> other time.  With the patch applied, I was able to bootup 6 out of 6 
-> times without a single crash.
+hoi :)
 
-cool fix. I'm wondering, there's a whole lot of other 'tty->count == 1' 
-checks in drivers/char/*.c, could some of those be racy too?
+On Sun, Aug 21, 2005 at 08:32:42PM +0200, Stephane Wirtel wrote:
+> Martin, your patch works for the htmldocs target, but not for the
+> pdfdocs, I think there is a bug in a latex package. I don't know which
+> one, but it's the same error.
 
-	Ingo
+yes, some pdfdocs are broken and I haven't found the cause yet.
+I guess we have to ditch xmlto, at least for PDF/PS.
+
+--=20
+Martin Waitz
+
+--0rSojgWGcpz+ezC3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDCYKOj/Eaxd/oD7IRAkcDAJ9PkuM6y+5Q7dfEWfJJr1f7wPteYQCfV/LV
+phQAxr5cDAkuffzTaMPUSeU=
+=hDdJ
+-----END PGP SIGNATURE-----
+
+--0rSojgWGcpz+ezC3--

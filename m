@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVHVVRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVHVVYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbVHVVRE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 17:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbVHVVRE
+	id S1751217AbVHVVYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 17:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVHVVYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 17:17:04 -0400
-Received: from supmuscle.dreamhost.com ([66.33.192.105]:4070 "EHLO
-	coverity.dreamhost.com") by vger.kernel.org with ESMTP
-	id S1751171AbVHVVRD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 17:17:03 -0400
-Message-ID: <430A40F0.6030601@coverity.com>
-Date: Mon, 22 Aug 2005 14:17:36 -0700
-From: Ted Unangst <tedu@coverity.com>
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.7.3) Gecko/20041217
+	Mon, 22 Aug 2005 17:24:46 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:53997 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751217AbVHVVYo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 17:24:44 -0400
+Date: Mon, 22 Aug 2005 08:26:07 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: sched_yield() makes OpenLDAP slow
+In-reply-to: <Pine.LNX.4.61.0508220735370.18402@chaos.analogic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4309E07F.8010304@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: missing spin_unlock in tcp_v4_get_port
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <4D8eT-4rg-31@gated-at.bofh.it> <4306A176.3090907@shaw.ca>
+ <4306AF26.3030106@yahoo.com.au> <4307788E.1040209@symas.com>
+ <4307D320.90902@shaw.ca> <Pine.LNX.4.61.0508220735370.18402@chaos.analogic.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There appears to be a missing spin_unlock in tcp_v4_get_port.
+linux-os (Dick Johnson) wrote:
+> I reported thet sched_yield() wasn't working (at least as expected)
+> back in March of 2004.
+> 
+>  		for(;;)
+>                      sched_yield();
+> 
+> ... takes 100% CPU time as reported by `top`. It should take
+> practically 0. Somebody said that this was because `top` was
+> broken, others said that it was because I didn't know how to
+> code. Nevertheless, the problem was not fixed, even after
+> schedular changes were made for the current version.
 
-                 do {    rover++;
-                         if (rover > high)
-                                 rover = low;
-                         head = &tcp_bhash[tcp_bhashfn(rover)];
-                         spin_lock(&head->lock);
-head->lock is acquired.
-                         tb_for_each(tb, node, &head->chain)
-                                 if (tb->port == rover)
-                                         goto next;
-we don't find what we want.  break out of while loop.
-                         break;
-                 next:
-                         spin_unlock(&head->lock);
-                 } while (--remaining > 0);
-                 tcp_port_rover = rover;
-                 spin_unlock(&tcp_portalloc_lock);
-
-                 /* Exhausted local port range during search? */
-                 ret = 1;
-                 if (remaining <= 0)
-                         goto fail;
-here we go to fail; head->lock is still acquired.
-....
-fail_unlock:
-         spin_unlock(&head->lock);
-fail:
-         local_bh_enable();
-         return ret;
-
-Is this a real bug?  The same code was also copy-pasted into 
-tcp_v6_get_port.
-
+This is what I would expect if run on an otherwise idle machine. 
+sched_yield just puts you at the back of the line for runnable 
+processes, it doesn't magically cause you to go to sleep somehow.
 
 -- 
-Ted Unangst             www.coverity.com             Coverity, Inc.
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

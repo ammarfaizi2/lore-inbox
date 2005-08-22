@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVHVVwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbVHVVyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbVHVVwb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 17:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVHVVwa
+	id S1751296AbVHVVyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 17:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbVHVVyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 17:52:30 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:42883 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751257AbVHVVw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 17:52:29 -0400
-Date: Mon, 22 Aug 2005 03:19:14 -0500
-From: serue@us.ibm.com
-To: serue@us.ibm.com
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
-       linux-security-module@wirex.com, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: [PATCH -mm 2/3] [LSM] Stacking support for inode_init_security
-Message-ID: <20050822081914.GA25390@sergelap.austin.ibm.com>
-References: <20050822080401.GA26125@sergelap.austin.ibm.com>
+	Mon, 22 Aug 2005 17:54:08 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:38580 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751278AbVHVVyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 17:54:07 -0400
+Subject: Re: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: luben_tuikov@adaptec.com, jim.houston@ccur.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <1124720938.5211.13.camel@mulgrave>
+References: <20050822003325.33507.qmail@web51613.mail.yahoo.com>
+	 <1124680540.5068.37.camel@mulgrave> <20050821205214.2a75b3cf.akpm@osdl.org>
+	 <1124720938.5211.13.camel@mulgrave>
+Content-Type: text/plain
+Date: Mon, 22 Aug 2005 16:53:35 -0500
+Message-Id: <1124747615.5211.34.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050822080401.GA26125@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch, against the 2.6.13-rc6-mm1 stacker, defines the
-inode_init_security() hook.
+On Mon, 2005-08-22 at 09:28 -0500, James Bottomley wrote:
+> > I think providing locking inside idr.c was always a mistake - generally we
+> > rely on caller-provided locking for such things.
+> 
+> Well, the reason is because they wanted lockless pre-alloc.  If you do
+> it locked, you can't use GFP_KERNEL for the memory allocation flag which
+> rather defeats its purpose.
 
-thanks,
--serge
+It looks to be feasible to implement this locklessly the same way as the
+radix-tree does (with a per_cpu list), except that you still need a
+start/end API for the pre allocation to do the initial disable of pre-
+emption.
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
---
- stacker.c |   35 +++++++++++++++++++++++++++++++++++
- 1 files changed, 35 insertions(+)
+Then the remove should simply then free the entry (again like radix-
+tree) and let the slab take care of necessary locking.
 
-Index: linux-2.6.13-rc6-mm1/security/stacker.c
-===================================================================
---- linux-2.6.13-rc6-mm1.orig/security/stacker.c	2005-08-19 17:00:39.000000000 -0500
-+++ linux-2.6.13-rc6-mm1/security/stacker.c	2005-08-19 17:01:54.000000000 -0500
-@@ -443,6 +443,40 @@ static void stacker_inode_free_security 
- 		security_disown_value(h);
- }
- 
-+static int stacker_inode_init_security(struct inode *inode, struct inode *dir,
-+				       struct list_head *head)
-+{
-+	int ret, succ_ret = -EOPNOTSUPP;
-+	struct xattr_data *p, *n;
-+	struct module_entry *m;
-+
-+	rcu_read_lock();
-+	stack_for_each_entry(m, &stacked_modules, lsm_list) {
-+		if (!m->module_operations.inode_init_security)
-+			continue;
-+		rcu_read_unlock();
-+		ret = m->module_operations.inode_init_security(inode,dir,head);
-+		rcu_read_lock();
-+		if (ret && ret != -EOPNOTSUPP)
-+			goto out_free_data;
-+		if (ret == 0)
-+			succ_ret = 0;
-+	}
-+	rcu_read_unlock();
-+	return succ_ret;
-+
-+out_free_data:
-+	if (!head)
-+		return ret;
-+	list_for_each_entry_safe(p, n, head, list) {
-+		list_del(&p->list);
-+		kfree(p->value);
-+		kfree(p->name);
-+		kfree(p);
-+	}
-+	return ret;
-+}
-+
- static int stacker_inode_create (struct inode *inode, struct dentry *dentry,
- 			       int mask)
- {
-@@ -1315,6 +1349,7 @@ static struct security_operations stacke
- 
- 	.inode_alloc_security		= stacker_inode_alloc_security,
- 	.inode_free_security		= stacker_inode_free_security,
-+	.inode_init_security		= stacker_inode_init_security,
- 	.inode_create			= stacker_inode_create,
- 	.inode_link			= stacker_inode_link,
- 	.inode_unlink			= stacker_inode_unlink,
+Of course, if we're going to go to all this trouble, the next question
+that arises naturally is why not just reuse the radix-tree code to
+implement idr anyway ... ?
+
+James
+
+

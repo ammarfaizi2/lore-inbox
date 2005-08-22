@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbVHVW2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbVHVW1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbVHVW2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVHVW2Q
+	id S1751375AbVHVW1j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbVHVW0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:28:16 -0400
+	Mon, 22 Aug 2005 18:26:51 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:17289 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751430AbVHVWZ2 (ORCPT
+	by vger.kernel.org with ESMTP id S1751375AbVHVW0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:25:28 -0400
-Message-ID: <43099235.65BC4757@tv-sign.ru>
-Date: Mon, 22 Aug 2005 12:52:05 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Mon, 22 Aug 2005 18:26:13 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes. Also some X trouble.
+Date: Mon, 22 Aug 2005 10:01:30 +0200
+User-Agent: KMail/1.8.2
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Dave Airlie <airlied@gmail.com>, Linus Torvalds <torvalds@osdl.org>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <42F89F79.1060103@aitel.hist.no> <200508171326.21948@bilbo.math.uni-mannheim.de>
+In-Reply-To: <200508171326.21948@bilbo.math.uni-mannheim.de>
 MIME-Version: 1.0
-To: tglx@linutronix.de
-Cc: Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
-       George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] fix send_sigqueue() vs thread exit race
-References: <20050818060126.GA13152@elte.hu>
-		 <1124495303.23647.579.camel@tglx.tec.linutronix.de>
-		 <43076138.C37ED380@tv-sign.ru>
-		 <1124617458.23647.643.camel@tglx.tec.linutronix.de>
-		 <43085E97.4EC3908B@tv-sign.ru>
-		 <1124659468.23647.695.camel@tglx.tec.linutronix.de>
-		 <1124661032.23647.698.camel@tglx.tec.linutronix.de>
-		 <4309731E.ED621149@tv-sign.ru> <1124698127.23647.716.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=koi8-r
+Content-Type: multipart/signed;
+  boundary="nextPart19745969.NGhCgWe2R8";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200508221001.39050@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> 
-> But we can not check for p->sighand == NULL, as sighand is released
-> after exit_itimers() so we are still deadlock prone. So I think
-> __exit_sighand() should be called before exit_itimers(). Then we can do
-> 
-> retry:
->         if (unlikely(!p->sighand))
->                 return -1;
-> 
-> instead of checking for PF_EXITING.
+--nextPart19745969.NGhCgWe2R8
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I think yes, and this is closely related to your and Paul
-"Use RCU to protect tasklist for unicast signals" patches.
+>Helge Hafting wrote:
+>>Dave Airlie wrote:
+>>>     I switched back to 2.6.13-rc4-mm1 at this point for another reason,
+>>>     my X display aquired a nasty tendency to go blank for no reason
+>>>     during work,
+>>>     something I could fix by changing resolution baqck and forth.  X
+>>>     also tended to get
+>>>     stuck for a minute now and then - a problem I haven't seen since
+>>>     early 2.6.
+>>>
+>>>
+>>>
+>>> which head the radeon or MGA or both?
+>>
+>>The radeon 9200SE-pci gets stuck.  The MGA-agp seems to be fine. I have
+>>compiled
+>>dri support for both, but I can't use it at the moment.  I think that is
+>>caused by having ubuntu's xorg installed on debian.  I needed xorg
+>>in order to run an xserver that doesn't use any tty - this way I can use
+>>two keyboards and have two simultaneous users. Debians xorg wasn't ready
+>>at the moment. The setup is fine with 2.6.13-rc4-mm1 x86-64, no problems
+>>there.
+>
+>I have some other issue with a MGA card (don't know exactly which, I have
+> only access to this on the weekend). With rc5 and rc6 kdm will not start on
+> bootup, X complains about some unresolved symbols in the X mga driver. If I
+> log in as user and do startx it works fine, also if I switch back to
+> 2.6.12-rc-something. Something seems to confuse X somehow.
+>
+>It's a PII-350 with more or less SuSE 9.3. The machine has no net access, so
+> I can only try to narrow it down to one rc at the weekend.
 
-We don't need RCU here, but we do need this hypothetical
-lock_task_sighand() (and __exit_sighand from __exit_signal
-change).
+2.6.12 works fine, everything since 2.6.13-rc1 breaks it.
 
-We still need tasklist_lock in send_group_queue for
-__group_complete_signal though. I hope Paul will solve
-this, it is needed for group_send_info() anyway.
+Eike
 
-But for the near future I don't see simple and non-intrusive
-fix for this deadlock. I am waiting for George to confirm
-that the bug exists and we are not crazy :)
+--nextPart19745969.NGhCgWe2R8
+Content-Type: application/pgp-signature
 
-Oleg.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBDCYZiXKSJPmm5/E4RArUhAKCWmcvWyRsy/J0iVqGnco54zJCNxwCfWIvZ
+hzFKzeRhpxxRXXJhiuZArnA=
+=hhwF
+-----END PGP SIGNATURE-----
+
+--nextPart19745969.NGhCgWe2R8--

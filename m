@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbVHVT7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVHVUBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbVHVT7t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 15:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbVHVT7t
+	id S1750842AbVHVUBr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 16:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVHVUBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 15:59:49 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:51162 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750875AbVHVT7s (ORCPT
+	Mon, 22 Aug 2005 16:01:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22979 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750767AbVHVUBq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 15:59:48 -0400
-Message-ID: <430A069A.6070004@dacodecz.org>
-Date: Mon, 22 Aug 2005 13:08:42 -0400
-From: Kernel Hacker <kernel@dacodecz.org>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT]Linus trademarks Linux?!!
-References: <Pine.LNX.4.44.0508192211350.1941-100000@www.fnordora.org>  <1124520347.4849.2.camel@localhost.localdomain> <9a87484905082014364e4cb653@mail.gmail.com> <Pine.LNX.4.58.0508201706330.3317@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0508201706330.3317@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Aug 2005 16:01:46 -0400
+Date: Mon, 22 Aug 2005 16:01:44 -0400
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: suspicious behaviour in pcwd driver.
+Message-ID: <20050822200144.GG27344@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <20050822183006.GB27344@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050822183006.GB27344@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Gaah. I don't tend to bother about slashdot, because quite frankly, the 
-> whole _point_ of slashdot is to have this big public wanking session with 
-> people getting together and making their own "insightful" comment on any 
-> random topic, whether they know anything about it or not.
+On Mon, Aug 22, 2005 at 02:30:06PM -0400, Dave Jones wrote:
+ > drivers/char/watchdog/pcwd.c does this if it detects
+ > a temperature out of range..
+ > 
+ >             if (temp_panic) {
+ >                 printk (KERN_INFO PFX "Temperature overheat trip!\n");
+ >                 machine_power_off();
+ >             }
+ > 
+ > Two problems here are..
+ > 
+ > 1. machine_power_off() isn't exported on ppc64. (patch below)
 
-Thanks Sire!
-No more confusion, now.
+I was looking at an old tree, and this is now kernel_power_off()
+so this isn't a problem for pcwd, however the export is still needed
+for drivers/macintosh/therm_pm72.c
 
+ > 2. that printk will never hit the logs, so the admin will just find
+ > a powered off box with no idea what happened.
+ > Should we at least sync block devices before doing the power off ?
 
-Regards
-DD
+AFAICS, this is still a problem with kernel_power_off() though ?
 
-> 
-> 			Linus
+		Dave
 

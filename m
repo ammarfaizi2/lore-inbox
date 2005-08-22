@@ -1,27 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbVHVWbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbVHVWaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbVHVWbB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbVHVWa7
+	id S1751426AbVHVWaG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVHVWaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:30:59 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:17289 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751423AbVHVWZG (ORCPT
+	Mon, 22 Aug 2005 18:30:01 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:21129 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751429AbVHVWZX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:25:06 -0400
-Date: Mon, 22 Aug 2005 09:59:18 +0200
+	Mon, 22 Aug 2005 18:25:23 -0400
+Date: Mon, 22 Aug 2005 10:32:06 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [2.6.13-rc6-rt9 patch] fix DECNET_ROUTER=y compile
-Message-ID: <20050822075918.GF19386@elte.hu>
-References: <20050818060126.GA13152@elte.hu> <20050818225423.GH3822@stusta.de>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Adrian Bunk <bunk@stusta.de>
+Subject: 2.6.13-rc6-rt10
+Message-ID: <20050822083206.GA21465@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050818225423.GH3822@stusta.de>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -34,10 +31,36 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Adrian Bunk <bunk@stusta.de> wrote:
+i have released the 2.6.13-rc6-rt10 tree, which can be downloaded from 
+the usual place:
 
-> It doesn't compile with CONFIG_DECNET_ROUTER=y:
+  http://redhat.com/~mingo/realtime-preempt/
 
-thanks, applied.
+this is a fixes-only release. Changes since 2.6.13-rc6-rt9:
+
+ - fix/improve the timer PI logic (Thomas Gleixner)
+
+ - fix tty race (Steven Rostedt)
+
+ - fix disable_IO_APIC() crash during reboot (Karsten Wiese)
+
+ - fix DECNET compilation error (Adrian Bunk)
+
+ - enable NMI watchdog on P4 CPUs too (Steven Rostedt)
+
+ - fix x86 XT-PIC lockup (Thomas Gleixner)
+
+ - fix PPC slowdown (Thomas Gleixner)
+
+ - identify and port netpoll RCU fix (Steven Rostedt)
+
+ - fix latency tracer deadlock on WAKEUP_TIMING (Steven Rostedt)
+
+to build a 2.6.13-rc6-rt10 tree, the following patches should be 
+applied:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
+   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc6.bz2
+   http://redhat.com/~mingo/realtime-preempt/patch-2.6.13-rc6-rt10
 
 	Ingo

@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbVHVVYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVHVV0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbVHVVYp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 17:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVHVVYp
+	id S1751241AbVHVV0J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 17:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVHVV0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 17:24:45 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:53997 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751180AbVHVVYo (ORCPT
+	Mon, 22 Aug 2005 17:26:05 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:64237 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751028AbVHVVZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 17:24:44 -0400
-Date: Mon, 22 Aug 2005 10:13:53 -0400
-From: Bob Picco <bob.picco@hp.com>
-To: akpm@osdl.org
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, bob.picco@hp.com
-Subject: [PATCH] sparsemem fix for sparse_index_init
-Message-ID: <20050822141353.GN8919@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 22 Aug 2005 17:25:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=QYh/GKi+zsAHl2gu4uzQTL6LAVWRl0aw3PC6PQOTbhB7ciPUbQg2bxRYl6a0JfXW0baGTA4qSGjsZKFAJD7ZAY+rX6IoC4jq32mxbYm8vmTMIoEDwizAd4vWmKTKf2k+ov6AJEGchPBCypeCyLM02qTK9+Ox471TqvoJMU5xPYo=  ;
+Message-ID: <20050822140634.92263.qmail@web51612.mail.yahoo.com>
+Date: Mon, 22 Aug 2005 07:06:33 -0700 (PDT)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
+To: James Bottomley <James.Bottomley@SteelEye.com>, luben_tuikov@adaptec.com
+Cc: Andrew Morton <akpm@osdl.org>, Jim Houston <jim.houston@ccur.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <1124640387.5068.2.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew:
+--- James Bottomley <James.Bottomley@SteelEye.com> wrote:
+> On Sun, 2005-08-21 at 08:49 -0700, Luben Tuikov wrote:
+> > The caller is the aic94xx SAS LLDD.  It uses IDR to generate unique
+> > task tag for each SCSI task being submitted.  It is then used to lookup
+> > the task given the task tag, in effect using IDR as a fast lookup table.
+> > 
+> > Yes, I'm also not aware of any other users of IDR from mixed process/IRQ
+> > context or for SCSI Task tag purposes.
+> 
+> Just a minute, that's not what idr was designed for.  It was really
+> designed for enumerations (like disk) presented to the user.  That's why
+> using it in IRQ context hasn't been considered.
 
-After reviewing recent SPARSEMEM+EXTREME changes for -mm, I spotted a memory 
-leak issue.  In sparse_index_init we must evaluate whether the root index is
-allocated before allocating, acquiring the lock and then checking
-whether the root is already allocated. An alternative would be in the error path
-doing a free_bootmem_node but this seems the more expensive method for
-boot time.
+Hi James, how are you?
 
-thanks,
+Is this the only use _you_ could find for a *radix tree*? ;-)
+Since of course sd.c uses it just as an enumeration, according to
+you this must be the only use? :-)
 
-bob
+It was designed as a general purpose id to pointer translation
+service, just as the comment in it says.
 
-Signed-off-by: Bob Picco <bob.picco@hp.com>
+> However, there is an infrastructure in the block layer called the
+> generic tag infrastructure which was designed precisely for this purpose
+> and which is designed to operate in IRQ context.
 
+James, I'm sure you're well aware that,
+   - a request_queue is LU-bound,
+   - a SCSI _transport_ (*ANY*) can _only_ address domain devices, but
+     _not_ LUs.  LUs are *not* seen on the domain.
 
- mm/sparse.c |    3 +++
- 1 files changed, 3 insertions(+)
+See the different associations?  Then why are you posting such emails?
 
-Index: linux-2.6.13-rc6-mm1/mm/sparse.c
-===================================================================
---- linux-2.6.13-rc6-mm1.orig/mm/sparse.c	2005-08-19 12:47:53.000000000 -0400
-+++ linux-2.6.13-rc6-mm1/mm/sparse.c	2005-08-21 13:36:57.000000000 -0400
-@@ -45,6 +45,9 @@ static int sparse_index_init(unsigned lo
- 	struct mem_section *section;
- 	int ret = 0;
- 
-+	if (mem_section[root])
-+		return -EEXIST;
-+
- 	section = sparse_index_alloc(nid);
- 	/*
- 	 * This lock keeps two different sections from
+Andrew, please apply this patch.
+
+Thanks,
+     Luben
+

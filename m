@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVHVX2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbVHVX1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbVHVX2O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 19:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbVHVX2O
+	id S1751221AbVHVX1N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 19:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVHVX1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 19:28:14 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:16105 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751242AbVHVX2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 19:28:12 -0400
-Date: Mon, 22 Aug 2005 16:27:28 -0700
-From: tony.luck@intel.com
-Message-Id: <200508222327.j7MNRSBR020922@agluck-lia64.sc.intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davem@davemloft.net, jasonuhl@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PRINTK_TIME woes
-In-Reply-To: <20050822153838.186ac336.akpm@osdl.org>
-References: <200508221742.j7MHgMJI020020@agluck-lia64.sc.intel.com>
-	<20050822.132052.65406121.davem@davemloft.net>
-	<20050822203306.GA897956@dragonfly.engr.sgi.com>
-	<20050822.134226.35468933.davem@davemloft.net>
-	<200508222233.j7MMXGWj020872@agluck-lia64.sc.intel.com>
+	Mon, 22 Aug 2005 19:27:13 -0400
+Received: from gate.crashing.org ([63.228.1.57]:49548 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751221AbVHVX1M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 19:27:12 -0400
+Subject: Re: suspicious behaviour in pcwd driver.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050822183006.GB27344@redhat.com>
+References: <20050822183006.GB27344@redhat.com>
+Content-Type: text/plain
+Date: Tue, 23 Aug 2005 09:26:22 +1000
+Message-Id: <1124753182.5189.63.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Ah, thanks.  Presumably it'll be considerably longer with %d's and %s's in
->there.  But still, ~10 usecs is good resolution for I/O operations.
 
-The variation in times from one call to the next seems to be
-greater than the time to evaluate 4 "%d" arguments.
+> Export machine_power_off() on ppc64, as the pcwd watchdog driver needs it.
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> --- linux-2.6.12/arch/ppc64/kernel/setup.c~	2005-08-09 17:37:36.000000000 -0400
+> +++ linux-2.6.12/arch/ppc64/kernel/setup.c	2005-08-09 17:37:53.000000000 -0400
+> @@ -706,6 +706,7 @@ void machine_power_off(void)
+>  	local_irq_disable();
+>  	while (1) ;
+>  }
+> +EXPORT_SYMBOL(machine_power_off);
+>  
+>  void machine_halt(void)
+>  {
+> 
 
-So we are back to how to get a timestamp in printk().
+In fact, we need that for the G5 thermal driver too. I wonder why/how
+this export got removed ... Some over-zealous janitors ?
 
-Earlier I said that it would be possible to provide a simplified
-do_gettimeofday() call that met the no locks requirement.  I still
-think this is possible, but most architectures would only get
-jiffie resolution from this (only ia64, sparc64 and HPET users
-have time interpolators registered).
+Hrm... /me plays with gitk
 
--Tony
+Ahhh, ok, so that is this patch:
+
+<<
+machine_restart, machine_halt and machine_power_off are machine
+    specific hooks deep into the reboot logic, that modules
+    have no business messing with.  Usually code should be calling
+    kernel_restart, kernel_halt, kernel_power_off, or
+    emergency_restart. So don't export machine_restart,
+    machine_halt, and machine_power_off so we can catch buggy users.
+>>
+
+Well, I think for now, it's safe for therm_pm72 to call
+machine_power_off() in case of critical overtemp. I'll have a look at
+kernel_* equivalents later.
+
+Can you still slip that patch into 2.6.13 ?
+
+Ben.
+
+

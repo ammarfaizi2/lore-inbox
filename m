@@ -1,70 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbVHVWTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbVHVWT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbVHVWTg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVHVWT1
+	id S1751355AbVHVWT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVHVWTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:19:27 -0400
+	Mon, 22 Aug 2005 18:19:25 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:3976 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751349AbVHVWTO (ORCPT
+	by vger.kernel.org with ESMTP id S1751358AbVHVWTQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:19:14 -0400
-To: gnome boxer <gnome.boxer@gmail.com>
-Cc: roucaries bastien <roucaries.bastien@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.10-2.6.13-rc4 hang reboot from linux(not from
- windows or from BIOS),but 2.6.8 and 2.6.9 haven't
-References: <605adbb05081907323d3bd70c@mail.gmail.com>
-	<195c7a900508190807504a988a@mail.gmail.com>
-	<605adbb05081908137d6c8ed7@mail.gmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 22 Aug 2005 03:52:58 -0600
-In-Reply-To: <605adbb05081908137d6c8ed7@mail.gmail.com> (gnome boxer's
- message of "Fri, 19 Aug 2005 23:13:11 +0800")
-Message-ID: <m1irxyti11.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 22 Aug 2005 18:19:16 -0400
+Date: Mon, 22 Aug 2005 11:50:40 +0200
+From: Jan Kara <jack@suse.cz>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [2.6 patch] include/linux/quotaops.h: "extern inline" doesn't make sense
+Message-ID: <20050822095040.GU12076@atrey.karlin.mff.cuni.cz>
+References: <20050820192551.GE3615@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050820192551.GE3615@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gnome boxer <gnome.boxer@gmail.com> writes:
+> "extern inline" doesn't make sense.
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+  Looks good.
 
-> 2005/8/19, roucaries bastien <roucaries.bastien@gmail.com>:
->> On 8/19/05, gnome boxer <gnome.boxer@gmail.com> wrote:
->> > I use fedora core 4,when I rebooted from linux(not from windows or
->> > BIOS),it will hang after the system POST before grub display the stage
->> > 1.5 on the screen,so I must reboot again from there using CRTL+ALT+DEL
->> >
->> > I don't know whether this belongs to grub or belongs to the linux
->> > reboot changes from 2.6.8 and 2.6.9
->> 
->> did you try to add to the kernel command line reboot=cold or
->> reboot=bios or reboot=hard.
->> 
-> I tried the reboot=c reboot=b reboot=s
->
-> They all have this
->
->
->
->> Seems your bios reboot routine is buggy. The preevious option are workarround.
->
-> I think it's linux's reboot routine's fault 
+  Signed-off-by: Jan Kara <jack@suse.cz>
 
-Not terribly likely as the reboot does occur.  It looks more
-like one of the drivers is leaving hardware in a state that
-the BIOS cannot deal with it.
+								Honza
 
-My gut feel says kexec one linux kernel from another would
-be a quick way to check for the move obvious driver problems
-in this area.
-
-More simply might be to boot a minimal kernel with just
-your root filesystem drivers and then keep adding drivers
-until you have a kernel that fails.
-
-The SMP reboot path did change in 2.6.10 but only very slightly.
-
-Eric
-
+> ---
+> 
+>  include/linux/quotaops.h |   12 ++++++------
+>  1 files changed, 6 insertions(+), 6 deletions(-)
+> 
+> --- linux-2.6.13-rc6-mm1/include/linux/quotaops.h.old	2005-08-20 14:40:53.000000000 +0200
+> +++ linux-2.6.13-rc6-mm1/include/linux/quotaops.h	2005-08-20 14:41:30.000000000 +0200
+> @@ -198,38 +198,38 @@
+>  #define DQUOT_SYNC(sb)				do { } while(0)
+>  #define DQUOT_OFF(sb)				do { } while(0)
+>  #define DQUOT_TRANSFER(inode, iattr)		(0)
+> -extern __inline__ int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+> +static inline int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+>  {
+>  	inode_add_bytes(inode, nr);
+>  	return 0;
+>  }
+>  
+> -extern __inline__ int DQUOT_PREALLOC_SPACE(struct inode *inode, qsize_t nr)
+> +static inline int DQUOT_PREALLOC_SPACE(struct inode *inode, qsize_t nr)
+>  {
+>  	DQUOT_PREALLOC_SPACE_NODIRTY(inode, nr);
+>  	mark_inode_dirty(inode);
+>  	return 0;
+>  }
+>  
+> -extern __inline__ int DQUOT_ALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+> +static inline int DQUOT_ALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+>  {
+>  	inode_add_bytes(inode, nr);
+>  	return 0;
+>  }
+>  
+> -extern __inline__ int DQUOT_ALLOC_SPACE(struct inode *inode, qsize_t nr)
+> +static inline int DQUOT_ALLOC_SPACE(struct inode *inode, qsize_t nr)
+>  {
+>  	DQUOT_ALLOC_SPACE_NODIRTY(inode, nr);
+>  	mark_inode_dirty(inode);
+>  	return 0;
+>  }
+>  
+> -extern __inline__ void DQUOT_FREE_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+> +static inline void DQUOT_FREE_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+>  {
+>  	inode_sub_bytes(inode, nr);
+>  }
+>  
+> -extern __inline__ void DQUOT_FREE_SPACE(struct inode *inode, qsize_t nr)
+> +static inline void DQUOT_FREE_SPACE(struct inode *inode, qsize_t nr)
+>  {
+>  	DQUOT_FREE_SPACE_NODIRTY(inode, nr);
+>  	mark_inode_dirty(inode);
+> 

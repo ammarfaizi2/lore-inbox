@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbVHVWSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbVHVWTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbVHVWSs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbVHVWSr
+	id S1751357AbVHVWTg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVHVWT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:18:47 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:63367 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751354AbVHVWSp (ORCPT
+	Mon, 22 Aug 2005 18:19:27 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:3976 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751349AbVHVWTO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:18:45 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.96,130,1122847200"; 
-   d="scan'208"; a="14413008:sNHT27418716"
-Message-ID: <43099FDF.6030504@fujitsu-siemens.com>
-Date: Mon, 22 Aug 2005 11:50:23 +0200
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
+	Mon, 22 Aug 2005 18:19:14 -0400
+To: gnome boxer <gnome.boxer@gmail.com>
+Cc: roucaries bastien <roucaries.bastien@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.10-2.6.13-rc4 hang reboot from linux(not from
+ windows or from BIOS),but 2.6.8 and 2.6.9 haven't
+References: <605adbb05081907323d3bd70c@mail.gmail.com>
+	<195c7a900508190807504a988a@mail.gmail.com>
+	<605adbb05081908137d6c8ed7@mail.gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 22 Aug 2005 03:52:58 -0600
+In-Reply-To: <605adbb05081908137d6c8ed7@mail.gmail.com> (gnome boxer's
+ message of "Fri, 19 Aug 2005 23:13:11 +0800")
+Message-ID: <m1irxyti11.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APIC version and 8-bit APIC IDs
-References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel>	 <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com>	 <20050812133248.GN8974@wotan.suse.de>	 <42FCA97E.5010907@fujitsu-siemens.com>	 <42FCB86C.5040509@fujitsu-siemens.com>	 <20050812145725.GD922@wotan.suse.de>	 <86802c44050812093774bf4816@mail.gmail.com>	 <20050812164244.GC22901@wotan.suse.de> <86802c4405081210442b1bb840@mail.gmail.com>
-In-Reply-To: <86802c4405081210442b1bb840@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yhlu wrote:
-> why matrin need to make apic id to be greater than 0x10 when system is
-> only 2way?
+gnome boxer <gnome.boxer@gmail.com> writes:
 
-It's a scalable system where multiple boards may be combined. Anyway, I 
-see nothing in the specs that says you must start counting CPUs from zero.
+> 2005/8/19, roucaries bastien <roucaries.bastien@gmail.com>:
+>> On 8/19/05, gnome boxer <gnome.boxer@gmail.com> wrote:
+>> > I use fedora core 4,when I rebooted from linux(not from windows or
+>> > BIOS),it will hang after the system POST before grub display the stage
+>> > 1.5 on the screen,so I must reboot again from there using CRTL+ALT+DEL
+>> >
+>> > I don't know whether this belongs to grub or belongs to the linux
+>> > reboot changes from 2.6.8 and 2.6.9
+>> 
+>> did you try to add to the kernel command line reboot=cold or
+>> reboot=bios or reboot=hard.
+>> 
+> I tried the reboot=c reboot=b reboot=s
+>
+> They all have this
+>
+>
+>
+>> Seems your bios reboot routine is buggy. The preevious option are workarround.
+>
+> I think it's linux's reboot routine's fault 
 
-Regards
-Martin
+Not terribly likely as the reboot does occur.  It looks more
+like one of the drivers is leaving hardware in a state that
+the BIOS cannot deal with it.
 
+My gut feel says kexec one linux kernel from another would
+be a quick way to check for the move obvious driver problems
+in this area.
 
+More simply might be to boot a minimal kernel with just
+your root filesystem drivers and then keep adding drivers
+until you have a kernel that fails.
 
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+The SMP reboot path did change in 2.6.10 but only very slightly.
+
+Eric
+

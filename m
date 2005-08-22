@@ -1,90 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbVHVWMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbVHVWNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbVHVWMa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbVHVWLw
+	id S1751288AbVHVWNN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVHVWMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:11:52 -0400
+	Mon, 22 Aug 2005 18:12:39 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:57990 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751266AbVHVWLu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:11:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=KLer/YJwVjP1jL7kxNeEvmSpoOvOeeMWQuH3mH6tUWwXVCV6YE+QLZP6Mfg/TDVHFeBwhxbE82mwMaVR2D23+UWZwKu/GfowEKpE117LlbJ6HLBl0K47KE+DyX6A6jFWbnYc3lS4ZtNtOfAwPTsQ7JTgJ9t/yBBNz+kMQELkjFY=
-Message-ID: <5a2cf1f60508220421d0914f8@mail.gmail.com>
-Date: Mon, 22 Aug 2005 13:21:20 +0200
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: cache regresions with 2.6.1x ?
+	by vger.kernel.org with ESMTP id S1751266AbVHVWMK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 18:12:10 -0400
+Date: Mon, 22 Aug 2005 13:04:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Russell King <rmk@arm.linux.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch] drop i386-isms from arm Kconfig
+Message-ID: <20050822110427.GA9168@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-I am on a Dell Inspiron 8100 laptop with 512 M and 1G disk cache. I
-usually have at least 4 big applications running simultaneously: a
-Java IDE, firefox, firefox and X. All that under the Gnome desktop.
+This kills i386-specific stuff from arm Kconfig. Please apply,
 
-I've sometimes seen periods where my laptop goes kind of nuts. While
-the cpu is still at 0%, the workload goes to 100% (as shown in the
-gnome process monitor) (I haven't checked in other means, e.g. top or
-/proc info as my machine is unusable).
+								Pavel
 
-But with my latest upgrade to 2.6.12 from 2.6.10, the hanging happens
-much more often. It lasts for over 30 seconds.
+---
+commit f8f646eaf5fcf751912f8d178bab6414b6abf60c
+tree 8a8ce2ab26011e4bbfe21c8506b1ae8f0d383faa
+parent c1ef638f735cfb1a680ddb76aa37715be5c858ce
+author <pavel@amd.(none)> Mon, 22 Aug 2005 13:03:41 +0200
+committer <pavel@amd.(none)> Mon, 22 Aug 2005 13:03:41 +0200
 
-Could this hanging be related to swapping?
-Are there any VM regression lately that would make a kernel less
-appropriate for desktop use?
-How can I investigate that further?
+ arch/arm/Kconfig |   37 -------------------------------------
+ 1 files changed, 0 insertions(+), 37 deletions(-)
 
-Thanks
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -637,10 +637,6 @@ config PM
+ 	  and the Battery Powered Linux mini-HOWTO, available from
+ 	  <http://www.tldp.org/docs.html#howto>.
+ 
+-	  Note that, even if you say N here, Linux on the x86 architecture
+-	  will issue the hlt instruction if nothing is to be done, thereby
+-	  sending the processor to sleep and saving power.
+-
+ config APM
+ 	tristate "Advanced Power Management Emulation"
+ 	depends on PM
+@@ -652,12 +648,6 @@ config APM
+ 	  battery status information, and user-space programs will receive
+ 	  notification of APM "events" (e.g. battery status change).
+ 
+-	  If you select "Y" here, you can disable actual use of the APM
+-	  BIOS by passing the "apm=off" option to the kernel at boot time.
+-
+-	  Note that the APM support is almost completely disabled for
+-	  machines with more than one CPU.
+-
+ 	  In order to use APM, you will need supporting software. For location
+ 	  and more information, read <file:Documentation/pm.txt> and the
+ 	  Battery Powered Linux mini-HOWTO, available from
+@@ -667,39 +657,12 @@ config APM
+ 	  manpage ("man 8 hdparm") for that), and it doesn't turn off
+ 	  VESA-compliant "green" monitors.
+ 
+-	  This driver does not support the TI 4000M TravelMate and the ACER
+-	  486/DX4/75 because they don't have compliant BIOSes. Many "green"
+-	  desktop machines also don't have compliant BIOSes, and this driver
+-	  may cause those machines to panic during the boot phase.
+-
+ 	  Generally, if you don't have a battery in your machine, there isn't
+ 	  much point in using this driver and you should say N. If you get
+ 	  random kernel OOPSes or reboots that don't seem to be related to
+ 	  anything, try disabling/enabling this option (or disabling/enabling
+ 	  APM in your BIOS).
+ 
+-	  Some other things you should try when experiencing seemingly random,
+-	  "weird" problems:
+-
+-	  1) make sure that you have enough swap space and that it is
+-	  enabled.
+-	  2) pass the "no-hlt" option to the kernel
+-	  3) switch on floating point emulation in the kernel and pass
+-	  the "no387" option to the kernel
+-	  4) pass the "floppy=nodma" option to the kernel
+-	  5) pass the "mem=4M" option to the kernel (thereby disabling
+-	  all but the first 4 MB of RAM)
+-	  6) make sure that the CPU is not over clocked.
+-	  7) read the sig11 FAQ at <http://www.bitwizard.nl/sig11/>
+-	  8) disable the cache from your BIOS settings
+-	  9) install a fan for the video card or exchange video RAM
+-	  10) install a better fan for the CPU
+-	  11) exchange RAM chips
+-	  12) exchange the motherboard.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called apm.
+-
+ endmenu
+ 
+ source "net/Kconfig"
 
-> cat /proc/meminfo 
-MemTotal:       516220 kB
-MemFree:         17720 kB
-Buffers:          9412 kB
-Cached:          67404 kB
-SwapCached:     149584 kB
-Active:         423072 kB
-Inactive:        37860 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       516220 kB
-LowFree:         17720 kB
-SwapTotal:      976712 kB
-SwapFree:       487432 kB
-Dirty:             520 kB
-Writeback:           0 kB
-Mapped:         405256 kB
-Slab:            22600 kB
-CommitLimit:   1234820 kB
-Committed_AS:  1793068 kB
-PageTables:       3564 kB
-VmallocTotal:   507896 kB
-VmallocUsed:     26472 kB
-VmallocChunk:   481268 kB
-
-
-> fdisk -l /dev/hda
-
-Disk /dev/hda: 60.0 GB, 60011642880 bytes
-16 heads, 63 sectors/track, 116280 cylinders
-Units = cylinders of 1008 * 512 = 516096 bytes
-
-   Device Boot      Start         End      Blocks   Id  System
-/dev/hda1   *           1       19376     9765472+   7  HPFS/NTFS
-Partition 1 does not end on cylinder boundary.
-/dev/hda2           19377      116280    48839616    5  Extended
-Partition 2 does not end on cylinder boundary.
-/dev/hda5           19377       21314      976720+  82  Linux swap / Solaris
-/dev/hda6           21315       29064     3905968+  83  Linux
-/dev/hda7           29065       36814     3905968+  83  Linux
-/dev/hda8           36815      116280    40050832+  83  Linux
-expresso:/home/jerome/Dev/CruiseControl/cruisecontrol#
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

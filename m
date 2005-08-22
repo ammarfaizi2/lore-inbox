@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVHVSnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVHVSlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbVHVSnR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 14:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVHVSnR
+	id S1750780AbVHVSlq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 14:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVHVSlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 14:43:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64681 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750717AbVHVSnQ (ORCPT
+	Mon, 22 Aug 2005 14:41:46 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:9934 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750780AbVHVSlp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 14:43:16 -0400
-Date: Mon, 22 Aug 2005 20:42:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Russell King <rmk@arm.linux.org.uk>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch] Fix macro abuse in pcmcia/cistpl.c
-Message-ID: <20050822184257.GA2106@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 22 Aug 2005 14:41:45 -0400
+Message-ID: <430A45EA.6040506@labristeknoloji.com>
+Date: Mon, 22 Aug 2005 21:38:50 +0000
+From: "M.Baris Demiray" <baris@labristeknoloji.com>
+Organization: Labris Teknoloji
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Marcelo W. Tosatti" <marcelo.tosatti@cyclades.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] Update PPPoE's configuration documentation
+Content-Type: multipart/mixed;
+ boundary="------------000006090408030500010202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------000006090408030500010202
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Please apply,
-								Pavel
 
-Fix macro abuse in pcmcia.
+Hi Marcelo,
+Following trivial patch updates the CONFIG_PPPOE options's
+documentation.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+o Update CONFIG_PPPOE option's documentation since ppp version
+   2.4.2 is already released (with PPPoE plug-in) and there is
+   no need a CVS checkout anymore
 
----
-commit 486ece208a1ae323fce89fc3b4b5b4b522a1b4b8
-tree 1c9aa703b585a65acbd038c053dbf42c9603e281
-parent b4b834e36f0180e1036a7a8ba8505b6d4165596e
-author <pavel@amd.(none)> Mon, 22 Aug 2005 20:42:10 +0200
-committer <pavel@amd.(none)> Mon, 22 Aug 2005 20:42:10 +0200
+Signed-off-by: M.Baris Demiray <baris@labristeknoloji.com>
 
- drivers/pcmcia/cistpl.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+--- linux-2.4.32-pre3/Documentation/Configure.help.orig	2005-08-22 21:15:53.000000000 +0000
++++ linux-2.4.32-pre3/Documentation/Configure.help	2005-08-22 21:16:48.000000000 +0000
+@@ -9978,9 +9978,7 @@
+  CONFIG_PPPOE
+    Support for PPP over Ethernet.
 
-diff --git a/drivers/pcmcia/cistpl.c b/drivers/pcmcia/cistpl.c
---- a/drivers/pcmcia/cistpl.c
-+++ b/drivers/pcmcia/cistpl.c
-@@ -60,9 +60,9 @@ static const u_int exponent[] = {
- 
- /* Parameters that can be set with 'insmod' */
- 
--#define INT_MODULE_PARM(n, v) static int n = v; module_param(n, int, 0444)
--
--INT_MODULE_PARM(cis_width,	0);		/* 16-bit CIS? */
-+/* 16-bit CIS? */
-+static int cis_width = 0;
-+module_param(cis_width, int, 0444);
- 
- void release_cis_mem(struct pcmcia_socket *s)
- {
+-  This driver requires the current pppd from the "ppp" CVS repository
+-  on cvs.samba.org.  The required support will be present in the next
+-  ppp release (2.4.2).
++  This driver requires a ppp release >=2.4.2
+
+  Wireless LAN (non-hamradio)
+  CONFIG_NET_RADIO
 
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+"You have to understand, most of these people are not ready to be
+unplugged. And many of them are no inert, so hopelessly dependent
+on the system, that they will fight to protect it."
+                                                         Morpheus
+
+--------------000006090408030500010202
+Content-Type: text/x-vcard; charset=utf-8;
+ name="baris.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="baris.vcf"
+
+YmVnaW46dmNhcmQNCmZuOk0uQmFyaXMgRGVtaXJheQ0KbjpEZW1pcmF5O00uQmFyaXMNCm9y
+ZzpMYWJyaXMgVGVrbm9sb2ppDQphZHI6OztUZWtub2tlbnQgU2lsaWtvbiBCaW5hIE5vOjI0
+IE9EVFU7QW5rYXJhOzswNjUzMTtUdXJrZXkNCmVtYWlsO2ludGVybmV0OmJhcmlzQGxhYnJp
+c3Rla25vbG9qaS5jb20NCnRpdGxlOllhemlsaW0gR2VsaXN0aXJtZSBVem1hbmkNCnRlbDt3
+b3JrOis5MDMxMjIxMDE0OTANCnRlbDtmYXg6KzkwMzEyMjEwMTQ5Mg0KeC1tb3ppbGxhLWh0
+bWw6RkFMU0UNCnVybDpodHRwOi8vd3d3LmxhYnJpc3Rla25vbG9qaS5jb20vfmJhcmlzLw0K
+dmVyc2lvbjoyLjENCmVuZDp2Y2FyZA0KDQo=
+--------------000006090408030500010202--

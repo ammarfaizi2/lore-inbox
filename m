@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbVHVWnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVHVWtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751463AbVHVWnH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbVHVWnF
+	id S1750737AbVHVWtT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbVHVWtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:43:05 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:21388 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751457AbVHVWnC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:43:02 -0400
-Message-ID: <43095E10.3010003@symas.com>
-Date: Sun, 21 Aug 2005 22:09:36 -0700
-From: Howard Chu <hyc@symas.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b4) Gecko/20050810 SeaMonkey/1.0a
-MIME-Version: 1.0
-To: Florian Weimer <fw@deneb.enyo.de>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: sched_yield() makes OpenLDAP slow
-References: <43057641.70700@symas.com.suse.lists.linux.kernel>	<17157.45712.877795.437505@gargle.gargle.HOWL.suse.lists.linux.kernel>	<430666DB.70802@symas.com.suse.lists.linux.kernel>	<p73oe7syb1h.fsf@verdi.suse.de> <87fyt3vzq0.fsf@mid.deneb.enyo.de>
-In-Reply-To: <87fyt3vzq0.fsf@mid.deneb.enyo.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Aug 2005 18:49:19 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:20493 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750737AbVHVWtS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 18:49:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QyboKGVCtU45+TDDP+ezlfR7T53JCCKpGBvHAE9QhYMY+ycYDH66cT6CvA8vEGgBwh6mtVct9Nyloc4D7LoHOZ3CrTgllmtYokWQPsYrBxlSmA7/sWXmId32tcqVO2t0d+zXkdvon6m/yzFpzsoOvSa7eVGBtWI817PIkDob+ag=
+Message-ID: <9a87484905082215492d6c1dca@mail.gmail.com>
+Date: Tue, 23 Aug 2005 00:49:17 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Coywolf Qi Hunt <qiyong@fc-cn.com>
+Subject: Re: [PATCH] make loglevels in init/main.c a little more sane.
+Cc: Coywolf Qi Hunt <coywolf@gmail.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050822054147.GA20546@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.61.0501222229210.3073@dragon.hygekrogen.localhost>
+	 <2cd57c900508212217c0465a3@mail.gmail.com>
+	 <20050822054147.GA20546@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer wrote:
-> * Andi Kleen:
->
->   
->> Has anybody contacted the Sleepycat people with a description of the 
->> problem yet?
->>     
->
-> Berkeley DB does not call sched_yield, but OpenLDAP does in some
-> wrapper code around the Berkeley DB backend.
-That's not the complete story. BerkeleyDB provides a 
-db_env_set_func_yield() hook to tell it what yield function it should 
-use when its internal locking routines need such a function. If you 
-don't set a specific hook, it just uses sleep(). The OpenLDAP backend 
-will invoke this hook during some (not necessarily all) init sequences, 
-to tell it to use the thread yield function that we selected in autoconf.
+On 8/22/05, Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
+> On Mon, Aug 22, 2005 at 01:17:59PM +0800, Coywolf Qi Hunt wrote:
+> > On 1/23/05, Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> > >
+[snip]
+> > > +       printk(KERN_NOTICE);
+> > >         printk(linux_banner);
+> >
+> > Why not merge it to the same line?
+> >
 
-Note that (on systems that support inter-process mutexes) a BerkeleyDB 
-database environment may be used by multiple processes concurrently. As 
-such, the yield function that is provided must work both for threads 
-within a single process (PTHREAD_SCOPE_PROCESS) as well as between 
-processes (PTHREAD_SCOPE_SYSTEM). The previous comment about slapd only 
-needing to yield within a single process is inaccurate; since we allow 
-slapcat to run concurrently with slapd (to allow hot backups) we need 
-BerkeleyDB's locking/yield functions to work in System scope.
+No reason really.
+
+[snip]
+> 
+> I'm not sure if this is cleaner. The original 2-line implementation seems
+> convenient. All up to you.
+> 
+Either way is fine by me.
 
 -- 
-  -- Howard Chu
-  Chief Architect, Symas Corp.  http://www.symas.com
-  Director, Highland Sun        http://highlandsun.com/hyc
-  OpenLDAP Core Team            http://www.openldap.org/project/
-
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

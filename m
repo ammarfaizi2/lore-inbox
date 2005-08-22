@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbVHVWnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbVHVWna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbVHVWnF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbVHVWnB
+	id S1751492AbVHVWna (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbVHVWnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:43:01 -0400
+	Mon, 22 Aug 2005 18:43:23 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:21388 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751423AbVHVWm6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:42:58 -0400
-Date: Mon, 22 Aug 2005 07:21:00 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       jffs-dev@axis.com
-Subject: Re: use of uninitialized pointer in jffs_create()
-Message-ID: <20050822052100.GA14350@localhost.localdomain>
-References: <9a87484905082015284c1686ec@mail.gmail.com> <20050821091401.GA23626@mipter.zuzino.mipt.ru> <9a87484905082104477cae9ba4@mail.gmail.com>
+	by vger.kernel.org with ESMTP id S1751485AbVHVWnT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 18:43:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rXIqrg0VKqtDzEB/D7FPcLG9skGGD7VzFdy4Sm8TpyWsWPX+L7e79zkLW2bzcQ2O7TD658dHofekZ5ulNjRTkKg6teqFb9SktuzOfYj16rLTkzfyQNeWcNCJiRlUFTzj1vq1Yt4a7r8ZDbY4p0ViNAq6Xo24NRCIyNRsNp06lic=
+Message-ID: <2cd57c900508212217c0465a3@mail.gmail.com>
+Date: Mon, 22 Aug 2005 13:17:59 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH] make loglevels in init/main.c a little more sane.
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0501222229210.3073@dragon.hygekrogen.localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <9a87484905082104477cae9ba4@mail.gmail.com>
-X-Operating-System: Linux debian 2.6.12-1-k7
-User-Agent: Mutt/1.5.10i
-X-Junkmail-Status: score=10/50, host=mirapoint5.brutele.be
-X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090202.43095E1F.0008-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
-	=?ISO-8859-1?Q?p=3D=CF?=	 =?ISO-8859-1?Q?=20=08?=
+References: <Pine.LNX.4.61.0501222229210.3073@dragon.hygekrogen.localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Sunday 21 August 2005 a 13:08, Jesper Juhl ecrivait: 
-> On 8/21/05, Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> > On Sun, Aug 21, 2005 at 12:28:08AM +0200, Jesper Juhl wrote:
-> > > gcc kindly pointed me at jffs_create() with this warning :
-> > >
-> > > fs/jffs/inode-v23.c:1279: warning: `inode' might be used uninitialized
-> > > in this function
-> > 
-> > I don't see a warning with latest gcc-4.1 snapshot.
-> > 
+On 1/23/05, Jesper Juhl <juhl-lkml@dif.dk> wrote:
 > 
-> I'm using gcc 3.3.6, and the kernel that shows this warning is 2.6.13-rc6-mm1
->From a copy of the Linus's repository.
-stephane@debian:~/devel/linux-2.6$ head -5 Makefile
-VERSION = 2
-PATCHLEVEL = 6
-SUBLEVEL = 13
-EXTRAVERSION =-rc6
-NAME=Woozy Numbat
+> This patch modifies a few of the printk() loglevels used in init/main.c in
+> an attempt to make them a bit more appropriate.
+> 
+> The default loglevel is KERN_WARNING, but a few printk's without explicit
+> loglevel are not (in my oppinion) warnings, so add proper warning levels -
+> for instance; telling the user how many CPU's were brought up is hardly a
+> warning, make it KERN_INFO instead. The initial printing of linux_banner
+> is not a warning condition, I'd say it's more of a NOTICE or even INFO
+> condition - I've made it KERN_NOTICE just as the printing of the kernel
+> command line. A few printk's without explicit loglevel do match the
+> default one, but I've made them explicit (the default could change in the
+> future, and if it does then explicitly setting the proper loglevel is a
+> nice thing).
+> Please consider applying.
+> 
+> Patch compiles and boots fine on my box.
+> 
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> 
+> diff -up linux-2.6.11-rc2-orig/init/main.c linux-2.6.11-rc2/init/main.c
+> --- linux-2.6.11-rc2-orig/init/main.c   2005-01-22 22:00:02.000000000 +0100
+> +++ linux-2.6.11-rc2/init/main.c        2005-01-22 22:45:23.000000000 +0100
+> @@ -347,7 +347,7 @@ static void __init smp_init(void)
+>         }
+> 
+>         /* Any cleanup work */
+> -       printk("Brought up %ld CPUs\n", (long)num_online_cpus());
+> +       printk(KERN_INFO "Brought up %ld CPUs\n", (long)num_online_cpus());
+>         smp_cpus_done(max_cpus);
+>  #if 0
+>         /* Get other processors into their bootup holding patterns. */
+> @@ -428,6 +428,7 @@ asmlinkage void __init start_kernel(void
+>   */
+>         lock_kernel();
+>         page_address_init();
+> +       printk(KERN_NOTICE);
+>         printk(linux_banner);
 
-stephane@debian:~/devel/linux-2.6/fs/jffs$ grep truncate * -rn
-intrep.c:2452:             of the file system if a large file have been
-truncated,
-stephane@debian:~/devel/linux-2.6/fs/jffs$
+Why not merge it to the same line?
 
-Stephane
+>         setup_arch(&command_line);
+>         setup_per_cpu_areas();
 
 -- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-                <stephane.wirtel@gmail.com>
-
-
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

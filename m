@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVHVV4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVHVV4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbVHVV4L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 17:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbVHVV4D
+	id S1751267AbVHVV4t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 17:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVHVV4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 17:56:03 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:9348 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751282AbVHVVzL (ORCPT
+	Mon, 22 Aug 2005 17:56:49 -0400
+Received: from mail.visionpro.com ([63.91.95.13]:56089 "EHLO
+	chicken.machinevisionproducts.com") by vger.kernel.org with ESMTP
+	id S1751267AbVHVV4s convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 17:55:11 -0400
-Date: Mon, 22 Aug 2005 13:57:24 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Mikael Starvik <mikael.starvik@axis.com>
-Cc: dev-etrax <dev-etrax@axis.com>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] cris: "extern inline" -> "static inline"
-Message-ID: <20050822115724.GJ5726@stusta.de>
-References: <BFECAF9E178F144FAEF2BF4CE739C66803297EF0@exmail1.se.axis.com> <BFECAF9E178F144FAEF2BF4CE739C66801B764F8@exmail1.se.axis.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C66801B764F8@exmail1.se.axis.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 22 Aug 2005 17:56:48 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: Binding a thread (or specific process) to a designated CPU
+Date: Mon, 22 Aug 2005 14:56:47 -0700
+Message-ID: <14CFC56C96D8554AA0B8969DB825FEA096FF8B@chicken.machinevisionproducts.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Binding a thread (or specific process) to a designated CPU
+Thread-Index: AcWnZGQjUxZ2tAtDTGqgbtoJ/s5O+g==
+From: "Brian D. McGrew" <brian@visionpro.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 22, 2005 at 07:08:30AM +0200, Mikael Starvik wrote:
+Good morning,
 
-> At the time this is rejected because GCC 3.2 makes other inlining
-> descisions when "extern inline" is used instead of "static inline".
-> Actually we modified lots of static inline to extern inline in
-> 2.4 in November 2002 to reduce code bloat with GCC 3.2. I don't
-> know if this still is true with 4.0. 
->...
+Using FC3 or FC4 with the 2.6.9 or later kernel, we're looking for a way
+to bind a thread (or an entire process) to a designated CPU.  We're
+using dual processor systems as well as P4 with HT and Xeons so all of
+our boxes either have two CPU's or 'appear' to have two.
 
-If you look at include/linux/compiler-gcc3.h, you see that in the 
-kernel, we #define "inline" to "inline __attribute__((always_inline))"
-for gcc >= 3.1 .
+I want to be able, in my C++ code to designate a specific thread to a
+specific processor.  I've heard rumors that with the 2.6 kernel this is
+now possible???
 
-In November 2002, we didn't do this in 2.4 kernels.
+Thanks,
 
-Can you test whether my patch makes any difference in the size of a 2.6 
-kernel with gcc 3.2?
-
-> /Mikael
->...
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-brian
+ 
+Brian D. McGrew { brian@visionpro.com || brian@doubledimension.com }
+---
+> Those of you who think you know it all,
+  really annoy those of us who do!
 

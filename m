@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbVHVWaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbVHVWbH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbVHVWaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbVHVWaF
+	id S1751388AbVHVWbH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVHVWbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:30:05 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:21129 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751426AbVHVWZW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:25:22 -0400
-Date: Mon, 22 Aug 2005 09:57:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: 2.6.13-rc6-rt9
-Message-ID: <20050822075722.GD19386@elte.hu>
-References: <20050818060126.GA13152@elte.hu> <1124433586.5186.119.camel@localhost.localdomain> <1124456445.5186.124.camel@localhost.localdomain> <1124465786.5186.142.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 22 Aug 2005 18:31:05 -0400
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:27149 "EHLO
+	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
+	id S1751411AbVHVWbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 18:31:00 -0400
+To: "Brian D. McGrew" <brian@visionpro.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Binding a thread (or specific process) to a designated CPU
+References: <14CFC56C96D8554AA0B8969DB825FEA096FF8B@chicken.machinevisionproducts.com>
+From: Douglas McNaught <doug@mcnaught.org>
+Date: Mon, 22 Aug 2005 18:25:05 -0400
+In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA096FF8B@chicken.machinevisionproducts.com> (Brian D. McGrew's message of "Mon, 22 Aug 2005 14:56:47 -0700")
+Message-ID: <m27jed1uf2.fsf@Douglas-McNaughts-Powerbook.local>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (darwin)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1124465786.5186.142.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Brian D. McGrew" <brian@visionpro.com> writes:
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+> Good morning,
+>
+> Using FC3 or FC4 with the 2.6.9 or later kernel, we're looking for a way
+> to bind a thread (or an entire process) to a designated CPU.  We're
+> using dual processor systems as well as P4 with HT and Xeons so all of
+> our boxes either have two CPU's or 'appear' to have two.
+>
+> I want to be able, in my C++ code to designate a specific thread to a
+> specific processor.  I've heard rumors that with the 2.6 kernel this is
+> now possible???
 
-> On Fri, 2005-08-19 at 09:00 -0400, Steven Rostedt wrote:
-> > On Fri, 2005-08-19 at 02:39 -0400, Steven Rostedt wrote:
-> 
-> > I haven't thought of a good way yet to solve the race condition with
-> > dependent sleeper. (Except by turning off CONFIG_WAKEUP_TIMING :-)
-> > 
-> 
-> OK, I found one simple solution. The problem stems from max_mutex 
-> being grabbed.  Since this uses the RT locks, and since tracing 
-> shouldn't really care about PI and all that, I switched this to a 
-> compat_semaphore, but only if CONFIG_WAKEUP_TIMING is set. This seems 
-> to get rid of this race condition that I have.
+Look into sched_setaffinity() and friends.
 
-ok, i have applied your patch and have done a small tweak: i made it a 
-compat semaphore unconditionally. There's no point in #ifdefing it on 
-WAKEUP_TIMING.
-
-> I found more bugs, but for now this message is about this specific 
-> race.
-
-ok.
-
-	Ingo
+-Doug

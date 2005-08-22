@@ -1,135 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVHVXqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVHVXy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbVHVXqp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 19:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVHVXqp
+	id S1751256AbVHVXy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 19:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbVHVXy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 19:46:45 -0400
-Received: from siaag2ai.mx.compuserve.com ([149.174.40.147]:6081 "EHLO
-	siaag2ai.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751310AbVHVXqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 19:46:44 -0400
-Date: Mon, 22 Aug 2005 19:43:57 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.13-rc6] i386: fix incorrect FP signal delivery
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Message-ID: <200508221945_MC3-1-A7EF-CB11@compuserve.com>
+	Mon, 22 Aug 2005 19:54:27 -0400
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:55055
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S1751256AbVHVXy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 19:54:26 -0400
+Date: Mon, 22 Aug 2005 16:48:16 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Drake <dsd@gentoo.org>,
+       CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: IT8212/ITE RAID
+In-Reply-To: <58cb370e0508220228770415f7@mail.gmail.com>
+Message-ID: <Pine.LNX.4.10.10508221643170.6541-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This patch fixes a problem with incorrect floating-point exception
-signal delivery on i386 kernels.  In some cases, an error code of zero
-is delivered instead of the correct code, as the output from my test
-program shows:
 
+WHOA Gents!
 
-Before patch:
+Let me get some popcorn to watch this p-contest.
+The way you guys are sniping at each other sounds like the good-old days,
+when everyone railed me and the subsystem and ended up railing back
 
-$ ./fpsig
-handler: signum = 8, errno = 0, code = 0
-handler: fpu cwd = 0xb40, fpu swd = 0xbaa0
+Guess nothing was learned from the 6+ years of flamage.
 
+I have mellowed out with age ...
 
-After:
+Bart, give Alan a break ... his is genrally right at the end of the day.
 
-$ ./fpsig
-handler: signum = 8, errno = 0, code = 6
-handler: fpu cwd = 0xb40, fpu swd = 0xbaa0
+Alan, give Bart a break ... cause there is no way I am coming back for a
+three-pete.
 
+Cheers,
 
-2.4 also has this problem; the patch applies with offsets on 2.4.31
-but I didn't test it beyond that.  Patch also applies to 2.6.13-rc6-mm1
-with offsets.
+Andre
 
-x86-64 also looks to be affected but I have no way to test it
+On Mon, 22 Aug 2005, Bartlomiej Zolnierkiewicz wrote:
 
+> Any news about URLs?  It shouldn't be too hard find them unless they
+> never existed in the first place. I will work on the issues immediately.
+> 
+> Bartlomiej
+> 
+> On 8/14/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> > On 8/14/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > > On Sul, 2005-08-14 at 17:56 +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > > * your stuff was accepted after all (and some stuff like ide-cd
+> > > >   fixes was never splitted from the -ac patchset and submitted)
+> > >
+> > > They were.
+> > 
+> > I remember discussion about end-of-media ide-cd fixes but the patch
+> > was never submitted.  If you have *URL* to the patch I'll work on the patch.
+> > 
+> > > > * you've never provided any technical details on "the stuff I broke"
+> > >
+> > > I did, several times. I had some detailed locking discussions with
+> > > Manfred and others on it as a result. The locking in the base IDE is
+> > > still broken, in fact its become worse - the random locking around
+> > > timing changes now causes some PIIX users to see double spinlock debug
+> > > with the base kernel as an example.
+> > 
+> > Huh?  *WHICH* my patch causes this?
+> > 
+> > I don't remember this discussion et all, care to give some pointers?
+> > 
+> > > > > Would make sense, but I thought I had the right bits masked. Will take a
+> > > >
+> > > > WIN_RESTORE is send unconditionally (as it always was),
+> > > >
+> > > > This is not the right thing, somebody should go over all ATA/ATAPI
+> > > > drafts and come with the correct strategy of handling WIN_RESTORE.
+> > >
+> > > Ok that would make sense. Matthew Garrett also reported some problems in
+> > > that area with suspend/resume (BIOS restoring its idea of things...)
+> > 
+> > Quite likely, WIN_RESTORE is not sent on resume etc.
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Test program:
-
-/* i387 fp signal test */
-
-#define _GNU_SOURCE
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <signal.h>
-#include <errno.h>
-
-__attribute__ ((aligned(4096))) unsigned char altstack[4096];
-unsigned short cw = 0x0b40; /* unmask all exceptions, round up */
-struct sigaction sa;
-stack_t ss = {
-	.ss_sp   = &altstack[2047],
-	.ss_size = sizeof(altstack)/2,
-};
-
-static void handler(int nr, siginfo_t *si, void *uc)
-{
-	printf("handler: signum = %d, errno = %d, code = %d\n",
-		si->si_signo, si->si_errno, si->si_code);
-	printf("handler: fpu cwd = 0x%hx, fpu swd = 0x%hx\n",
-		*(unsigned short *)&altstack[0xd84],
-		*(unsigned short *)&altstack[0xd88]);
-	exit(1);
-}
-
-int main(int argc, char * const argv[])
-{
-	sa.sa_sigaction = handler;
-	sa.sa_flags     = SA_ONSTACK | SA_SIGINFO;
-
-	if (sigaltstack(&ss, 0))
-		perror("sigaltstack");
-	if (sigaction(SIGFPE, &sa, NULL))
-		perror("sigaction");
-
-	asm volatile ("fnclex ; fldcw %0" : : "m" (cw));
-	asm volatile ( /*  st(1) = 3.0, st = 1.0  */
-	    "fld1 ; fld1 ; faddp ; fld1 ; faddp ; fld1");
-	asm volatile (
-	    "fdivp ; fwait");  /*  1.0 / 3.0  */
-
-	return 0;
-}
-
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
-
- arch/i386/kernel/traps.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-
---- 2.6.13-rc6a.orig/arch/i386/kernel/traps.c
-+++ 2.6.13-rc6a/arch/i386/kernel/traps.c
-@@ -778,7 +778,7 @@ void math_error(void __user *eip)
- {
- 	struct task_struct * task;
- 	siginfo_t info;
--	unsigned short cwd, swd;
-+	unsigned short cwd, swd, wd;
- 
- 	/*
- 	 * Save the info for the exception handler and clear the error.
-@@ -803,7 +803,11 @@ void math_error(void __user *eip)
- 	 */
- 	cwd = get_fpu_cwd(task);
- 	swd = get_fpu_swd(task);
--	switch (((~cwd) & swd & 0x3f) | (swd & 0x240)) {
-+	wd = swd & 0x3f & ~cwd;
-+	if (wd & 1)
-+		wd |= swd & 0x240;
-+
-+	switch (wd) {
- 		case 0x000:
- 		default:
- 			break;
-__
-Chuck

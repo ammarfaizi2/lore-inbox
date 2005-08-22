@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbVHVWcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbVHVWeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbVHVWcg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbVHVWcf
+	id S1751458AbVHVWeW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbVHVWeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:32:35 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:45960 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751376AbVHVWWe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:22:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BAtDaEWMB+LJWj37O+yu0VZtbeo+xqDvQyylWzmsHmoITCx/F5/129E5lMUOrzu/Ai+qcf6oIDAxYp6ywJ2JMfbSIxXd8rF439vnWSihGxrTtxndMHvNq4pIuPuTc9EoQy4N6RpwVxv1RzvCT2HWYyhtuA/mfqRKBJbHjGCcmHY=
-Message-ID: <4fec73ca05082202051231bf15@mail.gmail.com>
-Date: Mon, 22 Aug 2005 11:05:32 +0200
-From: =?ISO-8859-1?Q?Guillermo_L=F3pez_Alejos?= <glalejos@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: Environment variables inside the kernel?
-Cc: Linh Dang <linhd@nortel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <m1fyt3ueh9.fsf@ebiederm.dsl.xmission.com>
+	Mon, 22 Aug 2005 18:34:20 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:46218 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751468AbVHVWeP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 18:34:15 -0400
+Date: Mon, 22 Aug 2005 09:41:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Roland McGrath <roland@redhat.com>, Oleg Nesterov <oleg@tv-sign.ru>,
+       George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [PATCH 2.6.13-rc6-rt9]  PI aware dynamic priority adjustment
+Message-ID: <20050822074139.GA19323@elte.hu>
+References: <20050818060126.GA13152@elte.hu> <1124495303.23647.579.camel@tglx.tec.linutronix.de> <20050822073833.GB19022@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4fec73ca050818084467f04c31@mail.gmail.com>
-	 <m2ek8r5hhh.fsf@Douglas-McNaughts-Powerbook.local>
-	 <wn5slx75cjs.fsf@linhd-2.ca.nortel.com>
-	 <4fec73ca05081811488ec518e@mail.gmail.com>
-	 <m1fyt3ueh9.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <20050822073833.GB19022@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/22/05, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> ??
-> Usually when I hear stand-alone program I think of program that runs
-> without the need of a kernel.  You have an environment in that context?
 
-Without the need of a kernel? Perhaps I did not explain myself
-correctly... I meant a user space program, is that better?
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-And yes, there is a environment in this context, but it is feasible to
-provide the information it contains through module parameters.
-
-> Be very careful.  Generally I think at least until the filesystem
-> is very stable running your filesystem server in the kernel is a mistake.
+> > Quite contrary it makes the system more snappy and the overall test 
+> > latencies go down.
 > 
-> And the concept of a parallel filesystem with just one server just
-> sounds wrong from any context.
+> we can undo that flag - it's indeed only a couple of cycles worth of 
+> optimization, which wont count for most workloads. I've applied your 
+> patch, but we need to do those cleanups and the fact needs to be 
+> documented that !MUTEX_IRQS_OFF is not safe anymore. (most likely this 
+> means that the MUTEX_IRQS_OFF flag and all related changes needs to be 
+> gotten rid of)
 
-Thanks for the advise, but do not worry, the servers run outside the
-kernel (preferably outside the host :). It is the client side what is
-to be integrated into the kernel.
+your patch gets rid of the flag, but not of all side-effects: e.g.  
+trace_local_irq_enable(ti) only takes a 'ti' parameter for 
+!MUTEX_IRQS_OFF - which does not exist anymore.
 
-Regards,
-
--- 
-Guillermo
+	Ingo

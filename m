@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVHVWRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbVHVWQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbVHVWRn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 18:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbVHVWRm
+	id S1751055AbVHVWQy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 18:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVHVWQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 18:17:42 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17822 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751322AbVHVWRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 18:17:42 -0400
-Date: Mon, 22 Aug 2005 17:17:35 -0500 (CDT)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] external interrupts
-In-Reply-To: <20050822144330.791ba7b3.akpm@osdl.org>
-Message-ID: <20050822165125.W325@chenjesu.americas.sgi.com>
-References: <20050819160716.U87000@chenjesu.americas.sgi.com>
- <20050820222159.GP516@openzaurus.ucw.cz> <20050822155852.N325@chenjesu.americas.sgi.com>
- <20050822144330.791ba7b3.akpm@osdl.org>
-Organization: "Silicon Graphics, Inc."
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Aug 2005 18:16:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40074 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751055AbVHVWQw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 18:16:52 -0400
+Date: Mon, 22 Aug 2005 15:09:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: luben_tuikov@adaptec.com, jim.houston@ccur.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       davej@redhat.com, jgarzik@pobox.com
+Subject: Re: [PATCH 2.6.12.5 1/2] lib: allow idr to be used in irq context
+Message-Id: <20050822150942.4f0c46df.akpm@osdl.org>
+In-Reply-To: <1124747615.5211.34.camel@mulgrave>
+References: <20050822003325.33507.qmail@web51613.mail.yahoo.com>
+	<1124680540.5068.37.camel@mulgrave>
+	<20050821205214.2a75b3cf.akpm@osdl.org>
+	<1124720938.5211.13.camel@mulgrave>
+	<1124747615.5211.34.camel@mulgrave>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Aug 2005, Andrew Morton wrote:
-
-> Having an abstraction layer for a single client driver does seem a bit
-> pointless.  It would become more pointful if other client drivers were to
-> pop up.
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
 >
-> Hence an option would be to merge an IOC4-specific driver which just does
-> what you need, no abstraction layer.  If someone later comes up with a
-> requirement for a driver for similar-looking hardware then we can resurrect
-> the abstraction layer at that stage.
+> Of course, if we're going to go to all this trouble, the next question
+>  that arises naturally is why not just reuse the radix-tree code to
+>  implement idr anyway ... ?
 
-Agreed.  I'll look into what our plans are for additional or follow-on
-devices.  Right now I see a need for this on the horizon, but it's not
-much more than a tiny indistiguishable dot.  I'll have more info in a
-day or two.  I'll also use that time to fix up the things that
-Christoph Hellwig noticed.
+Yes, we could probably have gone that way.  radix-tree would need some
+enhancements for the find-next-above thing.
 
-Brent
+radix-tree has some features (tags, gang-lookup, gang-lookup-by-tag) which
+idr doesn't.  Fitting them all into the one storage API would be nice, I
+guess.  radix-tree does potentially use more memory, although that'll only
+be significant for collections which are both large and sparse.
 
--- 
-Brent Casavant                          If you had nothing to fear,
-bcasavan@sgi.com                        how then could you be brave?
-Silicon Graphics, Inc.                    -- Queen Dama, Source Wars
+Still, people can use either facility at present.  The person who does any
+such consolidation would do the kernel-wide migration at the same time.

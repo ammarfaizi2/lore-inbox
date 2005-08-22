@@ -1,96 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVHVTpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVHVTtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbVHVTpl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 15:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVHVTpl
+	id S1750731AbVHVTtk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 15:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVHVTtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 15:45:41 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:21755 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750747AbVHVTpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 15:45:40 -0400
-Subject: [RFC] RT-patch update to remove the global pi_lock
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, dwalker@mvista.com,
-       george anzinger <george@mvista.com>, Adrian Bunk <bunk@stusta.de>,
-       Sven-Thorsten Dietrich <sven@mvista.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <1124739657.5809.6.camel@localhost.localdomain>
-References: <1124295214.5764.163.camel@localhost.localdomain>
-	 <20050817162324.GA24495@elte.hu>
-	 <1124323379.5186.18.camel@localhost.localdomain>
-	 <1124333050.5186.24.camel@localhost.localdomain>
-	 <20050822075012.GB19386@elte.hu>
-	 <1124704837.5208.22.camel@localhost.localdomain>
-	 <20050822101632.GA28803@elte.hu>
-	 <1124710309.5208.30.camel@localhost.localdomain>
-	 <20050822113858.GA1160@elte.hu>
-	 <1124715755.5647.4.camel@localhost.localdomain>
-	 <20050822183355.GB13888@elte.hu>
-	 <1124739657.5809.6.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 22 Aug 2005 15:44:55 -0400
-Message-Id: <1124739895.5809.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Aug 2005 15:49:40 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:6105 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750731AbVHVTtj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 15:49:39 -0400
+X-Authenticated: #1172751
+From: Rainer Koenig <Rainer.Koenig@gmx.de>
+To: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SATA status report updated
+References: <4DbcF-8ux-3@gated-at.bofh.it> <4DbcG-8ux-5@gated-at.bofh.it>
+	<4DbcF-8ux-1@gated-at.bofh.it> <4DjWG-4ea-19@gated-at.bofh.it>
+	<4Do9X-1IZ-5@gated-at.bofh.it> <4Dp62-304-15@gated-at.bofh.it>
+	<87r7co4o3m.fsf@Rainer.Koenig.Abg.dialin.t-online.de>
+	<430987B1.80207@ti-wmc.nl>
+Date: Mon, 22 Aug 2005 20:07:52 +0200
+In-Reply-To: <430987B1.80207@ti-wmc.nl> (Simon Oosthoek's message of "Mon,
+ 22 Aug 2005 10:07:13 +0200")
+Message-ID: <87fyt1u9on.fsf@Rainer.Koenig.Abg.dialin.t-online.de>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-22 at 20:33 +0200, Ingo Molnar wrote:
+Hi Simon,
 
-> any ideas how to get rid of pi_lock altogether?
+Simon Oosthoek <simon.oosthoek@ti-wmc.nl> writes:
 
-I've toyed with the idea of adding another raw_spin_lock to the mutex. A
-lock specific pi_lock.   Instead of grabbing a global pi_lock, grab the
-pi_lock of a lock.  To modify any lock w.r.t PI, you must first grab all
-the lock's pi_locks being referenced.
+> Unfortunately I'm not able to check the logic of the driver, because
+> although I can read C, I'm totally unfamiliar with the disk controler
+> logic in the kernel...
 
-The idea stems from the fact that the kernel must order its taking of
-locks to prevent deadlocks.  This way the order of locks that are taken
-are also always in order. 
+Well, today I've spent some time in looking at the SiS driver and compared
+it with the driver that is in kernel 2.6.10. And keeping Jeff's comments
+about libata in mind (together with a printout of libata.h) helped a bit 
+to understand the differences. So I will see if I can somehow get the
+important things from the SiS driver while using whatever libata 
+provides already. Will take some time anyway since kernel hacking is
+not the main focus of my job. Anyway, I will try. I guess the main 
+issue is to find the 0x182 specific details and merge them into the
+kernel driver. 
 
-So if you have the following case:
-
-P1 blocked_on L1 owned_by P2 blocked_on L2 owned_by P3 ...
-
-The L1, L2, L3 ... must always be in the same order, otherwise the
-kernel itself can have a deadlock.
-
-OK, let me prove this (for myself as well ;-)
-
-Lets go by contradiction.
-
-If we assume that the locks _can_ be in different orders and that no
-deadlock would result.
-
-So we could have:
-
-P1 blocked_on L1 owned_by P2 ... blocked on Ln owned_by Pn+1
-
-According to our assumtion, there can exist another list here where
-
-Lx owned_by Px+1 ... blocked_on Ly owned by Py+1 
-
-where y < x <= n  and 1 <= y < x
-
-This means that there exists a process that owns Lx and is blocked on a
-lock Ly, and also this means that there's some process that owns Ly is
-blocked on Lx. This is a deadlock!
-
-So knowing that this list of locks will always be in the same order,
-than there must be someway to capitalize on that and take just the locks
-of the locks used instead of a global one.
-
-I haven't fully looked into this idea, but there might be something to
-it.  I'm sure it will be complex, and perhaps slow things down on a 2x
-system. But it should be scalable, since you are only taking locks that
-are being used, and not a global one.
-
-What do you guys think? 
-
--- Steve
-
+Best regards
+Rainer
+-- 
+Rainer König, Diplom-Informatiker (FH), Augsburg, Germany

@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbVHXAsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbVHXBGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932516AbVHXAsa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 20:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVHXAsa
+	id S1750704AbVHXBGg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 21:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVHXBGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 20:48:30 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:9489 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S932516AbVHXAs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 20:48:29 -0400
-Date: Wed, 24 Aug 2005 08:47:36 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: "Gerald (Jerry) Carter" <jerry@samba.org>
-cc: Steven French <sfrench@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Urban.Widmark@enlight.net, samba@samba.org,
-       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-Subject: Re: [Samba] Re: New maintainer needed for the Linux smb filesystem
-In-Reply-To: <430B3BEC.7080703@samba.org>
-Message-ID: <Pine.LNX.4.58.0508240845250.4483@wombat.indigo.net.au>
-References: <OF200CE886.6A353FBA-ON87257065.0005812F-86257065.0005B594@us.ibm.com>
- <43094206.3070602@samba.org> <Pine.LNX.4.58.0508230907150.6680@wombat.indigo.net.au>
- <430B3BEC.7080703@samba.org>
+	Tue, 23 Aug 2005 21:06:36 -0400
+Received: from intranet.networkstreaming.com ([24.227.179.66]:44732 "EHLO
+	networkstreaming.com") by vger.kernel.org with ESMTP
+	id S1750704AbVHXBGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 21:06:36 -0400
+Message-ID: <430B5802.5050200@davyandbeth.com>
+Date: Tue, 23 Aug 2005 12:08:18 -0500
+From: Davy Durham <pubaddr2@davyandbeth.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE, USER_IN_WHITELIST)
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Willy Tarreau <willy@w.ods.org>, bert hubert <bert.hubert@netherlabs.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: select() efficiency / epoll
+References: <42E162B6.2000602@davyandbeth.com> <20050722212454.GB18988@outpost.ds9a.nl> <430AF11A.5000303@davyandbeth.com> <20050823182405.GA21301@outpost.ds9a.nl> <430B01FB.2070903@davyandbeth.com> <20050823191254.GB10110@alpha.home.local> <430B077A.10700@davyandbeth.com> <20050823194557.GC10110@alpha.home.local> <430B0EAE.9080504@davyandbeth.com> <20050823202018.GA28724@alpha.home.local> <Pine.LNX.4.63.0508231618420.7257@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.63.0508231618420.7257@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Aug 2005 01:06:11.0875 (UTC) FILETIME=[04A1C730:01C5A848]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Aug 2005, Gerald (Jerry) Carter wrote:
+Davide Libenzi wrote:
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Ian Kent wrote:
-> > On Sun, 21 Aug 2005, Gerald (Jerry) Carter wrote:
-> > 
-> >>-----BEGIN PGP SIGNED MESSAGE-----
-> >>Hash: SHA1
-> >>
-> >>Steven French wrote:
-> >>|
-> >>| We are close, but not quite ready to disable smbfs.
-> >>
-> >>Steve,
-> >>
-> >>I have been itching to work on some kernel code.
-> >>If you need someone just to keep things afloat,
-> >>I'd been happy to look into it.  There would be some
-> >>start up time of course.  If you would be willing to
-> >>help me navigate the things other than code, it
-> >>shouldn't be that big of a deal.
-> > 
-> > I wouldn't mind helping out here either.  Perhaps a joint 
-> > effort Jerry?
-> 
-> That's fine by me.
-> 
-> Steve, I'll touch base with on #samba-technical to work out
-> what to do first.  I know we have had a lot of reports
-> on https://bugzilla.samba.org/ that were originally closed
-> as invalid since were weren't supporting the kernel smbfs code
-> at that time.
+>
+> I should mention that the 2.4 patch is old WRT mainline epoll in 2.6 
+> (I stopped maintaining it when 2.6 went "stable"). I'd definitely 
+> suggest to use 2.6 if you are looking at epoll.
+>
+I am using linux-2.6.11 and glibc-2.3.4  .. and using select() in it's 
+place seems to work fine.  Are there any known issues with say, one 
+thread does epoll_wait()s while other threads may be doing epoll_ctl()s?
 
-Just spin me round and stop me when I'm pointing in the right direction!
+Is there someone else I should be asking this question?
 
-I'll see if I can find anything in the kernel bugzilla.
-
-Ian
-
+Thanks,
+  Davy

@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVHWPFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbVHWPFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbVHWPFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 11:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVHWPFQ
+	id S932091AbVHWPFO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 11:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbVHWPFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 11:05:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16081 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932102AbVHWPFP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 11:05:15 -0400
-Date: Tue, 23 Aug 2005 11:05:01 -0400
-From: Dave Jones <davej@redhat.com>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] suspend: update warnings
-Message-ID: <20050823150501.GA23171@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nigel Cunningham <ncunningham@cyclades.com>,
-	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050822081528.GA4418@elf.ucw.cz> <1124753566.5093.8.camel@localhost> <20050823125017.GB3664@elf.ucw.cz> <1124801595.4602.18.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1124801595.4602.18.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 23 Aug 2005 11:05:14 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:7933 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932091AbVHWPFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 11:05:13 -0400
+Message-ID: <430B3BA0.7040400@gentoo.org>
+Date: Tue, 23 Aug 2005 16:07:12 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nigel Rantor <wiggly@wiggly.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: irq 11: nobody cared
+References: <430B2419.7070109@wiggly.org>
+In-Reply-To: <430B2419.7070109@wiggly.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 23, 2005 at 10:53:16PM +1000, Nigel Cunningham wrote:
+Nigel Rantor wrote:
+> Who should I be talking to wrt to the irq 11: nobody cared issue?
+> 
+> I'm happy to provide as much info as possible but need to know what info 
+> is required.
+> 
+> I'm happily running 2.6.7, tried the latest and greatest (2.6.12) and 
+> found the problem, then started by looking at 2.6.8 and found the 
+> problem there too.
 
- > > > - CPU Freq  (improving too)
- > > > It might be good to mention these areas too.
- > > Well, right; but those 'only' cause system to crash during suspend. I
- > > was talking about really dangerous stuff.
- > > Both usb and cpufreq seems to work okay here.
- > It depends on what you're using. I believe one of the usb root hub
- > drivers is okay, the others aren't. Similar for cpufreq.
+Try 2.6.13-rc6 and if it still appears, try the new "irqpoll" boot option.
 
-If you know a specific cpufreq driver which has problems, I'm all ears.
-
-		Dave
-
+Daniel

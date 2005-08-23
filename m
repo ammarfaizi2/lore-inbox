@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVHWBOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbVHWBYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbVHWBOY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 21:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVHWBOY
+	id S1750868AbVHWBYa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 21:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbVHWBYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 21:14:24 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:43166 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751316AbVHWBOX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 21:14:23 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: FW: [RFC] A more general timeout specification
-Date: Mon, 22 Aug 2005 18:13:50 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A0415D0AB@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FW: [RFC] A more general timeout specification
-thread-index: AcWnbMlnvqRU1LIaTniPJPDTQ54gTgAEAQDw
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "john stultz" <johnstul@us.ibm.com>,
-       "Inaky Perez-Gonzalez" <inaky@linux.intel.com>
-Cc: "Nishanth Aravamudan" <nacc@us.ibm.com>, <joe.korty@ccur.com>,
-       <george@mvista.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Aug 2005 01:13:52.0651 (UTC) FILETIME=[ECDCDDB0:01C5A77F]
+	Mon, 22 Aug 2005 21:24:30 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:30213 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750868AbVHWBY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 21:24:29 -0400
+Date: Tue, 23 Aug 2005 03:24:25 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] [2.6 patch] sound/core/memalloc.c: fix PROC_FS=n compilation
+Message-ID: <20050823012425.GO9927@stusta.de>
+References: <20050820190258.GA3615@stusta.de> <s5hhddip2jg.wl%tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hhddip2jg.wl%tiwai@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John
+On Mon, Aug 22, 2005 at 02:41:07PM +0200, Takashi Iwai wrote:
+>...
+> I think the below is simpler.
 
->From: john stultz [mailto:johnstul@us.ibm.com]
->On Thu, 2005-07-28 at 18:52 -0700, Inaky Perez-Gonzalez wrote:
->> The main user of this new inteface is to allow system calls to get
->> time specified in an absolute form (as most of POSIX states) and thus
->> avoid extra time conversion work.
-...
->>
-http://groups-beta.google.com/groups?q=a+more+general+timeout+specificat
-ion
-...
->>
->> timeout_validate() error-checks the syntax of a timeout
->> argument and returns either zero or -EINVAL.  By breaking
->> timeout_validate() out from timeout_sleep(), it becomes possible
->> to error check the timeout 'far away' from the places in the
->> code where we would actually do the timeout, as well as being
->> able to perform such checks only at those places we know the
->> timeout specification is coming from an unsafe source.
->
->using gettimeofday() so that part looks good. I'm not completely sold
-on
->why the validate interface is needed, but I didn't hear any objections
->from George, so I'd defer to those who deal more with those interfaces.
+Looks good.
 
-_validate() is mostly needed when we take a timeout specification from
-user space (timeouts from kernel space are supposed to be ok). We need
-to validate that the clock id passed is correct (existant), that
-the 'struct timespec' is also legal (eg: nsec < 1000M), that the flags 
-are ok (relative/absolute), etc...
+> Takashi
+>...
 
-The idea is that in your code that uses this, once you copy the 'struct 
-timeout' from  user space you check it for validity. Then you can 
-dive into any kind of code (atomic, sleep paths, whatever) without
-having
-to code an error path from deeep down for when the user passed a bad 
-timeout.
+cu
+Adrian
 
-It sure makes it more simple :)
+-- 
 
--- Inaky
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

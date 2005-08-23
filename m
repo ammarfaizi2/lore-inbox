@@ -1,72 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVHWVqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbVHWVrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbVHWVqq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 17:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbVHWVpL
+	id S932414AbVHWVrV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 17:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVHWVrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 17:45:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20918 "EHLO
+	Tue, 23 Aug 2005 17:47:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18614 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932447AbVHWVo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 17:44:59 -0400
+	id S932443AbVHWVot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 17:44:49 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] (39/43) Kconfig fix (missing dependencies on PCI in sound/*)
+Subject: [PATCH] (37/43) qualifiers in return types - easy cases
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1E7gck-0007FM-GF@parcelfarce.linux.theplanet.co.uk>
+Message-Id: <E1E7gca-0007Em-Da@parcelfarce.linux.theplanet.co.uk>
 From: Al Viro <viro@www.linux.org.uk>
-Date: Tue, 23 Aug 2005 22:48:02 +0100
+Date: Tue, 23 Aug 2005 22:47:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-a bunch of PCI-only drivers didn't have the right dependency
+a bunch of functions switched from volatile to __attribute__((noreturn)) and
+from const to __attribute_pure__
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 ----
-diff -urN RC13-rc6-git13-mac-fonts/sound/oss/Kconfig RC13-rc6-git13-oss-pci/sound/oss/Kconfig
---- RC13-rc6-git13-mac-fonts/sound/oss/Kconfig	2005-08-21 13:16:47.000000000 -0400
-+++ RC13-rc6-git13-oss-pci/sound/oss/Kconfig	2005-08-21 13:17:41.000000000 -0400
-@@ -6,7 +6,7 @@
- # Prompt user for primary drivers.
- config SOUND_BT878
- 	tristate "BT878 audio dma"
--	depends on SOUND_PRIME
-+	depends on SOUND_PRIME && PCI
- 	---help---
- 	  Audio DMA support for bt878 based grabber boards.  As you might have
- 	  already noticed, bt878 is listed with two functions in /proc/pci.
-@@ -87,7 +87,7 @@
+diff -urN RC13-rc6-git13-qdio_get_indicator/arch/arm/kernel/traps.c RC13-rc6-git13-attr/arch/arm/kernel/traps.c
+--- RC13-rc6-git13-qdio_get_indicator/arch/arm/kernel/traps.c	2005-08-10 10:37:45.000000000 -0400
++++ RC13-rc6-git13-attr/arch/arm/kernel/traps.c	2005-08-21 13:17:19.000000000 -0400
+@@ -617,7 +617,7 @@
+ 	notify_die("unknown data abort code", regs, &info, instr, 0);
+ }
  
- config SOUND_FUSION
- 	tristate "Crystal SoundFusion (CS4280/461x)"
--	depends on SOUND_PRIME
-+	depends on SOUND_PRIME && PCI
- 	help
- 	  This module drives the Crystal SoundFusion devices (CS4280/46xx
- 	  series) when wired as native sound drivers with AC97 codecs.  If
-@@ -95,7 +95,7 @@
+-volatile void __bug(const char *file, int line, void *data)
++void __attribute__((noreturn)) __bug(const char *file, int line, void *data)
+ {
+ 	printk(KERN_CRIT"kernel BUG at %s:%d!", file, line);
+ 	if (data)
+diff -urN RC13-rc6-git13-qdio_get_indicator/arch/arm/nwfpe/fpopcode.h RC13-rc6-git13-attr/arch/arm/nwfpe/fpopcode.h
+--- RC13-rc6-git13-qdio_get_indicator/arch/arm/nwfpe/fpopcode.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc6-git13-attr/arch/arm/nwfpe/fpopcode.h	2005-08-21 13:17:19.000000000 -0400
+@@ -370,20 +370,20 @@
+ #define getRoundingMode(opcode)		((opcode & MASK_ROUNDING_MODE) >> 5)
  
- config SOUND_CS4281
- 	tristate "Crystal Sound CS4281"
--	depends on SOUND_PRIME
-+	depends on SOUND_PRIME && PCI
- 	help
- 	  Picture and feature list at
- 	  <http://www.pcbroker.com/crystal4281.html>.
-@@ -179,7 +179,7 @@
+ #ifdef CONFIG_FPE_NWFPE_XP
+-static inline const floatx80 getExtendedConstant(const unsigned int nIndex)
++static inline __attribute_pure__ floatx80 getExtendedConstant(const unsigned int nIndex)
+ {
+ 	extern const floatx80 floatx80Constant[];
+ 	return floatx80Constant[nIndex];
+ }
+ #endif
  
- config SOUND_SONICVIBES
- 	tristate "S3 SonicVibes"
--	depends on SOUND_PRIME
-+	depends on SOUND_PRIME && PCI
- 	help
- 	  Say Y or M if you have a PCI sound card utilizing the S3
- 	  SonicVibes chipset. To find out if your sound card uses a
-@@ -226,7 +226,7 @@
+-static inline const float64 getDoubleConstant(const unsigned int nIndex)
++static inline __attribute_pure__ float64 getDoubleConstant(const unsigned int nIndex)
+ {
+ 	extern const float64 float64Constant[];
+ 	return float64Constant[nIndex];
+ }
  
- config SOUND_TRIDENT
- 	tristate "Trident 4DWave DX/NX, SiS 7018 or ALi 5451 PCI Audio Core"
--	depends on SOUND_PRIME
-+	depends on SOUND_PRIME && PCI
- 	---help---
- 	  Say Y or M if you have a PCI sound card utilizing the Trident
- 	  4DWave-DX/NX chipset or your mother board chipset has SiS 7018
+-static inline const float32 getSingleConstant(const unsigned int nIndex)
++static inline __attribute_pure__ float32 getSingleConstant(const unsigned int nIndex)
+ {
+ 	extern const float32 float32Constant[];
+ 	return float32Constant[nIndex];
+diff -urN RC13-rc6-git13-qdio_get_indicator/include/asm-arm/bug.h RC13-rc6-git13-attr/include/asm-arm/bug.h
+--- RC13-rc6-git13-qdio_get_indicator/include/asm-arm/bug.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc6-git13-attr/include/asm-arm/bug.h	2005-08-21 13:17:19.000000000 -0400
+@@ -5,7 +5,7 @@
+ 
+ #ifdef CONFIG_BUG
+ #ifdef CONFIG_DEBUG_BUGVERBOSE
+-extern volatile void __bug(const char *file, int line, void *data);
++extern void __bug(const char *file, int line, void *data) __attribute__((noreturn));
+ 
+ /* give file/line information */
+ #define BUG()		__bug(__FILE__, __LINE__, NULL)
+diff -urN RC13-rc6-git13-qdio_get_indicator/include/asm-arm/cpu-multi32.h RC13-rc6-git13-attr/include/asm-arm/cpu-multi32.h
+--- RC13-rc6-git13-qdio_get_indicator/include/asm-arm/cpu-multi32.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc6-git13-attr/include/asm-arm/cpu-multi32.h	2005-08-21 13:17:19.000000000 -0400
+@@ -31,7 +31,7 @@
+ 	/*
+ 	 * Special stuff for a reset
+ 	 */
+-	volatile void (*reset)(unsigned long addr);
++	void (*reset)(unsigned long addr) __attribute__((noreturn));
+ 	/*
+ 	 * Idle the processor
+ 	 */
+diff -urN RC13-rc6-git13-qdio_get_indicator/include/asm-arm/cpu-single.h RC13-rc6-git13-attr/include/asm-arm/cpu-single.h
+--- RC13-rc6-git13-qdio_get_indicator/include/asm-arm/cpu-single.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc6-git13-attr/include/asm-arm/cpu-single.h	2005-08-21 13:17:19.000000000 -0400
+@@ -41,4 +41,4 @@
+ extern void cpu_dcache_clean_area(void *, int);
+ extern void cpu_do_switch_mm(unsigned long pgd_phys, struct mm_struct *mm);
+ extern void cpu_set_pte(pte_t *ptep, pte_t pte);
+-extern volatile void cpu_reset(unsigned long addr);
++extern void cpu_reset(unsigned long addr) __attribute__((noreturn));
+diff -urN RC13-rc6-git13-qdio_get_indicator/include/asm-ppc/time.h RC13-rc6-git13-attr/include/asm-ppc/time.h
+--- RC13-rc6-git13-qdio_get_indicator/include/asm-ppc/time.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc6-git13-attr/include/asm-ppc/time.h	2005-08-21 13:17:19.000000000 -0400
+@@ -58,7 +58,7 @@
+ /* Accessor functions for the timebase (RTC on 601) registers. */
+ /* If one day CONFIG_POWER is added just define __USE_RTC as 1 */
+ #ifdef CONFIG_6xx
+-extern __inline__ int const __USE_RTC(void) {
++extern __inline__ int __attribute_pure__ __USE_RTC(void) {
+ 	return (mfspr(SPRN_PVR)>>16) == 1;
+ }
+ #else

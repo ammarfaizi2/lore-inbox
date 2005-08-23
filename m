@@ -1,116 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVHWRGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVHWRKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbVHWRGP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 13:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVHWRGP
+	id S932223AbVHWRKf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 13:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbVHWRKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 13:06:15 -0400
-Received: from mail04.solnet.ch ([212.101.4.138]:34504 "EHLO mail04.solnet.ch")
-	by vger.kernel.org with ESMTP id S932227AbVHWRGO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 13:06:14 -0400
-From: Damir Perisa <damir.perisa@solnet.ch>
-Reply-To: Damir Perisa <damir.perisa@solnet.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.13-rc6-mm2 - fs/xfs/xfs*.c warnings
-Date: Tue, 23 Aug 2005 19:03:27 +0200
-User-Agent: KMail/1.8.2
+	Tue, 23 Aug 2005 13:10:35 -0400
+Received: from web33309.mail.mud.yahoo.com ([68.142.206.124]:8636 "HELO
+	web33309.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932223AbVHWRKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 13:10:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=deMEbaig8a9mV8Sjtnf07Tas9MwQDV6P5t3GdPIaaejJVyWiB1uahobVAcVOTHEErN5M0dzSYA9DudWmEFnEPvf0qG+eaFnh6kFfZJ7AJhICkxxFzmyEONTy0AHmK6QZ8ExTNPtVCG++59c4ReAaOeHOvbj2QZYwcymOZhcwq6k=  ;
+Message-ID: <20050823171028.47315.qmail@web33309.mail.mud.yahoo.com>
+Date: Tue, 23 Aug 2005 10:10:28 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: 2.6.12 Performance problems
+To: Helge Hafting <helge.hafting@aitel.hist.no>
 Cc: linux-kernel@vger.kernel.org
-References: <20050822213021.1beda4d5.akpm@osdl.org>
-In-Reply-To: <20050822213021.1beda4d5.akpm@osdl.org>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?iso-8859-1?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/?=
- =?iso-8859-1?q?iPOv8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B?=
- =?iso-8859-1?q?2=7Cl6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?iso-8859-1?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?iso-8859-1?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Alanine: true
-Glycine: true
+In-Reply-To: <430ACC5C.1060507@aitel.hist.no>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2003397.b0j7y1rfgq";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508231903.36127.damir.perisa@solnet.ch>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2003397.b0j7y1rfgq
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-i'm compiling 2.6.13-rc6-mm2 atm and noticed that xfs is having lots of=20
-warnings while compiling. recently i switched to gcc 4.0.1 - maybe it's=20
-because of this.
 
-details:
+--- Helge Hafting <helge.hafting@aitel.hist.no>
+wrote:
 
-fs/xfs/xfs_acl.c: In function 'xfs_acl_access':
-fs/xfs/xfs_acl.c:445: warning: 'matched.ae_perm' may be used uninitialized=
-=20
-in this function
+> Danial Thom wrote:
+> 
+> >--- Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> >
+> >  
+> >
+> >>On 8/21/05, Danial Thom
+> <danial_thom@yahoo.com>
+> >>wrote:
+> >>    
+> >>
+> >>>I just started fiddling with 2.6.12, and
+> >>>      
+> >>>
+> >>there
+> >>    
+> >>
+> >>>seems to be a big drop-off in performance
+> >>>      
+> >>>
+> >>from
+> >>    
+> >>
+> >>>2.4.x in terms of networking on a
+> >>>      
+> >>>
+> >>uniprocessor
+> >>    
+> >>
+> >>>system. Just bridging packets through the
+> >>>machine, 2.6.12 starts dropping packets at
+> >>>~100Kpps, whereas 2.4.x doesn't start
+> >>>      
+> >>>
+> >>dropping
+> >>    
+> >>
+> >>>until over 350Kpps on the same hardware
+> >>>      
+> >>>
+> >>(2.0Ghz
+> >>    
+> >>
+> >>>Opteron with e1000 driver). This is pitiful
+> >>>prformance for this hardware. I've
+> >>>increased the rx ring in the e1000 driver to
+> >>>      
+> >>>
+> >>512
+> >>    
+> >>
+> >>>with little change (interrupt moderation is
+> >>>      
+> >>>
+> >>set
+> >>    
+> >>
+> >>>to 8000 Ints/second). Has "tuning" for MP
+> >>>destroyed UP performance altogether, or is
+> >>>      
+> >>>
+> >>there
+> >>    
+> >>
+> >>>some tuning parameter that could make a
+> >>>      
+> >>>
+> >>4-fold
+> >>    
+> >>
+> >>>difference? All debugging is off and there
+> >>>      
+> >>>
+> >>are
+> >>    
+> >>
+> >>>no messages on the console or in the error
+> >>>      
+> >>>
+> >>logs.
+> >>    
+> >>
+> >>>The kernel is the standard kernel.org
+> dowload
+> >>>config with SMP turned off and the intel
+> >>>      
+> >>>
+> >>ethernet
+> >>    
+> >>
+> >>>card drivers as modules without any other
+> >>>changes, which is exactly the config for my
+> >>>      
+> >>>
+> >>2.4
+> >>    
+> >>
+> >>>kernels.
+> >>>
+> >>>      
+> >>>
+> >>If you have preemtion enabled you could
+> disable
+> >>it. Low latency comes
+> >>at the cost of decreased throughput - can't
+> >>have both. Also try using
+> >>a HZ of 100 if you are currently using 1000,
+> >>that should also improve
+> >>throughput a little at the cost of slightly
+> >>higher latencies.
+> >>
+> >>I doubt that it'll do any huge difference,
+> but
+> >>if it does, then that
+> >>would probably be valuable info.
+> >>
+> >>    
+> >>
+> >Ok, well you'll have to explain this one:
+> >
+> >"Low latency comes at the cost of decreased
+> >throughput - can't have both"
+> >  
+> >
+> Configuring "preempt" gives lower latency,
+> because then
+> almost anything can be interrupted (preempted).
+>  You can then
+> get very quick responses to some things, i.e.
+> interrupts and such.
 
-fs/xfs/xfs_alloc_btree.c: In function 'xfs_alloc_insrec':
-fs/xfs/xfs_alloc_btree.c:622: warning: 'nrec.ar_startblock' may be used=20
-uninitialized in this function
-fs/xfs/xfs_alloc_btree.c:622: warning: 'nrec.ar_blockcount' may be used=20
-uninitialized in this function
+I think part of the problem is the continued
+misuse of the word "latency". Latency, in
+language terms, means "unexplained delay". Its
+wrong here because for one, its explainable. But
+it also depends on your perspective. The
+"latency" is increased for kernel tasks, while it
+may be reduced for something that is getting the
+benefit of preempting the kernel. So you really
+can't say "the price of reduced latency is lower
+throughput", because thats simply backwards.
+You've increased the kernel tasks latency by
+allowing it to be pre-empted. Reduced latency
+implies higher efficiency. All you've done here
+is shift the latency from one task to another, so
+there is no reduction overall, in fact there is
+probably a marginal increase due to the overhead
+of pre-emption vs doing nothing.
 
-fs/xfs/xfs_bmap.c: In function 'xfs_bmap_alloc':
-fs/xfs/xfs_bmap.c:2335: warning: 'rtx' is used uninitialized in this=20
-function
+DT
 
-fs/xfs/xfs_dir2_sf.c: In function 'xfs_dir2_block_sfsize':
-fs/xfs/xfs_dir2_sf.c:110: warning: 'parent' may be used uninitialized in=20
-this function
 
-fs/xfs/xfs_dir_leaf.c: In function 'xfs_dir_leaf_to_shortform':
-fs/xfs/xfs_dir_leaf.c:653: warning: 'parent' may be used uninitialized in=20
-this function
 
-fs/xfs/xfs_ialloc_btree.c: In function 'xfs_inobt_insrec':
-fs/xfs/xfs_ialloc_btree.c:750: warning: 'nrec.ir_free' is used=20
-uninitialized in this function
-fs/xfs/xfs_ialloc_btree.c:750: warning: 'nrec.ir_freecount' is used=20
-uninitialized in this function
-fs/xfs/xfs_ialloc_btree.c:567: warning: 'nrec.ir_startino' may be used=20
-uninitialized in this function
-
-and the following warning appears a lot of times:
-
-fs/xfs/xfs_bmap_btree.h:508:21: warning: "__BIG_ENDIAN" is not defined
-fs/xfs/xfs_bmap_btree.h:626:21: warning: "__BIG_ENDIAN" is not defined
-
-just giving a heads-up if somebody wants to clean this code.=20
-
-thanx + greetings,
-Damir
-
-Le Tuesday 23 August 2005 06:30, Andrew Morton a =E9crit=A0:
-| ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc
-|6/2.6.13-rc6-mm2/
-|
-| - Various updates.  Nothing terribly noteworthy.
-|
-| - This kernel still spits a bunch of scheduling-while-atomic warnings
-| from the scsi code.  Please ignore.
-|
-
-=2D-=20
-It is impossible for an optimist to be pleasantly surprised.
-
---nextPart2003397.b0j7y1rfgq
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDC1boPABWKV6NProRAiFwAKCq5p35j+jnZEBxX1xZrbgIc/mgmwCfcGDP
-BGtmVLZ0Yxl+DqJ26OJLMyc=
-=affa
------END PGP SIGNATURE-----
-
---nextPart2003397.b0j7y1rfgq--
+		
+____________________________________________________
+Start your day with Yahoo! - make it your home page 
+http://www.yahoo.com/r/hs 
+ 

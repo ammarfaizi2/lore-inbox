@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbVHWVtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVHWVnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbVHWVtv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 17:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbVHWVoB
+	id S932431AbVHWVnr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 17:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVHWVnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 17:44:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7606 "EHLO
+	Tue, 23 Aug 2005 17:43:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6326 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932414AbVHWVns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 17:43:48 -0400
+	id S932422AbVHWVnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 17:43:43 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] (25/43) Kconfig fix (sparc32 drivers/char dependencies)
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1E7gbb-0007CV-TZ@parcelfarce.linux.theplanet.co.uk>
+Subject: [PATCH] (24/43) Kconfig fix (emac dependencient)
+Cc: linux-kernel@vger.kernel.org, mporter@kernel.crashing.org
+Message-Id: <E1E7gbW-0007CI-SL@parcelfarce.linux.theplanet.co.uk>
 From: Al Viro <viro@www.linux.org.uk>
-Date: Tue, 23 Aug 2005 22:46:51 +0100
+Date: Tue, 23 Aug 2005 22:46:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-since sparc32 Kconfig includes drivers/char/Kconfig (instead of duplicating
-its parts) we need several new dependencies there to exclude the stuff
-broken on sparc32 and not excluded by existing dependencies.
+emac doesn't build modular; ibm_emac_debug doesn't build at all (missing
+headers).
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 ----
-diff -urN RC13-rc6-git13-emac/drivers/char/Kconfig RC13-rc6-git13-sparc-char/drivers/char/Kconfig
---- RC13-rc6-git13-emac/drivers/char/Kconfig	2005-08-21 13:16:49.000000000 -0400
-+++ RC13-rc6-git13-sparc-char/drivers/char/Kconfig	2005-08-21 13:17:07.000000000 -0400
-@@ -80,7 +80,7 @@
+diff -urN RC13-rc6-git13-44x-PM/drivers/net/Kconfig RC13-rc6-git13-emac/drivers/net/Kconfig
+--- RC13-rc6-git13-44x-PM/drivers/net/Kconfig	2005-08-21 13:16:55.000000000 -0400
++++ RC13-rc6-git13-emac/drivers/net/Kconfig	2005-08-21 13:17:06.000000000 -0400
+@@ -1145,7 +1145,7 @@
+ 	  be called ibmveth.
  
- config COMPUTONE
- 	tristate "Computone IntelliPort Plus serial support"
--	depends on SERIAL_NONSTANDARD && BROKEN_ON_SMP
-+	depends on SERIAL_NONSTANDARD && BROKEN_ON_SMP && (BROKEN || !SPARC32)
+ config IBM_EMAC
+-	tristate "IBM PPC4xx EMAC driver support"
++	bool "IBM PPC4xx EMAC driver support"
+ 	depends on 4xx
+ 	select CRC32
  	---help---
- 	  This driver supports the entire family of Intelliport II/Plus
- 	  controllers with the exception of the MicroChannel controllers and
-@@ -208,7 +208,7 @@
+@@ -1154,7 +1154,7 @@
  
- config SYNCLINKMP
- 	tristate "SyncLink Multiport support"
--	depends on SERIAL_NONSTANDARD
-+	depends on SERIAL_NONSTANDARD && (BROKEN || !SPARC32)
- 	help
- 	  Enable support for the SyncLink Multiport (2 or 4 ports)
- 	  serial adapter, running asynchronous and HDLC communications up
-@@ -736,7 +736,7 @@
+ config IBM_EMAC_ERRMSG
+ 	bool "Verbose error messages"
+-	depends on IBM_EMAC
++	depends on IBM_EMAC && BROKEN
  
- config GEN_RTC
- 	tristate "Generic /dev/rtc emulation"
--	depends on RTC!=y && !IA64 && !ARM && !PPC64 && !M32R
-+	depends on RTC!=y && !IA64 && !ARM && !PPC64 && !M32R && !SPARC32
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+ config IBM_EMAC_RXB
+ 	int "Number of receive buffers"

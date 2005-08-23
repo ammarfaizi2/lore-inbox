@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVHWTlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVHWTqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVHWTlN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 15:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVHWTlM
+	id S932339AbVHWTqE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 15:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVHWTqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 15:41:12 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:6735 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932336AbVHWTlL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 15:41:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XNm58z37PNa0bnO0CJuLOre8SWSANacz+Q8y47x90nF0TCKEWEmFRDQbQxQhmXjlTZV5QHZuJYQaCw7tiiyfiGbflMSBL21wabdsok1z4egPS7Z6tmJI/GsnCGV+EYf0qNagrdaKfaM08j0Ay0jvFzo4aAxDlA6LRdR/6bnSijk=
-Message-ID: <4789af9e050823124140eb924f@mail.gmail.com>
-Date: Tue, 23 Aug 2005 13:41:09 -0600
-From: Jim Ramsay <jim.ramsay@gmail.com>
-To: Linux-ide <linux-ide@vger.kernel.org>
-Subject: Re: [PATCH 3/3] Add disk hotswap support to libata RESEND #2
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-scsi@vger.kernel.org,
+	Tue, 23 Aug 2005 15:46:04 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:2578 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932339AbVHWTqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 15:46:02 -0400
+Date: Tue, 23 Aug 2005 21:45:57 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Davy Durham <pubaddr2@davyandbeth.com>
+Cc: Willy Tarreau <willy@w.ods.org>, bert hubert <bert.hubert@netherlabs.nl>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <355e5e5e05080103021a8239df@mail.gmail.com>
+Subject: Re: select() efficiency / epoll
+Message-ID: <20050823194557.GC10110@alpha.home.local>
+References: <42E162B6.2000602@davyandbeth.com> <20050722212454.GB18988@outpost.ds9a.nl> <430AF11A.5000303@davyandbeth.com> <20050823182405.GA21301@outpost.ds9a.nl> <430B01FB.2070903@davyandbeth.com> <20050823191254.GB10110@alpha.home.local> <430B077A.10700@davyandbeth.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <355e5e5e05080103021a8239df@mail.gmail.com>
+In-Reply-To: <430B077A.10700@davyandbeth.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/1/05, Lukasz Kosewski <lkosewsk@gmail.com> wrote:
-> Patch 03:  Have sata_promise use the perfect, flawless API from the
-> previous patch
+On Tue, Aug 23, 2005 at 06:24:42AM -0500, Davy Durham wrote:
+> That's probably a good idea.  Where would I find out what other projects 
+> use it?
 
-Hmmm... Flawless :)
+I use it in my load-balancer (haproxy), and it could somewhat match your
+needs, because I ported the select()-based earlier version to epoll() with
+the smallest possible changes. Indeed, the new epoll() loop still uses the
+FD_ISSET() to determine what to do with epoll_ctl(). If you have changed
+your code to use select(), you may find similarities. But I want to tell
+you from now that my code is NOT multi-threaded. It could be a bug in the
+epoll implementation, because I don't think that there are so many
+applications using epoll on MT models. Bert says that the epoll implementation
+is heavily benchmarked, which is true, but which does not guarantee that it
+is tested under every condition.
 
-Then I must have found an undocumented feature!  I've applied this set
-of patches to a 2.6.11 kernel (with few problems) and ran into a bunch
-of "scheduling while atomic" errors when hotplugging a drive, culprit
-being probably scsi_sysfs.c where scsi_remove_device locks a mutex, or
-perhaps when it then calls class_device_unregister, which does a
-'down_write'.
+You can download it from there :
 
-Perhaps we need some sort of workqueue for hotplug requests to get
-them out of the atomic interrupt handler context where they originate?
+  http://w.ods.org/tools/haproxy/src/devel/
 
--- 
-Jim Ramsay
-"Me fail English?  That's unpossible!"
+Use version 1.2.6. I added epoll in 1.2.5, so the diff between 1.2.4 and
+1.2.5 could help you too.
+
+Good luck !
+Willy
+

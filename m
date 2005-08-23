@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVHWU3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVHWUap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbVHWU3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 16:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVHWU3Z
+	id S932380AbVHWUap (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 16:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVHWUap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 16:29:25 -0400
-Received: from sccrmhc11.comcast.net ([63.240.76.21]:28647 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932376AbVHWU3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 16:29:25 -0400
-Date: Tue, 23 Aug 2005 13:30:29 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.13-git] Fix IXP4xx CLOCK_TICK_RATE
-Message-ID: <20050823203029.GA11370@plexity.net>
-Reply-To: dsaxena@plexity.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 23 Aug 2005 16:30:45 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:2322 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932380AbVHWUao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 16:30:44 -0400
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <E1E7fMD-0006En-00@dorka.pomaz.szeredi.hu> (message from Miklos
+	Szeredi on Tue, 23 Aug 2005 22:26:53 +0200)
+Subject: [PATCH 3/8] use get_fs_struct() in proc
+References: <E1E7fHs-0006DO-00@dorka.pomaz.szeredi.hu> <E1E7fJu-0006EB-00@dorka.pomaz.szeredi.hu> <E1E7fMD-0006En-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1E7fPj-0006Fq-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 23 Aug 2005 22:30:31 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch cleans up proc_cwd_link() and proc_root_link() by factoring
+out common code into get_fs_struct().
 
-[RMK is out for the week so sending this direct as it should go into 2.6.13]
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-As pointed out in the following thread, the CLOCK_TICK_RATE setting for
-IXP4xx is incorrect b/c the HW ignores the lowest 2 bits of the LATCH value.
-
-http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2005-August/030950.html
-
-Tnx to George Anziger and Egil Hjelmeland for finding the issue.
-
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
-
-diff --git a/include/asm-arm/arch-ixp4xx/timex.h b/include/asm-arm/arch-ixp4xx/timex.h
---- a/include/asm-arm/arch-ixp4xx/timex.h
-+++ b/include/asm-arm/arch-ixp4xx/timex.h
-@@ -7,7 +7,9 @@
+Index: linux/fs/proc/base.c
+===================================================================
+--- linux.orig/fs/proc/base.c	2005-08-19 14:47:20.000000000 +0200
++++ linux/fs/proc/base.c	2005-08-19 14:47:35.000000000 +0200
+@@ -298,15 +298,21 @@ static int proc_fd_link(struct inode *in
+ 	return -ENOENT;
+ }
  
- /*
-  * We use IXP425 General purpose timer for our timer needs, it runs at 
-- * 66.66... MHz
-+ * 66.66... MHz. We do a convulted calculation of CLOCK_TICK_RATE b/c the
-+ * timer register ignores the bottom 2 bits of the LATCH value.
-  */
--#define CLOCK_TICK_RATE (66666666)
-+#define FREQ 66666666
-+#define CLOCK_TICK_RATE (((FREQ / HZ & ~IXP4XX_OST_RELOAD_MASK) + 1) * HZ)
+-static int proc_cwd_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
++static struct fs_struct *get_fs_struct(struct task_struct *task)
+ {
+ 	struct fs_struct *fs;
+-	int result = -ENOENT;
+-	task_lock(proc_task(inode));
+-	fs = proc_task(inode)->fs;
++	task_lock(task);
++	fs = task->fs;
+ 	if(fs)
+ 		atomic_inc(&fs->count);
+-	task_unlock(proc_task(inode));
++	task_unlock(task);
++	return fs;
++}
++
++static int proc_cwd_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
++{
++	struct fs_struct *fs = get_fs_struct(proc_task(inode));
++	int result = -ENOENT;
+ 	if (fs) {
+ 		read_lock(&fs->lock);
+ 		*mnt = mntget(fs->pwdmnt);
+@@ -320,13 +326,8 @@ static int proc_cwd_link(struct inode *i
  
-
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-Even a stopped clock gives the right time twice a day.
+ static int proc_root_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
+ {
+-	struct fs_struct *fs;
++	struct fs_struct *fs = get_fs_struct(proc_task(inode));
+ 	int result = -ENOENT;
+-	task_lock(proc_task(inode));
+-	fs = proc_task(inode)->fs;
+-	if(fs)
+-		atomic_inc(&fs->count);
+-	task_unlock(proc_task(inode));
+ 	if (fs) {
+ 		read_lock(&fs->lock);
+ 		*mnt = mntget(fs->rootmnt);

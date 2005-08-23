@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVHWRoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVHWRqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbVHWRoT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 13:44:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVHWRoT
+	id S932243AbVHWRqs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 13:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVHWRqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 13:44:19 -0400
-Received: from intranet.networkstreaming.com ([24.227.179.66]:25429 "EHLO
-	networkstreaming.com") by vger.kernel.org with ESMTP
-	id S932250AbVHWRoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 13:44:18 -0400
-Message-ID: <430AF11A.5000303@davyandbeth.com>
-Date: Tue, 23 Aug 2005 04:49:14 -0500
-From: Davy Durham <pubaddr2@davyandbeth.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: bert hubert <bert.hubert@netherlabs.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: select() efficiency / epoll
-References: <42E162B6.2000602@davyandbeth.com> <20050722212454.GB18988@outpost.ds9a.nl>
-In-Reply-To: <20050722212454.GB18988@outpost.ds9a.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 23 Aug 2005 13:46:48 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29669
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932243AbVHWRqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 13:46:48 -0400
+Date: Tue, 23 Aug 2005 10:46:40 -0700 (PDT)
+Message-Id: <20050823.104640.25158087.davem@davemloft.net>
+To: arjan@infradead.org
+Cc: tedu@coverity.com, linux-kernel@vger.kernel.org, ralf@linux-mips.org
+Subject: Re: some missing spin_unlocks
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1124818806.3218.20.camel@laptopd505.fenrus.org>
+References: <1124816044.3218.18.camel@laptopd505.fenrus.org>
+	<20050823.103010.51024114.davem@davemloft.net>
+	<1124818806.3218.20.camel@laptopd505.fenrus.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Aug 2005 17:43:52.0156 (UTC) FILETIME=[39BA09C0:01C5A80A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, I've been trying to use epoll.. on linux-2.6.11-6mdk
+From: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: some missing spin_unlocks
+Date: Tue, 23 Aug 2005 19:40:06 +0200
 
+> On Tue, 2005-08-23 at 10:30 -0700, David S. Miller wrote:
+> > From: Arjan van de Ven <arjan@infradead.org>
+> > Date: Tue, 23 Aug 2005 18:54:03 +0200
+> > 
+> > > does it matter? can ANYTHING be spinning on the lock? if not .. can we
+> > > just let the lock go poof and not unlock it... 
+> > 
+> > I believe socket lookup can, otherwise the code is OK as-is.
+> 
+> lookup while the object is in progress of being destroyed sounds really
+> bad though....
 
-However, I'm getting segfaults because some pointers in places are 
-getting set to low integer values (which didn't used to have those values).
+This happens all the time with TCP sockets, for example.
+When we're trying to kill off a socket which is in time
+wait state, the receive path can find it, grab a reference,
+and process a packet against it right as we're trying to
+kill it off.
 
-The deal is that my application is multi-threaded, and I was wondering 
-if epoll had issues if you use epoll_ctl while an epoll_wait is waiting 
-or something like that.  I'm also compiling with -D_MULTI_THREADED.  I'm 
-not new to threading, but am stumped at this point.
-
-I'm not ruling out it being my code, but wanted to ask about epoll since 
-it's so new.
-
-Any ideas?
-
-Thanks,
-  Davy
-
-
-bert hubert wrote:
-
->On Fri, Jul 22, 2005 at 04:18:46PM -0500, Davy Durham wrote:
->  
->
->>Please forgive and redirect me if this is not the right place to ask 
->>this question:
->>
->>I'm looking to write a sort of messaging system that would take input 
->>from any number of entities that "register" with it.. it would then 
->>route the messages to outputs and so forth..
->>    
->>
->
->Look at epoll, or libevent, which uses epoll to be quick in this scenario.
->
->
->  
->
-
+This is completely normal.

@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbVHZTjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVHZTmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbVHZTjE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVHZTjE
+	id S1030229AbVHZTmD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbVHZTmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:39:04 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:28862 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1030228AbVHZTjC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:39:02 -0400
-Subject: Re: [patch] IBM HDAPS accelerometer driver.
-From: Robert Love <rml@novell.com>
-To: dtor_core@ameritech.net
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <d120d500050826122768cd3612@mail.gmail.com>
-References: <1125069494.18155.27.camel@betsy>
-	 <d120d500050826122768cd3612@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 26 Aug 2005 15:39:01 -0400
-Message-Id: <1125085141.18155.97.camel@betsy>
+	Fri, 26 Aug 2005 15:42:02 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37760 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1030229AbVHZTmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 15:42:00 -0400
+Date: Tue, 23 Aug 2005 16:57:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] fix whitespace handling on sysfs attributes
+Message-ID: <20050823145752.GA846@openzaurus.ucw.cz>
+References: <9e473391050823064469eb78a2@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e473391050823064469eb78a2@mail.gmail.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 14:27 -0500, Dmitry Torokhov wrote:
+Hi!
 
-> What this completion is used for? I don't see any other references to it.
+> The first version of this patch didn't allow for the request firmware
+> case which does multiple parsing passes on the parameter. This was
+> discussed in the thread '2.6.13-rc6-mm1'
 
-It was the start of the release() routine, but I decided to move to
-platform_device_register_simple() and use its release, instead.  So this
-is gone now in my tree.
+I still thing this is very wrong to do. sysfs should not try to outguess users.
 
-> I'd rather you used absolute coordinates and set up
-> hdaps_idev->absfuzz to do the filtering.
 
-Me too.
 
-> This is racy - 2 threads can try to do this simultaneously.
-
-Fixed.  Thanks.
-
-> > +
-> > +       device_create_file(&hdaps_plat_dev.dev, &dev_attr_position);
-> > +       device_create_file(&hdaps_plat_dev.dev, &dev_attr_variance);
-> > +       device_create_file(&hdaps_plat_dev.dev, &dev_attr_temp);
-> > +       device_create_file(&hdaps_plat_dev.dev, &dev_attr_calibrate);
-> > +       device_create_file(&hdaps_plat_dev.dev, &dev_attr_mousedev);
-> > +       device_create_file(&hdaps_plat_dev.dev, &dev_attr_mousedev_threshold);
-> > +       device_create_file(&hdaps_plat_dev.dev, &dev_attr_mousedev_poll_ms);
-> > +
-> 
-> What about using sysfs_attribute_group?
-
-I don't see this in my tree?
-
-	Robert Love
-
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

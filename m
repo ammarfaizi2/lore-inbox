@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbVHWVY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbVHWV2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbVHWVY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 17:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVHWVY5
+	id S932199AbVHWV2N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 17:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbVHWV2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 17:24:57 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:13834 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932157AbVHWVY4 (ORCPT
+	Tue, 23 Aug 2005 17:28:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61392 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932199AbVHWV2N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 17:24:56 -0400
-Date: Tue, 23 Aug 2005 23:24:34 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Initramfs and TMPFS!
-Message-ID: <20050823212434.GA14482@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <200508232116.j7NLG51g028312@ms-smtp-01.rdc-nyc.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508232116.j7NLG51g028312@ms-smtp-01.rdc-nyc.rr.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 23 Aug 2005 17:28:13 -0400
+Date: Tue, 23 Aug 2005 14:28:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Hugh Dickins <hugh@veritas.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mremap() use is racy
+In-Reply-To: <430B8D96.5080002@redhat.com>
+Message-ID: <Pine.LNX.4.58.0508231425330.3317@g5.osdl.org>
+References: <430B7EAE.6020001@redhat.com> <Pine.LNX.4.61.0508232135480.12189@goblin.wat.veritas.com>
+ <430B8D96.5080002@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 23, 2005 at 05:16:05PM -0400, robotti@godmail.com wrote:
-> Why doesn't initramfs use tmpfs instead of ramfs, because
-> tmpfs is more robust?
-> 
-> I know tmpfs is larger, but at least it should be an option.
-> 
-> Also, tar should be an option instead of cpio for the archiver,
-> because tar is more widely used.
 
-You forgot to attach your patch to your email.
 
-  OG.
+On Tue, 23 Aug 2005, Ulrich Drepper wrote:
+> 
+> Using mmap with a too-large size for the underlying file and then hoping
+> that future file growth is magically handled when those pages are
+> accessed is not valid.
+
+Actually, it should be pretty much as valid as using mremap - ie it works 
+on Linux. 
+
+Especially if you use MAP_SHARED, you don't even need to mprotect 
+anything: you'll get a nice SIGBUS if you ever try to access past the last 
+page that maps the file.
+
+I think that works correctly for any half-way modern kernel - anything 
+that has mremap() should do the right thing (I think older kernels would 
+map zero pages past the end of the file mapping, and then if you touched 
+the page first, you'd lose the coherency).
+
+		Linus

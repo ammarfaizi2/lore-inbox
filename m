@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVHWA51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVHWBMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbVHWA51 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 20:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbVHWA51
+	id S1751315AbVHWBMG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 21:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVHWBMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 20:57:27 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48275 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750728AbVHWA51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 20:57:27 -0400
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, linux-kernel@vger.kernel.org,
-       Fastboot mailing list <fastboot@lists.osdl.org>
-Subject: Re: strange CRASH_DUMP dependencies
-References: <20050821225310.GE5726@stusta.de>
-	<20050822062302.GA4293@in.ibm.com> <20050822204417.GI9927@stusta.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 22 Aug 2005 18:56:49 -0600
-In-Reply-To: <20050822204417.GI9927@stusta.de> (Adrian Bunk's message of
- "Mon, 22 Aug 2005 22:44:17 +0200")
-Message-ID: <m18xyto4ha.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Mon, 22 Aug 2005 21:12:06 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:59660 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1751315AbVHWBMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 21:12:05 -0400
+Date: Tue, 23 Aug 2005 09:11:04 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: raven@wombat.indigo.net.au
+To: "Gerald (Jerry) Carter" <jerry@samba.org>
+cc: Steven French <sfrench@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Urban.Widmark@enlight.net, samba@samba.org,
+       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
+Subject: Re: [Samba] Re: New maintainer needed for the Linux smb filesystem
+In-Reply-To: <43094206.3070602@samba.org>
+Message-ID: <Pine.LNX.4.58.0508230907150.6680@wombat.indigo.net.au>
+References: <OF200CE886.6A353FBA-ON87257065.0005812F-86257065.0005B594@us.ibm.com>
+ <43094206.3070602@samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, REPLY_WITH_QUOTES,
+	USER_AGENT_PINE, USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
+On Sun, 21 Aug 2005, Gerald (Jerry) Carter wrote:
 
->> > - Is there any sane reason for the dependency on EMBEDDED?
->> > 
->> 
->> I believe this was introduced because large servers can have huge amount
->> of memory (running into Tera Bytes) and saving all that memory might not be
->> practical. Hence it was perceived that until some filtering mechanism is
->> implemented, it is more suited for small systems.
->>...
->
-> It seems you have a wrong impression of what EMBEDDED in the kernel 
-> does.
->
-> There is _not_ a choice EMBEDDED/WORKSTATION/SERVER.
->
-> EMBEDDED is an option that shows "save space at any cost" options.
->
-> It allows you to tell gcc to generate slower but faster code or to 
-> deselect options in the "do this only if you _really_ know what you are 
-> doing" class.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Steven French wrote:
+> |
+> | We are close, but not quite ready to disable smbfs.
+> 
+> Steve,
+> 
+> I have been itching to work on some kernel code.
+> If you need someone just to keep things afloat,
+> I'd been happy to look into it.  There would be some
+> start up time of course.  If you would be willing to
+> help me navigate the things other than code, it
+> shouldn't be that big of a deal.
 
-And at the moment that is where building a crashdump capture kernel falls.
-"do this only if you really know what you are doing". 
+I wouldn't mind helping out here either.
+Perhaps a joint effort Jerry?
 
-Eric
+Ian
 

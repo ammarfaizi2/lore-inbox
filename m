@@ -1,63 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVHWClk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbVHWCt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbVHWClk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 22:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbVHWClk
+	id S1750797AbVHWCt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 22:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVHWCt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 22:41:40 -0400
-Received: from rgminet02.oracle.com ([148.87.122.31]:35238 "EHLO
-	rgminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S1751328AbVHWClj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 22:41:39 -0400
-Date: Mon, 22 Aug 2005 19:41:16 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: David Teigland <teigland@redhat.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-cluster@redhat.com
-Subject: Re: [PATCH 1/3] dlm: use configfs
-Message-ID: <20050823024116.GY21228@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20050818060750.GA10133@redhat.com> <20050818212348.GW21228@ca-server1.us.oracle.com> <20050819071344.GB10864@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 22 Aug 2005 22:49:57 -0400
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:40878 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750797AbVHWCt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 22:49:56 -0400
+Date: Mon, 22 Aug 2005 22:47:43 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.13-rc6] i386: fix incorrect FP signal delivery
+To: Andi Kleen <ak@suse.de>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200508222249_MC3-1-A800-4F7@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050819071344.GB10864@redhat.com>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 03:13:44PM +0800, David Teigland wrote:
-> The nodemanager RFC I sent a month ago
->   http://marc.theaimsgroup.com/?l=linux-kernel&m=112166723919347&w=2
-> 
-> amounts to half of dlm/config.c (everything under comms/ above) moved into
-> a separate kernel module.  That would be trivial to do, and is still an
-> option to bat around.
-Yeah ok, so the address/id/local part is still there. As is much of the API
-to query those attributes.
+On Tue, 23 Aug 2005 02:20:07 +0200, Andi Kleen wrote:
 
-> I question whether factoring such a small chunk into a separate module is
-> really worth it, though?
-IMHO, yes. Mostly because we both have very similar basic requirements there
-and it seems a waste to have duplicated code (even if it's not a huge
-amount). Future projects wanting to query basic node information from the
-kernel could have simply used that API without having to further duplicate
-code too. That said, I'm not sure it has to be done *now*
+> How about you describe what you actually changed and why so that not 
+> every reviewer has to look up all the bits in the manual?
 
-Was there anything in my comments which made going forward with that
-approach difficult for dlm?
 
-> Making all of config.c (all of /config/dlm/ above) into a separate module
-> wouldn't seem quite so strange. It would require just a few lines of code
-> to turn it into a stand alone module.
-Without the dlm specifics, right? It's perfectly fine with me if dlm has a
-couple more attributes that it wants on a node object - OCFS2 simply won't
-query them.
-	--Mark
+ The patch had a bug anyway, so here's another try.  *** Replace
+the previous patch with this one. ***
 
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+
+i386 floating-point exception handling has a bug that can cause error
+code 0 to be sent instead of the proper code during signal delivery.
+This is caused by unconditionally checking the IS and c1 bits from
+the FPU status word when they are not always relevant.  The IS bit
+tells whether an exception is a stack fault and is only relevant
+when the exception is IE (invalid operation.)  The C1 bit determines
+whether a stack fault is overflow or underflow and is only relevant
+when IS and IE are set.
+
+This bug also exists in the 2.4 kernel and appears to be in the 2.6
+x86_64 code as well.
+
+Patch applies with offsets to 2.4.31 and 2.6.13-rc6-mm1.
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+ arch/i386/kernel/traps.c |   18 ++++++++++++++++--
+ 1 files changed, 16 insertions(+), 2 deletions(-)
+
+--- 2.6.13-rc6a.orig/arch/i386/kernel/traps.c
++++ 2.6.13-rc6a/arch/i386/kernel/traps.c
+@@ -778,7 +778,7 @@ void math_error(void __user *eip)
+ {
+ 	struct task_struct * task;
+ 	siginfo_t info;
+-	unsigned short cwd, swd;
++	unsigned short cwd, swd, wd;
+ 
+ 	/*
+ 	 * Save the info for the exception handler and clear the error.
+@@ -803,7 +803,21 @@ void math_error(void __user *eip)
+ 	 */
+ 	cwd = get_fpu_cwd(task);
+ 	swd = get_fpu_swd(task);
+-	switch (((~cwd) & swd & 0x3f) | (swd & 0x240)) {
++	wd = swd & 0x3f & ~cwd;
++	/*
++	 * If the exception is invalid operation, the IS bit is needed
++	 * to see if it's a stack fault.
++	 */
++	if (wd & 1)
++		wd |= swd & 0x40;
++	/*
++	 * If it's a stack fault, C1 is needed to see if it's overflow or
++	 * underflow.
++	 */
++	if (wd & 0x40)
++		wd |= swd & 0x200;
++
++	switch (wd) {
+ 		case 0x000:
+ 		default:
+ 			break;
+__
+Chuck

@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbVHWHTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVHWHdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750839AbVHWHTH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 03:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbVHWHTH
+	id S1750757AbVHWHdO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 03:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVHWHdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 03:19:07 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:52455 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
-	id S1750845AbVHWHTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 03:19:05 -0400
-X-ORBL: [67.117.73.34]
-Date: Tue, 23 Aug 2005 00:18:43 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
-       jasonuhl@sgi.com
-Subject: Re: CONFIG_PRINTK_TIME woes
-Message-ID: <20050823071842.GB29951@atomide.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F042C7DA7@scsmsx401.amr.corp.intel.com> <20050821021322.3986dd4a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050821021322.3986dd4a.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 23 Aug 2005 03:33:14 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:7562 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750757AbVHWHdN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 03:33:13 -0400
+Message-ID: <430AD136.7070804@pobox.com>
+Date: Tue, 23 Aug 2005 03:33:10 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [git patch] 2.6.x i810_audio unwind-on-err fix
+Content-Type: multipart/mixed;
+ boundary="------------090202050808080505000301"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton <akpm@osdl.org> [050821 02:15]:
-> "Luck, Tony" <tony.luck@intel.com> wrote:
-> >
-> > It has been pointed out to me that ia64 doesn't boot
-> > with CONFIG_PRINTK_TIME=y.  The issue is the call to
-> > sched_clock() ... which on ia64 accesses some per-cpu
-> > data to adjust for possible variations in processor
-> > speed between different cpus.  Since the per-cpu page
-> > is not set up for the first few printk() calls, we die.
-> > 
-> > Is this an issue on any other architecture?  Most versions
-> > of sched_clock() seem to just scale jiffies into nanoseconds,
-> > so I guess they don't.  s390, sparc64, x86 and x86_64 all
-> > have more sophisticated versions but they don't appear to me
-> > to have limitations on how early they might be called.
+This is a multi-part message in MIME format.
+--------------090202050808080505000301
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-CONFIG_PRINTK_TIME also has a problem on at least ARM OMAP where
-the IO mapping to read the clock may not be initialized when
-sched_clock() is called for the first time.
+Please pull from the 'upstream-fixes' branch of
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
 
-I'd hate to have to test for something for CONFIG_PRINTK_TIME
-every time sched_clock() is being called.
+to obtain the fix described in the attached diffstat/changelog/patch.
 
-The quick fix would seem to be to only allow CONFIG_PRINTK_TIME
-from kernel cmdline to make it happen a bit later. So basically
-make int printk_time = 0 until command line is evaluated.
 
-Tony
+--------------090202050808080505000301
+Content-Type: text/plain;
+ name="misc-2.6.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="misc-2.6.txt"
+
+
+
+ sound/oss/i810_audio.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+
+commit 7087e295543d3f6e161530e07982fd979e2d9efc
+Author: John W. Linville <linville@tuxdriver.com>
+Date:   Thu Aug 4 14:40:25 2005 -0400
+
+    [PATCH] i810_audio: fix release_region misordering in error exit from i810_probe
+    
+    Re-order release_region calls in i810_probe to properly unwind preceding
+    allocations.
+    
+    Signed-off-by: John W. Linville <linville@tuxdriver.com>
+    Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+
+diff --git a/sound/oss/i810_audio.c b/sound/oss/i810_audio.c
+--- a/sound/oss/i810_audio.c
++++ b/sound/oss/i810_audio.c
+@@ -3430,9 +3430,9 @@ out_iospace:
+ 		release_mem_region(card->iobase_mmio_phys, 256);
+ 	}
+ out_pio:	
+-	release_region(card->iobase, 64);
+-out_region2:
+ 	release_region(card->ac97base, 256);
++out_region2:
++	release_region(card->iobase, 64);
+ out_region1:
+ 	pci_free_consistent(pci_dev, sizeof(struct i810_channel)*NR_HW_CH,
+ 	    card->channel, card->chandma);
+
+--------------090202050808080505000301--

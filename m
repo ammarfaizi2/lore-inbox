@@ -1,98 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbVHWMxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVHWM4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbVHWMxd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 08:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVHWMxd
+	id S932083AbVHWM4K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 08:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVHWM4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 08:53:33 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:31702 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S932076AbVHWMxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 08:53:32 -0400
-Subject: Re: [patch] suspend: update warnings
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050823125017.GB3664@elf.ucw.cz>
-References: <20050822081528.GA4418@elf.ucw.cz>
-	 <1124753566.5093.8.camel@localhost>  <20050823125017.GB3664@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1124801595.4602.18.camel@localhost>
+	Tue, 23 Aug 2005 08:56:10 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:64646 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932083AbVHWM4J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 08:56:09 -0400
+Date: Tue, 23 Aug 2005 14:56:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: 2.6.13-rc6-rt9
+Message-ID: <20050823125629.GA8751@elte.hu>
+References: <20050818060126.GA13152@elte.hu> <1124433586.5186.119.camel@localhost.localdomain> <20050823123612.GA7924@elte.hu> <1124801434.5350.74.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 23 Aug 2005 22:53:16 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124801434.5350.74.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Tue, 2005-08-23 at 22:50, Pavel Machek wrote:
-> Hi!
-> 
-> > > + * If you have unsupported (*) devices using DMA, you may have some
-> > > + * problems. If your disk driver does not support suspend... (IDE does),
-> > > + * it may cause some problems, too. If you change kernel command line 
-> > > + * between suspend and resume, it may do something wrong. If you change 
-> > > + * your hardware while system is suspended... well, it was not good idea;
-> > > + * but it wil probably only crash.
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> On Tue, 2005-08-23 at 14:36 +0200, Ingo Molnar wrote:
+> > * Steven Rostedt <rostedt@goodmis.org> wrote:
 > > 
-> > The most common driver issues I see involve:
-> > - USB being built in or as modules that are still loaded while
-> > suspending (getting better, but not there yet)
-> > - DRI being used in X where the drivers don't properly support
-> > suspend/resume (NVidia esp)
-> > - Firewire
-> > - CPU Freq  (improving too)
+> > > Ingo, can't you get rt.c to be more confusing. I mean it is too 
+> > > simple. We need to add a few more underscores here and there :-) 
+> > > Seriously, that rt.c is mind boggling. It was nice before, now it is 
+> > > just screaming for a cleanup (come now, do we really need the four 
+> > > underscores?). Same with latency.c.
 > > 
-> > It might be good to mention these areas too.
+> > i agree that it's ugly, but some of that ugliness is to achieve the 
+> > 7-instructions fail-through codepath for the common acquire (and 
+> > release) codepath:
+> > 
+> >  c03a5320 <__down_mutex>:
+> >  c03a5320:       89 c1                   mov    %eax,%ecx
+> >  c03a5322:       8b 15 08 76 3a c0       mov    0xc03a7608,%edx
+> >  c03a5328:       31 c0                   xor    %eax,%eax
+> >  c03a532a:       0f b1 51 14             cmpxchg %edx,0x14(%ecx)
+> >  c03a532e:       85 c0                   test   %eax,%eax
+> >  c03a5330:       75 01                   jne    c03a5333 <__down_mutex+0x13>
+> >  c03a5332:       c3                      ret
+> > 
 > 
-> Well, right; but those 'only' cause system to crash during suspend. I
-> was talking about really dangerous stuff.
+> Impressive!
 > 
-> Both usb and cpufreq seems to work okay here.
+> > that's how much it takes to acquire an RT lock, and i worked hard to get 
+> > there. As long as the fastpath is kept this tight, feel free to do 
+> > cleanups. But i really want to avoid having to write mutex_down/up in 
+> > assembly for 24 architectures ...
+> 
+> Warning! I'm hacking hard to get rid of the global pi_lock, and I'm not
+> worrying now about efficiency.  I figure that if I can get it to work,
+> then we can speed it up afterwards.  Since it's complex enough keeping
+> all the locks straight, I just want it to work without deadlocking. 
+> 
+> Once I get it to work, I'll let you figure out how get it back down to 
+> 7-instructions :-)
 
-It depends on what you're using. I believe one of the usb root hub
-drivers is okay, the others aren't. Similar for cpufreq. USB certainly
-accounts for a high percentage of the failures I see.
+yeah. It can always be done after the fact - the basics wont change.  
+(Note that the above disassembly is for UP, on SMP the fastpath is 
+longer and around 10-15 instructions.)
 
-> I've added FAQ entry at the end:
-> 
-> Q: What information is usefull for debugging suspend-to-disk problems?
-> 
-> A: Well, last messages on the screen are always useful. If something
-> is broken, it is usually some kernel driver, therefore trying with as
-> little as possible modules loaded helps a lot. I also prefer people to
-> suspend from console, preferably without X running. Booting with
-> init=/bin/bash, then swapon and starting suspend sequence manually
-> usually does the trick. Then it is good idea to try with latest
-> vanilla kernel.
-> 
-> "Known problematic" modules are; be sure to unload them before
-> suspend:
-> - DRI being used in X where the drivers don't properly support
-> suspend/resume (NVidia esp)
-> - Firewire
-> - SCSI
-> 
-> 
-> > Perhaps the 'changing your hardware' could mention that replacing faulty
-> > hardware may be safe.
-> 
-> I do not want to encourage people to do that. Yep, its probably safe,
-> no, I do not want them to know.
-
-:>
-
-Thanks
-
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-
+	Ingo

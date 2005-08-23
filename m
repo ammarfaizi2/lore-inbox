@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVHWLRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbVHWLR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbVHWLRp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 07:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVHWLRp
+	id S932128AbVHWLR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 07:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbVHWLR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 07:17:45 -0400
-Received: from sipsolutions.net ([66.160.135.76]:16398 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S932129AbVHWLRo (ORCPT
+	Tue, 23 Aug 2005 07:17:27 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:24496 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932128AbVHWLR0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 07:17:44 -0400
-Subject: patch for compiling ppc without pmu
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yphagxoxKGO8lZ1cqsBv"
-Date: Tue, 23 Aug 2005 13:17:24 +0200
-Message-Id: <1124795844.9162.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 23 Aug 2005 07:17:26 -0400
+Date: Tue, 23 Aug 2005 13:16:55 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Andrew Morton <akpm@osdl.org>, davej@redhat.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, mlindner@syskonnect.de
+Subject: Re: skge missing ifdefs.
+In-Reply-To: <20050823060239.GC9322@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.61.0508231259500.3743@scrub.home>
+References: <20050801203442.GD2473@redhat.com> <20050801203818.GA7497@havoc.gtf.org>
+ <20050822195913.GF27344@redhat.com> <20050822132333.2ff893e6.akpm@osdl.org>
+ <20050822203522.GB9322@parcelfarce.linux.theplanet.co.uk>
+ <20050822134218.55de5b82.akpm@osdl.org> <Pine.LNX.4.61.0508230015300.3743@scrub.home>
+ <20050823060239.GC9322@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-yphagxoxKGO8lZ1cqsBv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
 Hi,
 
-This patch seems to be required to compile 2.6.13-rc6 for ppc configured
-without PMU.
+On Tue, 23 Aug 2005, Al Viro wrote:
 
-Apologies if it is already known, I haven't found anything like this
-quickly.
+> As for your s/thread_info/stack/ - I don't believe it's doable in mainline
+> right now.  It's definitely separate from m68k merge and should not be
+> mixed into it.  Moreover, mandatory changes to every platform arch-specific
+> code over basically cosmetic issue (renaming a field of task_struct) at
+> this point are going to be gratitious PITA for every architecture with
+> out-of-tree development.  And m68k folks, of all people, should know what
+> fun it is.
 
-Signed-Off-By: Johannes Berg <johannes@sipsolutions.net>
+No, I don't know it. Sometimes merging can be tricky, but then I check the 
+original diff and apply it manually. What I'm planning involves no logical 
+changes, so it would be an absolute no-brainer to merge. It's the logical 
+changes that may even compile normally, that can be the a real PITA.
 
---- linux-2.6.13-rc6.orig/arch/ppc/platforms/pmac_time.c	2005-08-23 12:14:3=
-7.689485664 +0200
-+++ linux-2.6.13-rc6/arch/ppc/platforms/pmac_time.c	2005-08-23 12:14:37.689=
-485664 +0200
-@@ -251,7 +251,7 @@
- 	struct device_node *cpu;
- 	unsigned int freq, *fp;
-=20
--#ifdef CONFIG_PM && CONFIG_ADB_PMU
-+#if defined(CONFIG_PM) && defined(CONFIG_ADB_PMU)
- 	pmu_register_sleep_notifier(&time_sleep_notifier);
- #endif /* CONFIG_PM */
-=20
+> When folks start using task_thread_info() in arch/* (i.e. by 2.6.1[45]) the
+> size of that delta will go down big way and it will be less painful.  Until
+> then...  Not a good idea.
 
+I already did the complete conversion (and I did it forward and backward 
+to be sure the result is the same), so I dont see the problem to merge it 
+in 2.6.13. The final removal of the thread_info field can happen in 2.6.14 
+and any missed changes in external trees are trivially fixable.
 
---=-yphagxoxKGO8lZ1cqsBv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
-
-iQIVAwUAQwsFwaVg1VMiehFYAQJ56g/+O5YvuDWgzGZl06mAyyBL7NrOi4aT90mU
-htwj+MVz0mRucFGwSTMIDTmuG2AQOpHktmwbHbdyPqGU9c+l+S6f4e9ggLYwje0q
-6aN81q9LRPcZ3xA733Z2VfY0Dyo5zCk+8Kb2zK9N1dPZV69AMIi2q71Mxur/KMTX
-k4dlEnfGIibaxqAOkfpGd2NsVw3ynOAzJjGZ6fFN2iju/sLAP4PZdrTM1hdv9ryJ
-Nitx+IZZ/4qj5aWOwsAslNpcdH7HrBV8sggaKbczhlEVPbbt3qRX4ueoAkY+fUnD
-3U0j2zSYZKg42PHWXODM/4aIIkU6kjqOTDxKH7Lty5yU2rRb+LTBNzar7ZAw5dJc
-TvT6Z7KXhPz3fJMrjI6uw65+7K9HupnxSzBhwkKwUxmdXUPfBzmdACNaaiIRH+g2
-uOnWejhXkJ/z40scpxNKbvLocmZwaONmQbewlcwDSvIj9U67bT7gJWt21Wj61TZe
-3ZxChEE4tS9A2fxFpMXprxpQ6cdSKD1//Rir8VOmAdmOoUAJbbFF1vHc2+5aGMU9
-hy7rLukaM5a1IFZuk+A2fB0BTE9wVF17rFfvP4BsjryYpeGG+9fFi+L6+N0+e1L+
-+A7V4Ebnq3wPwtymqlElcJ7XyH9XG+fzTkcKpJwHMNyJgwV7PRYE95y6lccVtdB9
-u7XZrfFos6k=
-=28DI
------END PGP SIGNATURE-----
-
---=-yphagxoxKGO8lZ1cqsBv--
-
+bye, Roman

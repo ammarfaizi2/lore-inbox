@@ -1,32 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbVHWFEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVHWFRC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbVHWFEA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 01:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbVHWFEA
+	id S1750825AbVHWFRC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 01:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVHWFRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 01:04:00 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:65416 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751016AbVHWFD7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 01:03:59 -0400
-Message-ID: <430AAE36.2070705@pobox.com>
-Date: Tue, 23 Aug 2005 01:03:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+	Tue, 23 Aug 2005 01:17:01 -0400
+Received: from c-67-182-244-184.hsd1.ut.comcast.net ([67.182.244.184]:8322
+	"EHLO brantleyonline.com") by vger.kernel.org with ESMTP
+	id S1750825AbVHWFRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 01:17:01 -0400
+X-AuthUser: kyle@brantleyonline.com
+Message-ID: <430AB13E.60609@brantleyonline.com>
+Date: Mon, 22 Aug 2005 23:16:46 -0600
+From: ScytheBlade1 <scytheblade1@brantleyonline.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050728)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-CC: Adam Goode <adam@evdebs.org>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
-Subject: Re: [PATCH] Fix HD activity LED with ahci
-References: <42EF93F8.8050601@fujitsu-siemens.com>	 <20050802163519.GB3710@suse.de>  <42F05359.7030006@fujitsu-siemens.com> <1123092761.3982.20.camel@lynx.auton.cs.cmu.edu> <42F1BE18.9000105@fujitsu-siemens.com>
-In-Reply-To: <42F1BE18.9000105@fujitsu-siemens.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Problem with MMC card reader
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied
+I recently purchased:
 
+http://www.mitsumi.com/products/FA404.htm
+
+I've enabled everything needed...the CF port works flawlessly. However,
+the SD slot does *not*. I've got about 5+ pages worth of dmesg output
+related to this (MMC is NOT debug enabled, and I still get a disturbing
+amount of output). Would here be the best place to post this, or would a
+different list be better? (Recommendations as to which list are welcomed
+:)).

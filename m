@@ -1,52 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbVHWVkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbVHWVmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbVHWVkE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 17:40:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVHWVkE
+	id S932408AbVHWVmK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 17:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVHWVmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 17:40:04 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:19893 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932398AbVHWVkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 17:40:03 -0400
-Subject: Re: [Alsa-devel] Re: [Alsa drivers] Creatives X-Fi chip
-From: Lee Revell <rlrevell@joe-job.com>
-To: Peter Zubaj <pzubaj@gaya.sk>
-Cc: James Courtier-Dutton <James@superbug.co.uk>, Takashi Iwai <tiwai@suse.de>,
-       Emmanuel Fleury <fleury@cs.aau.dk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       alsa-devel@lists.sourceforge.net
-In-Reply-To: <1124829672.3351.5.camel@localhost.localdomain>
-References: <4305AC77.3010907@cs.aau.dk>
-	 <1124491956.25424.95.camel@mindpipe>	<4306D254.3000401@cs.aau.dk>
-	 <1124521688.26949.15.camel@mindpipe> <s5hirxyp3kh.wl%tiwai@suse.de>
-	 <430A37B5.9050300@superbug.co.uk>  <1124747695.16064.46.camel@mindpipe>
-	 <1124829672.3351.5.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 23 Aug 2005 17:39:58 -0400
-Message-Id: <1124833199.30517.23.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.7 
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Aug 2005 17:42:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50869 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S932408AbVHWVmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 17:42:02 -0400
+To: torvalds@osdl.org
+Subject: [PATCH] (4/43) Kconfig fix (ISA_DMA_API and sound/*)
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1E7gZu-00078b-29@parcelfarce.linux.theplanet.co.uk>
+From: Al Viro <viro@www.linux.org.uk>
+Date: Tue, 23 Aug 2005 22:45:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-23 at 21:41 +0100, Peter Zubaj wrote:
-> This is too expensive card to be only able use it as simple card.
-> My advice buy something else.
-> I don't think fight with creative can bring anything good to linux.
-> Leave Creative as is. There is plenty of other hardware from other
-> manufacturer worth money.
+fixed kconfig dependencies on ISA_DMA_API for parts of sound/* that rely
+on it.
 
-I agree, but the fact is that the emu10k* devices own the Windows gamer
-market and like it or not these devices will sell millions of units, and
-they've worked perfectly in Linux for years.  So these users have a
-reasonable expectation that Creative will provide them an upgrade path,
-just like they did for SBLive! -> Audigy1 and Audigy1 -> Audigy2.
-
-I'm not trying to pick a fight with Creative, but regardless of what I
-(or any Linux developer) does, there's going to be a fight if they try
-to lock out Linux users.
-
-Lee
-
+Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+----
+diff -urN RC13-rc6-git13-epca/include/sound/core.h RC13-rc6-git13-sound-isa-dma/include/sound/core.h
+--- RC13-rc6-git13-epca/include/sound/core.h	2005-08-10 10:37:54.000000000 -0400
++++ RC13-rc6-git13-sound-isa-dma/include/sound/core.h	2005-08-21 13:16:47.000000000 -0400
+@@ -360,11 +360,13 @@
+ 
+ /* isadma.c */
+ 
++#ifdef CONFIG_ISA_DMA_API
+ #define DMA_MODE_NO_ENABLE	0x0100
+ 
+ void snd_dma_program(unsigned long dma, unsigned long addr, unsigned int size, unsigned short mode);
+ void snd_dma_disable(unsigned long dma);
+ unsigned int snd_dma_pointer(unsigned long dma, unsigned int size);
++#endif
+ 
+ /* misc.c */
+ 
+diff -urN RC13-rc6-git13-epca/sound/Kconfig RC13-rc6-git13-sound-isa-dma/sound/Kconfig
+--- RC13-rc6-git13-epca/sound/Kconfig	2005-08-10 10:37:55.000000000 -0400
++++ RC13-rc6-git13-sound-isa-dma/sound/Kconfig	2005-08-21 13:16:47.000000000 -0400
+@@ -77,7 +77,7 @@
+ endmenu
+ 
+ menu "Open Sound System"
+-	depends on SOUND!=n && (BROKEN || (!SPARC32 && !SPARC64))
++	depends on SOUND!=n
+ 
+ config SOUND_PRIME
+ 	tristate "Open Sound System (DEPRECATED)"
+diff -urN RC13-rc6-git13-epca/sound/core/Makefile RC13-rc6-git13-sound-isa-dma/sound/core/Makefile
+--- RC13-rc6-git13-epca/sound/core/Makefile	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc6-git13-sound-isa-dma/sound/core/Makefile	2005-08-21 13:16:47.000000000 -0400
+@@ -5,7 +5,7 @@
+ 
+ snd-objs     := sound.o init.o memory.o info.o control.o misc.o \
+                 device.o wrappers.o
+-ifeq ($(CONFIG_ISA),y)
++ifeq ($(CONFIG_ISA_DMA_API),y)
+ snd-objs     += isadma.o
+ endif
+ ifeq ($(CONFIG_SND_OSSEMUL),y)
+diff -urN RC13-rc6-git13-epca/sound/core/sound.c RC13-rc6-git13-sound-isa-dma/sound/core/sound.c
+--- RC13-rc6-git13-epca/sound/core/sound.c	2005-08-10 10:37:55.000000000 -0400
++++ RC13-rc6-git13-sound-isa-dma/sound/core/sound.c	2005-08-21 13:16:47.000000000 -0400
+@@ -432,7 +432,7 @@
+ EXPORT_SYMBOL(snd_device_register);
+ EXPORT_SYMBOL(snd_device_free);
+   /* isadma.c */
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_ISA_DMA_API
+ EXPORT_SYMBOL(snd_dma_program);
+ EXPORT_SYMBOL(snd_dma_disable);
+ EXPORT_SYMBOL(snd_dma_pointer);
+diff -urN RC13-rc6-git13-epca/sound/isa/Kconfig RC13-rc6-git13-sound-isa-dma/sound/isa/Kconfig
+--- RC13-rc6-git13-epca/sound/isa/Kconfig	2005-08-10 10:37:55.000000000 -0400
++++ RC13-rc6-git13-sound-isa-dma/sound/isa/Kconfig	2005-08-21 13:16:47.000000000 -0400
+@@ -1,7 +1,7 @@
+ # ALSA ISA drivers
+ 
+ menu "ISA devices"
+-	depends on SND!=n && ISA
++	depends on SND!=n && ISA && ISA_DMA_API
+ 
+ config SND_AD1848_LIB
+         tristate
+diff -urN RC13-rc6-git13-epca/sound/oss/Kconfig RC13-rc6-git13-sound-isa-dma/sound/oss/Kconfig
+--- RC13-rc6-git13-epca/sound/oss/Kconfig	2005-08-10 10:37:55.000000000 -0400
++++ RC13-rc6-git13-sound-isa-dma/sound/oss/Kconfig	2005-08-21 13:16:47.000000000 -0400
+@@ -80,7 +80,7 @@
+ 
+ config MIDI_EMU10K1
+ 	bool "Creative SBLive! MIDI (EXPERIMENTAL)"
+-	depends on SOUND_EMU10K1 && EXPERIMENTAL
++	depends on SOUND_EMU10K1 && EXPERIMENTAL && ISA_DMA_API
+ 	help
+ 	  Say Y if you want to be able to use the OSS /dev/sequencer
+ 	  interface.  This code is still experimental.
+@@ -503,7 +503,7 @@
+ 
+ config MIDI_VIA82CXXX
+ 	bool "VIA 82C686 MIDI"
+-	depends on SOUND_VIA82CXXX
++	depends on SOUND_VIA82CXXX && ISA_DMA_API
+ 	help
+ 	  Answer Y to use the MIDI interface of the Via686. You may need to
+ 	  enable this in the BIOS before it will work. This is for connection
+@@ -512,7 +512,7 @@
+ 
+ config SOUND_OSS
+ 	tristate "OSS sound modules"
+-	depends on SOUND_PRIME
++	depends on SOUND_PRIME && ISA_DMA_API
+ 	help
+ 	  OSS is the Open Sound System suite of sound card drivers.  They make
+ 	  sound programming easier since they provide a common API.  Say Y or
+diff -urN RC13-rc6-git13-epca/sound/pci/Kconfig RC13-rc6-git13-sound-isa-dma/sound/pci/Kconfig
+--- RC13-rc6-git13-epca/sound/pci/Kconfig	2005-08-10 10:37:55.000000000 -0400
++++ RC13-rc6-git13-sound-isa-dma/sound/pci/Kconfig	2005-08-21 13:16:47.000000000 -0400
+@@ -314,7 +314,7 @@
+ 
+ config SND_ALS4000
+ 	tristate "Avance Logic ALS4000"
+-	depends on SND
++	depends on SND && ISA_DMA_API
+ 	select SND_OPL3_LIB
+ 	select SND_MPU401_UART
+ 	select SND_PCM

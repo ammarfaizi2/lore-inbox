@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVHWU3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVHWU3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVHWU3p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 16:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVHWU3p
+	id S932376AbVHWU3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 16:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVHWU3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 16:29:45 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:46315 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932152AbVHWU3o convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 16:29:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bEzHtKnpEBhnCraHwlI0zvgMNVdqQ8Dq/5gYbLPgN9ZIVu82nZ/92QdUWlZ1mNv8WIR0RVjYJRruU4BoLYnLjDlgm93IwTcOmSCXqvbuV5NJO77VaXRBGb+jY57zKD9rsFAIxon5iT19sVguoLxZPtS5ubwYQujQh2TOGY8Z4GI=
-Message-ID: <5c77e7070508231329facb3da@mail.gmail.com>
-Date: Tue, 23 Aug 2005 22:29:40 +0200
-From: Carsten Otte <cotte.de@gmail.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [RFC][PATCH] VFS: update documentation
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1124624250.5381.2.camel@localhost>
+	Tue, 23 Aug 2005 16:29:25 -0400
+Received: from sccrmhc11.comcast.net ([63.240.76.21]:28647 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932376AbVHWU3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 16:29:25 -0400
+Date: Tue, 23 Aug 2005 13:30:29 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.13-git] Fix IXP4xx CLOCK_TICK_RATE
+Message-ID: <20050823203029.GA11370@plexity.net>
+Reply-To: dsaxena@plexity.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1124624250.5381.2.camel@localhost>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/21/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> This patch updates the out-of-date Documentation/filesystems/vfs.txt.
-> As I am a novice on the VFS, I would much appreciate any comments and
-> help on this.
-Cool, thanks for updating it :)
 
-> +  get_xip_page: called by the VM to translate a block number to a page.
-> +       This is used by filesystems that want to implement execute-in-place
-> +       (XIP).
-A little more would be helpful, like:
-get_xip_page: called by the VM to translate a block number to a page. 
-        The page is valid until the corresponding filesystem is
-unmounted. Filesystems
-        that want to use execute-in-place (XIP) need to implement it.
-        An example implementation can be found in fs/ext2/xip.c
+[RMK is out for the week so sending this direct as it should go into 2.6.13]
 
-cheers,
-Carsten
+As pointed out in the following thread, the CLOCK_TICK_RATE setting for
+IXP4xx is incorrect b/c the HW ignores the lowest 2 bits of the LATCH value.
+
+http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2005-August/030950.html
+
+Tnx to George Anziger and Egil Hjelmeland for finding the issue.
+
+Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+
+diff --git a/include/asm-arm/arch-ixp4xx/timex.h b/include/asm-arm/arch-ixp4xx/timex.h
+--- a/include/asm-arm/arch-ixp4xx/timex.h
++++ b/include/asm-arm/arch-ixp4xx/timex.h
+@@ -7,7 +7,9 @@
+ 
+ /*
+  * We use IXP425 General purpose timer for our timer needs, it runs at 
+- * 66.66... MHz
++ * 66.66... MHz. We do a convulted calculation of CLOCK_TICK_RATE b/c the
++ * timer register ignores the bottom 2 bits of the LATCH value.
+  */
+-#define CLOCK_TICK_RATE (66666666)
++#define FREQ 66666666
++#define CLOCK_TICK_RATE (((FREQ / HZ & ~IXP4XX_OST_RELOAD_MASK) + 1) * HZ)
+ 
+
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+
+Even a stopped clock gives the right time twice a day.

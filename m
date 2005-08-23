@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVHWFw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbVHWF7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbVHWFw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 01:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbVHWFw3
+	id S1751327AbVHWF7u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 01:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbVHWF7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 01:52:29 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:11868 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750735AbVHWFw2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 01:52:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EK0m/k1tPC+GiC+GlXAq49ZZNkt+LvOuCtVuYRl1RglJN9GdV/oN519aeFkmJ+EdWx0aU8kMWI3AdpaZghdSgQ3Ta9hyNpoNDZGvZHaGbSx2l44IEuVvxTLzsB75E8OokeQSuGujOb1U1/WedbttZXzLAaE/Z6KatAhFEITB9xk=
-Message-ID: <a36005b505082222523f81453d@mail.gmail.com>
-Date: Mon, 22 Aug 2005 22:52:27 -0700
-From: Ulrich Drepper <drepper@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 2.6.13-rc6 1/2] New Syscall: get rlimits of any process (update)
-Cc: e8607062@student.tuwien.ac.at, linux-kernel <linux-kernel@vger.kernel.org>,
-       Elliot Lee <sopwith@redhat.com>
-In-Reply-To: <1124387342.16072.13.camel@localhost.localdomain>
+	Tue, 23 Aug 2005 01:59:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41097 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S1751327AbVHWF7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 01:59:49 -0400
+Date: Tue, 23 Aug 2005 07:02:39 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, davej@redhat.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, mlindner@syskonnect.de
+Subject: Re: skge missing ifdefs.
+Message-ID: <20050823060239.GC9322@parcelfarce.linux.theplanet.co.uk>
+References: <20050801203442.GD2473@redhat.com> <20050801203818.GA7497@havoc.gtf.org> <20050822195913.GF27344@redhat.com> <20050822132333.2ff893e6.akpm@osdl.org> <20050822203522.GB9322@parcelfarce.linux.theplanet.co.uk> <20050822134218.55de5b82.akpm@osdl.org> <Pine.LNX.4.61.0508230015300.3743@scrub.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1124326652.8359.3.camel@w2> <p7364u40zld.fsf@verdi.suse.de>
-	 <1124381951.6251.14.camel@w2>
-	 <1124387342.16072.13.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.61.0508230015300.3743@scrub.home>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/18/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Perhaps those application authors should provide a management interface
-> to do so within the soft limit range at least. Its not clear to me that
-> growing the fd array on a process is even safe. Some programs do size
-> arrays at startup after querying the rlimit data.
+On Tue, Aug 23, 2005 at 12:24:19AM +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Mon, 22 Aug 2005, Andrew Morton wrote:
+> 
+> > Al Viro <viro@parcelfarce.linux.theplanet.co.uk> wrote:
+> > >
+> > > mail -s '[PATCH] (45/46) %t... in vsnprintf' torvalds@osdl.org <<'EOF'
+> > 
+> > <wonders what the other 45 patches did>
+> > 
+> > Could you copy a mailing list on patches, please?
+> 
+> Seconded.
+> Al, I'd like to know which of the m68k related patches you want to merge.
 
-That's very true.  Using such a remote-rlimit syscall would break all
-kinds of code.  It's a basic assumption from Unix/POSIX that the
-limits remain constant.  And as Alan hinted at: this is why there are
-soft and hard limits.  If tey are set to the same value you obviously
-don't get anything.  But this is the application programmer's fault. 
-An application which is aware of resources and tries to limit them
-should set the soft limits to a reasonable low value and the hard
-limit to the absolute maximum (probably the system's maximum).  Then
-you can have remote procedure calls into the application to adjust the
-soft limits.  Having to change the hard limit means the capacity
-planning for the app is completely wrong.  A restart is certainly
-acceptable in that case since it should really never happen.
+See ftp.linux.org.uk/pub/people/viro/patchset/T* + adb.h delta from CVS.
+That's a minimum getting mainline m68k to sane state and not breaking
+other platforms.  These are against -rc6-git2, but their counterparts
+in more recent patchset have not changed.  BTW, m68k patches were not
+in the series sent to Linus and I would definitely Cc m68k folks on them
+if they would go there.
+
+As for your s/thread_info/stack/ - I don't believe it's doable in mainline
+right now.  It's definitely separate from m68k merge and should not be
+mixed into it.  Moreover, mandatory changes to every platform arch-specific
+code over basically cosmetic issue (renaming a field of task_struct) at
+this point are going to be gratitious PITA for every architecture with
+out-of-tree development.  And m68k folks, of all people, should know what
+fun it is.
+
+When folks start using task_thread_info() in arch/* (i.e. by 2.6.1[45]) the
+size of that delta will go down big way and it will be less painful.  Until
+then...  Not a good idea.

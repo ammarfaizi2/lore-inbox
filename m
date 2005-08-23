@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVHWTqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVHWTuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbVHWTqE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 15:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVHWTqE
+	id S932341AbVHWTuf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 15:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVHWTuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 15:46:04 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:2578 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932339AbVHWTqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 15:46:02 -0400
-Date: Tue, 23 Aug 2005 21:45:57 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Davy Durham <pubaddr2@davyandbeth.com>
-Cc: Willy Tarreau <willy@w.ods.org>, bert hubert <bert.hubert@netherlabs.nl>,
-       linux-kernel@vger.kernel.org
+	Tue, 23 Aug 2005 15:50:35 -0400
+Received: from intranet.networkstreaming.com ([24.227.179.66]:17535 "EHLO
+	networkstreaming.com") by vger.kernel.org with ESMTP
+	id S932341AbVHWTue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 15:50:34 -0400
+Message-ID: <430B0E28.5090403@davyandbeth.com>
+Date: Tue, 23 Aug 2005 06:53:12 -0500
+From: Davy Durham <pubaddr2@davyandbeth.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jari Sundell <sundell.software@gmail.com>
+CC: bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org
 Subject: Re: select() efficiency / epoll
-Message-ID: <20050823194557.GC10110@alpha.home.local>
-References: <42E162B6.2000602@davyandbeth.com> <20050722212454.GB18988@outpost.ds9a.nl> <430AF11A.5000303@davyandbeth.com> <20050823182405.GA21301@outpost.ds9a.nl> <430B01FB.2070903@davyandbeth.com> <20050823191254.GB10110@alpha.home.local> <430B077A.10700@davyandbeth.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <430B077A.10700@davyandbeth.com>
-User-Agent: Mutt/1.5.10i
+References: <42E162B6.2000602@davyandbeth.com>	 <20050722212454.GB18988@outpost.ds9a.nl>	 <430AF11A.5000303@davyandbeth.com> <b3f2685905082312301868f00e@mail.gmail.com>
+In-Reply-To: <b3f2685905082312301868f00e@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Aug 2005 19:50:10.0796 (UTC) FILETIME=[DEF2BAC0:01C5A81B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 23, 2005 at 06:24:42AM -0500, Davy Durham wrote:
-> That's probably a good idea.  Where would I find out what other projects 
-> use it?
+Jari Sundell wrote:
 
-I use it in my load-balancer (haproxy), and it could somewhat match your
-needs, because I ported the select()-based earlier version to epoll() with
-the smallest possible changes. Indeed, the new epoll() loop still uses the
-FD_ISSET() to determine what to do with epoll_ctl(). If you have changed
-your code to use select(), you may find similarities. But I want to tell
-you from now that my code is NOT multi-threaded. It could be a bug in the
-epoll implementation, because I don't think that there are so many
-applications using epoll on MT models. Bert says that the epoll implementation
-is heavily benchmarked, which is true, but which does not guarantee that it
-is tested under every condition.
+>On 8/23/05, Davy Durham <pubaddr2@davyandbeth.com> wrote:
+>  
+>
+>>However, I'm getting segfaults because some pointers in places are
+>>getting set to low integer values (which didn't used to have those values).
+>>    
+>>
+>
+>Is it possible that you are overwritting the pointers with file
+>descriptors, as those would have low integer values?
+>
+>  
+>
+Yes, that is what I was thinking and is why I mentioned that.  But I'm 
+apparently not overwriting the pointers with FDs.. it seems that epoll 
+is the cause at this point (unless I'm misusing the epoll API).  I've 
+made some changes to now use select() instead of epoll and things work 
+flawlessly (although it obviously won't work as efficiently when I 
+really connect a lot of clients to this server)
 
-You can download it from there :
 
-  http://w.ods.org/tools/haproxy/src/devel/
-
-Use version 1.2.6. I added epoll in 1.2.5, so the diff between 1.2.4 and
-1.2.5 could help you too.
-
-Good luck !
-Willy
 

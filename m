@@ -1,92 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbVHZPZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbVHZP2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbVHZPZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 11:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbVHZPZ4
+	id S965077AbVHZP2i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 11:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbVHZP2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 11:25:56 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:23668 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965076AbVHZPZz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 11:25:55 -0400
+	Fri, 26 Aug 2005 11:28:38 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:23887 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S965077AbVHZP2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 11:28:37 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=bNZW8ZAn/3bFyLtCtvSUaBY6kyCzKwE3wrAuUPDnxisuOe20ZuUDZeIUffCJwrMjXrgOgxc8z3ycQ6RfsWdJKnq8H70LhZGiunkiEHKn4hiYhJ6VTqS32uGm8a0nVd5GUzlNmwTogQ49LSq+/Frl27/lTOCUbNKdGKPxq8R0EwM=
-Message-ID: <54315475050826082547323146@mail.gmail.com>
-Date: Fri, 26 Aug 2005 17:25:48 +0200
-From: Gereon Steffens <gereon.steffens@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: poll() returns EINVAL
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=pxS+F7EVJ2L67ft6wOE5yNvIb+L6+iZfJ6EPIh1i1LeYc+nDvh2vsJlDaPAz85+KMaXJVv+fhZuwkE+NooBdBCs7SNlmPfciLojt2Jd8ftVSpSUUAHdcpaOfJSBtuVwVJXuHUckXleeSBB2IH1b7JEa060OpmV8ygXP+GOt3iOw=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 18/39] remap_file_pages protection support: add VM_FAULT_SIGSEGV
+Date: Tue, 23 Aug 2005 10:45:46 +0200
+User-Agent: KMail/1.8.1
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, mingo@elte.hu
+References: <20050812182145.DF52E24E7F3@zion.home.lan> <43006AA6.1040405@yahoo.com.au> <20050815111548.F19811@flint.arm.linux.org.uk>
+In-Reply-To: <20050815111548.F19811@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200508231045.50500.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 15 August 2005 12:15, Russell King wrote:
+> On Mon, Aug 15, 2005 at 08:12:54PM +1000, Nick Piggin wrote:
+> > Well there is now, and that is we are now using a bit in the 2nd
+> > byte as flags. So I had to do away with -ve numbers there entirely.
 
-under what appears to me as weird circumstances, poll() returns EINVAL
-where I belive it shouldn't. Here's an example program that
-demonstrates the problem both on kernel 2.4 and 2.6 machines:
+> > You could achieve a similar thing by using another bit in that byte
+> > #define VM_FAULT_FAILED 0x20
+> > and make that bit present in VM_FAULT_OOM and VM_FAULT_SIGBUS, then
+> > do an unlikely test for that bit in your handler and branch away to
+> > the slow path.
+ 
+> That'll do as well, thanks.
+Note that what Nick said is about mainline kernels, not only my brave patch.
 
-#include <sys/poll.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+Currently Linus fixed up ARM26 by disabling the optimization: see git commit 
+6e346228c76506e07e297744a28464022c6806ad.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
-#define MAX 1025
-#define MOD 250
 
-int main(int argc, char**argv)
-{
-    struct pollfd pfd[MAX] = { { 0 } };
+	
 
-    int i, rc;
-
-    for (i=0; i<MAX; ++i)
-    {
-        int fd;
-
-        fd = dup(1);
-
-        pfd[i].fd = fd;
-        pfd[i].events = POLLOUT;
-        pfd[i].revents = 0;
-        printf("%d fd: %d\n", i, fd);
-
-        if (i % MOD == 0)
-        {
-            /* put same fd into set with a check for reading */
-            ++i;
-            pfd[i].fd = fd;
-            pfd[i].events = POLLIN;
-            pfd[i].revents = 0;
-            printf("%d fd: %d\n", i, fd);
-        }
-
-    }
-
-    rc = poll(pfd, MAX, 0);
-    printf("poll rc %d errno %d %s\n", rc, errno, strerror(errno));
-
-    return 0;
-}
-
-Run this program after the number for file descriptors per process has
-been increased to more than 1024, e.g. using "ulimit -n 2000".
-
-Even more weird is the fact than when MAX is defined as 1024 or less,
-the failure never happens. If MOD is changed so that less than 4
-"duplicate"
-fds are in the set, poll() works fine also.
-
-Am I doing something wrong? Why does poll choke on such duplicate fd
-to be checked, and why does it do this only when the fd list is longer
-than 1024 entries?
-
-Thanks for any insights,
-
-Gereon
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

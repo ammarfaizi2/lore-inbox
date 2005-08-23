@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbVHWW43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVHWXEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932476AbVHWW43 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 18:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVHWW43
+	id S932483AbVHWXEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 19:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVHWXEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 18:56:29 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:53487 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932475AbVHWW41
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 18:56:27 -0400
-Message-ID: <430BA990.9090807@mvista.com>
-Date: Tue, 23 Aug 2005 15:56:16 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Tue, 23 Aug 2005 19:04:25 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:46331 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932483AbVHWXEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 19:04:24 -0400
+Message-Id: <200508232304.j7NN4J7Z017246@ms-smtp-03.nyroc.rr.com>
+From: "Returned mail" <postmaster@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: Sgsmxyto
+Date: Tue, 23 Aug 2005 19:04:13 -0400
 MIME-Version: 1.0
-To: Jim Ramsay <jim.ramsay@gmail.com>
-CC: Linux-ide <linux-ide@vger.kernel.org>,
-       Lukasz Kosewski <lkosewsk@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] Add disk hotswap support to libata RESEND #2
-References: <355e5e5e05080103021a8239df@mail.gmail.com>	 <4789af9e050823124140eb924f@mail.gmail.com> <4789af9e050823154364c8e9eb@mail.gmail.com>
-In-Reply-To: <4789af9e050823154364c8e9eb@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0005_E61A189D.97B92332"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Virus-Scan-Result: Repaired 34256 W32.Mydoom.M@mm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Ramsay wrote:
-> On 8/23/05, Jim Ramsay <jim.ramsay@gmail.com> wrote:
-> 
->>Then I must have found an undocumented feature!  I've applied this set
->>of patches to a 2.6.11 kernel (with few problems) and ran into a bunch
->>of "scheduling while atomic" errors when hotplugging a drive, culprit
->>being probably scsi_sysfs.c where scsi_remove_device locks a mutex, or
->>perhaps when it then calls class_device_unregister, which does a
->>'down_write'.
-> 
-> 
-> After further debugging, it appears that the problem is the debounce
-> timer in libata-core.c.
-> 
-> Timers appear to operate in an atomic context, so timers should not be
-> allowed to call scsi_remove_device, which eventually schedules.
-> 
-> Any suggestions on the best way to fix this?
 
-Workqueue, perhaps.
-> 
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0005_E61A189D.97B92332
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+ALERT!
+
+This e-mail, in its original form, contained one or more attached files that were infected with a virus, worm, or other type of security threat. This e-mail was sent from a Road Runner IP address. As part of our continuing initiative to stop the spread of malicious viruses, Road Runner scans all outbound e-mail attachments. If a virus, worm, or other security threat is found, Road Runner cleans or deletes the infected attachments as necessary, but continues to send the original message content to the recipient. Further information on this initiative can be found at http://help.rr.com/faqs/e_mgsp.html.
+Please be advised that Road Runner does not contact the original sender of the e-mail as part of the scanning process. Road Runner recommends that if the sender is known to you, you contact them directly and advise them of their issue. If you do not know the sender, we advise you to forward this message in its entirety (including full headers) to the Road Runner Abuse Department, at abuse@rr.com.
+
+
+
+
+------=_NextPart_000_0005_E61A189D.97B92332
+Content-Type: text/plain;
+	name="DELETED0.TXT"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="DELETED0.TXT"
+
+ZmlsZSBhdHRhY2htZW50OiBpbnN0cnVjdGlvbi56aXANCg0KVGhpcyBlLW1haWwgaW4gaXRz
+IG9yaWdpbmFsIGZvcm0gY29udGFpbmVkIG9uZSBvciBtb3JlIGF0dGFjaGVkIGZpbGVzIHRo
+YXQgd2VyZSBpbmZlY3RlZCB3aXRoIHRoZSBXMzIuTXlkb29tLk1AbW0gdmlydXMgb3Igd29y
+bS4gVGhleSBoYXZlIGJlZW4gcmVtb3ZlZC4NCkZvciBtb3JlIGluZm9ybWF0aW9uIG9uIFJv
+YWQgUnVubmVyJ3MgdmlydXMgZmlsdGVyaW5nIGluaXRpYXRpdmUsIHZpc2l0IG91ciBIZWxw
+ICYgTWVtYmVyIFNlcnZpY2VzIHBhZ2VzIGF0IGh0dHA6Ly9oZWxwLnJyLmNvbSwgb3IgdGhl
+IHZpcnVzIGZpbHRlcmluZyBpbmZvcm1hdGlvbiBwYWdlIGRpcmVjdGx5IGF0IGh0dHA6Ly9o
+ZWxwLnJyLmNvbS9mYXFzL2VfbWdzcC5odG1sLiANCg==
+------=_NextPart_000_0005_E61A189D.97B92332--
+
+

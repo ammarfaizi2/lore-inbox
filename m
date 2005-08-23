@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVHWJIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVHWJWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbVHWJIV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 05:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVHWJIV
+	id S932104AbVHWJWd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 05:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVHWJWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 05:08:21 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:51869 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932100AbVHWJIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 05:08:20 -0400
-Date: Tue, 23 Aug 2005 11:07:59 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       jffs-dev@axis.com
-Subject: Re: use of uninitialized pointer in jffs_create()
-Message-ID: <20050823090759.GB27570@wohnheim.fh-wedel.de>
-References: <9a87484905082015284c1686ec@mail.gmail.com> <20050822104559.GA11876@wohnheim.fh-wedel.de> <20050822230758.GL9927@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 23 Aug 2005 05:22:33 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:24014 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S932104AbVHWJWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 05:22:33 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Udo van den Heuvel <udovdh@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: VIA Rhine ethernet driver bug (reprise...)
+Date: Tue, 23 Aug 2005 12:21:59 +0300
+User-Agent: KMail/1.5.4
+References: <430A0B69.1060304@xs4all.nl>
+In-Reply-To: <430A0B69.1060304@xs4all.nl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050822230758.GL9927@stusta.de>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200508231221.59299.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 August 2005 01:07:58 +0200, Adrian Bunk wrote:
-> On Mon, Aug 22, 2005 at 12:45:59PM +0200, Jörn Engel wrote:
-> > On Sun, 21 August 2005 00:28:08 +0200, Jesper Juhl wrote:
-> > > 
-> > > gcc kindly pointed me at jffs_create() with this warning : 
-> > > 
-> > > fs/jffs/inode-v23.c:1279: warning: `inode' might be used uninitialized
-> > > in this function
-> > 
-> > Real fix would be to finally remove that code.  Except for the usual
-> > "change this function in the whole kernel" stuff, noone has touched it
-> > for ages.
+[CCing maintaner]
+
+On Monday 22 August 2005 20:29, Udo van den Heuvel wrote:
+> Hello,
 > 
-> That's wrong, this -mm specific bug comes git-ocfs2.patch .
+> It appears that the VIA Rhine chipset has some sort of bug which shows
+> up in both the standard Linux VIA-Rhine driver and the Rhinefet driver
+> that VIA itself provides.
+> 
+> The difference is that the connection is dropped in case of the standard
+> Linux driver for VIA Rhine but that the connection remains OK with the
+> Rhinefet driver provided by VIA
+> (http://www.viaarena.com/downloads/Source/rhinefet.tgz and other places
+> on viaarena.com...).
+> So VIA Rhinefet driver consumes more CPU but is also more stable.
+> 
+> I wrote about this issue before: http://lkml.org/lkml/2005/8/7/82 &
+> http://lkml.org/lkml/2005/1/15/47 etc.
+> I opened a bugzilla case: http://bugzilla.kernel.org/show_bug.cgi?id=5030
+> 
+> Who could find out why the standard Linux driver chokes and the Rhinefet
+> driver doesn't? Who could fix this bug?
 
-Ack.  If I wasn't this lazy, I'd still propose to completely remove
-jffs - it's been old and deprecated for a few years already.
+My suggestion was, and still is:
 
-Jörn
+>Since it happens less than once a day, why not just add a code
+>to reset the NIC completely in this case, like it is
+>typically done in tx_timeout handlers of many NICs, and forget about it?
 
--- 
-Public Domain  - Free as in Beer
-General Public - Free as in Speech
-BSD License    - Free as in Enterprise
-Shared Source  - Free as in "Work will make you..."
+Do you see any problems in this approach?
+--
+vda
+

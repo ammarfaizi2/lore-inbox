@@ -1,96 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbVHWFns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVHWFqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbVHWFns (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 01:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbVHWFns
+	id S1751321AbVHWFqD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 01:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbVHWFqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 01:43:48 -0400
-Received: from www.pro-linux.de ([213.239.211.178]:54230 "EHLO pro-linux.de")
-	by vger.kernel.org with ESMTP id S1751327AbVHWFnr (ORCPT
+	Tue, 23 Aug 2005 01:46:02 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:35782 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751321AbVHWFqA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 01:43:47 -0400
-Date: Tue, 23 Aug 2005 07:43:34 +0200
-From: Hans-Joachim Baader <hjb@pro-linux.de>
-To: linux-kernel@vger.kernel.org
-Subject: Process in D state with st driver
-Message-ID: <20050823054333.GA3360@kiwi.hjbaader.home>
+	Tue, 23 Aug 2005 01:46:00 -0400
+Date: Tue, 23 Aug 2005 07:46:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, dwalker@mvista.com,
+       george anzinger <george@mvista.com>, Adrian Bunk <bunk@stusta.de>,
+       Sven-Thorsten Dietrich <sven@mvista.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.13-rc6-rt6
+Message-ID: <20050823054609.GA26707@elte.hu>
+References: <1124323379.5186.18.camel@localhost.localdomain> <1124333050.5186.24.camel@localhost.localdomain> <20050822075012.GB19386@elte.hu> <1124704837.5208.22.camel@localhost.localdomain> <20050822101632.GA28803@elte.hu> <1124710309.5208.30.camel@localhost.localdomain> <20050822113858.GA1160@elte.hu> <1124715755.5647.4.camel@localhost.localdomain> <20050822183355.GB13888@elte.hu> <1124739657.5809.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1124739657.5809.6.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Hi,
+> Here's a patch to move the pi_lock out of the "fast path".  Thus, only 
+> threads that need to do PI will need to take it.
 
-I do nightly backups on tape. Every 3 to 4 weeks a process is stuck in
-D state while accessing the drive:
+ok, looks good, applied it. I've renamed p->rt_lock to p->pi_lock. The 
+patch gave a 10% wall-clock improvement in hackbench numbers on an 8-way 
+box. (This box has pretty high cachemiss costs, so the positive effects 
+of such patches show up nicely.)
 
-12398 ?        D      0:00 /usr/sbin/amcheck -ms daily
-
-There are no messages in the log. Only a reboot can remove this process.
-
-lsscsi --long
-[0:0:0:0]    tape    TANDBERG  TDC 4222        =3D07:  /dev/st0
-  state=3Drunning queue_depth=3D1 scsi_level=3D3 type=3D1 device_blocked=3D=
-0 timeout=3D300
-
-lsscsi --hosts --long
-[0]    tmscsim
-  cmd_per_lun=3D1    host_busy=3D0    sg_tablesize=3D255  unchecked_isa_dma=
-=3D0
-
-Kernel: 2.6.12.2 SMP
-
-lspci
-0000:00:00.0 Host bridge: Intel Corp. 430HX - 82439HX TXC [Triton II] (rev =
-03)
-0000:00:07.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (=
-rev 01)
-0000:00:07.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
-0000:00:11.0 SCSI storage controller: Advanced Micro Devices [AMD] 53c974 [=
-PCscsi] (rev 10)
-0000:00:12.0 Ethernet controller: VIA Technologies, Inc. VT86C100A [Rhine] =
-(rev 06)
-
-cat /proc/interrupts
-           CPU0       CPU1
-  0: 1753859899  436965002    IO-APIC-edge  timer
-  2:          0          0          XT-PIC  cascade
-  3:          3          0    IO-APIC-edge  serial
-  8:        106          0    IO-APIC-edge  rtc
- 14:   18946860          6    IO-APIC-edge  ide0
- 18:   88008860   86047094   IO-APIC-level  eth0
- 19:   61084709          1   IO-APIC-level  tmscsim
-NMI:          0          0
-LOC: 2190883256 2191052965
-ERR:          0
-MIS:          0
-
-Regards,
-hjb
---=20
-Pro-Linux - Germany's largest volunteer Linux support site
-http://www.pro-linux.de/          Public Key ID 0x3DDBDDEA
-
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDCreFLbySPj3b3eoRAigaAJ4rK745WO/AA+su+FvpDzm6ADlxbgCfRQyR
-WKkJX8xI/QkcMuObonMzMJ4=
-=p3lD
------END PGP SIGNATURE-----
-
---2fHTh5uZTiUOsy+g--
+	Ingo

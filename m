@@ -1,162 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbVHWQe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVHWQle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbVHWQe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 12:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVHWQe0
+	id S932220AbVHWQle (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 12:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbVHWQle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 12:34:26 -0400
-Received: from web8503.mail.in.yahoo.com ([202.43.219.165]:16772 "HELO
-	web8503.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S932221AbVHWQeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 12:34:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=g59aCSsl2PxGaC4LrDXfjZ4EwNMQqQWxR/a5lWlUY+xoGGKkiGoI5yQJqcYBKKpvnSkZ1yBG5+tmNKLi1U9JEC05OZbo1TrJEWyXxJdTMDYOicg/UjpNnLc/wlHRHelojJ+wgVw9Ft1fpOTCoaRetN0lJxv+fA8kVjgSwiH7w6Y=  ;
-Message-ID: <20050823163421.66485.qmail@web8503.mail.in.yahoo.com>
-Date: Tue, 23 Aug 2005 17:34:21 +0100 (BST)
-From: manomugdha biswas <manomugdhab@yahoo.co.in>
-Subject: RE: kernel module seg fault
-To: bunnans@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <006e01c5a7dd$c8395a20$2f08a8c0@varuna>
+	Tue, 23 Aug 2005 12:41:34 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:47500 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932220AbVHWQle (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 12:41:34 -0400
+Message-ID: <430B51B9.4030409@pobox.com>
+Date: Tue, 23 Aug 2005 12:41:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Nigel Rantor <wiggly@wiggly.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: irq 11: nobody cared
+References: <430B2419.7070109@wiggly.org>
+In-Reply-To: <430B2419.7070109@wiggly.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-This is the code where i am getting this problem. 
-
-static byte4
-VNICClientStart(unsigned long arg)
-{
-  VNICClientCfgCreateInfo_t  clientConfig;
-  struct socket        *sock      = NULL;
-  ubyte4               status     = 0;
-  ubyte4               retryCnt   =
-VNIC_CLIENT_MAX_CONN_RETRY_CNT;
-  ubyte4               ret        = 0;
-  byte4                len        = 0;
-  struct net_device    *dev       = NULL;
-  VNICConnMap_t        *connMap    = NULL;
-  byte4                error      = 0;
-  VNICHdrForm_t      vnicHdr;
-  VNICVirtMirrIfaceAndServIPList_t  *ifaceIPNode =
-NULL;
-                                                      
-                         
-  DECLARE_WAIT_QUEUE_HEAD(wq);
-  init_waitqueue_head(&wq);
-                                                      
-                         
-  EnterFunction("VNICClientStart");
-
-
-   memset(&vnicHdr, 0, sizeof(vnicHdr));
-  while (retryCnt) {
-        --retryCnt;
-                                                      
-                       
-   if (!retryCnt) {
-     return VNIC_CLIENT_SERVER_RESPONSE_TIMEOUT;
-   }
-                                                      
-                         
-   /* wait for small */
-   interruptible_sleep_on_timeout(&wq, 2);
-  } /* end while (retryCnt)*/
-
-  LeaveFunction("VNICClientStart");
-  return VNIC_CLIENT_SERVER_SUCCESS; /* for success */
-} /* end VNICClientStart() */
-
-I commneted out all the other functionalities of this
-function to make it simple but still it is getting
-kernel panic.
-   
-This function gets called when i invoke ioctl() from
-my user application and gets kernel panic.
-
-Regards,
-Manomugdha
-
-
-
---- bunnans@yahoo.com wrote:
-
-> Hi Biswas,
+Nigel Rantor wrote:
 > 
-> You need to post the complete kernel dump message
-> and body of your
-> source code.
+> Hail,
 > 
-> -Bunnan
->  
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org] On
-> Behalf Of manomugdha
-> biswas
-> Sent: Tuesday, August 23, 2005 3:13 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: kernel module seg fault
+> I posted a report a while back, no answer.
 > 
-> Hi,
-> I have written a kernel module and I can load
-> (insmod)
-> it without any error. But when i run my module it
-> gets
-> seg fault at interruptible_sleep_on_timeout();
+> Who should I be talking to wrt to the irq 11: nobody cared issue?
 > 
-> I have used this function in the following way:
+> I'm happy to provide as much info as possible but need to know what info 
+> is required.
 > 
-> DECLARE_WAIT_QUEUE_HEAD(wq);
-> init_waitqueue_head(&wq);
-> interruptible_sleep_on_timeout(&wq, 2);
+> I'm happily running 2.6.7, tried the latest and greatest (2.6.12) and 
+> found the problem, then started by looking at 2.6.8 and found the 
+> problem there too.
 > 
-> I am using redhat version 9.0 and kernel version
-> 2.4.20-8.
-> Could you please give some light on this issue?
+> It happens on boot, is a showstopper and I'm wondering what, if anything 
+> useful I can provide you guys.
 > 
-> Manomugdha Biswas
-> 
-> 
-> 	
-> 
-> 	
-> 		
-> ____________________________________________________
-> Send a rakhi to your brother, buy gifts and win
-> attractive prizes. Log
-> on to http://in.promos.yahoo.com/rakhi/index.html
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Throw me a bone...
+
+Read REPORTING-BUGS.  We can't do much of anything with this report. 
+Tell us what's on irq 11, for starters....
+
+	Jeff
 
 
-Manomugdha Biswas
 
-
-	
-
-	
-		
-____________________________________________________
-Send a rakhi to your brother, buy gifts and win attractive prizes. Log on to http://in.promos.yahoo.com/rakhi/index.html

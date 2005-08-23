@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbVHWOO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVHWOgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbVHWOO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 10:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVHWOO6
+	id S932070AbVHWOgY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 10:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVHWOgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 10:14:58 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:60635 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S932106AbVHWOO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 10:14:58 -0400
-Date: Tue, 23 Aug 2005 10:14:56 -0400
-To: Terry <tmacmill@rivernet.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Incorrect RAM Detected at kernel init
-Message-ID: <20050823141456.GB28578@csclub.uwaterloo.ca>
-References: <001001c5a6c9$7a0e1df0$6301a8c0@finian.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001001c5a6c9$7a0e1df0$6301a8c0@finian.net>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Tue, 23 Aug 2005 10:36:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33982 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932070AbVHWOgX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 10:36:23 -0400
+Date: Tue, 23 Aug 2005 10:36:08 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Jakub Jelinek <jakub@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FUTEX_WAKE_OP (pthread_cond_signal speedup)
+In-Reply-To: <20050823131817.GA7403@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.58.0508231033270.18304@devserv.devel.redhat.com>
+References: <20050823131817.GA7403@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 21, 2005 at 11:27:51PM -0400, Terry wrote:
-> Not sure if I have provided enough info, or to much info, but here it goes:
+
+On Tue, 23 Aug 2005, Jakub Jelinek wrote:
+
+> Hi!
 > 
-> [1.] One line summary of the problem:
-> Not Detecting all the memory installed in the system.
+> ATM pthread_cond_signal is unnecessarily slow, because it wakes one
+> waiter (which at least on UP usually means an immediate context switch
+> to one of the waiter threads).  This waiter wakes up and after a few
+> instructions it attempts to acquire the cv internal lock, but that lock
+> is still held by the thread calling pthread_cond_signal.  So it goes
+> to sleep and eventually the signalling thread is scheduled in, unlocks
+> the internal lock and wakes the waiter again.
+
+
+> With the following benchmark on UP x86-64 I get:
 > 
-> [2.] Full description of the problem/report:
-> I have Linux Kernel 2.4.31 running on a Compaq 5000R server with 2 PPro 200
-> processors, 768M RAM, RealTeck 8139 Network Card, and Compaq Smart 2 Raid
-> controller with 5 9.1G drives in Raid 5 configuration.
-> The kernel appears to compile perfectly, installs fine, but after reboot it
-> is only reporting 16M of RAM. I have tried with and without the mem=768M
-> boot up option in the lilo.conf script. All other modules and boot up
-> includes appear to run perfectly fine. I had a 2.4.18 kernel running on this
-> box just fine, detected all 768M of RAM and ran perfectly. The 2.4.31 Kernel
-> runs almost perfectly, the only hold back is the false detection of memory.
+> for i in nptl-orig nptl-requeue nptl-wake_op; do echo time elf/ld.so --library-path .:$i /tmp/bench; \
+> for j in 1 2; do echo ( time elf/ld.so --library-path .:$i /tmp/bench ) 2>&1; done; done
+> time elf/ld.so --library-path .:nptl-orig /tmp/bench
+> real 0m0.655s user 0m0.253s sys 0m0.403s
+> real 0m0.657s user 0m0.269s sys 0m0.388s
+> time elf/ld.so --library-path .:nptl-requeue /tmp/bench
+> real 0m0.496s user 0m0.225s sys 0m0.271s
+> real 0m0.531s user 0m0.242s sys 0m0.288s
+> time elf/ld.so --library-path .:nptl-wake_op /tmp/bench
+> real 0m0.380s user 0m0.176s sys 0m0.204s
+> real 0m0.382s user 0m0.175s sys 0m0.207s
 
-Compaq machines of that era are known to have non standard bios methods
-for identifying ram.  Do a google search for how to pass memory maps to
-2.6 kernels on a compaq.
+translation: effective thread switching is now almost twice as fast with
+the WAKE_OP extension of the futex interface. Cool!
 
-ie something like:
+a detail: many of the futex_atomic_op_inuser() seem to be duplicated
+across architectures. Might be worth putting into asm-generic, to avoid
+the duplication?
 
-mem=exactmap mem=640K@0 mem=1023M@1M
-
-Add that to the kernel command line when booting and see what happens.
-
-Len Sorensen
+	Ingo

@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbVHWN3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVHWNaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbVHWN3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 09:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVHWN3Q
+	id S932170AbVHWNaw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 09:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbVHWNaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 09:29:16 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:42355 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S932169AbVHWN3P (ORCPT
+	Tue, 23 Aug 2005 09:30:52 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:3188 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932170AbVHWNav (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 09:29:15 -0400
-Date: Tue, 23 Aug 2005 15:29:14 +0200
+	Tue, 23 Aug 2005 09:30:51 -0400
+Date: Tue, 23 Aug 2005 15:30:50 +0200
 From: Erik Mouw <erik@harddisk-recovery.com>
-To: jeff shia <tshxiayu@gmail.com>
+To: Rajesh <rvarada@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: what does scsi sense means?
-Message-ID: <20050823132914.GB29062@harddisk-recovery.com>
-References: <7cd5d4b4050823020772cc5c9e@mail.gmail.com>
+Subject: Re: debug a high load average
+Message-ID: <20050823133050.GC29062@harddisk-recovery.com>
+References: <430B03B4.8040205@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7cd5d4b4050823020772cc5c9e@mail.gmail.com>
+In-Reply-To: <430B03B4.8040205@gmail.com>
 Organization: Harddisk-recovery.com
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 23, 2005 at 05:07:12PM +0800, jeff shia wrote:
-> in the file of aic7xxxx.c ,what is the function of the structure of
-> scsi_sense?here what is the meaning of  sense?just like probe?
+On Tue, Aug 23, 2005 at 04:38:36PM +0530, Rajesh wrote:
+> I have a case occasionally when I copy data from a usb storage (ipod) to 
+> my hard drive the load average goes up from 0.4 to about 15.0, and the 
+> system becomes very unusable till I kill the cp command. I have checked 
+> the CPU usage, bytes read from usb device, byte written to hard drive 
+> etc, and all these values are low like CPU usage is at a maximum of 30%, 
+> disk read bytes is at an average of 1.5 MiB/s, disk write bytes is at 
+> 1.5 MiB/s, number of processes is at 110, etc, during this high load.
 
-Return "value" of a failed command. Normally commands just succeed, but
-if it fails, you can get "sense information" which tells you more about
-why a particular command failed.
+1.5 MB/s suggests you're using an IDE drive in PIO mode. Switch to DMA
+mode (hdparm -d 1 /dev/hda) and see if it gets any better.
 
 
 Erik

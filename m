@@ -1,114 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbVHWPRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVHWPXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbVHWPRV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 11:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVHWPRU
+	id S932203AbVHWPXf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 11:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVHWPXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 11:17:20 -0400
-Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:2852 "EHLO
-	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id S932197AbVHWPRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 11:17:17 -0400
-Message-ID: <4305D040.1050301@tu-harburg.de>
-Date: Fri, 19 Aug 2005 14:27:44 +0200
-From: Jan Blunck <j.blunck@tu-harburg.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] sg.c: fix a memory leak in devices seq_file implementation
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------040904050300090802050903"
+	Tue, 23 Aug 2005 11:23:35 -0400
+Received: from mail.shareable.org ([81.29.64.88]:53688 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S932203AbVHWPXe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 11:23:34 -0400
+Date: Tue, 23 Aug 2005 16:23:31 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Asser =?iso-8859-1?Q?Fem=F8?= <asser@diku.dk>
+Cc: linux-cifs-client@lists.samba.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: dnotify/inotify and vfs questions
+Message-ID: <20050823152331.GA10486@mail.shareable.org>
+References: <20050823130023.GB8305@diku.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050823130023.GB8305@diku.dk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040904050300090802050903
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Asser Femø wrote:
+> According to the fcntl manual you can cancel a notification by doing
+> fcntl(fd, F_NOTIFY, 0) (ie. sending 0 as the notification mask), but
+> looking in the kernel code fcntl_dirnotify() immediately calls
+> dnotify_flush() with neither telling the vfs module about it. Is there a
+> reason for this?  Otherwise I'd propose calling
+> filp->f_op->dir_notify(filp, 0) at some point in this scenario.
+> 
+> Regarding inotify, inotify_add_watch doesn't seem to pass on the request
+> either, which works fine for local filesystem operations as they call
+> fsnotify_* functions every time, but that isn't really feasible for
+> filesystems like cifs because we'd have to request change notification
+> on everything. Is there plans for implementing a mechanism to let vfs
+> modules get watch requests too?
 
-I know that scsi procfs is legacy code but this is a fix for a memory leak.
+On a related note:
 
-While reading through sg.c I realized that the implementation of
-/proc/scsi/sg/devices with seq_file is leaking memory due to freeing the
-pointer returned by the next() iterator method. Since next() might
-return NULL or an error this is wrong. This patch fixes it through using
-the seq_files private field for holding the reference to the iterator
-object.
+dnotify and inotify on local filesystems appear to be synchronous, in
+the following rather useful sense:
 
-Here is a small bash script to trigger the leak. Use slabtop to watch
-the size-32 usage grow and grow.
+If you have previously registered for inotify/dnotify events that will
+catch a change to a file, and called stat() on the file, then the
+following operation:
 
-[--snipp--]
-#!/bin/sh
+    <receive some request>...
+    stat_info = stat(file)
 
-while true; do
-	cat /proc/scsi/sg/devices > /dev/null
-done
+may be replaced in userspace code with:
 
-[--snipp--]
+    <receive some request>...
+    if (any_dnotify_or_inotify_events_pending) {
+        read_dnotify_or_inotify_events();
+        if (any_events_related_to(file)) {
+            store_in_userspace_stat_cache(file, stat(file));
+        }
+    }
+    stat_info = lookup_userspace_stat_cache(file);
 
-Signed-off-by: Jan Blunck <j.blunck@tu-harburg.de>
+Now that's a silly way to save one system call in the fast path by itself.
 
+But when the stat_info is a prerequisite for validating cached data --
+such as the contents of a file parsed into a data structure -- it can
+save a lot of system calls and logical work.
 
---------------040904050300090802050903
-Content-Type: text/x-patch;
- name="scsi_sg.c-dev_seq_file-fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="scsi_sg.c-dev_seq_file-fix.diff"
+For example, an Apache-style path walk which checks for .htaccess, or
+a Samba-style path walk which is checking for unsafe symbolic links,
+can be reduced from say 20 system calls to zero using this method.
 
- drivers/scsi/sg.c |   16 +++++++++-------
- 1 files changed, 9 insertions(+), 7 deletions(-)
+Pre-compiled or pre-parsed programs/scripts/templates/config-files
+where all the source files used are prerequisites for invalidating a
+cached compiled form, reduces from say 40 system calls to stat() all
+the source files, to zero....  that's quite a saving.
 
-Index: experimental-jb/drivers/scsi/sg.c
-===================================================================
---- experimental-jb.orig/drivers/scsi/sg.c
-+++ experimental-jb/drivers/scsi/sg.c
-@@ -2971,23 +2971,22 @@ static void * dev_seq_start(struct seq_f
- {
- 	struct sg_proc_deviter * it = kmalloc(sizeof(*it), GFP_KERNEL);
- 
-+	s->private = it;
- 	if (! it)
- 		return NULL;
-+
- 	if (NULL == sg_dev_arr)
--		goto err1;
-+		return NULL;
- 	it->index = *pos;
- 	it->max = sg_last_dev();
- 	if (it->index >= it->max)
--		goto err1;
-+		return NULL;
- 	return it;
--err1:
--	kfree(it);
--	return NULL;
- }
- 
- static void * dev_seq_next(struct seq_file *s, void *v, loff_t *pos)
- {
--	struct sg_proc_deviter * it = (struct sg_proc_deviter *) v;
-+	struct sg_proc_deviter * it = s->private;
- 
- 	*pos = ++it->index;
- 	return (it->index < it->max) ? it : NULL;
-@@ -2995,7 +2994,10 @@ static void * dev_seq_next(struct seq_fi
- 
- static void dev_seq_stop(struct seq_file *s, void *v)
- {
--	kfree (v);
-+	struct sg_proc_deviter *it = s->private;
-+
-+	if (it)
-+		kfree (it);
- }
- 
- static int sg_proc_open_dev(struct inode *inode, struct file *file)
+It's not just reducing system calls.  The logical tests in userspace
+are also skipped, if coded properly, facilitating very quick decisions
+about things that depend on files which mostly don't change.
+(Cascading structured cache prerequisites...mmm).
 
---------------040904050300090802050903--
+Remote dnotify/inotify doesn't _necessarily_ have this synchronous
+property.  It may do in some cases, depending on the implementation
+(this is subtle...).
+
+So, it would be nice if there was a way to query this... rather than
+the tedious method of testing the filesystem type and having a table
+of "known local filesystem types" where it's safe to depend on this
+property.  Alternatively, a way to specify at dnotify/inotify creation
+type that synchronous notifications are required, and have the request
+rejected if those can't be provided.
+
+-- Jamie
+
 

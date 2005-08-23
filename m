@@ -1,68 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbVHWQbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbVHWQe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbVHWQbL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 12:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVHWQbL
+	id S932221AbVHWQe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 12:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVHWQe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 12:31:11 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:59869 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932217AbVHWQbK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 12:31:10 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: rol@witbe.net
-Subject: Re: [2.4.31] - USB device numbering in /proc/bus/usb
-Date: Tue, 23 Aug 2005 17:31:09 +0100
-User-Agent: KMail/1.8.90
-Cc: "'Sergey Vlasov'" <vsu@altlinux.ru>, linux-kernel@vger.kernel.org
-References: <200508231551.j7NFpFD00513@tag.witbe.net>
-In-Reply-To: <200508231551.j7NFpFD00513@tag.witbe.net>
+	Tue, 23 Aug 2005 12:34:26 -0400
+Received: from web8503.mail.in.yahoo.com ([202.43.219.165]:16772 "HELO
+	web8503.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S932221AbVHWQeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 12:34:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=g59aCSsl2PxGaC4LrDXfjZ4EwNMQqQWxR/a5lWlUY+xoGGKkiGoI5yQJqcYBKKpvnSkZ1yBG5+tmNKLi1U9JEC05OZbo1TrJEWyXxJdTMDYOicg/UjpNnLc/wlHRHelojJ+wgVw9Ft1fpOTCoaRetN0lJxv+fA8kVjgSwiH7w6Y=  ;
+Message-ID: <20050823163421.66485.qmail@web8503.mail.in.yahoo.com>
+Date: Tue, 23 Aug 2005 17:34:21 +0100 (BST)
+From: manomugdha biswas <manomugdhab@yahoo.co.in>
+Subject: RE: kernel module seg fault
+To: bunnans@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <006e01c5a7dd$c8395a20$2f08a8c0@varuna>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508231731.09099.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 August 2005 16:51, Paul Rolland wrote:
-> Hello Sergey,
->
-> > Yes.  Addresses for USB devices are assigned dynamically.  If you
-> > disconnect the modem from USB and connect it again, its address will
-> > change.
->
-> The problem I've is that nothing changed on the machine except that
-> I did a reboot. Nothing (USB device) added, nothing removed, so with
-> a stable hardware config, USB numbering should have stayed stable, IMHO.
+Hi,
+This is the code where i am getting this problem. 
 
-Basically, no it shouldn't.
+static byte4
+VNICClientStart(unsigned long arg)
+{
+  VNICClientCfgCreateInfo_t  clientConfig;
+  struct socket        *sock      = NULL;
+  ubyte4               status     = 0;
+  ubyte4               retryCnt   =
+VNIC_CLIENT_MAX_CONN_RETRY_CNT;
+  ubyte4               ret        = 0;
+  byte4                len        = 0;
+  struct net_device    *dev       = NULL;
+  VNICConnMap_t        *connMap    = NULL;
+  byte4                error      = 0;
+  VNICHdrForm_t      vnicHdr;
+  VNICVirtMirrIfaceAndServIPList_t  *ifaceIPNode =
+NULL;
+                                                      
+                         
+  DECLARE_WAIT_QUEUE_HEAD(wq);
+  init_waitqueue_head(&wq);
+                                                      
+                         
+  EnterFunction("VNICClientStart");
 
->
-> > > I would have been expecting some more stability in the
-> >
-> > numbering across
-> >
-> > > reboot, the same way IDE disks numbers are stable.
-> >
-> > Use some other identifier which is stable - e.g., serial number of the
-> > USB device (unfortunately, many devices don't have it).
->
-> Well yes, I'm going to try to convert to some other identifiers space
-> as this seems to be the only way to go.
->
-> Thanks for the confirmation,
-> Regards,
-> Paul
 
-/proc/bus/usb/devices (which tells you where a device is located in the tree). 
-This should work on 2.4 kernels, 2.6 kernels should be using sysfs by now.
+   memset(&vnicHdr, 0, sizeof(vnicHdr));
+  while (retryCnt) {
+        --retryCnt;
+                                                      
+                       
+   if (!retryCnt) {
+     return VNIC_CLIENT_SERVER_RESPONSE_TIMEOUT;
+   }
+                                                      
+                         
+   /* wait for small */
+   interruptible_sleep_on_timeout(&wq, 2);
+  } /* end while (retryCnt)*/
 
--- 
-Cheers,
-Alistair.
+  LeaveFunction("VNICClientStart");
+  return VNIC_CLIENT_SERVER_SUCCESS; /* for success */
+} /* end VNICClientStart() */
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+I commneted out all the other functionalities of this
+function to make it simple but still it is getting
+kernel panic.
+   
+This function gets called when i invoke ioctl() from
+my user application and gets kernel panic.
+
+Regards,
+Manomugdha
+
+
+
+--- bunnans@yahoo.com wrote:
+
+> Hi Biswas,
+> 
+> You need to post the complete kernel dump message
+> and body of your
+> source code.
+> 
+> -Bunnan
+>  
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org] On
+> Behalf Of manomugdha
+> biswas
+> Sent: Tuesday, August 23, 2005 3:13 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: kernel module seg fault
+> 
+> Hi,
+> I have written a kernel module and I can load
+> (insmod)
+> it without any error. But when i run my module it
+> gets
+> seg fault at interruptible_sleep_on_timeout();
+> 
+> I have used this function in the following way:
+> 
+> DECLARE_WAIT_QUEUE_HEAD(wq);
+> init_waitqueue_head(&wq);
+> interruptible_sleep_on_timeout(&wq, 2);
+> 
+> I am using redhat version 9.0 and kernel version
+> 2.4.20-8.
+> Could you please give some light on this issue?
+> 
+> Manomugdha Biswas
+> 
+> 
+> 	
+> 
+> 	
+> 		
+> ____________________________________________________
+> Send a rakhi to your brother, buy gifts and win
+> attractive prizes. Log
+> on to http://in.promos.yahoo.com/rakhi/index.html
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+Manomugdha Biswas
+
+
+	
+
+	
+		
+____________________________________________________
+Send a rakhi to your brother, buy gifts and win attractive prizes. Log on to http://in.promos.yahoo.com/rakhi/index.html

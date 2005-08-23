@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVHWBMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVHWBOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbVHWBMG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 21:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVHWBMG
+	id S1751316AbVHWBOY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 21:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVHWBOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 21:12:06 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:59660 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S1751315AbVHWBMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 21:12:05 -0400
-Date: Tue, 23 Aug 2005 09:11:04 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: "Gerald (Jerry) Carter" <jerry@samba.org>
-cc: Steven French <sfrench@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Urban.Widmark@enlight.net, samba@samba.org,
-       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-Subject: Re: [Samba] Re: New maintainer needed for the Linux smb filesystem
-In-Reply-To: <43094206.3070602@samba.org>
-Message-ID: <Pine.LNX.4.58.0508230907150.6680@wombat.indigo.net.au>
-References: <OF200CE886.6A353FBA-ON87257065.0005812F-86257065.0005B594@us.ibm.com>
- <43094206.3070602@samba.org>
+	Mon, 22 Aug 2005 21:14:24 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:43166 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751316AbVHWBOX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 21:14:23 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, REPLY_WITH_QUOTES,
-	USER_AGENT_PINE, USER_IN_WHITELIST)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: FW: [RFC] A more general timeout specification
+Date: Mon, 22 Aug 2005 18:13:50 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A0415D0AB@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: FW: [RFC] A more general timeout specification
+thread-index: AcWnbMlnvqRU1LIaTniPJPDTQ54gTgAEAQDw
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "john stultz" <johnstul@us.ibm.com>,
+       "Inaky Perez-Gonzalez" <inaky@linux.intel.com>
+Cc: "Nishanth Aravamudan" <nacc@us.ibm.com>, <joe.korty@ccur.com>,
+       <george@mvista.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Aug 2005 01:13:52.0651 (UTC) FILETIME=[ECDCDDB0:01C5A77F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Aug 2005, Gerald (Jerry) Carter wrote:
+Hi John
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Steven French wrote:
-> |
-> | We are close, but not quite ready to disable smbfs.
-> 
-> Steve,
-> 
-> I have been itching to work on some kernel code.
-> If you need someone just to keep things afloat,
-> I'd been happy to look into it.  There would be some
-> start up time of course.  If you would be willing to
-> help me navigate the things other than code, it
-> shouldn't be that big of a deal.
+>From: john stultz [mailto:johnstul@us.ibm.com]
+>On Thu, 2005-07-28 at 18:52 -0700, Inaky Perez-Gonzalez wrote:
+>> The main user of this new inteface is to allow system calls to get
+>> time specified in an absolute form (as most of POSIX states) and thus
+>> avoid extra time conversion work.
+...
+>>
+http://groups-beta.google.com/groups?q=a+more+general+timeout+specificat
+ion
+...
+>>
+>> timeout_validate() error-checks the syntax of a timeout
+>> argument and returns either zero or -EINVAL.  By breaking
+>> timeout_validate() out from timeout_sleep(), it becomes possible
+>> to error check the timeout 'far away' from the places in the
+>> code where we would actually do the timeout, as well as being
+>> able to perform such checks only at those places we know the
+>> timeout specification is coming from an unsafe source.
+>
+>using gettimeofday() so that part looks good. I'm not completely sold
+on
+>why the validate interface is needed, but I didn't hear any objections
+>from George, so I'd defer to those who deal more with those interfaces.
 
-I wouldn't mind helping out here either.
-Perhaps a joint effort Jerry?
+_validate() is mostly needed when we take a timeout specification from
+user space (timeouts from kernel space are supposed to be ok). We need
+to validate that the clock id passed is correct (existant), that
+the 'struct timespec' is also legal (eg: nsec < 1000M), that the flags 
+are ok (relative/absolute), etc...
 
-Ian
+The idea is that in your code that uses this, once you copy the 'struct 
+timeout' from  user space you check it for validity. Then you can 
+dive into any kind of code (atomic, sleep paths, whatever) without
+having
+to code an error path from deeep down for when the user passed a bad 
+timeout.
 
+It sure makes it more simple :)
+
+-- Inaky

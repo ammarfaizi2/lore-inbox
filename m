@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVHWNHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbVHWNOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbVHWNHw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 09:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVHWNHw
+	id S932177AbVHWNOW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 09:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVHWNOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 09:07:52 -0400
-Received: from extgw-uk.mips.com ([62.254.210.129]:20244 "EHLO
-	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
-	id S1750766AbVHWNHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 09:07:51 -0400
-Date: Tue, 23 Aug 2005 14:07:26 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.13-rc6-mm2 (hangs on non-SMP x86-64 and oopses)
-Message-ID: <20050823130726.GC3156@linux-mips.org>
-References: <20050822213021.1beda4d5.akpm@osdl.org> <200508231451.52521.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508231451.52521.rjw@sisk.pl>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 23 Aug 2005 09:14:21 -0400
+Received: from tag.witbe.net ([81.88.96.48]:63699 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S932177AbVHWNOT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 09:14:19 -0400
+Message-Id: <200508231314.j7NDEGD09705@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: <rol@as2917.net>
+Subject: [2.4.31] - USB device numbering in /proc/bus/usb
+Date: Tue, 23 Aug 2005 15:14:38 +0200
+Organization: AS2917
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcWn5J1dxI6r/WbGSfmWkWUAcXrzDA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Hello,
 
-On Tue, Aug 23, 2005 at 02:51:51PM +0200, Rafael J. Wysocki wrote:
+I've just rebooted a machine, and the eagle ADSL modem I was using,
+presented as /proc/bus/usb/002/005 in now presented as 
+/proc/bus/usb/002/003 (same bus, but device ID changed from 5 to 3).
 
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm2/
-> > 
-> > - Various updates.  Nothing terribly noteworthy.
-> 
-> It hangs solig during boot (after starting kjournald) on Asus L5D (non-SMP x86-64),
-> which is caused by this patch:
-> 
-> 8250-serial-console-locking-bug-spelling-fix.patch
-> 
-> (from binary search).
-> 
-> If this patch is reverted, it oopses like in the following trace.
+Is this an expected behavior, when running a 2.4.31 kernel ?
+I would have been expecting some more stability in the numbering across
+reboot, the same way IDE disks numbers are stable.
 
-I thought this one was already pulled?
+Paul
 
-  Ralf

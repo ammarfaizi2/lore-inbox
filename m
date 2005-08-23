@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVHWLKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVHWLKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbVHWLKH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 07:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVHWLKH
+	id S932123AbVHWLKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 07:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbVHWLK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 07:10:07 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:48617 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932119AbVHWLKG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 07:10:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=jOAG9MnWYTJe+TBTNlZ43sRJrDUxSuxcQU3XPz936fKk+ok/IHLO/YupvJl8spxahjoO71sRGzicdTKFzmVL2uIAF1KRs2pScdHt5e6vAuGepODTg0XMx/1k04Mdsiu/dv4OsOFHiqf/I/Lw8pOi1m3PeB7LfcTq9on2yH/vfWw=
-Message-ID: <430B03B4.8040205@gmail.com>
-Date: Tue, 23 Aug 2005 16:38:36 +0530
-From: Rajesh <rvarada@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Tue, 23 Aug 2005 07:10:29 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:62222 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S932123AbVHWLK2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 07:10:28 -0400
+Date: Tue, 23 Aug 2005 12:10:27 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Cc: yhlu <yhlu.kernel@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: APIC version and 8-bit APIC IDs
+In-Reply-To: <43099FDF.6030504@fujitsu-siemens.com>
+Message-ID: <Pine.LNX.4.61L.0508231204510.2422@blysk.ds.pg.gda.pl>
+References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel> 
+ <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com> 
+ <20050812133248.GN8974@wotan.suse.de>  <42FCA97E.5010907@fujitsu-siemens.com>
+  <42FCB86C.5040509@fujitsu-siemens.com>  <20050812145725.GD922@wotan.suse.de>
+  <86802c44050812093774bf4816@mail.gmail.com>  <20050812164244.GC22901@wotan.suse.de>
+ <86802c4405081210442b1bb840@mail.gmail.com> <43099FDF.6030504@fujitsu-siemens.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: debug a high load average
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All:
+On Mon, 22 Aug 2005, Martin Wilck wrote:
 
-I have a case occasionally when I copy data from a usb storage (ipod) to 
-my hard drive the load average goes up from 0.4 to about 15.0, and the 
-system becomes very unusable till I kill the cp command. I have checked 
-the CPU usage, bytes read from usb device, byte written to hard drive 
-etc, and all these values are low like CPU usage is at a maximum of 30%, 
-disk read bytes is at an average of 1.5 MiB/s, disk write bytes is at 
-1.5 MiB/s, number of processes is at 110, etc, during this high load.
+> It's a scalable system where multiple boards may be combined. Anyway, I see
+> nothing in the specs that says you must start counting CPUs from zero.
 
-So my question is what else determines the high load average that in 
-turn is resulting in the unresponsiveness of the system? What else 
-should I be looking for to debug the problem?
+ Well, Intel's "Multiprocessor Specification" mandates that (see section 
+3.6.1 and also the compliance list in Appendix C).  I does not mandate 
+local APIC IDs to be consecutive though.
 
-Thanks a lot,
-Rajesh
-
+  Maciej

@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVHWUWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVHWUYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbVHWUWW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 16:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbVHWUWW
+	id S932370AbVHWUYo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 16:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVHWUYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 16:22:22 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:52727 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932368AbVHWUWV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 16:22:21 -0400
-Subject: Re: 2.6.12 Performance problems
-From: Sven-Thorsten Dietrich <sven@mvista.com>
-To: danial_thom@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050823201004.77101.qmail@web33310.mail.mud.yahoo.com>
-References: <20050823201004.77101.qmail@web33310.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Tue, 23 Aug 2005 13:22:16 -0700
-Message-Id: <1124828536.15265.160.camel@imap.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Aug 2005 16:24:44 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:32262 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932370AbVHWUYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 16:24:44 -0400
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <E1E7fHs-0006DO-00@dorka.pomaz.szeredi.hu> (message from Miklos
+	Szeredi on Tue, 23 Aug 2005 22:22:24 +0200)
+Subject: [PATCH 1/8] remove ia_attr_flags
+References: <E1E7fHs-0006DO-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1E7fJu-0006EB-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 23 Aug 2005 22:24:30 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-23 at 13:10 -0700, Danial Thom wrote:
-> 
-> None of this is helpful, but since no one has
-> been able to tell me how to tune it to provide
-> absolute priority to the network stack I'll
-> assume it can't be done.
+Remove unused ia_attr_flags from struct iattr, and related defines.
 
-History has proven that camp wrong almost 100% of the time.
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-You were told to turn off kernel preemption. 
-
-A diligent comparison requires that, since 2.4 does not support kernel
-preemption, and a fair comparison requires holding all other things
-constant.
-
-In addition, there were several IP-level features mentioned in emails,
-that have been added to 2.6.
-
-You need to make sure those are all off by default, to keep your
-comparison relevant.
-
-All the answers are before you, review those emails, turn all that stuff
-off and retest.
-
-
-
-
+Index: linux/fs/hostfs/hostfs.h
+===================================================================
+--- linux.orig/fs/hostfs/hostfs.h	2005-08-19 14:13:47.000000000 +0200
++++ linux/fs/hostfs/hostfs.h	2005-08-19 15:01:48.000000000 +0200
+@@ -49,7 +49,6 @@ struct hostfs_iattr {
+ 	struct timespec	ia_atime;
+ 	struct timespec	ia_mtime;
+ 	struct timespec	ia_ctime;
+-	unsigned int	ia_attr_flags;
+ };
+ 
+ extern int stat_file(const char *path, unsigned long long *inode_out,
+Index: linux/include/linux/fs.h
+===================================================================
+--- linux.orig/include/linux/fs.h	2005-08-19 14:58:53.000000000 +0200
++++ linux/include/linux/fs.h	2005-08-19 15:01:06.000000000 +0200
+@@ -283,19 +283,9 @@ struct iattr {
+ 	struct timespec	ia_atime;
+ 	struct timespec	ia_mtime;
+ 	struct timespec	ia_ctime;
+-	unsigned int	ia_attr_flags;
+ };
+ 
+ /*
+- * This is the inode attributes flag definitions
+- */
+-#define ATTR_FLAG_SYNCRONOUS	1 	/* Syncronous write */
+-#define ATTR_FLAG_NOATIME	2 	/* Don't update atime */
+-#define ATTR_FLAG_APPEND	4 	/* Append-only file */
+-#define ATTR_FLAG_IMMUTABLE	8 	/* Immutable file */
+-#define ATTR_FLAG_NODIRATIME	16 	/* Don't update atime for directory */
+-
+-/*
+  * Includes for diskquotas.
+  */
+ #include <linux/quota.h>

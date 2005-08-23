@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbVHWRV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVHWRaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbVHWRV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 13:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVHWRV2
+	id S932238AbVHWRaN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 13:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVHWRaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 13:21:28 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:53683 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S1750905AbVHWRV1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 13:21:27 -0400
-Message-ID: <430B5B14.5070105@trash.net>
-Date: Tue, 23 Aug 2005 19:21:24 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: danial_thom@yahoo.com
-CC: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 Performance problems
-References: <20050823171028.47315.qmail@web33309.mail.mud.yahoo.com>
-In-Reply-To: <20050823171028.47315.qmail@web33309.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
+	Tue, 23 Aug 2005 13:30:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:10958
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932238AbVHWRaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 13:30:11 -0400
+Date: Tue, 23 Aug 2005 10:30:10 -0700 (PDT)
+Message-Id: <20050823.103010.51024114.davem@davemloft.net>
+To: arjan@infradead.org
+Cc: tedu@coverity.com, linux-kernel@vger.kernel.org, ralf@linux-mips.org
+Subject: Re: some missing spin_unlocks
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1124816044.3218.18.camel@laptopd505.fenrus.org>
+References: <430A5127.5000304@coverity.com>
+	<20050823.094603.29591786.davem@davemloft.net>
+	<1124816044.3218.18.camel@laptopd505.fenrus.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danial Thom wrote:
-> I think part of the problem is the continued
-> misuse of the word "latency". Latency, in
-> language terms, means "unexplained delay". Its
-> wrong here because for one, its explainable. But
-> it also depends on your perspective. The
-> "latency" is increased for kernel tasks, while it
-> may be reduced for something that is getting the
-> benefit of preempting the kernel. So you really
-> can't say "the price of reduced latency is lower
-> throughput", because thats simply backwards.
-> You've increased the kernel tasks latency by
-> allowing it to be pre-empted. Reduced latency
-> implies higher efficiency. All you've done here
-> is shift the latency from one task to another, so
-> there is no reduction overall, in fact there is
-> probably a marginal increase due to the overhead
-> of pre-emption vs doing nothing.
+From: Arjan van de Ven <arjan@infradead.org>
+Date: Tue, 23 Aug 2005 18:54:03 +0200
 
-If instead of complaining you would provide the information
-I've asked for two days ago someone might actually be able
-to help you.
+> does it matter? can ANYTHING be spinning on the lock? if not .. can we
+> just let the lock go poof and not unlock it... 
+
+I believe socket lookup can, otherwise the code is OK as-is.

@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVHWLNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVHWLRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbVHWLNt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 07:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVHWLNt
+	id S932133AbVHWLRp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 07:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVHWLRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 07:13:49 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:5638 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932127AbVHWLNs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 07:13:48 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20050823094231.85102.qmail@web8508.mail.in.yahoo.com>
-References: <20050823094231.85102.qmail@web8508.mail.in.yahoo.com>
-X-OriginalArrivalTime: 23 Aug 2005 11:13:47.0164 (UTC) FILETIME=[BB43ADC0:01C5A7D3]
-Content-class: urn:content-classes:message
-Subject: Re: kernel module seg fault
-Date: Tue, 23 Aug 2005 07:13:16 -0400
-Message-ID: <Pine.LNX.4.61.0508230711490.22122@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel module seg fault
-Thread-Index: AcWn07tp6Upl58PyQWW2W627KdgnkA==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "manomugdha biswas" <manomugdhab@yahoo.co.in>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Tue, 23 Aug 2005 07:17:45 -0400
+Received: from sipsolutions.net ([66.160.135.76]:16398 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S932129AbVHWLRo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 07:17:44 -0400
+Subject: patch for compiling ppc without pmu
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yphagxoxKGO8lZ1cqsBv"
+Date: Tue, 23 Aug 2005 13:17:24 +0200
+Message-Id: <1124795844.9162.3.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 23 Aug 2005, manomugdha biswas wrote:
+--=-yphagxoxKGO8lZ1cqsBv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Hi,
-> I have written a kernel module and I can load (insmod)
-> it without any error. But when i run my module it gets
-> seg fault at interruptible_sleep_on_timeout();
->
-> I have used this function in the following way:
->
-> DECLARE_WAIT_QUEUE_HEAD(wq);
-> init_waitqueue_head(&wq);
-> interruptible_sleep_on_timeout(&wq, 2);
->
-> I am using redhat version 9.0 and kernel version
-> 2.4.20-8.
-> Could you please give some light on this issue?
->
-> Manomugdha Biswas
+Hi,
 
-"seg fault"??  You meen you get a kernel panic? Please
-show us what it says. Note you can't sleep with a spin-lock
-held.
+This patch seems to be required to compile 2.6.13-rc6 for ppc configured
+without PMU.
+
+Apologies if it is already known, I haven't found anything like this
+quickly.
+
+Signed-Off-By: Johannes Berg <johannes@sipsolutions.net>
+
+--- linux-2.6.13-rc6.orig/arch/ppc/platforms/pmac_time.c	2005-08-23 12:14:3=
+7.689485664 +0200
++++ linux-2.6.13-rc6/arch/ppc/platforms/pmac_time.c	2005-08-23 12:14:37.689=
+485664 +0200
+@@ -251,7 +251,7 @@
+ 	struct device_node *cpu;
+ 	unsigned int freq, *fp;
+=20
+-#ifdef CONFIG_PM && CONFIG_ADB_PMU
++#if defined(CONFIG_PM) && defined(CONFIG_ADB_PMU)
+ 	pmu_register_sleep_notifier(&time_sleep_notifier);
+ #endif /* CONFIG_PM */
+=20
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12.5 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+--=-yphagxoxKGO8lZ1cqsBv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
 
-Thank you.
+iQIVAwUAQwsFwaVg1VMiehFYAQJ56g/+O5YvuDWgzGZl06mAyyBL7NrOi4aT90mU
+htwj+MVz0mRucFGwSTMIDTmuG2AQOpHktmwbHbdyPqGU9c+l+S6f4e9ggLYwje0q
+6aN81q9LRPcZ3xA733Z2VfY0Dyo5zCk+8Kb2zK9N1dPZV69AMIi2q71Mxur/KMTX
+k4dlEnfGIibaxqAOkfpGd2NsVw3ynOAzJjGZ6fFN2iju/sLAP4PZdrTM1hdv9ryJ
+Nitx+IZZ/4qj5aWOwsAslNpcdH7HrBV8sggaKbczhlEVPbbt3qRX4ueoAkY+fUnD
+3U0j2zSYZKg42PHWXODM/4aIIkU6kjqOTDxKH7Lty5yU2rRb+LTBNzar7ZAw5dJc
+TvT6Z7KXhPz3fJMrjI6uw65+7K9HupnxSzBhwkKwUxmdXUPfBzmdACNaaiIRH+g2
+uOnWejhXkJ/z40scpxNKbvLocmZwaONmQbewlcwDSvIj9U67bT7gJWt21Wj61TZe
+3ZxChEE4tS9A2fxFpMXprxpQ6cdSKD1//Rir8VOmAdmOoUAJbbFF1vHc2+5aGMU9
+hy7rLukaM5a1IFZuk+A2fB0BTE9wVF17rFfvP4BsjryYpeGG+9fFi+L6+N0+e1L+
++A7V4Ebnq3wPwtymqlElcJ7XyH9XG+fzTkcKpJwHMNyJgwV7PRYE95y6lccVtdB9
+u7XZrfFos6k=
+=28DI
+-----END PGP SIGNATURE-----
+
+--=-yphagxoxKGO8lZ1cqsBv--
+

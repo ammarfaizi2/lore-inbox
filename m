@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVHWJmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbVHWJo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbVHWJmp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 05:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVHWJmp
+	id S932116AbVHWJo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 05:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVHWJo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 05:42:45 -0400
-Received: from web8508.mail.in.yahoo.com ([202.43.219.170]:64399 "HELO
-	web8508.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S932113AbVHWJmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 05:42:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=5pByEY5M+p3H+vupO6aXAWu7xgohoysUS5PlI1yC664uvrHZqP6e0MiJ0oRoJglJ7oRSdEavY2loKKHGSZjM56wYrIEeQat1ZaYFH3j0PkpgvloszSjwxDK72pHKFzK3ve2QNL4zCdPWYZ1zeKAcmuXNBvsM5zOq5pzLqYMgWME=  ;
-Message-ID: <20050823094231.85102.qmail@web8508.mail.in.yahoo.com>
-Date: Tue, 23 Aug 2005 10:42:31 +0100 (BST)
-From: manomugdha biswas <manomugdhab@yahoo.co.in>
-Subject: kernel module seg fault
-To: linux-kernel@vger.kernel.org
+	Tue, 23 Aug 2005 05:44:58 -0400
+Received: from smtp2.netcologne.de ([194.8.194.218]:21459 "EHLO
+	smtp2.netcologne.de") by vger.kernel.org with ESMTP id S932114AbVHWJo6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 05:44:58 -0400
+Message-ID: <430AF072.2060908@mch.one.pl>
+Date: Tue, 23 Aug 2005 11:46:26 +0200
+From: Tomasz Chmielewski <mangoo@mch.one.pl>
+User-Agent: Mozilla Thunderbird 1.0.6-3mdk (X11/20050322)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+CC: linux-kernel@vger.kernel.org
+Subject: Re: mass "tulip_stop_rxtx() failed", network stops
+References: <430AE85E.5040002@mch.one.pl> <5a2cf1f6050823023741682524@mail.gmail.com>
+In-Reply-To: <5a2cf1f6050823023741682524@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have written a kernel module and I can load (insmod)
-it without any error. But when i run my module it gets
-seg fault at interruptible_sleep_on_timeout();
+jerome lacoste schrieb:
+> On 8/23/05, Tomasz Chmielewski <mangoo@mch.one.pl> wrote:
+> 
+>>We are running almost 20 Fujitsu-Siemens Scenic machines, 2.6.8.1
+>>kernel, equipped with a onboard card that uses a tulip module:
+>>
+>>02:01.0 Ethernet controller: Linksys NC100 Network Everywhere Fast
+>>Ethernet 10/100 (rev 11)
+>>
+>>No problem with those.
+>>
+>>
+>>We are running four more machines like that, the only difference is the
+>>kernel they are running (2.6.11.4).
+>>
+>>On some of them, there are serious problems with a network, and they
+>>usually happen when the traffic is bigger than usual (i.e., some big
+>>software deployment to several workstations, remote backup, etc.).
+>>
+>>The syslog is then full of entries like that:
+>>
+>>Aug 21 04:04:30 SERVER-B-HS kernel: NETDEV WATCHDOG: eth0: transmit
+>>timed out
+>>Aug 21 04:04:30 SERVER-B-HS kernel: 0000:00:06.0: tulip_stop_rxtx() failed
+> 
+> 
+> I am seeing thousands of tulip_stop_rxtx() failed messages as well
+> with 2.6.11. No regular network failure though.
+> 
+> See http://kerneltrap.org/mailarchive/1/message/110291/flat
 
-I have used this function in the following way:
-
-DECLARE_WAIT_QUEUE_HEAD(wq);
-init_waitqueue_head(&wq);
-interruptible_sleep_on_timeout(&wq, 2);
-
-I am using redhat version 9.0 and kernel version
-2.4.20-8.
-Could you please give some light on this issue?
-
-Manomugdha Biswas
+Lucky you.
+Really no network problems, no increased ping responses?
+For me lots of pings are lost, and when this "tulip_stop_rxtx() failed" 
+happens, the time for a ping to "go back" can be as big as 14 seconds in 
+a 100 Mbit LAN.
 
 
-	
 
-	
-		
-____________________________________________________
-Send a rakhi to your brother, buy gifts and win attractive prizes. Log on to http://in.promos.yahoo.com/rakhi/index.html
+-- 
+Tomek
+http://wpkg.org

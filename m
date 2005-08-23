@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVHWR3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVHWRir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbVHWR3w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 13:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVHWR3w
+	id S932211AbVHWRir (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 13:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVHWRir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 13:29:52 -0400
-Received: from mail03.solnet.ch ([212.101.4.137]:56818 "EHLO mail03.solnet.ch")
-	by vger.kernel.org with ESMTP id S932234AbVHWR3v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 13:29:51 -0400
-From: Damir Perisa <damir.perisa@solnet.ch>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.13-rc6-mm2 - drivers/net/s2io.o failed building
-Date: Tue, 23 Aug 2005 19:27:13 +0200
-User-Agent: KMail/1.8.2
-References: <20050822213021.1beda4d5.akpm@osdl.org>
-In-Reply-To: <20050822213021.1beda4d5.akpm@osdl.org>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?utf-8?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/iP?=
- =?utf-8?q?Ov8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B2=7C?=
- =?utf-8?q?l6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?utf-8?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?utf-8?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Alanine: true
-Glycine: true
+	Tue, 23 Aug 2005 13:38:47 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:41336 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932211AbVHWRiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 13:38:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=YZlFD19LMAmB0/YqG90Y5Xf60xZn72rViPbejhdBKZ8rfhpcue52Da0KJgO3uRCt61pcEnHdVrtwHZeIf6MvCt7mm7n6VsL25N67V5wGkNGcW7EdCiKf9cVm9FrtX5ncomsI3smA0D002Pj0c9+iFCzyCO04LrvgS+DIfcXPE0A=  ;
+Message-ID: <430B3A54.7080501@yahoo.com.au>
+Date: Wed, 24 Aug 2005 01:01:40 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6185817.7YGgg0eZqS";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: "David S. Miller" <davem@davemloft.net>
+CC: jasonuhl@sgi.com, tony.luck@intel.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PRINTK_TIME woes
+References: <200508221742.j7MHgMJI020020@agluck-lia64.sc.intel.com>	<20050822.132052.65406121.davem@davemloft.net>	<20050822203306.GA897956@dragonfly.engr.sgi.com> <20050822.134226.35468933.davem@davemloft.net>
+In-Reply-To: <20050822.134226.35468933.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508231927.16462.damir.perisa@solnet.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6185817.7YGgg0eZqS
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+David S. Miller wrote:
 
-2.6.13-rc6-mm2  failed building with this problem (gcc 4.0.1):
+> This is a useful feature, please do not labotomize it just because
+> it's difficult to implement on ia64.  Just make a
+> "printk_get_timestamp_because_ia64_sucks()" interface or something
+> like that :-)
 
-  CC [M]  drivers/net/s2io.o
-In file included from drivers/net/s2io.c:65:
-drivers/net/s2io.h: In function 'readq':
-drivers/net/s2io.h:765: error: invalid lvalue in assignment
-drivers/net/s2io.h:766: error: invalid lvalue in assignment
-make[2]: *** [drivers/net/s2io.o] Error 1
-make[1]: *** [drivers/net] Error 2
-make: *** [drivers] Error 2
-=3D=3D> ERROR: Build Failed.  Aborting...
+I was a bit unclear when I raised this issue. It is not just an
+ia64 problem.
 
-greetings,
-Damir
+The sched_clock() interface is allowed to return wildly different
+values depending on which CPU it is called from, and currently
+has fundamental problems at least on i386 where it can go fowards
+and backwards arbitrary amounts of time (due to frequency scaling,
+if I understand correctly), and also needn't be exactly nanoseconds
+at the best of times.
 
-Le Tuesday 23 August 2005 06:30, vous avez =E9crit=A0:
-| - Various updates. =A0Nothing terribly noteworthy.
-|
-| - This kernel still spits a bunch of scheduling-while-atomic warnings
-| from the scsi code. =A0Please ignore.
+The interface is like this so it can be per-cpu and lockless and
+as fast as possible for the scheduler heuristics (which aren't too
+picky).
 
-=2D-=20
-"Never give in.  Never give in.  Never. Never. Never."
-=2D- Winston Churchill
+I just don't want its usage spreading outside kernel/sched.c if we
+can help it. Pragmatically it sounds like the best thing we have
+for printk at this time, however I hope we can come up with
+something slightly more appropriate even if it ends up being slower.
 
---nextPart6185817.7YGgg0eZqS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDC1x0PABWKV6NProRAjdOAKCIPDIvs3zwnXt7pMaaaPJFuMBRlQCZARDN
-3qaHwwsymx6FPNMnnb2qDrc=
-=Zlx7
------END PGP SIGNATURE-----
-
---nextPart6185817.7YGgg0eZqS--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

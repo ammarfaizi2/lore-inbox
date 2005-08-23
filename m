@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVHWOII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbVHWOEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbVHWOII (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 10:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVHWOIH
+	id S1751016AbVHWOEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 10:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVHWOEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 10:08:07 -0400
-Received: from seneca.an-computer.de ([217.172.186.23]:488 "EHLO
-	seneca.an-computer.de") by vger.kernel.org with ESMTP
-	id S932178AbVHWOIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 10:08:06 -0400
-Message-ID: <1124806076.430b2dbcdd259@ssl.an-computer.de>
-Date: Tue, 23 Aug 2005 16:07:56 +0200
-From: Daniel Nofftz <daniel@nofftz.net>
-To: linux-kernel@vger.kernel.org
-Subject: another Followup on 2.6.13-rc3 ACPI processor C-state regression
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.6
-X-Originating-IP: 217.6.95.140
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: daniel@nofftz.net
-X-SA-Exim-Scanned: No (on seneca.an-computer.de); SAEximRunCond expanded to false
+	Tue, 23 Aug 2005 10:04:16 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:54489 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1751016AbVHWOEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 10:04:16 -0400
+Date: Tue, 23 Aug 2005 10:04:14 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "Machida, Hiroyuki" <machida@sm.sony.co.jp>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Posix file attribute support on VFAT (take #2)
+Message-ID: <20050823140414.GA28578@csclub.uwaterloo.ca>
+References: <43023957.1020909@sm.sony.co.jp> <20050816212531.GA2479@infradead.org> <20050822114629.GA29046@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050822114629.GA29046@elf.ucw.cz>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(It looks like my first try to send this message as a reply to the "Followup
-..." didn't work. If it worked: sorry for double-post)
+On Mon, Aug 22, 2005 at 01:46:29PM +0200, Pavel Machek wrote:
+> Unfortunately, it makes sense. If you have compact flash card, you
+> really want to have VFAT there, so that it is a) compatible with
+> windows and b) so that you don't kill the hardware.
 
-I use 2.6.13-rc6-mm1 which includes the patch as far as i can see, but
-the C2 idle state (which my processor definetly supports) isn't
-detected . it also isn't detected with 2.6.13-rc6 or 2.6.12.5 . but it definetly
-worked with some older 2.6.x kernel.
+VFAT is plenty good at killing hardware.  It's a terrible filesystem for
+flash cards (if they don't do their own wear leveling properly).  Most
+of the linux filesystems may not be any better but they are also no
+worse.  Windows compatibility is completely irrelevant if the card is
+being used as your root filesystem since any extensions you make to vfat
+wouldn't be understood by windows anyhow, so at best it makes a mess of
+it.
 
-is there any way to enforce using c2 ? so that you could say that the
-acpi system uses c2 even if it is unable to detect that it is supported
-?
+> I guess being able to use CF card for root filesystem is usefull,
+> too....
 
-daniel
-(please CC me, cause i am not on the list at the moment)
+I run ext3 on CF and so far, no problems.  I run with noatime and try to
+avoid writing in general as much as possible.  VFAT would be crap since,
+well, I run linux on the system.
 
--- 
-# Daniel Nofftz .................................................. #
-
-
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+Len Sorensen

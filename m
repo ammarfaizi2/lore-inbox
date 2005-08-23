@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVHWIqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVHWI5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbVHWIqu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 04:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVHWIqt
+	id S932081AbVHWI5O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 04:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbVHWI5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 04:46:49 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:11725 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932094AbVHWIqt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 04:46:49 -0400
-Date: Tue, 23 Aug 2005 11:46:33 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+	Tue, 23 Aug 2005 04:57:14 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:38121 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932081AbVHWI5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 04:57:14 -0400
+From: Grant.Coady@gmail.com
 To: Andrew Morton <akpm@osdl.org>
-cc: Pekka Enberg <penberg@gmail.com>, nathans@sgi.com, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org, greg@kroah.com, hch@infradead.org
-Subject: [PATCH] mm: return ENOBUFS instead of ENOMEM in generic_file_buffered_write
-In-Reply-To: <20050823012839.649645c2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0508231145060.30649@sbz-30.cs.Helsinki.FI>
-References: <11394.1124781401@kao2.melbourne.sgi.com>
- <200508190055.25747.dtor_core@ameritech.net> <20050823073258.GE743@frodo>
- <84144f02050823005573569fcb@mail.gmail.com> <20050823012839.649645c2.akpm@osdl.org>
-Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-mm2
+Date: Tue, 23 Aug 2005 18:57:04 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <nnolg1tusrn3q5p8qeorks8vhc3cromj8l@4ax.com>
+References: <20050822213021.1beda4d5.akpm@osdl.org>
+In-Reply-To: <20050822213021.1beda4d5.akpm@osdl.org>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As noticed by Dmitry Torokhov, write() can not return ENOMEM:
+On Mon, 22 Aug 2005 21:30:21 -0700, Andrew Morton <akpm@osdl.org> wrote:
 
-http://www.opengroup.org/onlinepubs/000095399/functions/write.html
+>
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm2/
+>
+>- Various updates.  Nothing terribly noteworthy.
 
-Therefore fixup generic_file_buffered_write() in mm/filemap.c (pointed out by
-Nathan Scott).
+adm9240 i2c still broken, spamming debug with:
+Aug 23 18:48:40 peetoo kernel: [ 1591.151460] i2c_adapter i2c-0: Transaction (post): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
+Aug 23 18:48:40 peetoo kernel: [ 1591.151834] i2c_adapter i2c-0: Transaction (pre): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
+Aug 23 18:48:40 peetoo kernel: [ 1591.170515] i2c_adapter i2c-0: Transaction (post): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
+Aug 23 18:48:40 peetoo kernel: [ 1591.170881] i2c_adapter i2c-0: Transaction (pre): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
+Aug 23 18:48:40 peetoo kernel: [ 1591.189837] i2c_adapter i2c-0: Transaction (post): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
+Aug 23 18:48:40 peetoo kernel: [ 1591.190217] i2c_adapter i2c-0: Transaction (pre): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
+Aug 23 18:48:40 peetoo kernel: [ 1591.208927] i2c_adapter i2c-0: Transaction (post): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
+Aug 23 18:48:40 peetoo kernel: [ 1591.209296] i2c_adapter i2c-0: Transaction (pre): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+As soon as write sysfs.  Dunno where to start, this is from adm9240 
+driver that works in 2.6.13-rc6-git12 but not -mm1 or -mm2, terminal 
+lost, but able to log in on another terminal.  -mm2 was okay until I 
+wrote to sysfs.  With -mm1 it failed on reading the sysfs area as well, 
+so there's a little progress.  
 
- filemap.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+top:
+top - 18:52:07 up 29 min,  2 users,  load average: 0.99, 0.62, 0.26
+Tasks:  50 total,   3 running,  47 sleeping,   0 stopped,   0 zombie
+Cpu(s):  0.3% us,  0.0% sy,  0.0% ni, 99.7% id,  0.0% wa,  0.0% hi,  0.0% si
+Mem:    515360k total,   146504k used,   368856k free,    15932k buffers
+Swap:   514000k total,        0k used,   514000k free,   109296k cached
 
-Index: 2.6-mm/mm/filemap.c
-===================================================================
---- 2.6-mm.orig/mm/filemap.c
-+++ 2.6-mm/mm/filemap.c
-@@ -1942,7 +1942,7 @@ generic_file_buffered_write(struct kiocb
- 
- 		page = __grab_cache_page(mapping,index,&cached_page,&lru_pvec);
- 		if (!page) {
--			status = -ENOMEM;
-+			status = -ENOBUFS;
- 			break;
- 		}
- 
+Grant.
+

@@ -1,54 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVHWVpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVHWVqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbVHWVpK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 17:45:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVHWVpJ
+	id S932446AbVHWVqD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 17:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVHWVpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 17:45:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21686 "EHLO
+	Tue, 23 Aug 2005 17:45:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24758 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932449AbVHWVpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 17:45:04 -0400
+	id S932446AbVHWVpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 17:45:19 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] (40/43) Kconfig fix (non-modular SCSI drivers)
+Subject: [PATCH] (43/43) s390 __CHECKER__ ifdefs
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1E7gcp-0007FV-HR@parcelfarce.linux.theplanet.co.uk>
+Message-Id: <E1E7gd4-0007G4-Lz@parcelfarce.linux.theplanet.co.uk>
 From: Al Viro <viro@www.linux.org.uk>
-Date: Tue, 23 Aug 2005 22:48:07 +0100
+Date: Tue, 23 Aug 2005 22:48:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-non-modular scsi drivers depend on built-in scsi
+remove the bogus games with explicit ifdefs on __CHECKER__
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 ----
-diff -urN RC13-rc6-git13-oss-pci/drivers/scsi/Kconfig RC13-rc6-git13-scsi-modular/drivers/scsi/Kconfig
---- RC13-rc6-git13-oss-pci/drivers/scsi/Kconfig	2005-08-10 10:37:50.000000000 -0400
-+++ RC13-rc6-git13-scsi-modular/drivers/scsi/Kconfig	2005-08-21 13:17:42.000000000 -0400
-@@ -1696,7 +1696,7 @@
+diff -urN RC13-rc6-git13-m68k-flags/drivers/s390/crypto/z90crypt.h RC13-rc6-git13-s390-ifdefs/drivers/s390/crypto/z90crypt.h
+--- RC13-rc6-git13-m68k-flags/drivers/s390/crypto/z90crypt.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc6-git13-s390-ifdefs/drivers/s390/crypto/z90crypt.h	2005-08-21 13:17:46.000000000 -0400
+@@ -36,15 +36,6 @@
+ #define z90crypt_VARIANT 2	// 2 = added PCIXCC MCL3 and CEX2C support
  
- config MAC_SCSI
- 	bool "Macintosh NCR5380 SCSI"
--	depends on MAC && SCSI
-+	depends on MAC && SCSI=y
- 	help
- 	  This is the NCR 5380 SCSI controller included on most of the 68030
- 	  based Macintoshes.  If you have one of these say Y and read the
-@@ -1717,7 +1717,7 @@
+ /**
+- * If we are not using the sparse checker, __user has no use.
+- */
+-#ifdef __CHECKER__
+-# define __user		__attribute__((noderef, address_space(1)))
+-#else
+-# define __user
+-#endif
+-
+-/**
+  * struct ica_rsa_modexpo
+  *
+  * Requirements:
+diff -urN RC13-rc6-git13-m68k-flags/include/asm-s390/uaccess.h RC13-rc6-git13-s390-ifdefs/include/asm-s390/uaccess.h
+--- RC13-rc6-git13-m68k-flags/include/asm-s390/uaccess.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc6-git13-s390-ifdefs/include/asm-s390/uaccess.h	2005-08-21 13:17:46.000000000 -0400
+@@ -149,11 +149,11 @@
+ })
+ #endif
  
- config MVME147_SCSI
- 	bool "WD33C93 SCSI driver for MVME147"
--	depends on MVME147 && SCSI
-+	depends on MVME147 && SCSI=y
- 	help
- 	  Support for the on-board SCSI controller on the Motorola MVME147
- 	  single-board computer.
-@@ -1758,7 +1758,7 @@
+-#ifndef __CHECKER__
+ #define __put_user(x, ptr) \
+ ({								\
+ 	__typeof__(*(ptr)) __x = (x);				\
+ 	int __pu_err;						\
++        __chk_user_ptr(ptr);                                    \
+ 	switch (sizeof (*(ptr))) {				\
+ 	case 1:							\
+ 	case 2:							\
+@@ -167,14 +167,6 @@
+ 	 }							\
+ 	__pu_err;						\
+ })
+-#else
+-#define __put_user(x, ptr)			\
+-({						\
+-	void __user *p;				\
+-	p = (ptr);				\
+-	0;					\
+-})
+-#endif
  
- config SUN3X_ESP
- 	bool "Sun3x ESP SCSI"
--	depends on SUN3X && SCSI
-+	depends on SUN3X && SCSI=y
- 	help
- 	  The ESP was an on-board SCSI controller used on Sun 3/80
- 	  machines.  Say Y here to compile in support for it.
+ #define put_user(x, ptr)					\
+ ({								\
+@@ -213,11 +205,11 @@
+ })
+ #endif
+ 
+-#ifndef __CHECKER__
+ #define __get_user(x, ptr)					\
+ ({								\
+ 	__typeof__(*(ptr)) __x;					\
+ 	int __gu_err;						\
++        __chk_user_ptr(ptr);                                    \
+ 	switch (sizeof(*(ptr))) {				\
+ 	case 1:							\
+ 	case 2:							\
+@@ -232,15 +224,6 @@
+ 	(x) = __x;						\
+ 	__gu_err;						\
+ })
+-#else
+-#define __get_user(x, ptr)			\
+-({						\
+-	void __user *p;				\
+-	p = (ptr);				\
+-	0;					\
+-})
+-#endif
+-
+ 
+ #define get_user(x, ptr)					\
+ ({								\

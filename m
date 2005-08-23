@@ -1,108 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbVHWDiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVHWECW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbVHWDiq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 23:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbVHWDiq
+	id S1750988AbVHWECW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 00:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVHWECW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 23:38:46 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:37854 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932071AbVHWDip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 23:38:45 -0400
-Subject: Re: [RFC] RT-patch update to remove the global pi_lock
-From: Steven Rostedt <rostedt@goodmis.org>
-To: dwalker@mvista.com
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Sven-Thorsten Dietrich <sven@mvista.com>, Adrian Bunk <bunk@stusta.de>,
-       george anzinger <george@mvista.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1124760725.5350.47.camel@localhost.localdomain>
-References: <1124295214.5764.163.camel@localhost.localdomain>
-	 <20050817162324.GA24495@elte.hu>
-	 <1124323379.5186.18.camel@localhost.localdomain>
-	 <1124333050.5186.24.camel@localhost.localdomain>
-	 <20050822075012.GB19386@elte.hu>
-	 <1124704837.5208.22.camel@localhost.localdomain>
-	 <20050822101632.GA28803@elte.hu>
-	 <1124710309.5208.30.camel@localhost.localdomain>
-	 <20050822113858.GA1160@elte.hu>
-	 <1124715755.5647.4.camel@localhost.localdomain>
-	 <20050822183355.GB13888@elte.hu>
-	 <1124739657.5809.6.camel@localhost.localdomain>
-	 <1124739895.5809.11.camel@localhost.localdomain>
-	 <1124749192.17515.16.camel@dhcp153.mvista.com>
-	 <1124756775.5350.14.camel@localhost.localdomain>
-	 <1124758291.9158.17.camel@dhcp153.mvista.com>
-	 <1124760725.5350.47.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 22 Aug 2005 23:38:02 -0400
-Message-Id: <1124768282.5350.69.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 23 Aug 2005 00:02:22 -0400
+Received: from eastrmmtao04.cox.net ([68.230.240.35]:5362 "EHLO
+	eastrmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S1750988AbVHWECW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 00:02:22 -0400
+From: "Steve Lee" <steve@tuxsoft.com>
+To: <solt@dns.toxicfilms.tv>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: 3com 3c59x stopped working with 2.6.13-rc[56]
+Date: Mon, 22 Aug 2005 22:59:22 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcWnlwjjW4/yLn95Sdu/aDboJnC5HQ==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Message-Id: <20050823040205.NPKQ9925.eastrmmtao04.cox.net@saturn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-22 at 21:32 -0400, Steven Rostedt wrote:
+> i tried to boot 2.6.13-rc5-git4 and 2.6.13-rc6-git13 both with the same
+> result: my 3com (3c59x driver on 3com 905c) card not working.
+> Here is what I saw in the logs.
+> Notice the regularity of the log barfs. They continue the same every
+10secs.
 
-> 
-> God, I think a thesis can be made out of this.  Well, let me start
-> coding, since I'm one of those that write code better than I design.
-> I'm a Spiral type of guy, not a Waterfall one ;-)
-> Code crap, write about it, recode it as gold!
-> 
+I'm currently using 2.6.13-rc6-git13 with the 3c95x driver compiled as a
+module,
+without any issues.  I've tested all of the 2.6.13-* kernels.  One
+noticeable
+difference, I've been using gcc-3.4.4 and not gcc-4.0.1.
 
-I'm really made a mess of the code now and having a lot of fun ;-)
+Steve
 
-I think this can be pulled off, but I'm seeing that the easiest way is
-to do the grabbing of locks with lock -> owner -> lock -> owner ...
-
-So if you have the chain.
-
-P1 X=> L1 -> P2 X=> L2 X=> P3
-
-You would always need to grab the locks in this order:
-
-P1->pi_lock, L1->wait_lock, P2->pi_lock, L2->wait_lock, P3->pi_lock
-
-So on a __down, if you don't get the lock, this makes for easy
-transition in the pi_setprio.  You have the current->pi_lock, and then
-grab the lock->wait_lock that current is blocked on.  In the loop, you
-need to first grab p->wait_lock, to prevent the race with p->blocked_on
-and setting it up.  Having to get the lock->wait_lock first would mean
-there's a race to get blocked_on, and knowing what it was blocked on.
-
-Now the PITA is with the __up.  Here we have the lock, and we need to
-change the owner.  So we need to unlock the lock (as well as the current
-owner pi_lock), before giving it to the new owner.  So the race is, if
-you have the lock->wait_lock, find the new owner, then unlock the
-lock->wait_lock, lock new_owner->pi_lock and then grab the
-lock->wait_lock again, in this time a higher priority process could have
-come and blocked on this lock.  So the new_owner should really be the
-high priority process that just came in. This skips by the pending owner
-algorithm.
-
-There's more than one solution to solve this.  The easy, inefficient
-way, is to have a test to see if this occurred and try again. But I was
-thinking of the following.
-
-When grabbing a lock, you check if there are waiters (although there may
-not be an owner or even a pending owner), if you are the highest
-priority process, grab the lock and go, otherwise, just add yourself to
-the waiting list (and perhaps the pi_list).  So when the original owner
-giving up the lock finally runs, it won't need to do anymore work.  If
-the lock is owned, then it just unlocks everything, and then it's
-someone elses problem.  
-
-The situation could even occur that the higher priority process that
-came in and took the lock gave it back to the "new" guy, and the lock
-isn't owned at all.  So a simple check of, is the "new" guy still
-blocked on the lock and the lock is not owned should be good enough to
-finish the change owner job.
-
-It's all complex, but what did you expect when removing a global lock
-that makes life simple :-)
-
--- Steve
 

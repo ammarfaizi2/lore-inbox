@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbVHWJKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVHWJIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbVHWJKc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 05:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbVHWJKc
+	id S932100AbVHWJIV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 05:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVHWJIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 05:10:32 -0400
-Received: from smtp3.netcologne.de ([194.8.194.66]:22168 "EHLO
-	smtp3.netcologne.de") by vger.kernel.org with ESMTP id S932101AbVHWJKb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 05:10:31 -0400
-Message-ID: <430AE85E.5040002@mch.one.pl>
-Date: Tue, 23 Aug 2005 11:11:58 +0200
-From: Tomasz Chmielewski <mangoo@mch.one.pl>
-User-Agent: Mozilla Thunderbird 1.0.6-3mdk (X11/20050322)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: mass "tulip_stop_rxtx() failed", network stops
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Aug 2005 05:08:21 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:51869 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932100AbVHWJIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 05:08:20 -0400
+Date: Tue, 23 Aug 2005 11:07:59 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       jffs-dev@axis.com
+Subject: Re: use of uninitialized pointer in jffs_create()
+Message-ID: <20050823090759.GB27570@wohnheim.fh-wedel.de>
+References: <9a87484905082015284c1686ec@mail.gmail.com> <20050822104559.GA11876@wohnheim.fh-wedel.de> <20050822230758.GL9927@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050822230758.GL9927@stusta.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are running almost 20 Fujitsu-Siemens Scenic machines, 2.6.8.1 
-kernel, equipped with a onboard card that uses a tulip module:
+On Tue, 23 August 2005 01:07:58 +0200, Adrian Bunk wrote:
+> On Mon, Aug 22, 2005 at 12:45:59PM +0200, Jörn Engel wrote:
+> > On Sun, 21 August 2005 00:28:08 +0200, Jesper Juhl wrote:
+> > > 
+> > > gcc kindly pointed me at jffs_create() with this warning : 
+> > > 
+> > > fs/jffs/inode-v23.c:1279: warning: `inode' might be used uninitialized
+> > > in this function
+> > 
+> > Real fix would be to finally remove that code.  Except for the usual
+> > "change this function in the whole kernel" stuff, noone has touched it
+> > for ages.
+> 
+> That's wrong, this -mm specific bug comes git-ocfs2.patch .
 
-02:01.0 Ethernet controller: Linksys NC100 Network Everywhere Fast 
-Ethernet 10/100 (rev 11)
+Ack.  If I wasn't this lazy, I'd still propose to completely remove
+jffs - it's been old and deprecated for a few years already.
 
-No problem with those.
-
-
-We are running four more machines like that, the only difference is the 
-kernel they are running (2.6.11.4).
-
-On some of them, there are serious problems with a network, and they 
-usually happen when the traffic is bigger than usual (i.e., some big 
-software deployment to several workstations, remote backup, etc.).
-
-The syslog is then full of entries like that:
-
-Aug 21 04:04:30 SERVER-B-HS kernel: NETDEV WATCHDOG: eth0: transmit 
-timed out
-Aug 21 04:04:30 SERVER-B-HS kernel: 0000:00:06.0: tulip_stop_rxtx() failed
-
-and it's filling logs for hours; network doesn't work anymore, and 
-someone has to restart the network or the machine itself.
-
-It doesn't always happen with a big traffic - sometimes you can fill the 
-100 Mbit link and do lots of reads from the disk, but nothing bad 
-happens for hours.
-
-
-I saw some posts on this issue ("2.6.10-rc3: tulip-driver: 
-tulip_stop_rxtx() failed"), but it seemed to me that it wasn't similar 
-to my problems; I looked into >2.6.10 kernel changelog, but there were 
-no descriptions of that problem, either.
-
-
-Any help appreciated, because rebooting machines which are 500 km away 
-and are not responding is no fun :)
-
+Jörn
 
 -- 
-Tomek
-http://wpkg.org
-
+Public Domain  - Free as in Beer
+General Public - Free as in Speech
+BSD License    - Free as in Enterprise
+Shared Source  - Free as in "Work will make you..."

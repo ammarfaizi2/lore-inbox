@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbVHWJo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVHWJ5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbVHWJo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 05:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVHWJo6
+	id S932117AbVHWJ5p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 05:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbVHWJ5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 05:44:58 -0400
-Received: from smtp2.netcologne.de ([194.8.194.218]:21459 "EHLO
-	smtp2.netcologne.de") by vger.kernel.org with ESMTP id S932114AbVHWJo6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 05:44:58 -0400
-Message-ID: <430AF072.2060908@mch.one.pl>
-Date: Tue, 23 Aug 2005 11:46:26 +0200
-From: Tomasz Chmielewski <mangoo@mch.one.pl>
-User-Agent: Mozilla Thunderbird 1.0.6-3mdk (X11/20050322)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mass "tulip_stop_rxtx() failed", network stops
-References: <430AE85E.5040002@mch.one.pl> <5a2cf1f6050823023741682524@mail.gmail.com>
-In-Reply-To: <5a2cf1f6050823023741682524@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 23 Aug 2005 05:57:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:17582 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932117AbVHWJ5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 05:57:45 -0400
+Date: Tue, 23 Aug 2005 10:57:41 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Brent Casavant <bcasavan@sgi.com>, pavel@suse.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] external interrupts
+Message-ID: <20050823095741.GB4425@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Brent Casavant <bcasavan@sgi.com>,
+	pavel@suse.cz, linux-kernel@vger.kernel.org
+References: <20050819160716.U87000@chenjesu.americas.sgi.com> <20050820222159.GP516@openzaurus.ucw.cz> <20050822155852.N325@chenjesu.americas.sgi.com> <20050822144330.791ba7b3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050822144330.791ba7b3.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jerome lacoste schrieb:
-> On 8/23/05, Tomasz Chmielewski <mangoo@mch.one.pl> wrote:
+On Mon, Aug 22, 2005 at 02:43:30PM -0700, Andrew Morton wrote:
+> > Laughter was not wholly unexpected, though I wasn't joking.  I'm trying
+> > to be realistic about the lifetime of any given hardware, and IOC4 is
+> > several years old at this point.  Couple that with a sincere desire to
+> > preserve application source compatability when (not if) new hardware
+> > appears, and an abstraction layer seemed to be a logical choice.  I'm
+> > more than happy to discuss problems in the abstraction layer's interface
+> > and make appropriate changes -- I'm nothing if not obliging.
 > 
->>We are running almost 20 Fujitsu-Siemens Scenic machines, 2.6.8.1
->>kernel, equipped with a onboard card that uses a tulip module:
->>
->>02:01.0 Ethernet controller: Linksys NC100 Network Everywhere Fast
->>Ethernet 10/100 (rev 11)
->>
->>No problem with those.
->>
->>
->>We are running four more machines like that, the only difference is the
->>kernel they are running (2.6.11.4).
->>
->>On some of them, there are serious problems with a network, and they
->>usually happen when the traffic is bigger than usual (i.e., some big
->>software deployment to several workstations, remote backup, etc.).
->>
->>The syslog is then full of entries like that:
->>
->>Aug 21 04:04:30 SERVER-B-HS kernel: NETDEV WATCHDOG: eth0: transmit
->>timed out
->>Aug 21 04:04:30 SERVER-B-HS kernel: 0000:00:06.0: tulip_stop_rxtx() failed
-> 
-> 
-> I am seeing thousands of tulip_stop_rxtx() failed messages as well
-> with 2.6.11. No regular network failure though.
-> 
-> See http://kerneltrap.org/mailarchive/1/message/110291/flat
+> Having an abstraction layer for a single client driver does seem a bit
+> pointless.  It would become more pointful if other client drivers were to
+> pop up.
 
-Lucky you.
-Really no network problems, no increased ping responses?
-For me lots of pings are lost, and when this "tulip_stop_rxtx() failed" 
-happens, the time for a ping to "go back" can be as big as 14 seconds in 
-a 100 Mbit LAN.
+The Octane port will hopefully soon support external inteerupts on the
+ioc3, so this does make sense.
 
-
-
--- 
-Tomek
-http://wpkg.org

@@ -1,116 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVHWNOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbVHWNNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbVHWNOI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 09:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVHWNOH
+	id S932087AbVHWNNn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 09:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbVHWNNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 09:14:07 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:54936 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751294AbVHWNOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 09:14:06 -0400
-Subject: Re: Linux AIO status & todo
-From: Laurent Vivier <Laurent.Vivier@bull.net>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>,
-       Ulrich Drepper <drepper@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       akpm@osdl.org, "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050823095609.GZ7403@devserv.devel.redhat.com>
-References: <20050823074438.GA4586@in.ibm.com>
-	 <20050823095609.GZ7403@devserv.devel.redhat.com>
-Message-Id: <1124802822.18662.60.camel@openx2.frec.bull.fr>
+	Tue, 23 Aug 2005 09:13:43 -0400
+Received: from anubis.fi.muni.cz ([147.251.54.96]:15525 "EHLO
+	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S1750789AbVHWNNn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 09:13:43 -0400
+Date: Tue, 23 Aug 2005 15:14:14 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] asus_acpi M6000A model support
+Message-ID: <20050823131414.GC12364@mail.muni.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Tue, 23 Aug 2005 15:13:43 +0200
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/08/2005 15:26:34,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/08/2005 15:26:39,
-	Serialize complete at 23/08/2005 15:26:39
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bUvtkvuZS6IaB3KL/CTM"
+Content-Type: multipart/mixed; boundary="wzJLGUyc3ArbnUjN"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-bUvtkvuZS6IaB3KL/CTM
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+--wzJLGUyc3ArbnUjN
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Le mar 23/08/2005 =C3=A0 11:56, Jakub Jelinek a =C3=A9crit :
-> On Tue, Aug 23, 2005 at 01:14:38PM +0530, Suparna Bhattacharya wrote:
->=20
-> > 	2. No support for propagating IO completion events to user space
-> > 	   threads using RT signals. User threads need to poll the completion
-> > 	   queue using io_getevents. POSIX specifies that when an AIO
-> > 	   request completes, a signal can be delivered to the application
-> > 	   to indicate the completion of the IO.
->=20
-> POSIX AIO needs to handle SIGEV_NONE, SIGEV_SIGNAL and SIGEV_THREAD
-> notification.  Obviously kernel shouldn't create threads for SIGEV_THREAD
-> itself, as kernel shouldn't hardcode all the implementation details how a
-> thread can be created.  But it would be good if AIO signalling e.g. handl=
-ed
-> both SIGEV_SIGNAL and SIGEV_SIGNAL | SIGEV_THREAD_ID, with the same usage=
- as
-> e.g. timer_* syscalls.  If kernel makes sure SI_ASYNCIO si_code is set in
-> the notification signal siginfos, glibc could even use just one helper
-> thread for timer_*/[al]io_* and maybe in the future other SIGEV_THREAD no=
-tification.
->=20
+Hello,
 
-See chapter "2.2. AIO completion event".
+here is patch for Asus M6A laptop support. It works fine for me.
 
-The libposix-aio written by S=C3=A9bastien and I manages all these cases:
+-- 
+Luká¹ Hejtmánek
 
-http://www.bullopensource.org/posix/
+--wzJLGUyc3ArbnUjN
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: attachment; filename=acpi-patch
 
-There is a patch allowing kernel to send signal to a given process on
-aio event completion:
+--- asus_acpi.c.old	2005-04-21 02:03:13.000000000 +0200
++++ asus_acpi.c	2005-05-08 18:22:49.000000000 +0200
+@@ -128,6 +128,7 @@
+ 		L8L,      //L8400L
+ 		M1A,      //M1300A
+ 		M2E,      //M2400E, L4400L
++		M6A,      //M6000A
+ 		M6N,      //M6800N
+ 		M6R,      //M6700R
+ 		P30,	  //Samsung P30
+@@ -304,7 +305,20 @@
+ 		.display_set       = "SDSP",
+ 		.display_get       = "\\INFB"
+ 	},
+-
++	{
++		.name              = "M6A",
++		/* M6A does not have MLED */
++		.mt_wled           = "WLED",
++		.mt_lcd_switch     = xxN_PREFIX "_Q10",
++		.lcd_status        = "\\RGPL",
++		.brightness_set    = "SPLV",
++		.brightness_get    = "GPLV",
++		.display_set       = "SDSP",
++		/* FIXME: this is not correct display_get.
++		 * It always returns 1 
++		 * */
++		.display_get       = "\\ADVG"
++	},
+ 	{
+ 		.name              = "M6N",
+ 		.mt_mled           = "MLED",
+@@ -622,7 +636,7 @@
+ {
+ 	int lcd = 0;
+ 
+-	if (hotk->model != L3H) {
++	if (hotk->model != L3H && hotk->model != M6A) {
+ 	/* We don't have to check anything if we are here */
+ 		if (!read_acpi_int(NULL, hotk->methods->lcd_status, &lcd))
+ 			printk(KERN_WARNING "Asus ACPI: Error reading LCD status\n");
+@@ -638,22 +652,33 @@
+ 		
+ 		input.count = 2;
+ 		input.pointer = mt_params;
+-		/* Note: the following values are partly guessed up, but 
+-		   otherwise they seem to work */
+ 		mt_params[0].type = ACPI_TYPE_INTEGER;
+-		mt_params[0].integer.value = 0x02;
+ 		mt_params[1].type = ACPI_TYPE_INTEGER;
+-		mt_params[1].integer.value = 0x02;
++		if(hotk->model == L3H) {
++			/* Note: the following values are partly guessed up, 
++			 * but otherwise they seem to work */
++			mt_params[0].integer.value = 0x02;
++			mt_params[1].integer.value = 0x02;
++		} else if(hotk->model == M6A) {
++			mt_params[0].integer.value = 0x15;
++			mt_params[1].integer.value = 0x01;
++		}
+ 
+ 		output.length = sizeof(out_obj);
+ 		output.pointer = &out_obj;
+ 		
+-		status = acpi_evaluate_object(NULL, hotk->methods->lcd_status, &input, &output);
++		status = acpi_evaluate_object(NULL, hotk->methods->lcd_status, 
++				&input, &output);
+ 		if (status != AE_OK)
+ 			return -1;
+-		if (out_obj.type == ACPI_TYPE_INTEGER)
+-			/* That's what the AML code does */
+-			lcd = out_obj.integer.value >> 8;
++		if (out_obj.type == ACPI_TYPE_INTEGER) {
++			if(hotk->model== L3H) {
++				/* That's what the AML code does */
++				lcd = out_obj.integer.value >> 8;
++			} else if(hotk->model == M6A) {
++				lcd = out_obj.integer.value;
++			}
++		}
+ 	}
+ 	
+ 	return (lcd & 1);
+@@ -1029,6 +1054,8 @@
+ 		hotk->model = M6N;
+ 	else if (strncmp(model->string.pointer, "M6R", 3) == 0)
+ 		hotk->model = M6R;
++	else if (strncmp(model->string.pointer, "M6A", 3) == 0)
++		hotk->model = M6A;
+ 	else if (strncmp(model->string.pointer, "M2N", 3) == 0 ||
+ 		 strncmp(model->string.pointer, "M3N", 3) == 0 ||
+ 		 strncmp(model->string.pointer, "M5N", 3) == 0 ||
+@@ -1058,8 +1085,9 @@
+ 		hotk->model = L5x;
+ 
+ 	if (hotk->model == END_MODEL) {
+-		printk("unsupported, trying default values, supply the "
+-		       "developers with your DSDT\n");
++		printk("unsupported model %s, trying default values, supply "
++		       "the developers with your DSDT\n", 
++		       model->string.pointer);
+ 		hotk->model = M2E;
+ 	} else {
+ 		printk("supported\n");
 
-http://cvs.sourceforge.net/viewcvs.py/paiol/kernel-patches/2.6.12/aioevent.=
-patch?rev=3D1.1.1.1&view=3Dauto
-
-With the help of an helper thread in the user space, the libposix-aio is
-able to manage SIGEV_THREAD and create new thread by using user space
-code (and thus implementation dependent calls):
-
-http://cvs.sourceforge.net/viewcvs.py/paiol/libposix-aio/src/aio_read.c?vie=
-w=3Dmarkup
-http://cvs.sourceforge.net/viewcvs.py/paiol/libposix-aio/src/aio_thread_cre=
-ate.c?view=3Dmarkup
-
-S=C3=A9bastien wrote this part of libposix-aio (So I'm not an expert on thi=
-s
-part :-P ), but I think his helper thread is made like the glibc timer
-helper thread is made. And thus, if we want to merge libposix-aio in
-glibc, we should use existing mechanism, and it should be easy to put
-POSIX AIO helper thread portions inside the timer helper thread.
-
-But only the glibc maintainer can answer to this question:=20
-
-should we mixe timer and AIO code ?
-
-Laurent
---=20
------------------- Laurent Vivier -------------------
-  mailto:Laurent.Vivier@bull.net BULL/FREC:B1-226
-    phone: (+33) 476 29 7213  Bullcom: 229-7213
-------------------[ DT/OSwR&D/AIX ]------------------
-            http://www.bullopensource.org/ext4
-
---=-bUvtkvuZS6IaB3KL/CTM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-
-iD8DBQBDCyEG9Kffa9pFVzwRAjfdAJ4kSAfuHYnngfCy+K4rB0PJte4nrACfTSgg
-GoGxdYHgj0EGlF0GYKO36UU=
-=iJLO
------END PGP SIGNATURE-----
-
---=-bUvtkvuZS6IaB3KL/CTM--
-
+--wzJLGUyc3ArbnUjN--

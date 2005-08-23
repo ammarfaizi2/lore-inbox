@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbVHWHlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbVHWHoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbVHWHlj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 03:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVHWHlj
+	id S1750850AbVHWHoV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 03:44:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbVHWHoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 03:41:39 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:54216 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750838AbVHWHlj (ORCPT
+	Tue, 23 Aug 2005 03:44:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16035 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750844AbVHWHoV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 03:41:39 -0400
-Date: Tue, 23 Aug 2005 17:32:58 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Pekka Enberg <penberg@gmail.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: sysfs: write returns ENOMEM?
-Message-ID: <20050823073258.GE743@frodo>
-References: <11394.1124781401@kao2.melbourne.sgi.com>
+	Tue, 23 Aug 2005 03:44:21 -0400
+Date: Tue, 23 Aug 2005 00:42:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [proposal] remove struct file *file from aops
+Message-Id: <20050823004251.3e728391.akpm@osdl.org>
+In-Reply-To: <2cd57c90050823001855403664@mail.gmail.com>
+References: <2cd57c90050823001855403664@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508190055.25747.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 8/19/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > According to the SuS write() can not return ENOMEM, only ENOBUFS is allowed
-> > (surprisingly read() is allowed to use both ENOMEM and ENOBUFS):
-> > 
-> > http://www.opengroup.org/onlinepubs/000095399/functions/write.html
-> > 
-> > Should we adjust sysfs write to follow the standard?
+Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+>
+> Hello,
 > 
-> Please note that sysfs is not the only one to do this. A quick peek
-> reveals XFS and CIFS returing ENOMEM for write() and there are
-> probably others as well. Perhaps we should replace ENOMEM with ENOBUFS
+> The argument struct file *file in aops { .readpage, .readpages,
+> prepare_write, .commit_wirte } is not used.  I'd like to file a series
+> of patches to clean it up. Are there any other concerns?
 
-FWIW, all filesystems using the generic page cache routines are able
-to return this - see mm/filemap.c -> generic_file_buffered_write...
-
-	page = __grab_cache_page(mapping,index,&cached_page,&lru_pvec);
-	if (!page) {
-		status = -ENOMEM;
-		break;
-	}
-
-which is a similar condition to the one under which the XFS code is
-returning this error.  Let me know what the verdict is and I'll get
-the XFS side of this merged if its really necessary.
-
-cheers.
-
--- 
-Nathan
+NFS uses it in readpage().

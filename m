@@ -1,36 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVHWVls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVHWVmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVHWVls (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 17:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbVHWVls
+	id S932411AbVHWVmR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 17:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVHWVmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 17:41:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48821 "EHLO
+	Tue, 23 Aug 2005 17:42:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49333 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932399AbVHWVlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 17:41:47 -0400
+	id S932402AbVHWVlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 17:41:53 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] (1/43) Kconfig fix (alpha NUMA)
+Subject: [PATCH] (2/43) Kconfig fix (arm SMP)
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1E7gZe-00077v-UJ@parcelfarce.linux.theplanet.co.uk>
+Message-Id: <E1E7gZj-000783-VA@parcelfarce.linux.theplanet.co.uk>
 From: Al Viro <viro@www.linux.org.uk>
-Date: Tue, 23 Aug 2005 22:44:50 +0100
+Date: Tue, 23 Aug 2005 22:44:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NUMA is broken on alpha; marked as such
+SMP is broken on arm; marked as such
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 ----
-diff -urN RC13-rc6-git13-disable-DI/arch/alpha/Kconfig RC13-rc6-git13-alpha-NUMA/arch/alpha/Kconfig
---- RC13-rc6-git13-disable-DI/arch/alpha/Kconfig	2005-08-10 10:37:45.000000000 -0400
-+++ RC13-rc6-git13-alpha-NUMA/arch/alpha/Kconfig	2005-08-21 13:16:44.000000000 -0400
-@@ -522,7 +522,7 @@
+diff -urN RC13-rc6-git13-alpha-NUMA/arch/arm/Kconfig RC13-rc6-git13-arm-SMP/arch/arm/Kconfig
+--- RC13-rc6-git13-alpha-NUMA/arch/arm/Kconfig	2005-08-10 10:37:45.000000000 -0400
++++ RC13-rc6-git13-arm-SMP/arch/arm/Kconfig	2005-08-21 13:16:45.000000000 -0400
+@@ -310,7 +310,7 @@
  
- config NUMA
- 	bool "NUMA Support (EXPERIMENTAL)"
--	depends on DISCONTIGMEM
-+	depends on DISCONTIGMEM && BROKEN
+ config SMP
+ 	bool "Symmetric Multi-Processing (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL #&& n
++	depends on EXPERIMENTAL && BROKEN #&& n
  	help
- 	  Say Y to compile the kernel to support NUMA (Non-Uniform Memory
- 	  Access).  This option is for configuring high-end multiprocessor
+ 	  This enables support for systems with more than one CPU. If you have
+ 	  a system with only one CPU, like most personal computers, say N. If

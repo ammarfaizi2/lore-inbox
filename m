@@ -1,156 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbVHWB6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbVHWCAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbVHWB6y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Aug 2005 21:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVHWB6y
+	id S1751317AbVHWCAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Aug 2005 22:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVHWCAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Aug 2005 21:58:54 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:12237 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751293AbVHWB6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Aug 2005 21:58:53 -0400
-Subject: [PATCH] Add MCE resume under ia32
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
-Content-Type: text/plain
-Date: Tue, 23 Aug 2005 10:01:40 +0800
-Message-Id: <1124762500.3013.3.camel@linux-hp.sh.intel.com>
+	Mon, 22 Aug 2005 22:00:16 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:8744 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751320AbVHWCAO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Aug 2005 22:00:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=iYGGiNFvjh7hyL1J87We4tJi7rUEKiboSy1PNBOUBTqu3f8Fee4WfTf3rEbmVMon3uERsuoC+INAqmj2i284lgnMY1ElXUAVmfbPTGv4m7B/rhNvVYJPz/ugV0Ps7zh+TrQ6tbyQ/XuWe6l5eJw6EEzMYow/UCW5FpXMcZCEuZU=
+Message-ID: <195c7a900508221900429dd3d3@mail.gmail.com>
+Date: Tue, 23 Aug 2005 12:00:13 +1000
+From: roucaries bastien <roucaries.bastien@gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] Posix file attribute support on VFAT (take #2)
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Milkos Szeredi <miklos@szeredi.hu>
+In-Reply-To: <20050822114629.GA29046@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_548_896160.1124762413510"
+References: <43023957.1020909@sm.sony.co.jp>
+	 <20050816212531.GA2479@infradead.org>
+	 <20050822114629.GA29046@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-It's widely seen a MCE non-fatal error reported after resume. It seems
-MCE resume is lacked under ia32. This patch tries to fix the gap.
+------=_Part_548_896160.1124762413510
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+On 8/22/05, Pavel Machek <pavel@ucw.cz> wrote:
+> Hi!
+>=20
+> > > This is a take 2 of posix file attribute support on VFAT.
+> >
+> > Sorry, but this is far too scary.  Please just use one of the sane
+> > filesystems linux supports.
+>=20
+> Unfortunately, it makes sense. If you have compact flash card, you
+> really want to have VFAT there, so that it is a) compatible with
+> windows and b) so that you don't kill the hardware.
 
-Signed-off-by: Shaohua Li<shaohua.li@intel.com>
----
+Why not using fuse in a initramfs?
 
- linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/k7.c      |    2 +-
- linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/mce.c     |    4 ++--
- linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/p4.c      |    4 ++--
- linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/p5.c      |    2 +-
- linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/p6.c      |    2 +-
- linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/winchip.c |    2 +-
- linux-2.6.13-rc6-root/arch/i386/power/cpu.c                 |    5 +++++
- 7 files changed, 13 insertions(+), 8 deletions(-)
+Why not doing this with fuse? Write a filesystem that will use the
+base fat file system (or any other stupid file system) but using a
+database (BSD) or a file for non existent field. This new layer will
+implement:
+o mapping between true name and short name
+o links (soft and emulated hard)
+o permissions (and special files)
 
-diff -puN arch/i386/kernel/cpu/mcheck/k7.c~mcheck_resume arch/i386/kernel/cpu/mcheck/k7.c
---- linux-2.6.13-rc6/arch/i386/kernel/cpu/mcheck/k7.c~mcheck_resume	2005-08-23 09:26:53.956518776 +0800
-+++ linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/k7.c	2005-08-23 09:27:15.916180400 +0800
-@@ -69,7 +69,7 @@ static fastcall void k7_machine_check(st
- 
- 
- /* AMD K7 machine check is Intel like */
--void __devinit amd_mcheck_init(struct cpuinfo_x86 *c)
-+void amd_mcheck_init(struct cpuinfo_x86 *c)
- {
- 	u32 l, h;
- 	int i;
-diff -puN arch/i386/kernel/cpu/mcheck/mce.c~mcheck_resume arch/i386/kernel/cpu/mcheck/mce.c
---- linux-2.6.13-rc6/arch/i386/kernel/cpu/mcheck/mce.c~mcheck_resume	2005-08-23 09:27:40.301473272 +0800
-+++ linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/mce.c	2005-08-23 09:28:17.394834224 +0800
-@@ -16,7 +16,7 @@
- 
- #include "mce.h"
- 
--int mce_disabled __devinitdata = 0;
-+int mce_disabled = 0;
- int nr_mce_banks;
- 
- EXPORT_SYMBOL_GPL(nr_mce_banks);	/* non-fatal.o */
-@@ -31,7 +31,7 @@ static fastcall void unexpected_machine_
- void fastcall (*machine_check_vector)(struct pt_regs *, long error_code) = unexpected_machine_check;
- 
- /* This has to be run for each processor */
--void __devinit mcheck_init(struct cpuinfo_x86 *c)
-+void mcheck_init(struct cpuinfo_x86 *c)
- {
- 	if (mce_disabled==1)
- 		return;
-diff -puN arch/i386/kernel/cpu/mcheck/p4.c~mcheck_resume arch/i386/kernel/cpu/mcheck/p4.c
---- linux-2.6.13-rc6/arch/i386/kernel/cpu/mcheck/p4.c~mcheck_resume	2005-08-23 09:29:17.665671664 +0800
-+++ linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/p4.c	2005-08-23 09:29:59.738275656 +0800
-@@ -78,7 +78,7 @@ fastcall void smp_thermal_interrupt(stru
- }
- 
- /* P4/Xeon Thermal regulation detect and init */
--static void __devinit intel_init_thermal(struct cpuinfo_x86 *c)
-+static void intel_init_thermal(struct cpuinfo_x86 *c)
- {
- 	u32 l, h;
- 	unsigned int cpu = smp_processor_id();
-@@ -232,7 +232,7 @@ static fastcall void intel_machine_check
- }
- 
- 
--void __devinit intel_p4_mcheck_init(struct cpuinfo_x86 *c)
-+void intel_p4_mcheck_init(struct cpuinfo_x86 *c)
- {
- 	u32 l, h;
- 	int i;
-diff -puN arch/i386/kernel/cpu/mcheck/p5.c~mcheck_resume arch/i386/kernel/cpu/mcheck/p5.c
---- linux-2.6.13-rc6/arch/i386/kernel/cpu/mcheck/p5.c~mcheck_resume	2005-08-23 09:29:22.504935984 +0800
-+++ linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/p5.c	2005-08-23 09:30:12.610318808 +0800
-@@ -29,7 +29,7 @@ static fastcall void pentium_machine_che
- }
- 
- /* Set up machine check reporting for processors with Intel style MCE */
--void __devinit intel_p5_mcheck_init(struct cpuinfo_x86 *c)
-+void intel_p5_mcheck_init(struct cpuinfo_x86 *c)
- {
- 	u32 l, h;
- 	
-diff -puN arch/i386/kernel/cpu/mcheck/p6.c~mcheck_resume arch/i386/kernel/cpu/mcheck/p6.c
---- linux-2.6.13-rc6/arch/i386/kernel/cpu/mcheck/p6.c~mcheck_resume	2005-08-23 09:29:25.030552032 +0800
-+++ linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/p6.c	2005-08-23 09:30:26.595192784 +0800
-@@ -80,7 +80,7 @@ static fastcall void intel_machine_check
- }
- 
- /* Set up machine check reporting for processors with Intel style MCE */
--void __devinit intel_p6_mcheck_init(struct cpuinfo_x86 *c)
-+void intel_p6_mcheck_init(struct cpuinfo_x86 *c)
- {
- 	u32 l, h;
- 	int i;
-diff -puN arch/i386/kernel/cpu/mcheck/winchip.c~mcheck_resume arch/i386/kernel/cpu/mcheck/winchip.c
---- linux-2.6.13-rc6/arch/i386/kernel/cpu/mcheck/winchip.c~mcheck_resume	2005-08-23 09:29:34.589098912 +0800
-+++ linux-2.6.13-rc6-root/arch/i386/kernel/cpu/mcheck/winchip.c	2005-08-23 09:30:42.652751664 +0800
-@@ -23,7 +23,7 @@ static fastcall void winchip_machine_che
- }
- 
- /* Set up machine check reporting on the Winchip C6 series */
--void __devinit winchip_mcheck_init(struct cpuinfo_x86 *c)
-+void winchip_mcheck_init(struct cpuinfo_x86 *c)
- {
- 	u32 lo, hi;
- 	machine_check_vector = winchip_machine_check;
-diff -puN arch/i386/power/cpu.c~mcheck_resume arch/i386/power/cpu.c
---- linux-2.6.13-rc6/arch/i386/power/cpu.c~mcheck_resume	2005-08-23 09:32:13.054008584 +0800
-+++ linux-2.6.13-rc6-root/arch/i386/power/cpu.c	2005-08-23 09:41:54.992540480 +0800
-@@ -104,6 +104,8 @@ static void fix_processor_context(void)
- 
- }
- 
-+extern void mcheck_init(struct cpuinfo_x86 *c);
-+
- void __restore_processor_state(struct saved_context *ctxt)
- {
- 	/*
-@@ -138,6 +140,9 @@ void __restore_processor_state(struct sa
- 	fix_processor_context();
- 	do_fpu_end();
- 	mtrr_ap_init();
-+#ifdef CONFIG_X86_MCE
-+	mcheck_init(&boot_cpu_data);
-+#endif
- }
- 
- void restore_processor_state(void)
-_
+This solution is more general and can apply to all the stupid filesystems.
+In the initramfs we need only to put:
+o fuse module
+o our fuse filesystem statically linked or again klibc.
 
+Moreover this doesn't add more fat (fat because previous solution is
+really ugly) to the kernel and will implement an universal umsdos.
 
+I believe a shell program example will give you a better idea of my minds:
+-----
+modprobe fuse
+mount -t vfat /dev/hda1 /mnt
+#  fuse filesystem use the old /mnt
+# It do a chdir in /mnt (base) before the mount was efective
+mount -t fuse_extenddumbfilesystem none /mnt -o base=3D/mnt
+# chroot
+chroot /mnt
+-------
+
+But some could object that fuse like a support of write shared memory
+mmaped segment, but it is not different than nfs root!
+
+Slowness is not a valid argument because fat and other file system are
+not really suitable for unix computing...
+
+I join as an attachment (I know, it is not really good), my 1c simple
+implementation of such filesystem. This program do only the fuse bind
+mount nothing else but if somebody want to go further...
+
+> I guess being able to use CF card for root filesystem is usefull,
+> too....
+>=20
+>                                                                Pavel
+> --
+> if you have sharp zaurus hardware you don't need... you know my address
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+------=_Part_548_896160.1124762413510
+Content-Type: text/plain; name="bind.c"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="bind.c"
+
+LyoKICAgIEZVU0U6IEZpbGVzeXN0ZW0gaW4gVXNlcnNwYWNlCiAgICBDb3B5cmlnaHQgKEMpIDIw
+MDEtMjAwNSAgTWlrbG9zIFN6ZXJlZGkgPG1pa2xvc0BzemVyZWRpLmh1PgoKICAgIFRoaXMgcHJv
+Z3JhbSBjYW4gYmUgZGlzdHJpYnV0ZWQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR1BMLgog
+ICAgU2VlIHRoZSBmaWxlIENPUFlJTkcuCiovCgovLyNpbmNsdWRlIDxjb25maWcuaD4KCi8vI2lm
+ZGVmIGxpbnV4Ci8qIEZvciBwcmVhZCgpL3B3cml0ZSgpICovCiNkZWZpbmUgX1hPUEVOX1NPVVJD
+RSA1MDAKI2RlZmluZSBGVVNFX1VTRV9WRVJTSU9OIDIyCiNkZWZpbmUgX0ZJTEVfT0ZGU0VUX0JJ
+VFMgNjQKLy8jZW5kaWYKCiNpbmNsdWRlIDxmdXNlLmg+CiNpbmNsdWRlIDxzdGRpby5oPgojaW5j
+bHVkZSA8c3RyaW5nLmg+CiNpbmNsdWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPGZjbnRsLmg+CiNp
+bmNsdWRlIDxkaXJlbnQuaD4KI2luY2x1ZGUgPGVycm5vLmg+CiNpbmNsdWRlIDxzeXMvc3RhdGZz
+Lmg+CiNpZmRlZiBIQVZFX1NFVFhBVFRSCiNpbmNsdWRlIDxzeXMveGF0dHIuaD4KI2VuZGlmCgov
+KiAKICogcmVtb3ZlIHRoZSBhYnNvbHV0ZSBwYXRoIHBhcnQKICovCnN0YXRpYyBjaGFyICpsb2Nh
+bD0iLiI7CnN0YXRpYyBpbmxpbmUgY29uc3QgY2hhciAqcmVsKGNvbnN0IGNoYXIgKnBhdGgpCnsK
+ICBpZihzdHJjbXAocGF0aCwiLyIpPT0wKQogICAgcmV0dXJuIGxvY2FsOwogIGVsc2UKICAgIHJl
+dHVybiAocGF0aCsxKTsKfQoKCnN0YXRpYyBpbnQgeG1wX2dldGF0dHIoY29uc3QgY2hhciAqcGF0
+aCwgc3RydWN0IHN0YXQgKnN0YnVmKQp7CiAgICBpbnQgcmVzOwoKICAgIHJlcyA9IGxzdGF0KHJl
+bChwYXRoKSwgc3RidWYpOwogICAgaWYocmVzID09IC0xKQogICAgICAgIHJldHVybiAtZXJybm87
+CgogICAgcmV0dXJuIDA7Cn0KCnN0YXRpYyBpbnQgeG1wX3JlYWRsaW5rKGNvbnN0IGNoYXIgKnBh
+dGgsIGNoYXIgKmJ1Ziwgc2l6ZV90IHNpemUpCnsKICAgIGludCByZXM7CgogICAgcmVzID0gcmVh
+ZGxpbmsocmVsKHBhdGgpLCBidWYsIHNpemUgLSAxKTsKICAgIAogICAgaWYocmVzID09IC0xKQog
+ICAgICAgIHJldHVybiAtZXJybm87CgogICAgYnVmW3Jlc10gPSAnXDAnOwogICAgcmV0dXJuIDA7
+Cn0KCgpzdGF0aWMgaW50IHhtcF9yZWFkZGlyKGNvbnN0IGNoYXIgKnBhdGgsIHZvaWQgKmJ1Ziwg
+ZnVzZV9maWxsX2Rpcl90IGZpbGxlciwKICAgICAgICAgICAgICAgICAgICAgICBvZmZfdCBvZmZz
+ZXQsIHN0cnVjdCBmdXNlX2ZpbGVfaW5mbyAqZmkpCnsKICAgIERJUiAqZHA7CiAgICBzdHJ1Y3Qg
+ZGlyZW50ICpkZTsKCiAgICAodm9pZCkgb2Zmc2V0OwogICAgKHZvaWQpIGZpOwoKICAgIGRwID0g
+b3BlbmRpcihyZWwocGF0aCkpOwogICAgaWYoZHAgPT0gTlVMTCkKICAgICAgICByZXR1cm4gLWVy
+cm5vOwoKICAgIHdoaWxlKChkZSA9IHJlYWRkaXIoZHApKSAhPSBOVUxMKSB7CiAgICAgICAgc3Ry
+dWN0IHN0YXQgc3Q7CiAgICAgICAgbWVtc2V0KCZzdCwgMCwgc2l6ZW9mKHN0KSk7CiAgICAgICAg
+c3Quc3RfaW5vID0gZGUtPmRfaW5vOwogICAgICAgIHN0LnN0X21vZGUgPSBkZS0+ZF90eXBlIDw8
+IDEyOwogICAgICAgIGlmIChmaWxsZXIoYnVmLCBkZS0+ZF9uYW1lLCAmc3QsIDApKQogICAgICAg
+ICAgICBicmVhazsKICAgIH0KCiAgICBjbG9zZWRpcihkcCk7CiAgICByZXR1cm4gMDsKfQoKc3Rh
+dGljIGludCB4bXBfbWtub2QoY29uc3QgY2hhciAqcGF0aCwgbW9kZV90IG1vZGUsIGRldl90IHJk
+ZXYpCnsKICAgIGludCByZXM7CgogICAgcmVzID0gbWtub2QocmVsKHBhdGgpLCBtb2RlLCByZGV2
+KTsKICAgIGlmKHJlcyA9PSAtMSkKICAgICAgICByZXR1cm4gLWVycm5vOwoKICAgIHJldHVybiAw
+Owp9CgpzdGF0aWMgaW50IHhtcF9ta2Rpcihjb25zdCBjaGFyICpwYXRoLCBtb2RlX3QgbW9kZSkK
+ewogICAgaW50IHJlczsKCiAgICByZXMgPSBta2RpcihyZWwocGF0aCksIG1vZGUpOwogICAgaWYo
+cmVzID09IC0xKQogICAgICAgIHJldHVybiAtZXJybm87CgogICAgcmV0dXJuIDA7Cn0KCnN0YXRp
+YyBpbnQgeG1wX3VubGluayhjb25zdCBjaGFyICpwYXRoKQp7CiAgICBpbnQgcmVzOwoKICAgIHJl
+cyA9IHVubGluayhyZWwocGF0aCkpOwogICAgaWYocmVzID09IC0xKQogICAgICAgIHJldHVybiAt
+ZXJybm87CgogICAgcmV0dXJuIDA7Cn0KCnN0YXRpYyBpbnQgeG1wX3JtZGlyKGNvbnN0IGNoYXIg
+KnBhdGgpCnsKICAgIGludCByZXM7CgogICAgcmVzID0gcm1kaXIocmVsKHBhdGgpKTsKICAgIGlm
+KHJlcyA9PSAtMSkKICAgICAgICByZXR1cm4gLWVycm5vOwoKICAgIHJldHVybiAwOwp9CgpzdGF0
+aWMgaW50IHhtcF9zeW1saW5rKGNvbnN0IGNoYXIgKmZyb20sIGNvbnN0IGNoYXIgKnRvKQp7CiAg
+ICBpbnQgcmVzOwoKICAgIHJlcyA9IHN5bWxpbmsocmVsKGZyb20pLCB0byk7CiAgICBpZihyZXMg
+PT0gLTEpCiAgICAgICAgcmV0dXJuIC1lcnJubzsKCiAgICByZXR1cm4gMDsKfQoKc3RhdGljIGlu
+dCB4bXBfcmVuYW1lKGNvbnN0IGNoYXIgKmZyb20sIGNvbnN0IGNoYXIgKnRvKQp7CiAgICBpbnQg
+cmVzOwoKICAgIHJlcyA9IHJlbmFtZShyZWwoZnJvbSksIHJlbCh0bykpOwogICAgaWYocmVzID09
+IC0xKQogICAgICAgIHJldHVybiAtZXJybm87CgogICAgcmV0dXJuIDA7Cn0KCnN0YXRpYyBpbnQg
+eG1wX2xpbmsoY29uc3QgY2hhciAqZnJvbSwgY29uc3QgY2hhciAqdG8pCnsKICAgIGludCByZXM7
+CgogICAgcmVzID0gbGluayhyZWwoZnJvbSksIHJlbCh0bykpOwogICAgaWYocmVzID09IC0xKQog
+ICAgICAgIHJldHVybiAtZXJybm87CgogICAgcmV0dXJuIDA7Cn0KCnN0YXRpYyBpbnQgeG1wX2No
+bW9kKGNvbnN0IGNoYXIgKnBhdGgsIG1vZGVfdCBtb2RlKQp7CiAgICBpbnQgcmVzOwoKICAgIHJl
+cyA9IGNobW9kKHJlbChwYXRoKSwgbW9kZSk7CiAgICBpZihyZXMgPT0gLTEpCiAgICAgICAgcmV0
+dXJuIC1lcnJubzsKCiAgICByZXR1cm4gMDsKfQoKc3RhdGljIGludCB4bXBfY2hvd24oY29uc3Qg
+Y2hhciAqcGF0aCwgdWlkX3QgdWlkLCBnaWRfdCBnaWQpCnsKICAgIGludCByZXM7CgogICAgcmVz
+ID0gbGNob3duKHJlbChwYXRoKSwgdWlkLCBnaWQpOwogICAgaWYocmVzID09IC0xKQogICAgICAg
+IHJldHVybiAtZXJybm87CgogICAgcmV0dXJuIDA7Cn0KCnN0YXRpYyBpbnQgeG1wX3RydW5jYXRl
+KGNvbnN0IGNoYXIgKnBhdGgsIG9mZl90IHNpemUpCnsKICAgIGludCByZXM7CgogICAgcmVzID0g
+dHJ1bmNhdGUocmVsKHBhdGgpLCBzaXplKTsKICAgIGlmKHJlcyA9PSAtMSkKICAgICAgICByZXR1
+cm4gLWVycm5vOwoKICAgIHJldHVybiAwOwp9CgpzdGF0aWMgaW50IHhtcF91dGltZShjb25zdCBj
+aGFyICpwYXRoLCBzdHJ1Y3QgdXRpbWJ1ZiAqYnVmKQp7CiAgICBpbnQgcmVzOwoKICAgIHJlcyA9
+IHV0aW1lKHJlbChwYXRoKSwgYnVmKTsKICAgIGlmKHJlcyA9PSAtMSkKICAgICAgICByZXR1cm4g
+LWVycm5vOwoKICAgIHJldHVybiAwOwp9CgoKc3RhdGljIGludCB4bXBfb3Blbihjb25zdCBjaGFy
+ICpwYXRoLCBzdHJ1Y3QgZnVzZV9maWxlX2luZm8gKmZpKQp7CiAgICBpbnQgcmVzOwogICAgCiAg
+ICByZXMgPSBvcGVuKHJlbChwYXRoKSwgZmktPmZsYWdzKTsKICAgIGlmKHJlcyA9PSAtMSkKICAg
+ICAgICByZXR1cm4gLWVycm5vOwoKICAgIGNsb3NlKHJlcyk7CiAgICByZXR1cm4gMDsKfQoKc3Rh
+dGljIGludCB4bXBfcmVhZChjb25zdCBjaGFyICpwYXRoLCBjaGFyICpidWYsIHNpemVfdCBzaXpl
+LCBvZmZfdCBvZmZzZXQsCiAgICAgICAgICAgICAgICAgICAgc3RydWN0IGZ1c2VfZmlsZV9pbmZv
+ICpmaSkKewogICAgaW50IGZkOwogICAgaW50IHJlczsKCiAgICAodm9pZCkgZmk7CiAgICBmZCA9
+IG9wZW4ocmVsKHBhdGgpLCBPX1JET05MWSk7CiAgICBpZihmZCA9PSAtMSkKICAgICAgICByZXR1
+cm4gLWVycm5vOwoKICAgIHJlcyA9IHByZWFkKGZkLCBidWYsIHNpemUsIG9mZnNldCk7CiAgICBp
+ZihyZXMgPT0gLTEpCiAgICAgICAgcmVzID0gLWVycm5vOwoKICAgIGNsb3NlKGZkKTsKICAgIHJl
+dHVybiByZXM7Cn0KCnN0YXRpYyBpbnQgeG1wX3dyaXRlKGNvbnN0IGNoYXIgKnBhdGgsIGNvbnN0
+IGNoYXIgKmJ1Ziwgc2l6ZV90IHNpemUsCiAgICAgICAgICAgICAgICAgICAgIG9mZl90IG9mZnNl
+dCwgc3RydWN0IGZ1c2VfZmlsZV9pbmZvICpmaSkKewogICAgaW50IGZkOwogICAgaW50IHJlczsK
+CiAgICAodm9pZCkgZmk7CiAgICBmZCA9IG9wZW4ocmVsKHBhdGgpLCBPX1dST05MWSk7CiAgICBp
+ZihmZCA9PSAtMSkKICAgICAgICByZXR1cm4gLWVycm5vOwoKICAgIHJlcyA9IHB3cml0ZShmZCwg
+YnVmLCBzaXplLCBvZmZzZXQpOwogICAgaWYocmVzID09IC0xKQogICAgICAgIHJlcyA9IC1lcnJu
+bzsKCiAgICBjbG9zZShmZCk7CiAgICByZXR1cm4gcmVzOwp9CgpzdGF0aWMgaW50IHhtcF9zdGF0
+ZnMoY29uc3QgY2hhciAqcGF0aCwgc3RydWN0IHN0YXRmcyAqc3RidWYpCnsKICAgIGludCByZXM7
+CgogICAgcmVzID0gc3RhdGZzKHJlbChwYXRoKSwgc3RidWYpOwogICAgaWYocmVzID09IC0xKQog
+ICAgICAgIHJldHVybiAtZXJybm87CgogICAgcmV0dXJuIDA7Cn0KCnN0YXRpYyBpbnQgeG1wX3Jl
+bGVhc2UoY29uc3QgY2hhciAqcGF0aCwgc3RydWN0IGZ1c2VfZmlsZV9pbmZvICpmaSkKewogICAg
+LyogSnVzdCBhIHN0dWIuICBUaGlzIG1ldGhvZCBpcyBvcHRpb25hbCBhbmQgY2FuIHNhZmVseSBi
+ZSBsZWZ0CiAgICAgICB1bmltcGxlbWVudGVkICovCgogICAgKHZvaWQpIHBhdGg7CiAgICAodm9p
+ZCkgZmk7CiAgICByZXR1cm4gMDsKfQoKc3RhdGljIGludCB4bXBfZnN5bmMoY29uc3QgY2hhciAq
+cGF0aCwgaW50IGlzZGF0YXN5bmMsCiAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCBmdXNlX2Zp
+bGVfaW5mbyAqZmkpCnsKICAgIC8qIEp1c3QgYSBzdHViLiAgVGhpcyBtZXRob2QgaXMgb3B0aW9u
+YWwgYW5kIGNhbiBzYWZlbHkgYmUgbGVmdAogICAgICAgdW5pbXBsZW1lbnRlZCAqLwoKICAgICh2
+b2lkKSBwYXRoOwogICAgKHZvaWQpIGlzZGF0YXN5bmM7CiAgICAodm9pZCkgZmk7CiAgICByZXR1
+cm4gMDsKfQoKI2lmZGVmIEhBVkVfU0VUWEFUVFIKLyogeGF0dHIgb3BlcmF0aW9ucyBhcmUgb3B0
+aW9uYWwgYW5kIGNhbiBzYWZlbHkgYmUgbGVmdCB1bmltcGxlbWVudGVkICovCnN0YXRpYyBpbnQg
+eG1wX3NldHhhdHRyKGNvbnN0IGNoYXIgKnBhdGgsIGNvbnN0IGNoYXIgKm5hbWUsIGNvbnN0IGNo
+YXIgKnZhbHVlLAogICAgICAgICAgICAgICAgICAgICAgICBzaXplX3Qgc2l6ZSwgaW50IGZsYWdz
+KQp7CiAgICBpbnQgcmVzID0gbHNldHhhdHRyKHJlbChwYXRoKSwgbmFtZSwgdmFsdWUsIHNpemUs
+IGZsYWdzKTsKICAgIGlmKHJlcyA9PSAtMSkKICAgICAgICByZXR1cm4gLWVycm5vOwogICAgcmV0
+dXJuIDA7Cn0KCnN0YXRpYyBpbnQgeG1wX2dldHhhdHRyKGNvbnN0IGNoYXIgKnBhdGgsIGNvbnN0
+IGNoYXIgKm5hbWUsIGNoYXIgKnZhbHVlLAogICAgICAgICAgICAgICAgICAgIHNpemVfdCBzaXpl
+KQp7CiAgICBpbnQgcmVzID0gbGdldHhhdHRyKHJlbChwYXRoKSwgbmFtZSwgdmFsdWUsIHNpemUp
+OwogICAgaWYocmVzID09IC0xKQogICAgICAgIHJldHVybiAtZXJybm87CiAgICByZXR1cm4gcmVz
+Owp9CgpzdGF0aWMgaW50IHhtcF9saXN0eGF0dHIoY29uc3QgY2hhciAqcGF0aCwgY2hhciAqbGlz
+dCwgc2l6ZV90IHNpemUpCnsKICAgIGludCByZXMgPSBsbGlzdHhhdHRyKHJlbChwYXRoKSwgbGlz
+dCwgc2l6ZSk7CiAgICBpZihyZXMgPT0gLTEpCiAgICAgICAgcmV0dXJuIC1lcnJubzsKICAgIHJl
+dHVybiByZXM7Cn0KCnN0YXRpYyBpbnQgeG1wX3JlbW92ZXhhdHRyKGNvbnN0IGNoYXIgKnBhdGgs
+IGNvbnN0IGNoYXIgKm5hbWUpCnsKICAgIGludCByZXMgPSBscmVtb3ZleGF0dHIocmVsKHBhdGgp
+LCBuYW1lKTsKICAgIGlmKHJlcyA9PSAtMSkKICAgICAgICByZXR1cm4gLWVycm5vOwogICAgcmV0
+dXJuIDA7Cn0KI2VuZGlmIC8qIEhBVkVfU0VUWEFUVFIgKi8KCnN0YXRpYyBzdHJ1Y3QgZnVzZV9v
+cGVyYXRpb25zIHhtcF9vcGVyID0gewogICAgLmdldGF0dHIJPSB4bXBfZ2V0YXR0ciwKICAgIC5y
+ZWFkbGluawk9IHhtcF9yZWFkbGluaywKICAgIC5yZWFkZGlyCT0geG1wX3JlYWRkaXIsCiAgICAu
+bWtub2QJPSB4bXBfbWtub2QsCiAgICAubWtkaXIJPSB4bXBfbWtkaXIsCiAgICAuc3ltbGluawk9
+IHhtcF9zeW1saW5rLAogICAgLnVubGluawk9IHhtcF91bmxpbmssCiAgICAucm1kaXIJPSB4bXBf
+cm1kaXIsCiAgICAucmVuYW1lCT0geG1wX3JlbmFtZSwKICAgIC5saW5rCT0geG1wX2xpbmssCiAg
+ICAuY2htb2QJPSB4bXBfY2htb2QsCiAgICAuY2hvd24JPSB4bXBfY2hvd24sCiAgICAudHJ1bmNh
+dGUJPSB4bXBfdHJ1bmNhdGUsCiAgICAudXRpbWUJPSB4bXBfdXRpbWUsCiAgICAub3Blbgk9IHht
+cF9vcGVuLAogICAgLnJlYWQJPSB4bXBfcmVhZCwKICAgIC53cml0ZQk9IHhtcF93cml0ZSwKICAg
+IC5zdGF0ZnMJPSB4bXBfc3RhdGZzLAogICAgLnJlbGVhc2UJPSB4bXBfcmVsZWFzZSwKICAgIC5m
+c3luYwk9IHhtcF9mc3luYywKI2lmZGVmIEhBVkVfU0VUWEFUVFIKICAgIC5zZXR4YXR0cgk9IHht
+cF9zZXR4YXR0ciwKICAgIC5nZXR4YXR0cgk9IHhtcF9nZXR4YXR0ciwKICAgIC5saXN0eGF0dHIJ
+PSB4bXBfbGlzdHhhdHRyLAogICAgLnJlbW92ZXhhdHRyPSB4bXBfcmVtb3ZleGF0dHIsCiNlbmRp
+Zgp9OwoKaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKmFyZ3ZbXSkKewogICAgY2hkaXIoYXJndlth
+cmdjLTFdKTsKICAgIHJldHVybiBmdXNlX21haW4oYXJnYy0xLCBhcmd2LCAmeG1wX29wZXIpOwp9
+Cg==
+------=_Part_548_896160.1124762413510--

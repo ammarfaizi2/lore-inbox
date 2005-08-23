@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbVHWGEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVHWGOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751332AbVHWGEo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 02:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVHWGEo
+	id S1750754AbVHWGOg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 02:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVHWGOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 02:04:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6539 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S1751155AbVHWGEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 02:04:44 -0400
-Date: Tue, 23 Aug 2005 07:07:40 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Janak Desai <janak@us.ibm.com>, sds@tycho.nsa.gov, linuxram@us.ibm.com,
-       ericvh@gmail.com, dwalsh@redhat.com, jmorris@redhat.com, akpm@osdl.org,
-       torvalds@osdl.org, gh@us.ibm.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] New system call, unshare
-Message-ID: <20050823060740.GD9322@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.WNT.4.63.0508080928480.3668@IBM-AIP3070F3AM> <1123512366.31229.8.camel@localhost.localdomain>
+	Tue, 23 Aug 2005 02:14:36 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:44770 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S1750754AbVHWGOf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 02:14:35 -0400
+Date: Tue, 23 Aug 2005 08:14:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Peter Bortas <peter@bortas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc6-rt8
+Message-ID: <20050823061445.GA30817@elte.hu>
+References: <20050816121843.GA24308@elte.hu> <761x4s2uzg.fsf@bortas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1123512366.31229.8.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <761x4s2uzg.fsf@bortas.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 08, 2005 at 03:46:06PM +0100, Alan Cox wrote:
-> On Llu, 2005-08-08 at 09:33 -0400, Janak Desai wrote:
-> > 
-> > [PATCH 1/2] unshare system call: System Call handler function sys_unshare
-> 
-> 
-> Given the complexity of the kernel code involved and the obscurity of
-> the functionality why not just do another clone() in userspace to
-> unshare the things you want to unshare and then _exit the parent ?
 
-Because you want to keep children?  Because you don't want to deal with
-the implications for sessions/groups/etc.?
+* Peter Bortas <peter@bortas.org> wrote:
 
-FWIW, syscall makes sense.  It is a valid primitive and the only reason
-to keep it out of clone() (i.e. not making it just another flag to clone())
-is that clone() is already cluttered _and_ uses bad calling conventions
-for that stuff ("I want to retain <list>" rather than "I want private <list>").
+> 2.6.13-rc6-rt8 fails to build with my configuration (attached):
+> 
+> net/built-in.o: In function `ip_rt_init':
+> : undefined reference to `__you_cannot_kmalloc_that_much'
+> make[1]: *** [.tmp_vmlinux1] Error 1
+> make[1]: Leaving directory `/usr/src/linux-2.6.13-rc6'
+> make: *** [stamp-build] Error 2
+
+ok, fixed the likely cause of this in -rt12. Could you check whether it 
+builds for you now?
+
+	Ingo

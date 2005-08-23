@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVHWVtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbVHWVnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbVHWVtH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 17:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbVHWVo3
+	id S932423AbVHWVnr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 17:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbVHWVnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 17:44:29 -0400
-Received: from natfrord.rzone.de ([81.169.145.161]:40940 "EHLO
-	natfrord.rzone.de") by vger.kernel.org with ESMTP id S932442AbVHWVoW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 17:44:22 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: [PATCH 6/8] remove duplicated sys_open32() code from 64bit archs
-Date: Tue, 23 Aug 2005 23:44:05 +0200
-User-Agent: KMail/1.7.2
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <E1E7fHs-0006DO-00@dorka.pomaz.szeredi.hu> <E1E7fVJ-0006HK-00@dorka.pomaz.szeredi.hu> <E1E7fcN-0006IR-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1E7fcN-0006IR-00@dorka.pomaz.szeredi.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508232344.05666.arnd@arndb.de>
+	Tue, 23 Aug 2005 17:43:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:182 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S932423AbVHWVnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 17:43:08 -0400
+To: torvalds@osdl.org
+Subject: [PATCH] (17/43) Kconfig fix (acornscsi)
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1E7gax-0007BB-JP@parcelfarce.linux.theplanet.co.uk>
+From: Al Viro <viro@www.linux.org.uk>
+Date: Tue, 23 Aug 2005 22:46:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dinsdag 23 August 2005 22:43, Miklos Szeredi wrote:
-> 64 bit architectures all implement their own compatibility sys_open(),
-> when in fact the difference is simply not forcing the O_LARGEFILE
-> flag.  So use the a common function instead.
+acornscsi had been broken for a long time; marked as such
 
-> Index: linux/arch/x86_64/ia32/sys_ia32.c
-> ===================================================================
-> --- linux.orig/arch/x86_64/ia32/sys_ia32.c	2005-08-23 20:22:33.000000000 +0200
-> +++ linux/arch/x86_64/ia32/sys_ia32.c	2005-08-23 21:00:19.000000000 +0200
-> @@ -971,28 +971,7 @@ long sys32_kill(int pid, int sig)
->   
->  asmlinkage long sys32_open(const char __user * filename, int flags, int mode)
->  {
-> -	char * tmp;
-> -	int fd, error;
-
-Please don't leave the functions inside of the architecture specific code.
-The code is common enough to be shared, so just put a new compat_sys_open()
-function into fs/compat.c.
-
-I'm also not sure wether s390, mips and/or parisc need to use the
-same function instead of the standard sys_open().
-
-	Arnd <><
+Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+----
+diff -urN RC13-rc6-git13-8390/drivers/scsi/arm/Kconfig RC13-rc6-git13-acornscsi/drivers/scsi/arm/Kconfig
+--- RC13-rc6-git13-8390/drivers/scsi/arm/Kconfig	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc6-git13-acornscsi/drivers/scsi/arm/Kconfig	2005-08-21 13:17:01.000000000 -0400
+@@ -3,7 +3,7 @@
+ #
+ config SCSI_ACORNSCSI_3
+ 	tristate "Acorn SCSI card (aka30) support"
+-	depends on ARCH_ACORN && SCSI
++	depends on ARCH_ACORN && SCSI && BROKEN
+ 	help
+ 	  This enables support for the Acorn SCSI card (aka30). If you have an
+ 	  Acorn system with one of these, say Y. If unsure, say N.

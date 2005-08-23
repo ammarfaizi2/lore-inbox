@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbVHWS6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVHWTH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbVHWS6m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 14:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbVHWS6l
+	id S932325AbVHWTH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 15:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbVHWTH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 14:58:41 -0400
-Received: from intranet.networkstreaming.com ([24.227.179.66]:53096 "EHLO
-	networkstreaming.com") by vger.kernel.org with ESMTP
-	id S932278AbVHWS6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 14:58:41 -0400
-Message-ID: <430B01FB.2070903@davyandbeth.com>
-Date: Tue, 23 Aug 2005 06:01:15 -0500
-From: Davy Durham <pubaddr2@davyandbeth.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
-X-Accept-Language: en-us, en
+	Tue, 23 Aug 2005 15:07:27 -0400
+Received: from mail.solid.co.at ([193.83.215.58]:29907 "EHLO
+	mail.solid-soft.at") by vger.kernel.org with ESMTP id S932325AbVHWTH1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 15:07:27 -0400
+Message-ID: <430B73E9.7080207@solid-soft.at>
+Date: Tue, 23 Aug 2005 21:07:21 +0200
+From: Robert Valentan <R.Valentan@solid-soft.at>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: bert hubert <bert.hubert@netherlabs.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: select() efficiency / epoll
-References: <42E162B6.2000602@davyandbeth.com> <20050722212454.GB18988@outpost.ds9a.nl> <430AF11A.5000303@davyandbeth.com> <20050823182405.GA21301@outpost.ds9a.nl>
-In-Reply-To: <20050823182405.GA21301@outpost.ds9a.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCSI tape problems: 2.6.12, DLT 7000, Adaptec AIC7xxx
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Aug 2005 18:58:15.0125 (UTC) FILETIME=[9DDD1050:01C5A814]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
+(and  Re: Linux-2.6.13-rc6: aic7xxx testers please..  )
 
->On Tue, Aug 23, 2005 at 04:49:14AM -0500, Davy Durham wrote:
->
->  
->
->>However, I'm getting segfaults because some pointers in places are 
->>getting set to low integer values (which didn't used to have those values).
->>    
->>
->
->epoll is pretty heavily benchmarked and hence tested. I don't entirely
->understand the remark above and suggest looking at the generated core dumps.
->
->  
->
-I just mean that when  I debug and catch the segv, it's dies because 
-some pointers now have corrupted values.  (usually because something is 
-overwriting some memory some where)
+Hi!
 
-I'm currently re-writing some code to make it use select() instead of 
-epoll_wait() and see if everything is suddently fixed.  If so, then I 
-will suspect that epoll has a problem.  But it's still not ruled out 
-being my fault since it could be a timing issue that makes the crash 
-show up.
+I have also the problem with a dlt drive HP C9264CB (with
+media changer). After I have discovered, that after a
+
+rmmod st ; modprobe st
+
+the tape is working again, I take same "readings" in the
+code of st.c.
+I think, I have detect a bug. The st_buf_fragment[] should
+begin after the scatterlist[]
+
+*** st.c.orig   2005-08-23 20:43:17.304704439 +0200
+--- st.c        2005-08-23 20:43:45.402087696 +0200
+***************
+*** 3530,3536 ****
+         tb->use_sg = max_sg;
+         if (segs > 0)
+                 tb->b_data = page_address(tb->sg[0].page);
+!       tb->frp = (struct st_buf_fragment *)(&(tb->sg[0]) + max_sg);
+
+         tb->in_use = 1;
+         tb->dma = need_dma;
+--- 3530,3536 ----
+         tb->use_sg = max_sg;
+         if (segs > 0)
+                 tb->b_data = page_address(tb->sg[0].page);
+!       tb->frp = (struct st_buf_fragment *)(&(tb->sg[max_sg])); 
+
+         tb->in_use = 1;
+         tb->dma = need_dma;
 
 
+
+I have it not tested, because the tape drive is in a datacenter
+of a provider, and "killing" the kernel will not be repairable
+with an ssh-connect ;-(  I can't get the tape out off the data-
+center before friday..
+
+wbr
+-- 
+Robert Valentan

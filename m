@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbVHXC54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbVHXDLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbVHXC54 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 22:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbVHXC54
+	id S1750939AbVHXDLz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 23:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVHXDLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 22:57:56 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:55701 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP
-	id S1750710AbVHXC54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 22:57:56 -0400
-X-ORBL: [67.124.117.85]
-Date: Tue, 23 Aug 2005 19:57:40 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: robotti@godmail.com
-Cc: linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: Initramfs and TMPFS!
-Message-ID: <20050824025740.GA3361@taniwha.stupidest.org>
-References: <200508232205.j7NM5l1g018046@ms-smtp-01.rdc-nyc.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 23 Aug 2005 23:11:55 -0400
+Received: from mx2.suse.de ([195.135.220.15]:46042 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750939AbVHXDLz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 23:11:55 -0400
+From: Andi Kleen <ak@suse.de>
+To: Shaohua Li <shaohua.li@intel.com>
+Subject: Re: [PATCH] Add MCE resume under ia32
+Date: Wed, 24 Aug 2005 05:12:35 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <1124762500.3013.3.camel@linux-hp.sh.intel.com.suse.lists.linux.kernel> <p73pss4f6dj.fsf@verdi.suse.de> <1124848740.3622.1.camel@linux-hp.sh.intel.com>
+In-Reply-To: <1124848740.3622.1.camel@linux-hp.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200508232205.j7NM5l1g018046@ms-smtp-01.rdc-nyc.rr.com>
+Message-Id: <200508240512.35827.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 23, 2005 at 06:05:47PM -0400, robotti@godmail.com wrote:
+On Wednesday 24 August 2005 03:59, Shaohua Li wrote:
+> On Wed, 2005-08-24 at 03:52 +0200, Andi Kleen wrote:
+> > Shaohua Li <shaohua.li@intel.com> writes:
+> > > x86-64 has resume support. It uses 'on_each_cpu' in resume method,
+> > > which is known broken. We'd better fix it.
+> >
+> > What is broken with it?
+>
+> It's a sysdev. The resume method is invoked with interrupt disabled.
 
-> I was just making a suggestion to whoever it may concern, because I
-> think it would extend the usefullness of initramfs.
+But only local interrupt disabled, no? 
 
-I have a path for initramfs to use tmpfs.  It's sorta hacky so I never
-submitted it and solves a niche problem for embedded people.
+Hmm - didn't we have a WARN_ON(irqs_disabled()) in smp_call_function().
 
-Ultimately we might one day still want to change how we initialize the
-early userspace (Al suggesting a reasomably nice way to move the
-decompressor(s) to userspace for example) so I don't feel there is a
-compelling reason to do more than cleanups in this area right now.
+Anyways, it'll probably still work for now because the system should
+be synchronized at this point.
 
+-Andi

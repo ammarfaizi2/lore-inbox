@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVHXWLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbVHXWUO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbVHXWLP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 18:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVHXWLP
+	id S932326AbVHXWUO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 18:20:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVHXWUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 18:11:15 -0400
-Received: from rwcrmhc14.comcast.net ([204.127.198.54]:59274 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932310AbVHXWLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 18:11:15 -0400
-Date: Wed, 24 Aug 2005 15:12:02 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: [PATCH] Allow for arch-specific IOREMAP_MAX_ORDER
-Message-ID: <20050824221202.GA28977@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Wed, 24 Aug 2005 18:20:13 -0400
+Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:23566 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932326AbVHXWUM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 18:20:12 -0400
+Date: Thu, 25 Aug 2005 00:19:58 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2.6] I2C: Drop I2C_DEVNAME and i2c_clientname
+Message-Id: <20050825001958.63b2525c.khali@linux-fr.org>
+In-Reply-To: <1124741348.4516.51.camel@localhost>
+References: <20050815195704.7b61206e.khali@linux-fr.org>
+	<1124741348.4516.51.camel@localhost>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 6 of the ARM architecture introduces the concept of 16MB pages
-(supersections) and 36-bit (40-bit actually, but nobody uses this)
-physical addresses. 36-bit addressed memory and I/O and ARMv6 can
-only be mapped using supersections and the requirement on these is
-that both virtual and physical addresses be 16MB aligned. In trying
-to add support for ioremap() of 36-bit I/O, we run into the issue that
-get_vm_area() allows for a maximum of 512K alignment via the 
-IOREMAP_MAX_ORDER constant. To work around this, we can:
+Hi Mauro,
 
-- Allocate a larger VM area than needed (size + (1ul << IOREMAP_MAX_ORDER))
-  and then align the pointer ourselves, but this ends up with 512K of 
-  wasted VM per ioremap().
+> > I2C_DEVNAME and i2c_clientname were introduced in 2.5.68 [1] to help
+> > media/video driver authors who wanted their code to be compatible
+> > with both Linux 2.4 and 2.6. The cause of the incompatibility has
+> > gone since [2], so I think we can get rid of them, as they tend to
+> > make the code harder to read and longer to preprocess/compile for no
+> > more benefit.
+> > 
+> > I'd hope nobody seriously attempts to keep media/video driver
+> > compatible across Linux trees anymore, BTW.
+>
+> That's not true. We keep V4L tree compatible with older kernel
+> releases. Each change like this does generate a lot of work at V4L
+> side to provide #ifdefs to check for linux version and provide a
+> compatible way to compile with older versions.
 
-- Provide a new __get_vm_area_aligned() API and make __get_vm_area() sit
-  on top of this. I did this and it works but I don't like the idea 
-  adding another VM API just for this one case.
+I'm sorry but we will not stop updating the various Linux 2.6 subsystems
+to keep them compatible with 2.4 - else one would wonder why there is a
+2.6 kernel tree at all. As time goes, the differences bwteen 2.4 and 2.6
+will only increase. You seem to be trying to keep common driver code
+across incompatible trees. I'm not surprised that it is a lot of work.
+That's your choice, live with it.
 
-- My preferred solution which is to allow the architecture to override
-  the IOREMAP_MAX_ORDER constant with it's own version. 
+> I don't see any sense on applying this patch, since it will not reduce
+> code size or increase execution time.
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+Code size and execution time are not the only factors to take into
+account. Code readability and compilation time are two other ones that I
+mentioned already.
 
-diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -10,6 +10,14 @@
- #define VM_MAP		0x00000004	/* vmap()ed pages */
- /* bits [20..32] reserved for arch specific ioremap internals */
- 
-+/*
-+ * Maximum alignment for ioremap() regions.
-+ * Can be overriden by arch-specific value.
-+ */
-+#ifndef IOREMAP_MAX_ORDER
-+#define IOREMAP_MAX_ORDER	(7 + PAGE_SHIFT)	/* 128 pages */
-+#endif
-+
- struct vm_struct {
- 	void			*addr;
- 	unsigned long		size;
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -158,8 +158,6 @@ int map_vm_area(struct vm_struct *area, 
- 	return err;
- }
- 
--#define IOREMAP_MAX_ORDER	(7 + PAGE_SHIFT)	/* 128 pages */
--
- struct vm_struct *__get_vm_area(unsigned long size, unsigned long flags,
- 				unsigned long start, unsigned long end)
- {
+Anyway, it doesn't look like you actually read what I wrote in the first
+place. My comment about common driver code was really only by the way.
+The reason why I have been proposing this patch is that I2C_DEVNAME and
+i2c_clientname were only needed between Linux 2.5.68 and 2.6.0-test3,
+which are unsupported by now, as they were development releases. As far
+as i2c_client.name is concerned, 2.4 and 2.6.0+ trees are compatible.
 
+Thanks,
 -- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-Even a stopped clock gives the right time twice a day.
+Jean Delvare

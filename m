@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVHXIAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbVHXIBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbVHXIAv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 04:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVHXIAv
+	id S1750755AbVHXIBT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 04:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVHXIBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 04:00:51 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:7589 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1750750AbVHXIAv (ORCPT
+	Wed, 24 Aug 2005 04:01:19 -0400
+Received: from mail.wp-sa.pl ([212.77.102.105]:44527 "EHLO mail.wp-sa.pl")
+	by vger.kernel.org with ESMTP id S1750755AbVHXIBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 04:00:51 -0400
-Message-Id: <200508240800.j7O80VP1010833@zeus2.kernel.org>
-From: "Info" <canadabooks@computermail.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Government Funding Available    linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Wed, 24 Aug 2005 04:00:38 -0400
-Content-Transfer-Encoding: 7BIT
+	Wed, 24 Aug 2005 04:01:18 -0400
+Date: Wed, 24 Aug 2005 10:01:08 +0200
+From: Mariusz Zielinski <levi@wp-sa.pl>
+X-Face: '2=UjhX-y3vfeO94nyru(,e&{Lf^eJ&15S#rcuk:e{unjSRN4yZ69Z'ePMJsPO"=?utf-8?q?6=5Cs=27iVZ=0A=090OZ?=>_
+Subject: Re: debug a high load average
+In-reply-to: <430BFA58.6090609@gmail.com>
+To: Rajesh <rvarada@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200508241001.11464.levi@wp-sa.pl>
+Organization: Wirtualna Polska SA
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.8.1
+References: <430B03B4.8040205@gmail.com>
+ <20050823133050.GC29062@harddisk-recovery.com> <430BFA58.6090609@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 24 August 2005 06:40, you wrote:
+[...]
+> I am running  2.6.12 kernel on a laptop. I have an ipod attached to my
+> USB 1.1 as a drive on which I am saving and retreiving large
+> files(2-4GiB files). 
+[...]
 
+Check if you are not using low performance usb driver (CONFIG_BLK_DEV_UB).
+If I remember correctly it uses /dev/ub* devices.
 
-Canada Books
-26 Bellevue
-St-Anne-des Lacs
-Qc, Canada
-J0R 1B0
-
-
-Press Release
-linux-kernel@vger.kernel.org
-
-
-The "American Grants and Loans Directory" is now available. This
-publication contains more than 1500 financial programs, subsidies,
-scholarship, grants and loans offered by the US federal government. 
-It also includes over 700 financing programs available by foundations
-across the United States.
-
-
-Businesses, individuals, municipalities, government departments,
-institutions, foundations, and associations will find a wealth of
-information that could help them start a business, improve existent
-activities, set up a business plan, finance personal projects, studies 
-and research, or obtain assistance from experts in various fields of 
-interest.
-
-CD version: $69.95
-Printed version: $149.95
-
-To order please call: 450-224-9275
-
-If you do not wish to receive communication from us in the future please
-write "agl" in the subject line to: rmvacd@inmail24.com
+-- 
+Mariusz Zielinski

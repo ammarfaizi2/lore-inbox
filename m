@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbVHXPJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVHXPLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbVHXPJP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 11:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbVHXPJP
+	id S1751039AbVHXPLE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 11:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbVHXPLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 11:09:15 -0400
-Received: from alerce1.iplannetworks.net ([200.69.193.89]:6118 "EHLO
-	alerce1.iplannetworks.net") by vger.kernel.org with ESMTP
-	id S1751034AbVHXPJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 11:09:15 -0400
-Message-ID: <430C8CB5.1050501@latinsourcetech.com>
-Date: Wed, 24 Aug 2005 12:05:25 -0300
-From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@latinsourcetech.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problem with kernel image in a Prep Boot on PowerPC
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-iplan-Al-Info: iplan networks - Proteccion contra spam y virus en e-mail
-X-iplan-Al-MRId: f3ead2d0458f5edfceb5504618f1d8ad
-X-iplan-Al-From: moliveira@latinsourcetech.com
+	Wed, 24 Aug 2005 11:11:04 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:10450 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751047AbVHXPLC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 11:11:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hE/P6B/fHKywGwp6UZks4PHK7vZ/MTdzw18V+Y4OZOhPeduHuDpOByA2l7O5NQFcw3It+deiwD/j9DNo/utsOHgSgqeYNxT5bT8ouhJwSLKd0qoogATSTAKJ7gL6whOns6WITmnyddU6mD4VbZQcgRij67xjcHBxwjya93Om/F8=
+Message-ID: <4789af9e05082408111c4a6294@mail.gmail.com>
+Date: Wed, 24 Aug 2005 09:11:01 -0600
+From: Jim Ramsay <jim.ramsay@gmail.com>
+To: Lukasz Kosewski <lkosewsk@gmail.com>
+Subject: Re: [PATCH 3/3] Add disk hotswap support to libata RESEND #2
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-scsi@vger.kernel.org,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <355e5e5e05082407031138120a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <355e5e5e05080103021a8239df@mail.gmail.com>
+	 <4789af9e050823124140eb924f@mail.gmail.com>
+	 <4789af9e050823154364c8e9eb@mail.gmail.com>
+	 <430BA990.9090807@mvista.com> <430BCB41.5070206@s5r6.in-berlin.de>
+	 <355e5e5e05082407031138120a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi There!
+On 8/24/05, Lukasz Kosewski <lkosewsk@gmail.com> wrote:
+> On 8/24/05, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> > >> Timers appear to operate in an atomic context, so timers should not be
+> > >> allowed to call scsi_remove_device, which eventually schedules.
+> > >>
+> > >> Any suggestions on the best way to fix this?
+> > >
+> > > Workqueue, perhaps.
+> 
+> Perhaps.  Actually, of course :)
 
-   I have a IBM Power server and I want to put the /boot partition onto 
-softwrae RAID1 array, but I'm having some problems...
+How about the existing ata_wq workqueue?  This makes sense.  When the
+timer expires, it adds a task to this queue.
 
-   Aparently yaboot boot loader doesn't support /boot partition on a 
-linux software RAID 1, so i'm trying to put the kernel image 
-(zImage.initrd) directly on the Prep Boot partition. But when the system 
-boots, the kernel can't locate the initrd or the root partition ("Kernel 
-Panic" no init found message).
+> The reason these aren't working is because they have never been
+> tested.  I sent in my not-entirely-finished patches the night before I
+> left for China for one month.
 
-   I think the kernel is pointing to the wrong root partiotion. In a x86 
-box, I can change the kernel root partition in the boot loader (root= 
-parameter) or using the "rdev" command. In my case, the IBM Power 
-doesn't have a boot loader (yaboot was replaced by the kernel image) and 
-the powerpc64 system doesn't have the rdev command (from util-linux 
-package, the same package on x86 systems have the rdev command!).
+Well, I'm on a time-sensitive project right now, and they "need"
+hotplug support, so maybe I'll patch your patches and do what testing
+I can.  I'll post a fourth patch in a few days.
 
-   Is there a way to change the default root partition in my ppc64 
-kernel image?
+> When I get back to Waterloo (Ontario) in September, I should send in
+> revised versions of these patches with the following fixes:
+> 
+> - mod_timer instead of delete_timer/change timeout/add_timer
+That's easy.  I'll add it in my 'patch 4/3'
 
-   I followed this steps to made the configuration of the kernel image:
+> - bunch of code cleanups
+Haven't touched this, looks pretty clean to me
 
-# cd /usr/src/linux-2.4
-# cp /boot/config-2.4.21-4.EL swinitrd.config
-Edit the file Makefile to change the EXTRAVERSION variable to match the 
-running kernel: EXTRAVERSION= -4.EL
-# cp /boot/initrd-2.4.21-4.EL.img 
-/usr/src/linux-2.4/arch/ppc64/boot/ramdisk.image.gz
-# cd /usr/src/linux-2.4
-# make distclean
-# cp swinitrd.config .config
-# make oldconfig
-# make dep
-# make zImage.initrd
-# cp /usr/src/linux-2.4/arch/ppc64/boot/zImage.initrd 
-/boot/zImage.initrd-2.4.21-4.EL
-# cp /usr/src/linux-2.4/swinitrd.config /boot/config.initrd-2.4.21-4.EL
-# dd if=/boot/zImage.initrd-2.4.21-4.EL of=/dev/sdb1 bs=512
+> - proper error handling
+This may be something I'll have to stick my fingers in as I do more testing
 
-   This is my partition scheme:
+> - actually making the patches work.
+Hopefully I'll get this going.
 
-Disk 1:
-/dev/sda1   = Prep Boot Partition (10MB)
-/dev/sda2   = RAID 1 - "/boot" partition (100MB)
-/dev/sda3   = swap (300MB)
-/dev/sda4   = Extendend
-/dev/sda5   = RAID 1 - "/" root partition (34GB)
+[Update, 10 mins later] Hey, I've got unplugging working already!
 
-Disk 2:
-/dev/sdb1   = Prep Boot Partition (10MB)
-/dev/sdb2   = RAID 1 - "/boot" partition (100MB)
-/dev/sdb3   = swap (300MB)
-/dev/sdb4   = Extendend
-/dev/sdb5   = RAID 1 - "/" root partition (34GB)
-
-   Any ideia about this issue?
-
-Thanks a lot!
-
-Márcio.
+-- 
+Jim Ramsay
+"Me fail English?  That's unpossible!"

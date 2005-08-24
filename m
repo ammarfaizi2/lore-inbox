@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbVHXTG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVHXTHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbVHXTG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 15:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbVHXTG2
+	id S1751410AbVHXTHP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 15:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbVHXTHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 15:06:28 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:56182 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751404AbVHXTG1 (ORCPT
+	Wed, 24 Aug 2005 15:07:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12003 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751410AbVHXTHN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 15:06:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=e0OZ+kctn+Lf2SWuwbgrqUiOFbIFxYo1K6+aHZYGF3QVq9vWDo7iLAabLl0jvdIKTidwHHPIvy3gLBZsbqfXiNlzL1P0JVLHR8xrjWSILmrrkGuZKegKk2RFWB9AnTSzMgREweLoMc/wf7PqZRXQEa4ftEvOlPlJEBYSKowz044=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 0/3] exterminate strtok
-Date: Wed, 24 Aug 2005 21:06:06 +0200
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Aug 2005 15:07:13 -0400
+Date: Wed, 24 Aug 2005 15:06:51 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: torvalds@osdl.org, pj@sgi.com
+Subject: Re: [PATCH] cpu_exclusive sched domains on partial nodes temp fix
+Message-ID: <20050824190651.GA10586@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	torvalds@osdl.org, pj@sgi.com
+References: <200508240401.j7O41qlB029277@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508242106.06123.jesper.juhl@gmail.com>
+In-Reply-To: <200508240401.j7O41qlB029277@hera.kernel.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 1999 Ingo Oeser commented in lib/string.c :
-   * -  Added strsep() which will replace strtok() soon (because strsep() is
-   *    reentrant and should be faster). Use only strsep() in new code, please.
-Then in 2002 strtok was removed.
+On Tue, Aug 23, 2005 at 09:01:52PM -0700, Linux Kernel wrote:
+ > tree c81c261274011d301dfbcfd1a3e13480b93c167e
+ > parent ae75784bc576a1af70509c2f3ba2b70bb65a0c58
+ > author Paul Jackson <pj@sgi.com> Tue, 23 Aug 2005 15:04:27 -0700
+ > committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 24 Aug 2005 10:02:52 -0700
+ > 
+ > [PATCH] cpu_exclusive sched domains on partial nodes temp fix
 
-There are still a few cases of strtok in the kernel to this day. The following
-3 patches exterminates them.
+This broke ppc64 for me.
+ 
+kernel/cpuset.c: In function 'update_cpu_domains':
+kernel/cpuset.c:648: error: invalid lvalue in unary '&'
+kernel/cpuset.c:648: error: invalid lvalue in unary '&'
 
-Let me say up front that the first two patches have *not* been tested since I 
-lack both the appropriate hardware and suitable cross compiler. They are fairly 
-simple though, so I doubt they'll be troublesome, but I'd greatly appreciate if
-someone else would validate them and sign off on them before I send them on to 
-Andrew for inclusion in -mm.  The third patch /has/ seen limited testing, but it
-would still be nice to have someone look it over and sign off on it.
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-
-
+		Dave
 

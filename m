@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVHXVEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbVHXVGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbVHXVEm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVHXVEm
+	id S932218AbVHXVGT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbVHXVGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 17:04:42 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:45805
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932215AbVHXVEl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:04:41 -0400
-Subject: Re: [RFC] RT-patch update to remove the global pi_lock
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1124917003.5711.8.camel@localhost.localdomain>
-References: <1124295214.5764.163.camel@localhost.localdomain>
-	 <20050817162324.GA24495@elte.hu>
-	 <1124323379.5186.18.camel@localhost.localdomain>
-	 <1124333050.5186.24.camel@localhost.localdomain>
-	 <20050822075012.GB19386@elte.hu>
-	 <1124704837.5208.22.camel@localhost.localdomain>
-	 <20050822101632.GA28803@elte.hu>
-	 <1124710309.5208.30.camel@localhost.localdomain>
-	 <20050822113858.GA1160@elte.hu>
-	 <1124715755.5647.4.camel@localhost.localdomain>
-	 <20050822183355.GB13888@elte.hu>
-	 <1124739657.5809.6.camel@localhost.localdomain>
-	 <1124739895.5809.11.camel@localhost.localdomain>
-	 <1124749192.17515.16.camel@dhcp153.mvista.com>
-	 <1124756775.5350.14.camel@localhost.localdomain>
-	 <1124758291.9158.17.camel@dhcp153.mvista.com>
-	 <1124760725.5350.47.camel@localhost.localdomain>
-	 <1124768282.5350.69.camel@localhost.localdomain>
-	 <1124908080.5604.22.camel@localhost.localdomain>
-	 <1124917003.5711.8.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: linutronix
-Date: Wed, 24 Aug 2005 21:05:25 +0000
-Message-Id: <1124917526.20120.72.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Aug 2005 17:06:19 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:64662 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932218AbVHXVGT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 17:06:19 -0400
+Message-Id: <200508242106.j7OL61QK010645@laptop11.inf.utfsm.cl>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH 3/3] exterminate strtok - usr/gen_init_cpio.c 
+In-Reply-To: Message from Jesper Juhl <jesper.juhl@gmail.com> 
+   of "Wed, 24 Aug 2005 21:08:53 +0200." <200508242108.53198.jesper.juhl@gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Wed, 24 Aug 2005 17:06:01 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 24 Aug 2005 17:06:01 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-24 at 16:56 -0400, Steven Rostedt wrote:
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> Convert strtok() use to strsep() in usr/gen_init_cpio.c
 
-> Also Thomas,
+This is userland code...
+
+No, I'm not looking it over carfully, just a fast look over.
+
+> I've compile tested this patch and it compiles fine.
+
+You should be able ti test it then.
+
+> I build a 2.6.13-rc6-mm2 kernel with the patch applied without problems, and
+> the resulting kernel boots and runs just fine (using it right now).
+> But despite this basic testing it would still be nice if someone would 
+> double-check that I haven't made some silly mistake that would break some 
+> other setup than mine.
 > 
-> I'm still triggering that "huh?" statement in pi_setprio, and it is
-> always with the softirq-hrtimer thread.  It likes to change its
-> priorities, but there's a time when p->normal_prio != normal_prio(p).
-> And this is what's giving me a headache.
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+> 
+>  gen_init_cpio.c |   31 ++++++++++++++++++++++---------
+>  1 files changed, 22 insertions(+), 9 deletions(-)
+> 
+> --- linux-2.6.13-rc6-mm2-orig/usr/gen_init_cpio.c	2005-06-17 21:48:29.000000000 +0200
+> +++ linux-2.6.13-rc6-mm2/usr/gen_init_cpio.c	2005-08-24 18:58:21.000000000 +0200
+> @@ -438,7 +438,7 @@ struct file_handler file_handler_table[]
+>  int main (int argc, char *argv[])
+>  {
+>  	FILE *cpio_list;
+> -	char line[LINE_SIZE];
+> +	char *line, *ln;
 
-Yes, the normal_prio() check detects this. I have a look into this.
+No need for this, there is no particular stack frugality requirement with
+user code.
 
-tglx
+>  	char *args, *type;
+>  	int ec = 0;
+>  	int line_nr = 0;
+> @@ -455,7 +455,14 @@ int main (int argc, char *argv[])
+>  		exit(1);
+>  	}
+>  
+> -	while (fgets(line, LINE_SIZE, cpio_list)) {
+> +	ln = malloc(LINE_SIZE);
 
+Ditto.
 
+[...]
+
+> -		if ('\n' == *type) {
+> +		if (!*type || '\n' == *type) {
+
+Redundant. If *type == '\n', it is certainly != 0.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

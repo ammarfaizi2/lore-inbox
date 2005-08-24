@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbVHXENW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbVHXENv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbVHXENW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 00:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbVHXENW
+	id S1751444AbVHXENv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 00:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbVHXENv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 00:13:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:29649 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751442AbVHXENW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 00:13:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=Ogkj6NOIxTYoCnL3/zjCz2sfweXmzuDVad1Vg9ibPiRtKb9YrjsZ0qW+JBQatm5VKHvNAszf6aGqP8IGHViF+bD/dlIb1rndatb5q0+VZMBxwqnmitDf0giBvCSvh8jC+OKGbjDy0CQF9RYFTHICWWOGnIIiXNkJpBliWzX+wuI=
-Date: Wed, 24 Aug 2005 12:13:00 +0800
-From: lepton <ytht.net@gmail.com>
-To: dbrownell@users.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12.5]error condition fix in usbnet
-Message-ID: <20050824041300.GA5139@gsy2.lepton.home>
+	Wed, 24 Aug 2005 00:13:51 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:62684 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751444AbVHXENt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 00:13:49 -0400
+Subject: Re: [PATCH] Add MCE resume under ia32
+From: Shaohua Li <shaohua.li@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+In-Reply-To: <200508240559.16931.ak@suse.de>
+References: <1124762500.3013.3.camel@linux-hp.sh.intel.com.suse.lists.linux.kernel>
+	 <200508240512.35827.ak@suse.de>
+	 <1124855278.5047.2.camel@linux-hp.sh.intel.com>
+	 <200508240559.16931.ak@suse.de>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 12:16:26 +0800
+Message-Id: <1124856986.5310.2.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2005-08-24 at 05:59 +0200, Andi Kleen wrote:
+> [adding discuss to cc]
+> 
+> On Wednesday 24 August 2005 05:47, Shaohua Li wrote:
+> > On Wed, 2005-08-24 at 05:12 +0200, Andi Kleen wrote:
+> > > On Wednesday 24 August 2005 03:59, Shaohua Li wrote:
+> > > > On Wed, 2005-08-24 at 03:52 +0200, Andi Kleen wrote:
+> > > > > Shaohua Li <shaohua.li@intel.com> writes:
+> > > > > > x86-64 has resume support. It uses 'on_each_cpu' in resume method,
+> > > > > > which is known broken. We'd better fix it.
+> > > > >
+> > > > > What is broken with it?
+> > > >
+> > > > It's a sysdev. The resume method is invoked with interrupt disabled.
+> > >
+> > > But only local interrupt disabled, no?
+> > >
+> > > Hmm - didn't we have a WARN_ON(irqs_disabled()) in smp_call_function().
+> > >
+> > > Anyways, it'll probably still work for now because the system should
+> > > be synchronized at this point.
+> >
+> > We are using cpu hotplug framework for MP suspend/resume. When sysdev's
+> > resume is calling, APs actually aren't up. So it actually can't work.
+> 
+> Ok, that's a new problem.
+> 
+> There were recently some patches to add individual MCE entries
+> for each CPU to sysfs. They are only used for set up right now,
+> but perhaps they can be linked somehow to the cpu sysfs devices
+> and get suspend/resume events from there.
+The boot code already initialized MCE for APs, it isn't required to
+initialize again. The MCE entries are cpuhotplug friendly, so for
+suspend/resume.
 
-I thinks this condition is strange, it could be a type error.
-See the following patch.
+Thanks,
+Shaohua
 
-Signed-off-by: Wu Tao <ytht.net@gmail.com>
-
-diff -pru linux-2.6-curr/drivers/usb/net/usbnet.c linux-2.6-curr-lepton/drivers/usb/net/usbnet.c
---- linux-2.6-curr/drivers/usb/net/usbnet.c	2005-06-30 07:00:53.000000000 +0800
-+++ linux-2.6-curr-lepton/drivers/usb/net/usbnet.c	2005-08-24 11:26:49.000000000 +0800
-@@ -3807,7 +3807,7 @@ usbnet_probe (struct usb_interface *udev
- 		if ((dev->driver_info->flags & FLAG_ETHER) != 0
- 				&& (net->dev_addr [0] & 0x02) == 0)
- 			strcpy (net->name, "eth%d");
--	} else if (!info->in || info->out)
-+	} else if (!info->in || !info->out)
- 		status = get_endpoints (dev, udev);
- 	else {
- 		dev->in = usb_rcvbulkpipe (xdev, info->in);

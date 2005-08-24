@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVHXV3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbVHXVc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbVHXV3D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:29:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbVHXV3D
+	id S932259AbVHXVc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVHXVc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 17:29:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39140 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932258AbVHXV3C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:29:02 -0400
-Date: Wed, 24 Aug 2005 14:28:37 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>
-Subject: Re: [PATCH 5/5] Create a hole in high linear address space
-Message-ID: <20050824212837.GP7762@shell0.pdx.osdl.net>
-References: <200508241845.j7OIjIeM001900@zach-dev.vmware.com> <20050824201920.GN7762@shell0.pdx.osdl.net> <430CE428.3000605@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <430CE428.3000605@vmware.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 24 Aug 2005 17:32:58 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:55795 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S932259AbVHXVc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 17:32:57 -0400
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F043851AD@scsmsx401.amr.corp.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F043851AD@scsmsx401.amr.corp.intel.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <95AE7798-CD53-4BEA-99F4-88FC5B475614@freescale.com>
+Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
+       "Gala Kumar K.-galak" <galak@freescale.com>,
+       <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-ia64@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [PATCH 05/15] ia64: remove use of asm/segment.h
+Date: Wed, 24 Aug 2005 16:32:59 -0500
+To: "Luck, Tony" <tony.luck@intel.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> Hmm.  I was thinking it would be compile time variable with defaults -- like
-> 
-> config MEMORY_HOLE
->       int "Create hole at top of memory (0-512 MB)"
->       range 0 512
->       default "0"
->       default 168 if (CONFIG_X86_PAE && CONFIG_X86_HYPERVISOR)
->       default 64 if (!CONFIG_X86_PAE && CONFIG_X86_HYPERVISOR)
 
-That's fine, I had done some braindead math anyway ;-)
+On Aug 24, 2005, at 3:19 PM, Luck, Tony wrote:
 
->       help
->          Useful for creating a hole in the top of memory when running
->          inside of a virtual machine monitor.
-> 
-> Adding things to the fixmap is a separate concept, thus a separate patch ;)
+>> There are still a few drivers that include asm/segment.h, so
+>> I don't think we should remove asm/segment.h itself just yet.
+>>
+>
+> Agreed.  The sequence should be to send patches to get rid of
+> all "#include <asm/segment.h>" references.
+>
+> Once they have all gone, then a patch can remove the files.
+>
+> If you are concerned that people would start adding new
+> references and you don't want to get into a game of whack-a-mole,
+> then you could add #warning "include of deprecated asm/segment.h",
+> but that might be overkill.
+>
+> I'll apply this for ia64 w/o the deletion.
 
-Sure, good point.
+I've posted a patch before this to remove all non-architecture users  
+of asm/segment.h.
 
-thanks,
--chris
+http://www.ussg.iu.edu/hypermail/linux/kernel/0508.3/0099.html
+
+- kumar
+
+

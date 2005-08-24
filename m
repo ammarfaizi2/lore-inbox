@@ -1,39 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVHXQX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbVHXQYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbVHXQX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 12:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVHXQX7
+	id S1751123AbVHXQYh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 12:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVHXQYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 12:23:59 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:34504 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1751112AbVHXQX6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 12:23:58 -0400
-Date: Thu, 25 Aug 2005 01:22:42 +0900 (JST)
-Message-Id: <20050825.012242.74736989.taka@valinux.co.jp>
-To: hyoshiok@miraclelinux.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20050824.231156.278740508.hyoshiok@miraclelinux.com>
-References: <98df96d30508181629d85edb5@mail.gmail.com>
-	<20050823.081246.846946371.hyoshiok@miraclelinux.com>
-	<20050824.231156.278740508.hyoshiok@miraclelinux.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Aug 2005 12:24:37 -0400
+Received: from web33304.mail.mud.yahoo.com ([68.142.206.119]:9070 "HELO
+	web33304.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751123AbVHXQYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 12:24:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=EWA6fWkpx06ECrI5S9IX6QQQD1p7klWtHQM27CT2Mr1NzIft4lZfIQGu7Ln1+gOJvQqWjKsfUbWpBAvtGQBglx9RN7YNUkURX2BYZri4oeHBy9etHqNEzT1q91eroLQ+WcTUwQ8y02c/Jyq3Z5afZrDdazkpmcJ9gFUFeOKYD9Y=  ;
+Message-ID: <20050824162425.62228.qmail@web33304.mail.mud.yahoo.com>
+Date: Wed, 24 Aug 2005 09:24:25 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: 2.6.12 Performance problems
+To: Patrick McHardy <kaber@trash.net>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
+In-Reply-To: <430B5B14.5070105@trash.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--- Patrick McHardy <kaber@trash.net> wrote:
 
-> The following patch does not use MMX regsiters so that we don't have
-> to worry about save/restore the FPU/MMX states.
+> Danial Thom wrote:
+> > I think part of the problem is the continued
+> > misuse of the word "latency". Latency, in
+> > language terms, means "unexplained delay".
+> Its
+> > wrong here because for one, its explainable.
+> But
+> > it also depends on your perspective. The
+> > "latency" is increased for kernel tasks,
+> while it
+> > may be reduced for something that is getting
+> the
+> > benefit of preempting the kernel. So you
+> really
+> > can't say "the price of reduced latency is
+> lower
+> > throughput", because thats simply backwards.
+> > You've increased the kernel tasks latency by
+> > allowing it to be pre-empted. Reduced latency
+> > implies higher efficiency. All you've done
+> here
+> > is shift the latency from one task to
+> another, so
+> > there is no reduction overall, in fact there
+> is
+> > probably a marginal increase due to the
+> overhead
+> > of pre-emption vs doing nothing.
 > 
-> What do you think?
+> If instead of complaining you would provide the
+> information
+> I've asked for two days ago someone might
+> actually be able
+> to help you.
 
-I think __copy_user_zeroing_intel_nocache() should be followed by sfence
-or mfence instruction to flush the data.
+Because gaining an understanding of how the
+settings work is better than having 30 guys
+telling me to tune something that is only going
+to make a marginal difference. I didn't ask you
+to tell me what was wrong with my setup, only
+whether its expected that 2.6 would be less
+useful in a UP setup than 2.4, which I think
+you've answered. 
 
+D
 
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

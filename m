@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVHXVVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVHXVWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbVHXVVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbVHXVVz
+	id S932257AbVHXVWu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVHXVWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 17:21:55 -0400
-Received: from ns2.suse.de ([195.135.220.15]:45017 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932250AbVHXVVy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:21:54 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: Memory problem w/ recent kernels on 2x Opteron with 12 GB RAM
-Date: Wed, 24 Aug 2005 23:21:48 +0200
-User-Agent: KMail/1.8
-Cc: LKML <linux-kernel@vger.kernel.org>, discuss@x86-64.org
-References: <200508242308.55433.rjw@sisk.pl>
-In-Reply-To: <200508242308.55433.rjw@sisk.pl>
+	Wed, 24 Aug 2005 17:22:50 -0400
+Received: from sccrmhc11.comcast.net ([63.240.76.21]:15790 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932257AbVHXVWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 17:22:49 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: question on memory barrier
+Date: Wed, 24 Aug 2005 14:22:15 -0700
+User-Agent: KMail/1.8.2
+Cc: Andy Isaacson <adi@hexapodia.org>,
+       moreau francis <francis_moreau2000@yahoo.fr>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0508240854550.28064@chaos.analogic.com> <200508241253.53586.jbarnes@virtuousgeek.org> <1124919935.13833.3.camel@localhost.localdomain>
+In-Reply-To: <1124919935.13833.3.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="iso-8859-6"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200508242321.48367.ak@suse.de>
+Message-Id: <200508241422.15751.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 August 2005 23:08, Rafael J. Wysocki wrote:
-> Hi,
+On Wednesday, August 24, 2005 2:45 pm, Alan Cox wrote:
+> And in more detail from the deviceiobook..
 >
-> I'm currently seeing a memory problem on a NUMA-enabled dual-Opteron 250
-> box with the 2.6.12.5 and 2.6.13-rc* (up to 7) kernels.  Namely, the box
-> has 12 GB of RAM, 8 GB of which is installed on the first node.  The whole
-> memory is detected but then only the first 8 GB of it is made available
-> (minus some hardware-related holes), as though the memory on the second
-> node were discarded for some reason.
+>       <para>
+>         In addition to write posting, on some large multiprocessing
+> systems
+>         (e.g. SGI Challenge, Origin and Altix machines) posted writes
+> won't
+>         be strongly ordered coming from different CPUs.  Thus it's
+> important
+>         to properly protect parts of your driver that do memory-mapped
+> writes
+>         with locks and use the <function>mmiowb</function> to make
+> sure they
+>         arrive in the order intended.  Issuing a regular
+> <function>readX </function> will also ensure write ordering, but
+> should only be used
+>         when the driver has to be sure that the write has actually
+> arrived
+>         at the device (not that it's simply ordered with respect to
+> other
+>         writes), since a full <function>readX</function> is a
+> relatively expensive operation.
+>       </para>
 
+Yeah, wrote that too :).  io_ordering.txt should probably just get folded 
+into deviceiobook at some point...  Or we could just replace both with 
+URL pointers to LDD vol. 3. ;)
 
-Boot log please?
-
--Andi
+Jesse

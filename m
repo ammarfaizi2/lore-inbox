@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVHXDle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbVHXDpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbVHXDle (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 23:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbVHXDle
+	id S1750936AbVHXDpA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 23:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbVHXDpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 23:41:34 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:7330 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S932148AbVHXDld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 23:41:33 -0400
-Message-ID: <430BEBEA.60704@austin.rr.com>
-Date: Tue, 23 Aug 2005 22:39:22 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, jerry@samba.org,
-       samba-technical@lists.samba.org, linux-cifs-client@lists.samba.org,
-       raven@themaw.net
-Subject: Re: New maintainer needed for the Linux smb filesystem
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 23 Aug 2005 23:45:00 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:48798 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750929AbVHXDo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 23:44:59 -0400
+Subject: Re: [PATCH] Add MCE resume under ia32
+From: Shaohua Li <shaohua.li@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200508240512.35827.ak@suse.de>
+References: <1124762500.3013.3.camel@linux-hp.sh.intel.com.suse.lists.linux.kernel>
+	 <p73pss4f6dj.fsf@verdi.suse.de>
+	 <1124848740.3622.1.camel@linux-hp.sh.intel.com>
+	 <200508240512.35827.ak@suse.de>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 11:47:58 +0800
+Message-Id: <1124855278.5047.2.camel@linux-hp.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK - good progress on filling the requirement for Windows ME/9x support 
-which seems to be the most common reason for still needing smbfs based 
-on various email responses on this thread (if we can get this work 
-finished up fast, it will avoid some double maintainence).
+On Wed, 2005-08-24 at 05:12 +0200, Andi Kleen wrote:
+> On Wednesday 24 August 2005 03:59, Shaohua Li wrote:
+> > On Wed, 2005-08-24 at 03:52 +0200, Andi Kleen wrote:
+> > > Shaohua Li <shaohua.li@intel.com> writes:
+> > > > x86-64 has resume support. It uses 'on_each_cpu' in resume method,
+> > > > which is known broken. We'd better fix it.
+> > >
+> > > What is broken with it?
+> >
+> > It's a sysdev. The resume method is invoked with interrupt disabled.
+> 
+> But only local interrupt disabled, no? 
+> 
+> Hmm - didn't we have a WARN_ON(irqs_disabled()) in smp_call_function().
+> 
+> Anyways, it'll probably still work for now because the system should
+> be synchronized at this point.
+We are using cpu hotplug framework for MP suspend/resume. When sysdev's
+resume is calling, APs actually aren't up. So it actually can't work.
 
-CIFS (in the cifs.git tree) can now handle not just mounts to Windows ME 
-(and probably Windows 9x), but readdir and enough of lookup.   Finishing 
-up the remainder should go fast (OpenX instead of NTCreateX is the main 
-piece left).
-
-Of course finding Windows 95, Windows 98, and OS/2 servers is a little 
-harder than it sounds...although scripting a subset of the functional 
-tests that should work should be pretty easy.
-
-I will also put a version of the source that will compile at least as 
-far back as 2.6.9 up on the project page within a few days.
-
+Thanks,
+Shaohua
 

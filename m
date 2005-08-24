@@ -1,50 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVHXJrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVHXJzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbVHXJrb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 05:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVHXJrb
+	id S1750824AbVHXJzt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 05:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVHXJzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 05:47:31 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59063 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750711AbVHXJrb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 05:47:31 -0400
-Date: Wed, 24 Aug 2005 11:47:12 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-cc: Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
-       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
-       George Anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-In-Reply-To: <430C312D.21770.54E50A3@rkdvmks1.ngate.uni-regensburg.de>
-Message-ID: <Pine.LNX.4.61.0508241056090.3728@scrub.home>
-References: <1124838847.20617.11.camel@cog.beaverton.ibm.com>
- <430C312D.21770.54E50A3@rkdvmks1.ngate.uni-regensburg.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Aug 2005 05:55:48 -0400
+Received: from defiant.lowpingbastards.de ([213.178.77.226]:33487 "EHLO
+	mail.lowpingbastards.de") by vger.kernel.org with ESMTP
+	id S1750785AbVHXJzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 05:55:48 -0400
+Date: Wed, 24 Aug 2005 11:55:20 +0200
+From: Frederik Schueler <fs@lowpingbastards.de>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: Frederik Schueler <fs@lowpingbastards.de>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: new qla2xxx driver breaks SAN setup with 2 controllers
+Message-ID: <20050824095520.GD13391@mail.lowpingbastards.de>
+References: <20050823112535.GB13391@mail.lowpingbastards.de> <20050823200040.GA8310@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4ZLFUWh1odzi/v6L"
+Content-Disposition: inline
+In-Reply-To: <20050823200040.GA8310@us.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 24 Aug 2005, Ulrich Windl wrote:
+--4ZLFUWh1odzi/v6L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I'm having a problem with your wording: NTP _does_ control the "system time" 
-> (system clock), because it's the only clock it can use. The "reference time" is 
-> usually remote or elsewhere (multiple sources). Local NTP does not control the 
-> remote reference time(s).
+Hello,
 
-I'm open to better wording suggestions, but this is from the kernel 
-perspective and ntp daemon has as much control over the kernel time as the 
-remote server has control over the ntp daemon (and basically also the 
-other way around). Every entity has its own idea of time and uses 
-something else as reference. The ntp daemon uses the remote server as 
-reference time and the kernel gets from a ntp daemon a reference time. The 
-kernel can now either just jump in regular intervals to that reference 
-time or it modifies the speed of the system time to keep close to it.
-It's really the kernel who modifies the system clock based on the 
-parameters from the ntp daemon.
+On Tue, Aug 23, 2005 at 01:00:40PM -0700, Patrick Mansfield wrote:
+> The use of scsiadd script implies that you are attaching or somehow
+> modifying the storage after the driver has loaded. Is that correct?
 
-bye, Roman
+yes exactly, only the bootdrive LUN is registered after bootup. I have
+to selectively scsiadd the other LUNs if there is a gap between the=20
+boot LUN (1-8 in our setup) and the shared storages (9-14). I don't
+consider this a bug though, I had to remove some devices otherwise,=20
+and old drivers had to be patched to allow this at all.
+
+
+> There is a fix for scanning initiated via user space, this change:
+>=20
+> http://www.kernel.org/git/?p=3Dlinux/kernel/git/jejb/scsi-rc-fixes-2.6.gi=
+t;a=3Dcommit;h=3D5c44cd2afad3f7b015542187e147a820600172f1
+>=20
+> The above fix is in the current 2.6 git tree. Does that fix your problem?
+=20
+It does, thanks for the hint :-)
+
+I see this is in rc7 too.
+
+
+> Also try using lsscsi.
+
+it does not list the non-registered LUNs the driver knows about, as the
+old proc interface did.
+
+
+Best regards
+Frederik Schueler
+
+--=20
+ENOSIG
+
+--4ZLFUWh1odzi/v6L
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDDEQI6n7So0GVSSARAhAlAKCCx09jpD77raczusgfOpdW6hIb5ACfUC+a
+y2q1W3rNj6Aw/fP+NrMnDkQ=
+=x4/n
+-----END PGP SIGNATURE-----
+
+--4ZLFUWh1odzi/v6L--

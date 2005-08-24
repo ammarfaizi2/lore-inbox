@@ -1,67 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbVHXENv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbVHXETS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbVHXENv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 00:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbVHXENv
+	id S1751443AbVHXETS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 00:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbVHXETR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 00:13:51 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:62684 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751444AbVHXENt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 00:13:49 -0400
-Subject: Re: [PATCH] Add MCE resume under ia32
-From: Shaohua Li <shaohua.li@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-In-Reply-To: <200508240559.16931.ak@suse.de>
-References: <1124762500.3013.3.camel@linux-hp.sh.intel.com.suse.lists.linux.kernel>
-	 <200508240512.35827.ak@suse.de>
-	 <1124855278.5047.2.camel@linux-hp.sh.intel.com>
-	 <200508240559.16931.ak@suse.de>
-Content-Type: text/plain
-Date: Wed, 24 Aug 2005 12:16:26 +0800
-Message-Id: <1124856986.5310.2.camel@linux-hp.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Wed, 24 Aug 2005 00:19:17 -0400
+Received: from smtpauth05.mail.atl.earthlink.net ([209.86.89.65]:49296 "EHLO
+	smtpauth05.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S1751443AbVHXETR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 00:19:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=dk20050327; d=mindspring.com;
+  b=AM75i9WX3geyUTlIE7o6csniZLdSrbbWuNzZgO9N5iJBt1Oeht3MTu6/LQZ16BY/;
+  h=Received:Mime-Version:In-Reply-To:References:Content-Type:Message-Id:Content-Transfer-Encoding:From:Subject:Date:To:X-Mailer:X-ELNK-Trace:X-Originating-IP;
+Mime-Version: 1.0 (Apple Message framework v734)
+In-Reply-To: <430BEBEA.60704@austin.rr.com>
+References: <430BEBEA.60704@austin.rr.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <BBBDF0DA-0132-49A1-B2D2-61F7D488FBD3@mindspring.com>
 Content-Transfer-Encoding: 7bit
+From: Hal Wigoda <hwigoda@mindspring.com>
+Subject: Re: New maintainer needed for the Linux smb filesystem
+Date: Tue, 23 Aug 2005 23:19:11 -0500
+To: linux-kernel@vger.kernel.org, samba-technical@lists.samba.org,
+       linux-cifs-client@lists.samba.org
+X-Mailer: Apple Mail (2.734)
+X-ELNK-Trace: f4865024121a91b69649176a89d694c0f43c108795ac450725c53af9873f31e170ae20e552dc3300350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 209.86.99.115
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-24 at 05:59 +0200, Andi Kleen wrote:
-> [adding discuss to cc]
-> 
-> On Wednesday 24 August 2005 05:47, Shaohua Li wrote:
-> > On Wed, 2005-08-24 at 05:12 +0200, Andi Kleen wrote:
-> > > On Wednesday 24 August 2005 03:59, Shaohua Li wrote:
-> > > > On Wed, 2005-08-24 at 03:52 +0200, Andi Kleen wrote:
-> > > > > Shaohua Li <shaohua.li@intel.com> writes:
-> > > > > > x86-64 has resume support. It uses 'on_each_cpu' in resume method,
-> > > > > > which is known broken. We'd better fix it.
-> > > > >
-> > > > > What is broken with it?
-> > > >
-> > > > It's a sysdev. The resume method is invoked with interrupt disabled.
-> > >
-> > > But only local interrupt disabled, no?
-> > >
-> > > Hmm - didn't we have a WARN_ON(irqs_disabled()) in smp_call_function().
-> > >
-> > > Anyways, it'll probably still work for now because the system should
-> > > be synchronized at this point.
-> >
-> > We are using cpu hotplug framework for MP suspend/resume. When sysdev's
-> > resume is calling, APs actually aren't up. So it actually can't work.
-> 
-> Ok, that's a new problem.
-> 
-> There were recently some patches to add individual MCE entries
-> for each CPU to sysfs. They are only used for set up right now,
-> but perhaps they can be linked somehow to the cpu sysfs devices
-> and get suspend/resume events from there.
-The boot code already initialized MCE for APs, it isn't required to
-initialize again. The MCE entries are cpuhotplug friendly, so for
-suspend/resume.
-
-Thanks,
-Shaohua
-
+is a maintainer still needed?
+and if so, what are the qualifications?
+hal wigoda
+chicago

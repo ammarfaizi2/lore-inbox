@@ -1,134 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVHXFwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbVHXGGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbVHXFwa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 01:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVHXFwa
+	id S1751464AbVHXGGg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 02:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbVHXGGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 01:52:30 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:56772 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750721AbVHXFw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 01:52:29 -0400
-Message-ID: <430C0B33.7000708@temple.edu>
-Date: Wed, 24 Aug 2005 01:52:51 -0400
-From: Nick Sillik <n.sillik@temple.edu>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Sillik <n.sillik@temple.edu>
-CC: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [-mm PATCH] drivers/char/speakup/synthlist.h - Fix warnings with
- -Wundef
-References: <430B8063.8070301@temple.edu> <20050824053703.GA23807@mipter.zuzino.mipt.ru> <430C07F0.8010001@temple.edu>
-In-Reply-To: <430C07F0.8010001@temple.edu>
-Content-Type: multipart/mixed;
- boundary="------------000205010708080600070008"
+	Wed, 24 Aug 2005 02:06:36 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61105 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751464AbVHXGGg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 02:06:36 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch 2.6.13-rc7] Export pcibios_bus_to_resource
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 24 Aug 2005 16:06:25 +1000
+Message-ID: <12744.1124863585@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000205010708080600070008
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+pcibios_bus_to_resource is exported on all architectures except ia64
+and sparc.  Add exports for the two missing architectures.  Needed when
+Yenta socket support is compiled as a module.
 
-Nick Sillik wrote:
-> Alexey Dobriyan wrote:
-> 
->>
->>> -#define  CFG_TEST(name) (name)
->>> +#define  CFG_TEST(name) defined(name)
->>
->>
->>
->> No. Just remove this obfuscating macro.
-> 
-> 
-> Agreed, here is the fixed patch
-> 
-> Signed-Off-By: Nick Sillik <n.sillik@temple.edu>
+Signed-off-by: Keith Owens <kaos@sgi.com>
 
-No here it really is... (sorry)
-
-Signed-Off-By: Nick Sillik <n.sillik@temple.edu>
-
---------------000205010708080600070008
-Content-Type: text/x-patch;
- name="speakup-wundef.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="speakup-wundef.patch"
-
-diff -urN -X linux-2.6.13-rc6-mm2/Documentation/dontdiff linux-2.6.13-rc6-mm2/drivers/char/speakup/synthlist.h linux-2.6.13-rc6-mm2-patched/drivers/char/speakup/synthlist.h
---- linux-2.6.13-rc6-mm2/drivers/char/speakup/synthlist.h	2005-08-24 01:37:59.000000000 -0400
-+++ linux-2.6.13-rc6-mm2-patched/drivers/char/speakup/synthlist.h	2005-08-24 01:37:37.000000000 -0400
-@@ -2,53 +2,51 @@
- #if defined(PASS2)
- /* table of built in synths */
- #define SYNTH_DECL(who) &synth_##who,
--#define  CFG_TEST(name) (name)
- #else
- /* declare extern built in synths */
- #define SYNTH_DECL(who) extern struct spk_synth synth_##who;
- #define PASS2
--#define  CFG_TEST(name) (name)
- #endif
+Index: linux/arch/ia64/pci/pci.c
+===================================================================
+--- linux.orig/arch/ia64/pci/pci.c	2005-08-08 21:57:47.415210784 +1000
++++ linux/arch/ia64/pci/pci.c	2005-08-10 22:08:01.218842356 +1000
+@@ -380,6 +380,7 @@ void pcibios_bus_to_resource(struct pci_
+ 	res->start = region->start + offset;
+ 	res->end = region->end + offset;
+ }
++EXPORT_SYMBOL(pcibios_bus_to_resource);
  
--#if CFG_TEST(CONFIG_SPEAKUP_ACNTPC)
-+#ifdef CONFIG_SPEAKUP_ACNTPC
- SYNTH_DECL(acntpc)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_ACNTSA)
-+#ifdef CONFIG_SPEAKUP_ACNTSA
- SYNTH_DECL(acntsa)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_APOLLO)
-+#ifdef CONFIG_SPEAKUP_APOLLO
- SYNTH_DECL(apollo)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_AUDPTR)
-+#ifdef CONFIG_SPEAKUP_AUDPTR
- SYNTH_DECL(audptr)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_BNS)
-+#ifdef CONFIG_SPEAKUP_BNS
- SYNTH_DECL(bns)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_DECEXT)
-+#ifdef CONFIG_SPEAKUP_DECEXT
- SYNTH_DECL(decext)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_DECTLK)
-+#ifdef CONFIG_SPEAKUP_DECTLK
- SYNTH_DECL(dectlk)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_DTLK)
-+#ifdef CONFIG_SPEAKUP_DTLK
- SYNTH_DECL(dtlk)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_KEYPC)
-+#ifdef CONFIG_SPEAKUP_KEYPC
- SYNTH_DECL(keypc)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_LTLK)
-+#ifdef CONFIG_SPEAKUP_LTLK
- SYNTH_DECL(ltlk)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_SFTSYN)
-+#ifdef CONFIG_SPEAKUP_SFTSYN
- SYNTH_DECL(sftsyn)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_SPKOUT)
-+#ifdef CONFIG_SPEAKUP_SPKOUT
- SYNTH_DECL(spkout)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_TXPRT)
-+#ifdef CONFIG_SPEAKUP_TXPRT
- SYNTH_DECL(txprt)
- #endif
+ static int __devinit is_valid_resource(struct pci_dev *dev, int idx)
+ {
+Index: linux/arch/sparc64/kernel/pci.c
+===================================================================
+--- linux.orig/arch/sparc64/kernel/pci.c	2005-08-10 13:57:47.295579310 +1000
++++ linux/arch/sparc64/kernel/pci.c	2005-08-10 22:09:23.573376709 +1000
+@@ -540,6 +540,7 @@ void pcibios_bus_to_resource(struct pci_
  
- #undef SYNTH_DECL
--#undef CFG_TEST
-+#undef 
+ 	pbm->parent->resource_adjust(pdev, res, root);
+ }
++EXPORT_SYMBOL(pcibios_bus_to_resource);
+ 
+ char * __init pcibios_setup(char *str)
+ {
 
---------------000205010708080600070008--

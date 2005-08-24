@@ -1,53 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVHXQbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVHXQdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbVHXQbU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 12:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVHXQbU
+	id S1751142AbVHXQdU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 12:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVHXQdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 12:31:20 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:49165 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751138AbVHXQbT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 12:31:19 -0400
-Date: Wed, 24 Aug 2005 12:31:04 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: =?iso-8859-1?Q?M=E1rcio?= Oliveira <moliveira@latinsourcetech.com>
+	Wed, 24 Aug 2005 12:33:20 -0400
+Received: from web33305.mail.mud.yahoo.com ([68.142.206.120]:44978 "HELO
+	web33305.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751142AbVHXQdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 12:33:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=fWmOpu6RMnULgLDj2nJ1uU4on7asxhgUAttc4u0/my09o9WEap6nTzl2sjxYP90CNqt1zfIhWesnIgwMKRSzMswe6qg+1jFAB9cEV8iFYKeOi+ya3rLyXvNgtSPKr13Hdd2FB9nbofu/Ia67uOePTYo79a+JeA/KxKlh4loeU1Y=  ;
+Message-ID: <20050824163315.96541.qmail@web33305.mail.mud.yahoo.com>
+Date: Wed, 24 Aug 2005 09:33:15 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: 2.6.12 Performance problems
+To: Sven-Thorsten Dietrich <sven@mvista.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with kernel image in a Prep Boot on PowerPC
-Message-ID: <20050824163100.GD1100@tuxdriver.com>
-Mail-Followup-To: =?iso-8859-1?Q?M=E1rcio?= Oliveira <moliveira@latinsourcetech.com>,
-	linux-kernel@vger.kernel.org
-References: <430C8CB5.1050501@latinsourcetech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <430C8CB5.1050501@latinsourcetech.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1124828536.15265.160.camel@imap.mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 12:05:25PM -0300, Márcio Oliveira wrote:
 
->   I think the kernel is pointing to the wrong root partiotion. In a x86 
-> box, I can change the kernel root partition in the boot loader (root= 
-> parameter) or using the "rdev" command. In my case, the IBM Power 
-> doesn't have a boot loader (yaboot was replaced by the kernel image) and 
-> the powerpc64 system doesn't have the rdev command (from util-linux 
-> package, the same package on x86 systems have the rdev command!).
 
-I don't know anything that will do this on a pre-built kernel.  But,
-you should look at CONFIG_CMDLINE_BOOL and CONFIG_CMDLINE in your
-kernel configuration.  That will let you pre-configure the "root="
-command line option.
+--- Sven-Thorsten Dietrich <sven@mvista.com>
+wrote:
 
-I don't know if ppc64 can use the zImage-style boot wrapper.  If it
-can, that would provide you with an option of modifying the command
-line at boot time if needed.
+> On Tue, 2005-08-23 at 13:10 -0700, Danial Thom
+> wrote:
+> > 
+> > None of this is helpful, but since no one has
+> > been able to tell me how to tune it to
+> provide
+> > absolute priority to the network stack I'll
+> > assume it can't be done.
+> 
+> History has proven that camp wrong almost 100%
+> of the time.
+> 
+> You were told to turn off kernel preemption. 
+> 
+> A diligent comparison requires that, since 2.4
+> does not support kernel
+> preemption, and a fair comparison requires
+> holding all other things
+> constant.
+> 
+> In addition, there were several IP-level
+> features mentioned in emails,
+> that have been added to 2.6.
+> 
+> You need to make sure those are all off by
+> default, to keep your
+> comparison relevant.
+> 
+> All the answers are before you, review those
+> emails, turn all that stuff
+> off and retest.
 
-Good luck!
+I had tried turning off pre-emption, with little
+difference. However linux had the same properties
+before there was such a setting (of liking to
+drop packets here and there for no apparent
+reason under heavy load), so I didn't expect it
+to make a huge difference. It seems typing on the
+keyboard has the same effect with or without
+pre-emption enabled. 
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+IP is not involved in this test, so no IP stack
+issues should be relevent.
+
+Danial
+
+
+
+		
+__________________________________ 
+Yahoo! Mail for Mobile 
+Take Yahoo! Mail with you! Check email on your mobile phone. 
+http://mobile.yahoo.com/learn/mail 

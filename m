@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbVHXOVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVHXOoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbVHXOVe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 10:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbVHXOVe
+	id S1751032AbVHXOoN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 10:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVHXOoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 10:21:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:17857 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751024AbVHXOVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 10:21:34 -0400
-Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
-From: Arjan van de Ven <arjan@infradead.org>
-To: Hiro Yoshioka <hyoshiok@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050824.231156.278740508.hyoshiok@miraclelinux.com>
-References: <20050818.201138.607962419.hyoshiok@miraclelinux.com>
-	 <98df96d30508181629d85edb5@mail.gmail.com>
-	 <20050823.081246.846946371.hyoshiok@miraclelinux.com>
-	 <20050824.231156.278740508.hyoshiok@miraclelinux.com>
-Content-Type: text/plain
-Date: Wed, 24 Aug 2005 16:21:23 +0200
-Message-Id: <1124893284.3237.14.camel@laptopd505.fenrus.org>
+	Wed, 24 Aug 2005 10:44:13 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47364 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751029AbVHXOoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 10:44:12 -0400
+Date: Wed, 24 Aug 2005 16:44:11 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Shaohua Li <shaohua.li@intel.com>, Len Brown <len.brown@intel.com>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: 2.6.13-rc: ACPI_INTERPRETER=y, PCI=n compile error
+Message-ID: <20050824144411.GA4851@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-24 at 23:11 +0900, Hiro Yoshioka wrote:
-> Hi,
-> 
-> The following patch does not use MMX regsiters so that we don't have
-> to worry about save/restore the FPU/MMX states.
-> 
-> What do you think?
+I got the following compile error in 2.6.13-rc6-mm2, but it seems to be 
+a problem coming from Linus' tree introduced by the
+  [ACPI] S3 resume: avoid kmalloc() might_sleep oops symptom
+patch:
 
-excellent!
+<--  snip  -->
 
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `acpi_os_allocate':
+: undefined reference to `acpi_in_resume'
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVHXV3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVHXV3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbVHXV3S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbVHXV3R
+	id S932258AbVHXV3D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbVHXV3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 17:29:17 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:47798 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932262AbVHXV3Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:29:16 -0400
-Subject: Re: question on memory barrier
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050824124348.44686.qmail@web25807.mail.ukl.yahoo.com>
-References: <20050824124348.44686.qmail@web25807.mail.ukl.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 24 Aug 2005 22:57:46 +0100
-Message-Id: <1124920666.13833.13.camel@localhost.localdomain>
+	Wed, 24 Aug 2005 17:29:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39140 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932258AbVHXV3C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 17:29:02 -0400
+Date: Wed, 24 Aug 2005 14:28:37 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>
+Subject: Re: [PATCH 5/5] Create a hole in high linear address space
+Message-ID: <20050824212837.GP7762@shell0.pdx.osdl.net>
+References: <200508241845.j7OIjIeM001900@zach-dev.vmware.com> <20050824201920.GN7762@shell0.pdx.osdl.net> <430CE428.3000605@vmware.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <430CE428.3000605@vmware.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-08-24 at 14:43 +0200, moreau francis wrote:
-> I'm currently trying to write a USB driver for Linux. The device must be
-> configured by writing some values into the same register but I want to be
-> sure that the writing order is respected by either the compiler and the cpu.
+* Zachary Amsden (zach@vmware.com) wrote:
+> Hmm.  I was thinking it would be compile time variable with defaults -- like
+> 
+> config MEMORY_HOLE
+>       int "Create hole at top of memory (0-512 MB)"
+>       range 0 512
+>       default "0"
+>       default 168 if (CONFIG_X86_PAE && CONFIG_X86_HYPERVISOR)
+>       default 64 if (!CONFIG_X86_PAE && CONFIG_X86_HYPERVISOR)
 
-The Linux kernel defines writel() in such a way that for each platform a
-series of writel() calls are ordered with respect to the processor. In
-other words if on one processor you issue 
+That's fine, I had done some braindead math anyway ;-)
 
-	writel(0, foo);
-	writel(1, foo);
-	writel(2, foo);
+>       help
+>          Useful for creating a hole in the top of memory when running
+>          inside of a virtual machine monitor.
+> 
+> Adding things to the fixmap is a separate concept, thus a separate patch ;)
 
-the hardware will see 0, 1, 2. writel does not guarantee that the write
-occurs immediately so while you know the writes are ordered you don't
-know the write has "arrived" at the device when the writel() call
-returns. That isn't usually a problem except when delays are required.
-Then you need to avoid PCI posting and do
+Sure, good point.
 
-	writel(0, foo);
-	readl(foo);
-	udelay(50);
-	writel(1, foo);
-
-The only other complication is multiprocessor systems - if you have
-multiple places that may issue these I/O's you may need a lock to
-protect them from both processors configuring at the same time, and in
-theory an mmiowb() call to ensure the first processor has finished its
-I/O before the second starts - ie
-
-	spin_lock(&conf_lock);
-	writel(0, foo);
-	writel(1, foo);
-	mmiowb();
-	spin_unlock(&conf_lock);
-
-
-The "wmb/rmb" are barriers to memory not to device I/O. The locking
-functions (spin_unlock etc) are implicit memory barriers, but atomic
-operations are not.
-
-Generally speaking if you use writel the right semantics just happen,
-and that is why the writel definition is the way it is.
-
+thanks,
+-chris

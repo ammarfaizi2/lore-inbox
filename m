@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbVHXSqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbVHXStZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbVHXSqo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 14:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVHXSqn
+	id S1751394AbVHXStZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 14:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbVHXStZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 14:46:43 -0400
-Received: from pat.uio.no ([129.240.130.16]:16862 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751391AbVHXSqm (ORCPT
+	Wed, 24 Aug 2005 14:49:25 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:36026 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751394AbVHXStY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 14:46:42 -0400
-Subject: Re: [RFC][PATCH] VFS: update documentation (take #2)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <1124908580.18800.2.camel@localhost>
-References: <1124908580.18800.2.camel@localhost>
-Content-Type: text/plain
-Date: Wed, 24 Aug 2005 11:46:30 -0700
-Message-Id: <1124909191.8286.2.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.607, required 12,
-	autolearn=disabled, AWL 1.39, UIO_MAIL_IS_INTERNAL -5.00)
+	Wed, 24 Aug 2005 14:49:24 -0400
+Date: Wed, 24 Aug 2005 20:48:42 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
+       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
+       George Anzinger <george@mvista.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+In-Reply-To: <1124906422.20820.16.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0508242043220.3728@scrub.home>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com> 
+ <1123726394.32531.33.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+  <1124151001.8630.87.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+  <1124241449.8630.137.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.61.0508182213100.3728@scrub.home>  <1124505151.22195.78.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.61.0508202204240.3728@scrub.home>  <1124737075.22195.114.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.61.0508230134210.3728@scrub.home>  <1124830262.20464.26.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.61.0508232321530.3728@scrub.home>  <1124838847.20617.11.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.61.0508240134050.3743@scrub.home> <1124906422.20820.16.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 24.08.2005 Klokka 21:36 (+0300) skreiv Pekka Enberg:
->  
->  struct file_system_type {
->  	const char *name;
->  	int fs_flags;
-> -	struct super_block *(*read_super) (struct super_block *, void *, int);
-> -	struct file_system_type * next;
-> +        struct super_block *(*get_sb) (struct file_system_type *, int,
-> +                                       const char *, void *);
-> +        void (*kill_sb) (struct super_block *);
-> +        struct module *owner;
-> +        struct file_system_type * next;
-> +        struct list_head fs_supers;
->  };
->  
->    name: the name of the filesystem type, such as "ext2", "iso9660",
-> @@ -141,51 +141,96 @@ struct file_system_type {
->  
->    fs_flags: various flags (i.e. FS_REQUIRES_DEV, FS_NO_DCACHE, etc.)
->  
-> -  read_super: the method to call when a new instance of this
-> +  get_sb: the method to call when a new instance of this
->  	filesystem should be mounted
->  
-> -  next: for internal VFS use: you should initialise this to NULL
-> +  kill_sb: the method to call when an instance of this filesystem
-> +	should be unmounted
-> +
-> +  owner: for internal VFS use: you should initialize this to NULL
+Hi,
 
-owner should be set to THIS_MODULE in most cases...
+On Wed, 24 Aug 2005, john stultz wrote:
 
-Cheers,
-  Trond
+> Ok, so then to clarify the above (as you mention gettimeofday uses
+> system_time), would your gettimeofday look something like:
+> 
+> gettiemofday():
+> 	return (system_time + (cycle_offset * mult) + error)>> shift
+> 
+> ?
 
+No.
+
+	reference_time = xtime;
+	system_time = xtime + error >> shift;
+	gettimeofday = system_time + (cycle_offset * mult) >> shift;
+
+bye, Roman

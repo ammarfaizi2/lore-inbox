@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbVHXSpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbVHXSqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbVHXSpF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 14:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbVHXSpF
+	id S1751398AbVHXSqo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 14:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVHXSqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 14:45:05 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:7172 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751391AbVHXSpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 14:45:02 -0400
-Date: Wed, 24 Aug 2005 11:45:18 -0700
-Message-Id: <200508241845.j7OIjIeM001900@zach-dev.vmware.com>
-Subject: [PATCH 5/5] Create a hole in high linear address space
-From: Zachary Amsden <zach@vmware.com>
-To: Andrew Morton <akpm@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-To: Virtualization Mailing List <virtualization@lists.osdl.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Chris Wright <chrisw@osdl.org>
-To: Martin Bligh <mbligh@mbligh.org>
-To: Pratap Subrahmanyam <pratap@vmware.com>
-To: Christopher Li <chrisl@vmware.com>
-To: Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 24 Aug 2005 18:45:00.0265 (UTC) FILETIME=[EE80CD90:01C5A8DB]
+	Wed, 24 Aug 2005 14:46:43 -0400
+Received: from pat.uio.no ([129.240.130.16]:16862 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751391AbVHXSqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 14:46:42 -0400
+Subject: Re: [RFC][PATCH] VFS: update documentation (take #2)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <1124908580.18800.2.camel@localhost>
+References: <1124908580.18800.2.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 11:46:30 -0700
+Message-Id: <1124909191.8286.2.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.607, required 12,
+	autolearn=disabled, AWL 1.39, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow compile time creation of a hole at the high end of linear address space.
-This makes accomodating a hypervisor a much more tractable problem by giving
-it ample playground to live in.  Currently, the hole size is fixed at config
-time; I have experimented with dynamically sized holes, and have a later
-patch that developes this potential, but it becomes much more useful once
-the exact negotiation of linear address space with the hypervisor is defined.
+on den 24.08.2005 Klokka 21:36 (+0300) skreiv Pekka Enberg:
+>  
+>  struct file_system_type {
+>  	const char *name;
+>  	int fs_flags;
+> -	struct super_block *(*read_super) (struct super_block *, void *, int);
+> -	struct file_system_type * next;
+> +        struct super_block *(*get_sb) (struct file_system_type *, int,
+> +                                       const char *, void *);
+> +        void (*kill_sb) (struct super_block *);
+> +        struct module *owner;
+> +        struct file_system_type * next;
+> +        struct list_head fs_supers;
+>  };
+>  
+>    name: the name of the filesystem type, such as "ext2", "iso9660",
+> @@ -141,51 +141,96 @@ struct file_system_type {
+>  
+>    fs_flags: various flags (i.e. FS_REQUIRES_DEV, FS_NO_DCACHE, etc.)
+>  
+> -  read_super: the method to call when a new instance of this
+> +  get_sb: the method to call when a new instance of this
+>  	filesystem should be mounted
+>  
+> -  next: for internal VFS use: you should initialise this to NULL
+> +  kill_sb: the method to call when an instance of this filesystem
+> +	should be unmounted
+> +
+> +  owner: for internal VFS use: you should initialize this to NULL
 
-The fixed compile time solution is sufficient for now.
+owner should be set to THIS_MODULE in most cases...
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.13/arch/i386/Kconfig
-===================================================================
---- linux-2.6.13.orig/arch/i386/Kconfig	2005-08-24 09:30:49.000000000 -0700
-+++ linux-2.6.13/arch/i386/Kconfig	2005-08-24 09:58:56.000000000 -0700
-@@ -803,6 +803,14 @@ config ARCH_SELECT_MEMORY_MODEL
- 	def_bool y
- 	depends on ARCH_SPARSEMEM_ENABLE
- 
-+config MEMORY_HOLE
-+	int "Create hole at top of memory (0-512 MB)"
-+	range 0 512
-+	default "0"
-+	help
-+	   Useful for creating a hole in the top of memory when running
-+	   inside of a virtual machine monitor.
-+
- source "mm/Kconfig"
- 
- config HAVE_ARCH_EARLY_PFN_TO_NID
-Index: linux-2.6.13/include/asm-i386/fixmap.h
-===================================================================
---- linux-2.6.13.orig/include/asm-i386/fixmap.h	2005-08-24 09:30:43.000000000 -0700
-+++ linux-2.6.13/include/asm-i386/fixmap.h	2005-08-24 10:04:42.000000000 -0700
-@@ -20,7 +20,7 @@
-  * Leave one empty page between vmalloc'ed areas and
-  * the start of the fixmap.
-  */
--#define __FIXADDR_TOP	0xfffff000
-+#define __FIXADDR_TOP	(0xfffff000-(CONFIG_MEMORY_HOLE << 20))
- 
- #ifndef __ASSEMBLY__
- #include <linux/kernel.h>
+Cheers,
+  Trond
+

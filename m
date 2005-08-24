@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVHXQPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbVHXQSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbVHXQPY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 12:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVHXQPY
+	id S1751107AbVHXQSn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 12:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVHXQSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 12:15:24 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:59274 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751106AbVHXQPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 12:15:23 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Another libata TODO item
-X-Message-Flag: Warning: May contain useful information
-References: <430C10E7.9060502@pobox.com>
-	<20050824074116.GF24513@infradead.org> <430C271E.7060006@pobox.com>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Wed, 24 Aug 2005 09:15:13 -0700
-In-Reply-To: <430C271E.7060006@pobox.com> (Jeff Garzik's message of "Wed, 24
- Aug 2005 03:51:58 -0400")
-Message-ID: <52d5o31fce.fsf@cisco.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Wed, 24 Aug 2005 12:18:43 -0400
+Received: from cantor.suse.de ([195.135.220.2]:64996 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751107AbVHXQSm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 12:18:42 -0400
+To: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+References: <20050818.201138.607962419.hyoshiok@miraclelinux.com.suse.lists.linux.kernel>
+	<98df96d30508181629d85edb5@mail.gmail.com.suse.lists.linux.kernel>
+	<20050823.081246.846946371.hyoshiok@miraclelinux.com.suse.lists.linux.kernel>
+	<20050824.231156.278740508.hyoshiok@miraclelinux.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 24 Aug 2005 18:18:36 +0200
+In-Reply-To: <20050824.231156.278740508.hyoshiok@miraclelinux.com.suse.lists.linux.kernel>
+Message-ID: <p73ll2rfgv7.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 24 Aug 2005 16:15:14.0531 (UTC) FILETIME=[02969B30:01C5A8C7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Jeff> In any case, I also contine to be skeptical of in-kernel
-    Jeff> logging subsystems.
+Hiro Yoshioka <hyoshiok@miraclelinux.com> writes:
 
-Aren't you proposing a libata logging subsystem?
+> Hi,
+> 
+> The following patch does not use MMX regsiters so that we don't have
+> to worry about save/restore the FPU/MMX states.
+> 
+> What do you think?
 
- - R.
+Performance will probably be bad on K7 Athlons - those have a microcoded
+movnti which is quite slow.
+
+Also BTW I don't see any code anywhere that tests the CPUID bits,
+so your code will fail spectacularly on a PII that didn't do SSE
+(intel user copy used to be enabled on those) 
+
+One way to solve this might be to use different code using
+alternative()
+
+-Andi

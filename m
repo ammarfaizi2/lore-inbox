@@ -1,81 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbVHXRbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbVHXRrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbVHXRbq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 13:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVHXRbq
+	id S1751254AbVHXRrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 13:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbVHXRrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 13:31:46 -0400
-Received: from web25809.mail.ukl.yahoo.com ([217.12.10.194]:20318 "HELO
-	web25809.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751326AbVHXRbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 13:31:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=F94Ym8AutwB/IcyohjfrEbvG6dZG1OrsAvxoxFZIwo3j0/3eqp43RhYSXd2SpqnkUnSVMKMgy2ybK0aPgmivNlTjB1EvuuZBZIlLhjO16vdNRKnpVgqBcYduijyJ7ep8I7+61eSCGKEC8ScvUScg/HS0393nZqQJdfoJiapaMCU=  ;
-Message-ID: <20050824173131.50938.qmail@web25809.mail.ukl.yahoo.com>
-Date: Wed, 24 Aug 2005 19:31:31 +0200 (CEST)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re: question on memory barrier
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0508240854550.28064@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 24 Aug 2005 13:47:09 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43698 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751254AbVHXRrI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 13:47:08 -0400
+Date: Wed, 24 Aug 2005 19:47:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CFQ + 2.6.13-rc4-RT-V0.7.52-02 = BUG: scheduling with irqs disabled
+Message-ID: <20050824174702.GL28272@suse.de>
+References: <1124899329.3855.12.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124899329.3855.12.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- "linux-os (Dick Johnson)" <linux-os@analogic.com> a écrit :
-
+On Wed, Aug 24 2005, Lee Revell wrote:
+> Just found this in dmesg.
 > 
-> On Wed, 24 Aug 2005, moreau francis wrote:
-> 
-> > Hi,
-> >
-> > I'm currently trying to write a USB driver for Linux. The device must be
-> > configured by writing some values into the same register but I want to be
-> > sure that the writing order is respected by either the compiler and the
-> cpu.
-> >
-> > For example, here is a bit of driver's code:
-> >
-> > """
-> > #include <asm/io.h>
-> >
-> > static inline void dev_out(u32 *reg, u32 value)
-> > {
-> >        writel(value, regs);
-> > }
-> >
-> > void config_dev(void)
-> > {
-> >        dev_out(reg_a, 0x0); /* first io */
-> >        dev_out(reg_a, 0xA); /* second io */
-> > }
-> >
-> 
-> This should be fine. The effect of the first bit of code
-> plus all side-effects (if any) should be complete at the
-> first effective sequence-point (;) but you need to
+> BUG: scheduling with irqs disabled: libc6.postinst/0x20000000/13229
+> caller is ___down_mutex+0xe9/0x1a0
+>  [<c029c1f9>] schedule+0x59/0xf0 (8)
+>  [<c029ced9>] ___down_mutex+0xe9/0x1a0 (28)
+>  [<c0221832>] cfq_exit_single_io_context+0x22/0xa0 (84)
+>  [<c02218ea>] cfq_exit_io_context+0x3a/0x50 (16)
+>  [<c021db84>] exit_io_context+0x64/0x70 (16)
+>  [<c011efda>] do_exit+0x5a/0x3e0 (20)
+>  [<c011f3ca>] do_group_exit+0x2a/0xb0 (24)
+>  [<c0103039>] syscall_call+0x7/0xb (20)
 
-sorry but I'm not sure to understand you...Do you mean that the first write
-into reg_a pointer will be completed before the second write because they're
-separated by a (;) ?
-Or because writes are encapsulated inside an inline function, therefore
-compiler
-must execute every single writes before returning from the inline function ?
+Hmm, Ingo I seem to remember you saying that the following construct:
 
-Thanks.
+        local_irq_save(flags);
+        spin_lock(lock);
 
-            Francis
+which is equivelant to spin_lock_irqsave() in mainline being illegal in
+-RT, is that correct? This is what cfq uses right now for an exiting
+task, as the above trace indicates.
 
+-- 
+Jens Axboe
 
-	
-
-	
-		
-___________________________________________________________________________ 
-Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
-Téléchargez cette version sur http://fr.messenger.yahoo.com

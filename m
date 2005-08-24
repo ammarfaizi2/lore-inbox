@@ -1,43 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbVHXUdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbVHXUgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbVHXUdh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 16:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVHXUdh
+	id S932156AbVHXUgN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 16:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVHXUgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 16:33:37 -0400
-Received: from animx.eu.org ([216.98.75.249]:16287 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S932124AbVHXUdh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 16:33:37 -0400
-Date: Wed, 24 Aug 2005 16:52:37 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: robotti@godmail.com, linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: Initramfs and TMPFS!
-Message-ID: <20050824205237.GB14136@animx.eu.org>
-Mail-Followup-To: Chris Wedgwood <cw@f00f.org>, robotti@godmail.com,
-	linux-kernel@vger.kernel.org,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-References: <200508232205.j7NM5l1g018046@ms-smtp-01.rdc-nyc.rr.com> <20050824025740.GA3361@taniwha.stupidest.org>
+	Wed, 24 Aug 2005 16:36:13 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:28927 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932156AbVHXUgM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 16:36:12 -0400
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+From: john stultz <johnstul@us.ibm.com>
+To: george@mvista.com
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
+       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <430BBF82.2010209@mvista.com>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>
+	 <1124505151.22195.78.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508202204240.3728@scrub.home>
+	 <1124737075.22195.114.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508230134210.3728@scrub.home>
+	 <1124830262.20464.26.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508232321530.3728@scrub.home>
+	 <1124838847.20617.11.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508240134050.3743@scrub.home> <430BBF82.2010209@mvista.com>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 13:36:06 -0700
+Message-Id: <1124915766.20820.67.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050824025740.GA3361@taniwha.stupidest.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> I have a path for initramfs to use tmpfs.  It's sorta hacky so I never
-> submitted it and solves a niche problem for embedded people.
-> 
-> Ultimately we might one day still want to change how we initialize the
-> early userspace (Al suggesting a reasomably nice way to move the
-> decompressor(s) to userspace for example) so I don't feel there is a
-> compelling reason to do more than cleanups in this area right now.
+On Tue, 2005-08-23 at 17:29 -0700, George Anzinger wrote:
+> Roman Zippel wrote:
+> > Hi,
+> > 
+> > On Tue, 23 Aug 2005, john stultz wrote:
+> > 
+> > 
+> >>I'm assuming gettimeofday()/clock_gettime() looks something like:
+> >>   xtime + (get_cycles()-last_update)*(mult+ntp_adj)>>shift
+> > 
+> > 
+> > Where did you get the ntp_adj from? It's not in my example.
+> > gettimeofday() was in the previous mail: "xtime + (cycle_offset * mult +
+> > error) >> shift". The difference between system time and reference 
+> > time is really important. gettimeofday() returns the system time, NTP 
+> > controls the reference time and these two are synchronized regularly.
+> > I didn't see that anywhere in your example.
+> > 
 
-Care to send me the patch?
+> If I read your example right, the problem is when the NTP adjustment 
+> changes while the two clocks are out of sync (because of a late tick). 
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Not quite. The issue that I'm trying to describe is that if, we
+inconsistently calculate time intervals in gettimeofday and the timer
+interrupt, we have the possibility for time inconsistencies.
+
+The trivial example using the current code would be something like:
+
+Again with my 2 cyc per tick clock, HZ=1000.
+
+gettimeofday():
+	xtime + offset_ns
+
+timer_interrupt:
+	xtime += tick_length + ntp_adj
+	offset_ns = 0
+
+0:  gettimeofday:  0 + 0 = 0 ns
+1:  gettimeofday:  0 + 500k ns = 500k ns
+2:  gettimeofday:  0 + 1M ns = 1M ns
+2:  timer_interrupt:  
+2:  gettimeofday:  1M ns + 0 ns = 1M ns
+3:  gettimeofday:  1M ns + 500k ns = 1.5M ns
+4:  gettimeofday:  1M ns + 1M ns = 2 ns
+4:  timer_interrupt (using -500ppm adjustment)
+4:  gettimeofday:  1,999,500 ns + 0 ns = 1,999,500 ns
+
+
+
+> It would appear that gettimeofday would need to know that the NTP 
+> adjustment is changing  (and to what).  It would also appear that this 
+> is known by the ntp code and could be made available to gettimeofday. 
+> If it is changing due to an NTP call, that system call, itself, 
+> should/must force synchronization.  So the only case gettimeofday needs 
+> to worry/know about is that an adjustment is to change at time X to 
+> value Y.  Also, me thinks there is only one such change that can be 
+> present at any given time.
+
+Well, in many arches gettimeofday() works around the above issue by
+capping the offset_ns value as such:
+
+gettimeofday:
+	xtime + min(offset_ns, tick_len + ntp_adj)
+
+The problem with this is that when we have lost or late ticks, or if we
+are using dynamic ticks you have granularity problems.
+
+
+thanks
+-john
+
+
+
+

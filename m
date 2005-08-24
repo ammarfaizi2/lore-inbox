@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVHXVIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbVHXVIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbVHXVIL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVHXVIL
+	id S932230AbVHXVIt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVHXVIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 17:08:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15025 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932224AbVHXVIK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:08:10 -0400
-Date: Wed, 24 Aug 2005 14:07:55 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] cpu_exclusive sched domains on partial nodes temp fix
-Message-Id: <20050824140755.4808d593.pj@sgi.com>
-In-Reply-To: <20050824202133.GA10685@redhat.com>
-References: <200508240401.j7O41qlB029277@hera.kernel.org>
-	<20050824190651.GA10586@redhat.com>
-	<20050824121340.3edf79d8.pj@sgi.com>
-	<20050824202133.GA10685@redhat.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 24 Aug 2005 17:08:49 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:58509 "EHLO
+	ogre.sisk.pl") by vger.kernel.org with ESMTP id S932230AbVHXVIr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 17:08:47 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Memory problem w/ recent kernels on 2x Opteron with 12 GB RAM
+Date: Wed, 24 Aug 2005 23:08:54 +0200
+User-Agent: KMail/1.8.2
+Cc: discuss@x86-64.org, Andi Kleen <ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508242308.55433.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave wrote:
-> It does build, but I'm unable to boot test it.
+Hi,
 
-Ok - thanks.
+I'm currently seeing a memory problem on a NUMA-enabled dual-Opteron 250 box
+with the 2.6.12.5 and 2.6.13-rc* (up to 7) kernels.  Namely, the box has 12 GB of
+RAM, 8 GB of which is installed on the first node.  The whole memory is detected
+but then only the first 8 GB of it is made available (minus some hardware-related
+holes), as though the memory on the second node were discarded for some
+reason.
 
-Looks like Nick might be leaning toward the simpler path of disabling
-this feature (defining dynamic sched domains using exclusive cpusets)
-for 2.6.13, or some such.
+I have observed that the latest Fedora Core 3 kernel (based on 2.6.12) is also
+affected by this issue, but the "out-of-the-box" FC3 kernel, based on 2.6.9, is not.
 
-We'll see.
+The motherboard is a Tyan S2882-D with the out-of-the-box BIOS, which is not
+the latest one.  Should I upgrade it?
+
+Rafael
+
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

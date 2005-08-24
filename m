@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbVHXTHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbVHXTMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbVHXTHw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 15:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbVHXTHv
+	id S1751418AbVHXTMn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 15:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVHXTMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 15:07:51 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:41170 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751411AbVHXTHu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 15:07:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=g4hH1gpsThyP6nrRxC5aq85DR2uWELa9NWl0OoNXonDLxf2EuCE1FOzD+Cn6hLkn6Y8msSvwiLrwgikq+0a8EJKdrbhYX44As2IYHvOm6XeuC0qWvsOPmGgIOMlvFSHbnW+2f6AOOySikHKrv39ZdaUEhycMwHmpS8bStRYu9YQ=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/3] exterminate strtok - drivers/video/au1100fb.c
-Date: Wed, 24 Aug 2005 21:08:32 +0200
-User-Agent: KMail/1.8.2
-Cc: ppopov@mvista.com, source@mvista.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Aug 2005 15:12:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14978 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S1751418AbVHXTMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 15:12:42 -0400
+Date: Wed, 24 Aug 2005 20:15:44 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Paul Jackson <pj@sgi.com>
+Cc: paulus@samba.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.13-rc7
+Message-ID: <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk> <20050824114351.4e9b49bb.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508242108.32885.jesper.juhl@gmail.com>
+In-Reply-To: <20050824114351.4e9b49bb.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since strtok() died in 2002 let's not use it - use strsep() instead which
-is the replacement function.
+On Wed, Aug 24, 2005 at 11:43:51AM -0700, Paul Jackson wrote:
+> Al Viro wrote:
+> > ... breaks ppc64 since there we have node_to_cpumask() done as inlined
+> > function, not a macro.  So we get __first_cpu(&node_to_cpumask(...),...),
+> > with obvious consequences.
+> 
+> I sent a patch for this a few hours ago, thanks to Paul Mackerras's report:
+> 
+>   [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
+> 
+> It just makes a local copy of the cpumask_t in a local variable on the stack.
+> 
+> I'm still a couple of hours from actually verifying that ppc64 builds with
+> this - due to unrelated confusions on my end.  Perhaps you or Mackerras will
+> report in first, to verify if this patch works as advertised.
 
-Note: I've not been able to test this patch since I lack both hardware and 
-a cross compiler, so if someone else could please check it and sign off on 
-it before I send it to Andrew for inclusion in -mm I'd appreciate it.
+It does, no (build) regressions.  BTW, tree is not far from allmodconfig
+buildable on a bunch of targets now - yesterday pile of fixes was about
+half of the set needed for that.  Most of the remaining stuff is for
+m68k (and applies both to Linus' tree and m68k CVS); I'll send that today
+and if Geert ACKs them, we will be _very_ close to having 2.6.13 build
+out of the box on the following set:
+alpha, amd64, arm (RPC and versatile being tracked), i386, ia64, m32r,
+m68k (!SUN3), ppc (6xx, 44x, chestnut being tracked), ppc64, sparc,
+sparc64, s390, s390x, uml-i386, uml-amd64.
 
+All of these - with allmodconfig, alpha, amd64 and i386 being tracked
+separately as SMP and UP.  Missing targets:
+	frv: need newer toolchain on build box
+	mips, parisc: need out-of-tree patches
+	v850, m68knommu: gcc gives ICE on attempt to build cross-toolchain
+	h8300: binutils in FC4 doesn't know what to do with that target,
+have not tried that on sarge yet.
+	sh, sh64: need kernel headers that would make glibc happy enough
+to build libc headers for that puppy; I don't have them
+	cris, xtensa: haven't looked into those
+	arm26: needs gcc3 since gcc4 had dropped that target; I might take
+a look into that on a sarge-based build box someday.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+sun3 is seriously broken and I doubt that we'll see any takers for testing
+2.6 on those anyway ;-)
 
- au1100fb.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
-
---- linux-2.6.13-rc6-mm2-orig/drivers/video/au1100fb.c	2005-08-17 21:51:59.000000000 +0200
-+++ linux-2.6.13-rc6-mm2/drivers/video/au1100fb.c	2005-08-24 18:58:18.000000000 +0200
-@@ -614,7 +614,7 @@ void au1100fb_cleanup(struct fb_info *in
- 
- void au1100fb_setup(char *options, int *ints)
- {
--	char* this_opt;
-+	char *this_opt;
- 	int i;
- 	int num_panels = sizeof(panels)/sizeof(struct known_lcd_panels);
- 
-@@ -622,8 +622,9 @@ void au1100fb_setup(char *options, int *
- 	if (!options || !*options)
- 		return;
- 
--	for(this_opt=strtok(options, ","); this_opt;
--	    this_opt=strtok(NULL, ",")) {
-+	while ((this_opt = strsep(&options, ","))) {
-+		if (!*this_opt)
-+			continue;
- 		if (!strncmp(this_opt, "panel:", 6)) {
- #if defined(CONFIG_MIPS_PB1100) || defined(CONFIG_MIPS_DB1100)
- 			/* Read Pb1100 Switch S10 ? */
-
-
+A bunch of arm and ppc subarchitectures are not covered yet - I can add those
+to build setup, just give me a list in order of preference.  Or ask me how
+to set up a cross-build farm of your own...

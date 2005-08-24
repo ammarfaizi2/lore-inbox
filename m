@@ -1,118 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbVHXVNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVHXVNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbVHXVNx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVHXVNx
+	id S932232AbVHXVNy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVHXVNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 24 Aug 2005 17:13:54 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:32772 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932232AbVHXVNx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 24 Aug 2005 17:13:53 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:10917 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932229AbVHXVNw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:13:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
-        b=Lju7DImFZG5bbiI+YrvHcuOdrDueRFJHfex+kqXhcN4Sht1l7I9B0GftS/JpaGHfIL75gMyAdR8eFb3lSIYooZVi1e7zaaU88vNNBo3WCEWgZDsHAVGRHmPTl/QYt0MpWEQMETqRAMJSrZEpJdjo6f+DjoiRsEI/UzPBUTLBsQo=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Brian Gerst <bgerst@didntduck.org>
-Subject: Re: [PATCH 3/3] exterminate strtok - usr/gen_init_cpio.c
-Date: Wed, 24 Aug 2005 23:14:40 +0200
-User-Agent: KMail/1.8.2
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       Horst von Brand <vonbrand@inf.utfsm.cl>
-References: <200508242108.53198.jesper.juhl@gmail.com> <9a87484905082413312b5a603a@mail.gmail.com> <430CDAFF.8070201@didntduck.org>
-In-Reply-To: <430CDAFF.8070201@didntduck.org>
+Message-ID: <430CE30F.7050408@vmware.com>
+Date: Wed, 24 Aug 2005 14:13:51 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>
+Subject: Re: [PATCH 1/5] Add pagetable allocation notifiers
+References: <200508241841.j7OIf6q4001874@zach-dev.vmware.com> <20050824194816.GK7762@shell0.pdx.osdl.net>
+In-Reply-To: <20050824194816.GK7762@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508242314.41324.jesper.juhl@gmail.com>
+X-OriginalArrivalTime: 24 Aug 2005 21:13:51.0547 (UTC) FILETIME=[B9F648B0:01C5A8F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 August 2005 22:39, Brian Gerst wrote:
-> 
-> Do this instead:
-> 	char ln[LINE_SIZE], *line;
-> 
-Right, now why didn't I think of that :)
+Chris Wright wrote:
 
-Jeff: Does the patch below agree with you more?
+>* Zachary Amsden (zach@vmware.com) wrote:
+>  
+>
+>>--- linux-2.6.13.orig/arch/i386/mm/init.c	2005-08-24 09:31:05.000000000 -0700
+>>+++ linux-2.6.13/arch/i386/mm/init.c	2005-08-24 09:31:31.000000000 -0700
+>>@@ -79,6 +79,7 @@ static pte_t * __init one_page_table_ini
+>> {
+>> 	if (pmd_none(*pmd)) {
+>> 		pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+>>+		SetPagePTE(virt_to_page(page_table));
+>>    
+>>
+>
+>Xen has this on one_md_table_init() as well for pmd.
+>  
+>
+
+I'll add that in another patch.  It's easy to miss some of the init time 
+call sites (we don't actually depend on them for correctness).
 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+>> 	spin_lock_irqsave(&pgd_lock, flags);
+>> 	pgd_list_del(pgd);
+>> 	spin_unlock_irqrestore(&pgd_lock, flags);
+>>@@ -244,13 +246,16 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+>> 		pmd_t *pmd = kmem_cache_alloc(pmd_cache, GFP_KERNEL);
+>> 		if (!pmd)
+>> 			goto out_oom;
+>>+		SetPagePDE(virt_to_page(pmd));
+>> 		set_pgd(&pgd[i], __pgd(1 + __pa(pmd)));
+>> 	}
+>> 	return pgd;
+>> 
+>> out_oom:
+>>-	for (i--; i >= 0; i--)
+>>+	for (i--; i >= 0; i--) {
+>>+		ClearPagePDE(pfn_to_page(pgd_val(pgd[i]) >> PAGE_SHIFT));
+>>    
+>>
+>
+>Is that the right pfn?  That -1 throws me off.
+>
+>  
+>
+>> 		kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i])-1));
+>>+	}
+>> 	kmem_cache_free(pgd_cache, pgd);
+>> 	return NULL;
+>> }
+>>@@ -261,8 +266,10 @@ void pgd_free(pgd_t *pgd)
+>> 
+>> 	/* in the PAE case user pgd entries are overwritten before usage */
+>> 	if (PTRS_PER_PMD > 1)
+>>-		for (i = 0; i < USER_PTRS_PER_PGD; ++i)
+>>-			kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i])-1));
+>>+		for (i = 0; i < USER_PTRS_PER_PGD; ++i) {
+>>+			ClearPagePDE(pfn_to_page(pgd_val(pgd[i]) >> PAGE_SHIFT));
+>>+			kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i]) & PAGE_MASK));
+>>    
+>>
+>
+>Why the switch of kmem_cache_free call?
+>  
+>
 
- usr/gen_init_cpio.c |   22 ++++++++++++++--------
- 1 files changed, 14 insertions(+), 8 deletions(-)
- 
- --- linux-2.6.13-rc6-mm2-orig/usr/gen_init_cpio.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-mm2/usr/gen_init_cpio.c	2005-08-24 23:10:36.000000000 +0200
-@@ -438,7 +438,8 @@ struct file_handler file_handler_table[]
- int main (int argc, char *argv[])
- {
- 	FILE *cpio_list;
--	char line[LINE_SIZE];
-+	char ln[LINE_SIZE];
-+	char *line;
- 	char *args, *type;
- 	int ec = 0;
- 	int line_nr = 0;
-@@ -455,7 +456,7 @@ int main (int argc, char *argv[])
- 		exit(1);
- 	}
- 
--	while (fgets(line, LINE_SIZE, cpio_list)) {
-+	while (line = ln, fgets(line, LINE_SIZE, cpio_list)) {
- 		int type_idx;
- 		size_t slen = strlen(line);
- 
-@@ -466,11 +467,12 @@ int main (int argc, char *argv[])
- 			continue;
- 		}
- 
--		if (! (type = strtok(line, " \t"))) {
-+		if (! (type = strsep(&line, " \t"))) {
- 			fprintf(stderr,
- 				"ERROR: incorrect format, could not locate file type line %d: '%s'\n",
--				line_nr, line);
-+				line_nr, ln);
- 			ec = -1;
-+			continue;
- 		}
- 
- 		if ('\n' == *type) {
-@@ -483,16 +485,20 @@ int main (int argc, char *argv[])
- 			continue;
- 		}
- 
--		if (! (args = strtok(NULL, "\n"))) {
-+		if (! (args = strsep(&line, "\n"))) {
- 			fprintf(stderr,
- 				"ERROR: incorrect format, newline required line %d: '%s'\n",
--				line_nr, line);
-+				line_nr, ln);
- 			ec = -1;
-+			continue;
- 		}
-+		
-+		if (!*args)
-+			continue;
- 
- 		for (type_idx = 0; file_handler_table[type_idx].type; type_idx++) {
- 			int rc;
--			if (! strcmp(line, file_handler_table[type_idx].type)) {
-+			if (! strcmp(type, file_handler_table[type_idx].type)) {
- 				if ((rc = file_handler_table[type_idx].handler(args))) {
- 					ec = rc;
- 					fprintf(stderr, " line %d\n", line_nr);
-@@ -503,7 +509,7 @@ int main (int argc, char *argv[])
- 
- 		if (NULL == file_handler_table[type_idx].type) {
- 			fprintf(stderr, "unknown file type line %d: '%s'\n",
--				line_nr, line);
-+				line_nr, ln);
- 		}
- 	}
- 	cpio_trailer();
+Because pgd_val(pgd[i])-1 is confusing.   Using (pgd_val(pgd[i]) - 
+_PAGE_PRESENT) would be better, but the +/- 1s all over the place here 
+could use some general cleanup as well.  I smell a cleanup fit coming 
+on.  Using (pgd_val(pgd[i]) & PAGE_MASK) is a less error prone way to 
+get the physical frame bits, since it is not wrong if you turn on PCD or 
+PWD.
+
+Zach

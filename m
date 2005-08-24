@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbVHXTzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbVHXTzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751502AbVHXTzV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 15:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbVHXTzV
+	id S1751504AbVHXTzi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 15:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbVHXTzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 15:55:21 -0400
-Received: from math.ut.ee ([193.40.36.2]:12447 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S1751502AbVHXTzV (ORCPT
+	Wed, 24 Aug 2005 15:55:38 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:37795 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1751505AbVHXTzh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 15:55:21 -0400
-Date: Wed, 24 Aug 2005 22:55:04 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.13-rc6: halt instead of reboot
-In-Reply-To: <m1mznativw.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.SOC.4.61.0508242252120.20856@math.ut.ee>
-References: <Pine.SOC.4.61.0508202137170.13442@math.ut.ee>
- <m14q9iva4q.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508221152350.17731@math.ut.ee>
- <m1mznativw.fsf@ebiederm.dsl.xmission.com>
+	Wed, 24 Aug 2005 15:55:37 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: question on memory barrier
+Date: Wed, 24 Aug 2005 21:55:34 +0200
+User-Agent: KMail/1.8
+Cc: "moreau francis" <francis_moreau2000@yahoo.fr>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+References: <20050824173131.50938.qmail@web25809.mail.ukl.yahoo.com> <200508242132.52730.oliver@neukum.org> <Pine.LNX.4.61.0508241542110.31690@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0508241542110.31690@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508242155.34837.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> It does not hang, it just powers off like on halt.
->
-> Ok. Then at least in part the kernel behavior is either
-> intersecting with a BIOS bug, a bad reboot script that calls halt instead,
-> or a driver that is scribbling on the wrong register.  There is
-> nothing in that code path that should remove the power.
 
-With reboot=c, reboot=w and reboot=h it still powers off. With reboot=b 
-it actually reboots. With 2.6.13-rc2 (the previous good kernel here) it 
-just works and does a reboot with no special parameters.
+> And you never even bothered to read what I said about that???
+> The write ORDER will NOT change. Period. It's a FIFO. Writes
 
-I also have lapic nmi_watchdog=1 in boot command line but removing these 
-does not help either.
+On current implementations of i386. That is not good enough.
+We want code that works everywhere. You are wrong.
+If you need to have ordered writes to a bus, use wmb().
 
-So far I only know that rc6+somegit and rc7 power off and rc2 works, 
-will try som kernels inbetween.
-
--- 
-Meelis Roos (mroos@linux.ee)
+	Regards
+		Oliver

@@ -1,42 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbVHXRYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVHXR0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbVHXRYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 13:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVHXRYg
+	id S1751247AbVHXR0h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 13:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVHXR0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 13:24:36 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:11672 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751240AbVHXRYf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 13:24:35 -0400
-Message-ID: <430CAD4C.9030804@pobox.com>
-Date: Wed, 24 Aug 2005 13:24:28 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Wed, 24 Aug 2005 13:26:37 -0400
+Received: from web33309.mail.mud.yahoo.com ([68.142.206.124]:62570 "HELO
+	web33309.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751247AbVHXR0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 13:26:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=LemCofWJ2FzT5csVlWwgr1ynxBNJPGUI+ZK9Kmrk5fHPYS9URGc7cDcuaJwozxsFrD0dsDCliLkTqHjUbDs1NpO40Kb/B3WzSXF3GhKxxVFey8kP+q5axCz4JzJ4lumefsYRClFXpZQYMLp/Upul7geQNUiSLT+FdtY2zC3BQm0=  ;
+Message-ID: <20050824172631.11829.qmail@web33309.mail.mud.yahoo.com>
+Date: Wed, 24 Aug 2005 10:26:31 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: 2.6.12 Performance problems
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9a87484905082409356c549512@mail.gmail.com>
 MIME-Version: 1.0
-To: Roland Dreier <rolandd@cisco.com>
-CC: Christoph Hellwig <hch@infradead.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Another libata TODO item
-References: <430C10E7.9060502@pobox.com>	<20050824074116.GF24513@infradead.org> <430C271E.7060006@pobox.com>	<52d5o31fce.fsf@cisco.com> <430CA617.6090106@pobox.com> <52ll2rz1zm.fsf@cisco.com>
-In-Reply-To: <52ll2rz1zm.fsf@cisco.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->     Jeff> Look at net drivers.  Theres no real infrastructure beyond
->     Jeff> bit tests and printks.  I wouldn't call that a subsystem,
->     Jeff> so, I wouldn't call this one such either.
+
+
+--- Jesper Juhl <jesper.juhl@gmail.com> wrote:
+
+> On 8/24/05, Danial Thom <danial_thom@yahoo.com>
+> wrote:
+> > --- Patrick McHardy <kaber@trash.net> wrote:
+> > 
+> > > Danial Thom wrote:
+> > > > I think part of the problem is the
+> continued
+> > > > misuse of the word "latency". Latency, in
+> > > > language terms, means "unexplained
+> delay".
+> > > Its
+> > > > wrong here because for one, its
+> explainable.
+> > > But
+> > > > it also depends on your perspective. The
+> > > > "latency" is increased for kernel tasks,
+> > > while it
+> > > > may be reduced for something that is
+> getting
+> > > the
+> > > > benefit of preempting the kernel. So you
+> > > really
+> > > > can't say "the price of reduced latency
+> is
+> > > lower
+> > > > throughput", because thats simply
+> backwards.
+> > > > You've increased the kernel tasks latency
+> by
+> > > > allowing it to be pre-empted. Reduced
+> latency
+> > > > implies higher efficiency. All you've
+> done
+> > > here
+> > > > is shift the latency from one task to
+> > > another, so
+> > > > there is no reduction overall, in fact
+> there
+> > > is
+> > > > probably a marginal increase due to the
+> > > overhead
+> > > > of pre-emption vs doing nothing.
+> > >
+> > > If instead of complaining you would provide
+> the
+> > > information
+> > > I've asked for two days ago someone might
+> > > actually be able
+> > > to help you.
+> > 
+> > Because gaining an understanding of how the
+> > settings work is better than having 30 guys
+> > telling me to tune something that is only
+> going
+> > to make a marginal difference. I didn't ask
+> you
+> > to tell me what was wrong with my setup, only
+> > whether its expected that 2.6 would be less
+> > useful in a UP setup than 2.4, which I think
+> > you've answered.
+> > 
 > 
-> Well, scsi_logging.h isn't much of a subsystem either.
+> I hope you're implying that the answer is; no,
+> it's not expected that
+> 2.6 is less useful in a UP setup than 2.4  :-)
 
-You obviously did not grep for CONFIG_SCSI_LOGGING :)
+I think the concensus is that 2.6 has made trade
+offs that lower raw throughput, which is what a
+networking device needs. So as a router or
+network appliance, 2.6 seems less suitable. A raw
+bridging test on a 2.0Ghz operton system:
 
-	Jeff
+FreeBSD 4.9: Drops no packets at 900K pps
+Linux 2.4.24: Starts dropping packets at 350K pps
+Linux 2.6.12: Starts dropping packets at 100K pps
+
+Now the 2.6.12 keyboard is always nice and
+snappy, but thats not what I need. I can't have a
+box drop traffic if some admin decides to
+recompile some application. Linux is fine on
+low-medium speed networks, but at a certain
+capacity, depending on the specs of the machine
+of course, linux drops packets. 
+
+If I do a "make install" in BSD when on a busy
+network, it takes a long time, but it doesn't
+drop packets. Linux compiles a lot faster, but it
+drops buckets of packets. Its just not the
+priority thats needed for a networking device.
+
+Danial
 
 
+
+		
+____________________________________________________
+Start your day with Yahoo! - make it your home page 
+http://www.yahoo.com/r/hs 
+ 

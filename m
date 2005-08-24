@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbVHXVc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbVHXVfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbVHXVc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVHXVc6
+	id S932266AbVHXVfa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVHXVfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 17:32:58 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:55795 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S932259AbVHXVc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:32:57 -0400
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F043851AD@scsmsx401.amr.corp.intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F043851AD@scsmsx401.amr.corp.intel.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <95AE7798-CD53-4BEA-99F4-88FC5B475614@freescale.com>
-Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
-       "Gala Kumar K.-galak" <galak@freescale.com>,
-       <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-ia64@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [PATCH 05/15] ia64: remove use of asm/segment.h
-Date: Wed, 24 Aug 2005 16:32:59 -0500
-To: "Luck, Tony" <tony.luck@intel.com>
-X-Mailer: Apple Mail (2.734)
+	Wed, 24 Aug 2005 17:35:30 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:31402 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S932266AbVHXVf2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 17:35:28 -0400
+Date: Wed, 24 Aug 2005 23:35:13 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CFQ + 2.6.13-rc4-RT-V0.7.52-02 = BUG: scheduling with irqs
+ disabled
+In-Reply-To: <20050824174702.GL28272@suse.de>
+Message-Id: <Pine.OSF.4.05.10508242321500.13279-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 24 Aug 2005, Jens Axboe wrote:
 
-On Aug 24, 2005, at 3:19 PM, Luck, Tony wrote:
+> On Wed, Aug 24 2005, Lee Revell wrote:
+> > Just found this in dmesg.
+> > 
+> > BUG: scheduling with irqs disabled: libc6.postinst/0x20000000/13229
+> > caller is ___down_mutex+0xe9/0x1a0
+> >  [<c029c1f9>] schedule+0x59/0xf0 (8)
+> >  [<c029ced9>] ___down_mutex+0xe9/0x1a0 (28)
+> >  [<c0221832>] cfq_exit_single_io_context+0x22/0xa0 (84)
+> >  [<c02218ea>] cfq_exit_io_context+0x3a/0x50 (16)
+> >  [<c021db84>] exit_io_context+0x64/0x70 (16)
+> >  [<c011efda>] do_exit+0x5a/0x3e0 (20)
+> >  [<c011f3ca>] do_group_exit+0x2a/0xb0 (24)
+> >  [<c0103039>] syscall_call+0x7/0xb (20)
+> 
+> Hmm, Ingo I seem to remember you saying that the following construct:
+> 
+>         local_irq_save(flags);
+>         spin_lock(lock);
+> 
+> which is equivelant to spin_lock_irqsave() in mainline being illegal in
+> -RT, is that correct? 
 
->> There are still a few drivers that include asm/segment.h, so
->> I don't think we should remove asm/segment.h itself just yet.
->>
->
-> Agreed.  The sequence should be to send patches to get rid of
-> all "#include <asm/segment.h>" references.
->
-> Once they have all gone, then a patch can remove the files.
->
-> If you are concerned that people would start adding new
-> references and you don't want to get into a game of whack-a-mole,
-> then you could add #warning "include of deprecated asm/segment.h",
-> but that might be overkill.
->
-> I'll apply this for ia64 w/o the deletion.
+I can easily answer this for Ingo.
 
-I've posted a patch before this to remove all non-architecture users  
-of asm/segment.h.
+Yes, spin_lock(lock) is blocking since lock is mutex, not a spinlock under
+preempt-rt. But isn't it easy to fix? Replace the two lines by
+spin_lock_irqsave(flags). That would work for both preempt-rt
+and !preempt-rt.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0508.3/0099.html
+You supposed to ask if the macro name spin_lock() isn't confusing. It very
+much is, but one of Ingo's aims is not to change existing code too much.
+The purist would probably change all instances of spin_lock() to lock() or
+down() to stop refering to a specific lock type when it can be changed
+with config-options. That would, however, require a large patch,
+which does the preempt-rt branch harder to merge with the main-line.
 
-- kumar
+Esben
 
+
+> This is what cfq uses right now for an exiting
+> task, as the above trace indicates.
+> 
+> -- 
+> Jens Axboe
 

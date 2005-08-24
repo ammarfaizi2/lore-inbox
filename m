@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbVHXLUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbVHXLX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbVHXLUS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 07:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbVHXLUS
+	id S1750879AbVHXLX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 07:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbVHXLX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 07:20:18 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34577 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750876AbVHXLUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 07:20:17 -0400
-Date: Wed, 24 Aug 2005 13:20:15 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de
-Subject: [2.6 patch] i386/x86_64: make get_cpu_vendor() static
-Message-ID: <20050824112015.GP5603@stusta.de>
+	Wed, 24 Aug 2005 07:23:28 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:18619 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750878AbVHXLX2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 07:23:28 -0400
+Date: Wed, 24 Aug 2005 16:54:38 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.13-rc7
+Message-ID: <20050824112438.GA5197@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-get_cpu_vendor() no longer has any users in other files.
+On Wed, Aug 24, 2005 at 07:43:42AM +0100, Al Viro wrote:
+> On Tue, Aug 23, 2005 at 10:08:13PM -0700, Linus Torvalds wrote:
+> 
+> >   cpu_exclusive sched domains on partial nodes temp fix
+> 
+> ... breaks ppc64 since there we have node_to_cpumask() done as inlined
+> function, not a macro.  So we get __first_cpu(&node_to_cpumask(...),...),
+> with obvious consequences.
+> 
+> Locally I'm turning node_to_cpumask() into define, just to see what else
+> had changed in the build, but we probably want saner solution for that
+> one...
 
+Not sure why this patch was included. I had reported yesterday that
+it hangs up ppc64 on doing some exclusive cpuset operations. (I had
+fixed the compile problem by having a temp for the cpumask variable)
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+So this patch is not ready to go in just yet. I am working on the fix,
+hope to have it soon
 
----
-
- arch/i386/kernel/cpu/common.c |    2 +-
- arch/x86_64/kernel/setup.c    |    2 +-
- include/asm-x86_64/proto.h    |    1 -
- 3 files changed, 2 insertions(+), 3 deletions(-)
-
---- linux-2.6.13-rc6-mm1-full/arch/i386/kernel/cpu/common.c.old	2005-08-23 01:42:41.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-full/arch/i386/kernel/cpu/common.c	2005-08-23 01:43:12.000000000 +0200
-@@ -151,7 +151,7 @@
- }
- 
- 
--void __devinit get_cpu_vendor(struct cpuinfo_x86 *c, int early)
-+static void __devinit get_cpu_vendor(struct cpuinfo_x86 *c, int early)
- {
- 	char *v = c->x86_vendor_id;
- 	int i;
---- linux-2.6.13-rc6-mm1-full/include/asm-x86_64/proto.h.old	2005-08-23 01:43:21.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-full/include/asm-x86_64/proto.h	2005-08-23 01:43:27.000000000 +0200
-@@ -8,7 +8,6 @@
- struct cpuinfo_x86; 
- struct pt_regs;
- 
--extern void get_cpu_vendor(struct cpuinfo_x86*);
- extern void start_kernel(void);
- extern void pda_init(int); 
- 
---- linux-2.6.13-rc6-mm1-full/arch/x86_64/kernel/setup.c.old	2005-08-23 01:43:35.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-full/arch/x86_64/kernel/setup.c	2005-08-23 01:43:47.000000000 +0200
-@@ -929,7 +929,7 @@
-  	c->x86_num_cores = intel_num_cpu_cores(c);
- }
- 
--void __cpuinit get_cpu_vendor(struct cpuinfo_x86 *c)
-+static void __cpuinit get_cpu_vendor(struct cpuinfo_x86 *c)
- {
- 	char *v = c->x86_vendor_id;
- 
-
+	-Dinakar

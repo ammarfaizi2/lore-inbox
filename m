@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbVHXRME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVHXRTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbVHXRME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 13:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbVHXRME
+	id S1751246AbVHXRTv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 13:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVHXRTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 13:12:04 -0400
-Received: from main.gmane.org ([80.91.229.2]:43488 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751232AbVHXRMC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 13:12:02 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: kernel BUG at kernel/workqueue.c:104!
-Date: Wed, 24 Aug 2005 17:01:52 +0000 (UTC)
-Message-ID: <loom.20050824T183802-165@post.gmane.org>
-References: <430B48A5.4040702@hiramoto.org>
-Mime-Version: 1.0
+	Wed, 24 Aug 2005 13:19:51 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:41646 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751233AbVHXRTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 13:19:50 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Another libata TODO item
+X-Message-Flag: Warning: May contain useful information
+References: <430C10E7.9060502@pobox.com>
+	<20050824074116.GF24513@infradead.org> <430C271E.7060006@pobox.com>
+	<52d5o31fce.fsf@cisco.com> <430CA617.6090106@pobox.com>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 24 Aug 2005 10:19:41 -0700
+In-Reply-To: <430CA617.6090106@pobox.com> (Jeff Garzik's message of "Wed, 24
+ Aug 2005 12:53:43 -0400")
+Message-ID: <52ll2rz1zm.fsf@cisco.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 198.208.223.35 (Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1))
+X-OriginalArrivalTime: 24 Aug 2005 17:19:43.0316 (UTC) FILETIME=[04905940:01C5A8D0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karl Hiramoto <karl <at> hiramoto.org> writes:
+    Jeff> Look at net drivers.  Theres no real infrastructure beyond
+    Jeff> bit tests and printks.  I wouldn't call that a subsystem,
+    Jeff> so, I wouldn't call this one such either.
 
-> 
-> Hi,  i get this a lot now when doing:  "rmmod  cp2101 io_edgeport "
-> 
-> I try and do the rmmod, because i loose comunications on the USB to 
-> RS-232 adapters.
-> ------------[ cut here ]------------
-> kernel BUG at kernel/workqueue.c:104!
-> invalid operand: 0000 [#1]
+Well, scsi_logging.h isn't much of a subsystem either.
 
-Thats because the scheduled work became empty before it was executed.
- 
-        --  BUG_ON(!list_empty(&work->entry)); --
-
-Looks like someone forgot to flush_scheduled_work() before exiting. Can you 
-try putting flush_scheduled_work() as the first line in cp2101_exit and 
-whatever is the exit function of io_edgeport?
-
-Just a wild guess. Things might be more complicated than this, but no harm in 
-trying.
-
-Parag
-
+ - R.

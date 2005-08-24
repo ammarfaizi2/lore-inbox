@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbVHXRrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVHXR4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbVHXRrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 13:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbVHXRrJ
+	id S1751330AbVHXR4a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 13:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVHXR4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 13:47:09 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43698 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751254AbVHXRrI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 13:47:08 -0400
-Date: Wed, 24 Aug 2005 19:47:04 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CFQ + 2.6.13-rc4-RT-V0.7.52-02 = BUG: scheduling with irqs disabled
-Message-ID: <20050824174702.GL28272@suse.de>
-References: <1124899329.3855.12.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1124899329.3855.12.camel@mindpipe>
+	Wed, 24 Aug 2005 13:56:30 -0400
+Received: from leyde.iplannetworks.net ([200.69.193.99]:10693 "EHLO
+	proxy3.iplannetworks.net") by vger.kernel.org with ESMTP
+	id S1751330AbVHXR43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 13:56:29 -0400
+Message-ID: <430CB3EC.2000502@latinsourcetech.com>
+Date: Wed, 24 Aug 2005 14:52:44 -0300
+From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@latinsourcetech.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with kernel image in a Prep Boot on PowerPC
+References: <430C8CB5.1050501@latinsourcetech.com> <20050824163100.GD1100@tuxdriver.com>
+In-Reply-To: <20050824163100.GD1100@tuxdriver.com>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24 2005, Lee Revell wrote:
-> Just found this in dmesg.
-> 
-> BUG: scheduling with irqs disabled: libc6.postinst/0x20000000/13229
-> caller is ___down_mutex+0xe9/0x1a0
->  [<c029c1f9>] schedule+0x59/0xf0 (8)
->  [<c029ced9>] ___down_mutex+0xe9/0x1a0 (28)
->  [<c0221832>] cfq_exit_single_io_context+0x22/0xa0 (84)
->  [<c02218ea>] cfq_exit_io_context+0x3a/0x50 (16)
->  [<c021db84>] exit_io_context+0x64/0x70 (16)
->  [<c011efda>] do_exit+0x5a/0x3e0 (20)
->  [<c011f3ca>] do_group_exit+0x2a/0xb0 (24)
->  [<c0103039>] syscall_call+0x7/0xb (20)
+John W. Linville wrote:
 
-Hmm, Ingo I seem to remember you saying that the following construct:
+>On Wed, Aug 24, 2005 at 12:05:25PM -0300, Márcio Oliveira wrote:
+>
+>  
+>
+>>  I think the kernel is pointing to the wrong root partiotion. In a x86 
+>>box, I can change the kernel root partition in the boot loader (root= 
+>>parameter) or using the "rdev" command. In my case, the IBM Power 
+>>doesn't have a boot loader (yaboot was replaced by the kernel image) and 
+>>the powerpc64 system doesn't have the rdev command (from util-linux 
+>>package, the same package on x86 systems have the rdev command!).
+>>    
+>>
+>
+>I don't know anything that will do this on a pre-built kernel.  But,
+>you should look at CONFIG_CMDLINE_BOOL and CONFIG_CMDLINE in your
+>kernel configuration.  That will let you pre-configure the "root="
+>command line option.
+>  
+>
+Hi John,
 
-        local_irq_save(flags);
-        spin_lock(lock);
+The command rdev can change the default root partition on x86 linux 
+systems with pre-built kernels.
 
-which is equivelant to spin_lock_irqsave() in mainline being illegal in
--RT, is that correct? This is what cfq uses right now for an exiting
-task, as the above trace indicates.
+About the CONFIG_CMDLINE in the kernel configuration, I found it in lots 
+of files in the kernel source tree and I'd like to know which file I 
+need to change this value (/usr/src/linux/arch/ppc64/defconfig ?).
 
--- 
-Jens Axboe
+>I don't know if ppc64 can use the zImage-style boot wrapper.  If it
+>can, that would provide you with an option of modifying the command
+>line at boot time if needed.
+>  
+>
+According to this doc: 
+http://www-128.ibm.com/developerworks/eserver/library/es-SW_RAID_LINUX.html, 
+ppc64 can use zImage-style boot wrapper, so I'm trying it.
 
+>Good luck!
+>
+>John
+>  
+>
+Thanks John!
+
+Márcio.

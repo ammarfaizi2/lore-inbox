@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751526AbVHXUDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbVHXUEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751526AbVHXUDq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 16:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751528AbVHXUDq
+	id S1751529AbVHXUEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 16:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751528AbVHXUEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 16:03:46 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:50814 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751524AbVHXUDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 16:03:45 -0400
+	Wed, 24 Aug 2005 16:04:08 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:28690 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751527AbVHXUEB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 16:04:01 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=hWUcU/tbqstks+hUcbqT5WremD7M1UrvxaiSlTBEZ1Tzr+I89EXf4B4c52fxY4eHpiuU0gAq8DiOVn2NlA1fPspiPZ98ym1vNy+gQLGQFvl6q3l9H3DCl+e6gLu3hsRMiosRDSvq8Vmni4u2G9NBitJas6iZxzYlk/N7Ug5Ws50=  ;
-Message-ID: <430C617E.8080002@yahoo.com.au>
-Date: Wed, 24 Aug 2005 22:01:02 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: dino@in.ibm.com, paulus@samba.org, akpm@osdl.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, mingo@elte.hu, hawkes@sgi.com
-Subject: Re: [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
-References: <20050824111510.11478.49764.sendpatchset@jackhammer.engr.sgi.com>	<20050824112640.GB5197@in.ibm.com> <20050824044648.66f7e25a.pj@sgi.com>
-In-Reply-To: <20050824044648.66f7e25a.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=V47uG8YtJ8xdsikSy8f+RojW6Fk80m8bo5+kJelCVL8sVjTbudWfdT1OoRCAPls61iyRAn5/OiwmtiAfgcdcxLYslVW0OsKuav2AthuribtSC7FmKdpOEvFh8hbJ9MKdg2c7sjrtykGag8neuGF9zc4QPADmujivb65mtHHQvrg=
+Date: Thu, 25 Aug 2005 00:13:02 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Paul Jackson <pj@sgi.com>, paulus@samba.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.13-rc7
+Message-ID: <20050824201301.GA23715@mipter.zuzino.mipt.ru>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk> <20050824114351.4e9b49bb.pj@sgi.com> <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Dinakar wrote:
-> 
->>Can we hold on to this patch for a while, as I reported yesterday,
-> 
-> 
-> Sure - though I guess it's Linus or Andrew who will have to do
-> the holding.
-> 
-> I sent it off contingent on the approval of yourself, Hawkes and Nick.
-> 
+On Wed, Aug 24, 2005 at 08:15:44PM +0100, Al Viro wrote:
+> Most of the remaining stuff is for
+> m68k (and applies both to Linus' tree and m68k CVS); I'll send that today
+> and if Geert ACKs them, we will be _very_ close to having 2.6.13 build
+> out of the box on the following set:
+> alpha,
 
-I get the feeling that the problem would be present in more
-than just misaligned nodes.
+Do I understand correctly that alpha in "--><-- close" list?
 
-On the POWER5 for example, Dinakar probably has SMT enabled,
-which may cause something similar to pop up.
+2.6.13-rc7, alpha, allmodconfig:
 
-I get the feeling that exclusive cpusets should just be
-completely disabled for 2.6.13, and John & Ingo's complete
-fix put in 2.6.14-early
+  LD      .tmp_vmlinux1
+net/built-in.o: In function `kmalloc':
+include/linux/slab.h:92: undefined reference to `__you_cannot_kmalloc_that_much'
+include/linux/slab.h:92: undefined reference to `__you_cannot_kmalloc_that_much'
 
--- 
-SUSE Labs, Novell Inc.
+Guilty: net/ipv4/route.c
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+$ nm net/ipv4/route.o | grep kmalloc
+                 U __you_cannot_kmalloc_that_much
+
+> 	    sh64: need kernel headers that would make glibc happy enough
+> to build libc headers for that puppy;
+
+binutils already compiled. Will drop a line. Or file a bug. :-\
+

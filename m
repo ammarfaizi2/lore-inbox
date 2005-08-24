@@ -1,40 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVHXI5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbVHXJA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbVHXI5x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 04:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVHXI5x
+	id S1750781AbVHXJA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 05:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbVHXJA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 04:57:53 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61967 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750762AbVHXI5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 04:57:52 -0400
-Date: Wed, 24 Aug 2005 10:57:50 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] #include <asm/irq.h> in interrupt.h
-Message-ID: <20050824085750.GG5603@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Wed, 24 Aug 2005 05:00:28 -0400
+Received: from adsl-266.mirage.euroweb.hu ([193.226.239.10]:5648 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1750781AbVHXJA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 05:00:27 -0400
+To: hch@infradead.org
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-reply-to: <20050824073334.GB24513@infradead.org> (message from Christoph
+	Hellwig on Wed, 24 Aug 2005 08:33:34 +0100)
+Subject: Re: [PATCH 6/8] remove duplicated sys_open32() code from 64bit archs
+References: <E1E7fHs-0006DO-00@dorka.pomaz.szeredi.hu> <E1E7fJu-0006EB-00@dorka.pomaz.szeredi.hu> <E1E7fMD-0006En-00@dorka.pomaz.szeredi.hu> <E1E7fPj-0006Fq-00@dorka.pomaz.szeredi.hu> <E1E7fSd-0006Gr-00@dorka.pomaz.szeredi.hu> <E1E7fVJ-0006HK-00@dorka.pomaz.szeredi.hu> <E1E7fcN-0006IR-00@dorka.pomaz.szeredi.hu> <20050824073334.GB24513@infradead.org>
+Message-Id: <E1E7r79-00074o-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 24 Aug 2005 11:00:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If #includ'ing interrupt.h should be enough for getting the prototype of 
-e.g. enable_irq() on all architectures, we need this patch.
+> On Tue, Aug 23, 2005 at 10:43:35PM +0200, Miklos Szeredi wrote:
+> > 64 bit architectures all implement their own compatibility sys_open(),
+> > when in fact the difference is simply not forcing the O_LARGEFILE
+> > flag.  So use the a common function instead.
+> 
+> Traditional naming would be just do_open(), but else this looks very nice.
 
+do_open() was my first choice, but it caused a number of clashes.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.13-rc6-mm1-modular/include/linux/interrupt.h.old	2005-08-22 23:44:42.000000000 +0200
-+++ linux-2.6.13-rc6-mm1-modular/include/linux/interrupt.h	2005-08-22 23:45:04.000000000 +0200
-@@ -12,6 +12,7 @@
- #include <asm/atomic.h>
- #include <asm/ptrace.h>
- #include <asm/system.h>
-+#include <asm/irq.h>
- 
- /*
-  * For 2.4.x compatibility, 2.4.x can use
-
+Miklos

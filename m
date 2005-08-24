@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVHWXzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbVHXAEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbVHWXzF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 19:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbVHWXzF
+	id S932499AbVHXAEh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 20:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbVHXAEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 19:55:05 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:42676 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932383AbVHWXzE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 19:55:04 -0400
-Date: Wed, 24 Aug 2005 01:54:36 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
-       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
-       George Anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-In-Reply-To: <1124838847.20617.11.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.61.0508240134050.3743@scrub.home>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com> 
- <1123726394.32531.33.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508152115480.3728@scrub.home>
-  <1124151001.8630.87.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508162337130.3728@scrub.home>
-  <1124241449.8630.137.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.61.0508182213100.3728@scrub.home>  <1124505151.22195.78.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.61.0508202204240.3728@scrub.home>  <1124737075.22195.114.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.61.0508230134210.3728@scrub.home>  <1124830262.20464.26.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.61.0508232321530.3728@scrub.home> <1124838847.20617.11.camel@cog.beaverton.ibm.com>
+	Tue, 23 Aug 2005 20:04:36 -0400
+Received: from mail-res.bigfish.com ([63.161.60.61]:38235 "EHLO
+	mail46-res-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S932499AbVHXAEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 20:04:36 -0400
+X-BigFish: V
+Message-ID: <430BB991.9010204@am.sony.com>
+Date: Tue, 23 Aug 2005 17:04:33 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, tony.luck@intel.com,
+       linux-kernel@vger.kernel.org, jasonuhl@sgi.com
+Subject: Re: CONFIG_PRINTK_TIME woes
+References: <20050821110127.3b601268.akpm@osdl.org>
+In-Reply-To: <20050821110127.3b601268.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>>
+>>What about just using jiffies, then?
+>>
+>>Really, sched_clock() is very broken for this (I know you're
+>>not arguing against that).
+>>
+>>It can go backwards when called twice from the same CPU, and the
+>>number returned by one CPU need have no correlation with that
+>>returned by another.
+> 
+> jiffies wouldn't have sufficient resolution for this application.  Bear
+> in
+> mind that this is just a debugging thing - it's better to have good
+> resolution with occasional theoretical weirdness than to have poor
+> resolution plus super-consistency, IMO.
 
-On Tue, 23 Aug 2005, john stultz wrote:
+Andrew's assessment is correct for my usage.
 
-> I'm assuming gettimeofday()/clock_gettime() looks something like:
->    xtime + (get_cycles()-last_update)*(mult+ntp_adj)>>shift
+I use this for detailed info on bootup times, for tuning embedded
+configurations.  Someone has already noted that the current code
+truncates the value to microseconds (so a nanosecond-capable clock
+interface is overkill for the current code).  Microseconds seems
+to be a pretty useful precision for the work I'm doing.
 
-Where did you get the ntp_adj from? It's not in my example.
-gettimeofday() was in the previous mail: "xtime + (cycle_offset * mult +
-error) >> shift". The difference between system time and reference 
-time is really important. gettimeofday() returns the system time, NTP 
-controls the reference time and these two are synchronized regularly.
-I didn't see that anywhere in your example.
+Note that on many embedded platforms, a jiffy is 10 milliseconds,
+which is far too low resolution for my purposes.  Also, not
+to be totally egocentric, but most embedded platforms don't
+have SMP (currently), so the SMP weirdness has never bothered
+me. Even on SMP systems, the bootup code, which is what
+I'm measuring, is mostly UP.
 
-bye, Roman
+Just my 2 cents.
+
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================
+

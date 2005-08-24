@@ -1,97 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbVHXL6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVHXMFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbVHXL6B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 07:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbVHXL6A
+	id S1750846AbVHXMFE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 08:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbVHXMFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 07:58:00 -0400
-Received: from silver.veritas.com ([143.127.12.111]:20571 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750900AbVHXL6A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 07:58:00 -0400
-Date: Wed, 24 Aug 2005 13:00:00 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mremap() use is racy
-In-Reply-To: <Pine.LNX.4.58.0508231705470.3317@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0508241242300.3882@goblin.wat.veritas.com>
-References: <430B7EAE.6020001@redhat.com> <Pine.LNX.4.61.0508232135480.12189@goblin.wat.veritas.com>
- <430B8D96.5080002@redhat.com> <Pine.LNX.4.58.0508231425330.3317@g5.osdl.org>
- <430B9E45.3080107@redhat.com> <Pine.LNX.4.58.0508231705470.3317@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Aug 2005 11:57:59.0831 (UTC) FILETIME=[12CA4A70:01C5A8A3]
+	Wed, 24 Aug 2005 08:05:04 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:5534 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750846AbVHXMFD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 08:05:03 -0400
+Date: Wed, 24 Aug 2005 05:04:54 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: cpu_exclusive sched domains fix broke ppc64
+Message-Id: <20050824050454.012f8af1.pj@sgi.com>
+In-Reply-To: <17164.11361.437380.179789@cargo.ozlabs.ibm.com>
+References: <17164.11361.437380.179789@cargo.ozlabs.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Aug 2005, Linus Torvalds wrote:
-> On Tue, 23 Aug 2005, Ulrich Drepper wrote:
-> > Linus Torvalds wrote:
-> > > 
-> > > Especially if you use MAP_SHARED, you don't even need to mprotect 
-> > > anything: you'll get a nice SIGBUS if you ever try to access past
-> > > the last page that maps the file.
+Paul Mackerras wrote:
+> I'm not sure what the best way to fix this is
 
-MAP_PRIVATE also - even if you earlier wrote private data there before
-the file got truncated down.
+Thank-you for reporting this.  Likely the best way to fix this for now,
+since we are late in a release (Linus will probably want to wack me
+upside the head for breaking his build ;) is to leave the
+node_to_cpumask and for_each_cpu_mask exactly as they are, and have the
+code that my cpu_exclusive sched domain patch added make a local copy
+of the cpumask.
 
-> > If you guarantee this (and test for this) it's fine with me. 
+I just sent off a patch to do this - quite untested so far.
 
-Since you're not guaranteeing it, shall I?
+I am trying now to get fire up crosstools to verify the build.
+But if you can get it to build anytime soon, let me know.  My
+crosstools are rusty -- it might take me a bit to resuscitate them.
 
-The Open Posix Testsuite tests for it: though I haven't run that up,
-and its conformance/interfaces/mmap/coverage.txt notes it failed with
-glibc-2.3 on Linux-2.6.0-test2.
+I also am not sure what is the best way to fix this detail with
+node_to_cpumask and for_each_cpu_mask in the long term.  The choices I
+see are:
 
-I have just tested mmap SIGBUS beyond EOF on 2.6.13-rc7,
-i386 and x86_64, works correctly as expected.
+ 1) Leave it be - which makes it easy trip the build bug I hit,
+    due to the different styles of node_to_cpumask, inline or
+    macro, on different archs.
 
-A quick browse through the others shows all the MMU architectures
-appearing to support it: delivering SIGBUS signal if VM_FAULT_SIGBUS
-returned by handle_mm_fault.
+ 2) Make node_to_cpumask a macro on all archs, though that
+    makes it even easier than it is now to write code that
+    appears to modify a local variable, but actually modifies
+    some global array of the per-node cpumasks, which could
+    lead to some juicy runtime bugs.
 
-Except for PA-RISC, which delivers SIGSEGV instead.  I imagine that's
-wrong, but safer to leave unchanged now - I won't guarantee that one.
+ 3) Make node_to_cpumask an inline on all archs, though that might
+    force a local stack copy of a cpumask in places that might
+    be performance critical on arch's with big cpumasks.
 
-> It's how the kernel _should_ work, but very few apps seem to depend on it, 
-> so no guarantees. I looked over the code, and I think we've lost the 
-> SIGBUS thing.
+ 4) Perhaps some more subtle combination of macros/inlines
+    can be all things to all arch's.
 
-It would be easier to follow the route from ->nopage observing offset
-beyond EOF through to delivery of the SIGBUS if filemap_nopage were
-to say NOPAGE_SIGBUS, rather than the NULL that's defined to be.
+I'm not going to unravel the above tonight.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> it seems unfortunate that for_each_cpu_mask
+> requires the mask to be an lvalue, but that isn't documented anywhere
+> that I can see.
 
---- 2.6.13-rc7/mm/filemap.c	2005-08-24 11:13:41.000000000 +0100
-+++ linux/mm/filemap.c	2005-08-24 12:35:33.000000000 +0100
-@@ -1281,7 +1281,7 @@ outside_data_content:
- 	 * accessible..
- 	 */
- 	if (area->vm_mm == current->mm)
--		return NULL;
-+		return NOPAGE_SIGBUS;
- 	/* Fall through to the non-read-ahead case */
- no_cached_page:
- 	/*
-@@ -1306,7 +1306,7 @@ no_cached_page:
- 	 */
- 	if (error == -ENOMEM)
- 		return NOPAGE_OOM;
--	return NULL;
-+	return NOPAGE_SIGBUS;
- 
- page_not_uptodate:
- 	if (!did_readaround) {
-@@ -1366,7 +1366,7 @@ page_not_uptodate:
- 	 * mm layer so, possibly freeing the page cache page first.
- 	 */
- 	page_cache_release(page);
--	return NULL;
-+	return NOPAGE_SIGBUS;
- }
- 
- EXPORT_SYMBOL(filemap_nopage);
+Are you saying that it's unfortunate that for_each_cpu_mask requires
+an lvalue, or that it's unfortunate that this isn't documented?
+
+Or both ;).
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

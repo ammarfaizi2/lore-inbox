@@ -1,242 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbVHXXZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbVHXXqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbVHXXZK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 19:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbVHXXZK
+	id S932394AbVHXXqk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 19:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVHXXqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 19:25:10 -0400
-Received: from r3az252.chello.upc.cz ([213.220.243.252]:37564 "EHLO
-	aquarius.doma") by vger.kernel.org with ESMTP id S932356AbVHXXZJ
+	Wed, 24 Aug 2005 19:46:40 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:56046 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932394AbVHXXqj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 19:25:09 -0400
-Message-ID: <430D01C8.9030605@ribosome.natur.cuni.cz>
-Date: Thu, 25 Aug 2005 01:24:56 +0200
-From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050815
-X-Accept-Language: cs, en-us, en
+	Wed, 24 Aug 2005 19:46:39 -0400
+Message-ID: <430D06D0.4080904@mvista.com>
+Date: Wed, 24 Aug 2005 16:46:24 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: overlapping MTRR regions
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=us-ascii
+To: john stultz <johnstul@us.ibm.com>
+CC: Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
+       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>	 <1124505151.22195.78.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508202204240.3728@scrub.home>	 <1124737075.22195.114.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508230134210.3728@scrub.home>	 <1124830262.20464.26.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508232321530.3728@scrub.home>	 <1124838847.20617.11.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508240134050.3743@scrub.home> <430BBF82.2010209@mvista.com> <1124915766.20820.67.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1124915766.20820.67.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I tested 2.6.13-rc7 on nice server motherboard with 16GB of RAM ;)
-http://www.msicomputer.com/product/p_spec.asp?model=E7520_Master-S2M&class=spd
-and I see the following when acpi is enabled (haven't even tried
-without):
+john stultz wrote:
+> On Tue, 2005-08-23 at 17:29 -0700, George Anzinger wrote:
+> 
+>>Roman Zippel wrote:
+>>
+>>>Hi,
+>>>
+>>>On Tue, 23 Aug 2005, john stultz wrote:
+>>>
+>>>
+>>>
+>>>>I'm assuming gettimeofday()/clock_gettime() looks something like:
+>>>>  xtime + (get_cycles()-last_update)*(mult+ntp_adj)>>shift
+>>>
+>>>
+>>>Where did you get the ntp_adj from? It's not in my example.
+>>>gettimeofday() was in the previous mail: "xtime + (cycle_offset * mult +
+>>>error) >> shift". The difference between system time and reference 
+>>>time is really important. gettimeofday() returns the system time, NTP 
+>>>controls the reference time and these two are synchronized regularly.
+>>>I didn't see that anywhere in your example.
+>>>
+> 
+> 
+>>If I read your example right, the problem is when the NTP adjustment 
+>>changes while the two clocks are out of sync (because of a late tick). 
+> 
+> 
+> Not quite. The issue that I'm trying to describe is that if, we
+> inconsistently calculate time intervals in gettimeofday and the timer
+> interrupt, we have the possibility for time inconsistencies.
+> 
+> The trivial example using the current code would be something like:
+> 
+> Again with my 2 cyc per tick clock, HZ=1000.
+> 
+> gettimeofday():
+> 	xtime + offset_ns
+> 
+> timer_interrupt:
+> 	xtime += tick_length + ntp_adj
+> 	offset_ns = 0
+> 
+> 0:  gettimeofday:  0 + 0 = 0 ns
+> 1:  gettimeofday:  0 + 500k ns = 500k ns
+> 2:  gettimeofday:  0 + 1M ns = 1M ns
+> 2:  timer_interrupt:  
+> 2:  gettimeofday:  1M ns + 0 ns = 1M ns
+> 3:  gettimeofday:  1M ns + 500k ns = 1.5M ns
+> 4:  gettimeofday:  1M ns + 1M ns = 2 ns
+> 4:  timer_interrupt (using -500ppm adjustment)
+> 4:  gettimeofday:  1,999,500 ns + 0 ns = 1,999,500 ns
+> 
+At point 4 you are introducing a NEW ntp adjustment.  This, I submit, 
+needs to actually have been introduced to the system prior to the 
+interrupt at point 2 with the first xtime change at point 4.  However, 
+gettimeofday() should be aware of it from the interrupt at point 2 and 
+be doing corrections from that time forward.  Thus when the point 4 
+interrutp happens xtime will be the same at the gettimeofday a ns earlier.
 
-# cat /proc/mtrr 
-reg00: base=0xd0000000 (3328MB), size= 256MB: uncachable, count=1
-reg01: base=0xe0000000 (3584MB), size= 512MB: uncachable, count=1
-reg02: base=0x00000000 (   0MB), size=16384MB: write-back, count=1
-reg03: base=0x400000000 (16384MB), size= 512MB: write-back, count=1
-reg04: base=0x420000000 (16896MB), size= 256MB: write-back, count=1
-reg05: base=0xcff80000 (3327MB), size= 512KB: uncachable, count=1
-#
+Likewise, gettimeofday() needs to know when to stop apply the correction 
+so that if a tick is late, it will apply the correction only for those 
+times that it was needed.  This, could be done by figuring the offset 
+thusly:
 
-Is that correct? Please cc: me in replies.
+offset = (offset from last tick to end of ntp period * ntp_adj1) + 
+(offset from end of ntp period to now)
 
-phylo ~ # lspci
-0000:00:00.0 Host bridge: Intel Corporation E7520 Memory Controller Hub (rev 0c)
-0000:00:00.1 Class ff00: Intel Corporation E7525/E7520 Error Reporting Registers (rev 0c)
-0000:00:01.0 System peripheral: Intel Corporation E7520 DMA Controller (rev 0c)
-0000:00:02.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express Port A (rev 0c)
-0000:00:04.0 PCI bridge: Intel Corporation E7525/E7520 PCI Express Port B (rev 0c)
-0000:00:05.0 PCI bridge: Intel Corporation E7520 PCI Express Port B1 (rev 0c)
-0000:00:06.0 PCI bridge: Intel Corporation E7520 PCI Express Port C (rev 0c)
-0000:00:07.0 PCI bridge: Intel Corporation E7520 PCI Express Port C1 (rev 0c)
-0000:00:1c.0 PCI bridge: Intel Corporation 6300ESB 64-bit PCI-X Bridge (rev 02)
-0000:00:1d.0 USB Controller: Intel Corporation 6300ESB USB Universal Host Controller (rev 02)
-0000:00:1d.1 USB Controller: Intel Corporation 6300ESB USB Universal Host Controller (rev 02)
-0000:00:1d.4 System peripheral: Intel Corporation 6300ESB Watchdog Timer (rev 02)
-0000:00:1d.5 PIC: Intel Corporation 6300ESB I/O Advanced Programmable Interrupt Controller (rev 02)
-0000:00:1d.7 USB Controller: Intel Corporation 6300ESB USB2 Enhanced Host Controller (rev 02)
-0000:00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev 0a)
-0000:00:1f.0 ISA bridge: Intel Corporation 6300ESB LPC Interface Controller (rev 02)
-0000:00:1f.1 IDE interface: Intel Corporation 6300ESB PATA Storage Controller (rev 02)
-0000:00:1f.2 IDE interface: Intel Corporation 6300ESB SATA Storage Controller (rev 02)
-0000:00:1f.3 SMBus: Intel Corporation 6300ESB SMBus Controller (rev 02)
-0000:01:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A (rev 09)
-0000:01:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B (rev 09)
-0000:08:01.0 VGA compatible controller: ATI Technologies Inc Radeon RV100 QY [Radeon 7000/VE]
-0000:08:02.0 Ethernet controller: Intel Corporation 82541GI/PI Gigabit Ethernet Controller
-0000:08:03.0 Ethernet controller: Intel Corporation 82541GI/PI Gigabit Ethernet Controller
-0000:09:01.0 Ethernet controller: Intel Corporation 82541PI Gigabit Ethernet Controller (rev 05)
-phylo ~ # lspci -v
-0000:00:00.0 Host bridge: Intel Corporation E7520 Memory Controller Hub (rev 0c)
-        Subsystem: Intel Corporation E7520 Memory Controller Hub
-        Flags: bus master, fast devsel, latency 0
-        Capabilities: [40] #09 [4105]
+I suppose it is possible that the latter part of the offset is also 
+under a different ntp correction which would mean a "* ntp_adj2" is 
+needed.  I would argue that only two terms are needed here regardless of 
+how late a tick is.  This is because, I would expect the ntp system call 
+to sync the two clocks.  This means in your example, the ntp call would 
+have been made at, or prior to the timer interrupt at 2 and this is the 
+same edge that gettimeofday is to used to start applying the correction.
 
-0000:00:00.1 Class ff00: Intel Corporation E7525/E7520 Error Reporting Registers (rev 0c)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 3590
-        Flags: fast devsel
 
-0000:00:01.0 System peripheral: Intel Corporation E7520 DMA Controller (rev 0c)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 3594
-        Flags: fast devsel, IRQ 10
-        Memory at d0000000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [b0] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
+> 
+> 
+> 
+>>It would appear that gettimeofday would need to know that the NTP 
+>>adjustment is changing  (and to what).  It would also appear that this 
+>>is known by the ntp code and could be made available to gettimeofday. 
+>>If it is changing due to an NTP call, that system call, itself, 
+>>should/must force synchronization.  So the only case gettimeofday needs 
+>>to worry/know about is that an adjustment is to change at time X to 
+>>value Y.  Also, me thinks there is only one such change that can be 
+>>present at any given time.
+> 
+> 
+> Well, in many arches gettimeofday() works around the above issue by
+> capping the offset_ns value as such:
 
-0000:00:02.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express Port A (rev 0c) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=01, subordinate=03, sec-latency=0
-        Capabilities: [50] Power Management version 2
-        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-        Capabilities: [64] #10 [0041]
-
-0000:00:04.0 PCI bridge: Intel Corporation E7525/E7520 PCI Express Port B (rev 0c) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=04, subordinate=04, sec-latency=0
-        Capabilities: [50] Power Management version 2
-        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-        Capabilities: [64] #10 [0041]
-
-0000:00:05.0 PCI bridge: Intel Corporation E7520 PCI Express Port B1 (rev 0c) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=05, subordinate=05, sec-latency=0
-        Capabilities: [50] Power Management version 2
-        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-        Capabilities: [64] #10 [0041]
-
-0000:00:06.0 PCI bridge: Intel Corporation E7520 PCI Express Port C (rev 0c) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=06, subordinate=06, sec-latency=0
-        Capabilities: [50] Power Management version 2
-        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-        Capabilities: [64] #10 [0041]
-
-0000:00:07.0 PCI bridge: Intel Corporation E7520 PCI Express Port C1 (rev 0c) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=07, subordinate=07, sec-latency=0
-        Capabilities: [50] Power Management version 2
-        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-        Capabilities: [64] #10 [0041]
-
-0000:00:1c.0 PCI bridge: Intel Corporation 6300ESB 64-bit PCI-X Bridge (rev 02) (prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, fast devsel, latency 96
-        Bus: primary=00, secondary=08, subordinate=08, sec-latency=48
-        I/O behind bridge: 00002000-00002fff
-        Memory behind bridge: d0100000-d01fffff
-        Prefetchable memory behind bridge: 00000000d8000000-00000000dff00000
-        Capabilities: [50] PCI-X bridge device.
-
-0000:00:1d.0 USB Controller: Intel Corporation 6300ESB USB Universal Host Controller (rev 02) (prog-if 00 [UHCI])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 24d0
-        Flags: bus master, medium devsel, latency 0, IRQ 16
-        I/O ports at 1400 [size=32]
-
-0000:00:1d.1 USB Controller: Intel Corporation 6300ESB USB Universal Host Controller (rev 02) (prog-if 00 [UHCI])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 24d0
-        Flags: bus master, medium devsel, latency 0, IRQ 22
-        I/O ports at 1420 [size=32]
-
-0000:00:1d.4 System peripheral: Intel Corporation 6300ESB Watchdog Timer (rev 02)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 25ab
-        Flags: medium devsel
-        Memory at d0001000 (32-bit, non-prefetchable) [size=16]
-
-0000:00:1d.5 PIC: Intel Corporation 6300ESB I/O Advanced Programmable Interrupt Controller (rev 02) (prog-if 20 [IO(X)-APIC])
-        Flags: bus master, fast devsel, latency 0
-        Capabilities: [50] PCI-X non-bridge device.
-
-0000:00:1d.7 USB Controller: Intel Corporation 6300ESB USB2 Enhanced Host Controller (rev 02) (prog-if 20 [EHCI])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 25a1
-        Flags: bus master, medium devsel, latency 0, IRQ 23
-        Memory at d0001400 (32-bit, non-prefetchable) [size=1K]
-        Capabilities: [50] Power Management version 2
-        Capabilities: [58] #0a [2080]
-
-0000:00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev 0a) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=09, subordinate=09, sec-latency=200
-        I/O behind bridge: 00003000-00003fff
-        Memory behind bridge: d0200000-d02fffff
-        Prefetchable memory behind bridge: d0300000-d03fffff
-
-0000:00:1f.0 ISA bridge: Intel Corporation 6300ESB LPC Interface Controller (rev 02)
-        Flags: bus master, medium devsel, latency 0
-
-0000:00:1f.1 IDE interface: Intel Corporation 6300ESB PATA Storage Controller (rev 02) (prog-if 8a [Master SecP PriP])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 24d0
-        Flags: bus master, medium devsel, latency 0, IRQ 21
-        I/O ports at <unassigned>
-        I/O ports at <unassigned>
-        I/O ports at <unassigned>
-        I/O ports at <unassigned>
-        I/O ports at 1460 [size=16]
-        Memory at d0001800 (32-bit, non-prefetchable) [size=1K]
-
-0000:00:1f.2 IDE interface: Intel Corporation 6300ESB SATA Storage Controller (rev 02) (prog-if 8f [Master SecP SecO PriP PriO])
-        Flags: bus master, 66Mhz, medium devsel, latency 0, IRQ 21
-        I/O ports at 14a8 [size=8]
-        I/O ports at 149c [size=4]
-        I/O ports at 14a0 [size=8]
-        I/O ports at 1498 [size=4]
-        I/O ports at 1470 [size=16]
-
-0000:00:1f.3 SMBus: Intel Corporation 6300ESB SMBus Controller (rev 02)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 24d0
-        Flags: medium devsel, IRQ 10
-        I/O ports at 1440 [size=32]
-
-0000:01:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A (rev 09) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=01, secondary=02, subordinate=02, sec-latency=32
-        Capabilities: [44] #10 [0071]
-        Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-        Capabilities: [6c] Power Management version 2
-        Capabilities: [d8] 
-0000:01:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B (rev 09) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=01, secondary=03, subordinate=03, sec-latency=32
-        Capabilities: [44] #10 [0071]
-        Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-        Capabilities: [6c] Power Management version 2
-        Capabilities: [d8] 
-0000:08:01.0 VGA compatible controller: ATI Technologies Inc Radeon RV100 QY [Radeon 7000/VE] (prog-if 00 [VGA])
-        Subsystem: ATI Technologies Inc Radeon RV100 QY [Radeon 7000/VE]
-        Flags: stepping, 66Mhz, medium devsel, IRQ 17
-        Memory at d8000000 (32-bit, prefetchable) [size=128M]
-        I/O ports at 2000 [size=256]
-        Memory at d0100000 (32-bit, non-prefetchable) [size=64K]
-        Expansion ROM at d01a0000 [disabled] [size=128K]
-        Capabilities: [50] Power Management version 2
-
-0000:08:02.0 Ethernet controller: Intel Corporation 82541GI/PI Gigabit Ethernet Controller
-        Subsystem: Intel Corporation PRO/1000 MT Network Connection
-        Flags: bus master, 66Mhz, medium devsel, latency 52, IRQ 18
-        Memory at d0140000 (32-bit, non-prefetchable) [size=128K]
-        Memory at d0120000 (32-bit, non-prefetchable) [size=128K]
-        I/O ports at 2400 [size=64]
-        Expansion ROM at d01c0000 [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-        Capabilities: [e4] PCI-X non-bridge device.
-        Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-
-0000:08:03.0 Ethernet controller: Intel Corporation 82541GI/PI Gigabit Ethernet Controller
-        Subsystem: Intel Corporation PRO/1000 MT Network Connection
-        Flags: bus master, 66Mhz, medium devsel, latency 52, IRQ 19
-        Memory at d0180000 (32-bit, non-prefetchable) [size=128K]
-        Memory at d0160000 (32-bit, non-prefetchable) [size=128K]
-        I/O ports at 2440 [size=64]
-        Expansion ROM at d01e0000 [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-        Capabilities: [e4] PCI-X non-bridge device.
-        Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-
-0000:09:01.0 Ethernet controller: Intel Corporation 82541PI Gigabit Ethernet Controller (rev 05)
-        Subsystem: Intel Corporation: Unknown device 1376
-        Flags: bus master, 66Mhz, medium devsel, latency 52, IRQ 20
-        Memory at d0220000 (32-bit, non-prefetchable) [size=128K]
-        Memory at d0200000 (32-bit, non-prefetchable) [size=128K]
-        I/O ports at 3000 [size=64]
-        Expansion ROM at d0300000 [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-        Capabilities: [e4] PCI-X non-bridge device.
-
-phylo ~ # 
+I think this may have been done with only usec gettimeofday.  Now that 
+we have clock_gettime() returning nsec, we need to be a bit more careful.
+> 
+> gettimeofday:
+> 	xtime + min(offset_ns, tick_len + ntp_adj)
+> 
+> The problem with this is that when we have lost or late ticks, or if we
+> are using dynamic ticks you have granularity problems.
+> 
+>
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

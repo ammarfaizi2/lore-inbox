@@ -1,49 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbVHXLX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVHXLZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbVHXLX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 07:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbVHXLX2
+	id S1750885AbVHXLZY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 07:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbVHXLZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 07:23:28 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:18619 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750878AbVHXLX2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 07:23:28 -0400
-Date: Wed, 24 Aug 2005 16:54:38 +0530
+	Wed, 24 Aug 2005 07:25:24 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:41884 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750878AbVHXLZX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 07:25:23 -0400
+Date: Wed, 24 Aug 2005 16:56:40 +0530
 From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.13-rc7
-Message-ID: <20050824112438.GA5197@in.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: paulus@samba.org, Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mingo@elte.hu, hawkes@sgi.com
+Subject: Re: [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
+Message-ID: <20050824112640.GB5197@in.ibm.com>
 Reply-To: dino@in.ibm.com
-References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk>
+References: <20050824111510.11478.49764.sendpatchset@jackhammer.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050824111510.11478.49764.sendpatchset@jackhammer.engr.sgi.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 07:43:42AM +0100, Al Viro wrote:
-> On Tue, Aug 23, 2005 at 10:08:13PM -0700, Linus Torvalds wrote:
-> 
-> >   cpu_exclusive sched domains on partial nodes temp fix
-> 
-> ... breaks ppc64 since there we have node_to_cpumask() done as inlined
-> function, not a macro.  So we get __first_cpu(&node_to_cpumask(...),...),
-> with obvious consequences.
-> 
-> Locally I'm turning node_to_cpumask() into define, just to see what else
-> had changed in the build, but we probably want saner solution for that
-> one...
+Paul,
 
-Not sure why this patch was included. I had reported yesterday that
-it hangs up ppc64 on doing some exclusive cpuset operations. (I had
-fixed the compile problem by having a temp for the cpumask variable)
-
-So this patch is not ready to go in just yet. I am working on the fix,
-hope to have it soon
+Can we hold on to this patch for a while, as I reported yesterday,
+this hangs up my ppc64 box on doing rmdir on a exclusive cpuset.
+Still debugging the problem, hope to have a fix soon, Thanks
 
 	-Dinakar
+
+
+On Wed, Aug 24, 2005 at 04:15:10AM -0700, Paul Jackson wrote:
+> As reported by Paul Mackerras <paulus@samba.org>, the previous
+> patch "cpu_exclusive sched domains fix" broke the ppc64 build,
+> yielding error messages:
+> 
+> kernel/cpuset.c: In function 'update_cpu_domains':
+> kernel/cpuset.c:648: error: invalid lvalue in unary '&'
+> kernel/cpuset.c:648: error: invalid lvalue in unary '&'
+> 
+> On some arch's, the node_to_cpumask() is a function, returning
+> a cpumask_t.  But the for_each_cpu_mask() requires an lvalue mask.
+> 
+> The following patch fixes this build failure by making a copy
+> of the cpumask_t on the stack.
+> 
+> I have _not_ yet tried to build this for ppc64 - just for ia64.
+> I will try that now.  But the fix seems obvious enough that it
+> is worth sending out now.
+> 
+> Signed-off-by: Paul Jackson <pj@sgi.com>
+> 
+> Index: linux-2.6.13-cpuset-mempolicy-migrate/kernel/cpuset.c
+> ===================================================================
+> --- linux-2.6.13-cpuset-mempolicy-migrate.orig/kernel/cpuset.c
+> +++ linux-2.6.13-cpuset-mempolicy-migrate/kernel/cpuset.c
+> @@ -645,7 +645,9 @@ static void update_cpu_domains(struct cp
+>  		int i, j;
+>  
+>  		for_each_cpu_mask(i, cur->cpus_allowed) {
+> -			for_each_cpu_mask(j, node_to_cpumask(cpu_to_node(i))) {
+> +			cpumask_t mask = node_to_cpumask(cpu_to_node(i));
+> +
+> +			for_each_cpu_mask(j, mask) {
+>  				if (!cpu_isset(j, cur->cpus_allowed))
+>  					return;
+>  			}
+> 
+> -- 
+>                           I won't rest till it's the best ...
+>                           Programmer, Linux Scalability
+>                           Paul Jackson <pj@sgi.com> 1.650.933.1373
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

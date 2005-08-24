@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbVHXTH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbVHXTG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbVHXTH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 15:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbVHXTH1
+	id S1751404AbVHXTG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 15:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbVHXTG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 15:07:27 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:38125 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751413AbVHXTH1 (ORCPT
+	Wed, 24 Aug 2005 15:06:28 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:56182 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751404AbVHXTG1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 15:07:27 -0400
+	Wed, 24 Aug 2005 15:06:27 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=c/LgYqBJJqzMB6phZsxnDAy4VZi9m7w8mDF5qSh1nHgn6lVpvOiNJRS+Z5netn4cr3icMZefXWHFbHTACj+kOt+44epMJdMCeB/kx78FyfHo2thFUC2RvuSoHFg/CNHZcZlS+xymCOUpOXSFh2zVaEdVzWgWq1m7EUpH5KMGEpI=
+        b=e0OZ+kctn+Lf2SWuwbgrqUiOFbIFxYo1K6+aHZYGF3QVq9vWDo7iLAabLl0jvdIKTidwHHPIvy3gLBZsbqfXiNlzL1P0JVLHR8xrjWSILmrrkGuZKegKk2RFWB9AnTSzMgREweLoMc/wf7PqZRXQEa4ftEvOlPlJEBYSKowz044=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] exterminate strtok - arch/frv/kernel/frv_ksyms.c
-Date: Wed, 24 Aug 2005 21:08:15 +0200
+Subject: [PATCH 0/3] exterminate strtok
+Date: Wed, 24 Aug 2005 21:06:06 +0200
 User-Agent: KMail/1.8.2
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200508242108.15735.jesper.juhl@gmail.com>
+Message-Id: <200508242106.06123.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since strtok() died in 2002 this EXPORT_SYMBOL appears meaningless.
+In 1999 Ingo Oeser commented in lib/string.c :
+   * -  Added strsep() which will replace strtok() soon (because strsep() is
+   *    reentrant and should be faster). Use only strsep() in new code, please.
+Then in 2002 strtok was removed.
 
-Note: I've not been able to test this patch since I lack both hardware and 
-a cross compiler, so if someone else could please check it and sign off on 
-it before I send it to Andrew for inclusion in -mm I'd appreciate it.
+There are still a few cases of strtok in the kernel to this day. The following
+3 patches exterminates them.
+
+Let me say up front that the first two patches have *not* been tested since I 
+lack both the appropriate hardware and suitable cross compiler. They are fairly 
+simple though, so I doubt they'll be troublesome, but I'd greatly appreciate if
+someone else would validate them and sign off on them before I send them on to 
+Andrew for inclusion in -mm.  The third patch /has/ seen limited testing, but it
+would still be nice to have someone look it over and sign off on it.
 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
 
- frv_ksyms.c |    1 -
- 1 files changed, 1 deletion(-)
-
---- linux-2.6.13-rc6-mm2-orig/arch/frv/kernel/frv_ksyms.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-mm2/arch/frv/kernel/frv_ksyms.c	2005-08-24 18:58:14.000000000 +0200
-@@ -71,7 +71,6 @@ EXPORT_SYMBOL(memset);
- EXPORT_SYMBOL(memcmp);
- EXPORT_SYMBOL(memscan);
- EXPORT_SYMBOL(memmove);
--EXPORT_SYMBOL(strtok);
- 
- EXPORT_SYMBOL(get_wchan);
- 
 
 

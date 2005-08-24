@@ -1,108 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVHXHnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVHXHsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbVHXHnB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 03:43:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbVHXHnA
+	id S1750734AbVHXHsO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 03:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbVHXHsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 03:43:00 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:56753 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750736AbVHXHnA convert rfc822-to-8bit
+	Wed, 24 Aug 2005 03:48:14 -0400
+Received: from NK210-202-245-3.vdsl.static.apol.com.tw ([210.202.245.3]:51334
+	"EHLO uli.com.tw") by vger.kernel.org with ESMTP id S1750734AbVHXHsN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 03:43:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=LcRbQYN6wZmKr5/cUcaDEjlTLAuCQ6ARRxoqOndbizdFrVIxW10R8FjAzhLMy4Hok5begdLaBWFRGpLPHw6ZiAey6xpZZwpdDtOZ6Lv3NUjsC5sP2/9wmQVxpNf/6mivHY4jL9/1Z0CLOHLSkuH3cCMxcCZK3mLt6C5xC/2tLao=
-Message-ID: <615cd8d1050824004230feb6bc@mail.gmail.com>
-Date: Wed, 24 Aug 2005 15:42:51 +0800
-From: =?BIG5?B?vFi50w==?= <brianhsu.hsu@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: How can I get link target from a full path name.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 24 Aug 2005 03:48:13 -0400
+Subject: [patch] alsa-driver-1.0.9b/alsa-kernel/pci/hda/: HDA driver for ULI M5461
+To: tiwai@suse.de, pshou@realtek.com.tw
+Cc: linux-kernel@vger.kernel.org, Emily.Jiang@uli.com.tw, Peer.Chen@uli.com.tw
+X-Mailer: Lotus Notes R5.0 (Intl) 30 March 1999
+Message-ID: <OFFD189321.7C1C9711-ON48257067.0027DDAB@uli.com.tw>
+From: Wei.Ni@uli.com.tw
+Date: Wed, 24 Aug 2005 15:47:35 +0800
+MIME-Version: 1.0
+X-MIMETrack: Serialize by Router on ulicnm01/ULI(Release 5.0.11  |July 24, 2002) at 2005-08-24
+ 15:47:37,
+	Itemize by SMTP Server on ulim01/ULI(Release 5.0.11  |July 24, 2002) at
+ 2005/08/24 03:47:38 PM,
+	Serialize by Router on ulim01/ULI(Release 5.0.11  |July 24, 2002) at 2005/08/24
+ 03:47:47 PM
+Content-type: multipart/mixed; 
+	Boundary="0__=C7BBFAF4DFB45B3B8f9e8a93df938690918cC7BBFAF4DFB45B3B"
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I would like to know how can I figure out where is a symbolic link
-file pointing to.
+--0__=C7BBFAF4DFB45B3B8f9e8a93df938690918cC7BBFAF4DFB45B3B
+Content-type: text/plain; charset=us-ascii
 
-for example:
+Hi,Takashi Iwai & PeiSen Hou:
+We add some codes in hda_intel.c which is in
+alsa-driver-1.0.9b/alsa-kernel/pci/hda/ folder to support our HDA
+controller ULi M5461.
+Because that our controller has little different with Intel:
+1.The M5461 have 11 streams(5 input streams and 6 output streams), and the
+Intel's controller is only support 8 streams.
+2.The M5461 CORB/RIRB size's default value is 2 entries, and it need to set
+to 256 entries.
+Could you please update the hda driver to support our controller M5461?
+Thanks.
 
-/a.txt is a symbolic link to /root/a.txt , how can I get /root/a.txt
-when I passing /a.txt
-to my function?
+The following file is the patch of the hda_intel.c file. we have made a
+full test for it.
 
-I tought path_loookup and d_path is useful, and I wrote a function,
-but the path_lookup
-function always return -2 , which seems means that there is no such
-file, but I am sure
-the file exists.
+Signed-off-by: Wei ni <wei.ni@uli.com.tw>
+(See attached file: hda_intel.patch)
 
-Here is my code, any sugguestion? and thanks for your help.
+Have a good day!
+wei
 
+--0__=C7BBFAF4DFB45B3B8f9e8a93df938690918cC7BBFAF4DFB45B3B
+Content-type: application/octet-stream; 
+	name="hda_intel.patch"
+Content-Disposition: attachment; filename="hda_intel.patch"
+Content-Transfer-Encoding: base64
 
-int catfs_get_path_target ( const char * filename , char ** target_path , 
-                                        char ** target_mnt_point )
-{
-    int error = 0;
-    
-    char buffer[255];
-    char buffer2[255];
+LS0tIGFsc2EtZHJpdmVyLTEuMC45Yi9hbHNhLWtlcm5lbC9wY2kvaGRhL2hkYV9pbnRlbC5jLm9y
+aWcJMjAwNS0wNS0zMCAxNTozMzo0NC4wMDAwMDAwMDAgLTA0MDAKKysrIGFsc2EtZHJpdmVyLTEu
+MC45Yi9hbHNhLWtlcm5lbC9wY2kvaGRhL2hkYV9pbnRlbC5jCTIwMDUtMDgtMjQgMTE6MTE6MzEu
+OTcwNzkyNjQ4IC0wNDAwCkBAIC03MCw2ICs3MCw3IEBACiAJCQkgIntJbnRlbCwgSUNIN30sIgog
+CQkJICJ7SW50ZWwsIEVTQjJ9LCIKIAkJCSAie0FUSSwgU0I0NTB9LCIKKwkJCSAie1VMaSwgTTU0
+NjF9LCIKIAkJCSAie1ZJQSwgVlQ4MjUxfSwiCiAJCQkgIntWSUEsIFZUODIzN0F9fSIpOwogTU9E
+VUxFX0RFU0NSSVBUSU9OKCJJbnRlbCBIREEgZHJpdmVyIik7CkBAIC0zNTcsNiArMzU4LDggQEAK
+IAlhenhfd3JpdGVsKGNoaXAsIENPUkJMQkFTRSwgKHUzMiljaGlwLT5jb3JiLmFkZHIpOwogCWF6
+eF93cml0ZWwoY2hpcCwgQ09SQlVCQVNFLCB1cHBlcl8zMmJpdChjaGlwLT5jb3JiLmFkZHIpKTsK
+IAorCS8qIHNldCB0aGUgY29yYiBzaXplIHRvIDI1NiBlbnRyaWVzICovCisJYXp4X3dyaXRlYihj
+aGlwLCBDT1JCU0laRSwgMHgwMik7CiAJLyogc2V0IHRoZSBjb3JiIHdyaXRlIHBvaW50ZXIgdG8g
+MCAqLwogCWF6eF93cml0ZXcoY2hpcCwgQ09SQldQLCAwKTsKIAkvKiByZXNldCB0aGUgY29yYiBo
+dyByZWFkIHBvaW50ZXIgKi8KQEAgLTM3MCw2ICszNzMsOCBAQAogCWF6eF93cml0ZWwoY2hpcCwg
+UklSQkxCQVNFLCAodTMyKWNoaXAtPnJpcmIuYWRkcik7CiAJYXp4X3dyaXRlbChjaGlwLCBSSVJC
+VUJBU0UsIHVwcGVyXzMyYml0KGNoaXAtPnJpcmIuYWRkcikpOwogCisJLyogc2V0IHRoZSByaXJi
+IHNpemUgdG8gMjU2IGVudHJpZXMgKi8KKwlhenhfd3JpdGViKGNoaXAsIFJJUkJTSVpFLCAweDAy
+KTsKIAkvKiByZXNldCB0aGUgcmlyYiBodyB3cml0ZSBwb2ludGVyICovCiAJYXp4X3dyaXRldyhj
+aGlwLCBSSVJCV1AsIElDSDZfUkJSV1BfQ0xSKTsKIAkvKiBzZXQgTj0xLCBnZXQgUklSQiByZXNw
+b25zZSBpbnRlcnJ1cHQgZm9yIG5ldyBlbnRyeSAqLwpAQCAtMTE3Nyw2ICsxMTgyLDMxIEBACiB7
+CiAJaW50IGk7CiAKKwlpZiAoY2hpcC0+cGNpLT52ZW5kb3IgPT0gMHgxMGI5ICYmIGNoaXAtPnBj
+aS0+ZGV2aWNlID09IDB4NTQ2MSkKKwl7CisJCWludCBqOworCQlmb3IgKGogPSAwOyBqIDwgTUFY
+X0lDSDZfREVWOyBqKyspIHsKKwkJCXVuc2lnbmVkIGludCBvZmYgPSBzaXplb2YodTMyKSAqIChq
+ICogQVpYX01BWF9GUkFHICogNCk7CisJCQlhenhfZGV2X3QgKmF6eF9kZXYgPSAmY2hpcC0+YXp4
+X2RldltqXTsKKwkJCWF6eF9kZXYtPmJkbCA9ICh1MzIgKikoY2hpcC0+YmRsLmFyZWEgKyBvZmYp
+OworCQkJYXp4X2Rldi0+YmRsX2FkZHIgPSBjaGlwLT5iZGwuYWRkciArIG9mZjsKKwkJCWlmIChj
+aGlwLT5wb3NpdGlvbl9maXggPT0gUE9TX0ZJWF9QT1NCVUYpCisJCQkJYXp4X2Rldi0+cG9zYnVm
+ID0gKHZvbGF0aWxlIHUzMiAqKShjaGlwLT5wb3NidWYuYXJlYSArIGogKiA4KTsKKwkJCWlmIChq
+ID49IDQpCisJCQkJaSA9IGorMTsKKwkJCWVsc2UKKwkJCQlpID0gajsKKwkJCS8qIG9mZnNldDog
+U0RJMD0weDgwLCBTREkxPTB4YTAsIC4uLiBTRE8zPTB4MTYwICovCisJCQlhenhfZGV2LT5zZF9h
+ZGRyID0gY2hpcC0+cmVtYXBfYWRkciArICgweDIwICogaSArIDB4ODApOworCQkJLyogaW50IG1h
+c2s6IFNESTA9MHgwMSwgU0RJMT0weDAyLCAuLi4gU0RPMz0weDgwICovCisJCQlhenhfZGV2LT5z
+ZF9pbnRfc3RhX21hc2sgPSAxIDw8IGk7CisJCQkvKiBzdHJlYW0gdGFnOiBtdXN0IGJlIG5vbi16
+ZXJvIGFuZCB1bmlxdWUgKi8KKwkJCWF6eF9kZXYtPmluZGV4ID0gaTsKKwkJCWF6eF9kZXYtPnN0
+cmVhbV90YWcgPSBpICsgMTsKKwkJfQorCX0KKwllbHNlCisJewkKIAkvKiBpbml0aWFsaXplIGVh
+Y2ggc3RyZWFtIChha2EgZGV2aWNlKQogCSAqIGFzc2lnbiB0aGUgc3RhcnRpbmcgYmRsIGFkZHJl
+c3MgdG8gZWFjaCBzdHJlYW0gKGRldmljZSkgYW5kIGluaXRpYWxpemUKIAkgKi8KQEAgLTExOTUs
+NiArMTIyNSw3IEBACiAJCWF6eF9kZXYtPmluZGV4ID0gaTsKIAkJYXp4X2Rldi0+c3RyZWFtX3Rh
+ZyA9IGkgKyAxOwogCX0KKwl9CiAKIAlyZXR1cm4gMDsKIH0KQEAgLTEyOTcsNiArMTMyOCwxNSBA
+QAogCWlmICgoZXJyID0gcGNpX2VuYWJsZV9kZXZpY2UocGNpKSkgPCAwKQogCQlyZXR1cm4gZXJy
+OwogCit7CisjaWYgQklUU19QRVJfTE9ORyA9PSA2NAorI2Vsc2UKK3UxNiB0bXAzOworcGNpX3Jl
+YWRfY29uZmlnX3dvcmQocGNpLCAweDQwLCAmdG1wMyk7CitwY2lfd3JpdGVfY29uZmlnX3dvcmQo
+cGNpLCAweDQwLCB0bXAzIHwgMHgxMCk7CitwY2lfd3JpdGVfY29uZmlnX2R3b3JkKHBjaSwgUENJ
+X0JBU0VfQUREUkVTU18xLCAwKTsKKyNlbmRpZgorfQogCWNoaXAgPSBrY2FsbG9jKDEsIHNpemVv
+ZigqY2hpcCksIEdGUF9LRVJORUwpOwogCQogCWlmIChOVUxMID09IGNoaXApIHsKQEAgLTE0NTgs
+NiArMTQ5OCw3IEBACiAJeyAweDgwODYsIDB4MjY5YSwgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwg
+MCwgMCwgMCB9LCAvKiBFU0IyICovCiAJeyAweDEwMDIsIDB4NDM3YiwgUENJX0FOWV9JRCwgUENJ
+X0FOWV9JRCwgMCwgMCwgMCB9LCAvKiBBVEkgU0I0NTAgKi8KIAl7IDB4MTEwNiwgMHgzMjg4LCBQ
+Q0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCAwIH0sIC8qIFZJQSBWVDgyNTEvVlQ4MjM3QSAq
+LworCXsgMHgxMEI5LCAweDU0NjEsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIDAgfSwg
+LyogVUxpIE01NDYxICovCiAJeyAwLCB9CiB9OwogTU9EVUxFX0RFVklDRV9UQUJMRShwY2ksIGF6
+eF9pZHMpOwo=
 
-    char * fullpath = NULL;
-    char * mnt_point = NULL;
-    struct nameidata nd;
-    struct file * filp = NULL;
-    
-    if ( filename == NULL ) {
-        error = -1;
-        goto out;
-    }
-    
-    error = path_lookup ( filename , 0 , &nd );
-    
-    if ( error ) {
-        printk ( "Error:%d\n" , error );
-        error = -1;
-        goto out;
-    }
-    
-    memset ( buffer , 0 , 255 );
-    memset ( buffer2 , 0 , 255 );
-    
-    fullpath  = d_path(filp->f_dentry,filp->f_vfsmnt,buffer,255) + 1;
-    mnt_point =
-d_path(filp->f_vfsmnt->mnt_mountpoint,filp->f_vfsmnt->mnt_parent,buffer2,255);
-    
-    if ( mnt_point[strlen(mnt_point)-1] != '/' ) {
-        strcat ( mnt_point , "/" );
-    }
+--0__=C7BBFAF4DFB45B3B8f9e8a93df938690918cC7BBFAF4DFB45B3B--
 
-    *target_path = kmalloc ( sizeof(char) * strlen(fullpath) + 1 , GFP_KERNEL );
-
-    if ( *target_path == NULL ) {
-        *target_path = NULL;
-        error = -1;
-        goto out;
-    }
-
-    *target_mnt_point = kmalloc ( sizeof(char) * strlen(mnt_point) + 1
-, GFP_KERNEL );
-
-    if ( *target_mnt_point == NULL ) {
-        *target_path = NULL;
-        error = -1;
-        goto out;
-    }
-
-    strcpy ( *target_path , fullpath );
-    strcpy ( *target_mnt_point , mnt_point );
-
-    path_release ( &nd );
-
-out:
-    return error;
-}

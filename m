@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVHXVgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVHXVnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbVHXVgE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVHXVgD
+	id S932286AbVHXVnA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVHXVnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 17:36:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49558 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932284AbVHXVgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:36:01 -0400
-Date: Wed, 24 Aug 2005 22:38:59 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Paul Jackson <pj@sgi.com>, paulus@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.13-rc7
-Message-ID: <20050824213859.GN9322@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk> <20050824114351.4e9b49bb.pj@sgi.com> <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk> <20050824201301.GA23715@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050824201301.GA23715@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.4.1i
+	Wed, 24 Aug 2005 17:43:00 -0400
+Received: from fmr14.intel.com ([192.55.52.68]:63668 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932285AbVHXVm7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 17:42:59 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 05/15] ia64: remove use of asm/segment.h
+Date: Wed, 24 Aug 2005 14:42:44 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F04385372@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 05/15] ia64: remove use of asm/segment.h
+Thread-Index: AcWo82NrayhVI3r7RUWM1J3XVKFMdgAAOIgA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Kumar Gala" <kumar.gala@freescale.com>
+Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
+       "Gala Kumar K.-galak" <galak@freescale.com>,
+       <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 24 Aug 2005 21:42:45.0517 (UTC) FILETIME=[C37D1BD0:01C5A8F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 12:13:02AM +0400, Alexey Dobriyan wrote:
-> On Wed, Aug 24, 2005 at 08:15:44PM +0100, Al Viro wrote:
-> > Most of the remaining stuff is for
-> > m68k (and applies both to Linus' tree and m68k CVS); I'll send that today
-> > and if Geert ACKs them, we will be _very_ close to having 2.6.13 build
-> > out of the box on the following set:
-> > alpha,
-> 
-> Do I understand correctly that alpha in "--><-- close" list?
-> 
-> 2.6.13-rc7, alpha, allmodconfig:
-> 
->   LD      .tmp_vmlinux1
-> net/built-in.o: In function `kmalloc':
-> include/linux/slab.h:92: undefined reference to `__you_cannot_kmalloc_that_much'
-> include/linux/slab.h:92: undefined reference to `__you_cannot_kmalloc_that_much'
-> 
-> Guilty: net/ipv4/route.c
-> 
-> $ nm net/ipv4/route.o | grep kmalloc
->                  U __you_cannot_kmalloc_that_much
+>> I'll apply this for ia64 w/o the deletion.
 
-Not here...
+This is now in my test tree.  I will send to Linus soon after
+2.6.13 is released.
 
-  CC      arch/alpha/lib/udelay.o
-  AR      arch/alpha/lib/lib.a
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-  KSYM    .tmp_kallsyms1.S
-  AS      .tmp_kallsyms1.o
-  LD      .tmp_vmlinux2
-  KSYM    .tmp_kallsyms2.S
-  AS      .tmp_kallsyms2.o
-  LD      .tmp_vmlinux3
-  KSYM    .tmp_kallsyms3.S
-  AS      .tmp_kallsyms3.o
-  LD      vmlinux
-  SYSMAP  System.map
-  SYSMAP  .tmp_System.map
-  STRIP  arch/alpha/boot/vmlinux
+>I've posted a patch before this to remove all non-architecture users  
+>of asm/segment.h.
+>
+>http://www.ussg.iu.edu/hypermail/linux/kernel/0508.3/0099.html
 
-Allmodconfig on alpha, alpha-linux-gcc (GCC) 4.0.1 20050727 (Red Hat 4.0.1-5).
+Good.  After that gets I applied I will delete include/asm-ia64/segment.h
 
-Which place triggers it in your build?
+-Tony

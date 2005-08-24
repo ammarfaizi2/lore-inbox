@@ -1,48 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbVHXTNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbVHXTQM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbVHXTNu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 15:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbVHXTNu
+	id S1751420AbVHXTQM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 15:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVHXTQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 15:13:50 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:4804 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751406AbVHXTNs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 15:13:48 -0400
-Date: Wed, 24 Aug 2005 12:13:40 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] cpu_exclusive sched domains on partial nodes temp fix
-Message-Id: <20050824121340.3edf79d8.pj@sgi.com>
-In-Reply-To: <20050824190651.GA10586@redhat.com>
-References: <200508240401.j7O41qlB029277@hera.kernel.org>
-	<20050824190651.GA10586@redhat.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Wed, 24 Aug 2005 15:16:12 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:23801 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751420AbVHXTQK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 15:16:10 -0400
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
+       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
+       George Anzinger <george@mvista.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0508242043220.3728@scrub.home>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>
+	 <1124505151.22195.78.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508202204240.3728@scrub.home>
+	 <1124737075.22195.114.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508230134210.3728@scrub.home>
+	 <1124830262.20464.26.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508232321530.3728@scrub.home>
+	 <1124838847.20617.11.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508240134050.3743@scrub.home>
+	 <1124906422.20820.16.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508242043220.3728@scrub.home>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 12:15:52 -0700
+Message-Id: <1124910953.20820.34.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave wrote:
-> > [PATCH] cpu_exclusive sched domains on partial nodes temp fix
+On Wed, 2005-08-24 at 20:48 +0200, Roman Zippel wrote:
+> Hi,
 > 
-> This broke ppc64 for me.
+> On Wed, 24 Aug 2005, john stultz wrote:
+> 
+> > Ok, so then to clarify the above (as you mention gettimeofday uses
+> > system_time), would your gettimeofday look something like:
+> > 
+> > gettiemofday():
+> > 	return (system_time + (cycle_offset * mult) + error)>> shift
+> > 
+> > ?
+> 
+> No.
+> 
+> 	reference_time = xtime;
+> 	system_time = xtime + error >> shift;
+> 	gettimeofday = system_time + (cycle_offset * mult) >> shift;
 
+Eh? In your example code from before you look to be keeping the
+system_time and error values in shifted nsec units.
 
-Thanks to Paul Mackerras's report, I sent a patch for this a few hours ago:
+from your example:
+>		// at init: system_update = update_cycles * mult;
+> 		system_time += system_update;
 
-  [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
+and:
+> 	error = system_time - (xtime.tv_nsec << shift);
 
-It just makes a local copy of the cpumask_t in a local variable on the stack.
+This doesn't seem to make sense with the above.  Could you clarify?
 
-I'm still a couple of hours from actually verifying that ppc64 builds with
-this - due to unrelated confusions on my end.  Perhaps you or Mackerras will
-report in first, to verify if this patch works as advertised.
+thanks
+-john
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,42 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVHXWiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVHXWkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbVHXWiK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 18:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVHXWiK
+	id S932342AbVHXWkn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 18:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVHXWkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 18:38:10 -0400
-Received: from mf00.sitadelle.com ([212.94.174.67]:24644 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932336AbVHXWiJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 18:38:09 -0400
-Message-ID: <430CF6CA.8040302@cosmosbay.com>
-Date: Thu, 25 Aug 2005 00:38:02 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       Alok Kataria <alokk@calsoftinc.com>
-Subject: Re: [patch] Additions to .data.read_mostly section
-References: <20050824214610.GA3675@localhost.localdomain>
-In-Reply-To: <20050824214610.GA3675@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 24 Aug 2005 18:40:43 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:7082 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932342AbVHXWkm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 18:40:42 -0400
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
+       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
+       George Anzinger <george@mvista.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0508242142420.3743@scrub.home>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>
+	 <1124505151.22195.78.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508202204240.3728@scrub.home>
+	 <1124737075.22195.114.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508230134210.3728@scrub.home>
+	 <1124830262.20464.26.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508232321530.3728@scrub.home>
+	 <1124838847.20617.11.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508240134050.3743@scrub.home>
+	 <1124906422.20820.16.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508242043220.3728@scrub.home>
+	 <1124910953.20820.34.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508242142420.3743@scrub.home>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 15:40:30 -0700
+Message-Id: <1124923231.20820.87.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai a écrit :
-> Following patch moves a few static 'read mostly' variables to the 
-> .data.read_mostly section.  Typically these are vector - irq tables,
-> boot_cpu_data, node_maps etc., which are initialized once and read from 
-> often and rarely written to.  Please include.
+On Wed, 2005-08-24 at 21:49 +0200, Roman Zippel wrote:
+> On Wed, 24 Aug 2005, john stultz wrote:
 > 
+> > from your example:
+> > >		// at init: system_update = update_cycles * mult;
+> > > 		system_time += system_update;
+> > 
+> > and:
+> > > 	error = system_time - (xtime.tv_nsec << shift);
+> > 
+> > This doesn't seem to make sense with the above.  Could you clarify?
+> 
+> The example here doesn't keep the complete system time, just enough to 
+> compute the difference.
 
-Good candidates for read_mostly are all the 'kmem_cache_t *xxx_cache'
+Hey Roman, 
 
-slab was carefuly designed to eliminate cache line ping pongs on SMP, but if 
-the initial pointer to slab sits in a heavily modified cache line, we loose.
+Ok, well, I'm still at a loss for understanding how this avoids my
+concern about time inconsistencies. However, I don't want to burn any
+more of your patience explaining it, so in the hopes making some
+productive outcome, I'm going to take a step back, pull the most trivial
+and uncontroversial cleanups and fixes in my patches and try to send
+them to Andrew one by one.
 
-Eric
+Hopefully that will give me a chance to spend some time and understand
+your suggestions (or maybe allow someone else to express your
+suggestions differently) and think of alternate solutions without
+feeling like I'm constantly running into walls.
+
+Again, I really do appreciate the time you've spent giving me feedback.
+
+thanks
+-john
+

@@ -1,115 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVHXHsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVHXHsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVHXHsO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 03:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbVHXHsO
+	id S1750730AbVHXHsm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 03:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbVHXHsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 03:48:14 -0400
-Received: from NK210-202-245-3.vdsl.static.apol.com.tw ([210.202.245.3]:51334
-	"EHLO uli.com.tw") by vger.kernel.org with ESMTP id S1750734AbVHXHsN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 03:48:13 -0400
-Subject: [patch] alsa-driver-1.0.9b/alsa-kernel/pci/hda/: HDA driver for ULI M5461
-To: tiwai@suse.de, pshou@realtek.com.tw
-Cc: linux-kernel@vger.kernel.org, Emily.Jiang@uli.com.tw, Peer.Chen@uli.com.tw
-X-Mailer: Lotus Notes R5.0 (Intl) 30 March 1999
-Message-ID: <OFFD189321.7C1C9711-ON48257067.0027DDAB@uli.com.tw>
-From: Wei.Ni@uli.com.tw
-Date: Wed, 24 Aug 2005 15:47:35 +0800
-MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on ulicnm01/ULI(Release 5.0.11  |July 24, 2002) at 2005-08-24
- 15:47:37,
-	Itemize by SMTP Server on ulim01/ULI(Release 5.0.11  |July 24, 2002) at
- 2005/08/24 03:47:38 PM,
-	Serialize by Router on ulim01/ULI(Release 5.0.11  |July 24, 2002) at 2005/08/24
- 03:47:47 PM
-Content-type: multipart/mixed; 
-	Boundary="0__=C7BBFAF4DFB45B3B8f9e8a93df938690918cC7BBFAF4DFB45B3B"
-Content-Disposition: inline
+	Wed, 24 Aug 2005 03:48:42 -0400
+Received: from duero.optyma.com ([213.254.241.67]:59524 "EHLO duero.optyma.com")
+	by vger.kernel.org with ESMTP id S1750730AbVHXHsl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 03:48:41 -0400
+Subject: Exporting symbols between modules
+From: Sergio Paracuellos <sparacuellos@lock-linux.com>
+To: LINUX-KERNEL <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 09:48:38 +0200
+Message-Id: <1124869718.3073.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=C7BBFAF4DFB45B3B8f9e8a93df938690918cC7BBFAF4DFB45B3B
-Content-type: text/plain; charset=us-ascii
+Hi all,
 
-Hi,Takashi Iwai & PeiSen Hou:
-We add some codes in hda_intel.c which is in
-alsa-driver-1.0.9b/alsa-kernel/pci/hda/ folder to support our HDA
-controller ULi M5461.
-Because that our controller has little different with Intel:
-1.The M5461 have 11 streams(5 input streams and 6 output streams), and the
-Intel's controller is only support 8 streams.
-2.The M5461 CORB/RIRB size's default value is 2 entries, and it need to set
-to 256 entries.
-Could you please update the hda driver to support our controller M5461?
-Thanks.
+I'm new in this list and I have some problems exporting symbols in a
+module to see them in other module.
 
-The following file is the patch of the hda_intel.c file. we have made a
-full test for it.
+In the module I want to export the symbol I do:
 
-Signed-off-by: Wei ni <wei.ni@uli.com.tw>
-(See attached file: hda_intel.patch)
+tList list;
+EXPORT_SYMBOL(list);
 
-Have a good day!
-wei
+I compile it and install without any problem.
 
---0__=C7BBFAF4DFB45B3B8f9e8a93df938690918cC7BBFAF4DFB45B3B
-Content-type: application/octet-stream; 
-	name="hda_intel.patch"
-Content-Disposition: attachment; filename="hda_intel.patch"
-Content-Transfer-Encoding: base64
+And in the module I want to use them I declare list with "extern"
+prototype:
 
-LS0tIGFsc2EtZHJpdmVyLTEuMC45Yi9hbHNhLWtlcm5lbC9wY2kvaGRhL2hkYV9pbnRlbC5jLm9y
-aWcJMjAwNS0wNS0zMCAxNTozMzo0NC4wMDAwMDAwMDAgLTA0MDAKKysrIGFsc2EtZHJpdmVyLTEu
-MC45Yi9hbHNhLWtlcm5lbC9wY2kvaGRhL2hkYV9pbnRlbC5jCTIwMDUtMDgtMjQgMTE6MTE6MzEu
-OTcwNzkyNjQ4IC0wNDAwCkBAIC03MCw2ICs3MCw3IEBACiAJCQkgIntJbnRlbCwgSUNIN30sIgog
-CQkJICJ7SW50ZWwsIEVTQjJ9LCIKIAkJCSAie0FUSSwgU0I0NTB9LCIKKwkJCSAie1VMaSwgTTU0
-NjF9LCIKIAkJCSAie1ZJQSwgVlQ4MjUxfSwiCiAJCQkgIntWSUEsIFZUODIzN0F9fSIpOwogTU9E
-VUxFX0RFU0NSSVBUSU9OKCJJbnRlbCBIREEgZHJpdmVyIik7CkBAIC0zNTcsNiArMzU4LDggQEAK
-IAlhenhfd3JpdGVsKGNoaXAsIENPUkJMQkFTRSwgKHUzMiljaGlwLT5jb3JiLmFkZHIpOwogCWF6
-eF93cml0ZWwoY2hpcCwgQ09SQlVCQVNFLCB1cHBlcl8zMmJpdChjaGlwLT5jb3JiLmFkZHIpKTsK
-IAorCS8qIHNldCB0aGUgY29yYiBzaXplIHRvIDI1NiBlbnRyaWVzICovCisJYXp4X3dyaXRlYihj
-aGlwLCBDT1JCU0laRSwgMHgwMik7CiAJLyogc2V0IHRoZSBjb3JiIHdyaXRlIHBvaW50ZXIgdG8g
-MCAqLwogCWF6eF93cml0ZXcoY2hpcCwgQ09SQldQLCAwKTsKIAkvKiByZXNldCB0aGUgY29yYiBo
-dyByZWFkIHBvaW50ZXIgKi8KQEAgLTM3MCw2ICszNzMsOCBAQAogCWF6eF93cml0ZWwoY2hpcCwg
-UklSQkxCQVNFLCAodTMyKWNoaXAtPnJpcmIuYWRkcik7CiAJYXp4X3dyaXRlbChjaGlwLCBSSVJC
-VUJBU0UsIHVwcGVyXzMyYml0KGNoaXAtPnJpcmIuYWRkcikpOwogCisJLyogc2V0IHRoZSByaXJi
-IHNpemUgdG8gMjU2IGVudHJpZXMgKi8KKwlhenhfd3JpdGViKGNoaXAsIFJJUkJTSVpFLCAweDAy
-KTsKIAkvKiByZXNldCB0aGUgcmlyYiBodyB3cml0ZSBwb2ludGVyICovCiAJYXp4X3dyaXRldyhj
-aGlwLCBSSVJCV1AsIElDSDZfUkJSV1BfQ0xSKTsKIAkvKiBzZXQgTj0xLCBnZXQgUklSQiByZXNw
-b25zZSBpbnRlcnJ1cHQgZm9yIG5ldyBlbnRyeSAqLwpAQCAtMTE3Nyw2ICsxMTgyLDMxIEBACiB7
-CiAJaW50IGk7CiAKKwlpZiAoY2hpcC0+cGNpLT52ZW5kb3IgPT0gMHgxMGI5ICYmIGNoaXAtPnBj
-aS0+ZGV2aWNlID09IDB4NTQ2MSkKKwl7CisJCWludCBqOworCQlmb3IgKGogPSAwOyBqIDwgTUFY
-X0lDSDZfREVWOyBqKyspIHsKKwkJCXVuc2lnbmVkIGludCBvZmYgPSBzaXplb2YodTMyKSAqIChq
-ICogQVpYX01BWF9GUkFHICogNCk7CisJCQlhenhfZGV2X3QgKmF6eF9kZXYgPSAmY2hpcC0+YXp4
-X2RldltqXTsKKwkJCWF6eF9kZXYtPmJkbCA9ICh1MzIgKikoY2hpcC0+YmRsLmFyZWEgKyBvZmYp
-OworCQkJYXp4X2Rldi0+YmRsX2FkZHIgPSBjaGlwLT5iZGwuYWRkciArIG9mZjsKKwkJCWlmIChj
-aGlwLT5wb3NpdGlvbl9maXggPT0gUE9TX0ZJWF9QT1NCVUYpCisJCQkJYXp4X2Rldi0+cG9zYnVm
-ID0gKHZvbGF0aWxlIHUzMiAqKShjaGlwLT5wb3NidWYuYXJlYSArIGogKiA4KTsKKwkJCWlmIChq
-ID49IDQpCisJCQkJaSA9IGorMTsKKwkJCWVsc2UKKwkJCQlpID0gajsKKwkJCS8qIG9mZnNldDog
-U0RJMD0weDgwLCBTREkxPTB4YTAsIC4uLiBTRE8zPTB4MTYwICovCisJCQlhenhfZGV2LT5zZF9h
-ZGRyID0gY2hpcC0+cmVtYXBfYWRkciArICgweDIwICogaSArIDB4ODApOworCQkJLyogaW50IG1h
-c2s6IFNESTA9MHgwMSwgU0RJMT0weDAyLCAuLi4gU0RPMz0weDgwICovCisJCQlhenhfZGV2LT5z
-ZF9pbnRfc3RhX21hc2sgPSAxIDw8IGk7CisJCQkvKiBzdHJlYW0gdGFnOiBtdXN0IGJlIG5vbi16
-ZXJvIGFuZCB1bmlxdWUgKi8KKwkJCWF6eF9kZXYtPmluZGV4ID0gaTsKKwkJCWF6eF9kZXYtPnN0
-cmVhbV90YWcgPSBpICsgMTsKKwkJfQorCX0KKwllbHNlCisJewkKIAkvKiBpbml0aWFsaXplIGVh
-Y2ggc3RyZWFtIChha2EgZGV2aWNlKQogCSAqIGFzc2lnbiB0aGUgc3RhcnRpbmcgYmRsIGFkZHJl
-c3MgdG8gZWFjaCBzdHJlYW0gKGRldmljZSkgYW5kIGluaXRpYWxpemUKIAkgKi8KQEAgLTExOTUs
-NiArMTIyNSw3IEBACiAJCWF6eF9kZXYtPmluZGV4ID0gaTsKIAkJYXp4X2Rldi0+c3RyZWFtX3Rh
-ZyA9IGkgKyAxOwogCX0KKwl9CiAKIAlyZXR1cm4gMDsKIH0KQEAgLTEyOTcsNiArMTMyOCwxNSBA
-QAogCWlmICgoZXJyID0gcGNpX2VuYWJsZV9kZXZpY2UocGNpKSkgPCAwKQogCQlyZXR1cm4gZXJy
-OwogCit7CisjaWYgQklUU19QRVJfTE9ORyA9PSA2NAorI2Vsc2UKK3UxNiB0bXAzOworcGNpX3Jl
-YWRfY29uZmlnX3dvcmQocGNpLCAweDQwLCAmdG1wMyk7CitwY2lfd3JpdGVfY29uZmlnX3dvcmQo
-cGNpLCAweDQwLCB0bXAzIHwgMHgxMCk7CitwY2lfd3JpdGVfY29uZmlnX2R3b3JkKHBjaSwgUENJ
-X0JBU0VfQUREUkVTU18xLCAwKTsKKyNlbmRpZgorfQogCWNoaXAgPSBrY2FsbG9jKDEsIHNpemVv
-ZigqY2hpcCksIEdGUF9LRVJORUwpOwogCQogCWlmIChOVUxMID09IGNoaXApIHsKQEAgLTE0NTgs
-NiArMTQ5OCw3IEBACiAJeyAweDgwODYsIDB4MjY5YSwgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwg
-MCwgMCwgMCB9LCAvKiBFU0IyICovCiAJeyAweDEwMDIsIDB4NDM3YiwgUENJX0FOWV9JRCwgUENJ
-X0FOWV9JRCwgMCwgMCwgMCB9LCAvKiBBVEkgU0I0NTAgKi8KIAl7IDB4MTEwNiwgMHgzMjg4LCBQ
-Q0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCAwIH0sIC8qIFZJQSBWVDgyNTEvVlQ4MjM3QSAq
-LworCXsgMHgxMEI5LCAweDU0NjEsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIDAgfSwg
-LyogVUxpIE01NDYxICovCiAJeyAwLCB9CiB9OwogTU9EVUxFX0RFVklDRV9UQUJMRShwY2ksIGF6
-eF9pZHMpOwo=
+extern tList list;
 
---0__=C7BBFAF4DFB45B3B8f9e8a93df938690918cC7BBFAF4DFB45B3B--
+When I compile the module It says me that list is undefined, and I don't
+know what I am doing wrong.
+
+Does anybody know what is happening? 
+
+Maybe a makefile example would be appreciated... 
+
+Thanks in advance.
+
+Regards,
+
+        Sergio 
+
 

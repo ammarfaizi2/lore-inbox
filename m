@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbVHXGdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbVHXGkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbVHXGdR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 02:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbVHXGdR
+	id S1751480AbVHXGkj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 02:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbVHXGkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 02:33:17 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33722 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751472AbVHXGdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 02:33:16 -0400
-Date: Wed, 24 Aug 2005 16:24:59 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blk queue io tracing support
-Message-ID: <20050824062459.GD1553@frodo>
-References: <20050823123235.GG16461@suse.de>
+	Wed, 24 Aug 2005 02:40:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:392 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S1751480AbVHXGki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 02:40:38 -0400
+Date: Wed, 24 Aug 2005 07:43:42 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.13-rc7
+Message-ID: <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050823123235.GG16461@suse.de>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+On Tue, Aug 23, 2005 at 10:08:13PM -0700, Linus Torvalds wrote:
 
-On Tue, Aug 23, 2005 at 02:32:36PM +0200, Jens Axboe wrote:
-> ...
-> +	t.pid		= current->pid;
-> ...
-> +/*
-> + * The trace itself
-> + */
-> +struct blk_io_trace {
-> +	u32 magic;		/* MAGIC << 8 | version */
-> +	u32 sequence;		/* event number */
-> +	u64 time;		/* in microseconds */
-> +	u64 sector;		/* disk offset */
-> +	u32 bytes;		/* transfer length */
-> +	u32 action;		/* what happened */
-> +	u16 pid;		/* who did it */
+>   cpu_exclusive sched domains on partial nodes temp fix
 
-Also, this field (pid) should probably be a u32.
+... breaks ppc64 since there we have node_to_cpumask() done as inlined
+function, not a macro.  So we get __first_cpu(&node_to_cpumask(...),...),
+with obvious consequences.
 
-cheers.
-
--- 
-Nathan
+Locally I'm turning node_to_cpumask() into define, just to see what else
+had changed in the build, but we probably want saner solution for that
+one...

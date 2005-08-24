@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVHXVnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVHXVnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbVHXVnA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:43:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVHXVnA
+	id S932288AbVHXVnp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbVHXVnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 17:43:00 -0400
-Received: from fmr14.intel.com ([192.55.52.68]:63668 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932285AbVHXVm7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:42:59 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Wed, 24 Aug 2005 17:43:45 -0400
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:62982 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932288AbVHXVno
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 17:43:44 -0400
+Date: Wed, 24 Aug 2005 23:43:31 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] (5/5) I2C updates for 2.4.32-pre3
+Message-Id: <20050824234331.5209042d.khali@linux-fr.org>
+In-Reply-To: <20050818162509.GB6262@dmt.cnet>
+References: <20050814151320.76e906d5.khali@linux-fr.org>
+	<20050814171716.099b8f55.khali@linux-fr.org>
+	<20050818162509.GB6262@dmt.cnet>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH 05/15] ia64: remove use of asm/segment.h
-Date: Wed, 24 Aug 2005 14:42:44 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F04385372@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 05/15] ia64: remove use of asm/segment.h
-Thread-Index: AcWo82NrayhVI3r7RUWM1J3XVKFMdgAAOIgA
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Kumar Gala" <kumar.gala@freescale.com>
-Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
-       "Gala Kumar K.-galak" <galak@freescale.com>,
-       <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 24 Aug 2005 21:42:45.0517 (UTC) FILETIME=[C37D1BD0:01C5A8F4]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I'll apply this for ia64 w/o the deletion.
+Hi Marcelo,
 
-This is now in my test tree.  I will send to Linus soon after
-2.6.13 is released.
+> All of these seem to be cleanups/cosmetic enhancements rather than
+> real bugfixes, except the ML address update.
 
->I've posted a patch before this to remove all non-architecture users  
->of asm/segment.h.
->
->http://www.ussg.iu.edu/hypermail/linux/kernel/0508.3/0099.html
+Patches 1/5, 3/5 and 4/5 are typo fixes in documentation and comments.
+5/5 however qualifies as (minor) bug fix IMHO, as missing newlines in
+log messages will cause the next message's log level not to be
+interpreted as such.
 
-Good.  After that gets I applied I will delete include/asm-ia64/segment.h
+> As you know, we've been trying to reduce the scope of patch acceptance
+> in v2.4.x to strictly necessary changes. 
+> 
+> Do any of these fall into this criteria? 
 
--Tony
+I sent you these patches because I thought they were worth applying,
+obviously, so don't ask me. Apply them or discard them as you feel like,
+it's really up to you, not me. From that, I'll know what kind of patches
+are worth sending next time.
+
+Thanks,
+-- 
+Jean Delvare

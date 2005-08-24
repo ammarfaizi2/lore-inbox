@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbVHXSnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbVHXSo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751389AbVHXSnl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 14:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbVHXSnl
+	id S1751395AbVHXSo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 14:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbVHXSo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 14:43:41 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:2823 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751389AbVHXSnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 14:43:41 -0400
-Date: Wed, 24 Aug 2005 11:43:12 -0700
-Message-Id: <200508241843.j7OIhC7a001888@zach-dev.vmware.com>
-Subject: [PATCH 3/5] Make set_wrprotect() value safe
-From: Zachary Amsden <zach@vmware.com>
-To: Andrew Morton <akpm@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-To: Virtualization Mailing List <virtualization@lists.osdl.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Chris Wright <chrisw@osdl.org>
-To: Martin Bligh <mbligh@mbligh.org>
-To: Pratap Subrahmanyam <pratap@vmware.com>
-To: Christopher Li <chrisl@vmware.com>
-To: Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 24 Aug 2005 18:43:13.0203 (UTC) FILETIME=[AEB07030:01C5A8DB]
+	Wed, 24 Aug 2005 14:44:28 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41869 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751393AbVHXSoF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 14:44:05 -0400
+Date: Wed, 24 Aug 2005 11:43:51 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, paulus@samba.org
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.13-rc7
+Message-Id: <20050824114351.4e9b49bb.pj@sgi.com>
+In-Reply-To: <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
+	<20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The macro set_wrprotect() should not be defined to have a value.  Make it
-a do {} while(0) instead of ({}).
-Noticed by Chris Wright.
+Al Viro wrote:
+> ... breaks ppc64 since there we have node_to_cpumask() done as inlined
+> function, not a macro.  So we get __first_cpu(&node_to_cpumask(...),...),
+> with obvious consequences.
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-Patch-subject: Make set_wrprotect() value safe
-Index: linux-2.6.13/include/asm-generic/pgtable.h
-===================================================================
---- linux-2.6.13.orig/include/asm-generic/pgtable.h	2005-08-15 13:54:42.000000000 -0700
-+++ linux-2.6.13/include/asm-generic/pgtable.h	2005-08-22 14:21:05.000000000 -0700
-@@ -314,11 +314,11 @@ do {									\
- 
- #ifndef __HAVE_ARCH_PTEP_SET_WRPROTECT
- #define ptep_set_wrprotect(__mm, __address, __ptep)			\
--({									\
-+do {									\
- 	pte_t __old_pte = *(__ptep);					\
- 	set_pte_at((__mm), (__address), (__ptep),			\
- 			pte_wrprotect(__old_pte));			\
--})
-+} while (0)
- #endif
- 
- #ifndef __HAVE_ARCH_PTE_SAME
+I sent a patch for this a few hours ago, thanks to Paul Mackerras's report:
+
+  [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
+
+It just makes a local copy of the cpumask_t in a local variable on the stack.
+
+I'm still a couple of hours from actually verifying that ppc64 builds with
+this - due to unrelated confusions on my end.  Perhaps you or Mackerras will
+report in first, to verify if this patch works as advertised.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

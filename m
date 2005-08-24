@@ -1,88 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVHXQfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbVHXQib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbVHXQfV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 12:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbVHXQfV
+	id S1751154AbVHXQib (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 12:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbVHXQi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 12:35:21 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:2580 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751124AbVHXQfU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 12:35:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Tw+HpE0tNQDzMflmJlSRF8T2MMR9RwPuhpMHUgy4zbWbQeCQbC3vGB7uhIA9E+OB1oS4qISBMDeIPx4fNaoY6XPh+JdGETVFkl8vL1qeGSE0/cdDcGg5SYOJu6DSzBFFnWlxkqZrbYFbDJcmrVJrrLOC0nSnGhPX3jL5WyXK52I=
-Message-ID: <9a87484905082409356c549512@mail.gmail.com>
-Date: Wed, 24 Aug 2005 18:35:16 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: danial_thom@yahoo.com
-Subject: Re: 2.6.12 Performance problems
-Cc: Patrick McHardy <kaber@trash.net>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
+	Wed, 24 Aug 2005 12:38:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7896 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S1751140AbVHXQi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 12:38:29 -0400
+Date: Wed, 24 Aug 2005 17:41:33 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: Al Viro <viro@www.linux.org.uk>, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20050824162425.62228.qmail@web33304.mail.mud.yahoo.com>
+Subject: Re: [PATCH] (11/43) Kconfig fix (infiniband and PCI)
+Message-ID: <20050824164133.GL9322@parcelfarce.linux.theplanet.co.uk>
+References: <E1E7gaT-00079k-Ax@parcelfarce.linux.theplanet.co.uk> <528xyr1f0c.fsf@cisco.com> <20050824163134.GK9322@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <430B5B14.5070105@trash.net>
-	 <20050824162425.62228.qmail@web33304.mail.mud.yahoo.com>
+In-Reply-To: <20050824163134.GK9322@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/24/05, Danial Thom <danial_thom@yahoo.com> wrote:
-> --- Patrick McHardy <kaber@trash.net> wrote:
+On Wed, Aug 24, 2005 at 05:31:34PM +0100, Al Viro wrote:
+> On Wed, Aug 24, 2005 at 09:22:27AM -0700, Roland Dreier wrote:
+> >     Al> infiniband uses PCI helpers all over the place (including the
+> >     Al> core parts) and won't build without PCI.
+> > 
+> > I don't think this is the right fix.  The only PCI helpers used in
+> > code that is enabled with CONFIG_PCI=n are pci_unmap_addr_set() and
+> > pci_unmap_addr().  And they're only used because no one has added
+> > dma_unmap_addr_set() and dma_unmap_addr() -- the core code is properly
+> > using the general dma_xxx API wherever possible.
+> > 
+> > There actually is non-PCI InfiniBand hardware coming, so we'll have to
+> > fix this properly at some point.
 > 
-> > Danial Thom wrote:
-> > > I think part of the problem is the continued
-> > > misuse of the word "latency". Latency, in
-> > > language terms, means "unexplained delay".
-> > Its
-> > > wrong here because for one, its explainable.
-> > But
-> > > it also depends on your perspective. The
-> > > "latency" is increased for kernel tasks,
-> > while it
-> > > may be reduced for something that is getting
-> > the
-> > > benefit of preempting the kernel. So you
-> > really
-> > > can't say "the price of reduced latency is
-> > lower
-> > > throughput", because thats simply backwards.
-> > > You've increased the kernel tasks latency by
-> > > allowing it to be pre-empted. Reduced latency
-> > > implies higher efficiency. All you've done
-> > here
-> > > is shift the latency from one task to
-> > another, so
-> > > there is no reduction overall, in fact there
-> > is
-> > > probably a marginal increase due to the
-> > overhead
-> > > of pre-emption vs doing nothing.
-> >
-> > If instead of complaining you would provide the
-> > information
-> > I've asked for two days ago someone might
-> > actually be able
-> > to help you.
-> 
-> Because gaining an understanding of how the
-> settings work is better than having 30 guys
-> telling me to tune something that is only going
-> to make a marginal difference. I didn't ask you
-> to tell me what was wrong with my setup, only
-> whether its expected that 2.6 would be less
-> useful in a UP setup than 2.4, which I think
-> you've answered.
-> 
+> I'm all for it and removing BROKEN from Kconfig when fixes happen is
+> obviously not a problem at all ;-)
 
-I hope you're implying that the answer is; no, it's not expected that
-2.6 is less useful in a UP setup than 2.4  :-)
+PS: note that it's not
+	depends on PCI
+it's
+	depends on PCI || BROKEN
+which
+	a) documents that something is wrong
+	b) leaves all setups usable now intact
+	c) prevents broken setups from being picked.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+I certainly agree that proper fix is to switch to dma_... - no arguments here.
+BTW, another dubious thing is use of DECLARE_PCI_UNMAP_ADDR() in infiniband
+core - it's fine in PCI drivers (which is how it's used elsewhere), but not
+in generic data structures.

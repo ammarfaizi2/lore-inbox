@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbVHXPcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbVHXPgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbVHXPcq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 11:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbVHXPcq
+	id S1751076AbVHXPgX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 11:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVHXPgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 11:32:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37836 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S1751071AbVHXPcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 11:32:45 -0400
-Date: Wed, 24 Aug 2005 16:35:49 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (11/43) Kconfig fix (infiniband and PCI)
-Message-ID: <20050824153549.GJ9322@parcelfarce.linux.theplanet.co.uk>
-References: <E1E7gaT-00079k-Ax@parcelfarce.linux.theplanet.co.uk> <20050824112655.GQ5603@stusta.de> <20050824145736.GI9322@parcelfarce.linux.theplanet.co.uk> <20050824152609.GB4851@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050824152609.GB4851@stusta.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 24 Aug 2005 11:36:23 -0400
+Received: from mail.suse.de ([195.135.220.2]:38367 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751076AbVHXPgW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 11:36:22 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.13-rc7 compile failures (was: Re: Fix up mmap of /dev/kmem)
+References: <200508132201.j7DM1TAN031499@hera.kernel.org>
+	<Pine.LNX.4.63.0508241410530.4356@anakin>
+X-Yow: ..I must be a VETERINARIAN..
+Date: Wed, 24 Aug 2005 17:36:21 +0200
+In-Reply-To: <Pine.LNX.4.63.0508241410530.4356@anakin> (Geert Uytterhoeven's
+	message of "Wed, 24 Aug 2005 14:12:46 +0200 (CEST)")
+Message-ID: <jeacj7l53e.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 05:26:09PM +0200, Adrian Bunk wrote:
-> As I said, on i386.
+Geert Uytterhoeven <geert@linux-m68k.org> writes:
 
-Builds due to stubs being still present, doesn't do anything since it
-doesn't even try to look for any hardware in that case.
+> Some (not all!) of my m68k test builds are now failing with:
+>
+> | linux-m68k-2.6.13-rc7/drivers/char/mem.c: In function `mmap_kmem':
+> | linux-m68k-2.6.13-rc7/drivers/char/mem.c:267: warning: cast to pointer from integer of different size
+> | linux-m68k-2.6.13-rc7/drivers/char/mem.c:267: invalid operands to binary <<
 
-> > have PCI at all - same situation as with firewire.  Note that you won't
-> > get any low-level drivers on PCI-less config even on i386, so while I
-> > agree that more accurate dependency would be nice here (as well as for
-> > drivers/ieee1394), for all practical purposes the same dependency works
-> > here.
-> > 
-> > BTW, this is more general question - do we expect pci helpers to be present
-> > on all platforms and do we consider their use acceptable in code that does
-> > not depend on PCI?
-> >...
-> 
-> Are you talking about the ones that already have dummy functions for the 
-> PCI=n case in include/linux/pci.h, or about other functions?
+Try this:
 
-pci_map.../pci_unmap..., for one thing.
+Add parens around macro parameters.
+
+Signed-off-by: Andreas Schwab <schwab@suse.de>
+
+--- include/asm-m68k/page.h.~1.14.~	2004-05-26 20:10:15.000000000 +0200
++++ include/asm-m68k/page.h	2005-08-24 17:29:55.000000000 +0200
+@@ -138,13 +138,13 @@ extern unsigned long m68k_memoffset;
+ #define __pa(vaddr)		((unsigned long)(vaddr)+m68k_memoffset)
+ #define __va(paddr)		((void *)((unsigned long)(paddr)-m68k_memoffset))
+ #else
+-#define __pa(vaddr)		virt_to_phys((void *)vaddr)
+-#define __va(paddr)		phys_to_virt((unsigned long)paddr)
++#define __pa(vaddr)		virt_to_phys((void *)(vaddr))
++#define __va(paddr)		phys_to_virt((unsigned long)(paddr))
+ #endif
+ 
+ #else	/* !CONFIG_SUN3 */
+ /* This #define is a horrible hack to suppress lots of warnings. --m */
+-#define __pa(x) ___pa((unsigned long)x)
++#define __pa(x) ___pa((unsigned long)(x))
+ static inline unsigned long ___pa(unsigned long x)
+ {
+      if(x == 0)
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

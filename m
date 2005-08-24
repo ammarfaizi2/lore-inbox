@@ -1,59 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVHXUZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVHXUbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbVHXUZS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 16:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVHXUZS
+	id S932079AbVHXUbU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 16:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVHXUbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 16:25:18 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:57079 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932122AbVHXUZQ (ORCPT
+	Wed, 24 Aug 2005 16:31:20 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37030 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932079AbVHXUbT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 16:25:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=fqjGw090L8b5XpnJ1nWqe00o3GrCCdbZMIiKOPyTaUaEyk+wldwyFqXJkbOojgi5lwHV0p2Ih8gDGekupgLsRMSFPZ7+4kxXANVUtLRP9+HisYhLdsAuGcKYKzHUYekOvgvezKVwt4wWFN2uoKqYY/UKs1dYE4hu78m+vsl20O8=
-Date: Thu, 25 Aug 2005 00:34:18 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.13-rc7
-Message-ID: <20050824203418.GB23715@mipter.zuzino.mipt.ru>
-References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk> <20050824114351.4e9b49bb.pj@sgi.com> <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk> <20050824201301.GA23715@mipter.zuzino.mipt.ru>
+	Wed, 24 Aug 2005 16:31:19 -0400
+Date: Wed, 24 Aug 2005 13:31:07 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: dino@in.ibm.com, paulus@samba.org, akpm@osdl.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mingo@elte.hu, hawkes@sgi.com
+Subject: Re: [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
+Message-Id: <20050824133107.2ca733c3.pj@sgi.com>
+In-Reply-To: <430C617E.8080002@yahoo.com.au>
+References: <20050824111510.11478.49764.sendpatchset@jackhammer.engr.sgi.com>
+	<20050824112640.GB5197@in.ibm.com>
+	<20050824044648.66f7e25a.pj@sgi.com>
+	<430C617E.8080002@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050824201301.GA23715@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 12:13:02AM +0400, Alexey Dobriyan wrote:
-> > 	    sh64: need kernel headers that would make glibc happy enough
-> > to build libc headers for that puppy;
-> 
-> binutils already compiled. Will drop a line. Or file a bug. :-\
+Nick wrote:
+> I get the feeling that exclusive cpusets should just be
+> completely disabled for 2.6.13
 
-By some miracle gcc is also compiled. As of now (sh64, allmodconfig):
+No no - not disable exclusive cpusets - disable using them to try
+to define sched domains.
 
-arch/sh64/kernel/pci_sh5.c: In function `map_cayman_irq':
-arch/sh64/kernel/pci_sh5.c:334: error: `IRQ_P2INTA' undeclared
+That is, I hope you mean that Dinakar's patch that uses cpu_exclusive
+cpusets to define sched domains should be disabled for 2.6.13.  For
+what they were worth (not a whole lot, granted), cpu_exclusive cpusets
+have been in the kernel since 2.6.12.  They just didn't have any affect
+in the placement of sched domains.  So long as they continue to do not
+a whole lot, I see more risk than gain in disabling them for 2.6.13.
 
-arch/sh64/kernel/dma.c: In function `init_dma':
-arch/sh64/kernel/dma.c:248: error: storage size of 'vcr' isn't known
+So long as the cpuset code stops making any calls to partition_sched_domains()
+whatsoever, then we should be back where we were in 2.6.12, so far as the
+scheduler is concerned - right?
 
-arch/sh64/mm/hugetlbpage.c: At top level:
-arch/sh64/mm/hugetlbpage.c:84: error: conflicting types for 'huge_ptep_get_and_clear'
-include/linux/hugetlb.h:64: error: previous declaration of 'huge_ptep_get_and_clear' was here
+I hope that the following (untested, unbuilt) patch, that I suggested
+in my "Mon, 22 Aug 2005 13:38:23 -0700" message best meets you
+suggestion above ... and I quote:
 
-arch/sh64/mm/hugetlbpage.c: In function `huge_ptep_get_and_clear':
-arch/sh64/mm/hugetlbpage.c:89: error: `i' undeclared
+==========
 
-arch/sh64/mm/hugetlbpage.c:90:16: macro "pte_clear" requires 3 arguments, but only 1 given
-arch/sh64/mm/hugetlbpage.c:90: error: `pte_clear' undeclared (first use in this
-function)
-arch/sh64/mm/hugetlbpage.c:91: error: `pte' undeclared (first use in this function)
+The safest, mind numbingly simple thing to do that would avoid the oops
+that Hawkes reported is to simply not have the cpuset code call the
+code to setup a dynamic sched domain.  This is choice (2) above, and
+could be done at the last hour with relative safety.
 
-arch/sh64/mach-sim/setup.c:25:11: error: unable to open 'asm/addrspace.h'
-	exists only in asm-{sh, m32r, mips}
+Here is an untested patch that does (2):
 
+=====
+
+Index: linux-2.6.13-cpuset-mempolicy-migrate/kernel/cpuset.c
+===================================================================
+--- linux-2.6.13-cpuset-mempolicy-migrate.orig/kernel/cpuset.c
++++ linux-2.6.13-cpuset-mempolicy-migrate/kernel/cpuset.c
+@@ -627,6 +627,15 @@ static int validate_change(const struct 
+  * Call with cpuset_sem held.  May nest a call to the
+  * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
+  */
++
++/*
++ * Hack to avoid 2.6.13 partial node dynamic sched domain bug.
++ * Disable letting 'cpu_exclusive' cpusets define dynamic sched
++ * domains, until the sched domain can handle partial nodes.
++ * Remove this ifdef hackery when sched domains fixed.
++ */
++#define DISABLE_EXCLUSIVE_CPU_DOMAINS 1
++#ifdef DISABLE_EXCLUSIVE_CPU_DOMAINS
+ static void update_cpu_domains(struct cpuset *cur)
+ {
+ 	struct cpuset *c, *par = cur->parent;
+@@ -667,6 +676,11 @@ static void update_cpu_domains(struct cp
+ 	partition_sched_domains(&pspan, &cspan);
+ 	unlock_cpu_hotplug();
+ }
++#else
++static void update_cpu_domains(struct cpuset *cur)
++{
++}
++#endif
+ 
+ static int update_cpumask(struct cpuset *cs, char *buf)
+ {
+
+
+=====
+
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,106 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVHXUbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVHXUbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbVHXUbU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 16:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVHXUbU
+	id S932095AbVHXUbg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 16:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVHXUbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 16:31:20 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37030 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932079AbVHXUbT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 16:31:19 -0400
-Date: Wed, 24 Aug 2005 13:31:07 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: dino@in.ibm.com, paulus@samba.org, akpm@osdl.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, mingo@elte.hu, hawkes@sgi.com
-Subject: Re: [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
-Message-Id: <20050824133107.2ca733c3.pj@sgi.com>
-In-Reply-To: <430C617E.8080002@yahoo.com.au>
-References: <20050824111510.11478.49764.sendpatchset@jackhammer.engr.sgi.com>
-	<20050824112640.GB5197@in.ibm.com>
-	<20050824044648.66f7e25a.pj@sgi.com>
-	<430C617E.8080002@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Wed, 24 Aug 2005 16:31:36 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:59031 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932095AbVHXUbf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 16:31:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=T+F3j3h2RZTUCZfqRpm/SOdpGT6G5OC9iixhINoPi1U7Ve020pyalDQxGUq7Ri4RgfYWY9/iexLWxjexc19sUEqRNoOfOO3IXU+sg7p9WRrF+wlhtsD2156Ml7xC+v45heHPh+KT8QvJARenPe9nlfUKB0eGSGb9axjr4mNNiLA=
+Message-ID: <9a87484905082413312b5a603a@mail.gmail.com>
+Date: Wed, 24 Aug 2005 22:31:34 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 3/3] exterminate strtok - usr/gen_init_cpio.c
+Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <430CD530.7000509@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200508242108.53198.jesper.juhl@gmail.com>
+	 <430CD4A1.80005@didntduck.org> <430CD530.7000509@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> I get the feeling that exclusive cpusets should just be
-> completely disabled for 2.6.13
-
-No no - not disable exclusive cpusets - disable using them to try
-to define sched domains.
-
-That is, I hope you mean that Dinakar's patch that uses cpu_exclusive
-cpusets to define sched domains should be disabled for 2.6.13.  For
-what they were worth (not a whole lot, granted), cpu_exclusive cpusets
-have been in the kernel since 2.6.12.  They just didn't have any affect
-in the placement of sched domains.  So long as they continue to do not
-a whole lot, I see more risk than gain in disabling them for 2.6.13.
-
-So long as the cpuset code stops making any calls to partition_sched_domains()
-whatsoever, then we should be back where we were in 2.6.12, so far as the
-scheduler is concerned - right?
-
-I hope that the following (untested, unbuilt) patch, that I suggested
-in my "Mon, 22 Aug 2005 13:38:23 -0700" message best meets you
-suggestion above ... and I quote:
-
-==========
-
-The safest, mind numbingly simple thing to do that would avoid the oops
-that Hawkes reported is to simply not have the cpuset code call the
-code to setup a dynamic sched domain.  This is choice (2) above, and
-could be done at the last hour with relative safety.
-
-Here is an untested patch that does (2):
-
-=====
-
-Index: linux-2.6.13-cpuset-mempolicy-migrate/kernel/cpuset.c
-===================================================================
---- linux-2.6.13-cpuset-mempolicy-migrate.orig/kernel/cpuset.c
-+++ linux-2.6.13-cpuset-mempolicy-migrate/kernel/cpuset.c
-@@ -627,6 +627,15 @@ static int validate_change(const struct 
-  * Call with cpuset_sem held.  May nest a call to the
-  * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
-  */
-+
-+/*
-+ * Hack to avoid 2.6.13 partial node dynamic sched domain bug.
-+ * Disable letting 'cpu_exclusive' cpusets define dynamic sched
-+ * domains, until the sched domain can handle partial nodes.
-+ * Remove this ifdef hackery when sched domains fixed.
-+ */
-+#define DISABLE_EXCLUSIVE_CPU_DOMAINS 1
-+#ifdef DISABLE_EXCLUSIVE_CPU_DOMAINS
- static void update_cpu_domains(struct cpuset *cur)
- {
- 	struct cpuset *c, *par = cur->parent;
-@@ -667,6 +676,11 @@ static void update_cpu_domains(struct cp
- 	partition_sched_domains(&pspan, &cspan);
- 	unlock_cpu_hotplug();
- }
-+#else
-+static void update_cpu_domains(struct cpuset *cur)
-+{
-+}
-+#endif
- 
- static int update_cpumask(struct cpuset *cs, char *buf)
- {
-
-
-=====
-
+On 8/24/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Brian Gerst wrote:
+> > Jesper Juhl wrote:
+> >
+> >> Convert strtok() use to strsep() in usr/gen_init_cpio.c
+> >>
+> >> I've compile tested this patch and it compiles fine.
+> >> I build a 2.6.13-rc6-mm2 kernel with the patch applied without
+> >> problems, and
+> >> the resulting kernel boots and runs just fine (using it right now).
+> >> But despite this basic testing it would still be nice if someone would
+> >> double-check that I haven't made some silly mistake that would break
+> >> some other setup than mine.
+> >>
+> >>
+> >> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> >> ---
+> >>
+> >>  gen_init_cpio.c |   31 ++++++++++++++++++++++---------
+> >>  1 files changed, 22 insertions(+), 9 deletions(-)
+> >>
+> >> --- linux-2.6.13-rc6-mm2-orig/usr/gen_init_cpio.c    2005-06-17
+> >> 21:48:29.000000000 +0200
+> >> +++ linux-2.6.13-rc6-mm2/usr/gen_init_cpio.c    2005-08-24
+> >> 18:58:21.000000000 +0200
+> >> @@ -438,7 +438,7 @@ struct file_handler file_handler_table[]
+> >>  int main (int argc, char *argv[])
+> >>  {
+> >>      FILE *cpio_list;
+> >> -    char line[LINE_SIZE];
+> >> +    char *line, *ln;
+> >>      char *args, *type;
+> >>      int ec = 0;
+> >>      int line_nr = 0;
+> >> @@ -455,7 +455,14 @@ int main (int argc, char *argv[])
+> >>          exit(1);
+> >>      }
+> >>
+> >> -    while (fgets(line, LINE_SIZE, cpio_list)) {
+> >> +    ln = malloc(LINE_SIZE);
+> >
+> >
+> > Why change to malloc()?  This is a userspace program.  It doesn't have
+> > the kernel stack constraints.
+> 
+> Good catch, agreed.
+> 
+> I prefer the code as-is, with LINE_SIZE stack allocations.
+> 
+The reason I did it like that was that strsep takes offense at
+strsep(&line, ...) when line is allocated on the stack. So I just
+changed it around to being malloc()'ed and things were good.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

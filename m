@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVHXWkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVHXWkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbVHXWkn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 18:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVHXWkn
+	id S932344AbVHXWkg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 18:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVHXWkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 18:40:43 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:7082 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932342AbVHXWkm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 18:40:42 -0400
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
-       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
-       George Anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0508242142420.3743@scrub.home>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
-	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
-	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
-	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>
-	 <1124505151.22195.78.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508202204240.3728@scrub.home>
-	 <1124737075.22195.114.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508230134210.3728@scrub.home>
-	 <1124830262.20464.26.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508232321530.3728@scrub.home>
-	 <1124838847.20617.11.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508240134050.3743@scrub.home>
-	 <1124906422.20820.16.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508242043220.3728@scrub.home>
-	 <1124910953.20820.34.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508242142420.3743@scrub.home>
-Content-Type: text/plain
-Date: Wed, 24 Aug 2005 15:40:30 -0700
-Message-Id: <1124923231.20820.87.camel@cog.beaverton.ibm.com>
+	Wed, 24 Aug 2005 18:40:36 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:7698 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932347AbVHXWkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 18:40:36 -0400
+Date: Thu, 25 Aug 2005 00:40:29 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.13-rc7 : OK
+Message-ID: <20050824224029.GA1909@pcw.home.local>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-24 at 21:49 +0200, Roman Zippel wrote:
-> On Wed, 24 Aug 2005, john stultz wrote:
+Hello,
+
+On Tue, Aug 23, 2005 at 10:08:13PM -0700, Linus Torvalds wrote:
 > 
-> > from your example:
-> > >		// at init: system_update = update_cycles * mult;
-> > > 		system_time += system_update;
-> > 
-> > and:
-> > > 	error = system_time - (xtime.tv_nsec << shift);
-> > 
-> > This doesn't seem to make sense with the above.  Could you clarify?
+> Hullo.
 > 
-> The example here doesn't keep the complete system time, just enough to 
-> compute the difference.
+>  I really wanted to release a 2.6.13, but there's been enough changes 
+> while we've been waiting for other issues to resolve that I think it's 
+> best to do a -rc7 first.
+> 
+> Most of the -rc7 changes are pretty trivial, either one-liners or 
+> affecting some particular specific driver or unusual configuration. The 
+> shortlog (appended) should give a pretty good idea of what's up.
 
-Hey Roman, 
+Well, it's been running here for a few hours this evening, and I must say
+that I have not noticed anything strange yet (except the printk timestamps
+which switch to zero twice during boot and start with funny values, but
+that's not important). The box is a dual-k7 with aic7xxx, and NFSv3 over
+an e1000 NIC. Tested with SMP and preempt enabled.
 
-Ok, well, I'm still at a loss for understanding how this avoids my
-concern about time inconsistencies. However, I don't want to burn any
-more of your patience explaining it, so in the hopes making some
-productive outcome, I'm going to take a step back, pull the most trivial
-and uncontroversial cleanups and fixes in my patches and try to send
-them to Andrew one by one.
+> 
+> 		Linus
 
-Hopefully that will give me a chance to spend some time and understand
-your suggestions (or maybe allow someone else to express your
-suggestions differently) and think of alternate solutions without
-feeling like I'm constantly running into walls.
-
-Again, I really do appreciate the time you've spent giving me feedback.
-
-thanks
--john
+Regards,
+Willy
 

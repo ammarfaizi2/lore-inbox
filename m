@@ -1,69 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbVHXWUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVHXWc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbVHXWUO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 18:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVHXWUN
+	id S932332AbVHXWc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 18:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVHXWc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 18:20:13 -0400
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:23566 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932326AbVHXWUM
+	Wed, 24 Aug 2005 18:32:56 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:40951 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932332AbVHXWcz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 18:20:12 -0400
-Date: Thu, 25 Aug 2005 00:19:58 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6] I2C: Drop I2C_DEVNAME and i2c_clientname
-Message-Id: <20050825001958.63b2525c.khali@linux-fr.org>
-In-Reply-To: <1124741348.4516.51.camel@localhost>
-References: <20050815195704.7b61206e.khali@linux-fr.org>
-	<1124741348.4516.51.camel@localhost>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 24 Aug 2005 18:32:55 -0400
+Message-ID: <430CF57B.2090000@mvista.com>
+Date: Wed, 24 Aug 2005 15:32:27 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>
+Subject: RT patch
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mauro,
+Ingo,
 
-> > I2C_DEVNAME and i2c_clientname were introduced in 2.5.68 [1] to help
-> > media/video driver authors who wanted their code to be compatible
-> > with both Linux 2.4 and 2.6. The cause of the incompatibility has
-> > gone since [2], so I think we can get rid of them, as they tend to
-> > make the code harder to read and longer to preprocess/compile for no
-> > more benefit.
-> > 
-> > I'd hope nobody seriously attempts to keep media/video driver
-> > compatible across Linux trees anymore, BTW.
->
-> That's not true. We keep V4L tree compatible with older kernel
-> releases. Each change like this does generate a lot of work at V4L
-> side to provide #ifdefs to check for linux version and provide a
-> compatible way to compile with older versions.
+Do you keep the RT patch as one slab or is it a series of patches 
+(presumably managed by quilt)?
 
-I'm sorry but we will not stop updating the various Linux 2.6 subsystems
-to keep them compatible with 2.4 - else one would wonder why there is a
-2.6 kernel tree at all. As time goes, the differences bwteen 2.4 and 2.6
-will only increase. You seem to be trying to keep common driver code
-across incompatible trees. I'm not surprised that it is a lot of work.
-That's your choice, live with it.
+If the latter, could you make a break out available, much as Andrew does 
+for the mm kernels?
 
-> I don't see any sense on applying this patch, since it will not reduce
-> code size or increase execution time.
-
-Code size and execution time are not the only factors to take into
-account. Code readability and compilation time are two other ones that I
-mentioned already.
-
-Anyway, it doesn't look like you actually read what I wrote in the first
-place. My comment about common driver code was really only by the way.
-The reason why I have been proposing this patch is that I2C_DEVNAME and
-i2c_clientname were only needed between Linux 2.5.68 and 2.6.0-test3,
-which are unsupported by now, as they were development releases. As far
-as i2c_client.name is concerned, 2.4 and 2.6.0+ trees are compatible.
-
-Thanks,
+This would make it much easier to isolate the various "neat" things and, 
+possibly, send them on to Andrew/ Linus or where ever.
 -- 
-Jean Delvare
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

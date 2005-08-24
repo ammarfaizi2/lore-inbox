@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVHXHZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVHXHcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbVHXHZL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 03:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVHXHZL
+	id S1750712AbVHXHcR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 03:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVHXHcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 03:25:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:55743 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750708AbVHXHZK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 03:25:10 -0400
-Date: Wed, 24 Aug 2005 09:25:02 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blk queue io tracing support
-Message-ID: <20050824072501.GA27992@suse.de>
-References: <20050823123235.GG16461@suse.de> <20050824010346.GA1021@frodo> <20050824070809.GA27956@suse.de> <20050824171931.H4209301@wobbly.melbourne.sgi.com>
+	Wed, 24 Aug 2005 03:32:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:55528 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750712AbVHXHcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 03:32:16 -0400
+Date: Wed, 24 Aug 2005 08:32:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/8] remove ia_attr_flags
+Message-ID: <20050824073214.GA24513@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <E1E7fHs-0006DO-00@dorka.pomaz.szeredi.hu> <E1E7fJu-0006EB-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050824171931.H4209301@wobbly.melbourne.sgi.com>
+In-Reply-To: <E1E7fJu-0006EB-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24 2005, Nathan Scott wrote:
-> On Wed, Aug 24, 2005 at 09:08:10AM +0200, Jens Axboe wrote:
-> > ...
-> > This isn't msec precision, it's usec. sched_clock() is in ns! I already
-> > decided that msec is too coarse, but usec _should_ be enough.
-> 
-> Right you are (I was thinking m-for-micro, not m-for-milli in my head ;)
-> - but still, there doesn't seem to be any reason for that divide-by-1000
-> and reducing the precision in the kernel rather than in userspace, does
-> there?  Doing it the other way means you wont ever have to worry about
-> whether it is/isn't sufficient precision for all possible block devices,
-> and the precision the tool displays will just be a userspace decision.
+On Tue, Aug 23, 2005 at 10:24:30PM +0200, Miklos Szeredi wrote:
+> Remove unused ia_attr_flags from struct iattr, and related defines.
 
-I was just worried about wrapping of ->time, but I did make it a 64-bit
-unit. So I guess we could go to nsec granularity, there should be plenty
-[*] of space. I'll change that too, I'll post an update version later.
-
-* I probably should not make such a statement :-)
-
--- 
-Jens Axboe
+I had actually planned to make use of this, by adding a common helper
+for the ext2-style file flags ioctl so all the checking is moved outside
+the filesystems.  OTOH I planned this forever and didn't get ver far,
+so it's probably okay to remove it - I can put it back when needed.
 

@@ -1,80 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbVHXTQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbVHXTdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbVHXTQM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 15:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVHXTQM
+	id S1751479AbVHXTdF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 15:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbVHXTdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 15:16:12 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:23801 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751420AbVHXTQK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 15:16:10 -0400
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
-       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
-       George Anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0508242043220.3728@scrub.home>
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
-	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
-	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
-	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>
-	 <1124505151.22195.78.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508202204240.3728@scrub.home>
-	 <1124737075.22195.114.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508230134210.3728@scrub.home>
-	 <1124830262.20464.26.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508232321530.3728@scrub.home>
-	 <1124838847.20617.11.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508240134050.3743@scrub.home>
-	 <1124906422.20820.16.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0508242043220.3728@scrub.home>
-Content-Type: text/plain
-Date: Wed, 24 Aug 2005 12:15:52 -0700
-Message-Id: <1124910953.20820.34.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 24 Aug 2005 15:33:05 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:42473 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1751479AbVHXTdE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 15:33:04 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: question on memory barrier
+Date: Wed, 24 Aug 2005 21:32:52 +0200
+User-Agent: KMail/1.8
+Cc: "moreau francis" <francis_moreau2000@yahoo.fr>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+References: <20050824173131.50938.qmail@web25809.mail.ukl.yahoo.com> <Pine.LNX.4.61.0508241347020.30497@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0508241347020.30497@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508242132.52730.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-24 at 20:48 +0200, Roman Zippel wrote:
-> Hi,
+Am Mittwoch, 24. August 2005 20:22 schrieb linux-os (Dick Johnson):
+> > sorry but I'm not sure to understand you...Do you mean that the first write
+> > into reg_a pointer will be completed before the second write because they're
+> > separated by a (;) ?
 > 
-> On Wed, 24 Aug 2005, john stultz wrote:
-> 
-> > Ok, so then to clarify the above (as you mention gettimeofday uses
-> > system_time), would your gettimeofday look something like:
-> > 
-> > gettiemofday():
-> > 	return (system_time + (cycle_offset * mult) + error)>> shift
-> > 
-> > ?
-> 
-> No.
-> 
-> 	reference_time = xtime;
-> 	system_time = xtime + error >> shift;
-> 	gettimeofday = system_time + (cycle_offset * mult) >> shift;
+> Yes. The compiler must make sure that every effect of all previous
+> code and all side-effects are complete at a "sequence-point". There
+> are several sequence-points and the most obvious is a ";".
 
-Eh? In your example code from before you look to be keeping the
-system_time and error values in shifted nsec units.
+What the compiler may or may not generate is a little beside the point.
+You have no guarantee that the CPU will execute these instructions in
+the order given. If you need ordered writes use the appropriate barriers,
+eg. wmb();
+If this is PCI you also need to worry about the bridge caching. You
+need to do dummy reads.
 
-from your example:
->		// at init: system_update = update_cycles * mult;
-> 		system_time += system_update;
-
-and:
-> 	error = system_time - (xtime.tv_nsec << shift);
-
-This doesn't seem to make sense with the above.  Could you clarify?
-
-thanks
--john
-
+	Regards
+		Oliver

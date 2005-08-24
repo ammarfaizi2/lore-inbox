@@ -1,81 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbVHXQYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVHXQ2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbVHXQYh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 12:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVHXQYh
+	id S1751122AbVHXQ2b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 12:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVHXQ2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 12:24:37 -0400
-Received: from web33304.mail.mud.yahoo.com ([68.142.206.119]:9070 "HELO
-	web33304.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751123AbVHXQYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 12:24:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=EWA6fWkpx06ECrI5S9IX6QQQD1p7klWtHQM27CT2Mr1NzIft4lZfIQGu7Ln1+gOJvQqWjKsfUbWpBAvtGQBglx9RN7YNUkURX2BYZri4oeHBy9etHqNEzT1q91eroLQ+WcTUwQ8y02c/Jyq3Z5afZrDdazkpmcJ9gFUFeOKYD9Y=  ;
-Message-ID: <20050824162425.62228.qmail@web33304.mail.mud.yahoo.com>
-Date: Wed, 24 Aug 2005 09:24:25 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: 2.6.12 Performance problems
-To: Patrick McHardy <kaber@trash.net>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <430B5B14.5070105@trash.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 24 Aug 2005 12:28:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34263 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S1751122AbVHXQ2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 12:28:30 -0400
+Date: Wed, 24 Aug 2005 17:31:34 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: Al Viro <viro@www.linux.org.uk>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (11/43) Kconfig fix (infiniband and PCI)
+Message-ID: <20050824163134.GK9322@parcelfarce.linux.theplanet.co.uk>
+References: <E1E7gaT-00079k-Ax@parcelfarce.linux.theplanet.co.uk> <528xyr1f0c.fsf@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <528xyr1f0c.fsf@cisco.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Patrick McHardy <kaber@trash.net> wrote:
-
-> Danial Thom wrote:
-> > I think part of the problem is the continued
-> > misuse of the word "latency". Latency, in
-> > language terms, means "unexplained delay".
-> Its
-> > wrong here because for one, its explainable.
-> But
-> > it also depends on your perspective. The
-> > "latency" is increased for kernel tasks,
-> while it
-> > may be reduced for something that is getting
-> the
-> > benefit of preempting the kernel. So you
-> really
-> > can't say "the price of reduced latency is
-> lower
-> > throughput", because thats simply backwards.
-> > You've increased the kernel tasks latency by
-> > allowing it to be pre-empted. Reduced latency
-> > implies higher efficiency. All you've done
-> here
-> > is shift the latency from one task to
-> another, so
-> > there is no reduction overall, in fact there
-> is
-> > probably a marginal increase due to the
-> overhead
-> > of pre-emption vs doing nothing.
+On Wed, Aug 24, 2005 at 09:22:27AM -0700, Roland Dreier wrote:
+>     Al> infiniband uses PCI helpers all over the place (including the
+>     Al> core parts) and won't build without PCI.
 > 
-> If instead of complaining you would provide the
-> information
-> I've asked for two days ago someone might
-> actually be able
-> to help you.
+> I don't think this is the right fix.  The only PCI helpers used in
+> code that is enabled with CONFIG_PCI=n are pci_unmap_addr_set() and
+> pci_unmap_addr().  And they're only used because no one has added
+> dma_unmap_addr_set() and dma_unmap_addr() -- the core code is properly
+> using the general dma_xxx API wherever possible.
+> 
+> There actually is non-PCI InfiniBand hardware coming, so we'll have to
+> fix this properly at some point.
 
-Because gaining an understanding of how the
-settings work is better than having 30 guys
-telling me to tune something that is only going
-to make a marginal difference. I didn't ask you
-to tell me what was wrong with my setup, only
-whether its expected that 2.6 would be less
-useful in a UP setup than 2.4, which I think
-you've answered. 
-
-D
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+I'm all for it and removing BROKEN from Kconfig when fixes happen is
+obviously not a problem at all ;-)

@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVHXBME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbVHXBOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbVHXBME (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 21:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVHXBME
+	id S1750997AbVHXBOY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 21:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbVHXBOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 21:12:04 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:38367 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750805AbVHXBMD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 21:12:03 -0400
-Date: Wed, 24 Aug 2005 11:03:46 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blk queue io tracing support
-Message-ID: <20050824010346.GA1021@frodo>
-References: <20050823123235.GG16461@suse.de>
+	Tue, 23 Aug 2005 21:14:24 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:9875 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750823AbVHXBOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 21:14:24 -0400
+Subject: Re: [PATCH] Add MCE resume under ia32
+From: Shaohua Li <shaohua.li@intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+In-Reply-To: <20050823103256.GB2795@elf.ucw.cz>
+References: <1124762500.3013.3.camel@linux-hp.sh.intel.com>
+	 <20050823103256.GB2795@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 09:13:21 +0800
+Message-Id: <1124846001.3007.7.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050823123235.GG16461@suse.de>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 23, 2005 at 02:32:36PM +0200, Jens Axboe wrote:
-> Hi,
+On Tue, 2005-08-23 at 12:32 +0200, Pavel Machek wrote:
+> > It's widely seen a MCE non-fatal error reported after resume. It seems
+> > MCE resume is lacked under ia32. This patch tries to fix the gap.
 > 
-> This is a little something I have played with. It allows you to see
-> exactly what is going on in the block layer for a given queue. Currently
-> it can logs request queueing and building, dispatches, requeues, and
-> completions.
+> Well, you patch seems like missing piece of puzzle, but:
+> 
+> a) we probably want to do it for x86-64, too, and 
+x86-64 has resume support. It uses 'on_each_cpu' in resume method, which
+is known broken. We'd better fix it.
 
-Ah, fabulous.  Thanks Jens!
+> 
+> > diff -puN arch/i386/power/cpu.c~mcheck_resume arch/i386/power/cpu.c
+> > --- linux-2.6.13-rc6/arch/i386/power/cpu.c~mcheck_resume	2005-08-23 09:32:13.054008584 +0800
+> > +++ linux-2.6.13-rc6-root/arch/i386/power/cpu.c	2005-08-23 09:41:54.992540480 +0800
+> > @@ -104,6 +104,8 @@ static void fix_processor_context(void)
+> >  
+> >  }
+> >  
+> > +extern void mcheck_init(struct cpuinfo_x86 *c);
+> > +
+> >  void __restore_processor_state(struct saved_context *ctxt)
+> >  {
+> >  	/*
+> 
+> 
+> this should go to some header file and most importantly
+If you agree my other points, I'll do this.
 
-> +	t.magic		= BLK_IO_TRACE_MAGIC | BLK_IO_TRACE_VERSION;
-> +	t.sequence	= atomic_add_return(1, &bt->sequence);
-> +	t.time		= sched_clock() / 1000;
+> 
+> > @@ -138,6 +140,9 @@ void __restore_processor_state(struct sa
+> >  	fix_processor_context();
+> >  	do_fpu_end();
+> >  	mtrr_ap_init();
+> > +#ifdef CONFIG_X86_MCE
+> > +	mcheck_init(&boot_cpu_data);
+> > +#endif
+> >  }
+> 
+> c) can't we register MCEs like some kind of system device so that this
+> kind of hooks is not neccessary?
+Like x86-64 does, right? In this way, we must register a device for each
+cpu. But APs directly call mcheck_init in resume time (cpuhotplug
+framework). Only BP requires to call the resume method, so I think
+restore_processor_state calls it might be cleaner. 
 
-Wouldn't it be better to pass out the highest precision available here
-& then do the conversion in userspace instead?  I guess one might want
-that little bit more for a RAM disk or something ... actually, talking
-to one of the SGI people here with alot of experience on IRIX with a
-similar facility, the msec resolution there is apparently sometimes an
-issue already with fast storage.
+Thanks,
+Shaohua
 
-cheers.
-
--- 
-Nathan

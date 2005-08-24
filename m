@@ -1,77 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVHXPLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbVHXPOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbVHXPLE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 11:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbVHXPLE
+	id S1751051AbVHXPOY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 11:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbVHXPOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 11:11:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:10450 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751047AbVHXPLC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 11:11:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hE/P6B/fHKywGwp6UZks4PHK7vZ/MTdzw18V+Y4OZOhPeduHuDpOByA2l7O5NQFcw3It+deiwD/j9DNo/utsOHgSgqeYNxT5bT8ouhJwSLKd0qoogATSTAKJ7gL6whOns6WITmnyddU6mD4VbZQcgRij67xjcHBxwjya93Om/F8=
-Message-ID: <4789af9e05082408111c4a6294@mail.gmail.com>
-Date: Wed, 24 Aug 2005 09:11:01 -0600
-From: Jim Ramsay <jim.ramsay@gmail.com>
-To: Lukasz Kosewski <lkosewsk@gmail.com>
-Subject: Re: [PATCH 3/3] Add disk hotswap support to libata RESEND #2
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-scsi@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <355e5e5e05082407031138120a@mail.gmail.com>
-Mime-Version: 1.0
+	Wed, 24 Aug 2005 11:14:24 -0400
+Received: from fmr13.intel.com ([192.55.52.67]:57520 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751050AbVHXPOY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 11:14:24 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <355e5e5e05080103021a8239df@mail.gmail.com>
-	 <4789af9e050823124140eb924f@mail.gmail.com>
-	 <4789af9e050823154364c8e9eb@mail.gmail.com>
-	 <430BA990.9090807@mvista.com> <430BCB41.5070206@s5r6.in-berlin.de>
-	 <355e5e5e05082407031138120a@mail.gmail.com>
+Subject: RE: 2.6.13-rc: ACPI_INTERPRETER=y, PCI=n compile error
+Date: Wed, 24 Aug 2005 11:13:05 -0400
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30046956FE@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.13-rc: ACPI_INTERPRETER=y, PCI=n compile error
+Thread-Index: AcWouk8YNmm235qvTj6+IPGSPMbfigAA3K0w
+From: "Brown, Len" <len.brown@intel.com>
+To: "Adrian Bunk" <bunk@stusta.de>, "Li, Shaohua" <shaohua.li@intel.com>
+Cc: <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Aug 2005 15:13:13.0551 (UTC) FILETIME=[58B61DF0:01C5A8BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/24/05, Lukasz Kosewski <lkosewsk@gmail.com> wrote:
-> On 8/24/05, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
-> > >> Timers appear to operate in an atomic context, so timers should not be
-> > >> allowed to call scsi_remove_device, which eventually schedules.
-> > >>
-> > >> Any suggestions on the best way to fix this?
-> > >
-> > > Workqueue, perhaps.
-> 
-> Perhaps.  Actually, of course :)
 
-How about the existing ata_wq workqueue?  This makes sense.  When the
-timer expires, it adds a task to this queue.
+>Subject: 2.6.13-rc: ACPI_INTERPRETER=y, PCI=n compile error
+>
+>I got the following compile error in 2.6.13-rc6-mm2, but it 
+>seems to be 
+>a problem coming from Linus' tree introduced by the
+>  [ACPI] S3 resume: avoid kmalloc() might_sleep oops symptom
+>patch:
+>
+><--  snip  -->
+>
+>...
+>  LD      .tmp_vmlinux1
+>drivers/built-in.o: In function `acpi_os_allocate':
+>: undefined reference to `acpi_in_resume'
+>make: *** [.tmp_vmlinux1] Error 1
+>
+><--  snip  -->
 
-> The reason these aren't working is because they have never been
-> tested.  I sent in my not-entirely-finished patches the night before I
-> left for China for one month.
+Do you have an ACPI-enabled machine that has no PCI?
+I'm not aware of any, and would be interested to know
+if one exists.
 
-Well, I'm on a time-sensitive project right now, and they "need"
-hotplug support, so maybe I'll patch your patches and do what testing
-I can.  I'll post a fourth patch in a few days.
+We've had problems with this theoretical build config
+for some time:
+http://bugzilla.kernel.org/show_bug.cgi?id=1364
+because nobody, including me, tests it.
 
-> When I get back to Waterloo (Ontario) in September, I should send in
-> revised versions of these patches with the following fixes:
-> 
-> - mod_timer instead of delete_timer/change timeout/add_timer
-That's easy.  I'll add it in my 'patch 4/3'
+Indeed, one possible fix would be to make CONFIG_ACPI
+depend on CONFIG_PCI -- which brings me back to
+my origianl question.
 
-> - bunch of code cleanups
-Haven't touched this, looks pretty clean to me
-
-> - proper error handling
-This may be something I'll have to stick my fingers in as I do more testing
-
-> - actually making the patches work.
-Hopefully I'll get this going.
-
-[Update, 10 mins later] Hey, I've got unplugging working already!
-
--- 
-Jim Ramsay
-"Me fail English?  That's unpossible!"
+-Len

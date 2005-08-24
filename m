@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVHXQWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVHXQX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbVHXQWK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 12:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVHXQWK
+	id S1751112AbVHXQX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 12:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVHXQX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 12:22:10 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:3053 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751120AbVHXQWJ convert rfc822-to-8bit (ORCPT
+	Wed, 24 Aug 2005 12:23:59 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:34504 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751112AbVHXQX6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 12:22:09 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: kgdbwait in 2.6.13-rc4-mm1?
-Date: Wed, 24 Aug 2005 09:22:06 -0700
-Message-ID: <194B303F2F7B534594F2AB2D87269D9F06DE070A@orsmsx408>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kgdbwait in 2.6.13-rc4-mm1?
-Thread-Index: AcWox/gXBt9JzegRRkWuNDXwjq+0rw==
-From: "Wilkerson, Bryan P" <Bryan.P.Wilkerson@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 24 Aug 2005 16:22:08.0537 (UTC) FILETIME=[F95AE890:01C5A8C7]
+	Wed, 24 Aug 2005 12:23:58 -0400
+Date: Thu, 25 Aug 2005 01:22:42 +0900 (JST)
+Message-Id: <20050825.012242.74736989.taka@valinux.co.jp>
+To: hyoshiok@miraclelinux.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <20050824.231156.278740508.hyoshiok@miraclelinux.com>
+References: <98df96d30508181629d85edb5@mail.gmail.com>
+	<20050823.081246.846946371.hyoshiok@miraclelinux.com>
+	<20050824.231156.278740508.hyoshiok@miraclelinux.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Is there an equivalent kernel boot option for kgdbwait in
-2.6.13-rc4-mm1?  I grep'd the kernel source but didn't find kgdbwait.
+> The following patch does not use MMX regsiters so that we don't have
+> to worry about save/restore the FPU/MMX states.
+> 
+> What do you think?
 
-Is there any documentation other than the source for the flavor of KGDB
-that is included in the akpm kernel patch?   
+I think __copy_user_zeroing_intel_nocache() should be followed by sfence
+or mfence instruction to flush the data.
 
-Thanks,
-
--bryan
 

@@ -1,39 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVHXHcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVHXHcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbVHXHcR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 03:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVHXHcQ
+	id S1750703AbVHXHcW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 03:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVHXHcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 03:32:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:55528 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750712AbVHXHcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 03:32:16 -0400
-Date: Wed, 24 Aug 2005 08:32:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/8] remove ia_attr_flags
-Message-ID: <20050824073214.GA24513@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <E1E7fHs-0006DO-00@dorka.pomaz.szeredi.hu> <E1E7fJu-0006EB-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1E7fJu-0006EB-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 24 Aug 2005 03:32:22 -0400
+Received: from ns.dynamicweb.hu ([195.228.155.139]:16522 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1750703AbVHXHcW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 03:32:22 -0400
+From: djani22@dynamicweb.hu
+Message-ID: <039401c5a87d$e64e59c0$0400a8c0@LocalHost>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Cc: <linux-kernel@vger.kernel.org>
+References: <03b601c5a804$305d8ce0$0400a8c0@LocalHost> <1124840177.10110.3.camel@lade.trondhjem.org>
+Subject: Re: message: do_vfs_lock: VFS is out of sync with lock manager!
+Date: Wed, 24 Aug 2005 09:17:12 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 23, 2005 at 10:24:30PM +0200, Miklos Szeredi wrote:
-> Remove unused ia_attr_flags from struct iattr, and related defines.
 
-I had actually planned to make use of this, by adding a common helper
-for the ext2-style file flags ioctl so all the checking is moved outside
-the filesystems.  OTOH I planned this forever and didn't get ver far,
-so it's probably okay to remove it - I can put it back when needed.
+----- Original Message -----
+From: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+To: <info@netcenter.hu>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, August 24, 2005 1:36 AM
+Subject: Re: message: do_vfs_lock: VFS is out of sync with lock manager!
+
+
+> ty den 23.08.2005 Klokka 19:00 (+0200) skreiv info@netcenter.hu:
+> > Hello list, developers!
+> >
+> > I have seriously get this message:
+> >
+> > [43124719.930000] do_vfs_lock: VFS is out of sync with lock manager!
+> > [43124720.940000] do_vfs_lock: VFS is out of sync with lock manager!
+> > [43124721.950000] do_vfs_lock: VFS is out of sync with lock manager!
+> > [43124722.960000] do_vfs_lock: VFS is out of sync with lock manager!
+> > [43124723.970000] do_vfs_lock: VFS is out of sync with lock manager!
+> >
+>
+> The above is a lockd error that states that the VFS is failing to track
+> your NFS locks correctly. Do you have a testcase (or can you at least
+> describe what applications you think might be using NFS locking on your
+> system)?
+
+I get this message on 13-rc3, but more often on rc6!
+
+I have use a web server that servers files from GNBD to Internet.
+In this service the NFS is used only logging. ( | filtered with cronolog)
+- I think, there is no NFS-lock in here
+
+The another tasks:
+Sendmail.
+-I think the problem is here!
+
+Sometimes the system is hangs when high NFS traffic eg. when big mail is
+come...
+I get some strange kernel message in logs, but the backtrace is shows: the
+gnbd has a bug.
+But I don't think so!
+I _never_ get these strange messages before rc6!
+If you ask, I can send these too...
+
+more:
+named,pop3,fure-ftpd (gnbd-only), imap
+
+My system is very special.
+This is a FREE web storage.
+I can help to test / debug.
+I do it too on netdev, raid lists.
+
+What can I help?
+
+Thanks
+
+Janos
+
+
+
+
+>
+> Cheers,
+>   Trond
 

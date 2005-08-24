@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbVHXTzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbVHXT4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbVHXTzi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 15:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbVHXTzi
+	id S1751506AbVHXT4K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 15:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbVHXT4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 15:55:38 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:37795 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1751505AbVHXTzh (ORCPT
+	Wed, 24 Aug 2005 15:56:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59588 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751506AbVHXT4J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 15:55:37 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: question on memory barrier
-Date: Wed, 24 Aug 2005 21:55:34 +0200
-User-Agent: KMail/1.8
-Cc: "moreau francis" <francis_moreau2000@yahoo.fr>,
-       "Linux kernel" <linux-kernel@vger.kernel.org>
-References: <20050824173131.50938.qmail@web25809.mail.ukl.yahoo.com> <200508242132.52730.oliver@neukum.org> <Pine.LNX.4.61.0508241542110.31690@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0508241542110.31690@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Aug 2005 15:56:09 -0400
+Date: Wed, 24 Aug 2005 12:55:59 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Chris Wright <chrisw@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>
+Subject: Re: [PATCH 3/5] Make set_wrprotect() value safe
+Message-ID: <20050824195559.GL7762@shell0.pdx.osdl.net>
+References: <200508241843.j7OIhC7a001888@zach-dev.vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508242155.34837.oliver@neukum.org>
+In-Reply-To: <200508241843.j7OIhC7a001888@zach-dev.vmware.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Zachary Amsden (zach@vmware.com) wrote:
+> The macro set_wrprotect() should not be defined to have a value.  Make it
+> a do {} while(0) instead of ({}).
+> Noticed by Chris Wright.
 
-> And you never even bothered to read what I said about that???
-> The write ORDER will NOT change. Period. It's a FIFO. Writes
+I already fixed that one in the virt-2.6 git tree.
 
-On current implementations of i386. That is not good enough.
-We want code that works everywhere. You are wrong.
-If you need to have ordered writes to a bus, use wmb().
-
-	Regards
-		Oliver
+thanks,
+-chris

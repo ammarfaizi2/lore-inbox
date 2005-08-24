@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVHXHc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVHXHdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbVHXHc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 03:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVHXHc6
+	id S1750724AbVHXHdg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 03:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVHXHdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 03:32:58 -0400
-Received: from ozlabs.org ([203.10.76.45]:58322 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750716AbVHXHc5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 03:32:57 -0400
-MIME-Version: 1.0
+	Wed, 24 Aug 2005 03:33:36 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:43994 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750720AbVHXHdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 03:33:35 -0400
+Date: Wed, 24 Aug 2005 08:33:34 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/8] remove duplicated sys_open32() code from 64bit archs
+Message-ID: <20050824073334.GB24513@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <E1E7fHs-0006DO-00@dorka.pomaz.szeredi.hu> <E1E7fJu-0006EB-00@dorka.pomaz.szeredi.hu> <E1E7fMD-0006En-00@dorka.pomaz.szeredi.hu> <E1E7fPj-0006Fq-00@dorka.pomaz.szeredi.hu> <E1E7fSd-0006Gr-00@dorka.pomaz.szeredi.hu> <E1E7fVJ-0006HK-00@dorka.pomaz.szeredi.hu> <E1E7fcN-0006IR-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17163.64602.634390.104042@cargo.ozlabs.ibm.com>
-Date: Wed, 24 Aug 2005 14:49:30 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Linas Vepstas <linas@austin.ibm.com>, benh@kernel.crashing.org,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net, johnrose@us.ibm.com,
-       moilanen@austin.ibm.com, akpm@osdl.org, greg@kroah.com
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-In-Reply-To: <17163.49814.166545.946491@cargo.ozlabs.ibm.com>
-References: <20050823231817.829359000@bilge>
-	<20050823232143.003048000@bilge>
-	<20050823234747.GI18113@austin.ibm.com>
-	<17163.49814.166545.946491@cargo.ozlabs.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <E1E7fcN-0006IR-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+On Tue, Aug 23, 2005 at 10:43:35PM +0200, Miklos Szeredi wrote:
+> 64 bit architectures all implement their own compatibility sys_open(),
+> when in fact the difference is simply not forcing the O_LARGEFILE
+> flag.  So use the a common function instead.
 
-> Linas Vepstas writes:
-> 
-> In this patch at least, your mailer seems to have blanked out lines
-> that match ^[-+]$.  Could you send them to me again with a different
-> mailer or put them on a web or ftp site somewhere?
+Traditional naming would be just do_open(), but else this looks very nice.
 
-I got 3 copies of each of these mails, one directly, one through
-linuxppc64-dev and one through linux-kernel.  It looks like the copies
-that came through the mailing lists are OK but the copy that came
-directly to me is corrupted.  Weird.
-
-Regards,
-Paul.

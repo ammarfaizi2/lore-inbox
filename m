@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVHXKJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVHXKMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbVHXKJA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 06:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbVHXKJA
+	id S1750715AbVHXKMP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 06:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVHXKMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 06:09:00 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:48912 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750700AbVHXKJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 06:09:00 -0400
-Date: Wed, 24 Aug 2005 12:08:57 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] #include <asm/irq.h> in interrupt.h
-Message-ID: <20050824100857.GH5603@stusta.de>
-References: <20050824085750.GG5603@stusta.de> <20050824092250.GA26726@infradead.org>
-Mime-Version: 1.0
+	Wed, 24 Aug 2005 06:12:15 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:56986 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1750715AbVHXKMO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 06:12:14 -0400
+Message-ID: <430C47F6.8050805@namesys.com>
+Date: Wed, 24 Aug 2005 14:12:06 +0400
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: raja <vnagaraju@effigent.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: delay
+References: <430C1772.4030308@effigent.net>
+In-Reply-To: <430C1772.4030308@effigent.net>
+X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050824092250.GA26726@infradead.org>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 10:22:50AM +0100, Christoph Hellwig wrote:
-> On Wed, Aug 24, 2005 at 10:57:50AM +0200, Adrian Bunk wrote:
-> > If #includ'ing interrupt.h should be enough for getting the prototype of 
-> > e.g. enable_irq() on all architectures, we need this patch.
+Hello
+
+raja wrote:
+> Hi,
+>    Would you please tell me how to write a function that generates a
+> delay of Less than a sec.(ie for 1 milli se or one microsec etc).
 > 
-> Per defintion you need to include <asm/irq.h> right now.  I'd like to change
-> that to <linux/interrupt.h>, but not my including <asm/irq.h> there.
-> We should just make the prototypes in <linux/interrupt.h> unconditional
-> and get rid of the macro/inline tricks some architectures do, these calls
-> aren't exactly fastpathes where that matters.
 
-Looking at 2.6.13-rc6-mm2, the only architectures with own enable_irq() 
-implementations are m68knommu and sparc.
+Maybe you could use: linux/kernel/timer.c:schedule_timeout()
 
-On m68knommu, enable_irq() does nothing unless a hook is used that has 
-no in-kernel users.
-
-The 32bit sparc arch seems to be the only arch doing funky things.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> Thankingyou,
+> Raja
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 

@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbVHXBUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbVHXBjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbVHXBUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 21:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVHXBUP
+	id S1751334AbVHXBjj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 21:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbVHXBjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 21:20:15 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:13252 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751326AbVHXBUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 21:20:14 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <430BCB41.5070206@s5r6.in-berlin.de>
-Date: Wed, 24 Aug 2005 03:20:01 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Tue, 23 Aug 2005 21:39:39 -0400
+Received: from siaag2ah.compuserve.com ([149.174.40.141]:26162 "EHLO
+	siaag2ah.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751334AbVHXBji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 21:39:38 -0400
+Date: Tue, 23 Aug 2005 21:36:40 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.13-rc6] i386: fix incorrect FP signal delivery
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, Andi Kleen <ak@suse.de>
+Message-ID: <200508232138_MC3-1-A814-1599@compuserve.com>
 MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] Add disk hotswap support to libata RESEND #2
-References: <355e5e5e05080103021a8239df@mail.gmail.com>	 <4789af9e050823124140eb924f@mail.gmail.com> <4789af9e050823154364c8e9eb@mail.gmail.com> <430BA990.9090807@mvista.com>
-In-Reply-To: <430BA990.9090807@mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.55) AWL,BAYES_00
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
-> Jim Ramsay wrote:
->> On 8/23/05, Jim Ramsay <jim.ramsay@gmail.com> wrote:
->>> I've applied this set
->>> of patches to a 2.6.11 kernel (with few problems) and ran into a bunch
->>> of "scheduling while atomic" errors when hotplugging a drive, culprit
->>> being probably scsi_sysfs.c
-...
->> After further debugging, it appears that the problem is the debounce
->> timer in libata-core.c.
->>
->> Timers appear to operate in an atomic context, so timers should not be
->> allowed to call scsi_remove_device, which eventually schedules.
->>
->> Any suggestions on the best way to fix this?
-> 
-> Workqueue, perhaps.
+On Tue, 23 Aug 2005 11:55:21 -0700 (PDT), Linus Torvalds wrote:
 
-The USB and IEEE 1394 subsystems have kernel threads which manage node 
-additions and removals (usb/storage/usb.c, ieee1394/nodemgr.c). The add 
-and remove functions of their storage drivers are called from these 
-threads' non-atomic context. However if you don't need an own thread for 
-any further bus management purposes, a workqueue looks suitable for hot 
-plugging and unplugging.
--- 
-Stefan Richter
--=====-=-=-= =--- ==---
-http://arcgraph.de/sr/
+> Wouldn't this simpler patch result in exactly the same behaviour?
+
+ I thought the extra code would be good documentation, but the comments
+work just as well.  This is a little clearer (hand edited patch:)
+
+--- a/arch/i386/kernel/traps.c
++++ b/arch/i386/kernel/traps.c
+@@ -803,15 +803,17 @@ void math_error(void __user *eip)
+ 	 */
+ 	cwd = get_fpu_cwd(task);
+ 	swd = get_fpu_swd(task);
+-	switch (((~cwd) & swd & 0x3f) | (swd & 0x240)) {
++	switch (swd & ~cwd & 0x3f) {
+ 		case 0x000:
+ 		default:
+ 			break;
+ 		case 0x001: /* Invalid Op */
+-		case 0x041: /* Stack Fault */
+-		case 0x241: /* Stack Fault | Direction */
++			/*
++			 * swd & 0x240 == 0x040: Stack Underflow
++			 * swd & 0x240 == 0x240: Stack Overflow
++			 * User must clear the SF bit (0x40) if set
++			 */
+ 			info.si_code = FPE_FLTINV;
+-			/* Should we clear the SF or let user space do it ???? */
+ 			break;
+ 		case 0x002: /* Denormalize */
+ 		case 0x010: /* Underflow */
+__
+Chuck

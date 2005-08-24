@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbVHXQCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVHXQDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbVHXQCM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 12:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVHXQCM
+	id S1751101AbVHXQDm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 12:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVHXQDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 12:02:12 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:6815 "HELO
+	Wed, 24 Aug 2005 12:03:41 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:18591 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751093AbVHXQCK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 12:02:10 -0400
-Subject: CFQ + 2.6.13-rc4-RT-V0.7.52-02 = BUG: scheduling with irqs disabled
+	id S1751101AbVHXQDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 12:03:41 -0400
+Subject: Re: VIA Rhine ethernet driver bug (reprise...)
 From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Udo van den Heuvel <udovdh@xs4all.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <1124898624.3855.3.camel@mindpipe>
+References: <430A0B69.1060304@xs4all.nl>
+	 <200508231221.59299.vda@ilport.com.ua>  <1124898624.3855.3.camel@mindpipe>
 Content-Type: text/plain
-Date: Wed, 24 Aug 2005 12:02:08 -0400
-Message-Id: <1124899329.3855.12.camel@mindpipe>
+Date: Wed, 24 Aug 2005 12:03:38 -0400
+Message-Id: <1124899419.3855.14.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.3.7 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just found this in dmesg.
+On Wed, 2005-08-24 at 11:50 -0400, Lee Revell wrote:
+> On Tue, 2005-08-23 at 12:21 +0300, Denis Vlasenko wrote:
+> > My suggestion was, and still is:
 
-BUG: scheduling with irqs disabled: libc6.postinst/0x20000000/13229
-caller is ___down_mutex+0xe9/0x1a0
- [<c029c1f9>] schedule+0x59/0xf0 (8)
- [<c029ced9>] ___down_mutex+0xe9/0x1a0 (28)
- [<c0221832>] cfq_exit_single_io_context+0x22/0xa0 (84)
- [<c02218ea>] cfq_exit_io_context+0x3a/0x50 (16)
- [<c021db84>] exit_io_context+0x64/0x70 (16)
- [<c011efda>] do_exit+0x5a/0x3e0 (20)
- [<c011f3ca>] do_group_exit+0x2a/0xb0 (24)
- [<c0103039>] syscall_call+0x7/0xb (20)
+
+Never mind, I misread the original post.  This workaround is probably OK
+if you only do the reset when this error condition arises.
 
 Lee
 

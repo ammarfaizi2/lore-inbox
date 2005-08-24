@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVHXHdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVHXHfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbVHXHdg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 03:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVHXHdg
+	id S1750714AbVHXHfm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 03:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbVHXHfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 03:33:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:43994 "EHLO
+	Wed, 24 Aug 2005 03:35:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:45274 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750720AbVHXHdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 03:33:35 -0400
-Date: Wed, 24 Aug 2005 08:33:34 +0100
+	id S1750714AbVHXHfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 03:35:41 -0400
+Date: Wed, 24 Aug 2005 08:35:37 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/8] remove duplicated sys_open32() code from 64bit archs
-Message-ID: <20050824073334.GB24513@infradead.org>
+To: Al Viro <viro@www.linux.org.uk>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (28/43) alpha xchg fix
+Message-ID: <20050824073537.GC24513@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
+	Al Viro <viro@www.linux.org.uk>, torvalds@osdl.org,
 	linux-kernel@vger.kernel.org
-References: <E1E7fHs-0006DO-00@dorka.pomaz.szeredi.hu> <E1E7fJu-0006EB-00@dorka.pomaz.szeredi.hu> <E1E7fMD-0006En-00@dorka.pomaz.szeredi.hu> <E1E7fPj-0006Fq-00@dorka.pomaz.szeredi.hu> <E1E7fSd-0006Gr-00@dorka.pomaz.szeredi.hu> <E1E7fVJ-0006HK-00@dorka.pomaz.szeredi.hu> <E1E7fcN-0006IR-00@dorka.pomaz.szeredi.hu>
+References: <E1E7gbr-0007DA-1I@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1E7fcN-0006IR-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1E7gbr-0007DA-1I@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.4.2.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 23, 2005 at 10:43:35PM +0200, Miklos Szeredi wrote:
-> 64 bit architectures all implement their own compatibility sys_open(),
-> when in fact the difference is simply not forcing the O_LARGEFILE
-> flag.  So use the a common function instead.
+On Tue, Aug 23, 2005 at 10:47:07PM +0100, Al Viro wrote:
+> alpha xchg has to be a macro - alpha disables always_inline and if that
+> puppy does not get inlined, we immediately blow up on undefined reference.
+> Happens even on gcc3; with gcc4 that happens a _lot_.
 
-Traditional naming would be just do_open(), but else this looks very nice.
+I think you should rather fix alpha to not disable always_inline.  Having
+one architecture behaving very different from the others is a rather bad
+idea.
 

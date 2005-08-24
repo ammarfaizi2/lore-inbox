@@ -1,74 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVHXR4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbVHXRzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbVHXR4a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 13:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVHXR4a
+	id S1751326AbVHXRzW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 13:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVHXRzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 13:56:30 -0400
-Received: from leyde.iplannetworks.net ([200.69.193.99]:10693 "EHLO
-	proxy3.iplannetworks.net") by vger.kernel.org with ESMTP
-	id S1751330AbVHXR43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 13:56:29 -0400
-Message-ID: <430CB3EC.2000502@latinsourcetech.com>
-Date: Wed, 24 Aug 2005 14:52:44 -0300
-From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@latinsourcetech.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with kernel image in a Prep Boot on PowerPC
-References: <430C8CB5.1050501@latinsourcetech.com> <20050824163100.GD1100@tuxdriver.com>
-In-Reply-To: <20050824163100.GD1100@tuxdriver.com>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 24 Aug 2005 13:55:22 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:4882 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751326AbVHXRzW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 13:55:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=BPe8+yG62u2rEvTHowyRyZVfEJAZBpMVshjrXkKw7EUv35itoz+iUSEpOXSFDPk0sXI1rNBd0vG+szsBv8YRJo08kU6g7lTPyGLtZ/R0wUg4AwDawHpPQFXLsmX87zw9OvbKEv2fk2Jtyees+9aSg85mi6VKBIuEdd3xBRkZcbc=
+Date: Wed, 24 Aug 2005 22:04:17 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Nick Sillik <n.sillik@temple.edu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [-mm PATCH] drivers/char/speakup/synthlist.h - Fix warnings with -Wundef
+Message-ID: <20050824180416.GA15819@mipter.zuzino.mipt.ru>
+References: <430B8063.8070301@temple.edu> <20050824053703.GA23807@mipter.zuzino.mipt.ru> <430C07F0.8010001@temple.edu> <430C0B33.7000708@temple.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <430C0B33.7000708@temple.edu>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John W. Linville wrote:
+On Wed, Aug 24, 2005 at 01:52:51AM -0400, Nick Sillik wrote:
+> --- linux-2.6.13-rc6-mm2/drivers/char/speakup/synthlist.h
+> +++ linux-2.6.13-rc6-mm2-patched/drivers/char/speakup/synthlist.h
 
->On Wed, Aug 24, 2005 at 12:05:25PM -0300, Márcio Oliveira wrote:
->
->  
->
->>  I think the kernel is pointing to the wrong root partiotion. In a x86 
->>box, I can change the kernel root partition in the boot loader (root= 
->>parameter) or using the "rdev" command. In my case, the IBM Power 
->>doesn't have a boot loader (yaboot was replaced by the kernel image) and 
->>the powerpc64 system doesn't have the rdev command (from util-linux 
->>package, the same package on x86 systems have the rdev command!).
->>    
->>
->
->I don't know anything that will do this on a pre-built kernel.  But,
->you should look at CONFIG_CMDLINE_BOOL and CONFIG_CMDLINE in your
->kernel configuration.  That will let you pre-configure the "root="
->command line option.
->  
->
-Hi John,
+> -#undef CFG_TEST
+> +#undef 
 
-The command rdev can change the default root partition on x86 linux 
-systems with pre-built kernels.
+Thou shal test-compile, then send.
 
-About the CONFIG_CMDLINE in the kernel configuration, I found it in lots 
-of files in the kernel source tree and I'd like to know which file I 
-need to change this value (/usr/src/linux/arch/ppc64/defconfig ?).
+Please, be attentive.
 
->I don't know if ppc64 can use the zImage-style boot wrapper.  If it
->can, that would provide you with an option of modifying the command
->line at boot time if needed.
->  
->
-According to this doc: 
-http://www-128.ibm.com/developerworks/eserver/library/es-SW_RAID_LINUX.html, 
-ppc64 can use zImage-style boot wrapper, so I'm trying it.
-
->Good luck!
->
->John
->  
->
-Thanks John!
-
-Márcio.

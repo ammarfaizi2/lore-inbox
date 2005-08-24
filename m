@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVHXQ2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVHXQay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbVHXQ2b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 12:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVHXQ2b
+	id S1751137AbVHXQay (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 12:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVHXQay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 12:28:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34263 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S1751122AbVHXQ2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 12:28:30 -0400
-Date: Wed, 24 Aug 2005 17:31:34 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: Al Viro <viro@www.linux.org.uk>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (11/43) Kconfig fix (infiniband and PCI)
-Message-ID: <20050824163134.GK9322@parcelfarce.linux.theplanet.co.uk>
-References: <E1E7gaT-00079k-Ax@parcelfarce.linux.theplanet.co.uk> <528xyr1f0c.fsf@cisco.com>
+	Wed, 24 Aug 2005 12:30:54 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:5082 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751137AbVHXQax (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 12:30:53 -0400
+Date: Wed, 24 Aug 2005 11:29:59 -0500
+To: John Rose <johnrose@austin.ibm.com>
+Cc: paulus@samba.org, benh@kernel.crashing.org, akpm@osdl.org,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
+Message-ID: <20050824162959.GC25174@austin.ibm.com>
+References: <20050823231817.829359000@bilge> <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com> <1124898331.24668.33.camel@sinatra.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <528xyr1f0c.fsf@cisco.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1124898331.24668.33.camel@sinatra.austin.ibm.com>
+User-Agent: Mutt/1.5.9i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 09:22:27AM -0700, Roland Dreier wrote:
->     Al> infiniband uses PCI helpers all over the place (including the
->     Al> core parts) and won't build without PCI.
+On Wed, Aug 24, 2005 at 10:45:31AM -0500, John Rose was heard to remark:
+> > +++ linux-2.6.13-rc6-git9/arch/ppc64/kernel/eeh_driver.c	2005-08-23 14:34:44.000000000 -0500
+> > +/*
+> > + * PCI Hot Plug Controller Driver for RPA-compliant PPC64 platform.
 > 
-> I don't think this is the right fix.  The only PCI helpers used in
-> code that is enabled with CONFIG_PCI=n are pci_unmap_addr_set() and
-> pci_unmap_addr().  And they're only used because no one has added
-> dma_unmap_addr_set() and dma_unmap_addr() -- the core code is properly
-> using the general dma_xxx API wherever possible.
-> 
-> There actually is non-PCI InfiniBand hardware coming, so we'll have to
-> fix this properly at some point.
+> This probably isn't the right header description for this file :)
 
-I'm all for it and removing BROKEN from Kconfig when fixes happen is
-obviously not a problem at all ;-)
+Yes, this file is a little ball of ugliness that resulted from moving
+things out of the rpaphp directory; and, yes, it's rather
+un-reconstructed. I released it under the "release early" program.
+
+The meta-issue that I'd like to reach consensus on first is whether
+there should be any hot-plug recovery attempted at all.  Removing
+hot-plug-recovery support will make many of the issues you raise 
+to be moot.
+
+> > +++ linux-2.6.13-rc6-git9/include/asm-ppc64/prom.h	2005-08-23 13:31:52.000000000 -0500
+> >  	int	busno;			/* for pci devices */
+> >  	int	bussubno;		/* for pci devices */
+> >  	int	devfn;			/* for pci devices */
+> 
+> How about a pointer to a struct of EEH fields?  Folks are touchy about
+> adding anything PCI-specific to device nodes, especially since most DNs
+> aren't PCI at all.
+
+I attempted to remove all of the pci-related stuff from this struct,
+and got a crash in very very early boot (before the transition from
+real to virtual addressing). Not sure why, I was surprised.  It seems 
+related to the flattening of the device ndode tree. I'll try again 
+soon.
+
+--linas

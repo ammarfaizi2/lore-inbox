@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVHXUTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVHXUTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbVHXUTu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 16:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVHXUTu
+	id S932088AbVHXUTn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 16:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVHXUTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 16:19:50 -0400
-Received: from fmr13.intel.com ([192.55.52.67]:53143 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932093AbVHXUTs convert rfc822-to-8bit (ORCPT
+	Wed, 24 Aug 2005 16:19:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:721 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932088AbVHXUTm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 16:19:48 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH 05/15] ia64: remove use of asm/segment.h
-Date: Wed, 24 Aug 2005 13:19:38 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F043851AD@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 05/15] ia64: remove use of asm/segment.h
-Thread-Index: AcWo59Ug7OXCApGjSACcD+cxvEUogQAADf7g
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Kumar Gala" <galak@freescale.com>
-Cc: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 24 Aug 2005 20:19:40.0110 (UTC) FILETIME=[27F45EE0:01C5A8E9]
+	Wed, 24 Aug 2005 16:19:42 -0400
+Date: Wed, 24 Aug 2005 13:19:20 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Chris Wright <chrisw@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>
+Subject: Re: [PATCH 5/5] Create a hole in high linear address space
+Message-ID: <20050824201920.GN7762@shell0.pdx.osdl.net>
+References: <200508241845.j7OIjIeM001900@zach-dev.vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508241845.j7OIjIeM001900@zach-dev.vmware.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->There are still a few drivers that include asm/segment.h, so
->I don't think we should remove asm/segment.h itself just yet.
+* Zachary Amsden (zach@vmware.com) wrote:
+> Allow compile time creation of a hole at the high end of linear address space.
+> This makes accomodating a hypervisor a much more tractable problem by giving
+> it ample playground to live in.  Currently, the hole size is fixed at config
+> time; I have experimented with dynamically sized holes, and have a later
+> patch that developes this potential, but it becomes much more useful once
+> the exact negotiation of linear address space with the hypervisor is defined.
+> 
+> The fixed compile time solution is sufficient for now.
 
-Agreed.  The sequence should be to send patches to get rid of
-all "#include <asm/segment.h>" references.
+Xen moves __FIXADDR_TOP like this:
 
-Once they have all gone, then a patch can remove the files.
+#ifdef CONFIG_X86_PAE
+# define HYPERVISOR_VIRT_START (0xF5800000UL)
+#else
+# define HYPERVISOR_VIRT_START (0xFC000000UL)
+#endif
 
-If you are concerned that people would start adding new
-references and you don't want to get into a game of whack-a-mole,
-then you could add #warning "include of deprecated asm/segment.h",
-but that might be overkill.
+and
 
-I'll apply this for ia64 w/o the deletion.
+#define __FIXADDR_TOP  (HYPERVISOR_VIRT_START - 2 * PAGE_SIZE)
 
--Tony
+and also adds bits to fixmap.
+
+So this proposed mechanism isn't quite good enough.
+
+thanks,
+-chris

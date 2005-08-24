@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbVHXIBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVHXIUC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbVHXIBT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 04:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVHXIBT
+	id S1750707AbVHXIUC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 04:20:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbVHXIUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 04:01:19 -0400
-Received: from mail.wp-sa.pl ([212.77.102.105]:44527 "EHLO mail.wp-sa.pl")
-	by vger.kernel.org with ESMTP id S1750755AbVHXIBS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 04:01:18 -0400
-Date: Wed, 24 Aug 2005 10:01:08 +0200
-From: Mariusz Zielinski <levi@wp-sa.pl>
-X-Face: '2=UjhX-y3vfeO94nyru(,e&{Lf^eJ&15S#rcuk:e{unjSRN4yZ69Z'ePMJsPO"=?utf-8?q?6=5Cs=27iVZ=0A=090OZ?=>_
-Subject: Re: debug a high load average
-In-reply-to: <430BFA58.6090609@gmail.com>
-To: Rajesh <rvarada@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200508241001.11464.levi@wp-sa.pl>
-Organization: Wirtualna Polska SA
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.8.1
-References: <430B03B4.8040205@gmail.com>
- <20050823133050.GC29062@harddisk-recovery.com> <430BFA58.6090609@gmail.com>
+	Wed, 24 Aug 2005 04:20:01 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34575 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750707AbVHXIUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 04:20:00 -0400
+Date: Wed, 24 Aug 2005 10:19:58 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Sergio Paracuellos <sparacuellos@lock-linux.com>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>
+Subject: Re: Exporting symbols between modules
+Message-ID: <20050824081958.GD5603@stusta.de>
+References: <1124869718.3073.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124869718.3073.14.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 August 2005 06:40, you wrote:
-[...]
-> I am running  2.6.12 kernel on a laptop. I have an ipod attached to my
-> USB 1.1 as a drive on which I am saving and retreiving large
-> files(2-4GiB files). 
-[...]
+On Wed, Aug 24, 2005 at 09:48:38AM +0200, Sergio Paracuellos wrote:
 
-Check if you are not using low performance usb driver (CONFIG_BLK_DEV_UB).
-If I remember correctly it uses /dev/ub* devices.
+> Hi all,
+
+Hi Sergio,
+
+> I'm new in this list and I have some problems exporting symbols in a
+> module to see them in other module.
+> 
+> In the module I want to export the symbol I do:
+> 
+> tList list;
+> EXPORT_SYMBOL(list);
+> 
+> I compile it and install without any problem.
+> 
+> And in the module I want to use them I declare list with "extern"
+> prototype:
+> 
+> extern tList list;
+> 
+> When I compile the module It says me that list is undefined, and I don't
+> know what I am doing wrong.
+> 
+> Does anybody know what is happening? 
+> 
+> Maybe a makefile example would be appreciated... 
+> 
+> Thanks in advance.
+
+1. the kernel-mentors list [1] is a better place for such questions
+2. please post an URL to the full source of your driver, without it
+   debugging your problem is not possible
+
+> Regards,
+> 
+>         Sergio 
+
+cu
+Adrian
+
+[1] http://selenic.com/mailman/listinfo/kernel-mentors
 
 -- 
-Mariusz Zielinski
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

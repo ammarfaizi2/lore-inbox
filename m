@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVHXRCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbVHXRCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbVHXRCq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 13:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVHXRCp
+	id S1751197AbVHXRCm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 13:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVHXRCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 13:02:45 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:18590 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S1751201AbVHXRCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 13:02:44 -0400
-Date: Wed, 24 Aug 2005 12:02:39 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: linux-kernel@vger.kernel.org
-cc: Andrew Morton <akpm@osdl.org>, chris@zankel.net
-Subject: [PATCH 15/15] xtensa: remove use of asm/segment.h
-In-Reply-To: <Pine.LNX.4.61.0508241139100.23956@nylon.am.freescale.net>
-Message-ID: <Pine.LNX.4.61.0508241201570.23956@nylon.am.freescale.net>
-References: <Pine.LNX.4.61.0508241139100.23956@nylon.am.freescale.net>
+	Wed, 24 Aug 2005 13:02:42 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:45213 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751197AbVHXRCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 13:02:18 -0400
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Al Viro <viro@www.linux.org.uk>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (11/43) Kconfig fix (infiniband and PCI)
+X-Message-Flag: Warning: May contain useful information
+References: <E1E7gaT-00079k-Ax@parcelfarce.linux.theplanet.co.uk>
+	<528xyr1f0c.fsf@cisco.com>
+	<20050824163134.GK9322@parcelfarce.linux.theplanet.co.uk>
+	<20050824164133.GL9322@parcelfarce.linux.theplanet.co.uk>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 24 Aug 2005 10:02:05 -0700
+In-Reply-To: <20050824164133.GL9322@parcelfarce.linux.theplanet.co.uk> (Al
+ Viro's message of "Wed, 24 Aug 2005 17:41:33 +0100")
+Message-ID: <52u0hfz2sy.fsf@cisco.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 24 Aug 2005 17:02:06.0986 (UTC) FILETIME=[8EF12EA0:01C5A8CD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removed asm-xtensa/segment.h as its not used by anything.
+    Al> PS: note that it's not depends on PCI it's depends on PCI ||
+    Al> BROKEN which a) documents that something is wrong b) leaves
+    Al> all setups usable now intact c) prevents broken setups from
+    Al> being picked.
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Yes, I agree that this makes sense for now.
 
----
-commit 51e70a5236bf8f2f30f1a86513c18e05e3cb6fee
-tree 57c39eaf3761a71b9d78c25893f7696fdc703915
-parent 36b349eaba7a399c06219d3553d571261dbf6333
-author Kumar K. Gala <kumar.gala@freescale.com> Wed, 24 Aug 2005 11:37:29 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 24 Aug 2005 11:37:29 -0500
+    Al> I certainly agree that proper fix is to switch to dma_... - no
+    Al> arguments here.  BTW, another dubious thing is use of
+    Al> DECLARE_PCI_UNMAP_ADDR() in infiniband core - it's fine in PCI
+    Al> drivers (which is how it's used elsewhere), but not in generic
+    Al> data structures.
 
- include/asm-xtensa/segment.h |   16 ----------------
- 1 files changed, 0 insertions(+), 16 deletions(-)
+Yes, I guess we want DECLARE_DMA_UNMAP_ADDR() as well.  If I can
+untangle the maze of .h files well enough to see where
+dma_unmap_addr() et al. belong, I'll post a patch adding them.
 
-diff --git a/include/asm-xtensa/segment.h b/include/asm-xtensa/segment.h
-deleted file mode 100644
---- a/include/asm-xtensa/segment.h
-+++ /dev/null
-@@ -1,16 +0,0 @@
--/*
-- * include/asm-xtensa/segment.h
-- *
-- * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file "COPYING" in the main directory of this archive
-- * for more details.
-- *
-- * Copyright (C) 2001 - 2005 Tensilica Inc.
-- */
--
--#ifndef _XTENSA_SEGMENT_H
--#define _XTENSA_SEGMENT_H
--
--#include <asm/uaccess.h>
--
--#endif	/* _XTENSA_SEGEMENT_H */
+ - R.

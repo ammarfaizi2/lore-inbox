@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVHXWc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVHXWiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVHXWc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 18:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVHXWc4
+	id S932336AbVHXWiK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 18:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVHXWiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 18:32:56 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:40951 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932332AbVHXWcz
+	Wed, 24 Aug 2005 18:38:10 -0400
+Received: from mf00.sitadelle.com ([212.94.174.67]:24644 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932336AbVHXWiJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 18:32:55 -0400
-Message-ID: <430CF57B.2090000@mvista.com>
-Date: Wed, 24 Aug 2005 15:32:27 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Wed, 24 Aug 2005 18:38:09 -0400
+Message-ID: <430CF6CA.8040302@cosmosbay.com>
+Date: Thu, 25 Aug 2005 00:38:02 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>
-Subject: RT patch
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       Alok Kataria <alokk@calsoftinc.com>
+Subject: Re: [patch] Additions to .data.read_mostly section
+References: <20050824214610.GA3675@localhost.localdomain>
+In-Reply-To: <20050824214610.GA3675@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
+Ravikiran G Thirumalai a écrit :
+> Following patch moves a few static 'read mostly' variables to the 
+> .data.read_mostly section.  Typically these are vector - irq tables,
+> boot_cpu_data, node_maps etc., which are initialized once and read from 
+> often and rarely written to.  Please include.
+> 
 
-Do you keep the RT patch as one slab or is it a series of patches 
-(presumably managed by quilt)?
+Good candidates for read_mostly are all the 'kmem_cache_t *xxx_cache'
 
-If the latter, could you make a break out available, much as Andrew does 
-for the mm kernels?
+slab was carefuly designed to eliminate cache line ping pongs on SMP, but if 
+the initial pointer to slab sits in a heavily modified cache line, we loose.
 
-This would make it much easier to isolate the various "neat" things and, 
-possibly, send them on to Andrew/ Linus or where ever.
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Eric

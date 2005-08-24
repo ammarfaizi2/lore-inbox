@@ -1,57 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbVHXQib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbVHXQjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbVHXQib (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 12:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbVHXQi3
+	id S1751145AbVHXQjv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 12:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbVHXQjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 12:38:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7896 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S1751140AbVHXQi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 12:38:29 -0400
-Date: Wed, 24 Aug 2005 17:41:33 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: Al Viro <viro@www.linux.org.uk>, torvalds@osdl.org,
+	Wed, 24 Aug 2005 12:39:51 -0400
+Received: from web33301.mail.mud.yahoo.com ([68.142.206.116]:58006 "HELO
+	web33301.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751145AbVHXQjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 12:39:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=YhnrOh1EbcwMoRL3+y1QXmlKhWZL+fSeNWmiEgkIymbW8bBqEV1xcCd4DVbOgBzLkEoU6wvouAQx6RWbQXSCENtlR1SbUS0VlLYcKl/vTafPc9RrFI2d8tL69yrLWgd4jbtIeZv/noboZekCF9lpTbgE+R3RNHAx4/gp1QQesGg=  ;
+Message-ID: <20050824163946.94088.qmail@web33301.mail.mud.yahoo.com>
+Date: Wed, 24 Aug 2005 09:39:46 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: 2.6.12 Performance problems
+To: Patrick McHardy <kaber@trash.net>
+Cc: Sven-Thorsten Dietrich <sven@mvista.com>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (11/43) Kconfig fix (infiniband and PCI)
-Message-ID: <20050824164133.GL9322@parcelfarce.linux.theplanet.co.uk>
-References: <E1E7gaT-00079k-Ax@parcelfarce.linux.theplanet.co.uk> <528xyr1f0c.fsf@cisco.com> <20050824163134.GK9322@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050824163134.GK9322@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <430B89BE.1020600@trash.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 05:31:34PM +0100, Al Viro wrote:
-> On Wed, Aug 24, 2005 at 09:22:27AM -0700, Roland Dreier wrote:
-> >     Al> infiniband uses PCI helpers all over the place (including the
-> >     Al> core parts) and won't build without PCI.
-> > 
-> > I don't think this is the right fix.  The only PCI helpers used in
-> > code that is enabled with CONFIG_PCI=n are pci_unmap_addr_set() and
-> > pci_unmap_addr().  And they're only used because no one has added
-> > dma_unmap_addr_set() and dma_unmap_addr() -- the core code is properly
-> > using the general dma_xxx API wherever possible.
-> > 
-> > There actually is non-PCI InfiniBand hardware coming, so we'll have to
-> > fix this properly at some point.
+
+
+--- Patrick McHardy <kaber@trash.net> wrote:
+
+> Danial Thom wrote:
+> > None of this is helpful, but since no one has
+> > been able to tell me how to tune it to
+> provide
+> > absolute priority to the network stack I'll
+> > assume it can't be done.
 > 
-> I'm all for it and removing BROKEN from Kconfig when fixes happen is
-> obviously not a problem at all ;-)
+> The network stack already has priority over
+> user processes,
+> except when executed in process context, so
+> preemption has
+> no direct impact on briding or routing
+> performance.
+> 
+> The reason why noone answered your question is
+> because you
+> don't ask but claim or assume.
+> 
 
-PS: note that it's not
-	depends on PCI
-it's
-	depends on PCI || BROKEN
-which
-	a) documents that something is wrong
-	b) leaves all setups usable now intact
-	c) prevents broken setups from being picked.
+No, its because guys like you snip out content
+when they reply, and/or only read the parts of
+messages that you want to read, so when other
+people enter a thread, they miss the questions
+that were asked long ago. Quoting my post on Aug
+22:
 
-I certainly agree that proper fix is to switch to dma_... - no arguments here.
-BTW, another dubious thing is use of DECLARE_PCI_UNMAP_ADDR() in infiniband
-core - it's fine in PCI drivers (which is how it's used elsewhere), but not
-in generic data structures.
+"All of this aside, I need to measure the raw 
+capabilities of the kernel. With 'bsd OSes I can 
+tell what the breaking point is by driving the 
+machine to livelock. Linux seems to have a soft, 
+floating capacity in that it will drop packets 
+here and there for no isolatable reason. I'm 
+having difficulty making a case for its use in a 
+networking appliance, as dropped packets are not 
+acceptable. How do I tune the "its ok to drop 
+packets when x occurs" algorithm to be "its never
+
+ok to drop packets unless x occurs" (such as a 
+queue depth)? Is it possible?"
+
+Danial
+
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

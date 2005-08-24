@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbVHXAaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbVHXAd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbVHXAaG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Aug 2005 20:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbVHXAaG
+	id S932513AbVHXAd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Aug 2005 20:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVHXAd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Aug 2005 20:30:06 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:23282 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932512AbVHXAaF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Aug 2005 20:30:05 -0400
-Message-ID: <430BBF82.2010209@mvista.com>
-Date: Tue, 23 Aug 2005 17:29:54 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Tue, 23 Aug 2005 20:33:59 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:26812 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932513AbVHXAd6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Aug 2005 20:33:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:message-id;
+        b=MzBDwS6FbOfhXimxwiixXPT8Y/mN0YU2lRFkzDovKg1OusoPZVt+JCH+B9DOmTLzHjTfELovfB539bAenhnuQswtyFSlC8wgZUoVomF6zTRLgelGkPx274eJp9azgwkPFJQJusj3PPdyO4NtYs0f82h5PfYbdcsjy+jO/XMMmRM=
+From: Rafael =?iso-8859-1?q?=C1vila_de_Esp=EDndola?= 
+	<rafael.espindola@gmail.com>
+To: linux-kernel@vger.kernel.org, itautec@las.ic.unicamp.br,
+       ltc@las.ic.unicamp.br
+Subject: conexant modem driver for 2.6.12
+Date: Tue, 23 Aug 2005 21:28:37 -0300
+User-Agent: KMail/1.8.1
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: john stultz <johnstul@us.ibm.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
-       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>  <1123726394.32531.33.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508152115480.3728@scrub.home>  <1124151001.8630.87.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508162337130.3728@scrub.home>  <1124241449.8630.137.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508182213100.3728@scrub.home>  <1124505151.22195.78.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508202204240.3728@scrub.home>  <1124737075.22195.114.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508230134210.3728@scrub.home>  <1124830262.20464.26.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0508232321530.3728@scrub.home> <1124838847.20617.11.camel@cog.beaverton.ibm.com> <Pine.LNX.4.61.0508240134050.3743@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0508240134050.3743@scrub.home>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart80350235.FDzRJ9Hdq9";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200508232128.43099.rafael.espindola@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
-> 
-> On Tue, 23 Aug 2005, john stultz wrote:
-> 
-> 
->>I'm assuming gettimeofday()/clock_gettime() looks something like:
->>   xtime + (get_cycles()-last_update)*(mult+ntp_adj)>>shift
-> 
-> 
-> Where did you get the ntp_adj from? It's not in my example.
-> gettimeofday() was in the previous mail: "xtime + (cycle_offset * mult +
-> error) >> shift". The difference between system time and reference 
-> time is really important. gettimeofday() returns the system time, NTP 
-> controls the reference time and these two are synchronized regularly.
-> I didn't see that anywhere in your example.
-> 
-John,
-If I read your example right, the problem is when the NTP adjustment 
-changes while the two clocks are out of sync (because of a late tick). 
-It would appear that gettimeofday would need to know that the NTP 
-adjustment is changing  (and to what).  It would also appear that this 
-is known by the ntp code and could be made available to gettimeofday. 
-If it is changing due to an NTP call, that system call, itself, 
-should/must force synchronization.  So the only case gettimeofday needs 
-to worry/know about is that an adjustment is to change at time X to 
-value Y.  Also, me thinks there is only one such change that can be 
-present at any given time.
+--nextPart80350235.FDzRJ9Hdq9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Hope this helps...
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+I have ported the Conexant modem driver to the 2.6.12 kernel. The port is=20
+based on the lattest BSD/GPL version that I could find: 5.03.27.
+
+To make the port easier, I have considered only the model that I have: the=
+=20
+"HSF 56k HSFi Modem (rev 01)".
+
+The port is still quite a mess, but it can be dowloaded from:
+http://www.las.ic.unicamp.br/~espindola/modem.tar.bz2
+
+Note that, since I don't know if I have permission to do so, this archive d=
+oes=20
+not includes the binary files hsfbasic2.O and hsfengine.O. These files must=
+=20
+be moved from a copy of the 5.03.27 driver.
+
+If you have a modem that is not supported by this port, but works with=20
+5.03.27, I would love to hear from you. I would also like to hear any=20
+comments you may have. Please keep in mind that there is a lot of cleaning =
+to=20
+be done...
+
+I hope that this will be usefull.
+Rafael  =C1vila de Esp=EDndola
+
+--nextPart80350235.FDzRJ9Hdq9
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDC786LlrfGJ8JUHwRAhaSAJ4sWT0YgzO48X/aKkw06jFB2nSNJACgpbPf
+kYj5PnqVZ5J2h87kRiBYgOs=
+=mzAv
+-----END PGP SIGNATURE-----
+
+--nextPart80350235.FDzRJ9Hdq9--

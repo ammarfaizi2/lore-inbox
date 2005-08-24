@@ -1,29 +1,33 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932702AbVHPU2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751424AbVHXTXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932702AbVHPU2j (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 16 Aug 2005 16:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbVHPU2j
+	id S1751424AbVHXTXQ (ORCPT <rfc822;akpm@zip.com.au>);
+	Wed, 24 Aug 2005 15:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbVHXTXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Aug 2005 16:28:39 -0400
-Received: from r2.mxs.westcall.ru ([195.94.224.12]:54979 "EHLO
-	r2.mxs.WestCall.Ru") by vger.kernel.org with ESMTP id S932702AbVHPU2j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Aug 2005 16:28:39 -0400
-From: gia@ticard.ru
-Message-ID: <1120.195.94.234.226.1124224104.squirrel@ticard.ru>
-Date: Wed, 17 Aug 2005 00:28:24 +0400 (MSD)
-Subject: linux
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2 [CVS]
+	Wed, 24 Aug 2005 15:23:16 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:17321 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751424AbVHXTXQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 15:23:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index:message-id;
+        b=ipx5q//wQ0KQz4bGYUraC6wzdRZm3h/VWX7GYKAZj9wS27DIBzbPkwnRbDM4Z0Rrl18czYNp79X/zrCMmlUiJ2cXvuzRjl9LeuhIjSGjSUwY1OuDGwLuoxD+kVt7b/9etnqjsrTfEtPwOGX1Lxk3IifwcaMiwdz90KiyNbW1MW8=
+From: "Terry MacMillan" <tmacmill@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 
+Date: Wed, 24 Aug 2005 15:23:55 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <200508242108.15735.jesper.juhl@gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Thread-Index: AcWo324zsj6vxJDUQWe3WnFd/FyTlAAAeLmg
+Message-ID: <430cc922.11bf104c.6be6.ffffbf31@mx.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello from Russia. Can you send me a Linux documentation, i want to learn
-Unix.I am asking you because, i have only email access to internet.Please
-help.
-Thank you.
+unsubscribe linux-kernel
+

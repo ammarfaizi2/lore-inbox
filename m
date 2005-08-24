@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVHXG1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbVHXGfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbVHXG1L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 02:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbVHXG1L
+	id S1751473AbVHXGfk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 02:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbVHXGfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 02:27:11 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37902 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750753AbVHXG1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 02:27:11 -0400
-Date: Wed, 24 Aug 2005 08:27:09 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-dvb-maintainer@linuxtv.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] Documentation/dvb/get_dvb_firmware: fix firmware URL
-Message-ID: <20050824062709.GB5603@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Wed, 24 Aug 2005 02:35:39 -0400
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:26758 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S1751473AbVHXGfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 02:35:39 -0400
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Roman Zippel <zippel@linux-m68k.org>
+Date: Wed, 24 Aug 2005 08:34:53 +0200
+MIME-Version: 1.0
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
+       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
+       George Anzinger <george@mvista.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Message-ID: <430C312D.21770.54E50A3@rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <Pine.LNX.4.61.0508240134050.3743@scrub.home>
+References: <1124838847.20617.11.camel@cog.beaverton.ibm.com>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.26/Sophos-P=3.95.0+V=3.95+U=2.07.102+R=04 July 2005+T=107749@20050824.062552Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a wrong URL in Documentation/dvb/get_dvb_firmware.
+On 24 Aug 2005 at 1:54, Roman Zippel wrote:
 
-This patch fixes kernel Bugzilla #4301.
+[...]
+> error) >> shift". The difference between system time and reference 
+> time is really important. gettimeofday() returns the system time, NTP 
+> controls the reference time and these two are synchronized regularly.
+[...]
 
+Roman,
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I'm having a problem with your wording: NTP _does_ control the "system time" 
+(system clock), because it's the only clock it can use. The "reference time" is 
+usually remote or elsewhere (multiple sources). Local NTP does not control the 
+remote reference time(s).
 
---- linux-2.6.13-rc6-mm2-full/Documentation/dvb/get_dvb_firmware.old	2005-08-24 08:16:01.000000000 +0200
-+++ linux-2.6.13-rc6-mm2-full/Documentation/dvb/get_dvb_firmware	2005-08-24 08:16:43.000000000 +0200
-@@ -223,7 +223,7 @@
- }
- 
- sub dibusb {
--	my $url = "http://www.linuxtv.org/downloads/firmware/dvb-dibusb-5.0.0.11.fw";
-+	my $url = "http://www.linuxtv.org/downloads/firmware/dvb-usb-dibusb-5.0.0.11.fw";
- 	my $outfile = "dvb-dibusb-5.0.0.11.fw";
- 	my $hash = "fa490295a527360ca16dcdf3224ca243";
- 
+Regards,
+Ulrich
 

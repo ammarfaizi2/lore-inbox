@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbVHXRLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbVHXRME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbVHXRLa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 13:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVHXRLa
+	id S1751232AbVHXRME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 13:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbVHXRME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 13:11:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45017 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S1751218AbVHXRL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 13:11:29 -0400
-Date: Wed, 24 Aug 2005 18:14:33 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Kumar Gala <galak@freescale.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       parisc-linux@parisc-linux.org, matthew@wil.cx
-Subject: Re: [parisc-linux] [PATCH 07/15] parisc: remove use of asm/segment.h
-Message-ID: <20050824171433.GD4645@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.61.0508241139100.23956@nylon.am.freescale.net> <Pine.LNX.4.61.0508241154290.23956@nylon.am.freescale.net>
+	Wed, 24 Aug 2005 13:12:04 -0400
+Received: from main.gmane.org ([80.91.229.2]:43488 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751232AbVHXRMC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 13:12:02 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: kernel BUG at kernel/workqueue.c:104!
+Date: Wed, 24 Aug 2005 17:01:52 +0000 (UTC)
+Message-ID: <loom.20050824T183802-165@post.gmane.org>
+References: <430B48A5.4040702@hiramoto.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508241154290.23956@nylon.am.freescale.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 198.208.223.35 (Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 11:55:30AM -0500, Kumar Gala wrote:
-> Removed asm-parisc/segment.h as its not used by anything.
+Karl Hiramoto <karl <at> hiramoto.org> writes:
 
-Did you already remove all the uses outside the parisc-specific bits of
-the tree, eg ISDN, media/video/, sound/oss/, etc?
+> 
+> Hi,  i get this a lot now when doing:  "rmmod  cp2101 io_edgeport "
+> 
+> I try and do the rmmod, because i loose comunications on the USB to 
+> RS-232 adapters.
+> ------------[ cut here ]------------
+> kernel BUG at kernel/workqueue.c:104!
+> invalid operand: 0000 [#1]
 
-If so, ACK, otherwise, NAK.
+Thats because the scheduled work became empty before it was executed.
+ 
+        --  BUG_ON(!list_empty(&work->entry)); --
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Looks like someone forgot to flush_scheduled_work() before exiting. Can you 
+try putting flush_scheduled_work() as the first line in cp2101_exit and 
+whatever is the exit function of io_edgeport?
+
+Just a wild guess. Things might be more complicated than this, but no harm in 
+trying.
+
+Parag
+

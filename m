@@ -1,51 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbVHXRAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVHXRBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbVHXRAH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 13:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbVHXRAG
+	id S1751188AbVHXRBq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 13:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVHXRBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 13:00:06 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:1685 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S1751182AbVHXRAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 13:00:04 -0400
-Date: Wed, 24 Aug 2005 11:59:54 -0500 (CDT)
+	Wed, 24 Aug 2005 13:01:45 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:37616 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S1751185AbVHXRBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 13:01:43 -0400
+Date: Wed, 24 Aug 2005 12:00:59 -0500 (CDT)
 From: Kumar Gala <galak@freescale.com>
 X-X-Sender: galak@nylon.am.freescale.net
 To: linux-kernel@vger.kernel.org
-cc: Andrew Morton <akpm@osdl.org>, lethal@linux-sh.org, linux-sh@m17n.org,
-       kkojima@rr.iij4u.or.jp
-Subject: [PATCH 12/15] sh: remove use of asm/segment.h
+cc: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
+       sparclinux@vger.kernel.org, ultralinux@vger.kernel.org
+Subject: [PATCH 13/15] sparc64: remove use of asm/segment.h
 In-Reply-To: <Pine.LNX.4.61.0508241139100.23956@nylon.am.freescale.net>
-Message-ID: <Pine.LNX.4.61.0508241159050.23956@nylon.am.freescale.net>
+Message-ID: <Pine.LNX.4.61.0508241159570.23956@nylon.am.freescale.net>
 References: <Pine.LNX.4.61.0508241139100.23956@nylon.am.freescale.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removed asm-sh/segment.h as its not used by anything.
+Removed sparc64 architecture specific users of asm/segment.h and
+asm-sparc64/segment.h itself
 
 Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
 ---
-commit ab81566ace65ac748c885d696c11b5ae839fb328
-tree e36ec9a52dc26db8bc20e1c57a9dce5e2b58fd39
-parent e2a2b88b3c3d60b07be7908579bb772e6bd4cd01
-author Kumar K. Gala <kumar.gala@freescale.com> Wed, 24 Aug 2005 11:32:48 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 24 Aug 2005 11:32:48 -0500
+commit 4c42a86cb24cd46d20ccb883b196e29bef6df18f
+tree 83888c48157ecf0783f19cd73634d6446ac29482
+parent 6ee9ded730a875d63e42add1c3094eca7d5a6cdf
+author Kumar K. Gala <kumar.gala@freescale.com> Wed, 24 Aug 2005 11:04:10 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 24 Aug 2005 11:04:10 -0500
 
- include/asm-sh/segment.h |    6 ------
- 1 files changed, 0 insertions(+), 6 deletions(-)
+ b/arch/sparc64/kernel/setup.c     |    1 -
+ b/include/asm-sparc64/processor.h |    1 -
+ include/asm-sparc64/segment.h     |    6 ------
+ 3 files changed, 8 deletions(-)
 
-diff --git a/include/asm-sh/segment.h b/include/asm-sh/segment.h
+diff --git a/arch/sparc64/kernel/setup.c b/arch/sparc64/kernel/setup.c
+--- a/arch/sparc64/kernel/setup.c
++++ b/arch/sparc64/kernel/setup.c
+@@ -33,7 +33,6 @@
+ #include <linux/cpu.h>
+ #include <linux/initrd.h>
+ 
+-#include <asm/segment.h>
+ #include <asm/system.h>
+ #include <asm/io.h>
+ #include <asm/processor.h>
+diff --git a/include/asm-sparc64/processor.h b/include/asm-sparc64/processor.h
+--- a/include/asm-sparc64/processor.h
++++ b/include/asm-sparc64/processor.h
+@@ -18,7 +18,6 @@
+ #include <asm/a.out.h>
+ #include <asm/pstate.h>
+ #include <asm/ptrace.h>
+-#include <asm/segment.h>
+ #include <asm/page.h>
+ 
+ /* The sparc has no problems with write protection */
+diff --git a/include/asm-sparc64/segment.h b/include/asm-sparc64/segment.h
 deleted file mode 100644
---- a/include/asm-sh/segment.h
+--- a/include/asm-sparc64/segment.h
 +++ /dev/null
 @@ -1,6 +0,0 @@
--#ifndef __ASM_SH_SEGMENT_H
--#define __ASM_SH_SEGMENT_H
+-#ifndef __SPARC64_SEGMENT_H
+-#define __SPARC64_SEGMENT_H
 -
 -/* Only here because we have some old header files that expect it.. */
 -
--#endif /* __ASM_SH_SEGMENT_H */
+-#endif

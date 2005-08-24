@@ -1,252 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbVHXVqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVHXVsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbVHXVqh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 17:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVHXVqh
+	id S932296AbVHXVsW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 17:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVHXVsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 17:46:37 -0400
-Received: from pythagoras.zen.co.uk ([212.23.3.140]:41172 "EHLO
-	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
-	id S932293AbVHXVqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 17:46:35 -0400
-Message-ID: <430CEA54.7060803@dresco.co.uk>
-Date: Wed, 24 Aug 2005 22:44:52 +0100
-From: Jon Escombe <lists@dresco.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+	Wed, 24 Aug 2005 17:48:22 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:10503 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932296AbVHXVsV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 17:48:21 -0400
+Message-ID: <430CEB0F.9000004@vmware.com>
+Date: Wed, 24 Aug 2005 14:47:59 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>,
-       linux-ide@vger.kernel.org
-Subject: Re: [Hdaps-devel] Re: HDAPS, Need to park the head for real
-References: <1124205914.4855.14.camel@localhost.localdomain> <20050816200708.GE3425@suse.de>
-In-Reply-To: <20050816200708.GE3425@suse.de>
-Content-Type: multipart/mixed;
- boundary="------------070207020605000201020501"
-X-Hops: 1
-X-Originating-Pythagoras-IP: [82.68.23.174]
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>
+Subject: Re: [PATCH 1/5] Add pagetable allocation notifiers
+References: <200508241841.j7OIf6q4001874@zach-dev.vmware.com> <20050824194816.GK7762@shell0.pdx.osdl.net>
+In-Reply-To: <20050824194816.GK7762@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Aug 2005 21:48:18.0819 (UTC) FILETIME=[8A26F530:01C5A8F5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070207020605000201020501
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Chris Wright wrote:
 
-Jens Axboe wrote:
-
-> Ok, I'll give you some hints to get you started... What you really want
+>* Zachary Amsden (zach@vmware.com) wrote:
+>  
 >
->to do, is:
+>>--- linux-2.6.13.orig/arch/i386/mm/init.c	2005-08-24 09:31:05.000000000 -0700
+>>+++ linux-2.6.13/arch/i386/mm/init.c	2005-08-24 09:31:31.000000000 -0700
+>>@@ -79,6 +79,7 @@ static pte_t * __init one_page_table_ini
+>> {
+>> 	if (pmd_none(*pmd)) {
+>> 		pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+>>+		SetPagePTE(virt_to_page(page_table));
+>>    
+>>
 >
->- Insert a park request at the front of the queue
->- On completion callback on that request, freeze the block queue and
->  schedule it for unfreeze after a given time
+>Xen has this on one_md_table_init() as well for pmd.
+>
+>  
+>
+>> 		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+>> 		if (page_table != pte_offset_kernel(pmd, 0))
+>> 			BUG();	
+>>Index: linux-2.6.13/arch/i386/mm/pageattr.c
+>>===================================================================
+>>--- linux-2.6.13.orig/arch/i386/mm/pageattr.c	2005-08-24 09:31:05.000000000 -0700
+>>+++ linux-2.6.13/arch/i386/mm/pageattr.c	2005-08-24 09:31:31.000000000 -0700
+>>@@ -52,8 +52,9 @@ static struct page *split_large_page(uns
+>> 	address = __pa(address);
+>> 	addr = address & LARGE_PAGE_MASK; 
+>> 	pbase = (pte_t *)page_address(base);
+>>+	SetPagePTE(virt_to_page(pbase));
+>> 	for (i = 0; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE) {
+>>-               set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT,
+>>+		set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT,
+>>    
+>>
+>
+>No need to intersperse whitespace cleanups.
+>
+>  
+>
+>>                                           addr == address ? prot : PAGE_KERNEL));
+>> 	}
+>> 	return base;
+>>@@ -146,6 +147,7 @@ __change_page_attr(struct page *page, pg
+>> 		BUG_ON(!page_count(kpte_page));
+>> 
+>> 		if (cpu_has_pse && (page_count(kpte_page) == 1)) {
+>>+			ClearPagePTE(virt_to_page(kpte));
+>> 			list_add(&kpte_page->lru, &df_list);
+>> 			revert_page(kpte_page, address);
+>> 		}
+>>Index: linux-2.6.13/arch/i386/mm/pgtable.c
+>>===================================================================
+>>--- linux-2.6.13.orig/arch/i386/mm/pgtable.c	2005-08-24 09:31:05.000000000 -0700
+>>+++ linux-2.6.13/arch/i386/mm/pgtable.c	2005-08-24 09:40:22.000000000 -0700
+>>@@ -209,6 +209,7 @@ void pgd_ctor(void *pgd, kmem_cache_t *c
+>> 
+>> 	if (PTRS_PER_PMD == 1) {
+>> 		memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
+>>+		SetPagePDE(virt_to_page(pgd));
+>> 		spin_lock_irqsave(&pgd_lock, flags);
+>> 	}
+>> 
+>>@@ -227,6 +228,7 @@ void pgd_dtor(void *pgd, kmem_cache_t *c
+>> {
+>> 	unsigned long flags; /* can be called from interrupt context */
+>> 
+>>+	ClearPagePDE(virt_to_page(pgd));
+>>    
+>>
+>
+>This reminds me, Xen had some unconditional use of pgd_dtor I need
+>to go back and look at.
 >  
 >
 
-Am attaching a first attempt at a patch - for comments only - please 
-don't apply to a production system. I've not delved into the IDE code 
-before, so I've just been following my nose... In other words - It 
-appears to work for me - but I may be doing something crazy ;)
+It looks quite unneeded:
 
-Having said that, I tested with a utility that repeatedly froze/thawed 
-hundreds of times while really hammering the disk with file copies, and 
-nothing oopsed or failed to checksum afterwards...
+void pgd_dtor(void *pgd, kmem_cache_t *cache, unsigned long unused)
+{
+        unsigned long flags; /* can be called from interrupt context */
 
-To do:
+        if (HAVE_SHARED_KERNEL_PMD)  <--- /* PAE */
+                return;
 
-Move the /proc interface to sysfs. At the moment it's just a simple 
-'echo -n 1 > /proc/ide/hda/freeze' to freeze, and 0 to thaw.
+        spin_lock_irqsave(&pgd_lock, flags);
+        pgd_list_del(pgd);
+        spin_unlock_irqrestore(&pgd_lock, flags);
+}
 
-Address Jens concerns about our userspace code falling over and leaving 
-the machine hung. I favour retaining a binary on/off interface (rather 
-than specifying a timeout up front), but having the IDE code auto-thaw 
-on a timer.. That way we can just keep writing 1's to it while we're 
-checking the accelerometer and wanting to keep it frozen, and if we 
-should die then it'll wake up by itself after a second or so...
+Leaving the dtor conditional saves an indirect function call ;)
 
-Same again for libata (for T43 owners).
-
-Regards,
-Jon.
-
-
-
-______________________________________________________________
-Email via Mailtraq4Free from Enstar (www.mailtraqdirect.co.uk)
---------------070207020605000201020501
-Content-Type: text/x-patch;
- name="ide_freeze.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide_freeze.patch"
-
-diff -urN linux-2.6.13-rc6.original/drivers/ide/ide-io.c linux-2.6.13-rc6/drivers/ide/ide-io.c
---- linux-2.6.13-rc6.original/drivers/ide/ide-io.c	2005-06-17 20:48:29.000000000 +0100
-+++ linux-2.6.13-rc6/drivers/ide/ide-io.c	2005-08-24 20:56:31.000000000 +0100
-@@ -1181,6 +1181,16 @@
- 		}
- 
- 		/*
-+		 * Don't accept a request when the queue is stopped
-+		 * (unless we are resuming from suspend)
-+		 */
-+		if (test_bit(QUEUE_FLAG_STOPPED, &drive->queue->queue_flags) && !blk_pm_resume_request(rq)) {
-+			printk(KERN_ERR "%s: queue is stopped!\n", drive->name);
-+			hwgroup->busy = 0;
-+			break;
-+		}
-+
-+		/*
- 		 * Sanity: don't accept a request that isn't a PM request
- 		 * if we are currently power managed. This is very important as
- 		 * blk_stop_queue() doesn't prevent the elv_next_request()
-@@ -1661,6 +1671,9 @@
- 		where = ELEVATOR_INSERT_FRONT;
- 		rq->flags |= REQ_PREEMPT;
- 	}
-+	if (action == ide_next)
-+		where = ELEVATOR_INSERT_FRONT;
-+
- 	__elv_add_request(drive->queue, rq, where, 0);
- 	ide_do_request(hwgroup, IDE_NO_IRQ);
- 	spin_unlock_irqrestore(&ide_lock, flags);
-diff -urN linux-2.6.13-rc6.original/drivers/ide/ide-proc.c linux-2.6.13-rc6/drivers/ide/ide-proc.c
---- linux-2.6.13-rc6.original/drivers/ide/ide-proc.c	2005-06-17 20:48:29.000000000 +0100
-+++ linux-2.6.13-rc6/drivers/ide/ide-proc.c	2005-08-24 21:51:14.000000000 +0100
-@@ -264,6 +264,122 @@
- 	return -EINVAL;
- }
- 
-+static int proc_ide_read_freeze
-+	(char *page, char **start, off_t off, int count, int *eof, void *data)
-+{
-+	ide_drive_t	*drive = (ide_drive_t *) data;
-+	char		*out = page;
-+	int		len;
-+
-+	proc_ide_settings_warn();
-+
-+	if (test_bit(QUEUE_FLAG_STOPPED, &drive->queue->queue_flags))
-+		out += sprintf(out, "%s: queue is stopped\n", drive->name);
-+	else
-+		out += sprintf(out, "%s: queue not stopped\n", drive->name);
-+
-+	len = out - page;
-+	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
-+}
-+
-+void ide_end_freeze_rq(struct request *rq)
-+{
-+	struct completion	*waiting = rq->waiting;
-+	u8			*argbuf = rq->buffer;
-+
-+	/* Spinlock is already acquired */
-+	if (argbuf[3] == 0xc4) {
-+		blk_stop_queue(rq->q);
-+		printk(KERN_ERR "ide_end_freeze_rq(): Queue stopped...\n");
-+	}
-+	else
-+		printk(KERN_ERR "ide_end_freeze_rq(): Head not parked...\n");
-+/*
-+	blk_stop_queue(rq->q);
-+	printk(KERN_ERR "ide_end_freeze_rq(): Queue stopped...\n");
-+*/
-+	complete(waiting);
-+}
-+
-+static int proc_ide_write_freeze(struct file *file, const char __user *buffer,
-+				   unsigned long count, void *data)
-+{
-+	DECLARE_COMPLETION(wait);
-+	unsigned long	val, flags;
-+	char 		*buf, *s;	
-+	struct request	rq;
-+	ide_drive_t	*drive = (ide_drive_t *) data;
-+	u8 		args[7], *argbuf = args;
-+
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	proc_ide_settings_warn();
-+
-+	if (count >= PAGE_SIZE)
-+		return -EINVAL;
-+
-+	s = buf = (char *)__get_free_page(GFP_USER);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	if (copy_from_user(buf, buffer, count)) {
-+		free_page((unsigned long)buf);
-+		return -EFAULT;
-+	}
-+
-+	buf[count] = '\0';
-+	memset(&rq, 0, sizeof(rq));
-+	memset(&args, 0, sizeof(args));
-+
-+	/* Ought to check we're the right sort of device - i.e. hard disk only */
-+
-+	/* STANDY IMMEDIATE COMMAND (spins down drive - more obvious for testing?)
-+	argbuf[0] = 0xe0;
-+	*/
-+
-+	/* UNLOAD IMMEDIATE COMMAND */
-+	argbuf[0] = 0xe1;
-+	argbuf[1] = 0x44;
-+	argbuf[3] = 0x4c;
-+	argbuf[4] = 0x4e;
-+	argbuf[5] = 0x55;
-+
-+	/* Ought to have some sanity checking around these values */
-+	val = simple_strtoul(buf, &s, 10);
-+	if (val) {
-+		/* Check we're not already frozen */
-+		if (!test_bit(QUEUE_FLAG_STOPPED, &drive->queue->queue_flags)) {
-+			/* Issue the park command & freeze */
-+			ide_init_drive_cmd(&rq);
-+
-+			rq.flags = REQ_DRIVE_TASK;
-+			rq.buffer = argbuf;
-+			rq.waiting = &wait;
-+			rq.end_io = ide_end_freeze_rq;
-+
-+			ide_do_drive_cmd(drive, &rq, ide_next);
-+			wait_for_completion(&wait);
-+			rq.waiting = NULL;
-+		}
-+		else
-+			printk(KERN_ERR "proc_ide_write_freeze(): Queue already stopped...\n");
-+	}
-+	else {
-+		/* Check we are frozen & unfreeze */ 
-+		if (test_bit(QUEUE_FLAG_STOPPED, &drive->queue->queue_flags)) {
-+			spin_lock_irqsave(&ide_lock, flags);
-+			blk_start_queue(drive->queue);
-+			spin_unlock_irqrestore(&ide_lock, flags);
-+			printk(KERN_ERR "proc_ide_write_freeze(): Queue started...\n");
-+		}
-+		else
-+			printk(KERN_ERR "proc_ide_write_freeze(): Queue not stopped...\n");
-+	}
-+	free_page((unsigned long)buf);
-+	return count;
-+}
-+
- int proc_ide_read_capacity
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
-@@ -390,6 +506,7 @@
- 	{ "media",	S_IFREG|S_IRUGO,	proc_ide_read_media,	NULL },
- 	{ "model",	S_IFREG|S_IRUGO,	proc_ide_read_dmodel,	NULL },
- 	{ "settings",	S_IFREG|S_IRUSR|S_IWUSR,proc_ide_read_settings,	proc_ide_write_settings },
-+	{ "freeze",	S_IFREG|S_IRUSR|S_IWUSR,proc_ide_read_freeze,	proc_ide_write_freeze },
- 	{ NULL,	0, NULL, NULL }
- };
- 
-
---------------070207020605000201020501--
+Zach

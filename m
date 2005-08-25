@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbVHYWJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVHYWKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbVHYWJH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 18:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbVHYWJG
+	id S964922AbVHYWKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 18:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbVHYWKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 18:09:06 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:43000 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S964922AbVHYWJF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 18:09:05 -0400
-Message-ID: <430E4177.10600@mvista.com>
-Date: Thu, 25 Aug 2005 15:08:55 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 1.0+ (X11/20050531)
-MIME-Version: 1.0
-To: Jordan Crouse <jordan.crouse@amd.com>
-CC: linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: PowerOP Take 2 0/3 Intro
-References: <20050825025158.GA28662@slurryseal.ddns.mvista.com> <20050825210940.GX31472@cosmic.amd.com>
-In-Reply-To: <20050825210940.GX31472@cosmic.amd.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Aug 2005 18:10:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13510 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S964922AbVHYWKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 18:10:08 -0400
+Date: Thu, 25 Aug 2005 23:13:14 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, bcollins@debian.org
+Subject: [PATCH] late spinlock initialization in ieee1394/ohci
+Message-ID: <20050825221314.GY9322@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jordan Crouse wrote:
-> Todd - do you have a ChangeLog from Take 1? :)
+spinlock used in irq handler should be initialized before registering
+irq, even if we know that our device has interrupts disabled; handler
+is registered shared and taking spinlock is done unconditionally.  As
+it is, we can and do get oopsen on boot for some configuration, depending
+on irq routing - I've got a reproducer.
 
-Right, here's what's changed in this version...
-
-The generic structure of an operating point as an array of integers is 
-dropped.  A struct powerop_point is now an entirely backend-defined 
-struct of arbitrary fields.
-
-There is no more PowerOP core layer; all data structures and functions 
-for core functionality are provided by the machine-specific backend.
-
-The diagnostic sysfs UI has been split out into a separate, optional 
-patch.  A more full-featured UI allowing operating point creation and 
-activation via sysfs has also been provided in that patch.  This UI 
-primarily serves as an example for experimentation purposes, but is 
-pretty close to what a basic userspace-based policy manager might need 
-to switch operating points in response to infrequent changes in system 
-state.
-
-The UI also embodies the notion of a list of "named operating points" 
-that could be registered by other means, such as loading a module with 
-data structures that encode the desired operating points (as David 
-Brownell has suggested).  The named operating points registered from 
-such other interfaces can also be activated from the sysfs UI (that is, 
-the hardware can be told to run at that operating point), as an example 
-of how to tie in userspace policy managers with such a scheme.
-
-The example platform backend this time is for an embedded system: the TI 
-OMAP1 family of processors used for numerous mobile phones and PDAs.  It 
-may better illustrate why managing multiple power parameters might be a 
-useful capability.  I haven't put out an example of cpufreq integration 
-this time, but the idea has changed little from before.
-
-In case it's getting lost in all these details, the main point of all 
-this is to pose the question: "are arbitrary power parameters arranged 
-into a set with mutually consistent values (called here an operating 
-point) a good low-level abstraction for system power management of a 
-wide variety of platforms?"  Thanks,
-
--- 
-Todd
+Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+----
+diff -urN RC13-rc7-base/drivers/ieee1394/ohci1394.c current/drivers/ieee1394/ohci1394.c
+--- RC13-rc7-base/drivers/ieee1394/ohci1394.c	2005-08-24 01:56:37.000000000 -0400
++++ current/drivers/ieee1394/ohci1394.c	2005-08-25 18:02:49.000000000 -0400
+@@ -478,7 +478,6 @@
+ 	int num_ports, i;
+ 
+ 	spin_lock_init(&ohci->phy_reg_lock);
+-	spin_lock_init(&ohci->event_lock);
+ 
+ 	/* Put some defaults to these undefined bus options */
+ 	buf = reg_read(ohci, OHCI1394_BusOptions);
+@@ -3402,7 +3401,14 @@
+ 	/* We hopefully don't have to pre-allocate IT DMA like we did
+ 	 * for IR DMA above. Allocate it on-demand and mark inactive. */
+ 	ohci->it_legacy_context.ohci = NULL;
++	spin_lock_init(&ohci->event_lock);
+ 
++	/*
++	 * interrupts are disabled, all right, but... due to SA_SHIRQ we
++	 * might get called anyway.  We'll see no event, of course, but
++	 * we need to get to that "no event", so enough should be initialized
++	 * by that point.
++	 */
+ 	if (request_irq(dev->irq, ohci_irq_handler, SA_SHIRQ,
+ 			 OHCI1394_DRIVER_NAME, ohci))
+ 		FAIL(-ENOMEM, "Failed to allocate shared interrupt %d", dev->irq);

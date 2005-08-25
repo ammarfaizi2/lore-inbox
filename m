@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbVHYXZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbVHYXaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965022AbVHYXZR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 19:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbVHYXZR
+	id S965023AbVHYXaB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 19:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbVHYXaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 19:25:17 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:17024 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965022AbVHYXZQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 19:25:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=mU4LgBd+5c0Pns6yoCvbMCxShXcSQ60xAsa0g2jk2pmE11Y6G+wuT7A26o7bglSeuneCrK5P+Y5PhsMugsGlju1WoYdKX7tbqdwFbR4GtqJbA/Ai6oVSwvPYH+3K6SQUYp+l3fz1riEnwM90xtYPxVMcuKIhwid1vCuJnns3QSM=
-Message-ID: <430E5355.5080601@gmail.com>
-Date: Fri, 26 Aug 2005 07:25:09 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sylvain Meyer <sylvain.meyer@worldonline.fr>
-CC: Sebastian Kaergel <mailing@wodkahexe.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.13-rc7
-References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>	<20050825194954.6db42e90.mailing@wodkahexe.de>	<430DF08C.8010604@gmail.com> <20050825210148.4f60e531.mailing@wodkahexe.de> <430E1246.5020107@worldonline.fr>
-In-Reply-To: <430E1246.5020107@worldonline.fr>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Thu, 25 Aug 2005 19:30:01 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:47349 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S965023AbVHYXaA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 19:30:00 -0400
+Subject: Re: 2.6.13-rc7-rt1
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050825062651.GA26781@elte.hu>
+References: <20050825062651.GA26781@elte.hu>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Thu, 25 Aug 2005 16:29:56 -0700
+Message-Id: <1125012596.14592.12.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry. Here's the start of the thread.
+Devastating latency on a 3Ghz xeon .. Maybe the raw_spinlock in the
+timer base is creating a unbounded latency?
 
-Tony
+Daniel
 
-On Tue, 23 Aug 2005 22:08:13 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
+( softirq-timer/1-13   |#1): new 66088 us maximum-latency critical section.
+ => started at timestamp 1857957769: <__down_mutex+0x5f/0x295>
+ =>   ended at timestamp 1858023857: <_raw_spin_unlock_irq+0x16/0x39>
 
-> > Antonino A. Daplas:
-> >   intelfb/fbdev: Save info->flags in a local variable
-> > Sylvain Meyer:
-> >   intelfb: Do not ioremap entire graphics aperture
+Call Trace:<ffffffff80144816>{check_critical_timing+491} <ffffffff8047732a>{rt_secret_rebuild+0}
+       <ffffffff80144adb>{trace_irqs_on+100} <ffffffff80508da5>{_raw_spin_unlock_irq+22}
+       <ffffffff8013303b>{run_timer_softirq+1916} <ffffffff8012f0d6>{ksoftirqd+241}
+       <ffffffff8012efe5>{ksoftirqd+0} <ffffffff8013f961>{kthread+218}
+       <ffffffff8010e9c2>{child_rip+8} <ffffffff8013f887>{kthread+0}
+       <ffffffff8010e9ba>{child_rip+0}
+---------------------------
+| preempt count: 00000000 ]
+| 0-level deep critical section nesting:
+----------------------------------------
 
-One of these changes broke intelfb. The same .config from 2.6.13-rc6
-does no longer work for -rc7. After booting the screen stays black, but
-i can type blindly. I can also start X. dmesg does not show anything
-unusual. any ideas?
+ =>   dump-end timestamp 1858101914
+
+
+

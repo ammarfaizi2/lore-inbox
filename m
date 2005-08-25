@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbVHYU4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbVHYU5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbVHYU4c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 16:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVHYU4c
+	id S1751373AbVHYU5s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 16:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVHYU5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 16:56:32 -0400
-Received: from vena.lwn.net ([206.168.112.25]:28388 "HELO lwn.net")
-	by vger.kernel.org with SMTP id S1751413AbVHYU4c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 16:56:32 -0400
-Message-ID: <20050825205629.22372.qmail@lwn.net>
-To: torvalds@osdl.org
-Subject: [PATCH] fix adm9240 oops
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-From: Jonathan Corbet <corbet@lwn.net>
-Date: Thu, 25 Aug 2005 14:56:29 -0600
+	Thu, 25 Aug 2005 16:57:48 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:24570 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S1751373AbVHYU5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 16:57:47 -0400
+Message-ID: <430E30B2.1020700@nortel.com>
+Date: Thu, 25 Aug 2005 14:57:22 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+CC: linux-kernel@vger.kernel.org, tom.anderl@gmail.com
+Subject: Re: [OT] volatile keyword
+References: <Pine.LNX.4.58.0508251335280.4315@shell2.speakeasy.net>
+In-Reply-To: <Pine.LNX.4.58.0508251335280.4315@shell2.speakeasy.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The adm9240 driver, in adm9240_detect(), allocates a structure.  The
-error path attempts to kfree() a subfield of that structure, resulting
-in an oops (or slab corruption) if the hardware is not present.  This
-one seems worth fixing for 2.6.13.
+Vadim Lobanov wrote:
 
-jon
+> I'm positive I'm doing something wrong here. In fact, I bet it's the
+> volatile cast within the loop that's wrong; but I'm not sure how to do
+> it correctly. Any help / pointers / discussion would be appreciated.
 
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+You need to cast is as dereferencing a volatile pointer.
 
---- 2.6.13-rc7/drivers/hwmon/adm9240.c.orig	2005-08-25 14:30:04.000000000 -0600
-+++ 2.6.13-rc7/drivers/hwmon/adm9240.c	2005-08-25 14:30:26.000000000 -0600
-@@ -616,7 +616,7 @@ static int adm9240_detect(struct i2c_ada
- 
- 	return 0;
- exit_free:
--	kfree(new_client);
-+	kfree(data);
- exit:
- 	return err;
- }
+Chris

@@ -1,102 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVHYHkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751561AbVHYHkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbVHYHkG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 03:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbVHYHkG
+	id S1751561AbVHYHkN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 03:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbVHYHkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 03:40:06 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:23421 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751561AbVHYHkF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 03:40:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=L9E1Cht16PT9YpW9VViSh7ajcl/2uPKW/a2nd9/PzFqPJcU3vn0WT17e+Uv4N9IkDpnB223llUNRmyqyUx9pFSYw3T20lbZCs6DGHbA4otImFLwvTkuz+my2gt5KnaoAftUNFJCO7V2u5+jieuD6o3b/emuREN38SACms3VxoQE=
-Message-ID: <3faf0568050825004051ed3bd3@mail.gmail.com>
-Date: Thu, 25 Aug 2005 13:10:02 +0530
-From: vamsi krishna <vamsi.krishnak@gmail.com>
-To: Shwetha V <shwethav@sasken.com>
-Subject: Re: kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <dejie7$m6i$1@ncc-w.sasken.com>
+	Thu, 25 Aug 2005 03:40:13 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:51345 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751561AbVHYHkM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 03:40:12 -0400
+Date: Thu, 25 Aug 2005 09:40:54 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Jens Axboe <axboe@suse.de>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CFQ + 2.6.13-rc4-RT-V0.7.52-02 = BUG: scheduling with irqs disabled
+Message-ID: <20050825074054.GA30650@elte.hu>
+References: <20050824174702.GL28272@suse.de> <Pine.OSF.4.05.10508242321500.13279-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <ddi2qu$74p$1@ncc-nt.nt.sasken.com> <dejie7$m6i$1@ncc-w.sasken.com>
+In-Reply-To: <Pine.OSF.4.05.10508242321500.13279-100000@da410.phys.au.dk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-look at http://www.kernelnewbies.org
 
-also it has a section on books. you can also use IRC #kernelnewbies 
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-On 8/25/05, Shwetha V <shwethav@sasken.com> wrote:
-> 
->  Could anyone inform which will be a good guide to start learning the linux
-> kernel programming.
-> 
-> --
-> Shwetha V
-> Software Engineer - Networks Business Unit
-> Sasken Communication Technologies Ltd.
-> Gold Hill Square, Hosur Road, Bangalore.
-> Ph: +91-80-25355501 Ext: 5799
-> Web: www.sasken.com
-> 
-> 
-> "Srinivas K" <srinuk@sasken.com> wrote in message
-> news:ddi2qu$74p$1@ncc-nt.nt.sasken.com...
-> > hi friends,
-> >
-> > post concepts regarding linux kernel which will be useful
-> >
-> >
-> > --
-> > Srinivasa Rao K
-> > Systems Engineer
-> > Nortel Business Unit
-> > Sasken Communication Technologies Ltd
-> > 139/25, Ring Road, Domlur
-> > Bangalore - 560 071
-> > Ph: 2535 5501 Extn.:4804
-> > mail : srinuk@sasken.com
-> >
-> > "SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY
-> > Mercer
-> > Survey 2004"
-> >
-> >
-> > SASKEN BUSINESS DISCLAIMER
-> > This message may contain confidential, proprietary or legally Privileged
-> > information. In case you are not the original intended Recipient of the
-> > message, you must not, directly or indirectly, use, Disclose, distribute,
-> > print, or copy any part of this message and you are requested to delete it
-> > and inform the sender. Any views expressed in this message are those of
-> > the
-> > individual sender unless otherwise stated. Nothing contained in this
-> > message
-> > shall be construed as an offer or acceptance of any offer by Sasken
-> > Communication Technologies Limited ("Sasken") unless sent with that
-> > express
-> > intent and with due authority of Sasken. Sasken has taken enough
-> > precautions
-> > to prevent the spread of viruses. However the company accepts no liability
-> > for any damage caused by any virus transmitted by this email
-> >
-> >
-> 
-> 
-> 
-> "SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer Survey 2004"
-> 
-> 
->                            SASKEN BUSINESS DISCLAIMER
-> This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Yes, spin_lock(lock) is blocking since lock is mutex, not a spinlock 
+> under preempt-rt. But isn't it easy to fix? Replace the two lines by 
+> spin_lock_irqsave(flags). That would work for both preempt-rt and 
+> !preempt-rt.
+
+at this moment we do not pester upstream developers with PREEMPT_RT 
+details. It is not at all clear at this moment whether and if how any 
+API changes will look like. So there's nothing "to fix" at all!!
+
+for the cases where there's a clear cleanup potential from merging flags 
+and locks management we submit separate patches, which stand on their 
+own. It happened already, and it will happen in the future. The rest 
+Jens does not need to care about.
+
+_often_, trouble on the PREEMPT_RT side highlights some potential 
+trouble on the upstream side. Unclean locking rules, unecessary/unsafe 
+disabling of interrupts, etc. But no way is there a 1:1 relationship.  
+E.g. in this particular case i already fixed the warning in the current 
+-RT tree.
+
+	Ingo

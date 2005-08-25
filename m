@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbVHYAvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVHYA6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbVHYAvD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 20:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbVHYAvD
+	id S932460AbVHYA6E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 20:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVHYA6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 20:51:03 -0400
-Received: from gate.crashing.org ([63.228.1.57]:27558 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932455AbVHYAvC (ORCPT
+	Wed, 24 Aug 2005 20:58:04 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37095 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932456AbVHYA6C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 20:51:02 -0400
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linas Vepstas <linas@austin.ibm.com>, John Rose <johnrose@austin.ibm.com>,
-       akpm@osdl.org, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <17165.3205.505386.187453@cargo.ozlabs.ibm.com>
-References: <20050823231817.829359000@bilge>
-	 <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com>
-	 <1124898331.24668.33.camel@sinatra.austin.ibm.com>
-	 <20050824162959.GC25174@austin.ibm.com>
-	 <17165.3205.505386.187453@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 10:49:03 +1000
-Message-Id: <1124930943.5159.168.camel@gaston>
+	Wed, 24 Aug 2005 20:58:02 -0400
+Date: Wed, 24 Aug 2005 17:57:51 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: dino@in.ibm.com, paulus@samba.org, akpm@osdl.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mingo@elte.hu, hawkes@sgi.com
+Subject: Re: [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
+Message-Id: <20050824175751.3a45d031.pj@sgi.com>
+In-Reply-To: <430D0A95.30208@yahoo.com.au>
+References: <20050824111510.11478.49764.sendpatchset@jackhammer.engr.sgi.com>
+	<20050824112640.GB5197@in.ibm.com>
+	<20050824044648.66f7e25a.pj@sgi.com>
+	<430C617E.8080002@yahoo.com.au>
+	<20050824133107.2ca733c3.pj@sgi.com>
+	<430D0A95.30208@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick wrote:
+> and that it looks like what I was thinking about.
 
-> I think what I'd like to see is that when a slot gets isolated and the
-> driver doesn't have recovery code, the kernel calls the driver's
-> unplug function and generates a hotplug event to udev.  Ideally this
-> would be a variant of the remove event which would say "and by the
-> way, please try replugging this slot when you've finished handling the
-> remove event" or something along those lines.
+Ok - I almost have my crosstool installation healthy again.
+I will actually see to it that my patch builds this time for
+whatever arch's I can test on, and send this simple disabling
+of sched domain mangling from cpuset-land as a real patch.
 
-I'm still trying to understand why we care. What prevents us from just
-uplugging the previous device and re-plugging right away ? After all,
-the driver->remove() function is supposed to guarantee that no HW access
-will happen after it returns and that everything was unmapped.
+I have a couple other commitments - it will be 6 to 12 hours
+before I send it in, unless someone asks for a half-baked
+version sooner.
 
-Of course, we'll possibly end up with a different ethX or whatever, but
-I don't see the problem with that ... It's hopeless to think we might
-manage to keep that identical anyway, unless the driver implements
-proper error recovery.
+> We need to revert to a stable behaviour, however we can't risk
+> major surgery to get there.
 
-Ben.
+Yup.  Agreed.
 
+Thanks for looking into this, Nick.
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

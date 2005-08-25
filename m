@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVHYQBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbVHYQEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVHYQBj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 12:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbVHYQBj
+	id S932225AbVHYQEB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 12:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVHYQEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 12:01:39 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52242 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932219AbVHYQBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 12:01:38 -0400
-Date: Thu, 25 Aug 2005 18:01:37 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Pekka Enberg <penberg@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC: -mm patch] kcalloc(): INT_MAX -> ULONG_MAX
-Message-ID: <20050825160136.GA6471@stusta.de>
-References: <20050820193237.GG3615@stusta.de> <84144f0205082112477979b053@mail.gmail.com> <20050821195434.GC5726@stusta.de> <84144f0205082113123049afe2@mail.gmail.com>
+	Thu, 25 Aug 2005 12:04:01 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63879 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932225AbVHYQEA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 12:04:00 -0400
+Date: Thu, 25 Aug 2005 08:20:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dino@in.ibm.com
+Cc: nickpiggin@yahoo.com.au, paulus@samba.org, akpm@osdl.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mingo@elte.hu, hawkes@sgi.com
+Subject: Re: [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
+Message-Id: <20050825082004.118554de.pj@sgi.com>
+In-Reply-To: <20050825144156.GA5194@in.ibm.com>
+References: <20050824111510.11478.49764.sendpatchset@jackhammer.engr.sgi.com>
+	<20050824112640.GB5197@in.ibm.com>
+	<20050824044648.66f7e25a.pj@sgi.com>
+	<430C617E.8080002@yahoo.com.au>
+	<20050824133107.2ca733c3.pj@sgi.com>
+	<20050825144156.GA5194@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <84144f0205082113123049afe2@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 21, 2005 at 11:12:06PM +0300, Pekka Enberg wrote:
-> On Sun, Aug 21, 2005 at 10:47:13PM +0300, Pekka Enberg wrote:
-> > > You'll probably get even better code if you change the above to:
-> > >
-> > >     if (size != 0 && n > ULONG_MAX / size)
-> > >
-> > > Reason being that size is virtually always a constant so the compiler
-> > > can evaluate the division at compile-time.
-> 
-> On 8/21/05, Adrian Bunk <bunk@stusta.de> wrote:
-> > I doubt this would make any difference.
-> > 
-> > And besides, except in some rare cases, the second argument is a
-> > sizeof(foo) whose size is already known at compile time.
-> 
-> Yes, that's my point. The second argument (size) is virtually always
-> sizeof() whereas the first one (n) is sometimes a variable. GCC
-> currently does not optimize away the division when n is not a
-> constant.
-> 
-> Looking at 2.6.13-rc6-mm1, we have roughly 15 callers with the first
-> parameter being a variable. The compiler would be able to get rid of
-> one comparison and division instruction for each of these so looks
-> like we could shave off some more bytes...
+Dinakar wrote:
+> I'll ack this for now until I fix the problems that I am seeing
+> on ppc64
 
-With gcc 4.0.1:
+Thanks, Dinakar.
 
-    text           data     bss     dec             hex filename
-25675334        5851630 1819976 33346940        1fcd57c vmlinux-my-patch
-25675366        5851630 1819976 33346972        1fcd59c vmlinux-your-patch
+Linus - do *NOT* actually apply the literal patch that Dinakar ack'd.
 
-INT_MAX -> ULONG_MAX is correct, even though it doesn't seem to make a 
-difference with today's gcc.
+ 1) It's logic is backwards - arrgh.
+ 2) It doesn't undo the other attempt to partially disable this.
+ 3) It's not a formally submitted and signed off patch from me, but
+    just a (useful) topic of discussion.
 
-Trying to change the code in a way that gcc will produce better code 
-doesn't seem to be worth it (except in extreme hot paths).
+I have a pair of patches running through crosstool on several arch's now.
 
->                             Pekka
+    The first patch undoes the partial disable of the cpuset to sched
+    domain connection that is in 2.6.13-rc7 now.
 
-cu
-Adrian
+    The second patch does what Nick and Dinakar now agree is right -
+    totally disabling the ability for exclusive cpusets to define
+    sched domains in 2.6.13.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

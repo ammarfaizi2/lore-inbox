@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbVHYMgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVHYMkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbVHYMgw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 08:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbVHYMgw
+	id S964965AbVHYMkg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 08:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbVHYMkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 08:36:52 -0400
-Received: from nproxy.gmail.com ([64.233.182.202]:64716 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964960AbVHYMgw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 08:36:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mT9cJVGXEu2ph/zX6GhCdZvbjuFKWh1kcEG145Q51U+Us49WqPO9VXapOuQUt5U3C4PzshNe8aG+HoAEPc4raH8oEJxHbpLaYgXeXNh32yAOYT2kmhTbJe2twsLV/iX+mECQPNpThtp293uwNEYenFOIoHQO+B6HR1wQtA7OAbg=
-Message-ID: <2cd57c90050825053610b241de@mail.gmail.com>
-Date: Thu, 25 Aug 2005 20:36:45 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Pekka J Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH] VFS: update documentation
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Anton Altaparmakov <aia21@cam.ac.uk>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Carsten Otte <cotte.de@gmail.com>
-In-Reply-To: <Pine.LNX.4.58.0508250921460.30979@sbz-30.cs.Helsinki.FI>
+	Thu, 25 Aug 2005 08:40:36 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:52733 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964963AbVHYMkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 08:40:35 -0400
+From: Ian Campbell <ijc@hellion.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-cifs-client@lists.samba.org,
+       Asser =?ISO-8859-1?Q?Fem=F8?= <asser@diku.dk>
+In-Reply-To: <20050823152331.GA10486@mail.shareable.org>
+References: <20050823130023.GB8305@diku.dk>
+	 <20050823152331.GA10486@mail.shareable.org>
+Content-Type: text/plain
+Date: Thu, 25 Aug 2005 13:40:18 +0100
+Message-Id: <1124973618.17190.9.camel@icampbell-debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0508250921460.30979@sbz-30.cs.Helsinki.FI>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 192.168.3.3
+X-SA-Exim-Mail-From: ijc@hellion.org.uk
+Subject: Re: dnotify/inotify and vfs questions
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/25/05, Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
-
+On Tue, 2005-08-23 at 16:23 +0100, Jamie Lokier wrote:
+>     <receive some request>...
+>     if (any_dnotify_or_inotify_events_pending) {
+>         read_dnotify_or_inotify_events();
+>         if (any_events_related_to(file)) {
+>             store_in_userspace_stat_cache(file, stat(file));
+>         }
+>     }
+>     stat_info = lookup_userspace_stat_cache(file);
 > 
-> @@ -392,6 +585,23 @@ otherwise noted.
->    fasync: called by the fcntl(2) system call when asynchronous
->         (non-blocking) mode is enabled for a file
-> 
-> +  lock: called by the fcntl(2) system call for F_GETLK, F_SETLK, and F_SETLKW
-> +       commands
-> +
-> +  readv: called by the readv(2) system call
-> +
-> +  writev: called by the readv(2) system call
+> Now that's a silly way to save one system call in the fast path by itself.
 
-s/readv/writev/
+I'm not that familiar with inotify internals but doesn't
+read_dnotify_or_inotify_events() or
+any_dnotify_or_inotify_events_pending() involve a syscall?
 
-> +
-> +  sendfile: called by the sendfile(2) system call
-> +
-> +  get_unmapped_area: called by the mmap(2) system call
-> +
-> +  check_flags: called by the fcntl(2) system call for F_SETFL command
-> +
-> +  dir_notify: called by the fcntl(2) system call for F_NOTIFY command
-> +
-> +  flock: called by the flock(2) system call
-> +
-
-
+Ian.
 -- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+Ian Campbell
+Current Noise: Primordial - The Coffin Ships
+
+Today is the first day of the rest of the mess.
+

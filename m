@@ -1,105 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVHYOyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbVHYO4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbVHYOyr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbVHYOyr
+	id S1750984AbVHYO4P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVHYO4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:54:47 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:1065 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S1750945AbVHYOyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:54:46 -0400
-Date: Thu, 25 Aug 2005 07:54:45 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: question on memory barrier
-Message-ID: <20050825145445.GD7319@hexapodia.org>
-References: <20050824194836.GA26526@hexapodia.org> <20050825091403.6380.qmail@web25805.mail.ukl.yahoo.com>
+	Thu, 25 Aug 2005 10:56:14 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:51342 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750978AbVHYO4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 10:56:14 -0400
+Date: Thu, 25 Aug 2005 15:56:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] removes filp_count_lock and changes nr_files type to atomic_t
+Message-ID: <20050825145608.GA15733@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Eric Dumazet <dada1@cosmosbay.com>, Andrew Morton <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20050824214610.GA3675@localhost.localdomain> <1124956563.3222.8.camel@laptopd505.fenrus.org> <430D8518.8020502@cosmosbay.com> <20050825090854.GA9740@infradead.org> <430D8CA3.3030709@cosmosbay.com> <20050825092322.GA9902@infradead.org> <430DA052.9070908@cosmosbay.com> <1124968309.5856.9.camel@npiggin-nld.site> <430DB8FA.4080009@cosmosbay.com> <430DDAF2.6030601@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050825091403.6380.qmail@web25805.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+In-Reply-To: <430DDAF2.6030601@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 11:14:03AM +0200, moreau francis wrote:
-> --- Andy Isaacson <adi@hexapodia.org> a écrit :
-> > The first register write will be completed before the second register
-> > write because you use writel, which is defined to have the semantics you
-> > want.  (It uses a platform-specific method to guarantee this, possibly
-> > "volatile" or "asm("eieio")" or whatever method your platform requires.)
+On Fri, Aug 26, 2005 at 12:51:30AM +1000, Nick Piggin wrote:
+> Eric Dumazet wrote:
+> >Nick Piggin a ?crit :
+> >
 > 
-> I'm compiling Linux kernel for a MIPS32 cpu.
-
-Funny, me too.  (Well, mostly MIPS64, but some MIPS32.)
-
-> On my platform, writel seems
-> expand to:
+> >>Would you just be able to add the atomic sysctl handler that
+> >>Christoph suggested?
+> >>
+> >
+> >Quite a lot of work indeed, and it would force to convert 3 int 
+> >(nr_files, nr_free_files, max_files) to 3 atomic_t. I feel bad 
+> >introducing a lot of sysctl rework for a tiny change (removing 
+> >filp_count_lock)
+> >
 > 
->     static inline writel(u32 val, volatile void __iomem *mem)
->     {
->             volatile u32 *__mem;
->             u32 __val;
-> 
->             __mem = (void *)((unsigned long)(mem));
->             __val = val;
-> 
->             *__mem = __val;
->     }
-> 
-> I don't see the magic in it since "volatile" keyword do not handle memory
-> ordering constraints...Linus wrote on volatile keyword, see
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0401.0/1387.html
+> True, I didn't notice that.
 
-Did you *read* the post?
+Well, it would with a generic atomic_t handler.  With a special
+handler for this situation it's not needed.
 
-# The _only_ acceptable use of "volatile" is basically:
-# 
-# - in _code_ (not data structures), where we might mark a place as making
-#   a special type of access. For example, in the PCI MMIO read functions,
-#   rather than use inline assembly to force the particular access (which
-#   would work equally well), we can force the pointer to a volatile type.
-
-That's *exactly* what the writel you quote above does!
-
-The thing that Linus is railing against is stupidity like
-
-struct my_dev_regs {
-	volatile u8 reg0;
-};
-
-That "volatile" does not do what you might think it would do.
-
-To return to the point directly at hand - on MIPS architectures to date,
-simply doing your memory access through a "volatile u32 *" is sufficient
-to ensure that the IO hits the bus (assuming that your pointer points to
-kseg1, not kseg0, or is otherwise uncached), because 'volatile' forces
-gcc to generate a "sw" for each store, and all MIPS so far have been
-designed so that multiple uncached writes to mmio locations do generate
-multiple bus transactions.
-
-I'm not an architect, but I think it would be possible to build a MIPS
-where this was not the case, and require additional contortions from
-users.  Such a MIPS would suck to program and would probably fail in the
-marketplace, and there's no compelling benefit to doing so; ergo, I
-would expect "volatile" to continue to be sufficient on MIPS.
-
-> make drivers/mydev.i should do the job
-
-Thanks for the pointer!  
-
-> but preprocessor doesn't expand inline
-> functions. So I won't be able to see the expanded writel function.
-
-But you can simply search backwards in the .i file!  The whole point of
-inline functions is that they're present in the postprocessed text.  The
-vim command "#" is useful for this.
-
--andy

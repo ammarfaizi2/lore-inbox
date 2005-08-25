@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbVHYQEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVHYQQM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbVHYQEB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 12:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVHYQEB
+	id S932214AbVHYQQM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 12:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbVHYQQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 12:04:01 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:63879 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932225AbVHYQEA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 12:04:00 -0400
-Date: Thu, 25 Aug 2005 08:20:04 -0700
-From: Paul Jackson <pj@sgi.com>
-To: dino@in.ibm.com
-Cc: nickpiggin@yahoo.com.au, paulus@samba.org, akpm@osdl.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, mingo@elte.hu, hawkes@sgi.com
-Subject: Re: [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
-Message-Id: <20050825082004.118554de.pj@sgi.com>
-In-Reply-To: <20050825144156.GA5194@in.ibm.com>
-References: <20050824111510.11478.49764.sendpatchset@jackhammer.engr.sgi.com>
-	<20050824112640.GB5197@in.ibm.com>
-	<20050824044648.66f7e25a.pj@sgi.com>
-	<430C617E.8080002@yahoo.com.au>
-	<20050824133107.2ca733c3.pj@sgi.com>
-	<20050825144156.GA5194@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Thu, 25 Aug 2005 12:16:11 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:42904 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932214AbVHYQQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 12:16:11 -0400
+Subject: Re: [RFC] RT-patch update to remove the global pi_lock
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20050825063539.GB27291@elte.hu>
+References: <1124739657.5809.6.camel@localhost.localdomain>
+	 <1124739895.5809.11.camel@localhost.localdomain>
+	 <1124749192.17515.16.camel@dhcp153.mvista.com>
+	 <1124756775.5350.14.camel@localhost.localdomain>
+	 <1124758291.9158.17.camel@dhcp153.mvista.com>
+	 <1124760725.5350.47.camel@localhost.localdomain>
+	 <1124768282.5350.69.camel@localhost.localdomain>
+	 <1124908080.5604.22.camel@localhost.localdomain>
+	 <1124917003.5711.8.camel@localhost.localdomain>
+	 <1124932391.5527.15.camel@localhost.localdomain>
+	 <20050825063539.GB27291@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 25 Aug 2005 12:15:54 -0400
+Message-Id: <1124986554.5148.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar wrote:
-> I'll ack this for now until I fix the problems that I am seeing
-> on ppc64
+On Thu, 2005-08-25 at 08:35 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> > Well, after turning off hrtimers, I keep getting one bug. A possible 
+> > soft lockup with the ext3 code. But this didn't seem to be caused by 
+> > the changes I made. So just to be sure, I ran my test on the vanilla 
+> > 2.6.13-rc6-rt11 and it gave the same bug too.  So, it looks like my 
+> > changes are now at par with what is out there with the rt11 release. 
+> > They both give the same bug! ;-)
+> 
+> does the system truly lock up, or is this some transitional condition?  
+> In any case, i agree that this should be debugged independently of the 
+> pi_lock patch.
 
-Thanks, Dinakar.
+Hmm, I forgot that you took out the bit_spin_lock fixes.  I think this
+may be caused by them.  I haven't look further into it yet. 
 
-Linus - do *NOT* actually apply the literal patch that Dinakar ack'd.
+Oh, and I'm sending you this on your latest patch with my pi_lock patch
+applied. (no debugging turned on either and this is an SMP machine).
 
- 1) It's logic is backwards - arrgh.
- 2) It doesn't undo the other attempt to partially disable this.
- 3) It's not a formally submitted and signed off patch from me, but
-    just a (useful) topic of discussion.
+-- Steve
 
-I have a pair of patches running through crosstool on several arch's now.
-
-    The first patch undoes the partial disable of the cpuset to sched
-    domain connection that is in 2.6.13-rc7 now.
-
-    The second patch does what Nick and Dinakar now agree is right -
-    totally disabling the ability for exclusive cpusets to define
-    sched domains in 2.6.13.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

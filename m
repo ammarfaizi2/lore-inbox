@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVHYWKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbVHYWMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbVHYWKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 18:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbVHYWKJ
+	id S964935AbVHYWMn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 18:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVHYWMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 18:10:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13510 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S964922AbVHYWKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 18:10:08 -0400
-Date: Thu, 25 Aug 2005 23:13:14 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, bcollins@debian.org
-Subject: [PATCH] late spinlock initialization in ieee1394/ohci
-Message-ID: <20050825221314.GY9322@parcelfarce.linux.theplanet.co.uk>
+	Thu, 25 Aug 2005 18:12:43 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8699 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S964935AbVHYWMm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 18:12:42 -0400
+Subject: Re: 2.6.13-rc7-rt1
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050825215451.GA7479@elte.hu>
+References: <20050825062651.GA26781@elte.hu>
+	 <1125006373.10901.11.camel@dhcp153.mvista.com>
+	 <20050825215451.GA7479@elte.hu>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Thu, 25 Aug 2005 15:11:25 -0700
+Message-Id: <1125007885.14592.2.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-spinlock used in irq handler should be initialized before registering
-irq, even if we know that our device has interrupts disabled; handler
-is registered shared and taking spinlock is done unconditionally.  As
-it is, we can and do get oopsen on boot for some configuration, depending
-on irq routing - I've got a reproducer.
+On Thu, 2005-08-25 at 23:54 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> > @@ -257,6 +257,7 @@ void check_preempt_wakeup(struct task_st
+> >  	 * hangs and race conditions.
+> >  	 */
+> >  	if (!preempt_count() &&
+> > +		!__raw_irqs_disabled() &&
+> >  		p->prio < current->prio &&
+> >  		rt_task(p) &&
+> >  		(current->rcu_read_lock_nesting != 0 ||
+> 
+> did you get a false positive? If yes, in what code/driver?
 
-Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-----
-diff -urN RC13-rc7-base/drivers/ieee1394/ohci1394.c current/drivers/ieee1394/ohci1394.c
---- RC13-rc7-base/drivers/ieee1394/ohci1394.c	2005-08-24 01:56:37.000000000 -0400
-+++ current/drivers/ieee1394/ohci1394.c	2005-08-25 18:02:49.000000000 -0400
-@@ -478,7 +478,6 @@
- 	int num_ports, i;
- 
- 	spin_lock_init(&ohci->phy_reg_lock);
--	spin_lock_init(&ohci->event_lock);
- 
- 	/* Put some defaults to these undefined bus options */
- 	buf = reg_read(ohci, OHCI1394_BusOptions);
-@@ -3402,7 +3401,14 @@
- 	/* We hopefully don't have to pre-allocate IT DMA like we did
- 	 * for IR DMA above. Allocate it on-demand and mark inactive. */
- 	ohci->it_legacy_context.ohci = NULL;
-+	spin_lock_init(&ohci->event_lock);
- 
-+	/*
-+	 * interrupts are disabled, all right, but... due to SA_SHIRQ we
-+	 * might get called anyway.  We'll see no event, of course, but
-+	 * we need to get to that "no event", so enough should be initialized
-+	 * by that point.
-+	 */
- 	if (request_irq(dev->irq, ohci_irq_handler, SA_SHIRQ,
- 			 OHCI1394_DRIVER_NAME, ohci))
- 		FAIL(-ENOMEM, "Failed to allocate shared interrupt %d", dev->irq);
+
+Yes, one was in trigger_softirqs() , the other in init_sd . Both traces
+below.
+
+BUG: swapper/1, possible wake_up race on softirq-scsi/3/31
+
+Call Trace:<ffffffff80121ade>{wake_up_process+17} <ffffffff8012ddec>{trigger_softirqs+76}
+       <ffffffff80379fed>{__scsi_done+101} <ffffffff803e55b4>{ata_scsi_rbuf_fill+114}
+       <ffffffff80379fff>{scsi_done+0} <ffffffff803e5e0e>{ata_scsi_simulate+320}
+       <ffffffff80379fff>{scsi_done+0} <ffffffff803e5f08>{ata_scsi_queuecmd+228}
+       <ffffffff8037a1ff>{scsi_dispatch_cmd+488} <ffffffff8037f7d3>{scsi_request_fn+1046}
+       <ffffffff8031c9b7>{blk_insert_request+156} <ffffffff8037e23f>{scsi_insert_special_req+51}
+       <ffffffff8037e513>{scsi_wait_req+339} <ffffffff8037fae7>{__scsi_mode_sense+228}
+       <ffffffff803e8f63>{sd_revalidate_disk+3037} <ffffffff80143953>{add_preempt_count_ti+35}
+       <ffffffff80143442>{atomic_dec_and_spin_lock+52} <ffffffff801a9fc2>{rescan_partitions+133}
+       <ffffffff8017729b>{do_open+672} <ffffffff80176fc2>{blkdev_get+161}
+
+BUG: swapper/1, possible wake_up race on softirq-scsi/1/15
+
+Call Trace:<ffffffff80121ade>{wake_up_p   <ffffffff8031581d>{driver_register+91} <ffffffff80834e5b>{init_sd+31}
+       <ffffffff8010b24f>{init+503} <ffffffff8010e93e>{child_rip+8}
+       <ffffffff8010b058>{init+0} <ffffffff8010e936>{child_rip+0}
+
+

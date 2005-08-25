@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVHYUUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbVHYUlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbVHYUUP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 16:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVHYUUP
+	id S932565AbVHYUlq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 16:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbVHYUlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 16:20:15 -0400
-Received: from mail4.zigzag.pl ([217.11.136.106]:19863 "HELO mail4.zigzag.pl")
-	by vger.kernel.org with SMTP id S932542AbVHYUUN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 16:20:13 -0400
-Date: Thu, 25 Aug 2005 22:20:02 +0200
-From: Lukasz Spaleniak <lspaleniak@wroc.zigzag.pl>
-To: linux-kernel@vger.kernel.org
-Cc: kadlec@netfilter.org, gandalf@netfilter.org, kaber@netfilter.org
-Subject: Conntrack problem, machines freeze
-Message-Id: <20050825222002.3538af7d.lspaleniak@wroc.zigzag.pl>
-Organization: Internet Group SA
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.6.4; i686-pc-linux-gnu)
+	Thu, 25 Aug 2005 16:41:46 -0400
+Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:14262 "EHLO
+	tux06.ltc.ic.unicamp.br") by vger.kernel.org with ESMTP
+	id S932562AbVHYUlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 16:41:45 -0400
+Date: Thu, 25 Aug 2005 17:43:35 -0300
+From: Glauber de Oliveira Costa <gocosta@br.ibm.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Glauber de Oliveira Costa <gocosta@br.ibm.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       ext2resize-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [PATCH] Ext3 online resizing locking issue
+Message-ID: <20050825204335.GA1674@br.ibm.com>
+References: <20050824210325.GK23782@br.ibm.com> <1124996561.1884.212.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-BitDefender-Scanner: Clean, Agent: BitDefender Qmail 1.6.2 on
- mail4.zigzag.pl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1124996561.1884.212.camel@sisko.sctweedie.blueyonder.co.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+ 
+> NAK, this is wrong:
+> 
+> > +		lock_super(sb);
+> >  		err = ext3_group_extend(sb, EXT3_SB(sb)->s_es, n_blocks_count);
+> > +		unlock_super(sb);
+> 
+> This basically reverses the order of locking between lock_super() and
+> journal_start() (the latter acts like a lock because it can block on a
+> resource if the journal is too full for the new transaction.)  That's
+> the opposite order to normal, and will result in a potential deadlock.
+> 
+Ooops! Missed that. But I agree with the point. 
 
-I have simple linux router with three fastethernet cards (intel , e100
-driver). About two months ago it started hanging. It's completly
-freezing machine (no ooops. First of all when it's booting few
-messages like this appears on screen:
+ 
+> But the _right_ fix, if you really want to keep that code, is probably
+> to move all the resize locking to a separate lock that ranks outside the
+> journal_start.  The easy workaround is to drop the superblock lock and
+> reaquire it around the journal_start(); it would be pretty easy to make
+> that work robustly as far as ext3 is concerned, but I suspect there may
+> be VFS-layer problems if we start dropping the superblock lock in the
+> middle of the s_ops->remount() call --- Al?
+> 
 
-NF_IP_ASSERT: ip_conntrack_core.c:1128(ip_conntrack_alter_reply)
+Just a question here. With s_lock held by the remount code, we're
+altering the struct super_block, and believing we're safe. We try to
+acquire it inside the resize functions, because we're trying to modify 
+this same data. Thus, if we rely on another lock, aren't we probably 
+messing  up something ? (for example, both group_extend and remount code 
+potentially modify s_flags field. If we ioctl and remount at the same time, 
+each one with a different lock, something could go wrong). Am I missing
+something here ? 
 
-I suppose it's showing before firewall script load rules (simple nat).
-After that somtimes it's working very long, sometimes it's freezing
-after few seconds. One time I've logged this message before it freezes:
-
-kernel: LIST_DELETE: ip_conntrack_core.c:302 `&ct->tuplehash
-[IP_CT_DIR_REPLY]'(decb6084) not in &ip_conntrack_hash[hr].
-
-Components that has been already replaced:
-- computer hardware (twice to a new one)
-- fast ethernet cards (tried with intel, realtek and 3com)
-- fresh system (debian sarge)
-- switches
-
-Router and switches are connected to UPS (dedicated, also replaced).
-
-This is a vanilla kernel 2.4.31, problem also exist with kernels:
-2.4.30, 2.4.29. I tried also with grsecuriry(hoping it could help)
-patch, but it wasn't.
-
-If you have any idea what I can try to fix please let me know.
-
-Thank you for your time.
-
-
-Best regads,
-Lukasz Spaleniak
-
-
--- 
-spalek on zigzag dot pl
-GCM dpu s: a--- C++ UL++++ P+ L+++ E--- W+ N+ K- w O- M V-
-PGP t--- 5 X+ R- tv-- b DI- D- G e-- h! r y+
+glauber

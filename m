@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbVHYVNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbVHYVN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbVHYVNP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 17:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbVHYVNP
+	id S932520AbVHYVN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 17:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbVHYVN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 17:13:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12269 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751475AbVHYVNP (ORCPT
+	Thu, 25 Aug 2005 17:13:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24045 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751475AbVHYVN6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 17:13:15 -0400
-Date: Thu, 25 Aug 2005 14:12:36 -0700
+	Thu, 25 Aug 2005 17:13:58 -0400
+Date: Thu, 25 Aug 2005 14:13:50 -0700
 From: Chris Wright <chrisw@osdl.org>
-To: serue@us.ibm.com
-Cc: Chris Wright <chrisw@osdl.org>, linux-security-module@wirex.com,
-       Greg Kroah <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Kurt Garloff <garloff@suse.de>, James Morris <jmorris@redhat.com>,
-       Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Greg Kroah <greg@kroah.com>,
+       Kurt Garloff <garloff@suse.de>, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 5/5] Remove unnecesary capability hooks in rootplug.
-Message-ID: <20050825211236.GZ7762@shell0.pdx.osdl.net>
-References: <20050825012028.720597000@localhost.localdomain> <20050825012150.490797000@localhost.localdomain> <20050825143807.GA8590@sergelap.austin.ibm.com>
+Message-ID: <20050825211350.GA7762@shell0.pdx.osdl.net>
+References: <20050825012028.720597000@localhost.localdomain> <20050825012150.490797000@localhost.localdomain> <20050825143807.GA8590@sergelap.austin.ibm.com> <1124982836.3873.78.camel@moss-spartans.epoch.ncsc.mil> <20050825162101.GU7762@shell0.pdx.osdl.net> <1124987036.3873.106.camel@moss-spartans.epoch.ncsc.mil> <20050825170617.GW7762@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050825143807.GA8590@sergelap.austin.ibm.com>
+In-Reply-To: <20050825170617.GW7762@shell0.pdx.osdl.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* serue@us.ibm.com (serue@us.ibm.com) wrote:
-> @@ -1527,7 +1533,8 @@ static int selinux_vm_enough_memory(long
->  	int rc, cap_sys_admin = 0;
->  	struct task_security_struct *tsec = current->security;
->  
-> -	rc = secondary_ops->capable(current, CAP_SYS_ADMIN);
-> +	rc = secondary_ops->capable ?
-> +		secondary_ops->capable(current, CAP_SYS_ADMIN) : 0;
+* Chris Wright (chrisw@osdl.org) wrote:
+> * Stephen Smalley (sds@epoch.ncsc.mil) wrote:
+> > e.g. if secondary_ops->capable is null, the SELinux tests aren't going
+> > to show that, because they will still see that the SELinux permission
+> > checks are working correctly.  They only test failure/success for the
+> > SELinux permission checks, not for the capability checks, so if you
+> > unhook capabilities, they won't notice.
+> 
+> Yes, I see.  I thought the tests you were referring to were 
+> "if (secondary_ops->capable)" not LTP tests.  Capability is still a
+> module that can be loaded (or built-in).  So the only issue is it's
+> security_ops is now NULL where it was a trivial return 0 function.
+> Aside from the oversight Serge fixed, I don't think there's any issue.
 
-I don't think this really makes sense.  It says the default secondary
-thinks you have the capablity.  Safe since SELinux double checks, but
-not really accurate.
+Bah, of course, that's inaccurate because you unconditionally set the
+secondary to the default.  So, indeed, the default case (nothing actively
+loaded as secondary) will get secondary_ops filled with NULL only.
+Seems simplest to just fill the default with cap calls where applicable,
+but I had hoped to eliminate that.
+Thoughts?
 
 thanks,
 -chris

@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbVHYEqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbVHYEwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbVHYEqr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 00:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVHYEqr
+	id S964797AbVHYEwF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 00:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVHYEwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 00:46:47 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:19367 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964794AbVHYEqq (ORCPT
+	Thu, 25 Aug 2005 00:52:05 -0400
+Received: from ns1.lanforge.com ([66.165.47.210]:23962 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S964793AbVHYEwE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 00:46:46 -0400
-Date: Wed, 24 Aug 2005 21:46:34 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH 3/3] exterminate strtok - usr/gen_init_cpio.c
-Message-Id: <20050824214634.6008be53.pj@sgi.com>
-In-Reply-To: <200508242106.j7OL61QK010645@laptop11.inf.utfsm.cl>
-References: <200508242108.53198.jesper.juhl@gmail.com>
-	<200508242106.j7OL61QK010645@laptop11.inf.utfsm.cl>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 25 Aug 2005 00:52:04 -0400
+Message-ID: <430D4E6D.1090200@candelatech.com>
+Date: Wed, 24 Aug 2005 21:51:57 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: danial_thom@yahoo.com
+CC: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.12 Performance problems
+References: <20050824172631.11829.qmail@web33309.mail.mud.yahoo.com>
+In-Reply-To: <20050824172631.11829.qmail@web33309.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst wrote:
-> > -		if ('\n' == *type) {
-> > +		if (!*type || '\n' == *type) {
+Danial Thom wrote:
+
+> I think the concensus is that 2.6 has made trade
+> offs that lower raw throughput, which is what a
+> networking device needs. So as a router or
+> network appliance, 2.6 seems less suitable. A raw
+> bridging test on a 2.0Ghz operton system:
 > 
-> Redundant. If *type == '\n', it is certainly != 0.
+> FreeBSD 4.9: Drops no packets at 900K pps
+> Linux 2.4.24: Starts dropping packets at 350K pps
+> Linux 2.6.12: Starts dropping packets at 100K pps
 
-No - I don't think redundant, at least not this change in isolation.
-Perhaps redundant in light of subsequent code lines, as Jesper notes in
-his followup.
+I ran some quick tests using kernel 2.6.11, 1ms tick (HZ=1000), SMP kernel.
+Hardware is P-IV 3.0Ghz + HT on a new SuperMicro motherboard with 64/133Mhz
+PCI-X bus.  NIC is dual Intel pro/1000.  Kernel is close to stock 2.6.11.
 
-But it is confusing to read - poor and inconsistent choice of code
-phrasing.
+I used brctl to create a bridge with the two GigE adapters in it and
+used pktgen to stream traffic through it (250kpps in one direction, 1kpps in
+the other.)
 
-If the patch had read as:
-    -		if (*type == '\n') {
-    +		if (*type == '\n' || *type == '\0') {
+I see a reasonable amount of drops at 250kpps (60 byte packets):
+about 60,000,000 packets received, 20,700 dropped.
 
-then it would be clearer to the reader in my view.  A check for newline
-is changed to a check for newline or nul-byte.
+Interestingly, the system is about 60% idle according to top,
+and still dropping pkts, so it would seem that the system could
+be better utilized!
 
-(Yes - I recognize that one is not given the freedom to change the
--old- lines in a patch for the sake of clarity ;).
+Ben
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbVHYUvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbVHYU4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932569AbVHYUvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 16:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVHYUvQ
+	id S1751413AbVHYU4c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 16:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVHYU4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 16:51:16 -0400
-Received: from web33310.mail.mud.yahoo.com ([68.142.206.125]:2663 "HELO
-	web33310.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751413AbVHYUvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 16:51:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=zMy6vGA3tJv4O9O5XMqJ9rVnxzl7Fda3rqBShG05JYi8qubj3wzeuPN+25UmWAlfc2vOs0BYUPoaCS7WPFfqS/4b2SW+SSA8IPtZf5hb3eSq9ow5YQf9Pj0rZN8YVqYNImiS+DeBPb4FAj/OVjq927GQuwDuYOS9fahc8TAO9F8=  ;
-Message-ID: <20050825205107.8945.qmail@web33310.mail.mud.yahoo.com>
-Date: Thu, 25 Aug 2005 13:51:07 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: Petition for gas grices
-To: Lee Revell <rlrevell@joe-job.com>, mkrufky@m1k.net
-Cc: Todd Bailey <toddb@toddbailey.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1125001016.18675.26.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 25 Aug 2005 16:56:32 -0400
+Received: from vena.lwn.net ([206.168.112.25]:28388 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S1751413AbVHYU4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 16:56:32 -0400
+Message-ID: <20050825205629.22372.qmail@lwn.net>
+To: torvalds@osdl.org
+Subject: [PATCH] fix adm9240 oops
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+From: Jonathan Corbet <corbet@lwn.net>
+Date: Thu, 25 Aug 2005 14:56:29 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The adm9240 driver, in adm9240_detect(), allocates a structure.  The
+error path attempts to kfree() a subfield of that structure, resulting
+in an oops (or slab corruption) if the hardware is not present.  This
+one seems worth fixing for 2.6.13.
 
+jon
 
---- Lee Revell <rlrevell@joe-job.com> wrote:
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 
-> On Thu, 2005-08-25 at 14:44 -0400, Lee Revell
-> wrote:
-> > On Thu, 2005-08-25 at 14:20 -0400, Michael
-> Krufky wrote:
-> > > Todd Bailey wrote:
-> > > 
-> > > > I'm all for this but I think there is
-> little uncle George can do.
-> > > 
-> > > Was it necessary to cc this to everybody in
-> the world?
-> > 
-> > God, I can't believe this epidemic of
-> bitching about gas prices has
-> > invaded LKML of all places.
-> 
-> Sorry did not mean to send that to the list.
-> 
-> Lee
-
-If you weren't such a big dope you'd own oil
-company stocks like the rest of us real
-Americans. Participate in America rather than
-bashing it :)
-
-
-		
-____________________________________________________
-Start your day with Yahoo! - make it your home page 
-http://www.yahoo.com/r/hs 
+--- 2.6.13-rc7/drivers/hwmon/adm9240.c.orig	2005-08-25 14:30:04.000000000 -0600
++++ 2.6.13-rc7/drivers/hwmon/adm9240.c	2005-08-25 14:30:26.000000000 -0600
+@@ -616,7 +616,7 @@ static int adm9240_detect(struct i2c_ada
  
+ 	return 0;
+ exit_free:
+-	kfree(new_client);
++	kfree(data);
+ exit:
+ 	return err;
+ }

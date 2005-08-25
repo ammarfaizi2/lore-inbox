@@ -1,65 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbVHYN0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbVHYNds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbVHYN0b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 09:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbVHYN0a
+	id S964976AbVHYNds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 09:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVHYNdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 09:26:30 -0400
-Received: from node1.80686-net.de ([194.54.168.119]:51693 "EHLO
-	mx1.80686-net.de") by vger.kernel.org with ESMTP id S964974AbVHYN0a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 09:26:30 -0400
-From: Manuel Schneider <root@80686-net.de>
-To: linux-kernel@vger.kernel.org
-Subject: Question about usb-storage: Sometimes partitions are not recognized.
-Date: Thu, 25 Aug 2005 15:26:27 +0200
-User-Agent: KMail/1.8
-Cc: kristoff.meller@gmx.de
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Thu, 25 Aug 2005 09:33:47 -0400
+Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:41603 "HELO
+	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S964976AbVHYNdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 09:33:45 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: Andrew Morton <akpm@osdl.org>, johannes@sipsolutions.net,
+       linux-kernel@vger.kernel.org, Robert Love <rml@novell.com>
+In-Reply-To: <430D986E.30209@reub.net>
+References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
+	 <430D986E.30209@reub.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508251526.27598.root@80686-net.de>
+Date: Thu, 25 Aug 2005 09:33:34 -0400
+Message-Id: <1124976814.5039.4.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
+On Thu, 2005-08-25 at 22:07 +1200, Reuben Farrelly wrote:
+> Hi,
+> 
+> I have also observed another problem with inotify with dovecot - so I spoke 
+> with Johannes Berg who wrote the inotify code in dovecot.  He suggested I post 
+> here to LKML since his opinion is that this to be a kernel bug.
+> 
+> The problem I am observing is this, logged by dovecot after a period of time 
+> when a client is connected:
+> 
+> dovecot: Aug 22 14:31:23 Error: IMAP(gilly): inotify_rm_watch() failed: 
+> Invalid argument
+> dovecot: Aug 22 14:31:23 Error: IMAP(gilly): inotify_rm_watch() failed: 
+> Invalid argument
+> dovecot: Aug 22 14:31:23 Error: IMAP(gilly): inotify_rm_watch() failed: 
+> Invalid argument
+> 
+> Multiply that by about 1000 ;-)
+> 
+> Some debugging shows this:
+> dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): removing wd 1019 from inotify fd 4
+> dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): removing wd 1018 from inotify fd 4
+> dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): inotify_add_watch returned 1019
+> dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): inotify_add_watch returned 1020
+> dovecot: Aug 25 19:31:23 Warning: IMAP(gilly): removing wd 1020 from inotify fd 4
+> dovecot: Aug 25 19:31:23 Warning: IMAP(gilly): removing wd 1019 from inotify fd 4
+> dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): inotify_add_watch returned 1020
 
-using two different USB memory cardreader I have a problem which I am able to 
-reproduce on serveral machines (x86 and x86_64, Kernel 2.6.x) and with 
-different memory cards (Compact Flash, SD-Card, Sony Memory-Stick):
-When I plug them in, they will be recognized by hotplug (I'm using udev), the 
-module usb-storage will be loaded and the device nodes are created.
 
-BUT: There is normally just ONE device node for the disc block device.
-Partitions are not available.
-I can "solve" this by just starting fdisk (and shutting it down again without 
-changing anything) on the given block device - after that, all the partitions 
-are available. So it seems to me that on the recognition of the disc block 
-device either the partition table will not be read or the USB device (maybe 
-it depends on the cardreader) is to slow to come up with the data.
-When fdisk is reading the partition table everything works well, but this is 
-obviously no option.
 
-Other USB memories (eg. an USB memory stick) work well, I experience these 
-problem only on these two cardreaders.
+> dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): inotify_add_watch returned 1021
+> dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): removing wd 1021 from inotify fd 4
+> dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): removing wd 1020 from inotify fd 4
+> dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): inotify_add_watch returned 1021
+> dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): inotify_add_watch returned 1022
+> dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): removing wd 1022 from inotify fd 4
+> dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): removing wd 1021 from inotify fd 4
+> dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): inotify_add_watch returned 1022
+> dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): inotify_add_watch returned 1023
+> dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): removing wd 1023 from inotify fd 4
+> dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): removing wd 1022 from inotify fd 4
+> dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1023
+> dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1024
+> dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1024 from inotify fd 4
+> dovecot: Aug 25 19:31:27 Error: IMAP(gilly): inotify_rm_watch() failed: 
+> Invalid argument
+> dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1023 from inotify fd 4
+> dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
+> dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
+> 
+> Note the incrementing wd value even though we are removing them as we go..
+> 
 
-Is there a possibility to tweak unusual_devs.h to get rid of these problems? I 
-could insert the maufacturer and product IDs, but I'm not common with the 
-available options. Maybe you could give me some pointers about them or other 
-solutions on this.
+What kernel are you running? The wd's should ALWAYS be incrementing, you
+should never get the same wd as you did before. From your log, you are
+getting the same wd (after you inotify_rm_watch it). I can reproduce
+this bug on 2.6.13-rc7.
 
-Thanks and greets,
+idr_get_new_above 
 
-Manuel
+isn't returning something above.
+
+Also, the idr layer seems to be breaking when we pass in 1024. I can
+reproduce that on my 2.6.13-rc7 system as well.
+
+> This is using latest CVS of dovecot code and with 2.6.12-rc6-mm(1|2) kernel.
+> 
+> Robert, John, what do you think?   Is this possibly related to the oops seen 
+> in the log that I reported earlier?  (Which is still showing up 2-3 times per 
+> day, btw)
+
+There is definitely something broken here.
+
 -- 
-Manuel Schneider
-root@80686-net.de
-http://www.80686-net.de/
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GCM d-- s:- a? C++$ UL++++ P+> L+++>$ E- W+++$ N+ o-- K- w--$ O+ M+ V
-PS+ PE- Y+ PGP+ t 5 X R UF++++ !tv b+> DI D+ G+ e> h r y++ 
-------END GEEK CODE BLOCK------
+John McCutchan <ttb@tentacle.dhs.org>

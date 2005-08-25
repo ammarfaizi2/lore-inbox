@@ -1,97 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVHYGe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbVHYG5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbVHYGe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 02:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbVHYGe4
+	id S964861AbVHYG5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 02:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbVHYG5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 02:34:56 -0400
-Received: from ns1.lanforge.com ([66.165.47.210]:44186 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S1751541AbVHYGez (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 02:34:55 -0400
-Message-ID: <430D668A.6030306@candelatech.com>
-Date: Wed, 24 Aug 2005 23:34:50 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.3.1
-X-Accept-Language: en-us, en
+	Thu, 25 Aug 2005 02:57:16 -0400
+Received: from inet-tsb.toshiba.co.jp ([202.33.96.40]:211 "EHLO
+	inet-tsb.toshiba.co.jp") by vger.kernel.org with ESMTP
+	id S1751548AbVHYG5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 02:57:15 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: danial_thom@yahoo.com
-CC: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.12 Performance problems
-References: <20050825060843.15874.qmail@web33311.mail.mud.yahoo.com>
-In-Reply-To: <20050825060843.15874.qmail@web33311.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: libata-dev queue updated
+Date: Thu, 25 Aug 2005 15:56:23 +0900
+Message-ID: <BF571719A4041A478005EF3F08EA6DF001617907@pcsmail03.pcs.pc.ome.toshiba.co.jp>
+Thread-Topic: libata-dev queue updated
+Thread-Index: AcWoeP47hU0VTa3rT/uhuG/37gARFAAxf5tQ
+From: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
+To: "Jeff Garzik" <jgarzik@pobox.com>, <linux-ide@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danial Thom wrote:
-> 
-> --- Ben Greear <greearb@candelatech.com> wrote:
-> 
-> 
->>Danial Thom wrote:
->>
->>
->>>I think the concensus is that 2.6 has made
->>
->>trade
->>
->>>offs that lower raw throughput, which is what
->>
->>a
->>
->>>networking device needs. So as a router or
->>>network appliance, 2.6 seems less suitable. A
->>
->>raw
->>
->>>bridging test on a 2.0Ghz operton system:
->>>
->>>FreeBSD 4.9: Drops no packets at 900K pps
->>>Linux 2.4.24: Starts dropping packets at 350K
->>
->>pps
->>
->>>Linux 2.6.12: Starts dropping packets at 100K
->>
->>pps
->>
->>I ran some quick tests using kernel 2.6.11, 1ms
->>tick (HZ=1000), SMP kernel.
->>Hardware is P-IV 3.0Ghz + HT on a new
->>SuperMicro motherboard with 64/133Mhz
->>PCI-X bus.  NIC is dual Intel pro/1000.  Kernel
->>is close to stock 2.6.11.
->>
->>I used brctl to create a bridge with the two
->>GigE adapters in it and
->>used pktgen to stream traffic through it
->>(250kpps in one direction, 1kpps in
->>the other.)
->>
->>I see a reasonable amount of drops at 250kpps
->>(60 byte packets):
->>about 60,000,000 packets received, 20,700
->>dropped.
+Hi Jeff,
 
-I get slightly worse performance on this system when running RH9
-with kernel 2.4.29 (my hacks, HZ=1000, SMP).  Tried increasing
-e1000 descriptors to 2048 tx and rx, but that didn't help, or at least
-not much.
+2.6.13- rc7-libata1.patch.bz2 was used. 
+A combined mode of ata_piix seems not to work. 
+Is the following patches correct?
 
-Will try some other tunings, but I doubt it will affect performance
-enough to come close to the discrepency that you show between 2.4
-and 2.6 kernels...
+diff -urN linux-2.6.13-rc7.orig/drivers/scsi/Kconfig linux-2.6.13-rc7/drivers/scsi/Kconfig
+--- linux-2.6.13-rc7.orig/drivers/scsi/Kconfig	2005-08-25 13:44:33.000000000 +0900
++++ linux-2.6.13-rc7/drivers/scsi/Kconfig	2005-08-25 14:33:38.000000000 +0900
+@@ -424,7 +424,7 @@
+ source "drivers/scsi/megaraid/Kconfig.megaraid"
+ 
+ config SCSI_SATA
+-	tristate "Serial ATA (SATA) support"
++	bool "Serial ATA (SATA) support"
+ 	depends on SCSI
+ 	help
+ 	  This driver family supports Serial ATA host controllers
 
-I tried copying a 500MB CDROM to HD on my RH9 system, and only 6kpps
-of the 250kpps get through the bridge...btw.
-
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+--
+Haruo

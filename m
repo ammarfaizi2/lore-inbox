@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVHYWCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbVHYWCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbVHYWCH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 18:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVHYWCH
+	id S964912AbVHYWCe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 18:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbVHYWCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 18:02:07 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:55752 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964898AbVHYWCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 18:02:06 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linuxppc64-dev@ozlabs.org
-Subject: [PATCH 0/7] Cell SPU file system, snapshot 4
-Date: Thu, 25 Aug 2005 23:53:10 +0200
-User-Agent: KMail/1.7.2
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200508252353.10740.arnd@arndb.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 25 Aug 2005 18:02:34 -0400
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:35852 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S964912AbVHYWCd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 18:02:33 -0400
+Date: Fri, 26 Aug 2005 00:02:31 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Greg Kroah-Hartman <greg@kroah.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
+       Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH] drivers/hwmon/*: kfree() correct pointers
+Message-Id: <20050826000231.35b97af9.khali@linux-fr.org>
+In-Reply-To: <20050825214913.GA31605@mipter.zuzino.mipt.ru>
+References: <20050825205629.22372.qmail@lwn.net>
+	<20050825214913.GA31605@mipter.zuzino.mipt.ru>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thankfully, there is now documentation available to the world about
-the Cell architecture (http://cell.scei.co.jp/e_download.html), so I
-am now able to disclose more of our work on the SPU file system.
+Hi Alexey,
 
-This is a rather big update compared to the previous version, as it
-contains work from Mark Nutter and Ulrich Weigand to support context
-save and restore of SPUs. This release should still be fully compatible
-to the previous ones, but we intend to do incompatible changes for
-in the future.
+> The adm9240 driver, in adm9240_detect(), allocates a structure.  The
+> error path attempts to kfree() ->client field of it (second one),
+> resulting in an oops (or slab corruption) if the hardware is not
+> present.
+> 
+> ->client field in adm1026, adm1031, smsc47b397 and smsc47m1 is the
+> first in ${HWMON}_data structure, but fix them too.
 
-	Arnd <><
+Already fixed in Greg's i2c tree and -mm for quite some time now...
 
+http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-02-i2c/i2c-hwmon-class-01.patch
+
+Thanks,
+-- 
+Jean Delvare

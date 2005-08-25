@@ -1,2985 +1,1974 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVHYVkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVHYVtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964850AbVHYVkY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 17:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbVHYVkY
+	id S964862AbVHYVtF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 17:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVHYVtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 17:40:24 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:45507 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S964850AbVHYVkU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 17:40:20 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57060CD0FF@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Cc: "'Christoph Hellwig'" <hch@lst.de>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH scsi-misc 2/2] megaraid_sas: LSI Logic MegaRAID SAS RAID D
-	river
-Date: Thu, 25 Aug 2005 17:40:06 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2658.27)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 25 Aug 2005 17:49:05 -0400
+Received: from the-penguin.otak.com ([65.37.126.18]:1922 "EHLO
+	the-penguin.otak.com") by vger.kernel.org with ESMTP
+	id S964862AbVHYVtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 17:49:02 -0400
+Date: Thu, 25 Aug 2005 14:48:55 -0700
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Asus a8v-e Deluxe lockups
+Message-ID: <20050825214855.GA4434@the-penguin.otak.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.13-rc7 on an i686
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 2 of 2:
 
-Signed-off-by: Sreenivas Bagalkote <Sreenivas.Bagalkote@lsil.com>
------------------------------------------------------------------------
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff -Naur scsi_misc-b/megaraid_sas.c scsi_misc-c/megaraid_sas.c
---- scsi_misc-b/megaraid_sas.c	1969-12-31 19:00:00.000000000 -0500
-+++ scsi_misc-c/megaraid_sas.c	2005-08-25 16:32:02.018659184 -0400
-@@ -0,0 +1,2839 @@
-+/*
-+ *
-+ *		Linux MegaRAID driver for SAS based RAID controllers
-+ *
-+ * Copyright (c) 2003-2005  LSI Logic Corporation.
-+ *
-+ *	   This program is free software; you can redistribute it and/or
-+ *	   modify it under the terms of the GNU General Public License
-+ *	   as published by the Free Software Foundation; either version
-+ *	   2 of the License, or (at your option) any later version.
-+ *
-+ * FILE		: megaraid_sas.c
-+ * Version	: v00.00.02.00
-+ *
-+ * Authors:
-+ * 	Sreenivas Bagalkote	<Sreenivas.Bagalkote@lsil.com>
-+ *
-+ * List of supported controllers
-+ *
-+ * OEM	Product Name			VID	DID	SSVID	SSID
-+ * ---	------------			---	---	----	----
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/pci.h>
-+#include <linux/list.h>
-+#include <linux/version.h>
-+#include <linux/moduleparam.h>
-+#include <linux/module.h>
-+#include <linux/spinlock.h>
-+#include <linux/interrupt.h>
-+#include <linux/delay.h>
-+#include <linux/uio.h>
-+#include <asm/uaccess.h>
-+
-+#include <scsi/scsi.h>
-+#include <scsi/scsi_cmnd.h>
-+#include <scsi/scsi_device.h>
-+#include <scsi/scsi_host.h>
-+#include "megaraid_sas.h"
-+
-+MODULE_LICENSE("GPL");
-+MODULE_VERSION(MEGASAS_VERSION);
-+MODULE_AUTHOR("sreenivas.bagalkote@lsil.com");
-+MODULE_DESCRIPTION("LSI Logic MegaRAID SAS Driver");
-+
-+/*
-+ * PCI ID table for all supported controllers
-+ */
-+static struct pci_device_id megasas_pci_table[] = {
-+
-+	{
-+		PCI_VENDOR_ID_LSI_LOGIC,
-+		PCI_DEVICE_ID_LSI_SAS1064R,
-+		PCI_ANY_ID,
-+		PCI_ANY_ID,
-+	},
-+	{
-+		PCI_VENDOR_ID_DELL,
-+		PCI_DEVICE_ID_DELL_PERC5,
-+		PCI_ANY_ID,
-+		PCI_ANY_ID,
-+	},
-+	{ 0 }	/* Terminating entry */
-+};
-+
-+MODULE_DEVICE_TABLE(pci, megasas_pci_table);
-+
-+static int megasas_mgmt_majorno;
-+static struct megasas_mgmt_info	megasas_mgmt_info;
-+static struct fasync_struct *megasas_async_queue;
-+static DECLARE_MUTEX(megasas_async_queue_mutex);
-+
-+/**
-+ * megasas_get_cmd -	Get a command from the free pool
-+ * @instance:		Adapter soft state
-+ *
-+ * Returns a free command from the pool
-+ */
-+static inline struct megasas_cmd*
-+megasas_get_cmd(struct megasas_instance *instance)
-+{
-+	unsigned long		flags;
-+	struct megasas_cmd	*cmd = NULL;
-+
-+	spin_lock_irqsave(&instance->cmd_pool_lock, flags);
-+
-+	if (!list_empty(&instance->cmd_pool)) {
-+		cmd = list_entry((&instance->cmd_pool)->next, 
-+					struct megasas_cmd, list);
-+		list_del_init( &cmd->list );
-+	}
-+	else {
-+		printk(KERN_ERR "megasas: Command pool empty!\n");
-+	}
-+
-+	spin_unlock_irqrestore(&instance->cmd_pool_lock, flags);
-+	return cmd;
-+}
-+
-+/**
-+ * megasas_return_cmd -	Return a cmd to free command pool
-+ * @instance:		Adapter soft state
-+ * @cmd:		Command packet to be returned to free command pool
-+ */
-+static inline void
-+megasas_return_cmd(struct megasas_instance *instance, struct megasas_cmd
-*cmd)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&instance->cmd_pool_lock, flags);
-+
-+	cmd->scmd = NULL;
-+	list_add_tail(&cmd->list, &instance->cmd_pool);
-+
-+	spin_unlock_irqrestore(&instance->cmd_pool_lock, flags);
-+}
-+
-+/**
-+ * megasas_enable_intr -	Enables interrupts
-+ * @regs:			MFI register set
-+ */
-+static inline void
-+megasas_enable_intr(struct megasas_register_set __iomem *regs)
-+{
-+	writel(1, &(regs)->outbound_intr_mask);
-+
-+	/* Dummy readl to force pci flush */
-+	readl(&regs->outbound_intr_mask);
-+}
-+
-+/**
-+ * megasas_disable_intr -	Disables interrupts
-+ * @regs:			MFI register set
-+ */
-+static inline void
-+megasas_disable_intr(struct megasas_register_set __iomem *regs)
-+{
-+	u32 mask = readl(&regs->outbound_intr_mask) & (~0x00000001);
-+	writel(mask, &regs->outbound_intr_mask);
-+
-+	/* Dummy readl to force pci flush */
-+	readl(&regs->outbound_intr_mask);
-+}
-+	
-+
-+/**
-+ * megasas_issue_polled -	Issues a polling command
-+ * @instance:			Adapter soft state
-+ * @cmd:			Command packet to be issued 
-+ *
-+ * For polling, MFI requires the cmd_status to be set to 0xFF before
-posting.
-+ */
-+static int
-+megasas_issue_polled(struct megasas_instance *instance, struct megasas_cmd
-*cmd)
-+{
-+	int	i;
-+	u32	msecs = MFI_POLL_TIMEOUT_SECS * 1000;
-+
-+	struct megasas_header *frame_hdr = &cmd->frame->hdr;
-+
-+	frame_hdr->cmd_status	= 0xFF;
-+	frame_hdr->flags 	|= MFI_FRAME_DONT_POST_IN_REPLY_QUEUE;
-+
-+	/*
-+	 * Issue the frame using inbound queue port
-+	 */
-+	writel(cmd->frame_phys_addr >> 3, 
-+			&instance->reg_set->inbound_queue_port);
-+
-+	/*
-+	 * Wait for cmd_status to change
-+	 */
-+	for(i=0; (i < msecs) && (frame_hdr->cmd_status == 0xff); i++) {
-+		rmb();
-+		msleep(1);
-+	}
-+
-+	if (frame_hdr->cmd_status == 0xff)
-+		return -ETIME;
-+
-+	return 0;
-+}
-+
-+/**
-+ * megasas_issue_blocked_cmd -	Synchronous wrapper around regular FW cmds
-+ * @instance:			Adapter soft state
-+ * @cmd:			Command to be issued
-+ *
-+ * This function waits on an event for the command to be returned from ISR.
-+ * Used to issue ioctl commands.
-+ */
-+static int
-+megasas_issue_blocked_cmd(struct megasas_instance *instance,
-+					struct megasas_cmd *cmd)
-+{
-+	cmd->cmd_status	= ENODATA;
-+
-+	writel(cmd->frame_phys_addr >> 3, 
-+		&instance->reg_set->inbound_queue_port);
-+
-+	wait_event( instance->int_cmd_wait_q, (cmd->cmd_status != ENODATA));
-+
-+	return 0;
-+}
-+
-+/**
-+ * megasas_issue_blocked_abort_cmd -	Aborts previously issued cmd
-+ * @instance:				Adapter soft state
-+ * @cmd_to_abort:			Previously issued cmd to be aborted
-+ *
-+ * MFI firmware can abort previously issued AEN comamnd (automatic event
-+ * notification). The megasas_issue_blocked_abort_cmd() issues such abort
-+ * cmd and blocks till it is completed.
-+ */
-+static int
-+megasas_issue_blocked_abort_cmd(struct megasas_instance *instance,
-+				struct megasas_cmd *cmd_to_abort)
-+{
-+	struct megasas_cmd		*cmd;
-+	struct megasas_abort_frame	*abort_fr;
-+
-+	cmd = megasas_get_cmd(instance);
-+
-+	if (!cmd)
-+		return -1;
-+
-+	abort_fr = &cmd->frame->abort;
-+
-+	/*
-+	 * Prepare and issue the abort frame
-+	 */
-+	abort_fr->cmd				= MFI_CMD_ABORT;
-+	abort_fr->cmd_status			= 0xFF;
-+	abort_fr->flags				= 0;
-+	abort_fr->abort_context			= cmd_to_abort->index;
-+	abort_fr->abort_mfi_phys_addr_lo	=
-cmd_to_abort->frame_phys_addr;
-+	abort_fr->abort_mfi_phys_addr_hi	= 0;
-+
-+	cmd->sync_cmd	= 1;
-+	cmd->cmd_status	= 0xFF;
-+
-+	writel(cmd->frame_phys_addr >> 3, 
-+		&instance->reg_set->inbound_queue_port);
-+
-+	/*
-+	 * Wait for this cmd to complete
-+	 */
-+	wait_event(instance->abort_cmd_wait_q, (cmd->cmd_status != 0xFF));
-+
-+	megasas_return_cmd(instance, cmd);
-+	return 0;
-+}
-+
-+/**
-+ * megasas_make_sgl32 -	Prepares 32-bit SGL
-+ * @instance:		Adapter soft state
-+ * @scp:		SCSI command from the mid-layer
-+ * @mfi_sgl:		SGL to be filled in
-+ *
-+ * If successful, this function returns the number of SG elements.
-Otherwise,
-+ * it returnes -1.
-+ */
-+static inline int
-+megasas_make_sgl32(struct megasas_instance *instance, struct scsi_cmnd
-*scp,
-+						union megasas_sgl *mfi_sgl)
-+{
-+	int			i;
-+	int			sge_count;
-+	struct scatterlist	*os_sgl;
-+
-+	/*
-+	 * Return 0 if there is no data transfer
-+	 */
-+	if (!scp->request_buffer || !scp->request_bufflen)
-+		return 0;
-+
-+	if (!scp->use_sg) {
-+		mfi_sgl->sge32[0].phys_addr	=
-pci_map_single(instance->pdev,
-+							scp->request_buffer,
-+
-scp->request_bufflen,
-+
-scp->sc_data_direction);
-+		mfi_sgl->sge32[0].length	= scp->request_bufflen;
-+
-+		return 1;
-+	}
-+
-+	os_sgl		= (struct scatterlist*) scp->request_buffer;
-+	sge_count	= pci_map_sg(instance->pdev, os_sgl, scp->use_sg,
-+					scp->sc_data_direction );
-+
-+	for( i = 0; i < sge_count; i++, os_sgl++ ) {
-+		mfi_sgl->sge32[i].length	= sg_dma_len(os_sgl);
-+		mfi_sgl->sge32[i].phys_addr	= sg_dma_address(os_sgl);
-+	}
-+
-+	return sge_count;
-+}
-+
-+/**
-+ * megasas_make_sgl64 -	Prepares 64-bit SGL
-+ * @instance:		Adapter soft state
-+ * @scp:		SCSI command from the mid-layer
-+ * @mfi_sgl:		SGL to be filled in
-+ *
-+ * If successful, this function returns the number of SG elements.
-Otherwise,
-+ * it returnes -1.
-+ */
-+static inline int
-+megasas_make_sgl64(struct megasas_instance *instance, struct scsi_cmnd
-*scp,
-+						union megasas_sgl *mfi_sgl)
-+{
-+	int			i;
-+	int			sge_count;
-+	struct scatterlist	*os_sgl;
-+
-+	/*
-+	 * Return 0 if there is no data transfer
-+	 */
-+	if (!scp->request_buffer || !scp->request_bufflen)
-+		return 0;
-+
-+	if (!scp->use_sg) {
-+		mfi_sgl->sge64[0].phys_addr	=
-pci_map_single(instance->pdev,
-+							scp->request_buffer,
-+
-scp->request_bufflen,
-+
-scp->sc_data_direction);
-+
-+		mfi_sgl->sge64[0].length	= scp->request_bufflen;
-+
-+		return 1;
-+	}
-+
-+	os_sgl		= (struct scatterlist*) scp->request_buffer;
-+	sge_count	= pci_map_sg(instance->pdev, os_sgl, scp->use_sg,
-+					scp->sc_data_direction);
-+
-+	for(i = 0; i < sge_count; i++, os_sgl++) {
-+		mfi_sgl->sge64[i].length	= sg_dma_len(os_sgl);
-+		mfi_sgl->sge64[i].phys_addr	= sg_dma_address(os_sgl);
-+	}
-+
-+	return sge_count;
-+}
-+
-+/**
-+ * megasas_build_dcdb -	Prepares a direct cdb (DCDB) command
-+ * @instance:		Adapter soft state
-+ * @scp:		SCSI command
-+ * @cmd:		Command to be prepared in
-+ *
-+ * This function prepares CDB commands. These are typcially pass-through
-+ * commands to the devices.
-+ */
-+static inline int
-+megasas_build_dcdb(struct megasas_instance *instance, struct scsi_cmnd
-*scp,
-+						struct megasas_cmd *cmd)
-+{
-+	u32				sge_sz;
-+	int				sge_bytes;
-+	u32				is_logical;
-+	u32				device_id;
-+	u16				flags = 0;
-+	struct megasas_pthru_frame*	pthru;
-+
-+	is_logical		= MEGASAS_IS_LOGICAL(scp);
-+	device_id		= MEGASAS_DEV_INDEX(instance, scp);
-+	pthru			= (struct megasas_pthru_frame*) cmd->frame;
-+
-+	if (scp->sc_data_direction == PCI_DMA_TODEVICE )
-+		flags = MFI_FRAME_DIR_WRITE;
-+	else if( scp->sc_data_direction == PCI_DMA_FROMDEVICE )
-+		flags = MFI_FRAME_DIR_READ;
-+	else if( scp->sc_data_direction == PCI_DMA_NONE )
-+		flags = MFI_FRAME_DIR_NONE;
-+
-+	/*
-+	 * Prepare the DCDB frame
-+	 */
-+	pthru->cmd		= (is_logical) ? MFI_CMD_LD_SCSI_IO :
-+							MFI_CMD_PD_SCSI_IO;
-+	pthru->cmd_status	= 0x0;
-+	pthru->scsi_status	= 0x0;
-+	pthru->target_id	= device_id;
-+	pthru->lun		= scp->device->lun;
-+	pthru->cdb_len		= scp->cmd_len;
-+	pthru->timeout		= 0;
-+	pthru->flags		= flags;
-+	pthru->data_xfer_len	= scp->request_bufflen;
-+
-+	memcpy(pthru->cdb, scp->cmnd, scp->cmd_len);
-+
-+	/*
-+	 * Construct SGL
-+	 */
-+	sge_sz 	= (IS_DMA64) ? sizeof(struct megasas_sge64) :
-+				sizeof(struct megasas_sge32);
-+
-+	if (IS_DMA64) {
-+		pthru->flags	|= MFI_FRAME_SGL64;
-+		pthru->sge_count = megasas_make_sgl64(instance, scp,
-+
-&pthru->sgl);
-+	}
-+	else
-+		pthru->sge_count = megasas_make_sgl32(instance, scp,
-+
-&pthru->sgl);
-+
-+	/*
-+	 * Sense info specific
-+	 */
-+	pthru->sense_len		= SCSI_SENSE_BUFFERSIZE;
-+	pthru->sense_buf_phys_addr_hi	= 0;
-+	pthru->sense_buf_phys_addr_lo	= cmd->sense_phys_addr;
-+
-+	sge_bytes = sge_sz * pthru->sge_count;
-+
-+	/*
-+	 * Compute the total number of frames this command consumes. FW uses
-+	 * this number to pull sufficient number of frames from host memory.
-+	 */
-+	cmd->frame_count = (sge_bytes / MEGAMFI_FRAME_SIZE) +
-+				((sge_bytes % MEGAMFI_FRAME_SIZE) ? 1 : 0) +
-1;
-+
-+	if (cmd->frame_count > 7)
-+		cmd->frame_count = 8;
-+
-+	return cmd->frame_count;
-+}
-+
-+/**
-+ * megasas_build_ldio -	Prepares IOs to logical devices
-+ * @instance:		Adapter soft state
-+ * @scp:		SCSI command
-+ * @cmd:		Command to to be prepared
-+ *
-+ * Frames (and accompanying SGLs) for regular SCSI IOs use this function.
-+ */
-+static inline int
-+megasas_build_ldio(struct megasas_instance *instance, struct scsi_cmnd
-*scp,
-+						struct megasas_cmd *cmd)
-+{
-+	u32				sge_sz;
-+	int				sge_bytes;
-+	u32				device_id;
-+	u8				sc = scp->cmnd[0];
-+	u16				flags = 0;
-+	struct megasas_io_frame		*ldio;
-+
-+	device_id	= MEGASAS_DEV_INDEX(instance, scp);
-+	ldio		= (struct megasas_io_frame*) cmd->frame;
-+
-+	if (scp->sc_data_direction == PCI_DMA_TODEVICE )
-+		flags = MFI_FRAME_DIR_WRITE;
-+	else if( scp->sc_data_direction == PCI_DMA_FROMDEVICE )
-+		flags = MFI_FRAME_DIR_READ;
-+
-+	/*
-+	 * Preare the Logical IO frame: 2nd bit is zero for all read cmds
-+	 */
-+	ldio->cmd		= (sc &
-0x02)?MFI_CMD_LD_WRITE:MFI_CMD_LD_READ;
-+	ldio->cmd_status	= 0x0;
-+	ldio->scsi_status	= 0x0;
-+	ldio->target_id		= device_id;
-+	ldio->timeout		= 0;
-+	ldio->reserved_0	= 0;
-+	ldio->pad_0		= 0;
-+	ldio->flags		= flags;
-+	ldio->start_lba_hi	= 0;
-+	ldio->access_byte	= (scp->cmd_len != 6) ? scp->cmnd[1] : 0;
-+
-+	/*
-+	 * 6-byte READ(0x08) or WRITE(0x0A) cdb
-+	 */
-+	if (scp->cmd_len == 6) {
-+		ldio->lba_count		=	(u32)scp->cmnd[4];
-+		ldio->start_lba_lo	= 	((u32)scp->cmnd[1] << 16)|
-+						((u32)scp->cmnd[2] << 8) |
-+						(u32)scp->cmnd[3];
-+
-+		ldio->start_lba_lo 	&=	0x1FFFFF;
-+	}
-+
-+	/*
-+	 * 10-byte READ(0x28) or WRITE(0x2A) cdb
-+	 */
-+	else if (scp->cmd_len == 10) {
-+		ldio->lba_count		=	(u32)scp->cmnd[8] |
-+						((u32)scp->cmnd[7] << 8);
-+		ldio->start_lba_lo	=	((u32)scp->cmnd[2] << 24)|
-+						((u32)scp->cmnd[3] << 16)|
-+						((u32)scp->cmnd[4] << 8)|
-+						(u32)scp->cmnd[5];
-+	}
-+
-+	/*
-+	 * 12-byte READ(0xA8) or WRITE(0xAA) cdb
-+	 */
-+	else if (scp->cmd_len == 12) {
-+		ldio->lba_count		=	((u32)scp->cmnd[6] << 24)|
-+						((u32)scp->cmnd[7] << 16)|
-+						((u32)scp->cmnd[8] << 8) |
-+						(u32)scp->cmnd[9];
-+
-+		ldio->start_lba_lo	=	((u32)scp->cmnd[2] << 24)|
-+						((u32)scp->cmnd[3] << 16)|
-+						((u32)scp->cmnd[4] << 8) |
-+						(u32)scp->cmnd[5];
-+	}
-+
-+	/*
-+	 * 16-byte READ(0x88) or WRITE(0x8A) cdb
-+	 */
-+	else if (scp->cmd_len == 16) {
-+		ldio->lba_count		=	((u32)scp->cmnd[10] << 24)|
-+						((u32)scp->cmnd[11] << 16)|
-+						((u32)scp->cmnd[12] << 8) |
-+						(u32)scp->cmnd[13];
-+
-+		ldio->start_lba_lo	=	((u32)scp->cmnd[6] << 24)|
-+						((u32)scp->cmnd[7] << 16)|
-+						((u32)scp->cmnd[8] << 8) |
-+						(u32)scp->cmnd[9];
-+
-+		ldio->start_lba_hi	=	((u32)scp->cmnd[2] << 24)|
-+						((u32)scp->cmnd[3] << 16)|
-+						((u32)scp->cmnd[4] << 8) |
-+						(u32)scp->cmnd[5];
-+
-+	}
-+
-+	/*
-+	 * Construct SGL
-+	 */
-+	sge_sz 	= (IS_DMA64) ? sizeof(struct megasas_sge64) :
-+					sizeof(struct megasas_sge32);
-+
-+	if (IS_DMA64) {
-+		ldio->flags	|= MFI_FRAME_SGL64;
-+		ldio->sge_count = megasas_make_sgl64(instance, scp,
-+								&ldio->sgl);
-+	}
-+	else
-+		ldio->sge_count = megasas_make_sgl32(instance, scp,
-+								&ldio->sgl);
-+
-+	/*
-+	 * Sense info specific
-+	 */
-+	ldio->sense_len			= SCSI_SENSE_BUFFERSIZE;
-+	ldio->sense_buf_phys_addr_hi	= 0;
-+	ldio->sense_buf_phys_addr_lo	= cmd->sense_phys_addr;
-+
-+	sge_bytes = sge_sz * ldio->sge_count;
-+
-+	cmd->frame_count = (sge_bytes / MEGAMFI_FRAME_SIZE) +
-+				((sge_bytes % MEGAMFI_FRAME_SIZE) ? 1 : 0) +
-1;
-+
-+	if (cmd->frame_count > 7)
-+		cmd->frame_count = 8;
-+
-+	return cmd->frame_count;
-+}
-+
-+/**
-+ * megasas_build_cmd -	Prepares a command packet
-+ * @instance:		Adapter soft state
-+ * @scp:		SCSI command
-+ * @frame_count:	[OUT] Number of frames used to prepare this command
-+ */
-+static inline struct megasas_cmd*
-+megasas_build_cmd(struct megasas_instance *instance, struct scsi_cmnd *scp,
-+							int *frame_count )
-+{
-+	u32			logical_cmd;
-+	struct megasas_cmd	*cmd;
-+
-+	/*
-+	 * Find out if this is logical or physical drive command.
-+	 */
-+	logical_cmd	= MEGASAS_IS_LOGICAL(scp);
-+
-+	/*
-+	 * Logical drive command
-+	 */
-+	if (logical_cmd) {
-+
-+		if (scp->device->id >= MEGASAS_MAX_LD) {
-+			scp->result = DID_BAD_TARGET << 16;
-+			return NULL;
-+		}
-+
-+		switch(scp->cmnd[0]) {
-+
-+		case READ_10:
-+		case WRITE_10:
-+		case READ_12:
-+		case WRITE_12:
-+		case READ_6:
-+		case WRITE_6:
-+		case READ_16:
-+		case WRITE_16:
-+			/*
-+			 * Fail for LUN > 0
-+			 */
-+			if (scp->device->lun) {
-+				scp->result = DID_BAD_TARGET << 16;
-+				return NULL;
-+			}
-+
-+			cmd = megasas_get_cmd(instance);
-+
-+			if (!cmd) {
-+				scp->result = DID_IMM_RETRY << 16;
-+				return NULL;
-+			}
-+
-+			*frame_count = megasas_build_ldio(instance, scp,
-cmd);
-+
-+			if (! (*frame_count) ) {
-+				megasas_return_cmd( instance, cmd );
-+				return NULL;
-+			}
-+
-+			return cmd;
-+
-+		default:
-+			/*
-+			 * Fail for LUN > 0
-+			 */
-+			if (scp->device->lun) {
-+				scp->result = DID_BAD_TARGET << 16;
-+				return NULL;
-+			}
-+
-+			cmd = megasas_get_cmd(instance);
-+
-+			if (!cmd) {
-+				scp->result = DID_IMM_RETRY << 16;
-+				return NULL;
-+			}
-+
-+			*frame_count = megasas_build_dcdb(instance, scp,
-cmd);
-+
-+			if (! (*frame_count) ) {
-+				megasas_return_cmd(instance, cmd);
-+				return NULL;
-+			}
-+
-+			return cmd;
-+		}
-+	}
-+	else {
-+		cmd = megasas_get_cmd(instance);
-+
-+		if (!cmd) {
-+			scp->result = DID_IMM_RETRY << 16;
-+			return NULL;
-+		}
-+
-+		*frame_count = megasas_build_dcdb(instance, scp, cmd);
-+
-+		if (!(*frame_count)) {
-+			megasas_return_cmd(instance, cmd);
-+			return NULL;
-+		}
-+
-+		return cmd;
-+	}
-+
-+	return NULL;
-+}
-+
-+/**
-+ * megasas_queue_command -	Queue entry point
-+ * @scmd:			SCSI command to be queued
-+ * @done:			Callback entry point
-+ */
-+static int
-+megasas_queue_command(struct scsi_cmnd *scmd, void (*done)(struct
-scsi_cmnd*))
-+{
-+	u32				frame_count;
-+	unsigned long			flags;
-+	struct megasas_cmd		*cmd;
-+	struct megasas_instance		*instance;
-+
-+	instance	= (struct megasas_instance*)
-+				scmd->device->host->hostdata;
-+	scmd->scsi_done	= done;
-+	scmd->result	= 0;
-+
-+	cmd = megasas_build_cmd( instance, scmd, &frame_count );
-+
-+	if (!cmd) {
-+		done(scmd);
-+		return 0;
-+	}
-+
-+	cmd->scmd = scmd;
-+	scmd->SCp.ptr = (char *) cmd;
-+	scmd->SCp.sent_command = jiffies;
-+
-+	/*
-+	 * Issue the command to the FW
-+	 */
-+	spin_lock_irqsave(&instance->instance_lock, flags);
-+	instance->fw_outstanding++;
-+	spin_unlock_irqrestore(&instance->instance_lock, flags);
-+
-+	writel(((cmd->frame_phys_addr >> 3) | (cmd->frame_count - 1)),
-+				&instance->reg_set->inbound_queue_port );
-+
-+	return 0;
-+}
-+
-+/**
-+ * megasas_wait_for_outstanding -	Wait for all outstanding cmds
-+ * @instance:				Adapter soft state
-+ *
-+ * This function waits for upto MEGASAS_RESET_WAIT_TIME seconds for FW to
-+ * complete all its outstanding commands. Returns error if one or more IOs
-+ * are pending after this time period. It also marks the controller dead.
-+ */
-+static int
-+megasas_wait_for_outstanding(struct megasas_instance *instance)
-+{
-+	int	i;
-+	u32	wait_time = MEGASAS_RESET_WAIT_TIME;
-+
-+	for(i = 0; i < wait_time; i++) {
-+
-+		if (!instance->fw_outstanding)
-+			break;
-+
-+		if (!(i % MEGASAS_RESET_NOTICE_INTERVAL)) {
-+			printk( KERN_NOTICE "megasas: [%2d]waiting for %d "
-+			"commands to complete\n", i,
-instance->fw_outstanding );
-+		}
-+
-+		msleep(1000);
-+	}
-+
-+
-+	if (instance->fw_outstanding) {
-+		instance->hw_crit_error = 1;
-+		return FAILED;
-+	}
-+
-+	return SUCCESS;
-+}
-+
-+/**
-+ * megasas_generic_reset -	Generic reset routine
-+ * @scmd:			Mid-layer SCSI command
-+ *
-+ * This routine implements a generic reset handler for device, bus and host
-+ * reset requests. Device, bus and host specific reset handlers can use
-this
-+ * function after they do their specific tasks.
-+ */
-+static int
-+megasas_generic_reset(struct scsi_cmnd *scmd)
-+{
-+	int				ret_val;
-+	struct	megasas_instance	*instance;
-+       
-+	instance = (struct megasas_instance*)scmd->device->host->hostdata;
-+
-+	printk(KERN_NOTICE "megasas: RESET -%ld cmd=%x <c=%d t=%d l=%d>\n",
-+		scmd->serial_number, scmd->cmnd[0], scmd->device->channel,
-+		scmd->device->id, scmd->device->lun);
-+
-+	if (instance->hw_crit_error) {
-+		printk(KERN_ERR "megasas: cannot recover from previous reset
-"
-+
-"failures\n");
-+		return FAILED;
-+	}
-+
-+	spin_unlock(scmd->device->host->host_lock);
-+
-+	ret_val = megasas_wait_for_outstanding(instance);
-+
-+	if (ret_val == SUCCESS)
-+		printk(KERN_NOTICE "megasas: reset successful \n");
-+	else
-+		printk(KERN_ERR "megasas: failed to do reset\n");
-+
-+	spin_lock(scmd->device->host->host_lock);
-+
-+	return ret_val;
-+}
-+
-+static enum scsi_eh_timer_return
-+megasas_reset_timer(struct scsi_cmnd *scmd)
-+{
-+	unsigned long seconds;
-+
-+	if (scmd->SCp.ptr) {
-+		seconds = (jiffies - scmd->SCp.sent_command)/HZ;
-+
-+		if (seconds < 90) {
-+			return EH_RESET_TIMER;
-+		} else {
-+			return EH_NOT_HANDLED;
-+		}
-+	}
-+
-+	return EH_HANDLED;
-+}
-+
-+/**
-+ * megasas_reset_device -	Device reset handler entry point
-+ */
-+static int
-+megasas_reset_device(struct scsi_cmnd *scmd)
-+{
-+	int				ret;
-+        
-+	/*
-+	 * First wait for all commands to complete
-+	 */
-+	ret = megasas_generic_reset(scmd);
-+
-+	return ret;
-+}
-+
-+/**
-+ * megasas_reset_bus_host -	Bus & host reset handler entry point
-+ */
-+static int
-+megasas_reset_bus_host(struct scsi_cmnd *scmd)
-+{
-+	int				ret;
-+
-+	/*
-+	 * Frist wait for all commands to complete
-+	 */
-+	ret = megasas_generic_reset(scmd);
-+
-+	return ret;
-+}
-+
-+/**
-+ * megasas_service_aen -	Processes an event notification
-+ * @instance:			Adapter soft state
-+ * @cmd:			AEN command completed by the ISR
-+ *
-+ * For AEN, driver sends a command down to FW that is held by the FW till
-an
-+ * event occurs. When an event of interest occurs, FW completes the command
-+ * that it was previously holding.
-+ *
-+ * This routines sends SIGIO signal to processes that have registered with
-the
-+ * driver for AEN.
-+ */
-+static void
-+megasas_service_aen(struct megasas_instance *instance, struct megasas_cmd
-*cmd)
-+{
-+	/*
-+	 * Don't signal app if it is just an aborted previously registered
-aen
-+	 */
-+	if (!cmd->abort_aen)
-+		kill_fasync( &megasas_async_queue, SIGIO, POLL_IN );
-+	else
-+		cmd->abort_aen = 0;
-+
-+	instance->aen_cmd = NULL;
-+	megasas_return_cmd(instance, cmd);
-+}
-+
-+/*
-+ * Scsi host template for megaraid_sas driver
-+ */
-+static struct scsi_host_template megasas_template = {
-+
-+	.module				= THIS_MODULE,
-+	.name				= "LSI Logic SAS based MegaRAID
-driver",
-+	.proc_name			= "megaraid_sas",
-+	.queuecommand			= megasas_queue_command,
-+	.eh_device_reset_handler	= megasas_reset_device,
-+	.eh_bus_reset_handler		= megasas_reset_bus_host,
-+	.eh_host_reset_handler		= megasas_reset_bus_host,
-+	.eh_timed_out			= megasas_reset_timer,
-+	.use_clustering			= ENABLE_CLUSTERING,
-+};
-+
-+/**
-+ * megasas_complete_int_cmd -	Completes an internal command
-+ * @instance:			Adapter soft state
-+ * @cmd:			Command to be completed
-+ *
-+ * The megasas_issue_blocked_cmd() function waits for a command to complete
-+ * after it issues a command. This function wakes up that waiting routine
-by
-+ * calling wake_up() on the wait queue.
-+ */
-+static void
-+megasas_complete_int_cmd(struct megasas_instance *instance,
-+					struct megasas_cmd* cmd)
-+{
-+	cmd->cmd_status = cmd->frame->io.cmd_status;
-+
-+	if (cmd->cmd_status == ENODATA) {
-+		cmd->cmd_status = 0;
-+	}
-+	wake_up(&instance->int_cmd_wait_q);
-+}
-+
-+/**
-+ * megasas_complete_abort -	Completes aborting a command
-+ * @instance:			Adapter soft state
-+ * @cmd:			Cmd that was issued to abort another cmd
-+ *
-+ * The megasas_issue_blocked_abort_cmd() function waits on abort_cmd_wait_q
 
-+ * after it issues an abort on a previously issued command. This function 
-+ * wakes up all functions waiting on the same wait queue.
-+ */
-+static void
-+megasas_complete_abort(struct megasas_instance *instance,
-+				struct megasas_cmd *cmd)
-+{
-+	if (cmd->sync_cmd) {
-+		cmd->sync_cmd	= 0;
-+		cmd->cmd_status	= 0;
-+		wake_up(&instance->abort_cmd_wait_q);
-+	}
-+
-+	return;
-+}
-+
-+/**
-+ * megasas_unmap_sgbuf -	Unmap SG buffers
-+ * @instance:			Adapter soft state
-+ * @cmd:			Completed command
-+ */
-+static inline void
-+megasas_unmap_sgbuf(struct megasas_instance *instance, struct megasas_cmd
-*cmd)
-+{
-+	dma_addr_t	buf_h;
-+	u8		opcode;
-+
-+	if (cmd->scmd->use_sg) {
-+		pci_unmap_sg(instance->pdev, cmd->scmd->request_buffer,
-+			cmd->scmd->use_sg, cmd->scmd->sc_data_direction);
-+		return;
-+	}
-+
-+	if (!cmd->scmd->request_bufflen)
-+		return;
-+
-+	opcode = cmd->frame->hdr.cmd;
-+
-+	if ((opcode == MFI_CMD_LD_READ) || (opcode == MFI_CMD_LD_WRITE)) {
-+		if (IS_DMA64)
-+			buf_h = cmd->frame->io.sgl.sge64[0].phys_addr;
-+		else
-+			buf_h = cmd->frame->io.sgl.sge32[0].phys_addr;
-+	}
-+	else {
-+		if (IS_DMA64)
-+			buf_h = cmd->frame->pthru.sgl.sge64[0].phys_addr;
-+		else
-+			buf_h = cmd->frame->pthru.sgl.sge32[0].phys_addr;
-+	}
-+
-+	pci_unmap_single(instance->pdev, buf_h, cmd->scmd->request_bufflen,
-+
-cmd->scmd->sc_data_direction);
-+	return;
-+}
-+
-+/**
-+ * megasas_complete_cmd -	Completes a command
-+ * @instance:			Adapter soft state
-+ * @cmd:			Command to be completed
-+ * @alt_status:			If non-zero, use this value as
-status to 
-+ * 				SCSI mid-layer instead of the value returned
-+ * 				by the FW. This should be used if caller
-wants
-+ * 				an alternate status (as in the case of
-aborted
-+ * 				commands)
-+ */
-+static inline void
-+megasas_complete_cmd(struct megasas_instance *instance, struct megasas_cmd
-*cmd,
-+								u8
-alt_status)
-+{
-+	int			exception = 0;
-+	struct	megasas_header	*hdr = &cmd->frame->hdr;
-+	unsigned long		flags;
-+
-+	if (cmd->scmd) {
-+		cmd->scmd->SCp.ptr = (char *) 0;
-+	}
-+
-+	switch( hdr->cmd ) {
-+
-+	case MFI_CMD_PD_SCSI_IO:
-+	case MFI_CMD_LD_SCSI_IO:
-+
-+		/*
-+		 * MFI_CMD_PD_SCSI_IO and MFI_CMD_LD_SCSI_IO could have been
-+		 * issued either through an IO path or an IOCTL path. If it
-+		 * was via IOCTL, we will send it to internal completion.
-+		 */
-+		if (cmd->sync_cmd) {
-+			cmd->sync_cmd = 0;
-+			megasas_complete_int_cmd(instance, cmd);
-+			break;
-+		}
-+
-+		/*
-+		 * Don't export physical disk devices to mid-layer.
-+		 */
-+		if (!MEGASAS_IS_LOGICAL(cmd->scmd) && 
-+			(hdr->cmd_status == MFI_STAT_OK) &&
-+			(cmd->scmd->cmnd[0] == INQUIRY)) {
-+
-+			if (((*(u8*) cmd->scmd->request_buffer) & 0x1F) ==
-+							TYPE_DISK) {
-+				cmd->scmd->result = DID_BAD_TARGET << 16;
-+				exception = 1;
-+			}
-+		}
-+
-+	case MFI_CMD_LD_READ:
-+	case MFI_CMD_LD_WRITE:
-+
-+		if (alt_status) {
-+			cmd->scmd->result = alt_status << 16;
-+			exception = 1;
-+		}
-+
-+
-+		if (exception) {
-+	
-+			spin_lock_irqsave(&instance->instance_lock, flags);
-+			instance->fw_outstanding--;
-+			spin_unlock_irqrestore(&instance->instance_lock,
-flags);
-+
-+			megasas_unmap_sgbuf(instance, cmd);
-+			cmd->scmd->scsi_done(cmd->scmd);
-+			megasas_return_cmd(instance, cmd);
-+
-+			break;
-+		}
-+
-+
-+		switch (hdr->cmd_status) {
-+
-+		case MFI_STAT_OK:
-+			cmd->scmd->result = DID_OK << 16;
-+			break;
-+
-+		case MFI_STAT_SCSI_IO_FAILED:
-+		case MFI_STAT_LD_INIT_IN_PROGRESS:
-+			cmd->scmd->result = (DID_ERROR << 16)
-|hdr->scsi_status;
-+			break;
-+
-+		case MFI_STAT_SCSI_DONE_WITH_ERROR:
-+
-+			cmd->scmd->result = (DID_OK << 16) |
-hdr->scsi_status;
-+
-+			if (hdr->scsi_status == SAM_STAT_CHECK_CONDITION) {
-+				memset(cmd->scmd->sense_buffer, 0,
-+
-SCSI_SENSE_BUFFERSIZE);
-+				memcpy(cmd->scmd->sense_buffer, cmd->sense,
-+							hdr->sense_len);
-+
-+				cmd->scmd->result |= DRIVER_SENSE << 24;
-+			}
-+
-+			break;
-+
-+		case MFI_STAT_LD_OFFLINE:
-+		case MFI_STAT_DEVICE_NOT_FOUND:
-+			cmd->scmd->result = DID_BAD_TARGET << 16;
-+			break;
-+
-+		default:
-+			printk(KERN_DEBUG "megasas: MFI FW status %#x\n",
-+							hdr->cmd_status);
-+			cmd->scmd->result = DID_ERROR << 16;
-+			break;
-+		}
-+
-+		spin_lock_irqsave(&instance->instance_lock, flags);
-+		instance->fw_outstanding--;
-+		spin_unlock_irqrestore(&instance->instance_lock, flags);
-+
-+		megasas_unmap_sgbuf(instance, cmd);
-+		cmd->scmd->scsi_done(cmd->scmd);
-+		megasas_return_cmd(instance, cmd);
-+
-+		break;
-+
-+	case MFI_CMD_SMP:
-+	case MFI_CMD_STP:
-+	case MFI_CMD_DCMD:
-+
-+		/*
-+		 * See if got an event notification
-+		 */
-+		if (cmd->frame->dcmd.opcode == MR_DCMD_CTRL_EVENT_WAIT)
-+			megasas_service_aen(instance, cmd);
-+		else
-+			megasas_complete_int_cmd(instance, cmd);
-+
-+		break;
-+
-+	case MFI_CMD_ABORT:
-+		/*
-+		 * Cmd issued to abort another cmd returned
-+		 */
-+		megasas_complete_abort(instance, cmd);
-+		break;
-+
-+	default:
-+		printk("megasas: Unknown command completed! [0x%X]\n",
-+								hdr->cmd);
-+		break;
-+	}
-+}
-+
-+/**
-+ * megasas_deplete_reply_queue -	Processes all completed commands
-+ * @instance:				Adapter soft state
-+ * @alt_status:				Alternate status to be
-returned to
-+ * 					SCSI mid-layer instead of the status
-+ * 					returned by the FW
-+ */
-+static inline int
-+megasas_deplete_reply_queue(struct megasas_instance *instance, u8
-alt_status)
-+{
-+	u32			status;
-+	u32			producer;
-+	u32			consumer;
-+	u32			context;
-+	struct megasas_cmd	*cmd;
-+
-+	/*
-+	 * Check if it is our interrupt
-+	 */
-+	status = readl(&instance->reg_set->outbound_intr_status);
-+
-+	if (!(status & MFI_OB_INTR_STATUS_MASK)) {
-+		return IRQ_NONE;
-+	}
-+
-+	/*
-+	 * Clear the interrupt by writing back the same value
-+	 */
-+	writel(status, &instance->reg_set->outbound_intr_status);
-+
-+	producer = *instance->producer;
-+	consumer = *instance->consumer;
-+
-+	while(consumer != producer) {
-+		context = instance->reply_queue[consumer];
-+
-+		cmd = instance->cmd_list[context];
-+
-+		megasas_complete_cmd( instance, cmd, alt_status );
-+
-+		consumer++;
-+		if (consumer == (instance->max_fw_cmds + 1)) {
-+			consumer = 0;
-+		}
-+	}
-+
-+	*instance->consumer = producer;
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/**
-+ * megasas_isr - isr entry point
-+ */
-+static irqreturn_t
-+megasas_isr(int irq, void *devp, struct pt_regs *regs)
-+{
-+	return megasas_deplete_reply_queue((struct megasas_instance*)devp,
-+			       					DID_OK );
-+}
-+
-+/**
-+ * megasas_transition_to_ready -	Move the FW to READY state
-+ * @reg_set:				MFI register set
-+ *
-+ * During the initialization, FW passes can potentially be in any one of
-+ * several possible states. If the FW in operational, waiting-for-handshake
-+ * states, driver must take steps to bring it to ready state. Otherwise, it
-+ * has to wait for the ready state.
-+ */
-+static int
-+megasas_transition_to_ready(struct megasas_register_set __iomem *reg_set)
-+{
-+	int	i;
-+	u8	max_wait;
-+	u32	fw_state;
-+	u32	cur_state;
-+
-+	fw_state = readl(&reg_set->outbound_msg_0) & MFI_STATE_MASK;
-+
-+	while(fw_state != MFI_STATE_READY) {
-+
-+		printk(KERN_INFO "megasas: Waiting for FW to come to ready" 
-+								" state\n");
-+		switch(fw_state) {
-+
-+		case MFI_STATE_FAULT:
-+
-+			printk(KERN_DEBUG "megasas: FW in FAULT state!!\n");
-+			return -ENODEV;
-+
-+		case MFI_STATE_WAIT_HANDSHAKE:
-+			/*
-+			 * Set the CLR bit in inbound doorbell
-+			 */
-+			writel(MFI_INIT_CLEAR_HANDSHAKE, 
-+				&reg_set->inbound_doorbell);
-+
-+			max_wait	= 2;
-+			cur_state	= MFI_STATE_WAIT_HANDSHAKE;
-+			break;
-+
-+		case MFI_STATE_OPERATIONAL:
-+			/*
-+			 * Bring it to READY state; assuming max wait 2 secs
-+			 */
-+			megasas_disable_intr(reg_set);
-+			writel(MFI_INIT_READY, &reg_set->inbound_doorbell);
-+
-+			max_wait	= 10;
-+			cur_state	= MFI_STATE_OPERATIONAL;
-+			break;
-+
-+		case MFI_STATE_UNDEFINED:
-+			/*
-+			 * This state should not last for more than 2
-seconds
-+			 */
-+			max_wait	= 2;
-+			cur_state	= MFI_STATE_UNDEFINED;
-+			break;
-+
-+		case MFI_STATE_BB_INIT:
-+			max_wait	= 2;
-+			cur_state	= MFI_STATE_BB_INIT;
-+			break;
-+
-+		case MFI_STATE_FW_INIT:
-+			max_wait	= 20;
-+			cur_state	= MFI_STATE_FW_INIT;
-+			break;
-+
-+		case MFI_STATE_FW_INIT_2:
-+			max_wait	= 20;
-+			cur_state	= MFI_STATE_FW_INIT_2;
-+			break;
-+
-+		case MFI_STATE_DEVICE_SCAN:
-+			max_wait	= 20;
-+			cur_state	= MFI_STATE_DEVICE_SCAN;
-+			break;
-+
-+		case MFI_STATE_FLUSH_CACHE:
-+			max_wait	= 20;
-+			cur_state	= MFI_STATE_FLUSH_CACHE;
-+			break;
-+
-+		default:
-+			printk(KERN_DEBUG "megasas: Unknown state 0x%x\n",
-+								fw_state);
-+			return -ENODEV;
-+		}
-+
-+		/*
-+		 * The cur_state should not last for more than max_wait secs
-+		 */
-+		for(i = 0; i < (max_wait * 1000); i++) {
-+			fw_state = MFI_STATE_MASK & 
-+					readl(&reg_set->outbound_msg_0);
-+
-+			if (fw_state == cur_state) {
-+				msleep(1);
-+			}
-+			else
-+				break;
-+		}
-+
-+		/*
-+		 * Return error if fw_state hasn't changed after max_wait
-+		 */
-+		if (fw_state == cur_state) {
-+			printk(KERN_DEBUG "FW state [%d] hasn't changed "
-+				"in %d secs\n", fw_state, max_wait);
-+			return -ENODEV;
-+		}
-+	};
-+
-+	return 0;
-+}
-+
-+/**
-+ * megasas_teardown_frame_pool -	Destroy the cmd frame DMA pool
-+ * @instance:				Adapter soft state
-+ */
-+static void
-+megasas_teardown_frame_pool(struct megasas_instance *instance)
-+{
-+	int			i;
-+	u32			max_cmd = instance->max_fw_cmds;
-+	struct megasas_cmd	*cmd;
-+
-+	if (!instance->frame_dma_pool)
-+		return;
-+
-+	/*
-+	 * Return all frames to pool
-+	 */
-+	for(i = 0; i < max_cmd; i++) {
-+
-+		cmd = instance->cmd_list[i];
-+
-+		if( cmd->frame)
-+			pci_pool_free(instance->frame_dma_pool, cmd->frame,
-+					cmd->frame_phys_addr);
-+
-+		if (cmd->sense)
-+			pci_pool_free(instance->sense_dma_pool, cmd->frame,
-+					cmd->sense_phys_addr);
-+	}
-+
-+	/*
-+	 * Now destroy the pool itself
-+	 */
-+	pci_pool_destroy(instance->frame_dma_pool);
-+	pci_pool_destroy(instance->sense_dma_pool);
-+
-+	instance->frame_dma_pool = NULL;
-+	instance->sense_dma_pool = NULL;
-+}
-+
-+/**
-+ * megasas_create_frame_pool -	Creates DMA pool for cmd frames
-+ * @instance:			Adapter soft state
-+ *
-+ * Each command packet has an embedded DMA memory buffer that is used for
-+ * filling MFI frame and the SG list that immediately follows the frame.
-This
-+ * function creates those DMA memory buffers for each command packet by
-using
-+ * PCI pool facility.
-+ */
-+static int
-+megasas_create_frame_pool(struct megasas_instance *instance)
-+{
-+	int			i;
-+	u32			max_cmd;
-+	u32			sge_sz;
-+	u32			sgl_sz;
-+	u32			total_sz ;
-+	u32			frame_count;
-+	struct megasas_cmd	*cmd;
-+
-+	max_cmd = instance->max_fw_cmds;
-+
-+	/*
-+	 * Size of our frame is 64 bytes for MFI frame, followed by max SG
-+	 * elements and finally SCSI_SENSE_BUFFERSIZE bytes for sense buffer
-+	 */
-+	sge_sz	= (IS_DMA64) ? sizeof(struct megasas_sge64) :
-+				sizeof(struct megasas_sge32);
-+
-+	/*
-+	 * Calculated the number of 64byte frames required for SGL
-+	 */
-+	sgl_sz		= sge_sz * instance->max_num_sge;
-+	frame_count	= (sgl_sz + MEGAMFI_FRAME_SIZE -
-1)/MEGAMFI_FRAME_SIZE;
-+
-+	/*
-+	 * We need one extra frame for the MFI command
-+	 */
-+	frame_count++;
-+
-+	total_sz = MEGAMFI_FRAME_SIZE * frame_count;
-+	/*
-+	 * Use DMA pool facility provided by PCI layer
-+	 */
-+	instance->frame_dma_pool = pci_pool_create("megasas frame pool",
-+					instance->pdev, total_sz, 64, 0);
-+
-+	if (!instance->frame_dma_pool) {
-+		printk(KERN_DEBUG "megasas: failed to setup frame pool\n");
-+		return -ENOMEM;
-+	}
-+
-+	instance->sense_dma_pool = pci_pool_create("megasas sense pool",
-+					instance->pdev, 128, 4, 0);
-+
-+	if (!instance->sense_dma_pool) {
-+		printk(KERN_DEBUG "megasas: failed to setup sense pool\n");
-+		
-+		pci_pool_destroy(instance->frame_dma_pool);
-+		instance->frame_dma_pool = NULL;
-+
-+		return -ENOMEM;
-+	}
-+
-+	/*
-+	 * Allocate and attach a frame to each of the commands in cmd_list.
-+	 * By making cmd->index as the context instead of the &cmd, we can
-+	 * always use 32bit context regardless of the architecture
-+	 */
-+	for( i = 0; i < max_cmd; i++ ) {
-+
-+		cmd		= instance->cmd_list[i];
-+
-+		cmd->frame	= pci_pool_alloc(instance->frame_dma_pool,
-+					GFP_KERNEL, &cmd->frame_phys_addr);
-+
-+		cmd->sense	= pci_pool_alloc(instance->sense_dma_pool,
-+					GFP_KERNEL, &cmd->sense_phys_addr);
-+
-+		/*
-+		 * megasas_teardown_frame_pool() takes care of freeing
-+		 * whatever has been allocated
-+		 */
-+		if (!cmd->frame || !cmd->sense) {
-+			printk(KERN_DEBUG "megasas: pci_pool_alloc failed
-\n");
-+			megasas_teardown_frame_pool(instance);
-+			return -ENOMEM;
-+		}
-+
-+		cmd->frame->io.context	= cmd->index;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * megasas_free_cmds -	Free all the cmds in the free cmd pool
-+ * @instance:		Adapter soft state
-+ */
-+static void
-+megasas_free_cmds(struct megasas_instance *instance)
-+{
-+	int i;
-+	/* First free the MFI frame pool */
-+	megasas_teardown_frame_pool( instance );
-+
-+	/* Free all the commands in the cmd_list */
-+	for (i = 0; i < instance->max_fw_cmds; i++)
-+		kfree(instance->cmd_list[i]);
-+	
-+	/* Free the cmd_list buffer itself */
-+	kfree(instance->cmd_list);
-+	instance->cmd_list = NULL;
-+
-+	INIT_LIST_HEAD( &instance->cmd_pool );
-+}
-+
-+/**
-+ * megasas_alloc_cmds -	Allocates the command packets
-+ * @instance:		Adapter soft state
-+ *
-+ * Each command that is issued to the FW, whether IO commands from the OS
-or
-+ * internal commands like IOCTLs, are wrapped in local data structure
-called
-+ * megasas_cmd. The frame embedded in this megasas_cmd is actually issued
-to
-+ * the FW.
-+ *
-+ * Each frame has a 32-bit field called context (tag). This context is used
-+ * to get back the megasas_cmd from the frame when a frame gets completed
-in
-+ * the ISR. Typically the address of the megasas_cmd itself would be used
-as
-+ * the context. But we wanted to keep the differences between 32 and 64 bit
-+ * systems to the mininum. We always use 32 bit integers for the context.
-In
-+ * this driver, the 32 bit values are the indices into an array cmd_list.
-+ * This array is used only to look up the megasas_cmd given the context.
-The
-+ * free commands themselves are maintained in a linked list called
-cmd_pool.
-+ */
-+static int
-+megasas_alloc_cmds(struct megasas_instance *instance)
-+{
-+	int			i;
-+	int			j;
-+	u32			max_cmd;
-+	struct megasas_cmd	*cmd;
-+
-+	max_cmd = instance->max_fw_cmds;
-+
-+	/*
-+	 * instance->cmd_list is an array of struct megasas_cmd pointers.
-+	 * Allocate the dynamic array first and then allocate individual
-+	 * commands.
-+	 */
-+	instance->cmd_list = kmalloc(sizeof(struct megasas_cmd*) * max_cmd,
-+								GFP_KERNEL);
-+
-+	if (!instance->cmd_list) {
-+		printk(KERN_DEBUG "megasas: out of memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	memset(instance->cmd_list, 0, sizeof(struct megasas_cmd*) *
-max_cmd);
-+
-+	for(i = 0; i < max_cmd; i++) {
-+		instance->cmd_list[i] = kmalloc(sizeof(struct megasas_cmd),
-+								GFP_KERNEL);
-+
-+		if (!instance->cmd_list[i]) {
-+
-+			for (j = 0; j < i; j++)
-+				kfree(instance->cmd_list[j]);
-+
-+			kfree(instance->cmd_list);
-+			instance->cmd_list = NULL;
-+
-+			return -ENOMEM;
-+		}
-+	}
-+
-+	/*
-+	 * Add all the commands to command pool (instance->cmd_pool)
-+	 */
-+	for( i = 0; i < max_cmd; i++ ) {
-+		cmd = instance->cmd_list[i];
-+		memset(cmd, 0, sizeof(struct megasas_cmd));
-+		cmd->index	= i;
-+		cmd->instance   = instance;
-+
-+		list_add_tail(&cmd->list, &instance->cmd_pool);
-+	}
-+
-+	/*
-+	 * Create a frame pool and assign one frame to each cmd
-+	 */
-+	if (megasas_create_frame_pool(instance)) {
-+		printk(KERN_DEBUG "megasas: Error creating frame DMA
-pool\n");
-+		megasas_free_cmds(instance);
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * megasas_get_controller_info -	Returns FW's controller structure
-+ * @instance:				Adapter soft state
-+ * @ctrl_info:				Controller information structure
-+ *
-+ * Issues an internal command (DCMD) to get the FW's controller structure.
-+ * This information is mainly used to find out the maximum IO transfer per
-+ * command supported by the FW.
-+ */
-+static int
-+megasas_get_ctrl_info(struct megasas_instance *instance,
-+				struct megasas_ctrl_info *ctrl_info)
-+{
-+	int				ret = 0;
-+	struct megasas_cmd*		cmd;
-+	struct megasas_dcmd_frame*	dcmd;
-+	struct megasas_ctrl_info*	ci;
-+	dma_addr_t			ci_h = 0;
-+
-+	cmd = megasas_get_cmd(instance);
-+
-+	if (!cmd) {
-+		printk(KERN_DEBUG "megasas: Failed to get a free cmd\n");
-+		return -ENOMEM;
-+	}
-+
-+	dcmd = &cmd->frame->dcmd;
-+
-+	ci = pci_alloc_consistent(instance->pdev,
-+				sizeof(struct megasas_ctrl_info), &ci_h);
-+
-+	if (!ci) {
-+		printk(KERN_DEBUG "Failed to alloc mem for ctrl info\n");
-+		megasas_return_cmd(instance, cmd);
-+		return -ENOMEM;
-+	}
-+
-+	memset(ci, 0, sizeof(*ci));
-+	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
-+
-+	dcmd->cmd			= MFI_CMD_DCMD;
-+	dcmd->cmd_status		= 0xFF;
-+	dcmd->sge_count			= 1;
-+	dcmd->flags			= MFI_FRAME_DIR_READ;
-+	dcmd->timeout			= 0;
-+	dcmd->data_xfer_len		= sizeof(struct megasas_ctrl_info);
-+	dcmd->opcode			= MR_DCMD_CTRL_GET_INFO;
-+	dcmd->sgl.sge32[0].phys_addr	= ci_h;
-+	dcmd->sgl.sge32[0].length	= sizeof(struct megasas_ctrl_info);
-+
-+	if (!megasas_issue_polled(instance, cmd)) {
-+		ret = 0;
-+		memcpy(ctrl_info, ci, sizeof(struct megasas_ctrl_info));
-+	}
-+	else {
-+		ret = -1;
-+	}
-+
-+	pci_free_consistent(instance->pdev, sizeof(struct
-megasas_ctrl_info),
-+								ci, ci_h);
-+
-+	megasas_return_cmd(instance, cmd);
-+	return ret;
-+}
-+
-+/**
-+ * megasas_init_mfi -	Initializes the FW
-+ * @instance:		Adapter soft state
-+ *
-+ * This is the main function for initializing MFI firmware.
-+ */
-+static int
-+megasas_init_mfi(struct megasas_instance *instance)
-+{
-+	u32					context_sz;
-+	u32					reply_q_sz;
-+	u32					max_sectors_1;
-+	u32					max_sectors_2;
-+	struct megasas_register_set __iomem	*reg_set;
-+
-+	struct megasas_cmd			*cmd;
-+	struct megasas_ctrl_info		*ctrl_info;
-+
-+	struct megasas_init_frame		*init_frame;
-+	struct megasas_init_queue_info		*initq_info;
-+	dma_addr_t				init_frame_h;
-+	dma_addr_t				initq_info_h;
-+
-+	/*
-+	 * Map the message registers
-+	 */
-+	instance->base_addr = pci_resource_start(instance->pdev, 0);
-+
-+	if (pci_request_regions(instance->pdev, "megasas: LSI Logic")) {
-+		printk( KERN_DEBUG "megasas: IO memory region busy!\n");
-+		return -EBUSY;
-+	}
-+
-+	instance->reg_set = ioremap_nocache(instance->base_addr, 8192);
-+
-+	if (!instance->reg_set) {
-+		printk( KERN_DEBUG "megasas: Failed to map IO mem\n" );
-+		goto fail_ioremap;
-+	}
-+
-+	reg_set = instance->reg_set;
-+
-+	/*
-+	 * We expect the FW state to be READY
-+	 */
-+	if (megasas_transition_to_ready(instance->reg_set))
-+		goto fail_ready_state;
-+
-+	/*
-+	 * Get various operational parameters from status register
-+	 */
-+	instance->max_fw_cmds = readl(&reg_set->outbound_msg_0) & 0x00FFFF;
-+	instance->max_num_sge =(readl(&reg_set->outbound_msg_0) & 0xFF0000)
->>
-+
-0x10;
-+	/*
-+	 * Create a pool of commands
-+	 */
-+	if (megasas_alloc_cmds(instance))
-+		goto fail_alloc_cmds;
-+
-+	/*
-+	 * Allocate memory for reply queue. Length of reply queue should
-+	 * be _one_ more than the maximum commands handled by the firmware.
-+	 *
-+	 * Note: When FW completes commands, it places corresponding contex
-+	 * values in this circular reply queue. This circular queue is a
-fairly
-+	 * typical producer-consumer queue. FW is the producer (of completed
-+	 * commands) and the driver is the consumer.
-+	 */
-+	context_sz = sizeof(u32);
-+	reply_q_sz = context_sz * (instance->max_fw_cmds + 1);
-+
-+	instance->reply_queue = pci_alloc_consistent(instance->pdev,
-+				reply_q_sz, &instance->reply_queue_h);
-+
-+	if (!instance->reply_queue) {
-+		printk( KERN_DEBUG "megasas: Out of DMA mem for reply
-queue\n");
-+		goto fail_reply_queue;
-+	}
-+
-+	/*
-+	 * Prepare a init frame. Note the init frame points to queue info
-+	 * structure. Each frame has SGL allocated after first 64 bytes. For
-+	 * this frame - since we don't need any SGL - we use SGL's space as
-+	 * queue info structure
-+	 *
-+	 * We will not get a NULL command below. We just created the pool.
-+	 */
-+	cmd = megasas_get_cmd(instance);
-+
-+	init_frame	= (struct megasas_init_frame*) cmd->frame;
-+	initq_info	= (struct megasas_init_queue_info*)
-+				((unsigned long)init_frame + 64);
-+
-+	init_frame_h	= cmd->frame_phys_addr;
-+	initq_info_h	= init_frame_h + 64;
-+
-+	memset(init_frame, 0, MEGAMFI_FRAME_SIZE);
-+	memset(initq_info, 0, sizeof(struct megasas_init_queue_info));
-+
-+	initq_info->reply_queue_entries	= instance->max_fw_cmds + 1;
-+	initq_info->reply_queue_start_phys_addr_lo =
-+						instance->reply_queue_h;
-+
-+	initq_info->producer_index_phys_addr_lo = instance->producer_h;
-+	initq_info->consumer_index_phys_addr_lo = instance->consumer_h;
-+
-+	init_frame->cmd				= MFI_CMD_INIT;
-+	init_frame->cmd_status			= 0xFF;
-+	init_frame->queue_info_new_phys_addr_lo	= initq_info_h;
-+
-+	init_frame->data_xfer_len = sizeof(struct megasas_init_queue_info);
-+
-+	/*
-+	 * Issue the init frame in polled mode
-+	 */
-+	if (megasas_issue_polled(instance, cmd)) {
-+		printk(KERN_DEBUG "megasas: Failed to init firmware\n");
-+		goto fail_fw_init;
-+	}
-+
-+	megasas_return_cmd(instance, cmd);
-+
-+	ctrl_info = kmalloc(sizeof(struct megasas_ctrl_info), GFP_KERNEL);
-+
-+	/*
-+	 * Compute the max allowed sectors per IO: The controller info has
-two
-+	 * limits on max sectors. Driver should use the minimum of these
-two.
-+	 *
-+	 * 1 << stripe_sz_ops.min = max sectors per strip
-+	 *
-+	 * Note that older firmwares ( < FW ver 30) didn't report
-information
-+	 * to calculate max_sectors_1. So the number ended up as zero
-always.
-+	 */
-+	if (ctrl_info && !megasas_get_ctrl_info(instance, ctrl_info)) {
-+
-+		max_sectors_1 =	(1 << ctrl_info->stripe_sz_ops.min) *
-+					ctrl_info->max_strips_per_io;
-+		max_sectors_2 =	ctrl_info->max_request_size;
-+
-+		instance->max_sectors_per_req = (max_sectors_1 <
-max_sectors_2) 
-+					?  max_sectors_1 : max_sectors_2;
-+	}
-+	else
-+		instance->max_sectors_per_req = instance->max_num_sge *
-+						PAGE_SIZE / 512;
-+
-+	kfree(ctrl_info);
-+
-+	return 0;
-+
-+fail_fw_init:
-+	megasas_return_cmd(instance, cmd);
-+
-+	pci_free_consistent(instance->pdev, reply_q_sz,
-+				instance->reply_queue,
-+				instance->reply_queue_h);
-+fail_reply_queue:
-+	megasas_free_cmds(instance);
-+
-+fail_alloc_cmds:
-+fail_ready_state:
-+	iounmap(instance->reg_set);
-+
-+fail_ioremap:
-+	pci_release_regions(instance->pdev);
-+
-+	return -EINVAL;
-+}
-+
-+/**
-+ * megasas_release_mfi -	Reverses the FW initialization
-+ * @intance:			Adapter soft state
-+ */
-+static void
-+megasas_release_mfi(struct megasas_instance *instance)
-+{
-+	u32 reply_q_sz = sizeof(u32) * (instance->max_fw_cmds + 1);
-+
-+	pci_free_consistent(instance->pdev, reply_q_sz,
-+				instance->reply_queue,
-+				instance->reply_queue_h);
-+
-+	megasas_free_cmds(instance);
-+
-+	iounmap(instance->reg_set);
-+
-+	pci_release_regions(instance->pdev);
-+}
-+
-+/**
-+ * megasas_get_seq_num -	Gets latest event sequence numbers
-+ * @instance:			Adapter soft state
-+ * @eli:			FW event log sequence numbers information
-+ *
-+ * FW maintains a log of all events in a non-volatile area. Upper layers
-would
-+ * usually find out the latest sequence number of the events, the seq
-number at
-+ * the boot etc. They would "read" all the events below the latest seq
-number
-+ * by issuing a direct fw cmd (DCMD). For the future events (beyond latest
-seq
-+ * number), they would subsribe to AEN (asynchronous event notification)
-and
-+ * wait for the events to happen.
-+ */
-+static int
-+megasas_get_seq_num( struct megasas_instance *instance,
-+			struct megasas_evt_log_info *eli)
-+{
-+	struct megasas_cmd		*cmd;
-+	struct megasas_dcmd_frame	*dcmd;
-+	struct megasas_evt_log_info	*el_info;
-+	dma_addr_t			el_info_h = 0;
-+
-+	cmd = megasas_get_cmd(instance);
-+
-+	if (!cmd) {
-+		return -ENOMEM;
-+	}
-+
-+	dcmd	= &cmd->frame->dcmd;
-+	el_info	= pci_alloc_consistent(instance->pdev,
-+				sizeof(struct megasas_evt_log_info),
-+							&el_info_h);
-+
-+	if (!el_info) {
-+		megasas_return_cmd(instance, cmd);
-+		return -ENOMEM;
-+	}
-+
-+	memset(el_info, 0, sizeof(*el_info));
-+	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
-+
-+	dcmd->cmd			= MFI_CMD_DCMD;
-+	dcmd->cmd_status		= 0x0;
-+	dcmd->sge_count			= 1;
-+	dcmd->flags			= MFI_FRAME_DIR_READ;
-+	dcmd->timeout			= 0;
-+	dcmd->data_xfer_len		= sizeof(struct
-megasas_evt_log_info);
-+	dcmd->opcode			= MR_DCMD_CTRL_EVENT_GET_INFO;
-+	dcmd->sgl.sge32[0].phys_addr	= el_info_h;
-+	dcmd->sgl.sge32[0].length	= sizeof(struct
-megasas_evt_log_info);
-+
-+	megasas_issue_blocked_cmd(instance, cmd);
-+
-+	/*
-+	 * Copy the data back into callers buffer
-+	 */
-+	memcpy(eli, el_info, sizeof(struct megasas_evt_log_info));
-+
-+	pci_free_consistent(instance->pdev, sizeof(struct
-megasas_evt_log_info),
-+							el_info, el_info_h);
-+
-+	megasas_return_cmd(instance, cmd);
-+
-+	return 0;
-+}
-+
-+/**
-+ * megasas_register_aen -	Registers for asynchronous event
-notification
-+ * @instance:			Adapter soft state
-+ * @seq_num:			The starting sequence number
-+ * @class_locale:		Class of the event
-+ *
-+ * This function subscribes for AEN for events beyond the @seq_num. It
-requests
-+ * to be notified if and only if the event is of type @class_locale
-+ */
-+static int
-+megasas_register_aen(struct megasas_instance *instance, u32 seq_num,
-+							u32
-class_locale_word)
-+{
-+	int					ret_val;
-+	struct megasas_cmd			*cmd;
-+	struct megasas_dcmd_frame		*dcmd;
-+	union megasas_evt_class_locale		curr_aen;
-+	union megasas_evt_class_locale		prev_aen;
-+
-+	/*
-+	 * If there an AEN pending already (aen_cmd), check if the
-+	 * class_locale of that pending AEN is inclusive of the new
-+	 * AEN request we currently have. If it is, then we don't have
-+	 * to do anything. In other words, whichever events the current
-+	 * AEN request is subscribing to, have already been subscribed
-+	 * to.
-+	 *
-+	 * If the old_cmd is _not_ inclusive, then we have to abort
-+	 * that command, form a class_locale that is superset of both
-+	 * old and current and re-issue to the FW
-+	 */
-+
-+	curr_aen.word = class_locale_word;
-+
-+	if (instance->aen_cmd) {
-+
-+		prev_aen.word = instance->aen_cmd->frame->dcmd.mbox.w[1];
-+
-+		if (!((prev_aen.members.locale & curr_aen.members.locale) ^ 
-+						curr_aen.members.locale)) {
-+			/*
-+			 * Required events have already been subscribed for
-+			 */
-+			return 0;
-+		}
-+		else{
-+			curr_aen.members.locale |= prev_aen.members.locale;
-+
-+			if(prev_aen.members.class < curr_aen.members.class)
-+				curr_aen.members.class =
-prev_aen.members.class;
-+
-+			instance->aen_cmd->abort_aen = 1;
-+			ret_val = megasas_issue_blocked_abort_cmd(instance, 
-+						instance->aen_cmd);
-+
-+			if (ret_val) {
-+				printk(KERN_DEBUG "megasas: Failed to abort
-"
-+						"previous AEN command\n");
-+				return ret_val;
-+			}
-+		}
-+	}
-+
-+	cmd = megasas_get_cmd( instance );
-+
-+	if (!cmd) 
-+		return -ENOMEM;
-+
-+	dcmd = &cmd->frame->dcmd;
-+
-+	memset(instance->evt_detail, 0, sizeof(struct megasas_evt_detail));
-+
-+	/*
-+	 * Prepare DCMD for aen registration
-+	 */
-+	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
-+
-+	dcmd->cmd			= MFI_CMD_DCMD;
-+	dcmd->cmd_status		= 0x0;
-+	dcmd->sge_count			= 1;
-+	dcmd->flags			= MFI_FRAME_DIR_READ;
-+	dcmd->timeout			= 0;
-+	dcmd->data_xfer_len		= sizeof(struct megasas_evt_detail);
-+	dcmd->opcode			= MR_DCMD_CTRL_EVENT_WAIT;
-+	dcmd->mbox.w[0]			= seq_num;
-+	dcmd->mbox.w[1]			= curr_aen.word;
-+	dcmd->sgl.sge32[0].phys_addr	= (u32)instance->evt_detail_h;
-+	dcmd->sgl.sge32[0].length	= sizeof(struct megasas_evt_detail);
-+
-+	/*
-+	 * Store reference to the cmd used to register for AEN. When an
-+	 * application wants us to register for AEN, we have to abort this
-+	 * cmd and re-register with a new EVENT LOCALE supplied by that app
-+	 */
-+	instance->aen_cmd = cmd;
-+
-+	/*
-+	 * Issue the aen registration frame
-+	 */
-+	writel(cmd->frame_phys_addr >> 3, 
-+		&instance->reg_set->inbound_queue_port);
-+
-+	return 0;
-+}
-+
-+
-+/**
-+ * megasas_start_aen -	Subscribes to AEN during driver load time
-+ * @instance:		Adapter soft state
-+ */
-+static int
-+megasas_start_aen(struct megasas_instance *instance)
-+{
-+	struct megasas_evt_log_info	eli;
-+	union megasas_evt_class_locale	class_locale;
-+
-+	/*
-+	 * Get the latest sequence number from FW
-+	 */
-+	memset( &eli, 0, sizeof(eli) );
-+
-+	if (megasas_get_seq_num( instance, &eli )) 
-+		return -1;
-+
-+	/*
-+	 * Register AEN with FW for latest sequence number plus 1
-+	 */
-+	class_locale.members.reserved	= 0;
-+	class_locale.members.locale	= MR_EVT_LOCALE_ALL;
-+	class_locale.members.class	= MR_EVT_CLASS_DEBUG;
-+
-+	return megasas_register_aen( instance, eli.newest_seq_num + 1,
-+						class_locale.word );
-+}
-+
-+/**
-+ * megasas_io_attach -	Attaches this driver to SCSI mid-layer
-+ * @instance:		Adapter soft state
-+ */
-+static int
-+megasas_io_attach(struct megasas_instance *instance)
-+{
-+	struct Scsi_Host *host = instance->host;
-+
-+	/*
-+	 * Export parameters required by SCSI mid-layer
-+	 */
-+	host->irq		= instance->pdev->irq;
-+	host->unique_id		= instance->unique_id;
-+	host->can_queue		= instance->max_fw_cmds - MEGASAS_INT_CMDS;
-+	host->this_id		= instance->init_id;
-+	host->sg_tablesize	= instance->max_num_sge;
-+	host->max_sectors	= instance->max_sectors_per_req;
-+	host->cmd_per_lun	= 128;
-+	host->max_channel	= MEGASAS_MAX_CHANNELS - 1;
-+	host->max_id		= MEGASAS_MAX_DEV_PER_CHANNEL;
-+	host->max_lun		= MEGASAS_MAX_LUN;
-+
-+	/*
-+	 * Notify the mid-layer about the new controller
-+	 */
-+	if (scsi_add_host(host, &instance->pdev->dev)) {
-+		printk( KERN_DEBUG "megasas: scsi_add_host failed\n" );
-+		return -ENODEV;
-+	}
-+
-+	/*
-+	 * Trigger SCSI to scan our drives
-+	 */
-+	scsi_scan_host(host);
-+	return 0;
-+}
-+
-+/**
-+ * megasas_probe_one -	PCI hotplug entry point
-+ * @pdev:		PCI device structure
-+ * @id:			PCI ids of supported hotplugged adapter	
-+ */
-+static int __devinit
-+megasas_probe_one(struct pci_dev *pdev, const struct pci_device_id *id )
-+{
-+	int				rval;
-+	struct Scsi_Host		*host;
-+	struct megasas_instance		*instance;
-+
-+	/*
-+	 * Announce PCI information
-+	 */
-+	printk(KERN_INFO "megasas: %#4.04x:%#4.04x:%#4.04x:%#4.04x: ",
-+		pdev->vendor, pdev->device, pdev->subsystem_vendor,
-+						pdev->subsystem_device);
-+
-+	printk(KERN_INFO "megasas: bus %d:slot %d:func %d\n",
-+		pdev->bus->number,
-PCI_SLOT(pdev->devfn),PCI_FUNC(pdev->devfn));
-+
-+	/*
-+	 * PCI prepping: enable device set bus mastering and dma mask
-+	 */
-+	rval = pci_enable_device(pdev);
-+
-+	if (rval) {
-+		return rval;
-+	}
-+
-+	pci_set_master(pdev);
-+
-+	/*
-+	 * All our contollers are capable of performing 64-bit DMA
-+	 */
-+	if (IS_DMA64) {
-+		if (pci_set_dma_mask( pdev, DMA_64BIT_MASK) != 0) {
-+
-+			if (pci_set_dma_mask( pdev, DMA_32BIT_MASK ) != 0) 
-+				goto fail_set_dma_mask;
-+		}
-+	}
-+	else {
-+		if (pci_set_dma_mask( pdev, DMA_32BIT_MASK ) != 0) 
-+			goto fail_set_dma_mask;
-+	}
-+
-+	host = scsi_host_alloc(&megasas_template, 
-+				sizeof(struct megasas_instance));
-+
-+	if (!host) {
-+		printk(KERN_DEBUG "megasas: scsi_host_alloc failed\n");
-+		goto fail_alloc_instance;
-+	}
-+
-+	instance = (struct megasas_instance*)host->hostdata;
-+	memset(instance, 0, sizeof(*instance));
-+
-+	instance->producer = pci_alloc_consistent(pdev, sizeof(u32),
-+
-&instance->producer_h);
-+	instance->consumer = pci_alloc_consistent(pdev, sizeof(u32),
-+
-&instance->consumer_h);
-+
-+	if (!instance->producer || !instance->consumer) {
-+		printk( KERN_DEBUG "megasas: Failed to allocate memory for "
-+						"producer, consumer\n" );
-+		goto fail_alloc_dma_buf;
-+	}
-+
-+	*instance->producer = 0;
-+	*instance->consumer = 0;
-+
-+	instance->evt_detail = pci_alloc_consistent(pdev,
-+				sizeof(struct megasas_evt_detail),
-+				&instance->evt_detail_h);
-+
-+	if (!instance->evt_detail) {
-+		printk(KERN_DEBUG "megasas: Failed to allocate memory for "
-+						"event detail structure\n");
-+		goto fail_alloc_dma_buf;
-+	}
-+
-+	/*
-+	 * Initialize locks and queues
-+	 */
-+	INIT_LIST_HEAD(&instance->cmd_pool);
-+
-+	init_waitqueue_head(&instance->int_cmd_wait_q);
-+	init_waitqueue_head(&instance->abort_cmd_wait_q);
-+
-+	spin_lock_init(&instance->cmd_pool_lock);
-+	spin_lock_init(&instance->instance_lock);
-+
-+	sema_init(&instance->aen_mutex, 1);
-+	sema_init(&instance->ioctl_sem, MEGASAS_INT_CMDS);
-+
-+	/*
-+	 * Initialize PCI related and misc parameters
-+	 */
-+	instance->pdev		= pdev;
-+	instance->host		= host;	
-+	instance->unique_id	= pdev->bus->number << 8 | pdev->devfn;
-+	instance->init_id	= MEGASAS_DEFAULT_INIT_ID;
-+
-+	/*
-+	 * Initialize MFI Firmware
-+	 */
-+	if (megasas_init_mfi(instance))
-+		goto fail_init_mfi;
-+
-+	/*
-+	 * Register IRQ
-+	 */
-+	if (request_irq(pdev->irq, megasas_isr, SA_SHIRQ, "megasas",
-+							instance)) {
-+		printk(KERN_DEBUG "megasas: Failed to register IRQ\n");
-+		goto fail_irq;
-+	}
-+
-+	megasas_enable_intr(instance->reg_set);
-+
-+	/*
-+	 * Store instance in PCI softstate
-+	 */
-+	pci_set_drvdata(pdev, instance);
-+
-+	/*
-+	 * Add this controller to megasas_mgmt_info structure so that it
-+	 * can be exported to management applications
-+	 */
-+	megasas_mgmt_info.count++;
-+	megasas_mgmt_info.instance[megasas_mgmt_info.max_index] = instance;
-+	megasas_mgmt_info.max_index++;
-+
-+	/*
-+	 * Initiate AEN (Asynchronous Event Notification)
-+	 */
-+	if (megasas_start_aen(instance)) {
-+		printk(KERN_DEBUG "megasas: start aen failed\n");
-+		goto fail_start_aen;
-+	}
-+
-+	/*
-+	 * Register with SCSI mid-layer
-+	 */
-+	if (megasas_io_attach(instance))
-+		goto fail_io_attach;
-+
-+	return 0;
-+
-+fail_start_aen:
-+fail_io_attach:
-+	megasas_mgmt_info.count--;
-+	megasas_mgmt_info.instance[megasas_mgmt_info.max_index] = NULL;
-+	megasas_mgmt_info.max_index--;
-+
-+	pci_set_drvdata(pdev, NULL);
-+	megasas_disable_intr(instance->reg_set);
-+	free_irq(instance->pdev->irq, instance);
-+
-+	megasas_release_mfi(instance);
-+
-+fail_irq:
-+fail_init_mfi:
-+fail_alloc_dma_buf:
-+	if (instance->evt_detail)
-+		pci_free_consistent(pdev, sizeof(struct megasas_evt_detail),
-+				instance->evt_detail,
-instance->evt_detail_h);
-+
-+	if (instance->producer)
-+		pci_free_consistent(pdev, sizeof(u32), instance->producer,
-+
-instance->producer_h);
-+	if (instance->consumer)
-+		pci_free_consistent(pdev, sizeof(u32), instance->consumer,
-+
-instance->consumer_h);
-+	scsi_host_put(host);
-+
-+fail_alloc_instance:
-+fail_set_dma_mask:
-+	pci_disable_device(pdev);
-+
-+	return -ENODEV;
-+}
-+
-+/**
-+ * megasas_flush_cache -	Requests FW to flush all its caches
-+ * @instance:			Adapter soft state
-+ */
-+static void
-+megasas_flush_cache(struct megasas_instance *instance)
-+{
-+	struct megasas_cmd		*cmd;
-+	struct megasas_dcmd_frame	*dcmd;
-+
-+	cmd = megasas_get_cmd(instance);
-+
-+	if (!cmd)
-+		return;
-+
-+	dcmd = &cmd->frame->dcmd;
-+
-+	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
-+
-+	dcmd->cmd			= MFI_CMD_DCMD;
-+	dcmd->cmd_status		= 0x0;
-+	dcmd->sge_count			= 0;
-+	dcmd->flags			= MFI_FRAME_DIR_NONE;
-+	dcmd->timeout			= 0;
-+	dcmd->data_xfer_len		= 0;
-+	dcmd->opcode			= MR_DCMD_CTRL_CACHE_FLUSH;
-+	dcmd->mbox.b[0]			= MR_FLUSH_CTRL_CACHE |
-+						MR_FLUSH_DISK_CACHE;
-+
-+	megasas_issue_blocked_cmd(instance, cmd);
-+
-+	megasas_return_cmd(instance, cmd);
-+
-+	return;
-+}
-+
-+/**
-+ * megasas_shutdown_controller -	Instructs FW to shutdown the
-controller
-+ * @instance:				Adapter soft state
-+ */
-+static void
-+megasas_shutdown_controller(struct megasas_instance *instance)
-+{
-+	struct megasas_cmd		*cmd;
-+	struct megasas_dcmd_frame	*dcmd;
-+
-+	cmd = megasas_get_cmd(instance);
-+
-+	if (!cmd);
-+		return;
-+
-+	if (instance->aen_cmd)
-+		megasas_issue_blocked_abort_cmd(instance,
-instance->aen_cmd);
-+
-+	dcmd = &cmd->frame->dcmd;
-+
-+	memset( dcmd->mbox.b, 0, MFI_MBOX_SIZE );
-+
-+	dcmd->cmd			= MFI_CMD_DCMD;
-+	dcmd->cmd_status		= 0x0;
-+	dcmd->sge_count			= 0;
-+	dcmd->flags			= MFI_FRAME_DIR_NONE;
-+	dcmd->timeout			= 0;
-+	dcmd->data_xfer_len		= 0;
-+	dcmd->opcode			= MR_DCMD_CTRL_SHUTDOWN;
-+
-+	megasas_issue_blocked_cmd(instance, cmd);
-+
-+	megasas_return_cmd(instance, cmd);
-+
-+	return;
-+}
-+
-+/**
-+ * megasas_detach_one -	PCI hot"un"plug entry point
-+ * @pdev:		PCI device structure
-+ */
-+static void
-+megasas_detach_one(struct pci_dev *pdev)
-+{
-+	int				i;
-+	struct Scsi_Host		*host;
-+	struct megasas_instance		*instance;
-+
-+	instance 	= pci_get_drvdata(pdev);
-+	host		= instance->host;
-+
-+	scsi_remove_host(instance->host);
-+	megasas_flush_cache(instance);
-+	megasas_shutdown_controller(instance);
-+
-+	/*
-+	 * Take the instance off the instance array. Note that we will not
-+	 * decrement the max_index. We let this array be sparse array
-+	 */
-+	for (i = 0; i < megasas_mgmt_info.max_index; i++) {
-+		if (megasas_mgmt_info.instance[i] == instance) {
-+			megasas_mgmt_info.count--;
-+			megasas_mgmt_info.instance[i] = NULL;
-+
-+			break;
-+		}
-+	}
-+
-+	pci_set_drvdata(instance->pdev, NULL);
-+
-+	megasas_disable_intr(instance->reg_set);
-+
-+	free_irq(instance->pdev->irq, instance);
-+
-+	megasas_release_mfi(instance);
-+
-+	pci_free_consistent(pdev, sizeof(struct megasas_evt_detail),
-+			instance->evt_detail, instance->evt_detail_h);
-+
-+	pci_free_consistent(pdev, sizeof(u32), instance->producer,
-+						instance->producer_h);
-+
-+	pci_free_consistent(pdev, sizeof(u32), instance->consumer,
-+						instance->consumer_h);
-+
-+	scsi_host_put(host);
-+
-+	pci_set_drvdata(pdev, NULL);
-+
-+	pci_disable_device(pdev);
-+
-+	return;
-+}
-+
-+/**
-+ * megasas_shutdown -	Shutdown entry point
-+ * @device:		Generic device structure
-+ */
-+static void
-+megasas_shutdown(struct pci_dev *pdev)
-+{
-+	struct megasas_instance	*instance = pci_get_drvdata(pdev);
-+	megasas_flush_cache(instance);
-+}
-+
-+/**
-+ * megasas_mgmt_open -	char node "open" entry point
-+ */
-+static int
-+megasas_mgmt_open(struct inode *inode, struct file *filep)
-+{
-+	/*
-+	 * Allow only those users with admin rights
-+	 */
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	return 0;
-+}
-+
-+/**
-+ * megasas_mgmt_release - char node "release" entry point
-+ */
-+static int
-+megasas_mgmt_release(struct inode *inode, struct file *filep)
-+{
-+	filep->private_data = NULL;
-+	fasync_helper(-1, filep, 0, &megasas_async_queue);
-+
-+	return 0;
-+}
-+
-+/**
-+ * megasas_mgmt_fasync -	Async notifier registration from
-applications
-+ *
-+ * This function adds the calling process to a driver global queue. When an
-+ * event occurs, SIGIO will be sent to all processes in this queue.
-+ */
-+static int
-+megasas_mgmt_fasync(int fd, struct file *filep, int mode)
-+{
-+	int rc;
-+
-+	down( &megasas_async_queue_mutex );
-+
-+	rc = fasync_helper(fd, filep, mode, &megasas_async_queue);
-+
-+	up(&megasas_async_queue_mutex);
-+
-+	if (rc >= 0) {
-+		/* For sanity check when we get ioctl */
-+		filep->private_data = filep;
-+		return 0;
-+	}
-+
-+	printk(KERN_DEBUG "megasas: fasync_helper failed [%d]\n", rc);
-+
-+	return rc;
-+}
-+
-+/**
-+ * megasas_mgmt_fw_ioctl -	Issues management ioctls to FW
-+ * @instance:			Adapter soft state
-+ * @argp:			User's ioctl packet
-+ */
-+static int
-+megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
-+		struct megasas_iocpacket __user *user_ioc,
-+		struct megasas_iocpacket *ioc)
-+{
-+	struct megasas_sge32	*kern_sge32;
-+	struct megasas_cmd 	*cmd;
-+	void 			*kbuff_arr[MAX_IOCTL_SGE];
-+	dma_addr_t		buf_handle = 0;
-+	int			error = 0, i;
-+	void			*sense = NULL;
-+	dma_addr_t		sense_handle;
-+	u32*			sense_ptr;
-+
-+	memset(kbuff_arr, 0, sizeof(kbuff_arr));
-+
-+	if (ioc->sge_count > MAX_IOCTL_SGE) {
-+		printk(KERN_DEBUG "megasas: SGE count [%d] >  max limit
-[%d]\n",
-+						ioc->sge_count,
-MAX_IOCTL_SGE);
-+		return -EINVAL;
-+	}
-+
-+	cmd = megasas_get_cmd(instance);
-+	if (!cmd) {
-+		printk(KERN_DEBUG "megasas: Failed to get a cmd packet\n");
-+		return -ENOMEM;
-+	}
-+
-+	/*
-+	 * User's IOCTL packet has 2 frames (maximum). Copy those two
-+	 * frames into our cmd's frames. cmd->frame's context will get
-+	 * overwritten when we copy from user's frames. So set that value
-+	 * alone separately
-+	 */
-+	memcpy(cmd->frame, ioc->frame.raw, 2 * MEGAMFI_FRAME_SIZE); 
-+	cmd->frame->hdr.context = cmd->index;
-+
-+	/*
-+	 * The management interface between applications and the fw uses
-+	 * MFI frames. E.g, RAID configuration changes, LD property changes
-+	 * etc are accomplishes through different kinds of MFI frames. The
-+	 * driver needs to care only about substituting user buffers with
-+	 * kernel buffers in SGLs. The location of SGL is embedded in the
-+	 * struct iocpacket itself.
-+	 */
-+	kern_sge32 = (struct megasas_sge32 *)
-+			((unsigned long)cmd->frame + ioc->sgl_off);
-+
-+	/*
-+	 * For each user buffer, create a mirror buffer and copy in
-+	 */
-+	for (i = 0; i < ioc->sge_count; i++) {
-+		kbuff_arr[i] = pci_alloc_consistent(instance->pdev, 
-+				ioc->sgl[i].iov_len, &buf_handle);
-+		if (!kbuff_arr[i]) {
-+			printk(KERN_DEBUG "megasas: Failed to alloc "
-+				"kernel SGL buffer for IOCTL \n");
-+			error = -ENOMEM;
-+			goto out;
-+		}
-+
-+		/*
-+		 * We don't change the dma_coherent_mask, so
-+		 * pci_alloc_consistent only returns 32bit addresses
-+		 */
-+		kern_sge32[i].phys_addr = (u32)buf_handle;
-+		kern_sge32[i].length = ioc->sgl[i].iov_len;
-+
-+		/*
-+		 * We created a kernel buffer corresponding to the
-+		 * user buffer. Now copy in from the user buffer
-+		 */
-+		if (copy_from_user(kbuff_arr[i], ioc->sgl[i].iov_base,
-+				   ioc->sgl[i].iov_len)) {
-+			error = -EFAULT;
-+			goto out;
-+		}
-+	}
-+
-+	if (ioc->sense_len) {
-+		sense = pci_alloc_consistent(instance->pdev, ioc->sense_len,
-+							&sense_handle);
-+		if (!sense) {
-+			error = -ENOMEM;
-+			goto out;
-+		}
-+
-+		sense_ptr = (u32*)((unsigned long)cmd->frame +
-ioc->sense_off);
-+		*sense_ptr = sense_handle;
-+	}
-+
-+	/*
-+	 * Set the sync_cmd flag so that the ISR knows not to complete this
-+	 * cmd to the SCSI mid-layer
-+	 */
-+	cmd->sync_cmd =1;
-+	megasas_issue_blocked_cmd(instance, cmd);
-+
-+	/*
-+	 * copy out the kernel buffers user buffers
-+	 */
-+	for (i = 0; i < ioc->sge_count; i++) {
-+		if (copy_to_user(ioc->sgl[i].iov_base, kbuff_arr[i],
-+				 ioc->sgl[i].iov_len)) {
-+			error = -EFAULT;
-+			goto out;
-+		}
-+	}
-+
-+	/*
-+	 * copy out the sense
-+	 */
-+	if (ioc->sense_len) {
-+		/*
-+		 * sense_ptr points to the location that has the user
-+		 * sense buffer address
-+		 */
-+		sense_ptr = (u32*)((unsigned long)ioc->frame.raw +
-+							ioc->sense_off);
-+
-+		if (copy_to_user((void __user *)((unsigned
-long)(*sense_ptr)),
-+					sense, ioc->sense_len)) {
-+			error = -EFAULT;
-+			goto out;
-+		}
-+	}
-+
-+	/*
-+	 * copy the status codes returned by the fw
-+	 */
-+	if (put_user(cmd->frame->hdr.cmd_status,
-+		     &user_ioc->frame.hdr.cmd_status))
-+		error = -EFAULT;
-+
-+ out:
-+	if (sense) {
-+		pci_free_consistent(instance->pdev, ioc->sense_len,
-+						sense, sense_handle);
-+	}
-+
-+	for (i = 0; i < ioc->sge_count && kbuff_arr[i]; i++) {
-+		pci_free_consistent(instance->pdev, 
-+					kern_sge32[i].length,
-+					kbuff_arr[i],
-+					kern_sge32[i].phys_addr);
-+	}
-+
-+	return error;
-+}
-+
-+static struct megasas_instance *
-+megasas_lookup_instance(u16 host_no )
-+{
-+	int i;
-+
-+	for(i = 0; i < megasas_mgmt_info.max_index; i++) {
-+
-+		if ((megasas_mgmt_info.instance[i]) && 
-+		(megasas_mgmt_info.instance[i]->host->host_no == host_no))
-+			return megasas_mgmt_info.instance[i];
-+	}
-+	
-+	return NULL;
-+}
-+
-+static int
-+megasas_mgmt_ioctl_fw(struct file *file, unsigned long arg)
-+{
-+	struct megasas_iocpacket __user *user_ioc =
-+		(struct megasas_iocpacket __user *)arg;
-+	struct megasas_iocpacket *ioc;
-+   	struct megasas_instance *instance;
-+	int error;
-+
-+	ioc = kmalloc(sizeof(*ioc), GFP_KERNEL);
-+	if (!ioc)
-+		return -ENOMEM;
-+
-+	if (copy_from_user(ioc, user_ioc, sizeof(*ioc))) {
-+		error = -EFAULT;
-+		goto out_kfree_ioc;
-+	}
-+
-+	instance = megasas_lookup_instance(ioc->host_no);
-+	if (!instance) {
-+		error = -ENODEV;
-+		goto out_kfree_ioc;
-+	}
-+
-+	/*
-+	 * We will allow only MEGASAS_INT_CMDS number of parallel ioctl cmds
-+	 */
-+	if (down_interruptible(&instance->ioctl_sem)) {
-+		error = -ERESTARTSYS;
-+		goto out_kfree_ioc;
-+	}
-+	error = megasas_mgmt_fw_ioctl(instance, user_ioc, ioc);
-+	up(&instance->ioctl_sem);
-+
-+ out_kfree_ioc:
-+	kfree(ioc);
-+	return error;
-+}
-+
-+static int
-+megasas_mgmt_ioctl_aen(struct file *file, unsigned long arg)
-+{
-+   	struct megasas_instance *instance;
-+	struct megasas_aen aen;
-+	int error;
-+
-+	if (file->private_data != file) {
-+		printk(KERN_DEBUG "megasas: fasync_helper was not "
-+						"called first\n" );
-+		return -EINVAL;
-+	}
-+
-+	if (copy_from_user(&aen, (void __user *)arg, sizeof(aen)))
-+		return -EFAULT;
-+
-+	instance = megasas_lookup_instance(aen.host_no);
-+
-+	if (!instance)
-+		return -ENODEV;
-+
-+	down(&instance->aen_mutex);
-+	error = megasas_register_aen(instance, aen.seq_num, 
-+					aen.class_locale_word);
-+	up(&instance->aen_mutex);
-+	return error;
-+}
-+
-+/**
-+ * megasas_mgmt_ioctl -	char node ioctl entry point
-+ */
-+static long
-+megasas_mgmt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	switch (cmd) {
-+	case MEGASAS_IOC_FIRMWARE:
-+		return megasas_mgmt_ioctl_fw(file, arg);
-+
-+	case MEGASAS_IOC_GET_AEN:
-+		return megasas_mgmt_ioctl_aen(file,  arg);
-+	}
-+
-+	return -ENOTTY;
-+}
-+
-+#ifdef CONFIG_COMPAT
-+struct compat_megasas_iocpacket {
-+	u16			controller_id;
-+	u16			__pad1;
-+	u32			sgl_off;
-+	u32			sge_count;
-+	union {
-+		u8			raw[128];
-+		struct megasas_header	hdr;
-+	} frame;
-+	struct compat_iovec	sgl[MAX_IOCTL_SGE];
-+} __attribute__ ((packed));
-+
-+static int
-+megasas_mgmt_compat_ioctl_fw(struct file *file, unsigned long arg)
-+{
-+	struct megasas_iocpacket __user *ioc =
-+		(struct megasas_iocpacket __user *)arg;
-+	struct compat_megasas_iocpacket __user *cioc =
-+		compat_alloc_user_space(sizeof(*cioc));
-+	int i;
-+
-+	if (copy_in_user(&ioc->controller_id, &cioc->controller_id,
-sizeof(u16)) ||
-+	    copy_in_user(&ioc->sgl_off, &cioc->sgl_off, sizeof(u32)) ||
-+	    copy_in_user(&ioc->sge_count, &cioc->sge_count, sizeof(u32)))
-+		return -EFAULT;
-+
-+	for (i = 0; i < MAX_IOCTL_SGE; i++) {
-+		compat_uptr_t ptr;
-+
-+		if (get_user(ptr, &cioc->sgl[i].iov_base) ||
-+		    put_user(compat_ptr(ptr), &ioc->sgl[i].iov_base) ||
-+		    copy_in_user(&ioc->sgl[i].iov_len,
-+			         &cioc->sgl[i].iov_len,
-+				 sizeof(compat_size_t)))
-+			return -EFAULT;
-+	}
-+
-+	return megasas_mgmt_ioctl_fw(file, (unsigned long)cioc);
-+}
-+
-+static long
-+megasas_mgmt_compat_ioctl(struct file *file, unsigned int cmd, unsigned
-long arg)
-+{
-+	switch (cmd) {
-+	case MEGASAS_IOC_FIRMWARE: {
-+		return megasas_mgmt_compat_ioctl_fw(file, arg);
-+	}
-+	case MEGASAS_IOC_GET_AEN:
-+		return megasas_mgmt_ioctl_aen(file, arg);
-+	}
-+
-+	return -ENOTTY;
-+}
-+#endif
-+
-+/*
-+ * File operations structure for management interface
-+ */
-+static struct file_operations megasas_mgmt_fops = {
-+	.owner		= THIS_MODULE,
-+	.open		= megasas_mgmt_open,
-+	.release	= megasas_mgmt_release,
-+	.fasync		= megasas_mgmt_fasync,
-+	.unlocked_ioctl	= megasas_mgmt_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= megasas_mgmt_compat_ioctl,
-+#endif
-+};
-+
-+/*
-+ * PCI hotplug support registration structure
-+ */
-+static struct pci_driver megasas_pci_driver = {
-+
-+	.name		= "megaraid_sas",
-+	.id_table	= megasas_pci_table,
-+	.probe		= megasas_probe_one,
-+	.remove		= __devexit_p(megasas_detach_one),
-+	.shutdown	= megasas_shutdown,
-+};
-+
-+/*
-+ * Sysfs driver attributes
-+ */
-+static ssize_t
-+megasas_sysfs_show_version(struct device_driver *dd, char* buf)
-+{
-+	return snprintf(buf, strlen(MEGASAS_VERSION)+2, "%s\n", 
-+						MEGASAS_VERSION);
-+}
-+
-+static DRIVER_ATTR(version, S_IRUGO, megasas_sysfs_show_version, NULL);
-+
-+static ssize_t
-+megasas_sysfs_show_release_date(struct device_driver* dd, char* buf)
-+{
-+	return snprintf(buf, strlen(MEGASAS_RELDATE)+2, "%s\n",
-+						MEGASAS_RELDATE);
-+}
-+
-+static DRIVER_ATTR(release_date, S_IRUGO, megasas_sysfs_show_release_date,
-NULL);
-+
-+static ssize_t
-+megasas_sysfs_show_hba_count(struct device_driver *dd, char *buf)
-+{
-+	return snprintf(buf, 8, "%u\n", megasas_mgmt_info.count );
-+}
-+
-+static DRIVER_ATTR(hba_count, S_IRUGO, megasas_sysfs_show_hba_count, NULL);
-+
-+/**
-+ * megasas_init - Driver load entry point
-+ */
-+static int __init
-+megasas_init(void)
-+{
-+	int rval;
-+
-+	/*
-+	 * Announce driver version and other information
-+	 */
-+	printk( KERN_INFO "megasas: %s %s\n", MEGASAS_VERSION,
-+					MEGASAS_EXT_VERSION);
-+
-+	memset( &megasas_mgmt_info, 0, sizeof(megasas_mgmt_info));
-+
-+	/*
-+	 * Register character device node
-+	 */
-+	rval =  register_chrdev(0, "megaraid_sas_ioctl",
-&megasas_mgmt_fops);
-+
-+	if (rval < 0) {
-+		printk(KERN_DEBUG "megasas: failed to open device node\n");
-+		return rval;
-+	}
-+
-+	megasas_mgmt_majorno = rval;
-+
-+	/*
-+	 * Register ourselves as PCI hotplug module
-+	 */
-+	rval = pci_module_init(&megasas_pci_driver);
-+
-+	if(rval) {
-+		printk(KERN_DEBUG "megasas: PCI hotplug regisration failed
-\n");
-+		unregister_chrdev(megasas_mgmt_majorno,
-"megaraid_sas_ioctl");
-+	}
-+
-+	driver_create_file(&megasas_pci_driver.driver,
-&driver_attr_version);
-+	driver_create_file(&megasas_pci_driver.driver, 
-+						&driver_attr_release_date);
-+	driver_create_file(&megasas_pci_driver.driver,
-&driver_attr_hba_count);
-+
-+	return rval;
-+}
-+
-+/**
-+ * megasas_exit - Driver unload entry point
-+ */
-+static void __exit
-+megasas_exit(void)
-+{
-+	driver_remove_file(&megasas_pci_driver.driver,
-&driver_attr_version);
-+	driver_remove_file(&megasas_pci_driver.driver, 
-+						&driver_attr_release_date);
-+	driver_remove_file(&megasas_pci_driver.driver,
-&driver_attr_hba_count);
-+
-+	pci_unregister_driver(&megasas_pci_driver);
-+	unregister_chrdev(megasas_mgmt_majorno, "megaraid_sas_ioctl");
-+}
-+
-+module_init(megasas_init);
-+module_exit(megasas_exit);
-+
+Hi!
+
+ I just switched out motherboards and CPUs From a Asus K8v SE Deluxe
+to a to a Asus A8V-E Deluxe, and a 754 pin 3200+ to a 934 pin 3200+.
+I am now having some fairly serious instability issues. The system
+locks up completely with no oops. After disabling CONFIGHIMEM and
+CONFIG_PREEMPT_VOLUNTARY the is considerably more stable but not
+completely.
+
+These lockups are from what I guess PCI/SCSI/FS related. They are most
+often triggered by of all things mutt. Compiling the kernel, bziping
+files, general IO, seems fine, but reading my mail with mutt? it triggers
+the lockup.
+
+Things are out of the ordinary about this machine.
+
+* PCI-E=20
+
+* SCSI card (LSI 53c1030 Fusion-MPT)=20
+
+* SCSI disk=20
+
+* X does not work at this time. (I've not had a stable machine=20
+to troubleshoot.)
+
+I have switched out RAM, power supplies, and CPU fans, and network
+cards.
+
+I'm up for suggestions before I switch back to the old motherboard
+and CPU.
+
+=2Econfig, output from ver_linux, and lspci -vvv are included.
+
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.13-rc7
+# Thu Aug 25 12:39:58 2005
+#
+CONFIG_X86=3Dy
+CONFIG_MMU=3Dy
+CONFIG_UID16=3Dy
+CONFIG_GENERIC_ISA_DMA=3Dy
+CONFIG_GENERIC_IOMAP=3Dy
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=3Dy
+# CONFIG_CLEAN_COMPILE is not set
+CONFIG_BROKEN=3Dy
+CONFIG_BROKEN_ON_SMP=3Dy
+CONFIG_INIT_ENV_ARG_LIMIT=3D32
+
+#
+# General setup
+#
+CONFIG_LOCALVERSION=3D""
+CONFIG_SWAP=3Dy
+CONFIG_SYSVIPC=3Dy
+CONFIG_POSIX_MQUEUE=3Dy
+CONFIG_BSD_PROCESS_ACCT=3Dy
+# CONFIG_BSD_PROCESS_ACCT_V3 is not set
+CONFIG_SYSCTL=3Dy
+# CONFIG_AUDIT is not set
+CONFIG_HOTPLUG=3Dy
+CONFIG_KOBJECT_UEVENT=3Dy
+# CONFIG_IKCONFIG is not set
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=3Dy
+CONFIG_KALLSYMS_ALL=3Dy
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
+CONFIG_PRINTK=3Dy
+CONFIG_BUG=3Dy
+CONFIG_BASE_FULL=3Dy
+CONFIG_FUTEX=3Dy
+CONFIG_EPOLL=3Dy
+CONFIG_SHMEM=3Dy
+CONFIG_CC_ALIGN_FUNCTIONS=3D0
+CONFIG_CC_ALIGN_LABELS=3D0
+CONFIG_CC_ALIGN_LOOPS=3D0
+CONFIG_CC_ALIGN_JUMPS=3D0
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=3D0
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=3Dy
+CONFIG_MODULE_UNLOAD=3Dy
+# CONFIG_MODULE_FORCE_UNLOAD is not set
+CONFIG_OBSOLETE_MODPARM=3Dy
+# CONFIG_MODVERSIONS is not set
+# CONFIG_MODULE_SRCVERSION_ALL is not set
+CONFIG_KMOD=3Dy
+
+#
+# Processor type and features
+#
+CONFIG_X86_PC=3Dy
+# CONFIG_X86_ELAN is not set
+# CONFIG_X86_VOYAGER is not set
+# CONFIG_X86_NUMAQ is not set
+# CONFIG_X86_SUMMIT is not set
+# CONFIG_X86_BIGSMP is not set
+# CONFIG_X86_VISWS is not set
+# CONFIG_X86_GENERICARCH is not set
+# CONFIG_X86_ES7000 is not set
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMII is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUMM is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+CONFIG_MK8=3Dy
+# CONFIG_MCRUSOE is not set
+# CONFIG_MEFFICEON is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MGEODEGX1 is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+# CONFIG_X86_GENERIC is not set
+CONFIG_X86_CMPXCHG=3Dy
+CONFIG_X86_XADD=3Dy
+CONFIG_X86_L1_CACHE_SHIFT=3D6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
+CONFIG_GENERIC_CALIBRATE_DELAY=3Dy
+CONFIG_X86_WP_WORKS_OK=3Dy
+CONFIG_X86_INVLPG=3Dy
+CONFIG_X86_BSWAP=3Dy
+CONFIG_X86_POPAD_OK=3Dy
+CONFIG_X86_GOOD_APIC=3Dy
+CONFIG_X86_INTEL_USERCOPY=3Dy
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
+CONFIG_HPET_TIMER=3Dy
+CONFIG_HPET_EMULATE_RTC=3Dy
+# CONFIG_SMP is not set
+CONFIG_PREEMPT_NONE=3Dy
+# CONFIG_PREEMPT_VOLUNTARY is not set
+# CONFIG_PREEMPT is not set
+CONFIG_X86_UP_APIC=3Dy
+CONFIG_X86_UP_IOAPIC=3Dy
+CONFIG_X86_LOCAL_APIC=3Dy
+CONFIG_X86_IO_APIC=3Dy
+CONFIG_X86_TSC=3Dy
+CONFIG_X86_MCE=3Dy
+CONFIG_X86_MCE_NONFATAL=3Dy
+# CONFIG_X86_MCE_P4THERMAL is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+CONFIG_X86_REBOOTFIXUPS=3Dy
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+
+#
+# Firmware Drivers
+#
+# CONFIG_EDD is not set
+CONFIG_NOHIGHMEM=3Dy
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+CONFIG_SELECT_MEMORY_MODEL=3Dy
+CONFIG_FLATMEM_MANUAL=3Dy
+# CONFIG_DISCONTIGMEM_MANUAL is not set
+# CONFIG_SPARSEMEM_MANUAL is not set
+CONFIG_FLATMEM=3Dy
+CONFIG_FLAT_NODE_MEM_MAP=3Dy
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=3Dy
+# CONFIG_EFI is not set
+CONFIG_REGPARM=3Dy
+CONFIG_SECCOMP=3Dy
+# CONFIG_HZ_100 is not set
+CONFIG_HZ_250=3Dy
+# CONFIG_HZ_1000 is not set
+CONFIG_HZ=3D250
+CONFIG_PHYSICAL_START=3D0x100000
+# CONFIG_KEXEC is not set
+
+#
+# Power management options (ACPI, APM)
+#
+CONFIG_PM=3Dy
+# CONFIG_PM_DEBUG is not set
+# CONFIG_SOFTWARE_SUSPEND is not set
+
+#
+# ACPI (Advanced Configuration and Power Interface) Support
+#
+CONFIG_ACPI=3Dy
+CONFIG_ACPI_BOOT=3Dy
+CONFIG_ACPI_INTERPRETER=3Dy
+CONFIG_ACPI_SLEEP=3Dy
+CONFIG_ACPI_SLEEP_PROC_FS=3Dy
+# CONFIG_ACPI_SLEEP_PROC_SLEEP is not set
+CONFIG_ACPI_AC=3Dm
+CONFIG_ACPI_BATTERY=3Dm
+CONFIG_ACPI_BUTTON=3Dm
+CONFIG_ACPI_VIDEO=3Dm
+# CONFIG_ACPI_HOTKEY is not set
+CONFIG_ACPI_FAN=3Dm
+CONFIG_ACPI_PROCESSOR=3Dm
+CONFIG_ACPI_THERMAL=3Dm
+# CONFIG_ACPI_ASUS is not set
+# CONFIG_ACPI_IBM is not set
+# CONFIG_ACPI_TOSHIBA is not set
+CONFIG_ACPI_BLACKLIST_YEAR=3D0
+CONFIG_ACPI_DEBUG=3Dy
+CONFIG_ACPI_BUS=3Dy
+CONFIG_ACPI_EC=3Dy
+CONFIG_ACPI_POWER=3Dy
+CONFIG_ACPI_PCI=3Dy
+CONFIG_ACPI_SYSTEM=3Dy
+# CONFIG_X86_PM_TIMER is not set
+# CONFIG_ACPI_CONTAINER is not set
+
+#
+# APM (Advanced Power Management) BIOS Support
+#
+# CONFIG_APM is not set
+
+#
+# CPU Frequency scaling
+#
+# CONFIG_CPU_FREQ is not set
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+CONFIG_PCI=3Dy
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GOMMCONFIG is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=3Dy
+CONFIG_PCI_BIOS=3Dy
+CONFIG_PCI_DIRECT=3Dy
+CONFIG_PCI_MMCONFIG=3Dy
+CONFIG_PCIEPORTBUS=3Dy
+# CONFIG_PCI_MSI is not set
+CONFIG_PCI_LEGACY_PROC=3Dy
+CONFIG_PCI_NAMES=3Dy
+# CONFIG_PCI_DEBUG is not set
+CONFIG_ISA_DMA_API=3Dy
+# CONFIG_ISA is not set
+# CONFIG_MCA is not set
+# CONFIG_SCx200 is not set
+
+#
+# PCCARD (PCMCIA/CardBus) support
+#
+# CONFIG_PCCARD is not set
+
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+
+#
+# Executable file formats
+#
+CONFIG_BINFMT_ELF=3Dy
+CONFIG_BINFMT_AOUT=3Dm
+CONFIG_BINFMT_MISC=3Dm
+
+#
+# Networking
+#
+CONFIG_NET=3Dy
+
+#
+# Networking options
+#
+CONFIG_PACKET=3Dy
+CONFIG_PACKET_MMAP=3Dy
+CONFIG_UNIX=3Dy
+CONFIG_XFRM=3Dy
+CONFIG_XFRM_USER=3Dm
+CONFIG_NET_KEY=3Dy
+CONFIG_INET=3Dy
+CONFIG_IP_MULTICAST=3Dy
+# CONFIG_IP_ADVANCED_ROUTER is not set
+CONFIG_IP_FIB_HASH=3Dy
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+CONFIG_SYN_COOKIES=3Dy
+CONFIG_INET_AH=3Dm
+CONFIG_INET_ESP=3Dm
+CONFIG_INET_IPCOMP=3Dm
+CONFIG_INET_TUNNEL=3Dm
+CONFIG_IP_TCPDIAG=3Dy
+# CONFIG_IP_TCPDIAG_IPV6 is not set
+CONFIG_TCP_CONG_ADVANCED=3Dy
+
+#
+# TCP congestion control
+#
+CONFIG_TCP_CONG_BIC=3Dy
+CONFIG_TCP_CONG_WESTWOOD=3Dm
+CONFIG_TCP_CONG_HTCP=3Dm
+CONFIG_TCP_CONG_HSTCP=3Dm
+CONFIG_TCP_CONG_HYBLA=3Dm
+CONFIG_TCP_CONG_VEGAS=3Dm
+CONFIG_TCP_CONG_SCALABLE=3Dm
+
+#
+# IP: Virtual Server Configuration
+#
+# CONFIG_IP_VS is not set
+CONFIG_IPV6=3Dm
+# CONFIG_IPV6_PRIVACY is not set
+CONFIG_INET6_AH=3Dm
+CONFIG_INET6_ESP=3Dm
+CONFIG_INET6_IPCOMP=3Dm
+CONFIG_INET6_TUNNEL=3Dm
+CONFIG_IPV6_TUNNEL=3Dm
+CONFIG_NETFILTER=3Dy
+CONFIG_NETFILTER_DEBUG=3Dy
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=3Dm
+# CONFIG_IP_NF_CT_ACCT is not set
+# CONFIG_IP_NF_CONNTRACK_MARK is not set
+# CONFIG_IP_NF_CT_PROTO_SCTP is not set
+CONFIG_IP_NF_FTP=3Dm
+CONFIG_IP_NF_IRC=3Dm
+# CONFIG_IP_NF_TFTP is not set
+# CONFIG_IP_NF_AMANDA is not set
+# CONFIG_IP_NF_QUEUE is not set
+CONFIG_IP_NF_IPTABLES=3Dm
+CONFIG_IP_NF_MATCH_LIMIT=3Dm
+# CONFIG_IP_NF_MATCH_IPRANGE is not set
+CONFIG_IP_NF_MATCH_MAC=3Dm
+CONFIG_IP_NF_MATCH_PKTTYPE=3Dm
+CONFIG_IP_NF_MATCH_MARK=3Dm
+CONFIG_IP_NF_MATCH_MULTIPORT=3Dm
+CONFIG_IP_NF_MATCH_TOS=3Dm
+# CONFIG_IP_NF_MATCH_RECENT is not set
+CONFIG_IP_NF_MATCH_ECN=3Dm
+CONFIG_IP_NF_MATCH_DSCP=3Dm
+CONFIG_IP_NF_MATCH_AH_ESP=3Dm
+CONFIG_IP_NF_MATCH_LENGTH=3Dm
+CONFIG_IP_NF_MATCH_TTL=3Dm
+CONFIG_IP_NF_MATCH_TCPMSS=3Dm
+CONFIG_IP_NF_MATCH_HELPER=3Dm
+CONFIG_IP_NF_MATCH_STATE=3Dm
+CONFIG_IP_NF_MATCH_CONNTRACK=3Dm
+CONFIG_IP_NF_MATCH_OWNER=3Dm
+CONFIG_IP_NF_MATCH_ADDRTYPE=3Dm
+CONFIG_IP_NF_MATCH_REALM=3Dm
+# CONFIG_IP_NF_MATCH_SCTP is not set
+# CONFIG_IP_NF_MATCH_COMMENT is not set
+# CONFIG_IP_NF_MATCH_HASHLIMIT is not set
+CONFIG_IP_NF_FILTER=3Dm
+CONFIG_IP_NF_TARGET_REJECT=3Dm
+CONFIG_IP_NF_TARGET_LOG=3Dm
+CONFIG_IP_NF_TARGET_ULOG=3Dm
+CONFIG_IP_NF_TARGET_TCPMSS=3Dm
+CONFIG_IP_NF_NAT=3Dm
+CONFIG_IP_NF_NAT_NEEDED=3Dy
+CONFIG_IP_NF_TARGET_MASQUERADE=3Dm
+CONFIG_IP_NF_TARGET_REDIRECT=3Dm
+# CONFIG_IP_NF_TARGET_NETMAP is not set
+# CONFIG_IP_NF_TARGET_SAME is not set
+# CONFIG_IP_NF_NAT_SNMP_BASIC is not set
+CONFIG_IP_NF_NAT_IRC=3Dm
+CONFIG_IP_NF_NAT_FTP=3Dm
+CONFIG_IP_NF_MANGLE=3Dm
+CONFIG_IP_NF_TARGET_TOS=3Dm
+CONFIG_IP_NF_TARGET_ECN=3Dm
+CONFIG_IP_NF_TARGET_DSCP=3Dm
+CONFIG_IP_NF_TARGET_MARK=3Dm
+# CONFIG_IP_NF_TARGET_CLASSIFY is not set
+CONFIG_IP_NF_RAW=3Dm
+CONFIG_IP_NF_TARGET_NOTRACK=3Dm
+CONFIG_IP_NF_ARPTABLES=3Dm
+CONFIG_IP_NF_ARPFILTER=3Dm
+# CONFIG_IP_NF_ARP_MANGLE is not set
+
+#
+# IPv6: Netfilter Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP6_NF_QUEUE is not set
+# CONFIG_IP6_NF_IPTABLES is not set
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP_SCTP is not set
+# CONFIG_ATM is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_DECNET is not set
+CONFIG_LLC=3Dm
+CONFIG_LLC2=3Dm
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_SCHED is not set
+CONFIG_NET_CLS_ROUTE=3Dy
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+# CONFIG_HAMRADIO is not set
+# CONFIG_IRDA is not set
+# CONFIG_BT is not set
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+CONFIG_STANDALONE=3Dy
+CONFIG_PREVENT_FIRMWARE_BUILD=3Dy
+# CONFIG_FW_LOADER is not set
+# CONFIG_DEBUG_DRIVER is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play support
+#
+CONFIG_PNP=3Dy
+# CONFIG_PNP_DEBUG is not set
+
+#
+# Protocols
+#
+CONFIG_PNPACPI=3Dy
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=3Dy
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_BLK_DEV_COW_COMMON is not set
+# CONFIG_BLK_DEV_LOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_SX8 is not set
+# CONFIG_BLK_DEV_UB is not set
+# CONFIG_BLK_DEV_RAM is not set
+CONFIG_BLK_DEV_RAM_COUNT=3D16
+CONFIG_INITRAMFS_SOURCE=3D""
+# CONFIG_LBD is not set
+CONFIG_CDROM_PKTCDVD=3Dm
+CONFIG_CDROM_PKTCDVD_BUFFERS=3D8
+CONFIG_CDROM_PKTCDVD_WCACHE=3Dy
+
+#
+# IO Schedulers
+#
+CONFIG_IOSCHED_NOOP=3Dy
+CONFIG_IOSCHED_AS=3Dy
+CONFIG_IOSCHED_DEADLINE=3Dy
+CONFIG_IOSCHED_CFQ=3Dy
+# CONFIG_ATA_OVER_ETH is not set
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+CONFIG_IDE=3Dm
+CONFIG_BLK_DEV_IDE=3Dm
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_IDE_SATA is not set
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=3Dm
+CONFIG_IDEDISK_MULTI_MODE=3Dy
+CONFIG_BLK_DEV_IDECD=3Dm
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+CONFIG_BLK_DEV_IDESCSI=3Dm
+CONFIG_IDE_TASK_IOCTL=3Dy
+
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_IDE_GENERIC=3Dm
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_IDEPNP is not set
+CONFIG_BLK_DEV_IDEPCI=3Dy
+CONFIG_IDEPCI_SHARE_IRQ=3Dy
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_BLK_DEV_GENERIC=3Dm
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=3Dy
+# CONFIG_IDEDMA_ONLYDISK is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_BLK_DEV_ATIIXP is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_TRIFLEX is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5520 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_SC1200 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_BLK_DEV_IT821X is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+CONFIG_BLK_DEV_VIA82CXXX=3Dm
+# CONFIG_IDE_ARM is not set
+CONFIG_BLK_DEV_IDEDMA=3Dy
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=3Dy
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI device support
+#
+CONFIG_SCSI=3Dy
+CONFIG_SCSI_PROC_FS=3Dy
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=3Dy
+# CONFIG_CHR_DEV_ST is not set
+# CONFIG_CHR_DEV_OSST is not set
+CONFIG_BLK_DEV_SR=3Dm
+CONFIG_BLK_DEV_SR_VENDOR=3Dy
+CONFIG_CHR_DEV_SG=3Dm
+# CONFIG_CHR_DEV_SCH is not set
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+CONFIG_SCSI_MULTI_LUN=3Dy
+CONFIG_SCSI_CONSTANTS=3Dy
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI Transport Attributes
+#
+CONFIG_SCSI_SPI_ATTRS=3Dy
+CONFIG_SCSI_FC_ATTRS=3Dy
+# CONFIG_SCSI_ISCSI_ATTRS is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_3W_9XXX is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AACRAID is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_AIC79XX is not set
+# CONFIG_SCSI_DPT_I2O is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_MEGARAID_NEWGEN is not set
+# CONFIG_MEGARAID_LEGACY is not set
+# CONFIG_SCSI_SATA is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_SYM53C8XX_2 is not set
+# CONFIG_SCSI_IPR is not set
+# CONFIG_SCSI_QLOGIC_ISP is not set
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+CONFIG_SCSI_QLA2XXX=3Dy
+# CONFIG_SCSI_QLA21XX is not set
+# CONFIG_SCSI_QLA22XX is not set
+# CONFIG_SCSI_QLA2300 is not set
+# CONFIG_SCSI_QLA2322 is not set
+# CONFIG_SCSI_QLA6312 is not set
+# CONFIG_SCSI_QLA24XX is not set
+# CONFIG_SCSI_LPFC is not set
+# CONFIG_SCSI_DC395x is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_NSP32 is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Fusion MPT device support
+#
+CONFIG_FUSION=3Dy
+CONFIG_FUSION_SPI=3Dy
+# CONFIG_FUSION_FC is not set
+CONFIG_FUSION_MAX_SGE=3D128
+# CONFIG_FUSION_CTL is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=3Dy
+CONFIG_DUMMY=3Dm
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=3Dy
+CONFIG_MII=3Dm
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNGEM is not set
+CONFIG_NET_VENDOR_3COM=3Dy
+CONFIG_VORTEX=3Dm
+# CONFIG_TYPHOON is not set
+
+#
+# Tulip family network device support
+#
+# CONFIG_NET_TULIP is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_PCI is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_R8169 is not set
+CONFIG_SKGE=3Dm
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
+# CONFIG_BNX2 is not set
+
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_IXGB is not set
+# CONFIG_S2IO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+# CONFIG_NET_FC is not set
+# CONFIG_SHAPER is not set
+# CONFIG_NETCONSOLE is not set
+# CONFIG_NETPOLL is not set
+# CONFIG_NET_POLL_CONTROLLER is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=3Dy
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=3Dy
+CONFIG_INPUT_MOUSEDEV_PSAUX=3Dy
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=3D1280
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=3D1024
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=3Dy
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=3Dy
+CONFIG_KEYBOARD_ATKBD=3Dy
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_LKKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=3Dy
+CONFIG_MOUSE_PS2=3Dy
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_MOUSE_VSXXXAA is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+CONFIG_INPUT_MISC=3Dy
+# CONFIG_INPUT_PCSPKR is not set
+CONFIG_INPUT_UINPUT=3Dm
+
+#
+# Hardware I/O ports
+#
+CONFIG_SERIO=3Dy
+CONFIG_SERIO_I8042=3Dy
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PCIPS2 is not set
+CONFIG_SERIO_LIBPS2=3Dy
+# CONFIG_SERIO_RAW is not set
+# CONFIG_GAMEPORT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_HW_CONSOLE=3Dy
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+# CONFIG_SERIAL_8250 is not set
+
+#
+# Non-8250 serial port support
+#
+# CONFIG_SERIAL_JSM is not set
+CONFIG_UNIX98_PTYS=3Dy
+CONFIG_LEGACY_PTYS=3Dy
+CONFIG_LEGACY_PTY_COUNT=3D256
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+CONFIG_HW_RANDOM=3Dy
+CONFIG_NVRAM=3Dy
+CONFIG_RTC=3Dy
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+# CONFIG_SONYPI is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+CONFIG_AGP=3Dm
+# CONFIG_AGP_ALI is not set
+# CONFIG_AGP_ATI is not set
+# CONFIG_AGP_AMD is not set
+CONFIG_AGP_AMD64=3Dm
+# CONFIG_AGP_INTEL is not set
+# CONFIG_AGP_NVIDIA is not set
+# CONFIG_AGP_SIS is not set
+# CONFIG_AGP_SWORKS is not set
+# CONFIG_AGP_VIA is not set
+# CONFIG_AGP_EFFICEON is not set
+CONFIG_DRM=3Dm
+# CONFIG_DRM_TDFX is not set
+# CONFIG_DRM_GAMMA is not set
+# CONFIG_DRM_R128 is not set
+CONFIG_DRM_RADEON=3Dm
+# CONFIG_DRM_MGA is not set
+# CONFIG_DRM_SIS is not set
+# CONFIG_DRM_VIA is not set
+# CONFIG_MWAVE is not set
+# CONFIG_RAW_DRIVER is not set
+# CONFIG_HPET is not set
+# CONFIG_HANGCHECK_TIMER is not set
+
+#
+# TPM devices
+#
+# CONFIG_TCG_TPM is not set
+
+#
+# I2C support
+#
+CONFIG_I2C=3Dy
+# CONFIG_I2C_CHARDEV is not set
+
+#
+# I2C Algorithms
+#
+CONFIG_I2C_ALGOBIT=3Dy
+# CONFIG_I2C_ALGOPCF is not set
+# CONFIG_I2C_ALGOPCA is not set
+
+#
+# I2C Hardware Bus support
+#
+# CONFIG_I2C_ALI1535 is not set
+# CONFIG_I2C_ALI1563 is not set
+# CONFIG_I2C_ALI15X3 is not set
+# CONFIG_I2C_AMD756 is not set
+# CONFIG_I2C_AMD8111 is not set
+# CONFIG_I2C_I801 is not set
+# CONFIG_I2C_I810 is not set
+# CONFIG_I2C_PIIX4 is not set
+# CONFIG_I2C_ISA is not set
+# CONFIG_I2C_NFORCE2 is not set
+# CONFIG_I2C_PARPORT_LIGHT is not set
+# CONFIG_I2C_PROSAVAGE is not set
+# CONFIG_I2C_SAVAGE4 is not set
+# CONFIG_SCx200_ACB is not set
+# CONFIG_I2C_SIS5595 is not set
+# CONFIG_I2C_SIS630 is not set
+# CONFIG_I2C_SIS96X is not set
+# CONFIG_I2C_STUB is not set
+# CONFIG_I2C_VIA is not set
+# CONFIG_I2C_VIAPRO is not set
+# CONFIG_I2C_VOODOO3 is not set
+# CONFIG_I2C_PCA_ISA is not set
+# CONFIG_I2C_SENSOR is not set
+
+#
+# Miscellaneous I2C Chip support
+#
+# CONFIG_SENSORS_DS1337 is not set
+# CONFIG_SENSORS_DS1374 is not set
+# CONFIG_SENSORS_EEPROM is not set
+# CONFIG_SENSORS_PCF8574 is not set
+# CONFIG_SENSORS_PCA9539 is not set
+# CONFIG_SENSORS_PCF8591 is not set
+# CONFIG_SENSORS_RTC8564 is not set
+# CONFIG_SENSORS_MAX6875 is not set
+# CONFIG_I2C_DEBUG_CORE is not set
+# CONFIG_I2C_DEBUG_ALGO is not set
+# CONFIG_I2C_DEBUG_BUS is not set
+# CONFIG_I2C_DEBUG_CHIP is not set
+
+#
+# Dallas's 1-wire bus
+#
+# CONFIG_W1 is not set
+
+#
+# Hardware Monitoring support
+#
+CONFIG_HWMON=3Dy
+# CONFIG_SENSORS_ADM1021 is not set
+# CONFIG_SENSORS_ADM1025 is not set
+# CONFIG_SENSORS_ADM1026 is not set
+# CONFIG_SENSORS_ADM1031 is not set
+# CONFIG_SENSORS_ADM9240 is not set
+# CONFIG_SENSORS_ASB100 is not set
+# CONFIG_SENSORS_ATXP1 is not set
+# CONFIG_SENSORS_DS1621 is not set
+# CONFIG_SENSORS_FSCHER is not set
+# CONFIG_SENSORS_FSCPOS is not set
+# CONFIG_SENSORS_GL518SM is not set
+# CONFIG_SENSORS_GL520SM is not set
+# CONFIG_SENSORS_IT87 is not set
+# CONFIG_SENSORS_LM63 is not set
+# CONFIG_SENSORS_LM75 is not set
+# CONFIG_SENSORS_LM77 is not set
+# CONFIG_SENSORS_LM78 is not set
+# CONFIG_SENSORS_LM80 is not set
+# CONFIG_SENSORS_LM83 is not set
+# CONFIG_SENSORS_LM85 is not set
+# CONFIG_SENSORS_LM87 is not set
+# CONFIG_SENSORS_LM90 is not set
+# CONFIG_SENSORS_LM92 is not set
+# CONFIG_SENSORS_MAX1619 is not set
+# CONFIG_SENSORS_PC87360 is not set
+# CONFIG_SENSORS_SIS5595 is not set
+# CONFIG_SENSORS_SMSC47M1 is not set
+# CONFIG_SENSORS_SMSC47B397 is not set
+# CONFIG_SENSORS_VIA686A is not set
+# CONFIG_SENSORS_W83781D is not set
+# CONFIG_SENSORS_W83L785TS is not set
+# CONFIG_SENSORS_W83627HF is not set
+# CONFIG_SENSORS_W83627EHF is not set
+# CONFIG_HWMON_DEBUG_CHIP is not set
+
+#
+# Misc devices
+#
+# CONFIG_IBM_ASM is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
+
+#
+# Graphics support
+#
+CONFIG_FB=3Dy
+CONFIG_FB_CFB_FILLRECT=3Dy
+CONFIG_FB_CFB_COPYAREA=3Dy
+CONFIG_FB_CFB_IMAGEBLIT=3Dy
+CONFIG_FB_SOFT_CURSOR=3Dy
+# CONFIG_FB_MACMODES is not set
+CONFIG_FB_MODE_HELPERS=3Dy
+# CONFIG_FB_TILEBLITTING is not set
+# CONFIG_FB_CIRRUS is not set
+# CONFIG_FB_PM2 is not set
+# CONFIG_FB_CYBER2000 is not set
+# CONFIG_FB_ARC is not set
+# CONFIG_FB_ASILIANT is not set
+# CONFIG_FB_IMSTT is not set
+# CONFIG_FB_VGA16 is not set
+# CONFIG_FB_VESA is not set
+CONFIG_VIDEO_SELECT=3Dy
+# CONFIG_FB_HGA is not set
+# CONFIG_FB_NVIDIA is not set
+# CONFIG_FB_RIVA is not set
+# CONFIG_FB_I810 is not set
+# CONFIG_FB_INTEL is not set
+# CONFIG_FB_MATROX is not set
+# CONFIG_FB_RADEON_OLD is not set
+CONFIG_FB_RADEON=3Dy
+CONFIG_FB_RADEON_I2C=3Dy
+# CONFIG_FB_RADEON_DEBUG is not set
+# CONFIG_FB_ATY128 is not set
+# CONFIG_FB_ATY is not set
+# CONFIG_FB_SAVAGE is not set
+# CONFIG_FB_SIS is not set
+# CONFIG_FB_NEOMAGIC is not set
+# CONFIG_FB_KYRO is not set
+# CONFIG_FB_3DFX is not set
+# CONFIG_FB_VOODOO1 is not set
+# CONFIG_FB_TRIDENT is not set
+# CONFIG_FB_PM3 is not set
+# CONFIG_FB_GEODE is not set
+# CONFIG_FB_S1D13XXX is not set
+# CONFIG_FB_VIRTUAL is not set
+
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=3Dy
+CONFIG_DUMMY_CONSOLE=3Dy
+CONFIG_FRAMEBUFFER_CONSOLE=3Dy
+# CONFIG_FONTS is not set
+CONFIG_FONT_8x8=3Dy
+CONFIG_FONT_8x16=3Dy
+
+#
+# Logo configuration
+#
+CONFIG_LOGO=3Dy
+# CONFIG_LOGO_LINUX_MONO is not set
+# CONFIG_LOGO_LINUX_VGA16 is not set
+CONFIG_LOGO_LINUX_CLUT224=3Dy
+# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
+
+#
+# Sound
+#
+CONFIG_SOUND=3Dy
+
+#
+# Advanced Linux Sound Architecture
+#
+CONFIG_SND=3Dy
+CONFIG_SND_TIMER=3Dy
+CONFIG_SND_PCM=3Dy
+CONFIG_SND_RAWMIDI=3Dm
+CONFIG_SND_SEQUENCER=3Dy
+# CONFIG_SND_SEQ_DUMMY is not set
+CONFIG_SND_OSSEMUL=3Dy
+CONFIG_SND_MIXER_OSS=3Dy
+CONFIG_SND_PCM_OSS=3Dy
+CONFIG_SND_SEQUENCER_OSS=3Dy
+CONFIG_SND_RTCTIMER=3Dy
+CONFIG_SND_VERBOSE_PRINTK=3Dy
+# CONFIG_SND_DEBUG is not set
+
+#
+# Generic devices
+#
+CONFIG_SND_MPU401_UART=3Dm
+# CONFIG_SND_DUMMY is not set
+# CONFIG_SND_VIRMIDI is not set
+# CONFIG_SND_MTPAV is not set
+# CONFIG_SND_SERIAL_U16550 is not set
+# CONFIG_SND_MPU401 is not set
+
+#
+# PCI devices
+#
+CONFIG_SND_AC97_CODEC=3Dm
+# CONFIG_SND_ALI5451 is not set
+# CONFIG_SND_ATIIXP is not set
+# CONFIG_SND_ATIIXP_MODEM is not set
+# CONFIG_SND_AU8810 is not set
+# CONFIG_SND_AU8820 is not set
+# CONFIG_SND_AU8830 is not set
+# CONFIG_SND_AZT3328 is not set
+# CONFIG_SND_BT87X is not set
+# CONFIG_SND_CS46XX is not set
+# CONFIG_SND_CS4281 is not set
+# CONFIG_SND_EMU10K1 is not set
+# CONFIG_SND_EMU10K1X is not set
+# CONFIG_SND_CA0106 is not set
+# CONFIG_SND_KORG1212 is not set
+# CONFIG_SND_MIXART is not set
+# CONFIG_SND_NM256 is not set
+# CONFIG_SND_RME32 is not set
+# CONFIG_SND_RME96 is not set
+# CONFIG_SND_RME9652 is not set
+# CONFIG_SND_HDSP is not set
+# CONFIG_SND_HDSPM is not set
+# CONFIG_SND_TRIDENT is not set
+# CONFIG_SND_YMFPCI is not set
+# CONFIG_SND_ALS4000 is not set
+# CONFIG_SND_CMIPCI is not set
+# CONFIG_SND_ENS1370 is not set
+# CONFIG_SND_ENS1371 is not set
+# CONFIG_SND_ES1938 is not set
+# CONFIG_SND_ES1968 is not set
+# CONFIG_SND_MAESTRO3 is not set
+# CONFIG_SND_FM801 is not set
+# CONFIG_SND_ICE1712 is not set
+# CONFIG_SND_ICE1724 is not set
+# CONFIG_SND_INTEL8X0 is not set
+# CONFIG_SND_INTEL8X0M is not set
+# CONFIG_SND_SONICVIBES is not set
+CONFIG_SND_VIA82XX=3Dm
+# CONFIG_SND_VIA82XX_MODEM is not set
+# CONFIG_SND_VX222 is not set
+# CONFIG_SND_HDA_INTEL is not set
+
+#
+# USB devices
+#
+# CONFIG_SND_USB_AUDIO is not set
+# CONFIG_SND_USB_USX2Y is not set
+
+#
+# Open Sound System
+#
+# CONFIG_SOUND_PRIME is not set
+
+#
+# USB support
+#
+CONFIG_USB_ARCH_HAS_HCD=3Dy
+CONFIG_USB_ARCH_HAS_OHCI=3Dy
+CONFIG_USB=3Dy
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=3Dy
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_DYNAMIC_MINORS is not set
+# CONFIG_USB_SUSPEND is not set
+# CONFIG_USB_OTG is not set
+
+#
+# USB Host Controller Drivers
+#
+CONFIG_USB_EHCI_HCD=3Dm
+# CONFIG_USB_EHCI_SPLIT_ISO is not set
+CONFIG_USB_EHCI_ROOT_HUB_TT=3Dy
+# CONFIG_USB_ISP116X_HCD is not set
+CONFIG_USB_OHCI_HCD=3Dm
+# CONFIG_USB_OHCI_BIG_ENDIAN is not set
+CONFIG_USB_OHCI_LITTLE_ENDIAN=3Dy
+CONFIG_USB_UHCI_HCD=3Dm
+# CONFIG_USB_SL811_HCD is not set
+
+#
+# USB Device Class drivers
+#
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_BLUETOOTH_TTY is not set
+# CONFIG_USB_MIDI is not set
+# CONFIG_USB_ACM is not set
+CONFIG_USB_PRINTER=3Dm
+
+#
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be neede=
+d; see USB_STORAGE Help for more information
+#
+CONFIG_USB_STORAGE=3Dm
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+# CONFIG_USB_STORAGE_FREECOM is not set
+# CONFIG_USB_STORAGE_ISD200 is not set
+# CONFIG_USB_STORAGE_DPCM is not set
+# CONFIG_USB_STORAGE_USBAT is not set
+# CONFIG_USB_STORAGE_SDDR09 is not set
+# CONFIG_USB_STORAGE_SDDR55 is not set
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+
+#
+# USB Input Devices
+#
+CONFIG_USB_HID=3Dy
+CONFIG_USB_HIDINPUT=3Dy
+# CONFIG_HID_FF is not set
+CONFIG_USB_HIDDEV=3Dy
+# CONFIG_USB_AIPTEK is not set
+# CONFIG_USB_WACOM is not set
+# CONFIG_USB_ACECAD is not set
+# CONFIG_USB_KBTAB is not set
+# CONFIG_USB_POWERMATE is not set
+# CONFIG_USB_MTOUCH is not set
+# CONFIG_USB_ITMTOUCH is not set
+# CONFIG_USB_EGALAX is not set
+# CONFIG_USB_XPAD is not set
+# CONFIG_USB_ATI_REMOTE is not set
+# CONFIG_USB_KEYSPAN_REMOTE is not set
+
+#
+# USB Imaging devices
+#
+# CONFIG_USB_MDC800 is not set
+# CONFIG_USB_MICROTEK is not set
+
+#
+# USB Multimedia devices
+#
+# CONFIG_USB_DABUSB is not set
+
+#
+# Video4Linux support is needed for USB Multimedia device support
+#
+
+#
+# USB Network Adapters
+#
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_RTL8150 is not set
+# CONFIG_USB_USBNET is not set
+CONFIG_USB_MON=3Dy
+
+#
+# USB port drivers
+#
+
+#
+# USB Serial Converter support
+#
+CONFIG_USB_SERIAL=3Dm
+CONFIG_USB_SERIAL_GENERIC=3Dy
+# CONFIG_USB_SERIAL_AIRPRIME is not set
+# CONFIG_USB_SERIAL_BELKIN is not set
+# CONFIG_USB_SERIAL_WHITEHEAT is not set
+# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
+# CONFIG_USB_SERIAL_CP2101 is not set
+# CONFIG_USB_SERIAL_CYPRESS_M8 is not set
+# CONFIG_USB_SERIAL_EMPEG is not set
+# CONFIG_USB_SERIAL_FTDI_SIO is not set
+CONFIG_USB_SERIAL_VISOR=3Dm
+# CONFIG_USB_SERIAL_IPAQ is not set
+# CONFIG_USB_SERIAL_IR is not set
+# CONFIG_USB_SERIAL_EDGEPORT is not set
+# CONFIG_USB_SERIAL_EDGEPORT_TI is not set
+# CONFIG_USB_SERIAL_GARMIN is not set
+# CONFIG_USB_SERIAL_IPW is not set
+# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+# CONFIG_USB_SERIAL_KEYSPAN is not set
+# CONFIG_USB_SERIAL_KLSI is not set
+# CONFIG_USB_SERIAL_KOBIL_SCT is not set
+# CONFIG_USB_SERIAL_MCT_U232 is not set
+# CONFIG_USB_SERIAL_PL2303 is not set
+# CONFIG_USB_SERIAL_HP4X is not set
+# CONFIG_USB_SERIAL_SAFE is not set
+# CONFIG_USB_SERIAL_TI is not set
+# CONFIG_USB_SERIAL_CYBERJACK is not set
+# CONFIG_USB_SERIAL_XIRCOM is not set
+# CONFIG_USB_SERIAL_OMNINET is not set
+
+#
+# USB Miscellaneous drivers
+#
+# CONFIG_USB_EMI62 is not set
+# CONFIG_USB_EMI26 is not set
+# CONFIG_USB_AUERSWALD is not set
+# CONFIG_USB_RIO500 is not set
+# CONFIG_USB_LEGOTOWER is not set
+# CONFIG_USB_LCD is not set
+# CONFIG_USB_LED is not set
+# CONFIG_USB_CYTHERM is not set
+# CONFIG_USB_PHIDGETKIT is not set
+# CONFIG_USB_PHIDGETSERVO is not set
+# CONFIG_USB_IDMOUSE is not set
+# CONFIG_USB_SISUSBVGA is not set
+# CONFIG_USB_LD is not set
+# CONFIG_USB_TEST is not set
+
+#
+# USB DSL modem support
+#
+
+#
+# USB Gadget Support
+#
+# CONFIG_USB_GADGET is not set
+
+#
+# MMC/SD Card support
+#
+# CONFIG_MMC is not set
+
+#
+# InfiniBand support
+#
+# CONFIG_INFINIBAND is not set
+
+#
+# SN Devices
+#
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=3Dy
+CONFIG_EXT2_FS_XATTR=3Dy
+CONFIG_EXT2_FS_POSIX_ACL=3Dy
+# CONFIG_EXT2_FS_SECURITY is not set
+# CONFIG_EXT2_FS_XIP is not set
+CONFIG_EXT3_FS=3Dy
+CONFIG_EXT3_FS_XATTR=3Dy
+CONFIG_EXT3_FS_POSIX_ACL=3Dy
+# CONFIG_EXT3_FS_SECURITY is not set
+CONFIG_JBD=3Dy
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FS_MBCACHE=3Dy
+# CONFIG_REISERFS_FS is not set
+# CONFIG_JFS_FS is not set
+CONFIG_FS_POSIX_ACL=3Dy
+
+#
+# XFS support
+#
+CONFIG_XFS_FS=3Dy
+# CONFIG_XFS_RT is not set
+# CONFIG_XFS_QUOTA is not set
+# CONFIG_XFS_SECURITY is not set
+# CONFIG_XFS_POSIX_ACL is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_INOTIFY=3Dy
+# CONFIG_QUOTA is not set
+CONFIG_DNOTIFY=3Dy
+CONFIG_AUTOFS_FS=3Dy
+CONFIG_AUTOFS4_FS=3Dy
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=3Dm
+CONFIG_JOLIET=3Dy
+# CONFIG_ZISOFS is not set
+CONFIG_UDF_FS=3Dm
+CONFIG_UDF_NLS=3Dy
+
+#
+# DOS/FAT/NT Filesystems
+#
+CONFIG_FAT_FS=3Dm
+CONFIG_MSDOS_FS=3Dm
+CONFIG_VFAT_FS=3Dm
+CONFIG_FAT_DEFAULT_CODEPAGE=3D437
+CONFIG_FAT_DEFAULT_IOCHARSET=3D"iso8859-1"
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=3Dy
+CONFIG_PROC_KCORE=3Dy
+CONFIG_SYSFS=3Dy
+# CONFIG_DEVPTS_FS_XATTR is not set
+CONFIG_TMPFS=3Dy
+# CONFIG_TMPFS_XATTR is not set
+# CONFIG_HUGETLBFS is not set
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_RAMFS=3Dy
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_HFSPLUS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+# CONFIG_NFS_FS is not set
+# CONFIG_NFSD is not set
+CONFIG_SMB_FS=3Dm
+CONFIG_SMB_NLS_DEFAULT=3Dy
+CONFIG_SMB_NLS_REMOTE=3D"cp437"
+CONFIG_CIFS=3Dm
+# CONFIG_CIFS_STATS is not set
+CONFIG_CIFS_XATTR=3Dy
+CONFIG_CIFS_POSIX=3Dy
+CONFIG_CIFS_EXPERIMENTAL=3Dy
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+# CONFIG_AFS_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=3Dy
+
+#
+# Native Language Support
+#
+CONFIG_NLS=3Dy
+CONFIG_NLS_DEFAULT=3D"iso8859-1"
+CONFIG_NLS_CODEPAGE_437=3Dm
+CONFIG_NLS_CODEPAGE_737=3Dm
+CONFIG_NLS_CODEPAGE_775=3Dm
+CONFIG_NLS_CODEPAGE_850=3Dm
+CONFIG_NLS_CODEPAGE_852=3Dm
+CONFIG_NLS_CODEPAGE_855=3Dm
+CONFIG_NLS_CODEPAGE_857=3Dm
+CONFIG_NLS_CODEPAGE_860=3Dm
+CONFIG_NLS_CODEPAGE_861=3Dm
+CONFIG_NLS_CODEPAGE_862=3Dm
+CONFIG_NLS_CODEPAGE_863=3Dm
+CONFIG_NLS_CODEPAGE_864=3Dm
+CONFIG_NLS_CODEPAGE_865=3Dm
+CONFIG_NLS_CODEPAGE_866=3Dm
+CONFIG_NLS_CODEPAGE_869=3Dm
+CONFIG_NLS_CODEPAGE_936=3Dm
+CONFIG_NLS_CODEPAGE_950=3Dm
+CONFIG_NLS_CODEPAGE_932=3Dm
+CONFIG_NLS_CODEPAGE_949=3Dm
+CONFIG_NLS_CODEPAGE_874=3Dm
+CONFIG_NLS_ISO8859_8=3Dm
+CONFIG_NLS_CODEPAGE_1250=3Dm
+CONFIG_NLS_CODEPAGE_1251=3Dm
+CONFIG_NLS_ASCII=3Dm
+CONFIG_NLS_ISO8859_1=3Dm
+CONFIG_NLS_ISO8859_2=3Dm
+CONFIG_NLS_ISO8859_3=3Dm
+CONFIG_NLS_ISO8859_4=3Dm
+CONFIG_NLS_ISO8859_5=3Dm
+CONFIG_NLS_ISO8859_6=3Dm
+CONFIG_NLS_ISO8859_7=3Dm
+CONFIG_NLS_ISO8859_9=3Dm
+CONFIG_NLS_ISO8859_13=3Dm
+CONFIG_NLS_ISO8859_14=3Dm
+CONFIG_NLS_ISO8859_15=3Dm
+CONFIG_NLS_KOI8_R=3Dm
+CONFIG_NLS_KOI8_U=3Dm
+CONFIG_NLS_UTF8=3Dm
+
+#
+# Profiling support
+#
+# CONFIG_PROFILING is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_PRINTK_TIME is not set
+CONFIG_DEBUG_KERNEL=3Dy
+CONFIG_MAGIC_SYSRQ=3Dy
+CONFIG_LOG_BUF_SHIFT=3D17
+# CONFIG_SCHEDSTATS is not set
+# CONFIG_DEBUG_SLAB is not set
+# CONFIG_DEBUG_SPINLOCK is not set
+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+# CONFIG_DEBUG_KOBJECT is not set
+CONFIG_DEBUG_BUGVERBOSE=3Dy
+CONFIG_DEBUG_INFO=3Dy
+# CONFIG_DEBUG_FS is not set
+# CONFIG_FRAME_POINTER is not set
+CONFIG_EARLY_PRINTK=3Dy
+# CONFIG_DEBUG_STACKOVERFLOW is not set
+# CONFIG_KPROBES is not set
+# CONFIG_DEBUG_STACK_USAGE is not set
+# CONFIG_DEBUG_PAGEALLOC is not set
+# CONFIG_4KSTACKS is not set
+CONFIG_X86_FIND_SMP_CONFIG=3Dy
+CONFIG_X86_MPPARSE=3Dy
+
+#
+# Security options
+#
+# CONFIG_KEYS is not set
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+CONFIG_CRYPTO=3Dy
+CONFIG_CRYPTO_HMAC=3Dy
+CONFIG_CRYPTO_NULL=3Dm
+CONFIG_CRYPTO_MD4=3Dm
+CONFIG_CRYPTO_MD5=3Dy
+CONFIG_CRYPTO_SHA1=3Dm
+CONFIG_CRYPTO_SHA256=3Dm
+CONFIG_CRYPTO_SHA512=3Dm
+CONFIG_CRYPTO_WP512=3Dm
+CONFIG_CRYPTO_TGR192=3Dm
+CONFIG_CRYPTO_DES=3Dm
+CONFIG_CRYPTO_BLOWFISH=3Dm
+CONFIG_CRYPTO_TWOFISH=3Dm
+CONFIG_CRYPTO_SERPENT=3Dm
+CONFIG_CRYPTO_AES_586=3Dm
+CONFIG_CRYPTO_CAST5=3Dm
+CONFIG_CRYPTO_CAST6=3Dm
+CONFIG_CRYPTO_TEA=3Dm
+CONFIG_CRYPTO_ARC4=3Dm
+CONFIG_CRYPTO_KHAZAD=3Dm
+CONFIG_CRYPTO_ANUBIS=3Dm
+CONFIG_CRYPTO_DEFLATE=3Dm
+CONFIG_CRYPTO_MICHAEL_MIC=3Dm
+CONFIG_CRYPTO_CRC32C=3Dm
+CONFIG_CRYPTO_TEST=3Dm
+
+#
+# Hardware crypto devices
+#
+# CONFIG_CRYPTO_DEV_PADLOCK is not set
+
+#
+# Library routines
+#
+CONFIG_CRC_CCITT=3Dm
+CONFIG_CRC32=3Dy
+CONFIG_LIBCRC32C=3Dm
+CONFIG_ZLIB_INFLATE=3Dm
+CONFIG_ZLIB_DEFLATE=3Dm
+CONFIG_GENERIC_HARDIRQS=3Dy
+CONFIG_GENERIC_IRQ_PROBE=3Dy
+CONFIG_X86_BIOS_REBOOT=3Dy
+CONFIG_PC=3Dy
+
+ver_linux output.
+
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+=20
+Linux the-penguin 2.6.13-rc7 #8 Thu Aug 25 12:18:09 PDT 2005 i686 GNU/Linux
+=20
+Gnu C                  4.0.2
+Gnu make               3.80
+binutils               2.16.1
+util-linux             2.12p
+mount                  2.12p
+module-init-tools      3.2-pre8
+e2fsprogs              1.38
+reiserfsprogs          line
+reiser4progs           line
+xfsprogs               2.6.36
+quota-tools            3.13.
+nfs-utils              1.0.7
+Linux C Library        2.3.5
+Dynamic linker (ldd)   2.3.2
+Procps                 3.2.5
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.2.1
+Modules Loaded         binfmt_misc ipv6 snd_via82xx snd_ac97_codec snd_mpu4=
+01_uart snd_rawmidi ehci_hcd uhci_hcd via82cxxx generic deflate zlib_deflat=
+e zlib_inflate twofish serpent aes_i586 blowfish des sha256 sha1 crypto_nul=
+l tcp_vegas nls_iso8859_15 nls_utf8 nls_iso8859_1 nls_cp437 nls_cp950 radeo=
+n drm amd64_agp agpgart sg sr_mod ide_scsi ide_cd cdrom ide_core 3c59x mii
+
+
+0000:00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0238
+	Subsystem: Asustek Computer, Inc.: Unknown device 815d
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort+ >SERR- <PERR-
+	Latency: 8
+	Region 0: Memory at c0000000 (32-bit, prefetchable) [size=3D128M]
+	Capabilities: <available only to root>
+
+0000:00:00.1 Host bridge: VIA Technologies, Inc.: Unknown device 1238
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+0000:00:00.2 Host bridge: VIA Technologies, Inc.: Unknown device 2238
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+0000:00:00.3 Host bridge: VIA Technologies, Inc.: Unknown device 3238
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+0000:00:00.4 Host bridge: VIA Technologies, Inc.: Unknown device 4238
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+0000:00:00.5 PIC: VIA Technologies, Inc.: Unknown device 5238 (prog-if 20 [=
+IO(X)-APIC])
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 0
+
+0000:00:00.7 Host bridge: VIA Technologies, Inc.: Unknown device 7238
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800 S=
+outh] (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D0
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: fff00000-000fffff
+	Prefetchable memory behind bridge: fff00000-000fffff
+	BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+	Capabilities: <available only to root>
+
+0000:00:02.0 PCI bridge: VIA Technologies, Inc.: Unknown device a238 (prog-=
+if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR+ <PERR-
+	Latency: 0
+	Bus: primary=3D00, secondary=3D02, subordinate=3D02, sec-latency=3D0
+	I/O behind bridge: 00009000-00009fff
+	Memory behind bridge: d0000000-d1ffffff
+	Prefetchable memory behind bridge: c8000000-cfffffff
+	BridgeCtl: Parity- SERR+ NoISA+ VGA+ MAbort- >Reset- FastB2B-
+	Capabilities: <available only to root>
+
+0000:00:03.0 PCI bridge: VIA Technologies, Inc.: Unknown device c238 (prog-=
+if 00 [Normal decode])
+	Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=3D00, secondary=3D03, subordinate=3D03, sec-latency=3D0
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: fff00000-000fffff
+	Prefetchable memory behind bridge: fff00000-000fffff
+	BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+	Capabilities: <available only to root>
+
+0000:00:03.1 PCI bridge: VIA Technologies, Inc.: Unknown device d238 (prog-=
+if 00 [Normal decode])
+	Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=3D00, secondary=3D04, subordinate=3D04, sec-latency=3D0
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: fff00000-000fffff
+	Prefetchable memory behind bridge: fff00000-000fffff
+	BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+	Capabilities: <available only to root>
+
+0000:00:03.2 PCI bridge: VIA Technologies, Inc.: Unknown device e238 (prog-=
+if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=3D00, secondary=3D05, subordinate=3D05, sec-latency=3D0
+	I/O behind bridge: 0000a000-0000afff
+	Memory behind bridge: d2000000-d3ffffff
+	Prefetchable memory behind bridge: 3ff00000-3fffffff
+	BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+	Capabilities: <available only to root>
+
+0000:00:03.3 PCI bridge: VIA Technologies, Inc.: Unknown device f238 (prog-=
+if 00 [Normal decode])
+	Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=3D00, secondary=3D06, subordinate=3D06, sec-latency=3D0
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: fff00000-000fffff
+	Prefetchable memory behind bridge: fff00000-000fffff
+	BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+	Capabilities: <available only to root>
+
+0000:00:08.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A IEEE-1394a=
+-2000 Controller (PHY/Link) (prog-if 10 [OHCI])
+	Subsystem: Asustek Computer, Inc.: Unknown device 808b
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32 (500ns min, 1000ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 3
+	Region 0: Memory at d5025000 (32-bit, non-prefetchable) [size=3D2K]
+	Region 1: Memory at d5020000 (32-bit, non-prefetchable) [size=3D16K]
+	Capabilities: <available only to root>
+
+0000:00:0b.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclon=
+e] (rev 30)
+	Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32 (2500ns min, 2500ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 20
+	Region 0: I/O ports at b000 [size=3D128]
+	Region 1: Memory at d5024000 (32-bit, non-prefetchable) [size=3D128]
+	Expansion ROM at 40400000 [disabled] [size=3D128K]
+	Capabilities: <available only to root>
+
+0000:00:0c.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI=
+-X Fusion-MPT Dual Ultra320 SCSI (rev 07)
+	Subsystem: LSI Logic / Symbios Logic: Unknown device 1060
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 72 (4250ns min, 4500ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 19
+	Region 0: I/O ports at b400 [size=3D256]
+	Region 1: Memory at d5000000 (64-bit, non-prefetchable) [size=3D64K]
+	Region 3: Memory at d5010000 (64-bit, non-prefetchable) [size=3D64K]
+	Expansion ROM at 40000000 [disabled] [size=3D4M]
+	Capabilities: <available only to root>
+
+0000:00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RA=
+ID Controller (rev 80)
+	Subsystem: Asustek Computer, Inc. A7V600 motherboard
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Interrupt: pin B routed to IRQ 5
+	Region 0: I/O ports at b800 [size=3D8]
+	Region 1: I/O ports at bc00 [size=3D4]
+	Region 2: I/O ports at c000 [size=3D8]
+	Region 3: I/O ports at c400 [size=3D4]
+	Region 4: I/O ports at c800 [size=3D16]
+	Region 5: I/O ports at cc00 [size=3D256]
+	Capabilities: <available only to root>
+
+0000:00:0f.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B=
+/VT823x/A/C PIPC Bus Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
+	Subsystem: Asustek Computer, Inc. A7V600 motherboard
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Interrupt: pin A routed to IRQ 21
+	Region 4: I/O ports at d000 [size=3D16]
+	Capabilities: <available only to root>
+
+0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 =
+Controller (rev 81) (prog-if 00 [UHCI])
+	Subsystem: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 22
+	Region 4: I/O ports at d400 [size=3D32]
+	Capabilities: <available only to root>
+
+0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 =
+Controller (rev 81) (prog-if 00 [UHCI])
+	Subsystem: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 22
+	Region 4: I/O ports at d800 [size=3D32]
+	Capabilities: <available only to root>
+
+0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 =
+Controller (rev 81) (prog-if 00 [UHCI])
+	Subsystem: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin B routed to IRQ 22
+	Region 4: I/O ports at dc00 [size=3D32]
+	Capabilities: <available only to root>
+
+0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 =
+Controller (rev 81) (prog-if 00 [UHCI])
+	Subsystem: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin B routed to IRQ 22
+	Region 4: I/O ports at e000 [size=3D32]
+	Capabilities: <available only to root>
+
+0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86) (prog-=
+if 20 [EHCI])
+	Subsystem: VIA Technologies, Inc. USB 2.0
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32, Cache Line Size: 0x10 (64 bytes)
+	Interrupt: pin C routed to IRQ 22
+	Region 0: Memory at d5026000 (32-bit, non-prefetchable) [size=3D256]
+	Capabilities: <available only to root>
+
+0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [K8T800 S=
+outh]
+	Subsystem: Asustek Computer, Inc. A7V600 motherboard
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng+ SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Capabilities: <available only to root>
+
+0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8=
+235/8237 AC97 Audio Controller (rev 60)
+	Subsystem: Asustek Computer, Inc.: Unknown device 812a
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin C routed to IRQ 23
+	Region 0: I/O ports at e400 [size=3D256]
+	Capabilities: <available only to root>
+
+0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Capabilities: <available only to root>
+
+0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+
+0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+
+0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+
+0000:02:00.0 VGA compatible controller: ATI Technologies Inc: Unknown devic=
+e 5b60 (prog-if 00 [VGA])
+	Subsystem: Asustek Computer, Inc.: Unknown device 002a
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 0, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 18
+	Region 0: Memory at c8000000 (32-bit, prefetchable) [size=3D128M]
+	Region 1: I/O ports at 9000 [size=3D256]
+	Region 2: Memory at d1000000 (32-bit, non-prefetchable) [size=3D64K]
+	Expansion ROM at d0000000 [disabled] [size=3D128K]
+	Capabilities: <available only to root>
+
+0000:02:00.1 Display controller: ATI Technologies Inc: Unknown device 5b70
+	Subsystem: Asustek Computer, Inc.: Unknown device 002b
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Region 0: Memory at d1010000 (32-bit, non-prefetchable) [disabled] [size=
+=3D64K]
+	Capabilities: <available only to root>
+
+0000:05:00.0 Ethernet controller: Marvell Technology Group Ltd.: Unknown de=
+vice 4362 (rev 15)
+	Subsystem: Asustek Computer, Inc.: Unknown device 8142
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR+ <PERR-
+	Latency: 0, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at d3000000 (64-bit, non-prefetchable) [size=3D16K]
+	Region 2: I/O ports at a000 [size=3D256]
+	Expansion ROM at 3ff00000 [disabled] [size=3D128K]
+	Capabilities: <available only to root>
+
+--=20
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://the-penguin.otak.com/~lawrence
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - -=20
+
+
+
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDDjzHsgPkFxgrWYkRAijrAJ0afwH7LSp3renZ6cKZz8NudL7Z8gCgkx2i
+yd8JsIlRqZ/MpHNFdqIIBdo=
+=3muG
+-----END PGP SIGNATURE-----
+
+--PEIAKu/WMn1b1Hv9--

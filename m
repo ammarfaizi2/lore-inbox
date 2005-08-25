@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVHYQXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVHYQYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbVHYQXd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 12:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVHYQXd
+	id S932293AbVHYQYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 12:24:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVHYQYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 12:23:33 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:13968 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932285AbVHYQXc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 12:23:32 -0400
-Date: Thu, 25 Aug 2005 11:21:18 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>, John Rose <johnrose@austin.ibm.com>,
-       akpm@osdl.org, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-Message-ID: <20050825162118.GH25174@austin.ibm.com>
-References: <20050823231817.829359000@bilge> <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com> <1124898331.24668.33.camel@sinatra.austin.ibm.com> <20050824162959.GC25174@austin.ibm.com> <17165.3205.505386.187453@cargo.ozlabs.ibm.com> <1124930943.5159.168.camel@gaston>
+	Thu, 25 Aug 2005 12:24:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2975 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932283AbVHYQYH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 12:24:07 -0400
+Date: Thu, 25 Aug 2005 09:24:03 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Kurt Garloff <garloff@suse.de>, Chris Wright <chrisw@osdl.org>,
+       linux-security-module@wirex.com,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/5] Call security hooks conditionally if the security_op is filled out.
+Message-ID: <20050825162403.GV7762@shell0.pdx.osdl.net>
+References: <20050825012028.720597000@localhost.localdomain> <20050825012149.330707000@localhost.localdomain> <20050825085039.GW12218@tpkurt.garloff.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1124930943.5159.168.camel@gaston>
-User-Agent: Mutt/1.5.9i
-From: Linas Vepstas <linas@austin.ibm.com>
+In-Reply-To: <20050825085039.GW12218@tpkurt.garloff.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 10:49:03AM +1000, Benjamin Herrenschmidt was heard to remark:
-> 
-> Of course, we'll possibly end up with a different ethX or whatever, but
+* Kurt Garloff (garloff@suse.de) wrote:
+> You did not like my macro abuse, apparently.
+> That's too bad, as it allowed you to do changes without changing
+> hundreds of lines of code.
 
-Yep, but that's not an issue, since all the various device-naming
-schemes are supposed to be fixing this. Its a distinct problem;
-it needs to be solved even across cold-boots. 
+It was handy that way, but I think this way is just cleaner and simpler.
+Esp. when checking against the function ptr, not the security_ops ptr.
 
-(Didn't I ever tell you about the day I added a new disk controller to
-my system, and /dev/hda became /dev/hde and thus /home was mounted on
-/usr and /var as /etc and all hell broke loose? Owww, device naming
-is a serious issue for home users and even more so for enterprise-class 
-users).
+> Just one remark:
+> Make sure you don't set security_ops->XXX ever back to NULL or you
+> might take an oops.
+> Security module unloading is racy and always has been. It's not well
+> defined at what point in time the new functions become effective.
+> And we certainly don't want to use locking for performance reasons.
+> One could think of using RCU, though, thus the security_ops pointer
+> would only be changed after all CPUs schedule()d ...
 
---linas
+Removing a security module has always been unsafe.
 
+> In my version of the patches, I maintained the capability_security_ops
+> structure fully filled-in and pointed security_ops to it, so you'll
+> always have a valid function pointer. If you wanted to avoid a pointer
+> compare, I had an integer to look at ...
 
+Yes, that's how 2/5 is.  At KS, there was specific mention of not doing
+unconditional call.  Comparing against security_ops only helps the case
+where a module is not loaded.  Checking the function ptr should help any
+module with sparse ops.

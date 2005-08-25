@@ -1,75 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVHYPgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVHYPiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbVHYPgz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 11:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbVHYPgz
+	id S932179AbVHYPiw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 11:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbVHYPiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 11:36:55 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:33787 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932168AbVHYPgy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 11:36:54 -0400
-Subject: Re: 2.6.13-rc7-rt1
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "K.R. Foley" <kr@cybsft.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20050825062651.GA26781@elte.hu>
-References: <20050825062651.GA26781@elte.hu>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 08:36:44 -0700
-Message-Id: <1124984208.25139.0.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	Thu, 25 Aug 2005 11:38:52 -0400
+Received: from ms-smtp-01-smtplb.rdc-nyc.rr.com ([24.29.109.5]:44769 "EHLO
+	ms-smtp-01.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S932179AbVHYPiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 11:38:52 -0400
+Date: Thu, 25 Aug 2005 11:38:49 -0400 (EDT)
+Message-Id: <200508251538.j7PFcn1g000143@ms-smtp-01.rdc-nyc.rr.com>
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-URL: mailto:linux-kernel@vger.kernel.org
+X-Mailer: Lynx, Version 2.8.6dev.13c
+From: robotti@godmail.com
+Subject: Initramfs and TMPFS!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Does anyone have x86_64 working in PREEMPT_RT ?
+   >Right, but it would be nice to have that option if initramfs
+   >using tmpfs becomes part of the kernel.
+   >>But it's not needed so why add bloat?
 
-Daniel
+A 'tmpfs_size' option seems to just make sense given the fact that
+the mount program has a 'size' option for tmpfs.
 
+It makes sense if tmpfs becomes am initramfs option. 
 
-On Thu, 2005-08-25 at 08:26 +0200, Ingo Molnar wrote:
-> i have released the 2.6.13-rc7-rt1 tree, which can be downloaded from 
-> the usual place:
-> 
->   http://redhat.com/~mingo/realtime-preempt/
-> 
-> this is a fixes-only release. Changes since 2.6.13-rc6-rt10:
-> 
->  - init_hrtimers() compilation fix (K.R. Foley)
-> 
->  - first phase p->pi_lock SMP speedup (Steven Rostedt)
-> 
->  - HRT/signals exit fixes (Thomas Gleixner)
-> 
->  - change single-signal delivery (used by e.g. HRT) to RCU
->    (Thomas Gleixner)
-> 
->  - fix larger-than-5-sec sleeps (Thomas Gleixner)
-> 
->  - ALL_TASKS_PI compilation fixes (Daniel Walker)
-> 
->  - HRT compilation warning fix (Daniel Walker)
-> 
->  - PPC fixes (Thomas Gleixner)
-> 
->  - merge to 2.6.13-rc7
-> 
->  - disable old HIGH_RES_TIMERS code in ipmi
-> 
->  - sx8.c semaphore -> compat_semaphore
-> 
->  - route.c kmalloc-size build fix
-> 
-> to build a 2.6.13-rc7-rt1 tree, the following patches should be applied:
-> 
->    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
->    http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc7.bz2
->    http://redhat.com/~mingo/realtime-preempt/patch-2.6.13-rc7-rt1
-> 
-> 	Ingo
+It's one less thing to do in an init script.
 
+What if you have a root.cpio.gz that requires 200MB to hold, but you
+only have 300MB of memory?
+
+50% of total memory wouldn't hold it, but 90% etc. would (tmpfs_size=90%).
+ 

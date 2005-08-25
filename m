@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbVHYNo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVHYNsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbVHYNo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 09:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVHYNo6
+	id S964987AbVHYNsB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 09:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbVHYNsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 09:44:58 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:31686 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S964982AbVHYNo5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 09:44:57 -0400
-Message-ID: <430DCB58.1090107@dgreaves.com>
-Date: Thu, 25 Aug 2005 14:44:56 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Doug Warzecha <Douglas_Warzecha@dell.com>
-Cc: michael_e_brown@dell.com, matt_domsch@dell.com,
+	Thu, 25 Aug 2005 09:48:01 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:13751 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S964987AbVHYNsA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 09:48:00 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: Robert Love <rml@novell.com>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Johannes Berg <johannes@sipsolutions.net>,
+       Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13-rc6] dcdbas: add Dell Systems Management Base Driver
- with sysfs support
-References: <20050820225052.GA5042@sysman-doug.us.dell.com>
-In-Reply-To: <20050820225052.GA5042@sysman-doug.us.dell.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <1124977253.5039.13.camel@vertex>
+References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
+	 <430D986E.30209@reub.net>  <1124972307.6307.30.camel@localhost>
+	 <1124977253.5039.13.camel@vertex>
+Content-Type: text/plain
+Date: Thu, 25 Aug 2005 09:47:52 -0400
+Message-Id: <1124977672.32272.10.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Warzecha wrote:
+On Thu, 2005-08-25 at 09:40 -0400, John McCutchan wrote:
 
->This patch adds the Dell Systems Management Base Driver with sysfs support.
->
->This patch incorporates changes based on comments from the previous posting.
->
->Summary of changes:
->
->* Changed permissions on sysfs files so that only owner can read.
->* Changed to use __uNN/__sNN types in structs.
->* smi_data_write will grow smi_data_buf if needed.
->* Renamed struct callintf_cmd to struct smi_cmd.
->* Renamed callintf_smi to smi_request.
->* Added 2 more supported values that were requested in smi_request_store.
->* Hold rtc_lock across SMI in host_control_smi.
->
->  
->
-Hi Doug
+> I get that message a lot. I know I have said this before (and was wrong)
+> but I think the idr layer is busted.
 
-I've followed this thread as best I can and I have a query...
+This time I think I agree with you.  ;-)
 
-I have a Dell SC420
-Is there a way (based around this patch) to allow users to enable and
-set the auto-power-on BIOS feature?
-(ie tell the BIOS to power on at 3:40am, power the system down, watch it
-power up at 3:40am)
+Let's just pass zero for the "above" parameter in idr_get_new_above(),
+which is I believe the behavior of the other interface, and see if the
+1024-multiple problem goes away.  We definitely did not have that
+before.
 
-Normally I'd use 'nvram-wakeup' but it dosen't understand the Dell BIOS.
+If it does, and we don't have another solution, let's run with that for
+2.6.13.  I don't want this bug released.
 
-If so what I'd _like_ to do is send a patch to nvram-wakeup that tests
-for this capability and uses it if it's there.
+	Robert Love
 
-David
-
--- 
 

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751563AbVHYJe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbVHYJiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751563AbVHYJe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 05:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751562AbVHYJe2
+	id S964906AbVHYJiy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 05:38:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbVHYJiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 05:34:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:8603 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751408AbVHYJe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 05:34:28 -0400
-Date: Thu, 25 Aug 2005 10:34:24 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Kumar Gala <galak@freescale.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 00/15] Remove asm/segment.h from low hanging	architectures
-Message-ID: <20050825093424.GA10409@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Zachary Amsden <zach@vmware.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Kumar Gala <galak@freescale.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <Pine.LNX.4.61.0508241139100.23956@nylon.am.freescale.net> <1124920244.13833.6.camel@localhost.localdomain> <430D8E68.7070303@vmware.com>
+	Thu, 25 Aug 2005 05:38:54 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:18356 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964906AbVHYJiy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 05:38:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=f99T0Q3Gnhvwx6M0u9TwTJ74tW28Fic3GMFeBQcMrnII5dAfznusyYhZU1BQsBJjL/J0JPZ+CIKBwc9N62G3D6YJo3oIr4Tmgd+FX85tUDuh+ABxGPNi81QnTVkyaiprYJJl/6+PTXdv1rKqMeXYW9XMdip9Q/FoCaeY5GTCdwg=
+Message-ID: <9a8748490508250238bf353e4@mail.gmail.com>
+Date: Thu, 25 Aug 2005 11:38:50 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Shwetha V <shwethav@sasken.com>
+Subject: Re: kernel
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <dejie7$m6i$1@ncc-w.sasken.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <430D8E68.7070303@vmware.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <ddi2qu$74p$1@ncc-nt.nt.sasken.com> <dejie7$m6i$1@ncc-w.sasken.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 02:24:56AM -0700, Zachary Amsden wrote:
-> Yes, agree totally,  i386 _requires_ asm/segment.h.  It is used in 
-> low-level trap handling and bootup code from assembly files.  In 
-> addition,
+On 8/25/05, Shwetha V <shwethav@sasken.com> wrote:
+> 
+>  Could anyone inform which will be a good guide to start learning the linux
+> kernel programming.
+> 
+Personally I've greatly enjoyed 
+"Linux Kernel Development, 2ed" http://rlove.org/kernel_book/
+and
+"Linux Device Drivers, Third Edition" http://lwn.net/Kernel/LDD3/
 
-but keeping the header under that name will just encorage people
-to put it back into drivers, after all it compiles on i386..
-
-Let's rename it even for i386.
-
->even parts of userspace on i386 depend on asm/segment.h, 
-> although that is a different beast.
-
-That's a problem of glibc-kernheaders (or insert alternative $name here)
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

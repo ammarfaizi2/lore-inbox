@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbVHYFsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVHYFxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964849AbVHYFsb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 01:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbVHYFsb
+	id S964845AbVHYFxN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 01:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVHYFxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 01:48:31 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:57304 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964849AbVHYFsa (ORCPT
+	Thu, 25 Aug 2005 01:53:13 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:14546 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964845AbVHYFxM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 01:48:30 -0400
-Date: Wed, 24 Aug 2005 22:48:25 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: cpu_exclusive sched domains fix broke ppc64
-Message-Id: <20050824224825.2738ca2f.pj@sgi.com>
-In-Reply-To: <17165.22994.174870.856032@cargo.ozlabs.ibm.com>
-References: <17164.11361.437380.179789@cargo.ozlabs.ibm.com>
-	<20050824223209.352a5f87.pj@sgi.com>
-	<17165.22994.174870.856032@cargo.ozlabs.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Thu, 25 Aug 2005 01:53:12 -0400
+Date: Thu, 25 Aug 2005 07:53:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.13-rc6-rt15 won't compile without HR-Timers
+Message-ID: <20050825055359.GA26398@elte.hu>
+References: <430CA8EB.3070105@cybsft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <430CA8EB.3070105@cybsft.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Did you have CONFIG_NUMA=y ?
 
-No I didn't.  That was it.  Now I too can
-break the build.  Cool - thanks.
+* K.R. Foley <kr@cybsft.com> wrote:
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+> Ingo,
+> 
+> Without the attached patch 2.6.13-rc6-rt15 won't compile for me with 
+> CONFIG_HIGH_RES_TIMERS not configured.
+
+thanks, applied.
+
+	Ingo

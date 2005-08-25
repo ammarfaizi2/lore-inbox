@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVHYORV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVHYOWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbVHYORV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVHYORV
+	id S965017AbVHYOWP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVHYOWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:17:21 -0400
-Received: from sun3.sammy.net ([68.162.198.6]:4108 "HELO sun3.sammy.net")
-	by vger.kernel.org with SMTP id S965013AbVHYOQ6 (ORCPT
+	Thu, 25 Aug 2005 10:22:15 -0400
+Received: from ns.suse.de ([195.135.220.2]:43919 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965017AbVHYOWO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:16:58 -0400
-Date: Thu, 25 Aug 2005 10:17:16 -0400 (EDT)
-From: Sam Creasey <sammy@sammy.net>
-X-X-Sender: sammy@sun3
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>, Paul Jackson <pj@sgi.com>,
-       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.13-rc7
-In-Reply-To: <20050825141251.GS9322@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.40.0508251012220.17653-100000@sun3>
+	Thu, 25 Aug 2005 10:22:14 -0400
+From: Andi Kleen <ak@suse.de>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: process creation time increases linearly with shmem
+Date: Thu, 25 Aug 2005 16:22:08 +0200
+User-Agent: KMail/1.8
+Cc: Ray Fucillo <fucillo@intersystems.com>, linux-kernel@vger.kernel.org
+References: <082520051405.5272.430DD0420003F49F00001498220076139400009A9B9CD3040A029D0A05@comcast.net>
+In-Reply-To: <082520051405.5272.430DD0420003F49F00001498220076139400009A9B9CD3040A029D0A05@comcast.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508251622.08456.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Would it be worth trying to do something like this?
 
-On Thu, 25 Aug 2005, Al Viro wrote:
+Maybe. Shouldn't be very hard though - you just need to check if the VMA is 
+backed by an object and if yes don't call copy_page_range for it.
 
-> On Thu, Aug 25, 2005 at 09:59:05AM -0400, Sam Creasey wrote:
->
-> > I have been a little out of it for a while on the sun3 stuffs, I'll admit
-> > (cursed day job), but I really, really intend to get recent 2.6 running
-> > again.  Knowing that the rest of m68k is at least compiling is a good
-> > start point.  Still, I'm going with Geert, and I'm not sure where the
-> > compile regressions would have come from (outside of the video/serial
-> > drivers, which don't compile in m68k CVS either).
-> >
-> > What compile failures are you seeing?
->
-> After looking at that for a while...  It's the second hairball in there ;-)
-> flush_icache_range()/flush_icache_user_range() stuff, with all related
-> fun.  Note that mainline has flush_ichace_range() in memory.c, which is
-> not picked by sun3.
+I think it just needs (untested) 
 
-Huh, my last compiling 2.6 sun3 tree ((old) m68k CVS) has those in
-arch/m68k/mm/cache.c, which sun3 did use.
+Index: linux-2.6.13-rc5-misc/kernel/fork.c
+===================================================================
+--- linux-2.6.13-rc5-misc.orig/kernel/fork.c
++++ linux-2.6.13-rc5-misc/kernel/fork.c
+@@ -265,7 +265,8 @@ static inline int dup_mmap(struct mm_str
+ 		rb_parent = &tmp->vm_rb;
+ 
+ 		mm->map_count++;
+-		retval = copy_page_range(mm, current->mm, tmp);
++		if (!file && !is_vm_hugetlb_page(vma))
++			retval = copy_page_range(mm, current->mm, tmp);
+ 		spin_unlock(&mm->page_table_lock);
+ 
+ 		if (tmp->vm_ops && tmp->vm_ops->open)
 
-Ok, sounds like I need to make sure those are broken out sanely.  I'm
-pretty sure memory.c is a bad place for that, since (as you observed),
-it's motorola-mmu only code (or, at least, was...)
+But I'm not sure it's a good idea in all cases. Would need a lot of 
+benchmarking  at least.
 
-I'm considerably less scared now. :)
-
--- Sam
-
-
+-Andi

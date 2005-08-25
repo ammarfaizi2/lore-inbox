@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVHYG0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbVHYGa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbVHYG0X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 02:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751541AbVHYG0X
+	id S1751537AbVHYGa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 02:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751541AbVHYGa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 02:26:23 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40597 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751537AbVHYG0W (ORCPT
+	Thu, 25 Aug 2005 02:30:29 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:52113 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751537AbVHYGa3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 02:26:22 -0400
-Date: Thu, 25 Aug 2005 08:26:51 +0200
+	Thu, 25 Aug 2005 02:30:29 -0400
+Date: Thu, 25 Aug 2005 08:31:10 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: "K.R. Foley" <kr@cybsft.com>, Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>, dwalker@mvista.com
-Subject: 2.6.13-rc7-rt1
-Message-ID: <20050825062651.GA26781@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [RFC] RT-patch update to remove the global pi_lock
+Message-ID: <20050825063110.GA27291@elte.hu>
+References: <1124739657.5809.6.camel@localhost.localdomain> <1124739895.5809.11.camel@localhost.localdomain> <1124749192.17515.16.camel@dhcp153.mvista.com> <1124756775.5350.14.camel@localhost.localdomain> <1124758291.9158.17.camel@dhcp153.mvista.com> <1124760725.5350.47.camel@localhost.localdomain> <1124768282.5350.69.camel@localhost.localdomain> <1124908080.5604.22.camel@localhost.localdomain> <1124917003.5711.8.camel@localhost.localdomain> <1124932391.5527.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1124932391.5527.15.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -31,42 +32,12 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-i have released the 2.6.13-rc7-rt1 tree, which can be downloaded from 
-the usual place:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-  http://redhat.com/~mingo/realtime-preempt/
+> So, Ingo, what do you think of the changes so far?  Do you feel that 
+> it is stable enough to send you an actual real patch. That way we can 
+> work together in cleaning it up and get all the other kinks out.
 
-this is a fixes-only release. Changes since 2.6.13-rc6-rt10:
-
- - init_hrtimers() compilation fix (K.R. Foley)
-
- - first phase p->pi_lock SMP speedup (Steven Rostedt)
-
- - HRT/signals exit fixes (Thomas Gleixner)
-
- - change single-signal delivery (used by e.g. HRT) to RCU
-   (Thomas Gleixner)
-
- - fix larger-than-5-sec sleeps (Thomas Gleixner)
-
- - ALL_TASKS_PI compilation fixes (Daniel Walker)
-
- - HRT compilation warning fix (Daniel Walker)
-
- - PPC fixes (Thomas Gleixner)
-
- - merge to 2.6.13-rc7
-
- - disable old HIGH_RES_TIMERS code in ipmi
-
- - sx8.c semaphore -> compat_semaphore
-
- - route.c kmalloc-size build fix
-
-to build a 2.6.13-rc7-rt1 tree, the following patches should be applied:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
-   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.13-rc7.bz2
-   http://redhat.com/~mingo/realtime-preempt/patch-2.6.13-rc7-rt1
+yeah, please send me a patch against 2.6.13-rc7-rt1 if possible.
 
 	Ingo

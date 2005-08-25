@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVHYJVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbVHYJX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbVHYJVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 05:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVHYJVO
+	id S964901AbVHYJX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 05:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVHYJX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 05:21:14 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:34029 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S964899AbVHYJVN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 05:21:13 -0400
-Message-ID: <430D8D76.6040907@cosmosbay.com>
-Date: Thu, 25 Aug 2005 11:20:54 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removes filp_count_lock and changes nr_files type to
- atomic_t
-References: <20050824214610.GA3675@localhost.localdomain>	 <1124956563.3222.8.camel@laptopd505.fenrus.org>	 <430D8518.8020502@cosmosbay.com> <1124960744.3222.11.camel@laptopd505.fenrus.org>
-In-Reply-To: <1124960744.3222.11.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 25 Aug 2005 11:20:55 +0200 (CEST)
+	Thu, 25 Aug 2005 05:23:27 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62374 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964901AbVHYJX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 05:23:26 -0400
+Date: Thu, 25 Aug 2005 10:23:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removes filp_count_lock and changes nr_files type to atomic_t
+Message-ID: <20050825092322.GA9902@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Eric Dumazet <dada1@cosmosbay.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050824214610.GA3675@localhost.localdomain> <1124956563.3222.8.camel@laptopd505.fenrus.org> <430D8518.8020502@cosmosbay.com> <20050825090854.GA9740@infradead.org> <430D8CA3.3030709@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <430D8CA3.3030709@cosmosbay.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven a écrit :
-> On Thu, 2005-08-25 at 10:45 +0200, Eric Dumazet wrote:
+On Thu, Aug 25, 2005 at 11:17:23AM +0200, Eric Dumazet wrote:
+> >But that's not true.  You need to write you own sysctl handler for it,
+> >probably worth adding a generic atomic_t sysctl handler while you're
+> >at it.
+> >
 > 
->>This patch removes filp_count_lock spinlock, used to protect files_stat.nr_files.
->>
->>Just use atomic_t type and atomic_inc()/atomic_dec() operations.
->>
->>This patch assumes that atomic_read() is a plain {return v->counter;} on all 
->>architectures. (keywords : sysctl, /proc/sys/fs/file-nr, proc_dointvec)
->>
-> 
-> 
-> this patch adds atomic ops where there were none before
+> I checked linux-2.6.13-rc7 tree, and atomic_read() is just a wrapper to 
+> read v->counter.
 
-nope... a spinlock/spinunlock contains atomic ops.
-
-> for those architectures that need atomics for read (parisc? arm?)
-
-not today. No atomic needed for read.
-
-> 
-> however.. wouldn't it be better to make this a per cpu variable for
-> write, and for read iterate or do something smart otherwise?
-
-So on a machine with 256 CPUS, you want to iterate 256 counters ?
-nr_files is not heavily touched, no need to expand it.
-
+That doesn't matter.  atomic_t is an opaqueue type and you must use the
+atomic_* interfaces to access it.

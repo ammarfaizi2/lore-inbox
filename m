@@ -1,208 +1,879 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbVHYBon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbVHYBo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbVHYBon (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 21:44:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbVHYBon
+	id S932480AbVHYBo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 21:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVHYBo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 21:44:43 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25077 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932479AbVHYBon
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 21:44:43 -0400
-Message-ID: <430D227D.2070001@mvista.com>
-Date: Wed, 24 Aug 2005 18:44:29 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
-       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
-References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>	 <1124505151.22195.78.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508202204240.3728@scrub.home>	 <1124737075.22195.114.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508230134210.3728@scrub.home>	 <1124830262.20464.26.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508232321530.3728@scrub.home>	 <1124838847.20617.11.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0508240134050.3743@scrub.home> <430BBF82.2010209@mvista.com>	 <1124915766.20820.67.camel@cog.beaverton.ibm.com>	 <430D06D0.4080904@mvista.com> <1124930555.20820.132.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1124930555.20820.132.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Aug 2005 21:44:57 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:49234 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S932480AbVHYBoz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 21:44:55 -0400
+X-IronPort-AV: i="3.96,139,1122872400"; 
+   d="scan'208"; a="284449210:sNHT32176894"
+Date: Wed, 24 Aug 2005 21:00:21 -0500
+From: Doug Warzecha <Douglas_Warzecha@dell.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.13-rc6] dcdbas: add Dell Systems Management Base Driver with sysfs support
+Message-ID: <20050825020021.GA5223@sysman-doug.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Wed, 2005-08-24 at 16:46 -0700, George Anzinger wrote:
-> 
->>john stultz wrote:
->>
->>>On Tue, 2005-08-23 at 17:29 -0700, George Anzinger wrote:
->>>
->>>
->>>>Roman Zippel wrote:
->>>>
->>>>
->>>>>Hi,
->>>>>
->>>>>On Tue, 23 Aug 2005, john stultz wrote:
->>>>>
->>>>>
->>>>>
->>>>>
->>>>>>I'm assuming gettimeofday()/clock_gettime() looks something like:
->>>>>> xtime + (get_cycles()-last_update)*(mult+ntp_adj)>>shift
->>>>>
->>>>>
->>>>>Where did you get the ntp_adj from? It's not in my example.
->>>>>gettimeofday() was in the previous mail: "xtime + (cycle_offset * mult +
->>>>>error) >> shift". The difference between system time and reference 
->>>>>time is really important. gettimeofday() returns the system time, NTP 
->>>>>controls the reference time and these two are synchronized regularly.
->>>>>I didn't see that anywhere in your example.
->>>>>
->>>
->>>
->>>>If I read your example right, the problem is when the NTP adjustment 
->>>>changes while the two clocks are out of sync (because of a late tick). 
->>>
->>>
->>>Not quite. The issue that I'm trying to describe is that if, we
->>>inconsistently calculate time intervals in gettimeofday and the timer
->>>interrupt, we have the possibility for time inconsistencies.
->>>
->>>The trivial example using the current code would be something like:
->>>
->>>Again with my 2 cyc per tick clock, HZ=1000.
->>>
->>>gettimeofday():
->>>	xtime + offset_ns
->>>
->>>timer_interrupt:
->>>	xtime += tick_length + ntp_adj
->>>	offset_ns = 0
->>>
->>>0:  gettimeofday:  0 + 0 = 0 ns
->>>1:  gettimeofday:  0 + 500k ns = 500k ns
->>>2:  gettimeofday:  0 + 1M ns = 1M ns
->>>2:  timer_interrupt:  
->>>2:  gettimeofday:  1M ns + 0 ns = 1M ns
->>>3:  gettimeofday:  1M ns + 500k ns = 1.5M ns
->>>4:  gettimeofday:  1M ns + 1M ns = 2 ns
->>>4:  timer_interrupt (using -500ppm adjustment)
->>>4:  gettimeofday:  1,999,500 ns + 0 ns = 1,999,500 ns
->>>
->>
->>At point 4 you are introducing a NEW ntp adjustment.  This, I submit, 
->>needs to actually have been introduced to the system prior to the 
->>interrupt at point 2 with the first xtime change at point 4.  However, 
->>gettimeofday() should be aware of it from the interrupt at point 2 and 
->>be doing corrections from that time forward.  Thus when the point 4 
->>interrutp happens xtime will be the same at the gettimeofday a ns earlier.
-> 
-> 
-> Yes, clearly a forward knowledge of the NTP adjustment is necessary for
-> gettimeofday(), because after the NTP adjustment has been accumulated
-> into xtime, there's nothing left for gettimeofday to adjust (its already
-> been applied). :)
-> 
-> 
-> 
->>Likewise, gettimeofday() needs to know when to stop apply the correction 
->>so that if a tick is late, it will apply the correction only for those 
->>times that it was needed.  This, could be done by figuring the offset 
->>thusly:
->>
->>offset = (offset from last tick to end of ntp period * ntp_adj1) + 
->>(offset from end of ntp period to now)
-> 
-> 
-> Well, in my example, the ntp_adjustment is a fixed nanosecond offset, so
-> it would be added to the nanosecond offset from the last tick (which is
-> how the current code works). If you are doing scaling (as you have in
-> the equation above), then the problem goes away, since you can apply the
-> adjustment consistently through any interval.
+This patch adds the Dell Systems Management Base Driver with sysfs support.
 
-Until the end of the correction time...
-> 
-> 
->>I suppose it is possible that the latter part of the offset is also 
->>under a different ntp correction which would mean a "* ntp_adj2" is 
->>needed.  
-> 
-> 
-> Ok, so your forcing gettimeofday to be interval aware, so its applying
-> different fixed NTP adjustments to different chunks of the current
-> interval. The issue of course is if you're using fixed adjustments, is
-> that you have to have n ntp adjustments for n intervals, or you have to
-> apply the same ntp adjustment to multiple intervals. 
+This driver has been tested with Dell OpenManage.
 
-Uh, are you saying that one ntpd call can set up several different 
-adjustments?  I was assuming that any given call would set up either a 
-fixed adjustment for ever or a fixed adjustment to be applied for a 
-fixed number of ticks (or until so much correcting was done, which, in 
-the end is the same thing at this point in the code).
+Signed-off-by: Doug Warzecha <Douglas_Warzecha@dell.com>
+---
 
-If ntpd has to come back to change the adjustment, I am assuming that 
-some kernel action can be taken at that time to sync the xtime clock and 
-the gettimeofday reading of it.  I.e. we would only have to keep track 
-of one adjustment with a possible pre specified end time.
-> 
-> 
-> 
->>I would argue that only two terms are needed here regardless of 
->>how late a tick is.  This is because, I would expect the ntp system call 
->>to sync the two clocks.  This means in your example, the ntp call would 
->>have been made at, or prior to the timer interrupt at 2 and this is the 
->>same edge that gettimeofday is to used to start applying the correction.
-> 
-> 
-> If you argue that we only need two adjustments, why not argue for only
-> one? You're saying have one adjustment that you apply for the first
-> tick's worth of time, and a second adjustment that you apply for the
-> following N ticks' worth of time in the interval. Why the odd base
-> case? 
-
-Correct me if I am wrong here, but I am assuming that ntpd can ask for 
-an adjustment of X amount which the kernel changes into N adjustments of 
-X/N amount spread over the next N ticks.  This means that, once we have 
-done N ticks, we MUST stop doing the correction.  Life would be easier 
-if ntpd only asked for rate changes which are to be applied until the 
-next ntpd call (which, as I understand it, it can ALSO do).  Of course, 
-the issue of missed ticks kicks in here and is the ONLY reason we need 
-to do two corrections, i.e. we need only one ntp correction if we have 
-not missed a tick.
-> 
-> 
-> 
->>>>It would appear that gettimeofday would need to know that the NTP 
->>>>adjustment is changing  (and to what).  It would also appear that this 
->>>>is known by the ntp code and could be made available to gettimeofday. 
->>>>If it is changing due to an NTP call, that system call, itself, 
->>>>should/must force synchronization.  So the only case gettimeofday needs 
->>>>to worry/know about is that an adjustment is to change at time X to 
->>>>value Y.  Also, me thinks there is only one such change that can be 
->>>>present at any given time.
->>>
->>>
->>>Well, in many arches gettimeofday() works around the above issue by
->>>capping the offset_ns value as such:
->>
->>I think this may have been done with only usec gettimeofday.  Now that 
->>we have clock_gettime() returning nsec, we need to be a bit more careful.
-> 
-> 
-> Indeed.
-> 
-> thanks
-> -john
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+diff -uprN linux-2.6.13-rc6.orig/Documentation/dcdbas.txt linux-2.6.13-rc6/Documentation/dcdbas.txt
+--- linux-2.6.13-rc6.orig/Documentation/dcdbas.txt	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.13-rc6/Documentation/dcdbas.txt	2005-08-19 18:45:37.000000000 -0500
+@@ -0,0 +1,87 @@
++Overview
++
++The Dell Systems Management Base Driver provides a sysfs interface for
++systems management software such as Dell OpenManage to perform system
++management interrupts and host control actions (system power cycle or
++power off after OS shutdown) on certain Dell systems.
++
++Dell OpenManage requires this driver on the following Dell PowerEdge systems:
++300, 1300, 1400, 400SC, 500SC, 1500SC, 1550, 600SC, 1600SC, 650, 1655MC,
++700, and 750.  Other Dell software such as the open source Libsmbios library
++is expected to make use of this driver, and it may include the use of this
++driver on other Dell systems.
++
++
++System Management Interrupt
++
++On some Dell systems, systems management software must access certain
++management information via a system management interrupt (SMI).  The SMI data
++buffer must reside in 32-bit address space, and the physical address of the
++buffer is required for the SMI.  The driver maintains the memory required for
++the SMI and provides a way for the application to generate the SMI.
++The driver creates the following sysfs entries for systems management
++software to perform these system management interrupts:
++
++/sys/devices/platform/dcdbas/smi_data
++/sys/devices/platform/dcdbas/smi_data_buf_phys_addr
++/sys/devices/platform/dcdbas/smi_data_buf_size
++/sys/devices/platform/dcdbas/smi_request
++
++Systems management software must perform the following steps to execute
++a SMI using this driver:
++
++1) Lock smi_data.
++2) Write system management command to smi_data.
++3) Write "1" to smi_request to generate a calling interface SMI or
++   "2" to generate a raw SMI.
++4) Read system management command response from smi_data.
++5) Unlock smi_data.
++
++
++Host Control Action
++
++Dell OpenManage supports a host control feature that allows the administrator
++to perform a power cycle or power off of the system after the OS has finished
++shutting down.  On some Dell systems, this host control feature requires that
++a driver perform a SMI after the OS has finished shutting down.
++
++The driver creates the following sysfs entries for systems management software
++to schedule the driver to perform a power cycle or power off host control
++action after the system has finished shutting down:
++
++/sys/devices/platform/dcdbas/host_control_action
++/sys/devices/platform/dcdbas/host_control_smi_type
++/sys/devices/platform/dcdbas/host_control_on_shutdown
++
++Dell OpenManage performs the following steps to execute a power cycle or
++power off host control action using this driver:
++
++1) Write host control action to be performed to host_control_action.
++2) Write type of SMI that driver needs to perform to host_control_smi_type.
++3) Write "1" to host_control_on_shutdown to enable host control action.
++4) Initiate OS shutdown.
++   (Driver will perform host control SMI when it is notified that the OS
++   has finished shutting down.)
++
++
++Host Control SMI Type
++
++The following table shows the value to write to host_control_smi_type to
++perform a power cycle or power off host control action:
++
++PowerEdge System    Host Control SMI Type
++----------------    ---------------------
++      300             HC_SMITYPE_TYPE1
++     1300             HC_SMITYPE_TYPE1
++     1400             HC_SMITYPE_TYPE2
++      500SC           HC_SMITYPE_TYPE2
++     1500SC           HC_SMITYPE_TYPE2
++     1550             HC_SMITYPE_TYPE2
++      600SC           HC_SMITYPE_TYPE2
++     1600SC           HC_SMITYPE_TYPE2
++      650             HC_SMITYPE_TYPE2
++     1655MC           HC_SMITYPE_TYPE2
++      700             HC_SMITYPE_TYPE3
++      750             HC_SMITYPE_TYPE3
++
++
+diff -uprN linux-2.6.13-rc6.orig/drivers/firmware/dcdbas.c linux-2.6.13-rc6/drivers/firmware/dcdbas.c
+--- linux-2.6.13-rc6.orig/drivers/firmware/dcdbas.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.13-rc6/drivers/firmware/dcdbas.c	2005-08-19 19:07:50.823719952 -0500
+@@ -0,0 +1,593 @@
++/*
++ *  dcdbas.c: Dell Systems Management Base Driver
++ *
++ *  The Dell Systems Management Base Driver provides a sysfs interface for
++ *  systems management software to perform System Management Interrupts (SMIs)
++ *  and Host Control Actions (power cycle or power off after OS shutdown) on
++ *  Dell systems.
++ *
++ *  See Documentation/dcdbas.txt for more information.
++ *
++ *  Copyright (C) 1995-2005 Dell Inc.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License v2.0 as published by
++ *  the Free Software Foundation.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ */
++
++#include <linux/device.h>
++#include <linux/dma-mapping.h>
++#include <linux/errno.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/mc146818rtc.h>
++#include <linux/module.h>
++#include <linux/reboot.h>
++#include <linux/sched.h>
++#include <linux/smp.h>
++#include <linux/spinlock.h>
++#include <linux/string.h>
++#include <linux/types.h>
++#include <asm/io.h>
++#include <asm/semaphore.h>
++
++#include "dcdbas.h"
++
++#define DRIVER_NAME		"dcdbas"
++#define DRIVER_VERSION		"5.6.0-1"
++#define DRIVER_DESCRIPTION	"Dell Systems Management Base Driver"
++
++static struct platform_device *dcdbas_pdev;
++
++static u8 *smi_data_buf;
++static dma_addr_t smi_data_buf_handle;
++static unsigned long smi_data_buf_size;
++static u32 smi_data_buf_phys_addr;
++static DECLARE_MUTEX(smi_data_lock);
++
++static unsigned int host_control_action;
++static unsigned int host_control_smi_type;
++static unsigned int host_control_on_shutdown;
++
++/**
++ * smi_data_buf_free: free SMI data buffer
++ */
++static void smi_data_buf_free(void)
++{
++	if (!smi_data_buf)
++		return;
++
++	dev_dbg(&dcdbas_pdev->dev, "%s: phys: %x size: %lu\n",
++		__FUNCTION__, smi_data_buf_phys_addr, smi_data_buf_size);
++
++	dma_free_coherent(&dcdbas_pdev->dev, smi_data_buf_size, smi_data_buf,
++			  smi_data_buf_handle);
++	smi_data_buf = NULL;
++	smi_data_buf_handle = 0;
++	smi_data_buf_phys_addr = 0;
++	smi_data_buf_size = 0;
++}
++
++/**
++ * smi_data_buf_realloc: grow SMI data buffer if needed
++ */
++static int smi_data_buf_realloc(unsigned long size)
++{
++	void *buf;
++	dma_addr_t handle;
++
++	if (smi_data_buf_size >= size)
++		return 0;
++
++	if (size > MAX_SMI_DATA_BUF_SIZE)
++		return -EINVAL;
++
++	/* new buffer is needed */
++	buf = dma_alloc_coherent(&dcdbas_pdev->dev, size, &handle, GFP_KERNEL);
++	if (!buf) {
++		dev_dbg(&dcdbas_pdev->dev,
++			"%s: failed to allocate memory size %lu\n",
++			__FUNCTION__, size);
++		return -ENOMEM;
++	}
++	/* memory zeroed by dma_alloc_coherent */
++
++	if (smi_data_buf)
++		memcpy(buf, smi_data_buf, smi_data_buf_size);
++
++	/* free any existing buffer */
++	smi_data_buf_free();
++
++	/* set up new buffer for use */
++	smi_data_buf = buf;
++	smi_data_buf_handle = handle;
++	smi_data_buf_phys_addr = (u32) virt_to_phys(buf);
++	smi_data_buf_size = size;
++
++	dev_dbg(&dcdbas_pdev->dev, "%s: phys: %x size: %lu\n",
++		__FUNCTION__, smi_data_buf_phys_addr, smi_data_buf_size);
++
++	return 0;
++}
++
++static ssize_t smi_data_buf_phys_addr_show(struct device *dev,
++					   struct device_attribute *attr,
++					   char *buf)
++{
++	return sprintf(buf, "%x\n", smi_data_buf_phys_addr);
++}
++
++static ssize_t smi_data_buf_size_show(struct device *dev,
++				      struct device_attribute *attr,
++				      char *buf)
++{
++	return sprintf(buf, "%lu\n", smi_data_buf_size);
++}
++
++static ssize_t smi_data_buf_size_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count)
++{
++	unsigned long buf_size;
++	ssize_t ret;
++
++	buf_size = simple_strtoul(buf, NULL, 10);
++
++	/* make sure SMI data buffer is at least buf_size */
++	down(&smi_data_lock);
++	ret = smi_data_buf_realloc(buf_size);
++	up(&smi_data_lock);
++	if (ret)
++		return ret;
++
++	return count;
++}
++
++static ssize_t smi_data_read(struct kobject *kobj, char *buf, loff_t pos,
++			     size_t count)
++{
++	size_t max_read;
++	ssize_t ret;
++
++	down(&smi_data_lock);
++
++	if (pos >= smi_data_buf_size) {
++		ret = 0;
++		goto out;
++	}
++
++	max_read = smi_data_buf_size - pos;
++	ret = min(max_read, count);
++	memcpy(buf, smi_data_buf + pos, ret);
++out:
++	up(&smi_data_lock);
++	return ret;
++}
++
++static ssize_t smi_data_write(struct kobject *kobj, char *buf, loff_t pos,
++			      size_t count)
++{
++	ssize_t ret;
++
++	down(&smi_data_lock);
++
++	ret = smi_data_buf_realloc(pos + count);
++	if (ret)
++		goto out;
++
++	memcpy(smi_data_buf + pos, buf, count);
++	ret = count;
++out:
++	up(&smi_data_lock);
++	return ret;
++}
++
++static ssize_t host_control_action_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	return sprintf(buf, "%u\n", host_control_action);
++}
++
++static ssize_t host_control_action_store(struct device *dev,
++					 struct device_attribute *attr,
++					 const char *buf, size_t count)
++{
++	ssize_t ret;
++
++	/* make sure buffer is available for host control command */
++	down(&smi_data_lock);
++	ret = smi_data_buf_realloc(sizeof(struct apm_cmd));
++	up(&smi_data_lock);
++	if (ret)
++		return ret;
++
++	host_control_action = simple_strtoul(buf, NULL, 10);
++	return count;
++}
++
++static ssize_t host_control_smi_type_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
++{
++	return sprintf(buf, "%u\n", host_control_smi_type);
++}
++
++static ssize_t host_control_smi_type_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
++{
++	host_control_smi_type = simple_strtoul(buf, NULL, 10);
++	return count;
++}
++
++static ssize_t host_control_on_shutdown_show(struct device *dev,
++					     struct device_attribute *attr,
++					     char *buf)
++{
++	return sprintf(buf, "%u\n", host_control_on_shutdown);
++}
++
++static ssize_t host_control_on_shutdown_store(struct device *dev,
++					      struct device_attribute *attr,
++					      const char *buf, size_t count)
++{
++	host_control_on_shutdown = simple_strtoul(buf, NULL, 10);
++	return count;
++}
++
++/**
++ * smi_request: generate SMI request
++ * 
++ * Called with smi_data_lock.
++ */
++static int smi_request(struct smi_cmd *smi_cmd)
++{
++	cpumask_t old_mask;
++	int ret = 0;
++
++	if (smi_cmd->magic != SMI_CMD_MAGIC)
++		return -EBADR;
++
++	/* SMI requires CPU 0 */
++	old_mask = current->cpus_allowed;
++	set_cpus_allowed(current, cpumask_of_cpu(0));
++	if (smp_processor_id() != 0) {
++		dev_dbg(&dcdbas_pdev->dev, "%s: failed to get CPU 0\n",
++			__FUNCTION__);
++		ret = -EBUSY;
++		goto out;
++	}
++
++	/* generate SMI */
++	asm volatile (
++		"outb %b0,%w1"
++		: /* no output args */
++		: "a" (smi_cmd->command_code), 
++		  "d" (smi_cmd->command_address), 
++		  "b" (smi_cmd->ebx), 
++		  "c" (smi_cmd->ecx)  
++		: "memory"
++	);
++
++out:
++	set_cpus_allowed(current, old_mask);
++	return ret;
++}
++
++/**
++ * smi_request_store:
++ * 
++ * The valid values are:
++ * 0: zero SMI data buffer
++ * 1: generate calling interface SMI
++ * 2: generate raw SMI
++ * 
++ * User application writes smi_cmd to smi_data before telling driver
++ * to generate SMI.
++ */
++static ssize_t smi_request_store(struct device *dev,
++				 struct device_attribute *attr,
++				 const char *buf, size_t count)
++{
++	struct smi_cmd *smi_cmd;
++	unsigned long val = simple_strtoul(buf, NULL, 10);
++	ssize_t ret;
++
++	down(&smi_data_lock);
++
++	if (smi_data_buf_size < sizeof(struct smi_cmd)) {
++		ret = -ENODEV;
++		goto out;
++	}
++	smi_cmd = (struct smi_cmd *)smi_data_buf;
++
++	switch (val) {
++	case 2:
++		/* Raw SMI */
++		ret = smi_request(smi_cmd);
++		if (!ret)
++			ret = count;
++		break;
++	case 1:
++		/* Calling Interface SMI */
++		smi_cmd->ebx = (u32) virt_to_phys(smi_cmd->command_buffer);
++		ret = smi_request(smi_cmd);
++		if (!ret)
++			ret = count;
++		break;
++	case 0:
++		memset(smi_data_buf, 0, smi_data_buf_size);
++		ret = count;
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++
++out:
++	up(&smi_data_lock);
++	return ret;
++}
++
++/**
++ * host_control_smi: generate host control SMI
++ *
++ * Caller must set up the host control command in smi_data_buf.
++ */
++static int host_control_smi(void)
++{
++	struct apm_cmd *apm_cmd;
++	u8 *data;
++	unsigned long flags;
++	u32 num_ticks;
++	s8 cmd_status;
++	u8 index;
++
++	apm_cmd = (struct apm_cmd *)smi_data_buf;
++	apm_cmd->status = ESM_STATUS_CMD_UNSUCCESSFUL;
++
++	switch (host_control_smi_type) {
++	case HC_SMITYPE_TYPE1:
++		spin_lock_irqsave(&rtc_lock, flags);
++		/* write SMI data buffer physical address */
++		data = (u8 *)&smi_data_buf_phys_addr;
++		for (index = PE1300_CMOS_CMD_STRUCT_PTR;
++		     index < (PE1300_CMOS_CMD_STRUCT_PTR + 4);
++		     index++, data++) {
++			outb(index,
++			     (CMOS_BASE_PORT + CMOS_PAGE2_INDEX_PORT_PIIX4));
++			outb(*data,
++			     (CMOS_BASE_PORT + CMOS_PAGE2_DATA_PORT_PIIX4));
++		}
++
++		/* first set status to -1 as called by spec */
++		cmd_status = ESM_STATUS_CMD_UNSUCCESSFUL;
++		outb((u8) cmd_status, PCAT_APM_STATUS_PORT);
++
++		/* generate SMM call */
++		outb(ESM_APM_CMD, PCAT_APM_CONTROL_PORT);
++		spin_unlock_irqrestore(&rtc_lock, flags);
++
++		/* wait a few to see if it executed */
++		num_ticks = TIMEOUT_USEC_SHORT_SEMA_BLOCKING;
++		while ((cmd_status = inb(PCAT_APM_STATUS_PORT))
++		       == ESM_STATUS_CMD_UNSUCCESSFUL) {
++			num_ticks--;
++			if (num_ticks == EXPIRED_TIMER)
++				return -ETIME;
++		}
++		break;
++
++	case HC_SMITYPE_TYPE2:
++	case HC_SMITYPE_TYPE3:
++		spin_lock_irqsave(&rtc_lock, flags);
++		/* write SMI data buffer physical address */
++		data = (u8 *)&smi_data_buf_phys_addr;
++		for (index = PE1400_CMOS_CMD_STRUCT_PTR;
++		     index < (PE1400_CMOS_CMD_STRUCT_PTR + 4);
++		     index++, data++) {
++			outb(index, (CMOS_BASE_PORT + CMOS_PAGE1_INDEX_PORT));
++			outb(*data, (CMOS_BASE_PORT + CMOS_PAGE1_DATA_PORT));
++		}
++
++		/* generate SMM call */
++		if (host_control_smi_type == HC_SMITYPE_TYPE3)
++			outb(ESM_APM_CMD, PCAT_APM_CONTROL_PORT);
++		else
++			outb(ESM_APM_CMD, PE1400_APM_CONTROL_PORT);
++
++		/* restore RTC index pointer since it was written to above */
++		CMOS_READ(RTC_REG_C);
++		spin_unlock_irqrestore(&rtc_lock, flags);
++
++		/* read control port back to serialize write */
++		cmd_status = inb(PE1400_APM_CONTROL_PORT);
++
++		/* wait a few to see if it executed */
++		num_ticks = TIMEOUT_USEC_SHORT_SEMA_BLOCKING;
++		while (apm_cmd->status == ESM_STATUS_CMD_UNSUCCESSFUL) {
++			num_ticks--;
++			if (num_ticks == EXPIRED_TIMER)
++				return -ETIME;
++		}
++		break;
++
++	default:
++		dev_dbg(&dcdbas_pdev->dev, "%s: invalid SMI type %u\n",
++			__FUNCTION__, host_control_smi_type);
++		return -ENOSYS;
++	}
++
++	return 0;
++}
++
++/**
++ * dcdbas_host_control: initiate host control
++ * 
++ * This function is called by the driver after the system has
++ * finished shutting down if the user application specified a
++ * host control action to perform on shutdown.  It is safe to
++ * use smi_data_buf at this point because the system has finished
++ * shutting down and no userspace apps are running.
++ */
++static void dcdbas_host_control(void)
++{
++	struct apm_cmd *apm_cmd;
++	u8 action;
++
++	if (host_control_action == HC_ACTION_NONE)
++		return;
++
++	action = host_control_action;
++	host_control_action = HC_ACTION_NONE;
++
++	if (!smi_data_buf) {
++		dev_dbg(&dcdbas_pdev->dev, "%s: no SMI buffer\n", __FUNCTION__);
++		return;
++	}
++
++	if (smi_data_buf_size < sizeof(struct apm_cmd)) {
++		dev_dbg(&dcdbas_pdev->dev, "%s: SMI buffer too small\n",
++			__FUNCTION__);
++		return;
++	}
++
++	apm_cmd = (struct apm_cmd *)smi_data_buf;
++
++	/* power off takes precedence */
++	if (action & HC_ACTION_HOST_CONTROL_POWEROFF) {
++		apm_cmd->command = ESM_APM_POWER_CYCLE;
++		apm_cmd->reserved = 0;
++		*((s16 *)&apm_cmd->parameters.shortreq.parm[0]) = (s16) 0;
++		host_control_smi();
++	} else if (action & HC_ACTION_HOST_CONTROL_POWERCYCLE) {
++		apm_cmd->command = ESM_APM_POWER_CYCLE;
++		apm_cmd->reserved = 0;
++		*((s16 *)&apm_cmd->parameters.shortreq.parm[0]) = (s16) 20;
++		host_control_smi();
++	}
++}
++
++/**
++ * dcdbas_reboot_notify: handle reboot notification for host control
++ */
++static int dcdbas_reboot_notify(struct notifier_block *nb, unsigned long code,
++				void *unused)
++{
++	static unsigned int notify_cnt = 0;
++
++	switch (code) {
++	case SYS_DOWN:
++	case SYS_HALT:
++	case SYS_POWER_OFF:
++		if (host_control_on_shutdown) {
++			/* firmware is going to perform host control action */
++			if (++notify_cnt == 2) {
++				printk(KERN_WARNING
++				       "Please wait for shutdown "
++				       "action to complete...\n");
++				dcdbas_host_control();
++			}
++			/*
++			 * register again and initiate the host control
++			 * action on the second notification to allow
++			 * everyone that registered to be notified
++			 */
++			register_reboot_notifier(nb);
++		}
++		break;
++	}
++
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block dcdbas_reboot_nb = {
++	.notifier_call = dcdbas_reboot_notify,
++	.next = NULL,
++	.priority = 0
++};
++
++static DCDBAS_BIN_ATTR_RW(smi_data);
++
++static struct bin_attribute *dcdbas_bin_attrs[] = {
++	&bin_attr_smi_data,
++	NULL
++};
++
++static DCDBAS_DEV_ATTR_RW(smi_data_buf_size);
++static DCDBAS_DEV_ATTR_RO(smi_data_buf_phys_addr);
++static DCDBAS_DEV_ATTR_WO(smi_request);
++static DCDBAS_DEV_ATTR_RW(host_control_action);
++static DCDBAS_DEV_ATTR_RW(host_control_smi_type);
++static DCDBAS_DEV_ATTR_RW(host_control_on_shutdown);
++
++static struct device_attribute *dcdbas_dev_attrs[] = {
++	&dev_attr_smi_data_buf_size,
++	&dev_attr_smi_data_buf_phys_addr,
++	&dev_attr_smi_request,
++	&dev_attr_host_control_action,
++	&dev_attr_host_control_smi_type,
++	&dev_attr_host_control_on_shutdown,
++	NULL
++};
++
++/**
++ * dcdbas_init: initialize driver
++ */
++static int __init dcdbas_init(void)
++{
++	int i;
++
++	host_control_action = HC_ACTION_NONE;
++	host_control_smi_type = HC_SMITYPE_NONE;
++
++	dcdbas_pdev = platform_device_register_simple(DRIVER_NAME, -1, NULL, 0);
++	if (IS_ERR(dcdbas_pdev))
++		return PTR_ERR(dcdbas_pdev);
++
++	/*
++	 * BIOS SMI calls require buffer addresses be in 32-bit address space.
++	 * This is done by setting the DMA mask below.
++	 */
++	dcdbas_pdev->dev.coherent_dma_mask = DMA_32BIT_MASK;
++	dcdbas_pdev->dev.dma_mask = &dcdbas_pdev->dev.coherent_dma_mask;
++
++	register_reboot_notifier(&dcdbas_reboot_nb);
++
++	for (i = 0; dcdbas_bin_attrs[i]; i++)
++		sysfs_create_bin_file(&dcdbas_pdev->dev.kobj,
++				      dcdbas_bin_attrs[i]);
++
++	for (i = 0; dcdbas_dev_attrs[i]; i++)
++		device_create_file(&dcdbas_pdev->dev, dcdbas_dev_attrs[i]);
++
++	dev_info(&dcdbas_pdev->dev, "%s (version %s)\n",
++		 DRIVER_DESCRIPTION, DRIVER_VERSION);
++
++	return 0;
++}
++
++/**
++ * dcdbas_exit: perform driver cleanup
++ */
++static void __exit dcdbas_exit(void)
++{
++	platform_device_unregister(dcdbas_pdev);
++	unregister_reboot_notifier(&dcdbas_reboot_nb);
++	smi_data_buf_free();
++}
++
++module_init(dcdbas_init);
++module_exit(dcdbas_exit);
++
++MODULE_DESCRIPTION(DRIVER_DESCRIPTION " (version " DRIVER_VERSION ")");
++MODULE_VERSION(DRIVER_VERSION);
++MODULE_AUTHOR("Dell Inc.");
++MODULE_LICENSE("GPL");
++
+diff -uprN linux-2.6.13-rc6.orig/drivers/firmware/dcdbas.h linux-2.6.13-rc6/drivers/firmware/dcdbas.h
+--- linux-2.6.13-rc6.orig/drivers/firmware/dcdbas.h	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.13-rc6/drivers/firmware/dcdbas.h	2005-08-19 18:45:52.000000000 -0500
+@@ -0,0 +1,107 @@
++/*
++ *  dcdbas.h: Definitions for Dell Systems Management Base driver
++ *
++ *  Copyright (C) 1995-2005 Dell Inc.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License v2.0 as published by
++ *  the Free Software Foundation.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ */
++
++#ifndef _DCDBAS_H_
++#define _DCDBAS_H_
++
++#include <linux/device.h>
++#include <linux/input.h>
++#include <linux/sysfs.h>
++#include <linux/types.h>
++
++#define MAX_SMI_DATA_BUF_SIZE			(256 * 1024)
++
++#define HC_ACTION_NONE				(0)
++#define HC_ACTION_HOST_CONTROL_POWEROFF		BIT(1)
++#define HC_ACTION_HOST_CONTROL_POWERCYCLE	BIT(2)
++
++#define HC_SMITYPE_NONE				(0)
++#define HC_SMITYPE_TYPE1			(1)
++#define HC_SMITYPE_TYPE2			(2)
++#define HC_SMITYPE_TYPE3			(3)
++
++#define ESM_APM_CMD				(0x0A0)
++#define ESM_APM_POWER_CYCLE			(0x10)
++#define ESM_STATUS_CMD_UNSUCCESSFUL		(-1)
++
++#define CMOS_BASE_PORT				(0x070)
++#define CMOS_PAGE1_INDEX_PORT			(0)
++#define CMOS_PAGE1_DATA_PORT			(1)
++#define CMOS_PAGE2_INDEX_PORT_PIIX4		(2)
++#define CMOS_PAGE2_DATA_PORT_PIIX4		(3)
++#define PE1400_APM_CONTROL_PORT			(0x0B0)
++#define PCAT_APM_CONTROL_PORT			(0x0B2)
++#define PCAT_APM_STATUS_PORT			(0x0B3)
++#define PE1300_CMOS_CMD_STRUCT_PTR		(0x38)
++#define PE1400_CMOS_CMD_STRUCT_PTR		(0x70)
++
++#define MAX_SYSMGMT_SHORTCMD_PARMBUF_LEN	(14)
++#define MAX_SYSMGMT_LONGCMD_SGENTRY_NUM		(16)
++
++#define TIMEOUT_USEC_SHORT_SEMA_BLOCKING	(10000)
++#define EXPIRED_TIMER				(0)
++
++#define SMI_CMD_MAGIC				(0x534D4931)
++
++#define DCDBAS_DEV_ATTR_RW(_name) \
++	DEVICE_ATTR(_name,0600,_name##_show,_name##_store);
++
++#define DCDBAS_DEV_ATTR_RO(_name) \
++	DEVICE_ATTR(_name,0400,_name##_show,NULL);
++
++#define DCDBAS_DEV_ATTR_WO(_name) \
++	DEVICE_ATTR(_name,0200,NULL,_name##_store);
++
++#define DCDBAS_BIN_ATTR_RW(_name) \
++struct bin_attribute bin_attr_##_name = { \
++	.attr =  { .name = __stringify(_name), \
++		   .mode = 0600, \
++		   .owner = THIS_MODULE }, \
++	.read =  _name##_read, \
++	.write = _name##_write, \
++}
++
++struct smi_cmd {
++	__u32 magic;
++	__u32 ebx;
++	__u32 ecx;
++	__u16 command_address;
++	__u8 command_code;
++	__u8 reserved;
++	__u8 command_buffer[1];
++} __attribute__ ((packed));
++
++struct apm_cmd {
++	__u8 command;
++	__s8 status;
++	__u16 reserved;
++	union {
++		struct {
++			__u8 parm[MAX_SYSMGMT_SHORTCMD_PARMBUF_LEN];
++		} __attribute__ ((packed)) shortreq;
++
++		struct {
++			__u16 num_sg_entries;
++			struct {
++				__u32 size;
++				__u64 addr;
++			} __attribute__ ((packed))
++			    sglist[MAX_SYSMGMT_LONGCMD_SGENTRY_NUM];
++		} __attribute__ ((packed)) longreq;
++	} __attribute__ ((packed)) parameters;
++} __attribute__ ((packed));
++
++#endif /* _DCDBAS_H_ */
++
+diff -uprN linux-2.6.13-rc6.orig/drivers/firmware/Kconfig linux-2.6.13-rc6/drivers/firmware/Kconfig
+--- linux-2.6.13-rc6.orig/drivers/firmware/Kconfig	2005-06-17 14:48:29.000000000 -0500
++++ linux-2.6.13-rc6/drivers/firmware/Kconfig	2005-08-19 18:45:56.000000000 -0500
+@@ -58,4 +58,21 @@ config EFI_PCDP
+ 
+ 	  See <http://www.dig64.org/specifications/DIG64_HCDPv20_042804.pdf>
+ 
++config DCDBAS
++	tristate "Dell Systems Management Base Driver"
++	depends on X86 || X86_64
++	default m
++	help
++	  The Dell Systems Management Base Driver provides a sysfs interface
++	  for systems management software to perform System Management
++	  Interrupts (SMIs) and Host Control Actions (system power cycle or
++	  power off after OS shutdown) on certain Dell systems.
++
++	  See <file:Documentation/dcdbas.txt> for more details on the driver
++	  and the Dell systems on which Dell systems management software makes
++	  use of this driver.
++
++	  Say Y or M here to enable the driver for use by Dell systems
++	  management software such as Dell OpenManage.
++
+ endmenu
+diff -uprN linux-2.6.13-rc6.orig/drivers/firmware/Makefile linux-2.6.13-rc6/drivers/firmware/Makefile
+--- linux-2.6.13-rc6.orig/drivers/firmware/Makefile	2005-06-17 14:48:29.000000000 -0500
++++ linux-2.6.13-rc6/drivers/firmware/Makefile	2005-08-19 18:46:00.000000000 -0500
+@@ -4,3 +4,4 @@
+ obj-$(CONFIG_EDD)             	+= edd.o
+ obj-$(CONFIG_EFI_VARS)		+= efivars.o
+ obj-$(CONFIG_EFI_PCDP)		+= pcdp.o
++obj-$(CONFIG_DCDBAS)		+= dcdbas.o
+diff -uprN linux-2.6.13-rc6.orig/MAINTAINERS linux-2.6.13-rc6/MAINTAINERS
+--- linux-2.6.13-rc6.orig/MAINTAINERS	2005-08-15 11:19:05.000000000 -0500
++++ linux-2.6.13-rc6/MAINTAINERS	2005-08-19 18:45:29.975559856 -0500
+@@ -696,6 +696,11 @@ M:	dz@debian.org
+ W:	http://www.debian.org/~dz/i8k/
+ S:	Maintained
+ 
++DELL SYSTEMS MANAGEMENT BASE DRIVER (dcdbas)
++P:	Doug Warzecha
++M:	Douglas_Warzecha@dell.com
++S:	Maintained
++
+ DEVICE-MAPPER
+ P:	Alasdair Kergon
+ L:	dm-devel@redhat.com

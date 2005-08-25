@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbVHYIiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbVHYImB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbVHYIiN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 04:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbVHYIiM
+	id S964880AbVHYImB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 04:42:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbVHYImB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 04:38:12 -0400
-Received: from cncln.online.ln.cn ([218.25.172.144]:10502 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S964874AbVHYIiM (ORCPT
+	Thu, 25 Aug 2005 04:42:01 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:12248 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S964876AbVHYImA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 04:38:12 -0400
-Date: Thu, 25 Aug 2005 16:37:51 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] alloc_buffer_head() cleanup
-Message-ID: <20050825083751.GA4076@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+	Thu, 25 Aug 2005 04:42:00 -0400
+Date: Thu, 25 Aug 2005 10:41:27 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Al Viro <viro@www.linux.org.uk>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-m68k@vger.kernel.org
+Subject: Re: [PATCH] (18/22) task_thread_info - part 2/4
+In-Reply-To: <E1E8AEh-0005eT-NP@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.62.0508251038360.28348@numbat.sonytel.be>
+References: <E1E8AEh-0005eT-NP@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-This cleanups up alloc_buffer_head(), by using a single get_cpu_var().
-Boot tested.
+Thanks a lot, Al!
 
-	Coywolf
+On Thu, 25 Aug 2005, Al Viro wrote:
+> encapsulates the rest of arch-dependent operations with thread_info access.
+> Two new helpers - setup_thread_info() and end_of_stack().  For normal
+> case the former consists of copying thread_info of parent to new thread_info
+> and the latter returns pointer immediately past the end of thread_info.
+> 
+> Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+> ----
+> diff -urN RC13-rc7-task_thread_info/include/linux/sched.h RC13-rc7-other-helpers/include/linux/sched.h
+> --- RC13-rc7-task_thread_info/include/linux/sched.h	2005-08-25 00:54:17.000000000 -0400
+> +++ RC13-rc7-other-helpers/include/linux/sched.h	2005-08-25 00:54:17.000000000 -0400
+> @@ -1138,6 +1138,16 @@
+>  
+>  #define task_thread_info(task) (task)->thread_info
+>  
+> +static inline void setup_thread_info(struct task_struct *p, struct thread_info *ti)
+					^^^^^^^^^^^^^^^^^^^^^
+					const struct task_struct *p?
 
+> +{
+> +	*ti = *p->thread_info;
+> +}
+> +
+> +static inline unsigned long *end_of_stack(struct task_struct *p)
+					     ^^^^^^^^^^^^^^^^^^^^^
+					     const struct task_struct *p?
 
-Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
----
+> +{
+> +	return (unsigned long *)(p->thread_info + 1);
+> +}
+> +
 
- buffer.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+Gr{oetje,eeting}s,
 
---- 2.6.13-rc6-mm2/fs/buffer.c~orig	2005-08-23 13:42:04.000000000 +0800
-+++ 2.6.13-rc6-mm2/fs/buffer.c	2005-08-25 14:14:22.000000000 +0800
-@@ -3049,10 +3049,9 @@ struct buffer_head *alloc_buffer_head(un
- {
- 	struct buffer_head *ret = kmem_cache_alloc(bh_cachep, gfp_flags);
- 	if (ret) {
--		preempt_disable();
--		__get_cpu_var(bh_accounting).nr++;
-+		get_cpu_var(bh_accounting).nr++;
- 		recalc_bh_state();
--		preempt_enable();
-+		put_cpu_var(bh_accounting);
- 	}
- 	return ret;
- }
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

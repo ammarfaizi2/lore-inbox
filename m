@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVHXXwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVHYAFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbVHXXwq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 19:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVHXXwq
+	id S932395AbVHYAFF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 20:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVHYAFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 19:52:46 -0400
-Received: from sccrmhc14.comcast.net ([204.127.202.59]:16789 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S932364AbVHXXwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 19:52:46 -0400
-Date: Wed, 24 Aug 2005 16:52:23 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 2.6.13-rc7] Fix IXP4xx flash resource range
-Message-ID: <20050824235223.GA32353@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Wed, 24 Aug 2005 20:05:05 -0400
+Received: from baythorne.infradead.org ([81.187.2.161]:62161 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S932395AbVHYAFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 20:05:04 -0400
+Subject: Re: Add pselect, ppoll system calls.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Michael Kerrisk <mtk-lkml@gmx.net>
+Cc: drepper@redhat.com, jakub@redhat.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, michael.kerrisk@gmx.net
+In-Reply-To: <25911.1123246168@www3.gmx.net>
+References: <11156.1123243084@www3.gmx.net>  <25911.1123246168@www3.gmx.net>
+Content-Type: text/plain
+Date: Thu, 25 Aug 2005 01:04:49 +0100
+Message-Id: <1124928289.7316.92.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Resend...forgot to send to lkml]
+(Sorry for delayed response)
 
-We are currently reserving one byte more than actually needed 
-by the flash device and overlapping into the next I/O expansion 
-bus window. This a) causes us to allocate an extra page of VM due
-to ARM ioremap() alignment code and b) could cause problems
-if another driver tries to request the next expansion bus window.
+On Fri, 2005-08-05 at 14:49 +0200, Michael Kerrisk wrote:
+> If I change your program to do something like the above, I also
+> do not see a message from the handler -- i.e., it is not being
+> called, and I'm pretty sure it should be.
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+Hm, yes. What happens is we come back out of the select() immediately
+because of the pending signal, but on the way back to userspace we put
+the old signal mask back... so by the time we check for it, there _is_
+no (unblocked) signal pending. 
 
-diff --git a/arch/arm/mach-ixp4xx/coyote-setup.c b/arch/arm/mach-ixp4xx/coyote-setup.c
---- a/arch/arm/mach-ixp4xx/coyote-setup.c
-+++ b/arch/arm/mach-ixp4xx/coyote-setup.c
-@@ -36,7 +36,7 @@ static struct flash_platform_data coyote
- 
- static struct resource coyote_flash_resource = {
- 	.start		= COYOTE_FLASH_BASE,
--	.end		= COYOTE_FLASH_BASE + COYOTE_FLASH_SIZE,
-+	.end		= COYOTE_FLASH_BASE + COYOTE_FLASH_SIZE - 1,
- 	.flags		= IORESOURCE_MEM,
- };
- 
-diff --git a/arch/arm/mach-ixp4xx/gtwx5715-setup.c b/arch/arm/mach-ixp4xx/gtwx5715-setup.c
---- a/arch/arm/mach-ixp4xx/gtwx5715-setup.c
-+++ b/arch/arm/mach-ixp4xx/gtwx5715-setup.c
-@@ -114,7 +114,7 @@ static struct flash_platform_data gtwx57
- 
- static struct resource gtwx5715_flash_resource = {
- 	.start		= GTWX5715_FLASH_BASE,
--	.end		= GTWX5715_FLASH_BASE + GTWX5715_FLASH_SIZE,
-+	.end		= GTWX5715_FLASH_BASE + GTWX5715_FLASH_SIZE - 1,
- 	.flags		= IORESOURCE_MEM,
- };
- 
-diff --git a/arch/arm/mach-ixp4xx/ixdp425-setup.c b/arch/arm/mach-ixp4xx/ixdp425-setup.c
---- a/arch/arm/mach-ixp4xx/ixdp425-setup.c
-+++ b/arch/arm/mach-ixp4xx/ixdp425-setup.c
-@@ -36,7 +36,7 @@ static struct flash_platform_data ixdp42
- 
- static struct resource ixdp425_flash_resource = {
- 	.start		= IXDP425_FLASH_BASE,
--	.end		= IXDP425_FLASH_BASE + IXDP425_FLASH_SIZE,
-+	.end		= IXDP425_FLASH_BASE + IXDP425_FLASH_SIZE - 1,
- 	.flags		= IORESOURCE_MEM,
- };
- 
+If it's mandatory that we actually call the signal handler, then we need
+to play tricks like sigsuspend() does to leave the old signal mask on
+the stack frame. That's a bit painful atm because do_signal is different
+between architectures. 
 
 -- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+dwmw2
 
-Even a stopped clock gives the right time twice a day.
+

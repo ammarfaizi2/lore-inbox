@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVHYQWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVHYQXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbVHYQWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 12:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVHYQWg
+	id S932285AbVHYQXd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 12:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVHYQXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 12:22:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7582 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932264AbVHYQWf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 12:22:35 -0400
-Date: Thu, 25 Aug 2005 09:21:01 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: serue@us.ibm.com, Chris Wright <chrisw@osdl.org>,
-       linux-security-module@wirex.com, Greg Kroah <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>,
-       James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH 5/5] Remove unnecesary capability hooks in rootplug.
-Message-ID: <20050825162101.GU7762@shell0.pdx.osdl.net>
-References: <20050825012028.720597000@localhost.localdomain> <20050825012150.490797000@localhost.localdomain> <20050825143807.GA8590@sergelap.austin.ibm.com> <1124982836.3873.78.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 25 Aug 2005 12:23:33 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:13968 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932285AbVHYQXc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 12:23:32 -0400
+Date: Thu, 25 Aug 2005 11:21:18 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>, John Rose <johnrose@austin.ibm.com>,
+       akpm@osdl.org, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
+Message-ID: <20050825162118.GH25174@austin.ibm.com>
+References: <20050823231817.829359000@bilge> <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com> <1124898331.24668.33.camel@sinatra.austin.ibm.com> <20050824162959.GC25174@austin.ibm.com> <17165.3205.505386.187453@cargo.ozlabs.ibm.com> <1124930943.5159.168.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1124982836.3873.78.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1124930943.5159.168.camel@gaston>
+User-Agent: Mutt/1.5.9i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> On Thu, 2005-08-25 at 09:38 -0500, serue@us.ibm.com wrote:
-> > Ok, with the attached patch SELinux seems to work correctly.  You'll
-> > probably want to make it a little prettier  :)  Note I have NOT ran the
-> > ltp tests for correctness.  I'll do some performance runs, though
-> > unfortunately can't do so on ppc right now.
+On Thu, Aug 25, 2005 at 10:49:03AM +1000, Benjamin Herrenschmidt was heard to remark:
 > 
-> Note that the selinux tests there _only_ test the SELinux checking.  So
-> if these changes interfere with proper stacking of SELinux with
-> capabilities, that won't show up there.  
+> Of course, we'll possibly end up with a different ethX or whatever, but
 
-Sorry, I'm not parsing that?
--chris
+Yep, but that's not an issue, since all the various device-naming
+schemes are supposed to be fixing this. Its a distinct problem;
+it needs to be solved even across cold-boots. 
+
+(Didn't I ever tell you about the day I added a new disk controller to
+my system, and /dev/hda became /dev/hde and thus /home was mounted on
+/usr and /var as /etc and all hell broke loose? Owww, device naming
+is a serious issue for home users and even more so for enterprise-class 
+users).
+
+--linas
+
+

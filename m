@@ -1,73 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVHYTKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbVHYTKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbVHYTKF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 15:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVHYTKF
+	id S932517AbVHYTKj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 15:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVHYTKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 15:10:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12929 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932283AbVHYTKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 15:10:02 -0400
-Date: Thu, 25 Aug 2005 20:09:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, greg@kroah.com,
-       mochel@osdl.org, "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
-       Luben Tuikov <luben_tuikov@adaptec.com>
-Subject: Re: 2.6: how do I this in sysfs?
-Message-ID: <20050825190951.GA20812@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Miller, Mike (OS Dev)" <Mike.Miller@hp.com>,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	greg@kroah.com, mochel@osdl.org,
-	"Moore, Eric Dean" <Eric.Moore@lsil.com>,
-	"Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
-	Luben Tuikov <luben_tuikov@adaptec.com>
-References: <D4CFB69C345C394284E4B78B876C1CF10AB38B33@cceexc23.americas.cpqcorp.net>
+	Thu, 25 Aug 2005 15:10:39 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:13928 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932517AbVHYTKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 15:10:38 -0400
+Subject: Re: Initramfs and TMPFS!
+From: Ian Campbell <ijc@hellion.org.uk>
+To: robotti@godmail.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200508251815.j7PIFDGe026463@ms-smtp-02.rdc-nyc.rr.com>
+References: <200508251815.j7PIFDGe026463@ms-smtp-02.rdc-nyc.rr.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D0XfEQiqzrzIekQzj/Pm"
+Date: Thu, 25 Aug 2005 20:10:31 +0100
+Message-Id: <1124997031.5119.3.camel@azathoth.hellion.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF10AB38B33@cceexc23.americas.cpqcorp.net>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > typedef struct _CSMI_SAS_IDENTIFY {
-> >    __u8  bDeviceType;
-> >    __u8  bRestricted;
-> >    __u8  bInitiatorPortProtocol;
-> >    __u8  bTargetPortProtocol;
-> >    __u8  bRestricted2[8];
-> >    __u8  bSASAddress[8];
-> >    __u8  bPhyIdentifier;
-> >    __u8  bSignalClass;
-> >    __u8  bReserved[6];
-> > } CSMI_SAS_IDENTIFY,
-> >   *PCSMI_SAS_IDENTIFY;
 
-please compare this with struct sas_identify in
-include/linux/scsi_transport_sas.h and look at
-drivers/scsi/scsi_transport_sas.c om how it's exposed.
+--=-D0XfEQiqzrzIekQzj/Pm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > typedef struct _CSMI_SAS_PHY_ENTITY {
-> >    CSMI_SAS_IDENTIFY Identify;
-> >    __u8  bPortIdentifier;
-> >    __u8  bNegotiatedLinkRate;
-> >    __u8  bMinimumLinkRate;
-> >    __u8  bMaximumLinkRate;
-> >    __u8  bPhyChangeCount;
-> >    __u8  bAutoDiscover;
-> >    __u8  bReserved[2];
-> >    CSMI_SAS_IDENTIFY Attached;
-> > } CSMI_SAS_PHY_ENTITY,
-> >   *PCSMI_SAS_PHY_ENTITY;
+On Thu, 2005-08-25 at 14:15 -0400, robotti@godmail.com wrote:
+>    >Could you please please pretty please get an RFC compliant mailer tha=
+t
+>    >generates  "In-Reply-To" and preferable even "References" headers?
+>    >Right
+>    >now every mail you write starts a new thread instead of referencing t=
+o
+>    >the previous one. See http://lkml.org/lkml/2005/8/25/180/ to see what
+>    >I mean.
+>=20
+> I'm not subscribed to the list and I use lynx and a small mda
+> called msmtp, so I know it's awkward (perhaps mostly for me).
 
-and this one to struct sas_port_attrs.
+People seem to be CCing you, can't you reply to the message you receive
+that way? That's how everyone else who doesn't subscribe gets along...
 
-This is after my minimal sas transport class, please also read the
-thread about it on linux-scsi
+Anyway, if you insist on sending things manually, you could add the
+correct References and/or In-Reply-To headers by had as well.
+
+Ian.
+--=20
+Ian Campbell
+
+Experience is the worst teacher.  It always gives the test first and
+the instruction afterward.
+
+--=-D0XfEQiqzrzIekQzj/Pm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDDhenM0+0qS9rzVkRAqNGAKCeGRpA+lAk3tIOfgOKb4QwBOjAOACfdtFg
+w1LnBMRIuYcuEOar89gje9M=
+=Zxvo
+-----END PGP SIGNATURE-----
+
+--=-D0XfEQiqzrzIekQzj/Pm--
 

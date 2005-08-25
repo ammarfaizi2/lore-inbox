@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVHYVyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbVHYV4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbVHYVyG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 17:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbVHYVyF
+	id S964879AbVHYV4u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 17:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbVHYV4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 17:54:05 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:12483 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964867AbVHYVyF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 17:54:05 -0400
-Date: Thu, 25 Aug 2005 23:54:51 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc7-rt1
-Message-ID: <20050825215451.GA7479@elte.hu>
-References: <20050825062651.GA26781@elte.hu> <1125006373.10901.11.camel@dhcp153.mvista.com>
+	Thu, 25 Aug 2005 17:56:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36293 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S964879AbVHYV4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 17:56:49 -0400
+Date: Thu, 25 Aug 2005 22:59:48 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mporter@kernel.crashing.org
+Subject: [PATCH] bogus iounmap() in emac
+Message-ID: <20050825215948.GW9322@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1125006373.10901.11.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Dumb typo: iounmap(&local_pointer_variable).
 
-* Daniel Walker <dwalker@mvista.com> wrote:
-
-> @@ -257,6 +257,7 @@ void check_preempt_wakeup(struct task_st
->  	 * hangs and race conditions.
->  	 */
->  	if (!preempt_count() &&
-> +		!__raw_irqs_disabled() &&
->  		p->prio < current->prio &&
->  		rt_task(p) &&
->  		(current->rcu_read_lock_nesting != 0 ||
-
-did you get a false positive? If yes, in what code/driver?
-
-	Ingo
+Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+----
+diff -urN RC13-rc7-m68k-adb.patch/drivers/net/ibm_emac/ibm_emac_core.c RC13-rc7-emac-iounmap/drivers/net/ibm_emac/ibm_emac_core.c
+--- RC13-rc7-m68k-adb.patch/drivers/net/ibm_emac/ibm_emac_core.c	2005-08-24 01:58:29.000000000 -0400
++++ RC13-rc7-emac-iounmap/drivers/net/ibm_emac/ibm_emac_core.c	2005-08-25 00:54:21.000000000 -0400
+@@ -1253,7 +1253,7 @@
+ 		 TAH_MR_CVR | TAH_MR_ST_768 | TAH_MR_TFS_10KB | TAH_MR_DTFP |
+ 		 TAH_MR_DIG);
+ 
+-	iounmap(&tahp);
++	iounmap(tahp);
+ 
+ 	return 0;
+ }

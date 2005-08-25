@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbVHYV1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbVHYVcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932486AbVHYV1F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 17:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbVHYV1E
+	id S964777AbVHYVcq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 17:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbVHYVcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 17:27:04 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:54658 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S932486AbVHYV1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 17:27:04 -0400
-Message-ID: <430E37A0.1000304@nortel.com>
-Date: Thu, 25 Aug 2005 15:26:56 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-CC: linux-kernel@vger.kernel.org, tom.anderl@gmail.com
-Subject: Re: [OT] volatile keyword
-References: <Pine.LNX.4.58.0508251335280.4315@shell2.speakeasy.net> <430E30B2.1020700@nortel.com> <Pine.LNX.4.58.0508251414350.19866@shell2.speakeasy.net>
-In-Reply-To: <Pine.LNX.4.58.0508251414350.19866@shell2.speakeasy.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 25 Aug 2005 17:32:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:50679 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S964777AbVHYVcq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 17:32:46 -0400
+Subject: Re: [RFC] RT-patch update to remove the global pi_lock
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Sven-Thorsten Dietrich <sven@mvista.com>, Adrian Bunk <bunk@stusta.de>,
+       george anzinger <george@mvista.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+In-Reply-To: <1125000563.6264.10.camel@localhost.localdomain>
+References: <1124704837.5208.22.camel@localhost.localdomain>
+	 <20050822101632.GA28803@elte.hu>
+	 <1124710309.5208.30.camel@localhost.localdomain>
+	 <20050822113858.GA1160@elte.hu>
+	 <1124715755.5647.4.camel@localhost.localdomain>
+	 <20050822183355.GB13888@elte.hu>
+	 <1124739657.5809.6.camel@localhost.localdomain>
+	 <1124739895.5809.11.camel@localhost.localdomain>
+	 <1124981238.5350.6.camel@localhost.localdomain>
+	 <1124982413.5350.19.camel@localhost.localdomain>
+	 <20050825174732.GA23774@elte.hu>
+	 <1125000563.6264.10.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Thu, 25 Aug 2005 14:32:17 -0700
+Message-Id: <1125005537.10901.1.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vadim Lobanov wrote:
+On Thu, 2005-08-25 at 16:09 -0400, Steven Rostedt wrote:
 
-> I figured it was something along these lines. In that case, is the
-> following code (from kernel/posix-timers.c) really doing the right
-> thing?
-> 
-> do
->     expires = timr->it_timer.expires;
-> while ((volatile long) (timr->it_timer.expires) != expires);
-> 
-> Seems it's casting the value, not the pointer.
+> A word of caution (aka. disclaimer). This is still new.  I still expect
+> there are some cases in the code that was missed and can cause a dead
+> lock or other bad side effect.  Hopefully, we can iron these all out.
+> Also, I noticed that since the task takes it's own pi_lock for most of
+> the code, if something locks up and a NMI goes off, the down_trylock in
+> printk will also lock when it tries to take it's own pi_lock.
 
-Someone else will have to give the definitive answer, but it looks 
-suspicious to me...
+maybe it's time for ALL_TASKS_PI ?
 
-Chris
+
+Daniel
+

@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbVHYKcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbVHYKjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbVHYKcs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 06:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbVHYKcs
+	id S964940AbVHYKjt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 06:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbVHYKjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 06:32:48 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:5387 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S964914AbVHYKcr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 06:32:47 -0400
-Date: Thu, 25 Aug 2005 11:32:45 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: moreau francis <francis_moreau2000@yahoo.fr>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: question on memory barrier
-In-Reply-To: <20050824194836.GA26526@hexapodia.org>
-Message-ID: <Pine.LNX.4.61L.0508251130590.9696@blysk.ds.pg.gda.pl>
-References: <Pine.LNX.4.61.0508240854550.28064@chaos.analogic.com>
- <20050824173131.50938.qmail@web25809.mail.ukl.yahoo.com>
- <20050824194836.GA26526@hexapodia.org>
+	Thu, 25 Aug 2005 06:39:49 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:47061 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S964939AbVHYKjs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 06:39:48 -0400
+Date: Thu, 25 Aug 2005 00:41:12 -0500
+From: Peter Bendering <ZeugswetterA@e-hkma.com>
+X-Mailer: The Bat! (v2.00.6) Personal
+X-Priority: 3
+Message-ID: <3470849388.20050825004112@e-hkma.com>
+To: Linux <linux-kernel@vger.kernel.org>
+Subject: job.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-RAV-AntiVirus: This message has been scanned for viruses on hideakifan.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Aug 2005, Andy Isaacson wrote:
+Sir or Ms,
 
-> You might benefit by running your source code through gcc -E and seeing
-> what the writel() expands to.  (I do something like "rm drivers/mydev.o;
-> make V=1" and then copy-n-paste the gcc line, replacing the "-c -o mydev.o"
-> options with -E.)
+My name is Peter Bendering. 
+Let me to introduce our company. 
 
- Well, `make drivers/mydev.i' does the same and is simpler. ;-)
+We are Russian Marriage Agency. 
+We are looking for business partner from Germany. 
 
-  Maciej
+We offer easy job for you. 
+You should have (or open new) an account with Deutsche-Bank or Volksbank. 
+You will earn some cash for your service. 
+
+Please contact us only by this e-mail for the further details: PrimeAirTour@aol.com 
+
+Best Regards,
+Peter B
+
+

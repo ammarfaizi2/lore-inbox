@@ -1,50 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVHYAeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVHYAf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbVHYAeE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 20:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbVHYAeE
+	id S932429AbVHYAf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 20:35:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbVHYAf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 20:34:04 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:36285 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932422AbVHYAeD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 20:34:03 -0400
-Subject: Re: Incorrect CLOCK_TICK_RATE in 2.6 kernel
-From: john stultz <johnstul@us.ibm.com>
-To: george@mvista.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <430D0FDA.3060201@mvista.com>
-References: <430D0FDA.3060201@mvista.com>
-Content-Type: text/plain
-Date: Wed, 24 Aug 2005 17:33:58 -0700
-Message-Id: <1124930039.20820.123.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Aug 2005 20:35:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19898 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932429AbVHYAfZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 20:35:25 -0400
+Message-ID: <430D1210.8080006@redhat.com>
+Date: Wed, 24 Aug 2005 17:34:24 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla Thunderbird 1.0.6-3 (X11/20050806)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Michael Kerrisk <mtk-lkml@gmx.net>, jakub@redhat.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, michael.kerrisk@gmx.net
+Subject: Re: Add pselect, ppoll system calls.
+References: <11156.1123243084@www3.gmx.net>  <25911.1123246168@www3.gmx.net> <1124928289.7316.92.camel@baythorne.infradead.org>
+In-Reply-To: <1124928289.7316.92.camel@baythorne.infradead.org>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig8EB70A8BB4006064A633C171"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-24 at 17:24 -0700, George Anzinger wrote:
-> CLOCK_TICK_RATE	is used by the kernel to compute LATCH, TICK_NSEC and 
-> tick_nsec.  This latter is used to update xtime each tick.  TICK_NSEC is 
-> then used to compute (at compile time) the conversion constants needed 
-> to convert to/from jiffies from/to timespec and timeval (and others).
-> 
-> The problem is that, if the timer being used is either Cyclone or HPET, 
-> the wrong CLOCK_TICK_RATE is used.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig8EB70A8BB4006064A633C171
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Err, the Cyclone does not generate interrupts. So this issue does not
-affect those systems.
+David Woodhouse wrote:
+> If it's mandatory that we actually call the signal handler, then we nee=
+d
+> to play tricks like sigsuspend() does to leave the old signal mask on
+> the stack frame. That's a bit painful atm because do_signal is differen=
+t
+> between architectures.=20
 
-As for the HPET, it sets its own interrupt frequency based off of
-KERNEL_TICK_USEC (which you're right, isn't quite what is used in the
-jiffies conversions).  Would it be easier to just adjust that value to
-use ACTHZ or CLOCK_TICK_RATE?
-
-thanks
--john
+It is necessary that the handler is called.  This is the purpose of
+these interfaces.  If this means more complexity is needed then this is
+how the cookie crumbles.  One use case for pselect would be something
+like this:
 
 
+int got_signal;
+void sigint_handler(int sig) {
+  got_signal =3D 1;
+}
+
+{
+  ...
+  while (1) {
+    if (!got_signal)
+      pselect()
+
+    if (got_signal) {
+      handle signal
+      got_signal =3D 0;
+    }
+  }
+  ...
+}
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
 
+--------------enig8EB70A8BB4006064A633C171
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDDRIQ2ijCOnn/RHQRAnypAJ9bYKkYJq929Iuf9iW00x9zaUXSWgCfWYne
+Pr66FZ4yoAhjx6HSgxbvHgY=
+=piDI
+-----END PGP SIGNATURE-----
+
+--------------enig8EB70A8BB4006064A633C171--

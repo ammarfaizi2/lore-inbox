@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbVHYWA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVHYWCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbVHYWA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 18:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVHYWA3
+	id S964898AbVHYWCH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 18:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVHYWCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 18:00:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50629 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S964894AbVHYWA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 18:00:28 -0400
-Date: Thu, 25 Aug 2005 23:03:35 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] bogus function type in qdio
-Message-ID: <20050825220335.GX9322@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 25 Aug 2005 18:02:07 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:55752 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S964898AbVHYWCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 18:02:06 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc64-dev@ozlabs.org
+Subject: [PATCH 0/7] Cell SPU file system, snapshot 4
+Date: Thu, 25 Aug 2005 23:53:10 +0200
+User-Agent: KMail/1.7.2
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200508252353.10740.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In qdio_get_micros() volatile in return type is plain noise (even with old
-gccisms it would make no sense - noreturn function returning __u64 is a
-bit odd ;-)
+Thankfully, there is now documentation available to the world about
+the Cell architecture (http://cell.scei.co.jp/e_download.html), so I
+am now able to disclose more of our work on the SPU file system.
 
-Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-----
-diff -urN RC13-rc7-emac-iounmap/drivers/s390/cio/qdio.c RC13-rc7-attr-misc/drivers/s390/cio/qdio.c
---- RC13-rc7-emac-iounmap/drivers/s390/cio/qdio.c	2005-08-24 01:58:29.000000000 -0400
-+++ RC13-rc7-attr-misc/drivers/s390/cio/qdio.c	2005-08-25 00:54:22.000000000 -0400
-@@ -112,7 +112,7 @@
- 
- /***************** SCRUBBER HELPER ROUTINES **********************/
- 
--static inline volatile __u64 
-+static inline __u64 
- qdio_get_micros(void)
- {
-         return (get_clock() >> 10); /* time>>12 is microseconds */
+This is a rather big update compared to the previous version, as it
+contains work from Mark Nutter and Ulrich Weigand to support context
+save and restore of SPUs. This release should still be fully compatible
+to the previous ones, but we intend to do incompatible changes for
+in the future.
+
+	Arnd <><
+

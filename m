@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVHYSgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbVHYSnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbVHYSgz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 14:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbVHYSgz
+	id S932333AbVHYSnI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 14:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVHYSnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 14:36:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:60296 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932340AbVHYSgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 14:36:54 -0400
-Date: Thu, 25 Aug 2005 19:36:42 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] removes filp_count_lock and changes nr_files type to atomic_t
-Message-ID: <20050825183642.GA20132@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dipankar Sarma <dipankar@in.ibm.com>,
-	Eric Dumazet <dada1@cosmosbay.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-References: <430D8518.8020502@cosmosbay.com> <20050825090854.GA9740@infradead.org> <430D8CA3.3030709@cosmosbay.com> <20050825092322.GA9902@infradead.org> <430DA052.9070908@cosmosbay.com> <1124968309.5856.9.camel@npiggin-nld.site> <430DB8FA.4080009@cosmosbay.com> <430DDAF2.6030601@yahoo.com.au> <430DE001.8060604@cosmosbay.com> <20050825181935.GA4738@in.ibm.com>
+	Thu, 25 Aug 2005 14:43:08 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:26592 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932333AbVHYSnH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 14:43:07 -0400
+Subject: Re: Need better is_better_time_interpolator() algorithm
+From: Alex Williamson <alex.williamson@hp.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1124991406.20820.188.camel@cog.beaverton.ibm.com>
+References: <1124988269.5331.49.camel@tdi>
+	 <1124991406.20820.188.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: LOSL
+Date: Thu, 25 Aug 2005 12:43:25 -0600
+Message-Id: <1124995405.5331.90.camel@tdi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050825181935.GA4738@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 11:49:35PM +0530, Dipankar Sarma wrote:
-> On Thu, Aug 25, 2005 at 05:13:05PM +0200, Eric Dumazet wrote:
-> > Nick Piggin a ?crit :
-> > 
-> > >OK, well I would prefer you do the proper atomic operations throughout
-> > >where it "really matters" in file_table.c, and do your lazy synchronize
-> > >with just the sysctl exported value.
-> > >
-> > 
-> > But... I got complains about atomic_read(&counter) being 'an atomic op' 
-> > (untrue), so my second patch just doesnt touch the path where nr_files was 
-> > read.
-> > 
+On Thu, 2005-08-25 at 10:36 -0700, john stultz wrote:
+> On Thu, 2005-08-25 at 10:44 -0600, Alex Williamson wrote:
+> > How can we munge these all together to come up with a single goodness
+> > factor for comparison?  There's probably a thesis covering algorithms to
+> > handle this.  Anyone know of one or have some good ideas?  Thanks,
 > 
-> Here is a patch that I had done some time ago that uses atomic_t,
-> yet retains the sysctl handler. Eric, you earlier patch is incorrect
-> exactly for that reason.
+> With my timeofday rework code, the timesource structure (which was
+> influenced by the time interpolators) just uses a fixed "priority" vale.
+...
+> Realistically I don't think too many systems will have multiple out of
+> tree timesources, so assigning the correct priority value shouldn't be
+> too difficult.
 > 
-> One other thing - the claim that it removes filp_count_lock
-> from fast path is bogus. The slab constructor/destructors are
-> called only when we return the free file structs to the page
-> allocator. That we don't do very often and therefore we
-> don't acquire the lock - atleast not for every filp open
-> and close.
-> 
-> This is not to say we don't want a better reference counter like
-> a per-cpu counter, but there is some difficult stuff there and
-> the returns need to justify that. I would appreciate if you
-> or anyone can demonstrate this to be a problem.
-> 
-> The patch below was meant for debugging some suspected problems
-> with -mm.
+> This just seemed a bit more straight forward then sorting out some
+> weighting algorithm for their properties to select the best timesource. 
 
-As mentioned when we last discussed it the nr_files usage in XFS
-is boguss and should go away first so we don't need the accessor
-and export.  Hopefully we can get rid of the max_files usage
-in af_unix aswell, can you ping davem on it?
+   I don't know that it's that uncommon.  Simply having one non-arch
+specific timer is enough to need to decided whether it's better than a
+generic timer.  I assume pretty much every arch has a cycle timer.  For
+smaller boxes, this might be the preferred timer given it's latency even
+if something like an hpet exists (mmio access are expensive).  How do
+you hard code a value that can account for that?  I agree, we could
+easily go too far and produce some bloated algorithm, but maybe it's
+simply a weighted product of a few variables.
+
+To start with, what would this do:
+
+(frequency) * (1/drift) * (1/latency) * (1/(jitter_factor * cpus))
+
+Something this simple at least starts to dynamically bring the factors
+together.  All else being equal (and with no weighting), this would give
+the 1.5GHz/750ppm timer a higher priority than the 250MHz/500ppm timer.
+Is that good?  I like your idea to make this user tunable after boot,
+but I still think there has to be a way to make a smarter decision up
+front.  Thanks,
+
+	Alex
+
+-- 
+Alex Williamson                             HP Linux & Open Source Lab
 

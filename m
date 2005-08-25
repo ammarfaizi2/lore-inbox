@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVHYJi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbVHYJkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVHYJi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 05:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVHYJi6
+	id S964905AbVHYJkH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 05:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVHYJkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 05:38:58 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:20390 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964907AbVHYJi5
+	Thu, 25 Aug 2005 05:40:07 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:9373 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S964909AbVHYJkF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 05:38:57 -0400
-Subject: Re: question on memory barrier
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: Andy Isaacson <adi@hexapodia.org>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050825091403.6380.qmail@web25805.mail.ukl.yahoo.com>
-References: <20050825091403.6380.qmail@web25805.mail.ukl.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 25 Aug 2005 11:07:20 +0100
-Message-Id: <1124964440.21456.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Thu, 25 Aug 2005 05:40:05 -0400
+Date: Thu, 25 Aug 2005 11:40:04 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Incorrect kcore size
+Message-ID: <Pine.BSO.4.62.0508251133350.24991@rudy.mif.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-656959031-1124962804=:24991"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-08-25 at 11:14 +0200, moreau francis wrote:
-> I'm compiling Linux kernel for a MIPS32 cpu. On my platform, writel seems
-> expand to:
-> 
->     static inline writel(u32 val, volatile void __iomem *mem)
->     {
->             volatile u32 *__mem;
->             u32 __val;
-> 
->             __mem = (void *)((unsigned long)(mem));
->             __val = val;
-> 
->             *__mem = __val;
->     }
-> 
-> I don't see the magic in it since "volatile" keyword do not handle memory
-> ordering constraints...Linus wrote on volatile keyword, see
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-For the case and the platform the volatile is sufficient to force
-ordering. That or the arch code author made a mistake. But I think its
-sufifcient for MIPS. The volatile prevents
+--0-656959031-1124962804=:24991
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-	*foo = 1; 
-	*foo = 2;
 
-or even
+Two cases:
 
-	*foo;
+# uname -a; free | grep Mem; ls -l /proc/kcore
+Linux v100 2.6.11-1.1166sp1 #1 Fri Mar 4 20:41:51 EST 2005 sparc64 sparc64 sparc64 GNU/Linux
+Mem:       1031152     100976     930176          0      22208      32232
+-r--------  1 root root 3756826624 Aug 25 11:28 /proc/kcore
 
-from being collapsed together or eliminated
+# uname -a; free | grep Mem; ls -l /proc/kcore
+Linux test1 2.6.12-1.1504_FC5smp #1 SMP Sun Aug 21 01:46:21 EDT 2005 i686 athlon i386 GNU/Linux
+Mem:       2074664    2007592      67072          0     127876    1209816
+-r--------  1 root root 939528192 sie 25 11:36 /proc/kcore
 
+Additionaly in first case /proc/kcore cant be stated by mc.
+
+kloczek
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-656959031-1124962804=:24991--

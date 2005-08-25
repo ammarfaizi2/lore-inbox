@@ -1,95 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbVHYSyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVHYTBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbVHYSyd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 14:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVHYSyd
+	id S932348AbVHYTBo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 15:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVHYTBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 14:54:33 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38134 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932419AbVHYSyc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 14:54:32 -0400
-Message-ID: <430E13D8.8070005@mvista.com>
-Date: Thu, 25 Aug 2005 11:54:16 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Thu, 25 Aug 2005 15:01:44 -0400
+Received: from downeast.net ([12.149.251.230]:40939 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S932348AbVHYTBo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 15:01:44 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Petition for gas grices
+Date: Thu, 25 Aug 2005 15:01:11 -0400
+User-Agent: KMail/1.8.50
+Cc: mkrufky@m1k.net, Todd Bailey <toddb@toddbailey.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <003001c5a98e$bde15ac0$dc8a0043@D649QM41> <430E0BE7.70205@m1k.net> <1124995471.18675.10.camel@mindpipe>
+In-Reply-To: <1124995471.18675.10.camel@mindpipe>
 MIME-Version: 1.0
-To: Robert Love <rml@novell.com>
-CC: John McCutchan <ttb@tentacle.dhs.org>, jim.houston@ccur.com,
-       Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
-       johannes@sipsolutions.net, linux-kernel@vger.kernel.org
-Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
-References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>	 <430D986E.30209@reub.net>  <1124976814.5039.4.camel@vertex> <1124983117.6810.198.camel@betsy>
-In-Reply-To: <1124983117.6810.198.camel@betsy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart7820266.uelAEOl0JX";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200508251501.26159.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> On Thu, 2005-08-25 at 09:33 -0400, John McCutchan wrote:
-> 
->>On Thu, 2005-08-25 at 22:07 +1200, Reuben Farrelly wrote:
->>
-~
->>>dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): removing wd 1022 from inotify fd 4
->>>dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1023
->>>dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1024
->>>dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1024 from inotify fd 4
->>>dovecot: Aug 25 19:31:27 Error: IMAP(gilly): inotify_rm_watch() failed: 
->>>Invalid argument
->>>dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1023 from inotify fd 4
->>>dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
->>>dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
->>>
->>>Note the incrementing wd value even though we are removing them as we go..
->>>
->>
->>What kernel are you running? The wd's should ALWAYS be incrementing, you
->>should never get the same wd as you did before. From your log, you are
->>getting the same wd (after you inotify_rm_watch it). I can reproduce
->>this bug on 2.6.13-rc7.
->>
->>idr_get_new_above 
->>
->>isn't returning something above.
->>
->>Also, the idr layer seems to be breaking when we pass in 1024. I can
->>reproduce that on my 2.6.13-rc7 system as well.
->>
->>
->>>This is using latest CVS of dovecot code and with 2.6.12-rc6-mm(1|2) kernel.
->>>
->>>Robert, John, what do you think?   Is this possibly related to the oops seen 
->>>in the log that I reported earlier?  (Which is still showing up 2-3 times per 
->>>day, btw)
->>
->>There is definitely something broken here.
-> 
-> 
-> Jim, George-
-> 
-> We are seeing a problem in the idr layer.  If we do idr_find(1024) when,
-> say, a low valued idr, like, zero, is unallocated, NULL is returned.
+--nextPart7820266.uelAEOl0JX
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I think the best thing is to take idr into user space and emulate the 
-problem usage.  To this end, from the log it appears that you _might_ be 
-moving between 0, 1 and 2 entries increasing the number each time.  It 
-also appears that the failure happens here:
-add 1023
-add 1024
-find 1024  or is it the remove that fails?  It also looks like 1024 got 
-allocated twice.  Am I reading the log correctly?
+On Thursday 25 August 2005 02:44 pm, Lee Revell wrote:
+> Take the fucking bus, ride a bike, or just fucking move closer to work.
+> What ever gave all you people the idea that driving 50 miles each way to
+> work was sustainable in the first place?  I can't believe how many
+> otherwise rational people have a gigantic blind spot for this.
 
-So, is it correct to assume that the tree is empty save these two at 
-this time?  I am just trying to figure out what the test program needs 
-to do.
+Or get a hybird vehicle. IMHO its seriously worth it. Doing 50mpg+ would be=
+=20
+cheap even if gas is $5 per gallon (predicted price for 2006). Better than=
+=20
+the 3mpg SUV mechanical whales everyone drives around. Costs like $90 to fi=
+ll=20
+the tank, and you have to fill the tank just going up the road to get a loa=
+f=20
+of bread.
 
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
+--nextPart7820266.uelAEOl0JX
+Content-Type: application/pgp-signature
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBDDhWF8Gvouk7G1cURAvZ+AKCjkVfJh0J+J/wso5Bb3qyiZQUr3ACfRrax
+ZmhjDZ+JSTv74sHXQPMGNB8=
+=v4MS
+-----END PGP SIGNATURE-----
+
+--nextPart7820266.uelAEOl0JX--

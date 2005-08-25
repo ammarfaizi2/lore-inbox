@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVHYMD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVHYMUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbVHYMD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 08:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbVHYMD0
+	id S964954AbVHYMUz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 08:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVHYMUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 08:03:26 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:19418 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S964950AbVHYMD0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 08:03:26 -0400
-Date: Thu, 25 Aug 2005 14:03:20 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: axboe@suse.de, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.13-rc7: crash on removing CF card
-Message-ID: <20050825120320.GA22920@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Pavel Machek <pavel@suse.cz>, axboe@suse.de,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20050825094846.GA2097@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050825094846.GA2097@elf.ucw.cz>
-User-Agent: Mutt/1.5.9i
+	Thu, 25 Aug 2005 08:20:55 -0400
+Received: from web8401.mail.in.yahoo.com ([202.43.219.149]:34922 "HELO
+	web8401.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S964954AbVHYMUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 08:20:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=C3CwVnZ48EKZhHB1TG+TD0Cgs6kJjL63zgEG/6nk4vIhj8pz8DaV6XVqPYse1yz1hFCTNnlnLsKChiBDIwwD4NTw/9LwmQXdUH3GsP1dOXZp0Jf6wNMiQJm1OTMWTmQw9IX2WzFJsKmvVkffc2DCJtXiNlAUdAXB9O3kIv2Kle0=  ;
+Message-ID: <20050825122045.57008.qmail@web8401.mail.in.yahoo.com>
+Date: Thu, 25 Aug 2005 13:20:45 +0100 (BST)
+From: Rahul Tank <rahul5311@yahoo.co.in>
+Subject: serial port multiplexing
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ Hello all,
 
-On Thu, Aug 25, 2005 at 11:48:46AM +0200, Pavel Machek wrote:
-> Something went wrong with PCMCIA on this X32. I inserted CF card, but
-> it detected both hde *and* hdf, mount took forever. At that point I
-> decided that I want my CF card back, took it back, it started
-> producing different I/O errors , and then it oopsed.
+    I am a newbee tryinging for serial port
+multiplexing. Currently my driver supports for one
+port
+(/dev/ttyS0). However i want to use the same physical
+port for 2 virtual ports.I am NOT sending two type of
+data simultaneously. I want to first reigister my
+driver for /dev/ttyS0. When the kernel  has booted ,i
+want to disable it. Then i want to enable the driver
+to register for say /dev/ttyS1.
+  in short i don't want the console to have controle
+over the serial port.
+  The point of doing such is that i want my serial
+port to be free. I can telnet to this potr from other
+machine and test few stuff. i hope i have properly
+mentioned my problem.
 
-Did this happen also with 2.6.13-rc[3-6]?
+ plz let me know how should i proceed.
+ thanks in advance.
 
-Thanks,
-	Dominik
+ regards,
+  rahul
+
+
+
+
+
+	
+
+	
+		
+____________________________________________________
+Send a rakhi to your brother, buy gifts and win attractive prizes. Log on to http://in.promos.yahoo.com/rakhi/index.html

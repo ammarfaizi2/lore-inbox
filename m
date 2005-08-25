@@ -1,36 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVHYP4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVHYP5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbVHYP4S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 11:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbVHYP4S
+	id S932210AbVHYP5v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 11:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbVHYP5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 11:56:18 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:41171 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932204AbVHYP4R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 11:56:17 -0400
-From: Andi Kleen <ak@suse.de>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: process creation time increases linearly with shmem
-Date: Thu, 25 Aug 2005 17:56:07 +0200
-User-Agent: KMail/1.8
-Cc: Ray Fucillo <fucillo@intersystems.com>, linux-kernel@vger.kernel.org
-References: <082520051405.5272.430DD0420003F49F00001498220076139400009A9B9CD3040A029D0A05@comcast.net> <200508251622.08456.ak@suse.de> <1124981240.3055.5.camel@localhost.localdomain>
-In-Reply-To: <1124981240.3055.5.camel@localhost.localdomain>
+	Thu, 25 Aug 2005 11:57:51 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:38050 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S932210AbVHYP5u convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 11:57:50 -0400
+Message-Id: <200508251557.j7PFvduv024059@zeus2.kernel.org>
+From: "Ms ROSE" <rosesan22@yahoo.co.in>
+Reply-To: ros0004@yahoo.com
+Date: Thu, 25 Aug 2005 16:07:41 +0200
+Subject: PLS  HELP ME
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508251756.07849.ak@suse.de>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 25 August 2005 16:47, Parag Warudkar wrote:
+Hello, 
 
-> Exactly - one problem is that this forces all of the hugetlb users to go
-> the lazy faulting way. 
-Actually I disabled it for hugetlbfs (... !is_huge...vma). The reason 
-is that lazy faulting for huge pages is still not in mainline.
+Please, consider this mail as very important and do
+let me know your honest response within the shortest
+time possible…Obviously, you have no knowledge of who
+I am, but I am Ms Rose Sadra, from Sierra Leone, but
+resident in Sengal  (West Africa). 
 
--Andi
+I am interested in investing in any lucrative business
+enterprise in your country and do want to use this
+opportunity to seek your advice on the possibility of
+investment in your area. Over the recent years, there
+have been cases of political instability in most
+countries here in Africa and as a result, I am afraid
+to invest my money here. On this note, I have decided
+to look else where for possible investment
+opportunities, hoping that I would achieve this goal
+with the assistance of a reliable person. 
+
+I would like to know if it would be secured and
+lucrative to invest in your country and after a
+careful feasibility study of the various possible
+fields or industries in your country by your kind
+assistance, I would transfer my funds to your country
+for investment. In a nutshell, I do have a large
+amount of money to establish an ultra modern company
+in your country, but I will like to know the possible
+channels available in your area. Please, do assist me
+carry out a careful survey and get back to me on the
+various possibilities. If you do not have any much
+knowledge about investment or business, I will
+appreciate if you could recommend me to some business
+experts individuals/companies/business consultants) in
+your area, who might be of help to me. 
+I do hope to know you better in the course of time and
+if trust is established between us, I might need you
+to be actively and directly involved in this proposed
+venture. But for the time being, I would like to know
+you better and hope we could get acquainted within the
+shortest time possible. In my next correspondence with
+you, I will give you a clue of how much I intend to
+invest in your country, but for now, I look forward to
+receiving your response and hope this opportunity
+would bring us closer for a possible business
+relationship between us in the near future. 
+
+Have a nice day and best regards, 
+
+Ms Rose sandra
+
+
+

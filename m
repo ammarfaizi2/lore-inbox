@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVHYDJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbVHYDMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbVHYDJR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 23:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVHYDJR
+	id S964775AbVHYDMz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 23:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbVHYDMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 23:09:17 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:42911 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S964774AbVHYDJQ
+	Wed, 24 Aug 2005 23:12:55 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:37507 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S964775AbVHYDMy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 23:09:16 -0400
+	Wed, 24 Aug 2005 23:12:54 -0400
 X-ORBL: [67.124.117.85]
-Date: Wed, 24 Aug 2005 20:09:09 -0700
+Date: Wed, 24 Aug 2005 20:12:42 -0700
 From: Chris Wedgwood <cw@f00f.org>
-To: Doug Warzecha <Douglas_Warzecha@dell.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13-rc6] dcdbas: add Dell Systems Management Base Driver with sysfs support
-Message-ID: <20050825030909.GB6079@taniwha.stupidest.org>
-References: <20050825020021.GA5223@sysman-doug.us.dell.com>
+To: robotti@godmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initramfs and TMPFS!
+Message-ID: <20050825031242.GC6079@taniwha.stupidest.org>
+References: <200508242241.j7OMfQ1g012200@ms-smtp-01.rdc-nyc.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050825020021.GA5223@sysman-doug.us.dell.com>
+In-Reply-To: <200508242241.j7OMfQ1g012200@ms-smtp-01.rdc-nyc.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 09:00:21PM -0500, Doug Warzecha wrote:
+On Wed, Aug 24, 2005 at 06:41:26PM -0400, robotti@godmail.com wrote:
 
-[...]
+> I tried it with kernel 2.6.13-rc5 and it seems to work.
 
-> +Dell OpenManage requires this driver on the following Dell PowerEdge systems:
-> +300, 1300, 1400, 400SC, 500SC, 1500SC, 1550, 600SC, 1600SC, 650, 1655MC,
-> +700, and 750.  Other Dell software such as the open source Libsmbios library
-> +is expected to make use of this driver, and it may include the use of this
-> +driver on other Dell systems.
+it should yes
 
-I'd like to see a URL/pointer somewhere about here in the docs for the
-location of libsmbios if nobody objects.
+> It uses 50% of total memory for tmpfs, but it would be nice to have
+> an option (tmpfs_size=90% etc.) that you could pass to the kernel.
+
+that's just because of the tmpfs default; you can remount to change
+that if it's not suitable once your up and running in your
+init-scripts or whatever
+
+
+> You need to add this to init/main.c for it to compile.
+> #include <asm/uaccess.h>
+
+hmm... really?  i'll rediff it at some point and test it maybe.  i
+really don't like the explicity shm init though, i'd like to think of
+a cleaner way to do that

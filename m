@@ -1,114 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVHYPSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVHYPUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVHYPSj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 11:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVHYPSj
+	id S932080AbVHYPUL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 11:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbVHYPUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 11:18:39 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:52407 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1751161AbVHYPSi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 11:18:38 -0400
-Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: george@mvista.com, jim.houston@ccur.com,
-       Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
-       johannes@sipsolutions.net, linux-kernel@vger.kernel.org
-In-Reply-To: <1124976814.5039.4.camel@vertex>
-References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
-	 <430D986E.30209@reub.net>  <1124976814.5039.4.camel@vertex>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 11:18:37 -0400
-Message-Id: <1124983117.6810.198.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Aug 2005 11:20:10 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:6849 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932080AbVHYPUJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 11:20:09 -0400
+Date: Thu, 25 Aug 2005 17:20:02 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux/m68k <linux-m68k@vger.kernel.org>
+Subject: Re: [PATCH] (18/22) task_thread_info - part 2/4
+In-Reply-To: <20050825143657.GT9322@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.61.0508251656080.3728@scrub.home>
+References: <E1E8AEh-0005eT-NP@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.61.0508251107500.24552@scrub.home>
+ <20050825130738.GQ9322@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.61.0508251515440.3728@scrub.home>
+ <20050825143657.GT9322@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 09:33 -0400, John McCutchan wrote:
-> On Thu, 2005-08-25 at 22:07 +1200, Reuben Farrelly wrote:
-> > Hi,
-> > 
-> > I have also observed another problem with inotify with dovecot - so I spoke 
-> > with Johannes Berg who wrote the inotify code in dovecot.  He suggested I post 
-> > here to LKML since his opinion is that this to be a kernel bug.
-> > 
-> > The problem I am observing is this, logged by dovecot after a period of time 
-> > when a client is connected:
-> > 
-> > dovecot: Aug 22 14:31:23 Error: IMAP(gilly): inotify_rm_watch() failed: 
-> > Invalid argument
-> > dovecot: Aug 22 14:31:23 Error: IMAP(gilly): inotify_rm_watch() failed: 
-> > Invalid argument
-> > dovecot: Aug 22 14:31:23 Error: IMAP(gilly): inotify_rm_watch() failed: 
-> > Invalid argument
-> > 
-> > Multiply that by about 1000 ;-)
-> > 
-> > Some debugging shows this:
-> > dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): removing wd 1019 from inotify fd 4
-> > dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): removing wd 1018 from inotify fd 4
-> > dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): inotify_add_watch returned 1019
-> > dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): inotify_add_watch returned 1020
-> > dovecot: Aug 25 19:31:23 Warning: IMAP(gilly): removing wd 1020 from inotify fd 4
-> > dovecot: Aug 25 19:31:23 Warning: IMAP(gilly): removing wd 1019 from inotify fd 4
-> > dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): inotify_add_watch returned 1020
-> 
-> 
-> 
-> > dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): inotify_add_watch returned 1021
-> > dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): removing wd 1021 from inotify fd 4
-> > dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): removing wd 1020 from inotify fd 4
-> > dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): inotify_add_watch returned 1021
-> > dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): inotify_add_watch returned 1022
-> > dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): removing wd 1022 from inotify fd 4
-> > dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): removing wd 1021 from inotify fd 4
-> > dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): inotify_add_watch returned 1022
-> > dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): inotify_add_watch returned 1023
-> > dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): removing wd 1023 from inotify fd 4
-> > dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): removing wd 1022 from inotify fd 4
-> > dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1023
-> > dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1024
-> > dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1024 from inotify fd 4
-> > dovecot: Aug 25 19:31:27 Error: IMAP(gilly): inotify_rm_watch() failed: 
-> > Invalid argument
-> > dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1023 from inotify fd 4
-> > dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
-> > dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
-> > 
-> > Note the incrementing wd value even though we are removing them as we go..
-> > 
-> 
-> What kernel are you running? The wd's should ALWAYS be incrementing, you
-> should never get the same wd as you did before. From your log, you are
-> getting the same wd (after you inotify_rm_watch it). I can reproduce
-> this bug on 2.6.13-rc7.
-> 
-> idr_get_new_above 
-> 
-> isn't returning something above.
-> 
-> Also, the idr layer seems to be breaking when we pass in 1024. I can
-> reproduce that on my 2.6.13-rc7 system as well.
-> 
-> > This is using latest CVS of dovecot code and with 2.6.12-rc6-mm(1|2) kernel.
-> > 
-> > Robert, John, what do you think?   Is this possibly related to the oops seen 
-> > in the log that I reported earlier?  (Which is still showing up 2-3 times per 
-> > day, btw)
-> 
-> There is definitely something broken here.
+Hi,
 
-Jim, George-
+On Thu, 25 Aug 2005, Al Viro wrote:
 
-We are seeing a problem in the idr layer.  If we do idr_find(1024) when,
-say, a low valued idr, like, zero, is unallocated, NULL is returned.
+> > > > >  
+> > > > > -	*ti = *orig->thread_info;
+> > > > >  	*tsk = *orig;
+> > > > > +	setup_thread_info(tsk, ti);
+> > > > >  	tsk->thread_info = ti;
+> > > > >  	ti->task = tsk;
+> > > > 
+> > > > This introduces a subtle ordering requirement, where setup_thread_info 
+> > > > magically finds in the new task_struct the pointer to the old thread_info 
+> > > > to setup the new thread_info.
+> 
+> How does that make what I wrote above wrong?  We do have two versions, all
+> right.  Called from one place.  Each is a one-liner in my variant, more than
+> that in your.
 
-This readily manifests itself in inotify, where we recently switched to
-using idr_get_new_above() with our last allocated token.
+The point is about ordering requirements that your "setup_thread_info(tsk, 
+ti);" must be inbetween "*tsk = *orig;" and "tsk->thread_info = ti;", so 
+that setup_thread_info() gets the right thread_info.
 
-	Robert Love
+> > > > What is your problem with what I have in CVS? There it completes the basic
+> > > > task_struct setup and _after_ that it can setup the thread_info.
+> > > 
+> > > Which buys you what, exactly?  You end up with more things to do in
+> > > setup_thread_info() and it doesn't get cleaner.
+> > 
+> > Wrong.
+> > 
+> > +static inline void setup_thread_stack(struct task_struct *p, struct task_struct *org)
+> > +{
+> > +       *task_thread_info(p) = *task_thread_info(org);
+> > +       task_thread_info(p)->task = p;
+> > +}
+> 
+> ... and that does not fit "more things to do in setup_thread_info()" in
+> which way?
 
+That in the sum it's still the same work.
 
+> > Please count correctly, there is only one 100KB patch, the rest is rather 
+> > small (50KB in 7 patches).
+> 
+> ... no comments, except that 28K (ti6_1) + 24K (ti6_2) + 22K (ti6_3) +
+> 12K (ti6_4) already appears to be more than 50K...
+
+ti6 is the sum of ti6_?, to make it easier to verify.
+
+> In any case, that's hardly the point - s/200/150/ if you wish and that
+> does not make the problem much better.
+
+Most of them rather simple search and replace.
+
+> I seem to remember some very public conversations with you on that topic,
+> but again, this is not the point
+
+There has been a bit on IRC, but I can't really discuss such things on IRC 
+(everyone just makes his own point and the issues continue and just scroll 
+away) and it certainly didn't happen on the linux-m68k ml.
+
+> - the real issue is with merge strategy
+> you proposed.  And no, I do not believe that doing that merge + great
+> renaming in a single burst is feasible.  Reorder that and yes, all parts
+> make sense and are doable.  With essentially the same final tree.
+
+The biggest part is already at the end and I'll split the big one into 
+three separate patches (stack, end_of_stack and task_thread_info changes). 
+I'll send them to Andrew and we can still discuss how quickly to merge 
+each part. I don't really see the point in holding off for too long, 
+except for the final thread_info field removal.
+
+bye, Roman

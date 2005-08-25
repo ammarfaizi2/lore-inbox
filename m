@@ -1,96 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVHYGIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVHYGKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbVHYGIt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 02:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbVHYGIt
+	id S1750930AbVHYGKq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 02:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbVHYGKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 02:08:49 -0400
-Received: from web33311.mail.mud.yahoo.com ([68.142.206.126]:64936 "HELO
-	web33311.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964856AbVHYGIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 02:08:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=i+Lw/FhCA/EnSE4h/LsBPcsJrmbnc5FEBbSMNEnJTONuN4O9EWMosLQbH2iLgvk5Ymy7t+wyGSS8ZQIZGr+J72PLs2ztGN7nYyA4KBJ2ETOtzCAliIDOf3x5morckOZbQq6X5UEwuxK4Zjx/degkkc9hVto2MOfZI2w3fo/DTHY=  ;
-Message-ID: <20050825060843.15874.qmail@web33311.mail.mud.yahoo.com>
-Date: Wed, 24 Aug 2005 23:08:43 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: 2.6.12 Performance problems
-To: Ben Greear <greearb@candelatech.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <430D4E6D.1090200@candelatech.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 25 Aug 2005 02:10:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:15029 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750829AbVHYGKp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 02:10:45 -0400
+Date: Thu, 25 Aug 2005 08:10:39 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CFQ + 2.6.13-rc4-RT-V0.7.52-02 = BUG: scheduling with irqs disabled
+Message-ID: <20050825061034.GN28272@suse.de>
+References: <20050824174702.GL28272@suse.de> <Pine.OSF.4.05.10508242321500.13279-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.OSF.4.05.10508242321500.13279-100000@da410.phys.au.dk>
+X-IMAPbase: 1124875140 2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Ben Greear <greearb@candelatech.com> wrote:
-
-> Danial Thom wrote:
+On Wed, Aug 24 2005, Esben Nielsen wrote:
+> On Wed, 24 Aug 2005, Jens Axboe wrote:
 > 
-> > I think the concensus is that 2.6 has made
-> trade
-> > offs that lower raw throughput, which is what
-> a
-> > networking device needs. So as a router or
-> > network appliance, 2.6 seems less suitable. A
-> raw
-> > bridging test on a 2.0Ghz operton system:
+> > On Wed, Aug 24 2005, Lee Revell wrote:
+> > > Just found this in dmesg.
+> > > 
+> > > BUG: scheduling with irqs disabled: libc6.postinst/0x20000000/13229
+> > > caller is ___down_mutex+0xe9/0x1a0
+> > >  [<c029c1f9>] schedule+0x59/0xf0 (8)
+> > >  [<c029ced9>] ___down_mutex+0xe9/0x1a0 (28)
+> > >  [<c0221832>] cfq_exit_single_io_context+0x22/0xa0 (84)
+> > >  [<c02218ea>] cfq_exit_io_context+0x3a/0x50 (16)
+> > >  [<c021db84>] exit_io_context+0x64/0x70 (16)
+> > >  [<c011efda>] do_exit+0x5a/0x3e0 (20)
+> > >  [<c011f3ca>] do_group_exit+0x2a/0xb0 (24)
+> > >  [<c0103039>] syscall_call+0x7/0xb (20)
 > > 
-> > FreeBSD 4.9: Drops no packets at 900K pps
-> > Linux 2.4.24: Starts dropping packets at 350K
-> pps
-> > Linux 2.6.12: Starts dropping packets at 100K
-> pps
+> > Hmm, Ingo I seem to remember you saying that the following construct:
+> > 
+> >         local_irq_save(flags);
+> >         spin_lock(lock);
+> > 
+> > which is equivelant to spin_lock_irqsave() in mainline being illegal in
+> > -RT, is that correct? 
 > 
-> I ran some quick tests using kernel 2.6.11, 1ms
-> tick (HZ=1000), SMP kernel.
-> Hardware is P-IV 3.0Ghz + HT on a new
-> SuperMicro motherboard with 64/133Mhz
-> PCI-X bus.  NIC is dual Intel pro/1000.  Kernel
-> is close to stock 2.6.11.
+> I can easily answer this for Ingo.
 > 
-> I used brctl to create a bridge with the two
-> GigE adapters in it and
-> used pktgen to stream traffic through it
-> (250kpps in one direction, 1kpps in
-> the other.)
-> 
-> I see a reasonable amount of drops at 250kpps
-> (60 byte packets):
-> about 60,000,000 packets received, 20,700
-> dropped.
-> 
-> Interestingly, the system is about 60% idle
-> according to top,
-> and still dropping pkts, so it would seem that
-> the system could
-> be better utilized!
-> 
-> Ben
->
+> Yes, spin_lock(lock) is blocking since lock is mutex, not a spinlock under
+> preempt-rt. But isn't it easy to fix? Replace the two lines by
+> spin_lock_irqsave(flags). That would work for both preempt-rt
+> and !preempt-rt.
 
-What GigE adapters did you use? Clearly every
-driver is going to be different. My experience is
-that a 3.4Ghz P4 is about the performance of a
-2.0Ghz Opteron. I have to try your tuning script
-tomorrow.
+Well, it might and it might not be. There's a correctness and
+optimization side to it. For this case it is probably doable, but I have
+to say that the new semantics defy normal logic.
 
-If your test is still set up, try compiling
-something large while doing the test. The drops
-go through the roof in my tests.
+> You supposed to ask if the macro name spin_lock() isn't confusing. It very
+> much is, but one of Ingo's aims is not to change existing code too much.
+> The purist would probably change all instances of spin_lock() to lock() or
+> down() to stop refering to a specific lock type when it can be changed
+> with config-options. That would, however, require a large patch,
+> which does the preempt-rt branch harder to merge with the main-line.
 
-Danial
+I can certainly understand Ingo's point of view, as long as he is
+maintaining the patch outside of the kernel. Where it ever to go in,
+this would have to change.
 
+-- 
+Jens Axboe
 
-		
-____________________________________________________
-Start your day with Yahoo! - make it your home page 
-http://www.yahoo.com/r/hs 
- 

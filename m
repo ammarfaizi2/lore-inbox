@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVHYMkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbVHYMqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbVHYMkg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 08:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbVHYMkg
+	id S964961AbVHYMqq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 08:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbVHYMqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 08:40:36 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:52733 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S964963AbVHYMkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 08:40:35 -0400
-From: Ian Campbell <ijc@hellion.org.uk>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-cifs-client@lists.samba.org,
-       Asser =?ISO-8859-1?Q?Fem=F8?= <asser@diku.dk>
-In-Reply-To: <20050823152331.GA10486@mail.shareable.org>
-References: <20050823130023.GB8305@diku.dk>
-	 <20050823152331.GA10486@mail.shareable.org>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 13:40:18 +0100
-Message-Id: <1124973618.17190.9.camel@icampbell-debian>
+	Thu, 25 Aug 2005 08:46:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25493 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964961AbVHYMqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 08:46:46 -0400
+Date: Thu, 25 Aug 2005 13:46:41 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jan Blunck <j.blunck@tu-harburg.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RESEND] don't allow sys_readahead() on files opened with O_DIRECT
+Message-ID: <20050825124641.GA13502@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Jan Blunck <j.blunck@tu-harburg.de>,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <4305D437.4000703@tu-harburg.de> <20050825012440.66b61cca.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 192.168.3.3
-X-SA-Exim-Mail-From: ijc@hellion.org.uk
-Subject: Re: dnotify/inotify and vfs questions
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050825012440.66b61cca.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-23 at 16:23 +0100, Jamie Lokier wrote:
->     <receive some request>...
->     if (any_dnotify_or_inotify_events_pending) {
->         read_dnotify_or_inotify_events();
->         if (any_events_related_to(file)) {
->             store_in_userspace_stat_cache(file, stat(file));
->         }
->     }
->     stat_info = lookup_userspace_stat_cache(file);
+On Thu, Aug 25, 2005 at 01:24:40AM -0700, Andrew Morton wrote:
+> > IMO sys_readahead() doesn't make sense if the file is opened with
+> > O_DIRECT, because the page cache is stuffed but never used. Therefore
+> > this patch changes that by letting the call return with -EINVAL.
+> > 
 > 
-> Now that's a silly way to save one system call in the fast path by itself.
+> a) It doesn't hurt, it's just a bit of a silly thing to do.
 
-I'm not that familiar with inotify internals but doesn't
-read_dnotify_or_inotify_events() or
-any_dnotify_or_inotify_events_pending() involve a syscall?
-
-Ian.
--- 
-Ian Campbell
-Current Noise: Primordial - The Coffin Ships
-
-Today is the first day of the rest of the mess.
+For ocfs that only allows either direct or buffered I/O on a single
+inode at a given time it hurts.  It messes up the synchronization
+protocol to be exact..
 

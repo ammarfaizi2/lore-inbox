@@ -1,57 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbVHYRG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVHYROb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbVHYRG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 13:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVHYRG3
+	id S932297AbVHYROb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 13:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVHYROb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 13:06:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5806 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751207AbVHYRG2 (ORCPT
+	Thu, 25 Aug 2005 13:14:31 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:22189 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751239AbVHYROb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 13:06:28 -0400
-Date: Thu, 25 Aug 2005 10:06:17 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Chris Wright <chrisw@osdl.org>, Greg Kroah <greg@kroah.com>,
-       Kurt Garloff <garloff@suse.de>, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] Remove unnecesary capability hooks in rootplug.
-Message-ID: <20050825170617.GW7762@shell0.pdx.osdl.net>
-References: <20050825012028.720597000@localhost.localdomain> <20050825012150.490797000@localhost.localdomain> <20050825143807.GA8590@sergelap.austin.ibm.com> <1124982836.3873.78.camel@moss-spartans.epoch.ncsc.mil> <20050825162101.GU7762@shell0.pdx.osdl.net> <1124987036.3873.106.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 25 Aug 2005 13:14:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=aCcUUaFTMqO+hq2lEl+S3BPPyay4Yikw2m2KXxFfH8KUZDDnaH0cIo6ia0+p0LXGqE+FYiarL0s0xt0kmH8wvQBterRi9lAbUbH9yuzBkwv9d36SK0tQVQygXe/pf7TQ1wK/Ro3SDK6atZBxMQXZz2VYQZ/GY8dWqTgkWWRyJo8=
+Message-ID: <d120d5000508251014c9083e4@mail.gmail.com>
+Date: Thu, 25 Aug 2005 12:14:27 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Chris du Quesnay <duquesnay@hotmail.com>
+Subject: Re: Building the kernel with Cygwin
+Cc: linux-os@analogic.com, linux-kernel@vger.kernel.org
+In-Reply-To: <BAY14-F20DDBBC08EC1461957F455BAAB0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1124987036.3873.106.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_825_7330438.1124990067800"
+References: <Pine.LNX.4.61.0508251138220.3971@chaos.analogic.com>
+	 <BAY14-F20DDBBC08EC1461957F455BAAB0@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> On Thu, 2005-08-25 at 09:21 -0700, Chris Wright wrote:
-> > * Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> > > On Thu, 2005-08-25 at 09:38 -0500, serue@us.ibm.com wrote:
-> > > > Ok, with the attached patch SELinux seems to work correctly.  You'll
-> > > > probably want to make it a little prettier  :)  Note I have NOT ran the
-> > > > ltp tests for correctness.  I'll do some performance runs, though
-> > > > unfortunately can't do so on ppc right now.
-> > > 
-> > > Note that the selinux tests there _only_ test the SELinux checking.  So
-> > > if these changes interfere with proper stacking of SELinux with
-> > > capabilities, that won't show up there.  
-> > 
-> > Sorry, I'm not parsing that?
-> 
-> e.g. if secondary_ops->capable is null, the SELinux tests aren't going
-> to show that, because they will still see that the SELinux permission
-> checks are working correctly.  They only test failure/success for the
-> SELinux permission checks, not for the capability checks, so if you
-> unhook capabilities, they won't notice.
+------=_Part_825_7330438.1124990067800
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Yes, I see.  I thought the tests you were referring to were 
-"if (secondary_ops->capable)" not LTP tests.  Capability is still a
-module that can be loaded (or built-in).  So the only issue is it's
-security_ops is now NULL where it was a trivial return 0 function.
-Aside from the oversight Serge fixed, I don't think there's any issue.
+On 8/25/05, Chris du Quesnay <duquesnay@hotmail.com> wrote:
+> Hi Dick.  Thanks for your suggestion.
+>=20
+> I tried it, however, and attempted the make again, and got the same error=
+.
+>=20
+> The scripts/basic directory contains a fixdep.exe after the make is run.
+> There is
+> no fixdep file.  I tried renaming the fixdep.exe to fixdep, but that also
+> resulted in
+> the same make error.
+>=20
+> Any further suggestions?
+> Thx,
+> Chris.
+>=20
 
-thanks,
--chris
+I use the following "cross" script to build for i386 on Cygwin. And
+you need a patch, otherwise it won't build.
+
+--=20
+Dmitry
+
+------=_Part_825_7330438.1124990067800
+Content-Type: application/octet-stream; name="cygwin-warnings.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="cygwin-warnings.patch"
+
+U3ViamVjdDogRml4IHNvbWUgd2FybmluZ3Mgd2hlbiBjb3BtcGlsZSBvbiBjeWd3aW4KCldoZW4g
+Y29tcGlsaW5nIG9uIEN5Z3dpbiB0aGVyZSBhZXJlIHNvbWUgd2FybmluZ3MuCgpTaWduZWQtb2Zm
+LWJ5OiBEbWl0cnkgVG9yb2tob3YgPGR0b3JAbWFpbC5ydT4KCi0tLQoKIGxpYi9nZW5fY3JjMzJ0
+YWJsZS5jICAgICB8ICAgIDQgKystLQogc2NyaXB0cy9rY29uZmlnL01ha2VmaWxlIHwgICAgMiAr
+Kwogc2NyaXB0cy9tb2QvZmlsZTJhbGlhcy5jIHwgICAzNCArKysrKysrKysrKysrKysrKy0tLS0t
+LS0tLS0tLS0tLS0tCiBzY3JpcHRzL21vZC9zdW12ZXJzaW9uLmMgfCAgICAyICstCiA0IGZpbGVz
+IGNoYW5nZWQsIDIyIGluc2VydGlvbnMoKyksIDIwIGRlbGV0aW9ucygtKQoKSW5kZXg6IGxpbnV4
+LTIuNi4xMi9zY3JpcHRzL21vZC9zdW12ZXJzaW9uLmMKPT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gbGludXgtMi42
+LjEyLm9yaWcvc2NyaXB0cy9tb2Qvc3VtdmVyc2lvbi5jCisrKyBsaW51eC0yLjYuMTIvc2NyaXB0
+cy9tb2Qvc3VtdmVyc2lvbi5jCkBAIC0yMTgsNyArMjE4LDcgQEAgc3RhdGljIHZvaWQgbWQ0X2Zp
+bmFsX2FzY2lpKHN0cnVjdCBtZDRfYwogCWNwdV90b19sZTMyX2FycmF5KG1jdHgtPmhhc2gsIHNp
+emVvZihtY3R4LT5oYXNoKSAvIHNpemVvZih1aW50MzJfdCkpOwogCiAJc25wcmludGYob3V0LCBs
+ZW4sICIlMDhYJTA4WCUwOFglMDhYIiwKLQkJIG1jdHgtPmhhc2hbMF0sIG1jdHgtPmhhc2hbMV0s
+IG1jdHgtPmhhc2hbMl0sIG1jdHgtPmhhc2hbM10pOworCQkgKHVuc2lnbmVkKW1jdHgtPmhhc2hb
+MF0sICh1bnNpZ25lZCltY3R4LT5oYXNoWzFdLCAodW5zaWduZWQpbWN0eC0+aGFzaFsyXSwgKHVu
+c2lnbmVkKW1jdHgtPmhhc2hbM10pOwogfQogCiBzdGF0aWMgaW5saW5lIHZvaWQgYWRkX2NoYXIo
+dW5zaWduZWQgY2hhciBjLCBzdHJ1Y3QgbWQ0X2N0eCAqbWQpCkluZGV4OiBsaW51eC0yLjYuMTIv
+c2NyaXB0cy9tb2QvZmlsZTJhbGlhcy5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxpbnV4LTIuNi4xMi5vcmln
+L3NjcmlwdHMvbW9kL2ZpbGUyYWxpYXMuYworKysgbGludXgtMi42LjEyL3NjcmlwdHMvbW9kL2Zp
+bGUyYWxpYXMuYwpAQCAtMTcwLDEzICsxNzAsMTMgQEAgc3RhdGljIGludCBkb19pZWVlMTM5NF9l
+bnRyeShjb25zdCBjaGFyIAogCiAJc3RyY3B5KGFsaWFzLCAiaWVlZTEzOTQ6Iik7CiAJQUREKGFs
+aWFzLCAidmVuIiwgaWQtPm1hdGNoX2ZsYWdzICYgSUVFRTEzOTRfTUFUQ0hfVkVORE9SX0lELAot
+CSAgICBpZC0+dmVuZG9yX2lkKTsKKwkgICAgKHVuc2lnbmVkKWlkLT52ZW5kb3JfaWQpOwogCUFE
+RChhbGlhcywgIm1vIiwgaWQtPm1hdGNoX2ZsYWdzICYgSUVFRTEzOTRfTUFUQ0hfTU9ERUxfSUQs
+Ci0JICAgIGlkLT5tb2RlbF9pZCk7CisJICAgICh1bnNpZ25lZClpZC0+bW9kZWxfaWQpOwogCUFE
+RChhbGlhcywgInNwIiwgaWQtPm1hdGNoX2ZsYWdzICYgSUVFRTEzOTRfTUFUQ0hfU1BFQ0lGSUVS
+X0lELAotCSAgICBpZC0+c3BlY2lmaWVyX2lkKTsKKwkgICAgKHVuc2lnbmVkKWlkLT5zcGVjaWZp
+ZXJfaWQpOwogCUFERChhbGlhcywgInZlciIsIGlkLT5tYXRjaF9mbGFncyAmIElFRUUxMzk0X01B
+VENIX1ZFUlNJT04sCi0JICAgIGlkLT52ZXJzaW9uKTsKKwkgICAgKHVuc2lnbmVkKWlkLT52ZXJz
+aW9uKTsKIAogCXJldHVybiAxOwogfQpAQCAtMTk3LDEwICsxOTcsMTAgQEAgc3RhdGljIGludCBk
+b19wY2lfZW50cnkoY29uc3QgY2hhciAqZmlsZQogCWlkLT5jbGFzc19tYXNrID0gVE9fTkFUSVZF
+KGlkLT5jbGFzc19tYXNrKTsKIAogCXN0cmNweShhbGlhcywgInBjaToiKTsKLQlBREQoYWxpYXMs
+ICJ2IiwgaWQtPnZlbmRvciAhPSBQQ0lfQU5ZX0lELCBpZC0+dmVuZG9yKTsKLQlBREQoYWxpYXMs
+ICJkIiwgaWQtPmRldmljZSAhPSBQQ0lfQU5ZX0lELCBpZC0+ZGV2aWNlKTsKLQlBREQoYWxpYXMs
+ICJzdiIsIGlkLT5zdWJ2ZW5kb3IgIT0gUENJX0FOWV9JRCwgaWQtPnN1YnZlbmRvcik7Ci0JQURE
+KGFsaWFzLCAic2QiLCBpZC0+c3ViZGV2aWNlICE9IFBDSV9BTllfSUQsIGlkLT5zdWJkZXZpY2Up
+OworCUFERChhbGlhcywgInYiLCBpZC0+dmVuZG9yICE9IFBDSV9BTllfSUQsICh1bnNpZ25lZClp
+ZC0+dmVuZG9yKTsKKwlBREQoYWxpYXMsICJkIiwgaWQtPmRldmljZSAhPSBQQ0lfQU5ZX0lELCAo
+dW5zaWduZWQpaWQtPmRldmljZSk7CisJQUREKGFsaWFzLCAic3YiLCBpZC0+c3VidmVuZG9yICE9
+IFBDSV9BTllfSUQsICh1bnNpZ25lZClpZC0+c3VidmVuZG9yKTsKKwlBREQoYWxpYXMsICJzZCIs
+IGlkLT5zdWJkZXZpY2UgIT0gUENJX0FOWV9JRCwgKHVuc2lnbmVkKWlkLT5zdWJkZXZpY2UpOwog
+CiAJYmFzZWNsYXNzID0gKGlkLT5jbGFzcykgPj4gMTY7CiAJYmFzZWNsYXNzX21hc2sgPSAoaWQt
+PmNsYXNzX21hc2spID4+IDE2OwpAQCAtMjE0LDcgKzIxNCw3IEBAIHN0YXRpYyBpbnQgZG9fcGNp
+X2VudHJ5KGNvbnN0IGNoYXIgKmZpbGUKIAkgICAgfHwgKGludGVyZmFjZV9tYXNrICE9IDAgJiYg
+aW50ZXJmYWNlX21hc2sgIT0gMHhGRikpIHsKIAkJZnByaW50ZihzdGRlcnIsCiAJCQkiKioqIFdh
+cm5pbmc6IENhbid0IGhhbmRsZSBtYXNrcyBpbiAlczolMDRYXG4iLAotCQkJZmlsZW5hbWUsIGlk
+LT5jbGFzc19tYXNrKTsKKwkJCWZpbGVuYW1lLCAodW5zaWduZWQpIGlkLT5jbGFzc19tYXNrKTsK
+IAkJcmV0dXJuIDA7CiAJfQogCkBAIC0yMzYsMTMgKzIzNiwxMyBAQCBzdGF0aWMgaW50IGRvX2Nj
+d19lbnRyeShjb25zdCBjaGFyICpmaWxlCiAKIAlzdHJjcHkoYWxpYXMsICJjY3c6Iik7CiAJQURE
+KGFsaWFzLCAidCIsIGlkLT5tYXRjaF9mbGFncyZDQ1dfREVWSUNFX0lEX01BVENIX0NVX1RZUEUs
+Ci0JICAgIGlkLT5jdV90eXBlKTsKKwkgICAgKHVuc2lnbmVkKWlkLT5jdV90eXBlKTsKIAlBREQo
+YWxpYXMsICJtIiwgaWQtPm1hdGNoX2ZsYWdzJkNDV19ERVZJQ0VfSURfTUFUQ0hfQ1VfTU9ERUws
+Ci0JICAgIGlkLT5jdV9tb2RlbCk7CisJICAgICh1bnNpZ25lZClpZC0+Y3VfbW9kZWwpOwogCUFE
+RChhbGlhcywgImR0IiwgaWQtPm1hdGNoX2ZsYWdzJkNDV19ERVZJQ0VfSURfTUFUQ0hfREVWSUNF
+X1RZUEUsCi0JICAgIGlkLT5kZXZfdHlwZSk7CisJICAgICh1bnNpZ25lZClpZC0+ZGV2X3R5cGUp
+OwogCUFERChhbGlhcywgImRtIiwgaWQtPm1hdGNoX2ZsYWdzJkNDV19ERVZJQ0VfSURfTUFUQ0hf
+REVWSUNFX1RZUEUsCi0JICAgIGlkLT5kZXZfbW9kZWwpOworCSAgICAodW5zaWduZWQpaWQtPmRl
+dl9tb2RlbCk7CiAJcmV0dXJuIDE7CiB9CiAKQEAgLTMxMywxMCArMzEzLDEwIEBAIHN0YXRpYyBp
+bnQgZG9fcGNtY2lhX2VudHJ5KGNvbnN0IGNoYXIgKmYKIAkgICBpZC0+ZnVuY3Rpb24pOwogICAg
+ICAgIEFERChhbGlhcywgInBmbiIsIGlkLT5tYXRjaF9mbGFncyAmIFBDTUNJQV9ERVZfSURfTUFU
+Q0hfREVWSUNFX05PLAogCSAgIGlkLT5kZXZpY2Vfbm8pOwotICAgICAgIEFERChhbGlhcywgInBh
+IiwgaWQtPm1hdGNoX2ZsYWdzICYgUENNQ0lBX0RFVl9JRF9NQVRDSF9QUk9EX0lEMSwgaWQtPnBy
+b2RfaWRfaGFzaFswXSk7Ci0gICAgICAgQUREKGFsaWFzLCAicGIiLCBpZC0+bWF0Y2hfZmxhZ3Mg
+JiBQQ01DSUFfREVWX0lEX01BVENIX1BST0RfSUQyLCBpZC0+cHJvZF9pZF9oYXNoWzFdKTsKLSAg
+ICAgICBBREQoYWxpYXMsICJwYyIsIGlkLT5tYXRjaF9mbGFncyAmIFBDTUNJQV9ERVZfSURfTUFU
+Q0hfUFJPRF9JRDMsIGlkLT5wcm9kX2lkX2hhc2hbMl0pOwotICAgICAgIEFERChhbGlhcywgInBk
+IiwgaWQtPm1hdGNoX2ZsYWdzICYgUENNQ0lBX0RFVl9JRF9NQVRDSF9QUk9EX0lENCwgaWQtPnBy
+b2RfaWRfaGFzaFszXSk7CisgICAgICAgQUREKGFsaWFzLCAicGEiLCBpZC0+bWF0Y2hfZmxhZ3Mg
+JiBQQ01DSUFfREVWX0lEX01BVENIX1BST0RfSUQxLCAodW5zaWduZWQpaWQtPnByb2RfaWRfaGFz
+aFswXSk7CisgICAgICAgQUREKGFsaWFzLCAicGIiLCBpZC0+bWF0Y2hfZmxhZ3MgJiBQQ01DSUFf
+REVWX0lEX01BVENIX1BST0RfSUQyLCAodW5zaWduZWQpaWQtPnByb2RfaWRfaGFzaFsxXSk7Cisg
+ICAgICAgQUREKGFsaWFzLCAicGMiLCBpZC0+bWF0Y2hfZmxhZ3MgJiBQQ01DSUFfREVWX0lEX01B
+VENIX1BST0RfSUQzLCAodW5zaWduZWQpaWQtPnByb2RfaWRfaGFzaFsyXSk7CisgICAgICAgQURE
+KGFsaWFzLCAicGQiLCBpZC0+bWF0Y2hfZmxhZ3MgJiBQQ01DSUFfREVWX0lEX01BVENIX1BST0Rf
+SUQ0LCAodW5zaWduZWQpaWQtPnByb2RfaWRfaGFzaFszXSk7CiAKICAgICAgICByZXR1cm4gMTsK
+IH0KSW5kZXg6IGxpbnV4LTIuNi4xMi9saWIvZ2VuX2NyYzMydGFibGUuYwo9PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0t
+LSBsaW51eC0yLjYuMTIub3JpZy9saWIvZ2VuX2NyYzMydGFibGUuYworKysgbGludXgtMi42LjEy
+L2xpYi9nZW5fY3JjMzJ0YWJsZS5jCkBAIC01NSw5ICs1NSw5IEBAIHN0YXRpYyB2b2lkIG91dHB1
+dF90YWJsZSh1aW50MzJfdCB0YWJsZVsKIAlmb3IgKGkgPSAwOyBpIDwgbGVuIC0gMTsgaSsrKSB7
+CiAJCWlmIChpICUgRU5UUklFU19QRVJfTElORSA9PSAwKQogCQkJcHJpbnRmKCJcbiIpOwotCQlw
+cmludGYoIiVzKDB4JTguOHhMKSwgIiwgdHJhbnMsIHRhYmxlW2ldKTsKKwkJcHJpbnRmKCIlcygw
+eCU4Ljh4TCksICIsIHRyYW5zLCAodW5zaWduZWQpdGFibGVbaV0pOwogCX0KLQlwcmludGYoIiVz
+KDB4JTguOHhMKVxuIiwgdHJhbnMsIHRhYmxlW2xlbiAtIDFdKTsKKwlwcmludGYoIiVzKDB4JTgu
+OHhMKVxuIiwgdHJhbnMsICh1bnNpZ25lZCl0YWJsZVtsZW4gLSAxXSk7CiB9CiAKIGludCBtYWlu
+KGludCBhcmdjLCBjaGFyKiogYXJndikKSW5kZXg6IGxpbnV4LTIuNi4xMi9zY3JpcHRzL2tjb25m
+aWcvTWFrZWZpbGUKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PQotLS0gbGludXgtMi42LjEyLm9yaWcvc2NyaXB0cy9rY29u
+ZmlnL01ha2VmaWxlCisrKyBsaW51eC0yLjYuMTIvc2NyaXB0cy9rY29uZmlnL01ha2VmaWxlCkBA
+IC0xMDgsNiArMTA4LDggQEAgY2xlYW4tZmlsZXMJOj0gbGtjX2RlZnMuaCBxY29uZi5tb2MgLnRt
+cAogSE9TVENGTEFHU19sZXguemNvbmYubwk6PSAtSSQoc3JjKQogSE9TVENGTEFHU196Y29uZi50
+YWIubwk6PSAtSSQoc3JjKQogCitIT1NUTE9BRExJQkVTX2NvbmYJPSAtbGludGwKKwogSE9TVExP
+QURMSUJFU19xY29uZgk9IC1MJChRVExJQlBBVEgpIC1XbCwtcnBhdGgsJChRVExJQlBBVEgpIC1s
+JChRVExJQikgLWxkbAogSE9TVENYWEZMQUdTX3Fjb25mLm8JPSAtSSQoUVRESVIpL2luY2x1ZGUg
+LUQgTEtDX0RJUkVDVF9MSU5LCiAK
+------=_Part_825_7330438.1124990067800
+Content-Type: text/plain; name="cross"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="cross"
+
+IyEvYmluL3NoCmV4cG9ydCBBUkNIPWkzODYKZXhwb3J0IENST1NTX0NPTVBJTEU9aTY4Ni11bmtu
+b3duLWxpbnV4LWdudS0KVz0vdXNyL2xvY2FsL2Nyb3NzdG9vbC9pNjg2LXVua25vd24tbGludXgt
+Z251L2djYy0zLjQuMy1nbGliYy0yLjMuMi9iaW4KCk1BS0U9Im1ha2UiCgppZiBbIC16ICIkMSIg
+XQp0aGVuCglXSEFUPSJ2bWxpbnV4IgplbHNlCglXSEFUPSIkMSIKZmkKCk1BS0VfQVJHUz0iQVJD
+SD1pMzg2IENST1NTX0NPTVBJTEU9JFcvaTY4Ni11bmtub3duLWxpbnV4LWdudS0iCgokTUFLRSAk
+TUFLRV9BUkdTIENDPSIkVy8kQ1JPU1NfQ09NUElMRSIiZ2NjIiAkV0hBVAo=
+------=_Part_825_7330438.1124990067800--

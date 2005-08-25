@@ -1,87 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbVHYKDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbVHYKHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964910AbVHYKDe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 06:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVHYKDe
+	id S964913AbVHYKHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 06:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbVHYKHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 06:03:34 -0400
-Received: from main.gmane.org ([80.91.229.2]:59023 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964910AbVHYKDe (ORCPT
+	Thu, 25 Aug 2005 06:07:54 -0400
+Received: from tornado.reub.net ([202.89.145.182]:23724 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S964913AbVHYKHy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 06:03:34 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Daniel Brockman <daniel@brockman.se>
-Subject: Re: Where do packets sent to 255.255.255.255 go?
-Date: Thu, 25 Aug 2005 12:01:06 +0200
-Message-ID: <873boys5ct.fsf@wigwam.deepwood.net>
-References: <87ek8isual.fsf@wigwam.deepwood.net> <430D7E8D.2070305@lifl.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-46b670d5.028-10-67766c2.cust.bredbandsbolaget.se
-X-Face: :&2UWGm>e24)ip~'K@iOsA&JT3JX*v@1-#L)=dUb825\Fwg#`^N!Y*g-TqdS
- AevzjFJe96f@V'ya8${57/T'"mTd`1o{TGYhHnVucLq!D$r2O{IN)7>.0op_Y`%r;/Q
- +(]`3F-t10N7NF\.Mm0q}p1:%iqTi:5]1E]rDF)R$9.!,Eu'9K':y9^U3F8UCS1M+A$
- 8[[[WT^`$P[vu>P+8]aQMh9giu&fPCqLW2FSsGs
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-Cancel-Lock: sha1:WNmgvaTPCC+JdKG9ffR6icHoOIg=
+	Thu, 25 Aug 2005 06:07:54 -0400
+Message-ID: <430D986E.30209@reub.net>
+Date: Thu, 25 Aug 2005 22:07:42 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20050823)
+MIME-Version: 1.0
+To: John McCutchan <ttb@tentacle.dhs.org>
+CC: Andrew Morton <akpm@osdl.org>, johannes@sipsolutions.net,
+       linux-kernel@vger.kernel.org, Robert Love <rml@novell.com>
+Subject: Inotify problem [was Re: 2.6.13-rc6-mm1]
+References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
+In-Reply-To: <fa.e1uvbs1.l407h7@ifi.uio.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric,
+Hi,
 
->> If I understand correctly, packets sent to the all-ones
->> broadcast address only go out through a single interface.
->
-> I have some blur memories about this kind of issue, so my
-> answer my be wrong on some points...
-
-It turns out you are exactly right on all points. :-)
-
->> My question is threefold:
+On 22/08/2005 9:10 p.m., John McCutchan wrote:
+> On Sat, 2005-08-20 at 23:52 -0700, Andrew Morton wrote:
+>> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>>> Hi,
+>>>
+>>> On 19/08/2005 11:37 a.m., Andrew Morton wrote:
+>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm1/
+>>>>
+>>>> - Lots of fixes, updates and cleanups all over the place.
+>>>>
+>>>> - If you have the right debugging options set, this kernel will generate
+>>>>   a storm of sleeping-in-atomic-code warnings at boot, from the scsi code.
+>>>>   It is being worked on.
+>>>>
+>>>>
+>>>> Changes since 2.6.13-rc5-mm1:
+>>>>
+>>>>  linus.patch
+>>> Noted this in my log earlier today.
+>>>
+>>> Is this inotify related?
+>>>
+>>> Aug 21 08:33:04 tornado kernel: idr_remove called for id=2048 which is not 
+>>> allocated.
+>>> Aug 21 08:33:04 tornado kernel:  [<c0103a00>] dump_stack+0x17/0x19
+>>> Aug 21 08:33:04 tornado kernel:  [<c01c9f9a>] idr_remove_warning+0x1b/0x1d
+>>> Aug 21 08:33:04 tornado kernel:  [<c01ca024>] sub_remove+0x88/0xea
+>>> Aug 21 08:33:04 tornado kernel:  [<c01ca0a1>] idr_remove+0x1b/0x7f
+>>> Aug 21 08:33:04 tornado kernel:  [<c018176a>] remove_watch_no_event+0x7a/0x12e
+>>> Aug 21 08:33:04 tornado kernel:  [<c0181f64>] inotify_release+0x8f/0x1af
+>>> Aug 21 08:33:04 tornado kernel:  [<c015ca80>] __fput+0xaf/0x199
+>>> Aug 21 08:33:04 tornado kernel:  [<c015c9b8>] fput+0x22/0x3b
+>>> Aug 21 08:33:04 tornado kernel:  [<c015b2ed>] filp_close+0x41/0x67
+>>> Aug 21 08:33:04 tornado kernel:  [<c015b383>] sys_close+0x70/0x92
+>>> Aug 21 08:33:04 tornado kernel:  [<c0102a9b>] sysenter_past_esp+0x54/0x75
+>>> Aug 21 08:33:04 tornado kernel: idr_remove called for id=3072 which is not 
+>>> allocated.
+>>> Aug 21 08:33:05 tornado kernel:  [<c0103a00>] dump_stack+0x17/0x19
+>>> Aug 21 08:33:05 tornado kernel:  [<c01c9f9a>] idr_remove_warning+0x1b/0x1d
+>>> Aug 21 08:33:05 tornado kernel:  [<c01ca024>] sub_remove+0x88/0xea
+>>> Aug 21 08:33:05 tornado kernel:  [<c01ca0a1>] idr_remove+0x1b/0x7f
+>>> Aug 21 08:33:05 tornado kernel:  [<c018176a>] remove_watch_no_event+0x7a/0x12e
+>>> Aug 21 08:33:05 tornado kernel:  [<c0181f64>] inotify_release+0x8f/0x1af
+>>> Aug 21 08:33:05 tornado kernel:  [<c015ca80>] __fput+0xaf/0x199
+>>> Aug 21 08:33:05 tornado kernel:  [<c015c9b8>] fput+0x22/0x3b
+>>> Aug 21 08:33:05 tornado kernel:  [<c015b2ed>] filp_close+0x41/0x67
+>>> Aug 21 08:33:05 tornado kernel:  [<c015b383>] sys_close+0x70/0x92
+>>> Aug 21 08:33:05 tornado kernel:  [<c0102a9b>] sysenter_past_esp+0x54/0x75
+>>>
+>>> This would have been triggered by using dovecot IMAP which is configured to 
+>>> use inotify on Maildir.
+>>> I'm also seeing some userspace errors logged for dovecot:
+>>>
+>>> "Aug 21 04:17:22 Error: IMAP(reuben): inotify_rm_watch() failed: Invalid argument"
+>>>
+>>> I'll deal with those with the guy who wrote the inotify code in dovecot.
+>>>
+>>> I'm not so sure userspace should be able or need to cause the kernel to dump 
+>>> stack traces like that though?
+>>>
+>> Yes, the stack dumps would appear to be due to an inotify bug.
 >>
->>  1. Why doesn't Linux send 255.255.255.255 packages
->>     through all network interfaces?  (I realize that
->>     this is probably not a Linux-specific question.)
->
-> IIRC, Linux treats 255.255.255.255 as a normal IP address.
-> Therefore it will follow the route for such an address and
-> select the interface it is associated (probably eth0 if
-> you are on a LAN).
+>> The message from dovecot is allegedly due to dovecot passing in a file
+>> descriptor which was not obtained from the inotify_init() syscall.  But
+>> until we know what caused those stack dumps we cannot definitely say
+>> whether dovecot is at fault.
+>>
+> 
+> Inotify has a check on both add and rm watch syscalls:
+> 
+>     /* verify that this is indeed an inotify instance */
+>     if (unlikely(filp->f_op != &inotify_fops)) {
+>         ret = -EINVAL;
+>         goto out;
+>     }
+> 
+> This is crashing in inotify_release, which is called on close of the
+> inotify instance. So this fd must be from an inotify instance right?
+> 
+> I looked at the dovecot code, it looks fine wrt inotify. Long shot, but
+> the close-on-exec flag is set. Could this be tripping anything up?
 
-That makes a lot of sense, and it appears to be the case.
+I have also observed another problem with inotify with dovecot - so I spoke 
+with Johannes Berg who wrote the inotify code in dovecot.  He suggested I post 
+here to LKML since his opinion is that this to be a kernel bug.
 
->>  2. How does it choose which interface to send through?
->>     My first guess was that it just took the first
->>     Ethernet interface and used that for broadcasting.
->>     But playing around with nameif, this seems not to
->>     be the case.
->
-> cf 1
->
->>  3. Can I set the default broadcast interface explicitly?
->>     For example, say I wanted broadcasts to go out over
->>     eth1 by default, instead of over eth0.  What if I
->>     wanted them to get sent through tap0?
->
-> Again, I'm not sure, but I think that you can force the
-> interface by adding a special route for IP 255.255.255.255
-> and with mask 255.255.255.255 to the interface you want.
+The problem I am observing is this, logged by dovecot after a period of time 
+when a client is connected:
 
-Yes, this works!  It's so simple --- I can't believe I
-didn't try it before.  I did mess around with iptables,
-trying to add some weird PREROUTEing DNAT that would
-redirect the packets, but I didn't know what I was doing.
+dovecot: Aug 22 14:31:23 Error: IMAP(gilly): inotify_rm_watch() failed: 
+Invalid argument
+dovecot: Aug 22 14:31:23 Error: IMAP(gilly): inotify_rm_watch() failed: 
+Invalid argument
+dovecot: Aug 22 14:31:23 Error: IMAP(gilly): inotify_rm_watch() failed: 
+Invalid argument
 
-> Hope this help, even if my memory is a bit confused,
+Multiply that by about 1000 ;-)
 
-Yes, it did help.  Thanks a bunch, Eric!  Your memory seems
-to be in great shape. :-)
+Some debugging shows this:
+dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): removing wd 1019 from inotify fd 4
+dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): removing wd 1018 from inotify fd 4
+dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): inotify_add_watch returned 1019
+dovecot: Aug 25 19:31:22 Warning: IMAP(gilly): inotify_add_watch returned 1020
+dovecot: Aug 25 19:31:23 Warning: IMAP(gilly): removing wd 1020 from inotify fd 4
+dovecot: Aug 25 19:31:23 Warning: IMAP(gilly): removing wd 1019 from inotify fd 4
+dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): inotify_add_watch returned 1020
+dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): inotify_add_watch returned 1021
+dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): removing wd 1021 from inotify fd 4
+dovecot: Aug 25 19:31:24 Warning: IMAP(gilly): removing wd 1020 from inotify fd 4
+dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): inotify_add_watch returned 1021
+dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): inotify_add_watch returned 1022
+dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): removing wd 1022 from inotify fd 4
+dovecot: Aug 25 19:31:25 Warning: IMAP(gilly): removing wd 1021 from inotify fd 4
+dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): inotify_add_watch returned 1022
+dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): inotify_add_watch returned 1023
+dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): removing wd 1023 from inotify fd 4
+dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): removing wd 1022 from inotify fd 4
+dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1023
+dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1024
+dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1024 from inotify fd 4
+dovecot: Aug 25 19:31:27 Error: IMAP(gilly): inotify_rm_watch() failed: 
+Invalid argument
+dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1023 from inotify fd 4
+dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
+dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
 
+Note the incrementing wd value even though we are removing them as we go..
 
-Regards,
+This is using latest CVS of dovecot code and with 2.6.12-rc6-mm(1|2) kernel.
 
--- 
-Daniel Brockman <daniel@brockman.se>
+Robert, John, what do you think?   Is this possibly related to the oops seen 
+in the log that I reported earlier?  (Which is still showing up 2-3 times per 
+day, btw)
+
+Reuben
 

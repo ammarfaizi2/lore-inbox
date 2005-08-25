@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbVHYN7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbVHYODG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbVHYN7k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 09:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVHYN7k
+	id S964997AbVHYODG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVHYODG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 09:59:40 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39372 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964998AbVHYN7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 09:59:39 -0400
-Date: Thu, 25 Aug 2005 14:59:33 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Al Viro <viro@www.linux.org.uk>,
-       geert@linux-m68k.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-m68k@vger.kernel.org
-Subject: Re: [PATCH] (18/22) task_thread_info - part 2/4
-Message-ID: <20050825135933.GA14448@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Al Viro <viro@www.linux.org.uk>, geert@linux-m68k.org,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	linux-m68k@vger.kernel.org
-References: <E1E8AEh-0005eT-NP@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.61.0508251107500.24552@scrub.home> <20050825130738.GQ9322@parcelfarce.linux.theplanet.co.uk>
+	Thu, 25 Aug 2005 10:03:06 -0400
+Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:28326 "HELO
+	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S964997AbVHYODF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 10:03:05 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Robert Love <rml@novell.com>
+In-Reply-To: <1124977807.6301.38.camel@localhost>
+References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
+	 <430D986E.30209@reub.net>  <1124972307.6307.30.camel@localhost>
+	 <1124977253.5039.13.camel@vertex>  <1124977807.6301.38.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 25 Aug 2005 10:03:11 -0400
+Message-Id: <1124978591.5039.27.camel@vertex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050825130738.GQ9322@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 02:07:38PM +0100, Al Viro wrote:
-> Fine, as long as that merge is done before your s/thread_info/stack/ patches.
-> It should be the first step before doing 200Kb worth of cosmetical stuff
-> that affects every architecture out there, not something that depends on
-> it done.
+On Thu, 2005-08-25 at 15:50 +0200, Johannes Berg wrote:
+> On Thu, 2005-08-25 at 09:40 -0400, John McCutchan wrote:
 > 
-> There's also a question of having mainline build and work on the architecture
-> in question, which obviously is not something you care about - this hairball
-> had been sitting in m68k CVS for how long?  Since 2.5.60-something, with
-> zero efforts to resolve it, right?  And mainline kernel didn't even build,
-> let alone work since that moment.
+> > On 2.6.13-rc7 the test program fails. It always fails when a wd == 1024.
+> > If I skip inotify_rm_watch when wd == 1024, it will fail at wd == 2048.
+> > It seems the idr layer has an aversion to multiples of 1024.
+> > 
+> > When I run your test program I get this a lot:
+> 
+> I forgot to mention this -- but I just get (on -rc6):
+> 
+> inotify_add_watch returned wd1 0
+> inotify_add_watch returned wd2 1
+> inotify_add_watch returned wd1 0
+> inotify_add_watch returned wd2 1
+> inotify_add_watch returned wd1 0
+> inotify_add_watch returned wd2 1
 
-Yup.  Let's get m68k into buildable shape for 2.6.13 with Al's minimal
-patches, and if you have further improvements over that submit them as
-split up patches through the usual channels.  Having all architectures
-actually build and work from mainline is really important to have
-useful kernel package in distributions.
+Yeah, pre -rc7 we were always passing in 0 to idr_get_new_above. With
+rc7 we pass in the last wd returned.
 
+-- 
+John McCutchan <ttb@tentacle.dhs.org>

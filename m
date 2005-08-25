@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbVHYVN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVHYVQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932520AbVHYVN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 17:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbVHYVN7
+	id S932533AbVHYVQT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 17:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbVHYVQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 17:13:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24045 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751475AbVHYVN6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 17:13:58 -0400
-Date: Thu, 25 Aug 2005 14:13:50 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Greg Kroah <greg@kroah.com>,
-       Kurt Garloff <garloff@suse.de>, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] Remove unnecesary capability hooks in rootplug.
-Message-ID: <20050825211350.GA7762@shell0.pdx.osdl.net>
-References: <20050825012028.720597000@localhost.localdomain> <20050825012150.490797000@localhost.localdomain> <20050825143807.GA8590@sergelap.austin.ibm.com> <1124982836.3873.78.camel@moss-spartans.epoch.ncsc.mil> <20050825162101.GU7762@shell0.pdx.osdl.net> <1124987036.3873.106.camel@moss-spartans.epoch.ncsc.mil> <20050825170617.GW7762@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050825170617.GW7762@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+	Thu, 25 Aug 2005 17:16:19 -0400
+Received: from mail23.sea5.speakeasy.net ([69.17.117.25]:25281 "EHLO
+	mail23.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751475AbVHYVQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 17:16:18 -0400
+Date: Thu, 25 Aug 2005 14:16:17 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Christopher Friesen <cfriesen@nortel.com>
+cc: linux-kernel@vger.kernel.org, tom.anderl@gmail.com
+Subject: Re: [OT] volatile keyword
+In-Reply-To: <430E30B2.1020700@nortel.com>
+Message-ID: <Pine.LNX.4.58.0508251414350.19866@shell2.speakeasy.net>
+References: <Pine.LNX.4.58.0508251335280.4315@shell2.speakeasy.net>
+ <430E30B2.1020700@nortel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Wright (chrisw@osdl.org) wrote:
-> * Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> > e.g. if secondary_ops->capable is null, the SELinux tests aren't going
-> > to show that, because they will still see that the SELinux permission
-> > checks are working correctly.  They only test failure/success for the
-> > SELinux permission checks, not for the capability checks, so if you
-> > unhook capabilities, they won't notice.
-> 
-> Yes, I see.  I thought the tests you were referring to were 
-> "if (secondary_ops->capable)" not LTP tests.  Capability is still a
-> module that can be loaded (or built-in).  So the only issue is it's
-> security_ops is now NULL where it was a trivial return 0 function.
-> Aside from the oversight Serge fixed, I don't think there's any issue.
+On Thu, 25 Aug 2005, Christopher Friesen wrote:
 
-Bah, of course, that's inaccurate because you unconditionally set the
-secondary to the default.  So, indeed, the default case (nothing actively
-loaded as secondary) will get secondary_ops filled with NULL only.
-Seems simplest to just fill the default with cap calls where applicable,
-but I had hoped to eliminate that.
-Thoughts?
+> Vadim Lobanov wrote:
+>
+> > I'm positive I'm doing something wrong here. In fact, I bet it's the
+> > volatile cast within the loop that's wrong; but I'm not sure how to do
+> > it correctly. Any help / pointers / discussion would be appreciated.
+>
+> You need to cast is as dereferencing a volatile pointer.
+>
+> Chris
+>
 
-thanks,
--chris
+I figured it was something along these lines. In that case, is the
+following code (from kernel/posix-timers.c) really doing the right
+thing?
+
+do
+    expires = timr->it_timer.expires;
+while ((volatile long) (timr->it_timer.expires) != expires);
+
+Seems it's casting the value, not the pointer.
+
+-VadimL

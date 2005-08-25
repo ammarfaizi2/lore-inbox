@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbVHZTmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVHZTmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbVHZTmG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbVHZTmF
+	id S1030234AbVHZTmb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbVHZTmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:42:05 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40576 "EHLO
+	Fri, 26 Aug 2005 15:42:06 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41344 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1030230AbVHZTmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:42:04 -0400
-Date: Tue, 23 Aug 2005 23:31:14 +0200
+	id S1030232AbVHZTmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 15:42:05 -0400
+Date: Thu, 25 Aug 2005 14:00:54 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Pavel Machek <pavel@ucw.cz>, Christoph Hellwig <hch@infradead.org>,
-       "Machida, Hiroyuki" <machida@sm.sony.co.jp>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Posix file attribute support on VFAT (take #2)
-Message-ID: <20050823213114.GB846@openzaurus.ucw.cz>
-References: <43023957.1020909@sm.sony.co.jp> <20050816212531.GA2479@infradead.org> <20050822114629.GA29046@elf.ucw.cz> <20050823140414.GA28578@csclub.uwaterloo.ca>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: suspicious behaviour in pcwd driver.
+Message-ID: <20050825120054.GA443@openzaurus.ucw.cz>
+References: <20050822183006.GB27344@redhat.com> <20050822200144.GG27344@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050823140414.GA28578@csclub.uwaterloo.ca>
+In-Reply-To: <20050822200144.GG27344@redhat.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Unfortunately, it makes sense. If you have compact flash card, you
-> > really want to have VFAT there, so that it is a) compatible with
-> > windows and b) so that you don't kill the hardware.
+
+>  > 2. that printk will never hit the logs, so the admin will just find
+>  > a powered off box with no idea what happened.
+>  > Should we at least sync block devices before doing the power off ?
 > 
-> VFAT is plenty good at killing hardware.  It's a terrible filesystem for
-> flash cards (if they don't do their own wear leveling properly).  Most
+> AFAICS, this is still a problem with kernel_power_off() though ?
+> 
 
-Well, they actually do test those cards with VFAT. Rumors are,
-they have some VFAT specific hacks in flash card firmware.
-
+Look at how acpi does this; we probably want to trigger clean shutdown.
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

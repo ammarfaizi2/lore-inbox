@@ -1,895 +1,2259 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbVHYBNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbVHYBWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbVHYBNX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 21:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVHYBNW
+	id S932475AbVHYBWo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 21:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbVHYBWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 21:13:22 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:39558 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932462AbVHYBNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 21:13:22 -0400
-Subject: Re: [RFC] RT-patch update to remove the global pi_lock
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <1124917003.5711.8.camel@localhost.localdomain>
-References: <1124295214.5764.163.camel@localhost.localdomain>
-	 <20050817162324.GA24495@elte.hu>
-	 <1124323379.5186.18.camel@localhost.localdomain>
-	 <1124333050.5186.24.camel@localhost.localdomain>
-	 <20050822075012.GB19386@elte.hu>
-	 <1124704837.5208.22.camel@localhost.localdomain>
-	 <20050822101632.GA28803@elte.hu>
-	 <1124710309.5208.30.camel@localhost.localdomain>
-	 <20050822113858.GA1160@elte.hu>
-	 <1124715755.5647.4.camel@localhost.localdomain>
-	 <20050822183355.GB13888@elte.hu>
-	 <1124739657.5809.6.camel@localhost.localdomain>
-	 <1124739895.5809.11.camel@localhost.localdomain>
-	 <1124749192.17515.16.camel@dhcp153.mvista.com>
-	 <1124756775.5350.14.camel@localhost.localdomain>
-	 <1124758291.9158.17.camel@dhcp153.mvista.com>
-	 <1124760725.5350.47.camel@localhost.localdomain>
-	 <1124768282.5350.69.camel@localhost.localdomain>
-	 <1124908080.5604.22.camel@localhost.localdomain>
-	 <1124917003.5711.8.camel@localhost.localdomain>
-Content-Type: multipart/mixed; boundary="=-SdJJ74aVVCo8dnk/Rm5y"
-Organization: Kihon Technologies
-Date: Wed, 24 Aug 2005 21:13:11 -0400
-Message-Id: <1124932391.5527.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Wed, 24 Aug 2005 21:22:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14760 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932473AbVHYBWj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 21:22:39 -0400
+Message-Id: <20050825012148.690615000@localhost.localdomain>
+References: <20050825012028.720597000@localhost.localdomain>
+Date: Wed, 24 Aug 2005 18:20:30 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-security-module@wirex.com
+Cc: linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>,
+       Chris Wright <chrisw@osdl.org>
+Subject: [PATCH 2/5] Rework stubs in security.h
+Content-Disposition: inline; filename=security-reorder-stubs.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-SdJJ74aVVCo8dnk/Rm5y
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Well, after turning off hrtimers, I keep getting one bug. A possible
-soft lockup with the ext3 code. But this didn't seem to be caused by the
-changes I made. So just to be sure, I ran my test on the vanilla
-2.6.13-rc6-rt11 and it gave the same bug too.  So, it looks like my
-changes are now at par with what is out there with the rt11 release.
-They both give the same bug! ;-)
-
-Attached is the test I ran. I did a 
-
-while : ; do ./test3a_rt ; done
-
-Where test3a_rt is a C program that does adding, deleting and reading of
-files, by different tasks that are each at a different priority.  Here's
-the soft lockup I'm getting:
-
-NFSD: starting 90-second grace period
-BUG: test3a_rt:6138, possible softlockup detected on CPU#0!
- [<c01043f3>] dump_stack+0x23/0x30 (20)
- [<c014cf81>] softlockup_detected+0x41/0x60 (24)
- [<c014d090>] softlockup_tick+0xf0/0x100 (24)
- [<c012bbbb>] update_process_times+0x5b/0x80 (28)
- [<c011415e>] smp_apic_timer_interrupt+0xee/0x100 (36)
- [<c0103ec1>] apic_timer_interrupt+0x21/0x28 (124)
- [<c01c1641>] ext3_add_entry+0xd1/0x210 (60)
- [<c01c1e0d>] ext3_add_nondir+0x2d/0x80 (32)
- [<c01c1f1b>] ext3_create+0xbb/0x110 (40)
- [<c0180721>] vfs_create+0xf1/0x170 (44)
- [<c018105b>] open_namei+0x61b/0x6e0 (72)
- [<c016eb5f>] filp_open+0x3f/0x70 (92)
- [<c016f033>] sys_open+0x53/0x100 (44)
- [<c01033da>] syscall_call+0x7/0xb (-8116)
----------------------------
-| preempt count: 00010000 ]
-| 0-level deep critical section nesting:
-----------------------------------------
-
-------------------------------
-| showing all locks held by: |  (test3a_rt/6138 [f7ef61a0,  89]):
-------------------------------
-
-#001:             [f2eaddac] {(struct semaphore *)(&inode->i_sem)}
-... acquired at:               open_namei+0xf9/0x6e0
-
-NMI show regs on CPU#0:
-
-Pid: 6138, comm:            test3a_rt
-EIP: 0060:[<c0114929>] CPU: 0
-EIP is at nmi_show_all_regs+0x89/0xd0
- EFLAGS: 00000046    Not tainted  (2.6.13-rc6-rt11-real)
-EAX: 00000000 EBX: 000017fa ECX: 00000060 EDX: 00000080
-ESI: 00000000 EDI: 0006c692 EBP: f07dbd48 DS: 007b ES: 007b
-CR0: 8005003b CR2: b7e37ae0 CR3: 30850000 CR4: 000006d0
- [<c01013b4>] show_regs+0x164/0x16c (36)
- [<c0114a98>] nmi_watchdog_tick+0x128/0x2b0 (56)
- [<c01054bf>] default_do_nmi+0x7f/0x190 (52)
- [<c0105630>] do_nmi+0x50/0x60 (24)
- [<c010405a>] nmi_stack_correct+0x1d/0x22 (72)
- [<c014cf86>] softlockup_detected+0x46/0x60 (24)
- [<c014d090>] softlockup_tick+0xf0/0x100 (24)
- [<c012bbbb>] update_process_times+0x5b/0x80 (28)
- [<c011415e>] smp_apic_timer_interrupt+0xee/0x100 (36)
- [<c0103ec1>] apic_timer_interrupt+0x21/0x28 (124)
- [<c01c1641>] ext3_add_entry+0xd1/0x210 (60)
- [<c01c1e0d>] ext3_add_nondir+0x2d/0x80 (32)
- [<c01c1f1b>] ext3_create+0xbb/0x110 (40)
- [<c0180721>] vfs_create+0xf1/0x170 (44)
- [<c018105b>] open_namei+0x61b/0x6e0 (72)
- [<c016eb5f>] filp_open+0x3f/0x70 (92)
- [<c016f033>] sys_open+0x53/0x100 (44)
- [<c01033da>] syscall_call+0x7/0xb (-8116)
----------------------------
-| preempt count: 00010001 ]
-| 1-level deep critical section nesting:
-----------------------------------------
-.. [<c0143f5c>] .... add_preempt_count+0x1c/0x20
-.....[<c0114a7d>] ..   ( <= nmi_watchdog_tick+0x10d/0x2b0)
-
-------------------------------
-| showing all locks held by: |  (test3a_rt/6138 [f7ef61a0,  89]):
-------------------------------
-
-#001:             [f2eaddac] {(struct semaphore *)(&inode->i_sem)}
-... acquired at:               open_namei+0xf9/0x6e0
-
-NMI show regs on CPU#1:
-
-Pid: 6137, comm:            test3a_rt
-EIP: 0060:[<c01cd9c3>] CPU: 1
-EIP is at do_get_write_access+0x83/0x560
- EFLAGS: 00000206    Not tainted  (2.6.13-rc6-rt11-real)
-EAX: 000e201d EBX: f7ffe000 ECX: f71e49bc EDX: f71e49bc
-ESI: f7f6b3bc EDI: f71e49bc EBP: f1409e94 DS: 007b ES: 007b
-CR0: 8005003b CR2: b7fdb000 CR3: 326fb000 CR4: 000006d0
- [<c01013b4>] show_regs+0x164/0x16c (36)
- [<c0114a98>] nmi_watchdog_tick+0x128/0x2b0 (56)
- [<c01054bf>] default_do_nmi+0x7f/0x190 (52)
- [<c0105630>] do_nmi+0x50/0x60 (24)
- [<c010405a>] nmi_stack_correct+0x1d/0x22 (132)
- [<c01cded5>] journal_get_write_access+0x35/0x50 (28)
- [<c01c2b02>] ext3_orphan_del+0x1a2/0x230 (80)
- [<c01bae03>] ext3_delete_inode+0x73/0x110 (24)
- [<c018cad9>] generic_delete_inode+0x99/0x160 (28)
- [<c018cd1d>] generic_drop_inode+0x1d/0x30 (12)
- [<c018cda0>] iput+0x70/0x80 (20)
- [<c0181ee0>] sys_unlink+0x110/0x140 (96)
- [<c01033da>] syscall_call+0x7/0xb (-8116)
----------------------------
-| preempt count: 00000001 ]
-| 1-level deep critical section nesting:
-----------------------------------------
-.. [<c0143f5c>] .... add_preempt_count+0x1c/0x20
-.....[<c0114a7d>] ..   ( <= nmi_watchdog_tick+0x10d/0x2b0)
-
-------------------------------
-| showing all locks held by: |  (test3a_rt/6137 [f5d437f0,  90]):
-------------------------------
-
-#001:             [f709cc88] {(struct semaphore *)(&s->s_lock)}
-... acquired at:               ext3_orphan_del+0x3a/0x230
-
-
-
-Well, looking at this further, it seems to release somehow, and
-continue, since I've got multiple "possible soft lockups", by different
-threads. But It doesn't seem to go any further.  Somethings spinning
-quite a bit, and something else must be starved.  I'll look further into
-this.
-
-So, Ingo, what do you think of the changes so far?  Do you feel that it
-is stable enough to send you an actual real patch. That way we can work
-together in cleaning it up and get all the other kinks out.
-
-Also, let me know if you are getting this.  The last couple of messages
-I sent, never reached me on the LKML, and I sent the last one 4 hours
-ago. :-(
-
-Thomas, I did get your reply.
-
--- Steve
-
-
---=-SdJJ74aVVCo8dnk/Rm5y
-Content-Disposition: attachment; filename=test3a_rt.c
-Content-Type: text/x-csrc; name=test3a_rt.c; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <time.h>
-#include <sys/sem.h>
-#include <sys/shm.h>
-#include <sys/time.h>
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <ctype.h>
-#include <sched.h>
-
-#define __USE_GNU
-#include <sys/ipc.h>
-
-#ifdef SDR_TOOLS
-#include <dump_log.h>
-#include <linux/logdev.h>
-#include <dump_log.h>
-#include <tracer_xml.h>
-#include "dump_trace.h"
-int logfd = -1;
-#else
-#define logdev_print(x...) do {} while(0)
-#define logdev_switch_set(x) (0)
-#endif
-
-#include <list.h>
-
-
-static char *testdir = "/tmp/test3a";
-
-static int reader (int i);
-static int deleter (int i);
-static int creator (int i);
-
-typedef int (*callfunc_t)(int);
-
-#define NR_PROCS 5
-pid_t pids[NR_PROCS];
-callfunc_t dofunc[NR_PROCS] = {
-	deleter,
-	creator,
-	reader,
-	reader,
-	reader
-};
-
-int priorities[NR_PROCS] = {
-	9,
-	10,
-	11,
-	12,
-	13,
-};
-
-key_t semkey;
-key_t shmkey;
-int semid = -1;
-int shmid = -1;
-int safe = 0;
-int *flags;
-
-static void remove_testdir(void);
-
-void cleanup(void)
-{
-	int i;
-
-	for (i=0; i < NR_PROCS; i++) {
-		if (pids[i])
-			kill(pids[i],SIGKILL);
-	}
-
-	if (semid >= 0)
-		semctl(semid, 0, IPC_RMID);
-	if (shmid >= 0)
-		shmctl(shmid, IPC_RMID, NULL);
-	remove_testdir();
-
-#ifdef SDR_TOOLS
-	if (logfd >= 0)
-		close_logdev(logfd);
-#endif
-}
-
-void catchall(int sig)
-{
-	cleanup();
-	psignal(sig,"Caught: ");
-	exit(-1);
-}
-
-static int compare_timeval(const struct timeval *a, const struct timeval *b)
-{
-	return (a->tv_sec > b->tv_sec) ? 1 :
-		(a->tv_sec < b->tv_sec) ? -1:
-		(a->tv_usec > b->tv_usec) ? 1:
-		(a->tv_usec < b->tv_usec) ? -1:
-		0;
-}
-
-static void add_timeval(const struct timeval *a, const struct timeval *b, struct timeval *c)
-{
-
-	c->tv_usec = a->tv_usec + b->tv_usec;
-	c->tv_sec = a->tv_sec + b->tv_sec;
-	while (c->tv_usec > 1000000) {
-		c->tv_usec -= 1000000;
-		c->tv_sec++;
-	}
-
-}
-
-static void sub_timeval(const struct timeval *a, const struct timeval *b, struct timeval *c)
-{
-
-	c->tv_usec = a->tv_usec - b->tv_usec;
-	c->tv_sec = a->tv_sec - b->tv_sec;
-	while (c->tv_usec < 0) {
-		c->tv_usec += 1000000;
-		c->tv_sec--;
-	}
-
-}
-
-struct dir_item {
-	struct list_head list;
-	char *dir;
-};
-
-LIST_HEAD_DECLARE(dirs);
-
-static void read_dirs(char *dirname)
-{
-	DIR *dir;
-	struct dirent *dent;
-	struct stat st;
-	struct dir_item *item;
-	int len = strlen(dirname);
-	char *name;
-	struct sembuf sops;
-	int semid;
-
-	memset(&sops,0,sizeof(sops));
-	
-	if ((semid = semget(semkey,1,0)) < 0) {
-		perror("semget");
-		return;
-	}
-	
-	if ((dir = opendir(dirname)) == NULL)
-		return;
-
-	while ((dent = readdir(dir))) {
-		if (strcmp(dent->d_name,".") == 0 ||
-		    strcmp(dent->d_name,"..") == 0)
-			continue;
-
-		
-		name = malloc(strlen(dent->d_name)+len+2);
-		if (!name) {
-			goto out;
-		}
-
-		strcpy(name,dirname);
-		name[len] = '/';
-		strcpy(name+len+1,dent->d_name);
-
-		if (stat(name,&st) < 0) {
-			perror(name);
-			free(name);
-			continue;
-		}
-
-		if ((S_ISDIR(st.st_mode))) {
-			item = malloc(sizeof(*item));
-			if (!item) {
-				free(name);
-				goto out;
-			}
-			item->dir = name;
-			
-			list_add_tail(&item->list,&dirs);
-		} else {
-			free(name);
-		}
-	}
- out:
-	closedir(dir);
-}
-			
-static int reader(int i)
-{
-	struct sembuf sops;
-	int semid;
-	struct timeval starttv;
-	struct timeval endtv;
-	struct timeval tv;
-	struct timeval lasttv;
-	struct timeval deltatv;
-	struct timespec ts = {0,250000000UL};
-	time_t t;
-	char timebuf[30];
-	unsigned long long starttsc, nowtsc;
-
-	memset(&sops,0,sizeof(sops));
-	
-	if ((semid = semget(semkey,1,0)) < 0) {
-		perror("semget");
-		return -1;
-	}
-
-	if (gettimeofday(&starttv,NULL) < 0) {
-		perror("gettimeofday");
-		return -1;
-	}
-
-	memset (&deltatv,0,sizeof(deltatv));
-
-	endtv.tv_sec = 10;
-	endtv.tv_usec = 0;
-
-	add_timeval(&starttv,&endtv,&endtv);
-	printf("reader %d grabbing waiting on sem\n",i);
-	printf("(id=%d) start time is %ld.%06ld\n",i,starttv.tv_sec,starttv.tv_usec);
-	if (semop(semid, &sops, 1) < 0) {
-		perror("semop");
-		return -1;
-	}
-
-	logdev_print(logfd,"reader %d past semaphore\n",i);
-
-
-	t = time(NULL);
-	ctime_r(&t,timebuf);
-	timebuf[strlen(timebuf)-1] = 0;
-
-	printf("reader %d starting loop (%s)\n",i,timebuf);
-	logdev_print(logfd,"reader %d (pid %d) starting loop (%s)\n",i,getpid(),timebuf);
-	lasttv = starttv;
-	asm ("rdtsc" : "=A"(starttsc));
-	
-	chdir("/");
-	read_dirs("/tmp");
-	
-	do {
-		struct list_head *p;
-		struct dir_item *item;
-
-		asm ("rdtsc" : "=A"(nowtsc));
-		if (safe && (nowtsc - starttsc > 8000000000ULL)) {
-			printf("now - start > 8000000000\n");
-			break;
-		}
-		
-		
-		if (list_empty(&dirs)) {
-			nanosleep(&ts,NULL);
-			read_dirs("/tmp");
-			if (list_empty(&dirs))
-				/* ?? */
-				break;
-		}
-
-		p = dirs.next;
-		list_del(p);
-		item = list_entry(p,struct dir_item, list);
-		printf("%d: reading dir %s\n",i,item->dir);
-		read_dirs(item->dir);
-		free(item->dir);
-		free(item);
-		
-		if (gettimeofday(&tv,NULL) < 0) {
-			perror("gettimeofday (in loop)");
-			return -1;
-		}
-
-		sub_timeval(&tv,&lasttv,&lasttv);
-		if (compare_timeval(&deltatv,&lasttv) < 0)
-			deltatv = lasttv;
-		lasttv = tv;
-	} while(compare_timeval(&endtv,&tv) > 0);
-	t = time(NULL);
-	ctime_r(&t,timebuf);
-	timebuf[strlen(timebuf)-1] = 0;
-	logdev_print(logfd,"spinner %d (pid %d) done (%s)\n",i,getpid(),timebuf);
-	printf("spinner %d ended loop (%s)  (%d.%06d secs delta)\n",
-	       i,timebuf,(int)deltatv.tv_sec,(int)deltatv.tv_usec);
-	printf(" (id=%d) end time is %ld.%06ld\n",i,tv.tv_sec,tv.tv_usec);
-	printf(" (id=%d) end time should be %ld.%06ld\n",i,endtv.tv_sec,endtv.tv_usec);
-	
-
-	/*
-	 * When the readers are done, stop the others that don't
-	 * have any other test to stop with. No locks needed, we
-	 * all just set it to one.
-	 */
-	*flags = 1;
-	return 0;
-}
-
-void delete_all(char *dirname)
-{
-	DIR *dir;
-	struct dirent *dent;
-	int len = strlen(dirname);
-	char *name;
-	struct sembuf sops;
-	int semid;
-	
-	memset(&sops,0,sizeof(sops));
-	
-	if ((semid = semget(semkey,1,0)) < 0) {
-		perror("semget");
-		return;
-	}
-	
-	if ((dir = opendir(dirname)) == NULL)
-		return;
-
-	while ((dent = readdir(dir))) {
-		if (strcmp(dent->d_name,".") == 0 ||
-		    strcmp(dent->d_name,"..") == 0)
-			continue;
-
-		
-		name = malloc(strlen(dent->d_name)+len+2);
-		if (!name) {
-			goto out;
-		}
-
-		strcpy(name,dirname);
-		name[len] = '/';
-		strcpy(name+len+1,dent->d_name);
-
-		unlink(name);
-		free(name);
-	}
- out:
-	closedir(dir);
-}
-
-static int deleter(int i)
-{
-	struct sembuf sops;
-	int semid;
-
-	memset(&sops,0,sizeof(sops));
-	
-	if ((semid = semget(semkey,1,0)) < 0) {
-		perror("semget");
-		return -1;
-	}
-
-	printf("deleter %d grabbing waiting on sem\n",i);
-	if (semop(semid, &sops, 1) < 0) {
-		perror("semop");
-		return -1;
-	}
-
-	logdev_print(logfd,"deleter %d past semaphore\n",i);
-
-	while (!*flags) {
-		delete_all(testdir);
-	}
-
-	return 0;
-}
-
-static int creator(int i)
-{
-	struct sembuf sops;
-	int semid;
-	int x;
-	char name[100];
-
-	memset(&sops,0,sizeof(sops));
-	
-	if ((semid = semget(semkey,1,0)) < 0) {
-		perror("semget");
-		return -1;
-	}
-
-	mkdir(testdir,0777);
-
-	printf("creator %d grabbing waiting on sem\n",i);
-	if (semop(semid, &sops, 1) < 0) {
-		perror("semop");
-		return -1;
-	}
-
-	logdev_print(logfd,"creator %d past semaphore\n",i);
-
-	while (!*flags) {
-		int fd;
-		char *garbage = "garbage\n";
-		snprintf(name,100,"%s/dummy%d",testdir,x++);
-		if ((fd = open(name,O_CREAT|O_WRONLY,0777)) < 0) {
-			perror(name);
-			continue;
-		}
-		write(fd,garbage,strlen(garbage));
-		close(fd);
-	}
-
-	return 0;
-}
-
-static void remove_testdir(void)
-{
-	delete_all(testdir);
-	rmdir(testdir);
-}
-
-
-void usage(char **argv)
-{
-	char *arg = argv[0];
-	char *p = arg+strlen(arg);
-
-	while (p >= arg && *p != '/') p--;
-	p++;
-
-	printf("\nusage: %s [-sn]\n"
-	       "  -s : safe mode. Have the readers use the tsc to stop\n"
-	       "  -n : run without RT\n"
-	       "\n",p);
-	exit(-1);
-}
-
-int main (int argc, char **argv)
-{
-	int ret=0;
-	int i;
-	int nr_procs=0;
-	int noprio = 0;
-	struct sembuf sops;
-	int c;
-
-	opterr = 0;
-	while ((c=getopt(argc,argv,"hsn")) >= 0) {
-		switch (c) {
-		case 's':
-			safe = 1;
-			break;
-		case 'n':
-			noprio = 1;
-			break;
-		case 'h':
-		default:
-			printf("\n");
-			if (c != ':' && tolower(optopt) != 'h' && optopt != '?')
-				printf("unknown option: %c\n",optopt);
-			usage(argv);
-		}
-	}
-
-	semkey = ftok(argv[0],123);
-	shmkey = ftok(argv[0],456);
-	
-	if ((semid = semget(semkey,1,IPC_CREAT|IPC_EXCL|0600)) < 0) {
-		perror("semget");
-		exit (-1);
-	}
-
-	if ((shmid = shmget(shmkey,30,IPC_CREAT|IPC_EXCL|0600)) < 0) {
-		perror("shmget");
-		goto out;
-	}
-	
-	if ((flags = shmat(shmid, NULL, 0)) == (void*)-1) {
-		perror("shmat");
-		goto out;
-	}
-
-	*flags = 0;
-#ifdef SDR_TOOLS
-	if ((logfd = open_logdev(NULL,O_RDWR)) < 0) {
-		perror("open_logdev");
-		goto out;
-	}
-
-	if (logdev_switch_set(1)) {
-		perror("logdev_switch_on");
-	}
-#endif
-
-
-	/* Grab the semaphore before anyone else can take it. */
-	memset(&sops,0,sizeof(sops));
-//	sops.sem_flg = SEM_UNDO;
-	sops.sem_op = 1;
-	if (semop(semid, &sops, 1) < 0) {
-		perror("semop");
-		ret = -1;
-		goto out;
-	}
-
-	for (i=0; i < NR_PROCS; i++) {
-		struct sched_param p;
-
-		if ((pids[i] = fork()) < 0) {
-			perror("fork");
-			ret = -1;
-			goto out;
-		} else if (pids[i] == 0) {
-			/* child */
-			ret = dofunc[i](i);
-			exit(ret);
-		}
-		nr_procs++;
-
-		if (!noprio && priorities[i]) {
-			p.sched_priority = priorities[i];
-			if (sched_setscheduler(pids[i],SCHED_FIFO,&p)) {
-				perror("sched_setscheduler");
-				goto out;
-			}
-		}
-
-		
-		/* parent */
-	}
-
-	
-	signal(SIGINT,catchall);
-	signal(SIGILL,catchall);
-	signal(SIGFPE,catchall);
-	signal(SIGSEGV,catchall);
-	signal(SIGBUS,catchall);
-
-	sleep(1);
-	printf("parent zeroing semaphore\n");
-
-	sops.sem_op = -1;
-	
-	if (semop(semid,&sops,1) < 0) {
-		perror("semop");
-		ret = -1;
-		goto out;
-	}
-
-	while (nr_procs) {
-		int status;
-		pid_t pid;
-		if ((pid = wait(&status)) < 0) {
-			perror("wait");
-			break;
-		}
-		for (i=0; i < NR_PROCS; i++) {
-			if (pids[i] == pid) {
-				pids[i] = 0;
-				nr_procs--;
-			}
-		}
-		
-	}
-
-	if (logdev_switch_set(0)) {
-		perror("logdev_switch_off");
-	}
-
- out:
-	cleanup();
-	exit(ret);
-}
-
---=-SdJJ74aVVCo8dnk/Rm5y
-Content-Disposition: attachment; filename=list.h
-Content-Type: text/x-chdr; name=list.h; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-#ifndef __USER_LIST_H
-#define __USER_LIST_H
-
-#include <sys/types.h>
-#include <unistd.h>
-
-#define DEBUG_LIST
-
-#ifdef DEBUG_LIST
-#include <sys/types.h>
-#include <signal.h>
-#ifndef LIST_BUG
-#define LIST_BUG() do { printf(">>>>> list bug <<<< at %d\n",__LINE__); kill(getpid(),SIGSEGV); } while(0)
-#endif
-#define __LIST_MAGIC 0xdeabbeef
-#define __LIST_MAGIC_POISON 0xbeefdead
-#define __LIST_MAGIC_COMMA , __LIST_MAGIC
-#define __LIST_MAGIC_ASSIGN(x) (x).magic = __LIST_MAGIC;
-#else
-#define __LIST_MAGIC
-#define __LIST_MAGIC_COMMA
-#define __LIST_MAGIC_ASSIGN(x) 
-#endif
-
-#define __LIST_POISON ((struct list_head *)-1)
-
-struct list_head {
-	struct list_head *next;
-	struct list_head *prev;
-#ifdef DEBUG_LIST
-	int magic;
-#endif
-};
-
-#define LIST_HEAD_INIT(x) { &x, &x __LIST_MAGIC_COMMA}
-#define LIST_HEAD_DECLARE(x) struct list_head x = LIST_HEAD_INIT(x)
-#define INIT_LIST_HEAD(x) do { (x).next = &x; (x).prev = &x; __LIST_MAGIC_ASSIGN(x)} while (0)
-
-#define list_for_each(p,list) for(p=(list)->next; p != list; p=p->next)
-#define list_for_each_reverse(p,list) for(p=(list)->prev; p != list; p=p->prev)
-#define list_for_each_safe(p,n,list) for(p=(list)->next,n=p->next; p != list; p=n,n=p->next)
-
-#ifdef DEBUG_LIST
-static inline void list_check(struct list_head *x)
-{
-	struct list_head *p;
-	list_for_each_reverse(p,x) { if (p->magic != __LIST_MAGIC) LIST_BUG(); }
-	list_for_each(p,x) { if (p->magic != __LIST_MAGIC) LIST_BUG(); }
-}
-#endif
-
-static inline void list_add(struct list_head *x,struct list_head *list)
-{
-#ifdef DEBUG_LIST
-	if (x->magic == __LIST_MAGIC_POISON && 
-	    (x->next != __LIST_POISON || x->prev != __LIST_POISON))
-		LIST_BUG();
-#endif
-	x->next = list->next;
-	x->prev = list;
-	list->next->prev = x;
-	list->next = x;
-#ifdef DEBUG_LIST
-	x->magic = __LIST_MAGIC;
-	list_check(list);
-#endif
-}
-
-static inline void list_add_tail(struct list_head *x, struct list_head *list)
-{
-#ifdef DEBUG_LIST
-	if (x->magic == __LIST_MAGIC && 
-	    (x->next != __LIST_POISON || x->prev != __LIST_POISON))
-		LIST_BUG();
-#endif
-	x->prev = list->prev;
-	x->next = list;
-	list->prev->next = x;
-	list->prev = x;
-#ifdef DEBUG_LIST
-	x->magic = __LIST_MAGIC;
-	list_check(list);
-#endif
-}
-
-#define list_entry(p,type,list) ((type*)(((char*)(p))-((char*)&(((type*)NULL)->list))))
-
-#define list_empty(list) ((list)->next == (list))
-#define list_head(list) ((list)->next)
-
-static inline void list_del(struct list_head *x)
-{
-#ifdef DEBUG_LIST
-	if (x->magic != __LIST_MAGIC)
-		LIST_BUG();
-	list_check(x);
-	x->magic = __LIST_MAGIC_POISON;
-#endif
-	x->prev->next = x->next;
-	x->next->prev = x->prev;
-	x->next = __LIST_POISON;
-	x->prev = __LIST_POISON;
-}
-
-static inline struct list_head * pop_list_head(struct list_head *head)
-{
-	struct list_head *p;
-	if (list_empty(head))
-		return NULL;
-	p = head->next;
-	list_del(p);
-#ifdef DEBUG_LIST
-	list_check(head);
-#endif
-	return p;
-}
-
-#endif /* __USER_LIST_H */
-
---=-SdJJ74aVVCo8dnk/Rm5y--
-
+Collapse security stubs so that the def'n is done in one spot with ifdef
+in function body rather than two separately defined functions.
+
+Patch from Kurt Garloff <garloff@suse.de>, and slightly altered by me to
+make all ifdef sites consistent and move the prototype decl's to a sane
+spot.
+
+Signed-off-by: Kurt Garloff <garloff@suse.de>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+---
+
+ include/linux/security.h | 1410 ++++++++++++++++++++---------------------------
+ 1 files changed, 609 insertions(+), 801 deletions(-)
+
+Index: lsm-hooks-2.6/include/linux/security.h
+===================================================================
+--- lsm-hooks-2.6.orig/include/linux/security.h
++++ lsm-hooks-2.6/include/linux/security.h
+@@ -1248,10 +1248,27 @@ struct security_operations {
+ /* global variables */
+ extern struct security_operations *security_ops;
+ 
+-/* inline stuff */
++/* prototypes */
++extern int security_init	(void);
++extern int register_security	(struct security_operations *ops);
++extern int unregister_security	(struct security_operations *ops);
++extern int mod_reg_security	(const char *name, struct security_operations *ops);
++extern int mod_unreg_security	(const char *name, struct security_operations *ops);
++#else
++static inline int security_init(void)
++{
++	return 0;
++}
++#endif	/* CONFIG_SECURITY */
++
+ static inline int security_ptrace (struct task_struct * parent, struct task_struct * child)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->ptrace (parent, child);
++#else
++	return cap_ptrace (parent, child);
++#endif
++
+ }
+ 
+ static inline int security_capget (struct task_struct *target,
+@@ -1259,7 +1281,11 @@ static inline int security_capget (struc
+ 				   kernel_cap_t *inheritable,
+ 				   kernel_cap_t *permitted)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->capget (target, effective, inheritable, permitted);
++#else
++	return cap_capget (target, effective, inheritable, permitted);
++#endif
+ }
+ 
+ static inline int security_capset_check (struct task_struct *target,
+@@ -1267,7 +1293,11 @@ static inline int security_capset_check 
+ 					 kernel_cap_t *inheritable,
+ 					 kernel_cap_t *permitted)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->capset_check (target, effective, inheritable, permitted);
++#else
++	return cap_capset_check (target, effective, inheritable, permitted);
++#endif 
+ }
+ 
+ static inline void security_capset_set (struct task_struct *target,
+@@ -1275,278 +1305,457 @@ static inline void security_capset_set (
+ 					kernel_cap_t *inheritable,
+ 					kernel_cap_t *permitted)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->capset_set (target, effective, inheritable, permitted);
++#else
++	cap_capset_set (target, effective, inheritable, permitted);
++#endif
+ }
+ 
+ static inline int security_acct (struct file *file)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->acct (file);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_sysctl(struct ctl_table *table, int op)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sysctl(table, op);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_quotactl (int cmds, int type, int id,
+ 				     struct super_block *sb)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->quotactl (cmds, type, id, sb);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_quota_on (struct dentry * dentry)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->quota_on (dentry);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_syslog(int type)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->syslog(type);
++#else
++	return cap_syslog(type);
++#endif
+ }
+ 
+ static inline int security_settime(struct timespec *ts, struct timezone *tz)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->settime(ts, tz);
++#else
++	return cap_settime(ts, tz);
++#endif
+ }
+ 
+-
+ static inline int security_vm_enough_memory(long pages)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->vm_enough_memory(pages);
++#else
++	return cap_vm_enough_memory(pages);
++#endif
+ }
+ 
+ static inline int security_bprm_alloc (struct linux_binprm *bprm)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->bprm_alloc_security (bprm);
++#else
++	return 0;
++#endif
+ }
++
+ static inline void security_bprm_free (struct linux_binprm *bprm)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->bprm_free_security (bprm);
++#else
++	return;
++#endif
+ }
++
+ static inline void security_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->bprm_apply_creds (bprm, unsafe);
++#else
++	cap_bprm_apply_creds (bprm, unsafe);
++#endif
+ }
++
+ static inline void security_bprm_post_apply_creds (struct linux_binprm *bprm)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->bprm_post_apply_creds (bprm);
++#else
++	return;
++#endif
+ }
++
+ static inline int security_bprm_set (struct linux_binprm *bprm)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->bprm_set_security (bprm);
++#else
++	return cap_bprm_set_security (bprm);
++#endif
+ }
+ 
+ static inline int security_bprm_check (struct linux_binprm *bprm)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->bprm_check_security (bprm);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_bprm_secureexec (struct linux_binprm *bprm)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->bprm_secureexec (bprm);
++#else
++	return cap_bprm_secureexec(bprm);
++#endif
+ }
+ 
+ static inline int security_sb_alloc (struct super_block *sb)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sb_alloc_security (sb);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_sb_free (struct super_block *sb)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->sb_free_security (sb);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_sb_copy_data (struct file_system_type *type,
+ 					 void *orig, void *copy)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sb_copy_data (type, orig, copy);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_sb_kern_mount (struct super_block *sb, void *data)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sb_kern_mount (sb, data);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_sb_statfs (struct super_block *sb)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sb_statfs (sb);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_sb_mount (char *dev_name, struct nameidata *nd,
+ 				    char *type, unsigned long flags,
+ 				    void *data)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sb_mount (dev_name, nd, type, flags, data);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_sb_check_sb (struct vfsmount *mnt,
+ 					struct nameidata *nd)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sb_check_sb (mnt, nd);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_sb_umount (struct vfsmount *mnt, int flags)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sb_umount (mnt, flags);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_sb_umount_close (struct vfsmount *mnt)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->sb_umount_close (mnt);
++#else
++	return;
++#endif
+ }
+ 
+ static inline void security_sb_umount_busy (struct vfsmount *mnt)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->sb_umount_busy (mnt);
++#else
++	return;
++#endif
+ }
+ 
+ static inline void security_sb_post_remount (struct vfsmount *mnt,
+ 					     unsigned long flags, void *data)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->sb_post_remount (mnt, flags, data);
++#else
++	return;
++#endif
+ }
+ 
+ static inline void security_sb_post_mountroot (void)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->sb_post_mountroot ();
++#else
++	return;
++#endif
+ }
+ 
+ static inline void security_sb_post_addmount (struct vfsmount *mnt,
+ 					      struct nameidata *mountpoint_nd)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->sb_post_addmount (mnt, mountpoint_nd);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_sb_pivotroot (struct nameidata *old_nd,
+ 					 struct nameidata *new_nd)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sb_pivotroot (old_nd, new_nd);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_sb_post_pivotroot (struct nameidata *old_nd,
+ 					       struct nameidata *new_nd)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->sb_post_pivotroot (old_nd, new_nd);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_inode_alloc (struct inode *inode)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (inode)))
+ 		return 0;
+ 	return security_ops->inode_alloc_security (inode);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_inode_free (struct inode *inode)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (inode)))
+ 		return;
+ 	security_ops->inode_free_security (inode);
++#else
++	return;
++#endif
+ }
+ 	
+ static inline int security_inode_create (struct inode *dir,
+ 					 struct dentry *dentry,
+ 					 int mode)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dir)))
+ 		return 0;
+ 	return security_ops->inode_create (dir, dentry, mode);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_inode_post_create (struct inode *dir,
+ 					       struct dentry *dentry,
+ 					       int mode)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (dentry->d_inode && unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return;
+ 	security_ops->inode_post_create (dir, dentry, mode);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_inode_link (struct dentry *old_dentry,
+ 				       struct inode *dir,
+ 				       struct dentry *new_dentry)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (old_dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_link (old_dentry, dir, new_dentry);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_inode_post_link (struct dentry *old_dentry,
+ 					     struct inode *dir,
+ 					     struct dentry *new_dentry)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (new_dentry->d_inode && unlikely (IS_PRIVATE (new_dentry->d_inode)))
+ 		return;
+ 	security_ops->inode_post_link (old_dentry, dir, new_dentry);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_inode_unlink (struct inode *dir,
+ 					 struct dentry *dentry)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_unlink (dir, dentry);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_inode_symlink (struct inode *dir,
+ 					  struct dentry *dentry,
+ 					  const char *old_name)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dir)))
+ 		return 0;
+ 	return security_ops->inode_symlink (dir, dentry, old_name);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_inode_post_symlink (struct inode *dir,
+ 						struct dentry *dentry,
+ 						const char *old_name)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (dentry->d_inode && unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return;
+ 	security_ops->inode_post_symlink (dir, dentry, old_name);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_inode_mkdir (struct inode *dir,
+ 					struct dentry *dentry,
+ 					int mode)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dir)))
+ 		return 0;
+ 	return security_ops->inode_mkdir (dir, dentry, mode);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_inode_post_mkdir (struct inode *dir,
+ 					      struct dentry *dentry,
+ 					      int mode)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (dentry->d_inode && unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return;
+ 	security_ops->inode_post_mkdir (dir, dentry, mode);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_inode_rmdir (struct inode *dir,
+ 					struct dentry *dentry)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_rmdir (dir, dentry);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_inode_mknod (struct inode *dir,
+ 					struct dentry *dentry,
+ 					int mode, dev_t dev)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dir)))
+ 		return 0;
+ 	return security_ops->inode_mknod (dir, dentry, mode, dev);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_inode_post_mknod (struct inode *dir,
+ 					      struct dentry *dentry,
+ 					      int mode, dev_t dev)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (dentry->d_inode && unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return;
+ 	security_ops->inode_post_mknod (dir, dentry, mode, dev);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_inode_rename (struct inode *old_dir,
+@@ -1554,11 +1763,15 @@ static inline int security_inode_rename 
+ 					 struct inode *new_dir,
+ 					 struct dentry *new_dentry)
+ {
++#ifdef CONFIG_SECURITY
+         if (unlikely (IS_PRIVATE (old_dentry->d_inode) ||
+             (new_dentry->d_inode && IS_PRIVATE (new_dentry->d_inode))))
+ 		return 0;
+ 	return security_ops->inode_rename (old_dir, old_dentry,
+ 					   new_dir, new_dentry);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_inode_post_rename (struct inode *old_dir,
+@@ -1566,265 +1779,433 @@ static inline void security_inode_post_r
+ 					       struct inode *new_dir,
+ 					       struct dentry *new_dentry)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (old_dentry->d_inode) ||
+ 	    (new_dentry->d_inode && IS_PRIVATE (new_dentry->d_inode))))
+ 		return;
+ 	security_ops->inode_post_rename (old_dir, old_dentry,
+ 						new_dir, new_dentry);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_inode_readlink (struct dentry *dentry)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_readlink (dentry);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_inode_follow_link (struct dentry *dentry,
+ 					      struct nameidata *nd)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_follow_link (dentry, nd);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_inode_permission (struct inode *inode, int mask,
+ 					     struct nameidata *nd)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (inode)))
+ 		return 0;
+ 	return security_ops->inode_permission (inode, mask, nd);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_inode_setattr (struct dentry *dentry,
+ 					  struct iattr *attr)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_setattr (dentry, attr);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_inode_getattr (struct vfsmount *mnt,
+ 					  struct dentry *dentry)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_getattr (mnt, dentry);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_inode_delete (struct inode *inode)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (inode)))
+ 		return;
+ 	security_ops->inode_delete (inode);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_inode_setxattr (struct dentry *dentry, char *name,
+ 					   void *value, size_t size, int flags)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_setxattr (dentry, name, value, size, flags);
++#else
++	return cap_inode_setxattr(dentry, name, value, size, flags);
++#endif
+ }
+ 
+ static inline void security_inode_post_setxattr (struct dentry *dentry, char *name,
+ 						void *value, size_t size, int flags)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return;
+ 	security_ops->inode_post_setxattr (dentry, name, value, size, flags);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_inode_getxattr (struct dentry *dentry, char *name)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_getxattr (dentry, name);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_inode_listxattr (struct dentry *dentry)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_listxattr (dentry);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_inode_removexattr (struct dentry *dentry, char *name)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_removexattr (dentry, name);
++#else
++	return cap_inode_removexattr(dentry, name);
++#endif
+ }
+ 
+ static inline int security_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (inode)))
+ 		return 0;
+ 	return security_ops->inode_getsecurity(inode, name, buffer, size);
++#else
++	return -EOPNOTSUPP;
++#endif
+ }
+ 
+ static inline int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (inode)))
+ 		return 0;
+ 	return security_ops->inode_setsecurity(inode, name, value, size, flags);
++#else
++	return -EOPNOTSUPP;
++#endif
+ }
+ 
+ static inline int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (IS_PRIVATE (inode)))
+ 		return 0;
+ 	return security_ops->inode_listsecurity(inode, buffer, buffer_size);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_file_permission (struct file *file, int mask)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_permission (file, mask);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_file_alloc (struct file *file)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_alloc_security (file);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_file_free (struct file *file)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->file_free_security (file);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_file_ioctl (struct file *file, unsigned int cmd,
+ 				       unsigned long arg)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_ioctl (file, cmd, arg);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_file_mmap (struct file *file, unsigned long reqprot,
+ 				      unsigned long prot,
+ 				      unsigned long flags)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_mmap (file, reqprot, prot, flags);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_file_mprotect (struct vm_area_struct *vma,
+ 					  unsigned long reqprot,
+ 					  unsigned long prot)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_mprotect (vma, reqprot, prot);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_file_lock (struct file *file, unsigned int cmd)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_lock (file, cmd);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_file_fcntl (struct file *file, unsigned int cmd,
+ 				       unsigned long arg)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_fcntl (file, cmd, arg);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_file_set_fowner (struct file *file)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_set_fowner (file);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_file_send_sigiotask (struct task_struct *tsk,
+ 						struct fown_struct *fown,
+ 						int sig)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_send_sigiotask (tsk, fown, sig);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_file_receive (struct file *file)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->file_receive (file);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_create (unsigned long clone_flags)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_create (clone_flags);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_alloc (struct task_struct *p)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_alloc_security (p);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_task_free (struct task_struct *p)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->task_free_security (p);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
+ 					int flags)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_setuid (id0, id1, id2, flags);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_post_setuid (uid_t old_ruid, uid_t old_euid,
+ 					     uid_t old_suid, int flags)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_post_setuid (old_ruid, old_euid, old_suid, flags);
++#else
++	return cap_task_post_setuid (old_ruid, old_euid, old_suid, flags);
++#endif
+ }
+ 
+ static inline int security_task_setgid (gid_t id0, gid_t id1, gid_t id2,
+ 					int flags)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_setgid (id0, id1, id2, flags);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_setpgid (struct task_struct *p, pid_t pgid)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_setpgid (p, pgid);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_getpgid (struct task_struct *p)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_getpgid (p);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_getsid (struct task_struct *p)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_getsid (p);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_setgroups (struct group_info *group_info)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_setgroups (group_info);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_setnice (struct task_struct *p, int nice)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_setnice (p, nice);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_setrlimit (unsigned int resource,
+ 					   struct rlimit *new_rlim)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_setrlimit (resource, new_rlim);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_setscheduler (struct task_struct *p,
+ 					      int policy,
+ 					      struct sched_param *lp)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_setscheduler (p, policy, lp);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_getscheduler (struct task_struct *p)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_getscheduler (p);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_kill (struct task_struct *p,
+ 				      struct siginfo *info, int sig)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_kill (p, info, sig);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_wait (struct task_struct *p)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_wait (p);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_task_prctl (int option, unsigned long arg2,
+@@ -1832,60 +2213,104 @@ static inline int security_task_prctl (i
+ 				       unsigned long arg4,
+ 				       unsigned long arg5)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->task_prctl (option, arg2, arg3, arg4, arg5);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_task_reparent_to_init (struct task_struct *p)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->task_reparent_to_init (p);
++#else
++	cap_task_reparent_to_init (p);
++#endif
+ }
+ 
+ static inline void security_task_to_inode(struct task_struct *p, struct inode *inode)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->task_to_inode(p, inode);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_ipc_permission (struct kern_ipc_perm *ipcp,
+ 					   short flag)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->ipc_permission (ipcp, flag);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_msg_msg_alloc (struct msg_msg * msg)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->msg_msg_alloc_security (msg);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_msg_msg_free (struct msg_msg * msg)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->msg_msg_free_security(msg);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_msg_queue_alloc (struct msg_queue *msq)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->msg_queue_alloc_security (msq);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_msg_queue_free (struct msg_queue *msq)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->msg_queue_free_security (msq);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_msg_queue_associate (struct msg_queue * msq, 
+ 						int msqflg)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->msg_queue_associate (msq, msqflg);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_msg_queue_msgctl (struct msg_queue * msq, int cmd)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->msg_queue_msgctl (msq, cmd);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_msg_queue_msgsnd (struct msg_queue * msq,
+ 					     struct msg_msg * msg, int msqflg)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->msg_queue_msgsnd (msq, msg, msqflg);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_msg_queue_msgrcv (struct msg_queue * msq,
+@@ -1893,966 +2318,354 @@ static inline int security_msg_queue_msg
+ 					     struct task_struct * target,
+ 					     long type, int mode)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->msg_queue_msgrcv (msq, msg, target, type, mode);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_shm_alloc (struct shmid_kernel *shp)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->shm_alloc_security (shp);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_shm_free (struct shmid_kernel *shp)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->shm_free_security (shp);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_shm_associate (struct shmid_kernel * shp, 
+ 					  int shmflg)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->shm_associate(shp, shmflg);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_shm_shmctl (struct shmid_kernel * shp, int cmd)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->shm_shmctl (shp, cmd);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_shm_shmat (struct shmid_kernel * shp, 
+ 				      char __user *shmaddr, int shmflg)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->shm_shmat(shp, shmaddr, shmflg);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_sem_alloc (struct sem_array *sma)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sem_alloc_security (sma);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_sem_free (struct sem_array *sma)
+ {
++#ifdef CONFIG_SECURITY
+ 	security_ops->sem_free_security (sma);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_sem_associate (struct sem_array * sma, int semflg)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sem_associate (sma, semflg);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_sem_semctl (struct sem_array * sma, int cmd)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sem_semctl(sma, cmd);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_sem_semop (struct sem_array * sma, 
+ 				      struct sembuf * sops, unsigned nsops, 
+ 				      int alter)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->sem_semop(sma, sops, nsops, alter);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline void security_d_instantiate (struct dentry *dentry, struct inode *inode)
+ {
++#ifdef CONFIG_SECURITY
+ 	if (unlikely (inode && IS_PRIVATE (inode)))
+ 		return;
+ 	security_ops->d_instantiate (dentry, inode);
++#else
++	return;
++#endif
+ }
+ 
+ static inline int security_getprocattr(struct task_struct *p, char *name, void *value, size_t size)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->getprocattr(p, name, value, size);
++#else
++	return -EINVAL;
++#endif
+ }
+ 
+ static inline int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->setprocattr(p, name, value, size);
++#else
++	return -EINVAL;
++#endif
+ }
+ 
+ static inline int security_netlink_send(struct sock *sk, struct sk_buff * skb)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->netlink_send(sk, skb);
++#else
++	return cap_netlink_send (sk, skb);
++#endif
+ }
+ 
+ static inline int security_netlink_recv(struct sk_buff * skb)
+ {
++#ifdef CONFIG_SECURITY
+ 	return security_ops->netlink_recv(skb);
++#else
++	return cap_netlink_recv (skb);
++#endif
+ }
+ 
+-/* prototypes */
+-extern int security_init	(void);
+-extern int register_security	(struct security_operations *ops);
+-extern int unregister_security	(struct security_operations *ops);
+-extern int mod_reg_security	(const char *name, struct security_operations *ops);
+-extern int mod_unreg_security	(const char *name, struct security_operations *ops);
+-
+-
+-#else /* CONFIG_SECURITY */
+-
+-/*
+- * This is the default capabilities functionality.  Most of these functions
+- * are just stubbed out, but a few must call the proper capable code.
+- */
+-
+-static inline int security_init(void)
++static inline int security_unix_stream_connect(struct socket * sock,
++					       struct socket * other, 
++					       struct sock * newsk)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->unix_stream_connect(sock, other, newsk);
++#else
+ 	return 0;
++#endif
+ }
+ 
+-static inline int security_ptrace (struct task_struct *parent, struct task_struct * child)
+-{
+-	return cap_ptrace (parent, child);
+-}
+ 
+-static inline int security_capget (struct task_struct *target,
+-				   kernel_cap_t *effective,
+-				   kernel_cap_t *inheritable,
+-				   kernel_cap_t *permitted)
++static inline int security_unix_may_send(struct socket * sock, 
++					 struct socket * other)
+ {
+-	return cap_capget (target, effective, inheritable, permitted);
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->unix_may_send(sock, other);
++#else
++	return 0;
++#endif
+ }
+ 
+-static inline int security_capset_check (struct task_struct *target,
+-					 kernel_cap_t *effective,
+-					 kernel_cap_t *inheritable,
+-					 kernel_cap_t *permitted)
++static inline int security_socket_create (int family, int type,
++					  int protocol, int kern)
+ {
+-	return cap_capset_check (target, effective, inheritable, permitted);
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_create(family, type, protocol, kern);
++#else
++	return 0;
++#endif
+ }
+ 
+-static inline void security_capset_set (struct task_struct *target,
+-					kernel_cap_t *effective,
+-					kernel_cap_t *inheritable,
+-					kernel_cap_t *permitted)
++static inline void security_socket_post_create(struct socket * sock, 
++					       int family,
++					       int type, 
++					       int protocol, int kern)
+ {
+-	cap_capset_set (target, effective, inheritable, permitted);
++#ifdef CONFIG_SECURITY_NETWORK
++	security_ops->socket_post_create(sock, family, type,
++					 protocol, kern);
++#else
++	return;
++#endif
+ }
+ 
+-static inline int security_acct (struct file *file)
++static inline int security_socket_bind(struct socket * sock, 
++				       struct sockaddr * address, 
++				       int addrlen)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_bind(sock, address, addrlen);
++#else
+ 	return 0;
++#endif
+ }
+ 
+-static inline int security_sysctl(struct ctl_table *table, int op)
++static inline int security_socket_connect(struct socket * sock, 
++					  struct sockaddr * address, 
++					  int addrlen)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_connect(sock, address, addrlen);
++#else
+ 	return 0;
++#endif
+ }
+ 
+-static inline int security_quotactl (int cmds, int type, int id,
+-				     struct super_block * sb)
++static inline int security_socket_listen(struct socket * sock, int backlog)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_listen(sock, backlog);
++#else
+ 	return 0;
++#endif
+ }
+ 
+-static inline int security_quota_on (struct dentry * dentry)
++static inline int security_socket_accept(struct socket * sock, 
++					 struct socket * newsock)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_accept(sock, newsock);
++#else
+ 	return 0;
++#endif
+ }
+ 
+-static inline int security_syslog(int type)
++static inline void security_socket_post_accept(struct socket * sock, 
++					       struct socket * newsock)
+ {
+-	return cap_syslog(type);
++#ifdef CONFIG_SECURITY_NETWORK
++	security_ops->socket_post_accept(sock, newsock);
++#else
++	return;
++#endif
+ }
+ 
+-static inline int security_settime(struct timespec *ts, struct timezone *tz)
++static inline int security_socket_sendmsg(struct socket * sock, 
++					  struct msghdr * msg, int size)
+ {
+-	return cap_settime(ts, tz);
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_sendmsg(sock, msg, size);
++#else
++	return 0;
++#endif
+ }
+ 
+-static inline int security_vm_enough_memory(long pages)
++static inline int security_socket_recvmsg(struct socket * sock, 
++					  struct msghdr * msg, int size, 
++					  int flags)
+ {
+-	return cap_vm_enough_memory(pages);
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_recvmsg(sock, msg, size, flags);
++#else
++	return 0;
++#endif
+ }
+ 
+-static inline int security_bprm_alloc (struct linux_binprm *bprm)
++static inline int security_socket_getsockname(struct socket * sock)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_getsockname(sock);
++#else
+ 	return 0;
++#endif
+ }
+ 
+-static inline void security_bprm_free (struct linux_binprm *bprm)
+-{ }
+-
+-static inline void security_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+-{ 
+-	cap_bprm_apply_creds (bprm, unsafe);
+-}
+-
+-static inline void security_bprm_post_apply_creds (struct linux_binprm *bprm)
++static inline int security_socket_getpeername(struct socket * sock)
+ {
+-	return;
+-}
+-
+-static inline int security_bprm_set (struct linux_binprm *bprm)
+-{
+-	return cap_bprm_set_security (bprm);
+-}
+-
+-static inline int security_bprm_check (struct linux_binprm *bprm)
+-{
+-	return 0;
+-}
+-
+-static inline int security_bprm_secureexec (struct linux_binprm *bprm)
+-{
+-	return cap_bprm_secureexec(bprm);
+-}
+-
+-static inline int security_sb_alloc (struct super_block *sb)
+-{
+-	return 0;
+-}
+-
+-static inline void security_sb_free (struct super_block *sb)
+-{ }
+-
+-static inline int security_sb_copy_data (struct file_system_type *type,
+-					 void *orig, void *copy)
+-{
+-	return 0;
+-}
+-
+-static inline int security_sb_kern_mount (struct super_block *sb, void *data)
+-{
+-	return 0;
+-}
+-
+-static inline int security_sb_statfs (struct super_block *sb)
+-{
+-	return 0;
+-}
+-
+-static inline int security_sb_mount (char *dev_name, struct nameidata *nd,
+-				    char *type, unsigned long flags,
+-				    void *data)
+-{
+-	return 0;
+-}
+-
+-static inline int security_sb_check_sb (struct vfsmount *mnt,
+-					struct nameidata *nd)
+-{
+-	return 0;
+-}
+-
+-static inline int security_sb_umount (struct vfsmount *mnt, int flags)
+-{
+-	return 0;
+-}
+-
+-static inline void security_sb_umount_close (struct vfsmount *mnt)
+-{ }
+-
+-static inline void security_sb_umount_busy (struct vfsmount *mnt)
+-{ }
+-
+-static inline void security_sb_post_remount (struct vfsmount *mnt,
+-					     unsigned long flags, void *data)
+-{ }
+-
+-static inline void security_sb_post_mountroot (void)
+-{ }
+-
+-static inline void security_sb_post_addmount (struct vfsmount *mnt,
+-					      struct nameidata *mountpoint_nd)
+-{ }
+-
+-static inline int security_sb_pivotroot (struct nameidata *old_nd,
+-					 struct nameidata *new_nd)
+-{
+-	return 0;
+-}
+-
+-static inline void security_sb_post_pivotroot (struct nameidata *old_nd,
+-					       struct nameidata *new_nd)
+-{ }
+-
+-static inline int security_inode_alloc (struct inode *inode)
+-{
+-	return 0;
+-}
+-
+-static inline void security_inode_free (struct inode *inode)
+-{ }
+-	
+-static inline int security_inode_create (struct inode *dir,
+-					 struct dentry *dentry,
+-					 int mode)
+-{
+-	return 0;
+-}
+-
+-static inline void security_inode_post_create (struct inode *dir,
+-					       struct dentry *dentry,
+-					       int mode)
+-{ }
+-
+-static inline int security_inode_link (struct dentry *old_dentry,
+-				       struct inode *dir,
+-				       struct dentry *new_dentry)
+-{
+-	return 0;
+-}
+-
+-static inline void security_inode_post_link (struct dentry *old_dentry,
+-					     struct inode *dir,
+-					     struct dentry *new_dentry)
+-{ }
+-
+-static inline int security_inode_unlink (struct inode *dir,
+-					 struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static inline int security_inode_symlink (struct inode *dir,
+-					  struct dentry *dentry,
+-					  const char *old_name)
+-{
+-	return 0;
+-}
+-
+-static inline void security_inode_post_symlink (struct inode *dir,
+-						struct dentry *dentry,
+-						const char *old_name)
+-{ }
+-
+-static inline int security_inode_mkdir (struct inode *dir,
+-					struct dentry *dentry,
+-					int mode)
+-{
+-	return 0;
+-}
+-
+-static inline void security_inode_post_mkdir (struct inode *dir,
+-					      struct dentry *dentry,
+-					      int mode)
+-{ }
+-
+-static inline int security_inode_rmdir (struct inode *dir,
+-					struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static inline int security_inode_mknod (struct inode *dir,
+-					struct dentry *dentry,
+-					int mode, dev_t dev)
+-{
+-	return 0;
+-}
+-
+-static inline void security_inode_post_mknod (struct inode *dir,
+-					      struct dentry *dentry,
+-					      int mode, dev_t dev)
+-{ }
+-
+-static inline int security_inode_rename (struct inode *old_dir,
+-					 struct dentry *old_dentry,
+-					 struct inode *new_dir,
+-					 struct dentry *new_dentry)
+-{
+-	return 0;
+-}
+-
+-static inline void security_inode_post_rename (struct inode *old_dir,
+-					       struct dentry *old_dentry,
+-					       struct inode *new_dir,
+-					       struct dentry *new_dentry)
+-{ }
+-
+-static inline int security_inode_readlink (struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static inline int security_inode_follow_link (struct dentry *dentry,
+-					      struct nameidata *nd)
+-{
+-	return 0;
+-}
+-
+-static inline int security_inode_permission (struct inode *inode, int mask,
+-					     struct nameidata *nd)
+-{
+-	return 0;
+-}
+-
+-static inline int security_inode_setattr (struct dentry *dentry,
+-					  struct iattr *attr)
+-{
+-	return 0;
+-}
+-
+-static inline int security_inode_getattr (struct vfsmount *mnt,
+-					  struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static inline void security_inode_delete (struct inode *inode)
+-{ }
+-
+-static inline int security_inode_setxattr (struct dentry *dentry, char *name,
+-					   void *value, size_t size, int flags)
+-{
+-	return cap_inode_setxattr(dentry, name, value, size, flags);
+-}
+-
+-static inline void security_inode_post_setxattr (struct dentry *dentry, char *name,
+-						 void *value, size_t size, int flags)
+-{ }
+-
+-static inline int security_inode_getxattr (struct dentry *dentry, char *name)
+-{
+-	return 0;
+-}
+-
+-static inline int security_inode_listxattr (struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static inline int security_inode_removexattr (struct dentry *dentry, char *name)
+-{
+-	return cap_inode_removexattr(dentry, name);
+-}
+-
+-static inline int security_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
+-{
+-	return -EOPNOTSUPP;
+-}
+-
+-static inline int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
+-{
+-	return -EOPNOTSUPP;
+-}
+-
+-static inline int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
+-{
+-	return 0;
+-}
+-
+-static inline int security_file_permission (struct file *file, int mask)
+-{
+-	return 0;
+-}
+-
+-static inline int security_file_alloc (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static inline void security_file_free (struct file *file)
+-{ }
+-
+-static inline int security_file_ioctl (struct file *file, unsigned int cmd,
+-				       unsigned long arg)
+-{
+-	return 0;
+-}
+-
+-static inline int security_file_mmap (struct file *file, unsigned long reqprot,
+-				      unsigned long prot,
+-				      unsigned long flags)
+-{
+-	return 0;
+-}
+-
+-static inline int security_file_mprotect (struct vm_area_struct *vma,
+-					  unsigned long reqprot,
+-					  unsigned long prot)
+-{
+-	return 0;
+-}
+-
+-static inline int security_file_lock (struct file *file, unsigned int cmd)
+-{
+-	return 0;
+-}
+-
+-static inline int security_file_fcntl (struct file *file, unsigned int cmd,
+-				       unsigned long arg)
+-{
+-	return 0;
+-}
+-
+-static inline int security_file_set_fowner (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static inline int security_file_send_sigiotask (struct task_struct *tsk,
+-						struct fown_struct *fown,
+-						int sig)
+-{
+-	return 0;
+-}
+-
+-static inline int security_file_receive (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_create (unsigned long clone_flags)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_alloc (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static inline void security_task_free (struct task_struct *p)
+-{ }
+-
+-static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
+-					int flags)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_post_setuid (uid_t old_ruid, uid_t old_euid,
+-					     uid_t old_suid, int flags)
+-{
+-	return cap_task_post_setuid (old_ruid, old_euid, old_suid, flags);
+-}
+-
+-static inline int security_task_setgid (gid_t id0, gid_t id1, gid_t id2,
+-					int flags)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_setpgid (struct task_struct *p, pid_t pgid)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_getpgid (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_getsid (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_setgroups (struct group_info *group_info)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_setnice (struct task_struct *p, int nice)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_setrlimit (unsigned int resource,
+-					   struct rlimit *new_rlim)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_setscheduler (struct task_struct *p,
+-					      int policy,
+-					      struct sched_param *lp)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_getscheduler (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_kill (struct task_struct *p,
+-				      struct siginfo *info, int sig)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_wait (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static inline int security_task_prctl (int option, unsigned long arg2,
+-				       unsigned long arg3,
+-				       unsigned long arg4,
+-				       unsigned long arg5)
+-{
+-	return 0;
+-}
+-
+-static inline void security_task_reparent_to_init (struct task_struct *p)
+-{
+-	cap_task_reparent_to_init (p);
+-}
+-
+-static inline void security_task_to_inode(struct task_struct *p, struct inode *inode)
+-{ }
+-
+-static inline int security_ipc_permission (struct kern_ipc_perm *ipcp,
+-					   short flag)
+-{
+-	return 0;
+-}
+-
+-static inline int security_msg_msg_alloc (struct msg_msg * msg)
+-{
+-	return 0;
+-}
+-
+-static inline void security_msg_msg_free (struct msg_msg * msg)
+-{ }
+-
+-static inline int security_msg_queue_alloc (struct msg_queue *msq)
+-{
+-	return 0;
+-}
+-
+-static inline void security_msg_queue_free (struct msg_queue *msq)
+-{ }
+-
+-static inline int security_msg_queue_associate (struct msg_queue * msq, 
+-						int msqflg)
+-{
+-	return 0;
+-}
+-
+-static inline int security_msg_queue_msgctl (struct msg_queue * msq, int cmd)
+-{
+-	return 0;
+-}
+-
+-static inline int security_msg_queue_msgsnd (struct msg_queue * msq,
+-					     struct msg_msg * msg, int msqflg)
+-{
+-	return 0;
+-}
+-
+-static inline int security_msg_queue_msgrcv (struct msg_queue * msq,
+-					     struct msg_msg * msg,
+-					     struct task_struct * target,
+-					     long type, int mode)
+-{
+-	return 0;
+-}
+-
+-static inline int security_shm_alloc (struct shmid_kernel *shp)
+-{
+-	return 0;
+-}
+-
+-static inline void security_shm_free (struct shmid_kernel *shp)
+-{ }
+-
+-static inline int security_shm_associate (struct shmid_kernel * shp, 
+-					  int shmflg)
+-{
+-	return 0;
+-}
+-
+-static inline int security_shm_shmctl (struct shmid_kernel * shp, int cmd)
+-{
+-	return 0;
+-}
+-
+-static inline int security_shm_shmat (struct shmid_kernel * shp, 
+-				      char __user *shmaddr, int shmflg)
+-{
+-	return 0;
+-}
+-
+-static inline int security_sem_alloc (struct sem_array *sma)
+-{
+-	return 0;
+-}
+-
+-static inline void security_sem_free (struct sem_array *sma)
+-{ }
+-
+-static inline int security_sem_associate (struct sem_array * sma, int semflg)
+-{
+-	return 0;
+-}
+-
+-static inline int security_sem_semctl (struct sem_array * sma, int cmd)
+-{
+-	return 0;
+-}
+-
+-static inline int security_sem_semop (struct sem_array * sma, 
+-				      struct sembuf * sops, unsigned nsops, 
+-				      int alter)
+-{
+-	return 0;
+-}
+-
+-static inline void security_d_instantiate (struct dentry *dentry, struct inode *inode)
+-{ }
+-
+-static inline int security_getprocattr(struct task_struct *p, char *name, void *value, size_t size)
+-{
+-	return -EINVAL;
+-}
+-
+-static inline int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
+-{
+-	return -EINVAL;
+-}
+-
+-static inline int security_netlink_send (struct sock *sk, struct sk_buff *skb)
+-{
+-	return cap_netlink_send (sk, skb);
+-}
+-
+-static inline int security_netlink_recv (struct sk_buff *skb)
+-{
+-	return cap_netlink_recv (skb);
+-}
+-
+-#endif	/* CONFIG_SECURITY */
+-
+-#ifdef CONFIG_SECURITY_NETWORK
+-static inline int security_unix_stream_connect(struct socket * sock,
+-					       struct socket * other, 
+-					       struct sock * newsk)
+-{
+-	return security_ops->unix_stream_connect(sock, other, newsk);
+-}
+-
+-
+-static inline int security_unix_may_send(struct socket * sock, 
+-					 struct socket * other)
+-{
+-	return security_ops->unix_may_send(sock, other);
+-}
+-
+-static inline int security_socket_create (int family, int type,
+-					  int protocol, int kern)
+-{
+-	return security_ops->socket_create(family, type, protocol, kern);
+-}
+-
+-static inline void security_socket_post_create(struct socket * sock, 
+-					       int family,
+-					       int type, 
+-					       int protocol, int kern)
+-{
+-	security_ops->socket_post_create(sock, family, type,
+-					 protocol, kern);
+-}
+-
+-static inline int security_socket_bind(struct socket * sock, 
+-				       struct sockaddr * address, 
+-				       int addrlen)
+-{
+-	return security_ops->socket_bind(sock, address, addrlen);
+-}
+-
+-static inline int security_socket_connect(struct socket * sock, 
+-					  struct sockaddr * address, 
+-					  int addrlen)
+-{
+-	return security_ops->socket_connect(sock, address, addrlen);
+-}
+-
+-static inline int security_socket_listen(struct socket * sock, int backlog)
+-{
+-	return security_ops->socket_listen(sock, backlog);
+-}
+-
+-static inline int security_socket_accept(struct socket * sock, 
+-					 struct socket * newsock)
+-{
+-	return security_ops->socket_accept(sock, newsock);
+-}
+-
+-static inline void security_socket_post_accept(struct socket * sock, 
+-					       struct socket * newsock)
+-{
+-	security_ops->socket_post_accept(sock, newsock);
+-}
+-
+-static inline int security_socket_sendmsg(struct socket * sock, 
+-					  struct msghdr * msg, int size)
+-{
+-	return security_ops->socket_sendmsg(sock, msg, size);
+-}
+-
+-static inline int security_socket_recvmsg(struct socket * sock, 
+-					  struct msghdr * msg, int size, 
+-					  int flags)
+-{
+-	return security_ops->socket_recvmsg(sock, msg, size, flags);
+-}
+-
+-static inline int security_socket_getsockname(struct socket * sock)
+-{
+-	return security_ops->socket_getsockname(sock);
+-}
+-
+-static inline int security_socket_getpeername(struct socket * sock)
+-{
+-	return security_ops->socket_getpeername(sock);
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_getpeername(sock);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_socket_getsockopt(struct socket * sock, 
+ 					     int level, int optname)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
+ 	return security_ops->socket_getsockopt(sock, level, optname);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_socket_setsockopt(struct socket * sock, 
+ 					     int level, int optname)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
+ 	return security_ops->socket_setsockopt(sock, level, optname);
++#else
++	return 0;
++#endif
+ }
+ 
+ static inline int security_socket_shutdown(struct socket * sock, int how)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
+ 	return security_ops->socket_shutdown(sock, how);
+-}
+-
+-static inline int security_sock_rcv_skb (struct sock * sk, 
+-					 struct sk_buff * skb)
+-{
+-	return security_ops->socket_sock_rcv_skb (sk, skb);
+-}
+-
+-static inline int security_socket_getpeersec(struct socket *sock, char __user *optval,
+-					     int __user *optlen, unsigned len)
+-{
+-	return security_ops->socket_getpeersec(sock, optval, optlen, len);
+-}
+-
+-static inline int security_sk_alloc(struct sock *sk, int family, int priority)
+-{
+-	return security_ops->sk_alloc_security(sk, family, priority);
+-}
+-
+-static inline void security_sk_free(struct sock *sk)
+-{
+-	return security_ops->sk_free_security(sk);
+-}
+-#else	/* CONFIG_SECURITY_NETWORK */
+-static inline int security_unix_stream_connect(struct socket * sock,
+-					       struct socket * other, 
+-					       struct sock * newsk)
+-{
+-	return 0;
+-}
+-
+-static inline int security_unix_may_send(struct socket * sock, 
+-					 struct socket * other)
+-{
+-	return 0;
+-}
+-
+-static inline int security_socket_create (int family, int type,
+-					  int protocol, int kern)
+-{
+-	return 0;
+-}
+-
+-static inline void security_socket_post_create(struct socket * sock, 
+-					       int family,
+-					       int type, 
+-					       int protocol, int kern)
+-{
+-}
+-
+-static inline int security_socket_bind(struct socket * sock, 
+-				       struct sockaddr * address, 
+-				       int addrlen)
+-{
+-	return 0;
+-}
+-
+-static inline int security_socket_connect(struct socket * sock, 
+-					  struct sockaddr * address, 
+-					  int addrlen)
+-{
+-	return 0;
+-}
+-
+-static inline int security_socket_listen(struct socket * sock, int backlog)
+-{
+-	return 0;
+-}
+-
+-static inline int security_socket_accept(struct socket * sock, 
+-					 struct socket * newsock)
+-{
+-	return 0;
+-}
+-
+-static inline void security_socket_post_accept(struct socket * sock, 
+-					       struct socket * newsock)
+-{
+-}
+-
+-static inline int security_socket_sendmsg(struct socket * sock, 
+-					  struct msghdr * msg, int size)
+-{
+-	return 0;
+-}
+-
+-static inline int security_socket_recvmsg(struct socket * sock, 
+-					  struct msghdr * msg, int size, 
+-					  int flags)
+-{
+-	return 0;
+-}
+-
+-static inline int security_socket_getsockname(struct socket * sock)
+-{
+-	return 0;
+-}
+-
+-static inline int security_socket_getpeername(struct socket * sock)
+-{
+-	return 0;
+-}
+-
+-static inline int security_socket_getsockopt(struct socket * sock, 
+-					     int level, int optname)
+-{
+-	return 0;
+-}
+-
+-static inline int security_socket_setsockopt(struct socket * sock, 
+-					     int level, int optname)
+-{
++#else
+ 	return 0;
++#endif
+ }
+ 
+-static inline int security_socket_shutdown(struct socket * sock, int how)
+-{
+-	return 0;
+-}
+ static inline int security_sock_rcv_skb (struct sock * sk, 
+ 					 struct sk_buff * skb)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_sock_rcv_skb (sk, skb);
++#else
+ 	return 0;
++#endif
+ }
+ 
+ static inline int security_socket_getpeersec(struct socket *sock, char __user *optval,
+ 					     int __user *optlen, unsigned len)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->socket_getpeersec(sock, optval, optlen, len);
++#else
+ 	return -ENOPROTOOPT;
++#endif
+ }
+ 
+ static inline int security_sk_alloc(struct sock *sk, int family, int priority)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->sk_alloc_security(sk, family, priority);
++#else
+ 	return 0;
++#endif
+ }
+ 
+ static inline void security_sk_free(struct sock *sk)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_ops->sk_free_security(sk);
++#else
++	return;
++#endif
+ }
+-#endif	/* CONFIG_SECURITY_NETWORK */
+-
+-#endif /* ! __LINUX_SECURITY_H */
+ 
++#endif /* __LINUX_SECURITY_H */
+
+--

@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbVHYVfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbVHYVjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbVHYVfb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 17:35:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbVHYVfb
+	id S964848AbVHYVjN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 17:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbVHYVjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 17:35:31 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:56058 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S964790AbVHYVfb
+	Thu, 25 Aug 2005 17:39:13 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:38290 "EHLO
+	ogre.sisk.pl") by vger.kernel.org with ESMTP id S964848AbVHYVjL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 17:35:31 -0400
-Subject: Re: 2.6.13-rc7-rt1
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "K.R. Foley" <kr@cybsft.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20050825174515.GA31215@elte.hu>
-References: <20050825062651.GA26781@elte.hu>
-	 <1124984208.25139.0.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <20050825174515.GA31215@elte.hu>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Thu, 25 Aug 2005 14:35:24 -0700
-Message-Id: <1125005724.10901.5.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Thu, 25 Aug 2005 17:39:11 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: Memory problem w/ recent kernels on 2x Opteron with 12 GB RAM
+Date: Thu, 25 Aug 2005 23:39:18 +0200
+User-Agent: KMail/1.8.2
+Cc: LKML <linux-kernel@vger.kernel.org>, discuss@x86-64.org
+References: <200508242308.55433.rjw@sisk.pl> <200508242321.48367.ak@suse.de>
+In-Reply-To: <200508242321.48367.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508252339.19331.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 19:45 +0200, Ingo Molnar wrote:
-> * Daniel Walker <dwalker@mvista.com> wrote:
+On Wednesday, 24 of August 2005 23:21, Andi Kleen wrote:
+> On Wednesday 24 August 2005 23:08, Rafael J. Wysocki wrote:
+> > Hi,
+> >
+> > I'm currently seeing a memory problem on a NUMA-enabled dual-Opteron 250
+> > box with the 2.6.12.5 and 2.6.13-rc* (up to 7) kernels.  Namely, the box
+> > has 12 GB of RAM, 8 GB of which is installed on the first node.  The whole
+> > memory is detected but then only the first 8 GB of it is made available
+> > (minus some hardware-related holes), as though the memory on the second
+> > node were discarded for some reason.
 > 
-> > Does anyone have x86_64 working in PREEMPT_RT ?
 > 
-> builds fine, but doesnt seem to boot at the moment. Havent investigated 
-> yet.
+> Boot log please?
 
-I tested an em64t , and it hung during boot .. But this patched fixed
-it, does it do anything for you?
+Sorry for the delay.  The BIOS upgrade has fixed the problem.
 
-Daniel
-
-Index: linux-2.6.12/arch/x86_64/kernel/smpboot.c
-===================================================================
---- linux-2.6.12.orig/arch/x86_64/kernel/smpboot.c	2005-08-25 19:39:04.000000000 +0000
-+++ linux-2.6.12/arch/x86_64/kernel/smpboot.c	2005-08-25 20:42:38.000000000 +0000
-@@ -750,7 +750,6 @@ static int __cpuinit do_boot_cpu(int cpu
- 
- do_rest:
- 
--	cpu_pda[cpu].pcurrent = c_idle.idle;
- 
- 	start_rip = setup_trampoline();
- 
-@@ -789,6 +788,8 @@ do_rest:
- 		apic_read(APIC_ESR);
- 	}
- 
-+	cpu_pda[cpu].pcurrent = c_idle.idle;
-+
- 	/*
- 	 * Status is now clean
- 	 */
+Greetings,
+Rafael
 
 
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

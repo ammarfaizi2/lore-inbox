@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVHYBW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbVHYBaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbVHYBW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 21:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVHYBWs
+	id S932473AbVHYBaX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 21:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbVHYBaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 21:22:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13224 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932469AbVHYBWg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 21:22:36 -0400
-Message-Id: <20050825012150.490797000@localhost.localdomain>
-References: <20050825012028.720597000@localhost.localdomain>
-Date: Wed, 24 Aug 2005 18:20:33 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-security-module@wirex.com
-Cc: linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>,
-       Greg Kroah <greg@kroah.com>, Chris Wright <chrisw@osdl.org>
-Subject: [PATCH 5/5] Remove unnecesary capability hooks in rootplug.
-Content-Disposition: inline; filename=rootplug-cleanup.patch
+	Wed, 24 Aug 2005 21:30:23 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:9712 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932473AbVHYBaW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 21:30:22 -0400
+Message-ID: <430D1F21.80401@mvista.com>
+Date: Wed, 24 Aug 2005 18:30:09 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Incorrect CLOCK_TICK_RATE in 2.6 kernel
+References: <430D0FDA.3060201@mvista.com> <1124930039.20820.123.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1124930039.20820.123.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that capability functions are default, rootplug no longer needs to
-manually add them to its security_ops.
+john stultz wrote:
+> On Wed, 2005-08-24 at 17:24 -0700, George Anzinger wrote:
+> 
+>>CLOCK_TICK_RATE	is used by the kernel to compute LATCH, TICK_NSEC and 
+>>tick_nsec.  This latter is used to update xtime each tick.  TICK_NSEC is 
+>>then used to compute (at compile time) the conversion constants needed 
+>>to convert to/from jiffies from/to timespec and timeval (and others).
+>>
+>>The problem is that, if the timer being used is either Cyclone or HPET, 
+>>the wrong CLOCK_TICK_RATE is used.
+> 
+> 
+> Err, the Cyclone does not generate interrupts. So this issue does not
+> affect those systems.
+> 
+> As for the HPET, it sets its own interrupt frequency based off of
+> KERNEL_TICK_USEC (which you're right, isn't quite what is used in the
+> jiffies conversions).  Would it be easier to just adjust that value to
+> use ACTHZ or CLOCK_TICK_RATE?
 
-Cc: Greg Kroah <greg@kroah.com>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
----
- security/root_plug.c |   14 +-------------
- 1 files changed, 1 insertion(+), 13 deletions(-)
+If you want to take that approach you would want the HPET to interrupt 
+every TICK_NSEC nanoseconds, that being what xtime is pushed by each tick.
 
-Index: lsm-hooks-2.6/security/root_plug.c
-===================================================================
---- lsm-hooks-2.6.orig/security/root_plug.c
-+++ lsm-hooks-2.6/security/root_plug.c
-@@ -83,19 +83,7 @@ static int rootplug_bprm_check_security 
- }
- 
- static struct security_operations rootplug_security_ops = {
--	/* Use the capability functions for some of the hooks */
--	.ptrace =			cap_ptrace,
--	.capget =			cap_capget,
--	.capset_check =			cap_capset_check,
--	.capset_set =			cap_capset_set,
--	.capable =			cap_capable,
--
--	.bprm_apply_creds =		cap_bprm_apply_creds,
--	.bprm_set_security =		cap_bprm_set_security,
--
--	.task_post_setuid =		cap_task_post_setuid,
--	.task_reparent_to_init =	cap_task_reparent_to_init,
--
-+	/* The capability functions are the defaults */
- 	.bprm_check_security =		rootplug_bprm_check_security,
- };
- 
-
---
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

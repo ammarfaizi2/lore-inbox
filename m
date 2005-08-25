@@ -1,62 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbVHYDcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVHYE0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbVHYDcz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 23:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbVHYDcz
+	id S964784AbVHYE0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 00:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbVHYE0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 23:32:55 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50360 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964781AbVHYDcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 23:32:54 -0400
-To: Meelis Roos <mroos@linux.ee>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.13-rc6: halt instead of reboot
-References: <Pine.SOC.4.61.0508202137170.13442@math.ut.ee>
-	<m14q9iva4q.fsf@ebiederm.dsl.xmission.com>
-	<Pine.SOC.4.61.0508221152350.17731@math.ut.ee>
-	<m1mznativw.fsf@ebiederm.dsl.xmission.com>
-	<Pine.SOC.4.61.0508242252120.20856@math.ut.ee>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 24 Aug 2005 21:32:39 -0600
-In-Reply-To: <Pine.SOC.4.61.0508242252120.20856@math.ut.ee> (Meelis Roos's
- message of "Wed, 24 Aug 2005 22:55:04 +0300 (EEST)")
-Message-ID: <m11x4iofmw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 25 Aug 2005 00:26:24 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:9102 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S964784AbVHYE0X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 00:26:23 -0400
+X-ORBL: [69.107.75.50]
+Date: Wed, 24 Aug 2005 21:26:16 -0700
+From: David Brownell <david-b@pacbell.net>
+To: William.Morrow@amd.com
+Subject: Re: [PATCH] for acpi S1 power cycle resume problems
+Cc: linux-kernel@vger.kernel.org
+References: <4305EF1D.6020502@amd.com>
+In-Reply-To: <4305EF1D.6020502@amd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20050825042616.1D64EC16B2@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Meelis Roos <mroos@linux.ee> writes:
-
->>> It does not hang, it just powers off like on halt.
->>
->> Ok. Then at least in part the kernel behavior is either
->> intersecting with a BIOS bug, a bad reboot script that calls halt instead,
->> or a driver that is scribbling on the wrong register.  There is
->> nothing in that code path that should remove the power.
+> Date: Fri, 19 Aug 2005 08:39:25 -0600
+> From: "William Morrow" <William.Morrow@amd.com>
+> Subject: [PATCH] for acpi S1 power cycle resume problems
 >
-> With reboot=c, reboot=w and reboot=h it still powers off. With reboot=b it
-> actually reboots. With 2.6.13-rc2 (the previous good kernel here) it just works
-> and does a reboot with no special parameters.
 >
-> I also have lapic nmi_watchdog=1 in boot command line but removing these does
-> not help either.
+> Hi
+> I was told that if I had a patch to submit for a baseline change that 
+> this was the place to do it.
+
+In this case that works fine.  Normally they should go to linux-usb-devel
+for me (and others) to read there.
+
+Thanks, these need a bit of cleaning up, finishing, and splitting out;
+they should be in 2.6.14 though.  Comments below.  Were these patches
+written by you, or by Jordan?
+
+- Dave
+
+
+
+> If not, please let me know...
 >
-> So far I only know that rc6+somegit and rc7 power off and rc2 works, will try
-> som kernels inbetween.
+> thanks,
+> morrow
+>
+> Patched against 2.6.11 baseline
+> problems fixed:
+> 1) OHCI_INTR_RD not being cleared in ohci interrupt handler
+>  results in interrupt storm and system hang on RD status.
+>  ohci spec indicates this should be done.
 
-Hmm.  Odd. 
+Yeah, I noticed that one but didn't fix it yet.  It's not that
+it was _never_ cleared ... only certain code paths missed it.
+The systems I test with were clearly using those working paths!
 
-When skimming through the code I thought that reboot_thru_bios was the
-default. 
+Having this fixed should help get rid of the 1/4 second timer
+this driver normally ties up.  That'll help make the dynamic
+tick stuff work better, reducing power even when something like
+"ACPI S1" doesn't exist (like say, on that one Zaurus).
 
-So the code is currently trying a reset through the keyboard controller
-and a triple fault and neither work.
 
-If you can't track this down we can at least dig up your board DMI ID
-and put it in the list of systems that need to go through the BIOS to reboot.
+> 2) PORT_CSC not being cleared in ehci_hub_status_data
+>  code attempts to clear bit, but bit is write to clear.
+>  there are other errant clears, since the PORTSCn regs
+>  have 3 RWC bits, and the rest are RW. All stmts of the form:
+>    writel (v, &ehci->regs->port_status[i])
+>  should clear RWC bits if they do not intend to clear status,
+>  and should set the bits which should be cleared (this case).
 
-Eric
+Yeah, whoever did that RWC patch for UHCI ports certainly should
+have checked other HCDs for the same bug.  (Kicks self.)
+
+In fact you didn't fix this issue comprehensively.  There are
+other places that register is written; they need to change too.
+
+This is clearly wrong, but did you notice any effects more
+serious than "lsusb -v" output for EHCI root hubs looking
+a bit strange?
+
+
+> 3) loop control and subsequent port resume/reset not correct.
+>  unsigned index made detecting port1 active impossible,
+
+Odd, I've done that with some regularity.  Is that maybe
+some kind of compiler bug?  (I heard even 4.1 isn't quite
+there yet for kernels.)
+
+The looping doesn't look incorrect to me; ports are numbered
+from 1..N, and C code in the body must index them from 0..(N-1).
+
+
+> and OWNER/POWER status was being ignored on ports assigned
+>  to companion controller.
+
+Well, in that one resume case anyway!
+
+But OWNER and POWER are very different status bits ... if POWER
+ever goes off, that port is by definition not resumable.  But
+if a port's owned by the companion (OHCI or UHCI) controller,
+then it surely ought not to be reset (even if the companion's
+own SUSPEND bit doesn't show through EHCI).
+

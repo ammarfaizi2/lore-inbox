@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbVHYJZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVHYJaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbVHYJZV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 05:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbVHYJZV
+	id S964903AbVHYJaN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 05:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVHYJaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 05:25:21 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:15879 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S964902AbVHYJZU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 05:25:20 -0400
-Message-ID: <430D8E68.7070303@vmware.com>
-Date: Thu, 25 Aug 2005 02:24:56 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Thu, 25 Aug 2005 05:30:12 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:5603 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S964903AbVHYJaL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 05:30:11 -0400
+Date: Thu, 25 Aug 2005 11:29:22 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Paul Jackson <pj@sgi.com>, Paul Mackerras <paulus@samba.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Sam Creasey <sammy@sammy.net>
+Subject: Re: Linux-2.6.13-rc7
+In-Reply-To: <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.62.0508251125030.28348@numbat.sonytel.be>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
+ <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk>
+ <20050824114351.4e9b49bb.pj@sgi.com> <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kumar Gala <galak@freescale.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 00/15] Remove asm/segment.h from low hanging	architectures
-References: <Pine.LNX.4.61.0508241139100.23956@nylon.am.freescale.net> <1124920244.13833.6.camel@localhost.localdomain>
-In-Reply-To: <1124920244.13833.6.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Aug 2005 09:25:16.0836 (UTC) FILETIME=[E7A1F640:01C5A956]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Wed, 24 Aug 2005, Al Viro wrote:
+> It does, no (build) regressions.  BTW, tree is not far from allmodconfig
+> buildable on a bunch of targets now - yesterday pile of fixes was about
+> half of the set needed for that.  Most of the remaining stuff is for
+> m68k (and applies both to Linus' tree and m68k CVS); I'll send that today
+> and if Geert ACKs them, we will be _very_ close to having 2.6.13 build
 
->On Mer, 2005-08-24 at 11:43 -0500, Kumar Gala wrote:
->  
->
->>The following set of patches removes the use and existence of 
->>asm/segment.h from the architecture ports 
->>    
->>
->
->You've broken various things by doing this because some driver code
->rightly or wrongly uses segment.h. That is fine because they shouldn't
->do so. However asm/segment.h isn't supoosed to be removed on
->architectures that use segments- like x86, and x86-64. There it is a
->real arch private file and shouldn't be disappearing.
->
->It shouldn't be leaking into drivers any more (eg mxser.c is an offender
->there)
->  
->
+They look OK to me (sorry, I'm not in a position to really test them).
+For thread_info related stuff, please coordinate with Roman.
 
-Yes, agree totally,  i386 _requires_ asm/segment.h.  It is used in 
-low-level trap handling and bootup code from assembly files.  In 
-addition, even parts of userspace on i386 depend on asm/segment.h, 
-although that is a different beast.
+> out of the box on the following set:
+> alpha, amd64, arm (RPC and versatile being tracked), i386, ia64, m32r,
+> m68k (!SUN3), ppc (6xx, 44x, chestnut being tracked), ppc64, sparc,
+> sparc64, s390, s390x, uml-i386, uml-amd64.
 
-It is a total bug if generic drivers include it, there is simply no 
-reason to use segment.h unless you have to use segmentation.  Ideally, 
-all includes of segment.h should be confined to architectures that 
-require it, and limited to either arch/foo or include/asm-foo.
+Very nice! That must be a historical record ;-)
 
-I'm looking at -rc6-mm1, and I see the following bad guys:
+> 	v850, m68knommu: gcc gives ICE on attempt to build cross-toolchain
 
-./drivers/char/mxser.c:#include <asm/segment.h>
-./drivers/char/speakup/speakup_drvcommon.c:#include <asm/segment.h>     
-/* for put_user_byte */
-./drivers/isdn/hisax/hisax.h:#include <asm/segment.h>
-./drivers/media/video/adv7170.c:#include <asm/segment.h>
-./drivers/media/video/adv7175.c:#include <asm/segment.h>
-./drivers/media/video/bt819.c:#include <asm/segment.h>
-./drivers/media/video/bt856.c:#include <asm/segment.h>
-./drivers/media/video/saa7111.c:#include <asm/segment.h>
-./drivers/media/video/saa7114.c:#include <asm/segment.h>
-./drivers/media/video/saa7185.c:#include <asm/segment.h>
-./drivers/serial/68328serial.c:#include <asm/segment.h>
-./drivers/serial/crisv10.c:#include <asm/segment.h>
-./drivers/serial/icom.c:#include <asm/segment.h>
-./drivers/serial/mcfserial.c:#include <asm/segment.h>
-./drivers/video/q40fb.c:#include <asm/segment.h>
-./include/linux/isdn.h:#include <asm/segment.h>
-./sound/oss/os.h:#include <asm/segment.h>
+Can't you use the plain m68k toolchain? I always used a m68k-linux-gcc 3.3.3
+for my uClinux experiments.
 
-Zach
+> sun3 is seriously broken and I doubt that we'll see any takers for testing
+> 2.6 on those anyway ;-)
+
+However, a few months ago it was still known to work in m68k CVS (ask Sammy).
+And I didn't see any real compile regressions since then.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

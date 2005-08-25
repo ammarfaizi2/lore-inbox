@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbVHYHvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbVHYH4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964866AbVHYHvU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 03:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbVHYHvT
+	id S964864AbVHYH4L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 03:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbVHYH4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 03:51:19 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:17553 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964866AbVHYHvT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 03:51:19 -0400
-Date: Thu, 25 Aug 2005 09:52:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jens Axboe <axboe@suse.de>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CFQ + 2.6.13-rc4-RT-V0.7.52-02 = BUG: scheduling with irqs disabled
-Message-ID: <20050825075205.GB30650@elte.hu>
-References: <1124899329.3855.12.camel@mindpipe> <20050824174702.GL28272@suse.de> <20050825060958.GB26398@elte.hu> <20050825062207.GO28272@suse.de>
+	Thu, 25 Aug 2005 03:56:10 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:11673 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964864AbVHYH4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 03:56:09 -0400
+Subject: Re: [patch] Additions to .data.read_mostly section
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       Alok Kataria <alokk@calsoftinc.com>
+In-Reply-To: <20050824214610.GA3675@localhost.localdomain>
+References: <20050824214610.GA3675@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 25 Aug 2005 09:56:03 +0200
+Message-Id: <1124956563.3222.8.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050825062207.GO28272@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-08-24 at 14:46 -0700, Ravikiran G Thirumalai wrote:
+> Following patch moves a few static 'read mostly' variables to the 
+> .data.read_mostly section.  Typically these are vector - irq tables,
+> boot_cpu_data, node_maps etc., which are initialized once and read from 
+> often and rarely written to.  Please include.
 
-* Jens Axboe <axboe@suse.de> wrote:
+it almost sounds like a "read_only_once_booted" is useful, esp for those
+who modify their kernel to make such sections truely read only ;)
 
-> There can quite easily be lots of pending IO for the io_context (and, 
-> in CFQ's case, below cfq_io_contexts), task exiting is completely 
-> decoupled from any pending io.
 
-yes, but that only affects the io_context reference count. Actual new 
-use of tsk->io_context should only be possible on the IO-submission 
-side, which should all have stopped by the time we execute do_exit().  
-(and it's synchronous anyway, so the fact that we are executing in the 
-kernel prevents the same thread from submitting new IO, in this case.)
-
-i.e. the removal of tsk->io_context can be done without locking out 
-interrupts. No interrupt or io_context is supposed to access 
-current->io_context at that point.
-
-> Then there's the cfq_exit_io_context() locking. I have to ponder this 
-> a bit, I cannot even convince myself that it is currently safe right 
-> now.
-
-i think it should be mostly safe already - it seems to be overlocking a 
-bit. E.g. the read_lock_irq(&tasklist_lock) could be a simple 
-read_lock() i think.
-
-	Ingo

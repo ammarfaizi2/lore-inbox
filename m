@@ -1,103 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbVHYTER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbVHYTEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbVHYTER (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 15:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbVHYTEQ
+	id S932507AbVHYTEz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 15:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbVHYTEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 15:04:16 -0400
-Received: from smtp103.rog.mail.re2.yahoo.com ([206.190.36.81]:56707 "HELO
-	smtp103.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932506AbVHYTEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 15:04:14 -0400
-Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: george@mvista.com
-Cc: Robert Love <rml@novell.com>, jim.houston@ccur.com,
-       Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
-       johannes@sipsolutions.net, linux-kernel@vger.kernel.org
-In-Reply-To: <430E13D8.8070005@mvista.com>
-References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
-	 <430D986E.30209@reub.net>  <1124976814.5039.4.camel@vertex>
-	 <1124983117.6810.198.camel@betsy>  <430E13D8.8070005@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 25 Aug 2005 15:04:47 -0400
-Message-Id: <1124996687.16219.3.camel@vertex>
+	Thu, 25 Aug 2005 15:04:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21694 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S932507AbVHYTEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 15:04:53 -0400
+Date: Thu, 25 Aug 2005 20:07:55 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Paul Jackson <pj@sgi.com>, paulus@samba.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, rth@twiddle.net
+Subject: Re: Linux-2.6.13-rc7
+Message-ID: <20050825190755.GV9322@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk> <20050824114351.4e9b49bb.pj@sgi.com> <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk> <20050824201301.GA23715@mipter.zuzino.mipt.ru> <20050824213859.GN9322@parcelfarce.linux.theplanet.co.uk> <20050825072731.GA876@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050825072731.GA876@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 11:54 -0700, George Anzinger wrote:
-> Robert Love wrote:
-> > On Thu, 2005-08-25 at 09:33 -0400, John McCutchan wrote:
-> > 
-> >>On Thu, 2005-08-25 at 22:07 +1200, Reuben Farrelly wrote:
-> >>
-> ~
-> >>>dovecot: Aug 25 19:31:26 Warning: IMAP(gilly): removing wd 1022 from inotify fd 4
-> >>>dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1023
-> >>>dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): inotify_add_watch returned 1024
-> >>>dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1024 from inotify fd 4
-> >>>dovecot: Aug 25 19:31:27 Error: IMAP(gilly): inotify_rm_watch() failed: 
-> >>>Invalid argument
-> >>>dovecot: Aug 25 19:31:27 Warning: IMAP(gilly): removing wd 1023 from inotify fd 4
-> >>>dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
-> >>>dovecot: Aug 25 19:31:28 Warning: IMAP(gilly): inotify_add_watch returned 1024
-> >>>
-> >>>Note the incrementing wd value even though we are removing them as we go..
-> >>>
-> >>
-> >>What kernel are you running? The wd's should ALWAYS be incrementing, you
-> >>should never get the same wd as you did before. From your log, you are
-> >>getting the same wd (after you inotify_rm_watch it). I can reproduce
-> >>this bug on 2.6.13-rc7.
-> >>
-> >>idr_get_new_above 
-> >>
-> >>isn't returning something above.
-> >>
-> >>Also, the idr layer seems to be breaking when we pass in 1024. I can
-> >>reproduce that on my 2.6.13-rc7 system as well.
-> >>
-> >>
-> >>>This is using latest CVS of dovecot code and with 2.6.12-rc6-mm(1|2) kernel.
-> >>>
-> >>>Robert, John, what do you think?   Is this possibly related to the oops seen 
-> >>>in the log that I reported earlier?  (Which is still showing up 2-3 times per 
-> >>>day, btw)
-> >>
-> >>There is definitely something broken here.
-> > 
-> > 
-> > Jim, George-
-> > 
-> > We are seeing a problem in the idr layer.  If we do idr_find(1024) when,
-> > say, a low valued idr, like, zero, is unallocated, NULL is returned.
+On Thu, Aug 25, 2005 at 11:27:32AM +0400, Alexey Dobriyan wrote:
+> Mine is alpha-unknown-linux-gnu-gcc (GCC) 3.4.4 (Gentoo 3.4.4)
 > 
-> I think the best thing is to take idr into user space and emulate the 
-> problem usage.  To this end, from the log it appears that you _might_ be 
-> moving between 0, 1 and 2 entries increasing the number each time.  It 
-> also appears that the failure happens here:
-> add 1023
-> add 1024
-> find 1024  or is it the remove that fails?  It also looks like 1024 got 
-> allocated twice.  Am I reading the log correctly?
-
-You are reading the log correctly. There are two bugs. One is that if we
-pass X to idr_get_new_above, it can return X again (doesn't ever seem to
-return < X). The other problem is that the find fails on 1024 (and 2048
-if we skip 1024).
-
+> > Which place triggers it in your build?
 > 
-> So, is it correct to assume that the tree is empty save these two at 
-> this time?  I am just trying to figure out what the test program needs 
-> to do.
+> net/ipv4/route.c:3152, call to rt_hash_lock_init().
+> 
+> >From preprocessed source (reformatted):
+> -----------------------------------------------------------------------
+> typedef struct {
+> 	volatile unsigned int lock;
+> 
+> 	int on_cpu;
+> 	int line_no;
+> 	void *previous;
+> 	struct task_struct * task;
+> 	const char *base_file;
+> } spinlock_t;
+> 
+> static inline void *kmalloc(size_t size, unsigned int flags)
 
-Yes that is the exact scenario. Only 2 id's are used at any given time,
-and once we hit 1024 things break. This doesn't happen when the tree is
-not empty.
+Oh, lovely...
 
-Thanks for looking at this!
--- 
-John McCutchan <ttb@tentacle.dhs.org>
+a) gcc4 on alpha refuses to make that inline
+b) bug is real, indeed - spinlock debugging + >32 CPU => panic in ip_rt_init()
+
+IMO that's a question to rth: why do we really need to block always_inline
+on alpha?
+

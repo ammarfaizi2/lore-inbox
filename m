@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVHYVsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbVHYVuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbVHYVsE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 17:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbVHYVsE
+	id S964870AbVHYVuA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 17:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbVHYVuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 17:48:04 -0400
-Received: from gate.crashing.org ([63.228.1.57]:57776 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964860AbVHYVsD (ORCPT
+	Thu, 25 Aug 2005 17:50:00 -0400
+Received: from math.ut.ee ([193.40.36.2]:41200 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S964870AbVHYVt7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 17:48:03 -0400
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>, John Rose <johnrose@austin.ibm.com>,
-       akpm@osdl.org, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20050825162118.GH25174@austin.ibm.com>
-References: <20050823231817.829359000@bilge>
-	 <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com>
-	 <1124898331.24668.33.camel@sinatra.austin.ibm.com>
-	 <20050824162959.GC25174@austin.ibm.com>
-	 <17165.3205.505386.187453@cargo.ozlabs.ibm.com>
-	 <1124930943.5159.168.camel@gaston>  <20050825162118.GH25174@austin.ibm.com>
-Content-Type: text/plain
-Date: Fri, 26 Aug 2005 07:43:57 +1000
-Message-Id: <1125006237.12539.23.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Aug 2005 17:49:59 -0400
+Date: Fri, 26 Aug 2005 00:49:34 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Masoud Sharbiani <masouds@masoud.ir>
+Subject: Re: 2.6.13-rc6: halt instead of reboot
+In-Reply-To: <m11x4iofmw.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.SOC.4.61.0508260047170.10568@math.ut.ee>
+References: <Pine.SOC.4.61.0508202137170.13442@math.ut.ee>
+ <m14q9iva4q.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508221152350.17731@math.ut.ee>
+ <m1mznativw.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508242252120.20856@math.ut.ee>
+ <m11x4iofmw.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 11:21 -0500, Linas Vepstas wrote:
-> On Thu, Aug 25, 2005 at 10:49:03AM +1000, Benjamin Herrenschmidt was heard to remark:
-> > 
-> > Of course, we'll possibly end up with a different ethX or whatever, but
-> 
-> Yep, but that's not an issue, since all the various device-naming
-> schemes are supposed to be fixing this. Its a distinct problem;
-> it needs to be solved even across cold-boots. 
 
-Ok, so what is the problem then ? Why do we have to wait at all ? Why
-not just unplug/replug right away ?
+I'm searching my way through changesests.
 
-> (Didn't I ever tell you about the day I added a new disk controller to
-> my system, and /dev/hda became /dev/hde and thus /home was mounted on
-> /usr and /var as /etc and all hell broke loose? Owww, device naming
-> is a serious issue for home users and even more so for enterprise-class 
-> users).
-> 
-> --linas
-> 
+rc2 was OK, rc3 was broken.
+60a762b6a6dec17cc4339b60154902fd04c2f9f2 was OK too - the commit before 
+ACPI merge on 2005-07-12
 
+Currently compiling 5028770a42e7bc4d15791a44c28f0ad539323807 - acpi 
+merge commit. Will see tomorroy whether it works.
+
+-- 
+Meelis Roos (mroos@linux.ee)

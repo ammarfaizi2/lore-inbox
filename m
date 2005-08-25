@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbVHYNu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbVHYN6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964988AbVHYNu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 09:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbVHYNu7
+	id S964995AbVHYN6t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 09:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVHYN6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 09:50:59 -0400
-Received: from sipsolutions.net ([66.160.135.76]:64006 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S964988AbVHYNu6 (ORCPT
+	Thu, 25 Aug 2005 09:58:49 -0400
+Received: from sun3.sammy.net ([68.162.198.6]:268 "HELO sun3.sammy.net")
+	by vger.kernel.org with SMTP id S964995AbVHYN6r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 09:50:58 -0400
-Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
-From: Johannes Berg <johannes@sipsolutions.net>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Robert Love <rml@novell.com>
-In-Reply-To: <1124977253.5039.13.camel@vertex>
-References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
-	 <430D986E.30209@reub.net>  <1124972307.6307.30.camel@localhost>
-	 <1124977253.5039.13.camel@vertex>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ARH8djpHFxyIwgeqctJG"
-Date: Thu, 25 Aug 2005 15:50:07 +0200
-Message-Id: <1124977807.6301.38.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 25 Aug 2005 09:58:47 -0400
+Date: Thu, 25 Aug 2005 09:59:05 -0400 (EDT)
+From: Sam Creasey <sammy@sammy.net>
+X-X-Sender: sammy@sun3
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Paul Jackson <pj@sgi.com>, Paul Mackerras <paulus@samba.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.13-rc7
+In-Reply-To: <Pine.LNX.4.62.0508251125030.28348@numbat.sonytel.be>
+Message-ID: <Pine.LNX.4.40.0508250954240.17653-100000@sun3>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-ARH8djpHFxyIwgeqctJG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2005-08-25 at 09:40 -0400, John McCutchan wrote:
+On Thu, 25 Aug 2005, Geert Uytterhoeven wrote:
 
-> On 2.6.13-rc7 the test program fails. It always fails when a wd =3D=3D 10=
-24.
-> If I skip inotify_rm_watch when wd =3D=3D 1024, it will fail at wd =3D=3D=
- 2048.
-> It seems the idr layer has an aversion to multiples of 1024.
->=20
-> When I run your test program I get this a lot:
+> Can't you use the plain m68k toolchain? I always used a m68k-linux-gcc 3.3.3
+> for my uClinux experiments.
+>
+> > sun3 is seriously broken and I doubt that we'll see any takers for testing
+> > 2.6 on those anyway ;-)
 
-I forgot to mention this -- but I just get (on -rc6):
+Hey, I'm writing this on a sun3! :)
 
-inotify_add_watch returned wd1 0
-inotify_add_watch returned wd2 1
-inotify_add_watch returned wd1 0
-inotify_add_watch returned wd2 1
-inotify_add_watch returned wd1 0
-inotify_add_watch returned wd2 1
+> However, a few months ago it was still known to work in m68k CVS (ask Sammy).
+> And I didn't see any real compile regressions since then.
 
-etc.
+Looks like the last rev which really worked on the sun3 was 2.6.5, which
+did work alright from m68k CVS (I did have another patch which needed to
+be applied to actually get it to run, but that appears to have been only
+fixes for the video/serial drivers, nothing "core").
 
-IOW, they are directly reused, not even with the +1 offset you were
-seeing.
+I have been a little out of it for a while on the sun3 stuffs, I'll admit
+(cursed day job), but I really, really intend to get recent 2.6 running
+again.  Knowing that the rest of m68k is at least compiling is a good
+start point.  Still, I'm going with Geert, and I'm not sure where the
+compile regressions would have come from (outside of the video/serial
+drivers, which don't compile in m68k CVS either).
 
-johannes
+What compile failures are you seeing?
 
---=-ARH8djpHFxyIwgeqctJG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-- Sam
 
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
 
-iQIVAwUAQw3MjaVg1VMiehFYAQJr2A//Ue1fV0PKNNyuvT+9E9WSb+/MoLAGRR3M
-HxEzbL6Ik/dD8m3KLNtTcB+cenNYWktRNSc2b4dg5UV4OYDtA+m+ER1XsS++1/Ki
-FUaYKREBLk1lqeH2jbIKXuY7b03QjvVSI+Dy8cU3PTTiStcPR5Qf4hvzGlQY8xNO
-WS4A6HEMsjKMVaIav6iTnXQhrEvjdES+VqbovKN0iKGk+lRfv4sKHOyvFrF2nZf7
-aFC7qDRyY2MwCAIlRe0H6svX7FDJNGIgldbNWFDnvDPwpPVNGGKxqxsXOqCbUJNZ
-ISVITesjXHvJk0r1nfTnZGLjj+QjXTnnjn8zQP48uFrsVtbAE4/RnxL8H5AqKnYI
-d+2RT8BbANYnzBZKLvu2cBgBwjzPZpVZy9SStYe06y2AHiosWHgEmoWdXZJs21aX
-XdYJ6buYPLmn8XdlunO4ZhubNpxbFFHUjZY5xSV+BtvDMX9NdJ4brKcDuMjpFjKT
-CMynOn4kkHyiQHmZxYtr08DdhJq+chJGV5bCc6bcQynMqvhlOxWfMwMEkToF8LDZ
-9HQPRUFFgRC4TP+yzDRSdtP5/A4PBtY5XXg9ngwoLncztzFSrxjAxGVsqFNDlrfM
-OjnWjccEh9D78e2MZRqTaeYIfRj7Rns0zhZ8Ch27RMlOZrG3/Y5kBiVLhJwgZq08
-t90w3pIsuVM=
-=yhOp
------END PGP SIGNATURE-----
 
---=-ARH8djpHFxyIwgeqctJG--
 

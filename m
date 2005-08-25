@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVHYSoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbVHYSpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbVHYSoh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 14:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVHYSoh
+	id S932354AbVHYSpx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 14:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbVHYSpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 14:44:37 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:15028 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932347AbVHYSoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 14:44:37 -0400
-Subject: Re: Petition for gas grices
-From: Lee Revell <rlrevell@joe-job.com>
-To: mkrufky@m1k.net
-Cc: Todd Bailey <toddb@toddbailey.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <430E0BE7.70205@m1k.net>
-References: <003001c5a98e$bde15ac0$dc8a0043@D649QM41>
-	 <00b201c5a99c$4c1a46f0$7200a8c0@office>  <430E0BE7.70205@m1k.net>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 14:44:30 -0400
-Message-Id: <1124995471.18675.10.camel@mindpipe>
+	Thu, 25 Aug 2005 14:45:53 -0400
+Received: from c-24-61-23-223.hsd1.ma.comcast.net ([24.61.23.223]:62404 "EHLO
+	cgf.cx") by vger.kernel.org with ESMTP id S932354AbVHYSpw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 14:45:52 -0400
+Date: Thu, 25 Aug 2005 14:45:51 -0400
+From: Christopher Faylor <me@cgf.cx>
+To: linux-kernel@vger.kernel.org,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Chris du Quesnay <duquesnay@hotmail.com>
+Subject: Re: Building the kernel with Cygwin
+Message-ID: <20050825184551.GA32464@trixie.casa.cgf.cx>
+References: <BAY14-F20DDBBC08EC1461957F455BAAB0@phx.gbl> <Pine.LNX.4.61.0508251258330.4160@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.8 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0508251258330.4160@chaos.analogic.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 14:20 -0400, Michael Krufky wrote:
-> Todd Bailey wrote:
-> 
-> > I'm all for this but I think there is little uncle George can do.
-> 
-> Was it necessary to cc this to everybody in the world?
+On Thu, Aug 25, 2005 at 01:05:24PM -0400, linux-os (Dick Johnson) wrote:
+>On Thu, 25 Aug 2005, Chris du Quesnay wrote:
+>>The scripts/basic directory contains a fixdep.exe after the make is
+>>run.  There is no fixdep file.  I tried renaming the fixdep.exe to
+>>fixdep, but that also resulted in the same make error.
+>
+>Ah yes! The Makefile will not execute 'fixdep.exe` it executes 'fixdep'
+>--hard coded.  I don't know how well cygwin emulates a Unix
+>environment, but maybe you can use an alias???  ..  Like...  alias
+>fixdep='fixdep.exe'
 
-God, I can't believe this epidemic of bitching about gas prices has
-invaded LKML of all places.
+How about a symlink?
 
-Take the fucking bus, ride a bike, or just fucking move closer to work.
-What ever gave all you people the idea that driving 50 miles each way to
-work was sustainable in the first place?  I can't believe how many
-otherwise rational people have a gigantic blind spot for this.
+ln -s fixdep.exe fixdep
 
-Lee
-
+cgf
+--
+Christopher Faylor			spammer? ->	aaaspam@sourceware.org
+Cygwin Co-Project Leader				aaaspam@duffek.com
+TimeSys, Inc.

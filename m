@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbVHYOEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbVHYOGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbVHYOEl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVHYOEl
+	id S965006AbVHYOGS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVHYOGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:04:41 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:45142 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S965002AbVHYOEl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:04:41 -0400
-Date: Thu, 25 Aug 2005 16:04:37 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.13-rc7
-Message-ID: <20050825140436.GA20557@harddisk-recovery.com>
-References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
+	Thu, 25 Aug 2005 10:06:18 -0400
+Received: from smtp103.rog.mail.re2.yahoo.com ([206.190.36.81]:40078 "HELO
+	smtp103.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S965005AbVHYOGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 10:06:17 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Robert Love <rml@novell.com>, Reuben Farrelly <reuben-lkml@reub.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1124978614.6301.44.camel@localhost>
+References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
+	 <430D986E.30209@reub.net>  <1124972307.6307.30.camel@localhost>
+	 <1124977253.5039.13.camel@vertex>  <1124977672.32272.10.camel@phantasy>
+	 <1124978614.6301.44.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 25 Aug 2005 10:06:22 -0400
+Message-Id: <1124978783.5039.29.camel@vertex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 23, 2005 at 10:08:13PM -0700, Linus Torvalds wrote:
->  I really wanted to release a 2.6.13, but there's been enough changes 
-> while we've been waiting for other issues to resolve that I think it's 
-> best to do a -rc7 first.
+On Thu, 2005-08-25 at 16:03 +0200, Johannes Berg wrote:
+> On Thu, 2005-08-25 at 09:47 -0400, Robert Love wrote:
+> 
+> > Let's just pass zero for the "above" parameter in idr_get_new_above(),
+> > which is I believe the behavior of the other interface, and see if the
+> > 1024-multiple problem goes away.  We definitely did not have that
+> > before.
+> 
+> Will we then need to test if it fails for more than 1024 watches?
+> 
+> If I adjust the program to
+> 
+> 1) create /tmp/test/%d
+> 2) watch /tmp/test/%d
+> 3) repeat
+> 
+> it fails on 2.6.13-rc6 as soon as the device is full and doesn't hold
+> any more directories.
 
-There's something strange going on with either ACPI or cpufreq. When
-the system boots, I see that the CPU is correctly detected as a 1200
-MHz mobile Athlon, but once I log in /proc/cpuinfo says it's 2.6 or 3.6
-GHz CPU. I don't have the laptop with me right now, but I'll send the
-boot messages tonight.
-
-
-Erik
+Could you send me the new test program?
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+John McCutchan <ttb@tentacle.dhs.org>

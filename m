@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbVHYTmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVHYTqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbVHYTmY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 15:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVHYTmY
+	id S932304AbVHYTqz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 15:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVHYTqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 15:42:24 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:40873 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1751393AbVHYTmY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 15:42:24 -0400
-Subject: Re: [PATCH][-mm] Generic VFS fallback for security xattrs
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       James Morris <jmorris@namei.org>, Chris Wright <chrisw@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1124991803.3873.125.camel@moss-spartans.epoch.ncsc.mil>
-References: <1124991803.3873.125.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 25 Aug 2005 15:46:55 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:51605 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751239AbVHYTqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 15:46:54 -0400
+Subject: Re: [RFC] RT-patch update to remove the global pi_lock
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050825193416.GB4070@elte.hu>
+References: <1124749192.17515.16.camel@dhcp153.mvista.com>
+	 <1124756775.5350.14.camel@localhost.localdomain>
+	 <1124758291.9158.17.camel@dhcp153.mvista.com>
+	 <1124760725.5350.47.camel@localhost.localdomain>
+	 <1124768282.5350.69.camel@localhost.localdomain>
+	 <1124908080.5604.22.camel@localhost.localdomain>
+	 <1124917003.5711.8.camel@localhost.localdomain>
+	 <1124932391.5527.15.camel@localhost.localdomain>
+	 <20050825063539.GB27291@elte.hu>
+	 <1124986554.5148.1.camel@localhost.localdomain>
+	 <20050825193416.GB4070@elte.hu>
 Content-Type: text/plain
-Organization: National Security Agency
-Date: Thu, 25 Aug 2005 15:39:38 -0400
-Message-Id: <1124998778.3873.145.camel@moss-spartans.epoch.ncsc.mil>
+Organization: Kihon Technologies
+Date: Thu, 25 Aug 2005 15:46:29 -0400
+Message-Id: <1124999189.6264.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 13:43 -0400, Stephen Smalley wrote:
-> This patch modifies the VFS setxattr, getxattr, and listxattr code to
-> fall back to the security module for security xattrs if the filesystem
-> does not support xattrs natively.  This allows security modules to
-> export the incore inode security label information to userspace even
-> if the filesystem does not provide xattr storage, and eliminates the
-> need to individually patch various pseudo filesystem types to provide
-> such access.  The patch removes the existing xattr code from devpts
-> and tmpfs as it is then no longer needed.
+On Thu, 2005-08-25 at 21:34 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> The patch restructures the code flow slightly to reduce duplication
-> between the normal path and the fallback path, but this should only
-> have one user-visible side effect - a program may get -EACCES rather
-> than -EOPNOTSUPP if policy denied access but the filesystem didn't
-> support the operation anyway.  Note that the post_setxattr hook call
-> is not needed in the fallback case, as the inode_setsecurity hook call
-> handles the incore inode security state update directly.  In contrast,
-> we do call fsnotify in both cases.
+> > > does the system truly lock up, or is this some transitional condition?  
+> > > In any case, i agree that this should be debugged independently of the 
+> > > pi_lock patch.
+> > 
+> > Hmm, I forgot that you took out the bit_spin_lock fixes.  I think this 
+> > may be caused by them.  I haven't look further into it yet.
 > 
-> Please include in -mm for wider testing prior to merging in 2.6.14.
+> yeah, i took them out because they clashed with upstream changes. Note 
+> that i meanwhile also introduced a per-bh lock, which might make it 
+> easier to fix the deadlock:
 > 
-> ---
+>  --- linux.orig/fs/buffer.c
+>  +++ linux/fs/buffer.c
+>  @@ -537,8 +537,7 @@ static void end_buffer_async_read(struct
+>           * decide that the page is now completely done.
+>           */
+>          first = page_buffers(page);
+>  -       local_irq_save(flags);
+>  -       bit_spin_lock(BH_Uptodate_Lock, &first->b_state);
+>  +       spin_lock_irqsave(&first->b_uptodate_lock, flags);
+>          clear_buffer_async_read(bh);
+>          unlock_buffer(bh);
+>          tmp = bh;
 > 
->  fs/Kconfig                 |   43 ----------------------
->  fs/devpts/Makefile         |    1 
->  fs/devpts/inode.c          |   21 -----------
->  fs/devpts/xattr_security.c |   47 ------------------------
->  fs/xattr.c                 |   80 +++++++++++++++++++++++++-----------------
->  mm/shmem.c                 |   85 ---------------------------------------------
->  6 files changed, 49 insertions(+), 228 deletions(-)
+> could jbd reuse this lock - or would it need another lock?
 
-Sorry, forgot to explicitly sign off on the patch:
+I think it can.  I'm looking into right now, but first I'm updating my
+logdev to the latest release.  I stripped it all out after submitting
+that pi_lock patch and now I have to put it back in!   I didn't save the
+updates that I added earlier, so I'm reworking things now.  The logging
+definitely helps me, since that was a major factor in getting that
+pi_lock patch done so quick.
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+-- Steve
 
--- 
-Stephen Smalley
-National Security Agency
 

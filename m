@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbVHYOQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVHYOQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965008AbVHYOQw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVHYOQw
+	id S965015AbVHYOQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVHYOQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:16:52 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:24984 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S965008AbVHYOQv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:16:51 -0400
-Date: Thu, 25 Aug 2005 16:16:17 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-cc: Sam Creasey <sammy@sammy.net>, Paul Jackson <pj@sgi.com>,
-       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.13-rc7
-In-Reply-To: <20050825141251.GS9322@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.62.0508251614440.28348@numbat.sonytel.be>
-References: <Pine.LNX.4.62.0508251125030.28348@numbat.sonytel.be>
- <Pine.LNX.4.40.0508250954240.17653-100000@sun3>
- <20050825141251.GS9322@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 Aug 2005 10:16:55 -0400
+Received: from adsl-67-65-14-122.dsl.austtx.swbell.net ([67.65.14.122]:14277
+	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
+	id S965015AbVHYOQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 10:16:54 -0400
+Subject: Re: [PATCH 2.6.13-rc6] dcdbas: add Dell Systems Management Base
+	Driver with sysfs support
+From: Michael E Brown <Michael_E_Brown@dell.com>
+To: David Greaves <david@dgreaves.com>
+Cc: Doug Warzecha <Douglas_Warzecha@dell.com>, matt_domsch@dell.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <430DCB58.1090107@dgreaves.com>
+References: <20050820225052.GA5042@sysman-doug.us.dell.com>
+	 <430DCB58.1090107@dgreaves.com>
+Content-Type: text/plain
+Date: Thu, 25 Aug 2005 09:16:48 -0500
+Message-Id: <1124979408.13113.18.camel@soltek.michaels-house.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Aug 2005, Al Viro wrote:
-> On Thu, Aug 25, 2005 at 09:59:05AM -0400, Sam Creasey wrote:
-> > I have been a little out of it for a while on the sun3 stuffs, I'll admit
-> > (cursed day job), but I really, really intend to get recent 2.6 running
-> > again.  Knowing that the rest of m68k is at least compiling is a good
-> > start point.  Still, I'm going with Geert, and I'm not sure where the
-> > compile regressions would have come from (outside of the video/serial
-> > drivers, which don't compile in m68k CVS either).
-> > 
-> > What compile failures are you seeing?
-> 
-> After looking at that for a while...  It's the second hairball in there ;-)
-> flush_icache_range()/flush_icache_user_range() stuff, with all related
-> fun.  Note that mainline has flush_ichace_range() in memory.c, which is
-> not picked by sun3.
+Please download libsmbios 0.10.0-beta1 and send the "dumpCmos" output
+from your machine. Please send it to the libsmbios devel mailing list.
+>From that output, I can tell you if this token is available on that
+machine. If that token is available, then yes, you can set that feature.
 
-Indeed, the cache flush routines have to be moved to a separate file, as per
-376-cache.diff. But that one depends on 362-cache.diff, that's why it's still
-in my POSTPONED queue, until the originator has pushed that one upstream.
+libsmbios can be obtained from http://linux.dell.com/libsmbios/main/
 
-Gr{oetje,eeting}s,
-
-						Geert
-
+dumpCmos is part of "make minimal", so you don't need any other libs
+present to compile. It is found under bins/output/ after compile.
+(alternatively, install the libs and bins rpms)
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Michael
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+On Thu, 2005-08-25 at 14:44 +0100, David Greaves wrote:
+> 
+> I have a Dell SC420
+> Is there a way (based around this patch) to allow users to enable and
+> set the auto-power-on BIOS feature?
+> (ie tell the BIOS to power on at 3:40am, power the system down, watch
+> it
+> power up at 3:40am)
+> 
+> Normally I'd use 'nvram-wakeup' but it dosen't understand the Dell
+> BIOS.
+> 
+> If so what I'd _like_ to do is send a patch to nvram-wakeup that tests
+> for this capability and uses it if it's there.
+> 
+> David
+> 
+

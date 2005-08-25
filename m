@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbVHYJF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbVHYJI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbVHYJF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 05:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbVHYJF6
+	id S964890AbVHYJI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 05:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbVHYJI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 05:05:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:23204 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964888AbVHYJF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 05:05:57 -0400
-Subject: Re: [PATCH] removes filp_count_lock and changes nr_files type to
-	atomic_t
-From: Arjan van de Ven <arjan@infradead.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <430D8518.8020502@cosmosbay.com>
-References: <20050824214610.GA3675@localhost.localdomain>
-	 <1124956563.3222.8.camel@laptopd505.fenrus.org>
-	 <430D8518.8020502@cosmosbay.com>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 11:05:44 +0200
-Message-Id: <1124960744.3222.11.camel@laptopd505.fenrus.org>
+	Thu, 25 Aug 2005 05:08:27 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40169 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964890AbVHYJI0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 05:08:26 -0400
+Date: Thu, 25 Aug 2005 11:08:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH] Add MCE resume under ia32
+Message-ID: <20050825090815.GA1863@elf.ucw.cz>
+References: <1124762500.3013.3.camel@linux-hp.sh.intel.com> <20050823103256.GB2795@elf.ucw.cz> <1124846001.3007.7.camel@linux-hp.sh.intel.com> <20050824085054.GA4310@elf.ucw.cz> <1124937391.4884.3.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1124937391.4884.3.camel@linux-hp.sh.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 10:45 +0200, Eric Dumazet wrote:
-> This patch removes filp_count_lock spinlock, used to protect files_stat.nr_files.
-> 
-> Just use atomic_t type and atomic_inc()/atomic_dec() operations.
-> 
-> This patch assumes that atomic_read() is a plain {return v->counter;} on all 
-> architectures. (keywords : sysctl, /proc/sys/fs/file-nr, proc_dointvec)
-> 
+On Čt 25-08-05 10:36:31, Shaohua Li wrote:
+> On Wed, 2005-08-24 at 10:50 +0200, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > > diff -puN arch/i386/power/cpu.c~mcheck_resume arch/i386/power/cpu.c
+> > > > > --- linux-2.6.13-rc6/arch/i386/power/cpu.c~mcheck_resume	2005-08-23 09:32:13.054008584 +0800
+> > > > > +++ linux-2.6.13-rc6-root/arch/i386/power/cpu.c	2005-08-23 09:41:54.992540480 +0800
+> > > > > @@ -104,6 +104,8 @@ static void fix_processor_context(void)
+> > > > >  
+> > > > >  }
+> > > > >  
+> > > > > +extern void mcheck_init(struct cpuinfo_x86 *c);
+> > > > > +
+> > > > >  void __restore_processor_state(struct saved_context *ctxt)
+> > > > >  {
+> > > > >  	/*
+> > > > 
+> > > > 
+> > > > this should go to some header file and most importantly
+> > > If you agree my other points, I'll do this.
+> Ok, updated one.
+> Reinitialize MCE to avoid MCE non-fatal warning after resume.
 
-this patch adds atomic ops where there were none before
->  static inline void file_free(struct file *f)
-> @@ -70,7 +62,7 @@
->  	/*
->  	 * Privileged users can go above max_files
->  	 */
-> -	if (files_stat.nr_files >= files_stat.max_files &&
-> +	if (atomic_read(&files_stat.nr_files) >= files_stat.max_files &&
->  				!capable(CAP_SYS_ADMIN))
->  		goto over;
->  
+ACK.
+							Pavel
 
-here 
-
-> @@ -94,10 +86,10 @@
->  
->  over:
->  	/* Ran out of filps - report that */
-> -	if (files_stat.nr_files > old_max) {
-> +	if (atomic_read(&files_stat.nr_files) > old_max) {
->  		printk(KERN_INFO "VFS: file-max limit %d reached\n",
->  					files_stat.max_files);
-> -		old_max = files_stat.nr_files;
-> +		old_max = atomic_read(&files_stat.nr_files);
->  	}
->  	goto fail;
-
-and here
-
-for those architectures that need atomics for read (parisc? arm?)
-
-however.. wouldn't it be better to make this a per cpu variable for
-write, and for read iterate or do something smart otherwise?
-
-
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

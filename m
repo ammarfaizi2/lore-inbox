@@ -1,134 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbVHYO0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbVHYO3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965020AbVHYO0t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965021AbVHYO0t
+	id S965021AbVHYO3D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbVHYO3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:26:49 -0400
-Received: from web33314.mail.mud.yahoo.com ([68.142.206.129]:43860 "HELO
-	web33314.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965019AbVHYO0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:26:48 -0400
+	Thu, 25 Aug 2005 10:29:03 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:7529 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S965021AbVHYO3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 10:29:01 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=TGQw1QYqrz4lyYjNNrjoYKcnlCVvO+OLDD/Ph7Za/P6k8dL8rW0C8qqVUq6LuM9cwHu37FKi410AmBMdu8uQS5JIHgxj/Z79zaFPXcgyrTK7yONRZFJgGiskpsa8LvzY94rutASoc2CgjVzZCBiDpuY7imeqRD11JV0msPDLGhk=  ;
-Message-ID: <20050825142647.70995.qmail@web33314.mail.mud.yahoo.com>
-Date: Thu, 25 Aug 2005 07:26:47 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: 2.6.12 Performance problems
-To: Ben Greear <greearb@candelatech.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <430D668A.6030306@candelatech.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
+  b=hs6geq6i9QIOAEKwxlzTt7mD4pn9aS3oEm3bPlbhli/HhAGhvG5OGeeO0qJF/+pVTAEvXDm6PEtQjqL5OD4ECwv4A5wpIJlJktUnBAWLd00nNfW+b1c7n9DAtRYvNtqOTK8xs8MGK9RFiHZASBbkr3Bp8tvYbsstWIqrNuwm7Yg=  ;
+Message-ID: <430DD5A8.7060705@yahoo.com.au>
+Date: Fri, 26 Aug 2005 00:28:56 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Ray Fucillo <fucillo@intersystems.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: process creation time increases linearly with shmem
+References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au> <430DC285.7070104@intersystems.com>
+In-Reply-To: <430DC285.7070104@intersystems.com>
+Content-Type: multipart/mixed;
+ boundary="------------020704080605000807080204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020704080605000807080204
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-
---- Ben Greear <greearb@candelatech.com> wrote:
-
-> Danial Thom wrote:
-> > 
-> > --- Ben Greear <greearb@candelatech.com>
-> wrote:
-> > 
-> > 
-> >>Danial Thom wrote:
-> >>
-> >>
-> >>>I think the concensus is that 2.6 has made
-> >>
-> >>trade
-> >>
-> >>>offs that lower raw throughput, which is
-> what
-> >>
-> >>a
-> >>
-> >>>networking device needs. So as a router or
-> >>>network appliance, 2.6 seems less suitable.
-> A
-> >>
-> >>raw
-> >>
-> >>>bridging test on a 2.0Ghz operton system:
-> >>>
-> >>>FreeBSD 4.9: Drops no packets at 900K pps
-> >>>Linux 2.4.24: Starts dropping packets at
-> 350K
-> >>
-> >>pps
-> >>
-> >>>Linux 2.6.12: Starts dropping packets at
-> 100K
-> >>
-> >>pps
-> >>
-> >>I ran some quick tests using kernel 2.6.11,
-> 1ms
-> >>tick (HZ=1000), SMP kernel.
-> >>Hardware is P-IV 3.0Ghz + HT on a new
-> >>SuperMicro motherboard with 64/133Mhz
-> >>PCI-X bus.  NIC is dual Intel pro/1000. 
-> Kernel
-> >>is close to stock 2.6.11.
-> >>
-> >>I used brctl to create a bridge with the two
-> >>GigE adapters in it and
-> >>used pktgen to stream traffic through it
-> >>(250kpps in one direction, 1kpps in
-> >>the other.)
-> >>
-> >>I see a reasonable amount of drops at 250kpps
-> >>(60 byte packets):
-> >>about 60,000,000 packets received, 20,700
-> >>dropped.
+Ray Fucillo wrote:
+> Nick Piggin wrote:
 > 
-> I get slightly worse performance on this system
-> when running RH9
-> with kernel 2.4.29 (my hacks, HZ=1000, SMP). 
-> Tried increasing
-> e1000 descriptors to 2048 tx and rx, but that
-> didn't help, or at least
-> not much.
+>> fork() can be changed so as not to set up page tables for
+>> MAP_SHARED mappings. I think that has other tradeoffs like
+>> initially causing several unavoidable faults reading
+>> libraries and program text.
+>>
+>> What kind of application are you using?
 > 
-> Will try some other tunings, but I doubt it
-> will affect performance
-> enough to come close to the discrepency that
-> you show between 2.4
-> and 2.6 kernels...
 > 
-> I tried copying a 500MB CDROM to HD on my RH9
-> system, and only 6kpps
-> of the 250kpps get through the bridge...btw.
+> The application is a database system called Caché.  We allocate a large 
+> shared memory segment for database cache, which in a large production 
+> environment may realistically be 1+GB on 32-bit platforms and much 
+> larger on 64-bit.  At these sizes fork() is taking hundreds of 
+> miliseconds, which can become a noticeable bottleneck for us.  This 
+> performance characteristic seems to be unique to Linux vs other Unix 
+> implementations.
+> 
+> 
 
-The tests I reported where on UP systems. Perhaps
-the default settings are better for this in 2.4,
-since that is what I used, and you used your
-hacks for both.
+As Andi said, hugepages might be a very nice feature for you guys
+to look into and might potentially give a performance increase with
+reduced TLB pressure, not only your immediate fork problem.
 
-Are you getting drops or overruns (or both)? I
-would assume drops is a decision to drop rather
-than an overrun which is a ring overrun. Overruns
-would imply more about performance than tuning,
-I'd think.
+Anyway, the attached patch is something you could try testing. If
+you do so, then I would be very interested to see performance results.
 
-I wouldn't think that HT would be appropriate for
-this sort of setup...?
+Thanks,
+Nick
 
-You're using a dual PCI-X NIC rather than the
-onboard ports? Supermicro runs their onboard
-controllers at 32bit/33mhz for some mindless
-reason.
+-- 
+SUSE Labs, Novell Inc.
 
-Danial
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+--------------020704080605000807080204
+Content-Type: text/plain;
+ name="vm-dontcopy-shared.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vm-dontcopy-shared.patch"
+
+Index: linux-2.6/kernel/fork.c
+===================================================================
+--- linux-2.6.orig/kernel/fork.c	2005-08-04 15:24:36.000000000 +1000
++++ linux-2.6/kernel/fork.c	2005-08-26 00:20:50.000000000 +1000
+@@ -256,7 +256,6 @@ static inline int dup_mmap(struct mm_str
+ 		 * Note that, exceptionally, here the vma is inserted
+ 		 * without holding mm->mmap_sem.
+ 		 */
+-		spin_lock(&mm->page_table_lock);
+ 		*pprev = tmp;
+ 		pprev = &tmp->vm_next;
+ 
+@@ -265,8 +264,11 @@ static inline int dup_mmap(struct mm_str
+ 		rb_parent = &tmp->vm_rb;
+ 
+ 		mm->map_count++;
+-		retval = copy_page_range(mm, current->mm, tmp);
+-		spin_unlock(&mm->page_table_lock);
++		if (!(file && (tmp->vm_flags & VM_SHARED))) {
++			spin_lock(&mm->page_table_lock);
++			retval = copy_page_range(mm, current->mm, tmp);
++			spin_unlock(&mm->page_table_lock);
++		}
+ 
+ 		if (tmp->vm_ops && tmp->vm_ops->open)
+ 			tmp->vm_ops->open(tmp);
+
+--------------020704080605000807080204--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

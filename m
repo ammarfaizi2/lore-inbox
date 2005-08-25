@@ -1,108 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVHYE0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVHYEao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbVHYE0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 00:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbVHYE0Y
+	id S964785AbVHYEao (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 00:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbVHYEao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 00:26:24 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:9102 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S964784AbVHYE0X
+	Thu, 25 Aug 2005 00:30:44 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:24565 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964785AbVHYEan convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 00:26:23 -0400
-X-ORBL: [69.107.75.50]
-Date: Wed, 24 Aug 2005 21:26:16 -0700
-From: David Brownell <david-b@pacbell.net>
-To: William.Morrow@amd.com
-Subject: Re: [PATCH] for acpi S1 power cycle resume problems
-Cc: linux-kernel@vger.kernel.org
-References: <4305EF1D.6020502@amd.com>
-In-Reply-To: <4305EF1D.6020502@amd.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20050825042616.1D64EC16B2@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+	Thu, 25 Aug 2005 00:30:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=GmrqAmHSEvlzZAWfNDk4CoIeecdL+q8S/cQwi+/APqo8m3yLvGjhj3YHQIAByBog+OrwZdfHyoG69C5O/Wvsa0M7xZtVO8WeK+iOsG4QsToCOVPJ2OIwG3QdY0ih54emTH85M/qbbgK+ADTazL3IR4XX3OGjk0Crp3As0HASZU4=
+Message-ID: <88ee31b705082421303697aef7@mail.gmail.com>
+Date: Thu, 25 Aug 2005 13:30:41 +0900
+From: Jerome Pinot <ngc891@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [KCONFIG] Can't compile 2.6.12 without Gettext
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Fri, 19 Aug 2005 08:39:25 -0600
-> From: "William Morrow" <William.Morrow@amd.com>
-> Subject: [PATCH] for acpi S1 power cycle resume problems
->
->
-> Hi
-> I was told that if I had a patch to submit for a baseline change that 
-> this was the place to do it.
+Hi,
 
-In this case that works fine.  Normally they should go to linux-usb-devel
-for me (and others) to read there.
+I didn't see much informations about this.
 
-Thanks, these need a bit of cleaning up, finishing, and splitting out;
-they should be in 2.6.14 though.  Comments below.  Were these patches
-written by you, or by Jordan?
+It's not possible to "make {,menu}config" and even to compile a 2.6.12
+kernel if there is no or partially installed Gettext on the system.
 
-- Dave
+Full Gettext is *required* to launch the kbuild scripts since the
+modifications to add i18n to the config scripts.
 
+Not all system have gettext, I'm thinking about small or embedded
+system with specific toolchain. For example, uClibc is widely used but
+as still a partial nls support.
 
+Anyway, this should not be required for compiling a kernel. At least
+an option to pass to make which override the default behavior could
+solve the issue.
 
-> If not, please let me know...
->
-> thanks,
-> morrow
->
-> Patched against 2.6.11 baseline
-> problems fixed:
-> 1) OHCI_INTR_RD not being cleared in ohci interrupt handler
->  results in interrupt storm and system hang on RD status.
->  ohci spec indicates this should be done.
+Moreover, the script doesn't do any sanity check about the system
+(there is no configure script of course) and just try to catch the
+gettext binaries he founds first. There is a hard-coded filename too.
 
-Yeah, I noticed that one but didn't fix it yet.  It's not that
-it was _never_ cleared ... only certain code paths missed it.
-The systems I test with were clearly using those working paths!
+Seems dangerous to me and should not be allowed by default.
 
-Having this fixed should help get rid of the 1/4 second timer
-this driver normally ties up.  That'll help make the dynamic
-tick stuff work better, reducing power even when something like
-"ACPI S1" doesn't exist (like say, on that one Zaurus).
+Am I misleading ?
 
-
-> 2) PORT_CSC not being cleared in ehci_hub_status_data
->  code attempts to clear bit, but bit is write to clear.
->  there are other errant clears, since the PORTSCn regs
->  have 3 RWC bits, and the rest are RW. All stmts of the form:
->    writel (v, &ehci->regs->port_status[i])
->  should clear RWC bits if they do not intend to clear status,
->  and should set the bits which should be cleared (this case).
-
-Yeah, whoever did that RWC patch for UHCI ports certainly should
-have checked other HCDs for the same bug.  (Kicks self.)
-
-In fact you didn't fix this issue comprehensively.  There are
-other places that register is written; they need to change too.
-
-This is clearly wrong, but did you notice any effects more
-serious than "lsusb -v" output for EHCI root hubs looking
-a bit strange?
-
-
-> 3) loop control and subsequent port resume/reset not correct.
->  unsigned index made detecting port1 active impossible,
-
-Odd, I've done that with some regularity.  Is that maybe
-some kind of compiler bug?  (I heard even 4.1 isn't quite
-there yet for kernels.)
-
-The looping doesn't look incorrect to me; ports are numbered
-from 1..N, and C code in the body must index them from 0..(N-1).
-
-
-> and OWNER/POWER status was being ignored on ports assigned
->  to companion controller.
-
-Well, in that one resume case anyway!
-
-But OWNER and POWER are very different status bits ... if POWER
-ever goes off, that port is by definition not resumable.  But
-if a port's owned by the companion (OHCI or UHCI) controller,
-then it surely ought not to be reset (even if the companion's
-own SUSPEND bit doesn't show through EHCI).
-
+-- 
+Jerome Pinot
+ftp://ngc891.blogdns.net/pub

@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVHYSUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVHYSXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVHYSUy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 14:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbVHYSUy
+	id S932321AbVHYSXj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 14:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVHYSXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 14:20:54 -0400
-Received: from kirby.webscope.com ([204.141.84.57]:18121 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S932319AbVHYSUx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 14:20:53 -0400
-Message-ID: <430E0BE7.70205@m1k.net>
-Date: Thu, 25 Aug 2005 14:20:23 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Todd Bailey <toddb@toddbailey.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Petition for gas grices
-References: <003001c5a98e$bde15ac0$dc8a0043@D649QM41> <00b201c5a99c$4c1a46f0$7200a8c0@office>
-In-Reply-To: <00b201c5a99c$4c1a46f0$7200a8c0@office>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Aug 2005 14:23:39 -0400
+Received: from ms-smtp-01-smtplb.rdc-nyc.rr.com ([24.29.109.5]:41169 "EHLO
+	ms-smtp-01.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S932321AbVHYSXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 14:23:38 -0400
+Date: Thu, 25 Aug 2005 14:23:32 -0400 (EDT)
+Message-Id: <200508251823.j7PINW1g001660@ms-smtp-01.rdc-nyc.rr.com>
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-URL: mailto:linux-kernel@vger.kernel.org
+X-Mailer: Lynx, Version 2.8.6dev.13c
+From: robotti@godmail.com
+Subject: Initramfs and TMPFS!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Todd Bailey wrote:
 
-> I'm all for this but I think there is little uncle George can do.
+   >On Thu, Aug 25, 2005 at 11:38:49AM -0400, robotti@xxxxxxxxxxx wrote:
+   >What if you have a root.cpio.gz that requires 200MB to hold, but you
+   >only have 300MB of memory?
+   >
+   >50% of total memory wouldn't hold it, but 90% etc. would
+   >(tmpfs_size=90%).
 
-Was it necessary to cc this to everybody in the world?  ...and even if 
-so, couldn't you have BCC'd it?  Now my email address, along with so 
-many others, will be grabbed by numerous spam-bots.  sure, im sure 
-enough spam bot's have it already, but this MASS cc was just not cool.
+   >>tmpfs will not help you here. Yes, it can be swapped, but just like
+   >>with ramfs you first need to *unpack* the cpio archive before you can
+   >>even start the "swapon /dev/hda2" command on it.
 
-bleh.
+I was making a case for a tmpfs_size option if tmpfs is used for a initramfs,
+because tmpfs has a default 50% memory limit.
 
--- 
-Michael Krufky
+   >>Same with initrd, btw. If the compressed initrd image, plus the
+   >>uncompressed image, plus the kernel size are larger than the memory
+   >>size, the system will not boot.
 
+Right.
 
+   

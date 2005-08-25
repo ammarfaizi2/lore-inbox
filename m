@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVHYJQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbVHYJTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbVHYJQK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 05:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbVHYJQJ
+	id S964897AbVHYJTb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 05:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVHYJTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 05:16:09 -0400
-Received: from extgw-uk.mips.com ([62.254.210.129]:9239 "EHLO
-	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
-	id S964893AbVHYJQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 05:16:08 -0400
-Date: Wed, 24 Aug 2005 23:49:29 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Kumar Gala <galak@freescale.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 05/15] ia64: remove use of asm/segment.h
-Message-ID: <20050824224929.GB2714@linux-mips.org>
-References: <Pine.LNX.4.61.0508241139100.23956@nylon.am.freescale.net> <Pine.LNX.4.61.0508241152380.23956@nylon.am.freescale.net> <200508241409.55570.bjorn.helgaas@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508241409.55570.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 25 Aug 2005 05:19:31 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:22253 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S964897AbVHYJTb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 05:19:31 -0400
+Message-ID: <430D8CA3.3030709@cosmosbay.com>
+Date: Thu, 25 Aug 2005 11:17:23 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removes filp_count_lock and changes nr_files type to
+ atomic_t
+References: <20050824214610.GA3675@localhost.localdomain> <1124956563.3222.8.camel@laptopd505.fenrus.org> <430D8518.8020502@cosmosbay.com> <20050825090854.GA9740@infradead.org>
+In-Reply-To: <20050825090854.GA9740@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 25 Aug 2005 11:17:23 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 02:09:55PM -0600, Bjorn Helgaas wrote:
-
-> On Wednesday 24 August 2005 10:53 am, Kumar Gala wrote:
-> > Removed IA64 architecture specific users of asm/segment.h and
-> > asm-ia64/segment.h itself
+Christoph Hellwig a écrit :
+> On Thu, Aug 25, 2005 at 10:45:12AM +0200, Eric Dumazet wrote:
 > 
-> I posted a similar patch a month ago, but I only removed the
-> arch/ia64 includes of asm/segment.h.
+>>This patch assumes that atomic_read() is a plain {return v->counter;} on 
+>>all architectures. (keywords : sysctl, /proc/sys/fs/file-nr, proc_dointvec)
 > 
-> There are still a few drivers that include asm/segment.h, so
-> I don't think we should remove asm/segment.h itself just yet.
+> 
+> But that's not true.  You need to write you own sysctl handler for it,
+> probably worth adding a generic atomic_t sysctl handler while you're
+> at it.
+> 
 
-<asm/segment.h> was replaced by <asm/uaccess.h> in 2.1.4 and we still have
-references ...
+I checked linux-2.6.13-rc7 tree, and atomic_read() is just a wrapper to read 
+v->counter.
 
-  Ralf
+In the ancient times, yes, atomic_read() was different on some archs, but not 
+today.
+
+Eric
+

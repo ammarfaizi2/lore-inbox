@@ -1,76 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVHYFXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbVHYFYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbVHYFXg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 01:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbVHYFW1
+	id S964842AbVHYFYC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 01:24:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbVHYFWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 01:22:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8908 "EHLO
+	Thu, 25 Aug 2005 01:22:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9676 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S964820AbVHYFWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 01:22:06 -0400
+	id S964821AbVHYFWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 01:22:11 -0400
 To: geert@linux-m68k.org, torvalds@osdl.org
-Subject: [PATCH] (18/22) task_thread_info - part 2/4
+Subject: [PATCH] (19/22) task_thread_info - part 3/4
 Cc: linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org
-Message-Id: <E1E8AEh-0005eT-NP@parcelfarce.linux.theplanet.co.uk>
+Message-Id: <E1E8AEm-0005ed-Ok@parcelfarce.linux.theplanet.co.uk>
 From: Al Viro <viro@www.linux.org.uk>
-Date: Thu, 25 Aug 2005 06:25:11 +0100
+Date: Thu, 25 Aug 2005 06:25:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-encapsulates the rest of arch-dependent operations with thread_info access.
-Two new helpers - setup_thread_info() and end_of_stack().  For normal
-case the former consists of copying thread_info of parent to new thread_info
-and the latter returns pointer immediately past the end of thread_info.
+a) in smp_lock.h #include of sched.h and spinlock.h moved under
+#ifdef CONFIG_LOCK_KERNEL.
+b) interrupt.h now explicitly pulls sched.h (not via smp_lock.h from
+hardirq.h as it used to)
+c) in two more places we need changes to compensate for (a) - one place in
+arch/sparc needs string.h now and hardirq.h needs forward declaration of
+task_struct and direct include of thread_info.h.
+d) thread_info-related helpers in sched.h and thread_info.h put under
+ifndef __HAVE_THREAD_FUNCTIONS.  Obviously safe.
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 ----
-diff -urN RC13-rc7-task_thread_info/include/linux/sched.h RC13-rc7-other-helpers/include/linux/sched.h
---- RC13-rc7-task_thread_info/include/linux/sched.h	2005-08-25 00:54:17.000000000 -0400
-+++ RC13-rc7-other-helpers/include/linux/sched.h	2005-08-25 00:54:17.000000000 -0400
-@@ -1138,6 +1138,16 @@
+diff -urN RC13-rc7-other-helpers/arch/sparc/lib/bitext.c RC13-rc7-includes/arch/sparc/lib/bitext.c
+--- RC13-rc7-other-helpers/arch/sparc/lib/bitext.c	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc7-includes/arch/sparc/lib/bitext.c	2005-08-25 00:54:18.000000000 -0400
+@@ -10,6 +10,7 @@
+  */
  
+ #include <linux/smp_lock.h>
++#include <linux/string.h>
+ #include <linux/bitops.h>
+ 
+ #include <asm/bitext.h>
+diff -urN RC13-rc7-other-helpers/include/linux/hardirq.h RC13-rc7-includes/include/linux/hardirq.h
+--- RC13-rc7-other-helpers/include/linux/hardirq.h	2005-08-10 10:37:54.000000000 -0400
++++ RC13-rc7-includes/include/linux/hardirq.h	2005-08-25 00:54:18.000000000 -0400
+@@ -4,6 +4,7 @@
+ #include <linux/config.h>
+ #include <linux/preempt.h>
+ #include <linux/smp_lock.h>
++#include <linux/thread_info.h>
+ #include <asm/hardirq.h>
+ #include <asm/system.h>
+ 
+@@ -90,6 +91,8 @@
+ #define nmi_enter()		irq_enter()
+ #define nmi_exit()		sub_preempt_count(HARDIRQ_OFFSET)
+ 
++struct task_struct;
++
+ #ifndef CONFIG_VIRT_CPU_ACCOUNTING
+ static inline void account_user_vtime(struct task_struct *tsk)
+ {
+diff -urN RC13-rc7-other-helpers/include/linux/interrupt.h RC13-rc7-includes/include/linux/interrupt.h
+--- RC13-rc7-other-helpers/include/linux/interrupt.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc7-includes/include/linux/interrupt.h	2005-08-25 00:54:18.000000000 -0400
+@@ -12,6 +12,7 @@
+ #include <asm/atomic.h>
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
++#include <linux/sched.h>
+ 
+ /*
+  * For 2.4.x compatibility, 2.4.x can use
+diff -urN RC13-rc7-other-helpers/include/linux/sched.h RC13-rc7-includes/include/linux/sched.h
+--- RC13-rc7-other-helpers/include/linux/sched.h	2005-08-25 00:54:17.000000000 -0400
++++ RC13-rc7-includes/include/linux/sched.h	2005-08-25 00:54:18.000000000 -0400
+@@ -1136,6 +1136,8 @@
+ 	spin_unlock(&p->alloc_lock);
+ }
+ 
++#ifndef __HAVE_THREAD_FUNCTIONS
++
  #define task_thread_info(task) (task)->thread_info
  
-+static inline void setup_thread_info(struct task_struct *p, struct thread_info *ti)
-+{
-+	*ti = *p->thread_info;
-+}
-+
-+static inline unsigned long *end_of_stack(struct task_struct *p)
-+{
-+	return (unsigned long *)(p->thread_info + 1);
-+}
-+
- /* set thread flags in other task's structures
-  * - see asm/thread_info.h for TIF_xxxx flags available
-  */
-diff -urN RC13-rc7-task_thread_info/kernel/fork.c RC13-rc7-other-helpers/kernel/fork.c
---- RC13-rc7-task_thread_info/kernel/fork.c	2005-08-25 00:54:17.000000000 -0400
-+++ RC13-rc7-other-helpers/kernel/fork.c	2005-08-25 00:54:17.000000000 -0400
-@@ -169,8 +169,8 @@
- 		return NULL;
- 	}
+ static inline void setup_thread_info(struct task_struct *p, struct thread_info *ti)
+@@ -1176,6 +1178,8 @@
+ 	return test_ti_thread_flag(task_thread_info(tsk), flag);
+ }
  
--	*ti = *orig->thread_info;
- 	*tsk = *orig;
-+	setup_thread_info(tsk, ti);
- 	tsk->thread_info = ti;
- 	ti->task = tsk;
++#endif
++
+ static inline void set_tsk_need_resched(struct task_struct *tsk)
+ {
+ 	set_tsk_thread_flag(tsk,TIF_NEED_RESCHED);
+diff -urN RC13-rc7-other-helpers/include/linux/smp_lock.h RC13-rc7-includes/include/linux/smp_lock.h
+--- RC13-rc7-other-helpers/include/linux/smp_lock.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc7-includes/include/linux/smp_lock.h	2005-08-25 00:54:18.000000000 -0400
+@@ -2,11 +2,10 @@
+ #define __LINUX_SMPLOCK_H
  
-diff -urN RC13-rc7-task_thread_info/kernel/sched.c RC13-rc7-other-helpers/kernel/sched.c
---- RC13-rc7-task_thread_info/kernel/sched.c	2005-08-25 00:54:17.000000000 -0400
-+++ RC13-rc7-other-helpers/kernel/sched.c	2005-08-25 00:54:17.000000000 -0400
-@@ -4121,10 +4121,10 @@
+ #include <linux/config.h>
++#ifdef CONFIG_LOCK_KERNEL
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
+ 
+-#ifdef CONFIG_LOCK_KERNEL
+-
+ #define kernel_locked()		(current->lock_depth >= 0)
+ 
+ extern int __lockfunc __reacquire_kernel_lock(void);
+diff -urN RC13-rc7-other-helpers/include/linux/thread_info.h RC13-rc7-includes/include/linux/thread_info.h
+--- RC13-rc7-other-helpers/include/linux/thread_info.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-rc7-includes/include/linux/thread_info.h	2005-08-25 00:54:18.000000000 -0400
+@@ -22,6 +22,7 @@
+ 
+ #ifdef __KERNEL__
+ 
++#ifndef __HAVE_THREAD_FUNCTIONS
+ /*
+  * flag set/clear/test wrappers
+  * - pass TIF_xxxx constants to these functions
+@@ -88,5 +89,6 @@
+ }
+ 
  #endif
- #ifdef CONFIG_DEBUG_STACK_USAGE
- 	{
--		unsigned long * n = (unsigned long *) (p->thread_info+1);
-+		unsigned long * n = end_of_stack(p);
- 		while (!*n)
- 			n++;
--		free = (unsigned long) n - (unsigned long)(p->thread_info+1);
-+		free = (unsigned long) n - (unsigned long) end_of_stack(p);
- 	}
- #endif
- 	printk("%5lu %5d %6d ", free, p->pid, p->parent->pid);
++#endif
+ 
+ #endif /* _LINUX_THREAD_INFO_H */

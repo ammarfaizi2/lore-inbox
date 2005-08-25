@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbVHYTEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbVHYTFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbVHYTEz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 15:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbVHYTEz
+	id S932511AbVHYTFh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 15:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbVHYTFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 15:04:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21694 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932507AbVHYTEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 15:04:53 -0400
-Date: Thu, 25 Aug 2005 20:07:55 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Paul Jackson <pj@sgi.com>, paulus@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, rth@twiddle.net
-Subject: Re: Linux-2.6.13-rc7
-Message-ID: <20050825190755.GV9322@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk> <20050824114351.4e9b49bb.pj@sgi.com> <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk> <20050824201301.GA23715@mipter.zuzino.mipt.ru> <20050824213859.GN9322@parcelfarce.linux.theplanet.co.uk> <20050825072731.GA876@mipter.zuzino.mipt.ru>
+	Thu, 25 Aug 2005 15:05:37 -0400
+Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:34170 "HELO
+	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932511AbVHYTFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 15:05:34 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: george@mvista.com, Robert Love <rml@novell.com>, jim.houston@ccur.com,
+       Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1124996592.19546.12.camel@localhost>
+References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
+	 <430D986E.30209@reub.net>  <1124976814.5039.4.camel@vertex>
+	 <1124983117.6810.198.camel@betsy>  <430E13D8.8070005@mvista.com>
+	 <1124996592.19546.12.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 25 Aug 2005 15:06:17 -0400
+Message-Id: <1124996777.16219.5.camel@vertex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050825072731.GA876@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 11:27:32AM +0400, Alexey Dobriyan wrote:
-> Mine is alpha-unknown-linux-gnu-gcc (GCC) 3.4.4 (Gentoo 3.4.4)
+On Thu, 2005-08-25 at 21:03 +0200, Johannes Berg wrote:
+> On Thu, 2005-08-25 at 11:54 -0700, George Anzinger wrote:
 > 
-> > Which place triggers it in your build?
+> > I think the best thing is to take idr into user space and emulate the 
+> > problem usage.  
 > 
-> net/ipv4/route.c:3152, call to rt_hash_lock_init().
+> Good plan, I guess. Do you think that's easy?
 > 
-> >From preprocessed source (reformatted):
-> -----------------------------------------------------------------------
-> typedef struct {
-> 	volatile unsigned int lock;
+> > To this end, from the log it appears that you _might_ be 
+> > moving between 0, 1 and 2 entries increasing the number each time.  It 
+> > also appears that the failure happens here:
+> > add 1023
+> > add 1024
+> > find 1024  or is it the remove that fails?  It also looks like 1024 got 
+> > allocated twice.  Am I reading the log correctly?
 > 
-> 	int on_cpu;
-> 	int line_no;
-> 	void *previous;
-> 	struct task_struct * task;
-> 	const char *base_file;
-> } spinlock_t;
-> 
-> static inline void *kmalloc(size_t size, unsigned int flags)
+> Remove 1024 fails, but add(please make it >1024) seems to return 1024,
+> and find(1024) also seems to fail. Well, remove() probably has to
+> find(), but I'm not really sure what inotify does (maybe find first, to
+> see if it's valid).
 
-Oh, lovely...
+Just to clarify, the remove() he is talking about isn't idr_remove, it
+is inotify's remove. idr_find() is failing at 1024 which causes
+inotify's remove to fail.
 
-a) gcc4 on alpha refuses to make that inline
-b) bug is real, indeed - spinlock debugging + >32 CPU => panic in ip_rt_init()
-
-IMO that's a question to rth: why do we really need to block always_inline
-on alpha?
-
+-- 
+John McCutchan <ttb@tentacle.dhs.org>

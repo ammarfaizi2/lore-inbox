@@ -1,96 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVHYSPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbVHYSQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbVHYSPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 14:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVHYSPQ
+	id S1751419AbVHYSQP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 14:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbVHYSQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 14:15:16 -0400
-Received: from ms-smtp-02-smtplb.rdc-nyc.rr.com ([24.29.109.6]:53980 "EHLO
-	ms-smtp-02.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S1751391AbVHYSPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 14:15:15 -0400
-Date: Thu, 25 Aug 2005 14:15:13 -0400 (EDT)
-Message-Id: <200508251815.j7PIFDGe026463@ms-smtp-02.rdc-nyc.rr.com>
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-URL: mailto:linux-kernel@vger.kernel.org
-X-Mailer: Lynx, Version 2.8.6dev.13c
-From: robotti@godmail.com
-Subject: Initramfs and TMPFS!
+	Thu, 25 Aug 2005 14:16:15 -0400
+Received: from heisenberg.zen.co.uk ([212.23.3.141]:51356 "EHLO
+	heisenberg.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1751402AbVHYSQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 14:16:14 -0400
+Message-ID: <430E0A84.8080809@dresco.co.uk>
+Date: Thu, 25 Aug 2005 19:14:28 +0100
+From: Jon Escombe <lists@dresco.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jens Axboe <axboe@suse.de>,
+       Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>,
+       linux-ide@vger.kernel.org
+Subject: Re: [Hdaps-devel] Re: HDAPS, Need to park the head for real
+References: <1124205914.4855.14.camel@localhost.localdomain>	 <20050816200708.GE3425@suse.de>  <430CEA54.7060803@dresco.co.uk> <1124967468.21456.6.camel@localhost.localdomain>
+In-Reply-To: <1124967468.21456.6.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Hops: 1
+X-Originating-Heisenberg-IP: [82.68.23.174]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> @@ -1661,6 +1671,9 @@
+>                 where = ELEVATOR_INSERT_FRONT;
+>                 rq->flags |= REQ_PREEMPT;
+>         }
+> +       if (action == ide_next)
+> +               where = ELEVATOR_INSERT_FRONT;
+> +
+>         __elv_add_request(drive->queue, rq, where, 0);
+>         ide_do_request(hwgroup, IDE_NO_IRQ);
+>         spin_unlock_irqrestore(&ide_lock, flags);
+> 
+> Also puzzles me- why is this needed ?
 
-   >Could you please please pretty please get an RFC compliant mailer that
-   >generates  "In-Reply-To" and preferable even "References" headers?
-   >Right
-   >now every mail you write starts a new thread instead of referencing to
-   >the previous one. See http://lkml.org/lkml/2005/8/25/180/ to see what
-   >I mean.
+I wanted the park command to get in at the head of the queue (behind the 
+currently executing request).
 
-I'm not subscribed to the list and I use lynx and a small mda
-called msmtp, so I know it's awkward (perhaps mostly for me).
+Contrary to the comments for ide_do_drive_cmd(), ide_next didn't appear 
+to do anything to achieve this? At least from my initial testing before 
+I made this change - it could take a second or so for the park command 
+to be issued if the disk was busy....
 
-But, that's my setup.
+Regards,
+Jon.
 
-Perhaps if the list had a followup/reply option, I could use that in lynx.
-
-But, the list just seems to be useful for reading purposes.
-
-Perhaps I could access the list through a newsreader and the
-replys would be threaded/referenced.
-
-   >Cpio is perhaps as available as tar, but it's not as used as tar.
-   >>So? Firefox is as available as IE, but it's not as used as IE. Does
-   >>that make IE better?
-   
-I have no opinion on which one is better.
-   
-I prefer tar because I have more experience with it, and it works.
-   
-It seems to be the most used archiver in the UNIX world.
-   
-   >Unless tar would be inordinately larger than a cpio implementation
-   >(I can't imagine, but I'm not a coder!) I would prefer it.
-   >>You have been told a couple of times that a tar implementation in
-   >>kernel is indeed larger than a cpio implementation. If you're not a
-   >>coder, just believe the coders.
-   
-No one has explicitly told me that. 
-   
-   >If initramfs replaces the old initrd method it should have something
-   >as a filesystem that's robust and inspires confidence like ext2.
-   >>The simplicity of ramfs inspires more than enough confidence.
-   
-   >I know generally an initrd is used to load modules and prepare
-   >the installation of a Linux system, so it doesn't require much
-   >in a filesystem.
-   >>An initramfs can be used to do the same, but doesn't have the overhead
-   >>of a block device. IOW: it requires even *less* than an initrd.
-   
-Right, an initramfs can/should replace the old initrd method, but
-it should be comparable and have a filesystem like tmpfs as an option.
-   
-The old initrd method could use any filesystem for the initrd
-that the kernel could support, but now with initramfs all you
-have is ramfs.
-    
-If you add tmpfs to initramfs you make initramfs comparable enough
-(on the filesystem level) to replace the old initrd method.
-   
-Initramfs is already ahead of the old initrd method on other levels.
-     
-   >But, it can also be used to hold and run a complete Linux system,
-   >so a more robust filesystem (tmpfs) is useful.
-   >>What makes you think tmpfs is more robust than ramfs? What do you mean
-   >>with a "robust filesystem"?
-
-I've used tmpfs and ramfs, so it's based on experience.
-
-I'm sure someone could give you a more technical answer, but if
-you're a coder you would probably already know.
-
-For one, if you do "dd if=/dev/zero of=foo" on a ramfs the system
-will lock up.
+______________________________________________________________
+Email via Mailtraq4Free from Enstar (www.mailtraqdirect.co.uk)

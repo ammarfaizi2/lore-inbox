@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVHYQpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbVHYQzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbVHYQpq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 12:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVHYQpq
+	id S1751195AbVHYQzh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 12:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVHYQzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 12:45:46 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:46025 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S932302AbVHYQpp (ORCPT
+	Thu, 25 Aug 2005 12:55:36 -0400
+Received: from ns1.lanforge.com ([66.165.47.210]:29595 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S1751195AbVHYQzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 12:45:45 -0400
-Subject: Need better is_better_time_interpolator() algorithm
-From: Alex Williamson <alex.williamson@hp.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: LOSL
-Date: Thu, 25 Aug 2005 10:44:28 -0600
-Message-Id: <1124988269.5331.49.camel@tdi>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 25 Aug 2005 12:55:35 -0400
+Message-ID: <430DF7FF.9080502@candelatech.com>
+Date: Thu, 25 Aug 2005 09:55:27 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: danial_thom@yahoo.com
+CC: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.12 Performance problems
+References: <20050825142647.70995.qmail@web33314.mail.mud.yahoo.com>
+In-Reply-To: <20050825142647.70995.qmail@web33314.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Danial Thom wrote:
 
-   In playing with an HPET device, I noticed that
-kernel/timer.c:is_better_time_interpolator() is completely non-symmetric
-in the timer it returns.  The test is simply:
+> The tests I reported where on UP systems. Perhaps
+> the default settings are better for this in 2.4,
+> since that is what I used, and you used your
+> hacks for both.
 
-return new->frequency > 2*time_interpolator->frequency ||
- (unsigned long)new->drift < (unsigned long)time_interpolator->drift;
+My modifications to the kernel are unlikely to speed anything
+up, and probably will slow things down ever so slightly.
 
-Given two timers:
+I can try with a UP kernel, but my machine at least has a single
+processor.  I'm using the SMP kernel to take advantage of HT.
 
-(a) 1.5GHz, 750ppm
-(b) 250Mhz, 500ppm
+> Are you getting drops or overruns (or both)? I
+> would assume drops is a decision to drop rather
+> than an overrun which is a ring overrun. Overruns
+> would imply more about performance than tuning,
+> I'd think.
 
-the resulting "better" timer is completely dependent on the order
-they're passed in.  For example, (a),(b) = (b); (b),(a) = (a).
+I was seeing lots of NIC errors...in fact, it was showing a great many
+more errors than packets sent to it, so I just ignored them.
 
-   What are we really looking for in a "better" timer?  There are at
-least 4 factors that I can think of that seem important to determining a
-better clock:
+I increased the TxDescriptors and RxDescriptors and that helped a little.
 
-      * resolution (frequency)
-      * accuracy (drift)
-      * access latency (may be non-uniform across the system?)
-      * jitter (monotonically increasing)
+Increasing the transmit queue for the NIC to 2000 also helped a little.
 
-How can we munge these all together to come up with a single goodness
-factor for comparison?  There's probably a thesis covering algorithms to
-handle this.  Anyone know of one or have some good ideas?  Thanks,
+> I wouldn't think that HT would be appropriate for
+> this sort of setup...?
 
-	Alex
+2.6.11 seems to be faster when running SMP kernel on this system.
+> 
+> You're using a dual PCI-X NIC rather than the
+> onboard ports? Supermicro runs their onboard
+
+Of course.  Never found a motherboard yet with decent built-in
+NICs.  The built-ins on this board are tg3 and they must be on
+a slow bus, because they cannot go faster than about 700Mbps
+(using big pkts).
+
+I'll benchmark things again when 2.6.13 comes out and try to
+get some more detailed numbers...
+
+Thanks,
+Ben
 
 -- 
-Alex Williamson                             HP Linux & Open Source Lab
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

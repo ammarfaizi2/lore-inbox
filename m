@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVHYXn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVHYXxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbVHYXn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 19:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbVHYXn3
+	id S1750723AbVHYXxz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 19:53:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbVHYXxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 19:43:29 -0400
-Received: from gate.crashing.org ([63.228.1.57]:59569 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965027AbVHYXn2 (ORCPT
+	Thu, 25 Aug 2005 19:53:55 -0400
+Received: from vena.lwn.net ([206.168.112.25]:63653 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S1751074AbVHYXxy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 19:43:28 -0400
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linas Vepstas <linas@austin.ibm.com>, John Rose <johnrose@austin.ibm.com>,
-       akpm@osdl.org, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <17166.20904.543484.435446@cargo.ozlabs.ibm.com>
-References: <20050823231817.829359000@bilge>
-	 <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com>
-	 <1124898331.24668.33.camel@sinatra.austin.ibm.com>
-	 <20050824162959.GC25174@austin.ibm.com>
-	 <17165.3205.505386.187453@cargo.ozlabs.ibm.com>
-	 <1124930943.5159.168.camel@gaston> <20050825162118.GH25174@austin.ibm.com>
-	 <1125006237.12539.23.camel@gaston>
-	 <17166.20904.543484.435446@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Date: Fri, 26 Aug 2005 09:37:36 +1000
-Message-Id: <1125013056.14185.0.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Aug 2005 19:53:54 -0400
+Message-ID: <20050825235354.10376.qmail@lwn.net>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Greg Kroah-Hartman <greg@kroah.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
+       Jonathan Corbet <corbet@lwn.net>, Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] drivers/hwmon/*: kfree() correct pointers 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Fri, 26 Aug 2005 00:02:31 +0200."
+             <20050826000231.35b97af9.khali@linux-fr.org> 
+Date: Thu, 25 Aug 2005 17:53:54 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 09:18 +1000, Paul Mackerras wrote:
-> Benjamin Herrenschmidt writes:
-> 
-> > Ok, so what is the problem then ? Why do we have to wait at all ? Why
-> > not just unplug/replug right away ?
-> 
-> We'd have to be absolutely certain that the driver could not possibly
-> take another interrupt or try to access the device on behalf of the
-> old instance of the device by the time it returned from the remove
-> function.  I'm not sure I'd trust most drivers that far...
+> Already fixed in Greg's i2c tree and -mm for quite some time now...
 
-Hrm... If a driver gets that wrong, then it will also blow up when
-unloaded as a module. All drivers should be fully shut down by the time
-they return from remove(). free_irq() is synchronous as is iounmap() and
-both of those are usually called as part of remove(). I wouldn't be too
-worried here.
+So it is.  The comment says, however, that "the existing code works
+somewhat by accident."  In the case of the 9240 driver, however, the
+existing code demonstrably does not work - it oopsed on me.  The patch
+in Greg's tree looks fine (it's a straightforward fix, after all); I'd
+recommend that it be merged before 2.6.13.
 
-Ben.
+jon
 
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net
 

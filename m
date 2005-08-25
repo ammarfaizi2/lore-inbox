@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbVHYOir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVHYOjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbVHYOir (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbVHYOir
+	id S1751040AbVHYOjs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbVHYOjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:38:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12708 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S1750872AbVHYOiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:38:46 -0400
-Date: Thu, 25 Aug 2005 15:41:52 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH] (18/22) task_thread_info - part 2/4
-Message-ID: <20050825144152.GU9322@parcelfarce.linux.theplanet.co.uk>
-References: <E1E8AEh-0005eT-NP@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.61.0508251107500.24552@scrub.home> <20050825130738.GQ9322@parcelfarce.linux.theplanet.co.uk> <20050825135933.GA14448@infradead.org> <Pine.LNX.4.61.0508251610441.3728@scrub.home>
+	Thu, 25 Aug 2005 10:39:47 -0400
+Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:32078 "HELO
+	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750739AbVHYOjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 10:39:46 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Robert Love <rml@novell.com>, Reuben Farrelly <reuben-lkml@reub.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1124979193.19546.1.camel@localhost>
+References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
+	 <430D986E.30209@reub.net>  <1124972307.6307.30.camel@localhost>
+	 <1124977253.5039.13.camel@vertex>  <1124977672.32272.10.camel@phantasy>
+	 <1124978614.6301.44.camel@localhost>  <1124978783.5039.29.camel@vertex>
+	 <1124979193.19546.1.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 25 Aug 2005 10:39:56 -0400
+Message-Id: <1124980797.6464.9.camel@vertex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508251610441.3728@scrub.home>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 04:15:39PM +0200, Roman Zippel wrote:
-> Hi,
+On Thu, 2005-08-25 at 16:13 +0200, Johannes Berg wrote:
+> On Thu, 2005-08-25 at 10:06 -0400, John McCutchan wrote:
+> > > it fails on 2.6.13-rc6 as soon as the device is full and doesn't hold
+> > > any more directories.
 > 
-> On Thu, 25 Aug 2005, Christoph Hellwig wrote:
-> 
-> > Yup.  Let's get m68k into buildable shape for 2.6.13 with Al's minimal
-> > patches, and if you have further improvements over that submit them as
-> > split up patches through the usual channels.  Having all architectures
-> > actually build and work from mainline is really important to have
-> > useful kernel package in distributions.
-> 
-> No, there has been no discussion of these patches, so there is no point in 
-> doing this a few days before 2.6.13. Can we please do this properly for 
-> 2.6.14?
->
-> If you want to apply these patches, please also apply the following patch:
+> Obviously this wasn't true, I was hitting the 8192 watches limit and
+> misinterpreted the error message. I just tested up to 100000 watches
+> with this program.
 
-OK, fuck that.  Consider the patchbomb withdrawn.
+Thanks. The program runs fine, it climbs up until 8192. This confirmed a
+hunch I had. The problem only manifests itself when the lower idr
+numbers aren't actually being used. The thread
+http://www.redhat.com/archives/dm-devel/2004-July/msg00003.html seems
+somewhat related to this problem, but it suggests that this was fixed in
+2.6.7.
+
+-- 
+John McCutchan <ttb@tentacle.dhs.org>

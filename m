@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVHYMUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVHYMNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbVHYMUz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 08:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVHYMUz
+	id S964951AbVHYMNl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 08:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVHYMNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 08:20:55 -0400
-Received: from web8401.mail.in.yahoo.com ([202.43.219.149]:34922 "HELO
-	web8401.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S964954AbVHYMUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 08:20:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=C3CwVnZ48EKZhHB1TG+TD0Cgs6kJjL63zgEG/6nk4vIhj8pz8DaV6XVqPYse1yz1hFCTNnlnLsKChiBDIwwD4NTw/9LwmQXdUH3GsP1dOXZp0Jf6wNMiQJm1OTMWTmQw9IX2WzFJsKmvVkffc2DCJtXiNlAUdAXB9O3kIv2Kle0=  ;
-Message-ID: <20050825122045.57008.qmail@web8401.mail.in.yahoo.com>
-Date: Thu, 25 Aug 2005 13:20:45 +0100 (BST)
-From: Rahul Tank <rahul5311@yahoo.co.in>
-Subject: serial port multiplexing
-To: Linux-kernel <linux-kernel@vger.kernel.org>
+	Thu, 25 Aug 2005 08:13:41 -0400
+Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:23877 "EHLO
+	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id S964951AbVHYMNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 08:13:40 -0400
+Message-ID: <430DB5E2.9060103@tu-harburg.de>
+Date: Thu, 25 Aug 2005 14:13:22 +0200
+From: Jan Blunck <j.blunck@tu-harburg.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Andrew Morton <akpm@osdl.org>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RESEND] don't allow sys_readahead() on files opened with
+ O_DIRECT
+References: <4305D437.4000703@tu-harburg.de> <20050825012440.66b61cca.akpm@osdl.org>
+In-Reply-To: <20050825012440.66b61cca.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello all,
+Andrew Morton schrieb:
+> 
+> a) It doesn't hurt, it's just a bit of a silly thing to do.
 
-    I am a newbee tryinging for serial port
-multiplexing. Currently my driver supports for one
-port
-(/dev/ttyS0). However i want to use the same physical
-port for 2 virtual ports.I am NOT sending two type of
-data simultaneously. I want to first reigister my
-driver for /dev/ttyS0. When the kernel  has booted ,i
-want to disable it. Then i want to enable the driver
-to register for say /dev/ttyS1.
-  in short i don't want the console to have controle
-over the serial port.
-  The point of doing such is that i want my serial
-port to be free. I can telnet to this potr from other
-machine and test few stuff. i hope i have properly
-mentioned my problem.
+IMO it may hurt the performance.
 
- plz let me know how should i proceed.
- thanks in advance.
+> 
+> b) posix_fadvise(POSIX_FADV_WILLNEED) should get the same treatment (and
+>    it's the preferred way of doing readahead).
 
- regards,
-  rahul
+Yes, of course.
 
+> 
+> c) O_DIRECT fd's should, as much as possible, offer the same ABI as
+>    buffered fd's.
 
+Hmm, with XIP fd's we agreed on the following behavior: fadvise() and
+madvise() just return without reading anything to the page cache. Since
+XIP fd's are similar to O_DIRECT fd's their behavior should be similar,
+too. If we don't honor the advises we might also ignore the syscall. At
+least redhat's readahead is using them.
 
+Maybe we should agree on one behavior that makes sense. And I don't see
+any point in filling the page cache when it is not needed.
 
+> 
+> d) The patch could break existing apps.
 
-	
+Since it could break applications that are already (some kind of) broken
+that shouldn't be a problem.
 
-	
-		
-____________________________________________________
-Send a rakhi to your brother, buy gifts and win attractive prizes. Log on to http://in.promos.yahoo.com/rakhi/index.html
+So you think it is better to read nothing to the page cache and return
+zero instead? This seems like "lying" to the user-space :)

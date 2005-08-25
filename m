@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbVHYNkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbVHYNo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964979AbVHYNkx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 09:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbVHYNkx
+	id S964982AbVHYNo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 09:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVHYNo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 09:40:53 -0400
-Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:3680 "HELO
-	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964979AbVHYNkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 09:40:52 -0400
-Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Robert Love <rml@novell.com>
-In-Reply-To: <1124972307.6307.30.camel@localhost>
-References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
-	 <430D986E.30209@reub.net>  <1124972307.6307.30.camel@localhost>
-Content-Type: text/plain
+	Thu, 25 Aug 2005 09:44:58 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:31686 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S964982AbVHYNo5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 09:44:57 -0400
+Message-ID: <430DCB58.1090107@dgreaves.com>
+Date: Thu, 25 Aug 2005 14:44:56 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Doug Warzecha <Douglas_Warzecha@dell.com>
+Cc: michael_e_brown@dell.com, matt_domsch@dell.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13-rc6] dcdbas: add Dell Systems Management Base Driver
+ with sysfs support
+References: <20050820225052.GA5042@sysman-doug.us.dell.com>
+In-Reply-To: <20050820225052.GA5042@sysman-doug.us.dell.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Thu, 25 Aug 2005 09:40:53 -0400
-Message-Id: <1124977253.5039.13.camel@vertex>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 14:18 +0200, Johannes Berg wrote:
-> Hi,
-> 
-> > I have also observed another problem with inotify with dovecot - so I spoke 
-> > with Johannes Berg who wrote the inotify code in dovecot.  He suggested I post 
-> > here to LKML since his opinion is that this to be a kernel bug.
-> 
-> Allow me to jump in at this point. The small tool below triggers this
-> problem for Reuben (confirmed via private mail) but works fine for me on
-> 2.6.13-rc6.
+Doug Warzecha wrote:
 
-On 2.6.13-rc7 the test program fails. It always fails when a wd == 1024.
-If I skip inotify_rm_watch when wd == 1024, it will fail at wd == 2048.
-It seems the idr layer has an aversion to multiples of 1024.
+>This patch adds the Dell Systems Management Base Driver with sysfs support.
+>
+>This patch incorporates changes based on comments from the previous posting.
+>
+>Summary of changes:
+>
+>* Changed permissions on sysfs files so that only owner can read.
+>* Changed to use __uNN/__sNN types in structs.
+>* smi_data_write will grow smi_data_buf if needed.
+>* Renamed struct callintf_cmd to struct smi_cmd.
+>* Renamed callintf_smi to smi_request.
+>* Added 2 more supported values that were requested in smi_request_store.
+>* Hold rtc_lock across SMI in host_control_smi.
+>
+>  
+>
+Hi Doug
 
-When I run your test program I get this a lot:
+I've followed this thread as best I can and I have a query...
 
-inotify_add_watch returned wd1 5
-inotify_add_watch returned wd2 6
-inotify_add_watch returned wd1 6
-inotify_add_watch returned wd2 7
+I have a Dell SC420
+Is there a way (based around this patch) to allow users to enable and
+set the auto-power-on BIOS feature?
+(ie tell the BIOS to power on at 3:40am, power the system down, watch it
+power up at 3:40am)
 
-The pattern of 
+Normally I'd use 'nvram-wakeup' but it dosen't understand the Dell BIOS.
 
-add_watch wd1 = X
-add_watch wd2 = X+1
-rm_watch X
-rm_watch X+1
-add_watch wd1 = X+1
-add_watch wd2 = X+2
+If so what I'd _like_ to do is send a patch to nvram-wakeup that tests
+for this capability and uses it if it's there.
 
-Should never happen. We tell the idr layer to always give us something
-bigger than the last wd we received.
-
-Also, idr_get_new_above doesn't work all the time. Under 2.6.13-rc7, I
-added this to inotify.c:359:
-
-if (ret <= dev->last_wd) {
-    printk(KERN_INFO "idr_get_new_above returned <= dev->last_wd\n");
-}
-
-I get that message a lot. I know I have said this before (and was wrong)
-but I think the idr layer is busted.
+David
 
 -- 
-John McCutchan <ttb@tentacle.dhs.org>
+

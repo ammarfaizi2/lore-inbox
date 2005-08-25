@@ -1,85 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbVHYOlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbVHYOmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbVHYOlr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbVHYOlr
+	id S1750927AbVHYOmS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVHYOmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:41:47 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:7874 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750739AbVHYOlq (ORCPT
+	Thu, 25 Aug 2005 10:42:18 -0400
+Received: from sipsolutions.net ([66.160.135.76]:51463 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S1750927AbVHYOmR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:41:46 -0400
-Date: Thu, 25 Aug 2005 20:11:56 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, paulus@samba.org, akpm@osdl.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, mingo@elte.hu, hawkes@sgi.com
-Subject: Re: [PATCH 2.6.13-rc6] cpu_exclusive sched domains build fix
-Message-ID: <20050825144156.GA5194@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20050824111510.11478.49764.sendpatchset@jackhammer.engr.sgi.com> <20050824112640.GB5197@in.ibm.com> <20050824044648.66f7e25a.pj@sgi.com> <430C617E.8080002@yahoo.com.au> <20050824133107.2ca733c3.pj@sgi.com>
+	Thu, 25 Aug 2005 10:42:17 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: Johannes Berg <johannes@sipsolutions.net>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Robert Love <rml@novell.com>, Reuben Farrelly <reuben-lkml@reub.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1124979228.5039.38.camel@vertex>
+References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
+	 <430D986E.30209@reub.net>  <1124972307.6307.30.camel@localhost>
+	 <1124977253.5039.13.camel@vertex>  <1124977672.32272.10.camel@phantasy>
+	 <1124979228.5039.38.camel@vertex>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-x2LPFMJoF61GhTYJ7z7p"
+Date: Thu, 25 Aug 2005 16:41:47 +0200
+Message-Id: <1124980907.19546.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050824133107.2ca733c3.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 01:31:07PM -0700, Paul Jackson wrote:
-> ==========
-> 
-> The safest, mind numbingly simple thing to do that would avoid the oops
-> that Hawkes reported is to simply not have the cpuset code call the
-> code to setup a dynamic sched domain.  This is choice (2) above, and
-> could be done at the last hour with relative safety.
-> 
-> Here is an untested patch that does (2):
-> 
-> =====
-> 
-> Index: linux-2.6.13-cpuset-mempolicy-migrate/kernel/cpuset.c
-> ===================================================================
-> --- linux-2.6.13-cpuset-mempolicy-migrate.orig/kernel/cpuset.c
-> +++ linux-2.6.13-cpuset-mempolicy-migrate/kernel/cpuset.c
-> @@ -627,6 +627,15 @@ static int validate_change(const struct 
->   * Call with cpuset_sem held.  May nest a call to the
->   * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
->   */
-> +
-> +/*
-> + * Hack to avoid 2.6.13 partial node dynamic sched domain bug.
-> + * Disable letting 'cpu_exclusive' cpusets define dynamic sched
-> + * domains, until the sched domain can handle partial nodes.
-> + * Remove this ifdef hackery when sched domains fixed.
-> + */
-> +#define DISABLE_EXCLUSIVE_CPU_DOMAINS 1
-> +#ifdef DISABLE_EXCLUSIVE_CPU_DOMAINS
->  static void update_cpu_domains(struct cpuset *cur)
->  {
->  	struct cpuset *c, *par = cur->parent;
-> @@ -667,6 +676,11 @@ static void update_cpu_domains(struct cp
->  	partition_sched_domains(&pspan, &cspan);
->  	unlock_cpu_hotplug();
->  }
-> +#else
-> +static void update_cpu_domains(struct cpuset *cur)
-> +{
-> +}
-> +#endif
->  
->  static int update_cpumask(struct cpuset *cs, char *buf)
->  {
-> 
-> 
-> =====
-> 
 
-I'll ack this for now until I fix the problems that I am seeing
-on ppc64
+--=-x2LPFMJoF61GhTYJ7z7p
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, 2005-08-25 at 10:13 -0400, John McCutchan wrote:
 
-	Acked-by: Dinakar Guniguntala <dino@in.ibm.com>
+> I really don't want 2.6.13 to go out with this bug or the compromise. If
+> we use 0, we will have a lot of wd re-use. Which will cause "strange"
+> problems in inotify using applications that cleanup upon receipt of an
+> IN_IGNORE event.
 
+What happens when, given bug-free code that doesn't reuse, you hit the
+8192 limit with wd, even if they're not all open at the same time? Does
+it still add them, or will inotify give an error? And does the idr layer
+handle something like that gracefully without using lots of memory?
+
+The background is that the process using this is potentially quite
+long-running and keeps opening/closing wds, so 8192 doesn't sound like a
+high barrier, after all Reuben observed hitting the 1024 limit after 15
+minutes or so.
+
+johannes
+
+--=-x2LPFMJoF61GhTYJ7z7p
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
+
+iQIVAwUAQw3YqaVg1VMiehFYAQLRXBAAtbLSxIoIRh6uAKbw9CnZ5ceWD1iayYQe
+wCUCYOcKq7Ln7KhmUNj021k1++akN/tTfQp2h9aiYf7qZcUvda0Aroz8PYcY79La
+FKunCGoXoO8MfcyUU8zz0nqaNaEgtrGL7fu5jLgUIUnwjJozgyb056P4EYDOkpSz
+7M488zIWB5HxJyETXwvJhUH2oDqE2/oel+3Fyyb3MnI8ZktGIEp6Qxwzw3XxVXXa
+uJId/zTOlJt9Ni+R8hLitNUbnxxra4u4DDximgQfxfuYot0ye45VfXxFHtLgHLOn
+GoHmcH7/MGqWbiRZbWurPgAZZoMWdQ0v0wD5Ky/tDDKjLcftekdGGxfotH16UnQF
+v9jM/rEgbfHZ+QU+xTBPPvA6mCcUnsFnUML4tN41BbRR7tPTRFyIusJxiBRlKN1H
+zsyWIpb+SKQ/6OwsMlwRbk7wvW6HLZUJwXLfWGhIXaByaDVcU5l0e5gVKDjHM5WS
+aSbRwyexYbgPZIQwPUIDD1cPBRaqXbVAuW+djDAbahRuB2TY6ye8pKYesBOJl/Ls
+V2blMEulyvlOanhZrFAhA/xFfPu9i0KK0Pe7Yk9Wm5UFtOaunckqKrF9gVyco/og
+F71BQiZZkfmeM4ainFA8RyMYn20us/64cGy0llj1BH6F1RU8LMuR3hVAxS8ruIqJ
+IkJI2ZbVVPo=
+=RgKV
+-----END PGP SIGNATURE-----
+
+--=-x2LPFMJoF61GhTYJ7z7p--
 

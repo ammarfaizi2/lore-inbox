@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbVHYM0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbVHYMgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbVHYM0r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 08:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbVHYM0r
+	id S964960AbVHYMgw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 08:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbVHYMgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 08:26:47 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:33160 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S964957AbVHYM0q
+	Thu, 25 Aug 2005 08:36:52 -0400
+Received: from nproxy.gmail.com ([64.233.182.202]:64716 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964960AbVHYMgw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 08:26:46 -0400
-Message-ID: <430DB8FA.4080009@cosmosbay.com>
-Date: Thu, 25 Aug 2005 14:26:34 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] removes filp_count_lock and changes nr_files type to
- atomic_t
-References: <20050824214610.GA3675@localhost.localdomain>	 <1124956563.3222.8.camel@laptopd505.fenrus.org>	 <430D8518.8020502@cosmosbay.com> <20050825090854.GA9740@infradead.org>	 <430D8CA3.3030709@cosmosbay.com> <20050825092322.GA9902@infradead.org>	 <430DA052.9070908@cosmosbay.com> <1124968309.5856.9.camel@npiggin-nld.site>
-In-Reply-To: <1124968309.5856.9.camel@npiggin-nld.site>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 25 Aug 2005 14:26:34 +0200 (CEST)
+	Thu, 25 Aug 2005 08:36:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mT9cJVGXEu2ph/zX6GhCdZvbjuFKWh1kcEG145Q51U+Us49WqPO9VXapOuQUt5U3C4PzshNe8aG+HoAEPc4raH8oEJxHbpLaYgXeXNh32yAOYT2kmhTbJe2twsLV/iX+mECQPNpThtp293uwNEYenFOIoHQO+B6HR1wQtA7OAbg=
+Message-ID: <2cd57c90050825053610b241de@mail.gmail.com>
+Date: Thu, 25 Aug 2005 20:36:45 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH] VFS: update documentation
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Anton Altaparmakov <aia21@cam.ac.uk>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Carsten Otte <cotte.de@gmail.com>
+In-Reply-To: <Pine.LNX.4.58.0508250921460.30979@sbz-30.cs.Helsinki.FI>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0508250921460.30979@sbz-30.cs.Helsinki.FI>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin a écrit :
-> On Thu, 2005-08-25 at 12:41 +0200, Eric Dumazet wrote:
-> 
-> 
->>OK, here is a new clean patch that address this problem (nothing assumed about 
->>atomics)
->>
-> 
-> 
-> Would you just be able to add the atomic sysctl handler that
-> Christoph suggested?
-> 
+On 8/25/05, Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
 
-Quite a lot of work indeed, and it would force to convert 3 int (nr_files, 
-nr_free_files, max_files) to 3 atomic_t. I feel bad introducing a lot of 
-sysctl rework for a tiny change (removing filp_count_lock)
-
-> This introduces lost update problems. 2 CPUs may store to nr_files
-> in the opposite order that they incremented atomic_nr_files.
 > 
-
-That's true, and the difference can be relatively important in case of preemption.
-
-Each time the true and correct value  (atomic_nr_files) is updated, a copy is 
-done on nr_files : as nr_files is only used to be a guard value against too 
-many file allocations, a somewhat 'lazy' value has no impact at all.
-
-> It is not terribly bad, because the drift is not cumulative and the
-> field can't go negative... but its just ugly to add this hack
-> because there is no atomic sysctl handler.
+> @@ -392,6 +585,23 @@ otherwise noted.
+>    fasync: called by the fcntl(2) system call when asynchronous
+>         (non-blocking) mode is enabled for a file
 > 
-> Eliminating the cli/sti is a good idea though, I think.
-> 
+> +  lock: called by the fcntl(2) system call for F_GETLK, F_SETLK, and F_SETLKW
+> +       commands
+> +
+> +  readv: called by the readv(2) system call
+> +
+> +  writev: called by the readv(2) system call
 
+s/readv/writev/
+
+> +
+> +  sendfile: called by the sendfile(2) system call
+> +
+> +  get_unmapped_area: called by the mmap(2) system call
+> +
+> +  check_flags: called by the fcntl(2) system call for F_SETFL command
+> +
+> +  dir_notify: called by the fcntl(2) system call for F_NOTIFY command
+> +
+> +  flock: called by the flock(2) system call
+> +
+
+
+-- 
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

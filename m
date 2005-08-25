@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVHYEfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbVHYEjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVHYEfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 00:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVHYEfZ
+	id S964787AbVHYEjy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 00:39:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbVHYEjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 00:35:25 -0400
-Received: from ms-smtp-01-smtplb.rdc-nyc.rr.com ([24.29.109.5]:55703 "EHLO
-	ms-smtp-01.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S964789AbVHYEfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 00:35:24 -0400
-Date: Thu, 25 Aug 2005 00:35:22 -0400 (EDT)
-Message-Id: <200508250435.j7P4ZM1g015411@ms-smtp-01.rdc-nyc.rr.com>
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-URL: mailto:linux-kernel@vger.kernel.org
-X-Mailer: Lynx, Version 2.8.6dev.13c
-From: robotti@godmail.com
-Subject: Initramfs and TMPFS!
+	Thu, 25 Aug 2005 00:39:54 -0400
+Received: from mail23.sea5.speakeasy.net ([69.17.117.25]:63877 "EHLO
+	mail23.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S964787AbVHYEjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 00:39:53 -0400
+Date: Thu, 25 Aug 2005 00:39:49 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: Chris Wright <chrisw@osdl.org>
+cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org,
+       Kurt Garloff <garloff@suse.de>, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [PATCH 0/5] LSM hook updates
+In-Reply-To: <20050825012028.720597000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.63.0508250038450.13875@excalibur.intercode>
+References: <20050825012028.720597000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   >Also, tar should be an option instead of cpio for the archiver,
-   >because tar is more widely used.
-   >>pretty much everyone will have cpio and it's format is much
-   >>simpler/cleaner to deal with
-   >>if we want vastly more complex early-userspace semantics i think we
-   >>need to carefully decide what is needed and how to put as much of that
-   >>logic into userspace rather than hacking this much more in the kernel
-   >>for fear of breaking things in subtle ways
+On Wed, 24 Aug 2005, Chris Wright wrote:
 
-I don't know, because tar is probably more widely used and
-consequently people are more familiar with how to use it.
+> This is based on Kurt's original work.  The net effect is that
+> LSM hooks are called conditionally, and in all cases capabilities
+> provide the defaults.  I've done some basic performance testing, and
+> found nothing surprising.
 
-But, that is not as important as having the option of using tmpfs
-as the initramfs.
+Do you mean nothing noticable?
+
+>  I'm interested to see numbers from others
+> before I push this up.  These are against Linus' current git tree (they
+> will clash with the -mm tree).
+
+Are there any numbers for popular architectures like i386 and x86_64?
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

@@ -1,87 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbVHYLnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbVHYLyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964949AbVHYLnY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 07:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbVHYLnX
+	id S964947AbVHYLyg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 07:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbVHYLyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 07:43:23 -0400
-Received: from defiant.lowpingbastards.de ([213.178.77.226]:3492 "EHLO
-	mail.lowpingbastards.de") by vger.kernel.org with ESMTP
-	id S964946AbVHYLnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 07:43:23 -0400
-Date: Thu, 25 Aug 2005 13:42:30 +0200
-From: Frederik Schueler <fs@lowpingbastards.de>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: Frederik Schueler <fs@lowpingbastards.de>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: new qla2xxx driver breaks SAN setup with 2 controllers
-Message-ID: <20050825114230.GP5564@mail.lowpingbastards.de>
-References: <20050823112535.GB13391@mail.lowpingbastards.de> <20050823200040.GA8310@us.ibm.com> <20050824095520.GD13391@mail.lowpingbastards.de> <20050824100112.GA27216@infradead.org> <20050824124803.GE13391@mail.lowpingbastards.de> <20050824125022.GA29817@infradead.org> <20050824130823.GF13391@mail.lowpingbastards.de> <20050824170352.GA16652@us.ibm.com>
+	Thu, 25 Aug 2005 07:54:36 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:55481 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964947AbVHYLyf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 07:54:35 -0400
+Date: Thu, 25 Aug 2005 15:58:51 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Morton Andrew Morton <akpm@osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>
+Subject: [PATCH] Kdump: Documentation Update
+Message-ID: <20050825102851.GA4437@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050824170352.GA16652@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hello,
+o There are minor changes in command line options in kexec-tools for kdump.
+  This patch updates the documentation to reflect those changes.
 
-your patch works!
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
 
-first a box booting from a gdth:
+ linux-2.6.13-rc7-root/Documentation/kdump/kdump.txt |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
-a01:~# lsscsi=20
-[0:0:0:0]    disk    ICP      Host Drive  #00        /dev/sda
-[0:2:6:0]    process SUPER    GEM318           0     -      =20
-[1:0:0:10]   disk    IFT      A16F-R1211       334B  /dev/sdb
-[1:0:0:12]   disk    IFT      A16F-R1211       334B  /dev/sdc
-[1:0:0:14]   disk    IFT      A16F-R1211       334B  /dev/sdd
-[1:0:1:9]    disk    IFT      A16F-R1211       334B  /dev/sde
-[1:0:1:11]   disk    IFT      A16F-R1211       334B  /dev/sdf
-[1:0:1:13]   disk    IFT      A16F-R1211       334B  /dev/sdg
-
-
-and this is one of the cluster nodes, wich boots from san:
-
-s06:~# lsscsi=20
-[0:0:0:3]    disk    IFT      A16F-R1211       334B  /dev/sda
-[0:0:0:10]   disk    IFT      A16F-R1211       334B  /dev/sdb
-[0:0:0:12]   disk    IFT      A16F-R1211       334B  /dev/sdc
-[0:0:0:14]   disk    IFT      A16F-R1211       334B  /dev/sdd
-[0:0:1:9]    disk    IFT      A16F-R1211       334B  /dev/sde
-[0:0:1:11]   disk    IFT      A16F-R1211       334B  /dev/sdf
-[0:0:1:13]   disk    IFT      A16F-R1211       334B  /dev/sdg
-
-
-it finds everything on bootup.
-
-
-Best regards
-Frederik Schueler
-
---=20
-ENOSIG
-
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDDa6m6n7So0GVSSARAiklAKCM1/yO4I/Td3J9jA3ZJEOvuK9L4QCfUdBO
-SffmbjPQE011iHE2+2pIFis=
-=FuJg
------END PGP SIGNATURE-----
-
---ReaqsoxgOBHFXBhH--
+diff -puN Documentation/kdump/kdump.txt~kdump-documentation-update Documentation/kdump/kdump.txt
+--- linux-2.6.13-rc7/Documentation/kdump/kdump.txt~kdump-documentation-update	2005-08-25 15:29:03.000000000 +0530
++++ linux-2.6.13-rc7-root/Documentation/kdump/kdump.txt	2005-08-25 15:50:34.000000000 +0530
+@@ -39,8 +39,7 @@ SETUP
+    and apply http://lse.sourceforge.net/kdump/patches/kexec-tools-1.101-kdump.patch
+    and after that build the source.
+ 
+-2) Download and build the appropriate (latest) kexec/kdump (-mm) kernel
+-   patchset and apply it to the vanilla kernel tree.
++2) Download and build the appropriate (2.6.13-rc1 onwards) vanilla kernel.
+ 
+    Two kernels need to be built in order to get this feature working.
+ 
+@@ -84,15 +83,16 @@ SETUP
+ 
+ 4) Load the second kernel to be booted using:
+ 
+-   kexec -p <second-kernel> --crash-dump --args-linux --append="root=<root-dev>
+-   init 1 irqpoll"
++   kexec -p <second-kernel> --args-linux --elf32-core-headers
++   --append="root=<root-dev> init 1 irqpoll"
+ 
+    Note: i) <second-kernel> has to be a vmlinux image. bzImage will not work,
+ 	    as of now.
+-	ii) By default ELF headers are stored in ELF32 format (for i386). This
+-	    is sufficient to represent the physical memory up to 4GB. To store
+-	    headers in ELF64 format, specifiy "--elf64-core-headers" on the
+-	    kexec command line additionally.
++	ii) By default ELF headers are stored in ELF64 format. Option
++	    --elf32-core-headers forces generation of ELF32 headers. gdb can
++	    not open ELF64 headers on 32 bit systems. So creating ELF32
++	    headers can come handy for users who have got non-PAE systems and
++	    hence have memory less than 4GB.
+        iii) Specify "irqpoll" as command line parameter. This reduces driver
+             initialization failures in second kernel due to shared interrupts.
+ 
+_

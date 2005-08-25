@@ -1,59 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbVHYBtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVHYCOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbVHYBtF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 21:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVHYBtF
+	id S932488AbVHYCOL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 22:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVHYCOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 21:49:05 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:27641 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932477AbVHYBtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 21:49:04 -0400
-Date: Wed, 24 Aug 2005 21:48:34 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Daniel Walker <dwalker@mvista.com>
-cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [RFC] RT-patch update to remove the global pi_lock
-In-Reply-To: <1124933925.17712.31.camel@dhcp153.mvista.com>
-Message-ID: <Pine.LNX.4.58.0508242143420.13845@localhost.localdomain>
-References: <1124295214.5764.163.camel@localhost.localdomain> 
- <20050817162324.GA24495@elte.hu>  <1124323379.5186.18.camel@localhost.localdomain>
-  <1124333050.5186.24.camel@localhost.localdomain>  <20050822075012.GB19386@elte.hu>
-  <1124704837.5208.22.camel@localhost.localdomain>  <20050822101632.GA28803@elte.hu>
-  <1124710309.5208.30.camel@localhost.localdomain>  <20050822113858.GA1160@elte.hu>
-  <1124715755.5647.4.camel@localhost.localdomain>  <20050822183355.GB13888@elte.hu>
-  <1124739657.5809.6.camel@localhost.localdomain>  <1124739895.5809.11.camel@localhost.localdomain>
-  <1124749192.17515.16.camel@dhcp153.mvista.com>  <1124756775.5350.14.camel@localhost.localdomain>
-  <1124758291.9158.17.camel@dhcp153.mvista.com>  <1124760725.5350.47.camel@localhost.localdomain>
-  <1124768282.5350.69.camel@localhost.localdomain> 
- <1124908080.5604.22.camel@localhost.localdomain>  <1124917003.5711.8.camel@localhost.localdomain>
-  <1124932391.5527.15.camel@localhost.localdomain> <1124933925.17712.31.camel@dhcp153.mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Aug 2005 22:14:11 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:62629 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932488AbVHYCOJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 22:14:09 -0400
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+From: john stultz <johnstul@us.ibm.com>
+To: george@mvista.com
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
+       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <430D227D.2070001@mvista.com>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>
+	 <1124505151.22195.78.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508202204240.3728@scrub.home>
+	 <1124737075.22195.114.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508230134210.3728@scrub.home>
+	 <1124830262.20464.26.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508232321530.3728@scrub.home>
+	 <1124838847.20617.11.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508240134050.3743@scrub.home> <430BBF82.2010209@mvista.com>
+	 <1124915766.20820.67.camel@cog.beaverton.ibm.com>
+	 <430D06D0.4080904@mvista.com>
+	 <1124930555.20820.132.camel@cog.beaverton.ibm.com>
+	 <430D227D.2070001@mvista.com>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 19:13:57 -0700
+Message-Id: <1124936038.20820.155.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-08-24 at 18:44 -0700, George Anzinger wrote:
+> > Ok, so your forcing gettimeofday to be interval aware, so its applying
+> > different fixed NTP adjustments to different chunks of the current
+> > interval. The issue of course is if you're using fixed adjustments, is
+> > that you have to have n ntp adjustments for n intervals, or you have to
+> > apply the same ntp adjustment to multiple intervals. 
+> 
+> Uh, are you saying that one ntpd call can set up several different 
+> adjustments?
 
-On Wed, 24 Aug 2005, Daniel Walker wrote:
+Well, it allows for frequency adjustments, tick adjustments, and offset
+adjustments in a single call or just the singleshot (adjtime)
+adjustment. However it does not give multiple scaling factors for
+different intervals, so you are correct there. 
 
->
-> I got a report of a possible softlockup with setiathome, the trace
-> wasn't a little garbled though . I'm not sure the checking is working
-> correctly . But if it is maybe these spot need some performance
-> analysis . Didn't you changes catch anything that stays in the kernel
-> for 10 seconds or more ?
->
 
-I haven't looked that hard yet.  If Ingo is ready for my changes, to
-replace the pi_lock, then I can spend time tracking this down.
+>   I was assuming that any given call would set up either a 
+> fixed adjustment for ever or a fixed adjustment to be applied for a 
+> fixed number of ticks (or until so much correcting was done, which, in 
+> the end is the same thing at this point in the code).
+> 
+> If ntpd has to come back to change the adjustment, I am assuming that 
+> some kernel action can be taken at that time to sync the xtime clock and 
+> the gettimeofday reading of it.  I.e. we would only have to keep track 
+> of one adjustment with a possible pre specified end time.
 
-Something is definity wrong, regardless whether or not the output is
-right.  The tests constantly spit crap out, but when this happens,
-everything is silent.  So something is definity amiss.
+Well, I guess a component of the adjustment would end at a specified
+time, that's true. 
 
-Try it out and see what I mean.
 
--- Steve
+> >>I would argue that only two terms are needed here regardless of 
+> >>how late a tick is.  This is because, I would expect the ntp system call 
+> >>to sync the two clocks.  This means in your example, the ntp call would 
+> >>have been made at, or prior to the timer interrupt at 2 and this is the 
+> >>same edge that gettimeofday is to used to start applying the correction.
+> > 
+> > 
+> > If you argue that we only need two adjustments, why not argue for only
+> > one? You're saying have one adjustment that you apply for the first
+> > tick's worth of time, and a second adjustment that you apply for the
+> > following N ticks' worth of time in the interval. Why the odd base
+> > case? 
+> 
+> Correct me if I am wrong here, but I am assuming that ntpd can ask for 
+> an adjustment of X amount which the kernel changes into N adjustments of 
+> X/N amount spread over the next N ticks.  
+
+No, sorry, you are correct there, I was confusing things. 
+
+It may work, and I had considered a similar idea when developing my
+solution, but it seemed far too ugly and complicated. But that could
+have just been my fault. :)
+
+thanks
+-john
+

@@ -1,116 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbVHYHS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVHYHkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbVHYHS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 03:18:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbVHYHS3
+	id S932145AbVHYHkG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 03:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbVHYHkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 03:18:29 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:60136 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751556AbVHYHS2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 03:18:28 -0400
+	Thu, 25 Aug 2005 03:40:06 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:23421 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751561AbVHYHkF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 03:40:05 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=JdumWo/w4mr6TZT2Xu7I+1zJEYTgO7z3LXhqday69NgG2H2400gR55TFSA7132ADCVEVALLHBxPNFC4kHS7kjYmtWDIASSWuqgoy+UkvPlEZ3BhN+KOHrHD5AFB4DDhY24D9vrq7RT3kuTisMc3TBkan0O5W3ujfvpZfCWQvX4A=
-Date: Thu, 25 Aug 2005 11:27:32 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Paul Jackson <pj@sgi.com>, paulus@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.13-rc7
-Message-ID: <20050825072731.GA876@mipter.zuzino.mipt.ru>
-References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <20050824064342.GH9322@parcelfarce.linux.theplanet.co.uk> <20050824114351.4e9b49bb.pj@sgi.com> <20050824191544.GM9322@parcelfarce.linux.theplanet.co.uk> <20050824201301.GA23715@mipter.zuzino.mipt.ru> <20050824213859.GN9322@parcelfarce.linux.theplanet.co.uk>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L9E1Cht16PT9YpW9VViSh7ajcl/2uPKW/a2nd9/PzFqPJcU3vn0WT17e+Uv4N9IkDpnB223llUNRmyqyUx9pFSYw3T20lbZCs6DGHbA4otImFLwvTkuz+my2gt5KnaoAftUNFJCO7V2u5+jieuD6o3b/emuREN38SACms3VxoQE=
+Message-ID: <3faf0568050825004051ed3bd3@mail.gmail.com>
+Date: Thu, 25 Aug 2005 13:10:02 +0530
+From: vamsi krishna <vamsi.krishnak@gmail.com>
+To: Shwetha V <shwethav@sasken.com>
+Subject: Re: kernel
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <dejie7$m6i$1@ncc-w.sasken.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050824213859.GN9322@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.8i
+References: <ddi2qu$74p$1@ncc-nt.nt.sasken.com> <dejie7$m6i$1@ncc-w.sasken.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 10:38:59PM +0100, Al Viro wrote:
-> On Thu, Aug 25, 2005 at 12:13:02AM +0400, Alexey Dobriyan wrote:
-> > On Wed, Aug 24, 2005 at 08:15:44PM +0100, Al Viro wrote:
-> > > Most of the remaining stuff is for
-> > > m68k (and applies both to Linus' tree and m68k CVS); I'll send that today
-> > > and if Geert ACKs them, we will be _very_ close to having 2.6.13 build
-> > > out of the box on the following set:
-> > > alpha,
-> > 
-> > Do I understand correctly that alpha in "--><-- close" list?
-> > 
-> > 2.6.13-rc7, alpha, allmodconfig:
-> > 
-> >   LD      .tmp_vmlinux1
-> > net/built-in.o: In function `kmalloc':
-> > include/linux/slab.h:92: undefined reference to `__you_cannot_kmalloc_that_much'
-> > include/linux/slab.h:92: undefined reference to `__you_cannot_kmalloc_that_much'
-> > 
-> > Guilty: net/ipv4/route.c
-> > 
-> > $ nm net/ipv4/route.o | grep kmalloc
-> >                  U __you_cannot_kmalloc_that_much
+look at http://www.kernelnewbies.org
+
+also it has a section on books. you can also use IRC #kernelnewbies 
+
+On 8/25/05, Shwetha V <shwethav@sasken.com> wrote:
 > 
-> Not here...
+>  Could anyone inform which will be a good guide to start learning the linux
+> kernel programming.
 > 
->   CC      arch/alpha/lib/udelay.o
->   LD      .tmp_vmlinux1
-	[snip]
-
-> Allmodconfig on alpha, alpha-linux-gcc (GCC) 4.0.1 20050727 (Red Hat 4.0.1-5).
-
-Mine is alpha-unknown-linux-gnu-gcc (GCC) 3.4.4 (Gentoo 3.4.4)
-
-> Which place triggers it in your build?
-
-net/ipv4/route.c:3152, call to rt_hash_lock_init().
-
->From preprocessed source (reformatted):
------------------------------------------------------------------------
-typedef struct {
-	volatile unsigned int lock;
-
-	int on_cpu;
-	int line_no;
-	void *previous;
-	struct task_struct * task;
-	const char *base_file;
-} spinlock_t;
-
-static inline void *kmalloc(size_t size, unsigned int flags)
-{
-	if (__builtin_constant_p(size)) {
-		int i = 0;
-		
-		if (size <= 64) goto found; else i++;
-		if (size <= 128) goto found; else i++;
-		if (size <= 192) goto found; else i++;
-		if (size <= 256) goto found; else i++;
-		if (size <= 512) goto found; else i++;
-		if (size <= 1024) goto found; else i++;
-		if (size <= 2048) goto found; else i++;
-		if (size <= 4096) goto found; else i++;
-		if (size <= 8192) goto found; else i++;
-		if (size <= 16384) goto found; else i++;
-		if (size <= 32768) goto found; else i++;
-		if (size <= 65536) goto found; else i++;
-		if (size <= 131072) goto found; else i++;
-		{
-			extern void __you_cannot_kmalloc_that_much(void);
-			__you_cannot_kmalloc_that_much();
-		}
-		[snip]
------------------------------------------------------------------------
-{
-	int i;
-	rt_hash_locks = kmalloc(sizeof(spinlock_t) * 4096, (0x10u | 0x40u | 0x80u));
-	if (!rt_hash_locks)
-		panic("IP: failed to allocate rt_hash_locks\n");
-		for (i = 0; i < 4096; i++)
-			do {
-				*(&rt_hash_locks[i]) = (spinlock_t){ 0, -1, 0, ((void *)0), ((void *)0), ((void *)0) };
-			} while(0);
-};
------------------------------------------------------------------------
-
+> --
+> Shwetha V
+> Software Engineer - Networks Business Unit
+> Sasken Communication Technologies Ltd.
+> Gold Hill Square, Hosur Road, Bangalore.
+> Ph: +91-80-25355501 Ext: 5799
+> Web: www.sasken.com
+> 
+> 
+> "Srinivas K" <srinuk@sasken.com> wrote in message
+> news:ddi2qu$74p$1@ncc-nt.nt.sasken.com...
+> > hi friends,
+> >
+> > post concepts regarding linux kernel which will be useful
+> >
+> >
+> > --
+> > Srinivasa Rao K
+> > Systems Engineer
+> > Nortel Business Unit
+> > Sasken Communication Technologies Ltd
+> > 139/25, Ring Road, Domlur
+> > Bangalore - 560 071
+> > Ph: 2535 5501 Extn.:4804
+> > mail : srinuk@sasken.com
+> >
+> > "SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY
+> > Mercer
+> > Survey 2004"
+> >
+> >
+> > SASKEN BUSINESS DISCLAIMER
+> > This message may contain confidential, proprietary or legally Privileged
+> > information. In case you are not the original intended Recipient of the
+> > message, you must not, directly or indirectly, use, Disclose, distribute,
+> > print, or copy any part of this message and you are requested to delete it
+> > and inform the sender. Any views expressed in this message are those of
+> > the
+> > individual sender unless otherwise stated. Nothing contained in this
+> > message
+> > shall be construed as an offer or acceptance of any offer by Sasken
+> > Communication Technologies Limited ("Sasken") unless sent with that
+> > express
+> > intent and with due authority of Sasken. Sasken has taken enough
+> > precautions
+> > to prevent the spread of viruses. However the company accepts no liability
+> > for any damage caused by any virus transmitted by this email
+> >
+> >
+> 
+> 
+> 
+> "SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer Survey 2004"
+> 
+> 
+>                            SASKEN BUSINESS DISCLAIMER
+> This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

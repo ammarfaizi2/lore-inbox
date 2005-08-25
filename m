@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVHYAFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVHYACV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbVHYAFF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 20:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVHYAFF
+	id S932375AbVHYACV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 20:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVHYACV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 20:05:05 -0400
-Received: from baythorne.infradead.org ([81.187.2.161]:62161 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S932395AbVHYAFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 20:05:04 -0400
-Subject: Re: Add pselect, ppoll system calls.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Michael Kerrisk <mtk-lkml@gmx.net>
-Cc: drepper@redhat.com, jakub@redhat.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, michael.kerrisk@gmx.net
-In-Reply-To: <25911.1123246168@www3.gmx.net>
-References: <11156.1123243084@www3.gmx.net>  <25911.1123246168@www3.gmx.net>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 01:04:49 +0100
-Message-Id: <1124928289.7316.92.camel@baythorne.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 24 Aug 2005 20:02:21 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:25338 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932375AbVHYACU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Aug 2005 20:02:20 -0400
+Message-ID: <430D0A80.7020204@mvista.com>
+Date: Wed, 24 Aug 2005 17:02:08 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Wilkerson, Bryan P" <Bryan.P.Wilkerson@intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kgdbwait in 2.6.13-rc4-mm1?
+References: <194B303F2F7B534594F2AB2D87269D9F06DE070A@orsmsx408>
+In-Reply-To: <194B303F2F7B534594F2AB2D87269D9F06DE070A@orsmsx408>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Sorry for delayed response)
+Wilkerson, Bryan P wrote:
+> Is there an equivalent kernel boot option for kgdbwait in
+> 2.6.13-rc4-mm1?  I grep'd the kernel source but didn't find kgdbwait.
+> 
+> Is there any documentation other than the source for the flavor of KGDB
+> that is included in the akpm kernel patch?   
 
-On Fri, 2005-08-05 at 14:49 +0200, Michael Kerrisk wrote:
-> If I change your program to do something like the above, I also
-> do not see a message from the handler -- i.e., it is not being
-> called, and I'm pretty sure it should be.
+The patch has some documentation at Documentation/i386/kgdb/* as well as 
+a couple of gdb macros...
 
-Hm, yes. What happens is we come back out of the select() immediately
-because of the pending signal, but on the way back to userspace we put
-the old signal mask back... so by the time we check for it, there _is_
-no (unblocked) signal pending. 
-
-If it's mandatory that we actually call the signal handler, then we need
-to play tricks like sigsuspend() does to leave the old signal mask on
-the stack frame. That's a bit painful atm because do_signal is different
-between architectures. 
-
+The wait option is "gdb".  This has been in flux so, to be absolutely 
+sure, look at include/asm-i386/bugs.h
 -- 
-dwmw2
-
-
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

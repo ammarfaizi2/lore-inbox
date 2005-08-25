@@ -1,182 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVHYRMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbVHYR02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbVHYRMf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 13:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVHYRMe
+	id S1751233AbVHYR02 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 13:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVHYR02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 13:12:34 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:16900 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751207AbVHYRMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 13:12:34 -0400
-Message-ID: <430DFC14.50906@vmware.com>
-Date: Thu, 25 Aug 2005 10:12:52 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
+	Thu, 25 Aug 2005 13:26:28 -0400
+Received: from ns.suse.de ([195.135.220.2]:13732 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751233AbVHYR01 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 13:26:27 -0400
+From: Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH] x86_64 Avoid some atomic operations during address space destruction
+Date: Thu, 25 Aug 2005 19:26:09 +0200
+User-Agent: KMail/1.8
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Pratap Subrahmanyam <pratap@vmware.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] x86_64 Avoid some atomic operations during address space
- destruction
-References: <42F5FB9A.5000708@vmware.com> <200508251854.10060.ak@suse.de>
-In-Reply-To: <200508251854.10060.ak@suse.de>
-Content-Type: multipart/mixed;
- boundary="------------040907050205090101050102"
-X-OriginalArrivalTime: 25 Aug 2005 17:12:31.0804 (UTC) FILETIME=[2DC697C0:01C5A998]
+References: <42F5FB9A.5000708@vmware.com> <200508251854.10060.ak@suse.de> <430DFC14.50906@vmware.com>
+In-Reply-To: <430DFC14.50906@vmware.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508251926.11219.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040907050205090101050102
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Andi Kleen wrote:
-
->On Sunday 07 August 2005 14:16, Zachary Amsden wrote:
->  
+On Thursday 25 August 2005 19:12, Zachary Amsden wrote:
+> Andi Kleen wrote:
+> >On Sunday 07 August 2005 14:16, Zachary Amsden wrote:
+> >
+> >
+> >FYI I have queued it, but cannot apply it because the necessary generic
+> >code support is still not in mainline.
 >
->FYI I have queued it, but cannot apply it because the necessary generic
->code support is still not in mainline.
->  
+> Here's the patch for generic / i386 support; it's already in the -mm tree.
+
+I'll probably not put that into my tree because I try to avoid generic
+patches of other people - i assume it's queued for mainline.
+
+If you want you can include the x86-64 patch with that submission too
+(it's fine for me), alternatively I'll submit it later when I do the next 
+merge from i386 (that might take some time though) or remember about it 
+for some other reason. 
+
 >
-
-Here's the patch for generic / i386 support; it's already in the -mm tree.
-
->Do you have any other optimizations pending for x86-64? 
+> >Do you have any other optimizations pending for x86-64?
+> >
+> >There is still the iopl optimization that you did that is on my TODO list
+> > to add. Anything else.
 >
->There is still the iopl optimization that you did that is on my TODO list to 
->add. Anything else.
->  
+> I started porting the IOPL work, but got confused in my tree and end up
+> patching asm-i386 with x86-64 code.  The joy of  unenforced source control!
+
+Ok. When you don't get around to it I'll eventually.
+
 >
+> I have some other MMU optimizations pending that will hopefully be a win
+> for all architectures; still measuring which alternative is best there.
 
-I started porting the IOPL work, but got confused in my tree and end up 
-patching asm-i386 with x86-64 code.  The joy of  unenforced source control!
+Ok.  Thanks. Please keep me updated on that.
 
-I have some other MMU optimizations pending that will hopefully be a win 
-for all architectures; still measuring which alternative is best there.
-
-Zach
-
---------------040907050205090101050102
-Content-Type: text/plain;
- name="mmu-ptep-clear-optimization"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="mmu-ptep-clear-optimization"
-
-QWRkIGEgbmV3IGFjY2Vzc29yIGZvciBQVEVzLCB3aGljaCBwYXNzZXMgdGhlIGZ1bGwgaGlu
-dCBmcm9tIHRoZSBtbXVfZ2F0aGVyCnN0cnVjdDsgdGhpcyBhbGxvd3MgYXJjaGl0ZWN0dXJl
-cyB3aXRoIGhhcmR3YXJlIHBhZ2V0YWJsZXMgdG8gb3B0aW1pemUgYXdheQphdG9taWMgUFRF
-IG9wZXJhdGlvbnMgd2hlbiBkZXN0cm95aW5nIGFuIGFkZHJlc3Mgc3BhY2UuICBSZW1vdmlu
-ZyB0aGUgbG9ja2VkCm9wZXJhdGlvbiBzaG91bGQgYWxsb3cgYmV0dGVyIHBpcGVsaW5pbmcg
-b2YgbWVtb3J5IGFjY2VzcyBpbiB0aGlzIGxvb3AuICBJCm1lYXN1cmVkIGFuIGF2ZXJhZ2Ug
-c2F2aW5ncyBvZiAzMC0zNSBjeWNsZXMgcGVyIHphcF9wdGVfcmFuZ2Ugb24gdGhlIGZpcnN0
-IDUwMApkZXN0cnVjdGlvbnMgb24gUGVudGl1bS1NLCBidXQgSSBiZWxpZXZlIHRoZSBvcHRp
-bWl6YXRpb24gd291bGQgd2luIG1vcmUgb24Kb2xkZXIgcHJvY2Vzc29ycyB3aGljaCBzdGls
-bCBhc3NlcnQgdGhlIGJ1cyBsb2NrIG9uIHhjaGcgZm9yIGFuIGV4Y2x1c2l2ZQpjYWNoZWxp
-bmUuCgpVcGRhdGU6IEkgbWFkZSBzb21lIG5ldyBtZWFzdXJlbWVudHMsIGFuZCB0aGlzIHNh
-dmVzIGV4YWN0bHkgMjYgY3ljbGVzIG92ZXIKcHRlcF9nZXRfYW5kX2NsZWFyIG9uIFBlbnRp
-dW0gTS4gIE9uIFA0LCB3aXRoIGEgUEFFIGtlcm5lbCwgdGhpcyBzYXZlcyAxODAKY3ljbGVz
-IHBlciBwdGVwX2dldF9hbmRfY2xlYXIsIGZvciBhIHdob3BwaW5nIDkyMTYwIGN5Y2xlcyBz
-YXZpbmdzIGZvciBhIGZ1bGwKYWRkcmVzcyBzcGFjZSBkZXN0cnVjdGlvbi4KCnB0ZV9jbGVh
-cl9mdWxsIGlzIG5vdCB5ZXQgdXNlZCwgYnV0IGlzIHByb3ZpZGVkIGZvciBmdXR1cmUgb3B0
-aW1pemF0aW9ucyAoaW4KcGFydGljdWxhciwgd2hlbiBydW5uaW5nIGluc2lkZSBvZiBhIGh5
-cGVydmlzb3IgdGhhdCBxdWV1ZXMgcGFnZSB0YWJsZSB1cGRhdGVzLAp0aGUgZnVsbCBoaW50
-IGFsbG93cyB1cyB0byBhdm9pZCBxdWV1ZWluZyB1bm5lY2Vzc2FyeSBwYWdlIHRhYmxlIHVw
-ZGF0ZSBmb3IgYW4KYWRkcmVzcyBzcGFjZSBpbiB0aGUgcHJvY2VzcyBvZiBiZWluZyBkZXN0
-cm95ZWQuCgpUaGlzIGlzIG5vdCBhIGh1Z2Ugd2luLCBidXQgaXQgZG9lcyBoZWxwIGEgYml0
-LCBhbmQgc2V0cyB0aGUgc3RhZ2UgZm9yIGZ1cnRoZXIKaHlwZXJ2aXNvciBvcHRpbWl6YXRp
-b24gb2YgdGhlIG1tIGxheWVyIG9uIGFsbCBhcmNoaXRlY3R1cmVzLgoKU2lnbmVkLW9mZi1i
-eTogWmFjaGFyeSBBbXNkZW4gPHphY2hAdm13YXJlLmNvbT4KSW5kZXg6IGxpbnV4LTIuNi4x
-My9pbmNsdWRlL2FzbS1nZW5lcmljL3BndGFibGUuaAo9PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51
-eC0yLjYuMTMub3JpZy9pbmNsdWRlL2FzbS1nZW5lcmljL3BndGFibGUuaAkyMDA1LTA3LTI5
-IDExOjAzOjEwLjAwMDAwMDAwMCAtMDcwMAorKysgbGludXgtMi42LjEzL2luY2x1ZGUvYXNt
-LWdlbmVyaWMvcGd0YWJsZS5oCTIwMDUtMDctMjkgMTU6MjY6NTguMDAwMDAwMDAwIC0wNzAw
-CkBAIC0xMDEsNiArMTAxLDIyIEBACiB9KQogI2VuZGlmCiAKKyNpZm5kZWYgX19IQVZFX0FS
-Q0hfUFRFUF9HRVRfQU5EX0NMRUFSX0ZVTEwKKyNkZWZpbmUgcHRlcF9nZXRfYW5kX2NsZWFy
-X2Z1bGwoX19tbSwgX19hZGRyZXNzLCBfX3B0ZXAsIF9fZnVsbCkJXAorKHsJCQkJCQkJCQlc
-CisJcHRlX3QgX19wdGU7CQkJCQkJCVwKKwlfX3B0ZSA9IHB0ZXBfZ2V0X2FuZF9jbGVhcigo
-X19tbSksIChfX2FkZHJlc3MpLCAoX19wdGVwKSk7CVwKKwlfX3B0ZTsJCQkJCQkJCVwKK30p
-CisjZW5kaWYKKworI2lmbmRlZiBfX0hBVkVfQVJDSF9QVEVfQ0xFQVJfRlVMTAorI2RlZmlu
-ZSBwdGVfY2xlYXJfZnVsbChfX21tLCBfX2FkZHJlc3MsIF9fcHRlcCwgX19mdWxsKQkJXAor
-ZG8gewkJCQkJCQkJCVwKKwlwdGVfY2xlYXIoKF9fbW0pLCAoX19hZGRyZXNzKSwgKF9fcHRl
-cCkpOwkJCVwKK30gd2hpbGUgKDApCisjZW5kaWYKKwogI2lmbmRlZiBfX0hBVkVfQVJDSF9Q
-VEVQX0NMRUFSX0ZMVVNICiAjZGVmaW5lIHB0ZXBfY2xlYXJfZmx1c2goX192bWEsIF9fYWRk
-cmVzcywgX19wdGVwKQkJCVwKICh7CQkJCQkJCQkJXApJbmRleDogbGludXgtMi42LjEzL2lu
-Y2x1ZGUvYXNtLWkzODYvcGd0YWJsZS5oCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxpbnV4LTIuNi4x
-My5vcmlnL2luY2x1ZGUvYXNtLWkzODYvcGd0YWJsZS5oCTIwMDUtMDctMjkgMTE6MDM6MTAu
-MDAwMDAwMDAwIC0wNzAwCisrKyBsaW51eC0yLjYuMTMvaW5jbHVkZS9hc20taTM4Ni9wZ3Rh
-YmxlLmgJMjAwNS0wNy0yOSAxNToyNjo1OC4wMDAwMDAwMDAgLTA3MDAKQEAgLTI1OCw2ICsy
-NTgsMTggQEAKIAlyZXR1cm4gdGVzdF9hbmRfY2xlYXJfYml0KF9QQUdFX0JJVF9BQ0NFU1NF
-RCwgJnB0ZXAtPnB0ZV9sb3cpOwogfQogCitzdGF0aWMgaW5saW5lIHB0ZV90IHB0ZXBfZ2V0
-X2FuZF9jbGVhcl9mdWxsKHN0cnVjdCBtbV9zdHJ1Y3QgKm1tLCB1bnNpZ25lZCBsb25nIGFk
-ZHIsIHB0ZV90ICpwdGVwLCBpbnQgZnVsbCkgCit7CisJcHRlX3QgcHRlOworCWlmIChmdWxs
-KSB7CisJCXB0ZSA9ICpwdGVwOworCQkqcHRlcCA9IF9fcHRlKDApOworCX0gZWxzZSB7CisJ
-CXB0ZSA9IHB0ZXBfZ2V0X2FuZF9jbGVhcihtbSwgYWRkciwgcHRlcCk7CisJfQorCXJldHVy
-biBwdGU7Cit9CisKIHN0YXRpYyBpbmxpbmUgdm9pZCBwdGVwX3NldF93cnByb3RlY3Qoc3Ry
-dWN0IG1tX3N0cnVjdCAqbW0sIHVuc2lnbmVkIGxvbmcgYWRkciwgcHRlX3QgKnB0ZXApCiB7
-CiAJY2xlYXJfYml0KF9QQUdFX0JJVF9SVywgJnB0ZXAtPnB0ZV9sb3cpOwpAQCAtNDE1LDYg
-KzQyNyw3IEBACiAjZGVmaW5lIF9fSEFWRV9BUkNIX1BURVBfVEVTVF9BTkRfQ0xFQVJfWU9V
-TkcKICNkZWZpbmUgX19IQVZFX0FSQ0hfUFRFUF9URVNUX0FORF9DTEVBUl9ESVJUWQogI2Rl
-ZmluZSBfX0hBVkVfQVJDSF9QVEVQX0dFVF9BTkRfQ0xFQVIKKyNkZWZpbmUgX19IQVZFX0FS
-Q0hfUFRFUF9HRVRfQU5EX0NMRUFSX0ZVTEwKICNkZWZpbmUgX19IQVZFX0FSQ0hfUFRFUF9T
-RVRfV1JQUk9URUNUCiAjZGVmaW5lIF9fSEFWRV9BUkNIX1BURV9TQU1FCiAjaW5jbHVkZSA8
-YXNtLWdlbmVyaWMvcGd0YWJsZS5oPgpJbmRleDogbGludXgtMi42LjEzL21tL21lbW9yeS5j
-Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT0KLS0tIGxpbnV4LTIuNi4xMy5vcmlnL21tL21lbW9yeS5jCTIwMDUt
-MDctMjkgMTE6MDM6MTEuMDAwMDAwMDAwIC0wNzAwCisrKyBsaW51eC0yLjYuMTMvbW0vbWVt
-b3J5LmMJMjAwNS0wNy0yOSAxNToyNjo1OC4wMDAwMDAwMDAgLTA3MDAKQEAgLTU1MSw3ICs1
-NTEsNyBAQAogCQkJCSAgICAgcGFnZS0+aW5kZXggPiBkZXRhaWxzLT5sYXN0X2luZGV4KSkK
-IAkJCQkJY29udGludWU7CiAJCQl9Ci0JCQlwdGVudCA9IHB0ZXBfZ2V0X2FuZF9jbGVhcih0
-bGItPm1tLCBhZGRyLCBwdGUpOworCQkJcHRlbnQgPSBwdGVwX2dldF9hbmRfY2xlYXJfZnVs
-bCh0bGItPm1tLCBhZGRyLCBwdGUsIHRsYi0+ZnVsbG1tKTsKIAkJCXRsYl9yZW1vdmVfdGxi
-X2VudHJ5KHRsYiwgcHRlLCBhZGRyKTsKIAkJCWlmICh1bmxpa2VseSghcGFnZSkpCiAJCQkJ
-Y29udGludWU7CkBAIC01NzksNyArNTc5LDcgQEAKIAkJCWNvbnRpbnVlOwogCQlpZiAoIXB0
-ZV9maWxlKHB0ZW50KSkKIAkJCWZyZWVfc3dhcF9hbmRfY2FjaGUocHRlX3RvX3N3cF9lbnRy
-eShwdGVudCkpOwotCQlwdGVfY2xlYXIodGxiLT5tbSwgYWRkciwgcHRlKTsKKwkJcHRlX2Ns
-ZWFyX2Z1bGwodGxiLT5tbSwgYWRkciwgcHRlLCB0bGItPmZ1bGxtbSk7CiAJfSB3aGlsZSAo
-cHRlKyssIGFkZHIgKz0gUEFHRV9TSVpFLCBhZGRyICE9IGVuZCk7CiAJcHRlX3VubWFwKHB0
-ZSAtIDEpOwogfQo=
---------------040907050205090101050102
-Content-Type: text/plain;
- name="x86_64-pte-destruction"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="x86_64-pte-destruction"
-
-QW55IGFyY2hpdGVjdHVyZSB0aGF0IGhhcyBoYXJkd2FyZSB1cGRhdGVkIEEvRCBiaXRzIHRo
-YXQgcmVxdWlyZQpzeW5jaHJvbml6YXRpb24gYWdhaW5zdCBvdGhlciBwcm9jZXNzb3JzIGR1
-cmluZyBQVEUgb3BlcmF0aW9ucwpjYW4gYmVuZWZpdCBmcm9tIGRvaW5nIG5vbi1hdG9taWMg
-UFRFIHVwZGF0ZXMgZHVyaW5nIGFkZHJlc3Mgc3BhY2UKZGVzdHJ1Y3Rpb24uICBPcmlnaW5h
-bGx5IGRvbmUgb24gaTM4Niwgbm93IHBvcnRlZCB0byB4ODZfNjQuCgpEb2luZyBhIHJlYWQv
-d3JpdGUgcGFpciBpbnN0ZWFkIG9mIGFuIHhjaGcoKSBvcGVyYXRpb24gc2F2ZXMgdGhlCmlt
-cGxpY2l0IGxvY2ssIHdoaWNoIHR1cm5zIG91dCB0byBiZSBhIGJpZyB3aW4gb24gMzItYml0
-IChlc3AgdyBQQUUpLgoKRGlmZnMtYWdhaW5zdDogMi42LjEzLXJjNS1tbTEKU2lnbmVkLW9m
-Zi1ieTogWmFjaGFyeSBBbXNkZW4gPHphY2hAdm13YXJlLmNvbT4KSW5kZXg6IGxpbnV4LTIu
-Ni4xMy1yYzUtbW0xL2luY2x1ZGUvYXNtLXg4Nl82NC9wZ3RhYmxlLmgKPT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PQotLS0gbGludXgtMi42LjEzLXJjNS1tbTEub3JpZy9pbmNsdWRlL2FzbS14ODZfNjQvcGd0
-YWJsZS5oCTIwMDUtMDgtMDcgMDQ6NTY6MzcuMDAwMDAwMDAwIC0wNzAwCisrKyBsaW51eC0y
-LjYuMTMtcmM1LW1tMS9pbmNsdWRlL2FzbS14ODZfNjQvcGd0YWJsZS5oCTIwMDUtMDgtMDcg
-MDQ6NTk6MTguNjAxODU2MDk2IC0wNzAwCkBAIC0xMDQsNiArMTA0LDE5IEBACiAoKHVuc2ln
-bmVkIGxvbmcpIF9fdmEocHVkX3ZhbChwdWQpICYgUEhZU0lDQUxfUEFHRV9NQVNLKSkKIAog
-I2RlZmluZSBwdGVwX2dldF9hbmRfY2xlYXIobW0sYWRkcix4cCkJX19wdGUoeGNoZygmKHhw
-KS0+cHRlLCAwKSkKKworc3RhdGljIGlubGluZSBwdGVfdCBwdGVwX2dldF9hbmRfY2xlYXJf
-ZnVsbChzdHJ1Y3QgbW1fc3RydWN0ICptbSwgdW5zaWduZWQgbG9uZyBhZGRyLCBwdGVfdCAq
-cHRlcCwgaW50IGZ1bGwpCit7CisJcHRlX3QgcHRlOworCWlmIChmdWxsKSB7CisJCXB0ZSA9
-ICpwdGVwOworCQkqcHRlcCA9IF9fcHRlKDApOworCX0gZWxzZSB7CisJCXB0ZSA9IHB0ZXBf
-Z2V0X2FuZF9jbGVhcihtbSwgYWRkciwgcHRlcCk7CisJfQorCXJldHVybiBwdGU7Cit9CisK
-ICNkZWZpbmUgcHRlX3NhbWUoYSwgYikJCSgoYSkucHRlID09IChiKS5wdGUpCiAKICNkZWZp
-bmUgUE1EX1NJWkUJKDFVTCA8PCBQTURfU0hJRlQpCkBAIC00MzMsNiArNDQ2LDcgQEAKICNk
-ZWZpbmUgX19IQVZFX0FSQ0hfUFRFUF9URVNUX0FORF9DTEVBUl9ZT1VORwogI2RlZmluZSBf
-X0hBVkVfQVJDSF9QVEVQX1RFU1RfQU5EX0NMRUFSX0RJUlRZCiAjZGVmaW5lIF9fSEFWRV9B
-UkNIX1BURVBfR0VUX0FORF9DTEVBUgorI2RlZmluZSBfX0hBVkVfQVJDSF9QVEVQX0dFVF9B
-TkRfQ0xFQVJfRlVMTAogI2RlZmluZSBfX0hBVkVfQVJDSF9QVEVQX1NFVF9XUlBST1RFQ1QK
-ICNkZWZpbmUgX19IQVZFX0FSQ0hfUFRFX1NBTUUKICNpbmNsdWRlIDxhc20tZ2VuZXJpYy9w
-Z3RhYmxlLmg+Cg==
---------------040907050205090101050102--
+-Andi

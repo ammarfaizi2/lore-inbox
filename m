@@ -1,78 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbVHYQzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbVHYQzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbVHYQzh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 12:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVHYQzg
+	id S1751196AbVHYQzt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 12:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVHYQzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 12:55:36 -0400
-Received: from ns1.lanforge.com ([66.165.47.210]:29595 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S1751195AbVHYQzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 12:55:35 -0400
-Message-ID: <430DF7FF.9080502@candelatech.com>
-Date: Thu, 25 Aug 2005 09:55:27 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: danial_thom@yahoo.com
-CC: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.12 Performance problems
-References: <20050825142647.70995.qmail@web33314.mail.mud.yahoo.com>
-In-Reply-To: <20050825142647.70995.qmail@web33314.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Aug 2005 12:55:49 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:58271 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1751196AbVHYQzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 12:55:48 -0400
+Date: Thu, 25 Aug 2005 18:55:50 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netfilter-devel@lists.netfilter.org
+Subject: Re: oops in 2.6.13-rc6-git12 in tcp/netfilter routines
+Message-ID: <20050825165550.GC4442@rama.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	Alessandro Suardi <alessandro.suardi@gmail.com>, netdev@oss.sgi.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	netfilter-devel@lists.netfilter.org
+References: <5a4c581d05082506395fa984ae@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KLINyTCByxgMLuN/"
+Content-Disposition: inline
+In-Reply-To: <5a4c581d05082506395fa984ae@mail.gmail.com>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danial Thom wrote:
 
-> The tests I reported where on UP systems. Perhaps
-> the default settings are better for this in 2.4,
-> since that is what I used, and you used your
-> hacks for both.
+--KLINyTCByxgMLuN/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-My modifications to the kernel are unlikely to speed anything
-up, and probably will slow things down ever so slightly.
+On Thu, Aug 25, 2005 at 03:39:02PM +0200, Alessandro Suardi wrote:
+> Howdy, and excuse me for crossposting - feel free to zap CC to
+>  unrelated, if any, mailing lists.
+>=20
+>   just gave PeerGuardian a spin on my eDonkey home box and
+>   said box didn't last half a day before oopsing in netlink/nf/tcp
+>   related routines (or so it seems to my untrained eye).
 
-I can try with a UP kernel, but my machine at least has a single
-processor.  I'm using the SMP kernel to take advantage of HT.
+Yes, it indeed could be that there is some fishy interaction between the
+tcp stack and ip_queue causing the oops.=20
 
-> Are you getting drops or overruns (or both)? I
-> would assume drops is a decision to drop rather
-> than an overrun which is a ring overrun. Overruns
-> would imply more about performance than tuning,
-> I'd think.
+> K7800, 256MB RAM, uptodate FC3 running 2.6.13-rc6-git12,
+>  doing nothing but running MetaMachine's eDonkey 1.4.3 QT gui.
+> PeerGuardian is the 1.5 beta version available from methlabs.org.
 
-I was seeing lots of NIC errors...in fact, it was showing a great many
-more errors than packets sent to it, so I just ignored them.
+Is it true that PeerGuardian is a proprietary application?  I'm not
+going to debug this problem using a proprietary ip_queue program, sorry.
 
-I increased the TxDescriptors and RxDescriptors and that helped a little.
+If you can produce a testcase with open source userspace ip_queue code,
+I could look into reproducing the problem locally and debugging the
+problem more thoroughly.
 
-Increasing the transmit queue for the NIC to 2000 also helped a little.
+While it definitely is a kernel bug (whatever userspace sends should not
+crash the kernel), it might be something that specifically [only]
+PeerGuardian does to the packet.  Something that ip_queue doesn't check
+(but should check) on packet reinjection and therefore upsets the TCP stack.
 
-> I wouldn't think that HT would be appropriate for
-> this sort of setup...?
+Also helpful would be the output of an "strace -f -x -s65535 -e
+trace=3Dsendmsg" on the PeerGuardian (daemon?) process.
 
-2.6.11 seems to be faster when running SMP kernel on this system.
-> 
-> You're using a dual PCI-X NIC rather than the
-> onboard ports? Supermicro runs their onboard
 
-Of course.  Never found a motherboard yet with decent built-in
-NICs.  The built-ins on this board are tg3 and they must be on
-a slow bus, because they cannot go faster than about 700Mbps
-(using big pkts).
+> [<c0103714>] die+0xe4/0x170
+> [<c010381f>] do_trap+0x7f/0xc0
+> [<c0103b33>] do_invalid_op+0xa3/0xb0
+> [<c0102faf>] error_code+0x4f/0x54
+> [<c02eb05b>] kfree_skbmem+0xb/0x20
+> [<c02eb0cf>] __kfree_skb+0x5f/0xf0
 
-I'll benchmark things again when 2.6.13 comes out and try to
-get some more detailed numbers...
+ok, so something down the chain from kfree_skb() results in an invalid
+operation? looks more like some compiler problem, bad memory or memory
+corruption to me.  Try to reproduce the problem without PG.
 
-Thanks,
-Ben
+> [<c031304a>] tcp_clean_rtx_queue+0x16a/0x470
+> [<c0313746>] tcp_ack+0xf6/0x360
+> [<c0315d57>] tcp_rcv_established+0x277/0x7a0
+> [<c031eba0>] tcp_v4_do_rcv+0xf0/0x110
+> [<c031f2a0>] tcp_v4_rcv+0x6e0/0x820
+> [<c0305594>] ip_local_deliver_finish+0x84/0x160
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+so something in the tcp stack ends up doing tcp_clean_rtx_queue()
 
+> [<c02fbe4a>] nf_reinject+0x13a/0x1c0
+> [<c033f0d8>] ipq_issue_verdict+0x28/0x40
+> [<c033f968>] ipq_set_verdict+0x48/0x70
+
+ip_queue reinjects a packet via nf_reinject()
+
+> [<c033fa79>] ipq_receive_peer+0x39/0x50
+> [<c033fc72>] ipq_receive_sk+0x172/0x190
+
+ip_queue receives and ipq verdict msg packet from netlink
+
+> [<c02fffa5>] netlink_data_ready+0x35/0x60
+> [<c02ff4a4>] netlink_sendskb+0x24/0x60
+> [<c02ff657>] netlink_unicast+0x127/0x160
+> [<c02ffcc4>] netlink_sendmsg+0x204/0x2b0
+> [<c02e6dc0>] sock_sendmsg+0xb0/0xe0
+> [<c02e83f4>] sys_sendmsg+0x134/0x240
+> [<c02e88e4>] sys_socketcall+0x224/0x230
+> [<c0102d3b>] sysenter_past_esp+0x54/0x75
+
+process sendmsg()s on the netlink socket.
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--KLINyTCByxgMLuN/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDDfgWXaXGVTD0i/8RAlKWAKCLPpvWL8TMiA/7tYlD1ETKeUQZtACgnfKI
+2/nlXN2NSODp8oF33ZBm7pw=
+=cPuj
+-----END PGP SIGNATURE-----
+
+--KLINyTCByxgMLuN/--

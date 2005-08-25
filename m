@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVHYPHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVHYPNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbVHYPHk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 11:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbVHYPHk
+	id S1751114AbVHYPNU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 11:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVHYPNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 11:07:40 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:23101 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751104AbVHYPHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 11:07:39 -0400
-From: Ian Campbell <ijc@hellion.org.uk>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-cifs-client@lists.samba.org,
-       Asser =?ISO-8859-1?Q?Fem=F8?= <asser@diku.dk>
-In-Reply-To: <20050825145750.GA6658@mail.shareable.org>
-References: <20050823130023.GB8305@diku.dk>
-	 <20050823152331.GA10486@mail.shareable.org>
-	 <1124973618.17190.9.camel@icampbell-debian>
-	 <20050825145750.GA6658@mail.shareable.org>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 16:07:25 +0100
-Message-Id: <1124982445.17190.44.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 192.168.3.3
-X-SA-Exim-Mail-From: ijc@hellion.org.uk
-Subject: Re: dnotify/inotify and vfs questions
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
+	Thu, 25 Aug 2005 11:13:20 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:29364 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751114AbVHYPNU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 11:13:20 -0400
+Message-ID: <430DE001.8060604@cosmosbay.com>
+Date: Thu, 25 Aug 2005 17:13:05 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] removes filp_count_lock and changes nr_files type to
+ atomic_t
+References: <20050824214610.GA3675@localhost.localdomain>	 <1124956563.3222.8.camel@laptopd505.fenrus.org>	 <430D8518.8020502@cosmosbay.com> <20050825090854.GA9740@infradead.org>	 <430D8CA3.3030709@cosmosbay.com> <20050825092322.GA9902@infradead.org>	 <430DA052.9070908@cosmosbay.com> <1124968309.5856.9.camel@npiggin-nld.site> <430DB8FA.4080009@cosmosbay.com> <430DDAF2.6030601@yahoo.com.au>
+In-Reply-To: <430DDAF2.6030601@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 25 Aug 2005 17:13:06 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 15:57 +0100, Jamie Lokier wrote:
-> Ian Campbell wrote:
-> > On Tue, 2005-08-23 at 16:23 +0100, Jamie Lokier wrote:
-> > >     <receive some request>...
-> > >     if (any_dnotify_or_inotify_events_pending) {
-> > >         read_dnotify_or_inotify_events();
-> > >         if (any_events_related_to(file)) {
-> > >             store_in_userspace_stat_cache(file, stat(file));
-> > >         }
-> > >     }
-> > >     stat_info = lookup_userspace_stat_cache(file);
-> > > 
-> > > Now that's a silly way to save one system call in the fast path by itself.
-> > 
-> > I'm not that familiar with inotify internals but doesn't
-> > read_dnotify_or_inotify_events() or
-> > any_dnotify_or_inotify_events_pending() involve a syscall?
+Nick Piggin a écrit :
+
+> OK, well I would prefer you do the proper atomic operations throughout
+> where it "really matters" in file_table.c, and do your lazy synchronize
+> with just the sysctl exported value.
 > 
-> The fast path is just any_dnotify_or_inotify_events_pending: there
-> aren't any relevant events pending in the fast path.
-[snip]
-> As I explained in the previous mail, all this is absolutely pointless
-> to save one system call.  It's a lot of work for negligable gain.
+
+But... I got complains about atomic_read(&counter) being 'an atomic op' 
+(untrue), so my second patch just doesnt touch the path where nr_files was read.
+
+Furthermore, a lazy sync would mean to change sysctl proc_handler for 
+"file-nr" to perform a synchronize before calling proc_dointvec, this would be 
+really obscure.
+
+> Unless the fs people had a problem with that.
 > 
-> The point is when it saves lots of calls and userspace logic together,
-> for things like web page templates and compiled programs, which depend
-> on many files which can be revalidated in a small number of operations.
+> And you may as well get rid of the atomic_inc_return which can be more
+> expensive on some platforms and doesn't buy you much.
+>   atomic_inc;
+>   atomic_read;
+> Should be enough if you don't care about lost updates here, yeah?
+> 
 
-Thanks for the explaination.
+You mean :
 
-Ian.
--- 
-Ian Campbell
-Current Noise: Iron Maiden - Prodigal Son
+atomic_inc(&counter);
+lazeyvalue = atomic_read(&counter);
 
-Fay: The British police force used to be run by men of integrity.
-Truscott: That is a mistake which has been rectified.
-		-- Joe Orton, "Loot"
+instead of
 
+lazeyvalue = atomic_inc_return(&counter);
+
+In fact I couldnt find one architecture where the later would be more expensive.
+
+> Nick
+> 
+
+Eric

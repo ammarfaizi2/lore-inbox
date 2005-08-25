@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbVHYOP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbVHYOQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965014AbVHYOP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:15:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVHYOP6
+	id S965008AbVHYOQw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVHYOQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:15:58 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:62144 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964999AbVHYOP5 (ORCPT
+	Thu, 25 Aug 2005 10:16:52 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:24984 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S965008AbVHYOQv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:15:57 -0400
-Date: Thu, 25 Aug 2005 16:15:39 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Christoph Hellwig <hch@infradead.org>
-cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH] (18/22) task_thread_info - part 2/4
-In-Reply-To: <20050825135933.GA14448@infradead.org>
-Message-ID: <Pine.LNX.4.61.0508251610441.3728@scrub.home>
-References: <E1E8AEh-0005eT-NP@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.61.0508251107500.24552@scrub.home>
- <20050825130738.GQ9322@parcelfarce.linux.theplanet.co.uk>
- <20050825135933.GA14448@infradead.org>
+	Thu, 25 Aug 2005 10:16:51 -0400
+Date: Thu, 25 Aug 2005 16:16:17 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Sam Creasey <sammy@sammy.net>, Paul Jackson <pj@sgi.com>,
+       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.13-rc7
+In-Reply-To: <20050825141251.GS9322@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.62.0508251614440.28348@numbat.sonytel.be>
+References: <Pine.LNX.4.62.0508251125030.28348@numbat.sonytel.be>
+ <Pine.LNX.4.40.0508250954240.17653-100000@sun3>
+ <20050825141251.GS9322@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 25 Aug 2005, Al Viro wrote:
+> On Thu, Aug 25, 2005 at 09:59:05AM -0400, Sam Creasey wrote:
+> > I have been a little out of it for a while on the sun3 stuffs, I'll admit
+> > (cursed day job), but I really, really intend to get recent 2.6 running
+> > again.  Knowing that the rest of m68k is at least compiling is a good
+> > start point.  Still, I'm going with Geert, and I'm not sure where the
+> > compile regressions would have come from (outside of the video/serial
+> > drivers, which don't compile in m68k CVS either).
+> > 
+> > What compile failures are you seeing?
+> 
+> After looking at that for a while...  It's the second hairball in there ;-)
+> flush_icache_range()/flush_icache_user_range() stuff, with all related
+> fun.  Note that mainline has flush_ichace_range() in memory.c, which is
+> not picked by sun3.
 
-On Thu, 25 Aug 2005, Christoph Hellwig wrote:
+Indeed, the cache flush routines have to be moved to a separate file, as per
+376-cache.diff. But that one depends on 362-cache.diff, that's why it's still
+in my POSTPONED queue, until the originator has pushed that one upstream.
 
-> Yup.  Let's get m68k into buildable shape for 2.6.13 with Al's minimal
-> patches, and if you have further improvements over that submit them as
-> split up patches through the usual channels.  Having all architectures
-> actually build and work from mainline is really important to have
-> useful kernel package in distributions.
+Gr{oetje,eeting}s,
 
-No, there has been no discussion of these patches, so there is no point in 
-doing this a few days before 2.6.13. Can we please do this properly for 
-2.6.14?
+						Geert
 
-If you want to apply these patches, please also apply the following patch:
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Index: linux-2.6/MAINTAINERS
-===================================================================
---- linux-2.6.orig/MAINTAINERS	2005-08-10 01:45:52.000000000 +0200
-+++ linux-2.6/MAINTAINERS	2005-08-25 16:05:41.798908837 +0200
-@@ -1511,8 +1511,8 @@ S:	Maintained
- M68K ARCHITECTURE
- P:	Geert Uytterhoeven
- M:	geert@linux-m68k.org
--P:	Roman Zippel
--M:	zippel@linux-m68k.org
-+P:	Al Viro
-+M:	viro@parcelfarce.linux.theplanet.co.uk
- L:	linux-m68k@lists.linux-m68k.org
- W:	http://www.linux-m68k.org/
- W:	http://linux-m68k-cvs.ubb.ca/
-
-
-I'm serious about this.
-
-bye, Roman
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

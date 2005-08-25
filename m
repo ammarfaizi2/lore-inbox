@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVHYOq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbVHYOr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbVHYOq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbVHYOq6
+	id S1750961AbVHYOr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbVHYOr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:46:58 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:44133 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1750932AbVHYOq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:46:58 -0400
-X-IronPort-AV: i="3.96,141,1122872400"; 
-   d="scan'208"; a="284745383:sNHT25629180"
-Date: Thu, 25 Aug 2005 10:02:29 -0500
-From: Doug Warzecha <Douglas_Warzecha@dell.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13-rc6] dcdbas: add Dell Systems Management Base Driver with sysfs support
-Message-ID: <20050825150229.GA5848@sysman-doug.us.dell.com>
-References: <20050825020021.GA5223@sysman-doug.us.dell.com> <20050825030909.GB6079@taniwha.stupidest.org>
+	Thu, 25 Aug 2005 10:47:27 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:42647 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1750949AbVHYOr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 10:47:27 -0400
+Subject: Re: process creation time increases linearly with shmem
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Andi Kleen <ak@suse.de>
+Cc: Ray Fucillo <fucillo@intersystems.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200508251622.08456.ak@suse.de>
+References: <082520051405.5272.430DD0420003F49F00001498220076139400009A9B9CD3040A029D0A05@comcast.net>
+	 <200508251622.08456.ak@suse.de>
+Content-Type: text/plain
+Date: Thu, 25 Aug 2005 10:47:20 -0400
+Message-Id: <1124981240.3055.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050825030909.GB6079@taniwha.stupidest.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 08:09:09PM -0700, Chris Wedgwood wrote:
-> On Wed, Aug 24, 2005 at 09:00:21PM -0500, Doug Warzecha wrote:
+On Thu, 2005-08-25 at 16:22 +0200, Andi Kleen wrote:
+> But I'm not sure it's a good idea in all cases. Would need a lot of 
+> benchmarking  at least.
 > 
-> [...]
+> -Andi
 > 
-> > +Dell OpenManage requires this driver on the following Dell PowerEdge systems:
-> > +300, 1300, 1400, 400SC, 500SC, 1500SC, 1550, 600SC, 1600SC, 650, 1655MC,
-> > +700, and 750.  Other Dell software such as the open source Libsmbios library
-> > +is expected to make use of this driver, and it may include the use of this
-> > +driver on other Dell systems.
-> 
-> I'd like to see a URL/pointer somewhere about here in the docs for the
-> location of libsmbios if nobody objects.
 
-No objections.  I'll add it.
+Exactly - one problem is that this forces all of the hugetlb users to go
+the lazy faulting way. This is more or less similar to the original
+problem the fork() forces everything to be mapped and some apps don't
+like it. Same way, some apps may not want hugetlb pages to be all
+pre-mapped. 
 
-Doug
+That's why I was alluding towards having the user specify MAP_SHARED|
+MAP_LAZY or something to that tune and then have fork() honor it. So
+people who want all things pre-mapped will not specify MAP_LAZY, just
+MAP_SHARED. 
+
+Now I don't even know if above is possible and workable for all
+scenarios but that's why I was asking.. :)
+
+Parag
+

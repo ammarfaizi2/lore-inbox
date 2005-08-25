@@ -1,66 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbVHYR5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbVHYSKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbVHYR5s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 13:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVHYR5s
+	id S932314AbVHYSKU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 14:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbVHYSKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 13:57:48 -0400
-Received: from ixca-out.ixiacom.com ([67.133.120.10]:8642 "EHLO
-	ixca-ex1.ixiacom.com") by vger.kernel.org with ESMTP
-	id S1750966AbVHYR5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 13:57:47 -0400
-Message-ID: <430E0697.5000503@rincewind.tv>
-Date: Thu, 25 Aug 2005 10:57:43 -0700
-X-Sybari-Trust: d7535144 453feeff d9cd6d6c 0000010c
-From: Ollie Wild <aaw@rincewind.tv>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050725)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] arch-sh csum_partial_copy_generic() bugfix
-Content-Type: multipart/mixed;
- boundary="------------000005020201060101080208"
+	Thu, 25 Aug 2005 14:10:20 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:53679 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751387AbVHYSKS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 14:10:18 -0400
+Subject: Re: [RFC - 0/9] Generic timekeeping subsystem  (v. B5)
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, benh@kernel.crashing.org,
+       Anton Blanchard <anton@samba.org>, frank@tuxrocks.com,
+       George Anzinger <george@mvista.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0508250102020.3743@scrub.home>
+References: <1123723279.30963.267.camel@cog.beaverton.ibm.com>
+	 <1123726394.32531.33.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508152115480.3728@scrub.home>
+	 <1124151001.8630.87.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508162337130.3728@scrub.home>
+	 <1124241449.8630.137.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508182213100.3728@scrub.home>
+	 <1124505151.22195.78.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508202204240.3728@scrub.home>
+	 <1124737075.22195.114.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508230134210.3728@scrub.home>
+	 <1124830262.20464.26.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508232321530.3728@scrub.home>
+	 <1124838847.20617.11.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508240134050.3743@scrub.home>
+	 <1124906422.20820.16.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508242043220.3728@scrub.home>
+	 <1124910953.20820.34.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508242142420.3743@scrub.home>
+	 <1124923231.20820.87.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0508250102020.3743@scrub.home>
+Content-Type: text/plain
+Date: Thu, 25 Aug 2005 11:08:52 -0700
+Message-Id: <1124993333.20820.195.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000005020201060101080208
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2005-08-25 at 02:45 +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Wed, 24 Aug 2005, john stultz wrote:
+> 
+> > Ok, well, I'm still at a loss for understanding how this avoids my
+> > concern about time inconsistencies.
+> 
+> Let's take a simple example to demonstrate the difference between system 
+> time and reference time.
 
-There's a bug in Hitachi SuperH csum_partial_copy_generic() 
-implementation.  If the supplied length is 1 (and several alignment 
-conditions are met), the function immediately branches to label 4.  
-However, the assembly at label 4 expects the length to be stored in 
-register r2.  Since this has not occurred, subsequent behavior is undefined.
+[snip]
 
-This can cause bad payload checksums in TCP connections.
+> 		17000		16974		8	-26
+> 18		18000		17958		8	-42
+> 19		19000		18942		8	-58
+> 20		20000		19926		8	-74
+> 
+> let's assume we're late with the update by 10 cycles 
+> (gettimeofday=19926+10*8=20006), so a change to the mult also requires a 
+> adjustment of the system time:
+> 
+> 20+10		20000		19916		9	-84
+> 
+> so gettimeofday=19916+10*9=20006
 
-I've fixed the problem by initializing register r2 prior to the branch 
-instruction.
+Hey Roman, 
+	Thanks for your patient persistence. The light bulb finally clicked on
+for me last night. I'll start playing with the idea and get back to
+you. 
 
-Ollie
+thanks again,
+-john
 
---------------000005020201060101080208
-Content-Type: text/x-patch;
- name="csum_partial_copy_generic.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="csum_partial_copy_generic.patch"
-
-diff --git a/arch/sh/lib/checksum.S b/arch/sh/lib/checksum.S
---- a/arch/sh/lib/checksum.S
-+++ b/arch/sh/lib/checksum.S
-@@ -202,8 +202,9 @@ ENTRY(csum_partial_copy_generic)
- 	cmp/pz	r6		! Jump if we had at least two bytes.
- 	bt/s	1f
- 	 clrt
-+	add	#2,r6		! r6 was < 2.	Deal with it.
- 	bra	4f
--	 add	#2,r6		! r6 was < 2.	Deal with it.
-+	 mov	r6,r2
- 
- 3:	! Handle different src and dest alignments.
- 	! This is not common, so simple byte by byte copy will do.
-
---------------000005020201060101080208--

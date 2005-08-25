@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbVHYPQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVHYPRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbVHYPQw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 11:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVHYPQw
+	id S1751147AbVHYPRD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 11:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVHYPRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 11:16:52 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:2446 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1751139AbVHYPQt (ORCPT
+	Thu, 25 Aug 2005 11:17:03 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:60382 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1751147AbVHYPRA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 11:16:49 -0400
-Subject: HPET drift question
-From: Alex Williamson <alex.williamson@hp.com>
-To: venkatesh.pallipadi@intel.com
-Cc: robert.picco@hp.com, linux-kernel@vger.kernel.org
+	Thu, 25 Aug 2005 11:17:00 -0400
+Subject: Re: [PATCH 5/5] Remove unnecesary capability hooks in rootplug.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: serue@us.ibm.com
+Cc: Chris Wright <chrisw@osdl.org>, linux-security-module@wirex.com,
+       Greg Kroah <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Kurt Garloff <garloff@suse.de>, James Morris <jmorris@redhat.com>
+In-Reply-To: <20050825143807.GA8590@sergelap.austin.ibm.com>
+References: <20050825012028.720597000@localhost.localdomain>
+	 <20050825012150.490797000@localhost.localdomain>
+	 <20050825143807.GA8590@sergelap.austin.ibm.com>
 Content-Type: text/plain
-Organization: LOSL
-Date: Thu, 25 Aug 2005 09:17:08 -0600
-Message-Id: <1124983028.5331.15.camel@tdi>
+Organization: National Security Agency
+Date: Thu, 25 Aug 2005 11:13:56 -0400
+Message-Id: <1124982836.3873.78.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Venki,
+On Thu, 2005-08-25 at 09:38 -0500, serue@us.ibm.com wrote:
+> Ok, with the attached patch SELinux seems to work correctly.  You'll
+> probably want to make it a little prettier  :)  Note I have NOT ran the
+> ltp tests for correctness.  I'll do some performance runs, though
+> unfortunately can't do so on ppc right now.
 
-   I'm confused by the calculation of the drift value in the hpet
-driver.  The specs defines the recommended minimum hardware
-implementation is a frequency drift of 0.05% or 500ppm.  However, the
-drift passed in when registering with the time interpolator is:
-
-ti->drift = ti->frequency * HPET_DRIFT / 1000000;
-
-Isn't that absolute number of ticks per second drift?  The time
-interpolator defines the drift in parts per million.  Shouldn't this
-simply be:
-
-ti->drift = HPET_DRIFT;
-
-The current code seems to greatly penalize any hpet timer with greater
-than a 1MHz frequency.  Thanks,
-
-	Alex
+Note that the selinux tests there _only_ test the SELinux checking.  So
+if these changes interfere with proper stacking of SELinux with
+capabilities, that won't show up there.  
 
 -- 
-Alex Williamson                             HP Linux & Open Source Lab
+Stephen Smalley
+National Security Agency
 

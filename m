@@ -1,112 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbVHYOKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbVHYON3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965007AbVHYOKr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbVHYOKr
+	id S965003AbVHYON3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:13:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965011AbVHYON3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:10:47 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:58816 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965007AbVHYOKq (ORCPT
+	Thu, 25 Aug 2005 10:13:29 -0400
+Received: from sipsolutions.net ([66.160.135.76]:23815 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S965003AbVHYON2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:10:46 -0400
-Date: Thu, 25 Aug 2005 16:10:38 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH] (18/22) task_thread_info - part 2/4
-In-Reply-To: <20050825130738.GQ9322@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.61.0508251515440.3728@scrub.home>
-References: <E1E8AEh-0005eT-NP@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.61.0508251107500.24552@scrub.home>
- <20050825130738.GQ9322@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 Aug 2005 10:13:28 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: Johannes Berg <johannes@sipsolutions.net>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Robert Love <rml@novell.com>, Reuben Farrelly <reuben-lkml@reub.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1124978783.5039.29.camel@vertex>
+References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
+	 <430D986E.30209@reub.net>  <1124972307.6307.30.camel@localhost>
+	 <1124977253.5039.13.camel@vertex>  <1124977672.32272.10.camel@phantasy>
+	 <1124978614.6301.44.camel@localhost>  <1124978783.5039.29.camel@vertex>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EJSDJnLbQiBP1fIEpM7Y"
+Date: Thu, 25 Aug 2005 16:13:13 +0200
+Message-Id: <1124979193.19546.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 25 Aug 2005, Al Viro wrote:
+--=-EJSDJnLbQiBP1fIEpM7Y
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> On Thu, Aug 25, 2005 at 11:15:24AM +0200, Roman Zippel wrote:
-> > >  
-> > > -	*ti = *orig->thread_info;
-> > >  	*tsk = *orig;
-> > > +	setup_thread_info(tsk, ti);
-> > >  	tsk->thread_info = ti;
-> > >  	ti->task = tsk;
-> > 
-> > This introduces a subtle ordering requirement, where setup_thread_info 
-> > magically finds in the new task_struct the pointer to the old thread_info 
-> > to setup the new thread_info.
-> 
-> Nothing subtle with it, especially since this is the only place with any
-> business to call setup_thread_info().
+On Thu, 2005-08-25 at 10:06 -0400, John McCutchan wrote:
+> > it fails on 2.6.13-rc6 as soon as the device is full and doesn't hold
+> > any more directories.
 
-Wrong, we could have multiple versions setup_thread_info() and every one 
-gets the pointer to old thread_info via the new task_struct.
+Obviously this wasn't true, I was hitting the 8192 watches limit and
+misinterpreted the error message. I just tested up to 100000 watches
+with this program.
 
-> > What is your problem with what I have in CVS? There it completes the basic
-> > task_struct setup and _after_ that it can setup the thread_info.
-> 
-> Which buys you what, exactly?  You end up with more things to do in
-> setup_thread_info() and it doesn't get cleaner.
+> Could you send me the new test program?
 
-Wrong.
+Below.
 
-+static inline void setup_thread_stack(struct task_struct *p, struct task_struct *org)
-+{
-+       *task_thread_info(p) = *task_thread_info(org);
-+       task_thread_info(p)->task = p;
-+}
+johannes
 
--       *ti = *orig->thread_info;
-        *tsk = *orig;
-        tsk->thread_info = ti;
--       ti->task = tsk;
-+       setup_thread_stack(tsk, orig);
+/* Author: Johannes Berg <johannes@sipsolutions.net>
+ *
+ * This is another small inotify test program that simply
+ * repeatedly adds watches.
+ */
 
-It's exactly the same work and setup_thread_stack() gets the old and new 
-task_struct, with each one having the _correct_ thread_info.
-If you really want to count cycles, the only minor difference is that 
-some "ti" become "tsk->thread_info", but gcc is perfectly capable to 
-detect that it's the same and it will generate the same code.
+#include <stdio.h>
+#include <linux/inotify.h>
+#include <linux/inotify-syscalls.h>
 
-Moreover my code is cleaner, as it clearly separates two tasks:
+int main()
+{
+	int fd;
+	int wd1, wd2;
+	int ret, i =3D 0;
+	char buf[1024];
 
-	setup_task_struct(tsk, orig);
-	setup_thread_stack(tsk, orig);
+	fd =3D inotify_init();
+
+	if (fd < 0)
+		perror("inotify_init");
+
+	printf("inotify_init returned fd %d\n", fd);
+=09
+	mkdir("/tmp/inotify-test-dir-rm-rf-this", 0777);
+
+	while (1) {
+		i++;
+		snprintf(buf,sizeof(buf),"/tmp/inotify-test-dir-rm-rf-this/%d",i>>10);
+		mkdir(buf,0777);
+		snprintf(buf,sizeof(buf),"/tmp/inotify-test-dir-rm-rf-this/%d/%d",i>>10,i=
+);
+		mkdir(buf, 0777);
+		wd1 =3D inotify_add_watch(fd, buf, IN_ALL_EVENTS);
+
+		if (wd1 < 0) {
+			perror("inotify_add_watch");
+			break;
+		}
+		printf("inotify_add_watch returned wd1 %d\n", wd1);
+	}
+}
 
 
-> > Al, I would really prefer to merge this one myself, I'm only waiting for 
-> > the 2.6.13 release and since this is not a regression, I don't really 
-> > understand why this must be in 2.6.13.
-> 
-> Fine, as long as that merge is done before your s/thread_info/stack/ patches.
-> It should be the first step before doing 200Kb worth of cosmetical stuff
-> that affects every architecture out there, not something that depends on
-> it done.
+--=-EJSDJnLbQiBP1fIEpM7Y
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Please count correctly, there is only one 100KB patch, the rest is rather 
-small (50KB in 7 patches).
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
 
-> There's also a question of having mainline build and work on the architecture
-> in question, which obviously is not something you care about - this hairball
-> had been sitting in m68k CVS for how long?  Since 2.5.60-something, with
-> zero efforts to resolve it, right?  And mainline kernel didn't even build,
-> let alone work since that moment.
-> 
-> FWIW, essentially the same splitup of that mess had been posted more than
-> three months ago; definitely before 2.6.12-final.  Still no activity _and_
-> plans that involve doing kernel-wide renaming of struct thread_info *
-> thread_info in task_struct to void *stack as part of m68k merge.
+iQIVAwUAQw3R+KVg1VMiehFYAQKThA//RkVsj+XOArzq7CYzWDBXKxa7HiKrk67T
+L876r3vUtKC3lAaA6WUOk4c+vQIGT2HM2rtjyNtMPSLw7YAsSX4dJqocXowD9UMQ
+oCBA6iMqmIcitP+8HjyP4YNfAEmFYHWelp3hRpCU7uH2y+vY6Lc3sF5AT/P4ijxS
+ay7OJKJQQcn0PQvBFFI5QnGCxaPxgLdYCzerKKhyn+xYehbXW1MDKcjM3F0ptmR2
+hlpSsGG1Rw23jvBnP7DCE5lNoqVsq2sev+eDDeGxgXgUeTh0P0KVPOwppknS15St
+GbC4/BPjnh2CqlzKKt7UOJz6gPcRwoRzHRsQYLOuPhoFpQ0iDFBpfF43xU2ogAZj
+1IFo3VNIwTRnYcvQtoQmBQ0CqNrO7TlBQ36m8PWOItv+us6WkJZ4q7GSiX/bmdCK
+xoNJxTZGTaOebpnmF3pS6Wm3e51rjOe09Ox+jQoztm+rynqrbDUa+z+rnwwgiR68
+YehUd5ayiAWNCYhOseVZ48bVFH1jctuAzKDxJ4B01CgJTuR9Gvod0sOxsek/EG5d
+3SkdWoses4LkFWy3HtkkjdqMDRpoSbPDzV387GTl/jqYhG89EHKk3HPNsTewbsRs
+buW7wt5t+10JE5DQM5eAud7aF/vRmz+6NjWtIJh3lcqnFaoEtpqxDYi7408DPWo0
+ESh5+kFZehU=
+=B7bC
+-----END PGP SIGNATURE-----
 
-Al, while I appreciate your iniative, could you please work a little bit 
-more with the other people working on this port? I did take and adapted 
-your patches and posted my versions of it and until yesterday you didn't 
-bother to comment publically. The "no activity" is complete bullshit.
+--=-EJSDJnLbQiBP1fIEpM7Y--
 
-bye, Roman

@@ -1,91 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbVHYEqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbVHYEqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbVHYEqc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 00:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbVHYEqc
+	id S964794AbVHYEqr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 00:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVHYEqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 00:46:32 -0400
-Received: from mail2.sasken.com ([203.200.200.72]:24504 "EHLO mail2.sasken.com")
-	by vger.kernel.org with ESMTP id S964791AbVHYEqb (ORCPT
+	Thu, 25 Aug 2005 00:46:47 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:19367 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964794AbVHYEqq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 00:46:31 -0400
-From: "Shwetha V" <shwethav@sasken.com>
-Subject: Re: kernel
-Date: Thu, 25 Aug 2005 10:15:56 +0530
-Message-ID: <dejie7$m6i$1@ncc-w.sasken.com>
-References: <ddi2qu$74p$1@ncc-nt.nt.sasken.com>
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-RFC2646: Format=Flowed; Original
-To: linux-kernel@vger.kernel.org
-X-News-Gateway: ncc-z.sasken.com
-X-imss-version: 2.030
-X-imss-result: Passed
-X-imss-scores: Clean:43.39876 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:3 C:3 M:3 S:3 R:3 (0.5000 0.5000)
+	Thu, 25 Aug 2005 00:46:46 -0400
+Date: Wed, 24 Aug 2005 21:46:34 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH 3/3] exterminate strtok - usr/gen_init_cpio.c
+Message-Id: <20050824214634.6008be53.pj@sgi.com>
+In-Reply-To: <200508242106.j7OL61QK010645@laptop11.inf.utfsm.cl>
+References: <200508242108.53198.jesper.juhl@gmail.com>
+	<200508242106.j7OL61QK010645@laptop11.inf.utfsm.cl>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Horst wrote:
+> > -		if ('\n' == *type) {
+> > +		if (!*type || '\n' == *type) {
+> 
+> Redundant. If *type == '\n', it is certainly != 0.
 
- Could anyone inform which will be a good guide to start learning the linux 
-kernel programming.
+No - I don't think redundant, at least not this change in isolation.
+Perhaps redundant in light of subsequent code lines, as Jesper notes in
+his followup.
+
+But it is confusing to read - poor and inconsistent choice of code
+phrasing.
+
+If the patch had read as:
+    -		if (*type == '\n') {
+    +		if (*type == '\n' || *type == '\0') {
+
+then it would be clearer to the reader in my view.  A check for newline
+is changed to a check for newline or nul-byte.
+
+(Yes - I recognize that one is not given the freedom to change the
+-old- lines in a patch for the sake of clarity ;).
 
 -- 
-Shwetha V
-Software Engineer - Networks Business Unit
-Sasken Communication Technologies Ltd.
-Gold Hill Square, Hosur Road, Bangalore.
-Ph: +91-80-25355501 Ext: 5799
-Web: www.sasken.com
-
-
-"Srinivas K" <srinuk@sasken.com> wrote in message 
-news:ddi2qu$74p$1@ncc-nt.nt.sasken.com...
-> hi friends,
->
-> post concepts regarding linux kernel which will be useful
->
->
-> -- 
-> Srinivasa Rao K
-> Systems Engineer
-> Nortel Business Unit
-> Sasken Communication Technologies Ltd
-> 139/25, Ring Road, Domlur
-> Bangalore - 560 071
-> Ph: 2535 5501 Extn.:4804
-> mail : srinuk@sasken.com
->
-> "SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY 
-> Mercer
-> Survey 2004"
->
->
-> SASKEN BUSINESS DISCLAIMER
-> This message may contain confidential, proprietary or legally Privileged
-> information. In case you are not the original intended Recipient of the
-> message, you must not, directly or indirectly, use, Disclose, distribute,
-> print, or copy any part of this message and you are requested to delete it
-> and inform the sender. Any views expressed in this message are those of 
-> the
-> individual sender unless otherwise stated. Nothing contained in this 
-> message
-> shall be construed as an offer or acceptance of any offer by Sasken
-> Communication Technologies Limited ("Sasken") unless sent with that 
-> express
-> intent and with due authority of Sasken. Sasken has taken enough 
-> precautions
-> to prevent the spread of viruses. However the company accepts no liability
-> for any damage caused by any virus transmitted by this email
->
-> 
-
-
-
-"SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer Survey 2004"
-
-
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVHYQ33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVHYQni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVHYQ33 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 12:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVHYQ33
+	id S932307AbVHYQni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 12:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVHYQni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 12:29:29 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:3764 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932279AbVHYQ32 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 12:29:28 -0400
-Date: Thu, 25 Aug 2005 11:28:03 -0500
-From: serue@us.ibm.com
-To: Chris Wright <chrisw@osdl.org>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, serue@us.ibm.com,
-       linux-security-module@wirex.com, Greg Kroah <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>,
-       James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH 5/5] Remove unnecesary capability hooks in rootplug.
-Message-ID: <20050825162803.GA18114@sergelap.austin.ibm.com>
-References: <20050825012028.720597000@localhost.localdomain> <20050825012150.490797000@localhost.localdomain> <20050825143807.GA8590@sergelap.austin.ibm.com> <1124982836.3873.78.camel@moss-spartans.epoch.ncsc.mil> <20050825162101.GU7762@shell0.pdx.osdl.net>
+	Thu, 25 Aug 2005 12:43:38 -0400
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:42765 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932307AbVHYQni
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 12:43:38 -0400
+Date: Thu, 25 Aug 2005 18:43:37 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>, Stefan Ott <stefan@desire.ch>,
+       Greg KH <greg@kroah.com>
+Subject: [PATCH 2.6] hwmon: Off-by-one error in fscpos driver
+Message-Id: <20050825184337.5eafe364.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050825162101.GU7762@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Chris Wright (chrisw@osdl.org):
-> * Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> > On Thu, 2005-08-25 at 09:38 -0500, serue@us.ibm.com wrote:
-> > > Ok, with the attached patch SELinux seems to work correctly.  You'll
-> > > probably want to make it a little prettier  :)  Note I have NOT ran the
-> > > ltp tests for correctness.  I'll do some performance runs, though
-> > > unfortunately can't do so on ppc right now.
-> > 
-> > Note that the selinux tests there _only_ test the SELinux checking.  So
-> > if these changes interfere with proper stacking of SELinux with
-> > capabilities, that won't show up there.  
-> 
-> Sorry, I'm not parsing that?
-> -chris
+Hi Linus, all,
 
-That was in reference to running the LTP selinux tests: that running
-them successfully will not mean selinux and capability are working
-together correct.
+Coverity uncovered an off-by-one error in the fscpos driver, in function
+set_temp_reset(). Writing to the temp3_reset sysfs file will lead to an
+array overrun, in turn causing an I2C write to a random register of the
+FSC Poseidon chip. Additionally, writing to temp1_reset and temp2_reset
+will not work as expected. The fix is straightforward.
 
-thanks,
--serge
+This patch is a candidate for 2.6.13 (or 2.6.13.1 if it's too late for
+2.6.13.)
+
+Thanks.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+
+ drivers/hwmon/fscpos.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.13-rc7.orig/drivers/hwmon/fscpos.c	2005-08-25 18:21:37.000000000 +0200
++++ linux-2.6.13-rc7/drivers/hwmon/fscpos.c	2005-08-25 18:22:09.000000000 +0200
+@@ -167,7 +167,7 @@
+ 				"experience to the module author.\n");
+ 
+ 	/* Supported value: 2 (clears the status) */
+-	fscpos_write_value(client, FSCPOS_REG_TEMP_STATE[nr], 2);
++	fscpos_write_value(client, FSCPOS_REG_TEMP_STATE[nr - 1], 2);
+ 	return count;
+ }
+ 
+
+-- 
+Jean Delvare

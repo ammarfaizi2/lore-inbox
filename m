@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbVHYOmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVHYOq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbVHYOmS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 10:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVHYOmS
+	id S1750935AbVHYOq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 10:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbVHYOq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 10:42:18 -0400
-Received: from sipsolutions.net ([66.160.135.76]:51463 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S1750927AbVHYOmR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 10:42:17 -0400
-Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
-From: Johannes Berg <johannes@sipsolutions.net>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: Robert Love <rml@novell.com>, Reuben Farrelly <reuben-lkml@reub.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1124979228.5039.38.camel@vertex>
-References: <fa.h7s290f.i6qp37@ifi.uio.no> <fa.e1uvbs1.l407h7@ifi.uio.no>
-	 <430D986E.30209@reub.net>  <1124972307.6307.30.camel@localhost>
-	 <1124977253.5039.13.camel@vertex>  <1124977672.32272.10.camel@phantasy>
-	 <1124979228.5039.38.camel@vertex>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-x2LPFMJoF61GhTYJ7z7p"
-Date: Thu, 25 Aug 2005 16:41:47 +0200
-Message-Id: <1124980907.19546.5.camel@localhost>
+	Thu, 25 Aug 2005 10:46:58 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:44133 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S1750932AbVHYOq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 10:46:58 -0400
+X-IronPort-AV: i="3.96,141,1122872400"; 
+   d="scan'208"; a="284745383:sNHT25629180"
+Date: Thu, 25 Aug 2005 10:02:29 -0500
+From: Doug Warzecha <Douglas_Warzecha@dell.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13-rc6] dcdbas: add Dell Systems Management Base Driver with sysfs support
+Message-ID: <20050825150229.GA5848@sysman-doug.us.dell.com>
+References: <20050825020021.GA5223@sysman-doug.us.dell.com> <20050825030909.GB6079@taniwha.stupidest.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050825030909.GB6079@taniwha.stupidest.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 24, 2005 at 08:09:09PM -0700, Chris Wedgwood wrote:
+> On Wed, Aug 24, 2005 at 09:00:21PM -0500, Doug Warzecha wrote:
+> 
+> [...]
+> 
+> > +Dell OpenManage requires this driver on the following Dell PowerEdge systems:
+> > +300, 1300, 1400, 400SC, 500SC, 1500SC, 1550, 600SC, 1600SC, 650, 1655MC,
+> > +700, and 750.  Other Dell software such as the open source Libsmbios library
+> > +is expected to make use of this driver, and it may include the use of this
+> > +driver on other Dell systems.
+> 
+> I'd like to see a URL/pointer somewhere about here in the docs for the
+> location of libsmbios if nobody objects.
 
---=-x2LPFMJoF61GhTYJ7z7p
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+No objections.  I'll add it.
 
-On Thu, 2005-08-25 at 10:13 -0400, John McCutchan wrote:
-
-> I really don't want 2.6.13 to go out with this bug or the compromise. If
-> we use 0, we will have a lot of wd re-use. Which will cause "strange"
-> problems in inotify using applications that cleanup upon receipt of an
-> IN_IGNORE event.
-
-What happens when, given bug-free code that doesn't reuse, you hit the
-8192 limit with wd, even if they're not all open at the same time? Does
-it still add them, or will inotify give an error? And does the idr layer
-handle something like that gracefully without using lots of memory?
-
-The background is that the process using this is potentially quite
-long-running and keeps opening/closing wds, so 8192 doesn't sound like a
-high barrier, after all Reuben observed hitting the 1024 limit after 15
-minutes or so.
-
-johannes
-
---=-x2LPFMJoF61GhTYJ7z7p
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
-
-iQIVAwUAQw3YqaVg1VMiehFYAQLRXBAAtbLSxIoIRh6uAKbw9CnZ5ceWD1iayYQe
-wCUCYOcKq7Ln7KhmUNj021k1++akN/tTfQp2h9aiYf7qZcUvda0Aroz8PYcY79La
-FKunCGoXoO8MfcyUU8zz0nqaNaEgtrGL7fu5jLgUIUnwjJozgyb056P4EYDOkpSz
-7M488zIWB5HxJyETXwvJhUH2oDqE2/oel+3Fyyb3MnI8ZktGIEp6Qxwzw3XxVXXa
-uJId/zTOlJt9Ni+R8hLitNUbnxxra4u4DDximgQfxfuYot0ye45VfXxFHtLgHLOn
-GoHmcH7/MGqWbiRZbWurPgAZZoMWdQ0v0wD5Ky/tDDKjLcftekdGGxfotH16UnQF
-v9jM/rEgbfHZ+QU+xTBPPvA6mCcUnsFnUML4tN41BbRR7tPTRFyIusJxiBRlKN1H
-zsyWIpb+SKQ/6OwsMlwRbk7wvW6HLZUJwXLfWGhIXaByaDVcU5l0e5gVKDjHM5WS
-aSbRwyexYbgPZIQwPUIDD1cPBRaqXbVAuW+djDAbahRuB2TY6ye8pKYesBOJl/Ls
-V2blMEulyvlOanhZrFAhA/xFfPu9i0KK0Pe7Yk9Wm5UFtOaunckqKrF9gVyco/og
-F71BQiZZkfmeM4ainFA8RyMYn20us/64cGy0llj1BH6F1RU8LMuR3hVAxS8ruIqJ
-IkJI2ZbVVPo=
-=RgKV
------END PGP SIGNATURE-----
-
---=-x2LPFMJoF61GhTYJ7z7p--
-
+Doug

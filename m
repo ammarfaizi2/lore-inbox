@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbVHYDMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVHYDOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbVHYDMz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Aug 2005 23:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbVHYDMz
+	id S964776AbVHYDOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Aug 2005 23:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbVHYDOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Aug 2005 23:12:55 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:37507 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S964775AbVHYDMy
+	Wed, 24 Aug 2005 23:14:25 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:133 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S964776AbVHYDOY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Aug 2005 23:12:54 -0400
+	Wed, 24 Aug 2005 23:14:24 -0400
 X-ORBL: [67.124.117.85]
-Date: Wed, 24 Aug 2005 20:12:42 -0700
+Date: Wed, 24 Aug 2005 20:14:22 -0700
 From: Chris Wedgwood <cw@f00f.org>
 To: robotti@godmail.com
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Initramfs and TMPFS!
-Message-ID: <20050825031242.GC6079@taniwha.stupidest.org>
-References: <200508242241.j7OMfQ1g012200@ms-smtp-01.rdc-nyc.rr.com>
+Message-ID: <20050825031422.GD6079@taniwha.stupidest.org>
+References: <200508232116.j7NLG51g028312@ms-smtp-01.rdc-nyc.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200508242241.j7OMfQ1g012200@ms-smtp-01.rdc-nyc.rr.com>
+In-Reply-To: <200508232116.j7NLG51g028312@ms-smtp-01.rdc-nyc.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 06:41:26PM -0400, robotti@godmail.com wrote:
+On Tue, Aug 23, 2005 at 05:16:05PM -0400, robotti@godmail.com wrote:
 
-> I tried it with kernel 2.6.13-rc5 and it seems to work.
+> Also, tar should be an option instead of cpio for the archiver,
+> because tar is more widely used.
 
-it should yes
+pretty much everyone will have cpio and it's format is much
+simpler/cleaner to deal with
 
-> It uses 50% of total memory for tmpfs, but it would be nice to have
-> an option (tmpfs_size=90% etc.) that you could pass to the kernel.
-
-that's just because of the tmpfs default; you can remount to change
-that if it's not suitable once your up and running in your
-init-scripts or whatever
-
-
-> You need to add this to init/main.c for it to compile.
-> #include <asm/uaccess.h>
-
-hmm... really?  i'll rediff it at some point and test it maybe.  i
-really don't like the explicity shm init though, i'd like to think of
-a cleaner way to do that
+if we want vastly more complex early-userspace semantics i think we
+need to carefully decide what is needed and how to put as much of that
+logic into userspace rather than hacking this much more in the kernel
+for fear of breaking things in subtle ways

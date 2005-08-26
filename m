@@ -1,54 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965112AbVHZRAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbVHZRBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965112AbVHZRAv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 13:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbVHZRAv
+	id S965113AbVHZRBe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 13:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbVHZRBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 13:00:51 -0400
-Received: from mail.intersys.com ([198.133.74.1]:29446 "EHLO
-	mail.intersystems.com") by vger.kernel.org with ESMTP
-	id S965112AbVHZRAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 13:00:50 -0400
-Message-ID: <430F4A9E.3060903@intersystems.com>
-Date: Fri, 26 Aug 2005 13:00:14 -0400
-From: Ray Fucillo <fucillo@intersystems.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: process creation time increases linearly with shmem
-References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au> <Pine.LNX.4.63.0508251331040.25774@cuia.boston.redhat.com> <430E6FD4.9060102@yahoo.com.au> <Pine.LNX.4.58.0508252055370.3317@g5.osdl.org> <Pine.LNX.4.61.0508261220230.4697@goblin.wat.veritas.com> <430F26AA.80901@yahoo.com.au>
-In-Reply-To: <430F26AA.80901@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Aug 2005 13:01:34 -0400
+Received: from ppp-62-11-73-212.dialup.tiscali.it ([62.11.73.212]:24469 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S965113AbVHZRBd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 13:01:33 -0400
+Subject: [patch 07/18] remap_file_pages protection support: safety net for lazy arches
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 26 Aug 2005 18:53:23 +0200
+Message-Id: <20050826165323.0D9E82545BE@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> OK let's see how Ray goes, and try it when 2.6.14 opens...
 
-Working on that now - I'll let you know.
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-> Yeah I guess that's a good idea. Patch looks pretty good.
-> Just a minor issue with the comment, it is not strictly
-> just assuming the child will exec... IMO it is worthwhile
-> in Ray's case even if his forked process _eventually_ ends
-> up touching all the shared memory pages, it is better to
-> avoid many ms of fork overhead.
+Since proper support requires that the arch at the very least handles
+VM_FAULT_SIGSEGV, as in next patch (otherwise the arch may BUG), and things
+are even more complex (see next patches), and it's triggerable only with
+VM_NONUNIFORM vma's, simply refuse creating them if the arch doesn't declare
+itself ready.
 
-Yes, in our database system the child will immediately touch some shmem 
-pages, and may eventually touch most of them (and would almost never 
-exec()).  Fork performance is critical in usage scenarios where an 
-end-user database request forks a new server process from one master 
-server process.
+This is a very temporary hack, so I've clearly marked it as such. And, with
+current rythms, I've given about 6 months for arches to get ready. Reducing
+this time is perfectly ok for me.
 
-However, there is still a need that the child, once successfully forked, 
-is operational reasonably quickly.  I suspect that Ross's idea of paging 
-in everything after the first fault would not be optimal for us, because 
-we'd still be talking about hundreds of ms of work done before the child 
-does anything useful.  It would still be far better than the behavior we 
-have today because that time would no longer be synchronous with the 
-fork().  Of course, it sounds like our app might be able to make use of 
-the hugetlb stuff can mitigate this problem in the future...
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ linux-2.6.git-paolo/Documentation/feature-removal-schedule.txt |   12 ++++++++++
+ linux-2.6.git-paolo/include/asm-i386/pgtable.h                 |    3 ++
+ linux-2.6.git-paolo/include/asm-um/pgtable.h                   |    3 ++
+ linux-2.6.git-paolo/mm/fremap.c                                |    5 ++++
+ 4 files changed, 23 insertions(+)
+
+diff -puN mm/fremap.c~rfp-safety-net-for-archs mm/fremap.c
+--- linux-2.6.git/mm/fremap.c~rfp-safety-net-for-archs	2005-08-24 20:57:18.000000000 +0200
++++ linux-2.6.git-paolo/mm/fremap.c	2005-08-24 20:57:18.000000000 +0200
+@@ -188,6 +188,11 @@ asmlinkage long sys_remap_file_pages(uns
+ 	int has_write_lock = 0;
+ 	pgprot_t pgprot;
+ 
++	/* Hack for not-updated archs, KILLME after 2.6.16! */
++#ifndef __ARCH_SUPPORTS_VM_NONUNIFORM
++	if (flags & MAP_NOINHERIT)
++		goto out;
++#endif
+ 	if (prot && !(flags & MAP_NOINHERIT))
+ 		goto out;
+ 	/*
+diff -puN include/asm-i386/pgtable.h~rfp-safety-net-for-archs include/asm-i386/pgtable.h
+--- linux-2.6.git/include/asm-i386/pgtable.h~rfp-safety-net-for-archs	2005-08-24 20:57:18.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-i386/pgtable.h	2005-08-24 20:57:18.000000000 +0200
+@@ -419,4 +419,7 @@ extern void noexec_setup(const char *str
+ #define __HAVE_ARCH_PTE_SAME
+ #include <asm-generic/pgtable.h>
+ 
++/* Hack for not-updated archs, KILLME after 2.6.16! */
++#define __ARCH_SUPPORTS_VM_NONUNIFORM
++
+ #endif /* _I386_PGTABLE_H */
+diff -puN include/asm-um/pgtable.h~rfp-safety-net-for-archs include/asm-um/pgtable.h
+--- linux-2.6.git/include/asm-um/pgtable.h~rfp-safety-net-for-archs	2005-08-24 20:57:18.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-um/pgtable.h	2005-08-24 20:57:18.000000000 +0200
+@@ -359,6 +359,9 @@ static inline pte_t pte_modify(pte_t pte
+ 
+ #include <asm-generic/pgtable-nopud.h>
+ 
++/* Hack for not-updated archs, KILLME after 2.6.16! */
++#define __ARCH_SUPPORTS_VM_NONUNIFORM
++
+ #endif
+ #endif
+ 
+diff -puN Documentation/feature-removal-schedule.txt~rfp-safety-net-for-archs Documentation/feature-removal-schedule.txt
+--- linux-2.6.git/Documentation/feature-removal-schedule.txt~rfp-safety-net-for-archs	2005-08-24 20:57:18.000000000 +0200
++++ linux-2.6.git-paolo/Documentation/feature-removal-schedule.txt	2005-08-24 20:57:18.000000000 +0200
+@@ -135,3 +135,15 @@ Why:	With the 16-bit PCMCIA subsystem no
+ 	pcmciautils package available at
+ 	http://kernel.org/pub/linux/utils/kernel/pcmcia/
+ Who:	Dominik Brodowski <linux@brodo.de>
++
++---------------------------
++
++What:	__ARCH_SUPPORTS_VM_NONUNIFORM
++When:	December 2005
++Files:	mm/fremap.c, include/asm-*/pgtable.h
++Why:	It's just there to allow arches to update their page fault handlers to
++	support VM_FAULT_SIGSEGV, for remap_file_pages protection support.
++	Since they may BUG if this support is not added, the syscall code
++	refuses this new operation mode unless the arch declares itself as
++	"VM_FAULT_SIGSEGV-aware" with this macro.
++Who:	Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+_

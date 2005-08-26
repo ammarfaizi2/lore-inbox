@@ -1,105 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVHZP7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965088AbVHZQIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965071AbVHZP7e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 11:59:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbVHZP7e
+	id S965088AbVHZQIG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 12:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbVHZQIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 11:59:34 -0400
-Received: from santo.ucolick.org ([128.114.23.204]:12477 "EHLO
-	smtp.ucolick.org") by vger.kernel.org with ESMTP id S965071AbVHZP7e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 11:59:34 -0400
-Message-ID: <430F3C6B.7070303@ucolick.org>
-Date: Fri, 26 Aug 2005 08:59:39 -0700
-From: Richard Stover <richard@ucolick.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Fri, 26 Aug 2005 12:08:06 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:33295 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S965088AbVHZQIF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 12:08:05 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: waiting process in procfs read
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <1132fcd605082608455081c769@mail.gmail.com>
+References: <1132fcd605082608455081c769@mail.gmail.com>
+X-OriginalArrivalTime: 26 Aug 2005 16:08:03.0730 (UTC) FILETIME=[56A31720:01C5AA58]
+Content-class: urn:content-classes:message
+Subject: Re: my view about schedule( ) and system call , right or wrong ?
+Date: Fri, 26 Aug 2005 12:07:19 -0400
+Message-ID: <Pine.LNX.4.61.0508261153490.10760@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: my view about schedule( ) and system call , right or wrong ?
+Thread-Index: AcWqWFasybikQySlSxiCN28nYQXGRg==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "lab liscs" <liscs.lab@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I submitted this as a bugzilla kernel bug report but was directed here.
-Perhaps someone can help me.
 
-I have a device driver developed with 2.4 kernels. I've ported
-it to the 2.6 kernel (FC3) and it all works fine except for one
-aspect of procfs.
+On Fri, 26 Aug 2005, lab liscs wrote:
 
-My device driver sets up an entry in the /proc tree. A process
-can open this entry and read from it. Normally the read blocks
-until an event happens elsewhere in the device driver. When the
-event happens the blocked process is woken up and the read
-returns the information it was waiting for.
-
-THE PROBLEM: In FC3 (2.6.11-13_FC3) the reading process blocks but it never
-wakes up.
-
-Here is a code fragment from the driver where the reading
-process would block:
-
-/*      Wait until the next image header has been read.         */
-/*      But only wait if we are reading from the beginning.     */
-       if (offset == 0) {
-
-           printk("####%s waiting event %x\n",__FUNCTION__,
-               (unsigned int)&dev->read_proc_wait);
-
-           wait_event_interruptible(dev->read_proc_wait,(offset != 0));
-           printk("####%s WOKE UP\n",__FUNCTION__);
-
-/*          See if our sleep was interrupted by a signal.       */
-
-           if (signal_pending(current)) {
-               *buffer_location = my_buffer;
-               printk("####%s returns error due to pending signal\n",__FUNCTION__);
-               return -EINTR;
-           }
-       }
+> schedule( ) always runs in kernel space, therefore  the address of all
+> elements used by schedule() is not virtual address but physical
+> address.?
 
 
-Here is a code fragment that is trying to wake up the blocked process:
+Wrong. All addresses accessed by the CPU(s) are virtual. All addresses
+accessed by other devices, including DMA-masters are bus addresses, i.e.,
+what a logic analyzer would see. In some architectures, the bus address is
+the physical address but in others there is a separate address-space
+for devices.
 
-/*      Wake up anyone waiting on reading /proc/readXw                  */
-       printk(KERN_INFO "#### waking up anyone waiting on read_proc_wait event %x\n",
-               (unsigned int)&dev->read_proc_wait);
+>
+>
+> analogous question also appears in system call , when I define myself
+> syscall , for example:
+>
+> asmlinkage long sys_check(a,b ,c){
+>
+>        unsigned long buf;
+>
+>        ...........
+> }
+>
+> then , the buf is stored in kernel space , that is , physical address .
+>
+>
+> right or wrong
+> -
 
-       wake_up_interruptible(&dev->read_proc_wait);
+Wrong. 'buf' is stored somewhere on the stack. That stack and its
+data can be anywhere in physical memory. It is possible to find
+it by searching through page-tables, but what you find will be
+the bus address. Since the CPU deals only with virtual addresses,
+i.e., translated addresses, that information is not normally useful.
 
-I see the blocked process "waiting event..." message and I see the "waking up..."
-message. But I never get the "WOKE UP" message and the waiting process never
-returns.
-If I kill the waiting process I do see "WOKE UP" and "returns error due to
-pending signal"
-messages so I know it has in fact been waiting. The address of dev->read_proc_wait
-is the same in both the "waiting event..." and "waking up..." messages.
-I've initialize dev->read_proc_wait just like several other event flags in the
-same device driver: init_waitqueue_head(&(dev->read_proc_wait));
+Each user making a system call has a different stack that is
+allocated for the purpose of making that system call. The user
+can't make the system call on the user's stack because the user
+could trash that and bring down the system.
 
-I can not see any reason why the waiting process wouldn't wake up. This code is
-very similar to code used elsewhere in the driver where a process waits in an
-ioctl call for a particular event to happen. That wait within an ioctl works fine.
-The procfs read wait worked in Linux kernels up through RH9, 2.4.20-6 (with
-appropriate code modifications for the earlier kernel).
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12.5 on an i686 machine (5537.79 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
 
-If anybody has any suggestions I would appreciate the help. 
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-
-Thanks.
-
-Richard Stover
-
-
-----------------------------------------------------------------------
-Richard Stover                       email: richard@ucolick.org
-Detector Development Laboratory      http://www.ccd.ucolick.org
-UCO/Lick Observatory                 Voice: 831-459-2139
-Natural Sciences Bldg. 2, Room 160
-University of California             FAX:   831-459-2298
-Santa Cruz, CA 95064  USA            FAX:   831-426-5244 (Alternate)
-----------------------------------------------------------------------
-
-
+Thank you.

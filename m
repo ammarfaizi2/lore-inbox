@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbVHZUM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbVHZUSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbVHZUM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 16:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbVHZUM1
+	id S1030256AbVHZUSy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 16:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbVHZUSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 16:12:27 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:7895 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030255AbVHZUM0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 16:12:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tpRJ0Rhc210jLa5yqlmCEJhoRptykClTSzvoNW8Gym5pGWDAZiIrPZlNdCBs0CLOMaJsJ1narV6RSd94llie0n4B3zYLUAaKrvmgT/hD23Qr5DisNg/C4cRUTG8c91ST4UAi/5lKCUO12p3crCg3neJdk5iTpzwsbvbnAcia+uE=
-Message-ID: <d120d50005082613122595cde8@mail.gmail.com>
-Date: Fri, 26 Aug 2005 15:12:25 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Robert Love <rml@novell.com>
-Subject: Re: [patch] IBM HDAPS accelerometer driver.
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1125085141.18155.97.camel@betsy>
+	Fri, 26 Aug 2005 16:18:54 -0400
+Received: from leviathan.ele.uri.edu ([131.128.51.64]:43411 "EHLO
+	leviathan.ele.uri.edu") by vger.kernel.org with ESMTP
+	id S1030256AbVHZUSx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 16:18:53 -0400
+Subject: Re: very weired random io behavior
+From: Ming Zhang <mingz@ele.uri.edu>
+Reply-To: mingz@ele.uri.edu
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1125086927.5549.121.camel@localhost.localdomain>
+References: <1125086927.5549.121.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: no-dole-available
+Date: Fri, 26 Aug 2005 16:18:48 -0400
+Message-Id: <1125087528.5549.123.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1125069494.18155.27.camel@betsy>
-	 <d120d500050826122768cd3612@mail.gmail.com>
-	 <1125085141.18155.97.camel@betsy>
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/26/05, Robert Love <rml@novell.com> wrote:
-> On Fri, 2005-08-26 at 14:27 -0500, Dmitry Torokhov wrote:
+sorry. my dumb.
+
+here is not 
+x = (rand() >> 1) << 1;
+but
+x = (rand() >> 10) << 10;
+
+file is in bytes while lba is in sector. ;P
+
+ming
+
+
+
+On Fri, 2005-08-26 at 16:08 -0400, Ming Zhang wrote:
+
+> ---------------------------------------------------
+> #define _LARGEFILE64_SOURCE
 > 
-> > What this completion is used for? I don't see any other references to it.
+> #include <stdlib.h>
+> #include <sys/types.h>
+> #include <unistd.h>
+> #include <fcntl.h>
+> #include <sys/types.h>
+> #include <sys/stat.h>
 > 
-> It was the start of the release() routine, but I decided to move to
-> platform_device_register_simple() and use its release, instead.  So this
-> is gone now in my tree.
+> int main(int argc, char *argv[])
+> {
+>         int n;
+>         int i, count;
+>         char *name;
+>         char buf[4096];
+>         int fd;
 > 
-> > I'd rather you used absolute coordinates and set up
-> > hdaps_idev->absfuzz to do the filtering.
+>         if (argc != 3) {
+>                 printf("%s name count\n", argv[0]);
+>                 exit(1);
+>         }
+>         name = argv[1];
+>         count = atoi(argv[2]);
 > 
-> Me too.
+>         fd = open(name, O_CREAT|O_WRONLY, S_IRWXU);
+>         for (i = 0; i < count; i++) {
+>                 unsigned long x;
+> 
+>                 x = (rand() >> 1) << 1;
+>                 lseek64(fd, x, SEEK_SET);
+>                 write(fd, buf, 4096);
+>         }
+>         printf("done\n");
+>         close(fd);
+>         return 0;
+> }
 > 
 
-Btw, if you set up absolute input device it will be claimed by joydev
-instead of mousedev and will not get in a way of normal operation
-while still available for playing. So you could just kill all that
-enabling/disabling code and have input device always activated.
-
-> >
-> > What about using sysfs_attribute_group?
-> 
-> I don't see this in my tree?
-
-Sorry, it is called struct attribute_group, sysfs_create_group() and
-sysfs_remove_group(). See fs/sysfs/group.c
-
--- 
-Dmitry

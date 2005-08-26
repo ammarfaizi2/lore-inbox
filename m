@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbVHZQUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbVHZQVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965096AbVHZQUz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 12:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbVHZQUz
+	id S965100AbVHZQVk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 12:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbVHZQVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 12:20:55 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:6296 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965096AbVHZQUy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 12:20:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=n9QGzLjF1dmRP/Scgyc4sqp03I7JD8o3QIDnVmwAmRORg1yOqBah1rTZdGpkGL4W1lfR5h4V6Fe18dqdz66+iefg6gtpVe45YDkemuErPOz9ewNeW2r70qcZvz9TFQHTnNUTQ4/gfaiF2mPj+hYK8KeSQRB/YkWRuwR1ltCkums=
-Message-ID: <6b5347dc05082609206ff7a305@mail.gmail.com>
-Date: Sat, 27 Aug 2005 00:20:53 +0800
-From: "Sat." <walking.to.remember@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: when or where can the case occur in "linux kernel development " about "kernel preemption"?
+	Fri, 26 Aug 2005 12:21:40 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9231 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965099AbVHZQVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 12:21:39 -0400
+Date: Fri, 26 Aug 2005 18:21:32 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Danial Thom <danial_thom@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 Performance problems
+Message-ID: <20050826162132.GH6471@stusta.de>
+References: <20050826131750.GG6471@stusta.de> <20050826153414.9643.qmail@web33308.mail.mud.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050826153414.9643.qmail@web33308.mail.mud.yahoo.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the case about kernel preemption as follow :
+On Fri, Aug 26, 2005 at 08:34:14AM -0700, Danial Thom wrote:
+> 
+> --- Adrian Bunk <bunk@stusta.de> wrote:
+> > 
+> > That's not always true.
+> > 
+> > Imagine a slow computer with a GBit ethernet
+> > connection, where the user 
+> > is downloading files from a server that can
+> > utilize the full 
+> > network connection while listening to music
+> > from his local disk with 
+> > XMMS.
+> > 
+> > In this case, the audio stream is not depending
+> > on the network 
+> > connection. And the user might prefer dropped
+> > packages over a stuttering 
+> > XMMS.
 
-the book said "when a process that has a higher priority than the
-currenty running process is awakened ".
+> Audio connections are going to be windowed/flowed
+> in some way (thats how the internet works) so
+>...
 
-but I can think about when such case can occur , could you give me an example ?
+I was talking about an audio stream coming from a file on the
+"local disk", IOW something like an mp3 file.
 
-thanks  and any help will be appreciated!
+But the most interesting thing about your email is not what you were 
+answering to, but which part of my email you silently omitted. Since you 
+are not answering questions that might help to debug the problem you 
+claim to have, it seems your intention is not getting a Linux problem 
+fixed...
 
+> DT
 
+cu
+Adrian
 
 -- 
-Sat.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

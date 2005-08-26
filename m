@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbVHZNa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbVHZNid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbVHZNa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 09:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbVHZNa2
+	id S1751572AbVHZNid (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 09:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751574AbVHZNid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 09:30:28 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:42476 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1750998AbVHZNa1 (ORCPT
+	Fri, 26 Aug 2005 09:38:33 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:3017 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751572AbVHZNic (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 09:30:27 -0400
-Subject: Re: [PATCH 0/5] LSM hook updates
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: serue@us.ibm.com
-Cc: Chris Wright <chrisw@osdl.org>, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>
-In-Reply-To: <20050826092306.GA429@sergelap.austin.ibm.com>
-References: <20050825012028.720597000@localhost.localdomain>
-	 <Pine.LNX.4.63.0508250038450.13875@excalibur.intercode>
-	 <20050825053208.GS7762@shell0.pdx.osdl.net>
-	 <20050825191548.GY7762@shell0.pdx.osdl.net>
-	 <20050826092306.GA429@sergelap.austin.ibm.com>
+	Fri, 26 Aug 2005 09:38:32 -0400
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Daniel B." <dsb@smart.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <430E5B8E.5C89A06B@smart.net>
+References: <f192987705061303383f77c10c@mail.gmail.com>
+	 <f192987705061310202e2d9309@mail.gmail.com>
+	 <1118690448.13770.12.camel@localhost.localdomain>
+	 <200506152149.06367.pmcfarland@downeast.net>
+	 <20050616023630.GC9773@thunk.org> <87y89a7wfn.fsf@jbms.ath.cx>
+	 <20050616143727.GC10969@thunk.org>  <20050619175503.GA3193@elf.ucw.cz>
+	 <1119292723.3279.0.camel@localhost.localdomain>
+	 <430E5B8E.5C89A06B@smart.net>
 Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 26 Aug 2005 09:27:59 -0400
-Message-Id: <1125062879.5812.67.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 26 Aug 2005 15:07:00 +0100
+Message-Id: <1125065221.4958.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 04:23 -0500, serue@us.ibm.com wrote:
-> Here are some numbers on a 4way x86 - PIII 700Mhz with 1G memory (hmm,
-> highmem not enabled).  I should hopefully have a 2way ppc available
-> later today for a pair of runs.
-> 
-> dbench and tbench were run 50 times each, kernbench and reaim 10 times
-> each.  Results are mean +/- 95% confidence half-interval.  Kernel had
-> selinux and capabilities compiled in.
-> 
-> A little surprising: kernbench is improved, but dbench and tbench
-> are worse - though within the 95% CI.
+On Iau, 2005-08-25 at 20:00 -0400, Daniel B. wrote:
+> Which standards?
 
-Might be interesting to roll in Chris' patch (sent separately to lsm and
-selinux list) for "remove selinux stacked ops" in place of your patch,
-as that will avoid the indirect call through the secondary_ops in
-SELinux.  At that point, you can also disable the capability module
-altogether, as SELinux will just directly use the built-in cap_
-functions from commoncap.
+Traditional unix namespace is a sequence of bytes with '/' as a
+seperator and \0 as a terminator. There are no other restrictions. UTF-8
+is essentially a retrofit onto that.
 
--- 
-Stephen Smalley
-National Security Agency
+> The standards I've read (mostly XML- and web-related specs)
+> do say that non-standard UTF-8 octet sequences should be rejected.
+
+If you follow the thread further various people pointed out that POSIX
+and other standard documents are actually more restrictive in their
+guarantees so my belief by a strict standards reading is wrong. It'll
+break a few apps if you enforced it (lots if you took the minimal posix
+requirement).
+
 

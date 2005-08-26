@@ -1,40 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVHZHtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVHZHzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbVHZHtu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 03:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbVHZHtt
+	id S1750777AbVHZHzO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 03:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbVHZHzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 03:49:49 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:18851 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750822AbVHZHtt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 03:49:49 -0400
-Message-ID: <430EC985.6040307@pobox.com>
-Date: Fri, 26 Aug 2005 03:49:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Fri, 26 Aug 2005 03:55:14 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:15503 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1750777AbVHZHzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 03:55:13 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] %n.n -> %0n printf format specifiers
+Date: Fri, 26 Aug 2005 10:54:59 +0300
+User-Agent: KMail/1.8.2
+Cc: Adrian Bunk <bunk@stusta.de>, Jeff Garzik <jgarzik@pobox.com>
 MIME-Version: 1.0
-To: Denis Vlasenko <vda@ilport.com.ua>
-CC: Patrick Draper <pdraper@gmail.com>, Udo van den Heuvel <udovdh@xs4all.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: VIA Rhine ethernet driver bug (reprise...)
-References: <430A0B69.1060304@xs4all.nl> <200508231221.59299.vda@ilport.com.ua> <6981e08b0508252043139cfa2d@mail.gmail.com> <200508260933.45402.vda@ilport.com.ua>
-In-Reply-To: <200508260933.45402.vda@ilport.com.ua>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Disposition: inline
+Message-Id: <200508261055.00190.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> May be a known problem. A buglet in MII common code.
-> Via-rhine maintainer knows about it, as does Jeff.
+Hi folks,
 
-You don't speak for me, sir.
+We have ~2k of printf format specs like this:
 
-I know of no such problem.  Please submit a report and/or patch.
+"%s: Transmit timed out, status %4.4x, PHY status %4.4x, resetting...\n"
 
-	Jeff
+IIRC %04x and %4.4x are totally equivalent. %04 is shorter.
 
+Patches are at http://195.66.192.167/linux/printf_patch/
 
+Largest ones are:
+
+# ls -l | sort -r
+total 1012
+-rw-r--r--   1 root     root        11424 Aug 26 10:49 3c59x.c.patch
+-rw-r--r--   1 root     root         8985 Aug 26 10:50 yellowfin.c.patch
+-rw-r--r--   1 root     root         8692 Aug 26 10:50 lec.c.patch
+-rw-r--r--   1 root     root         8619 Aug 26 10:50 hamachi.c.patch
+-rw-r--r--   1 root     root         8571 Aug 26 10:49 3c515.c.patch
+-rw-r--r--   1 root     root         7829 Aug 26 10:50 winbond-840.c.patch
+-rw-r--r--   1 root     root         7526 Aug 26 10:50 eepro100.c.patch
+-rw-r--r--   1 root     root         7456 Aug 26 10:50 virgefb.c.patch
+-rw-r--r--   1 root     root         7255 Aug 26 10:50 epic100.c.patch
+-rw-r--r--   1 root     root         6725 Aug 26 10:49 8139too.c.patch
+-rw-r--r--   1 root     root         6448 Aug 26 10:50 pci-skeleton.c.patch
+-rw-r--r--   1 root     root         6403 Aug 26 10:50 via-rhine.c.patch
+-rw-r--r--   1 root     root         5944 Aug 26 10:50 sundance.c.patch
+-rw-r--r--   1 root     root         5944 Aug 26 10:50 l2cap.c.patch
+-rw-r--r--   1 root     root         5811 Aug 26 10:50 ixj.c.patch
+-rw-r--r--   1 root     root         5052 Aug 26 10:50 xircom_tulip_cb.c.patch
+-rw-r--r--   1 root     root         4991 Aug 26 10:50 tulip_core.c.patch
+-rw-r--r--   1 root     root         4958 Aug 26 10:50 interrupt.c.patch
+-rw-r--r--   1 root     root         4610 Aug 26 10:50 media.c.patch
+-rw-r--r--   1 root     root         4449 Aug 26 10:50 depca.c.patch
+-rw-r--r--   1 root     root         4281 Aug 26 10:49 3c509.c.patch
+-rw-r--r--   1 root     root         4236 Aug 26 10:50 21142.c.patch
+-rw-r--r--   1 root     root         3780 Aug 26 10:49 raw1394.c.patch
+-rw-r--r--   1 root     root         3733 Aug 26 10:49 residual.c.patch
+-rw-r--r--   1 root     root         3561 Aug 26 10:50 pnic2.c.patch
+-rw-r--r--   1 root     root         3353 Aug 26 10:50 fealnx.c.patch
+-rw-r--r--   1 root     root         3246 Aug 26 10:50 sis900.c.patch
+-rw-r--r--   1 root     root         3193 Aug 26 10:50 pcnet32.c.patch
+-rw-r--r--   1 root     root         3184 Aug 26 10:49 cdu31a.c.patch
+-rw-r--r--   1 root     root         3122 Aug 26 10:50 smc91c92_cs.c.patch
+...
+
+Feel free to grab & apply to your driver(s).
+--
+vda

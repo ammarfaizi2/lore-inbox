@@ -1,53 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbVHZOBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751576AbVHZOI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965030AbVHZOBm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 10:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbVHZOBm
+	id S1751576AbVHZOI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 10:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbVHZOI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 10:01:42 -0400
-Received: from dgate2.fujitsu-siemens.com ([217.115.66.36]:12632 "EHLO
-	dgate2.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S965030AbVHZOBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 10:01:42 -0400
-X-SBRSScore: None
-Message-ID: <430F20BF.1080703@fujitsu-siemens.com>
-Date: Fri, 26 Aug 2005 16:01:35 +0200
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: yhlu <yhlu.kernel@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: APIC version and 8-bit APIC IDs
-References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel>  <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com>  <20050812133248.GN8974@wotan.suse.de>  <42FCA97E.5010907@fujitsu-siemens.com>  <42FCB86C.5040509@fujitsu-siemens.com>  <20050812145725.GD922@wotan.suse.de>  <86802c44050812093774bf4816@mail.gmail.com>  <20050812164244.GC22901@wotan.suse.de> <86802c4405081210442b1bb840@mail.gmail.com> <43099FDF.6030504@fujitsu-siemens.com> <Pine.LNX.4.61L.0508231204510.2422@blysk.ds.pg.gda.pl>
-In-Reply-To: <Pine.LNX.4.61L.0508231204510.2422@blysk.ds.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 26 Aug 2005 10:08:56 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:64906 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751576AbVHZOI4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 10:08:56 -0400
+Subject: [Resend] [Hugetlb x86] 1/3 Add pte_huge() macro
+From: Adam Litke <agl@us.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1124819866.4415.13.camel@localhost.localdomain>
+References: <1124819866.4415.13.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM
+Date: Fri, 26 Aug 2005 09:08:47 -0500
+Message-Id: <1125065327.3119.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
+Fixed whitespace issue in asm-x86_64/pgtable.h
 
->  Well, Intel's "Multiprocessor Specification" mandates that (see section 
-> 3.6.1 and also the compliance list in Appendix C).  I does not mandate 
-> local APIC IDs to be consecutive though.
+Initial Post (Wed, 17 Aug 2005)
 
-Unless I am mistaken, the MP spec does not say that _CPUs_ must start 
-from 0. We had an IO-APIC at 0. The MP spec says that the IDs must be 
-unique (I am told this isn't true any more because an IO APIC and a CPU 
-may have the same ID) and _need not_ be consecutive.
+This patch adds a macro pte_huge(pte) for i386/x86_64  which is needed by a
+patch later in the series.  Instead of repeating (_PAGE_PRESENT | _PAGE_PSE),
+I've added __LARGE_PTE to i386 to match x86_64.
 
-We tried different setups; one had IO APICs at 0,1,2 and CPUs starting 
-at 16. I can't see that this is forbidden (the reason is that the 
-IO-APICs have only 4-bit APIC ID registers). Anyway we changed it now to 
-have both IO-APICs and CPUs start at 0.
+Diffed against 2.6.13-rc6-git7
 
-Regards
-Martin
+Signed-off-by: Adam Litke <agl@us.ibm.com>
+---
+ asm-i386/pgtable.h   |    4 +++-
+ asm-x86_64/pgtable.h |    3 ++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+diff -upN reference/include/asm-i386/pgtable.h current/include/asm-i386/pgtable.h
+--- reference/include/asm-i386/pgtable.h
++++ current/include/asm-i386/pgtable.h
+@@ -215,11 +215,13 @@ extern unsigned long pg0[];
+  * The following only work if pte_present() is true.
+  * Undefined behaviour if not..
+  */
++#define __LARGE_PTE (_PAGE_PSE | _PAGE_PRESENT)
+ static inline int pte_user(pte_t pte)		{ return (pte).pte_low & _PAGE_USER; }
+ static inline int pte_read(pte_t pte)		{ return (pte).pte_low & _PAGE_USER; }
+ static inline int pte_dirty(pte_t pte)		{ return (pte).pte_low & _PAGE_DIRTY; }
+ static inline int pte_young(pte_t pte)		{ return (pte).pte_low & _PAGE_ACCESSED; }
+ static inline int pte_write(pte_t pte)		{ return (pte).pte_low & _PAGE_RW; }
++static inline int pte_huge(pte_t pte)		{ return ((pte).pte_low & __LARGE_PTE) == __LARGE_PTE; }
+ 
+ /*
+  * The following only works if pte_present() is not true.
+@@ -236,7 +238,7 @@ static inline pte_t pte_mkexec(pte_t pte
+ static inline pte_t pte_mkdirty(pte_t pte)	{ (pte).pte_low |= _PAGE_DIRTY; return pte; }
+ static inline pte_t pte_mkyoung(pte_t pte)	{ (pte).pte_low |= _PAGE_ACCESSED; return pte; }
+ static inline pte_t pte_mkwrite(pte_t pte)	{ (pte).pte_low |= _PAGE_RW; return pte; }
+-static inline pte_t pte_mkhuge(pte_t pte)	{ (pte).pte_low |= _PAGE_PRESENT | _PAGE_PSE; return pte; }
++static inline pte_t pte_mkhuge(pte_t pte)	{ (pte).pte_low |= __LARGE_PTE; return pte; }
+ 
+ #ifdef CONFIG_X86_PAE
+ # include <asm/pgtable-3level.h>
+diff -upN reference/include/asm-x86_64/pgtable.h current/include/asm-x86_64/pgtable.h
+--- reference/include/asm-x86_64/pgtable.h
++++ current/include/asm-x86_64/pgtable.h
+@@ -247,6 +247,7 @@ static inline pte_t pfn_pte(unsigned lon
+  * The following only work if pte_present() is true.
+  * Undefined behaviour if not..
+  */
++#define __LARGE_PTE (_PAGE_PSE|_PAGE_PRESENT)
+ static inline int pte_user(pte_t pte)		{ return pte_val(pte) & _PAGE_USER; }
+ extern inline int pte_read(pte_t pte)		{ return pte_val(pte) & _PAGE_USER; }
+ extern inline int pte_exec(pte_t pte)		{ return pte_val(pte) & _PAGE_USER; }
+@@ -254,8 +255,8 @@ extern inline int pte_dirty(pte_t pte)		
+ extern inline int pte_young(pte_t pte)		{ return pte_val(pte) & _PAGE_ACCESSED; }
+ extern inline int pte_write(pte_t pte)		{ return pte_val(pte) & _PAGE_RW; }
+ static inline int pte_file(pte_t pte)		{ return pte_val(pte) & _PAGE_FILE; }
++static inline int pte_huge(pte_t pte)		{ return (pte_val(pte) & __LARGE_PTE) == __LARGE_PTE; }
+ 
+-#define __LARGE_PTE (_PAGE_PSE|_PAGE_PRESENT)
+ extern inline pte_t pte_rdprotect(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_USER)); return pte; }
+ extern inline pte_t pte_exprotect(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_USER)); return pte; }
+ extern inline pte_t pte_mkclean(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_DIRTY)); return pte; }
 
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+

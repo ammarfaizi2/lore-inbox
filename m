@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751609AbVHZWoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbVHZWtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751609AbVHZWoo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 18:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751610AbVHZWoo
+	id S1750971AbVHZWtv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 18:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbVHZWtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 18:44:44 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:37065 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751608AbVHZWon convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 18:44:43 -0400
+	Fri, 26 Aug 2005 18:49:51 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:29035 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750971AbVHZWtv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 18:49:51 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=k+iYPoqKXx1F4tw+QiZZYHfrFXtXIbFCm9+qmpKc3NeTrebNygvi9KjUMWMz9FNYqZKG8bwXYN9dh+IHeyCKPomUKIxzoZSwJ3S/vCUroDU3hKH/JABZAG3/0ln5zKUDpXeO3wB+yZkPUG9OIb85qOY9rwHxT81s7Bn1gTHC3mc=
-Message-ID: <d120d50005082615445557d776@mail.gmail.com>
-Date: Fri, 26 Aug 2005 17:44:39 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=WIVQA+fBwkDPhQnlUcVpjLaW2uhAhZm86hEwd/ZxX8ArWPU0V+N4UYKKL50j18T1xE8zadR+VRuYfTIfsv00j+GsrzoY9GIswtsS+BvEE0Sthg1wc6058fPccM88aI7LF8CRyzcKrCRNDKRV6OcHpzov57lubEHFR16OjmMKbLw=
+Date: Sat, 27 Aug 2005 02:58:48 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Robert Love <rml@novell.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: [patch] IBM HDAPS accelerometer driver, with probing.
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1125094725.18155.120.camel@betsy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Message-ID: <20050826225848.GC28191@mipter.zuzino.mipt.ru>
 References: <1125094725.18155.120.camel@betsy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125094725.18155.120.camel@betsy>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/26/05, Robert Love <rml@novell.com> wrote:
+On Fri, Aug 26, 2005 at 06:18:45PM -0400, Robert Love wrote:
+> Attached patch provides a driver for the IBM Hard Drive Active
+> Protection System (hdaps) on top of 2.6.13-rc6-mm2.
 
-> +static void hdaps_calibrate(void)
+> --- linux-2.6.13-rc6-mm2/drivers/hwmon/hdaps.c
+> +++ linux/drivers/hwmon/hdaps.c
+
+> +static int hdaps_probe(struct device *dev)
 > +{
-> +       int x, y, ret;
+> +	int ret;
 > +
-> +       ret = accelerometer_read_pair(HDAPS_PORT_XPOS, HDAPS_PORT_YPOS, &x, &y);
-> +       if (unlikely(ret))
-> +               return;
-> +
-> +       rest_x = x;
-> +       rest_y = y;
-> +}
+> +	ret = accelerometer_init();
+> +	if (unlikely(ret))
 
-Is this function used in a hot path to warrant using "unlikely"? There
-are to many "unlikely" in the code for my taste.
+What's the point of having unlikely() attached to every possible if ()?
 
-> +
-> +static ssize_t hdaps_mousedev_store(struct device *dev,
-> +                                   struct device_attribute *attr,
-> +                                   const char *buf, size_t count)
+> +static ssize_t hdaps_temp_show(struct device *dev,
+> +			       struct device_attribute *attr, char *buf)
 > +{
-> +       int enable;
+> +	u8 temp;
+> +	int ret;
 > +
-> +       if (sscanf(buf, "%d", &enable) != 1)
-> +               return -EINVAL;
-> +
-> +       spin_lock(&hdaps_lock);
-> +       if (enable == 1)
-> +               hdaps_mousedev_enable();
-> +       else if (enable == 0)
-> +               hdaps_mousedev_disable();
-> +       spin_unlock(&hdaps_lock);
-> +
-> +       return count;
-> +}
+> +	ret = accelerometer_readb_one(HDAPS_PORT_TEMP, &temp);
+> +	if (unlikely(ret < 0))
 
-input_[un]register_device and del_timer_sync are "long" operations. I
-think a semaphore would be better here.
-
--- 
-Dmitry

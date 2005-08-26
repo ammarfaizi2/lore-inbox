@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbVHZNid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbVHZNpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751572AbVHZNid (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 09:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751574AbVHZNid
+	id S1751571AbVHZNpI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 09:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751575AbVHZNpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 09:38:33 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:3017 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751572AbVHZNic (ORCPT
+	Fri, 26 Aug 2005 09:45:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:58048 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751571AbVHZNpH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 09:38:32 -0400
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Daniel B." <dsb@smart.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <430E5B8E.5C89A06B@smart.net>
-References: <f192987705061303383f77c10c@mail.gmail.com>
-	 <f192987705061310202e2d9309@mail.gmail.com>
-	 <1118690448.13770.12.camel@localhost.localdomain>
-	 <200506152149.06367.pmcfarland@downeast.net>
-	 <20050616023630.GC9773@thunk.org> <87y89a7wfn.fsf@jbms.ath.cx>
-	 <20050616143727.GC10969@thunk.org>  <20050619175503.GA3193@elf.ucw.cz>
-	 <1119292723.3279.0.camel@localhost.localdomain>
-	 <430E5B8E.5C89A06B@smart.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 26 Aug 2005 15:07:00 +0100
-Message-Id: <1125065221.4958.58.camel@localhost.localdomain>
+	Fri, 26 Aug 2005 09:45:07 -0400
+Date: Fri, 26 Aug 2005 15:45:10 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] move tasklist walk from cfq-iosched to elevator.c
+Message-ID: <20050826134509.GF4018@suse.de>
+References: <20050826114924.GA28166@lst.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050826114924.GA28166@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-08-25 at 20:00 -0400, Daniel B. wrote:
-> Which standards?
+On Fri, Aug 26 2005, Christoph Hellwig wrote:
+> We're trying to get rid of as much as possible tasklist walks, or at
+> least moving them to core code.  This patch falls into the second
+> category.
+> 
+> Instead of walking the tasklist in cfq-iosched move that into
+> elv_unregister.  The added benefit is that with this change the as
+> ioscheduler might be might unloadable more easily aswell.
+> 
+> The new code uses read_lock instead of read_lock_irq because the
+> tasklist_lock only needs irq disabling for writers.
 
-Traditional unix namespace is a sequence of bytes with '/' as a
-seperator and \0 as a terminator. There are no other restrictions. UTF-8
-is essentially a retrofit onto that.
+Looks innocent enough, fine with me. 'as' will need additional work to
+be unloadable, but it wont break anything since it's running with an
+elevated module count right now anyways.
 
-> The standards I've read (mostly XML- and web-related specs)
-> do say that non-standard UTF-8 octet sequences should be rejected.
-
-If you follow the thread further various people pointed out that POSIX
-and other standard documents are actually more restrictive in their
-guarantees so my belief by a strict standards reading is wrong. It'll
-break a few apps if you enforced it (lots if you took the minimal posix
-requirement).
-
+-- 
+Jens Axboe
 

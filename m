@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVHZIfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVHZInT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVHZIfF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 04:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbVHZIfE
+	id S932548AbVHZInT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 04:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVHZInT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 04:35:04 -0400
-Received: from ns.firmix.at ([62.141.48.66]:45516 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750834AbVHZIfC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 04:35:02 -0400
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: "Daniel B." <dsb@smart.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <430E5B8E.5C89A06B@smart.net>
-References: <f192987705061303383f77c10c@mail.gmail.com>
-	 <f192987705061310202e2d9309@mail.gmail.com>
-	 <1118690448.13770.12.camel@localhost.localdomain>
-	 <200506152149.06367.pmcfarland@downeast.net>
-	 <20050616023630.GC9773@thunk.org> <87y89a7wfn.fsf@jbms.ath.cx>
-	 <20050616143727.GC10969@thunk.org>  <20050619175503.GA3193@elf.ucw.cz>
-	 <1119292723.3279.0.camel@localhost.localdomain>
-	 <430E5B8E.5C89A06B@smart.net>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Fri, 26 Aug 2005 10:34:54 +0200
-Message-Id: <1125045294.7282.12.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 26 Aug 2005 04:43:19 -0400
+Received: from inet-tsb.toshiba.co.jp ([202.33.96.40]:11257 "EHLO
+	inet-tsb.toshiba.co.jp") by vger.kernel.org with ESMTP
+	id S1751054AbVHZInS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 04:43:18 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: libata-dev queue updated
+Date: Fri, 26 Aug 2005 17:41:15 +0900
+Message-ID: <BF571719A4041A478005EF3F08EA6DF001660ADB@pcsmail03.pcs.pc.ome.toshiba.co.jp>
+Thread-Topic: libata-dev queue updated
+Thread-Index: AcWp00sjJPzMFyZ7SX+wgZ/bSWsfbQARarlw
+From: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>, <linux-ide@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>,
+       "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 20:00 -0400, Daniel B. wrote:
-> Alan Cox wrote:
-> > On Sul, 2005-06-19 at 18:55, Pavel Machek wrote:
-[...]
-> > > If we are serious about utf-8 support in ext3, we should return
-> > > -EINVAL if someone passes non-canonical utf-8 string.
-> > 
-> > That would ironically not be standards compliant
-> 
-> Which standards?
+Hi Bunk,
 
-Probably POSIX, SuSv3 and similiar.
+Thank you for your replay.
 
-> The standards I've read (mostly XML- and web-related specs)
-> do say that non-standard UTF-8 octet sequences should be rejected.
+> With SCSI=m and SCSI_SATA=y this allows the static enabling 
+> of the SATA drivers with unwanted effects, e.g.:
+> - SCSI=m, SCSI_SATA=y, SCSI_ATA_ADMA=y
+>   -> SCSI_ATA_ADMA is built statically but scsi/built-in.o is 
+> not linked 
+>      into the kernel
+> - SCSI=m, SCSI_SATA=y, SCSI_ATA_ADMA=y, SCSI_SATA_AHCI=m
+>   -> SCSI_ATA_ADMA and libata are built statically but 
+>      scsi/built-in.o is not linked into the kernel,
+>      SCSI_SATA_AHCI is built modular (unresolved symbols due 
+> to missing 
+>                                       libata)
 
-There you have basically text files with some structure in it and the
-definiton/requirement that is is UTF-8.
-At kernel level these are also just byte streams and the kernel doesn't
-know or care which charset, encoding, file format, font etc. the data is
-used with or interpreted several layers higher, e.g. for presenting to
-the user. And the same holds for filenames.
+I agree. 
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Thanks again,
+Haruo

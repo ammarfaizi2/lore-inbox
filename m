@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbVHZQlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbVHZQnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965109AbVHZQlv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 12:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbVHZQlv
+	id S965105AbVHZQnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 12:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbVHZQnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 12:41:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39593 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965114AbVHZQlu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 12:41:50 -0400
-Date: Fri, 26 Aug 2005 09:41:40 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: serue@us.ibm.com
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       Kurt Garloff <garloff@suse.de>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH 0/5] LSM hook updates
-Message-ID: <20050826164139.GK7762@shell0.pdx.osdl.net>
-References: <20050825012028.720597000@localhost.localdomain> <Pine.LNX.4.63.0508250038450.13875@excalibur.intercode> <20050825053208.GS7762@shell0.pdx.osdl.net> <20050825191548.GY7762@shell0.pdx.osdl.net> <20050826092306.GA429@sergelap.austin.ibm.com>
+	Fri, 26 Aug 2005 12:43:22 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:49159 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965105AbVHZQnV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 12:43:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fx1731Yktee+iFEF2XjsoJbdV1a+2QKnKpH3hVcWKaWuW3jTfow9v9kivMbez82GP0H632OxSNnGoMwrl03MxMJivRu2zjjkno/zg7EXOJpZ8jGXejA8gp+KQaim8H9WH4jdknfSx9UKGlbFeqXikbbQdC/14iARW5eVELMovdQ=
+Message-ID: <8783be6605082609432c6735a8@mail.gmail.com>
+Date: Fri, 26 Aug 2005 09:43:20 -0700
+From: Ross Biro <ross.biro@gmail.com>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: process creation time increases linearly with shmem
+Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Rik van Riel <riel@redhat.com>, Ray Fucillo <fucillo@intersystems.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0508261735360.7589@goblin.wat.veritas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050826092306.GA429@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au>
+	 <Pine.LNX.4.63.0508251331040.25774@cuia.boston.redhat.com>
+	 <430E6FD4.9060102@yahoo.com.au>
+	 <Pine.LNX.4.58.0508252055370.3317@g5.osdl.org>
+	 <Pine.LNX.4.61.0508261220230.4697@goblin.wat.veritas.com>
+	 <8783be660508260915524e2b1e@mail.gmail.com>
+	 <Pine.LNX.4.61.0508261735360.7589@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* serue@us.ibm.com (serue@us.ibm.com) wrote:
-> Here are some numbers on a 4way x86 - PIII 700Mhz with 1G memory (hmm,
-> highmem not enabled).  I should hopefully have a 2way ppc available
-> later today for a pair of runs.
-
-Thanks for running these numbers Serge.
-
-> dbench and tbench were run 50 times each, kernbench and reaim 10 times
-> each.  Results are mean +/- 95% confidence half-interval.  Kernel had
-> selinux and capabilities compiled in.
+On 8/26/05, Hugh Dickins <hugh@veritas.com> wrote:
+> On Fri, 26 Aug 2005, Ross Biro wrote:
+> > On 8/26/05, Hugh Dickins <hugh@veritas.com> wrote:
+> > >
+> > > The refaulting will hurt the performance of something: let's
+> > > just hope that something doesn't turn out to be a show-stopper.
+> >
+> > Why not just fault in all the pages on the first fault. Then the performance
+> > loss is a single page fault (the page table copy that would have happened a
+> > fork time now happens at fault time) and you get the big win for processes
+> > that do fork/exec.
 > 
-> A little surprising: kernbench is improved, but dbench and tbench
-> are worse - though within the 95% CI.
+> "all" might be very many more pages than were ever mapped in the parent,
+> and not be a win.  Some faultahead might work better.  Might, might, ...
 
-It is interesting.  Would be good to see what happens with the cap_ bits
-used in SELinux instead of secondary callout.  Also, need to run ia64,
-do you have an ia64 box?
+If you reduce "all" to whatever would have been done in fork
+originially, then you've got a big win in some cases and a minimal
+loss in others, and it's easy to argue you've got something better.
 
-thanks,
--chris
+Now changng "all" to something even less might be an even bigger win,
+but that requires a lot of benchmarking to justify.
+
+    Ross

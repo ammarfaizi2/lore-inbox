@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbVHZOwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbVHZOzC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965063AbVHZOwx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 10:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbVHZOwx
+	id S965064AbVHZOzC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 10:55:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVHZOzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 10:52:53 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:4737 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965063AbVHZOwx
+	Fri, 26 Aug 2005 10:55:01 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:54034 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S965064AbVHZOzB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 10:52:53 -0400
-Subject: Re: syscall: sys_promote
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-Cc: linux-kernel@vger.kernel.org, dhommel@gmail.com
-In-Reply-To: <20050826110226.GA5184@localhost.localdomain>
-References: <20050826092537.GA3416@localhost.localdomain>
-	 <20050826110226.GA5184@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 26 Aug 2005 16:19:17 +0100
-Message-Id: <1125069558.4958.83.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Fri, 26 Aug 2005 10:55:01 -0400
+Date: Fri, 26 Aug 2005 15:50:50 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Cc: yhlu <yhlu.kernel@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: APIC version and 8-bit APIC IDs
+In-Reply-To: <430F20BF.1080703@fujitsu-siemens.com>
+Message-ID: <Pine.LNX.4.61L.0508261512520.9561@blysk.ds.pg.gda.pl>
+References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel> 
+ <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com> 
+ <20050812133248.GN8974@wotan.suse.de>  <42FCA97E.5010907@fujitsu-siemens.com>
+  <42FCB86C.5040509@fujitsu-siemens.com>  <20050812145725.GD922@wotan.suse.de>
+  <86802c44050812093774bf4816@mail.gmail.com>  <20050812164244.GC22901@wotan.suse.de>
+ <86802c4405081210442b1bb840@mail.gmail.com> <43099FDF.6030504@fujitsu-siemens.com>
+ <Pine.LNX.4.61L.0508231204510.2422@blysk.ds.pg.gda.pl> <430F20BF.1080703@fujitsu-siemens.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-08-26 at 19:02 +0800, Coywolf Qi Hunt wrote:
-> > 3) admins can `promote' a suspect process instead of killing it.
-> > 
-> > Is it also generally useful in practice?  Thoughts?
+On Fri, 26 Aug 2005, Martin Wilck wrote:
 
-The locking is wrong. At the moment the entire kernel assumes that a
-process uid is not changed by anyone else. After you've implemented uid
-locking/refcounting for tasks you can add the syscall but until then its
-not a good idea. I don't think its a good idea anyway - selinux can do
-far more useful things.
+> Unless I am mistaken, the MP spec does not say that _CPUs_ must start from 0.
+> We had an IO-APIC at 0. The MP spec says that the IDs must be unique (I am
+> told this isn't true any more because an IO APIC and a CPU may have the same
+> ID) and _need not_ be consecutive.
 
+ You are unfortunately mistaken -- the spec is explicit about *local* APIC 
+IDs having to start at 0.  There are at least two places in the spec that 
+refer to that.
 
+> We tried different setups; one had IO APICs at 0,1,2 and CPUs starting at 16.
+> I can't see that this is forbidden (the reason is that the IO-APICs have only
+> 4-bit APIC ID registers). Anyway we changed it now to have both IO-APICs and
+> CPUs start at 0.
+
+ You can always assign 0, 16, 17, etc. to local APICs and then 1, 2, 3, 
+etc. for I/O APICs.  Frankly I don't know what the actual justification 
+behind the requirement is.  Note that the ID of 0 need not necessarily 
+belong to the BSP.
+
+  Maciej

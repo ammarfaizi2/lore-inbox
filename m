@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbVHZKpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbVHZKpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbVHZKpG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 06:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbVHZKpG
+	id S1751521AbVHZKpH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 06:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbVHZKpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 26 Aug 2005 06:45:07 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:15085 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S932539AbVHZKpG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 26 Aug 2005 06:45:06 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:17935 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
-	id S1751514AbVHZKpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 06:45:05 -0400
-Date: Fri, 26 Aug 2005 11:37:00 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: Andy Isaacson <adi@hexapodia.org>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: question on memory barrier
-In-Reply-To: <20050826072129.71855.qmail@web25802.mail.ukl.yahoo.com>
-Message-ID: <Pine.LNX.4.61L.0508261125160.9561@blysk.ds.pg.gda.pl>
-References: <20050826072129.71855.qmail@web25802.mail.ukl.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: dth@cistron.nl (Danny ter Haar)
+Subject: Re: Linux-2.6.13-rc7
+Date: Fri, 26 Aug 2005 10:45:01 +0000 (UTC)
+Organization: Cistron
+Message-ID: <demrrd$si6$1@news.cistron.nl>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
+X-Trace: ncc1701.cistron.net 1125053101 29254 62.216.30.70 (26 Aug 2005 10:45:01 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Aug 2005, moreau francis wrote:
+Linus Torvalds  <torvalds@osdl.org> wrote:
+> I really wanted to release a 2.6.13, but there's been enough changes 
+>while we've been waiting for other issues to resolve that I think it's 
+>best to do a -rc7 first.
+>
+>Most of the -rc7 changes are pretty trivial, either one-liners or 
+>affecting some particular specific driver or unusual configuration. The 
+>shortlog (appended) should give a pretty good idea of what's up.
+>
+>		Linus
 
-> I don't think that MIPS cpu reorder memory access, but gcc can ! And I
-> don't think that the use of 'volatile' can prevent it to do that.
+OK, i tried rc7 on my newsgateway and so far it keeps running after 50+
+hours of 200megabit in & 200 megabitoutgoing network traffic and
+sufficient storage to the scsi system.
 
- Well, certain MIPS implementations may merge multiple uncached writes in 
-the writeback buffer, e.g. writes to different bytes within a single 
-aligned word.  This is true for consecutive writes; I'm not sure this 
-permits jumping the writeback queue, though.
+Of course it will probably reboot just after sending this message.
+If it stays up after 5 days of pounding it will get _my_ stamp of
+aproval ;-)
 
-> > To return to the point directly at hand - on MIPS architectures to date,
-> > simply doing your memory access through a "volatile u32 *" is sufficient
-> > to ensure that the IO hits the bus (assuming that your pointer points to
-> > kseg1, not kseg0, or is otherwise uncached), because 'volatile' forces
-> > gcc to generate a "sw" for each store, and all MIPS so far have been
-> > designed so that multiple uncached writes to mmio locations do generate
-> > multiple bus transactions.
+----------
+Linux 2.6.13-rc7 (root@newsgate) (gcc [can't parse]) #???  1CPU [newsgate.(none)]
 
- Unfortunately this is not true -- see above.  This is why even wmb() 
-isn't a no-op on MIPS.
+Memory:      Total        Used        Free      Shared     Buffers
+Mem:       2058040     2041552       16488           0         616
+Swap:            0           0           0
 
-  Maciej
+Bootup: Wed Aug 24 09:50:30 2005    Load average: 3.39 3.25 3.16 2/80 12244
+
+user  :       5:06:34.95  10.0%  page in :        0
+nice  :       0:42:50.54   1.4%  page out:        0
+system:      16:22:48.44  32.2%  swap in :        0
+idle  :       0:25:08.22   0.8%  swap out:        0
+uptime:   2d  2:53:38.68         context :592311164
+
+irq  0:  45792855 timer                 irq 12:         3
+irq  1:         8 i8042                 irq 24:  56420796 aic79xx
+irq  2:         0 cascade [4]           irq 25: 479838182 aic79xx, eth3
+irq  4:       369 serial                irq 28:1007452070 acenic
+irq  8:         0 rtc
+
+----------
+
+Danny
+
+
+

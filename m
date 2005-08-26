@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVHZQgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbVHZQk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965093AbVHZQgn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 12:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbVHZQgn
+	id S965104AbVHZQk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 12:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbVHZQk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 12:36:43 -0400
-Received: from silver.veritas.com ([143.127.12.111]:21390 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S965093AbVHZQgm
+	Fri, 26 Aug 2005 12:40:59 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:52072 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965104AbVHZQk6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 12:36:42 -0400
-Date: Fri, 26 Aug 2005 17:38:37 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Ross Biro <ross.biro@gmail.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Rik van Riel <riel@redhat.com>, Ray Fucillo <fucillo@intersystems.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: process creation time increases linearly with shmem
-In-Reply-To: <8783be660508260915524e2b1e@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0508261735360.7589@goblin.wat.veritas.com>
-References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au>
-  <Pine.LNX.4.63.0508251331040.25774@cuia.boston.redhat.com> 
- <430E6FD4.9060102@yahoo.com.au>  <Pine.LNX.4.58.0508252055370.3317@g5.osdl.org>
-  <Pine.LNX.4.61.0508261220230.4697@goblin.wat.veritas.com>
- <8783be660508260915524e2b1e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 26 Aug 2005 16:36:38.0105 (UTC) FILETIME=[547BF490:01C5AA5C]
+	Fri, 26 Aug 2005 12:40:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WFI1N2aY5pYZ0ADEHVEyTyDED9UAgMHvKntVdqTbLMhfOASdGj6NE8oObl73AgSdVdx3XUVUznN9KKGaUItFEY+vNMGff27GUd1FqINR4z2cSmkaE3JZTYOOVZBHV0jh/Hhd1GToJjHYbhKbs0TnNMjX3IxOkcjAz7jHLpE4jMo=
+Message-ID: <29495f1d05082609407c147df7@mail.gmail.com>
+Date: Fri, 26 Aug 2005 09:40:56 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Richard Stover <richard@ucolick.org>
+Subject: Re: waiting process in procfs read
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <430F3C6B.7070303@ucolick.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <430F3C6B.7070303@ucolick.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Aug 2005, Ross Biro wrote:
-> On 8/26/05, Hugh Dickins <hugh@veritas.com> wrote:
-> > 
-> > The refaulting will hurt the performance of something: let's
-> > just hope that something doesn't turn out to be a show-stopper.
+On 8/26/05, Richard Stover <richard@ucolick.org> wrote:
+> I submitted this as a bugzilla kernel bug report but was directed here.
+> Perhaps someone can help me.
 > 
-> Why not just fault in all the pages on the first fault. Then the performance 
-> loss is a single page fault (the page table copy that would have happened a 
-> fork time now happens at fault time) and you get the big win for processes 
-> that do fork/exec.
+> I have a device driver developed with 2.4 kernels. I've ported
+> it to the 2.6 kernel (FC3) and it all works fine except for one
+> aspect of procfs.
 
-"all" might be very many more pages than were ever mapped in the parent,
-and not be a win.  Some faultahead might work better.  Might, might, ...
+<snip>
 
-Hugh
+> THE PROBLEM: In FC3 (2.6.11-13_FC3) the reading process blocks but it never
+> wakes up.
+
+<snip>
+
+>        if (offset == 0) {
+> 
+>            printk("####%s waiting event %x\n",__FUNCTION__,
+>                (unsigned int)&dev->read_proc_wait);
+> 
+>            wait_event_interruptible(dev->read_proc_wait,(offset != 0));
+>            printk("####%s WOKE UP\n",__FUNCTION__);
+
+<snip>
+
+> /*      Wake up anyone waiting on reading /proc/readXw                  */
+>        printk(KERN_INFO "#### waking up anyone waiting on read_proc_wait event %x\n",
+>                (unsigned int)&dev->read_proc_wait);
+> 
+>        wake_up_interruptible(&dev->read_proc_wait);
+
+Your symptoms indicate to me that the "event" in
+wait_event_interruptible() has not been satisifed, and thus the
+(potentially) infinite loop in wait_event_interruptible() is
+continuing, e.g. event still is 0. A signal (as you've specified
+_interruptible()) causes that loop to break out. One option to debug
+would be to use wait_event_interruptible_timeout() and then see if it
+returns from that (it should in this case after the timeout has
+passed) and then print out the value of offset. If it's still 0, then
+wait_event_interruptible() is functioning as expected.
+
+Thanks,
+Nish

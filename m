@@ -1,103 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751553AbVHZNSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751567AbVHZNUS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751553AbVHZNSA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 09:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751567AbVHZNSA
+	id S1751567AbVHZNUS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 09:20:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbVHZNUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 09:18:00 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39437 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751553AbVHZNR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 09:17:59 -0400
-Date: Fri, 26 Aug 2005 15:17:50 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Danial Thom <danial_thom@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 Performance problems
-Message-ID: <20050826131750.GG6471@stusta.de>
-References: <2230.192.167.206.189.1124721719.squirrel@new.host.name> <20050822154111.4058.qmail@web33304.mail.mud.yahoo.com>
+	Fri, 26 Aug 2005 09:20:17 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:57561 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751567AbVHZNUQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 09:20:16 -0400
+Date: Fri, 26 Aug 2005 04:23:06 -0500
+From: serue@us.ibm.com
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, linux-security-module@wirex.com
+Subject: Re: [PATCH 0/5] LSM hook updates
+Message-ID: <20050826092306.GA429@sergelap.austin.ibm.com>
+References: <20050825012028.720597000@localhost.localdomain> <Pine.LNX.4.63.0508250038450.13875@excalibur.intercode> <20050825053208.GS7762@shell0.pdx.osdl.net> <20050825191548.GY7762@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050822154111.4058.qmail@web33304.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050825191548.GY7762@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 22, 2005 at 08:41:11AM -0700, Danial Thom wrote:
->...
+Quoting Chris Wright (chrisw@osdl.org):
+> * Chris Wright (chrisw@osdl.org) wrote:
+> > I'll have some numbers tomorrow.  If you'd like to run SELinux that'd
+> > be quite useful.
 > 
-> The issue I have with that logic is that you seem
-> to use "kernel" in a general sense without regard
-> to what its doing. Dropping packets is always
-> detrimental to the user regardless of what he's
-> using the computer for. An audio stream that
-> drops packets isn't going to be "smooth" at the
-> user level.
+> These are just lmbench and kernel build numbers (certainly not the best
+> for real benchmark numbers, but easy to get a quick view run).  This is
+> just baseline (i.e. default, nothing loaded).
 
+Here are some numbers on a 4way x86 - PIII 700Mhz with 1G memory (hmm,
+highmem not enabled).  I should hopefully have a 2way ppc available
+later today for a pair of runs.
 
-That's not always true.
+dbench and tbench were run 50 times each, kernbench and reaim 10 times
+each.  Results are mean +/- 95% confidence half-interval.  Kernel had
+selinux and capabilities compiled in.
 
-Imagine a slow computer with a GBit ethernet connection, where the user 
-is downloading files from a server that can utilize the full 
-network connection while listening to music from his local disk with 
-XMMS.
+A little surprising: kernbench is improved, but dbench and tbench
+are worse - though within the 95% CI.
 
-In this case, the audio stream is not depending on the network 
-connection. And the user might prefer dropped packages over a stuttering 
-XMMS.
+dbench (throughput, larger is better):
+original: 357.957780 +/- 3.509188
+patched:  351.266820 +/- 4.736168
 
+tbench (throughput, larger is better):
+original: 38.710270 +/- 0.028970
+patched:  38.210506 +/- 0.032954
 
-> All of this aside, I need to measure the raw
-> capabilities of the kernel. With 'bsd OSes I can
-> tell what the breaking point is by driving the
-> machine to livelock. Linux seems to have a soft,
-> floating capacity in that it will drop packets
-> here and there for no isolatable reason. I'm
-> having difficulty making a case for its use in a
-> networking appliance, as dropped packets are not
-> acceptable. How do I tune the "its ok to drop
-> packets when x occurs" algorithm to be "its never
-> ok to drop packets unless x occurs" (such as a
-> queue depth)? Is it possible?
+kernbench (time, smaller is better):
+original: 91.837000 +/- 0.324471
+patched:  91.466000 +/- 0.308797
 
+reaim (#children vs throughput, larger is better):
 
-What do you want to achieve with this thread?
-1. Try to proof that Linux is inferior to *BSD?
-2. Get help with your problem?
+original:
+1 48702.197000 1875.223996
+3 131411.870000 4497.107969
+5 130219.174000 6365.289551
+7 162377.027000 3131.071134
+9 155432.904000 4964.935291
+11 169784.384000 4490.812272
+13 164540.169000 3902.652904
+15 172983.569000 3149.934591
 
+patched:
+1 47525.273000 1509.578035
+3 132151.651000 2282.043786
+5 131244.291000 5874.212092
+7 165629.693000 4646.641230
+9 156163.110000 3422.903849
+11 170608.526000 4132.988693
+13 164863.102000 3664.214481
+15 172947.803000 2548.662380
 
-If your goal is 1. feel free to do so, but please do so on more 
-appropriate lists.
-
-
-If your goal is 2., you must help the people who are trying to help you 
-with _your_ problem.
-
-E.g. Patrick McHardy asked you:
-
-<--  snip  -->
-
-In that case please send more information, like both 2.4
-and 2.6 configs, dmesg output from booting, lspci output,
-other hardware details, ..
-
-<--  snip  -->
-
-Crystal balls are rare, and if your goal is really to get problem solved 
-you should send the information other people require for debugging your 
-problem.
-
-
-> Danial
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+thanks,
+-serge

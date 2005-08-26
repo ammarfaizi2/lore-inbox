@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751606AbVHZWnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751609AbVHZWoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751606AbVHZWnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 18:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751608AbVHZWnZ
+	id S1751609AbVHZWoo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 18:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751610AbVHZWoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 18:43:25 -0400
-Received: from mx2.suse.de ([195.135.220.15]:30098 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751605AbVHZWnY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 18:43:24 -0400
+	Fri, 26 Aug 2005 18:44:44 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:37065 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751608AbVHZWon convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 18:44:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k+iYPoqKXx1F4tw+QiZZYHfrFXtXIbFCm9+qmpKc3NeTrebNygvi9KjUMWMz9FNYqZKG8bwXYN9dh+IHeyCKPomUKIxzoZSwJ3S/vCUroDU3hKH/JABZAG3/0ln5zKUDpXeO3wB+yZkPUG9OIb85qOY9rwHxT81s7Bn1gTHC3mc=
+Message-ID: <d120d50005082615445557d776@mail.gmail.com>
+Date: Fri, 26 Aug 2005 17:44:39 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
 To: Robert Love <rml@novell.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
+Subject: Re: [patch] IBM HDAPS accelerometer driver, with probing.
+Cc: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] IBM HDAPS accelerometer driver.
-References: <1125069494.18155.27.camel@betsy> <430F5257.4010700@didntduck.org>
-	<1125077594.18155.52.camel@betsy>
-	<1125079311.4294.10.camel@laptopd505.fenrus.org>
-	<1125079430.18155.64.camel@betsy>
-	<1125086134.14080.13.camel@localhost.localdomain>
-	<1125084555.18155.89.camel@betsy> <430F6E6F.5010001@pobox.com>
-	<1125085037.18155.95.camel@betsy>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Aug 2005 00:43:22 +0200
-In-Reply-To: <1125085037.18155.95.camel@betsy>
-Message-ID: <p734q9cmi9h.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1125094725.18155.120.camel@betsy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1125094725.18155.120.camel@betsy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@novell.com> writes:
+On 8/26/05, Robert Love <rml@novell.com> wrote:
 
-> On Fri, 2005-08-26 at 15:33 -0400, Jeff Garzik wrote:
-> 
-> > Since such a check is possible, that's definitely a merge-stopper IMO
-> 
-> First, I am not asking that Linus merge this.  Everyone needs to relax.
-> 
-> Second, we don't know a DMI-based solution will work. I'll check it out.
+> +static void hdaps_calibrate(void)
+> +{
+> +       int x, y, ret;
+> +
+> +       ret = accelerometer_read_pair(HDAPS_PORT_XPOS, HDAPS_PORT_YPOS, &x, &y);
+> +       if (unlikely(ret))
+> +               return;
+> +
+> +       rest_x = x;
+> +       rest_y = y;
+> +}
 
-With some luck it might be in the ACPI name space with a known
-name. If yes that would be far more reliable than DMI.
+Is this function used in a hot path to warrant using "unlikely"? There
+are to many "unlikely" in the code for my taste.
 
--Andi
+> +
+> +static ssize_t hdaps_mousedev_store(struct device *dev,
+> +                                   struct device_attribute *attr,
+> +                                   const char *buf, size_t count)
+> +{
+> +       int enable;
+> +
+> +       if (sscanf(buf, "%d", &enable) != 1)
+> +               return -EINVAL;
+> +
+> +       spin_lock(&hdaps_lock);
+> +       if (enable == 1)
+> +               hdaps_mousedev_enable();
+> +       else if (enable == 0)
+> +               hdaps_mousedev_disable();
+> +       spin_unlock(&hdaps_lock);
+> +
+> +       return count;
+> +}
+
+input_[un]register_device and del_timer_sync are "long" operations. I
+think a semaphore would be better here.
+
+-- 
+Dmitry

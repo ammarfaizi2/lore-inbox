@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbVHZTWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbVHZTXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbVHZTWv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbVHZTWv
+	id S1030212AbVHZTXW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbVHZTXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:22:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45526 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030207AbVHZTWu (ORCPT
+	Fri, 26 Aug 2005 15:23:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52182 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030212AbVHZTXN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:22:50 -0400
-Message-Id: <20050826191814.861164000@localhost.localdomain>
+	Fri, 26 Aug 2005 15:23:13 -0400
+Message-Id: <20050826191844.561248000@localhost.localdomain>
 References: <20050826191755.052951000@localhost.localdomain>
-Date: Fri, 26 Aug 2005 12:17:56 -0700
+Date: Fri, 26 Aug 2005 12:17:58 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,54 +19,46 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       "David S. Miller" <davem@davemloft.net>, Chris Wright <chrisw@osdl.org>
-Subject: [PATCH 1/7] [IPSEC] Restrict socket policy loading to CAP_NET_ADMIN - CAN-2005-2555
-Content-Disposition: inline; filename=ipsec-socket-policy-use-cap.patch
+       Sergey Vlasov <vsu@altlinux.ru>, Tavis Ormandy <taviso@gentoo.org>,
+       Tim Yamin <plasmaroo@gentoo.org>, Chris Wright <chrisw@osdl.org>
+Subject: [PATCH 3/7] [PATCH] Revert unnecessary zlib_inflate/inftrees.c fix
+Content-Disposition: inline; filename=zlib-revert-broken-change.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any  objections, please let us know.
 ------------------
 
-The interface needs much redesigning if we wish to allow
-normal users to do this in some way.
+It turns out that empty distance code tables are not an error, and that
+a compressed block with only literals can validly have an empty table
+and should not be flagged as a data error.
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: "David S. Miller" <davem@davemloft.net>
+Some old versions of gzip had problems with this case, but it does not
+affect the zlib code in the kernel.
+
+Analysis and explanations thanks to Sergey Vlasov <vsu@altlinux.ru>
+
+Cc: Sergey Vlasov <vsu@altlinux.ru>
+Cc: Tavis Ormandy <taviso@gentoo.org>
+Cc: Tim Yamin <plasmaroo@gentoo.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 ---
- net/ipv4/ip_sockglue.c   |    3 +++
- net/ipv6/ipv6_sockglue.c |    3 +++
- 2 files changed, 6 insertions(+)
+ lib/zlib_inflate/inftrees.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux-2.6.12.y/net/ipv4/ip_sockglue.c
+Index: linux-2.6.12.y/lib/zlib_inflate/inftrees.c
 ===================================================================
---- linux-2.6.12.y.orig/net/ipv4/ip_sockglue.c
-+++ linux-2.6.12.y/net/ipv4/ip_sockglue.c
-@@ -848,6 +848,9 @@ mc_msf_out:
-  
- 		case IP_IPSEC_POLICY:
- 		case IP_XFRM_POLICY:
-+			err = -EPERM;
-+			if (!capable(CAP_NET_ADMIN))
-+				break;
- 			err = xfrm_user_policy(sk, optname, optval, optlen);
- 			break;
+--- linux-2.6.12.y.orig/lib/zlib_inflate/inftrees.c
++++ linux-2.6.12.y/lib/zlib_inflate/inftrees.c
+@@ -141,7 +141,7 @@ static int huft_build(
+   {
+     *t = NULL;
+     *m = 0;
+-    return Z_DATA_ERROR;
++    return Z_OK;
+   }
  
-Index: linux-2.6.12.y/net/ipv6/ipv6_sockglue.c
-===================================================================
---- linux-2.6.12.y.orig/net/ipv6/ipv6_sockglue.c
-+++ linux-2.6.12.y/net/ipv6/ipv6_sockglue.c
-@@ -503,6 +503,9 @@ done:
- 		break;
- 	case IPV6_IPSEC_POLICY:
- 	case IPV6_XFRM_POLICY:
-+		retv = -EPERM;
-+		if (!capable(CAP_NET_ADMIN))
-+			break;
- 		retv = xfrm_user_policy(sk, optname, optval, optlen);
- 		break;
  
 
 --

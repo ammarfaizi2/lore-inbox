@@ -1,102 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbVHZJZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbVHZJkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751512AbVHZJZy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 05:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbVHZJZy
+	id S1751515AbVHZJkA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 05:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVHZJkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 05:25:54 -0400
-Received: from [218.25.172.144] ([218.25.172.144]:36626 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S1751512AbVHZJZx (ORCPT
+	Fri, 26 Aug 2005 05:40:00 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55500 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751514AbVHZJkA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 05:25:53 -0400
-Date: Fri, 26 Aug 2005 17:25:37 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: linux-kernel@vger.kernel.org
-Cc: dhommel@gmail.com
-Subject: syscall: sys_promote
-Message-ID: <20050826092537.GA3416@localhost.localdomain>
+	Fri, 26 Aug 2005 05:40:00 -0400
+Date: Fri, 26 Aug 2005 11:39:48 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch] Fix process freezing
+Message-ID: <20050826093948.GA1887@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+If process freezing fails, some processes are frozen, and rest are
+left in "were asked to be frozen" state. Thats wrong, we should leave
+it in some consistent state.
 
-I just wrote a tool with kernel patch, which is to set the uid's of a running
-process without FORK.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-The tool is at http://users.freeforge.net/~coywolf/pub/promote/
-Usage: promote <pid> [uid]
-
-I once need such a tool to work together with my admin in order to tune my web
-configuration.  I think it's quite convenient sometimes. 
-
-The situations I can image are:
-
-1) root processes can be set to normal priorities, to serve web service for eg.
-
-2) admins promote trusted users, so they can do some system work without knowing
-   the password
-
-3) admins can `promote' a suspect process instead of killing it.
-
-Is it also generally useful in practice?  Thoughts?
-
-	Coywolf
-
-
-Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
----
-
- arch/i386/kernel/syscall_table.S |    1 +
- include/linux/syscalls.h         |    1 +
- kernel/sys.c                     |   19 +++++++++++++++++++
- 3 files changed, 21 insertions(+)
-
---- 2.6.13-rc6-mm2/arch/i386/kernel/syscall_table.S~orig	2005-08-23 13:41:58.000000000 +0800
-+++ 2.6.13-rc6-mm2/arch/i386/kernel/syscall_table.S	2005-08-26 10:44:57.000000000 +0800
-@@ -300,3 +300,4 @@ ENTRY(sys_call_table)
- 	.long sys_vperfctr_control
- 	.long sys_vperfctr_write
- 	.long sys_vperfctr_read
-+	.long sys_promote		/* 300 */
---- 2.6.13-rc6-mm2/include/linux/syscalls.h~orig	2005-08-09 09:21:36.000000000 +0800
-+++ 2.6.13-rc6-mm2/include/linux/syscalls.h	2005-08-26 10:12:31.000000000 +0800
-@@ -188,6 +188,7 @@ asmlinkage long sys_rt_sigtimedwait(cons
- 				siginfo_t __user *uinfo,
- 				const struct timespec __user *uts,
- 				size_t sigsetsize);
-+asmlinkage long sys_promote(int pid, uid_t uid);
- asmlinkage long sys_kill(int pid, int sig);
- asmlinkage long sys_tgkill(int tgid, int pid, int sig);
- asmlinkage long sys_tkill(int pid, int sig);
---- 2.6.13-rc6-mm2/kernel/sys.c~orig	2005-08-23 13:42:07.000000000 +0800
-+++ 2.6.13-rc6-mm2/kernel/sys.c	2005-08-26 16:40:28.000000000 +0800
-@@ -932,6 +932,25 @@ asmlinkage long sys_setfsgid(gid_t gid)
- 	return old_fsgid;
- }
+--- linux-mm/kernel/power/process.c	2005-08-24 20:25:11.000000000 +0200
++++ linux/kernel/power/process.c	2005-08-26 11:30:40.000000000 +0200
+@@ -81,13 +81,33 @@
+ 		} while_each_thread(g, p);
+ 		read_unlock(&tasklist_lock);
+ 		yield();			/* Yield is okay here */
+-		if (time_after(jiffies, start_time + TIMEOUT)) {
++		if (todo && time_after(jiffies, start_time + TIMEOUT)) {
+ 			printk( "\n" );
+ 			printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
+-			return todo;
++			break;
+ 		}
+ 	} while(todo);
  
-+asmlinkage long sys_promote(int pid, uid_t uid)
-+{
-+	struct task_struct *p;
-+	int ret = -ESRCH;
-+
-+	if (!capable(CAP_SETUID))
-+		return -EPERM;
-+
-+	read_lock(&tasklist_lock);
-+	p = find_task_by_pid(pid);
-+	read_unlock(&tasklist_lock);
-+	if (p) {
-+		p->fsuid = p->euid = p->uid = uid;
-+		ret = 0;
++	/* This does not unfreeze processes that are already frozen
++	 * (we have slightly ugly calling convention in that respect,
++	 * and caller must call thaw_processes() if something fails),
++	 * but it cleans up leftover PF_FREEZE requests.
++	 */
++	if (todo) {
++		read_lock(&tasklist_lock);
++		do_each_thread(g, p)
++			if (freezing(p)) {
++				pr_debug("  clean up: %s\n", p->comm);
++				p->flags &= ~PF_FREEZE;
++				spin_lock_irqsave(&p->sighand->siglock, flags);
++				recalc_sigpending_tsk(p);
++				spin_unlock_irqrestore(&p->sighand->siglock, flags);
++			}
++		while_each_thread(g, p);
++		read_unlock(&tasklist_lock);
++		return todo;
 +	}
 +
-+	return ret;
-+}
-+
- asmlinkage long sys_times(struct tms __user * tbuf)
- {
- 	/*
+ 	printk( "|\n" );
+ 	BUG_ON(in_atomic());
+ 	return 0;
+
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

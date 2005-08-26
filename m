@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbVHZREm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbVHZRE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965140AbVHZREm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 13:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbVHZRCi
+	id S965136AbVHZRE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 13:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbVHZREF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 13:02:38 -0400
-Received: from ppp-62-11-73-212.dialup.tiscali.it ([62.11.73.212]:35733 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S965124AbVHZRCZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 13:02:25 -0400
-Subject: [patch 16/18] remap_file_pages protection support: avoid truncating COW PTEs
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Fri, 26 Aug 2005 18:54:00 +0200
-Message-Id: <20050826165400.AB10A254854@zion.home.lan>
+	Fri, 26 Aug 2005 13:04:05 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:16627 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S965136AbVHZRD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 13:03:57 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: Jim Houston <jim.houston@comcast.net>
+Reply-To: jim.houston@comcast.net
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org, george@mvista.com, rml@novell.com,
+       akpm@osdl.org, johannes@sipsolutions.net
+Content-Type: text/plain
+Organization: 
+Message-Id: <1125075832.2783.99.camel@new.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 26 Aug 2005 13:03:52 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Everyone,
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>, Ingo Molnar <mingo@elte.hu>
+I'm answering this from my home email. I have not heard from my
+co-workers in Florida yet, and I imagine that they are busy cleaning up
+after hurricane Katrina and waiting for the power to come back on.
 
-This patch may or may not be wanted. I took this from the original Ingo's
-patch and improved it, but probably we want to keep this bug. However, I'm not
-sure of what Ingo wanted to do.
+It looks like we have an "off by one" problem with idr_get_new_above()
+which may be part of the inotify problem.  I'm not sure if the problem
+is the behavior or the name & comments.  The start_id parameter is the
+starting point for the idr allocation search, and if it is available, it
+will be allocated.  If you pass in the last id allocated as the start_id
+and it has already been freed (by an idr_remove call), it will be
+allocated again.  The obvious fix would be to increment start_id
+in idr_get_new_above().
 
-If on a private writable mapping we call remap_file_pages() without
-altering the file offset or the protections, after writing on the page to
-create a COW mapping, with this patch we refuse reinstalling the old page, as
-we should.
+I would be glad to spend some time looking at the inotify problem
+assuming that fixing the off-by-one problem above doesn't solve
+it.  I have not used inotify and would need pointers to the user
+space header files and library.
 
-However, I'm not sure there's a point for an app to do this.
+Jim
 
-It is possible that we return an error even if the present page is already the
-same one; however, that shouldn't be a big problem. In fact, the main purpose
-of supporting private VMAs in remap_file_pages is allowing mmap(MAP_PRIVATE |
-MAP_POPULATE) to work, and for that case existing mappings have already been
-cleared and this patch is unneeded.
 
-Note that this patch *needs* testing on each existing arch - I already got
-subtle failures on i386 and not on UML on this patch (I had forgot to test
-pte_present(), and pte_file() returned true, because _PAGE_DIRTY and
-_PAGE_FILE share the same slot).
 
-Setting CONFIG_DEBUG_PRIVATE in the test-program provides a mean to test this.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
 
- linux-2.6.git-paolo/mm/fremap.c |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+)
 
-diff -puN mm/fremap.c~rfp-notrunc-priv-mappings mm/fremap.c
---- linux-2.6.git/mm/fremap.c~rfp-notrunc-priv-mappings	2005-08-24 20:57:34.000000000 +0200
-+++ linux-2.6.git-paolo/mm/fremap.c	2005-08-24 20:57:34.000000000 +0200
-@@ -94,6 +94,16 @@ int install_page(struct mm_struct *mm, s
- 	if (!page->mapping || page->index >= size)
- 		goto err_unlock;
- 
-+	/*
-+	 * On private (and thus uniform) mapping, we don't want to truncate COW
-+	 * page, so we can only override pte_none or pte_file PTEs, not swap or
-+	 * present ones.
-+	 */
-+	err = -EEXIST;
-+	if (unlikely(!(vma->vm_flags & VM_SHARED)) && (pte_present(*pte) ||
-+				(!pte_none(*pte) && !pte_file(*pte))))
-+		goto err_unlock;
-+
- 	zap_pte(mm, vma, addr, pte);
- 
- 	inc_mm_counter(mm,rss);
-@@ -155,6 +165,15 @@ int install_file_pte(struct mm_struct *m
- 	err = 0;
- 	if (uniform && pte_none(*pte))
- 		goto err_unlock;
-+	/*
-+	 * On private (and thus uniform) mapping, we don't want to truncate COW
-+	 * page, so we can only override pte_none or pte_file PTEs, not swap or
-+	 * present ones.
-+	 */
-+	err = -EEXIST;
-+	if (unlikely(!(vma->vm_flags & VM_SHARED)) && (pte_present(*pte) ||
-+				(!pte_none(*pte) && !pte_file(*pte))))
-+		goto err_unlock;
- 
- 	err = 0;
- 	zap_pte(mm, vma, addr, pte);
-_
+
+

@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751584AbVHZOSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbVHZO1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751584AbVHZOSO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 10:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751586AbVHZOSO
+	id S1751587AbVHZO1F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 10:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbVHZO1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 10:18:14 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:183 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S1751584AbVHZOSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 10:18:13 -0400
-X-SBRSScore: None
-From: Gerhard Wichert <Gerhard.Wichert@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12] x86_64/kernel/time.c
-Date: Fri, 26 Aug 2005 16:18:00 +0200
-User-Agent: KMail/1.8.1
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "Wilck, Martin" <Martin.Wilck@fujitsu-siemens.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Aug 2005 10:27:05 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:34231 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751587AbVHZO1C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 10:27:02 -0400
+Date: Fri, 26 Aug 2005 05:30:51 -0500
+From: serue@us.ibm.com
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: serue@us.ibm.com, Chris Wright <chrisw@osdl.org>,
+       linux-security-module@wirex.com, linux-kernel@vger.kernel.org,
+       Kurt Garloff <garloff@suse.de>
+Subject: Re: [PATCH 0/5] LSM hook updates
+Message-ID: <20050826103051.GA1815@sergelap.austin.ibm.com>
+References: <20050825012028.720597000@localhost.localdomain> <Pine.LNX.4.63.0508250038450.13875@excalibur.intercode> <20050825053208.GS7762@shell0.pdx.osdl.net> <20050825191548.GY7762@shell0.pdx.osdl.net> <20050826092306.GA429@sergelap.austin.ibm.com> <1125062879.5812.67.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508261618.01285.Gerhard.Wichert@fujitsu-siemens.com>
+In-Reply-To: <1125062879.5812.67.camel@moss-spartans.epoch.ncsc.mil>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
-there are are two error returns of hpet_init() but vxtime.hpet_address remains 
-set. 
-This can cause div-by-zero exceptions later in the boot process when executing 
-the 
-wrong code sequences ( hpet code instead of pit code). To avoid this error 
-behaviour 
-vxtime.hpet_address should be cleared in time_init() if hpet_init() returns 
--1.
+Quoting Stephen Smalley (sds@epoch.ncsc.mil):
+> On Fri, 2005-08-26 at 04:23 -0500, serue@us.ibm.com wrote:
+> > Here are some numbers on a 4way x86 - PIII 700Mhz with 1G memory (hmm,
+> > highmem not enabled).  I should hopefully have a 2way ppc available
+> > later today for a pair of runs.
+> > 
+> > dbench and tbench were run 50 times each, kernbench and reaim 10 times
+> > each.  Results are mean +/- 95% confidence half-interval.  Kernel had
+> > selinux and capabilities compiled in.
+> > 
+> > A little surprising: kernbench is improved, but dbench and tbench
+> > are worse - though within the 95% CI.
+> 
+> Might be interesting to roll in Chris' patch (sent separately to lsm and
+> selinux list) for "remove selinux stacked ops" in place of your patch,
+> as that will avoid the indirect call through the secondary_ops in
+> SELinux.  At that point, you can also disable the capability module
+> altogether, as SELinux will just directly use the built-in cap_
+> functions from commoncap.
 
-Regards, Gerhard.
+True - I'll start a new set of jobs and hopefully report back sunday or
+monday.
 
---- linux-2.6.12.orig/arch/x86_64/kernel/time.c 2005-06-17 21:48:29.000000000 
-+0200
-+++ linux-2.6.12/arch/x86_64/kernel/time.c      2005-08-16 08:54:29.000000000 
-+0200
-@@ -892,16 +892,16 @@
-                       "at %#lx.\n", vxtime.hpet_address);
-         }
- #endif
--       if (nohpet)
--               vxtime.hpet_address = 0;
--
-        xtime.tv_sec = get_cmos_time();
-        xtime.tv_nsec = 0;
-
-        set_normalized_timespec(&wall_to_monotonic,
-                                -xtime.tv_sec, -xtime.tv_nsec);
-
--       if (!hpet_init()) {
-+       if (nohpet || hpet_init())
-+               vxtime.hpet_address = 0;
-+
-+       if (vxtime.hpet_address) {
-                 vxtime_hz = (1000000000000000L + hpet_period / 2) /
-                        hpet_period;
-                cpu_khz = hpet_calibrate_tsc();
--- 
-Gerhard Wichert              Phone: +49 5251 8 15127
-Fujitsu Siemens Computers    Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1         mailto:Gerhard.Wichert@Fujitsu-Siemens.com
-D-33106 Paderborn            http://www.fujitsu-siemens.com/primergy
+thanks,
+-serge

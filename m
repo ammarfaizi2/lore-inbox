@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbVHZQVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbVHZQ1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbVHZQVk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 12:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbVHZQVk
+	id S965098AbVHZQ1O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 12:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbVHZQ1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 12:21:40 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9231 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965099AbVHZQVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 12:21:39 -0400
-Date: Fri, 26 Aug 2005 18:21:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Danial Thom <danial_thom@yahoo.com>
+	Fri, 26 Aug 2005 12:27:14 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:6096 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965098AbVHZQ1N convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 12:27:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=DgxBEf8Qr6Y6IexbRwEfD6IbpaevAJl2+Awd8WL+LPHJiSx4QNJjXp01GNN8t/lnEnDU0xupl7IfcCfCjv6C8wQWziheh/oO/jHUshlJ95gdw0OMcOmq/zFRowGy7RIcdbpgTDE8bWU2kUz+UiGgxk2EuuQph//lAHU9qWP0+RI=
+Date: Fri, 26 Aug 2005 18:27:03 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Justin Heesemann <jh@ionium.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 Performance problems
-Message-ID: <20050826162132.GH6471@stusta.de>
-References: <20050826131750.GG6471@stusta.de> <20050826153414.9643.qmail@web33308.mail.mud.yahoo.com>
+Subject: Re: extremely slow disk access due to mremap?
+Message-Id: <20050826182703.9c0217f3.diegocg@gmail.com>
+In-Reply-To: <200508261709.58671.jh@ionium.org>
+References: <200508261709.58671.jh@ionium.org>
+X-Mailer: Sylpheed version 2.1.1+svn (GTK+ 2.6.8; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050826153414.9643.qmail@web33308.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 26, 2005 at 08:34:14AM -0700, Danial Thom wrote:
+El Fri, 26 Aug 2005 17:09:58 +0200,
+Justin Heesemann <jh@ionium.org> escribió:
+
+> finally i found a good reproducable way to test this behavior:
 > 
-> --- Adrian Bunk <bunk@stusta.de> wrote:
-> > 
-> > That's not always true.
-> > 
-> > Imagine a slow computer with a GBit ethernet
-> > connection, where the user 
-> > is downloading files from a server that can
-> > utilize the full 
-> > network connection while listening to music
-> > from his local disk with 
-> > XMMS.
-> > 
-> > In this case, the audio stream is not depending
-> > on the network 
-> > connection. And the user might prefer dropped
-> > packages over a stuttering 
-> > XMMS.
+> # time grep ^....$ /usr/share/dict/words > /dev/null
+> 
+> real    0m7.728s
+> user    0m7.713s
+> sys     0m0.011s
 
-> Audio connections are going to be windowed/flowed
-> in some way (thats how the internet works) so
->...
+The problem seems (IMO) to be in userspace, your software seems to be doing
+too much stuff for no good reason. If grep calls mremap() too many times
+that's their problem; and even if it's doing that, the kernel is doing the
+mremap() stuff quite fast
 
-I was talking about an audio stream coming from a file on the
-"local disk", IOW something like an mp3 file.
+> the funny thing is: if i don't grep for a regexp, it's working fine:
+> # grep asdf /usr/share/dict/words
+[...]
+> since right now i'm out of ideas what to look for next, could you please 
+> help me?
 
-But the most interesting thing about your email is not what you were 
-answering to, but which part of my email you silently omitted. Since you 
-are not answering questions that might help to debug the problem you 
-claim to have, it seems your intention is not getting a Linux problem 
-fixed...
-
-> DT
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Maybe a bug in the regexp code in your /bin/grep? Are you using
+different distro/versions in your two boxes?
 

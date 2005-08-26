@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbVHZXXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbVHZXZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965099AbVHZXXx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 19:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbVHZXXx
+	id S965165AbVHZXZv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 19:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbVHZXZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 19:23:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47009 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965099AbVHZXXw (ORCPT
+	Fri, 26 Aug 2005 19:25:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:30697 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965108AbVHZXZu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 19:23:52 -0400
-Date: Fri, 26 Aug 2005 16:23:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-cc: Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Ray Fucillo <fucillo@intersystems.com>, linux-kernel@vger.kernel.org
-Subject: Re: process creation time increases linearly with shmem
-In-Reply-To: <Pine.LNX.4.63.0508261910080.8057@cuia.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0508261621410.3317@g5.osdl.org>
-References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au>
- <Pine.LNX.4.63.0508251331040.25774@cuia.boston.redhat.com>
- <430E6FD4.9060102@yahoo.com.au> <Pine.LNX.4.58.0508252055370.3317@g5.osdl.org>
- <Pine.LNX.4.61.0508261220230.4697@goblin.wat.veritas.com>
- <Pine.LNX.4.58.0508261052330.3317@g5.osdl.org>
- <Pine.LNX.4.61.0508261917360.8477@goblin.wat.veritas.com>
- <Pine.LNX.4.63.0508261910080.8057@cuia.boston.redhat.com>
+	Fri, 26 Aug 2005 19:25:50 -0400
+Date: Fri, 26 Aug 2005 16:05:50 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Rusty Lynch <rusty.lynch@intel.com>
+cc: linux-mm@kvack.org, prasanna@in.ibm.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com
+Subject: Re:[PATCH] Only process_die notifier in ia64_do_page_fault if KPROBES
+ is configured.
+In-Reply-To: <200508262246.j7QMkEoT013490@linux.jf.intel.com>
+Message-ID: <Pine.LNX.4.62.0508261559450.17433@schroedinger.engr.sgi.com>
+References: <200508262246.j7QMkEoT013490@linux.jf.intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 26 Aug 2005, Rusty Lynch wrote:
 
+> Just to be sure everyone understands the overhead involved, kprobes only 
+> registers a single notifier.  If kprobes is disabled (CONFIG_KPROBES is
+> off) then the overhead on a page fault is the overhead to execute an empty
+> notifier chain.
 
-On Fri, 26 Aug 2005, Rik van Riel wrote:
-> On Fri, 26 Aug 2005, Hugh Dickins wrote:
-> 
-> > Well, I still don't think we need to test vm_file.  We can add an
-> > anon_vma test if you like, if we really want to minimize the fork
-> > overhead, in favour of later faults.  Do we?
-> 
-> When you consider NUMA placement (the child process may
-> end up running elsewhere), allocating things like page
-> tables lazily may well end up being a performance win.
-
-It should be easy enough to benchmark something like kernel compiles etc, 
-which are reasonably fork-rich and should show a good mix for something 
-like this. Or even just something like "time to restart a X session" after 
-you've brought it into memory once.
-
-		Linus
+Its the overhead of using registers to pass parameters, performing a 
+function call that does nothing etc. A waste of computing resources. All 
+of that unconditionally in a performance critical execution path that 
+is executed a gazillion times for an optional feature that I frankly 
+find not useful at all and that is disabled by default.

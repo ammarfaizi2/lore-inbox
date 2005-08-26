@@ -1,90 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbVHZQxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbVHZQx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965107AbVHZQxU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 12:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbVHZQxU
+	id S965110AbVHZQx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 12:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbVHZQx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 12:53:20 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:4805 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965107AbVHZQxT (ORCPT
+	Fri, 26 Aug 2005 12:53:57 -0400
+Received: from gromit.tds.de ([193.28.97.130]:3288 "EHLO gromit.tds.de")
+	by vger.kernel.org with ESMTP id S965110AbVHZQx4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 12:53:19 -0400
-Date: Fri, 26 Aug 2005 09:48:29 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Alex Williamson <alex.williamson@hp.com>
-cc: linux@horizon.com, linux-kernel@vger.kernel.org
-Subject: Re: Need better is_better_time_interpolator() algorithm
-In-Reply-To: <1125011270.5331.122.camel@tdi>
-Message-ID: <Pine.LNX.4.62.0508260934050.14940@schroedinger.engr.sgi.com>
-References: <20050825214029.21209.qmail@science.horizon.com>
- <1125011270.5331.122.camel@tdi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 Aug 2005 12:53:56 -0400
+Date: Fri, 26 Aug 2005 18:53:43 +0200
+From: Tim Weippert <weiti@security.tds.de>
+To: linux-kernel@vger.kernel.org
+Subject: Bad page state on AMD Opteron Dual System with kernel 2.6.13-rc6-git13
+Message-ID: <20050826165342.GA11796@pbkg4>
+Reply-To: Tim Weippert <weiti@security.tds.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Organization: TDS Informationstechnologie AG
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Aug 2005, Alex Williamson wrote:
 
->    I don't really know if this makes sense, but it seems to do what I
-> think it should.  If I where to add another node to the system, I would
-> more strongly favor the HPETs time, if I removed a node I would revert
-> to the cycle counter.  Anyway, I think it might be a good starting point
-> for further experimentation.  Patch below.
+Hi there, 
+
+i have read some postings concerning the following Kernel Messages:
+
+Aug 26 18:04:01 montdsnsu3 kernel: grep[11619] general protection
+rip:2aaaaaaaed43 rsp:7fffff9c0740 error:0
+Aug 26 18:08:02 montdsnsu3 kernel: ping[14867] general protection
+rip:2aaaaaaaed43 rsp:7fffffdbf300 error:0
+Aug 26 18:08:03 montdsnsu3 kernel: grep[14987] general protection
+rip:2aaaaaaaed43 rsp:7fffffdbfce0 error:0
+Aug 26 18:08:03 montdsnsu3 kernel: grep[15041] general protection
+rip:2aaaaaaaed43 rsp:7fffff9bf550 error:0
+
+And the Bad Page State Messages:
+
+Bad page state at prep_new_page (in process 'sh', page ffff8100011a69c8)
+flags:0x0100000000000014 mapping:0000000000000000 mapcount:-3 count:0
+Backtrace:
+
+Call Trace:<ffffffff8015a653>{bad_page+99}
+<ffffffff8015aa31>{prep_new_page+65}
+       <ffffffff8015b1e2>{buffered_rmqueue+306}
+<ffffffff8015b425>{__alloc_pages+261}
+       <ffffffff8015b7c5>{get_zeroed_page+37}
+<ffffffff801691b7>{__pmd_alloc+55}
+       <ffffffff8016614e>{copy_page_range+462}
+<ffffffff80131da4>{copy_mm+820}
+       <ffffffff80132cba>{copy_process+2282}
+<ffffffff80133407>{do_fork+215}
+       <ffffffff8010db7a>{system_call+126}
+<ffffffff8010deeb>{ptregscall_common+103}
+       
+Trying to fix it up, but a reboot is needed
+
+I have the same issues on an SUN V20z with an dual opteron 248.
+
+montdsnsu3:~# lspci
+0000:00:06.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8111 PCI (rev
+07)
+0000:00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-8111 LPC (rev
+05)
+0000:00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-8111 IDE
+(rev 03)
+0000:00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-8111 ACPI (rev 05)
+0000:00:0a.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X
+Bridge (rev 12)
+0000:00:0a.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev
+01)
+0000:00:0b.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X
+Bridge (rev 12)
+0000:00:0b.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev
+01)
+0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:19.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:19.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:19.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:19.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:01:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB
+(rev 0b)
+0000:01:00.1 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB
+(rev 0b)
+0000:01:05.0 VGA compatible controller: Trident Microsystems Blade 3D
+PCI/AGP (rev 3a)
+0000:02:02.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704
+Gigabit Ethernet (rev 03)
+0000:02:02.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704
+Gigabit Ethernet (rev 03)
+0000:02:04.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030
+PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 08)
 
 
-Adding a node to the time interpolator does not make much sense since time 
-needs to be universally accessible in order to be comparable. Unless you 
-want to use the time interpolator time source as an interrupt source
-then you may want to change the node that the timer interrupt runs on.
+With the running kernel i get 2 kernel panics within the last week and
+the machine crash totally.
 
-Some time source like the Altix RTC are not bound to any node but are 
-available with a node local mmio instruction. There is no way to assign a 
-node number to it.
+I would like to offer my help if i can do anything in debugging this or
+deal with more informations to fix this issue.
 
-Moreover you may derive the node number from the mmio address if the need 
-really arises.
+HTH, 
 
-Also the latency is only a minor criterion in the determination of the 
-most suitable clock. More important are the clock characteristics like
-consistency over multiple processors, or the distribution of the timer.
+    weiti
 
-One does not want a clock that is not consistent over multiple processors 
-regardless of the latency. A distributed timer wins over a low latency 
-timer on a node in a NUMA system.
+-- 
 
-I think it would be best add some flags that describe
+Interpunktion und Orthographie dieser Email ist frei erfunden.
+Eine Übereinstimmung mit aktuellen oder ehemaligen Regeln
+wäre rein zufällig und ist nicht beabsichtigt.
 
-1. The consistency scope of the time source
-   i.e. TIME_SOURCE_SYNC_PROCESSOR	
-		Access to the time source yields a processor local
-		result
-	TIME_SOURCE_SYNC_NODE
-		Access to the time source yields a result that is the same
-		for all processors on the same node
-	TIME_SOURCE_SYNC_GLOBAL
-		Access to the time source yields a globally consistent
-		result
-
-2. The locality of the time source
-   TIME_SOURCE_IN_PROCESSOR	->	Processor is the time source
-   TIME_SOURCE_DISTRIBUTED	->	Distributed time source
-   TIME_SOURCE_NODE		->	memory mapped time source on a 
-node.
-
-Then the ITC would be configured as
-	TIME_SOURCE_SYNC_PROCESSOR | TIME_SOURCE_IN_PROCESSOR
-
-If the ITC is syncd up per node
-	TIME_SOURCE_SYNC_NODE | TIME_SOURCE_IN_PROCESSOR
-
-If this is an SMP system then it may even be
-	TIME_SOURCE_SYNC_GLOBAL | TIME_SOURCE_IN_PROCESSOR
-
-For HPET this would be
-	TIME_SOURCE_SYNC_GLOBAL | TIME_SOURCE_NODE
-
-For Altix RTC
-	TIME_SOURCE_SYNC_GLOBAL | TIME_SOURCE_DISTRIBUTED
-
-Hope this makes sense.
-
+Tim Weippert <weiti@topf-sicret.org>
+http://www.topf-sicret.org/

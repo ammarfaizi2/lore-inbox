@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751516AbVHZKhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbVHZKpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751516AbVHZKhm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 06:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbVHZKhm
+	id S1751514AbVHZKpG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 06:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbVHZKpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 06:37:42 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:22086 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751074AbVHZKhm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 06:37:42 -0400
-Date: Fri, 26 Aug 2005 12:37:40 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Alan Jenkins <sourcejedi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Initramfs and TMPFS!
-Message-ID: <20050826103740.GB28640@harddisk-recovery.com>
-References: <1124996732.5848.9.camel@singularity.jenkins>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1124996732.5848.9.camel@singularity.jenkins>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+	Fri, 26 Aug 2005 06:45:06 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:17935 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
+	id S1751514AbVHZKpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 06:45:05 -0400
+Date: Fri, 26 Aug 2005 11:37:00 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: Andy Isaacson <adi@hexapodia.org>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: question on memory barrier
+In-Reply-To: <20050826072129.71855.qmail@web25802.mail.ukl.yahoo.com>
+Message-ID: <Pine.LNX.4.61L.0508261125160.9561@blysk.ds.pg.gda.pl>
+References: <20050826072129.71855.qmail@web25802.mail.ukl.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 08:05:32PM +0100, Alan Jenkins wrote:
-> > On Thu, Aug 25, 2005 at 12:32:50AM -0400, robo...@godmail.com wrote: 
-> > > Right, but it would be nice to have that option if initramfs 
-> > > using tmpfs becomes part of the kernel. 
-> > 
-> > But it's not needed so why add bloat? 
-> 
-> I'm not subscribed, so sorry if this doesn't fall into the original
-> thread.  I'm curious as to why the kernel has to include the decoder -
-> why you can't just run a self-extracting executable in an empty
-> initramfs (with a preset capacity if needs be).
+On Fri, 26 Aug 2005, moreau francis wrote:
 
-How would that help? It's still a decoder in the kernel, so why not use
-one that's well tested instead of using whatever the archive thinks is
-good?
+> I don't think that MIPS cpu reorder memory access, but gcc can ! And I
+> don't think that the use of 'volatile' can prevent it to do that.
 
-Also remember the code has to be cross platform: an in-kernel decoder
-will just work on any platform, a self-extracting binary will probably
-only work on one platform.
+ Well, certain MIPS implementations may merge multiple uncached writes in 
+the writeback buffer, e.g. writes to different bytes within a single 
+aligned word.  This is true for consecutive writes; I'm not sure this 
+permits jumping the writeback queue, though.
 
-Besides, initramfs was made to set up userland. A self-extracting
-binary creates a chicken-and-egg problem: when run it will create a
-userland, but in order to be run it needs a userland.
+> > To return to the point directly at hand - on MIPS architectures to date,
+> > simply doing your memory access through a "volatile u32 *" is sufficient
+> > to ensure that the IO hits the bus (assuming that your pointer points to
+> > kseg1, not kseg0, or is otherwise uncached), because 'volatile' forces
+> > gcc to generate a "sw" for each store, and all MIPS so far have been
+> > designed so that multiple uncached writes to mmio locations do generate
+> > multiple bus transactions.
 
+ Unfortunately this is not true -- see above.  This is why even wmb() 
+isn't a no-op on MIPS.
 
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+  Maciej

@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbVHZR4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbVHZR75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbVHZR4s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 13:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbVHZR4s
+	id S965152AbVHZR75 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 13:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965153AbVHZR75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 13:56:48 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:61629 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S965151AbVHZR4r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 13:56:47 -0400
-Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: jim.houston@comcast.net, linux-kernel@vger.kernel.org, george@mvista.com,
-       akpm@osdl.org, johannes@sipsolutions.net
-In-Reply-To: <1125078764.13243.6.camel@vertex>
-References: <1125075832.2783.99.camel@new.localdomain>
-	 <1125078764.13243.6.camel@vertex>
-Content-Type: text/plain
-Date: Fri, 26 Aug 2005 13:56:45 -0400
-Message-Id: <1125079005.18155.57.camel@betsy>
+	Fri, 26 Aug 2005 13:59:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:964 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965152AbVHZR74 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 13:59:56 -0400
+Date: Fri, 26 Aug 2005 10:59:52 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Tony Jones <tonyj@suse.de>
+Cc: Chris Wright <chrisw@osdl.org>, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>
+Subject: Re: [PATCH 2/5] Rework stubs in security.h
+Message-ID: <20050826175952.GP7762@shell0.pdx.osdl.net>
+References: <20050825012028.720597000@localhost.localdomain> <20050825012148.690615000@localhost.localdomain> <20050826173151.GA1350@immunix.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050826173151.GA1350@immunix.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 13:52 -0400, John McCutchan wrote:
+* Tony Jones (tonyj@suse.de) wrote:
+> The discussion about composing with commoncap made me think about whether
+> this is the best way to do this.   It seems that we're heading towards a
+> requirement that every module internally compose with commoncap.  
 
-> Thanks for your suggestion, it has fixed the inotify problem. But where
-> to put the fix is turning into a bit of a mess. Some callers like
-> drivers/md/dm.c:682 call idr_get_new_above as if it will return >=
-> starting_id. The comment says that it will return > starting_id, and the
-> function name leads people to believe the same thing. In the patch below
-> I change inotify do add one to the value was pass into idr. I also
-> change the comment to more accurately reflect what the function does.
-> The function name doesn't fit, but it never did.
+Not a requirement, it's a choice ATM.
+
+> If so (apart from the obvious correctness issues when they don't) it's work
+> for each module and composing N of them under stacker obviously creates 
+> overhead.
 > 
-> Signed-off-by: John McCutchan <ttb@tentacle.dhs.org>
-
-Signed-off-by: Robert Love <rml@novell.com>
-
-Keeping the current behavior is probably the best way to go.
-
-	Robert Love
-
-> Index: linux/fs/inotify.c
-> ===================================================================
-> --- linux.orig/fs/inotify.c	2005-08-26 13:38:29.000000000 -0400
-> +++ linux/fs/inotify.c	2005-08-26 13:38:55.000000000 -0400
-> @@ -353,7 +353,7 @@
->  	do {
->  		if (unlikely(!idr_pre_get(&dev->idr, GFP_KERNEL)))
->  			return -ENOSPC;
-> -		ret = idr_get_new_above(&dev->idr, watch, dev->last_wd, &watch->wd);
-> +		ret = idr_get_new_above(&dev->idr, watch, dev->last_wd+1, &watch->wd);
->  	} while (ret == -EAGAIN);
->  
->  	return ret;
-> Index: linux/lib/idr.c
-> ===================================================================
-> --- linux.orig/lib/idr.c	2005-08-26 13:38:22.000000000 -0400
-> +++ linux/lib/idr.c	2005-08-26 13:39:08.000000000 -0400
-> @@ -207,7 +207,7 @@
->  }
->  
->  /**
-> - * idr_get_new_above - allocate new idr entry above a start id
-> + * idr_get_new_above - allocate new idr entry above or equal to a start id
->   * @idp: idr handle
->   * @ptr: pointer you want associated with the ide
->   * @start_id: id to start search at
+> Would the following not be a better approach?
 > 
+> static inline int security_ptrace (struct task_struct * parent, struct task_struct * child)
+> {
+> int ret;
+> 	ret=cap_ptrace (parent, child);
+> #ifdef CONFIG_SECURITY
+> 	if (!ret && security_ops->ptrace)
+> 		ret=security_ops->ptrace(parent, child);
+> #endif
+> 	return ret;
+> }
 
+Heh, this was next on my list.  I just wanted to separate the changes to
+one at a time so we can easily measure the impact.  This becomes another
+policy shift.
+
+> If every module is already internally composing, there shouldn't be a 
+> performance cost for the additional branch inside the #ifdef.
+
+This needs measurement to verify.
+
+> I havn't looked at every single hook and it's users to see if this would
+> cause a problem.  I noticed SELinux calls sec->capget() post rather than pre 
+> it's processing which may be an issue.
+
+Yes, that need careful inspection.
+
+thanks,
+-chris

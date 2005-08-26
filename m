@@ -1,55 +1,50 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbVHYSs0 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 25 Aug 2005 14:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVHYSsZ
+	id S1751603AbVHZW2i (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 26 Aug 2005 18:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751605AbVHZW2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 14:48:25 -0400
-Received: from [219.133.6.233] ([219.133.6.233]:21005 "HELO 202.96.154.15")
-	by vger.kernel.org with SMTP id S932298AbVHYSsZ (ORCPT
+	Fri, 26 Aug 2005 18:28:38 -0400
+Received: from vsmtp12.tin.it ([212.216.176.206]:58805 "EHLO vsmtp12.tin.it")
+	by vger.kernel.org with ESMTP id S1751603AbVHZW2h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 14:48:25 -0400
-Message-ID: <22YhR4wFhNEnQm@ksts.seed.net.tw>
-From: 1JSfZzTbogVj@tpts8.seed.net.tw
-To: Uzs9@titan.seed.net.tw
-Subject: =?ISO-8859-1?Q?=20=D4=DA=CF=DF=D3=CE=CF=B7=D3=E9=C0=D6=BF=A8=CF=FA?=
-	=?ISO-8859-1?Q?=CA=DB=C6=BD=CC=A8,=D3=C5=BB=DD=CF=FA=CA=DB?=
-Content-Type: text/plain;
-Content-Transfer-Encoding: Quoted-Printable
-X-Priority: 3
-X-MSMail-Priority: Normal
-Date: Thu, 25 Aug 2005 14:48:25 -0400
+	Fri, 26 Aug 2005 18:28:37 -0400
+Message-ID: <28253114.1125095195347.JavaMail.root@pswm14.cp.tin.it>
+Date: Fri, 26 Aug 2005 23:26:35 +0100 (GMT+01:00)
+From: VIERA FORD <viera_ford@virgilio.it>
+Reply-To: vieraford2008@yahoo.com
+Subject: confidential
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: 80.255.40.201
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932456AbVHYSs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751603AbVHZW2i@vger.kernel.org>
 
-=D4=DA=CF=DF=B2=E2=CA=D4=B5=D8=D6=B7=A1=A1http://ltsoft.88ip.cn/gamecard.htm
-=C1=AA=CF=B5=C8=CB:=C0=EE=CC=CE =B5=E7=BB=B0:086-755-61325215  QQ:17133845
-
-=C1=A6=CC=EC=D3=CE=CF=B7=B5=E3=BF=A8=CF=FA=CA=DB=B9=BA=CE=EF=C6=BD=CC=A8=CA=C7=D2=BB=CC=D7=BC=AF=CD=F8=C9=CF=CF=FA=CA=DB=D3=CE=CF=B7=A1=A2=D3=E9=C0=D6=B5=C8=B8=F7=D6=D6=CA=B5=CE=EF=BF=A8=B5=C4=CF=FA=CA=DB=B9=DC=C0=ED=CF=B5=CD=B3=A1=A3
-=BE=AD=D3=AA=D5=DF=BD=AB=B8=F7=D6=D6=CA=B5=CE=EF=BF=A8=D0=C5=CF=A2=CA=C2=CF=C8=C2=BC=C8=EB=B5=BD=CF=B5=CD=B3=A3=AC=D2=D4=D4=DA=CF=DF=D0=E9=C4=E2=BD=BB=D2=D7=B5=C4=B7=BD=CA=BD=A3=AC=BF=EC=CB=D9=CD=EA=B3=C9=D3=CE=CF=B7=CD=E6=BC=D2
-=B5=C4=B9=BA=BF=A8=A1=A2=B3=E4=D6=B5=B9=FD=B3=CC=A1=A3
-=BF=C9=D2=D4=C3=E6=CF=F2=B8=F7=CD=F8=B0=C9=BB=F2=CD=E6=BC=D2=B5=C8=CD=EA=B3=C9=CF=FA=CA=DB=BC=B0=B9=DC=C0=ED=B5=C4=B9=A6=C4=DC=A1=A3
-
-=BE=AD=D3=AA=CD=F8=D5=BE=D5=DF=BF=C9=D2=D4=B4=D3=C6=E4=CB=FB=B4=A6=C5=FA=B7=A2=B9=BA=C2=F2=B5=E3=BF=A8=A3=AC=C8=BB=BA=F3=C2=BC=C8=EB=B5=BD=B1=BE=CF=B5=CD=B3=D6=D0=A3=AC=CD=F8=B0=C9=B5=C8=C6=E4=CB=FB=D6=B1=CF=FA=C9=CC=BF=C9=D2=D4
-=C3=E2=B7=D1=D7=A2=B2=E1=A3=AC=B2=A2=D6=A7=B8=B6=C4=FA=D2=BB=B6=A8=B5=C4=D4=A4=B8=B6=BF=EE=A3=AC=B5=B1=D3=CE=CF=B7=CD=E6=BC=D2=D0=E8=D2=AA=B9=BA=C2=F2=B5=E3=BF=A8=CA=B1=A3=AC=CD=F8=B0=C9=B5=C8=C6=E4=CB=FB=D6=B1=CF=FA=D5=DF=D7=F7
-=CE=AA=D6=B1=CF=FA=C9=CC=BF=C9=D2=D4=D6=B1=BD=D3=CD=A8=B9=FD=CD=F8=D5=BE=B4=FA=CE=AA=C6=E4=B9=BA=C2=F2=A3=AC=B2=A2=B4=D3=C6=E4=D4=A4=B8=B6=BF=EE=D6=D0=BF=DB=B3=FD=CF=E0=D3=A6=B5=C4=BD=F0=B6=EE=A1=A3
- 
-=D5=E2=D6=D6=CF=FA=CA=DB=B7=BD=CA=BD=B6=D4=D3=DA=B4=AB=CD=B3=B5=C4=CF=FA=CA=DB=CA=B5=CE=EF=BF=A8=CA=C7=D2=BB=B8=F6=BE=DE=B4=F3=B5=C4=B3=E5=BB=F7=A3=AC=D2=B2=B7=C7=B3=A3=CA=CA=D3=A6=D3=CE=CF=B7=CD=E6=BC=D2=BF=EC=CB=D9=A1=A2=B1=E3
-=BD=DD=B5=C4=D3=CE=CF=B7=D0=E8=C7=F3=A3=AC=C4=BF=C7=B0=CA=D0=B3=A1=C7=B1=BB=FA=BE=DE=B4=F3=A3=AC=B6=F8=C7=D2=B2=D9=D7=F7=C6=F0=C0=B4=BC=F2=B5=A5=A1=A2=B7=BD=B1=E3=A3=AC=C9=EE=CA=DC=B4=F3=BC=D2=B5=C4=BB=B6=D3=AD=A3=AC=D3=B5=D3=D0
-=D2=BB=CC=D7=D4=DA=CF=DF=CF=FA=CA=DB=CF=B5=CD=B3=A3=AC=BF=C9=D2=D4=D4=DA=BC=D2=D7=F6=C0=CF=B0=E5=A3=A1 
-
-=B8=C3=CF=B5=CD=B3=D3=D0=D2=D4=CF=C2=D6=F7=D2=AA=B9=A6=C4=DC=A3=BA
-
-1:=D6=B1=CF=FA=C9=CC=D7=A2=B2=E1=B5=C7=C2=BC=CF=B5=CD=B3=A3=AC=BD=A8=C1=A2=CD=EA=D5=FB=B5=C4=D6=B1=CF=FA=C9=CC=D7=CA=C1=CF=BF=E2
-2:=C9=CC=C6=B7=B7=D6=C0=E0=A1=A2=B7=D6=BC=B6=A3=AC=BF=C9=D2=D4=CF=FA=CA=DB=B8=F7=D6=D6=D3=CE=CF=B7=A1=A2=D3=E9=C0=D6=BF=A8=A3=AC=C9=F5=D6=C1=B5=E7=BB=B0=BF=A8=B5=C8
-3:=B7=BD=B1=E3=BC=F2=BD=E0=B5=C4=B9=BA=BF=A8=A1=A2=CF=D4=CA=BE=BF=A8=BA=C5=C1=F7=B3=CC 
-4:=D7=D4=B6=AF=B4=D3=D4=A4=B8=B6=BF=EE=D6=D0=BF=DB=B3=FD=BD=F0=B6=EE=A3=AC=D7=D4=B6=AF=CF=D4=CA=BE=BF=A8=BA=C5=B5=C8
-5:=D5=CA=BB=A7=D3=E0=B6=EE=CF=D4=CA=BE=A1=A2=CC=E1=D0=D1
-6:=C0=FA=CA=B7=B6=A9=B5=A5=B9=DC=C0=ED=A1=A2=E4=AF=C0=C0
-7:=BB=E1=D4=B1=C3=DC=C2=EB=BC=D3=C3=DC=A3=AC=D4=F6=C7=BF=CF=B5=CD=B3=B5=C4=B0=B2=C8=AB=D0=D4
-8:=D6=B1=CF=FA=C9=CC=C3=E2=B7=D1=D7=A2=B2=E1=A3=AC=CA=D5=B5=BD=D4=A4=B8=B6=BF=EE=BA=F3=C9=F3=C5=FA=B9=A6=C4=DC
-9:=C9=CC=C6=B7=B6=A9=B5=A5=C3=F7=CF=B8=C7=E5=CE=FA=A3=AC=D3=A6=B8=B6=BF=EE=CF=EE=C7=E5=B3=FE
-10:=BA=F3=CC=A8=B4=A6=C0=ED=CC=E1=B9=A9=C9=CC=C6=B7=CD=B3=BC=C6=A1=A2=B7=D6=CE=F6=C4=DC=C1=A6=A3=AC=B0=EF=D6=FA=BE=F6=B2=DF
-11:=C9=CC=C6=B7=CF=D4=CA=BE=CB=B3=D0=F2=BF=C9=D7=D4=BC=BA=C9=E8=B6=A8=A3=AC=C8=E7=B0=B4=BC=DB=B8=F1=B5=B9=D0=F2=A1=A2=C9=FD=D0=F2=A3=AC=B0=B4=B9=BA=C2=F2=C1=BF=C9=FD=D0=F2=A1=A2=B5=B9=D0=F2=B5=C8=B5=C8
-
+Dear sir/madam,
+     do accept my sincere apologies if my mail does not 
+meet your personal ethics.i will introduce myself as viera ford, a 
+staff in the accounts management section of a well-known bank here in 
+the south africa.one of our accounts with holding balance of(thirty 
+million british dollars) has been dormant and has not been operated for 
+the past 4 years.from my investigations and confirmations, the owner of 
+this account a foreigner by name 
+austin martins died in august 2000 
+and since then nobody has done anything as regards the claiming of this 
+money because he has no family members who are aware of the existence 
+of neither the account nor the funds. 
+           also information from 
+the national immigration states that he was also single on entry into 
+the sa.i have secretly discussed this matter with some of the bank 
+officials and we have agreed to find a reliable foreign partner to deal 
+with. we thus propose to do business with you, standing in as the next 
+of kin of these funds from the deceased and funds released to you after 
+due processes have been followed.
+     this transaction is totally free 
+of risk and troubles as the fund is a legitimate and does not originate 
+from drug, money laundry, terrorism or any other illegal act. on your 
+interest, let me hear from you.
+regards,
+viera
 

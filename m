@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbVHZVgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbVHZVgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbVHZVgr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 17:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbVHZVgr
+	id S1030241AbVHZVgx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 17:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbVHZVgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 17:36:47 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:42122 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965172AbVHZVgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 17:36:46 -0400
-Subject: Re: 2.6.13-rc7-rt3 compile fix
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <430F86E7.9020605@cybsft.com>
-References: <430F86E7.9020605@cybsft.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 26 Aug 2005 17:36:37 -0400
-Message-Id: <1125092197.5365.50.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Aug 2005 17:36:53 -0400
+Received: from lucidpixels.com ([66.45.37.187]:13490 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S965173AbVHZVgw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 17:36:52 -0400
+Date: Fri, 26 Aug 2005 17:36:51 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-kernel@vger.kernel.org
+Subject: Kernel/Box Freezes Under Kernel 2.6.12.5
+Message-ID: <Pine.LNX.4.63.0508261733400.363@p34>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 16:17 -0500, K.R. Foley wrote:
-> 2.6.13-rc7-rt3 won't compile without the simple patch below.
->  
--       __raw_spin_lock(old_owner->task->pi_lock);
-+       __raw_spin_lock(&old_owner->task->pi_lock);
-        TRACE_WARN_ON_LOCKED(plist_empty(&waiter->pi_list));
-        TRACE_WARN_ON_LOCKED(lock_owner(lock));
- 
-@@ -683,7 +683,7 @@
-        }
-        TRACE_WARN_ON_LOCKED(1);
- ok:
--       __raw_spin_unlock(old_owner->task->pi_lock);
-+       __raw_spin_unlock(&old_owner->task->pi_lock);
-        return;
+Kernel 2.6.12.5:
+1- 400GB Seagate 8MB cache, 7200RPM, ATA/100 drive.
+2- ATA/133 Maxtor (ATA/Promise Controller)
 
+1) Attached 400GB to Seagate 400GB drive.
+2) (Not mounted yet)
+3) See below
 
-Oops! my bad.  I saw that needed locking, but I didn't have the tracing
-on (I was trying for internal deadlocks), so that part of the code
-wasn't compiling.  If you turn off tracing it would compile :-)
+hde: 781422768 sectors (400088 MB) w/8192KiB Cache, CHS=48641/255/63, 
+UDMA(100)
 
-Anyway, the next time I modify code that's protected by ifdefs, I'll
-change my config and see at least the code compiles.
+4) Partition with fdisk (hde1).
+5) mkfs.xfs /dev/hde1
 
-Thanks,
+*** KERNEL FREEZE *** (ENTIRE MACHINE LOCKS UP)
 
--- Steve
+Do the SAME EXACT THING on the motherboard (INTEL) controller or an 
+ATA/100 Promise Controller, there are NO problems.
 
+Either people with this problem are *not* reporting it or do not know 
+where to report the problem to.
+
+This is the second machine I have seen this problem with.
+
+Has anyone looked into this?
+
+Justin.
 

@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbVHZPe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbVHZPkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965079AbVHZPe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 11:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbVHZPe2
+	id S965081AbVHZPkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 11:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbVHZPkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 11:34:28 -0400
-Received: from web33308.mail.mud.yahoo.com ([68.142.206.123]:33967 "HELO
-	web33308.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965079AbVHZPe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 11:34:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=G3C5miNmvxc9okDSM4tpxoJY5B8WLh+VGw89bF1ALamZpXp4eHQlnlfrz5rYkeS1ibvsrC7mgYq1l4Ua9d0R9KofqQlWrcJam6TUu/l7BBv5f8OyKbEWZyR5lJ4QQcPeDLSG7NWwsVyVue1RcOXTds7lvHpjfwkRIvUti0KloNw=  ;
-Message-ID: <20050826153414.9643.qmail@web33308.mail.mud.yahoo.com>
-Date: Fri, 26 Aug 2005 08:34:14 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: 2.6.12 Performance problems
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050826131750.GG6471@stusta.de>
+	Fri, 26 Aug 2005 11:40:09 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:23260 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S965081AbVHZPkI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 11:40:08 -0400
+Date: Fri, 26 Aug 2005 08:39:49 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Alex Williamson <alex.williamson@hp.com>
+cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Need better is_better_time_interpolator() algorithm
+In-Reply-To: <1124995405.5331.90.camel@tdi>
+Message-ID: <Pine.LNX.4.62.0508260827330.14463@schroedinger.engr.sgi.com>
+References: <1124988269.5331.49.camel@tdi>  <1124991406.20820.188.camel@cog.beaverton.ibm.com>
+ <1124995405.5331.90.camel@tdi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 25 Aug 2005, Alex Williamson wrote:
 
+>    I don't know that it's that uncommon.  Simply having one non-arch
+> specific timer is enough to need to decided whether it's better than a
+> generic timer.  I assume pretty much every arch has a cycle timer.  For
+> smaller boxes, this might be the preferred timer given it's latency even
+> if something like an hpet exists (mmio access are expensive).  How do
+> you hard code a value that can account for that?  I agree, we could
+> easily go too far and produce some bloated algorithm, but maybe it's
+> simply a weighted product of a few variables.
 
---- Adrian Bunk <bunk@stusta.de> wrote:
+I think a priority is something useful for the interpolators. Some of 
+the decisions about which time sources to use also have criteria different 
+from drift/latency/jitter/cpu. F.e. timers may not survive various 
+power-saving configurations. Thus I would think that we need a priority 
+plus some flags.
 
-> On Mon, Aug 22, 2005 at 08:41:11AM -0700,
-> Danial Thom wrote:
-> >...
-> > 
-> > The issue I have with that logic is that you
-> seem
-> > to use "kernel" in a general sense without
-> regard
-> > to what its doing. Dropping packets is always
-> > detrimental to the user regardless of what
-> he's
-> > using the computer for. An audio stream that
-> > drops packets isn't going to be "smooth" at
-> the
-> > user level.
-> 
-> 
-> That's not always true.
-> 
-> Imagine a slow computer with a GBit ethernet
-> connection, where the user 
-> is downloading files from a server that can
-> utilize the full 
-> network connection while listening to music
-> from his local disk with 
-> XMMS.
-> 
-> In this case, the audio stream is not depending
-> on the network 
-> connection. And the user might prefer dropped
-> packages over a stuttering 
-> XMMS.
-> 
-Audio connections are going to be windowed/flowed
-in some way (thats how the internet works) so
-you're not dealing with real capacity issues in
-that example. You're not going to overrun your
-ethernet adapter with an application; the issue
-is running applications on servers that are also
-doing a lot of other things. You can't isolate a
-particular application at the device level, so
-you drop packets randomly; not just ones you
-don't care about. If your application can't run
-well on your machine without dropping real
-traffic, then you need a faster machine, not an
-OS that compensates in a negative way.
+Some of the criteria for choosing a time source may be:
 
-DT
+1. If a system boots up with a single cpu then there is no question that 
+the ITC/TSC should be used because of the fast access.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+2. If the BIOS is capable of perfect ITC/TSC synchronization then use 
+   the ITC/TSC. However, this is typically restricted to SMP configs and 
+   there is an issue on IA64 that the PAL can indicate a nodrift 
+   configuration but Linux is not capable of perfects sync on bootup.
+
+3. If a memory mapped global clock is available then make sure to 
+   first use a distributed timer over a centralized time source because
+   distributed timer have fast local access even under contention. 
+   I.e. use Altix RTC over HPET/Cyclone.
+
+4. Use any memory mapped global clock source 
+
+5. Abuse some other system component for time keeping (PIT, i/o devices 
+etc)
+
+The criteria for drift/latency can only be established after we gone 
+through the above. The low-power stuff adds additional complexity.
+
+We may need to dynamically change timer interpolators / time sources if 
+the power situation changes. Nothing like that exists today for time 
+interpolators since they are mostly used in server configurations.
+

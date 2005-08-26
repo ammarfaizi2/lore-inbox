@@ -1,98 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbVHZRCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbVHZRDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965121AbVHZRCh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 13:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVHZRCh
+	id S965127AbVHZRDK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 13:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965130AbVHZRCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 13:02:37 -0400
-Received: from ppp-62-11-73-212.dialup.tiscali.it ([62.11.73.212]:36501 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S965111AbVHZRCa
+	Fri, 26 Aug 2005 13:02:53 -0400
+Received: from ppp-62-11-73-212.dialup.tiscali.it ([62.11.73.212]:38037 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S965127AbVHZRCp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 13:02:30 -0400
-Subject: [patch 13/18] remap_file_pages protection support: optimize install_file_pte and avoid redundant pte_file PTE's
+	Fri, 26 Aug 2005 13:02:45 -0400
+Subject: [patch 17/18] remap_file_pages linear nonuniform support: (1) try_to_unmap_one fix
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 26 Aug 2005 18:53:49 +0200
-Message-Id: <20050826165349.A817F254625@zion.home.lan>
+Date: Fri, 26 Aug 2005 18:54:03 +0200
+Message-Id: <20050826165403.E8860254866@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-For linear uniform shared VMA's, there is no need to install pte_file PTEs to
-remember the offset. For private ones, the same holds for absent and pte_file
-PTEs, while existing ones must be left there.
+Since we probably will not support linear nonuniform VMAs, this will not
+probably be needed. However I'm sending it just in case.
 
-I've also added some warnings on the path which used to cope with such PTE's.
-I expect to remove that path soon, and I've never seen that warning triggering
-during testing.
+Fix try_to_unmap_one for linear VM_NONUNIFORM vma's.
 
-If we're going to refuse remap_file_pages() and MAP_POPULATE on private VMA,
-this patch may be further simplified.
+When unmapping linear but non uniform VMA's in try_to_unmap_one, we must
+encode the prots in the PTE.
+
+However, we don't use the generic save_nonlinear_pte() function as it allows
+for nonlinear offsets, on which we instead BUG() in this code path, by using
+save_nonuniform_pte().
+
+I've not added any TLB flush because PTE's have already been cleared and
+flushed in both cases, and (I assume from existing practice and common sense,
+but I don't trust CPU architects on having the latter ;-) ) TLB won't need to
+know about changes in the "software" part of absent PTEs.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/mm/fremap.c |   14 ++++++++++++--
- linux-2.6.git-paolo/mm/memory.c |    5 +++++
- 2 files changed, 17 insertions(+), 2 deletions(-)
+ linux-2.6.git-paolo/include/linux/pagemap.h |   11 +++++++++++
+ linux-2.6.git-paolo/mm/rmap.c               |    3 +++
+ 2 files changed, 14 insertions(+)
 
-diff -puN mm/fremap.c~rfp-linear-optim-v4 mm/fremap.c
---- linux-2.6.git/mm/fremap.c~rfp-linear-optim-v4	2005-08-25 12:59:23.000000000 +0200
-+++ linux-2.6.git-paolo/mm/fremap.c	2005-08-25 12:59:23.000000000 +0200
-@@ -129,6 +129,12 @@ int install_file_pte(struct mm_struct *m
+diff -puN include/linux/pagemap.h~rfp-linear-nonuniform-1 include/linux/pagemap.h
+--- linux-2.6.git/include/linux/pagemap.h~rfp-linear-nonuniform-1	2005-08-25 12:46:20.000000000 +0200
++++ linux-2.6.git-paolo/include/linux/pagemap.h	2005-08-25 12:46:20.000000000 +0200
+@@ -180,6 +180,17 @@ static inline void save_nonlinear_pte(pt
+ 		set_pte_at(mm, addr, ptep, pgoff_prot_to_pte(page->index, pgprot));
+ }
  
-  	BUG_ON(!uniform && !(vma->vm_flags & VM_SHARED));
- 
-+	/* We're being called by mmap(MAP_NONBLOCK|MAP_POPULATE) on an uniform
-+	 * shared VMA. So don't need to take the lock, and to install a PTE for
-+	 * the page we'd fault in anyway. */
-+	if (uniform && (vma->vm_flags & VM_SHARED))
-+		return 0;
++/* For linear but nonuniform VMA's*/
++static inline void save_nonuniform_pte(pte_t pte, pte_t * ptep, struct
++		vm_area_struct *vma, struct mm_struct *mm, struct page* page,
++		unsigned long addr)
++{
++	pgprot_t pgprot = pte_to_pgprot(pte);
++	BUG_ON(linear_page_index(vma, addr) != page->index);
++	if (pgprot_val(pgprot) != pgprot_val(vma->vm_page_prot))
++		set_pte_at(mm, addr, ptep, pgoff_prot_to_pte(page->index, pgprot));
++}
 +
- 	pgd = pgd_offset(mm, addr);
- 	spin_lock(&mm->page_table_lock);
- 	
-@@ -150,14 +156,18 @@ int install_file_pte(struct mm_struct *m
- 	if (uniform && pte_none(*pte))
- 		goto err_unlock;
+ extern void FASTCALL(__lock_page(struct page *page));
+ extern void FASTCALL(unlock_page(struct page *page));
  
-+	err = 0;
- 	zap_pte(mm, vma, addr, pte);
+diff -puN mm/rmap.c~rfp-linear-nonuniform-1 mm/rmap.c
+--- linux-2.6.git/mm/rmap.c~rfp-linear-nonuniform-1	2005-08-25 12:46:20.000000000 +0200
++++ linux-2.6.git-paolo/mm/rmap.c	2005-08-25 12:46:20.000000000 +0200
+@@ -543,6 +543,9 @@ static int try_to_unmap_one(struct page 
+ 	flush_cache_page(vma, address, page_to_pfn(page));
+ 	pteval = ptep_clear_flush(vma, address, pte);
  
-+	/* I don't want at all to install useless pte_file pte's for private
-+	 * mappings. */
-+	if (unlikely(uniform))
-+		goto err_unlock;
++	/* If nonlinear, store the file page offset in the pte. */
++	save_nonuniform_pte(pteval, pte, vma, mm, page, address);
 +
- 	set_pte_at(mm, addr, pte, pgoff_prot_to_pte(pgoff, pgprot));
- 	pte_val = *pte;
- 	pte_unmap(pte);
- 	update_mmu_cache(vma, addr, pte_val);
--	spin_unlock(&mm->page_table_lock);
--	return 0;
- 
- err_unlock:
- 	spin_unlock(&mm->page_table_lock);
-diff -puN mm/memory.c~rfp-linear-optim-v4 mm/memory.c
---- linux-2.6.git/mm/memory.c~rfp-linear-optim-v4	2005-08-25 12:59:23.000000000 +0200
-+++ linux-2.6.git-paolo/mm/memory.c	2005-08-25 12:59:23.000000000 +0200
-@@ -1983,10 +1983,15 @@ static int do_file_page(struct mm_struct
- 	/*
- 	 * Fall back to the linear mapping if the fs does not support
- 	 * ->populate; in this case do the protection checks.
-+	 * Could have been installed by install_file_pte, for a MAP_NONBLOCK
-+	 * pagetable population.
- 	 */
- 	if (!vma->vm_ops->populate ||
- 			((access_mask & (VM_WRITE|VM_MAYWRITE)) &&
- 			 !(vma->vm_flags & VM_SHARED))) {
-+		/* remap_file_pages should disallow this, now that
-+		 * install_file_pte skips linear ones. */
-+		WARN_ON(1);
- 		/* We're behaving as if pte_file was cleared, so check
- 		 * protections like in handle_pte_fault. */
- 		if (check_perms(vma, access_mask))
+ 	/* Move the dirty bit to the physical page now the pte is gone. */
+ 	if (pte_dirty(pteval))
+ 		set_page_dirty(page);
 _

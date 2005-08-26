@@ -1,42 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbVHZSDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbVHZSDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965162AbVHZSDx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 14:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbVHZSDw
+	id S965158AbVHZSDy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 14:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbVHZSDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 26 Aug 2005 14:03:54 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:12475 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S965158AbVHZSDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 26 Aug 2005 14:03:52 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:446 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S965159AbVHZSDv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 14:03:51 -0400
-Subject: Re: [patch] IBM HDAPS accelerometer driver.
-From: Robert Love <rml@novell.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1125079311.4294.10.camel@laptopd505.fenrus.org>
-References: <1125069494.18155.27.camel@betsy>
-	 <430F5257.4010700@didntduck.org>  <1125077594.18155.52.camel@betsy>
-	 <1125079311.4294.10.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Fri, 26 Aug 2005 14:03:50 -0400
-Message-Id: <1125079430.18155.64.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+Message-ID: <430F5901.2070606@inov.pt>
+Date: Fri, 26 Aug 2005 19:01:37 +0100
+From: Jose Miguel Goncalves <jose.goncalves@inov.pt>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: miura@da-cha.org
+Subject: Problem with cpufreq on Geode GX1
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 20:01 +0200, Arjan van de Ven wrote:
+Hi all,
 
-> > Not that we've been able to tell.  It is a legacy platform device.
-> > 
-> > So, unfortunately, no probe() routine.
-> 
-> dmi surely....
+I'm trying to use cpufreq on my Geode GX1 board with linux-2.6.12.5, but,
+while everything seems OK, i.e., I can change from performance to powersave
+governor and back and /proc/cpuinfo reports me frequency changes, I can
+get no effective frequency/CPU power change because I check it with
+the Whetstone benchmark and it allways give me the same value (~100 MWIPS).
+Any ideas from were could be the problem?
 
-Patches accepted.
+Some additional info follows:
 
-	Robert Love
+$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
+performance
 
+$ cat /proc/cpuinfo
+
+processor	: 0
+vendor_id	: CyrixInstead
+cpu family	: 5
+model		: 9
+model name	: Geode(TM) Integrated Processor by National Semi
+stepping	: 2
+cpu MHz		: 300.672
+cache size	: 16 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu tsc msr cx8 cmov mmx cxmmx
+bogomips	: 591.87
+
+$ echo powersave > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+
+$ cat /proc/cpuinfo
+
+processor	: 0
+vendor_id	: CyrixInstead
+cpu family	: 5
+model		: 9
+model name	: Geode(TM) Integrated Processor by National Semi
+stepping	: 2
+cpu MHz		: 37.095
+cache size	: 16 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu tsc msr cx8 cmov mmx cxmmx
+bogomips	: 73.02
+
+Best regards,
+Jose Goncalves

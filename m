@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbVHZOzC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbVHZPEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965064AbVHZOzC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 10:55:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVHZOzB
+	id S965066AbVHZPEw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 11:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVHZPEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 10:55:01 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:54034 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S965064AbVHZOzB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 10:55:01 -0400
-Date: Fri, 26 Aug 2005 15:50:50 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Cc: yhlu <yhlu.kernel@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: APIC version and 8-bit APIC IDs
-In-Reply-To: <430F20BF.1080703@fujitsu-siemens.com>
-Message-ID: <Pine.LNX.4.61L.0508261512520.9561@blysk.ds.pg.gda.pl>
-References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel> 
- <p73pssj2xdz.fsf@verdi.suse.de> <42FCA23C.7040601@fujitsu-siemens.com> 
- <20050812133248.GN8974@wotan.suse.de>  <42FCA97E.5010907@fujitsu-siemens.com>
-  <42FCB86C.5040509@fujitsu-siemens.com>  <20050812145725.GD922@wotan.suse.de>
-  <86802c44050812093774bf4816@mail.gmail.com>  <20050812164244.GC22901@wotan.suse.de>
- <86802c4405081210442b1bb840@mail.gmail.com> <43099FDF.6030504@fujitsu-siemens.com>
- <Pine.LNX.4.61L.0508231204510.2422@blysk.ds.pg.gda.pl> <430F20BF.1080703@fujitsu-siemens.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 Aug 2005 11:04:52 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:26802 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S965066AbVHZPEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 11:04:52 -0400
+Subject: [patch 1/2] Fixup symlink function pointers for hppfs [for 2.6.13]
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 26 Aug 2005 16:57:44 +0200
+Message-Id: <20050826145749.03BFE24D661@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Aug 2005, Martin Wilck wrote:
 
-> Unless I am mistaken, the MP spec does not say that _CPUs_ must start from 0.
-> We had an IO-APIC at 0. The MP spec says that the IDs must be unique (I am
-> told this isn't true any more because an IO APIC and a CPU may have the same
-> ID) and _need not_ be consecutive.
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
- You are unfortunately mistaken -- the spec is explicit about *local* APIC 
-IDs having to start at 0.  There are at least two places in the spec that 
-refer to that.
+Update hppfs for the symlink functions prototype change.
+Should be trivial, but please verify it's correct.
 
-> We tried different setups; one had IO APICs at 0,1,2 and CPUs starting at 16.
-> I can't see that this is forbidden (the reason is that the IO-APICs have only
-> 4-bit APIC ID registers). Anyway we changed it now to have both IO-APICs and
-> CPUs start at 0.
+Yes, I know the code I leave there is still _bogus_, see next patch for this.
 
- You can always assign 0, 16, 17, etc. to local APICs and then 1, 2, 3, 
-etc. for I/O APICs.  Frankly I don't know what the actual justification 
-behind the requirement is.  Note that the ID of 0 need not necessarily 
-belong to the BSP.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-  Maciej
+ linux-2.6.git-paolo/fs/hppfs/hppfs_kern.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
+
+diff -puN fs/hppfs/hppfs_kern.c~hppfs-fix-symlink fs/hppfs/hppfs_kern.c
+--- linux-2.6.git/fs/hppfs/hppfs_kern.c~hppfs-fix-symlink	2005-08-24 17:43:56.000000000 +0200
++++ linux-2.6.git-paolo/fs/hppfs/hppfs_kern.c	2005-08-24 18:17:46.000000000 +0200
+@@ -679,25 +679,25 @@ static int hppfs_readlink(struct dentry 
+ 	return(n);
+ }
+ 
+-static int hppfs_follow_link(struct dentry *dentry, struct nameidata *nd)
++static void* hppfs_follow_link(struct dentry *dentry, struct nameidata *nd)
+ {
+ 	struct file *proc_file;
+ 	struct dentry *proc_dentry;
+-	int (*follow_link)(struct dentry *, struct nameidata *);
+-	int err, n;
++	void * (*follow_link)(struct dentry *, struct nameidata *);
++	void *ret;
+ 
+ 	proc_dentry = HPPFS_I(dentry->d_inode)->proc_dentry;
+ 	proc_file = dentry_open(dget(proc_dentry), NULL, O_RDONLY);
+-	err = PTR_ERR(proc_dentry);
+-	if(IS_ERR(proc_dentry))
+-		return(err);
++
++	if (IS_ERR(proc_dentry))
++		return proc_dentry;
+ 
+ 	follow_link = proc_dentry->d_inode->i_op->follow_link;
+-	n = (*follow_link)(proc_dentry, nd);
++	ret = (*follow_link)(proc_dentry, nd);
+ 
+ 	fput(proc_file);
+ 
+-	return(n);
++	return ret;
+ }
+ 
+ static struct inode_operations hppfs_dir_iops = {
+_

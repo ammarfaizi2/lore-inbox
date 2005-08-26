@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbVHZGmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVHZGrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932526AbVHZGmk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 02:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbVHZGmk
+	id S932528AbVHZGrD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 02:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVHZGrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 02:42:40 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:46732
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932526AbVHZGmj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 02:42:39 -0400
-Subject: Re: 2.6.13-rc7-rt1
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: dwalker@mvista.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1125018945.14592.15.camel@dhcp153.mvista.com>
-References: <20050825062651.GA26781@elte.hu>
-	 <1125012596.14592.12.camel@dhcp153.mvista.com>
-	 <1125015724.20120.143.camel@tglx.tec.linutronix.de>
-	 <1125018945.14592.15.camel@dhcp153.mvista.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Fri, 26 Aug 2005 08:43:17 +0200
-Message-Id: <1125038597.20120.147.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Aug 2005 02:47:03 -0400
+Received: from imap.gmx.net ([213.165.64.20]:32224 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932528AbVHZGrC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 02:47:02 -0400
+X-Authenticated: #2864774
+From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
+To: David Woodhouse <dwmw2@infradead.org>
+Date: Fri, 26 Aug 2005 08:46:29 +0200
+MIME-Version: 1.0
+Subject: Re: Add pselect, ppoll system calls.
+CC: drepper@redhat.com, jakub@redhat.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, michael.kerrisk@gmx.net,
+       mtk-lkml@gmx.net
+Message-ID: <430ED6E5.29250.328C39C@localhost>
+In-reply-to: <1124928289.7316.92.camel@baythorne.infradead.org>
+References: <25911.1123246168@www3.gmx.net>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-08-25 at 18:15 -0700, Daniel Walker wrote:
-> On Fri, 2005-08-26 at 02:22 +0200, Thomas Gleixner wrote:
-> > On Thu, 2005-08-25 at 16:29 -0700, Daniel Walker wrote:
-> > > Devastating latency on a 3Ghz xeon .. Maybe the raw_spinlock in the
-> > > timer base is creating a unbounded latency?
-> > 
-> > The lock is only held for really short periods. The only possible long
-> > period would be migration of timers from a dead hotplug cpu to another.
-> > I guess thats not the case.
-> > 
-> > Do you have HIGH_RES_TIMERS enabled ?
+David,
+
+> On Fri, 2005-08-05 at 14:49 +0200, Michael Kerrisk wrote:
+> > If I change your program to do something like the above, I also
+> > do not see a message from the handler -- i.e., it is not being
+> > called, and I'm pretty sure it should be.
 > 
-> No. The cascade has a very long worst case.
+> Hm, yes. What happens is we come back out of the select() immediately
+> because of the pending signal, but on the way back to userspace we put the
+> old signal mask back... so by the time we check for it, there _is_ no
+> (unblocked) signal pending. 
+> 
+> If it's mandatory that we actually call the signal handler, 
 
-You mean the cascading from the outer to the inner wheels ? That should
-only happen with tons of active timers.
+I'm just about to go off on holiday, and don't have a chance to pull up 
+all the relevant standards details at them moment.  However, I'm fairly 
+sure that the signal handler should be called.  (Try running a modified 
+version of my program on Solaris 10 or the Unix-03 conversion of AIX 
+(5.3?).)
 
-tglx
+> then we need to
+> play tricks like sigsuspend() does to leave the old signal mask on the
+> stack frame. That's a bit painful atm because do_signal is different
+> between architectures. 
 
+Yes, I'd say the behaviour should in fact be like what sigsuspend() does.
 
+Cheers,
+
+Michael

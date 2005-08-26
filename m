@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbVHZTyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbVHZT74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbVHZTyx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbVHZTyx
+	id S1030249AbVHZT74 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbVHZT74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:54:53 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25596 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S1030239AbVHZTyw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:54:52 -0400
-Message-ID: <430F737F.5010000@mvista.com>
-Date: Fri, 26 Aug 2005 12:54:39 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: george@mvista.com
-CC: "Wilkerson, Bryan P" <Bryan.P.Wilkerson@intel.com>,
-       Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org
-Subject: Re: kgdb on EM64T
-References: <194B303F2F7B534594F2AB2D87269D9F06E5CE22@orsmsx408> <430F6E5F.9050702@mvista.com>
-In-Reply-To: <430F6E5F.9050702@mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Aug 2005 15:59:56 -0400
+Received: from ms-smtp-02-smtplb.rdc-nyc.rr.com ([24.29.109.6]:61674 "EHLO
+	ms-smtp-02.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S1030249AbVHZT7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 15:59:55 -0400
+Date: Fri, 26 Aug 2005 20:08:51 +0000
+From: Kent Robotti <dwilson24@nyc.rr.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initramfs and TMPFS!
+Message-ID: <20050826200851.GA851@Linux.nyc.rr.com>
+Reply-To: dwilson24@nyc.rr.com
+References: <200508260139.j7Q1dFME000555@ms-smtp-03.rdc-nyc.rr.com> <20050826190647.GA12296@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050826190647.GA12296@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
-> Wilkerson, Bryan P wrote:
+On Fri, Aug 26, 2005 at 12:06:47PM -0700, Chris Wedgwood wrote:
+> On Thu, Aug 25, 2005 at 09:39:15PM -0400, dwilson24@nyc.rr.com wrote:
 > 
->> Thanks you Tom and George for the tips on using kgdb with
->> 2.6.13-rc4-mm1. 
->> I almost have it working but kgdb seems to have a few issues.  I can get
->> it running from the dev machine using the kgdb and console=kgdb boot
->> options on the test kernel.  The kernel waits as it should and when I
->> attach with "target remote /dev/ttyS0" and I can continue the boot but
->> eventually it gets to a point in the boot where it frees unused kernel
->> memory successfully and then a warning, "unable to open an initial
->> console",  followed by, "Kernel panic - not syncing: Attempted to kill
->> init!"
->>
->> Removing the console=kgdb boot option and the machine boots all the way
->> to run level 5.   I tried to break into kgdb at this point using the 
->>     $echo -e "\003" > /dev/ttyS0
->> from the dev machine but the test kernel panics at gdb_interrupt+75 when
->> it receives anything on the serial port.  Hmmm...
->>
->> I'm wondering if I'm maybe just the first to try this on EM64T (kernel
->> builds in the arch/x86_64 tree).   
+> > Wouldn't it be better to put overmount_rootfs in initramfs.c
+> > and call it only if there's a initramfs?
 > 
+> I don't see what or how that helps.  Yes we can shuffle some code
+> about but the real problem still exists.
 > 
-> Possibly:).  Since the serial port seems to work (i.e. the first test 
-> above), the fault seems to be in handling the int3.  Is int3 the right 
-> instruction for this machine?  If not you would make the change in 
-> kgdb.h.  I think that is the only place it is defined.
+> That is is that (by design) the early userspace is unpacked as soon as
+> possible before all kernel subsystems are up.
 
-Well, I checked, it is "int $3".  Why then the panic?  If you try the 
-boot with kgdb (i.e. wait) and the do:
-(gdb) disass gdb_interrupt
-What do you find at +75?
-> 
->>
+Overmount_rootfs shouldn't take place until you know for sure the
+kernel detects an initramfs.
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+I know the patch only has one purpose and you can assume the user is
+using it just for that, but if the user uses the patched kernel without
+an initramfs it runs overmount_rootfs anyway.
+
+Also, in shmem.c init_tmpfs isn't run because it assumes that
+overmount_rootfs will be, so if the kernel is being used in a
+non initramfs way (tmpfs isn't registered). 
+
+   #ifndef CONFIG_EARLYUSERSPACE_ON_TMPFS
+   module_init(init_tmpfs)
+   #endif /* !CONFIG_EARLYUSERSPACE_ON_TMPFS */

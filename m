@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVHZOn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbVHZOwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbVHZOn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 10:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbVHZOn6
+	id S965063AbVHZOwx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 10:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbVHZOwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 10:43:58 -0400
-Received: from cavan.codon.org.uk ([217.147.81.22]:48083 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S965061AbVHZOn6
+	Fri, 26 Aug 2005 10:52:53 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:4737 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965063AbVHZOwx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 10:43:58 -0400
-Date: Fri, 26 Aug 2005 15:42:51 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: linux-kernel@vger.kernel.org
-Subject: Telling Linux that a SATA device has gone away
-Message-ID: <20050826144250.GA12816@srcf.ucam.org>
+	Fri, 26 Aug 2005 10:52:53 -0400
+Subject: Re: syscall: sys_promote
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Coywolf Qi Hunt <qiyong@fc-cn.com>
+Cc: linux-kernel@vger.kernel.org, dhommel@gmail.com
+In-Reply-To: <20050826110226.GA5184@localhost.localdomain>
+References: <20050826092537.GA3416@localhost.localdomain>
+	 <20050826110226.GA5184@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 26 Aug 2005 16:19:17 +0100
+Message-Id: <1125069558.4958.83.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on cavan.codon.org.uk); SAEximRunCond expanded to false
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a laptop (Dell Latitude D610) that has a removable DVD drive.  It
-appears to be a PATA device, but is presented under ata_piix so behaves
-like a SCSI drive. With the ACPI generic hotkey driver, I can get events
-when it's removed and reinserted. Is there any way I can tell Linux that 
-the device has been removed? hdparm's bus registration support 
-(unsurprisingly) doesn't seem to work too well on sr0, but echoing 
-"remove-single-device 1 0 0 0" to /proc/scsi/scsi doesn't seem to do 
-anything either.
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+On Gwe, 2005-08-26 at 19:02 +0800, Coywolf Qi Hunt wrote:
+> > 3) admins can `promote' a suspect process instead of killing it.
+> > 
+> > Is it also generally useful in practice?  Thoughts?
+
+The locking is wrong. At the moment the entire kernel assumes that a
+process uid is not changed by anyone else. After you've implemented uid
+locking/refcounting for tasks you can add the syscall but until then its
+not a good idea. I don't think its a good idea anyway - selinux can do
+far more useful things.
+
+

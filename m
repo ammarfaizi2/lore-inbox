@@ -1,264 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751525AbVHZMXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbVHZMrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751525AbVHZMXL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 08:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751552AbVHZMXL
+	id S1750981AbVHZMrk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 08:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbVHZMrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 08:23:11 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:25069 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751523AbVHZMXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 08:23:10 -0400
-Date: Fri, 26 Aug 2005 07:22:58 -0500
-From: Greg Howard <ghoward@sgi.com>
-X-X-Sender: ghoward@gallifrey.americas.sgi.com
-To: Christoph Hellwig <hch@lst.de>
-cc: davem@davemloft.net, LKML <linux-kernel@vger.kernel.org>,
-       Aaron Young <ayoung@sgi.com>
-Subject: Re: [PATCH, RFC] Standardize shutdown of the system from enviroment
- control modules
-In-Reply-To: <20050826114453.GA28115@lst.de>
-Message-ID: <Pine.SGI.4.58.0508260719050.46392@gallifrey.americas.sgi.com>
-References: <20050809211003.GA29361@lst.de> <20050811173717.GA10420@lst.de>
- <20050826114453.GA28115@lst.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 Aug 2005 08:47:40 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:17244 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1750980AbVHZMrk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 08:47:40 -0400
+Date: Fri, 26 Aug 2005 14:47:38 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Coywolf Qi Hunt <qiyong@fc-cn.com>
+Cc: linux-kernel@vger.kernel.org, dhommel@gmail.com
+Subject: Re: syscall: sys_promote
+Message-ID: <20050826124738.GD28640@harddisk-recovery.com>
+References: <20050826092537.GA3416@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050826092537.GA3416@localhost.localdomain>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 26, 2005 at 05:25:37PM +0800, Coywolf Qi Hunt wrote:
+> I just wrote a tool with kernel patch, which is to set the uid's of a running
+> process without FORK.
+> 
+> The tool is at http://users.freeforge.net/~coywolf/pub/promote/
+> Usage: promote <pid> [uid]
+> 
+> I once need such a tool to work together with my admin in order to tune my web
+> configuration.  I think it's quite convenient sometimes. 
+> 
+> The situations I can image are:
+> 
+> 1) root processes can be set to normal priorities, to serve web
+> service for eg.
 
-On Fri, 26 Aug 2005, Christoph Hellwig wrote:
+Most (if not all) web servers can be told to drop all privileges and
+run as a normal user. If not, you can use selinux to create a policy
+for such processes (IIRC that's what Fedora does).
 
-> On Thu, Aug 11, 2005 at 07:37:17PM +0200, Christoph Hellwig wrote:
-> > On Tue, Aug 09, 2005 at 11:10:03PM +0200, Christoph Hellwig wrote:
-> > > Currently snsc_event for Altix systems sends SIGPWR to init (and abuses
-> > > tasklist_lock..) while the sbus drivers call execve for /sbin/shutdown
-> > > (which is also ugly, it should at least use call_usermodehelper)
-> > > With normal sysvinit both will end up the same, but I suspect the
-> > > shutdown variant, maybe with a sysctl to chose the exact path to call
-> > > would be cleaner.  What do you guys think about adding a common function
-> > > to do this.  Could you test such a patch for me?
-> >
-> > Okay, here's such a patch, I've also switched the SN and the two sbus
-> > drivers over.
->
-> ping?
+> 2) admins promote trusted users, so they can do some system work without knowing
+>    the password
 
-Hi Christoph,
+Use sudo for that, it allows even much finer grained control.
 
-Got your patch and built it into a kernel...  Ran into other
-(unrelated) difficulties booting said kernel...  I'll see if I
-can get that sorted out today and test drive it.
+> 3) admins can `promote' a suspect process instead of killing it.
 
->From inspection I don't see any problem with the patch.
-
-Thanks - Greg
-
->
-> >
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> >
-> > Index: linux-2.6/drivers/char/snsc_event.c
-> > ===================================================================
-> > --- linux-2.6.orig/drivers/char/snsc_event.c	2005-08-11 16:45:55.000000000 +0200
-> > +++ linux-2.6/drivers/char/snsc_event.c	2005-08-11 19:03:59.000000000 +0200
-> > @@ -195,24 +195,7 @@
-> >  	severity = scdrv_event_severity(code);
-> >
-> >  	if ((code & EV_CLASS_MASK) == EV_CLASS_PWRD_NOTIFY) {
-> > -		struct task_struct *p;
-> > -
-> > -		/* give a SIGPWR signal to init proc */
-> > -
-> > -		/* first find init's task */
-> > -		read_lock(&tasklist_lock);
-> > -		for_each_process(p) {
-> > -			if (p->pid == 1)
-> > -				break;
-> > -		}
-> > -		if (p) { /* we found init's task */
-> > -			printk(KERN_EMERG "Power off indication received. Initiating power fail sequence...\n");
-> > -			force_sig(SIGPWR, p);
-> > -		} else { /* failed to find init's task - just give message(s) */
-> > -			printk(KERN_WARNING "Failed to find init proc to handle power off!\n");
-> > -			printk("%s|$(0x%x)%s\n", severity, esp_code, desc);
-> > -		}
-> > -		read_unlock(&tasklist_lock);
-> > +		envctrl_do_shutdown();
-> >  	} else {
-> >  		/* print to system log */
-> >  		printk("%s|$(0x%x)%s\n", severity, esp_code, desc);
-> > Index: linux-2.6/drivers/sbus/char/bbc_envctrl.c
-> > ===================================================================
-> > --- linux-2.6.orig/drivers/sbus/char/bbc_envctrl.c	2005-08-11 16:45:59.000000000 +0200
-> > +++ linux-2.6/drivers/sbus/char/bbc_envctrl.c	2005-08-11 19:01:44.000000000 +0200
-> > @@ -4,13 +4,12 @@
-> >   * Copyright (C) 2001 David S. Miller (davem@redhat.com)
-> >   */
-> >
-> > -#define __KERNEL_SYSCALLS__
-> > -
-> >  #include <linux/kernel.h>
-> >  #include <linux/kthread.h>
-> >  #include <linux/sched.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/delay.h>
-> > +#include <linux/envctrl.h>
-> >  #include <asm/oplib.h>
-> >  #include <asm/ebus.h>
-> >  static int errno;
-> > @@ -176,8 +175,6 @@
-> >  static void do_envctrl_shutdown(struct bbc_cpu_temperature *tp)
-> >  {
-> >  	static int shutting_down = 0;
-> > -	static char *envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
-> > -	char *argv[] = { "/sbin/shutdown", "-h", "now", NULL };
-> >  	char *type = "???";
-> >  	s8 val = -1;
-> >
-> > @@ -201,8 +198,8 @@
-> >  	printk(KERN_CRIT "kenvctrld: Shutting down the system now.\n");
-> >
-> >  	shutting_down = 1;
-> > -	if (execve("/sbin/shutdown", argv, envp) < 0)
-> > -		printk(KERN_CRIT "envctrl: shutdown execution failed\n");
-> > +
-> > +	envctrl_do_shutdown();
-> >  }
-> >
-> >  #define WARN_INTERVAL	(30 * HZ)
-> > Index: linux-2.6/drivers/sbus/char/envctrl.c
-> > ===================================================================
-> > --- linux-2.6.orig/drivers/sbus/char/envctrl.c	2005-08-11 16:45:59.000000000 +0200
-> > +++ linux-2.6/drivers/sbus/char/envctrl.c	2005-08-11 19:01:57.000000000 +0200
-> > @@ -19,8 +19,6 @@
-> >   *              Daniele Bellucci <bellucda@tiscali.it>
-> >   */
-> >
-> > -#define __KERNEL_SYSCALLS__
-> > -
-> >  #include <linux/config.h>
-> >  #include <linux/module.h>
-> >  #include <linux/sched.h>
-> > @@ -33,6 +31,7 @@
-> >  #include <linux/mm.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/kernel.h>
-> > +#include <linux/envctrl.h>
-> >
-> >  #include <asm/ebus.h>
-> >  #include <asm/uaccess.h>
-> > @@ -975,25 +974,6 @@
-> >  	return NULL;
-> >  }
-> >
-> > -static void envctrl_do_shutdown(void)
-> > -{
-> > -	static int inprog = 0;
-> > -	static char *envp[] = {
-> > -		"HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
-> > -	char *argv[] = {
-> > -		"/sbin/shutdown", "-h", "now", NULL };
-> > -
-> > -	if (inprog != 0)
-> > -		return;
-> > -
-> > -	inprog = 1;
-> > -	printk(KERN_CRIT "kenvctrld: WARNING: Shutting down the system now.\n");
-> > -	if (0 > execve("/sbin/shutdown", argv, envp)) {
-> > -		printk(KERN_CRIT "kenvctrld: WARNING: system shutdown failed!\n");
-> > -		inprog = 0;  /* unlikely to succeed, but we could try again */
-> > -	}
-> > -}
-> > -
-> >  static struct task_struct *kenvctrld_task;
-> >
-> >  static int kenvctrld(void *__unused)
-> > Index: linux-2.6/include/linux/envctrl.h
-> > ===================================================================
-> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > +++ linux-2.6/include/linux/envctrl.h	2005-08-11 18:58:41.000000000 +0200
-> > @@ -0,0 +1,6 @@
-> > +#ifndef _LINUX_ENVCTRL_H
-> > +#define _LINUX_ENVCTRL_H
-> > +
-> > +extern int envctrl_do_shutdown(void);
-> > +
-> > +#endif /* _LINUX_ENVCTRL_H */
-> > Index: linux-2.6/kernel/Makefile
-> > ===================================================================
-> > --- linux-2.6.orig/kernel/Makefile	2005-08-11 16:46:07.000000000 +0200
-> > +++ linux-2.6/kernel/Makefile	2005-08-11 18:57:57.000000000 +0200
-> > @@ -7,7 +7,7 @@
-> >  	    sysctl.o capability.o ptrace.o timer.o user.o \
-> >  	    signal.o sys.o kmod.o workqueue.o pid.o \
-> >  	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
-> > -	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o
-> > +	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o envctrl.o
-> >
-> >  obj-$(CONFIG_FUTEX) += futex.o
-> >  obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
-> > Index: linux-2.6/kernel/envctrl.c
-> > ===================================================================
-> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > +++ linux-2.6/kernel/envctrl.c	2005-08-11 19:04:19.000000000 +0200
-> > @@ -0,0 +1,46 @@
-> > +/*
-> > + * Copyright (C) 2001 David S. Miller.
-> > + * Copyright (C) 2005 Christoph Hellwig.
-> > + *	Released under GPL v2.
-> > + *
-> > + * Common code to shutdown the system when overheating.
-> > + */
-> > +
-> > +#include <linux/envctrl.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/kmod.h>
-> > +
-> > +static char *envp[] = {
-> > +	"HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL
-> > +};
-> > +
-> > +static char *argv[] = {
-> > +	"/sbin/shutdown", "-h", "now", NULL
-> > +};
-> > +
-> > +/*
-> > + * envctrl_do_shutdown  -  shut the system down when overheating
-> > + *
-> > + * Common routine to be called from all enviromental monitoring
-> > + * drivers when a fatal overheating is detected.
-> > + *
-> > + * Returns 0 if /sbin/shutdown has been called sucessfully, 1 if
-> > + * this routine has been called already but the kernel is still
-> > + * running or a negative error value if executing the shutdown
-> > + * command failed.
-> > + */
-> > +int envctrl_do_shutdown(void)
-> > +{
-> > +	static int shutting_down = 0;
-> > +	int error;
-> > +
-> > +	if (shutting_down)
-> > +		return 1;
-> > +	shutting_down = 1;
-> > +
-> > +	printk(KERN_CRIT "envctrl: WARNING: Shutting down the system now.\n");
-> > +	error = call_usermodehelper("/sbin/shutdown", argv, envp, 0);
-> > +	if (error)
-> > +		printk(KERN_CRIT "envctrl: WARNING: system shutdown failed!\n");
-> > +	return error;
-> > +}
-> ---end quoted text---
->
+Why would that change anything? You only change a process's UID,
+nothing else. You don't change things like resource limits, so a
+process started as root with unlimited limits is still allowed to use
+those limits. AFAIK setrlimit() can't be used to change resource limits
+of other processes.
 
 
---
-Greg Howard, MTS - Core Platform SW     MS 10-1-061
-SGI - Silicon Graphics Inc.             2750 Blue Water Road
-ghoward@sgi.com                         Eagan, MN  55121
+Erik
 
-+----------------------------------------------------------+
-  "Who am I to smudge the palette of conventional wisdom?"
-					- John Brocato
-+----------------------------------------------------------+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

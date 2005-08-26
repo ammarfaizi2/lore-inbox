@@ -1,87 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbVHZSDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965159AbVHZSId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965158AbVHZSDy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 14:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbVHZSDy
+	id S965159AbVHZSId (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 14:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbVHZSId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 14:03:54 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:12475 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S965158AbVHZSDw (ORCPT
+	Fri, 26 Aug 2005 14:08:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7622 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965159AbVHZSIb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 14:03:52 -0400
-Message-ID: <430F5901.2070606@inov.pt>
-Date: Fri, 26 Aug 2005 19:01:37 +0100
-From: Jose Miguel Goncalves <jose.goncalves@inov.pt>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: miura@da-cha.org
-Subject: Problem with cpufreq on Geode GX1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+	Fri, 26 Aug 2005 14:08:31 -0400
+Date: Fri, 26 Aug 2005 11:08:23 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Tony Jones <tonyj@suse.de>, Chris Wright <chrisw@osdl.org>,
+       Kurt Garloff <garloff@suse.de>, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5] Rework stubs in security.h
+Message-ID: <20050826180823.GQ7762@shell0.pdx.osdl.net>
+References: <20050825012028.720597000@localhost.localdomain> <20050825012148.690615000@localhost.localdomain> <20050826173151.GA1350@immunix.com> <1125079256.8692.65.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125079256.8692.65.camel@moss-spartans.epoch.ncsc.mil>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+* Stephen Smalley (sds@tycho.nsa.gov) wrote:
+> That one isn't so much an issue as the xattr ones and vm_enough_memory
+> case.  But more generally, if you think about moving toward a place
+> where one can grant privileges to processes based solely on their
+> role/domain, you'll need the same ability for capable and other hooks
+> too.  Naturally, that can't be done safely without a lot more work on
+> userspace and policy, but it is a long term goal.
 
-I'm trying to use cpufreq on my Geode GX1 board with linux-2.6.12.5, but,
-while everything seems OK, i.e., I can change from performance to powersave
-governor and back and /proc/cpuinfo reports me frequency changes, I can
-get no effective frequency/CPU power change because I check it with
-the Whetstone benchmark and it allways give me the same value (~100 MWIPS).
-Any ideas from were could be the problem?
-
-Some additional info follows:
-
-$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-
-performance
-
-$ cat /proc/cpuinfo
-
-processor	: 0
-vendor_id	: CyrixInstead
-cpu family	: 5
-model		: 9
-model name	: Geode(TM) Integrated Processor by National Semi
-stepping	: 2
-cpu MHz		: 300.672
-cache size	: 16 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu tsc msr cx8 cmov mmx cxmmx
-bogomips	: 591.87
-
-$ echo powersave > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-
-$ cat /proc/cpuinfo
-
-processor	: 0
-vendor_id	: CyrixInstead
-cpu family	: 5
-model		: 9
-model name	: Geode(TM) Integrated Processor by National Semi
-stepping	: 2
-cpu MHz		: 37.095
-cache size	: 16 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu tsc msr cx8 cmov mmx cxmmx
-bogomips	: 73.02
-
-Best regards,
-Jose Goncalves
+Right, you've mentioned that before, thanks for bringing that up.

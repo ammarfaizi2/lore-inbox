@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbVHZTeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVHZThV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbVHZTeD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:34:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbVHZTeB
+	id S1030216AbVHZThV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbVHZThU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:34:01 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:22744 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030225AbVHZTeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:34:00 -0400
-Date: Fri, 26 Aug 2005 12:33:23 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Alex Williamson <alex.williamson@hp.com>
-cc: george@mvista.com, john stultz <johnstul@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Need better is_better_time_interpolator() algorithm
-In-Reply-To: <1125084417.5182.58.camel@tdi>
-Message-ID: <Pine.LNX.4.62.0508261231440.16138@schroedinger.engr.sgi.com>
-References: <1124988269.5331.49.camel@tdi>  <1124991406.20820.188.camel@cog.beaverton.ibm.com>
-  <1124995405.5331.90.camel@tdi>  <Pine.LNX.4.62.0508260827330.14463@schroedinger.engr.sgi.com>
-  <1125073089.5182.30.camel@tdi>  <430F6A7E.203@mvista.com> <1125084417.5182.58.camel@tdi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 Aug 2005 15:37:20 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:27582 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S1030216AbVHZThT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 15:37:19 -0400
+Subject: Re: [patch] IBM HDAPS accelerometer driver.
+From: Robert Love <rml@novell.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <430F6E6F.5010001@pobox.com>
+References: <1125069494.18155.27.camel@betsy>
+	 <430F5257.4010700@didntduck.org>  <1125077594.18155.52.camel@betsy>
+	 <1125079311.4294.10.camel@laptopd505.fenrus.org>
+	 <1125079430.18155.64.camel@betsy>
+	 <1125086134.14080.13.camel@localhost.localdomain>
+	 <1125084555.18155.89.camel@betsy>  <430F6E6F.5010001@pobox.com>
+Content-Type: text/plain
+Date: Fri, 26 Aug 2005 15:37:17 -0400
+Message-Id: <1125085037.18155.95.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Aug 2005, Alex Williamson wrote:
+On Fri, 2005-08-26 at 15:33 -0400, Jeff Garzik wrote:
 
->    Would we ever want to favor a frequency shifting timer over anything
-> else in the system?  If it was noticeable perhaps we'd just need a
-> callback to re-evaluate the frequency and rescan for the best timer.  If
-> it happens without notice, a flag that statically assigns it the lowest
-> priority will due.  Or maybe if the driver factored the frequency
-> shifting into the drift it would make the timer undesirable without
-> resorting to flags.  Thanks,
+> Since such a check is possible, that's definitely a merge-stopper IMO
 
-Timers are usually constant. AFAIK Frequency shifts only occur through 
-power management. In that case we usually have some notifiers running 
-before the change. These notifiers need to switch to a different time 
-source if the timer frequency will be shifting or the timer will become 
-unavailable.
+First, I am not asking that Linus merge this.  Everyone needs to relax.
+
+Second, we don't know a DMI-based solution will work. I'll check it out.
+
+	Robert Love
+
 

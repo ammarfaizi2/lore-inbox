@@ -1,102 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbVHZRH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbVHZRIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965146AbVHZRH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 13:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965138AbVHZRG6
+	id S965118AbVHZRIS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 13:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbVHZRHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 13:06:58 -0400
-Received: from web33307.mail.mud.yahoo.com ([68.142.206.122]:6018 "HELO
-	web33307.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965144AbVHZRG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 13:06:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=bEnX9fYwaDQkleGzNr6dDBEUTyikDweDZxD6qP2XkPCDoX7b+ZjmhaEIgTHnXFTP+MFJzSN1qCmD7RB1lQBE+dr7A4sBxGq+5EWBveENnLLH9FhRyJyYd5stBqF3o/Qr4nfUTubV4WQmUc0sFW8ZrdQ/A3GThi8bE3ysPpKZ8QQ=  ;
-Message-ID: <20050826170652.19282.qmail@web33307.mail.mud.yahoo.com>
-Date: Fri, 26 Aug 2005 10:06:51 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: 2.6.12 Performance problems
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050826162132.GH6471@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 26 Aug 2005 13:07:52 -0400
+Received: from ppp-62-11-73-212.dialup.tiscali.it ([62.11.73.212]:29845 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S965118AbVHZRB6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 13:01:58 -0400
+Subject: [patch 06/18] remap_file_pages protection support: support private vma for MAP_POPULATE
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 26 Aug 2005 18:53:17 +0200
+Message-Id: <20050826165318.51AC524B54C@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+From: Ingo Molnar <mingo@elte.hu>
 
---- Adrian Bunk <bunk@stusta.de> wrote:
+Fix MAP_POPULATE | MAP_PRIVATE. We don't need the VMA to be shared if we don't
+rearrange pages around. And it's trivial to do.
 
-> On Fri, Aug 26, 2005 at 08:34:14AM -0700,
-> Danial Thom wrote:
-> > 
-> > --- Adrian Bunk <bunk@stusta.de> wrote:
-> > > 
-> > > That's not always true.
-> > > 
-> > > Imagine a slow computer with a GBit
-> ethernet
-> > > connection, where the user 
-> > > is downloading files from a server that can
-> > > utilize the full 
-> > > network connection while listening to music
-> > > from his local disk with 
-> > > XMMS.
-> > > 
-> > > In this case, the audio stream is not
-> depending
-> > > on the network 
-> > > connection. And the user might prefer
-> dropped
-> > > packages over a stuttering 
-> > > XMMS.
-> 
-> > Audio connections are going to be
-> windowed/flowed
-> > in some way (thats how the internet works) so
-> >...
-> 
-> I was talking about an audio stream coming from
-> a file on the
-> "local disk", IOW something like an mp3 file.
-> 
-> But the most interesting thing about your email
-> is not what you were 
-> answering to, but which part of my email you
-> silently omitted. Since you 
-> are not answering questions that might help to
-> debug the problem you 
-> claim to have, it seems your intention is not
-> getting a Linux problem 
-> fixed...
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-I don't think I'm obligated to answer every
-single person who pipes into a thread. People who
-say "show me your config and dmesg" are not
-useful. Linux has long had a philisophical
-problem of dropping packets as a "performance
-feature", and we've already established I think
-that you can't eliminate it altogether, if you
-read the thread carefully.
+ linux-2.6.git-paolo/mm/fremap.c |    7 ++++---
+ linux-2.6.git-paolo/mm/mmap.c   |    4 ++++
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-Also, if you're on a slow machine you can't
-download faster than your machine can handle it,
-because the "server on a gig network" can't send
-faster then you tell it to, not matter how fast
-it is. You'll never overrun a machine with 1 or 2
-or 5 connections. Having a clue how things work
-is important. 
-
-
-DT
-
-
-		
-____________________________________________________
-Start your day with Yahoo! - make it your home page 
-http://www.yahoo.com/r/hs 
+diff -puN mm/fremap.c~rfp-private-vma-2 mm/fremap.c
+--- linux-2.6.git/mm/fremap.c~rfp-private-vma-2	2005-08-24 20:57:13.000000000 +0200
++++ linux-2.6.git-paolo/mm/fremap.c	2005-08-24 20:57:13.000000000 +0200
+@@ -221,9 +221,6 @@ retry:
+ 	if (!vma)
+ 		goto out_unlock;
  
+-	if (!(vma->vm_flags & VM_SHARED))
+-		goto out_unlock;
+-
+ 	if (!vma->vm_ops || !vma->vm_ops->populate || end <= start || start <
+ 			vma->vm_start || end > vma->vm_end)
+ 		goto out_unlock;
+@@ -246,6 +243,8 @@ retry:
+ 		/* Must set VM_NONLINEAR before any pages are populated. */
+ 		if (pgoff != linear_page_index(vma, start) &&
+ 		    !(vma->vm_flags & VM_NONLINEAR)) {
++			if (!(vma->vm_flags & VM_SHARED))
++				goto out_unlock;
+ 			if (!has_write_lock) {
+ 				up_read(&mm->mmap_sem);
+ 				down_write(&mm->mmap_sem);
+@@ -264,6 +263,8 @@ retry:
+ 
+ 		if (pgprot_val(pgprot) != pgprot_val(vma->vm_page_prot) &&
+ 				!(vma->vm_flags & VM_NONUNIFORM)) {
++			if (!(vma->vm_flags & VM_SHARED))
++				goto out_unlock;
+ 			if (!has_write_lock) {
+ 				up_read(&mm->mmap_sem);
+ 				down_write(&mm->mmap_sem);
+diff -puN mm/mmap.c~rfp-private-vma-2 mm/mmap.c
+--- linux-2.6.git/mm/mmap.c~rfp-private-vma-2	2005-08-24 20:57:13.000000000 +0200
++++ linux-2.6.git-paolo/mm/mmap.c	2005-08-24 20:57:13.000000000 +0200
+@@ -1124,6 +1124,10 @@ out:	
+ 	}
+ 	if (flags & MAP_POPULATE) {
+ 		up_write(&mm->mmap_sem);
++		/*
++		 * remap_file_pages() works even if the mapping is private,
++		 * in the linearly-mapped case:
++		 */
+ 		sys_remap_file_pages(addr, len, 0,
+ 					pgoff, flags & MAP_NONBLOCK);
+ 		down_write(&mm->mmap_sem);
+_

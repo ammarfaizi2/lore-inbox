@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751583AbVHZOSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751584AbVHZOSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751583AbVHZOSG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 10:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751585AbVHZOSG
+	id S1751584AbVHZOSO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 10:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751586AbVHZOSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 10:18:06 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:37362 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S1751583AbVHZOSF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 10:18:05 -0400
-Subject: Re: 2.6.13-rc7-rt1
-From: Daniel Walker <dwalker@mvista.com>
-To: tglx@linutronix.de
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1125038597.20120.147.camel@tglx.tec.linutronix.de>
-References: <20050825062651.GA26781@elte.hu>
-	 <1125012596.14592.12.camel@dhcp153.mvista.com>
-	 <1125015724.20120.143.camel@tglx.tec.linutronix.de>
-	 <1125018945.14592.15.camel@dhcp153.mvista.com>
-	 <1125038597.20120.147.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain
-Date: Fri, 26 Aug 2005 07:17:41 -0700
-Message-Id: <1125065862.7896.0.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+	Fri, 26 Aug 2005 10:18:14 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:183 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S1751584AbVHZOSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 10:18:13 -0400
+X-SBRSScore: None
+From: Gerhard Wichert <Gerhard.Wichert@fujitsu-siemens.com>
+Organization: Fujitsu Siemens Computers
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.12] x86_64/kernel/time.c
+Date: Fri, 26 Aug 2005 16:18:00 +0200
+User-Agent: KMail/1.8.1
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "Wilck, Martin" <Martin.Wilck@fujitsu-siemens.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508261618.01285.Gerhard.Wichert@fujitsu-siemens.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 08:43 +0200, Thomas Gleixner wrote:
-> On Thu, 2005-08-25 at 18:15 -0700, Daniel Walker wrote:
-> > On Fri, 2005-08-26 at 02:22 +0200, Thomas Gleixner wrote:
-> > > On Thu, 2005-08-25 at 16:29 -0700, Daniel Walker wrote:
-> > > > Devastating latency on a 3Ghz xeon .. Maybe the raw_spinlock in the
-> > > > timer base is creating a unbounded latency?
-> > > 
-> > > The lock is only held for really short periods. The only possible long
-> > > period would be migration of timers from a dead hotplug cpu to another.
-> > > I guess thats not the case.
-> > > 
-> > > Do you have HIGH_RES_TIMERS enabled ?
-> > 
-> > No. The cascade has a very long worst case.
-> 
-> You mean the cascading from the outer to the inner wheels ? That should
-> only happen with tons of active timers.
+ 
+Hi,
+there are are two error returns of hpet_init() but vxtime.hpet_address remains 
+set. 
+This can cause div-by-zero exceptions later in the boot process when executing 
+the 
+wrong code sequences ( hpet code instead of pit code). To avoid this error 
+behaviour 
+vxtime.hpet_address should be cleared in time_init() if hpet_init() returns 
+-1.
 
-Right .. 
+Regards, Gerhard.
 
-Daniel
+--- linux-2.6.12.orig/arch/x86_64/kernel/time.c 2005-06-17 21:48:29.000000000 
++0200
++++ linux-2.6.12/arch/x86_64/kernel/time.c      2005-08-16 08:54:29.000000000 
++0200
+@@ -892,16 +892,16 @@
+                       "at %#lx.\n", vxtime.hpet_address);
+         }
+ #endif
+-       if (nohpet)
+-               vxtime.hpet_address = 0;
+-
+        xtime.tv_sec = get_cmos_time();
+        xtime.tv_nsec = 0;
 
+        set_normalized_timespec(&wall_to_monotonic,
+                                -xtime.tv_sec, -xtime.tv_nsec);
+
+-       if (!hpet_init()) {
++       if (nohpet || hpet_init())
++               vxtime.hpet_address = 0;
++
++       if (vxtime.hpet_address) {
+                 vxtime_hz = (1000000000000000L + hpet_period / 2) /
+                        hpet_period;
+                cpu_khz = hpet_calibrate_tsc();
+-- 
+Gerhard Wichert              Phone: +49 5251 8 15127
+Fujitsu Siemens Computers    Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1         mailto:Gerhard.Wichert@Fujitsu-Siemens.com
+D-33106 Paderborn            http://www.fujitsu-siemens.com/primergy

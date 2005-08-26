@@ -1,50 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVHZPtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVHZP7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbVHZPtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 11:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbVHZPtx
+	id S965071AbVHZP7e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 11:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbVHZP7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 11:49:53 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:9963 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S965089AbVHZPtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 11:49:52 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: Initramfs and TMPFS!
-To: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org,
-       robotti@godmail.com
-Reply-To: 7eggert@gmx.de
-Date: Fri, 26 Aug 2005 17:49:36 +0200
-References: <4Fuuy-6df-11@gated-at.bofh.it> <4FJMZ-1YX-17@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Fri, 26 Aug 2005 11:59:34 -0400
+Received: from santo.ucolick.org ([128.114.23.204]:12477 "EHLO
+	smtp.ucolick.org") by vger.kernel.org with ESMTP id S965071AbVHZP7e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 11:59:34 -0400
+Message-ID: <430F3C6B.7070303@ucolick.org>
+Date: Fri, 26 Aug 2005 08:59:39 -0700
+From: Richard Stover <richard@ucolick.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1E8gSX-0001S6-O9@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+To: linux-kernel@vger.kernel.org
+Subject: waiting process in procfs read
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw <erik@harddisk-recovery.com> wrote:
-> On Thu, Aug 25, 2005 at 02:15:13PM -0400, robotti@godmail.com wrote:
+I submitted this as a bugzilla kernel bug report but was directed here.
+Perhaps someone can help me.
 
->> For one, if you do "dd if=/dev/zero of=foo" on a ramfs the system
->> will lock up.
-> 
-> "Doctor, it hurts when I do this!" "Well, then don't do that."
-> You found a nice case of "Unix, rope, foot".
+I have a device driver developed with 2.4 kernels. I've ported
+it to the 2.6 kernel (FC3) and it all works fine except for one
+aspect of procfs.
 
-It's a case of going into the mountains wearing sandals and carrying the
-mountain boots in your backpack knowing you should wear them (at least if
-you read the hidden documentation.
+My device driver sets up an entry in the /proc tree. A process
+can open this entry and read from it. Normally the read blocks
+until an event happens elsewhere in the device driver. When the
+event happens the blocked process is woken up and the read
+returns the information it was waiting for.
 
-If you can leave the sandals at home, you should do that (they are of no use
-there), but the patch from this(?) thread will just make you change shoes
-after leaving the house and carry the sandals in the backpack, which could
-easily be done in userspace (provided you've enough RAM). The real patch
-would teach how to tie the bootstraps of tmpfs before leaving the house.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+THE PROBLEM: In FC3 (2.6.11-13_FC3) the reading process blocks but it never
+wakes up.
+
+Here is a code fragment from the driver where the reading
+process would block:
+
+/*      Wait until the next image header has been read.         */
+/*      But only wait if we are reading from the beginning.     */
+       if (offset == 0) {
+
+           printk("####%s waiting event %x\n",__FUNCTION__,
+               (unsigned int)&dev->read_proc_wait);
+
+           wait_event_interruptible(dev->read_proc_wait,(offset != 0));
+           printk("####%s WOKE UP\n",__FUNCTION__);
+
+/*          See if our sleep was interrupted by a signal.       */
+
+           if (signal_pending(current)) {
+               *buffer_location = my_buffer;
+               printk("####%s returns error due to pending signal\n",__FUNCTION__);
+               return -EINTR;
+           }
+       }
+
+
+Here is a code fragment that is trying to wake up the blocked process:
+
+/*      Wake up anyone waiting on reading /proc/readXw                  */
+       printk(KERN_INFO "#### waking up anyone waiting on read_proc_wait event %x\n",
+               (unsigned int)&dev->read_proc_wait);
+
+       wake_up_interruptible(&dev->read_proc_wait);
+
+I see the blocked process "waiting event..." message and I see the "waking up..."
+message. But I never get the "WOKE UP" message and the waiting process never
+returns.
+If I kill the waiting process I do see "WOKE UP" and "returns error due to
+pending signal"
+messages so I know it has in fact been waiting. The address of dev->read_proc_wait
+is the same in both the "waiting event..." and "waking up..." messages.
+I've initialize dev->read_proc_wait just like several other event flags in the
+same device driver: init_waitqueue_head(&(dev->read_proc_wait));
+
+I can not see any reason why the waiting process wouldn't wake up. This code is
+very similar to code used elsewhere in the driver where a process waits in an
+ioctl call for a particular event to happen. That wait within an ioctl works fine.
+The procfs read wait worked in Linux kernels up through RH9, 2.4.20-6 (with
+appropriate code modifications for the earlier kernel).
+
+If anybody has any suggestions I would appreciate the help. 
+
+
+Thanks.
+
+Richard Stover
+
+
+----------------------------------------------------------------------
+Richard Stover                       email: richard@ucolick.org
+Detector Development Laboratory      http://www.ccd.ucolick.org
+UCO/Lick Observatory                 Voice: 831-459-2139
+Natural Sciences Bldg. 2, Room 160
+University of California             FAX:   831-459-2298
+Santa Cruz, CA 95064  USA            FAX:   831-426-5244 (Alternate)
+----------------------------------------------------------------------
+
+

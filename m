@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVHZHcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVHZHtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbVHZHcW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 03:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVHZHcV
+	id S1750822AbVHZHtu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 03:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbVHZHtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 03:32:21 -0400
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:22035 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750739AbVHZHcV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 03:32:21 -0400
-Date: Fri, 26 Aug 2005 09:32:14 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: Greg Kroah-Hartman <greg@kroah.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH] drivers/hwmon/*: kfree() correct pointers
-Message-Id: <20050826093214.415f1987.khali@linux-fr.org>
-In-Reply-To: <20050825235354.10376.qmail@lwn.net>
-References: <20050826000231.35b97af9.khali@linux-fr.org>
-	<20050825235354.10376.qmail@lwn.net>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 26 Aug 2005 03:49:49 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:18851 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750822AbVHZHtt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 03:49:49 -0400
+Message-ID: <430EC985.6040307@pobox.com>
+Date: Fri, 26 Aug 2005 03:49:25 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@ilport.com.ua>
+CC: Patrick Draper <pdraper@gmail.com>, Udo van den Heuvel <udovdh@xs4all.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: VIA Rhine ethernet driver bug (reprise...)
+References: <430A0B69.1060304@xs4all.nl> <200508231221.59299.vda@ilport.com.ua> <6981e08b0508252043139cfa2d@mail.gmail.com> <200508260933.45402.vda@ilport.com.ua>
+In-Reply-To: <200508260933.45402.vda@ilport.com.ua>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jonathan,
+Denis Vlasenko wrote:
+> May be a known problem. A buglet in MII common code.
+> Via-rhine maintainer knows about it, as does Jeff.
 
-> > Already fixed in Greg's i2c tree and -mm for quite some time now...
-> 
-> So it is.  The comment says, however, that "the existing code works
-> somewhat by accident."  In the case of the 9240 driver, however, the
-> existing code demonstrably does not work - it oopsed on me.
+You don't speak for me, sir.
 
-I too did notice that the adm9240 case was worse than the four other
-ones back then, but when I tried to get it to crash, it never did.  This
-is the reason why I did not push this patch upstream faster.  I wonder
-why it now does oops on you.
+I know of no such problem.  Please submit a report and/or patch.
 
-I also believe that this patch was somewhat misnamed.  It is not related
-to the new hwmon class, but jut happened to change the same part of
-these five drivers.  With a better name, the patch would most probably
-have been selected by Greg in the last batch of i2c patches to Linus.
+	Jeff
 
-> The patch in Greg's tree looks fine (it's a straightforward fix, after
-> all);
 
-I wouldn't call it straightforward, but it certainly has been reviewed
-and tested well enough by now to be considered safe.
-
-> I'd recommend that it be merged before 2.6.13.
-
-Fine with me.
-
-Thanks,
--- 
-Jean Delvare

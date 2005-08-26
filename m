@@ -1,79 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbVHZRIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbVHZRHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbVHZRIS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 13:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbVHZRHw
+	id S965138AbVHZRHv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 13:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbVHZRB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 13:07:52 -0400
-Received: from ppp-62-11-73-212.dialup.tiscali.it ([62.11.73.212]:29845 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S965118AbVHZRB6
+	Fri, 26 Aug 2005 13:01:57 -0400
+Received: from ppp-62-11-73-212.dialup.tiscali.it ([62.11.73.212]:28821 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S965118AbVHZRBy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 13:01:58 -0400
-Subject: [patch 06/18] remap_file_pages protection support: support private vma for MAP_POPULATE
+	Fri, 26 Aug 2005 13:01:54 -0400
+Subject: [patch 15/18] remap_file_pages protection support: fix pte clearing on accessible vmas
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 26 Aug 2005 18:53:17 +0200
-Message-Id: <20050826165318.51AC524B54C@zion.home.lan>
+Date: Fri, 26 Aug 2005 18:53:56 +0200
+Message-Id: <20050826165356.3F8CC25484D@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Ingo Molnar <mingo@elte.hu>
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>, Ingo Molnar <mingo@elte.hu>
 
-Fix MAP_POPULATE | MAP_PRIVATE. We don't need the VMA to be shared if we don't
-rearrange pages around. And it's trivial to do.
+This patch is only needed if nonuniform VMAs can have protections different
+from PROT_NONE.
+
+It corrects the previous optimization: instead of clearing the PTEs, it simply
+marks them as pte_file unreadable ones.
+
+This is done by fixing the code, by adding another field in "zap_details",
+i.e. ->prot_none_ptes. I've also fixed the other callers to clear this
+parameter.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/mm/fremap.c |    7 ++++---
- linux-2.6.git-paolo/mm/mmap.c   |    4 ++++
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ linux-2.6.git-paolo/include/linux/mm.h |    3 +++
+ linux-2.6.git-paolo/mm/filemap.c       |    6 +++++-
+ linux-2.6.git-paolo/mm/memory.c        |   26 +++++++++++++++++++-------
+ linux-2.6.git-paolo/mm/shmem.c         |    6 +++++-
+ 4 files changed, 32 insertions(+), 9 deletions(-)
 
-diff -puN mm/fremap.c~rfp-private-vma-2 mm/fremap.c
---- linux-2.6.git/mm/fremap.c~rfp-private-vma-2	2005-08-24 20:57:13.000000000 +0200
-+++ linux-2.6.git-paolo/mm/fremap.c	2005-08-24 20:57:13.000000000 +0200
-@@ -221,9 +221,6 @@ retry:
- 	if (!vma)
- 		goto out_unlock;
+diff -puN include/linux/mm.h~rfp-avoid-lookup-pages-miss-mapping include/linux/mm.h
+--- linux-2.6.git/include/linux/mm.h~rfp-avoid-lookup-pages-miss-mapping	2005-08-25 13:07:41.000000000 +0200
++++ linux-2.6.git-paolo/include/linux/mm.h	2005-08-25 13:07:42.000000000 +0200
+@@ -686,6 +686,9 @@ struct zap_details {
+ 	pgoff_t last_index;			/* Highest page->index to unmap */
+ 	spinlock_t *i_mmap_lock;		/* For unmap_mapping_range: */
+ 	unsigned long truncate_count;		/* Compare vm_truncate_count */
++	unsigned prot_none_ptes : 1;		/* If 1, set all PTE's to
++						   PROT_NONE ones, and all other
++						   fields must be clear */
+ };
  
--	if (!(vma->vm_flags & VM_SHARED))
--		goto out_unlock;
--
- 	if (!vma->vm_ops || !vma->vm_ops->populate || end <= start || start <
- 			vma->vm_start || end > vma->vm_end)
- 		goto out_unlock;
-@@ -246,6 +243,8 @@ retry:
- 		/* Must set VM_NONLINEAR before any pages are populated. */
- 		if (pgoff != linear_page_index(vma, start) &&
- 		    !(vma->vm_flags & VM_NONLINEAR)) {
-+			if (!(vma->vm_flags & VM_SHARED))
-+				goto out_unlock;
- 			if (!has_write_lock) {
- 				up_read(&mm->mmap_sem);
- 				down_write(&mm->mmap_sem);
-@@ -264,6 +263,8 @@ retry:
+ unsigned long zap_page_range(struct vm_area_struct *vma, unsigned long address,
+diff -puN mm/filemap.c~rfp-avoid-lookup-pages-miss-mapping mm/filemap.c
+--- linux-2.6.git/mm/filemap.c~rfp-avoid-lookup-pages-miss-mapping	2005-08-25 13:07:41.000000000 +0200
++++ linux-2.6.git-paolo/mm/filemap.c	2005-08-25 13:07:42.000000000 +0200
+@@ -1500,12 +1500,16 @@ int filemap_populate(struct vm_area_stru
+ 	 */
+ 	if ((vma->vm_flags & VM_SHARED) &&
+ 			(pgprot_val(prot) == pgprot_val(__S000))) {
++		struct zap_details details = {
++			.prot_none_ptes = 1,
++		};
++
+ 		/* Still do error-checking! */
+ 		size = (i_size_read(inode) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 		if (pgoff + (len >> PAGE_CACHE_SHIFT) > size)
+ 			return -EINVAL;
  
- 		if (pgprot_val(pgprot) != pgprot_val(vma->vm_page_prot) &&
- 				!(vma->vm_flags & VM_NONUNIFORM)) {
-+			if (!(vma->vm_flags & VM_SHARED))
-+				goto out_unlock;
- 			if (!has_write_lock) {
- 				up_read(&mm->mmap_sem);
- 				down_write(&mm->mmap_sem);
-diff -puN mm/mmap.c~rfp-private-vma-2 mm/mmap.c
---- linux-2.6.git/mm/mmap.c~rfp-private-vma-2	2005-08-24 20:57:13.000000000 +0200
-+++ linux-2.6.git-paolo/mm/mmap.c	2005-08-24 20:57:13.000000000 +0200
-@@ -1124,6 +1124,10 @@ out:	
+-		zap_page_range(vma, addr, len, NULL);
++		zap_page_range(vma, addr, len, &details);
+ 		return 0;
  	}
- 	if (flags & MAP_POPULATE) {
- 		up_write(&mm->mmap_sem);
-+		/*
-+		 * remap_file_pages() works even if the mapping is private,
-+		 * in the linearly-mapped case:
-+		 */
- 		sys_remap_file_pages(addr, len, 0,
- 					pgoff, flags & MAP_NONBLOCK);
- 		down_write(&mm->mmap_sem);
+ 
+diff -puN mm/memory.c~rfp-avoid-lookup-pages-miss-mapping mm/memory.c
+--- linux-2.6.git/mm/memory.c~rfp-avoid-lookup-pages-miss-mapping	2005-08-25 13:07:41.000000000 +0200
++++ linux-2.6.git-paolo/mm/memory.c	2005-08-25 13:07:42.000000000 +0200
+@@ -523,8 +523,11 @@ static void zap_pte_range(struct mmu_gat
+ 	pte = pte_offset_map(pmd, addr);
+ 	do {
+ 		pte_t ptent = *pte;
+-		if (pte_none(ptent))
++		if (pte_none(ptent)) {
++			if (unlikely(details && details->prot_none_ptes))
++				set_pte_at(mm, addr, pte, pfn_pte(0, __S000));
+ 			continue;
++		}
+ 		if (pte_present(ptent)) {
+ 			struct page *page = NULL;
+ 			unsigned long pfn = pte_pfn(ptent);
+@@ -533,7 +536,8 @@ static void zap_pte_range(struct mmu_gat
+ 				if (PageReserved(page))
+ 					page = NULL;
+ 			}
+-			if (unlikely(details) && page) {
++			if (unlikely(details && !details->prot_none_ptes) &&
++					page) {
+ 				/*
+ 				 * unmap_shared_mapping_pages() wants to
+ 				 * invalidate cache without truncating:
+@@ -553,9 +557,12 @@ static void zap_pte_range(struct mmu_gat
+ 			}
+ 			ptent = ptep_get_and_clear(tlb->mm, addr, pte);
+ 			tlb_remove_tlb_entry(tlb, pte, addr);
++			if (unlikely(details && details->prot_none_ptes))
++				set_pte_at(mm, addr, pte, pfn_pte(0, __S000));
+ 			if (unlikely(!page))
+ 				continue;
+-			if (unlikely(details) && details->nonlinear_vma) {
++			if (unlikely(details) && details->nonlinear_vma &&
++					!details->prot_none_ptes) {
+ 				save_nonlinear_pte(ptent, pte,
+ 						details->nonlinear_vma,
+ 						tlb->mm, page, addr);
+@@ -575,11 +582,14 @@ static void zap_pte_range(struct mmu_gat
+ 		 * If details->check_mapping, we leave swap entries;
+ 		 * if details->nonlinear_vma, we leave file entries.
+ 		 */
+-		if (unlikely(details))
++		if (unlikely(details) && !details->prot_none_ptes)
+ 			continue;
+-		if (!pte_file(ptent))
++		if (likely(!pte_file(ptent)))
+ 			free_swap_and_cache(pte_to_swp_entry(ptent));
+-		pte_clear(tlb->mm, addr, pte);
++		if (unlikely(details && details->prot_none_ptes))
++			set_pte_at(mm, addr, pte, pfn_pte(0, __S000));
++		else
++			pte_clear(tlb->mm, addr, pte);
+ 	} while (pte++, addr += PAGE_SIZE, addr != end);
+ 	pte_unmap(pte - 1);
+ }
+@@ -623,7 +633,8 @@ static void unmap_page_range(struct mmu_
+ 	pgd_t *pgd;
+ 	unsigned long next;
+ 
+-	if (details && !details->check_mapping && !details->nonlinear_vma)
++	if (details && !details->check_mapping && !details->nonlinear_vma &&
++			!details->prot_none_ptes)
+ 		details = NULL;
+ 
+ 	BUG_ON(addr >= end);
+@@ -1524,6 +1535,7 @@ void unmap_mapping_range(struct address_
+ 	if (details.last_index < details.first_index)
+ 		details.last_index = ULONG_MAX;
+ 	details.i_mmap_lock = &mapping->i_mmap_lock;
++	details.prot_none_ptes = 0;
+ 
+ 	spin_lock(&mapping->i_mmap_lock);
+ 
+diff -puN mm/shmem.c~rfp-avoid-lookup-pages-miss-mapping mm/shmem.c
+--- linux-2.6.git/mm/shmem.c~rfp-avoid-lookup-pages-miss-mapping	2005-08-25 13:07:41.000000000 +0200
++++ linux-2.6.git-paolo/mm/shmem.c	2005-08-25 13:07:42.000000000 +0200
+@@ -1191,7 +1191,11 @@ static int shmem_populate(struct vm_area
+ 	 */
+ 	if ((vma->vm_flags & VM_SHARED) &&
+ 			(pgprot_val(prot) == pgprot_val(__S000))) {
+-		zap_page_range(vma, addr, len, NULL);
++		struct zap_details details = {
++			.prot_none_ptes = 1,
++		};
++
++		zap_page_range(vma, addr, len, &details);
+ 		return 0;
+ 	}
+ 
 _

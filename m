@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbVHZTXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbVHZTW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbVHZTXo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbVHZTXo
+	id S1030211AbVHZTW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbVHZTW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:23:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61142 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030214AbVHZTXm (ORCPT
+	Fri, 26 Aug 2005 15:22:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46550 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030211AbVHZTWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:23:42 -0400
-Message-Id: <20050826191901.965850000@localhost.localdomain>
+	Fri, 26 Aug 2005 15:22:55 -0400
+Message-Id: <20050826191837.205011000@localhost.localdomain>
 References: <20050826191755.052951000@localhost.localdomain>
-Date: Fri, 26 Aug 2005 12:17:59 -0700
+Date: Fri, 26 Aug 2005 12:17:57 -0700
 From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Ollie Wild <aaw@rincewind.tv>
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Maillist netdev <netdev@oss.sgi.com>, Patrick McHardy <kaber@trash.net>,
-       "David S. Miller" <davem@davemloft.net>, Chris Wright <chrisw@osdl.org>
-Subject: [PATCH 4/7] [IPV4]: Fix DST leak in icmp_push_reply()
-Content-Disposition: inline; filename=fix-dst-leak-in-icmp_push_reply.patch
+       Chuck Wolber <chuckw@quantumlinux.com>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, "Kathleen Glass" <kkglass@avaya.com>,
+       "James E Rhodes" <jrhodes@avaya.com>,
+       Roland McGrath <roland@redhat.com>, Chris Wright <chrisw@osdl.org>
+Subject: [PATCH 2/7] [PATCH] NPTL signal delivery deadlock fix
+Content-Disposition: inline; filename=nptl-signal-delivery-deadlock-fix.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any  objections, please let us know.
 ------------------
 
-Based upon a bug report and initial patch by
-Ollie Wild.
+This bug is quite subtle and only happens in a very interesting
+situation where a real-time threaded process is in the middle of a
+coredump when someone whacks it with a SIGKILL. However, this deadlock
+leaves the system pretty hosed and you have to reboot to recover.
 
-Signed-off-by: Patrick McHardy <kaber@trash.net>
-Signed-off-by: "David S. Miller" <davem@davemloft.net>
+Not good for real-time priority-preemption applications like our
+telephony application, with 90+ real-time (SCHED_FIFO and SCHED_RR)
+processes, many of them multi-threaded, interacting with each other for
+high volume call processing.
+
+Acked-by: Roland McGrath <roland@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 ---
- net/ipv4/icmp.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+ kernel/signal.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux-2.6.12.y/net/ipv4/icmp.c
+Index: linux-2.6.12.y/kernel/signal.c
 ===================================================================
---- linux-2.6.12.y.orig/net/ipv4/icmp.c
-+++ linux-2.6.12.y/net/ipv4/icmp.c
-@@ -349,12 +349,12 @@ static void icmp_push_reply(struct icmp_
+--- linux-2.6.12.y.orig/kernel/signal.c
++++ linux-2.6.12.y/kernel/signal.c
+@@ -686,7 +686,7 @@ static void handle_stop_signal(int sig, 
  {
- 	struct sk_buff *skb;
+ 	struct task_struct *t;
  
--	ip_append_data(icmp_socket->sk, icmp_glue_bits, icmp_param,
--		       icmp_param->data_len+icmp_param->head_len,
--		       icmp_param->head_len,
--		       ipc, rt, MSG_DONTWAIT);
--
--	if ((skb = skb_peek(&icmp_socket->sk->sk_write_queue)) != NULL) {
-+	if (ip_append_data(icmp_socket->sk, icmp_glue_bits, icmp_param,
-+		           icmp_param->data_len+icmp_param->head_len,
-+		           icmp_param->head_len,
-+		           ipc, rt, MSG_DONTWAIT) < 0)
-+		ip_flush_pending_frames(icmp_socket->sk);
-+	else if ((skb = skb_peek(&icmp_socket->sk->sk_write_queue)) != NULL) {
- 		struct icmphdr *icmph = skb->h.icmph;
- 		unsigned int csum = 0;
- 		struct sk_buff *skb1;
+-	if (p->flags & SIGNAL_GROUP_EXIT)
++	if (p->signal->flags & SIGNAL_GROUP_EXIT)
+ 		/*
+ 		 * The process is in the middle of dying already.
+ 		 */
 
 --

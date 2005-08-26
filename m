@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbVHZRgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVHZRiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965139AbVHZRgV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 13:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbVHZRgV
+	id S965142AbVHZRiA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 13:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbVHZRiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 13:36:21 -0400
-Received: from cerebus.immunix.com ([198.145.28.33]:20644 "EHLO
-	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
-	id S965139AbVHZRgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 13:36:21 -0400
-Date: Fri, 26 Aug 2005 10:31:51 -0700
-From: Tony Jones <tonyj@suse.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org,
-       Kurt Garloff <garloff@suse.de>
-Subject: Re: [PATCH 2/5] Rework stubs in security.h
-Message-ID: <20050826173151.GA1350@immunix.com>
-References: <20050825012028.720597000@localhost.localdomain> <20050825012148.690615000@localhost.localdomain>
-Mime-Version: 1.0
+	Fri, 26 Aug 2005 13:38:00 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:16607 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S965142AbVHZRh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 13:37:59 -0400
+Message-ID: <430F5376.7060709@trash.net>
+Date: Fri, 26 Aug 2005 19:37:58 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Lukasz Spaleniak <lspaleniak@wroc.zigzag.pl>
+CC: linux-kernel@vger.kernel.org, kadlec@netfilter.org, gandalf@netfilter.org
+Subject: Re: Conntrack problem, machines freeze
+References: <20050825222002.3538af7d.lspaleniak@wroc.zigzag.pl>
+In-Reply-To: <20050825222002.3538af7d.lspaleniak@wroc.zigzag.pl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050825012148.690615000@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 24, 2005 at 06:20:30PM -0700, Chris Wright wrote:
+Lukasz Spaleniak wrote:
+> Hello,
+> 
+> I have simple linux router with three fastethernet cards (intel , e100
+> driver). About two months ago it started hanging. It's completly
+> freezing machine (no ooops. First of all when it's booting few
+> messages like this appears on screen:
+> 
+> NF_IP_ASSERT: ip_conntrack_core.c:1128(ip_conntrack_alter_reply)
 
->  static inline int security_ptrace (struct task_struct * parent, struct task_struct * child)
->  {
-> +#ifdef CONFIG_SECURITY
->  	return security_ops->ptrace (parent, child);
-> +#else
-> +	return cap_ptrace (parent, child);
-> +#endif
-> +
->  }
+This one can happen if the NAT module is loaded after ip_conntrack and
+there are already existing conntrack entries, but it should be harmless.
 
-The discussion about composing with commoncap made me think about whether
-this is the best way to do this.   It seems that we're heading towards a
-requirement that every module internally compose with commoncap.  
+> I suppose it's showing before firewall script load rules (simple nat).
+> After that somtimes it's working very long, sometimes it's freezing
+> after few seconds. One time I've logged this message before it freezes:
+> 
+> kernel: LIST_DELETE: ip_conntrack_core.c:302 `&ct->tuplehash
+> [IP_CT_DIR_REPLY]'(decb6084) not in &ip_conntrack_hash[hr].
 
-If so (apart from the obvious correctness issues when they don't) it's work
-for each module and composing N of them under stacker obviously creates 
-overhead.
+This one probably results from the above, when the conntrack is altered
+it may end up in a different hash bucket, LIST_DELETE complains if it
+doesn't find it on the list where it is to be removed from. Hmm .. so
+the above is probably not harmless after all, when freeing the conntrack
+we don't remove it from the list if netfilter debugging is enabled.
 
-Would the following not be a better approach?
-
-static inline int security_ptrace (struct task_struct * parent, struct task_struct * child)
-{
-int ret;
-	ret=cap_ptrace (parent, child);
-#ifdef CONFIG_SECURITY
-	if (!ret && security_ops->ptrace)
-		ret=security_ops->ptrace(parent, child);
-#endif
-	return ret;
-}
-
-If every module is already internally composing, there shouldn't be a 
-performance cost for the additional branch inside the #ifdef.
-
-I havn't looked at every single hook and it's users to see if this would
-cause a problem.  I noticed SELinux calls sec->capget() post rather than pre 
-it's processing which may be an issue.
-
-Tony
+Does disabling CONFIG_NETFILTER_DEBUG make any difference?

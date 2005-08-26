@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbVHZVRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbVHZVZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbVHZVRt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 17:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbVHZVRt
+	id S1030232AbVHZVZN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 17:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbVHZVZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 17:17:49 -0400
-Received: from mail2.utc.com ([192.249.46.191]:20362 "EHLO mail2.utc.com")
-	by vger.kernel.org with ESMTP id S965172AbVHZVRt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 17:17:49 -0400
-Message-ID: <430F86E7.9020605@cybsft.com>
-Date: Fri, 26 Aug 2005 16:17:27 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Steven Rostedt <rostedt@goodmis.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.13-rc7-rt3 compile fix
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------000005000609030303040303"
+	Fri, 26 Aug 2005 17:25:13 -0400
+Received: from ms-smtp-03-smtplb.rdc-nyc.rr.com ([24.29.109.7]:34497 "EHLO
+	ms-smtp-03.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S965173AbVHZVZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 17:25:12 -0400
+Date: Fri, 26 Aug 2005 21:34:08 +0000
+From: Kent Robotti <dwilson24@nyc.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Initramfs and TMPFS!
+Message-ID: <20050826213408.GA1001@Linux.nyc.rr.com>
+Reply-To: dwilson24@nyc.rr.com
+References: <200508260139.j7Q1dFME000555@ms-smtp-03.rdc-nyc.rr.com> <20050826190647.GA12296@taniwha.stupidest.org> <20050826200851.GA851@Linux.nyc.rr.com> <20050826202226.GA13807@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050826202226.GA13807@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000005000609030303040303
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-2.6.13-rc7-rt3 won't compile without the simple patch below.
-
--- 
-    kr
-
---------------000005000609030303040303
-Content-Type: text/x-patch;
- name="rtspinfix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rtspinfix.patch"
-
---- linux-2.6.13/kernel/rt.c.orig	2005-08-26 15:51:35.000000000 -0500
-+++ linux-2.6.13/kernel/rt.c	2005-08-26 15:51:55.000000000 -0500
-@@ -672,7 +672,7 @@
- 	struct rt_mutex_waiter *w;
- 	struct plist *curr1;
+On Fri, Aug 26, 2005 at 01:22:26PM -0700, Chris Wedgwood wrote:
+> On Fri, Aug 26, 2005 at 08:08:51PM +0000, Kent Robotti wrote:
+> 
+> > Overmount_rootfs shouldn't take place until you know for sure the
+> > kernel detects an initramfs.
+> 
+> Actually, it was a deliberate decision to *always* overmount after
+> some discussion with people.
  
--	__raw_spin_lock(old_owner->task->pi_lock);
-+	__raw_spin_lock(&old_owner->task->pi_lock);
- 	TRACE_WARN_ON_LOCKED(plist_empty(&waiter->pi_list));
- 	TRACE_WARN_ON_LOCKED(lock_owner(lock));
- 
-@@ -683,7 +683,7 @@
- 	}
- 	TRACE_WARN_ON_LOCKED(1);
- ok:
--	__raw_spin_unlock(old_owner->task->pi_lock);
-+	__raw_spin_unlock(&old_owner->task->pi_lock);
- 	return;
- }
- 
+Ideally, I don't know why you would want to overmount unless the
+kernel detects an initramfs. 
 
---------------000005000609030303040303--
+> It's not a clean solution and the overall goals aren't clear here so
+> it was never submitted for inclusion --- an the fact is 99.9% of users
+> simply don't need or care for this.
+
+I know the patch is just a quick and simple way to use tmpfs for 
+initramfs, and it seems to work.
+
+But, it would be nice if were cleaned up for that less than one percent.
+

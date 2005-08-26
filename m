@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbVHZSaE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965169AbVHZSaf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965083AbVHZSaE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 14:30:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbVHZSaE
+	id S965169AbVHZSaf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 14:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbVHZSaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 14:30:04 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:6078 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1751338AbVHZSaD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 14:30:03 -0400
-Subject: Re: [patch] IBM HDAPS accelerometer driver.
-From: Robert Love <rml@novell.com>
-To: Andrew Morton <akpm@osdl.org>
+	Fri, 26 Aug 2005 14:30:35 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17936 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751338AbVHZSa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 14:30:26 -0400
+Date: Fri, 26 Aug 2005 20:30:19 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Danial Thom <danial_thom@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050826111821.5f0cf386.akpm@osdl.org>
-References: <1125069494.18155.27.camel@betsy>
-	 <20050826111821.5f0cf386.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 26 Aug 2005 14:30:01 -0400
-Message-Id: <1125081001.18155.73.camel@betsy>
+Subject: Re: 2.6.12 Performance problems
+Message-ID: <20050826183019.GI6471@stusta.de>
+References: <20050826162132.GH6471@stusta.de> <20050826170652.19282.qmail@web33307.mail.mud.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050826170652.19282.qmail@web33307.mail.mud.yahoo.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 11:18 -0700, Andrew Morton wrote:
+On Fri, Aug 26, 2005 at 10:06:51AM -0700, Danial Thom wrote:
+>...
+> I don't think I'm obligated to answer every
+> single person who pipes into a thread. People who
+> say "show me your config and dmesg" are not
+> useful. Linux has long had a philisophical
+> problem of dropping packets as a "performance
+> feature", and we've already established I think
+> that you can't eliminate it altogether, if you
+> read the thread carefully.
+>...
 
-> > +config SENSORS_HDAPS
-> >  +	tristate "IBM Hard Drive Active Protection System (hdaps)"
-> >  +	depends on HWMON
-> >  +	default n
-> >  +	help
-> 
-> How does this get along with CONFIG_INPUT=n, CONFIG_INPUT_MOUSEDEV=n, etc?
+You say you have observed for a long time a problem.
 
-Probably a question you should of asked before merging the patch.  ;-)
+The only person participating in this thread who is one of the 
+networking maintainers is Patrick McHardy.
 
-We just need CONFIG_INPUT.
+Did _he_ say this was a known and unfixable problem?
 
-Thanks,
+He wanted to help you and you pissed him off because you refuxed to give 
+him dmesg, .config and other information that would have helped him to 
+debug your problem. If you don't feel obliged to help the persons 
+responsible for the part of the kernel you have a problem with to debug 
+your problem your whole initial mail was pointless.
 
-	Robert Love
+> DT
 
+cu
+Adrian
 
-Depend on CONFIG_INPUT.
+-- 
 
-Signed-off-by: Robert Love <rml@novell.com>
-
-diff -u linux/drivers/hwmon/Kconfig linux/drivers/hwmon/Kconfig
---- linux/drivers/hwmon/Kconfig	2005-08-26 11:07:53.000000000 -0400
-+++ linux/drivers/hwmon/Kconfig	2005-08-26 14:28:09.000000000 -0400
-@@ -413,7 +413,7 @@
- 
- config SENSORS_HDAPS
- 	tristate "IBM Hard Drive Active Protection System (hdaps)"
--	depends on HWMON
-+	depends on HWMON && INPUT
- 	default n
- 	help
- 	  This driver provides support for the IBM Hard Drive Active Protection
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

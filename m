@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVHZTmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVHZTnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbVHZTmb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbVHZTmG
+	id S1030233AbVHZTnv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbVHZTnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:42:06 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41344 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1030232AbVHZTmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:42:05 -0400
-Date: Thu, 25 Aug 2005 14:00:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: suspicious behaviour in pcwd driver.
-Message-ID: <20050825120054.GA443@openzaurus.ucw.cz>
-References: <20050822183006.GB27344@redhat.com> <20050822200144.GG27344@redhat.com>
+	Fri, 26 Aug 2005 15:43:51 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:30398 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S1030233AbVHZTnu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 15:43:50 -0400
+Subject: Re: [patch] IBM HDAPS accelerometer driver.
+From: Robert Love <rml@novell.com>
+To: dtor_core@ameritech.net
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1125085141.18155.97.camel@betsy>
+References: <1125069494.18155.27.camel@betsy>
+	 <d120d500050826122768cd3612@mail.gmail.com>
+	 <1125085141.18155.97.camel@betsy>
+Content-Type: text/plain
+Date: Fri, 26 Aug 2005 15:43:49 -0400
+Message-Id: <1125085429.18155.99.camel@betsy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050822200144.GG27344@redhat.com>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2005-08-26 at 15:39 -0400, Robert Love wrote:
 
-
->  > 2. that printk will never hit the logs, so the admin will just find
->  > a powered off box with no idea what happened.
->  > Should we at least sync block devices before doing the power off ?
+> > This is racy - 2 threads can try to do this simultaneously.
 > 
-> AFAICS, this is still a problem with kernel_power_off() though ?
-> 
+> Fixed.  Thanks.
 
-Look at how acpi does this; we probably want to trigger clean shutdown.
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Actually, doesn't sysfs and/or the vfs layer serialize the two
+simultaneous writes?
+
+	Robert Love
+
 

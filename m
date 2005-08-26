@@ -1,70 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVHZJE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbVHZJZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbVHZJE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 05:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbVHZJE5
+	id S1751512AbVHZJZy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 05:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbVHZJZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 05:04:57 -0400
-Received: from arizona.isc.ch ([195.141.178.2]:18427 "EHLO alton.isc.ch")
-	by vger.kernel.org with ESMTP id S1751086AbVHZJE5 (ORCPT
+	Fri, 26 Aug 2005 05:25:54 -0400
+Received: from [218.25.172.144] ([218.25.172.144]:36626 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S1751512AbVHZJZx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 05:04:57 -0400
-Date: Fri, 26 Aug 2005 11:04:12 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Patrick Draper <pdraper@gmail.com>,
-       Udo van den Heuvel <udovdh@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: VIA Rhine ethernet driver bug (reprise...)
-Message-ID: <20050826090412.GA20288@k3.hellgate.ch>
-References: <430A0B69.1060304@xs4all.nl> <200508231221.59299.vda@ilport.com.ua> <6981e08b0508252043139cfa2d@mail.gmail.com> <200508260933.45402.vda@ilport.com.ua> <430EC985.6040307@pobox.com>
+	Fri, 26 Aug 2005 05:25:53 -0400
+Date: Fri, 26 Aug 2005 17:25:37 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: linux-kernel@vger.kernel.org
+Cc: dhommel@gmail.com
+Subject: syscall: sys_promote
+Message-ID: <20050826092537.GA3416@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <430EC985.6040307@pobox.com>
-X-Operating-System: Linux 2.6.13-rc3 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.8i
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Aug 2005 03:49:25 -0400, Jeff Garzik wrote:
-> Denis Vlasenko wrote:
-> >May be a known problem. A buglet in MII common code.
-> >Via-rhine maintainer knows about it, as does Jeff.
-> 
-> You don't speak for me, sir.
-> 
-> I know of no such problem.  Please submit a report and/or patch.
+Hello,
 
-I believe vda may have been referring to this. I can send you the
-original thread if it's not in your mail archive.
+I just wrote a tool with kernel patch, which is to set the uid's of a running
+process without FORK.
 
-Roger
+The tool is at http://users.freeforge.net/~coywolf/pub/promote/
+Usage: promote <pid> [uid]
 
------------------------------- cut here ------------------------------
-From: Roger Luethi <rl@hellgate.ch>
-Subject: Re: via-rhine + link loss + autoneg off == trouble
-To: Denis Vlasenko <vda@ilport.com.ua>, Jeff Garzik <jgarzik@pobox.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-net@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Date: Sat, 13 Aug 2005 20:34:21 +0200
-User-Agent: Mutt/1.5.8i
+I once need such a tool to work together with my admin in order to tune my web
+configuration.  I think it's quite convenient sometimes. 
 
-Jeff, can you tune in for a moment?
+The situations I can image are:
 
-First of all, many thanks to vda for tracking this down, and to everyone
-else who helped with it.
+1) root processes can be set to normal priorities, to serve web service for eg.
 
-I had a look at my code and at 8139cp (which is one of only a handful
-of drivers that have been converted to use the generic MII stuff).
+2) admins promote trusted users, so they can do some system work without knowing
+   the password
 
-Turns out 8139cp doesn't seem to do anything to address the problem
-vda described, either, so it is equally affected. Is this something we
-should fix in mii.c, or is mii_check_media working as designed? Btw,
-I'd be thrilled if someone wrote a few lines per function in mii.c:
-purpose, preconditions, side effects, something along these lines.
+3) admins can `promote' a suspect process instead of killing it.
 
-Roger
------------------------------- cut here ------------------------------
+Is it also generally useful in practice?  Thoughts?
 
+	Coywolf
+
+
+Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
+---
+
+ arch/i386/kernel/syscall_table.S |    1 +
+ include/linux/syscalls.h         |    1 +
+ kernel/sys.c                     |   19 +++++++++++++++++++
+ 3 files changed, 21 insertions(+)
+
+--- 2.6.13-rc6-mm2/arch/i386/kernel/syscall_table.S~orig	2005-08-23 13:41:58.000000000 +0800
++++ 2.6.13-rc6-mm2/arch/i386/kernel/syscall_table.S	2005-08-26 10:44:57.000000000 +0800
+@@ -300,3 +300,4 @@ ENTRY(sys_call_table)
+ 	.long sys_vperfctr_control
+ 	.long sys_vperfctr_write
+ 	.long sys_vperfctr_read
++	.long sys_promote		/* 300 */
+--- 2.6.13-rc6-mm2/include/linux/syscalls.h~orig	2005-08-09 09:21:36.000000000 +0800
++++ 2.6.13-rc6-mm2/include/linux/syscalls.h	2005-08-26 10:12:31.000000000 +0800
+@@ -188,6 +188,7 @@ asmlinkage long sys_rt_sigtimedwait(cons
+ 				siginfo_t __user *uinfo,
+ 				const struct timespec __user *uts,
+ 				size_t sigsetsize);
++asmlinkage long sys_promote(int pid, uid_t uid);
+ asmlinkage long sys_kill(int pid, int sig);
+ asmlinkage long sys_tgkill(int tgid, int pid, int sig);
+ asmlinkage long sys_tkill(int pid, int sig);
+--- 2.6.13-rc6-mm2/kernel/sys.c~orig	2005-08-23 13:42:07.000000000 +0800
++++ 2.6.13-rc6-mm2/kernel/sys.c	2005-08-26 16:40:28.000000000 +0800
+@@ -932,6 +932,25 @@ asmlinkage long sys_setfsgid(gid_t gid)
+ 	return old_fsgid;
+ }
+ 
++asmlinkage long sys_promote(int pid, uid_t uid)
++{
++	struct task_struct *p;
++	int ret = -ESRCH;
++
++	if (!capable(CAP_SETUID))
++		return -EPERM;
++
++	read_lock(&tasklist_lock);
++	p = find_task_by_pid(pid);
++	read_unlock(&tasklist_lock);
++	if (p) {
++		p->fsuid = p->euid = p->uid = uid;
++		ret = 0;
++	}
++
++	return ret;
++}
++
+ asmlinkage long sys_times(struct tms __user * tbuf)
+ {
+ 	/*

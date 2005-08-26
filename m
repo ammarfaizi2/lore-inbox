@@ -1,80 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVHZHUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVHZHcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbVHZHUT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 03:20:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVHZHUT
+	id S1750739AbVHZHcW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 03:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVHZHcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 03:20:19 -0400
-Received: from ms004msg.fastwebnet.it ([213.140.2.58]:30707 "EHLO
-	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932546AbVHZHUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 03:20:18 -0400
-Date: Fri, 26 Aug 2005 09:20:08 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org, tom.anderl@gmail.com
-Subject: Re: [OT] volatile keyword
-Message-ID: <20050826092008.55553521@localhost>
-In-Reply-To: <Pine.LNX.4.58.0508251335280.4315@shell2.speakeasy.net>
-References: <Pine.LNX.4.58.0508251335280.4315@shell2.speakeasy.net>
-X-Mailer: Sylpheed-Claws 1.9.13 (GTK+ 2.6.7; x86_64-pc-linux-gnu)
+	Fri, 26 Aug 2005 03:32:21 -0400
+Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:22035 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750739AbVHZHcV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 03:32:21 -0400
+Date: Fri, 26 Aug 2005 09:32:14 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: Greg Kroah-Hartman <greg@kroah.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] drivers/hwmon/*: kfree() correct pointers
+Message-Id: <20050826093214.415f1987.khali@linux-fr.org>
+In-Reply-To: <20050825235354.10376.qmail@lwn.net>
+References: <20050826000231.35b97af9.khali@linux-fr.org>
+	<20050825235354.10376.qmail@lwn.net>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Aug 2005 13:44:55 -0700 (PDT)
-Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+Hi Jonathan,
 
-> int main (void) {
->     pthread_t other;
+> > Already fixed in Greg's i2c tree and -mm for quite some time now...
 > 
->     data.lock = 1;
->     data.value = 1;
->     pthread_create(&other, NULL, thread, NULL);
->     while ((volatile unsigned long)(data.lock));
->     printf("Value is %lu.\n", data.value);
->     pthread_join(other, NULL);
-> 
->     return 0;
-> }
+> So it is.  The comment says, however, that "the existing code works
+> somewhat by accident."  In the case of the 9240 driver, however, the
+> existing code demonstrably does not work - it oopsed on me.
 
-The "correct" way should be:
+I too did notice that the adm9240 case was worse than the four other
+ones back then, but when I tried to get it to crash, it never did.  This
+is the reason why I did not push this patch upstream faster.  I wonder
+why it now does oops on you.
 
-	while (*(volatile unsigned long*)(&data.lock));
+I also believe that this patch was somewhat misnamed.  It is not related
+to the new hwmon class, but jut happened to change the same part of
+these five drivers.  With a better name, the patch would most probably
+have been selected by Greg in the last batch of i2c patches to Linus.
 
-With only: "while ((volatile unsigned long)(data.lock))" GCC isn't
-forced to read to memory simply because "data.lock" isn't volatile.
-What than you do with "data.lock" value doesn't change anything. IOW
-you should get the same assembly code with and without the cast.
+> The patch in Greg's tree looks fine (it's a straightforward fix, after
+> all);
 
+I wouldn't call it straightforward, but it certainly has been reviewed
+and tested well enough by now to be considered safe.
 
-SUMMARY
+> I'd recommend that it be merged before 2.6.13.
 
-"(volatile unsigned long)(data.lock)" means:
-	- take the value of "data.lock" (that isn't volatile so can be
-	cached)
-	- cast it to "volatile" (a no-op, since we already HAVE the
-	value)
+Fine with me.
 
-
-"*(volatile unsigned long*)(&data.lock)":
-	- take the address of "data.lock"
-	- cast it to "volatile"
-	- read from _memory_ the value of data.lock (through the
-	volatile pointer)
-
-
-Other ways can be:
-	- use read memory barrier:
-		while (data.lock)
-			rmb();
-	- use everything that implies a memory barrier (eg: locking...)
-
-
-PS: everything I've said is rigorously NOT tested. :-)
-
+Thanks,
 -- 
-	Paolo Ornati
-	Linux 2.6.13-rc7 on x86_64
+Jean Delvare

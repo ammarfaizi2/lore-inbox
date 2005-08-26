@@ -1,43 +1,770 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751581AbVHZWFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbVHZWSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751581AbVHZWFd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 18:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbVHZWFc
+	id S1030264AbVHZWSw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 18:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbVHZWSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 18:05:32 -0400
-Received: from lucidpixels.com ([66.45.37.187]:15794 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1751152AbVHZWFc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 18:05:32 -0400
-Date: Fri, 26 Aug 2005 18:05:31 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Patrick McFarland <pmcfarland@downeast.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel/Box Freezes Under Kernel 2.6.12.5
-In-Reply-To: <200508261751.11751.pmcfarland@downeast.net>
-Message-ID: <Pine.LNX.4.63.0508261805080.363@p34>
-References: <Pine.LNX.4.63.0508261733400.363@p34> <200508261751.11751.pmcfarland@downeast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 26 Aug 2005 18:18:48 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:50110 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S1751593AbVHZWSs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 18:18:48 -0400
+Subject: [patch] IBM HDAPS accelerometer driver, with probing.
+From: Robert Love <rml@novell.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 26 Aug 2005 18:18:45 -0400
+Message-Id: <1125094725.18155.120.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have three different Maxtor (promise) ATA/133 controllers, it happens 
-with all three.
+Andrew,
+
+Attached patch provides a driver for the IBM Hard Drive Active
+Protection System (hdaps) on top of 2.6.13-rc6-mm2.
+
+Over the previous post, it contains several fixes and improvements,
+including a dev->probe() routine and a DMI whitelist.
+
+	Robert Love
 
 
-On Fri, 26 Aug 2005, Patrick McFarland wrote:
+Driver for the IBM HDAPS
 
-> On Friday 26 August 2005 05:36 pm, Justin Piszcz wrote:
->> 2- ATA/133 Maxtor (ATA/Promise Controller)
->
-> Make sure its actually the kernel and not that controller. Go find another
-> identical one and test with it.
->
-> -- 
-> Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-> "Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd
-> all be running around in darkened rooms, munching magic pills and listening to
-> repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
->
+Signed-off-by: Robert Love <rml@novell.com>
+
+ MAINTAINERS            |    7 
+ drivers/hwmon/Kconfig  |   17 +
+ drivers/hwmon/Makefile |    1 
+ drivers/hwmon/hdaps.c  |  664 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 689 insertions(+)
+
+diff -urN linux-2.6.13-rc6-mm2/drivers/hwmon/hdaps.c linux/drivers/hwmon/hdaps.c
+--- linux-2.6.13-rc6-mm2/drivers/hwmon/hdaps.c	1969-12-31 19:00:00.000000000 -0500
++++ linux/drivers/hwmon/hdaps.c	2005-08-26 18:17:33.000000000 -0400
+@@ -0,0 +1,664 @@
++/*
++ * drivers/hwmon/hdaps.c - driver for IBM's Hard Drive Active Protection System
++ *
++ * Copyright (C) 2005 Robert Love <rml@novell.com> 
++ * Copyright (C) 2005 Jesper Juhl <jesper.juhl@gmail.com> 
++ *
++ * The HardDisk Active Protection System (hdaps) is present in the IBM ThinkPad
++ * T41, T42, T43, and R51, at least.  It provides a basic two-axis
++ * accelerometer and other misc. data.
++ *
++ * Based on the document by Mark A. Smith available at
++ * http://www.almaden.ibm.com/cs/people/marksmith/tpaps.html and a lot of trial
++ * and error.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ */
++
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <linux/input.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/timer.h>
++#include <linux/dmi.h>
++#include <linux/spinlock.h>
++#include <asm/io.h>
++
++#define HDAPS_LOW_PORT		0x1600	/* first port used by hdaps */
++#define HDAPS_HIGH_PORT		0x162f	/* last port used by hdaps */
++
++#define STATE_FRESH		0x50	/* accelerometer data is fresh */
++
++#define REFRESH_ASYNC		0x00	/* do asynchronous refresh */
++#define REFRESH_SYNC		0x01	/* do synchronous refresh */
++
++#define HDAPS_PORT_STATE	0x1611	/* device state */
++#define	HDAPS_PORT_XPOS		0x1612	/* x-axis position */
++#define HDAPS_PORT_YPOS		0x1614	/* y-axis position */
++#define HDAPS_PORT_TEMP		0x1616	/* device temperature, in celcius */
++#define HDAPS_PORT_XVAR		0x1617	/* x-axis variance (what is this?) */
++#define HDAPS_PORT_YVAR		0x1619	/* y-axis variance (what is this?) */
++#define HDAPS_PORT_TEMP2	0x161b	/* device temperature (again?) */
++#define HDAPS_PORT_UNKNOWN	0x161c	/* what is this? */
++#define HDAPS_PORT_KMACT	0x161d	/* keyboard or mouse activity */
++
++#define HDAPS_READ_MASK		0xff	/* some reads have the low 8 bits set */
++
++#define KEYBD_MASK		0x20	/* set if keyboard activity */
++#define MOUSE_MASK		0x40	/* set if mouse activity */
++
++#define KEYBD_ISSET(n)	(!! (n & KEYBD_MASK))
++#define MOUSE_ISSET(n)	(!! (n & MOUSE_MASK))
++
++static spinlock_t hdaps_lock = SPIN_LOCK_UNLOCKED;
++
++
++/*
++ * __get_latch - Get the value from a given port latch.  Callers must hold
++ * hdaps_lock.
++ */
++static inline unsigned short __get_latch(unsigned short port)
++{
++	return inb(port) & HDAPS_READ_MASK;
++}
++
++/*
++ * __check_latch - Check a port latch for a given value.  Callers must hold
++ * hdaps_lock.
++ */
++static inline unsigned int __check_latch(unsigned short port, unsigned char val)
++{
++	if (__get_latch(port) == val)
++		return 1;
++	return 0;
++}
++
++/*
++ * __wait_latch - Wait up to 100us for a port latch to get a certain value,
++ * returning nonzero if the value is obtained and zero otherwise.  Callers
++ * must hold hdaps_lock.
++ */
++static unsigned int __wait_latch(unsigned short port, unsigned char val)
++{
++	unsigned int i;
++
++	for (i = 0; i < 20; i++) {
++		if (__check_latch(port, val))
++			return 1;
++		udelay(5);
++	}
++
++	return 0;
++}
++
++/*
++ * __request_refresh - Request a refresh from the accelerometer.
++ *
++ * If sync is REFRESH_SYNC, we perform a synchronous refresh and will wait for
++ * the refresh.  Returns nonzero if successful or zero on error.
++ *
++ * If sync is REFRESH_ASYNC, we merely kick off a new refresh if the device is
++ * not up-to-date.  Always returns true.  On the next read from the device, the
++ * data should be up-to-date but a synchronous wait should be performed to be
++ * sure.
++ * 
++ * Callers must hold hdaps_lock.
++ */
++static int __request_refresh(int sync)
++{
++	unsigned char state;
++
++	state = inb(0x1604);
++	if (state == STATE_FRESH)
++		return 1;
++	else {
++		outb(0x11, 0x1610);
++		outb(0x01, 0x161f);
++		if (sync == REFRESH_ASYNC)
++			return 1;
++	}
++
++	return __wait_latch(0x1604, STATE_FRESH);
++}
++
++/*
++ * __tell_accelerometer_done - Indicate to the accelerometer that we are done
++ * reading data.  Callers must hold hdaps_lock.
++ */
++static inline void __tell_accelerometer_done(void)
++{
++	inb(0x161f);
++	inb(0x1604);
++}
++
++/* internal lockless helper for accelerometer_readb_one */
++static int __accelerometer_readb_one(unsigned int port, u8 *val)
++{
++	int ret = 0;
++
++	/* do a sync refresh - we need to be sure we read fresh data */
++	if (unlikely(!__request_refresh(REFRESH_SYNC))) {
++		ret = -EIO;
++		goto out;
++	}
++
++	*val = inb(port);
++
++	__tell_accelerometer_done();
++
++	if (unlikely(!__request_refresh(REFRESH_ASYNC)))
++		ret = -EIO;
++
++out:
++	return ret;
++}
++
++/*
++ * accelerometer_readb_one - reads a byte from a single given I/O port,
++ * placing the value in the given pointer.  Returns zero on success or a
++ * negative error on failure.
++ */
++static int accelerometer_readb_one(unsigned int port, u8 *val)
++{
++	int ret = 0;
++
++	spin_lock(&hdaps_lock);
++	ret = __accelerometer_readb_one(port, val);
++	spin_unlock(&hdaps_lock);
++	return ret;
++}
++
++/*
++ * accelerometer_read_pair - reads the values from a given pair of I/O ports,
++ * placing the values in the given pointers.  Returns zero on success or a
++ * negative error on failure.
++ */
++static int accelerometer_read_pair(unsigned int port1, unsigned int port2,
++				   int *val1, int *val2)
++{
++	int ret = 0;
++
++	spin_lock(&hdaps_lock);
++
++	/* do a sync refresh - we need to be sure we read fresh data */
++	if (unlikely(!__request_refresh(REFRESH_SYNC))) {
++		ret = -EIO;
++		goto out;
++	}
++
++	*val1 = inw(port1);
++	*val2 = inw(port2);
++
++	__tell_accelerometer_done();
++
++	if (unlikely(!__request_refresh(REFRESH_ASYNC)))
++		ret = -EIO;
++
++out:
++	spin_unlock(&hdaps_lock);
++	return ret;
++}
++
++#define INIT_TIMEOUT_MSECS	4000	/* wait up to 4s for device init ... */
++#define INIT_WAIT_MSECS		200	/* ... in 200ms increments */
++
++/* initialize the accelerometer */
++static int accelerometer_init(void)
++{
++	unsigned int total_msecs = INIT_TIMEOUT_MSECS;
++	unsigned int msecs_per_wait = INIT_WAIT_MSECS;
++	int ret = -EIO;
++
++	spin_lock(&hdaps_lock);
++
++	outb(0x13, 0x1610);
++	outb(0x01, 0x161f);
++	if (unlikely(!__wait_latch(0x161f, 0x00)))
++		goto out;
++
++	/*
++	 * The 0x3 value appears to only work on some thinkpads, such as the
++	 * T42p.  Others return 0x1.
++	 *
++	 * The 0x2 value occurs when the chip has been previously initialized.
++	 */	
++	if (unlikely(!__check_latch(0x1611, 0x03) &&
++			!__check_latch(0x1611, 0x02) &&
++		    	!__check_latch(0x1611, 0x01)))
++		goto out;
++
++	printk(KERN_DEBUG "hdaps: initial latch check good (0x%02x).\n",
++	       __get_latch(0x1611));
++
++	outb(0x17, 0x1610);
++	outb(0x81, 0x1611);
++	outb(0x01, 0x161f);
++	if (unlikely(!__wait_latch(0x161f, 0x00)))
++		goto out;
++	if (unlikely(!__wait_latch(0x1611, 0x00)))
++		goto out;
++	if (unlikely(!__wait_latch(0x1612, 0x60)))
++		goto out;
++	if (unlikely(!__wait_latch(0x1613, 0x00)))
++		goto out;
++	outb(0x14, 0x1610);
++	outb(0x01, 0x1611);
++	outb(0x01, 0x161f);
++	if (unlikely(!__wait_latch(0x161f, 0x00)))
++		goto out;
++	outb(0x10, 0x1610);
++	outb(0xc8, 0x1611);
++	outb(0x00, 0x1612);
++	outb(0x02, 0x1613);
++	outb(0x01, 0x161f);
++	if (unlikely(!__wait_latch(0x161f, 0x00)))
++		goto out;
++	if (unlikely(!__request_refresh(REFRESH_SYNC)))
++		goto out;
++	if (unlikely(!__wait_latch(0x1611, 0x00)))
++		goto out;
++
++	/* we have done our dance, now let's wait for the applause */
++	ret = -ENXIO;
++	while (total_msecs > 0) {
++		u8 ignored;
++
++		/* a read of the device helps push it into action */
++		__accelerometer_readb_one(HDAPS_PORT_TEMP2, &ignored);
++		if (__wait_latch(0x1611, 0x02)) {
++			ret = 0;
++			break;
++		}
++		spin_unlock(&hdaps_lock);
++
++		msleep(msecs_per_wait);
++		total_msecs -= msecs_per_wait;
++
++		spin_lock(&hdaps_lock);
++	}
++
++out:
++	spin_unlock(&hdaps_lock);
++	return ret;
++}
++
++
++/* device class stuff */
++
++
++static int hdaps_probe(struct device *dev)
++{
++	int ret;
++
++	ret = accelerometer_init();
++	if (unlikely(ret))
++		goto out;
++
++	printk(KERN_INFO "hdaps: device initialized.\n");
++	return 0;
++
++out:
++	printk(KERN_WARNING "hdaps: device probe failed (ret=%d)!\n", ret);
++	return ret;
++}
++
++static int hdaps_resume(struct device *dev, u32 level)
++{
++	if (level == RESUME_ENABLE)
++		return accelerometer_init();
++	return 0;
++}
++
++static struct device_driver hdaps_driver = {
++	.name = "hdaps",
++	.bus = &platform_bus_type,
++	.owner = THIS_MODULE,
++	.probe = hdaps_probe,
++	.resume = hdaps_resume
++};
++
++
++/* Input device stuff */
++
++static struct platform_device *pdev;
++static struct input_dev hdaps_idev;
++static struct timer_list hdaps_poll_timer;
++static unsigned int hdaps_mousedev_threshold = 4;
++static unsigned long hdaps_poll_ms = 25;
++static int hdaps_mousedev_enabled;
++static u16 rest_x;
++static u16 rest_y;
++
++static void hdaps_calibrate(void)
++{
++	int x, y, ret;
++
++	ret = accelerometer_read_pair(HDAPS_PORT_XPOS, HDAPS_PORT_YPOS, &x, &y);
++	if (unlikely(ret))
++		return;
++
++	rest_x = x;
++	rest_y = y;
++}
++
++static void hdaps_mousedev_poll(unsigned long unused)
++{
++	int movex, movey, x, y, ret;
++
++	ret = accelerometer_read_pair(HDAPS_PORT_XPOS, HDAPS_PORT_YPOS, &x, &y);
++	if (unlikely(ret))
++		return;
++
++	movex = rest_x - x;
++	movey = rest_y - y;
++	if (abs(movex) > hdaps_mousedev_threshold)
++		input_report_rel(&hdaps_idev, REL_Y, movex);
++	if (abs(movey) > hdaps_mousedev_threshold)
++		input_report_rel(&hdaps_idev, REL_X, movey);
++	input_sync(&hdaps_idev);
++
++	mod_timer(&hdaps_poll_timer, jiffies + msecs_to_jiffies(hdaps_poll_ms));
++}
++
++/*
++ * hdaps_mousedev_enable - enable the input class device.  Caller must hold
++ * hdaps_lock.
++ */
++static void hdaps_mousedev_enable(void)
++{
++	/* calibrate the device before enabling */
++	hdaps_calibrate();
++
++	init_input_dev(&hdaps_idev);
++	hdaps_idev.dev = &pdev->dev;
++	hdaps_idev.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
++	hdaps_idev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
++	hdaps_idev.keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT);
++	input_register_device(&hdaps_idev);
++
++	hdaps_mousedev_enabled = 1;
++
++	init_timer(&hdaps_poll_timer);
++	hdaps_poll_timer.function = hdaps_mousedev_poll;
++	hdaps_poll_timer.expires = jiffies + msecs_to_jiffies(hdaps_poll_ms);
++	add_timer(&hdaps_poll_timer);
++
++	printk(KERN_INFO "hdaps: input device enabled.\n");
++}
++
++/*
++ * hdaps_mousedev_disable - disable the input class device.  Caller must hold
++ * hdaps_lock.
++ */
++static void hdaps_mousedev_disable(void)
++{
++	if (!hdaps_mousedev_enabled)
++		return;
++
++	hdaps_mousedev_enabled = 0;
++
++	del_timer_sync(&hdaps_poll_timer);
++	input_unregister_device(&hdaps_idev);
++}
++
++
++/* Sysfs Files */
++
++static ssize_t hdaps_position_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	int ret, x, y;
++
++	ret = accelerometer_read_pair(HDAPS_PORT_XPOS, HDAPS_PORT_YPOS, &x, &y);
++	if (unlikely(ret))
++		return ret;
++
++	return sprintf(buf, "(%d,%d)\n", x, y);
++}
++static DEVICE_ATTR(position, 0444, hdaps_position_show, NULL);
++
++static ssize_t hdaps_variance_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	int ret, x, y;
++
++	ret = accelerometer_read_pair(HDAPS_PORT_XVAR, HDAPS_PORT_YVAR, &x, &y);
++	if (unlikely(ret))
++		return ret;
++
++	return sprintf(buf, "(%d,%d)\n", x, y);
++}
++static DEVICE_ATTR(variance, 0444, hdaps_variance_show, NULL);
++
++static ssize_t hdaps_temp_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	u8 temp;
++	int ret;
++
++	ret = accelerometer_readb_one(HDAPS_PORT_TEMP, &temp);
++	if (unlikely(ret < 0))
++		return ret;
++
++	return sprintf(buf, "%u\n", temp);
++}
++static DEVICE_ATTR(temp, 0444, hdaps_temp_show, NULL);
++
++static ssize_t hdaps_mousedev_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	return sprintf(buf, "%d\n", hdaps_mousedev_enabled);
++}
++
++static ssize_t hdaps_mousedev_store(struct device *dev,
++				    struct device_attribute *attr,
++				    const char *buf, size_t count)
++{
++	int enable;
++
++	if (sscanf(buf, "%d", &enable) != 1)
++		return -EINVAL;
++
++	spin_lock(&hdaps_lock);
++	if (enable == 1)
++		hdaps_mousedev_enable();
++	else if (enable == 0)
++		hdaps_mousedev_disable();
++	spin_unlock(&hdaps_lock);
++
++	return count;
++}
++
++static DEVICE_ATTR(mousedev, 0644, hdaps_mousedev_show, hdaps_mousedev_store);
++
++static ssize_t hdaps_calibrate_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	hdaps_calibrate();
++	return count;
++}
++static DEVICE_ATTR(calibrate, 0200, NULL, hdaps_calibrate_store);
++
++static ssize_t hdaps_threshold_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	return sprintf(buf, "%u\n", hdaps_mousedev_threshold);
++}
++
++static ssize_t hdaps_threshold_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	unsigned int threshold;
++
++	if (sscanf(buf, "%u", &threshold) != 1 || threshold == 0)
++		return -EINVAL;
++	hdaps_mousedev_threshold = threshold;
++
++	return count;
++}
++
++static DEVICE_ATTR(mousedev_threshold, 0644, hdaps_threshold_show,
++		   hdaps_threshold_store);
++
++static ssize_t hdaps_poll_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return sprintf(buf, "%lu\n", hdaps_poll_ms);
++}
++
++static ssize_t hdaps_poll_store(struct device *dev,
++				struct device_attribute *attr,
++				const char *buf, size_t count)
++{
++	unsigned int poll;
++
++	if (sscanf(buf, "%u", &poll) != 1 || poll == 0)
++		return -EINVAL;
++	hdaps_poll_ms = poll;
++
++	return count;
++}
++
++static DEVICE_ATTR(mousedev_poll_ms, 0644, hdaps_poll_show, hdaps_poll_store);
++
++
++/* Module stuff */
++
++static unsigned int mousedev;
++module_param(mousedev, bool, 0);
++MODULE_PARM_DESC(mousedev, "enable the input class device");
++
++static int hdaps_dmi_match(struct dmi_system_id *id)
++{
++	printk(KERN_INFO "hdaps: %s detected.\n", id->ident);
++	return 0;
++}
++
++static int __init hdaps_init(void)
++{
++	int ret;
++
++	/*
++	 * Currently, DMI_MATCH(...,"pirate") will match "pirate*" so we only
++	 * check for e.g. "ThinkPad T42" and not also "ThinkPad T42p".
++	 */
++	struct dmi_system_id hdaps_whitelist[] = {
++		{
++			.ident = "IBM ThinkPad T41",
++			.callback = hdaps_dmi_match,
++			.matches = {
++				DMI_MATCH(DMI_BOARD_VENDOR, "IBM"),
++				DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T41"),
++			}
++		},
++		{
++			.ident = "IBM ThinkPad T42",
++			.callback = hdaps_dmi_match,
++			.matches = {
++				DMI_MATCH(DMI_BOARD_VENDOR, "IBM"),
++				DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T42"),
++			}
++		},
++		{
++			.ident = "IBM ThinkPad T43",
++			.callback = hdaps_dmi_match,
++			.matches = {
++				DMI_MATCH(DMI_BOARD_VENDOR, "IBM"),
++				DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T43"),
++			}
++		},
++		{ .matches = { DMI_MATCH(DMI_NONE, NULL) } }
++	};
++
++	if (!dmi_check_system(hdaps_whitelist)) {
++		printk(KERN_WARNING "hdaps: supported laptop not found!\n");
++		ret = -ENODEV;
++		goto out;
++	}
++
++	ret = driver_register(&hdaps_driver);
++	if (unlikely(ret))
++		goto out;
++
++#if defined(CONFIG_PNPACPI) || defined(CONFIG_PNPBIOS)
++	/*
++	 * If CONFIG_PNPACPI or CONFIG_PNPBIOS is enabled, the ACPI layer is
++	 * going to claim all motherboard resources.  And there is no way for
++	 * hdaps to repossess them--so we don't.
++	 */
++	pdev = platform_device_register_simple("hdaps", -1, NULL, 0);
++#else
++	{
++		struct resource res = {	.name = "hdaps",
++					.start = HDAPS_LOW_PORT,
++					.end = HDAPS_HIGH_PORT,
++					.flags = IORESOURCE_IO,
++					.parent = &ioport_resource };
++
++		pdev = platform_device_register_simple("hdaps", -1, &res, 1);
++	}
++#endif
++	if (unlikely(IS_ERR(pdev))) {
++		ret = PTR_ERR(pdev);
++		goto out_driver;
++	}
++
++	device_create_file(&pdev->dev, &dev_attr_position);
++	device_create_file(&pdev->dev, &dev_attr_variance);
++	device_create_file(&pdev->dev, &dev_attr_temp);
++	device_create_file(&pdev->dev, &dev_attr_calibrate);
++	device_create_file(&pdev->dev, &dev_attr_mousedev);
++	device_create_file(&pdev->dev, &dev_attr_mousedev_threshold);
++	device_create_file(&pdev->dev, &dev_attr_mousedev_poll_ms);
++
++	if (mousedev)
++		hdaps_mousedev_enable();
++
++	printk(KERN_INFO "hdaps: driver initialized.\n");
++	return 0;
++
++out_driver:
++	driver_unregister(&hdaps_driver);
++out:
++	printk(KERN_WARNING "hdaps: driver init failed (ret=%d)!\n", ret);
++	return ret;
++}
++
++static void __exit hdaps_exit(void)
++{
++	hdaps_mousedev_disable();
++
++	device_remove_file(&pdev->dev, &dev_attr_mousedev_poll_ms);
++	device_remove_file(&pdev->dev, &dev_attr_mousedev_threshold);
++	device_remove_file(&pdev->dev, &dev_attr_mousedev);
++	device_remove_file(&pdev->dev, &dev_attr_temp);
++	device_remove_file(&pdev->dev, &dev_attr_calibrate);
++	device_remove_file(&pdev->dev, &dev_attr_variance);
++	device_remove_file(&pdev->dev, &dev_attr_position);
++	platform_device_unregister(pdev);
++	driver_unregister(&hdaps_driver);
++
++	printk(KERN_INFO "hdaps: driver unloaded successfully.\n");
++}
++
++module_init(hdaps_init);
++module_exit(hdaps_exit);
++
++MODULE_AUTHOR("Robert Love");
++MODULE_DESCRIPTION("IBM Hard Drive Active Protection System (HDAPS) driver");
++MODULE_LICENSE("GPL");
+diff -urN linux-2.6.13-rc6-mm2/drivers/hwmon/Kconfig linux/drivers/hwmon/Kconfig
+--- linux-2.6.13-rc6-mm2/drivers/hwmon/Kconfig	2005-08-26 11:06:49.000000000 -0400
++++ linux/drivers/hwmon/Kconfig	2005-08-26 18:16:18.000000000 -0400
+@@ -411,6 +411,23 @@
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called w83627ehf.
+ 
++config SENSORS_HDAPS
++	tristate "IBM Hard Drive Active Protection System (hdaps)"
++	depends on HWMON && INPUT && X86
++	default n
++	help
++	  This driver provides support for the IBM Hard Drive Active Protection
++	  System (hdaps), which provides an accelerometer and other misc. data.
++	  Supported laptops include the IBM ThinkPad T41, T42, T43, and R51.
++	  The accelerometer data is readable via sysfs.
++
++	  This driver also provides an input class device, allowing the
++	  laptop to act as a pinball machine-esque mouse.  This is off by
++	  default but enabled via sysfs or the module parameter "mousedev".
++	  
++	  Say Y here if you have an applicable laptop and want to experience
++	  the awesome power of hdaps.
++
+ config HWMON_DEBUG_CHIP
+ 	bool "Hardware Monitoring Chip debugging messages"
+ 	depends on HWMON
+diff -urN linux-2.6.13-rc6-mm2/drivers/hwmon/Makefile linux/drivers/hwmon/Makefile
+--- linux-2.6.13-rc6-mm2/drivers/hwmon/Makefile	2005-08-26 11:06:50.000000000 -0400
++++ linux/drivers/hwmon/Makefile	2005-08-26 18:10:27.000000000 -0400
+@@ -22,6 +22,7 @@
+ obj-$(CONFIG_SENSORS_FSCPOS)	+= fscpos.o
+ obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
+ obj-$(CONFIG_SENSORS_GL520SM)	+= gl520sm.o
++obj-$(CONFIG_SENSORS_HDAPS)	+= hdaps.o
+ obj-$(CONFIG_SENSORS_IT87)	+= it87.o
+ obj-$(CONFIG_SENSORS_LM63)	+= lm63.o
+ obj-$(CONFIG_SENSORS_LM75)	+= lm75.o
+diff -urN linux-2.6.13-rc6-mm2/MAINTAINERS linux/MAINTAINERS
+--- linux-2.6.13-rc6-mm2/MAINTAINERS	2005-08-26 11:06:58.000000000 -0400
++++ linux/MAINTAINERS	2005-08-26 18:10:27.000000000 -0400
+@@ -984,6 +984,13 @@
+ W:	http://www.nyx.net/~arobinso
+ S:	Maintained
+ 
++HDAPS
++P:	Robert Love
++M:	rlove@rlove.org
++M:	linux-kernel@vger.kernel.org
++W:	http://www.kernel.org/pub/linux/kernel/people/rml/hdaps/
++S:	Maintained
++
+ HFS FILESYSTEM
+ P:	Roman Zippel
+ M:	zippel@linux-m68k.org
+
+

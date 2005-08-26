@@ -1,90 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbVHZAQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbVHZAVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbVHZAQd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 20:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVHZAQc
+	id S965032AbVHZAVR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 20:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbVHZAVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 20:16:32 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8200 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965031AbVHZAQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 20:16:32 -0400
-Date: Fri, 26 Aug 2005 02:16:28 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: libata-dev queue updated
-Message-ID: <20050826001628.GF6471@stusta.de>
-References: <BF571719A4041A478005EF3F08EA6DF001617B39@pcsmail03.pcs.pc.ome.toshiba.co.jp>
+	Thu, 25 Aug 2005 20:21:17 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:1931
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S965032AbVHZAVQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Aug 2005 20:21:16 -0400
+Subject: Re: 2.6.13-rc7-rt1
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: dwalker@mvista.com
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1125012596.14592.12.camel@dhcp153.mvista.com>
+References: <20050825062651.GA26781@elte.hu>
+	 <1125012596.14592.12.camel@dhcp153.mvista.com>
+Content-Type: text/plain
+Organization: linutronix
+Date: Fri, 26 Aug 2005 02:22:04 +0200
+Message-Id: <1125015724.20120.143.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BF571719A4041A478005EF3F08EA6DF001617B39@pcsmail03.pcs.pc.ome.toshiba.co.jp>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 26, 2005 at 09:04:37AM +0900, Tomita, Haruo wrote:
-> On  Thursday, August 25, 2005 8:02 PM (JST), Adrian Bunk wrote:
-> 
-> > > 2.6.13- rc7-libata1.patch.bz2 was used. 
-> > > A combined mode of ata_piix seems not to work. 
-> > > Is the following patches correct?
-> > > 
-> > > diff -urN linux-2.6.13-rc7.orig/drivers/scsi/Kconfig 
-> > linux-2.6.13-rc7/drivers/scsi/Kconfig
-> > > --- linux-2.6.13-rc7.orig/drivers/scsi/Kconfig	
-> > 2005-08-25 13:44:33.000000000 +0900
-> > > +++ linux-2.6.13-rc7/drivers/scsi/Kconfig	2005-08-25 
-> > 14:33:38.000000000 +0900
-> > > @@ -424,7 +424,7 @@
-> > >  source "drivers/scsi/megaraid/Kconfig.megaraid"
-> > >  
-> > >  config SCSI_SATA
-> > > -	tristate "Serial ATA (SATA) support"
-> > > +	bool "Serial ATA (SATA) support"
-> > >  	depends on SCSI
-> > >  	help
-> > >  	  This driver family supports Serial ATA host controllers
-> > 
-> > No, this bug reintroduces a problem with SCSI=m.
-> 
-> Please explain this bug in detail. 
+On Thu, 2005-08-25 at 16:29 -0700, Daniel Walker wrote:
+> Devastating latency on a 3Ghz xeon .. Maybe the raw_spinlock in the
+> timer base is creating a unbounded latency?
 
-Assuming your patch is applied:
+The lock is only held for really short periods. The only possible long
+period would be migration of timers from a dead hotplug cpu to another.
+I guess thats not the case.
 
-With SCSI=m and SCSI_SATA=y this allows the static enabling of the SATA 
-drivers with unwanted effects, e.g.:
-- SCSI=m, SCSI_SATA=y, SCSI_ATA_ADMA=y
-  -> SCSI_ATA_ADMA is built statically but scsi/built-in.o is not linked 
-     into the kernel
-- SCSI=m, SCSI_SATA=y, SCSI_ATA_ADMA=y, SCSI_SATA_AHCI=m
-  -> SCSI_ATA_ADMA and libata are built statically but 
-     scsi/built-in.o is not linked into the kernel,
-     SCSI_SATA_AHCI is built modular (unresolved symbols due to missing 
-                                      libata)
+Do you have HIGH_RES_TIMERS enabled ?
 
-> > Which problem do you face?
-> > And how did this change alone fix it for you?
-> 
-> I am using Intel 82801EB SATA controller.
-> 2.6.13-rc7-libata1.patch.bz2 worked as PATA when 82801EB was used in a combined mode. 
-> Does quirk_intel_ide_combined() work effectively?
+> ( softirq-timer/1-13   |#1): new 66088 us maximum-latency critical section.
+>  => started at timestamp 1857957769: <__down_mutex+0x5f/0x295>
+>  =>   ended at timestamp 1858023857: <_raw_spin_unlock_irq+0x16/0x39>
 
-I do still not see how your proposed patch would have _any_ influence on 
-your problem.
+which mutex was taken and which raw spinlock released  ?
 
-> Thanks,
-> Haruo
+__down_mutex / _raw_spin_unlock_irq is an asymetric pair. Those sections
+should be symetric.
 
-cu
-Adrian
+I have the feeling that the call trace is not complete.
 
--- 
+> <ffffffff8047732a>{rt_secret_rebuild+0}
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+hint: rt_secret_rebuild() is a well known long running timer callback
+function. 
+
+tglx
+
 

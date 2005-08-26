@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbVHYX7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVHZAFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965028AbVHYX7N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 19:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVHYX7N
+	id S964980AbVHZAFL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 20:05:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbVHZAFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 19:59:13 -0400
-Received: from gemini.smart.net ([66.225.112.69]:8972 "EHLO gemini.smart.net")
-	by vger.kernel.org with ESMTP id S965028AbVHYX7N (ORCPT
+	Thu, 25 Aug 2005 20:05:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39849 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964980AbVHZAFK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 19:59:13 -0400
-Message-ID: <430E5B8E.5C89A06B@smart.net>
-Date: Thu, 25 Aug 2005 20:00:14 -0400
-From: "Daniel B." <dsb@smart.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18+dsb+smp+ide i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-References: <f192987705061303383f77c10c@mail.gmail.com>
-		 <f192987705061310202e2d9309@mail.gmail.com>
-		 <1118690448.13770.12.camel@localhost.localdomain>
-		 <200506152149.06367.pmcfarland@downeast.net>
-		 <20050616023630.GC9773@thunk.org> <87y89a7wfn.fsf@jbms.ath.cx>
-		 <20050616143727.GC10969@thunk.org>  <20050619175503.GA3193@elf.ucw.cz> <1119292723.3279.0.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+	Thu, 25 Aug 2005 20:05:10 -0400
+Date: Thu, 25 Aug 2005 17:02:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: Re: [PATCH 2/2] pipe: do not return POLLERR for fifo_poll
+Message-Id: <20050825170217.666edda3.akpm@osdl.org>
+In-Reply-To: <ilomki.fs3loe.5j02sm6rx63x13ip2d9643lta.beaver@cs.helsinki.fi>
+References: <ilomk8.i0yljb.2ul6sqfgelx5ik5dngkbmbkeu.beaver@cs.helsinki.fi>
+	<ilomki.fs3loe.5j02sm6rx63x13ip2d9643lta.beaver@cs.helsinki.fi>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+>
+> This patch changes fifo_poll not to return POLLERR to take care of a FIXME
+> in fs/pipe.c stating that "Most unices do not set POLLERR for fifos." The
+> comment has been there since 2.3.99-pre3 so either apply this patch or
+> alternatively, I can send a new one removing the unnecessary abstraction.
 > 
-> On Sul, 2005-06-19 at 18:55, Pavel Machek wrote:
 > ...
-> >
-> > If we are serious about utf-8 support in ext3, we should return
-> > -EINVAL if someone passes non-canonical utf-8 string.
-> 
-> That would ironically not be standards compliant
+> --- 2.6-mm.orig/fs/pipe.c
+> +++ 2.6-mm/fs/pipe.c
+> @@ -399,8 +399,8 @@ pipe_ioctl(struct inode *pino, struct fi
+>  }
+>  
+>  /* No kernel lock held - fine */
+> -static unsigned int
+> -pipe_poll(struct file *filp, poll_table *wait)
+> +static inline unsigned int
+> +__pipe_poll(struct file *filp, poll_table *wait, int can_err)
+>  {
+>  	unsigned int mask;
+>  	struct inode *inode = filp->f_dentry->d_inode;
+> @@ -420,15 +420,24 @@ pipe_poll(struct file *filp, poll_table 
+>  
+>  	if (filp->f_mode & FMODE_WRITE) {
+>  		mask |= (nrbufs < PIPE_BUFFERS) ? POLLOUT | POLLWRNORM : 0;
+> -		if (!info->readers)
+> +		if (can_err && !info->readers)
+>  			mask |= POLLERR;
+>  	}
+>  
+>  	return mask;
+>  }
+>  
+> -/* FIXME: most Unices do not set POLLERR for fifos */
+> -#define fifo_poll pipe_poll
+> +static unsigned int
+> +pipe_poll(struct file *filp, poll_table *wait)
+> +{
+> +	return __pipe_poll(filp, wait, 1);
+> +}
+> +
+> +static unsigned int
+> +fifo_poll(struct file *filp, poll_table *wait)
+> +{
+> +	return __pipe_poll(filp, wait, 0);
+> +}
+>  
+>  static int
+>  pipe_release(struct inode *inode, int decr, int decw)
 
-Which standards?
+A userspace-visible change, no?
 
-The standards I've read (mostly XML- and web-related specs)
-do say that non-standard UTF-8 octet sequences should be rejected.
-
-
-Daniel
--- 
-Daniel Barclay
-dsb@smart.net
+So there's a risk in changing it.  What do we get in return?  Worried.

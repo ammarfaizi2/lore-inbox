@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbVHZTG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVHZTI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbVHZTG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbVHZTG6
+	id S1030202AbVHZTI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbVHZTI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:06:58 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:54146 "EHLO
+	Fri, 26 Aug 2005 15:08:56 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:20360 "EHLO
 	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP
-	id S1030198AbVHZTG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:06:57 -0400
+	id S1030203AbVHZTIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 15:08:54 -0400
 X-ORBL: [67.124.117.85]
-Date: Fri, 26 Aug 2005 12:06:47 -0700
+Date: Fri, 26 Aug 2005 12:08:51 -0700
 From: Chris Wedgwood <cw@f00f.org>
-To: dwilson24@nyc.rr.com
+To: Alan Jenkins <sourcejedi@gmail.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Initramfs and TMPFS!
-Message-ID: <20050826190647.GA12296@taniwha.stupidest.org>
-References: <200508260139.j7Q1dFME000555@ms-smtp-03.rdc-nyc.rr.com>
+Message-ID: <20050826190851.GB12296@taniwha.stupidest.org>
+References: <1124996732.5848.9.camel@singularity.jenkins>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200508260139.j7Q1dFME000555@ms-smtp-03.rdc-nyc.rr.com>
+In-Reply-To: <1124996732.5848.9.camel@singularity.jenkins>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 25, 2005 at 09:39:15PM -0400, dwilson24@nyc.rr.com wrote:
+On Thu, Aug 25, 2005 at 08:05:32PM +0100, Alan Jenkins wrote:
 
-> Wouldn't it be better to put overmount_rootfs in initramfs.c
-> and call it only if there's a initramfs?
+> I'm curious as to why the kernel has to include the decoder - why
+> you can't just run a self-extracting executable in an empty
+> initramfs (with a preset capacity if needs be).
 
-I don't see what or how that helps.  Yes we can shuffle some code
-about but the real problem still exists.
+You could do tht right now if you wished.
 
-That is is that (by design) the early userspace is unpacked as soon as
-possible before all kernel subsystems are up.
+We just support decompression in the kernel because it's not overly
+painful to do so (the code exists and works fairly well for the most
+part).  The code to do so isn't ver large and it's marked __init too
+(well, it should be).
+
+

@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVHZGrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbVHZGt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932528AbVHZGrD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 02:47:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVHZGrD
+	id S932535AbVHZGt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 02:49:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVHZGt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 02:47:03 -0400
-Received: from imap.gmx.net ([213.165.64.20]:32224 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932528AbVHZGrC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 02:47:02 -0400
-X-Authenticated: #2864774
-From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
-To: David Woodhouse <dwmw2@infradead.org>
-Date: Fri, 26 Aug 2005 08:46:29 +0200
+	Fri, 26 Aug 2005 02:49:27 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:52914 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S932535AbVHZGt0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 02:49:26 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Patrick Draper <pdraper@gmail.com>
+Subject: Re: VIA Rhine ethernet driver bug (reprise...)
+Date: Fri, 26 Aug 2005 09:33:45 +0300
+User-Agent: KMail/1.8.2
+Cc: Udo van den Heuvel <udovdh@xs4all.nl>, linux-kernel@vger.kernel.org
+References: <430A0B69.1060304@xs4all.nl> <200508231221.59299.vda@ilport.com.ua> <6981e08b0508252043139cfa2d@mail.gmail.com>
+In-Reply-To: <6981e08b0508252043139cfa2d@mail.gmail.com>
 MIME-Version: 1.0
-Subject: Re: Add pselect, ppoll system calls.
-CC: drepper@redhat.com, jakub@redhat.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, michael.kerrisk@gmx.net,
-       mtk-lkml@gmx.net
-Message-ID: <430ED6E5.29250.328C39C@localhost>
-In-reply-to: <1124928289.7316.92.camel@baythorne.infradead.org>
-References: <25911.1123246168@www3.gmx.net>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508260933.45402.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+On Friday 26 August 2005 06:43, Patrick Draper wrote:
+> On 8/23/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
+> > >Since it happens less than once a day, why not just add a code
+> > >to reset the NIC completely in this case, like it is
+> > >typically done in tx_timeout handlers of many NICs, and forget about it?
+> >
+> > Do you see any problems in this approach?
+>
+> I've refrained from posting here because my hardware is currently in the
+> closet, so I can't help too much. I had problems with Rhine on my ME6000
+> (VIA Mini-ITX) board. I tried to reset the NIC by unloading kernel modules
+> and reloading them, and reinitializing the network, and that didn't work
+> for me. The problem was triggered by merely unplugging the ethernet cable.
+> When it was plugged back in, the network was gone and only a reboot would
+> bring it back.
+>
+> Sorry I can't file a better bug report, but I won't be able to until
+> November at the earliest. But I thought you should know that at least one
+> person can't use the approach of resetting the NIC.
 
-> On Fri, 2005-08-05 at 14:49 +0200, Michael Kerrisk wrote:
-> > If I change your program to do something like the above, I also
-> > do not see a message from the handler -- i.e., it is not being
-> > called, and I'm pretty sure it should be.
-> 
-> Hm, yes. What happens is we come back out of the select() immediately
-> because of the pending signal, but on the way back to userspace we put the
-> old signal mask back... so by the time we check for it, there _is_ no
-> (unblocked) signal pending. 
-> 
-> If it's mandatory that we actually call the signal handler, 
-
-I'm just about to go off on holiday, and don't have a chance to pull up 
-all the relevant standards details at them moment.  However, I'm fairly 
-sure that the signal handler should be called.  (Try running a modified 
-version of my program on Solaris 10 or the Unix-03 conversion of AIX 
-(5.3?).)
-
-> then we need to
-> play tricks like sigsuspend() does to leave the old signal mask on the
-> stack frame. That's a bit painful atm because do_signal is different
-> between architectures. 
-
-Yes, I'd say the behaviour should in fact be like what sigsuspend() does.
-
-Cheers,
-
-Michael
+May be a known problem. A buglet in MII common code.
+Via-rhine maintainer knows about it, as does Jeff.
+--
+vda

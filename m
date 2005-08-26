@@ -1,138 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVHZKFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbVHZK3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbVHZKFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 06:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbVHZKFQ
+	id S932496AbVHZK3q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 06:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbVHZK3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 06:05:16 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:7570 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1750922AbVHZKFP convert rfc822-to-8bit (ORCPT
+	Fri, 26 Aug 2005 06:29:46 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:324 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751074AbVHZK3p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 06:05:15 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: VIA Rhine ethernet driver bug (reprise...)
-Date: Fri, 26 Aug 2005 13:04:56 +0300
-User-Agent: KMail/1.8.2
-Cc: Patrick Draper <pdraper@gmail.com>, Udo van den Heuvel <udovdh@xs4all.nl>,
-       linux-kernel@vger.kernel.org
-References: <430A0B69.1060304@xs4all.nl> <200508260933.45402.vda@ilport.com.ua> <430EC985.6040307@pobox.com>
-In-Reply-To: <430EC985.6040307@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 8BIT
+	Fri, 26 Aug 2005 06:29:45 -0400
+Date: Fri, 26 Aug 2005 12:29:43 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: robotti@godmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initramfs and TMPFS!
+Message-ID: <20050826102943.GA28640@harddisk-recovery.com>
+References: <200508251815.j7PIFDGe026463@ms-smtp-02.rdc-nyc.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508261304.56675.vda@ilport.com.ua>
+In-Reply-To: <200508251815.j7PIFDGe026463@ms-smtp-02.rdc-nyc.rr.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 August 2005 10:49, Jeff Garzik wrote:
-> Denis Vlasenko wrote:
-> > May be a known problem. A buglet in MII common code.
-> > Via-rhine maintainer knows about it, as does Jeff.
->
-> You don't speak for me, sir.
->
-> I know of no such problem.  Please submit a report and/or patch.
+On Thu, Aug 25, 2005 at 02:15:13PM -0400, robotti@godmail.com wrote:
+> 
+>    >Could you please please pretty please get an RFC compliant mailer that
+>    >generates  "In-Reply-To" and preferable even "References" headers?
+>    >Right
+>    >now every mail you write starts a new thread instead of referencing to
+>    >the previous one. See http://lkml.org/lkml/2005/8/25/180/ to see what
+>    >I mean.
+> 
+> I'm not subscribed to the list and I use lynx and a small mda
+> called msmtp, so I know it's awkward (perhaps mostly for me).
 
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: rl@hellgate.ch,
- "David S. Miller" <davem@davemloft.net>,
- Jeff Garzik <jgarzik@pobox.com>
-Subject: via-rhine + link loss + autoneg off == trouble
-Date: Thu, 11 Aug 2005 13:50:42 +0300
-Cc: linux-net@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Message-Id: <200508111350.42435.vda@ilport.com.ua>
+No, it's mostly awkward for the people reading linux-kernel.
+Linux-kernel is a very high volume mailing list, and proper use of
+email threading is *vital* to read it: you immediately get all
+references to previous messages, and it makes it easy to skip threads
+you're not interested in (nobody except Alan Cox and his gnomes reads
+every message to linux-kernel).
 
-I think I finally know what's going on.
+If you're not subscribed, the normal way is to:
 
-Again, the recipe:
-* have via-rhine NIC
-* unplug network cable
-* reboot box
-* force HDX (I do in with ethtool -s if autoneg off duplex half)
-* plug cable back
-* kernel still thinks that carrier is off despite "ethtool if"
-š saying that link is detected.
+- Ask to be Cc'ed (that usually happens anyway).
+- Reply to the sender, the list, and everybody else in the Cc list.
+- Keep In-Reply-To and References headers so the other subscribers know
+  what to read and what not.
 
-Why:
+> But, that's my setup.
 
-...
-š š š š if (intr_status & IntrLinkChange)
-š š š š š š š š rhine_check_media(dev, 0);
-...
+It would never occur to me to use something as inappropriate as a web
+browser as a mail client...
 
-static void rhine_check_media(struct net_device *dev, unsigned int init_media)
-{
-š š š š struct rhine_private *rp = netdev_priv(dev);
-š š š š void __iomem *ioaddr = rp->base;
+> Perhaps if the list had a followup/reply option, I could use that in lynx.
 
-š š š š mii_check_media(&rp->mii_if, debug, init_media);
-...
+It hasn't for good reasons. Read the LKML FAQ at http://www.tux.org/lkml/ .
 
-unsigned int mii_check_media (struct mii_if_info *mii,
-š š š š š š š š š š š š š š š unsigned int ok_to_print,
-š š š š š š š š š š š š š š š unsigned int init_media)
-{
-š š š š unsigned int old_carrier, new_carrier;
-š š š š int advertise, lpa, media, duplex;
-š š š š int lpa2 = 0;
+> But, the list just seems to be useful for reading purposes.
+> 
+> Perhaps I could access the list through a newsreader and the
+> replys would be threaded/referenced.
 
-š š š š /* if forced media, go no further */
-š š š š if (mii->force_media) š <============================ HERE
-š š š š š š š š return 0; /* duplex did not change */
+Please do so. It will certainly help you to get more/different replies.
 
-š š š š /* check current and old link status */
-š š š š old_carrier = netif_carrier_ok(mii->dev) ? 1 : 0;
-š š š š new_carrier = (unsigned int) mii_link_ok(mii);
+>    >Cpio is perhaps as available as tar, but it's not as used as tar.
+>    >>So? Firefox is as available as IE, but it's not as used as IE. Does
+>    >>that make IE better?
+>    
+> I have no opinion on which one is better.
+>    
+> I prefer tar because I have more experience with it, and it works.
 
-š š š š /* if carrier state did not change, this is a "bounce",
-š š š š š* just exit as everything is already set correctly
-š š š š š*/
-š š š š if ((!init_media) && (old_carrier == new_carrier))
-š š š š š š š š return 0; /* duplex did not change */
+The kernel people prefer cpio because they have experience with it, it
+doesn't need too much code, and it works.
 
-š š š š /* no carrier, nothing much to do */
-š š š š if (!new_carrier) {
-š š š š š š š š netif_carrier_off(mii->dev);
-š š š š š š š š if (ok_to_print)
-š š š š š š š š š š š š printk(KERN_INFO "%s: link down\n", mii->dev->name);
-š š š š š š š š return 0; /* duplex did not change */
-š š š š }
+> It seems to be the most used archiver in the UNIX world.
 
-š š š š /*
-š š š š š* we have carrier, see who's on the other end
-š š š š š*/
-š š š š netif_carrier_on(mii->dev);
-...
+You've been told that there are *technical* reasons not to use tar in
+the kernel. The kernel developers never cared about what was most used
+or what "the market wants", but only about what was *technically* useful.
 
-We can never reach netif_carrier_on if mii->force_media == TRUE!
+>    >I know generally an initrd is used to load modules and prepare
+>    >the installation of a Linux system, so it doesn't require much
+>    >in a filesystem.
+>    >>An initramfs can be used to do the same, but doesn't have the overhead
+>    >>of a block device. IOW: it requires even *less* than an initrd.
+>    
+> Right, an initramfs can/should replace the old initrd method, but
+> it should be comparable and have a filesystem like tmpfs as an option.
 
-If I disable that "if(...) return 0;" it works.
-Instrumented log:
+Initramfs using ramfs *is* comparable and it *has* a filesystem.
 
-17:54:20.07751 kern.info: qdisc_restart: start, q->dequeue=c03e86c6 <== 
-noop_dequeue
-17:54:21.07736 kern.info: qdisc_restart: start, q->dequeue=c03e86c6
-17:54:23.14445 kern.info: rhine_check_media(init_media:0)
-17:54:23.14454 kern.info: mii_check_media
-17:54:23.14457 kern.info: mii_check_media: mii->force_media == TRUE, bailing 
-DISABLED --vda
-17:54:23.14462 kern.info: mii_check_media: old_carrier:0 new_carrier:1
-17:54:23.14466 kern.info: mii_check_media: netif_carrier_on
-17:54:23.14469 kern.info: if: link up, 10Mbps, half-duplex, lpa 0x0000
-17:54:23.14474 kern.info: dev_activate(if);
-17:54:23.14477 kern.info: dev_activate(): dev->qdisc = dev->qdisc_sleeping
-17:54:24.64489 kern.info: pfifo_fast_enqueue returns 0
-17:54:24.64496 kern.info: pfifo_fast_dequeue returns a skb
-17:54:24.64499 kern.info: pfifo_fast_dequeue returns NULL
-17:54:24.64584 kern.info: pfifo_fast_enqueue returns 0
-17:54:24.64588 kern.info: qdisc_restart: start, q->dequeue=c03e87b6 <== 
-pfifo_fast_dequeue
-17:54:24.64597 kern.info: pfifo_fast_dequeue returns a skb
-17:54:24.64601 kern.info: qdisc_restart: skb!=NULL
---
-vda
+> The old initrd method could use any filesystem for the initrd
+> that the kernel could support, but now with initramfs all you
+> have is ramfs.
+
+Did you ever take some time to actually *understand* what ramfs is,
+*why* it is used for initramfs, and why you can't use any filesystem
+you like for an initramfs?
+
+> If you add tmpfs to initramfs you make initramfs comparable enough
+> (on the filesystem level) to replace the old initrd method.
+
+Read the code, ramfs *is* comparable to the old initrd method, and
+tmpfs is the same as ramfs with the difference that its pages can be
+swapped out.
+
+> Initramfs is already ahead of the old initrd method on other levels.
+
+It is, but mostly because it makes the kernel boot procedure so much
+easier and removes a lot of special cases in the code.
+
+>    >But, it can also be used to hold and run a complete Linux system,
+>    >so a more robust filesystem (tmpfs) is useful.
+>    >>What makes you think tmpfs is more robust than ramfs? What do you mean
+>    >>with a "robust filesystem"?
+> 
+> I've used tmpfs and ramfs, so it's based on experience.
+
+You have used both, so why is tmpfs a "robust filesystem" and ramfs
+not? Again, what is your definition of a "robust filesystem"?
+
+> I'm sure someone could give you a more technical answer, but if
+> you're a coder you would probably already know.
+> 
+> For one, if you do "dd if=/dev/zero of=foo" on a ramfs the system
+> will lock up.
+
+"Doctor, it hurts when I do this!" "Well, then don't do that."
+You found a nice case of "Unix, rope, foot".
+
+
+Erik
+
+PS: I'm not going to hunt through my linux-kernel mailbox for replies
+  without proper In-Reply-To and References headers in the hope that I
+  stumble over a possible reply from you. Any reply without such
+  headers will most probably not been seen and just ignored.
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

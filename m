@@ -1,16 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751577AbVHZOJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751580AbVHZOJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751577AbVHZOJM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 10:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbVHZOJM
+	id S1751580AbVHZOJg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 10:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751581AbVHZOJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 10:09:12 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:33419 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751577AbVHZOJJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 10:09:09 -0400
-Subject: [Resend] [Hugetlb x86] 2/3 Move stale pte check into
-	huge_pte_alloc()
+	Fri, 26 Aug 2005 10:09:36 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:53726 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751578AbVHZOJf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 10:09:35 -0400
+Subject: [Resend] [Hugetlb x86] 3/3 Check p?d_present in huge_pte_offset()
 From: Adam Litke <agl@us.ibm.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
@@ -18,8 +17,8 @@ In-Reply-To: <1124819866.4415.13.camel@localhost.localdomain>
 References: <1124819866.4415.13.camel@localhost.localdomain>
 Content-Type: text/plain
 Organization: IBM
-Date: Fri, 26 Aug 2005 09:09:06 -0500
-Message-Id: <1125065346.3119.3.camel@localhost.localdomain>
+Date: Fri, 26 Aug 2005 09:09:26 -0500
+Message-Id: <1125065366.3119.5.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
@@ -28,69 +27,33 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Initial Post (Wed, 17 Aug 2005)
 
-This patch moves the
-	if (! pte_none(*pte))
-		hugetlb_clean_stale_pgtable(pte);
-logic into huge_pte_alloc() so all of its callers can be immune to the bug
-described by Kenneth Chen at http://lkml.org/lkml/2004/6/16/246
-
-> It turns out there is a bug in hugetlb_prefault(): with 3 level page table,
-> huge_pte_alloc() might return a pmd that points to a PTE page. It happens
-> if the virtual address for hugetlb mmap is recycled from previously used
-> normal page mmap. free_pgtables() might not scrub the pmd entry on
-> munmap and hugetlb_prefault skips on any pmd presence regardless what type 
-> it is.
-
-Unless I am missing something, it seems more correct to place the check inside
-huge_pte_alloc() to prevent a the same bug wherever a huge pte is allocated.
-It also allows checking for this condition when lazily faulting huge pages
-later in the series.
+For demand faulting, we cannot assume that the page tables will be populated.
+Do what the rest of the architectures do and test p?d_present() while walking
+down the page table.
 
 Diffed against 2.6.13-rc6
 
 Signed-off-by: Adam Litke <agl@us.ibm.com>
+
 ---
- arch/i386/mm/hugetlbpage.c |   13 +++++++++++--
- mm/hugetlb.c               |    2 --
- 2 files changed, 11 insertions(+), 4 deletions(-)
+ hugetlbpage.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 diff -upN reference/arch/i386/mm/hugetlbpage.c current/arch/i386/mm/hugetlbpage.c
 --- reference/arch/i386/mm/hugetlbpage.c
 +++ current/arch/i386/mm/hugetlbpage.c
-@@ -22,12 +22,21 @@ pte_t *huge_pte_alloc(struct mm_struct *
- {
- 	pgd_t *pgd;
- 	pud_t *pud;
--	pmd_t *pmd = NULL;
-+	pmd_t *pmd;
-+	pte_t *pte = NULL;
+@@ -46,8 +46,11 @@ pte_t *huge_pte_offset(struct mm_struct 
+ 	pmd_t *pmd = NULL;
  
  	pgd = pgd_offset(mm, addr);
- 	pud = pud_alloc(mm, pgd, addr);
- 	pmd = pmd_alloc(mm, pud, addr);
--	return (pte_t *) pmd;
-+
-+	if (!pmd)
-+		goto out;
-+	
-+	pte = (pte_t *) pmd;
-+	if (!pte_none(*pte) && !pte_huge(*pte))
-+		hugetlb_clean_stale_pgtable(pte);
-+out:
-+	return pte;
+-	pud = pud_offset(pgd, addr);
+-	pmd = pmd_offset(pud, addr);
++	if (pgd_present(*pgd)) {
++		pud = pud_offset(pgd, addr);
++		if (pud_present(*pud))
++			pmd = pmd_offset(pud, addr);
++	}
+ 	return (pte_t *) pmd;
  }
  
- pte_t *huge_pte_offset(struct mm_struct *mm, unsigned long addr)
-diff -upN reference/mm/hugetlb.c current/mm/hugetlb.c
---- reference/mm/hugetlb.c
-+++ current/mm/hugetlb.c
-@@ -360,8 +360,6 @@ int hugetlb_prefault(struct address_spac
- 			ret = -ENOMEM;
- 			goto out;
- 		}
--		if (! pte_none(*pte))
--			hugetlb_clean_stale_pgtable(pte);
- 
- 		idx = ((addr - vma->vm_start) >> HPAGE_SHIFT)
- 			+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
 
 

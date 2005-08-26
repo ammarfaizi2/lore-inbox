@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbVHZBur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVHZCIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbVHZBur (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Aug 2005 21:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbVHZBur
+	id S965048AbVHZCIU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Aug 2005 22:08:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbVHZCIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Aug 2005 21:50:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16844 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965045AbVHZBuq (ORCPT
+	Thu, 25 Aug 2005 22:08:20 -0400
+Received: from ozlabs.org ([203.10.76.45]:49131 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965048AbVHZCIU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Aug 2005 21:50:46 -0400
-Date: Thu, 25 Aug 2005 21:50:28 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Linus Torvalds <torvalds@osdl.org>, Ray Fucillo <fucillo@intersystems.com>,
-       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Douglas Shakshober <dshaks@redhat.com>
-Subject: Re: process creation time increases linearly with shmem
-In-Reply-To: <430E6FD4.9060102@yahoo.com.au>
-Message-ID: <Pine.LNX.4.63.0508252147040.9987@cuia.boston.redhat.com>
-References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au>
- <Pine.LNX.4.63.0508251331040.25774@cuia.boston.redhat.com>
- <430E6FD4.9060102@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 Aug 2005 22:08:20 -0400
+Subject: Re: Redundant up operation in stop_machine.c ?(2.6.12)
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Yingchao Zhou <puppylove_0814@yahoo.com.cn>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050825135937.85228.qmail@web15003.mail.cnb.yahoo.com>
+References: <20050825135937.85228.qmail@web15003.mail.cnb.yahoo.com>
+Content-Type: text/plain
+Date: Fri, 26 Aug 2005 12:08:22 +1000
+Message-Id: <1125022102.9945.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Aug 2005, Nick Piggin wrote:
-
-> > Skipping MAP_SHARED in fork() sounds like a good idea to me...
+On Thu, 2005-08-25 at 21:59 +0800, Yingchao Zhou wrote:
+> In stop_machine function, there are codes:
+> 	if (ret < 0) {
+> 		stopmachine_set_state(STOPMACHINE_EXIT);
+> 		up(&stopmachine_mutex);
+> 		return ret;
+> 	}
+> And in __stop_machine_run ,there are:
+> 	if (!IS_ERR(p)) {
+> 		kthread_bind(p, cpu);
+> 		wake_up_process(p);
+> 		wait_for_completion(&smdata.done);
+> 	}
+> 	up(&stopmachine_mutex);
 > 
-> Indeed. Linus, can you remember why we haven't done this before?
+> Is the first up op is really redundant?
 
-Where "this" looks something like the patch below, shamelessly
-merging Nick's and Andy's patches and adding the initialization
-of retval.
+Yes, it seems you have found a bug.  I tested it (inserting a spurious
+failure), and indeed, it gets up'ed twice.
 
-I suspect this may be a measurable win on database servers with
-a web frontend, where the connections to the database server are
-set up basically for each individual query, and don't stick around
-for a long time.
+Good catch!
+Rusty.
 
-No, I haven't actually tested this patch - but feel free to go
-wild while I sign off for the night.
+Name: Redundant up operation in stop_machine.c
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (authored)
 
-Signed-off-by: Rik van Riel <riel@redhat.com>
+Yingchao Zhou <puppylove_0814@yahoo.com.cn> noticed that we up() in
+stop_machine on failure, and also in the caller (unconditionally).
 
---- linux-2.6.12/kernel/fork.c.mapshared	2005-08-25 18:40:44.000000000 -0400
-+++ linux-2.6.12/kernel/fork.c	2005-08-25 18:47:16.000000000 -0400
-@@ -184,7 +184,7 @@
- {
- 	struct vm_area_struct * mpnt, *tmp, **pprev;
- 	struct rb_node **rb_link, *rb_parent;
--	int retval;
-+	int retval = 0;
- 	unsigned long charge;
- 	struct mempolicy *pol;
+Index: linux-2.6.13-rc7-git1-Misc/kernel/stop_machine.c
+===================================================================
+--- linux-2.6.13-rc7-git1-Misc.orig/kernel/stop_machine.c	2005-08-26 11:18:00.000000000 +1000
++++ linux-2.6.13-rc7-git1-Misc/kernel/stop_machine.c	2005-08-26 12:05:01.000000000 +1000
+@@ -115,7 +115,6 @@
+ 	/* If some failed, kill them all. */
+ 	if (ret < 0) {
+ 		stopmachine_set_state(STOPMACHINE_EXIT);
+-		up(&stopmachine_mutex);
+ 		return ret;
+ 	}
  
-@@ -265,7 +265,10 @@
- 		rb_parent = &tmp->vm_rb;
- 
- 		mm->map_count++;
--		retval = copy_page_range(mm, current->mm, tmp);
-+		/* Skip pte copying if page faults can take care of things. */
-+		if (!file || !(tmp->vm_flags & VM_SHARED) ||
-+						is_vm_hugetlb_page(vma))
-+			retval = copy_page_range(mm, current->mm, tmp);
- 		spin_unlock(&mm->page_table_lock);
- 
- 		if (tmp->vm_ops && tmp->vm_ops->open)
+
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

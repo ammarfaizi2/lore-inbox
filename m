@@ -1,101 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbVHZRyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbVHZR4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965149AbVHZRyn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 13:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbVHZRym
+	id S965151AbVHZR4s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 13:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbVHZR4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 13:54:42 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:65196 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965149AbVHZRyl
+	Fri, 26 Aug 2005 13:56:48 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:61629 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S965151AbVHZR4r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 13:54:41 -0400
-Subject: [PATCH] pipe: remove redundant fifo_poll abstraction
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <430F4E57.3000001@colorfullife.com>
-References: <ilomk8.i0yljb.2ul6sqfgelx5ik5dngkbmbkeu.beaver@cs.helsinki.fi>
-	 <ilomki.fs3loe.5j02sm6rx63x13ip2d9643lta.beaver@cs.helsinki.fi>
-	 <20050825170217.666edda3.akpm@osdl.org>
-	 <Pine.LNX.4.58.0508261000310.26177@sbz-30.cs.Helsinki.FI>
-	 <430F4E57.3000001@colorfullife.com>
-Date: Fri, 26 Aug 2005 20:54:07 +0300
-Message-Id: <1125078847.9403.2.camel@localhost>
+	Fri, 26 Aug 2005 13:56:47 -0400
+Subject: Re: Inotify problem [was Re: 2.6.13-rc6-mm1]
+From: Robert Love <rml@novell.com>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: jim.houston@comcast.net, linux-kernel@vger.kernel.org, george@mvista.com,
+       akpm@osdl.org, johannes@sipsolutions.net
+In-Reply-To: <1125078764.13243.6.camel@vertex>
+References: <1125075832.2783.99.camel@new.localdomain>
+	 <1125078764.13243.6.camel@vertex>
+Content-Type: text/plain
+Date: Fri, 26 Aug 2005 13:56:45 -0400
+Message-Id: <1125079005.18155.57.camel@betsy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 19:16 +0200, Manfred Spraul wrote:
-> I would prefer just to remove the abstraction, together with a comment 
-> that Linux fifos behave exactly like pipes, unlike the behavior of most 
-> unices.
+On Fri, 2005-08-26 at 13:52 -0400, John McCutchan wrote:
 
-[PATCH] pipe: remove redundant fifo_poll abstraction
+> Thanks for your suggestion, it has fixed the inotify problem. But where
+> to put the fix is turning into a bit of a mess. Some callers like
+> drivers/md/dm.c:682 call idr_get_new_above as if it will return >=
+> starting_id. The comment says that it will return > starting_id, and the
+> function name leads people to believe the same thing. In the patch below
+> I change inotify do add one to the value was pass into idr. I also
+> change the comment to more accurately reflect what the function does.
+> The function name doesn't fit, but it never did.
+> 
+> Signed-off-by: John McCutchan <ttb@tentacle.dhs.org>
 
-This patch removes a redundant fifo_poll() abstraction from fs/pipe.c and adds
-a big fat comment stating we set POLLERR for FIFOs too on Linux unlike most
-Unices.
+Signed-off-by: Robert Love <rml@novell.com>
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+Keeping the current behavior is probably the best way to go.
 
- pipe.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+	Robert Love
 
-Index: 2.6-mm/fs/pipe.c
-===================================================================
---- 2.6-mm.orig/fs/pipe.c
-+++ 2.6-mm/fs/pipe.c
-@@ -419,6 +419,10 @@ pipe_poll(struct file *filp, poll_table 
- 
- 	if (filp->f_mode & FMODE_WRITE) {
- 		mask |= (nrbufs < PIPE_BUFFERS) ? POLLOUT | POLLWRNORM : 0;
-+		/*
-+		 * Most Unices do not set POLLERR for FIFOs but on Linux they
-+		 * behave exactly like pipes for poll().
-+		 */
- 		if (!PIPE_READERS(*inode))
- 			mask |= POLLERR;
- 	}
-@@ -426,9 +430,6 @@ pipe_poll(struct file *filp, poll_table 
- 	return mask;
- }
- 
--/* FIXME: most Unices do not set POLLERR for fifos */
--#define fifo_poll pipe_poll
--
- static int
- pipe_release(struct inode *inode, int decr, int decw)
- {
-@@ -572,7 +573,7 @@ struct file_operations read_fifo_fops = 
- 	.read		= pipe_read,
- 	.readv		= pipe_readv,
- 	.write		= bad_pipe_w,
--	.poll		= fifo_poll,
-+	.poll		= pipe_poll,
- 	.ioctl		= pipe_ioctl,
- 	.open		= pipe_read_open,
- 	.release	= pipe_read_release,
-@@ -584,7 +585,7 @@ struct file_operations write_fifo_fops =
- 	.read		= bad_pipe_r,
- 	.write		= pipe_write,
- 	.writev		= pipe_writev,
--	.poll		= fifo_poll,
-+	.poll		= pipe_poll,
- 	.ioctl		= pipe_ioctl,
- 	.open		= pipe_write_open,
- 	.release	= pipe_write_release,
-@@ -597,7 +598,7 @@ struct file_operations rdwr_fifo_fops = 
- 	.readv		= pipe_readv,
- 	.write		= pipe_write,
- 	.writev		= pipe_writev,
--	.poll		= fifo_poll,
-+	.poll		= pipe_poll,
- 	.ioctl		= pipe_ioctl,
- 	.open		= pipe_rdwr_open,
- 	.release	= pipe_rdwr_release,
-
+> Index: linux/fs/inotify.c
+> ===================================================================
+> --- linux.orig/fs/inotify.c	2005-08-26 13:38:29.000000000 -0400
+> +++ linux/fs/inotify.c	2005-08-26 13:38:55.000000000 -0400
+> @@ -353,7 +353,7 @@
+>  	do {
+>  		if (unlikely(!idr_pre_get(&dev->idr, GFP_KERNEL)))
+>  			return -ENOSPC;
+> -		ret = idr_get_new_above(&dev->idr, watch, dev->last_wd, &watch->wd);
+> +		ret = idr_get_new_above(&dev->idr, watch, dev->last_wd+1, &watch->wd);
+>  	} while (ret == -EAGAIN);
+>  
+>  	return ret;
+> Index: linux/lib/idr.c
+> ===================================================================
+> --- linux.orig/lib/idr.c	2005-08-26 13:38:22.000000000 -0400
+> +++ linux/lib/idr.c	2005-08-26 13:39:08.000000000 -0400
+> @@ -207,7 +207,7 @@
+>  }
+>  
+>  /**
+> - * idr_get_new_above - allocate new idr entry above a start id
+> + * idr_get_new_above - allocate new idr entry above or equal to a start id
+>   * @idp: idr handle
+>   * @ptr: pointer you want associated with the ide
+>   * @start_id: id to start search at
+> 
 

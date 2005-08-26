@@ -1,58 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVHZOc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVHZOn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbVHZOc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 10:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbVHZOc2
+	id S965061AbVHZOn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 10:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbVHZOn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 10:32:28 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:41612 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S965053AbVHZOc2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 10:32:28 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: kgdb on EM64T
-Date: Fri, 26 Aug 2005 07:27:47 -0700
-Message-ID: <194B303F2F7B534594F2AB2D87269D9F06E5CE22@orsmsx408>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kgdb on EM64T
-Thread-Index: AcWqSlR9IFlHBBbpQBebQ+1Uuu71Nw==
-From: "Wilkerson, Bryan P" <Bryan.P.Wilkerson@intel.com>
-To: "George Anzinger" <george@mvista.com>,
-       "Tom Rini" <trini@kernel.crashing.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Aug 2005 14:32:12.0070 (UTC) FILETIME=[F2616C60:01C5AA4A]
+	Fri, 26 Aug 2005 10:43:58 -0400
+Received: from cavan.codon.org.uk ([217.147.81.22]:48083 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S965061AbVHZOn6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 10:43:58 -0400
+Date: Fri, 26 Aug 2005 15:42:51 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: linux-kernel@vger.kernel.org
+Subject: Telling Linux that a SATA device has gone away
+Message-ID: <20050826144250.GA12816@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on cavan.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thanks you Tom and George for the tips on using kgdb with
-2.6.13-rc4-mm1.  
-
-I almost have it working but kgdb seems to have a few issues.  I can get
-it running from the dev machine using the kgdb and console=kgdb boot
-options on the test kernel.  The kernel waits as it should and when I
-attach with "target remote /dev/ttyS0" and I can continue the boot but
-eventually it gets to a point in the boot where it frees unused kernel
-memory successfully and then a warning, "unable to open an initial
-console",  followed by, "Kernel panic - not syncing: Attempted to kill
-init!"
-
-Removing the console=kgdb boot option and the machine boots all the way
-to run level 5.   I tried to break into kgdb at this point using the 
-	$echo -e "\003" > /dev/ttyS0
-from the dev machine but the test kernel panics at gdb_interrupt+75 when
-it receives anything on the serial port.  Hmmm...
-
-I'm wondering if I'm maybe just the first to try this on EM64T (kernel
-builds in the arch/x86_64 tree).   
-
-Any suggestions welcome.
-
--bryan
+I have a laptop (Dell Latitude D610) that has a removable DVD drive.  It
+appears to be a PATA device, but is presented under ata_piix so behaves
+like a SCSI drive. With the ACPI generic hotkey driver, I can get events
+when it's removed and reinserted. Is there any way I can tell Linux that 
+the device has been removed? hdparm's bus registration support 
+(unsurprisingly) doesn't seem to work too well on sr0, but echoing 
+"remove-single-device 1 0 0 0" to /proc/scsi/scsi doesn't seem to do 
+anything either.
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

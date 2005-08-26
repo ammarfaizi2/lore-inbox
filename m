@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVHZLt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751554AbVHZMIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbVHZLt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 07:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbVHZLt1
+	id S1751554AbVHZMIz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 08:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751552AbVHZMIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 07:49:27 -0400
-Received: from verein.lst.de ([213.95.11.210]:55521 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S965059AbVHZLt0 (ORCPT
+	Fri, 26 Aug 2005 08:08:54 -0400
+Received: from verein.lst.de ([213.95.11.210]:15586 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1751549AbVHZMIx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 07:49:26 -0400
-Date: Fri, 26 Aug 2005 13:49:24 +0200
+	Fri, 26 Aug 2005 08:08:53 -0400
+Date: Fri, 26 Aug 2005 14:08:46 +0200
 From: Christoph Hellwig <hch@lst.de>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] move tasklist walk from cfq-iosched to elevator.c
-Message-ID: <20050826114924.GA28166@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: [PATCH 2/2] use ptrace_get_task_struct in all ptrace implementations
+Message-ID: <20050826120846.GB28490@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,83 +23,472 @@ X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're trying to get rid of as much as possible tasklist walks, or at
-least moving them to core code.  This patch falls into the second
-category.
+As part of my previous sys_ptrace consolidation I introduce a
+ptrace_get_task_struct helper, that gets a reference to the taskstruct
+for a given pid, after doing all the ptrace attach checks.
+This pathces makes all but a few ptrace and compat_ptrace
+implementations use it.  The implementations not covered are:
 
-Instead of walking the tasklist in cfq-iosched move that into
-elv_unregister.  The added benefit is that with this change the as
-ioscheduler might be might unloadable more easily aswell.
-
-The new code uses read_lock instead of read_lock_irq because the
-tasklist_lock only needs irq disabling for writers.
+  - m68k: has some large ptrace changes pending, should be converted to
+    the common sys_ptrace later
+  - ia64 (native ptrace only): does some wierd stuff about finding a
+    different thread in the same threadgroup
 
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Index: linux-2.6/drivers/block/cfq-iosched.c
+Index: linux-2.6/arch/alpha/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/drivers/block/cfq-iosched.c	2005-08-11 16:45:55.000000000 +0200
-+++ linux-2.6/drivers/block/cfq-iosched.c	2005-08-14 12:09:17.000000000 +0200
-@@ -2609,28 +2609,8 @@
+--- linux-2.6.orig/arch/alpha/kernel/ptrace.c	2005-08-14 12:03:15.000000000 +0200
++++ linux-2.6/arch/alpha/kernel/ptrace.c	2005-08-24 11:45:25.000000000 +0200
+@@ -265,28 +265,7 @@
+ 	lock_kernel();
+ 	DBG(DBG_MEM, ("request=%ld pid=%ld addr=0x%lx data=0x%lx\n",
+ 		      request, pid, addr, data));
+-	ret = -EPERM;
+-	if (request == PTRACE_TRACEME) {
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED)
+-			goto out_notsk;
+-		ret = security_ptrace(current->parent, current);
+-		if (ret)
+-			goto out_notsk;
+-		/* set the ptrace bit in the process ptrace flags. */
+-		current->ptrace |= PT_PTRACED;
+-		ret = 0;
+-		goto out_notsk;
+-	}
+-	if (pid == 1)		/* you may not mess with init */
+-		goto out_notsk;
+-
+-	ret = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
++	ret = ptrace_get_task_struct(request, pid, &child);
+ 	if (!child)
+ 		goto out_notsk;
  
- static void __exit cfq_exit(void)
- {
--	struct task_struct *g, *p;
--	unsigned long flags;
+Index: linux-2.6/arch/ia64/ia32/sys_ia32.c
+===================================================================
+--- linux-2.6.orig/arch/ia64/ia32/sys_ia32.c	2005-08-24 11:45:24.000000000 +0200
++++ linux-2.6/arch/ia64/ia32/sys_ia32.c	2005-08-24 11:45:25.000000000 +0200
+@@ -1760,22 +1760,9 @@
+ 	long i, ret;
+ 
+ 	lock_kernel();
+-	if (request == PTRACE_TRACEME) {
+-		ret = sys_ptrace(request, pid, addr, data);
+-		goto out;
+-	}
 -
--	read_lock_irqsave(&tasklist_lock, flags);
+-	ret = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
++	ret = ptrace_get_task_struct(request, pid, &child);
+ 	if (!child)
+ 		goto out;
+-	ret = -EPERM;
+-	if (pid == 1)		/* no messing around with init! */
+-		goto out_tsk;
+ 
+ 	if (request == PTRACE_ATTACH) {
+ 		ret = sys_ptrace(request, pid, addr, data);
+Index: linux-2.6/arch/m32r/kernel/ptrace.c
+===================================================================
+--- linux-2.6.orig/arch/m32r/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
++++ linux-2.6/arch/m32r/kernel/ptrace.c	2005-08-24 11:45:25.000000000 +0200
+@@ -762,29 +762,10 @@
+ 	int ret;
+ 
+ 	lock_kernel();
+-	ret = -EPERM;
+-	if (request == PTRACE_TRACEME) {
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED)
+-			goto out;
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		ret = 0;
+-		goto out;
+-	}
+-	ret = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
++	ret = ptrace_get_task_struct(request, pid, &child);
+ 	if (!child)
+ 		goto out;
+ 
+-	ret = -EPERM;
+-	if (pid == 1)		/* you may not mess with init */
+-		goto out;
 -
--	/*
--	 * iterate each process in the system, removing our io_context
--	 */
--	do_each_thread(g, p) {
--		struct io_context *ioc = p->io_context;
+ 	if (request == PTRACE_ATTACH) {
+ 		ret = ptrace_attach(child);
+ 		if (ret == 0)
+Index: linux-2.6/arch/mips/kernel/ptrace32.c
+===================================================================
+--- linux-2.6.orig/arch/mips/kernel/ptrace32.c	2005-08-14 12:03:16.000000000 +0200
++++ linux-2.6/arch/mips/kernel/ptrace32.c	2005-08-24 11:45:25.000000000 +0200
+@@ -50,31 +50,10 @@
+ 	       (unsigned long) data);
+ #endif
+ 	lock_kernel();
+-	ret = -EPERM;
+-	if (request == PTRACE_TRACEME) {
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED)
+-			goto out;
+-		if ((ret = security_ptrace(current->parent, current)))
+-			goto out;
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		ret = 0;
+-		goto out;
+-	}
+-	ret = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
++	ret = ptrace_get_task_struct(request, pid, &child);
+ 	if (!child)
+ 		goto out;
+ 
+-	ret = -EPERM;
+-	if (pid == 1)		/* you may not mess with init */
+-		goto out_tsk;
 -
--		if (ioc && ioc->cic) {
--			ioc->cic->exit(ioc->cic);
--			cfq_free_io_context(ioc->cic);
--			ioc->cic = NULL;
+ 	if (request == PTRACE_ATTACH) {
+ 		ret = ptrace_attach(child);
+ 		goto out_tsk;
+Index: linux-2.6/arch/parisc/kernel/ptrace.c
+===================================================================
+--- linux-2.6.orig/arch/parisc/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
++++ linux-2.6/arch/parisc/kernel/ptrace.c	2005-08-24 11:45:25.000000000 +0200
+@@ -87,33 +87,9 @@
+ #endif
+ 
+ 	lock_kernel();
+-	ret = -EPERM;
+-	if (request == PTRACE_TRACEME) {
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED)
+-			goto out;
+-
+-		ret = security_ptrace(current->parent, current);
+-		if (ret) 
+-			goto out;
+-
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		ret = 0;
+-		goto out;
+-	}
+-
+-	ret = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
++	ret = ptrace_get_task_struct(request, pid, &child);
+ 	if (!child)
+ 		goto out;
+-	ret = -EPERM;
+-	if (pid == 1)		/* no messing around with init! */
+-		goto out_tsk;
+ 
+ 	if (request == PTRACE_ATTACH) {
+ 		ret = ptrace_attach(child);
+Index: linux-2.6/arch/ppc64/kernel/ptrace32.c
+===================================================================
+--- linux-2.6.orig/arch/ppc64/kernel/ptrace32.c	2005-08-14 12:03:16.000000000 +0200
++++ linux-2.6/arch/ppc64/kernel/ptrace32.c	2005-08-24 11:45:25.000000000 +0200
+@@ -45,31 +45,10 @@
+ 	int ret = -EPERM;
+ 
+ 	lock_kernel();
+-	if (request == PTRACE_TRACEME) {
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED)
+-			goto out;
+-		ret = security_ptrace(current->parent, current);
+-		if (ret)
+-			goto out;
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		ret = 0;
+-		goto out;
+-	}
+-	ret = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
++	ret = ptrace_get_task_struct(request, pid, &child);
+ 	if (!child)
+ 		goto out;
+ 
+-	ret = -EPERM;
+-	if (pid == 1)		/* you may not mess with init */
+-		goto out_tsk;
+-
+ 	if (request == PTRACE_ATTACH) {
+ 		ret = ptrace_attach(child);
+ 		goto out_tsk;
+Index: linux-2.6/arch/s390/kernel/ptrace.c
+===================================================================
+--- linux-2.6.orig/arch/s390/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
++++ linux-2.6/arch/s390/kernel/ptrace.c	2005-08-24 11:45:25.000000000 +0200
+@@ -712,36 +712,11 @@
+ 	int ret;
+ 
+ 	lock_kernel();
+-
+-	if (request == PTRACE_TRACEME) {
+-		/* are we already being traced? */
+-		ret = -EPERM;
+-		if (current->ptrace & PT_PTRACED)
+-			goto out;
+-		ret = security_ptrace(current->parent, current);
+-		if (ret)
+-			goto out;
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		goto out;
++	ret = ptrace_get_task_struct(request, pid, &child);
++	if (child) {
++		ret = do_ptrace(child, request, addr, data);
++		put_task_struct(child);
+ 	}
+-
+-	ret = -EPERM;
+-	if (pid == 1)		/* you may not mess with init */
+-		goto out;
+-
+-	ret = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
+-	if (!child)
+-		goto out;
+-
+-	ret = do_ptrace(child, request, addr, data);
+-
+-	put_task_struct(child);
+ out:
+ 	unlock_kernel();
+ 	return ret;
+Index: linux-2.6/arch/sparc/kernel/ptrace.c
+===================================================================
+--- linux-2.6.orig/arch/sparc/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
++++ linux-2.6/arch/sparc/kernel/ptrace.c	2005-08-24 11:45:25.000000000 +0200
+@@ -286,40 +286,13 @@
+ 			       s, (int) request, (int) pid, addr, data, addr2);
+ 	}
+ #endif
+-	if (request == PTRACE_TRACEME) {
+-		int my_ret;
+-
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED) {
+-			pt_error_return(regs, EPERM);
+-			goto out;
 -		}
--	} while_each_thread(g, p);
+-		my_ret = security_ptrace(current->parent, current);
+-		if (my_ret) {
+-			pt_error_return(regs, -my_ret);
+-			goto out;
+-		}
 -
--	read_unlock_irqrestore(&tasklist_lock, flags);
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		pt_succ_return(regs, 0);
+-		goto out;
+-	}
+-#ifndef ALLOW_INIT_TRACING
+-	if (pid == 1) {
+-		/* Can't dork with init. */
+-		pt_error_return(regs, EPERM);
+-		goto out;
+-	}
+-#endif
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
+ 
++	ret = ptrace_get_task_struct(request, pid, &child);
+ 	if (!child) {
+-		pt_error_return(regs, ESRCH);
++		if (ret)
++			pt_error_return(regs, -ret);
++		else
++			pt_succ_return(regs, 0);
+ 		goto out;
+ 	}
+ 
+Index: linux-2.6/arch/sparc64/kernel/ptrace.c
+===================================================================
+--- linux-2.6.orig/arch/sparc64/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
++++ linux-2.6/arch/sparc64/kernel/ptrace.c	2005-08-24 11:45:25.000000000 +0200
+@@ -188,40 +188,12 @@
+ 			       s, request, pid, addr, data, addr2);
+ 	}
+ #endif
+-	if (request == PTRACE_TRACEME) {
+-		int ret;
 -
--	cfq_slab_kill();
- 	elv_unregister(&iosched_cfq);
-+	cfq_slab_kill();
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED) {
+-			pt_error_return(regs, EPERM);
+-			goto out;
+-		}
+-		ret = security_ptrace(current->parent, current);
+-		if (ret) {
+-			pt_error_return(regs, -ret);
+-			goto out;
+-		}
+-
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		pt_succ_return(regs, 0);
+-		goto out;
+-	}
+-#ifndef ALLOW_INIT_TRACING
+-	if (pid == 1) {
+-		/* Can't dork with init. */
+-		pt_error_return(regs, EPERM);
+-		goto out;
+-	}
+-#endif
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
+-
++	ret = ptrace_get_task_struct(request, pid, &child);
+ 	if (!child) {
+-		pt_error_return(regs, ESRCH);
++		if (ret)
++			pt_error_return(regs, -ret);
++		else
++			pt_succ_return(regs, 0);
+ 		goto out;
+ 	}
+ 
+Index: linux-2.6/arch/x86_64/ia32/ptrace32.c
+===================================================================
+--- linux-2.6.orig/arch/x86_64/ia32/ptrace32.c	2005-08-24 11:45:22.000000000 +0200
++++ linux-2.6/arch/x86_64/ia32/ptrace32.c	2005-08-24 11:45:25.000000000 +0200
+@@ -196,36 +196,6 @@
+ 
+ #undef R32
+ 
+-static struct task_struct *find_target(int request, int pid, int *err)
+-{ 
+-	struct task_struct *child;
+-
+-	*err = -EPERM; 
+-	if (pid == 1)
+-		return NULL; 
+-
+-	*err = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
+-	if (child) { 
+-		*err = -EPERM;
+-		if (child->pid == 1) 
+-			goto out;
+-		*err = ptrace_check_attach(child, request == PTRACE_KILL); 
+-		if (*err < 0) 
+-			goto out;
+-		return child; 
+-	} 
+- out:
+-	if (child)
+-	put_task_struct(child);
+-	return NULL; 
+-	
+-} 
+-
+ asmlinkage long sys32_ptrace(long request, u32 pid, u32 addr, u32 data)
+ {
+ 	struct task_struct *child;
+@@ -254,10 +224,14 @@
+ 		break;
+ 	} 
+ 
+-	child = find_target(request, pid, &ret);
++	ret = ptrace_get_task_struct(request, pid, &child);
+ 	if (!child)
+ 		return ret;
+ 
++	ret = ptrace_check_attach(child, request == PTRACE_KILL);
++	if (ret < 0)
++		goto out;
++
+ 	childregs = (struct pt_regs *)(child->thread.rsp0 - sizeof(struct pt_regs)); 
+ 
+ 	switch (request) {
+@@ -373,6 +347,7 @@
+ 		break;
+ 	}
+ 
++ out:
+ 	put_task_struct(child);
+ 	return ret;
+ }
+Index: linux-2.6/kernel/ptrace.c
+===================================================================
+--- linux-2.6.orig/kernel/ptrace.c	2005-08-24 11:45:24.000000000 +0200
++++ linux-2.6/kernel/ptrace.c	2005-08-24 11:45:25.000000000 +0200
+@@ -389,9 +389,7 @@
+ 	return ret;
  }
  
- module_init(cfq_init);
-Index: linux-2.6/drivers/block/elevator.c
-===================================================================
---- linux-2.6.orig/drivers/block/elevator.c	2005-08-11 16:45:55.000000000 +0200
-+++ linux-2.6/drivers/block/elevator.c	2005-08-14 12:12:35.000000000 +0200
-@@ -572,6 +572,27 @@
- 
- void elv_unregister(struct elevator_type *e)
+-#ifndef __ARCH_SYS_PTRACE
+-static int ptrace_get_task_struct(long request, long pid,
+-		struct task_struct **childp)
++int ptrace_get_task_struct(long request, long pid, struct task_struct **childp)
  {
-+	struct task_struct *g, *p;
-+
-+	/*
-+	 * Iterate every thread in the process to remove the io contexts.
-+	 */
-+	read_lock(&tasklist_lock);
-+	do_each_thread(g, p) {
-+		struct io_context *ioc = p->io_context;
-+		if (ioc && ioc->cic) {
-+			ioc->cic->exit(ioc->cic);
-+			ioc->cic->dtor(ioc->cic);
-+			ioc->cic = NULL;
-+		}
-+		if (ioc && ioc->aic) {
-+			ioc->aic->exit(ioc->aic);
-+			ioc->aic->dtor(ioc->aic);
-+			ioc->aic = NULL;
-+		}
-+	} while_each_thread(g, p);
-+	read_unlock(&tasklist_lock);
-+
- 	spin_lock_irq(&elv_list_lock);
- 	list_del_init(&e->list);
- 	spin_unlock_irq(&elv_list_lock);
+ 	struct task_struct *child;
+ 	int ret;
+@@ -437,6 +435,7 @@
+ 	return 0;
+ }
+ 
++#ifndef __ARCH_SYS_PTRACE
+ asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
+ {
+ 	struct task_struct *child;
+Index: linux-2.6/include/linux/ptrace.h
+===================================================================
+--- linux-2.6.orig/include/linux/ptrace.h	2005-08-24 11:45:24.000000000 +0200
++++ linux-2.6/include/linux/ptrace.h	2005-08-24 11:45:25.000000000 +0200
+@@ -78,6 +78,7 @@
+ 
+ 
+ extern long arch_ptrace(struct task_struct *child, long request, long addr, long data);
++extern int ptrace_get_task_struct(long request, long pid, struct task_struct **childp);
+ extern int ptrace_readdata(struct task_struct *tsk, unsigned long src, char __user *dst, int len);
+ extern int ptrace_writedata(struct task_struct *tsk, char __user *src, unsigned long dst, int len);
+ extern int ptrace_attach(struct task_struct *tsk);

@@ -1,34 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751601AbVHZXPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbVHZXL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751601AbVHZXPl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 19:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbVHZXPl
+	id S1751338AbVHZXL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 19:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbVHZXL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 19:15:41 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59534
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751505AbVHZXPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 19:15:40 -0400
-Date: Fri, 26 Aug 2005 16:15:37 -0700 (PDT)
-Message-Id: <20050826.161537.03992270.davem@davemloft.net>
-To: adobriyan@gmail.com
-Cc: rml@novell.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] IBM HDAPS accelerometer driver, with probing.
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050826225848.GC28191@mipter.zuzino.mipt.ru>
-References: <1125094725.18155.120.camel@betsy>
-	<20050826225848.GC28191@mipter.zuzino.mipt.ru>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Aug 2005 19:11:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:64203 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751338AbVHZXL1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 19:11:27 -0400
+Date: Fri, 26 Aug 2005 19:10:57 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Hugh Dickins <hugh@veritas.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Ray Fucillo <fucillo@intersystems.com>, linux-kernel@vger.kernel.org
+Subject: Re: process creation time increases linearly with shmem
+In-Reply-To: <Pine.LNX.4.61.0508261917360.8477@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.63.0508261910080.8057@cuia.boston.redhat.com>
+References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au>
+ <Pine.LNX.4.63.0508251331040.25774@cuia.boston.redhat.com>
+ <430E6FD4.9060102@yahoo.com.au> <Pine.LNX.4.58.0508252055370.3317@g5.osdl.org>
+ <Pine.LNX.4.61.0508261220230.4697@goblin.wat.veritas.com>
+ <Pine.LNX.4.58.0508261052330.3317@g5.osdl.org>
+ <Pine.LNX.4.61.0508261917360.8477@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Date: Sat, 27 Aug 2005 02:58:48 +0400
+On Fri, 26 Aug 2005, Hugh Dickins wrote:
 
-> What's the point of having unlikely() attached to every possible if ()?
+> Well, I still don't think we need to test vm_file.  We can add an
+> anon_vma test if you like, if we really want to minimize the fork
+> overhead, in favour of later faults.  Do we?
 
-If can result in smaller code, for one thing, even if it
-isn't a performance critical path.
+When you consider NUMA placement (the child process may
+end up running elsewhere), allocating things like page
+tables lazily may well end up being a performance win.
+
+-- 
+All Rights Reversed

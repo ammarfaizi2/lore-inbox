@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbVHZTYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbVHZT03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030217AbVHZTYA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbVHZTX7
+	id S1030218AbVHZT03 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbVHZT03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:23:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8151 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030220AbVHZTX5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:23:57 -0400
-Message-Id: <20050826191927.323489000@localhost.localdomain>
-References: <20050826191755.052951000@localhost.localdomain>
-Date: Fri, 26 Aug 2005 12:18:00 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       dbrownell@users.sourceforge.net
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       David Brownell <david-b@pacbell.net>, Chris Wright <chrisw@osdl.org>
-Subject: [PATCH 5/7] [PATCH] fix gl_skb/skb type error in genelink driver in usbnet
-Content-Disposition: inline; filename=genelink-usbnet-skb-typo.patch
+	Fri, 26 Aug 2005 15:26:29 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:37292 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030218AbVHZT02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 15:26:28 -0400
+Subject: Re: [patch] IBM HDAPS accelerometer driver.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <430F5257.4010700@didntduck.org>
+References: <1125069494.18155.27.camel@betsy>
+	 <430F5257.4010700@didntduck.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 26 Aug 2005 20:54:41 +0100
+Message-Id: <1125086082.14080.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any  objections, please let us know.
-------------------
+On Gwe, 2005-08-26 at 13:33 -0400, Brian Gerst wrote:
+> Is there any way to detect that this device is present (PCI, ACPI, etc.) 
+> without poking at ports?
 
-I think there is a type error when port genelink driver to 2.6..
-With this error, a linux host will panic when it link with a windows
-host.
+DMI or probably IBM ssid values. Presumably IBM have somewhere they look
+for this information ?
 
-Cc: David Brownell <david-b@pacbell.net>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
----
- drivers/usb/net/usbnet.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Making the driver only load on a DMI match or with an option "force=1"
+which tells people to submit the DMI data would rapidly fill a table if
+IBM can't answer the general question.
 
-Index: linux-2.6.12.y/drivers/usb/net/usbnet.c
-===================================================================
---- linux-2.6.12.y.orig/drivers/usb/net/usbnet.c
-+++ linux-2.6.12.y/drivers/usb/net/usbnet.c
-@@ -1922,7 +1922,7 @@ static int genelink_rx_fixup (struct usb
- 
- 			// copy the packet data to the new skb
- 			memcpy(skb_put(gl_skb, size), packet->packet_data, size);
--			skb_return (dev, skb);
-+			skb_return (dev, gl_skb);
- 		}
- 
- 		// advance to the next packet
+At the very least it should check for an ibm laptop first.
 
---

@@ -1,40 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbVHZTxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbVHZTyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030246AbVHZTxU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 15:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbVHZTxT
+	id S1030239AbVHZTyx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 15:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbVHZTyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 15:53:19 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:23947 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030246AbVHZTxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 15:53:19 -0400
-Subject: Re: [patch] IBM HDAPS accelerometer driver.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robert Love <rml@novell.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Arjan van de Ven <arjan@infradead.org>,
-       Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1125085037.18155.95.camel@betsy>
-References: <1125069494.18155.27.camel@betsy>
-	 <430F5257.4010700@didntduck.org>  <1125077594.18155.52.camel@betsy>
-	 <1125079311.4294.10.camel@laptopd505.fenrus.org>
-	 <1125079430.18155.64.camel@betsy>
-	 <1125086134.14080.13.camel@localhost.localdomain>
-	 <1125084555.18155.89.camel@betsy>  <430F6E6F.5010001@pobox.com>
-	 <1125085037.18155.95.camel@betsy>
-Content-Type: text/plain
+	Fri, 26 Aug 2005 15:54:53 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:25596 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1030239AbVHZTyw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 15:54:52 -0400
+Message-ID: <430F737F.5010000@mvista.com>
+Date: Fri, 26 Aug 2005 12:54:39 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: george@mvista.com
+CC: "Wilkerson, Bryan P" <Bryan.P.Wilkerson@intel.com>,
+       Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org
+Subject: Re: kgdb on EM64T
+References: <194B303F2F7B534594F2AB2D87269D9F06E5CE22@orsmsx408> <430F6E5F.9050702@mvista.com>
+In-Reply-To: <430F6E5F.9050702@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 26 Aug 2005 21:21:41 +0100
-Message-Id: <1125087702.14080.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-08-26 at 15:37 -0400, Robert Love wrote:
-> Second, we don't know a DMI-based solution will work. I'll check it out.
+George Anzinger wrote:
+> Wilkerson, Bryan P wrote:
+> 
+>> Thanks you Tom and George for the tips on using kgdb with
+>> 2.6.13-rc4-mm1. 
+>> I almost have it working but kgdb seems to have a few issues.  I can get
+>> it running from the dev machine using the kgdb and console=kgdb boot
+>> options on the test kernel.  The kernel waits as it should and when I
+>> attach with "target remote /dev/ttyS0" and I can continue the boot but
+>> eventually it gets to a point in the boot where it frees unused kernel
+>> memory successfully and then a warning, "unable to open an initial
+>> console",  followed by, "Kernel panic - not syncing: Attempted to kill
+>> init!"
+>>
+>> Removing the console=kgdb boot option and the machine boots all the way
+>> to run level 5.   I tried to break into kgdb at this point using the 
+>>     $echo -e "\003" > /dev/ttyS0
+>> from the dev machine but the test kernel panics at gdb_interrupt+75 when
+>> it receives anything on the serial port.  Hmmm...
+>>
+>> I'm wondering if I'm maybe just the first to try this on EM64T (kernel
+>> builds in the arch/x86_64 tree).   
+> 
+> 
+> Possibly:).  Since the serial port seems to work (i.e. the first test 
+> above), the fault seems to be in handling the int3.  Is int3 the right 
+> instruction for this machine?  If not you would make the change in 
+> kgdb.h.  I think that is the only place it is defined.
 
-Another good sanity check would be tool for the right bridge chips with
-device->subvendor == IBM ?
+Well, I checked, it is "int $3".  Why then the panic?  If you try the 
+boot with kgdb (i.e. wait) and the do:
+(gdb) disass gdb_interrupt
+What do you find at +75?
+> 
+>>
 
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

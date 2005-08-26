@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVHZRiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965145AbVHZRuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965142AbVHZRiA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 13:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbVHZRiA
+	id S965145AbVHZRuG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 13:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbVHZRuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 13:38:00 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:16607 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S965142AbVHZRh7 (ORCPT
+	Fri, 26 Aug 2005 13:50:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35521 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965145AbVHZRuF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 13:37:59 -0400
-Message-ID: <430F5376.7060709@trash.net>
-Date: Fri, 26 Aug 2005 19:37:58 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lukasz Spaleniak <lspaleniak@wroc.zigzag.pl>
-CC: linux-kernel@vger.kernel.org, kadlec@netfilter.org, gandalf@netfilter.org
-Subject: Re: Conntrack problem, machines freeze
-References: <20050825222002.3538af7d.lspaleniak@wroc.zigzag.pl>
-In-Reply-To: <20050825222002.3538af7d.lspaleniak@wroc.zigzag.pl>
+	Fri, 26 Aug 2005 13:50:05 -0400
+Date: Fri, 26 Aug 2005 10:49:56 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: serue@us.ibm.com
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       Kurt Garloff <garloff@suse.de>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       linux-security-module@wirex.com
+Subject: Re: [PATCH 0/5] LSM hook updates
+Message-ID: <20050826174956.GO7762@shell0.pdx.osdl.net>
+References: <20050825012028.720597000@localhost.localdomain> <Pine.LNX.4.63.0508250038450.13875@excalibur.intercode> <20050825053208.GS7762@shell0.pdx.osdl.net> <20050825191548.GY7762@shell0.pdx.osdl.net> <20050826092306.GA429@sergelap.austin.ibm.com> <20050826164139.GK7762@shell0.pdx.osdl.net> <20050826173508.GA11489@sergelap.austin.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050826173508.GA11489@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Spaleniak wrote:
-> Hello,
+* serue@us.ibm.com (serue@us.ibm.com) wrote:
+> Quoting Chris Wright (chrisw@osdl.org):
+> > > A little surprising: kernbench is improved, but dbench and tbench
+> > > are worse - though within the 95% CI.
+> > 
+> > It is interesting.  Would be good to see what happens with the cap_ bits
+> > used in SELinux instead of secondary callout.
 > 
-> I have simple linux router with three fastethernet cards (intel , e100
-> driver). About two months ago it started hanging. It's completly
-> freezing machine (no ooops. First of all when it's booting few
-> messages like this appears on screen:
-> 
-> NF_IP_ASSERT: ip_conntrack_core.c:1128(ip_conntrack_alter_reply)
+> Here are the new numbers next to the originals.  'patchedv2' is
+> obviously with your new patch.  Kernbench keeps getting faster :)
 
-This one can happen if the NAT module is loaded after ip_conntrack and
-there are already existing conntrack entries, but it should be harmless.
+Thanks again.  Hmm, tbench fell a bit more, reaim is sort of all over
+the place.  Do you have a harness for this?  I can run same on hardware
+here (in particular I'm interested to do P4 and ia64).
 
-> I suppose it's showing before firewall script load rules (simple nat).
-> After that somtimes it's working very long, sometimes it's freezing
-> after few seconds. One time I've logged this message before it freezes:
-> 
-> kernel: LIST_DELETE: ip_conntrack_core.c:302 `&ct->tuplehash
-> [IP_CT_DIR_REPLY]'(decb6084) not in &ip_conntrack_hash[hr].
-
-This one probably results from the above, when the conntrack is altered
-it may end up in a different hash bucket, LIST_DELETE complains if it
-doesn't find it on the list where it is to be removed from. Hmm .. so
-the above is probably not harmless after all, when freeing the conntrack
-we don't remove it from the list if netfilter debugging is enabled.
-
-Does disabling CONFIG_NETFILTER_DEBUG make any difference?
+thanks,
+-chris

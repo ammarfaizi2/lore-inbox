@@ -1,92 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbVHZEYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbVHZFER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751455AbVHZEYe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 00:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbVHZEYd
+	id S1751503AbVHZFER (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 01:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbVHZFER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 00:24:33 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:29885 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751455AbVHZEYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 00:24:33 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050812125844.GA13357@elte.hu>
-References: <1122944010.6759.64.camel@localhost.localdomain>
-	 <20050802101920.GA25759@elte.hu>
-	 <1123011928.1590.43.camel@localhost.localdomain>
-	 <1123025895.25712.7.camel@dhcp153.mvista.com>
-	 <1123027226.1590.59.camel@localhost.localdomain>
-	 <1123035909.11101.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <1123036936.1590.69.camel@localhost.localdomain>
-	 <1123037933.11101.11.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <1123080606.1590.119.camel@localhost.localdomain>
-	 <1123087447.1590.136.camel@localhost.localdomain>
-	 <20050812125844.GA13357@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 26 Aug 2005 00:24:09 -0400
-Message-Id: <1125030249.5365.23.camel@localhost.localdomain>
+	Fri, 26 Aug 2005 01:04:17 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:32987 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751503AbVHZFEQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 01:04:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gS8bR+o28gO7srZZ9JDZROQ2R+02pnK8eekmBGf3r99watq76gw1ibx4CT7nPb53uIuo0ZtRKG03Z55FGDEpkAw1fXKrDMchYHMOWLjbt4zvFi2BthMBGIi8rXSMPL5L5T8RAkv/D6IyAIqaDwbyQH0RJI6dagSApMT0atXAbf4=
+Message-ID: <253818670508252204b22e8c2@mail.gmail.com>
+Date: Fri, 26 Aug 2005 01:04:15 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: PATCH: ide: ide-disk freeze support for hdaps
+Cc: Jon Escombe <lists@dresco.co.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jens Axboe <axboe@suse.de>,
+       Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <58cb370e0508250859701ea571@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <253818670508250708a9075a0@mail.gmail.com>
+	 <58cb370e0508250859701ea571@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-12 at 14:58 +0200, Ingo Molnar wrote:
-> FYI, in -53-05 i've added a bh->b_update_lock, which enabled me to get 
-> rid of the bitlock ugliness in fs/buffer.c. Maybe it could be used to 
-> have a better fix for the jbd bitlock thing too?
+Hi Bartlomiej,
 
-Well, I just spent several hours trying to use the b_update_lock in
-implementing something to replace the bit spinlocks for RT.  It's
-getting really ugly and I just hit a stone wall.
+Thank you for your feedback :), as this is my first dabble in
+ide/block drivers I certainly need it!
 
-The problem is that I have two locks to work with. A
-jbd_lock_bh_journal_head and a jbd_lock_bh_state. Unfortunately, I also
-have a ranking order of:
+On 8/25/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> +config IDEDISK_FREEZE
+> 
+> Is there any advantage of having it as a config option?
 
-jbd_lock_bh_state -> j_state_lock -> jbd_lock_bh_journal_head
+The main reasons I added the config option:
+- the freeze feature is really only useful to an (increasing) niche of
+mobile computers with an accelerometer.
 
-If the ranking wasn't like this, I could probably make a little more
-progress.
+- it might actually be detrimental to most other systems, you would
+never want to freeze the queue on most machines - especially a
+production system, and for that reason alone it seemed sensible to me
+to be able to selectively remove it completely.
 
-The jbd_lock_bh_journal_head is used to protect against creating a
-journal_head and adding it to a buffer_head.  This was the obvious
-choice to use your b_update_lock as a replacement, since I need to have
-a lock before I acquired a journal descriptor.
+- to re-inforce the experimental nature of the patch, and disable it
+by default (although this could be achieved just with EXPERIMENTAL I
+suppose).
 
-The jbd_lock_bh_state was going to exist in the journal desciptor that
-is stored in the buffer_head private data.  But this lead to a problem
-when this is deleted.  The private data is freed while the lock is held.
-So, keeping the lock in with the journal descriptor had the problem of
-being freed before it was unlocked.
+> Please make the interface accept number of seconds (as suggested by Jens)
+> and remove this module parameter. This way interface will be more flexible
+> and cleaner.  I really don't see any advantage in doing "echo 1 > ..." instead
+> of "echo x > ..." (Pavel, please explain).
 
-I started adding code to delay the freeing of the descriptor until after
-the lock was held, but this added another problem.  There might be
-another process waiting on this lock, and when it gets it, it tests if
-the buffer_head even has a journal_descriptor for it. So, even if I
-delayed the freeing, another process could be waiting on this so you
-still may have a premature free.  Not to mention that this code was
-becoming _very_ intrusive, since the freeing takes place deep inside
-functions that acquire the lock.
+Either way is pretty easy enough to implement. Note though that I'd
+expect the userspace app should thaw the device when danger is out of
+the way (the timeout is mainly there to ensure that the queue isn't
+frozen forever, and should probably be higher). Personally I don't
+have too much of an opinion either way though... what's the consensus?
+:).
 
-So this lock has the same problem as the jbd_lock_bh_journal_head, where
-as, you have a buffer_head and you want to take this lock before you
-know that this buffer_head even has a journal descriptor attached to it.
+I can understand Pavel's opinion in that a enable/disable attribute in
+sysfs seems the norm, and is more intuitive. Also what should 'cat
+/sys/block/hda/device/freeze' return for a 'echo x >
+/sys/block/hda/device/freeze' sysfs attribute? The seconds remaining?
+1/0 for frozen/thawed?
 
-So, the only other solutions that I can think of is:
+> +static void freeze_expire(unsigned long data);
+> +static struct timer_list freeze_timer =
+> +       TIMER_INITIALIZER(freeze_expire, 0, 0);
+> 
+> There needs to be a timer per device not a global one
+> (it works for a current special case of T42 but sooner
+>  or later we will hit this problem).
 
-a) add yet another (bloat) lock to the buffer head.
+I was considering that, but I am confused as to whether each drive has
+it's own queue or not? (I really am a newbie to this stuff...). If so
+then yes there should be a per-device timer.
 
-b) Still use your b_update_lock for the jbd_lock_bh_journal_head and
-change the jbd_lock_bh_state to what I discussed earlier, and that being
-the hash wait_on_bit code.
+> queue handling should be done through block layer helpers
+> (as described in Jens' email) - we will need them for libata too.
 
-So do you have any ideas?
+Good point, I'll try to move as much as I can up to the block layer,
+it helps when it comes to implementing freeze for libata as you point
+out too.
 
--- Steve
+> At this time attribute can still be in use (because refcounting is done
+> on drive->gendev), you need to add "disk" class to ide-disk driver
+> (drivers/scsi/st.c looks like a good example how to do it).
 
+I missed that completely, I'll look at changing it.
 
+> IMO this should also be handled by block layer
+> which has all needed information, Jens?
+> 
+> While at it: I think that sysfs support should be moved to block layer (queue
+> attributes) and storage driver should only need to provide queue_freeze_fn
+> and queue_thaw_fn functions (similarly to cache flush support).  This should
+> be done now not later because this stuff is exposed to the user-space.
+
+I was actually considering using a queue attribute originally, but in
+my indecision I decided to go with Jen's suggestion. A queue attribute
+does make sense in that the attribute primarily is there to freeze the
+queue, but it would also be performing the head park. Would a queue
+attribute be confusing because of that?
+
+> 
+> +               /*
+>                  * Sanity: don't accept a request that isn't a PM request
+>                  * if we are currently power managed. This is very important as
+>                  * blk_stop_queue() doesn't prevent the elv_next_request()
+> @@ -1661,6 +1671,9 @@ int ide_do_drive_cmd (ide_drive_t *drive
+>                 where = ELEVATOR_INSERT_FRONT;
+>                 rq->flags |= REQ_PREEMPT;
+>         }
+> +       if (action == ide_next)
+> +               where = ELEVATOR_INSERT_FRONT;
+> +
+>         __elv_add_request(drive->queue, rq, where, 0);
+>         ide_do_request(hwgroup, IDE_NO_IRQ);
+>         spin_unlock_irqrestore(&ide_lock, flags);
+> 
+> Why is this needed?
+
+I think Jon discussed that in a previous thread, but basically
+although ide_next is documented in the comment for ide_do_drive_cmd,
+there isn't (as far as Jon or I could see) anything actually handling
+it. This patch is carried over from Jon's work and adds the code to
+handle ide_next by inserting the request at the front of the queue.
+
+> Overall, very promising work!
+
+Thanks :-), most of it is Jon's work, and Jen's suggestions though.
+
+Yani
+
+P.S. Sorry about the lack of [] around PATCH...lack of sleep. Its more
+of a RFC anyway.

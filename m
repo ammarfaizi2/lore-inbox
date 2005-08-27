@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbVH0RhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751625AbVH0Rid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751623AbVH0RhM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 13:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbVH0RhL
+	id S1751625AbVH0Rid (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 13:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751627AbVH0Rid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 13:37:11 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:9122 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1751623AbVH0RhK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 13:37:10 -0400
-Message-Id: <200508271737.j7RHavOn020796@zeus2.kernel.org>
-From: "info" <canadabooks@computermail.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Government Funding Available    linux-kernel@vger.kernel.org
+	Sat, 27 Aug 2005 13:38:33 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:8580 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751625AbVH0Ric (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 13:38:32 -0400
+Subject: Re: [PATCH] zfcp: add rports to enable scsi_add_device to work
+	again
+From: James Bottomley <jejb@steeleye.com>
+To: Andreas Herrmann <aherrman@de.ibm.com>
+Cc: Linux SCSI <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050827120136.GA8412@lion28.boeblingen.de.ibm.com>
+References: <20050827120136.GA8412@lion28.boeblingen.de.ibm.com>
+Content-Type: text/plain
+Date: Sat, 27 Aug 2005 12:38:27 -0500
+Message-Id: <1125164308.5159.21.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Sat, 27 Aug 2005 13:36:57 -0400
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2005-08-27 at 14:01 +0200, Andreas Herrmann wrote:
+> this patch fixes a severe problem with 2.6.13-rc7.
+> 
+> Due to recent SCSI changes it is not possible to add any
+> LUNs to the zfcp device driver anymore. With registration
+> of remote ports this is fixed.
+> 
+> Please integrate the patch in the 2.6.13 kernel or if it
+> is already too late for this release then please integrate it
+> in 2.6.13.1
+> 
+> Thanks a lot.
+
+Well, OK, but your usage isn't quite optimal.  The fibre channel
+transport class retains a list of ports per host, so your maintenance of
+an identical list in zfcp_adapter duplicates this.
+
+However, we can put this in for now and worry about removing all of the
+fc transport class duplication from zfcp later.
+
+James
 
 
-Canada Books
-26 Bellevue
-St-Anne-des Lacs
-Qc, Canada
-J0R 1B0
-
-
-Press Release
-linux-kernel@vger.kernel.org
-
-
-The "American Grants and Loans Directory" is now available. This
-publication contains more than 1500 financial programs, subsidies,
-scholarship, grants and loans offered by the US federal government. 
-It also includes over 700 financing programs available by foundations
-across the United States.
-
-
-Businesses, individuals, municipalities, government departments,
-institutions, foundations, and associations will find a wealth of
-information that could help them start a business, improve existent
-activities, set up a business plan, finance personal projects, studies 
-and research, or obtain assistance from experts in various fields of 
-interest.
-
-CD version: $69.95
-Printed version: $149.95
-
-To order please call: 450-224-9275
-
-If you do not wish to receive communication from us in the future please
-write "agl" in the subject line to: rmvacd@inmail24.com

@@ -1,86 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVH0Rz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVH0STF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbVH0Rz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 13:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbVH0Rz3
+	id S964773AbVH0STF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 14:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVH0STF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 13:55:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46055 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932352AbVH0Rz2 (ORCPT
+	Sat, 27 Aug 2005 14:19:05 -0400
+Received: from hostmaster.org ([212.186.110.32]:31655 "EHLO hostmaster.org")
+	by vger.kernel.org with ESMTP id S964773AbVH0STC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 13:55:28 -0400
-Date: Sat, 27 Aug 2005 10:53:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org
-Subject: Re: [PATCH] make radix tree gang lookup faster by using a bitmap
- search
-Message-Id: <20050827105355.360bd26a.akpm@osdl.org>
-In-Reply-To: <1125159996.5159.8.camel@mulgrave>
-References: <1125159996.5159.8.camel@mulgrave>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 27 Aug 2005 14:19:02 -0400
+Subject: Re: Surround via SPDIF with ALSA/emu10k1?
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1124755373.5763.4.camel@hostmaster.org>
+References: <1124755373.5763.4.camel@hostmaster.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-FO2PFtBQ07kNBWXNQO1g"
+Date: Sat, 27 Aug 2005 20:18:59 +0200
+Message-Id: <1125166739.22285.66.camel@hostmaster.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
->
-> The current gang lookup is rather naive and slow.
 
-I'd say the main naivety in gang lookup is the awkward top-level iteration
-algorithm.  The way it bales out all the way to the top level of the tree
-once __lookup() hits the end of the slots[] array, even though results[]
-isn't full yet.  It's surely possible to go back up the tree just a
-sufficient distance to resume the iteration, rather than all the way to the
-top.  But it's hard, and it's all in CPU cache anyway there.
+--=-FO2PFtBQ07kNBWXNQO1g
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-It would be much simpler if it was using recursion, of course.
+I have now been told that SPDIF cannot support more than 2 channels
+except with AC3 compression. Given the fact that we can send 580MBit/s
+over USB2.0 I would not have even remotely considered this to be the
+problem and find it an incredible shame that audio industry is using
+such a crippled standard.
 
->  This patch replaces
-> the integer count with an unsigned long representing the bitmap of
-> occupied elements.  We then use that bitmap to find the first occupied
-> entry instead of looping over all the entries from the beginning of the
-> radix node.
+I have now solved my problem by buying and connecting an analog 5.1
+speaker set. Unfortunately I get audible distortions when I turn both
+the "PCM" and "Wave" mixers to the maximum setting. I wonder if anyone
+can provide more insight what these controls really do and whether it's
+better to turn down "PCM", "Wave" or both.
 
-But only in __lookup().  I think most gang lookups use
-radix_tree_gang_lookup_tag() -> __lookup_tag().
+Tom
 
-And __lookup_tag() could use find_next_bit() on the tags anyway, as the
-comment says.  I spent a bit of time doing that, had some bug, shelved it,
-never got on to fixing it up.
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+      finger thomasz@hostmaster.org for key
 
-There's a userspace test/devel setup at
-http://www.zip.com.au/~akpm/linux/patches/stuff/rtth.tar.gz, btw.
+Give as few orders as possible, once you've given orders on a subject, you
+must always give orders on that subject. - Duke Leto in Dune
 
-> The penalty of doing this is that on 32 bit machines, the size of the
-> radix tree array is reduced from 64 to 32 (so an unsigned long can
-> represent the bitmap).
 
-If we did the bitmap lookup in __lookup_tag() we wouldn't have this
-restriction.
 
-Maybe we can
 
-a) fix radix_tree_gang_lookup() to use find_next_bit()
+--=-FO2PFtBQ07kNBWXNQO1g
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-b) remove radix_tree_node.count
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-c) Add a new tag field which simply means "present"
+iQEVAwUAQxCuk2D1OYqW/8uJAQIHgAf+NAzjcizyJiLyQgDWbQ3wobsm+SB16D9X
+kCEHZJmIX6Sdn7bs+G6pymw8jephb14uXoBECUO/2uWVEeKzcP9xpfA7TVWaRxWP
+lXJW8x5Ry9EQ9hPZmpiTgDFR0PcywzjDxr+I3v7EdiIoI0YLIjsrnvgqMigPChQt
+v65VQbRMdV1SYvLeEsc6HU0B6xp5l24ArYUBvRuXTvOm2bxtsXpWoOk3t33Yc5k7
+MSrYR8Hl7jjh3PPXuCoNxEhvXCRUMjjAD9ws1sTfzyXy/Y30yLG8iC17pI0q2ftg
+KDin23Jot0xrAxNWTxDDtJNLmaHX/bL/ekx12fTiPhQkh1tIBByqeQ==
+=hjYn
+-----END PGP SIGNATURE-----
 
-d) remove radix_tree_gang_lookup() and __lookup() altogether
-
-e) Implement radix_tree_gang_lookup() via radix_tree_gang_lookup_tag()
-
-That would involve setting and clearing bit in the "present" tag field when
-adding and removing items.
-
-> I also exported radix_tree_preload() so modules can make use of radix
-> trees.
-
-uh, OK.  Note that radix_tree_preload() uses prempt_disable() protection. 
-So it has the limitation that the guarantee which it provides will become
-unreliable, kernel-wide, if anyone anywhere tries to do a
-radix_tree_insert() from interrupt context.
+--=-FO2PFtBQ07kNBWXNQO1g--
 

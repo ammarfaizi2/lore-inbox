@@ -1,116 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbVH0Rax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbVH0RhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751619AbVH0Rax (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 13:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbVH0Rax
+	id S1751623AbVH0RhM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 13:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbVH0RhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 13:30:53 -0400
-Received: from znsun1.ifh.de ([141.34.1.16]:57781 "EHLO znsun1.ifh.de")
-	by vger.kernel.org with ESMTP id S1751618AbVH0Rax (ORCPT
+	Sat, 27 Aug 2005 13:37:11 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:9122 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1751623AbVH0RhK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 13:30:53 -0400
-Date: Sat, 27 Aug 2005 19:30:30 +0200 (CEST)
-From: Patrick Boettcher <patrick.boettcher@desy.de>
-X-X-Sender: pboettch@pub3.ifh.de
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix for race problem in DVB USB drivers (dibusb)
-Message-ID: <Pine.LNX.4.61.0508271911540.15908@pub3.ifh.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Spam-Report: ALL_TRUSTED,AWL,BAYES_00
+	Sat, 27 Aug 2005 13:37:10 -0400
+Message-Id: <200508271737.j7RHavOn020796@zeus2.kernel.org>
+From: "info" <canadabooks@computermail.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Government Funding Available    linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Date: Sat, 27 Aug 2005 13:36:57 -0400
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-Below you'll find a patch, which fixes an ugly problem with some DVB USB 
-devices. I would highly appreciate the inclusion into the linux kernel 
-before 2.6.13 is released.
 
-Thank you very much in advance,
-Patrick.
+Canada Books
+26 Bellevue
+St-Anne-des Lacs
+Qc, Canada
+J0R 1B0
 
---------
 
-Fixed race between submitting streaming URBs in the driver and starting 
-the actual transfer in hardware (demodulator and USB controller) which 
-sometimes lead to garbled data transfers. URBs are now submitted first, 
-then the transfer is enabled. Dibusb devices and clones are now fully 
-functional again.
+Press Release
+linux-kernel@vger.kernel.org
 
-Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
 
-Index: linux/drivers/media/dvb/dvb-usb/dibusb-common.c
-===================================================================
-RCS file: /cvs/linuxtv/dvb-kernel/linux/drivers/media/dvb/dvb-usb/dibusb-common.c,v
-retrieving revision 1.9
-diff -u -r1.9 dibusb-common.c
---- linux/drivers/media/dvb/dvb-usb/dibusb-common.c	19 Jun 2005 13:13:47 -0000	1.9
-+++ linux/drivers/media/dvb/dvb-usb/dibusb-common.c	27 Aug 2005 16:56:10 -0000
-@@ -69,13 +69,22 @@
+The "American Grants and Loans Directory" is now available. This
+publication contains more than 1500 financial programs, subsidies,
+scholarship, grants and loans offered by the US federal government. 
+It also includes over 700 financing programs available by foundations
+across the United States.
 
-  int dibusb2_0_streaming_ctrl(struct dvb_usb_device *d, int onoff)
-  {
--	u8 b[2];
--	b[0] = DIBUSB_REQ_SET_IOCTL;
--	b[1] = onoff ? DIBUSB_IOCTL_CMD_ENABLE_STREAM : DIBUSB_IOCTL_CMD_DISABLE_STREAM;
-+	u8 b[3] = { 0 };
-+	int ret;
 
--	dvb_usb_generic_write(d,b,3);
-+	if ((ret = dibusb_streaming_ctrl(d,onoff)) < 0)
-+		return ret;
+Businesses, individuals, municipalities, government departments,
+institutions, foundations, and associations will find a wealth of
+information that could help them start a business, improve existent
+activities, set up a business plan, finance personal projects, studies 
+and research, or obtain assistance from experts in various fields of 
+interest.
 
--	return dibusb_streaming_ctrl(d,onoff);
-+	if (onoff) {
-+		b[0] = DIBUSB_REQ_SET_STREAMING_MODE;
-+		b[1] = 0x00;
-+		if ((ret = dvb_usb_generic_write(d,b,2)) < 0)
-+			return ret;
-+	}
-+
-+	b[0] = DIBUSB_REQ_SET_IOCTL;
-+	b[1] = onoff ? DIBUSB_IOCTL_CMD_ENABLE_STREAM : DIBUSB_IOCTL_CMD_DISABLE_STREAM;
-+	return dvb_usb_generic_write(d,b,3);
-  }
-  EXPORT_SYMBOL(dibusb2_0_streaming_ctrl);
+CD version: $69.95
+Printed version: $149.95
 
-Index: linux/drivers/media/dvb/dvb-usb/dvb-usb-dvb.c
-===================================================================
-RCS file: /cvs/linuxtv/dvb-kernel/linux/drivers/media/dvb/dvb-usb/dvb-usb-dvb.c,v
-retrieving revision 1.8
-diff -u -r1.8 dvb-usb-dvb.c
---- linux/drivers/media/dvb/dvb-usb/dvb-usb-dvb.c	2 Jul 2005 12:49:23 -0000	1.8
-+++ linux/drivers/media/dvb/dvb-usb/dvb-usb-dvb.c	27 Aug 2005 16:56:10 -0000
-@@ -23,12 +23,12 @@
-  	 */
-  	if (newfeedcount == 0) {
-  		deb_ts("stop feeding\n");
-+		dvb_usb_urb_kill(d);
+To order please call: 450-224-9275
 
-  		if (d->props.streaming_ctrl != NULL)
-  			if ((ret = d->props.streaming_ctrl(d,0)))
-  				err("error while stopping stream.");
-
--		dvb_usb_urb_kill(d);
-  	}
-
-  	d->feedcount = newfeedcount;
-@@ -44,6 +44,8 @@
-  	 * for reception.
-  	 */
-  	if (d->feedcount == onoff && d->feedcount > 0) {
-+		deb_ts("submitting all URBs\n");
-+		dvb_usb_urb_submit(d);
-
-  		deb_ts("controlling pid parser\n");
-  		if (d->props.caps & DVB_USB_HAS_PID_FILTER &&
-@@ -59,7 +61,6 @@
-  				return -ENODEV;
-  			}
-
--		dvb_usb_urb_submit(d);
-  	}
-  	return 0;
-  }
+If you do not wish to receive communication from us in the future please
+write "agl" in the subject line to: rmvacd@inmail24.com

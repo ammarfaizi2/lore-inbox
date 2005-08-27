@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbVH0CtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbVH0C75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbVH0CtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 22:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbVH0CtJ
+	id S1030286AbVH0C75 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 22:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbVH0C75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 22:49:09 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:21404
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030277AbVH0CtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 22:49:08 -0400
-Date: Fri, 26 Aug 2005 19:49:05 -0700 (PDT)
-Message-Id: <20050826.194905.11108278.davem@davemloft.net>
-To: ak@suse.de
-Cc: rml@novell.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] IBM HDAPS accelerometer driver, with probing.
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <p73vf1skt0g.fsf@verdi.suse.de>
-References: <20050826225848.GC28191@mipter.zuzino.mipt.ru>
-	<20050826.161537.03992270.davem@davemloft.net>
-	<p73vf1skt0g.fsf@verdi.suse.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 26 Aug 2005 22:59:57 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:40352 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1030286AbVH0C74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 22:59:56 -0400
+Message-ID: <430FD71C.6050704@bigpond.net.au>
+Date: Sat, 27 Aug 2005 12:59:40 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: sym53c8xx_2 is flooding my syslog ...
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 27 Aug 2005 02:59:54 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Date: 27 Aug 2005 04:34:07 +0200
+... with the following message:
 
-> "David S. Miller" <davem@davemloft.net> writes:
-> 
-> > From: Alexey Dobriyan <adobriyan@gmail.com>
-> > Date: Sat, 27 Aug 2005 02:58:48 +0400
-> > 
-> > > What's the point of having unlikely() attached to every possible if ()?
-> > 
-> > If can result in smaller code, for one thing, even if it
-> > isn't a performance critical path.
-> 
-> Really? At least on x86 it tends to generate bigger code when 
-> block reordering is enabled because a jump forward and a jump
-> backward and a possible label alignment are bigger than just
-> a single jump forward.
+Aug 21 04:53:28 mudlark kernel: ..<6>sd 0:0:6:0: phase change 6-7 
+9@01ab97a0 resid=7.
 
-In the cases I've studied on sparc64 it keeps gcc from doing basic
-block replication in the unlikely paths.
+every 2 seconds.  Since the problem being reported seems to have no 
+effect on the operation of the scsi devices is it really necessary to 
+report it so often?
 
-I've only checked gcc-3.4 and earlier, gcc-4.x is just big bloated
-useless garbage and should be avoided for a couple of years.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

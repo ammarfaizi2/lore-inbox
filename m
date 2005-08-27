@@ -1,81 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbVH0L0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbVH0LiE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030349AbVH0L0N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 07:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbVH0L0N
+	id S1030360AbVH0LiE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 07:38:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVH0LiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 07:26:13 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:5552 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030349AbVH0L0M (ORCPT
+	Sat, 27 Aug 2005 07:38:03 -0400
+Received: from news.cistron.nl ([62.216.30.38]:61073 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S1030360AbVH0LiC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 07:26:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=ToQpp7RAFFlSSZZb77EVnVXtL4NHPJi7A/Lxd79KlQMzp7Ps+y21fD4IfosFbhhs8PrVPxPf0ezxamEwq2PDgIuGEfrHCqfeMiXhdG961U0HI9Sd8yqlpeSkG2YPZ4Lny7M7WqNixst8yDKX5sJW9fr2Xjxz9Qw69mavRhmg1vY=
-Date: Sat, 27 Aug 2005 15:35:25 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org,
-       Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
-       Mitchell Blank Jr <mitch@sfgoth.com>, Andi Kleen <ak@suse.de>,
-       "David S. Miller" <davem@davemloft.net>, rml@novell.com, akpm@osdl.org
-Subject: Re: [patch] IBM HDAPS accelerometer driver, with probing.
-Message-ID: <20050827113525.GA27575@mipter.zuzino.mipt.ru>
-References: <1125094725.18155.120.camel@betsy> <20050827040622.GH91880@gaz.sfgoth.com> <20050827053359.GB15782@mandriva.com> <200508270112.50947.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508270112.50947.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.8i
+	Sat, 27 Aug 2005 07:38:02 -0400
+From: dth@cistron.nl (Danny ter Haar)
+Subject: Re: Linux-2.6.13-rc7
+Date: Sat, 27 Aug 2005 11:37:57 +0000 (UTC)
+Organization: Cistron
+Message-ID: <depjal$2ig$1@news.cistron.nl>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org> <demrrd$si6$1@news.cistron.nl> <den6p6$a34$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1125142677 2640 62.216.30.70 (27 Aug 2005 11:37:57 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 27, 2005 at 01:12:50AM -0500, Dmitry Torokhov wrote:
-> On Saturday 27 August 2005 00:34, Arnaldo Carvalho de Melo wrote:
-> > Em Fri, Aug 26, 2005 at 09:06:22PM -0700, Mitchell Blank Jr escreveu:
-> > > Andi Kleen wrote:
-> > > > - it doesn't seem to help that much on modern CPUs with good
-> > > > branch prediction and big icaches anyways.
-> > > 
-> > > Really?  I would think that as pipelines get deeper (although that trend
-> > > seems to have stopped, thankfully) and Icache-miss penalties get relatively
-> > > larger we'd see unlikely() becoming MORE of a benefit, not less.  Storing
-> > > the used part of a "hot" function in 1 Icacheline instead of 4 seems like
-> > > an obvious win.
-> > > 
-> > > Personally I've never found unlikely() to be ugly; if anything I think
-> > > it serves as a nice little human-readable comment about whats going on
-> > > in the control-flow.  I guess I'm in the minority on that one, though.
-> > 
-> > Hey, even if unlikely was:
-> > 
-> > #define unlikely(x) (x)
-> > 
-> > I'd find it useful :-)
-> >
-> 
-> Aside from annotating performance-critical sections what other purpose
-> would it carry? It's not like you should not pay attention to teh code
-> in these branches even if the are unlikely to be taken. So if code is
-> not in hot path likely/unlikely just litter the code.
-> 
-> Btw, does it actually generate smaller code for constructs like
-> 
-> 	if (unlikely(blah))
-> 		goto out;
+>I Wrote:
+>After 53 hours and 31 minutes it crashed.
+>dth      pts/1        zaphod.dth.net   Wed Aug 24 09:54 - crash (2+05:31)
+>reboot   system boot  2.6.13-rc7       Wed Aug 24 09:51         (2+05:41)
+>
+>Prior to this kernel it had been running 2.6.12-mm1 without problems:
+>reboot   system boot  2.6.12-mm1       Sun Aug 14 12:13 (9+21:36)
+>
+>I will now compile & run rc7-git1.
 
-Well, with my usual .config (-O2) and gcc-3.3.5-something it does:
+RC7-GIT7 barfed on me after some 20 hours:
 
-text    data     bss     dec     hex filename
-3614     303    1696    5613    15ed drivers/hwmon/hdaps.o
-3678     303    1696    5677    162d drivers/hwmon/hdaps.o (unlikely()s removed)
+root     ttyS0                         Fri Aug 26 16:32 - crash  (20:44)
+reboot   system boot  2.6.13-rc7-git1  Fri Aug 26 16:32          (20:59)
 
-Fortunately, there is -Os:
+I managed to get some information from the serial console:
 
-text    data     bss     dec     hex filename
-3163     303    1696    5162    142a drivers/hwmon/hdaps.o
-3163     303    1696    5162    142a drivers/hwmon/hdaps.o (unlikely()s removed)
 
-See? The difference is 64 vs 451 bytes.
+scsi0: SCBPTR == 0x55, SCB_NEXT == 0xff80, SCB_NEXT2 == 0xff6e
+CDB 0 0 0 0 0 0
+STACK: 0x10c 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+<<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+DevQ(0:0:0): 0 waiting
+DevQ(0:1:0): NMI Watchdog detected LOCKUP on CPU0CPU 0
+Modules linked in: rawfs rtc evdev hw_random i2c_amd8111 tg3 e100 mii w83627hf eeprom lm85 i2c_sensor i2c_isa i2c_amd756 i2c_core psmouse
+Pid: 168, comm: scsi_eh_0 Not tainted 2.6.13-rc7-git1
+RIP: 0010:[<ffffffff802644f9>] <ffffffff802644f9>{serial_in+105}
+RSP: 0018:ffff81007fc17b80  EFLAGS: 00000002
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 00000000000003fd RSI: 0000000000000005 RDI: ffffffff80473a40
+RBP: 0000000000002705 R08: 0000000000000020 R09: 0000000000007930
+R10: 0000000000000034 R11: 000000000000000a R12: ffffffff80473a40
+R13: ffffffff8045f6fe R14: 000000000000000d R15: 000000000000000d
+FS:  00002aaaab3cbe90(0000) GS:ffffffff80485800(0000) knlGS:00000000556ada40
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000515970 CR3: 000000007dc27000 CR4: 00000000000006e0
+Process scsi_eh_0 (pid: 168, threadinfo ffff81007fc16000, task ffff8100033607c0)
+Stack: ffffffff8026682d 0000000500000002 ffffffff803ebc60 0000000000007931
+       000000000000000d 0000000000000096 0000000000000010 0000000000000046
+       ffffffff8012ed9c 000000000000793e
+Call Trace:<ffffffff8026682d>{serial8250_console_write+413} <ffffffff8012ed9c>{__call_console_drivers+76}
+       <ffffffff8012f053>{release_console_sem+339} <ffffffff8012fbc9>{vprintk+601}
+       <ffffffff8012fbc9>{vprintk+601} <ffffffff8012fc3e>{printk+78}
+       <ffffffff80325a40>{thread_return+0} <ffffffff8012fc3e>{printk+78}
+       <ffffffff8028c235>{ahd_print_register+261} <ffffffff802abc34>{ahd_platform_dump_card_state+100}
+       <ffffffff80296b0d>{ahd_dump_card_state+8973} <ffffffff802ad320>{ahd_linux_abort+624}
+       <ffffffff802aa590>{ahd_linux_sem_timeout+0} <ffffffff80284f5c>{scsi_error_handler+1324}
+       <ffffffff8010e396>{child_rip+8} <ffffffff80284a30>{scsi_error_handler+0}
+       <ffffffff8010e38e>{child_rip+0}
+
+Code: 0f b6 c0 c3 66 66 90 41 57 49 89 f7 41 56 41 55 41 bd 00 01
+console shuts up ...
+ <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+
+
+I don't know if this is enough information for the developers to go on.
+
+For me it's back to 2.6.12-mm1 *snif*
+
+Danny
 

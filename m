@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVH0VoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVH0VrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbVH0VoO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 17:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVH0VoO
+	id S1750751AbVH0VrM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 17:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVH0VrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 17:44:14 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:65190 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S1750804AbVH0VoN (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 17:44:13 -0400
-Subject: [OOPS] ANSI/IEEE 802.2 LLC type 2 Support
-From: Ian Kumlien <pomac@vapor.com>
-Reply-To: pomac@vapor.com
-To: Linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6/d67Zlo8WApmzGerlqi"
-Date: Sat, 27 Aug 2005 23:45:12 +0200
-Message-Id: <1125179112.24161.11.camel@localhost>
+	Sat, 27 Aug 2005 17:47:12 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:35744 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750751AbVH0VrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 17:47:11 -0400
+Subject: Re: Surround via SPDIF with ALSA/emu10k1?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Thomas Zehetbauer <thomasz@hostmaster.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050827211726.GD28578@csclub.uwaterloo.ca>
+References: <1124755373.5763.4.camel@hostmaster.org>
+	 <1125166739.22285.66.camel@hostmaster.org>
+	 <20050827211726.GD28578@csclub.uwaterloo.ca>
+Content-Type: text/plain
+Date: Sat, 27 Aug 2005 17:47:08 -0400
+Message-Id: <1125179229.25011.94.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.3.8 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2005-08-27 at 17:17 -0400, Lennart Sorensen wrote:
+> As for volume settings, I always try to keep the sound card mixers at
+> around 75 to 80% since it seems most amplifiers and mixer do distort a
+> bit when you max them out.  Why would you want them all at 100%
+> anyhow, then you might as well not have mixing control for the
+> seperate audio channels at all. 
 
---=-6/d67Zlo8WApmzGerlqi
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+For the best S/N ratio and dynamic range all mixer controls SHOULD be at
+100%, assuming the volume control in your driver only attenuates
+signals.  This is the case for the emu10k1 which implements all mixer
+controls via DSP programs that run on the soundcard anyway, and handles
+overflow itself.
 
-Hi,=20
+Think about it, if you lower the mixer controls to 75%, you're not
+getting the full 16 bits of dynamic range, it's probably more like 14 or
+15.  16 bits is barely enough headroom anyway, so you really don't want
+this.
 
-Today my firewall just up and oopsed after about a month of uptime.
+Anyway the problem here is a bug in the emu10k1 driver, see alsa-devel
+for the resolution.
 
-It has to be something new that was introduced to my lan or so since
-it's the local interface that oopsed... I generally don't care about
-this part but i thought that it might be good to inform you guys.
-
-The option mentioned in the subject is the only thing my other boxes
-don't have (ie all other boxes has just about the same kernel config)
-and judging from the Call trace i assumed it was that.
-
-The oops message was captured using a digital camera (and yes that
-monitor is dirty =3D))
-http://pomac.netswarm.net/misc/kernel-panic.jpg
-
-PS. I could recreate the oops severaltimes until i put eth1 down, but i
-haven't been able to since then (switched to rc7 without the LLC
-option).
-DS.
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-6/d67Zlo8WApmzGerlqi
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQBDEN7o7F3Euyc51N8RAjSAAJ4+0/i39KP2pM1m60nbBs8dbi4s8wCgocc8
-xpWJN2hDEDKI9JTrNWKyPBM=
-=N94M
------END PGP SIGNATURE-----
-
---=-6/d67Zlo8WApmzGerlqi--
+Lee
 

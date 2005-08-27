@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbVH0Tbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751641AbVH0Tbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751645AbVH0Tbt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 15:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751646AbVH0Tbs
+	id S1751641AbVH0Tbd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 15:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751643AbVH0Tbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 15:31:48 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:1973 "EHLO
+	Sat, 27 Aug 2005 15:31:32 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62900 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751643AbVH0Tbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 15:31:46 -0400
-Date: Sat, 27 Aug 2005 14:34:08 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Yani Ioannou <yani.ioannou@gmail.com>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Jon Escombe <lists@dresco.co.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>,
-       linux-ide@vger.kernel.org
-Subject: Re: PATCH: ide: ide-disk freeze support for hdaps
-Message-ID: <20050827123408.GD1109@openzaurus.ucw.cz>
-References: <253818670508250708a9075a0@mail.gmail.com> <58cb370e0508250859701ea571@mail.gmail.com> <253818670508252204b22e8c2@mail.gmail.com> <20050826065515.GQ4018@suse.de>
+	id S1751641AbVH0Tbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 15:31:31 -0400
+Date: Sat, 27 Aug 2005 13:58:00 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Meelis Roos <mroos@linux.ee>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Masoud Sharbiani <masouds@masoud.ir>, Len Brown <len.brown@intel.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [ACPI] acpi_shutdown: Only prepare for power off on power_off
+Message-ID: <20050827115759.GB1109@openzaurus.ucw.cz>
+References: <Pine.SOC.4.61.0508202137170.13442@math.ut.ee> <m14q9iva4q.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508221152350.17731@math.ut.ee> <m1mznativw.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508242252120.20856@math.ut.ee> <m11x4iofmw.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508260802230.22690@math.ut.ee> <m1ek8htfcc.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508262144490.24024@math.ut.ee> <m1r7cfswa5.fsf_-_@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050826065515.GQ4018@suse.de>
+In-Reply-To: <m1r7cfswa5.fsf_-_@ebiederm.dsl.xmission.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > Please make the interface accept number of seconds (as suggested by Jens)
-> > > and remove this module parameter. This way interface will be more flexible
-> > > and cleaner.  I really don't see any advantage in doing "echo 1 > ..." instead
-> > > of "echo x > ..." (Pavel, please explain).
-> > 
-> > Either way is pretty easy enough to implement. Note though that I'd
-> > expect the userspace app should thaw the device when danger is out of
-> > the way (the timeout is mainly there to ensure that the queue isn't
-> > frozen forever, and should probably be higher). Personally I don't
-> > have too much of an opinion either way though... what's the consensus?
-> > :).
-> 
-> Yes please, I don't understand why you would want a 0/1 interface
-> instead, when the timer-seconds method gives you the exact same ability
-> plus a way to control when to unfreeze...
+> When acpi_sleep_prepare was moved into a shutdown method we
+> started calling it for all shutdowns.  It appears this triggers
+> some systems to power off on reboot.  Avoid this by only calling
+> acpi_sleep_prepare if we are going to power off the system.
 
-Well, with my power-managment hat on:
-
-we probably want "freeze" functionality to be generic; it makes sense
-for other devices, too.
-
-"My battery is so low I can not use wifi any more" => userspace
-freezes wifi.
-
-Now, having this kind of timeout in all the cases looks pretty ugly to my eyes.
-
-				Pavel
+Are you sure that system_state is correctly set at this point? There are
+quite a few ways that lead to this...
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

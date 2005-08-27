@@ -1,43 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbVH0X6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVH0X4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbVH0X6W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 19:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVH0X6W
+	id S1750828AbVH0X4v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 19:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbVH0X4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 19:58:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12303 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750836AbVH0X6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 19:58:21 -0400
-Date: Sun, 28 Aug 2005 00:58:13 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Sat, 27 Aug 2005 19:56:51 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:17463 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750828AbVH0X4u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 19:56:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=eUJ1dYNcUtnO8vKOlbA19PWopDG0Gyx2g3dtXqecqBIUmtleTWJpxjqUJagZACNc1uYkgXNMd8CcCnriN9mqGBGvwJG0jb5PM8gckfB7Cs3uiYsWP3N4eyEpjcbzxRwk9WNQKov8xLAH9Ot3Bs83x3nu/76Is2AW4qwigqBNRNs=
+Message-ID: <4310FDB8.2040203@gmail.com>
+Date: Sun, 28 Aug 2005 07:56:40 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Paul Mackerras <paulus@samba.org>
-Cc: torvalds@osdl.org, akpm@osdl.org, dwmw2@redhat.com,
+CC: torvalds@osdl.org, akpm@osdl.org, dwmw2@redhat.com,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove race between con_open and con_close
-Message-ID: <20050828005813.A24838@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Mackerras <paulus@samba.org>, torvalds@osdl.org,
-	akpm@osdl.org, dwmw2@redhat.com,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 References: <17168.63953.95070.579096@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <17168.63953.95070.579096@cargo.ozlabs.ibm.com>; from paulus@samba.org on Sun, Aug 28, 2005 at 09:40:01AM +1000
+In-Reply-To: <17168.63953.95070.579096@cargo.ozlabs.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 28, 2005 at 09:40:01AM +1000, Paul Mackerras wrote:
+Paul Mackerras wrote:
 > I have a laptop (G3 powerbook) which will pretty reliably hit a race
 > between con_open and con_close late in the boot process and oops in
 > vt_ioctl due to tty->driver_data being NULL.
+> 
+> What happens is this: process A opens /dev/tty6; it comes into
+> con_open() (drivers/char/vt.c) and assign a non-NULL value to
+> tty->driver_data.  Then process A closes that and concurrently process
+> B opens /dev/tty6.  Process A gets through con_close() and clears
+> tty->driver_data, since tty->count == 1.  However, before process A
+> can decrement tty->count, we switch to process B (e.g. at the
+> down(&tty_sem) call at drivers/char/tty_io.c line 1626).
+> 
+> So process B gets to run and comes into con_open with tty->count == 2,
+> as tty->count is incremented (in init_dev) before con_open is called.
+> Because tty->count != 1, we don't set tty->driver_data.  Then when the
+> process tries to do anything with that fd, it oopses.
+> 
+> The simple and effective fix for this is to test tty->driver_data
+> rather than tty->count in con_open.  The testing and setting of
+> tty->driver_data is serialized with respect to the clearing of
+> tty->driver_data in con_close by the console_sem.  We can't get a
+> situation where con_open sees tty->driver_data != NULL and then
+> con_close on a different fd clears tty->driver_data, because
+> tty->count is incremented before con_open is called.  Thus this patch
+> eliminates the race, and in fact with this patch my laptop doesn't
+> oops.
+> 
+> Could this go into 2.6.13 please?
 
-Have you looked at how serial_core handles this kind of problem in
-its open and close methods?  I put some comments in there because
-of the issue, after thinking about it fairly carefully.
+I agree this should go to 2.6.13.  Though you've been beaten to the punch
+by Steven Rostedt.  This is already in the mm tree.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112450820432121&w=2
+
+Tony
+
+> 
+> Signed-off-by: Paul Mackerras <paulus@samba.org>
+> 
+> diff -urN linux-2.6/drivers/char/vt.c pmac-2.6/drivers/char/vt.c
+> --- linux-2.6/drivers/char/vt.c	2005-07-17 10:59:52.000000000 +1000
+> +++ pmac-2.6/drivers/char/vt.c	2005-08-27 22:59:36.000000000 +1000
+> @@ -2433,7 +2433,7 @@
+>  	int ret = 0;
+>  
+>  	acquire_console_sem();
+> -	if (tty->count == 1) {
+> +	if (tty->driver_data == NULL) {
+>  		ret = vc_allocate(currcons);
+>  		if (ret == 0) {
+>  			struct vc_data *vc = vc_cons[currcons].d;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

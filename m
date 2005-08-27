@@ -1,68 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVH0V2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVH0Vmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbVH0V2W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 17:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbVH0V2W
+	id S1750796AbVH0Vmc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 17:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVH0Vmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 17:28:22 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:15024 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP
-	id S1750804AbVH0V2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 17:28:22 -0400
-X-ORBL: [67.124.117.85]
-Date: Sat, 27 Aug 2005 14:28:17 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Kent Robotti <dwilson24@nyc.rr.com>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 27 Aug 2005 17:42:32 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:27039 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750796AbVH0Vmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 17:42:31 -0400
 Subject: Re: Initramfs and TMPFS!
-Message-ID: <20050827212817.GA2951@taniwha.stupidest.org>
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Kent Robotti <dwilson24@nyc.rr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050827212817.GA2951@taniwha.stupidest.org>
 References: <20050827081918.GA963@Linux.nyc.rr.com>
+	 <20050827212817.GA2951@taniwha.stupidest.org>
+Content-Type: text/plain
+Date: Sat, 27 Aug 2005 17:42:29 -0400
+Message-Id: <1125178949.25011.89.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050827081918.GA963@Linux.nyc.rr.com>
+X-Mailer: Evolution 2.3.8 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 27, 2005 at 08:19:18AM +0000, Kent Robotti wrote:
+On Sat, 2005-08-27 at 14:28 -0700, Chris Wedgwood wrote:
+> - you're very interesting in real-time patches.  linux should
+>     clearly have all real-time stuff merged.  second to your interest
+>     in realtime is probably something like selinux 
 
-> I know that experience dosen't come from packing the kernel source,
-> or the zillion other tar archives on the internet.
+Please don't lump the -rt kernel people in with the Gentoo ricer crowd.
+Most people running those patches really do need them.
 
-Are you deliberately trying to be annoying?   Let me guess:
+Lee
 
-  - your under 25 years of age, probably in high school or not far
-    out of it
-
-  - you have a stupid oversized wanky computer case with neon
-    lighting and useless analog dials and what not.  you might have
-    even overclocked it
-
-  - you've run windows most of your live
-
-  - you probably run gentoo now.  you like the feeling of having
-    everything optimized for your exact system; the addition 0.25%
-    speed increase more than offsets the fact everything is crappy
-    and crashes all the time
-
-  - you run reiserfs, you probably can't wait till reiser4 is merged
-    so you can run that
-
-  - you're very interesting in real-time patches.  linux should
-    clearly have all real-time stuff merged.  second to your interest
-    in realtime is probably something like selinux
-
-  - if you drive a car, it has extra spoilers added and you've
-    replaced the steering wheel with something from MOMO
-
-  - you 'friends' are worried you'll die a virgin
-
-Please.
-
-How about you do a little research on some things for a bit?  The
-initramfs code is done the way it is for a good reason.  cpio is used
-over tar for another good reason.
-
-You are most welcome to disagree and even voice you disagreement, but
-there comes a point where you really need to produce some better
-arguments.  Patches wouldn't hurt either.

@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVH0UJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVH0Ukn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVH0UJY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 16:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbVH0UJY
+	id S1750749AbVH0Ukn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 16:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVH0Ukm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 16:09:24 -0400
-Received: from smtpout1.uol.com.br ([200.221.4.192]:62359 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S1750718AbVH0UJX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 16:09:23 -0400
-Date: Sat, 27 Aug 2005 17:09:04 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	Sat, 27 Aug 2005 16:40:42 -0400
+Received: from ms003msg.fastwebnet.it ([213.140.2.42]:19954 "EHLO
+	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1750749AbVH0Ukm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 16:40:42 -0400
+Date: Sat, 27 Aug 2005 22:39:35 +0200
+From: Mattia Dongili <malattia@linux.it>
+To: rbrito@ime.usp.br, Andrew Morton <akpm@osdl.org>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
        Greg KH <greg@kroah.com>
 Subject: Re: Fw: Oops with 2.6.13-rc6-mm2 and USB mouse
-Message-ID: <20050827200904.GA4362@ime.usp.br>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+Message-ID: <20050827203935.GJ5631@inferi.kami.home>
+Mail-Followup-To: rbrito@ime.usp.br, Andrew Morton <akpm@osdl.org>,
 	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
 	Greg KH <greg@kroah.com>
-References: <20050826220618.7365e690.akpm@osdl.org>
+References: <20050826220618.7365e690.akpm@osdl.org> <20050827200904.GA4362@ime.usp.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050826220618.7365e690.akpm@osdl.org>
+In-Reply-To: <20050827200904.GA4362@ime.usp.br>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.13-rc6-mm2-3 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew.
+On Sat, Aug 27, 2005 at 05:09:04PM -0300, Rog???rio Brito wrote:
+> Hi, Andrew.
+> 
+> I just tested the USB mouse with 2.6.13-rc6-mm2 and ACPI disabled
+> (which, according to Linus, is one of the "usual suspects") and the
+> problem still occurred.
 
-I just tested the USB mouse with 2.6.13-rc6-mm2 and ACPI disabled
-(which, according to Linus, is one of the "usual suspects") and the
-problem still occurred.
+see here
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112481438512222&w=2
 
-On the other hand, with kernel 2.6.13-rc5-mm1 (which I am running now),
-I didn't have any problems plugging and unplugging the mouse. Here are
-the messages I get in dmesg (2.6.13-rc5-mm1) after I plug/unplug the
-mouse:
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-usb 1-1.2: new low speed USB device using uhci_hcd and address 4
-input: USB HID v1.00 Mouse [USB Wheel Mouse] on usb-0000:00:04.2-1.2
-usb 1-1.2: USB disconnect, address 4
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Just thought you might like to know about this. If you want me to test
-any other version, please let me know.
-
-
-Thanks, Rogério Brito.
+Reverting driver-core-fix-bus_rescan_devices-race.patch and applying the
+patch attached to the above message fixed the oops for me.
 
 -- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+mattia
+:wq!

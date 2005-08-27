@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965185AbVH0Axj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbVH0BQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965185AbVH0Axj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 20:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbVH0Axj
+	id S965191AbVH0BQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 21:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbVH0BQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 20:53:39 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:20905 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S965185AbVH0Axi convert rfc822-to-8bit (ORCPT
+	Fri, 26 Aug 2005 21:16:25 -0400
+Received: from waste.org ([216.27.176.166]:61572 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S965188AbVH0BQY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 20:53:38 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: HPET drift question
-Date: Fri, 26 Aug 2005 17:53:35 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB60058CAF33@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: HPET drift question
-Thread-Index: AcWpiA2vitGF38RYRgmF5vvBEzVVrABGTgiw
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Alex Williamson" <alex.williamson@hp.com>
-Cc: <robert.picco@hp.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Aug 2005 00:53:36.0638 (UTC) FILETIME=[C1B701E0:01C5AAA1]
+	Fri, 26 Aug 2005 21:16:24 -0400
+Date: Fri, 26 Aug 2005 18:15:37 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       george anzinger <george@mvista.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, dwalker@mvista.com
+Subject: Re: 2.6.13-rc6-rt1
+Message-ID: <20050827011537.GC27787@waste.org>
+References: <20050811110051.GA20872@elte.hu> <1c1c8636050812172817b14384@mail.gmail.com> <20050815111804.GA26161@elte.hu> <20050816084116.GA16772@elte.hu> <4301DCC1.5060409@stud.feec.vutbr.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4301DCC1.5060409@stud.feec.vutbr.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 16, 2005 at 02:32:01PM +0200, Michal Schmidt wrote:
+> Ingo Molnar wrote:
+> >i've released the 2.6.13-rc6-rt1 tree, which can be downloaded from the 
+> >usual place:
+> >
+> >  http://redhat.com/~mingo/realtime-preempt/
+> >
+> >as the name already suggests, i've switched to a new, simplified naming 
+> >scheme, which follows the usual naming convention of trees tracking the 
+> >mainline kernel. The numbering will be restarted for every new upstream 
+> >kernel the -RT tree is merged to.
+> 
+> Great! With this naming scheme it is easy to teach Matt Mackall's 
+> ketchup script about the -RT tree.
+> The modified ketchup script can be downloaded from:
+> http://www.uamt.feec.vutbr.cz/rizeni/pom/ketchup-0.9+rt
+> 
+> Matt, would you release a new ketchup version with this support for 
+> Ingo's tree?
 
-Yes. Looks like "ti->drift = HPET_DRIFT;" is right here. However, I
-would 
-like to double check this with Bob.
+Thanks. I've put this in my version, which is now exported as a
+Mercurial repo at:
 
-Thanks,
-Venki
+ http://selenic.com/repo/ketchup
 
->-----Original Message-----
->From: Alex Williamson [mailto:alex.williamson@hp.com] 
->Sent: Thursday, August 25, 2005 8:17 AM
->To: Pallipadi, Venkatesh
->Cc: robert.picco@hp.com; linux-kernel@vger.kernel.org
->Subject: HPET drift question
->
->Hi Venki,
->
->   I'm confused by the calculation of the drift value in the hpet
->driver.  The specs defines the recommended minimum hardware
->implementation is a frequency drift of 0.05% or 500ppm.  However, the
->drift passed in when registering with the time interpolator is:
->
->ti->drift = ti->frequency * HPET_DRIFT / 1000000;
->
->Isn't that absolute number of ticks per second drift?  The time
->interpolator defines the drift in parts per million.  Shouldn't this
->simply be:
->
->ti->drift = HPET_DRIFT;
->
->The current code seems to greatly penalize any hpet timer with greater
->than a 1MHz frequency.  Thanks,
->
->	Alex
->
->-- 
->Alex Williamson                             HP Linux & Open Source Lab
->
->
+This version also has -git support, finally.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

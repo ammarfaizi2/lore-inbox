@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVH0Rtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVH0RwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbVH0Rtp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 13:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVH0Rto
+	id S932308AbVH0RwP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 13:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVH0RwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 13:49:44 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15625 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932222AbVH0Rto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 13:49:44 -0400
-Date: Sat, 27 Aug 2005 19:49:34 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jerome Pinot <ngc891@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [KCONFIG] Can't compile 2.6.12 without Gettext
-Message-ID: <20050827174934.GL6471@stusta.de>
-References: <88ee31b705082421303697aef7@mail.gmail.com> <20050827124751.GK6471@stusta.de> <88ee31b7050827082345a393bd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88ee31b7050827082345a393bd@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Sat, 27 Aug 2005 13:52:15 -0400
+Received: from WILBUR.CONTACTOFFICE.NET ([212.3.242.68]:24735 "EHLO
+	wilbur.contactoffice.net") by vger.kernel.org with ESMTP
+	id S932308AbVH0RwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 13:52:14 -0400
+Message-ID: <16842018.1125165215948.JavaMail.root@orville>
+Date: Sat, 27 Aug 2005 19:53:35 +0200 (CEST)
+From: "J. B." <ierland@mail.be>
+Reply-To: "J. B." <ierland@mail.be>
+To: linux-kernel@vger.kernel.org
+Subject: kernel compile error in bootsplash.c
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Origin-IP: 81.243.79.134
+X-Mailer: ContactOffice Mail
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 28, 2005 at 12:23:38AM +0900, Jerome Pinot wrote:
->...
-> ---- snip ----
->...
-> In file included from scripts/kconfig/conf.c:14:
-> scripts/kconfig/lkc.h:11:21: libintl.h: No such file or directory
->...
-> ---- snip ----
-> 
-> Actually, adding libintl.h in /usr/include didn't solve the issue in
-> my case. My gettext implementation is not exactly complete. Anyway the
-> script shouldn't failed at this step.
-> 
-> Segher Boessenkool, who had the same problem, sent me a way to compile
-> the kernel by modifying a bit the lkc.h and mconf.c files. I suggested
-> him to send this to lkml too.
-> 
-> The fix to do is really small but it needs to define a policy about
-> how kconfig should decide about using gettext or not. It could use a
-> configure script or a parameter from command line to choose whether or
-> not to look for a gettext implementation (something like "make NLS=0
-> menuconfig" maybe). This should be define prior to any patch attempt.
->...
+I try to compile a 2.6.10 kernel but it stops with an error
+in bootsplash.c. I have everything set in my .config file in /usr/src/linux for bootsplash support. 
 
-You said "full gettext" was required and that the presence of "gettext 
-binaries" should be checked what surprised me. It seems this is not the 
-problem. Under Linux, libintl.h is not shipped with gettext but with the 
-C library if you are using glibc or dietlibc.
+Anybody an idea. Where should i start to look? I am a newbie in kernel world
 
-I do not question your point that "uClibc is widely used", but it's 
-widely used to _run_ a Linux kernel.
-
-You said you are "thinking about small or embedded system with specific 
-toolchain". If a system is so limited that you run uClibc on it, is this 
-really the right system to _compile_ a kernel on? Where's the problem 
-with cross-compiling the kernel for such a system?
-
-> Regards,
-> Jerome Pinot
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+in file included from drivers/video/bootsplash/bootsplash.c:18:
+include/linux/fb.h:869: error: array type has incomplete element type
+drivers/video/bootsplash/bootsplash.c:37: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:38: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:39: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:40: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:41: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:42: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:43: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:44: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:45: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:46: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:47: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:48: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:49: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:50: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c:52: warning: pointer targets in initialization differ in signedness
+drivers/video/bootsplash/bootsplash.c: In function 'splash_verbose':
+drivers/video/bootsplash/bootsplash.c:572: warning: pointer targets in passing argument 1 of 'splashcopy' differ in signedness
+drivers/video/bootsplash/bootsplash.c:572: warning: pointer targets in passing argument 2 of 'splashcopy' differ in signedness
+drivers/video/bootsplash/bootsplash.c: In function 'splash_prepare':
+drivers/video/bootsplash/bootsplash.c:642: warning: pointer targets in passing argument 1 of 'splashcopy' differ in signedness
+drivers/video/bootsplash/bootsplash.c: In function 'splash_write_proc':
+drivers/video/bootsplash/bootsplash.c:788: warning: pointer targets in passing argument 1 of 'boxit' differ in signedness
+drivers/video/bootsplash/bootsplash.c:789: warning: pointer targets in passing argument 1 of 'boxit' differ in signedness
+make[5]: *** [drivers/video/bootsplash/bootsplash.o] Error 1
+make[4]: *** [drivers/video/bootsplash] Error 2
+make[3]: *** [drivers/video] Error 2
+make[2]: *** [drivers] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.6.10'
+make[1]: *** [stamp-build] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.6.10'
+make: *** [stamp-buildpackage] Error 2
+-----------------------------------------------------
+Mail.be, WebMail and Virtual Office
+http://www.mail.be
 

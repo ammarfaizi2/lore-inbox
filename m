@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbVH0H0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbVH0H0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030334AbVH0H0x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 03:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbVH0H0w
+	id S1030333AbVH0H0h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 03:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbVH0H0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 03:26:52 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:43281 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030334AbVH0H0v (ORCPT
+	Sat, 27 Aug 2005 03:26:37 -0400
+Received: from effigent.net ([210.211.230.208]:54499 "EHLO effigent.net")
+	by vger.kernel.org with ESMTP id S1030333AbVH0H0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 03:26:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=E+cSC7dnAW8D0z9T2knlgI2jwwl21fKP2nMNDCCZtBxPWfKWPEwOjTK8H1wWH22a9ekzd47LBKcuwL7a4Yk9lCueUueF5fJoT91cO5iFhib1vYaEInAbBSU1DFNA+W83FAMkdpJs9quXEBw1bHHmgx60e3CTo6O/qefwwm+Swk0=
-Message-ID: <431015A1.2000903@gmail.com>
-Date: Sat, 27 Aug 2005 11:56:25 +0430
-From: Majid Ziaee <zimarnel@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+	Sat, 27 Aug 2005 03:26:37 -0400
+Message-ID: <43101357.7060103@effigent.net>
+Date: Sat, 27 Aug 2005 12:46:39 +0530
+From: raja <vnagaraju@effigent.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Hardware-Detection
-References: <20050826201130.73888.qmail@web51004.mail.yahoo.com>
-In-Reply-To: <20050826201130.73888.qmail@web51004.mail.yahoo.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: pid
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that utopia is working this way
+Hi,
+    I am trying to find the pid of the process with out using the 
+getpid() using the following program.
 
-Ahmad Reza Cheraghi wrote:
+int main()
+{
+    struct thread_info * threadInfo = current_thread_info();
+    struct task_struct *taskInfo = threadInfo->task;
+    printf("Pid Is %d\n",taskInfo->pid);
+}
 
->Is there any Hardware-Detection Program, that directly
->gets its Information from the I/O and not from /proc/ files??
->
->
->		
->____________________________________________________
->Start your day with Yahoo! - make it your home page 
->http://www.yahoo.com/r/hs 
-> 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+
+And when i try to compile using
+gcc  -Wall  pid.c
+
+Then I am getting so many errors like
+
+
+pid.c:9: warning: implicit declaration of function `current_thread_info'
+pid.c:9: warning: initialization makes pointer from integer without a cast
+pid.c:10: error: dereferencing pointer to incomplete type
+pid.c:11: error: dereferencing pointer to incomplete type
+
+
+
+Will you please help me.
 

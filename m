@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVH0VrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVH0Wip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbVH0VrM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 17:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVH0VrM
+	id S1750813AbVH0Wip (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 18:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbVH0Wip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 17:47:12 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:35744 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750751AbVH0VrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 17:47:11 -0400
-Subject: Re: Surround via SPDIF with ALSA/emu10k1?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Thomas Zehetbauer <thomasz@hostmaster.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050827211726.GD28578@csclub.uwaterloo.ca>
-References: <1124755373.5763.4.camel@hostmaster.org>
-	 <1125166739.22285.66.camel@hostmaster.org>
-	 <20050827211726.GD28578@csclub.uwaterloo.ca>
-Content-Type: text/plain
-Date: Sat, 27 Aug 2005 17:47:08 -0400
-Message-Id: <1125179229.25011.94.camel@mindpipe>
+	Sat, 27 Aug 2005 18:38:45 -0400
+Received: from ms-smtp-03-smtplb.rdc-nyc.rr.com ([24.29.109.7]:54691 "EHLO
+	ms-smtp-03.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S1751110AbVH0WhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 18:37:01 -0400
+Date: Sat, 27 Aug 2005 22:45:55 +0000
+From: Kent Robotti <dwilson24@nyc.rr.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initramfs and TMPFS!
+Message-ID: <20050827224555.GA1731@Linux.nyc.rr.com>
+Reply-To: dwilson24@nyc.rr.com
+References: <20050827081918.GA963@Linux.nyc.rr.com> <20050827212817.GA2951@taniwha.stupidest.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.8 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050827212817.GA2951@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-27 at 17:17 -0400, Lennart Sorensen wrote:
-> As for volume settings, I always try to keep the sound card mixers at
-> around 75 to 80% since it seems most amplifiers and mixer do distort a
-> bit when you max them out.  Why would you want them all at 100%
-> anyhow, then you might as well not have mixing control for the
-> seperate audio channels at all. 
+On Sat, Aug 27, 2005 at 02:28:17PM -0700, Chris Wedgwood wrote:
+> How about you do a little research on some things for a bit?  The
+> initramfs code is done the way it is for a good reason.  cpio is used
+> over tar for another good reason.
 
-For the best S/N ratio and dynamic range all mixer controls SHOULD be at
-100%, assuming the volume control in your driver only attenuates
-signals.  This is the case for the emu10k1 which implements all mixer
-controls via DSP programs that run on the soundcard anyway, and handles
-overflow itself.
+Why don't you do some research on manners?
+ 
+> You are most welcome to disagree and even voice you disagreement, but
+> there comes a point where you really need to produce some better
+> arguments.  Patches wouldn't hurt either.
 
-Think about it, if you lower the mixer controls to 75%, you're not
-getting the full 16 bits of dynamic range, it's probably more like 14 or
-15.  16 bits is barely enough headroom anyway, so you really don't want
-this.
-
-Anyway the problem here is a bug in the emu10k1 driver, see alsa-devel
-for the resolution.
-
-Lee
-
+Are you satisfied ass?????

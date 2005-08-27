@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVH0Ukn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVH0Usm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbVH0Ukn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 16:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVH0Ukm
+	id S1750752AbVH0Usm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 16:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbVH0Usm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 16:40:42 -0400
-Received: from ms003msg.fastwebnet.it ([213.140.2.42]:19954 "EHLO
-	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1750749AbVH0Ukm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 16:40:42 -0400
-Date: Sat, 27 Aug 2005 22:39:35 +0200
-From: Mattia Dongili <malattia@linux.it>
-To: rbrito@ime.usp.br, Andrew Morton <akpm@osdl.org>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: Fw: Oops with 2.6.13-rc6-mm2 and USB mouse
-Message-ID: <20050827203935.GJ5631@inferi.kami.home>
-Mail-Followup-To: rbrito@ime.usp.br, Andrew Morton <akpm@osdl.org>,
-	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	Greg KH <greg@kroah.com>
-References: <20050826220618.7365e690.akpm@osdl.org> <20050827200904.GA4362@ime.usp.br>
+	Sat, 27 Aug 2005 16:48:42 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51094 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750752AbVH0Usl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 16:48:41 -0400
+Date: Sat, 27 Aug 2005 22:48:28 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Meelis Roos <mroos@linux.ee>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Masoud Sharbiani <masouds@masoud.ir>, Len Brown <len.brown@intel.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [ACPI] acpi_shutdown: Only prepare for power off on power_off
+Message-ID: <20050827204828.GA1971@elf.ucw.cz>
+References: <Pine.SOC.4.61.0508221152350.17731@math.ut.ee> <m1mznativw.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508242252120.20856@math.ut.ee> <m11x4iofmw.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508260802230.22690@math.ut.ee> <m1ek8htfcc.fsf@ebiederm.dsl.xmission.com> <Pine.SOC.4.61.0508262144490.24024@math.ut.ee> <m1r7cfswa5.fsf_-_@ebiederm.dsl.xmission.com> <20050827115759.GB1109@openzaurus.ucw.cz> <m1acj3rwjl.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050827200904.GA4362@ime.usp.br>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.13-rc6-mm2-3 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
+In-Reply-To: <m1acj3rwjl.fsf@ebiederm.dsl.xmission.com>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 27, 2005 at 05:09:04PM -0300, Rog???rio Brito wrote:
-> Hi, Andrew.
+Hi!
+
+> >> When acpi_sleep_prepare was moved into a shutdown method we
+> >> started calling it for all shutdowns.  It appears this triggers
+> >> some systems to power off on reboot.  Avoid this by only calling
+> >> acpi_sleep_prepare if we are going to power off the system.
+> >
+> > Are you sure that system_state is correctly set at this point? There are
+> > quite a few ways that lead to this...
 > 
-> I just tested the USB mouse with 2.6.13-rc6-mm2 and ACPI disabled
-> (which, according to Linus, is one of the "usual suspects") and the
-> problem still occurred.
+> - It is an error if system_state is not set properly.
+> 
+> -  Do to my earlier cleanups there are only 4 functions
+>    that call device_shutdown they are:
+>    kernel_restart(), kernel_kexec(), kernel_halt(), kernel_power_off()
+> 
+>    And those four all set system_state correctly.
+> 
+> If you can find another path that calls this incorrectly I would be happy
+> to fix it.  But my grep through the kernel doesn't reveal any other
+> callers.
 
-see here
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112481438512222&w=2
-
-Reverting driver-core-fix-bus_rescan_devices-race.patch and applying the
-patch attached to the above message fixed the oops for me.
+Ok, thanks for analysis!
+								Pavel
 
 -- 
-mattia
-:wq!
+if you have sharp zaurus hardware you don't need... you know my address

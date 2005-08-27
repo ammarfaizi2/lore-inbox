@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbVH0HtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbVH0Hy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030339AbVH0HtM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 03:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbVH0HtM
+	id S1030340AbVH0Hy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 03:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbVH0Hy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 03:49:12 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:19613 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030339AbVH0HtL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 03:49:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DO2JXB2ma2SIvuNJm+6B17Sn3JFFyY0rNzrNMrhLw2YOg1xU6Q7aRmP9kZMvT4j+FqYvR30E0TfY2oVyyq2RjV9mZsaOvBj41Hhdon8bEJQIGsZNXQFrEF7G6hNwd/RLIzN1NZZkjIMawBDt63klcqDVojuByCGHmRTw178KCQ4=
-Message-ID: <1e33f57105082700496de6e103@mail.gmail.com>
-Date: Sat, 27 Aug 2005 13:19:11 +0530
-From: Gaurav Dhiman <gaurav4lkg@gmail.com>
+	Sat, 27 Aug 2005 03:54:26 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:10258 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1030340AbVH0HyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 03:54:25 -0400
+Date: Sat, 27 Aug 2005 09:53:28 +0200
+From: Willy Tarreau <willy@w.ods.org>
 To: raja <vnagaraju@effigent.net>
-Subject: Re: pid
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <43101357.7060103@effigent.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Subject: Re: pid
+Message-ID: <20050827075328.GD10110@alpha.home.local>
 References: <43101357.7060103@effigent.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43101357.7060103@effigent.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/27/05, raja <vnagaraju@effigent.net> wrote:
+On Sat, Aug 27, 2005 at 12:46:39PM +0530, raja wrote:
 > Hi,
->     I am trying to find the pid of the process with out using the
+>    I am trying to find the pid of the process with out using the 
 > getpid() using the following program.
+
+Hmmm, I think you're trying to burn all the steps to programming...
+First, your program needs some includes, otherwise it will never
+know what struct thread_info and task_struct are made of.
+Second, those are kernel structures and functions. There's no where you
+can call them from userland.
+
+You should really start from the ground with easier programs to
+familiarize with C first.
+
+Regards,
+Willy
+
 > 
 > int main()
 > {
->     struct thread_info * threadInfo = current_thread_info();
->     struct task_struct *taskInfo = threadInfo->task;
->     printf("Pid Is %d\n",taskInfo->pid);
+>    struct thread_info * threadInfo = current_thread_info();
+>    struct task_struct *taskInfo = threadInfo->task;
+>    printf("Pid Is %d\n",taskInfo->pid);
 > }
-
-You are writting a user space programme and in that you can not use
-the kernel data structures. Usually user programmes communicate wth
-kernel through system calls. The thing you are doing is not allowed.
-If you are a kernelnewbie, I would recommend you to subscribe to
-kernelnewbies mailing list.
-
-regards,
--Gaurav
-
 > 
 > 
 > And when i try to compile using
@@ -71,4 +70,3 @@ regards,
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
->

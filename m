@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVH0OPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751620AbVH0ORk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbVH0OPH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 10:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbVH0OPG
+	id S1751620AbVH0ORk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 10:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbVH0ORk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 10:15:06 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:31137 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751618AbVH0OPF (ORCPT
+	Sat, 27 Aug 2005 10:17:40 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:47235 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751617AbVH0ORj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 10:15:05 -0400
-Subject: Re: Linux 2.6 context switching and posix threads performance
-	question
+	Sat, 27 Aug 2005 10:17:39 -0400
+Subject: Re: [patch] IBM HDAPS accelerometer driver, with probing.
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mateusz Berezecki <mateuszb@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050827121158.GA18406@oepkgtn.mshome.net>
-References: <20050827121158.GA18406@oepkgtn.mshome.net>
+To: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
+Cc: Robert Love <rml@novell.com>, dtor_core@ameritech.net,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050827052929.GA15782@mandriva.com>
+References: <1125094725.18155.120.camel@betsy>
+	 <d120d50005082615445557d776@mail.gmail.com>
+	 <1125099479.32272.29.camel@phantasy>  <20050827052929.GA15782@mandriva.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sat, 27 Aug 2005 15:43:16 +0100
-Message-Id: <1125153796.24593.27.camel@localhost.localdomain>
+Date: Sat, 27 Aug 2005 15:45:52 +0100
+Message-Id: <1125153952.24593.30.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-08-27 at 14:11 +0200, Mateusz Berezecki wrote:
-> switching contexts ? I'm asking for some kind of an authoritative answer
-> quite urgently. What is the optimum thread amount on 2 CPU SMP system
-> running Linux ?
+On Sad, 2005-08-27 at 02:29 -0300, Arnaldo Carvalho de Melo wrote:
+> > unlikely() can result in better, smaller, faster code.  and it acts as a
+> > nice directive to programmers reading the code.
+> 
+> Agreed, keep them :-)
 
-For doing what ? How often is a given thread woken up, do you need
-latency or throughput.
+If the unlikely() hints are being used correctly and the compiler is
+doing the right thing then it ought to be worthwhile, if not then fix
+the compiler.
 
-A good rule of thumb is about 1.5 to 2 threads per core. But it is only
-that and without context it is hard to assess the real needs. As you add
-more threads you generally decrease cache effectiveness and that rather
-than switching cost may well be the biggest hurt you experience. The
-memory usage may also hurt.
-
-Now if you have 25,000 threads and 24995 of them wake once every few
-minutes that will have no real impact but if you are randomly flipping
-between 25,000 threads all with different stacks and data areas at high
-speed your cache utilisation will go down.
-
-Equally if you have a lot of shared objects being written you avoid that
-but can get into contention of cached memory. That however is more a
-problem of number of processors than threads - ie a 25000 thread app
-with a lot of shared objects may run *horribly* on a 64 CPU system and
-really well on a dual.
-
-So in essence you are asking "how long is a piece of string". Linux
-2.6.x with NPTL will handle large numbers of threads. 25,000 is
-excessive for most situations but how it behaves is more a question of
-the application than the OS here.
+Remember however unlikely() does have a code size cost on some
+processors and a small performance cost so it really has to mean
+very_unlikely().
 

@@ -1,200 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbVH0Q06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbVH0QnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbVH0Q06 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 12:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbVH0Q06
+	id S1751522AbVH0QnA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 12:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbVH0QnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 12:26:58 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:40067 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751498AbVH0Q05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 12:26:57 -0400
-Subject: [PATCH] make radix tree gang lookup faster by using a bitmap search
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@vger.kernel.org
-Content-Type: text/plain
-Date: Sat, 27 Aug 2005 11:26:36 -0500
-Message-Id: <1125159996.5159.8.camel@mulgrave>
+	Sat, 27 Aug 2005 12:43:00 -0400
+Received: from the-penguin.otak.com ([65.37.126.18]:64717 "EHLO
+	the-penguin.otak.com") by vger.kernel.org with ESMTP
+	id S1751507AbVH0Qm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 12:42:59 -0400
+Date: Sat, 27 Aug 2005 09:43:00 -0700
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Asus a8v-e Deluxe lockups
+Message-ID: <20050827164300.GA11671@the-penguin.otak.com>
+References: <20050825214855.GA4434@the-penguin.otak.com> <20050827154614.GA7407@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Content-Disposition: inline
+In-Reply-To: <20050827154614.GA7407@mipter.zuzino.mipt.ru>
+X-Operating-System: Linux 2.6.13-rc7 on an i686
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current gang lookup is rather naive and slow.  This patch replaces
-the integer count with an unsigned long representing the bitmap of
-occupied elements.  We then use that bitmap to find the first occupied
-entry instead of looping over all the entries from the beginning of the
-radix node.
 
-The penalty of doing this is that on 32 bit machines, the size of the
-radix tree array is reduced from 64 to 32 (so an unsigned long can
-represent the bitmap).
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I also exported radix_tree_preload() so modules can make use of radix
-trees.
+Alexey Dobriyan [adobriyan@gmail.com] wrote:
+> On Thu, Aug 25, 2005 at 02:48:55PM -0700, Lawrence Walton wrote:
+> >  I just switched out motherboards and CPUs From a Asus K8v SE Deluxe
+> > to a to a Asus A8V-E Deluxe, and a 754 pin 3200+ to a 934 pin 3200+.
+> > I am now having some fairly serious instability issues.
+>=20
+> I've filed a bug at kernel bugzilla so your report won't be lost. See
+> http://bugme.osdl.org/show_bug.cgi?id=3D5139
+>=20
+> Please, register at http://bugme.osdl.org/createaccount.cgi and add
+> yourself to CC list.
+>=20
+> Martin J. Bligh set up a webpage describing basic kernel hangs
+> debugging: http://mbligh.org/linuxdocs/kernel/hang.html
+>=20
 
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+Thanks for filing the bug, I've posted additional information in
+bugzilla. I'm in the proccess of installing Debian on the same board
+minus scsi card and drive. So far It seems stable with a sata.
+I'll get 2.6.13-rc7 on it next.
 
----
-
-James
-
-diff --git a/lib/radix-tree.c b/lib/radix-tree.c
---- a/lib/radix-tree.c
-+++ b/lib/radix-tree.c
-@@ -32,9 +32,17 @@
- 
- 
- #ifdef __KERNEL__
-+#if BITS_PER_LONG == 32
-+#define RADIX_TREE_MAP_SHIFT	5
-+#elif BITS_PER_LONG == 64
- #define RADIX_TREE_MAP_SHIFT	6
- #else
-+#error BITS_PER_LONG neither 32 nor 64
-+#endif
-+#define RADIX_TREE_MAP_FULL	(~0UL)
-+#else
- #define RADIX_TREE_MAP_SHIFT	3	/* For more stressful testing */
-+#define RADIX_TREE_MAP_FULL	((1UL << (1UL << RADIX_TREE_MAP_SHIFT)) - 1UL)
- #endif
- #define RADIX_TREE_TAGS		2
- 
-@@ -45,7 +53,7 @@
- 	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
- 
- struct radix_tree_node {
--	unsigned int	count;
-+	unsigned long	occupied;
- 	void		*slots[RADIX_TREE_MAP_SIZE];
- 	unsigned long	tags[RADIX_TREE_TAGS][RADIX_TREE_TAG_LONGS];
- };
-@@ -133,6 +141,7 @@ int radix_tree_preload(int gfp_mask)
- out:
- 	return ret;
- }
-+EXPORT_SYMBOL(radix_tree_preload);
- 
- static inline void tag_set(struct radix_tree_node *node, int tag, int offset)
- {
-@@ -208,7 +217,7 @@ static int radix_tree_extend(struct radi
- 				tag_set(node, tag, 0);
- 		}
- 
--		node->count = 1;
-+		node->occupied = 1;
- 		root->rnode = node;
- 		root->height++;
- 	} while (height > root->height);
-@@ -251,8 +260,10 @@ int radix_tree_insert(struct radix_tree_
- 			if (!(tmp = radix_tree_node_alloc(root)))
- 				return -ENOMEM;
- 			*slot = tmp;
--			if (node)
--				node->count++;
-+			if (node) {
-+				BUG_ON(node->occupied & (1UL << offset));
-+				node->occupied |= (1UL << offset);
-+			}
- 		}
- 
- 		/* Go a level down */
-@@ -265,11 +276,11 @@ int radix_tree_insert(struct radix_tree_
- 
- 	if (*slot != NULL)
- 		return -EEXIST;
--	if (node) {
--		node->count++;
--		BUG_ON(tag_get(node, 0, offset));
--		BUG_ON(tag_get(node, 1, offset));
--	}
-+	BUG_ON(!node);
-+	BUG_ON(node->occupied & (1UL << offset));
-+	node->occupied |= (1UL << offset);
-+	BUG_ON(tag_get(node, 0, offset));
-+	BUG_ON(tag_get(node, 1, offset));
- 
- 	*slot = item;
- 	return 0;
-@@ -480,30 +491,48 @@ __lookup(struct radix_tree_root *root, v
- 	slot = root->rnode;
- 
- 	while (height > 0) {
--		unsigned long i = (index >> shift) & RADIX_TREE_MAP_MASK;
-+		unsigned long j = (index >> shift) & RADIX_TREE_MAP_MASK, i;
-+		unsigned long occupied_mask = 0;
- 
--		for ( ; i < RADIX_TREE_MAP_SIZE; i++) {
--			if (slot->slots[i] != NULL)
--				break;
--			index &= ~((1UL << shift) - 1);
--			index += 1UL << shift;
--			if (index == 0)
--				goto out;	/* 32-bit wraparound */
--		}
--		if (i == RADIX_TREE_MAP_SIZE)
-+		/* mark all the slots up to but excluding the starting
-+		 * index occupied */
-+		occupied_mask = (1UL << j) - 1;
-+		/* Now or in the remaining occupations (inverted so
-+		 * we can use ffz to find the next occupied slot) */
-+		occupied_mask |= ~slot->occupied;
-+
-+		/* If everything from this on up is empty, then there's
-+		 * nothing more in the tree */
-+		if (occupied_mask == RADIX_TREE_MAP_FULL) {
-+			index = 0;
- 			goto out;
-+		}
-+
-+		i = ffz(occupied_mask);
-+		if (i != j) {
-+			index &= ~((1UL << (shift + RADIX_TREE_MAP_SHIFT)) - 1);
-+			index |= i << shift;
-+		}
-+
- 		height--;
- 		if (height == 0) {	/* Bottom level: grab some items */
--			unsigned long j = index & RADIX_TREE_MAP_MASK;
--
--			for ( ; j < RADIX_TREE_MAP_SIZE; j++) {
--				index++;
--				if (slot->slots[j]) {
--					results[nr_found++] = slot->slots[j];
--					if (nr_found == max_items)
--						goto out;
-+			while (i < RADIX_TREE_MAP_SIZE) {
-+				unsigned long occupied_mask;
-+				BUG_ON(!slot->slots[i]);
-+				results[nr_found++] = slot->slots[i];
-+				if (nr_found == max_items) {
-+					index++;
-+					goto out;
- 				}
-+				occupied_mask = (1UL << i) - 1 + (1UL << i);
-+				occupied_mask |= ~slot->occupied;
-+				if (occupied_mask == RADIX_TREE_MAP_FULL)
-+					break;
-+				j = i;
-+				i = ffz(occupied_mask);
-+				index += i-j;
- 			}
-+			goto out;
- 		}
- 		shift -= RADIX_TREE_MAP_SHIFT;
- 		slot = slot->slots[i];
-@@ -719,7 +748,9 @@ void *radix_tree_delete(struct radix_tre
- 
- 	pathp = orig_pathp;
- 	*pathp[0].slot = NULL;
--	while (pathp[0].node && --pathp[0].node->count == 0) {
-+	BUG_ON(pathp[0].node && (pathp[0].node->occupied & (1UL << pathp[0].offset)) == 0);
-+	while (pathp[0].node && 
-+	       (pathp[0].node->occupied &= ~(1UL << pathp[0].offset)) == 0) {
- 		pathp--;
- 		BUG_ON(*pathp[0].slot == NULL);
- 		*pathp[0].slot = NULL;
+--=20
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://the-penguin.otak.com/~lawrence
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - -=20
 
 
+
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDEJgUsgPkFxgrWYkRAr5MAKCI5UtOm9HtiKIdN9+bvwgjsQSW0ACZAR+p
+u+m/GkFjzgv6kMNU2jI5zcI=
+=nzuJ
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--

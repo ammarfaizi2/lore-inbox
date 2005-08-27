@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbVH0GNC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbVH0G4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030323AbVH0GNC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 02:13:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbVH0GNC
+	id S1030326AbVH0G4z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 02:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbVH0G4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 02:13:02 -0400
-Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:6008 "HELO
-	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030323AbVH0GNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 02:13:00 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] IBM HDAPS accelerometer driver, with probing.
-Date: Sat, 27 Aug 2005 01:12:50 -0500
-User-Agent: KMail/1.8.2
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
-       Mitchell Blank Jr <mitch@sfgoth.com>, Andi Kleen <ak@suse.de>,
-       "David S. Miller" <davem@davemloft.net>, rml@novell.com, akpm@osdl.org
-References: <1125094725.18155.120.camel@betsy> <20050827040622.GH91880@gaz.sfgoth.com> <20050827053359.GB15782@mandriva.com>
-In-Reply-To: <20050827053359.GB15782@mandriva.com>
+	Sat, 27 Aug 2005 02:56:55 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6619 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030326AbVH0G4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 02:56:54 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Meelis Roos <mroos@linux.ee>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Masoud Sharbiani <masouds@masoud.ir>, Len Brown <len.brown@intel.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] [ACPI] acpi_shutdown: Only prepare for power off on
+ power_off
+References: <Pine.SOC.4.61.0508202137170.13442@math.ut.ee>
+	<m14q9iva4q.fsf@ebiederm.dsl.xmission.com>
+	<Pine.SOC.4.61.0508221152350.17731@math.ut.ee>
+	<m1mznativw.fsf@ebiederm.dsl.xmission.com>
+	<Pine.SOC.4.61.0508242252120.20856@math.ut.ee>
+	<m11x4iofmw.fsf@ebiederm.dsl.xmission.com>
+	<Pine.SOC.4.61.0508260802230.22690@math.ut.ee>
+	<m1ek8htfcc.fsf@ebiederm.dsl.xmission.com>
+	<Pine.SOC.4.61.0508262144490.24024@math.ut.ee>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 27 Aug 2005 00:56:18 -0600
+In-Reply-To: <Pine.SOC.4.61.0508262144490.24024@math.ut.ee> (Meelis Roos's
+ message of "Fri, 26 Aug 2005 21:45:10 +0300 (EEST)")
+Message-ID: <m1r7cfswa5.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508270112.50947.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 August 2005 00:34, Arnaldo Carvalho de Melo wrote:
-> Em Fri, Aug 26, 2005 at 09:06:22PM -0700, Mitchell Blank Jr escreveu:
-> > Andi Kleen wrote:
-> > > - it doesn't seem to help that much on modern CPUs with good
-> > > branch prediction and big icaches anyways.
-> > 
-> > Really?  I would think that as pipelines get deeper (although that trend
-> > seems to have stopped, thankfully) and Icache-miss penalties get relatively
-> > larger we'd see unlikely() becoming MORE of a benefit, not less.  Storing
-> > the used part of a "hot" function in 1 Icacheline instead of 4 seems like
-> > an obvious win.
-> > 
-> > Personally I've never found unlikely() to be ugly; if anything I think
-> > it serves as a nice little human-readable comment about whats going on
-> > in the control-flow.  I guess I'm in the minority on that one, though.
-> 
-> Hey, even if unlikely was:
-> 
-> #define unlikely(x) (x)
-> 
-> I'd find it useful :-)
->
 
-Aside from annotating performance-critical sections what other purpose
-would it carry? It's not like you should not pay attention to teh code
-in these branches even if the are unlikely to be taken. So if code is
-not in hot path likely/unlikely just litter the code.
+When acpi_sleep_prepare was moved into a shutdown method we
+started calling it for all shutdowns.  It appears this triggers
+some systems to power off on reboot.  Avoid this by only calling
+acpi_sleep_prepare if we are going to power off the system.
 
-Btw, does it actually generate smaller code for constructs like
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
-	if (unlikely(blah))
-		goto out;
 
--- 
-Dmitry
+---
+
+ drivers/acpi/sleep/poweroff.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
+
+7194b86c5e67aaf9ce8c25482441e87d700f057d
+diff --git a/drivers/acpi/sleep/poweroff.c b/drivers/acpi/sleep/poweroff.c
+--- a/drivers/acpi/sleep/poweroff.c
++++ b/drivers/acpi/sleep/poweroff.c
+@@ -55,7 +55,11 @@ void acpi_power_off(void)
+ 
+ static int acpi_shutdown(struct sys_device *x)
+ {
+-	return acpi_sleep_prepare(ACPI_STATE_S5);
++	if (system_state == SYSTEM_POWER_OFF) {
++		/* Prepare if we are going to power off the system */
++		return acpi_sleep_prepare(ACPI_STATE_S5);
++	}
++	return 0;
+ }
+ 
+ static struct sysdev_class acpi_sysclass = {

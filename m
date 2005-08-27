@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbVH0MXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbVH0M0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbVH0MXa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 08:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbVH0MXa
+	id S1030371AbVH0M0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 08:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbVH0M0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 08:23:30 -0400
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:16361 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1030370AbVH0MX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 08:23:29 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Subject: Re: [PATCH] acpi: Handle cpu_index greater than 256 properly in processor_core.c
-Date: Sat, 27 Aug 2005 14:22:40 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Len Brown <len.brown@intel.com>
-References: <20050826170701.A27226@unix-os.sc.intel.com>
-In-Reply-To: <20050826170701.A27226@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart15417046.6c03UQoGFE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sat, 27 Aug 2005 08:26:24 -0400
+Received: from amsfep11-int.chello.nl ([213.46.243.19]:26667 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1030371AbVH0M0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 08:26:23 -0400
+Subject: Re: Linux 2.6 context switching and posix threads performance
+	question
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Mateusz Berezecki <mateuszb@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050827121158.GA18406@oepkgtn.mshome.net>
+References: <20050827121158.GA18406@oepkgtn.mshome.net>
+Content-Type: text/plain
+Date: Sat, 27 Aug 2005 14:26:22 +0200
+Message-Id: <1125145582.20161.62.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508271422.46473.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart15417046.6c03UQoGFE
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sat, 2005-08-27 at 14:11 +0200, Mateusz Berezecki wrote:
+> Hello List Readers,
+> 
+> I would really appreciate any comment on the overall performance of task
+> switching with 25 000 threads running on the Linux system. I was asked to work
+> on some software which spawns 25 000 threads and I am really worried if
+> it will ever work on 2 CPU HP Blade. The kernel was modified to support
+> bigger threads amount running (I have no idea how it was done, probably
+> just changing hardcoded limits) What is the performance impact of
+> so much threads on the overall system performance? Is there any ?
+> Wouldn't it be that such application would spend all of its time
+> switching contexts ? I'm asking for some kind of an authoritative answer
+> quite urgently. What is the optimum thread amount on 2 CPU SMP system
+> running Linux ?
+> 
+Well the obvious question is: what kernel version and which thread
+library?
 
-Hi Venkatesh,
-
-On Saturday 27 August 2005 02:07, Venkatesh Pallipadi wrote:
-> Fix convert_acpiid_to_cpu function to handle cpu_index greater than 256. =
-This=20
-> patch also prevents a warning in IA64 cross-compile of this file=20
-> (drivers/acpi/processor_core.c:517: warning: comparison is always false d=
-ue=20
-> to limited range of data type).
-
-Why don't you just change the datatype to "unsigned int" and=20
-the return failure value to NR_CPUS?
-
-That reduces the code changes and leaves the code quite clear.
-It should also reduce compiled code size by some bytes, but I'm not
-sure about that one.
-
-
-Regards
-
-Ingo Oeser
+2.4 with LinuxThreads might have severe problems. However 2.6 with NPTL
+should be able to handle it, IIRC Igno once did a million threads with
+that combination just to show that it worked ;-).
 
 
---nextPart15417046.6c03UQoGFE
-Content-Type: application/pgp-signature
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDEFsWU56oYWuOrkARAhzhAJwIJ3zrGkyDbfVoAMxdNV184h2AQgCgjDRR
-gOB3sHPwHJ3vpG2VBaIfe04=
-=e8E/
------END PGP SIGNATURE-----
-
---nextPart15417046.6c03UQoGFE--

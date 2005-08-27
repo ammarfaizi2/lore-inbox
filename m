@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751625AbVH0Rid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVH0Rtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751625AbVH0Rid (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 13:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751627AbVH0Rid
+	id S932222AbVH0Rtp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 13:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVH0Rto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 13:38:33 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:8580 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751625AbVH0Ric (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 13:38:32 -0400
-Subject: Re: [PATCH] zfcp: add rports to enable scsi_add_device to work
-	again
-From: James Bottomley <jejb@steeleye.com>
-To: Andreas Herrmann <aherrman@de.ibm.com>
-Cc: Linux SCSI <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050827120136.GA8412@lion28.boeblingen.de.ibm.com>
-References: <20050827120136.GA8412@lion28.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Sat, 27 Aug 2005 12:38:27 -0500
-Message-Id: <1125164308.5159.21.camel@mulgrave>
+	Sat, 27 Aug 2005 13:49:44 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:15625 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932222AbVH0Rto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 13:49:44 -0400
+Date: Sat, 27 Aug 2005 19:49:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jerome Pinot <ngc891@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [KCONFIG] Can't compile 2.6.12 without Gettext
+Message-ID: <20050827174934.GL6471@stusta.de>
+References: <88ee31b705082421303697aef7@mail.gmail.com> <20050827124751.GK6471@stusta.de> <88ee31b7050827082345a393bd@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <88ee31b7050827082345a393bd@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-27 at 14:01 +0200, Andreas Herrmann wrote:
-> this patch fixes a severe problem with 2.6.13-rc7.
+On Sun, Aug 28, 2005 at 12:23:38AM +0900, Jerome Pinot wrote:
+>...
+> ---- snip ----
+>...
+> In file included from scripts/kconfig/conf.c:14:
+> scripts/kconfig/lkc.h:11:21: libintl.h: No such file or directory
+>...
+> ---- snip ----
 > 
-> Due to recent SCSI changes it is not possible to add any
-> LUNs to the zfcp device driver anymore. With registration
-> of remote ports this is fixed.
+> Actually, adding libintl.h in /usr/include didn't solve the issue in
+> my case. My gettext implementation is not exactly complete. Anyway the
+> script shouldn't failed at this step.
 > 
-> Please integrate the patch in the 2.6.13 kernel or if it
-> is already too late for this release then please integrate it
-> in 2.6.13.1
+> Segher Boessenkool, who had the same problem, sent me a way to compile
+> the kernel by modifying a bit the lkc.h and mconf.c files. I suggested
+> him to send this to lkml too.
 > 
-> Thanks a lot.
+> The fix to do is really small but it needs to define a policy about
+> how kconfig should decide about using gettext or not. It could use a
+> configure script or a parameter from command line to choose whether or
+> not to look for a gettext implementation (something like "make NLS=0
+> menuconfig" maybe). This should be define prior to any patch attempt.
+>...
 
-Well, OK, but your usage isn't quite optimal.  The fibre channel
-transport class retains a list of ports per host, so your maintenance of
-an identical list in zfcp_adapter duplicates this.
+You said "full gettext" was required and that the presence of "gettext 
+binaries" should be checked what surprised me. It seems this is not the 
+problem. Under Linux, libintl.h is not shipped with gettext but with the 
+C library if you are using glibc or dietlibc.
 
-However, we can put this in for now and worry about removing all of the
-fc transport class duplication from zfcp later.
+I do not question your point that "uClibc is widely used", but it's 
+widely used to _run_ a Linux kernel.
 
-James
+You said you are "thinking about small or embedded system with specific 
+toolchain". If a system is so limited that you run uClibc on it, is this 
+really the right system to _compile_ a kernel on? Where's the problem 
+with cross-compiling the kernel for such a system?
 
+> Regards,
+> Jerome Pinot
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

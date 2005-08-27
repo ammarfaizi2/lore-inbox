@@ -1,156 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751589AbVH0RVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbVH0Rax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751589AbVH0RVr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 13:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751618AbVH0RVq
+	id S1751619AbVH0Rax (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 13:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbVH0Rax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 13:21:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43411 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751589AbVH0RVq (ORCPT
+	Sat, 27 Aug 2005 13:30:53 -0400
+Received: from znsun1.ifh.de ([141.34.1.16]:57781 "EHLO znsun1.ifh.de")
+	by vger.kernel.org with ESMTP id S1751618AbVH0Rax (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 13:21:46 -0400
-Date: Sat, 27 Aug 2005 10:21:35 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Dominik Wezel <dio@qwasartech.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB EHCI Problem with Low Speed Devices on kernel 2.6.11+
-Message-Id: <20050827102135.4e0b035d.zaitcev@redhat.com>
-In-Reply-To: <mailman.1125150481.18996.linux-kernel2news@redhat.com>
-References: <mailman.1125150481.18996.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.0; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 27 Aug 2005 13:30:53 -0400
+Date: Sat, 27 Aug 2005 19:30:30 +0200 (CEST)
+From: Patrick Boettcher <patrick.boettcher@desy.de>
+X-X-Sender: pboettch@pub3.ifh.de
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix for race problem in DVB USB drivers (dibusb)
+Message-ID: <Pine.LNX.4.61.0508271911540.15908@pub3.ifh.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Spam-Report: ALL_TRUSTED,AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Aug 2005 15:43:11 +0200, Dominik Wezel <dio@qwasartech.com> wrote:
+Hi Linus,
 
-Forwarding to linux-usb-devel with comments.
+Below you'll find a patch, which fixes an ugly problem with some DVB USB 
+devices. I would highly appreciate the inclusion into the linux kernel 
+before 2.6.13 is released.
 
-> Kernel
-> ======
-> - 2.6.8, 2.6.11.10 and 2.6.12.4, all show same problem
+Thank you very much in advance,
+Patrick.
 
-> Problem
-> =======
-> When turning on the laptop and during POST and GrUB loading, all ports 
-> on the hub are enabled.  During the USB initialization phase, when the 
-> hub is detected, shortly all ports become disabled, then turn on again 
-> (uhci_hcd detects the lo-speed ports).  Upon initialization of ehci_hcd 
-> however, the ports are disconnected again (for good):
-> 
-> ---8<----
-> Aug 27 14:29:50 solaris kernel: ehci_hcd 0000:00:1d.7: USB 2.0 
-> initialized, EHCI 1.00, driver 10 Dec 2004
-> Aug 27 14:29:50 solaris kernel: hub 4-0:1.0: USB hub found
-> Aug 27 14:29:50 solaris kernel: hub 4-0:1.0: 6 ports detected
-> Aug 27 14:29:50 solaris kernel: usb 2-1: USB disconnect, address 2
-> Aug 27 14:29:50 solaris kernel: usb 2-1.5: USB disconnect, address 3
-> Aug 27 14:29:50 solaris kernel: usb 2-1.6: USB disconnect, address 4
-> ---8<----
-> 
-> Addresses 2, 3 and 4 are a keyboard, mouse and palm sync cable respectively.
-> 
-> and afterwards the log becomes cluttered with:
-> 
-> ---8<----
-> Aug 27 14:30:31 solaris kernel: usb 4-3: new high speed USB device using 
-> ehci_hcd and address 79
-> Aug 27 14:30:31 solaris kernel: usb 4-3: device not accepting address 
-> 79, error -71
-> Aug 27 14:30:32 solaris kernel: usb 4-3: new high speed USB device using 
-> ehci_hcd and address 81
-> Aug 27 14:30:32 solaris kernel: usb 4-3: device not accepting address 
-> 81, error -71
-> Aug 27 14:30:33 solaris kernel: usb 4-3: new high speed USB device using 
-> ehci_hcd and address 86
-> Aug 27 14:30:34 solaris kernel: usb 4-3: device not accepting address 
-> 86, error -71
-> Aug 27 14:30:34 solaris kernel: usb 4-3: new high speed USB device using 
-> ehci_hcd and address 89
-> Aug 27 14:30:35 solaris kernel: usb 4-3: device not accepting address 
-> 89, error -71
-> Aug 27 14:30:35 solaris kernel: usb 4-3: new high speed USB device using 
-> ehci_hcd and address 90
-> Aug 27 14:30:35 solaris kernel: usb 4-3: device not accepting address 
-> 90, error -71
-> ---8<----
-> 
-> first address to be assigned was 30 in all logs, but the number raises 
-> mostly in increments of 2 till about 120, then restarts with 12.
-> 
-> Interestlingly, the keyboard and mouse have been detected immediately 
-> before the intialization of ehcihcd:
-> 
-> ---8<---
-> Aug 27 14:29:50 solaris kernel: uhci_hcd 0000:00:1d.2: Intel Corp. 
-> 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3
-> Aug 27 14:29:50 solaris kernel: PCI: Setting latency timer of device 
-> 0000:00:1d.2 to 64
-> Aug 27 14:29:50 solaris kernel: uhci_hcd 0000:00:1d.2: irq 11, io base 
-> 0x1840
-> Aug 27 14:29:50 solaris kernel: uhci_hcd 0000:00:1d.2: new USB bus 
-> registered, assigned bus number 3
-> Aug 27 14:29:50 solaris kernel: hub 3-0:1.0: USB hub found
-> Aug 27 14:29:50 solaris kernel: hub 3-0:1.0: 2 ports detected
-> /* These are the 2 ports on the laptop */
-> Aug 27 14:29:50 solaris kernel: usb 2-1: new full speed USB device using 
-> uhci_hcd and address 2
-> Aug 27 14:29:50 solaris kernel: hub 2-1:1.0: USB hub found
-> Aug 27 14:29:50 solaris kernel: hub 2-1:1.0: 7 ports detected
-> /* These are the 7 ports of the external hub */
-> Aug 27 14:29:50 solaris kernel: usb 2-1.5: new low speed USB device 
-> using uhci_hcd and address 3
-> Aug 27 14:29:50 solaris kernel: usb 2-1.6: new low speed USB device 
-> using uhci_hcd and address 4
-> Aug 27 14:29:50 solaris kernel: usbcore: registered new driver hiddev
-> Aug 27 14:29:50 solaris kernel: input: USB HID v1.10 Mouse [Logitech 
-> Trackball] on usb-0000:00:1d.1-1.5
-> Aug 27 14:29:50 solaris kernel: input: USB HID v1.10 Keyboard [CHICONY 
-> USB Keyboard] on usb-0000:00:1d.1-1.6
-> Aug 27 14:29:50 solaris kernel: input,hiddev96: USB HID v1.10 Device 
-> [CHICONY USB Keyboard] on usb-0000:00:1d.1-1.6
-> Aug 27 14:29:50 solaris kernel: usbcore: registered new driver usbhid
-> Aug 27 14:29:50 solaris kernel: drivers/usb/input/hid-core.c: v2.0:USB 
-> HID core driver
-> ---8<---
-> 
-> which means the ehci_hcd has afterwards superseded uhci_hcd.
-> 
-> Even more interestingly: in about 5% of the boot cases, ehci_hcd manages 
-> to detect the ports correctly (or at least doesn't interfere with uhci). 
+--------
 
-Curious.
+Fixed race between submitting streaming URBs in the driver and starting 
+the actual transfer in hardware (demodulator and USB controller) which 
+sometimes lead to garbled data transfers. URBs are now submitted first, 
+then the transfer is enabled. Dibusb devices and clones are now fully 
+functional again.
 
-> Measures taken
-> ==============
-> I've found an article suggesting to
->          echo Y > /sys/module/usbcore/parameters/old_scheme_first
+Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
 
-Very funny.
+Index: linux/drivers/media/dvb/dvb-usb/dibusb-common.c
+===================================================================
+RCS file: /cvs/linuxtv/dvb-kernel/linux/drivers/media/dvb/dvb-usb/dibusb-common.c,v
+retrieving revision 1.9
+diff -u -r1.9 dibusb-common.c
+--- linux/drivers/media/dvb/dvb-usb/dibusb-common.c	19 Jun 2005 13:13:47 -0000	1.9
++++ linux/drivers/media/dvb/dvb-usb/dibusb-common.c	27 Aug 2005 16:56:10 -0000
+@@ -69,13 +69,22 @@
 
-> ---
-> I've also found articles suggesting to throw away the hub and get 
-> another one, which of course I can't take plain seriously, because now I 
-> know the problem of this hub, and I'm not going to change it for a hub 
-> whose problem I even don't know yet... =;)
+  int dibusb2_0_streaming_ctrl(struct dvb_usb_device *d, int onoff)
+  {
+-	u8 b[2];
+-	b[0] = DIBUSB_REQ_SET_IOCTL;
+-	b[1] = onoff ? DIBUSB_IOCTL_CMD_ENABLE_STREAM : DIBUSB_IOCTL_CMD_DISABLE_STREAM;
++	u8 b[3] = { 0 };
++	int ret;
 
-Borrow one for testing.
+-	dvb_usb_generic_write(d,b,3);
++	if ((ret = dibusb_streaming_ctrl(d,onoff)) < 0)
++		return ret;
 
-Also, plug Palm directly into computer. Surely it has more than one
-USB connector.
+-	return dibusb_streaming_ctrl(d,onoff);
++	if (onoff) {
++		b[0] = DIBUSB_REQ_SET_STREAMING_MODE;
++		b[1] = 0x00;
++		if ((ret = dvb_usb_generic_write(d,b,2)) < 0)
++			return ret;
++	}
++
++	b[0] = DIBUSB_REQ_SET_IOCTL;
++	b[1] = onoff ? DIBUSB_IOCTL_CMD_ENABLE_STREAM : DIBUSB_IOCTL_CMD_DISABLE_STREAM;
++	return dvb_usb_generic_write(d,b,3);
+  }
+  EXPORT_SYMBOL(dibusb2_0_streaming_ctrl);
 
-> Measures not taken
-> ==================
-> I didn't test the hub on Microsoft Windows, because I assume that 
-> wouldn't add to the solution space, since the problem is clearly located 
-> in the uhci_hcd vs. ehci_hcd domain of the linux kernel, as the hub is 
-> fully functional (within the lo speed scope) when used with only uhci.
+Index: linux/drivers/media/dvb/dvb-usb/dvb-usb-dvb.c
+===================================================================
+RCS file: /cvs/linuxtv/dvb-kernel/linux/drivers/media/dvb/dvb-usb/dvb-usb-dvb.c,v
+retrieving revision 1.8
+diff -u -r1.8 dvb-usb-dvb.c
+--- linux/drivers/media/dvb/dvb-usb/dvb-usb-dvb.c	2 Jul 2005 12:49:23 -0000	1.8
++++ linux/drivers/media/dvb/dvb-usb/dvb-usb-dvb.c	27 Aug 2005 16:56:10 -0000
+@@ -23,12 +23,12 @@
+  	 */
+  	if (newfeedcount == 0) {
+  		deb_ts("stop feeding\n");
++		dvb_usb_urb_kill(d);
 
-Actually, I suspected that this may be a poorly working Transaction
-Tranlating (TT) hub. Which then may work on certain versions of
-Windows.
+  		if (d->props.streaming_ctrl != NULL)
+  			if ((ret = d->props.streaming_ctrl(d,0)))
+  				err("error while stopping stream.");
 
--- Pete
+-		dvb_usb_urb_kill(d);
+  	}
+
+  	d->feedcount = newfeedcount;
+@@ -44,6 +44,8 @@
+  	 * for reception.
+  	 */
+  	if (d->feedcount == onoff && d->feedcount > 0) {
++		deb_ts("submitting all URBs\n");
++		dvb_usb_urb_submit(d);
+
+  		deb_ts("controlling pid parser\n");
+  		if (d->props.caps & DVB_USB_HAS_PID_FILTER &&
+@@ -59,7 +61,6 @@
+  				return -ENODEV;
+  			}
+
+-		dvb_usb_urb_submit(d);
+  	}
+  	return 0;
+  }

@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbVH0MiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbVH0M6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030372AbVH0MiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 08:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbVH0MiJ
+	id S1751505AbVH0M6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 08:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbVH0M6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 08:38:09 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.17]:7254 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1030372AbVH0MiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 08:38:08 -0400
+	Sat, 27 Aug 2005 08:58:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:64948 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751505AbVH0M6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 08:58:16 -0400
 Subject: Re: Linux 2.6 context switching and posix threads performance
 	question
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+From: Arjan van de Ven <arjan@infradead.org>
 To: Mateusz Berezecki <mateuszb@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <aec8d6fc050827053047b1b667@mail.gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050827121158.GA18406@oepkgtn.mshome.net>
 References: <20050827121158.GA18406@oepkgtn.mshome.net>
-	 <1125145582.20161.62.camel@twins>
-	 <aec8d6fc050827053047b1b667@mail.gmail.com>
 Content-Type: text/plain
-Date: Sat, 27 Aug 2005 14:38:02 +0200
-Message-Id: <1125146282.20161.69.camel@twins>
+Date: Sat, 27 Aug 2005 14:58:09 +0200
+Message-Id: <1125147489.7756.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Group replies work best with mailing lists.
+>  I'm asking for some kind of an authoritative answer
+> quite urgently. What is the optimum thread amount on 2 CPU SMP system
+> running Linux ?
 
-On Sat, 2005-08-27 at 14:30 +0200, Mateusz Berezecki wrote:
-> On 8/27/05, Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> 
-> > Well the obvious question is: what kernel version and which thread
-> > library?
-> 
->   Ah, sorry I just forgot to put this info 
-> 
-> Linux blade1 2.6.12 #1 SMP Tue Jul 26 08:43:57 GMT 2005 i686 Intel(R)
-> Xeon(TM) CPU 3.06GHz GenuineIntel GNU/Linux
-> 
-> the cpu is with HT so Linux thinks there are 4 cpus on board
->   
-> > 
-> > 2.4 with LinuxThreads might have severe problems. However 2.6 with NPTL
-> > should be able to handle it, IIRC Igno once did a million threads with
-_Ingo_ Molnar that is; I really should have gotten those 4 letters in
-the right order by now, humble appologies.
+context switching in linux isn't THAT expensive compared to some other
+operating systems, but it's not free either.
+The optimum is obviously 2 threads, one for each cpu that processes your
+network service in a state machine like way. This is why thttpd beats
+apache by 10x if not more.
 
-> > that combination just to show that it worked ;-).
-> 
->   Yes, but how about switching contexts and the performance impact?
-> Will it slowdown the whole system or just result in low or medium
-> overhead?.
-> These threads are meant to be running an intensive network connection
-> and possibly analysing the dataflow and maybe filtering some stuff.
-> Each thread doing the same task.
-
-I think it should work; however I'm not the most qualified to answer
-this.
-
-
-
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
 

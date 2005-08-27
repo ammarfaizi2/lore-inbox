@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965177AbVHZX4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbVH0ACw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965177AbVHZX4N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 19:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbVHZX4N
+	id S1030248AbVH0ACw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 20:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbVH0ACw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 19:56:13 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:55525 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965177AbVHZX4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 19:56:12 -0400
-Subject: Re: 2.6.13-rc7-rt3 compile fix
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <430FA93A.8040103@cybsft.com>
-References: <430F86E7.9020605@cybsft.com>
-	 <1125092197.5365.50.camel@localhost.localdomain>
-	 <430FA93A.8040103@cybsft.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 26 Aug 2005 19:56:00 -0400
-Message-Id: <1125100560.5365.53.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Aug 2005 20:02:52 -0400
+Received: from lucidpixels.com ([66.45.37.187]:20150 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1030248AbVH0ACw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 20:02:52 -0400
+Date: Fri, 26 Aug 2005 20:02:51 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Promise ATA/133 Errors With 2.6.10+
+In-Reply-To: <20050728223221.7f18a5a4.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.63.0508261932240.9925@p34>
+References: <Pine.LNX.4.63.0506241653580.31140@p34> <20050728223221.7f18a5a4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 18:43 -0500, K.R. Foley wrote:
-> Steven Rostedt wrote:
-> > Oops! my bad.  I saw that needed locking, but I didn't have the tracing
-> > on (I was trying for internal deadlocks), so that part of the code
-> > wasn't compiling.  If you turn off tracing it would compile :-)
-> 
-> Understood. ;-)
-> 
+It appears that 2.6.13-rc7 has fixed the bug.
+I would like to know *What* changed, but I'll probably never find out :(
 
-I'm wrong again :-) It wasn't the tracing.  Here's the ifdef
+On Thu, 28 Jul 2005, Andrew Morton wrote:
 
-#if defined(ALL_TASKS_PI) && defined(CONFIG_RT_DEADLOCK_DETECT)
-
-And Ingo turned on ALL_TASKS_PI now.  But I had
-CONFIG_RT_DEADLOCK_DETECT also turned off.
-
--- Steve
-
-
+> Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
+>>
+>> I have two different machines with the 7200.8 Seagate 8MB 400GB drives.
+>>
+>> Both have ATA/133 controllers, the error is the same on both:
+>>
+>> Jun 24 15:24:18 localhost kernel: hde: no DRQ after issuing MULTWRITE_EXT
+>>
+>> I put the drive on an (older) Promise ATA/100 controller = works great!
+>> I put the drive on the second box on the motherboard IDE interface = works
+>> great!
+>>
+>> What happened > 2.6.10 to the promise driver?
+>>
+>> ??
+>>
+>> Jun 24 15:24:18 localhost kernel: PDC202XX: Primary channel reset.
+>> Jun 24 15:24:18 localhost kernel: hde: timeout waiting for DMA
+>> Jun 24 15:24:18 localhost kernel: hde: status error: status=0x58 {
+>> DriveReady SeekComplete DataRequest }
+>> Jun 24 15:24:18 localhost kernel:
+>> Jun 24 15:24:18 localhost kernel: ide: failed opcode was: unknown
+>> Jun 24 15:24:18 localhost kernel: hde: drive not ready for command
+>> Jun 24 15:24:18 localhost kernel: hde: status timeout: status=0xd0 { Busy
+>> }
+>> Jun 24 15:24:18 localhost kernel:
+>> Jun 24 15:24:18 localhost kernel: ide: failed opcode was: unknown
+>> Jun 24 15:24:18 localhost kernel: PDC202XX: Primary channel reset.
+>> Jun 24 15:24:18 localhost kernel: hde: no DRQ after issuing MULTWRITE_EXT
+>> Jun 24 15:24:18 localhost kernel: ide2: reset: success
+>
+> Is this still happening in 2.6.13-rc4?
+>
+> If so, can you please cc linux-kernel on the reply?  Thanks.
+>

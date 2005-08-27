@@ -1,72 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVH0STF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVH0SUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbVH0STF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 14:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVH0STF
+	id S964944AbVH0SUh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 14:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbVH0SUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 14:19:05 -0400
-Received: from hostmaster.org ([212.186.110.32]:31655 "EHLO hostmaster.org")
-	by vger.kernel.org with ESMTP id S964773AbVH0STC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 14:19:02 -0400
-Subject: Re: Surround via SPDIF with ALSA/emu10k1?
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
+	Sat, 27 Aug 2005 14:20:36 -0400
+Received: from WILBUR.CONTACTOFFICE.NET ([212.3.242.68]:48287 "EHLO
+	wilbur.contactoffice.net") by vger.kernel.org with ESMTP
+	id S964944AbVH0SUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Aug 2005 14:20:36 -0400
+Message-ID: <29496837.1125166918425.JavaMail.root@orville>
+Date: Sat, 27 Aug 2005 20:21:58 +0200 (CEST)
+From: "J. B." <ierland@mail.be>
+Reply-To: "J. B." <ierland@mail.be>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1124755373.5763.4.camel@hostmaster.org>
-References: <1124755373.5763.4.camel@hostmaster.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-FO2PFtBQ07kNBWXNQO1g"
-Date: Sat, 27 Aug 2005 20:18:59 +0200
-Message-Id: <1125166739.22285.66.camel@hostmaster.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Subject: Re: kernel compile error in bootsplash.c
+In-Reply-To: <16842018.1125165215948.JavaMail.root@orville>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+References: <16842018.1125165215948.JavaMail.root@orville>
+X-Priority: 3
+X-Origin-IP: 81.243.79.134
+X-Mailer: ContactOffice Mail
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I googled some more and seem to have found the reason of the error:
 
---=-FO2PFtBQ07kNBWXNQO1g
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+http://gcc.gnu.org/ml/gcc/2005-02/msg00053.html
 
-I have now been told that SPDIF cannot support more than 2 channels
-except with AC3 compression. Given the fact that we can send 580MBit/s
-over USB2.0 I would not have even remotely considered this to be the
-problem and find it an incredible shame that audio industry is using
-such a crippled standard.
+It is related to gcc 4.0 which indeed i did an apt-get update for.
 
-I have now solved my problem by buying and connecting an analog 5.1
-speaker set. Unfortunately I get audible distortions when I turn both
-the "PCM" and "Wave" mixers to the maximum setting. I wonder if anyone
-can provide more insight what these controls really do and whether it's
-better to turn down "PCM", "Wave" or both.
+But is there a patch avail for my 2.6.10 kernel-source?
 
-Tom
+ 
+> 
+> I try to compile a 2.6.10 kernel but it stops with an error
+> in bootsplash.c. I have everything set in my .config file in /usr/src/linux for bootsplash support. 
+> 
+> Anybody an idea. Where should i start to look? I am a newbie in kernel world
+> 
+> in file included from drivers/video/bootsplash/bootsplash.c:18:
+> include/linux/fb.h:869: error: array type has incomplete element type
+> drivers/video/bootsplash/bootsplash.c:37: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:38: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:39: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:40: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:41: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:42: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:43: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:44: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:45: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:46: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:47: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:48: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:49: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:50: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c:52: warning: pointer targets in initialization differ in signedness
+> drivers/video/bootsplash/bootsplash.c: In function 'splash_verbose':
+> drivers/video/bootsplash/bootsplash.c:572: warning: pointer targets in passing argument 1 of 'splashcopy' differ in signedness
+> drivers/video/bootsplash/bootsplash.c:572: warning: pointer targets in passing argument 2 of 'splashcopy' differ in signedness
+> drivers/video/bootsplash/bootsplash.c: In function 'splash_prepare':
+> drivers/video/bootsplash/bootsplash.c:642: warning: pointer targets in passing argument 1 of 'splashcopy' differ in signedness
+> drivers/video/bootsplash/bootsplash.c: In function 'splash_write_proc':
+> drivers/video/bootsplash/bootsplash.c:788: warning: pointer targets in passing argument 1 of 'boxit' differ in signedness
+> drivers/video/bootsplash/bootsplash.c:789: warning: pointer targets in passing argument 1 of 'boxit' differ in signedness
+> make[5]: *** [drivers/video/bootsplash/bootsplash.o] Error 1
+> make[4]: *** [drivers/video/bootsplash] Error 2
+> make[3]: *** [drivers/video] Error 2
+> make[2]: *** [drivers] Error 2
+> make[2]: Leaving directory `/usr/src/linux-2.6.10'
+> make[1]: *** [stamp-build] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.6.10'
+> make: *** [stamp-buildpackage] Error 2
+> -----------------------------------------------------
+> Mail.be, WebMail and Virtual Office
+> http://www.mail.be
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
-
-Give as few orders as possible, once you've given orders on a subject, you
-must always give orders on that subject. - Duke Leto in Dune
-
-
-
-
---=-FO2PFtBQ07kNBWXNQO1g
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iQEVAwUAQxCuk2D1OYqW/8uJAQIHgAf+NAzjcizyJiLyQgDWbQ3wobsm+SB16D9X
-kCEHZJmIX6Sdn7bs+G6pymw8jephb14uXoBECUO/2uWVEeKzcP9xpfA7TVWaRxWP
-lXJW8x5Ry9EQ9hPZmpiTgDFR0PcywzjDxr+I3v7EdiIoI0YLIjsrnvgqMigPChQt
-v65VQbRMdV1SYvLeEsc6HU0B6xp5l24ArYUBvRuXTvOm2bxtsXpWoOk3t33Yc5k7
-MSrYR8Hl7jjh3PPXuCoNxEhvXCRUMjjAD9ws1sTfzyXy/Y30yLG8iC17pI0q2ftg
-KDin23Jot0xrAxNWTxDDtJNLmaHX/bL/ekx12fTiPhQkh1tIBByqeQ==
-=hjYn
------END PGP SIGNATURE-----
-
---=-FO2PFtBQ07kNBWXNQO1g--
+-----------------------------------------------------
+Mail.be, WebMail and Virtual Office
+http://www.mail.be
 

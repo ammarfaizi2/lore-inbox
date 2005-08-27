@@ -1,164 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbVH0DVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbVH0Dp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbVH0DVp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Aug 2005 23:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbVH0DVp
+	id S1030290AbVH0Dp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Aug 2005 23:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbVH0Dp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Aug 2005 23:21:45 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:17273 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030289AbVH0DVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Aug 2005 23:21:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:From:Reply-To:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=uMrWG1vYICEU4t+wkZfp05eCrzBCdw1jdpGPgs0OiaCgQoDphSEdxK5bJt+Tj7AowYqbZ9Gce3fdBSVzqNKQmWFtieQw687KKMzFTUM963+icvFZD3kgesK9WaX02E5SrN1X3Cwn6sdX13zYQT0iIRBhUjKe6Irmb8pH8RbhhIc=  ;
-From: Marek W <marekw1977@yahoo.com.au>
-Reply-To: marekw1977@yahoo.com.au
-To: linux-kernel@vger.kernel.org
-Subject: No DMA with ASUS W3030V - ahci/ata_piix issue? Workarounds?
-Date: Sat, 27 Aug 2005 13:23:11 +1000
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Aug 2005 23:45:57 -0400
+Received: from smtp103.rog.mail.re2.yahoo.com ([206.190.36.81]:14500 "HELO
+	smtp103.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030290AbVH0Dp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Aug 2005 23:45:56 -0400
+Date: Fri, 26 Aug 2005 23:45:49 -0400
+From: Masoud Sharbiani <masouds@masoud.ir>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.13-rc7
+Message-ID: <20050827034548.GA3101@masoud.ir>
+References: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508271323.11863.marekw1977@yahoo.com.au>
+In-Reply-To: <Pine.LNX.4.58.0508232203520.3317@g5.osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Hello, 
+It crashes for me right off the bat: 
+Here is the kernel output:
+---
+ Filesystem type is ext2fs, partition type 0x83
+kernel  /boot/vmlinuz-2.6.13-rc7-git1 root=/dev/hda3 ro console=ttyS0,115200n8 
+CONSOLE=/dev/ttyS0
+   [Linux-bzImage, setup=0x1200, size=0x1fe4fa]
+savedefault
+boot
+Linux version 2.6.13-rc7-git1 (root@dual) (gcc version 3.3.5 (Debian 1:3.3.5-8ubuntu2)) #1 SMP Fri Aug 26 15:18:21 EDT 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000002fff0000 (usable)
+ BIOS-e820: 000000002fff0000 - 000000002fff3000 (ACPI NVS)
+ BIOS-e820: 000000002fff3000 - 0000000030000000 (ACPI data)
+ BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+767MB LOWMEM available.
+found SMP MP-table at 000f5fd0
+DMI 2.2 present.
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+Processor #0 6:8 APIC version 17
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
+Processor #1 6:8 APIC version 17
+ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 dfl dfl)
+Enabling APIC mode:  Flat.  Using 1 I/O APICs
+Using ACPI (MADT) for SMP configuration information
+Allocating PCI resources starting at 30000000 (gap: 30000000:cec00000)
+Built 1 zonelists
+Kernel command line: root=/dev/hda3 ro console=ttyS0,115200n8 CONSOLE=/dev/ttyS0
+Initializing CPU#0
+PID hash table entries: 4096 (order: 12, 65536 bytes)
+Detected 868.668 MHz processor.
+Using tsc for high-res timesource
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 774032k/786368k available (2926k kernel code, 11824k reserved, 1174k data, 220k init, 0k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay using timer specific routine.. 1739.92 BogoMIPS (lpj=8699649)
+Mount-cache hash table entries: 512
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 256K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+mtrr: v2.0 (20020519)
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+CPU0: Intel Pentium III (Coppermine) stepping 0a
+Booting processor 1/1 eip 2000
+Initializing CPU#1
+Calibrating delay using timer specific routine.. 1737.36 BogoMIPS (lpj=8686805)
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 256K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#1.
+CPU1: Intel Pentium III (Coppermine) stepping 0a
+Total of 2 processors activated (3477.29 BogoMIPS).
+ENABLING IO-APIC IRQs
+.TIMER: vector=0x31 pin1=2 pin2=-1
+checking TSC synchronization across 2 CPUs: passed.
+Brought up 2 CPUs
+NET: Registered protocol family 16
+ACPI: bus type pci registered
+PCI: PCI BIOS revision 2.10 entry at 0xfb2c0, last bus=1
+PCI: Using configuration type 1
+mtrr: your CPUs had inconsistent variable MTRR settings
+mtrr: probably your BIOS does not setup all CPUs.
+mtrr: corrected configuration.
+ACPI: Subsystem revision 20050408
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (0000:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: Assume root bridge [\_SB_.PCI0] segment is 0
+ACPI: Assume root bridge [\_SB_.PCI0] bus is 0
+ACPI: PCI Interrupt Link [LNKA] (IRQs 1 3 4 5 6 7 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 1 3 4 *5 6 7 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 1 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 1 3 4 5 6 *7 10 11 12 14 15)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+pnp: PnP ACPI init
+pnp: PnP ACPI: found 10 devices
+SCSI subsystem initialized
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+PCI: Using ACPI for IRQ routing
+PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
+PCI: Bridge: 0000:00:01.0
+  IO window: a000-afff
+  MEM window: d0000000-d3ffffff
+  PREFETCH window: d4000000-d5ffffff
+Machine check exception polling timer started.
+audit: initializing netlink socket (disabled)
+audit(1125070419.160:1): initialized
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+Initializing Cryptographic API
+PCI: Enabling Via external APIC routing
+ACPI: Power Button (FF) [PWRF]
+ACPI: Power Button (CM) [PWRB]
+ACPI: Sleep Button (CM) [SLPB]
+ACPI: CPU0 (power states: C1[C1])
+ACPI: CPU1 (power states: C1[C1])
+lp: driver loaded but no devices found
+Linux agpgart interface v0.101 (c) Dave Jones
+agpgart: Detected VIA Apollo Pro 133 chipset
+agpgart: AGP aperture is 256M @ 0xc0000000
+[drm] Initialized drm 1.0.0 20040925
+ACPI: PCI Interrupt 0000:01:00.0[A] -> GSI 16 (level, low) -> IRQ 16
+[drm] Initialized tdfx 1.0.0 20010216 on minor 0: 3Dfx Interactive, Inc. Voodoo Banshee
+PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD por<1ai vxl0d0o6e anq:1000S [i1l
+8S5P 1
+50oduies linkedsio:: .C0 :    o
+sE P:    00i0:[<c1abl2e6>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.13-rc7-git1) 
+EIP is at 0xc160e2e6
+eax: efc4b800   ebx: c0537300   ecx: efc4b874   edx: efc4b874
+esi: effa1f90   edi: ffffe000   ebp: effa0000   esp: effa1f8c
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=effa0000 task=effd2520)
+Stack: 00000000 c160e2e0 c160e2e0 ffffe000 effa0000 c0537380 c0537300 c0100e10 
+       00000002 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+       00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+Call Trace:
+ [<c0100e10>] cpu_idle+0x70/0x80
+Code: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 e6 8c <ff> ff 00 00 00 00 2b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+ <0>Kernel panic - not syncing: Attempted to kill the idle task!
+---
+2.6.13-rc6 boots, but has the bug 5099 (at bugzilla.kernel.org).
 
-I am having problems with DMA access on my laptops drives. My research so far 
-indicates that this is likely to be an issue with the current state of ahci 
-development.
+cheers,
 
-There are no BIOS options available for the IDE that are suggested in 
-workarounds.
-
-Is there anything I can do to enable DMA for IDE drives, enable/disbale 
-options in the kernel?
-
-Any help greatly appreciated.
-
-Kind regards,
-
-The laptop: ASUS W3030V.
-Kernel: 2.6.12-gentoo-sources-r9
-
-lspci output:
-
-0000:00:00.0 Host bridge: Intel Corporation Mobile 915GM/PM/GMS/910GML Express 
-Processor to DRAM Controller (rev 03)
-0000:00:01.0 PCI bridge: Intel Corporation Mobile 915GM/PM Express PCI Express 
-Root Port (rev 03)
-0000:00:1b.0 Class 0403: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
-High Definition Audio Controller (rev 04)
-0000:00:1c.0 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
-PCI Express Port 1 (rev 04)
-0000:00:1d.0 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 
-Family) USB UHCI #1 (rev 04)
-0000:00:1d.1 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 
-Family) USB UHCI #2 (rev 04)
-0000:00:1d.2 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 
-Family) USB UHCI #3 (rev 04)
-0000:00:1d.3 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 
-Family) USB UHCI #4 (rev 04)
-0000:00:1d.7 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 
-Family) USB2 EHCI Controller (rev 04)
-0000:00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev d4)
-0000:00:1f.0 ISA bridge: Intel Corporation 82801FBM (ICH6M) LPC Interface 
-Bridge (rev 04)
-0000:00:1f.2 IDE interface: Intel Corporation 82801FBM (ICH6M) SATA Controller 
-(rev 04)
-0000:00:1f.3 SMBus: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
-SMBus Controller (rev 04)
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc M24 1P [Radeon 
-Mobility X600]
-0000:03:00.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001 
-Gigabit Ethernet Controller (rev 13)
-0000:03:01.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev b3)
-0000:03:01.1 FireWire (IEEE 1394): Ricoh Co Ltd R5C552 IEEE 1394 Controller 
-(rev 08)
-0000:03:01.2 Class 0805: Ricoh Co Ltd R5C822 SD/SDIO/MMC/MS/MSPro Host Adapter 
-(rev 17)
-0000:03:01.3 System peripheral: Ricoh Co Ltd R5C592 Memory Stick Bus Host 
-Adapter (rev 08)
-0000:03:02.0 Network controller: Intel Corporation PRO/Wireless 2200BG (rev 
-05)
-
-lsmod output:
-
-Module                  Size  Used by
-michael_mic             2368  2
-arc4                    1600  2
-ieee80211_crypt_tkip     9600  2
-md5                     3712  1
-ipv6                  244608  13
-eth1394                17224  0
-pcmcia                 21576  2
-ohci_hcd               33284  0
-psmouse                28804  0
-rtc                    10872  0
-ipw2200               172552  0
-ieee80211              44548  1 ipw2200
-ieee80211_crypt         4868  3 ieee80211_crypt_tkip,ipw2200,ieee80211
-ohci1394               32052  0
-ieee1394              291064  2 eth1394,ohci1394
-yenta_socket           20296  1
-rsrc_nonstatic          9792  1 yenta_socket
-pcmcia_core            42504  3 pcmcia,yenta_socket,rsrc_nonstatic
-skge                   33424  0
-radeonfb               88128  0
-i2c_algo_bit            8520  1 radeonfb
-i2c_i801                7564  0
-ehci_hcd               43592  0
-uhci_hcd               30284  0
-evdev                   7552  0
-snd_seq                50128  0
-snd_seq_device          6860  1 snd_seq
-usbcore               118780  4 ohci_hcd,ehci_hcd,uhci_hcd
-ntfs                  211252  1
-isofs                  32184  0
-zlib_inflate           17600  1 isofs
-ide_cd                 37956  0
-cdrom                  38432  1 ide_cd
-cpufreq_userspace       3548  0
-cpufreq_powersave       1472  0
-cpufreq_ondemand        5276  1
-cpufreq_conservative     6308  0
-snd_hda_intel          12576  1
-snd_hda_codec          56448  1 snd_hda_intel
-snd_pcm                84296  2 snd_hda_intel,snd_hda_codec
-snd_timer              21892  2 snd_seq,snd_pcm
-snd                    45924  8 
-snd_seq,snd_seq_device,snd_hda_intel,snd_hda_codec,snd_pcm,snd_timer
-soundcore               7584  1 snd
-snd_page_alloc          7620  2 snd_hda_intel,snd_pcm
-video                  13892  0
-thermal                10504  0
-fan                     3204  0
-battery                 7556  0
-acpi_cpufreq            4868  1
-freq_table              3524  1 acpi_cpufreq
-processor              18228  2 thermal,acpi_cpufreq
-ac                      3396  0
-asus_acpi               9556  0
-radeon                 76224  0
-drm                    61012  1 radeon
-intel_agp              20444  1
-agpgart                29512  2 drm,intel_agp
-ata_piix                7364  0
-libata                 42436  1 ata_piix
-scsi_mod               85064  1 libata
-
-
--- 
-
-Marek W
-
-==========
-(2b | !2b)
-==========
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Masoud Sharbiani  

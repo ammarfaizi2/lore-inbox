@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbVH1UhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVH1Uk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbVH1UhE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 16:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbVH1UhE
+	id S1750715AbVH1Uk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 16:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVH1Uk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 16:37:04 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:35659 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750795AbVH1UhB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 16:37:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ERZ8YVgcX1JpEd5sZapL1dLHfYGA35pEluAwry7yV4Jt1MGWbOXcqfsKGV4hMSAEAHO7xBH7lNK5j6gi6FTCWU6eGs3cL5wNK8aMckJJdmQknlYIdFCW2p9X7KsqJdm5xsRMlVQWTyh9lbpEk7oQmZ6K7RjC8TYIIiO6YQawOns=
-Message-ID: <7e5f607205082813366f6738d@mail.gmail.com>
-Date: Sun, 28 Aug 2005 22:36:55 +0200
-From: Peter Bortas <bortas@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.13-rc6-rt8
-Cc: Peter Bortas <peter@bortas.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050823061445.GA30817@elte.hu>
+	Sun, 28 Aug 2005 16:40:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50067 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750715AbVH1Uk4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 16:40:56 -0400
+Date: Sun, 28 Aug 2005 13:39:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make radix tree gang lookup faster by using a bitmap
+ search
+Message-Id: <20050828133922.6208fe62.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0508281253320.3317@g5.osdl.org>
+References: <1125159996.5159.8.camel@mulgrave>
+	<20050827105355.360bd26a.akpm@osdl.org>
+	<1125258200.5048.18.camel@mulgrave>
+	<Pine.LNX.4.58.0508281253320.3317@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050816121843.GA24308@elte.hu> <761x4s2uzg.fsf@bortas.org>
-	 <20050823061445.GA30817@elte.hu>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/23/05, Ingo Molnar <mingo@elte.hu> wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
 > 
-> * Peter Bortas <peter@bortas.org> wrote:
 > 
-> > 2.6.13-rc6-rt8 fails to build with my configuration (attached):
-> >
-> > net/built-in.o: In function `ip_rt_init':
-> > : undefined reference to `__you_cannot_kmalloc_that_much'
-> > make[1]: *** [.tmp_vmlinux1] Error 1
-> > make[1]: Leaving directory `/usr/src/linux-2.6.13-rc6'
-> > make: *** [stamp-build] Error 2
+> On Sun, 28 Aug 2005, James Bottomley wrote:
+> > 
+> > radix_tree_insert() is reliable from IRQ provided you don't try to use
+> > radix_tree_preload() and you defined your radix tree gfp flag to be
+> > GFP_ATOMIC.
 > 
-> ok, fixed the likely cause of this in -rt12. Could you check whether it
-> builds for you now?
-> 
->         Ingo
+> It would be better if it wasn't, though.
 
-rc7-rt4 compiles fine now. 
+There's nothing in radix-tree which forces this: it requires
+caller-provided locking.
 
-(Sorry I missed your message when originally sent.)
+> I really don't see why we made it irq-safe, and take the hit of disabling
+> interrupts in addition to the locking.  That's a quite noticeable loss,
+> and I don't think it's really a valid thing to insert (or look up) page
+> cache entries from interrupts.
+> 
+> What _is_ it that makes us do that, btw? Is it just because we clear the 
+> writeback tag bits or something? Sad. It makes page lookup noticeably more 
+> expensive.
 
--- 
-Peter Bortas
+Yes, address_space.tree_lock was made IRQ-safe so we could alter the tree's
+tags from disk completions.  Presumably Nick's lockless pagecache stuff
+removes that.

@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbVH1LUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbVH1MuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbVH1LUd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 07:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVH1LUd
+	id S1751159AbVH1MuE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 08:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbVH1MuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 07:20:33 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:38048 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751141AbVH1LUc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 07:20:32 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: linuxppc-dev@ozlabs.org
-Subject: 2.6.13-rc7-git2 crashes on iBook
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-X-Yow: Did I do an INCORRECT THING??
-Date: Sun, 28 Aug 2005 13:20:10 +0200
-Message-ID: <jehdda2tqt.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 28 Aug 2005 08:50:04 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:61122 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S1751159AbVH1MuD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 08:50:03 -0400
+To: Michael Marineau <marineam@engr.orst.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Radeon acpi vgapost
+In-Reply-To: <43111298.80507@engr.orst.edu>
+References: <43111298.80507@engr.orst.edu>
+Date: Sun, 28 Aug 2005 13:50:01 +0100
+Message-Id: <E1E9Mbq-0002WM-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The last change to drivers/pci/setup-res.c (Ignore disabled ROM resources
-at setup) is breaking radeonfb on iBook G3 (with Radeon Mobility M6 LY).
-It crashes in pci_map_rom when called from radeonfb_map_ROM.  This is
-probably a dormant bug that was just uncovered by the change.
+Michael Marineau <marineam@engr.orst.edu> wrote:
 
-Andreas.
+> Thses patches resume ATI radeon cards from acpi S3 suspend when using
+> radeonfb by reposting the video bios. This is needed to be able to use
+> S3 when the framebuffer is enabled.
+
+Please don't make this unconditional. There's no guarantee whatsoever
+that the code at c000:0003 does anything useful on a laptop, and it may
+actually be harmful in some cases. The sensible approach is to whitelist
+it based on DMI entries or provide a sysfs attribute so userspace can
+enable/disable it.
+
+How well does this patch deal with multihead? If I have a mixed
+radeon/non-radeon system, and the primary head is a non-radeon, won't
+this result in the wrong card being POSTed?
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

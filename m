@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVH1FMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbVH1FaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbVH1FMd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 01:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVH1FMd
+	id S1751105AbVH1FaP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 01:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbVH1FaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 01:12:33 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:56246 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750767AbVH1FMc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 01:12:32 -0400
-Date: Sat, 27 Aug 2005 22:12:25 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Michael Marineau <marineam@engr.orst.edu>
-Cc: Andrew Morton <akpm@osdl.org>, benh@kernel.crashing.org,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Radeon acpi vgapost
-Message-ID: <20050828051225.GA4225@us.ibm.com>
-References: <43111298.80507@engr.orst.edu>
+	Sun, 28 Aug 2005 01:30:15 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:32818 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751105AbVH1FaN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 01:30:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k4ZOmzDd02eL99TkugRNReQUQdl2NxoTA2FNBCDQG8SK8wna7rXYBuoW95utemrpkk28dMLYMaeQDvpl25flSbitV2xG83FbaiIGxd1ZZk1Zy/aUnqO8x48l3YqrqkOeBae4ow/sjfjiVrffpCinaO1f/FgJJ62JMAtuAPZlqHE=
+Message-ID: <253818670508272230540fa9dd@mail.gmail.com>
+Date: Sun, 28 Aug 2005 01:30:12 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: PATCH: ide: ide-disk freeze support for hdaps
+Cc: Jens Axboe <axboe@suse.de>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Jon Escombe <lists@dresco.co.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <20050827123408.GD1109@openzaurus.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43111298.80507@engr.orst.edu>
-X-Operating-System: Linux 2.6.12 (i686)
-User-Agent: Mutt/1.5.9i
+References: <253818670508250708a9075a0@mail.gmail.com>
+	 <58cb370e0508250859701ea571@mail.gmail.com>
+	 <253818670508252204b22e8c2@mail.gmail.com>
+	 <20050826065515.GQ4018@suse.de>
+	 <20050827123408.GD1109@openzaurus.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27.08.2005 [18:25:44 -0700], Michael Marineau wrote:
-> Thses patches resume ATI radeon cards from acpi S3 suspend when using
-> radeonfb by reposting the video bios. This is needed to be able to use
-> S3 when the framebuffer is enabled.
+Hi Pavel,
 
-Just wanted to report that these patches lead to progress on my T41p;
-relevant lspci -vvv:
+On 8/27/05, Pavel Machek <pavel@suse.cz> wrote: 
+> Well, with my power-managment hat on:
+> 
+> we probably want "freeze" functionality to be generic; it makes sense
+> for other devices, too.
+> 
+> "My battery is so low I can not use wifi any more" => userspace
+> freezes wifi.
+> 
+> Now, having this kind of timeout in all the cases looks pretty ugly to my eyes.
 
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc M10 NT [FireGL Mobility T2] (rev 80) (prog-if 00 [VGA])
-	Subsystem: IBM: Unknown device 054f
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B+
-	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 66 (2000ns min), Cache Line Size: 0x08 (32 bytes)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=128M]
-	Region 1: I/O ports at 3000 [size=256]
-	Region 2: Memory at c0100000 (32-bit, non-prefetchable) [size=64K]
-	Capabilities: <available only to root>
+Thing is the freeze attribute hasn't got much to do with power
+management, this is just to freeze the queue, and park the drive head
+ASAP (preferably with the unload immediate command supported by new
+drives) in order to protect the drive in an impact. Unload immediate
+doesn't even stop spinning the drive, so little power is saved.
 
-In 2.6.13-rc7 or 2.6.13-rc6-mm2, after echo mem > /sys/power/state, the
-lcd light comes back, but no video is actually displayed (I just notice
-that the backlight turns on). With your patches, I now see (with either
-rc7 or rc6-mm2) a mostly black screen with "inux" in the upper left --
-basically a garbled console -- which slowly turns completely white.
+Maybe a suspend attribute would be a good idea for something along the
+lines of what you have in mind? A enable/disable attribute would
+definitely make sense for that application.
 
-If you would like me to do more debugging, I would be more than happy to
-do so.
+I suppose renaming the attribute to "ramming_speed" or
+"brace_for_impact", might make the purpose more clear ;).
 
-Thanks for the work so far,
-Nish
+Thanks,
+Yani

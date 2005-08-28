@@ -1,37 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVH1V4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVH1WUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbVH1V4i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 17:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbVH1V4i
+	id S1750893AbVH1WUf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 18:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbVH1WUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 17:56:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48544 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750876AbVH1V4h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 17:56:37 -0400
-Date: Sun, 28 Aug 2005 14:55:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is kmem_bufctl_t different across platforms?
-Message-Id: <20050828145503.7b1a5f71.akpm@osdl.org>
-In-Reply-To: <3B0AEB5C-4A65-413F-BD35-B9F0E0984653@mac.com>
-References: <3B0AEB5C-4A65-413F-BD35-B9F0E0984653@mac.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 28 Aug 2005 18:20:35 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:34799 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1750891AbVH1WUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 18:20:34 -0400
+Subject: [RESEND][PATCH 2.6.13-rc6-mm2] v9fs: fix plan9port example in v9fs
+	documentation.
+From: Eric Van Hensbergen <ericvh@gmail.com>
+To: Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+       V9FS Developers <v9fs-developer@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 28 Aug 2005 17:20:25 -0500
+Message-Id: <1125267625.15492.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> wrote:
->
-> While exploring the asm-*/types.h files, I discovered that the
->  type "kmem_bufctl_t" is differently defined across each platform,
->  sometimes as a short, and sometimes as an int.  The only file
->  where it's used is mm/slab.c, and as far as I can tell, that file
->  doesn't care at all, aside from preferring it to be a small-sized
->  type.
+[PATCH] v9fs: Fix Plan9port example in v9fs documentation.
 
-I don't think there's any good reason for this.  -mm's
-slab-leak-detector.patch switches them all to unsigned long.
+Resend: to fix typo that I should have caught first time around.
+
+Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
+
+---
+commit 678b78b5268b253e21aa818fac25ea13291eafff
+tree fc3d94d10d23fedee95091e372c51e1156a0360f
+parent 06e00e56fdf2c3e230ff60f6fdab6db789f16e73
+author Eric Van Hensbergen <ericvh@gmail.com> Sun, 28 Aug 2005 16:09:12
+-0500
+committer Eric Van Hensbergen <ericvh@gmail.com> Sun, 28 Aug 2005
+16:09:12 -0500
+
+ Documentation/filesystems/v9fs.txt |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/Documentation/filesystems/v9fs.txt
+b/Documentation/filesystems/v9fs.txt
+--- a/Documentation/filesystems/v9fs.txt
++++ b/Documentation/filesystems/v9fs.txt
+@@ -20,7 +20,7 @@ For remote file server:
+ 
+ For Plan 9 From User Space applications (http://swtch.com/plan9)
+ 
+-	mount -t 9P /tmp/ns.root.:0/acme/acme /mnt/9 proto=unix,name=$USER
++	mount -t 9P `namespace`/acme /mnt/9 -o proto=unix,name=$USER
+ 
+ OPTIONS
+ =======
+
+

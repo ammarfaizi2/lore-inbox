@@ -1,60 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVH1WUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbVH1WZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750893AbVH1WUf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 18:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbVH1WUf
+	id S1750913AbVH1WZi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 18:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVH1WZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 18:20:35 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:34799 "EHLO
-	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1750891AbVH1WUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 18:20:34 -0400
-Subject: [RESEND][PATCH 2.6.13-rc6-mm2] v9fs: fix plan9port example in v9fs
-	documentation.
+	Sun, 28 Aug 2005 18:25:38 -0400
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:7075 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1750904AbVH1WZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 18:25:38 -0400
+Subject: [PATCH 2.6.13-rc6-mm2] v9fs: remove sparse bitwise warnings
 From: Eric Van Hensbergen <ericvh@gmail.com>
 To: Linux FS Devel <linux-fsdevel@vger.kernel.org>,
        V9FS Developers <v9fs-developer@lists.sourceforge.net>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
-Date: Sun, 28 Aug 2005 17:20:25 -0500
-Message-Id: <1125267625.15492.1.camel@localhost.localdomain>
+Date: Sun, 28 Aug 2005 17:25:20 -0500
+Message-Id: <1125267920.15492.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] v9fs: Fix Plan9port example in v9fs documentation.
+[PATCH] v9fs: remove sparse bitwise warnings
 
-Resend: to fix typo that I should have caught first time around.
+Fixed a bunch of cast conversions to remove -Wbitwise warnings from
+sparse.
 
 Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
 ---
-commit 678b78b5268b253e21aa818fac25ea13291eafff
-tree fc3d94d10d23fedee95091e372c51e1156a0360f
-parent 06e00e56fdf2c3e230ff60f6fdab6db789f16e73
-author Eric Van Hensbergen <ericvh@gmail.com> Sun, 28 Aug 2005 16:09:12
+commit fec4b0831dba7e27e9531d0566eec1a5646f3e79
+tree dfc14f433354a8dcdb049bc8137e7f31d7cbda3e
+parent 67fefd3d8da2c41c41dfd9cd69765b74e246f31f
+author Eric Van Hensbergen <ericvh@gmail.com> Sun, 28 Aug 2005 17:23:47
 -0500
 committer Eric Van Hensbergen <ericvh@gmail.com> Sun, 28 Aug 2005
-16:09:12 -0500
+17:23:47 -0500
 
- Documentation/filesystems/v9fs.txt |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ fs/9p/conv.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/filesystems/v9fs.txt
-b/Documentation/filesystems/v9fs.txt
---- a/Documentation/filesystems/v9fs.txt
-+++ b/Documentation/filesystems/v9fs.txt
-@@ -20,7 +20,7 @@ For remote file server:
+diff --git a/fs/9p/conv.c b/fs/9p/conv.c
+--- a/fs/9p/conv.c
++++ b/fs/9p/conv.c
+@@ -88,7 +88,7 @@ static inline void buf_put_int16(struct 
+ {
+ 	buf_check_size(buf, 2);
  
- For Plan 9 From User Space applications (http://swtch.com/plan9)
+-	*(u16 *) buf->p = cpu_to_le16(val);
++	*(__le16 *) buf->p = cpu_to_le16(val);
+ 	buf->p += 2;
+ }
  
--	mount -t 9P /tmp/ns.root.:0/acme/acme /mnt/9 proto=unix,name=$USER
-+	mount -t 9P `namespace`/acme /mnt/9 -o proto=unix,name=$USER
+@@ -96,7 +96,7 @@ static inline void buf_put_int32(struct 
+ {
+ 	buf_check_size(buf, 4);
  
- OPTIONS
- =======
+-	*(u32 *)buf->p = cpu_to_le32(val);
++	*(__le32 *)buf->p = cpu_to_le32(val);
+ 	buf->p += 4;
+ }
+ 
+@@ -104,7 +104,7 @@ static inline void buf_put_int64(struct 
+ {
+ 	buf_check_size(buf, 8);
+ 
+-	*(u64 *)buf->p = cpu_to_le64(val);
++	*(__le64 *)buf->p = cpu_to_le64(val);
+ 	buf->p += 8;
+ }
+ 
+@@ -147,7 +147,7 @@ static inline u16 buf_get_int16(struct c
+ 	u16 ret = 0;
+ 
+ 	buf_check_size(buf, 2);
+-	ret = le16_to_cpu(*(u16 *)buf->p);
++	ret = le16_to_cpu(*(__le16 *)buf->p);
+ 
+ 	buf->p += 2;
+ 
+@@ -159,7 +159,7 @@ static inline u32 buf_get_int32(struct c
+ 	u32 ret = 0;
+ 
+ 	buf_check_size(buf, 4);
+-	ret = le32_to_cpu(*(u32 *)buf->p);
++	ret = le32_to_cpu(*(__le32 *)buf->p);
+ 
+ 	buf->p += 4;
+ 
+@@ -171,7 +171,7 @@ static inline u64 buf_get_int64(struct c
+ 	u64 ret = 0;
+ 
+ 	buf_check_size(buf, 8);
+-	ret = le64_to_cpu(*(u64 *)buf->p);
++	ret = le64_to_cpu(*(__le64 *)buf->p);
+ 
+ 	buf->p += 8;
+ 
 
 

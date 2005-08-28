@@ -1,70 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVH1G53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVH1HFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbVH1G53 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 02:57:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbVH1G53
+	id S1751126AbVH1HFp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 03:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVH1HFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 02:57:29 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:10115 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S1751118AbVH1G53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 02:57:29 -0400
-Message-ID: <43115DE5.2070806@kromtek.com>
-Date: Sun, 28 Aug 2005 10:47:01 +0400
-From: Manu Abraham <manu@kromtek.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-dvb-maintainer@linuxtv.org
-Subject: Re: [PATCH] missing include in tda80xx
-References: <20050828024750.GF9322@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050828024750.GF9322@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kromtek.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sun, 28 Aug 2005 03:05:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:14233 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751126AbVH1HFp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 03:05:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tnU3/PVV9HISIjck6L2C3MzLLEmGDCbUV30S+hcyMruh0tSCX53PnKpH9dMQ8XdGixdC0XrfyEc5KzeikmYZfyAAhQhH9HOoTJUuZqhklV8EOlVPF7e6JgVy2lvH/RCjvW/0Be9fpb3CW5H1Vbloj3mWTERQ1t4VapRImQZM3C0=
+Message-ID: <1e33f571050828000537648e5b@mail.gmail.com>
+Date: Sun, 28 Aug 2005 12:35:42 +0530
+From: Gaurav Dhiman <gaurav4lkg@gmail.com>
+To: "Sat." <walking.to.remember@gmail.com>
+Subject: Re: when or where can the case occur in "linux kernel development " about "kernel preemption"?
+Cc: Christopher Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <6b5347dc050827085727df49c8@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <6b5347dc05082609206ff7a305@mail.gmail.com>
+	 <430F45F8.8020505@nortel.com>
+	 <6b5347dc050827085727df49c8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-
->Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
->----
->diff -urN RC13-rc7-base/drivers/media/dvb/frontends/tda80xx.c current/drivers/media/dvb/frontends/tda80xx.c
->--- RC13-rc7-base/drivers/media/dvb/frontends/tda80xx.c	2005-08-24 01:56:38.000000000 -0400
->+++ current/drivers/media/dvb/frontends/tda80xx.c	2005-08-27 22:36:10.000000000 -0400
->@@ -30,6 +30,7 @@
-> #include <linux/kernel.h>
-> #include <linux/module.h>
-> #include <linux/slab.h>
->+#include <asm/irq.h>
-> #include <asm/div64.h>
+On 8/27/05, Sat. <walking.to.remember@gmail.com> wrote:
+> 2005/8/27, Christopher Friesen <cfriesen@nortel.com>:
+> > Sat. wrote:
+> > > the case about kernel preemption as follow :
+> > >
+> > > the book said "when a process that has a higher priority than the
+> > > currenty running process is awakened ".
+> > >
+> > > but I can think about when such case can occur , could you give me an example ?
+> >
+> > There may be others, but one common case is when a hardware interrupt
+> > causes the higher priority process to become runnable.  Some examples of
+> > this would be a network packet arriving, or the expiry of a hardware timer.
+> >
+> > Chris
+> >
 > 
-> #include "dvb_frontend.h"
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> unfortunately, I cannot agree with you , normally ,when the kernel
+> runs in interrupt context , the schedule() should not be invoked
+> ------my views .
+> 
+
+Its not actually the interrupt handler which calls the schedule()
+function, rather interrupt handler just perform the minimal task, like
+copying the data from network card buffer to kernel buffer in case of
+packet arriving on system. Its the other function which actually
+interrut handler schedules for later invocation and this later
+invocation is done in process context and so the function scheduled
+for later invocation can wake the waiting processes and can call
+schedule() function if needed.
+
+I hope I am not wrong ;-)
+-Gaurav
+
+> then,could anyone  give me a definite example about network like above
+> or anything else to eluminate  this , ok?
+> 
+> thanks !
+> 
+> --
+> Sat.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
->  
->
-
-A suggestion, to avoid a regression, it would've been better if you had 
-a CC to the DVB maintainer also, in case it got missed out during 
-backporting mainline changes back to the DVB CVS tree.
-
-
-Thanks,
-Manu
-
-

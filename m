@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVH1QQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbVH1QS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbVH1QQp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 12:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbVH1QQp
+	id S1750991AbVH1QS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 12:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVH1QS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 12:16:45 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:31825 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750890AbVH1QQp convert rfc822-to-8bit
+	Sun, 28 Aug 2005 12:18:56 -0400
+Received: from mail.customers.edis.at ([62.99.242.131]:29084 "EHLO
+	smtp-1.edis.at") by vger.kernel.org with ESMTP id S1750991AbVH1QSz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 12:16:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ZADkyTz117PwBEF26ZwWqHnaaBIn+i9Q2ldaQG+aRTv8x0MuwTrDhFXkAmlbvAJOhN0KqTRrBE+XSosgf+MfJfuHwGzbQ+CgTc/MPWeunAU8hEopJOO5K0RI1oqGdhUQ+dkvPS2aLaQ+jQ3N496l1qkAhokyCZvPLXJ/jCs5Er0=
-Message-ID: <907421f905082809135e7094ad@mail.gmail.com>
-Date: Mon, 29 Aug 2005 00:13:59 +0800
-From: mandy london <laborious.bee@gmail.com>
+	Sun, 28 Aug 2005 12:18:55 -0400
+Message-ID: <4311E3DE.20706@lawatsch.at>
+Date: Sun, 28 Aug 2005 18:18:38 +0200
+From: Philip Lawatsch <philip@lawatsch.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050724 Thunderbird/1.0.6 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: the rack condition will occur in below code ?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Subject: Re: Kernel/Box Freezes Under Kernel 2.6.12.5
+References: <Pine.LNX.4.63.0508261733400.363@p34> <200508261751.11751.pmcfarland@downeast.net> <Pine.LNX.4.63.0508261805080.363@p34>
+In-Reply-To: <Pine.LNX.4.63.0508261805080.363@p34>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-below is my  script in brief, when it runs for several minutes , the
-computer will reboot quickly without any information  , so I can not
-get knowledge form oops and something else .
+Justin Piszcz wrote:
 
-I use timer and hook respectively, first , using hook to receive
-packets from ICP/IP stack on wired interface, the store it in a queue
-, then , when the timer arrive , the timer will invoke the
-dev_queue_xmit() to send the whole  packets from wireless interface.
+ > I have three different Maxtor (promise) ATA/133 controllers, it
+ > happens with all three.
 
-void timer_ack(unsigned long no_used){
-     int i ;
-     struct sk_buff * skb;
-     struct net_device * wireless;
-     wireless = dev_get_by_name("eth1");//eth1 is wireless interface
-     while((skb=skb_dequeue(packet_queue))!=NULL){// get out a packet
-from the queue
-          dev_queue_xmit(skb);
-     }
-    
-     mod_timer(&timer,100);// change time for polling one time per second
 
-}
+Ever since going to 2.6.12 I also have random hangs with my fileserver.
 
-unsigned int hook_func(unsigned int hooknum,struct sk_buff **skb,
-const struct net_device *in,const struct net_device *out,int
-(*okfn)(struct sk_buff *)){
-     
-// there , I omit some the code handling the packet for the purpose of
-forwording like NAT , that means I will handle the packet firstly then
-I will insert it to the packet_queue
+I've got a
+   Bus  0, device   6, function  0:
+     Unknown mass storage controller: Promise Technology, Inc. 20269 
+(rev 2).
+       IRQ 17.
+       Master Capable.  Latency=32.  Min Gnt=4.Max Lat=18.
+       I/O at 0xec00 [0xec07].
+       I/O at 0xe800 [0xe803].
+       I/O at 0xe400 [0xe407].
+       I/O at 0xe000 [0xe003].
+       I/O at 0xdc00 [0xdc0f].
+       Non-prefetchable 32 bit memory at 0xdfffc000 [0xdfffffff].
 
-      struct sk_buff *sb = *skb;
-      skb_queue_tail(packet_queue,sb);
-}
 
-I test it , normally it can run for about five minutes , then died
-without anyting info.
-I analyze whether my improper handling on queue leads to it. maybe
-there are some race conditions I can not find out.
+in the box.
 
-the most important is whether the case below have the posibility to occur?
-       when the kernel run in timer then an interrupt comes , after
-the interrupt return results in scheule or the hook_func()'s running ,
-then the race condition will occur , I am not clear in this .
+Since I do not have a serial cable attached I dont have the panic 
+output. But iirc it crashes somewhere in an interrupt handler 
+complaining about damaged pagetables (thats why I thought it was bad 
+memory). But it takes about 3 days for the machine to hang (and I'm 
+happily using all the memory and have high disk i/o in the meantime).
 
-any help will be appreciated , thx~
-:)
+I'll go and replace the memory but perhaps there really is a bug in the 
+driver.
+
+kind regards Philip
+

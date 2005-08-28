@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVH1Ta5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVH1ToD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVH1Ta5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 15:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVH1Ta5
+	id S1750761AbVH1ToD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 15:44:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbVH1ToD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 15:30:57 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:4500 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750756AbVH1Ta5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 15:30:57 -0400
-Date: Sun, 28 Aug 2005 21:30:46 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] IBM HDAPS accelerometer driver.
-In-Reply-To: <20050828080959.GB2039@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.62.0508282109040.1489@artax.karlin.mff.cuni.cz>
-References: <1125069494.18155.27.camel@betsy> <20050827124148.GE1109@openzaurus.ucw.cz>
- <Pine.LNX.4.62.0508280453320.13233@artax.karlin.mff.cuni.cz>
- <20050828080959.GB2039@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 28 Aug 2005 15:44:03 -0400
+Received: from xproxy.gmail.com ([66.249.82.201]:49934 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750762AbVH1ToB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 15:44:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VkboVDGzZc6LKZXSclMEdGMNldEM0lPnqBhaQdXFXVtCAt/FZS/jM3Vmys8xJ6Wf5rwyHaUFREhRlmu7cid6MAWIxsAaf6xHQHrcvMFNM6WlA7MDmG94qUfe9dQI8FtOwa+2N1s3SZBEQTrew6XgChqY9hcEVmnhDJQFNq+V6g0=
+Message-ID: <c295378405082812434429ccd1@mail.gmail.com>
+Date: Sun, 28 Aug 2005 12:43:54 -0700
+From: "Jason R. Martin" <nsxfreddy@gmail.com>
+To: iSteve <isteve@rulez.cz>
+Subject: Re: Possibly wrong contact for e100 driver
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43120783.7040406@rulez.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43120783.7040406@rulez.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Of late I have been working on a driver for the IBM Hard Drive Active
->>>> Protection System (HDAPS), which provides a two-axis accelerometer and
->>>> some other misc. data.  The hardware is found on recent IBM ThinkPad
->>>> laptops.
->>>>
->>>> The following patch adds the driver to 2.6.13-rc6-mm2.  It is
->>>> self-contained and fairly simple.
->>>
->>> Do we really need input interface *and* sysfs interface? Input should be
->>> enough.
->>
->> I think he doesn't need to export it at all and he should write code to
->> park and disable hard disk instead.
->> (in userspace it's unsolvable --- i.e. you can't enable hard disk when
->> detected stable condition if the daemon is swapped out on that hard disk)
->
-> man mlockall() :-).
+On 8/28/05, iSteve <isteve@rulez.cz> wrote:
+> Greetings,
+> in past few days, I've been trying to obtain certian information about
+> behavior of e100 NIC driver with my minipci card. My first hit was the
+> contact information mentioned in the header of e100.c, that is, "Linux
+> NICS <linux.nics@intel.com>".
+> 
+> I've sent in my mail, praying for reply. The first reply was automated
+> response, which suggested me eg. Win 3.11 install notes. After asking
+> tech support reply, the email from tech support, which arrived day
+> later, only told me that Intel doesn't distribute MiniPCI cards
+> directly, instead sells them to companies who distribute them. He also
+> suggested me to "for the best possible technical support and the latest
+> drivers for your MPCI hardware, please contact the manufacturer of your
+> PC".
+> 
+> Since I sent a rather technical question, and got such reply (and no
+> reply so far, when I asked for better support - contact on someone
+> closer to the actual driver, be it from Intel or not, politely), I
+> wonder whether the contact information is still up to date? If no, what
+> is the new contact information?
 
-You also must not use any syscall that allocates even temporary memory in 
-kernel (select, poll, many others ...) or that waits on semaphore that 
-might be held while allocating memory (i.e. audit and rewrite ide ioctl 
-path).
+Try asking on netdev@vger.kernel.org.  Or email the guys listed in
+MAINTAINERS for e100.  Or check out the e1000 sourceforge project
+(which covers e100 and ixgb as well).
 
-And you need extra flags to protect the daemon from being killed at 
-shutdown or blocked at suspend.
-
-I think writing it as kernel thread would be easir than all this.
-
-> Accelerometer is usefull for other stuff besides parking heads, like
-> playing marble madness or what is the name of the game, and even
-> parking heads is way too complex to be put into the kernel.
->
-> Even if you don't like mlockall(), you can put timeout into
-> disk-freezing interface.
-
-That makes the protection less reliable (you shake the notebook and after 
-the timeout drop it).
-
-Mikulas
-
-> 								Pavel
-> -- 
-> if you have sharp zaurus hardware you don't need... you know my address
->
+Jason

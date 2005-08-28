@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbVH1VyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVH1V4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbVH1VyP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 17:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVH1VyP
+	id S1750877AbVH1V4i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 17:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbVH1V4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 17:54:15 -0400
-Received: from aeimail.aei.ca ([206.123.6.84]:56525 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S1750858AbVH1VyP (ORCPT
+	Sun, 28 Aug 2005 17:56:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48544 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750876AbVH1V4h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 17:54:15 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Mattia Dongili <malattia@linux.it>
-Subject: Re: Fw: Oops with 2.6.13-rc6-mm2 and USB mouse
-Date: Sun, 28 Aug 2005 17:53:54 -0400
-User-Agent: KMail/1.8.1
-Cc: rbrito@ime.usp.br, Andrew Morton <akpm@osdl.org>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-References: <20050826220618.7365e690.akpm@osdl.org> <20050827200904.GA4362@ime.usp.br> <20050827203935.GJ5631@inferi.kami.home>
-In-Reply-To: <20050827203935.GJ5631@inferi.kami.home>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 28 Aug 2005 17:56:37 -0400
+Date: Sun, 28 Aug 2005 14:55:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why is kmem_bufctl_t different across platforms?
+Message-Id: <20050828145503.7b1a5f71.akpm@osdl.org>
+In-Reply-To: <3B0AEB5C-4A65-413F-BD35-B9F0E0984653@mac.com>
+References: <3B0AEB5C-4A65-413F-BD35-B9F0E0984653@mac.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508281753.54881.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 August 2005 16:39, Mattia Dongili wrote:
-> On Sat, Aug 27, 2005 at 05:09:04PM -0300, Rog???rio Brito wrote:
-> > Hi, Andrew.
-> > 
-> > I just tested the USB mouse with 2.6.13-rc6-mm2 and ACPI disabled
-> > (which, according to Linus, is one of the "usual suspects") and the
-> > problem still occurred.
-> 
-> see here
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=112481438512222&w=2
-> 
-> Reverting driver-core-fix-bus_rescan_devices-race.patch and applying the
-> patch attached to the above message fixed the oops for me.
+Kyle Moffett <mrmacman_g4@mac.com> wrote:
+>
+> While exploring the asm-*/types.h files, I discovered that the
+>  type "kmem_bufctl_t" is differently defined across each platform,
+>  sometimes as a short, and sometimes as an int.  The only file
+>  where it's used is mm/slab.c, and as far as I can tell, that file
+>  doesn't care at all, aside from preferring it to be a small-sized
+>  type.
 
-I my case removing a usb device or hub triggers an immediate reboot with mm2.
-
-This is fixed removing the above patch.  All is ok with mm1 too.  
-
-I tried the above process but the second patch does not apply.  
-
-Thanks
-Ed Tomlinson
+I don't think there's any good reason for this.  -mm's
+slab-leak-detector.patch switches them all to unsigned long.

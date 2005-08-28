@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbVH1AnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbVH1AlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbVH1AnH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 20:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbVH1AnH
+	id S1751013AbVH1AlX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 20:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbVH1AlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 20:43:07 -0400
-Received: from ns1.osuosl.org ([140.211.166.130]:5093 "EHLO ns1.osuosl.org")
-	by vger.kernel.org with ESMTP id S1751014AbVH1AnF (ORCPT
+	Sat, 27 Aug 2005 20:41:23 -0400
+Received: from ozlabs.org ([203.10.76.45]:17872 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751002AbVH1AlW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 20:43:05 -0400
-Date: Sat, 27 Aug 2005 12:42:40 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Micheal Marineau <marineam@engr.orst.edu>
-Cc: linux-kernel@linux.kernel.org, benhbenh@kernel.crashing.org
-Subject: Re: [PATCH] Radeonfb acpi vgapost
-Message-ID: <20050827104240.GA3141@elf.ucw.cz>
-References: <43104005.3040602@engr.orst.edu>
-Mime-Version: 1.0
+	Sat, 27 Aug 2005 20:41:22 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43104005.3040602@engr.orst.edu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17169.2104.22407.357236@cargo.ozlabs.ibm.com>
+Date: Sun, 28 Aug 2005 10:41:28 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: torvalds@osdl.org, akpm@osdl.org, dwmw2@redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove race between con_open and con_close
+In-Reply-To: <20050828005813.A24838@flint.arm.linux.org.uk>
+References: <17168.63953.95070.579096@cargo.ozlabs.ibm.com>
+	<20050828005813.A24838@flint.arm.linux.org.uk>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Russell King writes:
 
-> Here is a cleaned up version of the patch to repost radeon cards when
-> resuming from acpi s3 suspend.  I've been sitting on it for a while
-> hoping that I might be able to gain some insight in how to use the d2
-> state instead of this repost as ppc does.  On my x86 laptop with a
-> radeon 9000 resuming from d2 does manage to turn on the card/display,
-> but it becomes horridly scrambled. But right now I don't have the time
-> or the skill to actually get any futher than that.
+> Have you looked at how serial_core handles this kind of problem in
+> its open and close methods?  I put some comments in there because
+> of the issue, after thinking about it fairly carefully.
 
-Patch looks good to me. Could we get that one in, pretty please?
-[Probably generic sleep parts through akpm, radeonfb parts through
-ben?]
+Yes, albeit briefly; the problem in con_open is much simpler because
+we never need to block.
 
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+Paul.

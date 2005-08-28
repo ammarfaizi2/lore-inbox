@@ -1,52 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbVH1Viy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVH1VfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbVH1Viy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 17:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVH1Viy
+	id S1750831AbVH1VfX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 17:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbVH1VfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 17:38:54 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:43933 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750824AbVH1Vix (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 17:38:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=VruHgNWt8AyXFBWqwSc7ZzXHc+iidwOXPs8OpxZRwRUBWB68o5/sKtPFqQnoLduCk7S1hgsvDf1/kFilcgRsx7zZjSCe4NUWPVndet5Myxyx9K2UIyfrW/hBlI9s3x7UzZi6yZZ7UXu0qMiEVBUJ99FSWzGPzT5u9Wmhv3Sscgw=
-Date: Mon, 29 Aug 2005 01:46:56 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Eric Van Hensbergen <ericvh@gmail.com>
-Cc: Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+	Sun, 28 Aug 2005 17:35:23 -0400
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:25032 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1750762AbVH1VfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 17:35:22 -0400
+Subject: PATCH 2.6.13-rc7-mm1] v9fs: adjust follow_link and put_link to
+	match new VFS API
+From: Eric Van Hensbergen <ericvh@gmail.com>
+To: Linux FS Devel <linux-fsdevel@vger.kernel.org>,
        V9FS Developers <v9fs-developer@lists.sourceforge.net>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.13-rc6-mm2] v9fs: use standard kernel byteswapping routines
-Message-ID: <20050828214656.GA11613@mipter.zuzino.mipt.ru>
-References: <1125263107.17501.23.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 28 Aug 2005 16:35:05 -0500
+Message-Id: <1125264905.17501.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1125263107.17501.23.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 28, 2005 at 04:05:07PM -0500, Eric Van Hensbergen wrote:
-> [PATCH] v9fs: use standard kernel byteswapping routines
-> 
-> Originally suggested by hch, we have removed our byteswap code
-> and replaced it with calls to the standard kernel byteswapping code.
+[PATCH] v9fs: adjust follow_link and put_link to match new VFS API
 
-> -	buf->p[0] = val;
-> -	buf->p[1] = val >> 8;
-> +	*(u16 *) buf->p = cpu_to_le16(val);
+In 2.6.13-rc7 the prototypes for follow_link and put_link were changed
+to include support for a cookie to help reclaim resources.  This patch
+adjusts their definitions in the v9fs implementation.
 
-*(__le16 *)
+Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
-> -	ret = buf->p[0] | (buf->p[1] << 8);
-> +	ret = le16_to_cpu(*(u16 *)buf->p);
+---
+commit 30bdd61e96418043a07d2da71bcd757a0341113f
+tree 3e268ece4b911b960b47b47182972d8f439667da
+parent e189afc5ed8102a56f74cb5be91a6bf3e478a06a
+author Eric Van Hensbergen <ericvh@gmail.com> Sun, 28 Aug 2005 16:33:42
+-0500
+committer Eric Van Hensbergen <ericvh@gmail.com> Sun, 28 Aug 2005
+16:33:42 -0500
 
-*(__le16 *) etc.
+ fs/9p/vfs_inode.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Otherwise sparse will warn.
+diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
+--- a/fs/9p/vfs_inode.c
++++ b/fs/9p/vfs_inode.c
+@@ -1089,7 +1089,7 @@ static int v9fs_vfs_readlink(struct dent
+  *
+  */
+ 
+-static int v9fs_vfs_follow_link(struct dentry *dentry, struct nameidata
+*nd)
++static void *v9fs_vfs_follow_link(struct dentry *dentry, struct
+nameidata *nd)
+ {
+ 	int len = 0;
+ 	char *link = __getname();
+@@ -1109,7 +1109,7 @@ static int v9fs_vfs_follow_link(struct d
+ 	}
+ 	nd_set_link(nd, link);
+ 
+-	return 0;
++	return NULL;
+ }
+ 
+ /**
+@@ -1119,7 +1119,7 @@ static int v9fs_vfs_follow_link(struct d
+  *
+  */
+ 
+-static void v9fs_vfs_put_link(struct dentry *dentry, struct nameidata
+*nd)
++static void v9fs_vfs_put_link(struct dentry *dentry, struct nameidata
+*nd, void *p)
+ {
+ 	char *s = nd_get_link(nd);
+ 
+
 

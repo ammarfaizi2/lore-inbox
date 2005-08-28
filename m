@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVH1Uk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVH1UpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbVH1Uk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 16:40:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVH1Uk5
+	id S1750721AbVH1UpG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 16:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVH1UpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 16:40:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50067 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750715AbVH1Uk4 (ORCPT
+	Sun, 28 Aug 2005 16:45:06 -0400
+Received: from lucidpixels.com ([66.45.37.187]:18648 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1750721AbVH1UpF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 16:40:56 -0400
-Date: Sun, 28 Aug 2005 13:39:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make radix tree gang lookup faster by using a bitmap
- search
-Message-Id: <20050828133922.6208fe62.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0508281253320.3317@g5.osdl.org>
-References: <1125159996.5159.8.camel@mulgrave>
-	<20050827105355.360bd26a.akpm@osdl.org>
-	<1125258200.5048.18.camel@mulgrave>
-	<Pine.LNX.4.58.0508281253320.3317@g5.osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Aug 2005 16:45:05 -0400
+Date: Sun, 28 Aug 2005 16:45:04 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Patrick McFarland <pmcfarland@downeast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel/Box Freezes Under Kernel 2.6.12.5
+In-Reply-To: <200508261751.11751.pmcfarland@downeast.net>
+Message-ID: <Pine.LNX.4.63.0508281644360.27379@p34>
+References: <Pine.LNX.4.63.0508261733400.363@p34> <200508261751.11751.pmcfarland@downeast.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
+Yes, I have two separate machines with the same controller and HDD.
+As soon as I found out it fixed the bug on one of them, I changed it on 
+the other, neither machine has crashed since.
+
+On Fri, 26 Aug 2005, Patrick McFarland wrote:
+
+> On Friday 26 August 2005 05:36 pm, Justin Piszcz wrote:
+>> 2- ATA/133 Maxtor (ATA/Promise Controller)
 >
-> 
-> 
-> On Sun, 28 Aug 2005, James Bottomley wrote:
-> > 
-> > radix_tree_insert() is reliable from IRQ provided you don't try to use
-> > radix_tree_preload() and you defined your radix tree gfp flag to be
-> > GFP_ATOMIC.
-> 
-> It would be better if it wasn't, though.
-
-There's nothing in radix-tree which forces this: it requires
-caller-provided locking.
-
-> I really don't see why we made it irq-safe, and take the hit of disabling
-> interrupts in addition to the locking.  That's a quite noticeable loss,
-> and I don't think it's really a valid thing to insert (or look up) page
-> cache entries from interrupts.
-> 
-> What _is_ it that makes us do that, btw? Is it just because we clear the 
-> writeback tag bits or something? Sad. It makes page lookup noticeably more 
-> expensive.
-
-Yes, address_space.tree_lock was made IRQ-safe so we could alter the tree's
-tags from disk completions.  Presumably Nick's lockless pagecache stuff
-removes that.
+> Make sure its actually the kernel and not that controller. Go find another
+> identical one and test with it.
+>
+> -- 
+> Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+> "Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd
+> all be running around in darkened rooms, munching magic pills and listening to
+> repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+>

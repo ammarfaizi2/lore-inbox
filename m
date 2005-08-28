@@ -1,114 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVH1AFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbVH1AKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbVH1AFz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Aug 2005 20:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVH1AFz
+	id S1750907AbVH1AKg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Aug 2005 20:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbVH1AKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Aug 2005 20:05:55 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:36820 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1750837AbVH1AFy (ORCPT
+	Sat, 27 Aug 2005 20:10:36 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:42937 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750874AbVH1AKf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Aug 2005 20:05:54 -0400
-From: "www.all4spy.com" <zohar@ganeyaviv.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: NetMail
-Reply-To: <zohar@ganeyaviv.com>
-Subject: www.all4spy.com
-Mime-Version: 1.0
+	Sat, 27 Aug 2005 20:10:35 -0400
+Message-ID: <431100F1.2070207@pobox.com>
+Date: Sat, 27 Aug 2005 20:10:25 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+Subject: [git patches] 2.6.x net driver fixes
 Content-Type: multipart/mixed;
- boundary="----------F2806284368942E4B26B4D6"
-Date: Sun, 28 Aug 2005 03:06:13
-Message-ID: <200508280306.mail.0@ganeyaviv.com>
+ boundary="------------030204010806000704080602"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart MIME message.
-------------F2806284368942E4B26B4D6
+This is a multi-part message in MIME format.
+--------------030204010806000704080602
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Please pull from the 'upstream-fixes' branch of
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+
+to obtain the fixes described in the diffstat/changelog/patch attached.
 
 
-------------F2806284368942E4B26B4D6
-Content-Type: application/octet-stream;
-	name="mail.htm"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="mail.htm"
+--------------030204010806000704080602
+Content-Type: text/plain;
+ name="netdev-2.6.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="netdev-2.6.txt"
 
-PGh0bWwgZGlyPSJydGwiPg0KDQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9
-IkNvbnRlbnQtTGFuZ3VhZ2UiIGNvbnRlbnQ9ImVuLXVzIj4NCjxtZXRhIGh0
-dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIgY29udGVudD0idGV4dC9odG1sOyBj
-aGFyc2V0PXdpbmRvd3MtMTI1MiI+DQo8dGl0bGU+JiMxNDg5OyYjMTUwNjsm
-IzE1MDA7ICYjMTUwNjsmIzE1MDU7JiMxNTExOyAmIzE0OTI7JiMxNDk3OyYj
-MTQ5NDsmIzE0OTI7JiMxNTEyOy0mIzE0OTA7JiMxNDkzOyYjMTUwNDsmIzE0
-ODk7JiMxNDk3OyYjMTUwMTsgJiMxNDg4OyYjMTUxMDsmIzE1MDA7JiMxNDk4
-OzwvdGl0bGU+DQo8L2hlYWQ+DQoNCjxib2R5Pg0KDQo8Y2VudGVyPjxiPjxm
-b250IHN0eWxlPSJmb250LXNpemU6IDUwcHgiPjxmb250IHN0eWxlPSJjb2xv
-cjogI2ZkMDAwMCI+JiMxNDg5OyYjMTUwNjsmIzE1MDA7ICYjMTUwNjsmIzE1
-MDU7JiMxNTExOyANCiYjMTQ5MjsmIzE0OTc7JiMxNDk0OyYjMTQ5MjsmIzE1
-MTI7LSYjMTQ5MDsmIzE0OTM7JiMxNTA0OyYjMTQ4OTsmIzE0OTc7JiMxNTAx
-OyAmIzE0ODg7JiMxNTEwOyYjMTUwMDsmIzE0OTg7PC9mb250Pjxmb250IHN0
-eWxlPSJjb2xvcjogIzEyMTIxMiI+PzwvZm9udD48YnI+DQo8Zm9udCBzdHls
-ZT0iY29sb3I6ICMwMDAwZjQiPiYjMTUwMjsmIzE0OTI7JiMxNDk3OyYjMTQ4
-OTsmIzE0OTM7JiMxNDg4OyYjMTUwMzsgJiMxNTAwOyYjMTUxMDsmIzE1MTI7
-JiMxNDk5OyYjMTUwMzs8L2ZvbnQ+PGJyPg0KPC9mb250Pjxmb250IHN0eWxl
-PSJmb250LXNpemU6IDMwcHgiPjxmb250IHN0eWxlPSJjb2xvcjogI2ZhMDAw
-MCI+JiMxNTAyOyYjMTUwNjsmIzE1MTI7JiMxNDk5OyYjMTUxNDsgJiMxNTAy
-OyYjMTUxMDsmIzE1MDA7JiMxNTAyOyYjMTQ5MzsmIzE1MTQ7IA0KJiMxNDg4
-OyYjMTQ4OTsmIzE0OTY7JiMxNDk1OyYjMTQ5MjsgJiMxNDg5OyYjMTUwMjsm
-IzE1MDY7JiMxNDkwOyYjMTUwMDsgJiMxNTA1OyYjMTQ5MDsmIzE0OTM7JiMx
-NTEyOzxicj4NCiYjMTQ5OTsmIzE0OTM7JiMxNTAwOyYjMTUwMDsgJiMxNTEw
-OyYjMTUwODsmIzE0OTc7JiMxNDk3OyYjMTQ5MjsgJiMxNDkzOyYjMTQ5Mjsm
-IzE1MTE7JiMxNTAwOyYjMTQ5NjsmIzE0OTI7ICYjMTQ5MTsmIzE1MTI7JiMx
-NDk4OyAmIzE0OTI7JiMxNDg4OyYjMTQ5NzsmIzE1MDQ7JiMxNDk2OyYjMTUx
-MjsmIzE1MDQ7JiMxNDk2OyAmIzE0ODk7JiMxNDk0OyYjMTUwMjsmIzE1MDM7
-ICYjMTQ4ODsmIzE1MDI7JiMxNTE0OzwvZm9udD48YnI+DQo8Zm9udCBzdHls
-ZT0iY29sb3I6IG1hZ2VudGEiPiYjMTQ5OTsmIzE1MTI7JiMxNDk2OyYjMTQ5
-NzsmIzE1MDU7IERWUiAmIzE0OTM7LTQgJiMxNTAyOyYjMTUxMDsmIzE1MDA7
-JiMxNTAyOyYjMTQ5MzsmIzE1MTQ7ICYjMTQ5OTsmIzE0OTc7JiMxNTA4OyYj
-MTQ5MjsgJiMxNDg4OyYjMTQ5MzsgJiMxNTA0OyYjMTUwNTsmIzE1MTQ7JiMx
-NTEyOyYjMTQ5MzsmIzE1MTQ7LCAmIzE1MTA7JiMxNDg5OyYjMTUwNjsmIzE0
-OTM7JiMxNTA0OyYjMTQ5NzsmIzE0OTM7JiMxNTE0OyAmIzE1MDY7JiMxNTAx
-OyANCiYjMTUxMTsmIzE0OTM7JiMxNTAwOzwvZm9udD48YnI+DQo8Zm9udCBz
-dHlsZT0iY29sb3I6ICMwMDcyMDAiPiYjMTUwMDsmIzE1MTA7JiMxNTA4OyYj
-MTQ5NzsmIzE0OTc7JiMxNDkyOyAmIzE0OTM7JiMxNDkyOyYjMTUxMTsmIzE1
-MDA7JiMxNDk2OyYjMTQ5MjsgJiMxNTAyOyYjMTQ5OTsmIzE1MDA7ICYjMTUw
-MjsmIzE1MTE7JiMxNDkzOyYjMTUwMTsgJiMxNDg5OyYjMTUwNjsmIzE0OTM7
-JiMxNTAwOyYjMTUwMTs8L2ZvbnQ+PGJyPg0KPGZvbnQgc3R5bGU9ImNvbG9y
-OiAjZjAwMDAwIj4mIzE0ODk7JiMxNTAyOyYjMTUxMTsmIzE0OTM7JiMxNTAx
-OzwvZm9udD4gPHNwYW4gZGlyPSJsdHIiPg0KPGZvbnQgc3R5bGU9ImNvbG9y
-OiAjMDAwMDg3Ij40NjUwPC9mb250Pjwvc3Bhbj4gPGZvbnQgc3R5bGU9ImNv
-bG9yOiAjZjAwMDAwIj4mIzgzNjI7IA0KJiMxNTEyOyYjMTUxMTsgPHNwYW4g
-ZGlyPSJsdHIiPjxmb250IHN0eWxlPSJmb250LXNpemU6IDUwcHgiPjE5OTA8
-L2ZvbnQ+PC9zcGFuPiAmIzgzNjI7PC9mb250Pjxicj4NCjxicj4NCiZuYnNw
-Ozx0YWJsZSBjZWxsU3BhY2luZz0iMTAiIGNlbGxQYWRkaW5nPSIwIiBib3Jk
-ZXI9IjAiIGlkPSJ0YWJsZTEiPg0KCTx0cj4NCgkJPHRkIGFsaWduPSJtaWRk
-bGUiPg0KCQk8dGFibGUgY2VsbFNwYWNpbmc9IjAiIGNlbGxQYWRkaW5nPSIw
-IiBib3JkZXI9IjAiIGlkPSJ0YWJsZTIiPg0KCQkJPHRyPg0KCQkJCTx0ZD48
-YSBocmVmPSJodHRwOi8vd3d3LmFsbDRzcHkuY29tLyI+DQoJCQkJPGltZyBz
-cmM9Imh0dHA6Ly9zaHVnYXJjYWtlLmNvbS9hZHMvZ2xvYi1jYW1zL2JpZzEu
-anBnIj48L2E+PC90ZD4NCgkJCQk8dGQ+PGEgaHJlZj0iaHR0cDovL3d3dy5h
-bGw0c3B5LmNvbS8iPg0KCQkJCTxpbWcgc3JjPSJodHRwOi8vc2h1Z2FyY2Fr
-ZS5jb20vYWRzL2dsb2ItY2Ftcy9iaWcyLmpwZyI+PC9hPjwvdGQ+DQoJCQk8
-L3RyPg0KCQk8L3RhYmxlPg0KCQk8L3RkPg0KCTwvdHI+DQoJPHRyPg0KCQk8
-dGQgYWxpZ249Im1pZGRsZSI+DQoJCTx0YWJsZSBjZWxsU3BhY2luZz0iMCIg
-Y2VsbFBhZGRpbmc9IjIiIGJvcmRlcj0iMCIgaWQ9InRhYmxlMyI+DQoJCQk8
-dHI+DQoJCQkJPHRkPjxhIGhyZWY9Imh0dHA6Ly93d3cuYWxsNHNweS5jb20v
-Ij4NCgkJCQk8aW1nIHNyYz0iaHR0cDovL3NodWdhcmNha2UuY29tL2Fkcy9n
-bG9iLWNhbXMvc21hbGwxLmpwZyI+PC9hPjwvdGQ+DQoJCQkJPHRkPjxhIGhy
-ZWY9Imh0dHA6Ly93d3cuYWxsNHNweS5jb20vIj4NCgkJCQk8aW1nIHNyYz0i
-aHR0cDovL3NodWdhcmNha2UuY29tL2Fkcy9nbG9iLWNhbXMvc21hbGwyLmpw
-ZyI+PC9hPjwvdGQ+DQoJCQkJPHRkPjxhIGhyZWY9Imh0dHA6Ly93d3cuYWxs
-NHNweS5jb20vIj4NCgkJCQk8aW1nIHNyYz0iaHR0cDovL3NodWdhcmNha2Uu
-Y29tL2Fkcy9nbG9iLWNhbXMvc21hbGwzLmpwZyI+PC9hPjwvdGQ+DQoJCQk8
-L3RyPg0KCQk8L3RhYmxlPg0KCQk8L3RkPg0KCTwvdHI+DQo8L3RhYmxlPg0K
-JiMxNTAwOyYjMTUwODsmIzE1MTI7JiMxNDk2OyYjMTQ5NzsmIzE1MDE7ICYj
-MTUwNDsmIzE0OTM7JiMxNTA1OyYjMTUwODsmIzE0OTc7JiMxNTAxOzogJiMx
-NDk2OyYjMTUwMDsnICYjMTUxMjsmIzE0ODk7ICYjMTUxMTsmIzE0OTM7JiMx
-NDkzOyYjMTQ5NzsgMTcwMC03MC0zMC0yMjxicj4NCiYjMTUwODsmIzE0OTc7
-JiMxNTE0OyYjMTQ5MzsmIzE0OTU7ICYjMTQ5MzsmIzE0OTI7JiMxNTE0OyYj
-MTUxMTsmIzE1MDQ7JiMxNTE0OyAmIzE1MDI7JiMxNTA2OyYjMTUxMjsmIzE0
-OTk7JiMxNDkzOyYjMTUxNDsgJiMxNDg4OyYjMTQ4OTsmIzE0OTY7JiMxNDk1
-OyYjMTQ5MjsgJiMxNDkzOyYjMTUwMjsmIzE0OTc7JiMxNDkwOyYjMTQ5Mzsm
-IzE1MDM7PGJyPg0KPGJyPg0KJm5ic3A7PC9mb250PjwvYj48L2NlbnRlcj4N
-Cg0KPC9ib2R5Pg0KDQo8L2h0bWw+DQo=
+ drivers/net/hamradio/6pack.c |    9 +++------
+ 1 files changed, 3 insertions(+), 6 deletions(-)
 
-------------F2806284368942E4B26B4D6--
+
+commit 214838a2108b4b1e18abce2e28d37996e9bf7c68
+Author: Ralf Baechle <ralf@linux-mips.org>
+Date:   Wed Aug 24 18:01:33 2005 +0100
+
+    [PATCH] Fix 6pack setting of MAC address
+    
+    Don't check type of sax25_family; dev_set_mac_address has already done
+    that before and anyway, the type to check against would have been
+    ARPHRD_AX25.  We only got away because AF_AX25 and ARPHRD_AX25 both happen
+    to be defined to the same value.
+    
+    Don't check sax25_ndigis either; it's value is insignificant for the
+    purpose of setting the MAC address and the check has shown to break
+    some application software for no good reason.
+    
+    Signed-off-by: Ralf Baechle DL5RB <ralf@linux-mips.org>
+    Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+commit 84a2ea1c2cee0288f96e0c6aa4f975d4d26508c7
+Author: Ralf Baechle <ralf@linux-mips.org>
+Date:   Thu Aug 25 19:38:30 2005 +0100
+
+    [PATCH] 6pack Timer initialization
+    
+    I dropped the timer initialization bits by accident when sending the
+    p-persistence fix.  This patch gets the driver to work again on halfduplex
+    links.
+    
+    Signed-off-by: Ralf Baechle DL5RB <ralf@linux-mips.org>
+    Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+
+diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -308,12 +308,6 @@ static int sp_set_mac_address(struct net
+ {
+ 	struct sockaddr_ax25 *sa = addr;
+ 
+-	if (sa->sax25_family != AF_AX25)
+-		return -EINVAL;
+-
+-	if (!sa->sax25_ndigis)
+-		return -EINVAL;
+-
+ 	spin_lock_irq(&dev->xmit_lock);
+ 	memcpy(dev->dev_addr, &sa->sax25_call, AX25_ADDR_LEN);
+ 	spin_unlock_irq(&dev->xmit_lock);
+@@ -668,6 +662,9 @@ static int sixpack_open(struct tty_struc
+ 	netif_start_queue(dev);
+ 
+ 	init_timer(&sp->tx_t);
++	sp->tx_t.function = sp_xmit_on_air;
++	sp->tx_t.data = (unsigned long) sp;
++
+ 	init_timer(&sp->resync_t);
+ 
+ 	spin_unlock_bh(&sp->lock);
+
+--------------030204010806000704080602--

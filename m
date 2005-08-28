@@ -1,80 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbVH1EZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVH1EpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbVH1EZI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 00:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVH1EZI
+	id S1750988AbVH1EpS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 00:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbVH1EpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 00:25:08 -0400
-Received: from silver.veritas.com ([143.127.12.111]:1620 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751103AbVH1EZH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 00:25:07 -0400
-Date: Sun, 28 Aug 2005 05:26:55 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
-       Ray Fucillo <fucillo@intersystems.com>, linux-kernel@vger.kernel.org
-Subject: Re: process creation time increases linearly with shmem
-In-Reply-To: <43108136.1000102@yahoo.com.au>
-Message-ID: <Pine.LNX.4.61.0508280500450.3323@goblin.wat.veritas.com>
-References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au>
- <Pine.LNX.4.63.0508251331040.25774@cuia.boston.redhat.com>
- <430E6FD4.9060102@yahoo.com.au> <Pine.LNX.4.58.0508252055370.3317@g5.osdl.org>
- <Pine.LNX.4.61.0508261220230.4697@goblin.wat.veritas.com>
- <Pine.LNX.4.58.0508261052330.3317@g5.osdl.org>
- <Pine.LNX.4.61.0508261917360.8477@goblin.wat.veritas.com>
- <Pine.LNX.4.63.0508261910080.8057@cuia.boston.redhat.com>
- <Pine.LNX.4.58.0508261621410.3317@g5.osdl.org> <43108136.1000102@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 28 Aug 2005 04:24:58.0771 (UTC) FILETIME=[7344AE30:01C5AB88]
+	Sun, 28 Aug 2005 00:45:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38533 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750988AbVH1EpR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 00:45:17 -0400
+Date: Sat, 27 Aug 2005 21:45:03 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: dio@qwasartech.com, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: USB EHCI Problem with Low Speed Devices
+ on kernel 2.6.11+
+Message-Id: <20050827214503.03056887.zaitcev@redhat.com>
+In-Reply-To: <Pine.LNX.4.44L0.0508272256010.24489-100000@netrider.rowland.org>
+References: <20050827102135.4e0b035d.zaitcev@redhat.com>
+	<Pine.LNX.4.44L0.0508272256010.24489-100000@netrider.rowland.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.0; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Aug 2005, Nick Piggin wrote:
+On Sat, 27 Aug 2005 22:57:45 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> wrote:
+> On Sat, 27 Aug 2005, Pete Zaitcev wrote:
+
+> > > Kernel
+> > > ======
+> > > - 2.6.8, 2.6.11.10 and 2.6.12.4, all show same problem
+
+> > Actually, I suspected that this may be a poorly working Transaction
+> > Tranlating (TT) hub. Which then may work on certain versions of
+> > Windows.
+
+> It looks to me more like a timing problem with initialization of the
+> external high-speed hub.  Try this patch:
 > 
-> This is the condition I ended up with. Any good?
-> 
-> if (!(vma->vm_flags & (VM_HUGETLB|VM_NONLINEAR|VM_RESERVED))) {
-> if (vma->vm_flags & VM_MAYSHARE)
->  return 0;
-> if (vma->vm_file && !vma->anon_vma)
->    return 0;
-> }
+> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=112439094723976&w=2
 
-It's not bad, and practical timings are unlikely to differ, but your
-VM_MAYSHARE test is redundant (VM_MAYSHARE areas don't have anon_vmas *),
-and your vm_file test is unnecessary, excluding pure anonymous areas
-which haven't yet taken a fault.
+Yes, Dominik, please do. The TT was a poor guess, because IIRC 2.6.8
+did not have the support for TT, so it could not get it wrong.
 
-Please do send Andrew the patch for -mm, Nick: you were one of the
-creators of this (don't omit credit to Ray, Parag, Andi, Rik, Linus),
-much better that it go in your name (heh, heh, heh, can you trust me?)
+But testing this hub elsewhere _and_ replacing it with a borrowed
+hub would be a good idea, IMHO.
 
-Hugh
-
-* That's ignoring, as we do everywhere else, the case which came up
-a couple of weeks back in discussions with Linus, ptrace writing to
-an area the process does not have write access to, creating an anon
-page within a shared vma: that's an awkward case currently mishandled,
-but the patch below does it no harm.
-
---- 2.6.13-rc7/mm/memory.c	2005-08-24 11:13:41.000000000 +0100
-+++ linux/mm/memory.c	2005-08-28 04:48:34.000000000 +0100
-@@ -498,6 +498,15 @@ int copy_page_range(struct mm_struct *ds
- 	unsigned long addr = vma->vm_start;
- 	unsigned long end = vma->vm_end;
- 
-+	/*
-+	 * Assume the fork will probably exec: don't waste time copying
-+	 * ptes where a page fault will fill them correctly afterwards.
-+	 */
-+	if (!(vma->vm_flags & (VM_HUGETLB|VM_NONLINEAR|VM_RESERVED))) {
-+		if (!vma->anon_vma)
-+			return 0;
-+	}
-+
- 	if (is_vm_hugetlb_page(vma))
- 		return copy_hugetlb_page_range(dst_mm, src_mm, vma);
- 
+-- Pete

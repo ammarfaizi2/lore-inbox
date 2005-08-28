@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVH1OC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVH1QQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbVH1OC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 10:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVH1OC0
+	id S1750890AbVH1QQp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 12:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbVH1QQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 10:02:26 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:49133 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1750899AbVH1OC0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 10:02:26 -0400
-Date: Sun, 28 Aug 2005 10:03:42 -0400
-From: Bob Picco <bob.picco@hp.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Alex Williamson <alex.williamson@hp.com>, robert.picco@hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: HPET drift question
-Message-ID: <20050828140342.GW8919@localhost.localdomain>
-References: <88056F38E9E48644A0F562A38C64FB60058CAF33@scsmsx403.amr.corp.intel.com>
+	Sun, 28 Aug 2005 12:16:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:31825 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750890AbVH1QQp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 12:16:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ZADkyTz117PwBEF26ZwWqHnaaBIn+i9Q2ldaQG+aRTv8x0MuwTrDhFXkAmlbvAJOhN0KqTRrBE+XSosgf+MfJfuHwGzbQ+CgTc/MPWeunAU8hEopJOO5K0RI1oqGdhUQ+dkvPS2aLaQ+jQ3N496l1qkAhokyCZvPLXJ/jCs5Er0=
+Message-ID: <907421f905082809135e7094ad@mail.gmail.com>
+Date: Mon, 29 Aug 2005 00:13:59 +0800
+From: mandy london <laborious.bee@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: the rack condition will occur in below code ?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB60058CAF33@scsmsx403.amr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:	[Fri Aug 26 2005, 08:53:35PM EDT]
-> 
-> Yes. Looks like "ti->drift = HPET_DRIFT;" is right here. However, I
-> would 
-> like to double check this with Bob.
-> 
-> Thanks,
-> Venki
-> 
-> >-----Original Message-----
-> >From: Alex Williamson [mailto:alex.williamson@hp.com] 
-> >Sent: Thursday, August 25, 2005 8:17 AM
-> >To: Pallipadi, Venkatesh
-> >Cc: robert.picco@hp.com; linux-kernel@vger.kernel.org
-> >Subject: HPET drift question
-> >
-> >Hi Venki,
-> >
-> >   I'm confused by the calculation of the drift value in the hpet
-> >driver.  The specs defines the recommended minimum hardware
-> >implementation is a frequency drift of 0.05% or 500ppm.  However, the
-> >drift passed in when registering with the time interpolator is:
-> >
-> >ti->drift = ti->frequency * HPET_DRIFT / 1000000;
-> >
-> >Isn't that absolute number of ticks per second drift?  The time
-> >interpolator defines the drift in parts per million.  Shouldn't this
-> >simply be:
-> >
-> >ti->drift = HPET_DRIFT;
-> >
-> >The current code seems to greatly penalize any hpet timer with greater
-> >than a 1MHz frequency.  Thanks,
-> >
-> >	Alex
-> >
-> >-- 
-> >Alex Williamson                             HP Linux & Open Source Lab
-> >
-> >
-Hi Venki:
+below is my  script in brief, when it runs for several minutes , the
+computer will reboot quickly without any information  , so I can not
+get knowledge form oops and something else .
 
-Alex and I had an earlier IRC discussion where we agreed that HPET_DRIFT
-should be the value.  We were just verifying with you.
+I use timer and hook respectively, first , using hook to receive
+packets from ICP/IP stack on wired interface, the store it in a queue
+, then , when the timer arrive , the timer will invoke the
+dev_queue_xmit() to send the whole  packets from wireless interface.
 
-thanks,
+void timer_ack(unsigned long no_used){
+     int i ;
+     struct sk_buff * skb;
+     struct net_device * wireless;
+     wireless = dev_get_by_name("eth1");//eth1 is wireless interface
+     while((skb=skb_dequeue(packet_queue))!=NULL){// get out a packet
+from the queue
+          dev_queue_xmit(skb);
+     }
+    
+     mod_timer(&timer,100);// change time for polling one time per second
 
-bob
+}
+
+unsigned int hook_func(unsigned int hooknum,struct sk_buff **skb,
+const struct net_device *in,const struct net_device *out,int
+(*okfn)(struct sk_buff *)){
+     
+// there , I omit some the code handling the packet for the purpose of
+forwording like NAT , that means I will handle the packet firstly then
+I will insert it to the packet_queue
+
+      struct sk_buff *sb = *skb;
+      skb_queue_tail(packet_queue,sb);
+}
+
+I test it , normally it can run for about five minutes , then died
+without anyting info.
+I analyze whether my improper handling on queue leads to it. maybe
+there are some race conditions I can not find out.
+
+the most important is whether the case below have the posibility to occur?
+       when the kernel run in timer then an interrupt comes , after
+the interrupt return results in scheule or the hook_func()'s running ,
+then the race condition will occur , I am not clear in this .
+
+any help will be appreciated , thx~
+:)

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbVH1XUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbVH1XhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbVH1XUt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 19:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbVH1XUt
+	id S1750951AbVH1XhU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 19:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbVH1XhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 19:20:49 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:262 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1750937AbVH1XUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 19:20:49 -0400
-Message-ID: <431246CA.4000500@superbug.co.uk>
-Date: Mon, 29 Aug 2005 00:20:42 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mateusz Berezecki <mateuszb@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6 context switching and posix threads performance question
-References: <20050827121158.GA18406@oepkgtn.mshome.net>
-In-Reply-To: <20050827121158.GA18406@oepkgtn.mshome.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Aug 2005 19:37:20 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58628 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750951AbVH1XhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 19:37:19 -0400
+Date: Mon, 29 Aug 2005 01:37:16 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why is kmem_bufctl_t different across platforms?
+Message-ID: <20050828233716.GB3820@stusta.de>
+References: <3B0AEB5C-4A65-413F-BD35-B9F0E0984653@mac.com> <20050828145503.7b1a5f71.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050828145503.7b1a5f71.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mateusz Berezecki wrote:
-> Hello List Readers,
+On Sun, Aug 28, 2005 at 02:55:03PM -0700, Andrew Morton wrote:
+> Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> >
+> > While exploring the asm-*/types.h files, I discovered that the
+> >  type "kmem_bufctl_t" is differently defined across each platform,
+> >  sometimes as a short, and sometimes as an int.  The only file
+> >  where it's used is mm/slab.c, and as far as I can tell, that file
+> >  doesn't care at all, aside from preferring it to be a small-sized
+> >  type.
 > 
-> I would really appreciate any comment on the overall performance of task
-> switching with 25 000 threads running on the Linux system. I was asked to work
-> on some software which spawns 25 000 threads and I am really worried if
-> it will ever work on 2 CPU HP Blade. The kernel was modified to support
-> bigger threads amount running (I have no idea how it was done, probably
-> just changing hardcoded limits) What is the performance impact of
-> so much threads on the overall system performance? Is there any ?
-> Wouldn't it be that such application would spend all of its time
-> switching contexts ? I'm asking for some kind of an authoritative answer
-> quite urgently. What is the optimum thread amount on 2 CPU SMP system
-> running Linux ?
-> 
-> 
-> Thank you very much in advance
-> Mateusz
-> 
+> I don't think there's any good reason for this.  -mm's
+> slab-leak-detector.patch switches them all to unsigned long.
 
-You would get much better performance by switching the application to 
-use a thread pool using a fixed low number ( about CPU*2 = 4) of worker 
-threads.
+What about moving it to include/linux/types.h ?
 
-James
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

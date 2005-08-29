@@ -1,97 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbVH2WwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbVH2XEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751378AbVH2WwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 18:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVH2WwI
+	id S1751327AbVH2XEo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 19:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVH2XEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 18:52:08 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:16582 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S1751318AbVH2WwH (ORCPT
+	Mon, 29 Aug 2005 19:04:44 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:20824 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751327AbVH2XEn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 18:52:07 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: [PATCH] IDE: move CONFIG_IDE_MAX_HWIFS into linux/ide.h (resend)
-User-Agent: KMail/1.8.1
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, rth@twiddle.net,
-       ink@jurassic.park.msu.ru, lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
-       linux-sh@m17n.org
+	Mon, 29 Aug 2005 19:04:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=r5k3nBD2tKg1CovPHhkdQFnkF5TZhp3H4D7GA2JsiYdY2b7fQZkn3GNhC82eq36yDv8lHyjiNHqqikCY46kDzJPUek+AGYLOK4ijl70XidMhpN4krhNTM6PNXhibTXJFiRFDvAB0PQec5vPBg95pjI44UYTH630s5ATt7/3fmdU=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] isdn_v110 warning fix
+Date: Tue, 30 Aug 2005 01:05:43 +0200
+User-Agent: KMail/1.8.2
+Cc: Thomas Pfeiffer <pfeiffer@pds.de>, isdn4linux@listserv.isdn4linux.de,
+       Karsten Keil <kkeil@suse.de>,
+       Kai Germaschewski <kai.germaschewski@gmx.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-X-Length: 2862
-Date: Mon, 29 Aug 2005 16:51:50 -0600
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508291651.50831.bjorn.helgaas@hp.com>
+Content-Disposition: inline
+Message-Id: <200508300105.44247.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ping...  any objection to this?
 
+Warning fix :
+ drivers/isdn/i4l/isdn_v110.c:523: warning: `ret' might be used uninitialized in this function
 
-CONFIG_IDE_MAX_HWIFS is a generic thing, no need to have it duplicated
-by every arch that uses it.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+ drivers/isdn/i4l/isdn_v110.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Index: work-ide/include/asm-alpha/ide.h
-===================================================================
---- work-ide.orig/include/asm-alpha/ide.h	2005-08-24 09:36:41.000000000 -0600
-+++ work-ide/include/asm-alpha/ide.h	2005-08-24 09:37:12.000000000 -0600
-@@ -15,10 +15,6 @@
+--- linux-2.6.13-orig/drivers/isdn/i4l/isdn_v110.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/drivers/isdn/i4l/isdn_v110.c	2005-08-30 00:59:34.000000000 +0200
+@@ -516,11 +516,11 @@
+ }
  
- #include <linux/config.h>
+ int
+-isdn_v110_stat_callback(int idx, isdn_ctrl * c)
++isdn_v110_stat_callback(int idx, isdn_ctrl *c)
+ {
+ 	isdn_v110_stream *v = NULL;
+ 	int i;
+-	int ret;
++	int ret = 0;
  
--#ifndef MAX_HWIFS
--#define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
--#endif
--
- #define IDE_ARCH_OBSOLETE_DEFAULTS
- 
- static inline int ide_default_irq(unsigned long base)
-Index: work-ide/include/asm-sh/ide.h
-===================================================================
---- work-ide.orig/include/asm-sh/ide.h	2005-08-24 09:36:41.000000000 -0600
-+++ work-ide/include/asm-sh/ide.h	2005-08-24 09:37:12.000000000 -0600
-@@ -16,10 +16,6 @@
- 
- #include <linux/config.h>
- 
--#ifndef MAX_HWIFS
--#define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
--#endif
--
- #define ide_default_io_ctl(base)	(0)
- 
- #include <asm-generic/ide_iops.h>
-Index: work-ide/include/asm-sh64/ide.h
-===================================================================
---- work-ide.orig/include/asm-sh64/ide.h	2005-08-24 09:36:41.000000000 -0600
-+++ work-ide/include/asm-sh64/ide.h	2005-08-24 09:37:12.000000000 -0600
-@@ -17,10 +17,6 @@
- 
- #include <linux/config.h>
- 
--#ifndef MAX_HWIFS
--#define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
--#endif
--
- /* Without this, the initialisation of PCI IDE cards end up calling
-  * ide_init_hwif_ports, which won't work. */
- #ifdef CONFIG_BLK_DEV_IDEPCI
-Index: work-ide/include/linux/ide.h
-===================================================================
---- work-ide.orig/include/linux/ide.h	2005-08-24 09:37:03.000000000 -0600
-+++ work-ide/include/linux/ide.h	2005-08-24 09:37:24.000000000 -0600
-@@ -266,6 +266,10 @@
- 
- #include <asm/ide.h>
- 
-+#ifndef MAX_HWIFS
-+#define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
-+#endif
-+
- /* needed on alpha, x86/x86_64, ia64, mips, ppc32 and sh */
- #ifndef IDE_ARCH_OBSOLETE_DEFAULTS
- # define ide_default_io_base(index)	(0)
+ 	if (idx < 0)
+ 		return 0;

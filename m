@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbVH2S6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVH2S6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbVH2S6h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 14:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVH2S6h
+	id S1751305AbVH2S6B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 14:58:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVH2S6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 14:58:37 -0400
-Received: from mail.linicks.net ([217.204.244.146]:44551 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1751306AbVH2S6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 14:58:37 -0400
-From: Nick Warne <nick@linicks.net>
-To: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: 2.6.13 new option timer frequency
-Date: Mon, 29 Aug 2005 19:58:24 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <20050829184818.3305.qmail@lwn.net>
-In-Reply-To: <20050829184818.3305.qmail@lwn.net>
+	Mon, 29 Aug 2005 14:58:01 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:64434 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S1751304AbVH2S6A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 14:58:00 -0400
+Date: Mon, 29 Aug 2005 20:56:22 +0200 (CEST)
+From: =?ISO-8859-15?Q?Peter_M=FCnster?= <pmlists@free.fr>
+X-X-Sender: peter@gaston.free.fr
+To: linux-kernel@vger.kernel.org
+Subject: kernel freezen with 2.6.12.5 and 2.6.13
+Message-ID: <Pine.LNX.4.58.0508292050180.28621@gaston.free.fr>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508291958.24125.nick@linicks.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 August 2005 19:48, Jonathan Corbet wrote:
-> > I built and installed 2.6.13 today, and oldconfig revealed the new option
-> > for timer frequency.
-> >
-> > I searched the LKML on this, but all I found is the technical stuff - not
-> > really any layman solutions.
->
-> I wrote a bit about the timer frequency option a few weeks ago:
->
-> 	http://lwn.net/Articles/145973/
+Hello,
+with 2.6.12.4 no problem. But with a newer version, I get a black screen
+and no more network access, when trying to print (lpr some-file.ps).
+Everything else seems to work ok.
+Printer is a network-printer managed by cups.
+I suppose, it's a smp-problem, so here is my /proc/cpuinfo:
 
-OK, thanks everybody for replies.
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 CPU 2.80GHz
+stepping        : 9
+cpu MHz         : 2793.205
+cache size      : 512 KB
+physical id     : 0
+siblings        : 2
+core id         : 0
+cpu cores       : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
+bogomips        : 5521.40
 
-Jon, that is a near perfect article - I understand it all now.
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 CPU 2.80GHz
+stepping        : 9
+cpu MHz         : 2793.205
+cache size      : 512 KB
+physical id     : 0
+siblings        : 2
+core id         : 0
+cpu cores       : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
+bogomips        : 5570.56
 
-I haven't noticed anything different under 250HZ yet..., if anything machine 
-seems smoother.  Lower electricity bills will be handy as well ;-)
 
-Thanks,
+Let me know, if you need more information (for example my .config).
 
-Nick
+Kind regards, Peter
+
 -- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+http://pmrb.free.fr/contact/

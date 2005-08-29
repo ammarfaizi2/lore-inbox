@@ -1,85 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVH2SR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVH2SVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbVH2SR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 14:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVH2SR4
+	id S1751274AbVH2SVc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 14:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVH2SVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 14:17:56 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:22972 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1751269AbVH2SRz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 14:17:55 -0400
+	Mon, 29 Aug 2005 14:21:31 -0400
+Received: from hq.tensilica.com ([65.205.227.29]:57516 "EHLO
+	mailapp.tensilica.com") by vger.kernel.org with ESMTP
+	id S1751274AbVH2SVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 14:21:31 -0400
+Message-ID: <43135211.50109@tensilica.com>
+Date: Mon, 29 Aug 2005 11:21:05 -0700
+From: Chris Zankel <zankel@tensilica.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: We also need to get rid of verify_area in entry.S
+References: <200508291954.27026.jesper.juhl@gmail.com>
+In-Reply-To: <200508291954.27026.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17171.20778.949307.580714@alkaid.it.uu.se>
-Date: Mon, 29 Aug 2005 20:17:14 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Sean Neakums <sneakums@zork.net>
-Cc: Andreas Schwab <schwab@suse.de>, linuxppc-dev@ozlabs.org,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13 PowerBook boot hang (was Re: 2.6.13-rc7-git2 crashes on iBook)
-In-Reply-To: <7wr7cdt3jk.fsf@frotz.zork.net>
-References: <jehdda2tqt.fsf@sykes.suse.de>
-	<7wr7cdt3jk.fsf@frotz.zork.net>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Neakums writes:
- > Andreas Schwab <schwab@suse.de> writes:
- > 
- > > The last change to drivers/pci/setup-res.c (Ignore disabled ROM resources
- > > at setup) is breaking radeonfb on iBook G3 (with Radeon Mobility M6 LY).
- > > It crashes in pci_map_rom when called from radeonfb_map_ROM.  This is
- > > probably a dormant bug that was just uncovered by the change.
- > 
- > 2.6.13 hangs on boot on my PowerBook 5.4, reverting the disabled ROM
- > patch (appended for confirmation) fixes it.  2.6.13-rc7 was fine.
+Jesper,
 
-Same here, on an Apple eMac with Radeon graphics. 2.6.13-rc7 worked fine,
-2.6.13 vanilla hangs early in the boot when radeonfb is about to take over
-from OF. Reverting the patch below eliminates the hang.
+Thanks for the patches. I'll take a look at the entry.S one and will 
+pass it along to Andres, and will incorporate the signal.c patch.
 
-/Mikael
+I am currently working on the system call interface and am removing the 
+non-rt signal calls, so the signal.c patch probably doesn't apply 
+cleanly anymore.
 
- > diff-tree 755528c860b05fcecda1c88a2bdaffcb50760a7f (from 26aad69e3dd854abe9028ca873fb40b410a39dd7)
- > Author: Linus Torvalds <torvalds@g5.osdl.org>
- > Date:   Fri Aug 26 10:49:22 2005 -0700
- > 
- >     Ignore disabled ROM resources at setup
- >     
- >     Writing even a disabled value seems to mess up some matrox graphics
- >     cards.  It may be a card-related issue, but we may also be writing
- >     reserved low bits in the result.
- >     
- >     This was a fall-out of switching x86 over to the generic PCI resource
- >     allocation code, and needs more debugging.  In particular, the old x86
- >     code defaulted to not doing any resource allocations at all for ROM
- >     resources.
- >     
- >     In the meantime, this has been reported to make X happier by Helge
- >     Hafting <helgehaf@aitel.hist.no>.
- >     
- >     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
- > 
- > diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
- > --- a/drivers/pci/setup-res.c
- > +++ b/drivers/pci/setup-res.c
- > @@ -53,7 +53,9 @@ pci_update_resource(struct pci_dev *dev,
- >  	if (resno < 6) {
- >  		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
- >  	} else if (resno == PCI_ROM_RESOURCE) {
- > -		new |= res->flags & IORESOURCE_ROM_ENABLE;
- > +		if (!(res->flags & IORESOURCE_ROM_ENABLE))
- > +			return;
- > +		new |= PCI_ROM_ADDRESS_ENABLE;
- >  		reg = dev->rom_base_reg;
- >  	} else {
- >  		/* Hmm, non-standard resource. */
- > -
- > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > Please read the FAQ at  http://www.tux.org/lkml/
- > 
+Thanks,
+~Chris
+
+Jesper Juhl wrote:
+> In addition to the patch I sent a few minutes ago, there's one last reference
+> to verify_area left in xtensa. It's in arch/xtensa/kernel/entry.S, and I'm 
+> going to need your help to get rid of that one since that code is over my head
+> and I assume that the naive approach below would just break it : 

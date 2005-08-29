@@ -1,85 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVH2UZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbVH2U0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbVH2UZV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 16:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVH2UZV
+	id S1751645AbVH2U0y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 16:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751627AbVH2U0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 16:25:21 -0400
-Received: from styx.suse.cz ([82.119.242.94]:36792 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750706AbVH2UZU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 16:25:20 -0400
-Date: Mon, 29 Aug 2005 22:25:29 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where is the performance bottleneck?
-Message-ID: <20050829202529.GA32214@midnight.suse.cz>
-References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de>
+	Mon, 29 Aug 2005 16:26:52 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:41998 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1751217AbVH2UZu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 16:25:50 -0400
+Message-Id: <200508292007.j7TK7FsA029949@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 8/9] UML - Merge duplicated page table code
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de>
-User-Agent: Mutt/1.5.10i
+Date: Mon, 29 Aug 2005 16:07:15 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 29, 2005 at 06:20:56PM +0000, Holger Kiehl wrote:
-> Hello
-> 
-> I have a system with the following setup:
-> 
->     Board is Tyan S4882 with AMD 8131 Chipset
->     4 Opterons 848 (2.2GHz)
->     8 GB DDR400 Ram (2GB for each CPU)
->     1 onboard Symbios Logic 53c1030 dual channel U320 controller
->     2 SATA disks put together as a SW Raid1 for system, swap and spares
->     8 SCSI U320 (15000 rpm) disks where 4 disks (sdc, sdd, sde, sdf)
->       are on one channel and the other four (sdg, sdh, sdi, sdj) on
->       the other channel.
-> 
-> The U320 SCSI controller has a 64 bit PCI-X bus for itself, there is
-> no other device on that bus. Unfortunatly I was unable to determine at
-> what speed it is running, here the output from lspci -vv:
 
-> How does one determine the PCI-X bus speed?
+There is a lot of code which is duplicated between the 2 and 3 level
+implementation, with the only difference that the 3-level implementation is a
+bit more generalized (instead of accessing directly pte_t.pte, it uses the
+appropriate access macros).
 
-Usually only the card (in your case the Symbios SCSI controller) can
-tell. If it does, it'll be most likely in 'dmesg'.
+So this code is joined together.
 
-> Anyway, I thought with this system I would get theoretically 640 MB/s using
-> both channels.
+As obvious, a "core code nice cleanup" is not a "stability-friendly patch" so
+usual care applies.
 
-You can never use the full theoretical bandwidth of the channel for
-data. A lot of overhead remains for other signalling. Similarly for PCI.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-> I tested several software raid setups to get the best possible write
-> speeds for this system. But testing shows that the absolute maximum I
-> can reach with software raid is only approx. 270 MB/s for writting.
-> Which is very disappointing.
+---
 
-I'd expect somewhat better (in the 300-400 MB/s range), but this is not
-too bad.
+ linux-2.6.git-paolo/include/asm-um/pgtable-2level.h |   27 -----------
+ linux-2.6.git-paolo/include/asm-um/pgtable-3level.h |   36 ---------------
+ linux-2.6.git-paolo/include/asm-um/pgtable.h        |   46 ++++++++++++++++++++
+ 3 files changed, 46 insertions(+), 63 deletions(-)
 
-To find where the bottleneck is, I'd suggest trying without the
-filesystem at all, and just filling a large part of the block device
-using the 'dd' command.
+diff -puN include/asm-um/pgtable-2level.h~uml-join-page-bits-handling include/asm-um/pgtable-2level.h
+--- linux-2.6.git/include/asm-um/pgtable-2level.h~uml-join-page-bits-handling	2005-07-24 00:49:30.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-um/pgtable-2level.h	2005-07-24 00:49:30.000000000 +0200
+@@ -35,35 +35,8 @@
+ static inline int pgd_newpage(pgd_t pgd)	{ return 0; }
+ static inline void pgd_mkuptodate(pgd_t pgd)	{ }
+ 
+-#define pte_present(x)	(pte_val(x) & (_PAGE_PRESENT | _PAGE_PROTNONE))
+-
+-static inline pte_t pte_mknewprot(pte_t pte)
+-{
+- 	pte_val(pte) |= _PAGE_NEWPROT;
+-	return(pte);
+-}
+-
+-static inline pte_t pte_mknewpage(pte_t pte)
+-{
+-	pte_val(pte) |= _PAGE_NEWPAGE;
+-	return(pte);
+-}
+-
+-static inline void set_pte(pte_t *pteptr, pte_t pteval)
+-{
+-	/* If it's a swap entry, it needs to be marked _PAGE_NEWPAGE so
+-	 * fix_range knows to unmap it.  _PAGE_NEWPROT is specific to
+-	 * mapped pages.
+-	 */
+-	*pteptr = pte_mknewpage(pteval);
+-	if(pte_present(*pteptr)) *pteptr = pte_mknewprot(*pteptr);
+-}
+-#define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
+-
+ #define set_pmd(pmdptr, pmdval) (*(pmdptr) = (pmdval))
+ 
+-#define pte_page(x) pfn_to_page(pte_pfn(x))
+-#define pte_none(x) !(pte_val(x) & ~_PAGE_NEWPAGE)
+ #define pte_pfn(x) phys_to_pfn(pte_val(x))
+ #define pfn_pte(pfn, prot) __pte(pfn_to_phys(pfn) | pgprot_val(prot))
+ #define pfn_pmd(pfn, prot) __pmd(pfn_to_phys(pfn) | pgprot_val(prot))
+diff -puN include/asm-um/pgtable-3level.h~uml-join-page-bits-handling include/asm-um/pgtable-3level.h
+--- linux-2.6.git/include/asm-um/pgtable-3level.h~uml-join-page-bits-handling	2005-07-24 00:49:30.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-um/pgtable-3level.h	2005-07-24 00:49:30.000000000 +0200
+@@ -57,35 +57,6 @@ static inline int pgd_newpage(pgd_t pgd)
+ 
+ static inline void pgd_mkuptodate(pgd_t pgd) { pgd_val(pgd) &= ~_PAGE_NEWPAGE; }
+ 
+-
+-#define pte_present(x)	pte_get_bits(x, (_PAGE_PRESENT | _PAGE_PROTNONE))
+-
+-static inline pte_t pte_mknewprot(pte_t pte)
+-{
+-        pte_set_bits(pte, _PAGE_NEWPROT);
+-	return(pte);
+-}
+-
+-static inline pte_t pte_mknewpage(pte_t pte)
+-{
+-	pte_set_bits(pte, _PAGE_NEWPAGE);
+-	return(pte);
+-}
+-
+-static inline void set_pte(pte_t *pteptr, pte_t pteval)
+-{
+-	pte_copy(*pteptr, pteval);
+-
+-	/* If it's a swap entry, it needs to be marked _PAGE_NEWPAGE so
+-	 * fix_range knows to unmap it.  _PAGE_NEWPROT is specific to
+-	 * mapped pages.
+-	 */
+-
+-	*pteptr = pte_mknewpage(*pteptr);
+-	if(pte_present(*pteptr)) *pteptr = pte_mknewprot(*pteptr);
+-}
+-#define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
+-
+ #define set_pmd(pmdptr, pmdval) set_64bit((phys_t *) (pmdptr), pmd_val(pmdval))
+ 
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
+@@ -113,13 +84,6 @@ static inline void pud_clear (pud_t * pu
+ #define pmd_offset(pud, address) ((pmd_t *) pud_page(*(pud)) + \
+ 			pmd_index(address))
+ 
+-#define pte_page(x) pfn_to_page(pte_pfn(x))
+-
+-static inline int pte_none(pte_t pte)
+-{
+-	return pte_is_zero(pte);
+-}
+-
+ static inline unsigned long pte_pfn(pte_t pte)
+ {
+ 	return phys_to_pfn(pte_val(pte));
+diff -puN include/asm-um/pgtable.h~uml-join-page-bits-handling include/asm-um/pgtable.h
+--- linux-2.6.git/include/asm-um/pgtable.h~uml-join-page-bits-handling	2005-07-24 00:49:30.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-um/pgtable.h	2005-07-24 06:11:58.000000000 +0200
+@@ -151,10 +151,24 @@ extern unsigned long pg0[1024];
+ 
+ #define pmd_page(pmd) phys_to_page(pmd_val(pmd) & PAGE_MASK)
+ 
++#define pte_page(x) pfn_to_page(pte_pfn(x))
+ #define pte_address(x) (__va(pte_val(x) & PAGE_MASK))
+ #define mk_phys(a, r) ((a) + (((unsigned long) r) << REGION_SHIFT))
+ #define phys_addr(p) ((p) & ~REGION_MASK)
+ 
++#define pte_present(x)	pte_get_bits(x, (_PAGE_PRESENT | _PAGE_PROTNONE))
++
++/*
++ * =================================
++ * Flags checking section.
++ * =================================
++ */
++
++static inline int pte_none(pte_t pte)
++{
++	return pte_is_zero(pte);
++}
++
+ /*
+  * The following only work if pte_present() is true.
+  * Undefined behaviour if not..
+@@ -210,6 +224,18 @@ static inline int pte_newprot(pte_t pte)
+ 	return(pte_present(pte) && (pte_get_bits(pte, _PAGE_NEWPROT)));
+ }
+ 
++/*
++ * =================================
++ * Flags setting section.
++ * =================================
++ */
++
++static inline pte_t pte_mknewprot(pte_t pte)
++{
++	pte_set_bits(pte, _PAGE_NEWPROT);
++	return(pte);
++}
++
+ static inline pte_t pte_rdprotect(pte_t pte)
+ { 
+ 	pte_clear_bits(pte, _PAGE_USER);
+@@ -278,6 +304,26 @@ static inline pte_t pte_mkuptodate(pte_t
+ 	return(pte); 
+ }
+ 
++static inline pte_t pte_mknewpage(pte_t pte)
++{
++	pte_set_bits(pte, _PAGE_NEWPAGE);
++	return(pte);
++}
++
++static inline void set_pte(pte_t *pteptr, pte_t pteval)
++{
++	pte_copy(*pteptr, pteval);
++
++	/* If it's a swap entry, it needs to be marked _PAGE_NEWPAGE so
++	 * fix_range knows to unmap it.  _PAGE_NEWPROT is specific to
++	 * mapped pages.
++	 */
++
++	*pteptr = pte_mknewpage(*pteptr);
++	if(pte_present(*pteptr)) *pteptr = pte_mknewprot(*pteptr);
++}
++#define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
++
+ extern phys_t page_to_phys(struct page *page);
+ 
+ /*
+_
 
-Also, trying without the RAID, and just running 4 (and 8) concurrent
-dd's to the separate drives could show whether it's the RAID that's
-slowing things down. 
 
-> The tests where done with 2.6.12.5 kernel from kernel.org, scheduler
-> is the deadline and distribution is fedora core 4 x86_64 with all
-> updates.  Chunksize is always the default from mdadm (64k). Filesystem
-> was always created with the command mke2fs -j -b4096 -O dir_index
-> /dev/mdx.
-> 
-> I also have tried with 2.6.13-rc7, but here the speed was much lower,
-> the maximum there was approx. 140 MB/s for writting.
-
-Now that's very low.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

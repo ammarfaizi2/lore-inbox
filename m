@@ -1,71 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVH2QDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVH2QFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbVH2QDM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 12:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVH2QDL
+	id S1751079AbVH2QFk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 12:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVH2QFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 12:03:11 -0400
-Received: from 7.64-5-43.reverse.theplanet.com ([64.5.43.7]:54224 "EHLO
-	jinx.hivemail.com") by vger.kernel.org with ESMTP id S1751248AbVH2QDJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 12:03:09 -0400
-To: worldrountrip@o2.pl
-Subject: Congratulations on your World Round Trip!!!
-Reply-To: <worldrountrip@o2.pl>
-From: "World Trip Offer" <World@hivedemo.com>
+	Mon, 29 Aug 2005 12:05:40 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:25351 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751079AbVH2QFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 12:05:39 -0400
+Message-ID: <431333A2.4090203@tmr.com>
+Date: Mon, 29 Aug 2005 12:11:14 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: HiveMail
-X-Mailer-Version: 1.3
-Date: Mon, 29 Aug 2005 11:53:18 -0400
-X-Priority: 3
-Content-Type: text/plain
+To: Hubert Tonneau <hubert.tonneau@fullpliant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.13-rt1
+References: <05CDG7D12@briare1.heliogroup.fr>
+In-Reply-To: <05CDG7D12@briare1.heliogroup.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1E9lwl-0000uT-0H@jinx.hivemail.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - jinx.hivemail.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [99 99] / [47 12]
-X-AntiAbuse: Sender Address Domain - o2.pl
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hubert Tonneau wrote:
+> I gave this one a spin, and my laptop locked hard after something like one hour
+> (everything frozen). As a result what I report is probably not very helpfull.
+> 
+> It was the first time I was trying an RT kernel, and the stock kernel works ok
+> on this laptop (except suspend, but one can do without it).
+> 
+Funny, suspend works on all my laptops and most of my desktops, I was 
+hoping that someone might get resume working next. :-(
 
-
-Congratulations on your World Round Trip!!!
-
-We are pleased to announce you as one of the 5 lucky winners in the World-Trip-Offers draw held on July 11, 2005. All 5 winners were randomly selected from a batch of 10,000,000 e-mails around the world that has successfully recorded 1,000 and above logins. Your e-mail address emerged alongside 4 others as a winner in this year's Annual Summer Round the World All-Expenses-Paid Trip. 
- 
-Consequently, you have therefore been approved for two world trip airfare tickets and a lump sum of £500,000 expenses paid which covers the 5 of you in this category. 
-
-Therefore, a draw will be made in which 2 people will automatically qualifies to personally receive the sum of £500,000 (Five Hundred Thousand Pounds) as a cash award at the end of the trip.
-
-The following particulars are attached to your Prize Draw:
- 
-·	Ticket Number:  ETN1754/06/2005
-·	Ref Number:  WTO/06/012/UK
- 
-Here’s the three planned routes you could choose from;
- 
-·	Boston - Honolulu - Singapore - Saigon (Ho Chin Minh) - Angkor Wat (Siem 
-
-Reap) - Bangkok - Delhi - Bombay (Mumbai) - Paris - Dublin - Boston.
-·	Ireland => England => Turkey, Syria, Jordan, Egypt => India <=> Nepal, Sri 
-
-Lanka => Thailand, Laos, Vietnam, Cambodia, Malaysia, Singapore, Indonesia => 
-
-Australia (One way long trip).
-·	London-Delhi-Mumbai-Singapore-Hanoi-Ho Chi Minh City-Sydney-Christchurch- 
-
-Auckland-The Cook Islands-Tahiti-Los Angeles-San Francisco-London.
-A clearance form will be sent to you once we receive your confirmation to enable us commence the processing of your travelling arrangements including hotel bookings and airline reservations.
-
-
-Regards,
-KATHLEEN LOWERY
--------------------------------------------------
-The WorldTripOffers is proudly sponsored by Phonetwork (UK), major International Airliners  and a conglomeration of other international donors. The World Round Trip Award is Internet draw held twice a year for summer trip around the world and is so organised to encourage the use of the Internet and computers worldwide. We are proud to say that one million Pounds is spent annually for round the world trip of a life time for up to six selected winners.
-
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

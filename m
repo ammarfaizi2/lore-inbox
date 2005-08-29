@@ -1,217 +1,804 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVH2HEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVH2HON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbVH2HEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 03:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbVH2HEP
+	id S1751171AbVH2HON (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 03:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbVH2HON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 03:04:15 -0400
-Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:63105 "EHLO
-	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750754AbVH2HEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 03:04:15 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.13-ck1
-Date: Mon, 29 Aug 2005 17:03:24 +1000
-User-Agent: KMail/1.8.2
-Cc: ck list <ck@vds.kolivas.org>
-MIME-Version: 1.0
-X-Length: 4943
-Content-Type: multipart/signed;
-  boundary="nextPart20464847.XKIZK5kTBu";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508291703.26529.kernel@kolivas.org>
+	Mon, 29 Aug 2005 03:14:13 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:45343 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751171AbVH2HOM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 03:14:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=A0EXcjaMhWUYa7dqc1h2MINq0lE9LOicAfCK41gj2e5NxWLtkmmCWD4J9e6UrQ4W2D2Wpg3EEXcj4iCtB2/RCQJ/1v0ezx4CNhPT5uidGYRP9NaA6Ll1o5qBdl2ukGgpbYgzdpHdC8JEto1N78KOUVXbetYrcXWU6WtKo8lddw0=
+Message-ID: <cb57165a050829001426ba4bad@mail.gmail.com>
+Date: Mon, 29 Aug 2005 00:14:11 -0700
+From: Lee Nicks <allinux@gmail.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.13 1/2] ppc32: add support for Marvell EV64360BP board
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart20464847.XKIZK5kTBu
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This patch adds support for Marvell EV64360BP board. So far, it
+supports mpsc serial console, gigabit ethernet, jffs2 root filesystem,
+etc. Other device support, like watchdog, RTC, will be added later.
+Please kindly review it for inclusion.
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck* patch is aimed at th=
-e=20
-desktop and ck*-server is available with more emphasis on serverspace.
+Signed-off-by: Lee Nicks <allinux@gmail.com>
+======================================
 
-
-Apply to 2.6.13
-http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1.bz2
-or development version:
-http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1+.bz2
-
-or server version:
-http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1-server=
-=2Ebz2
-
-
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
-
-
-Changes since 2.6.12-ck6:
-
-Changed:
- -2.6.12_to_staircase11.3.diff
- +2.6.13_to_staircase12.diff
-Minor cleanups. Restore 10ms round robin intervals. 5ms, while giving bette=
-r=20
-interactive feel, caused problems on dual core amd64 and 250Hz (for=20
-reasons that I have yet to track down). The ck1+ patch has 5ms RR intervals.
-
- -smp-nice-support6.diff
- -smpnice6-smpnice7.diff
- +smp-nice-support7.diff
-Rollup
-
- -batch_ionice.diff
- +isobatch_ionice2.diff
-Update the link between i/o priorities and SCHED_ISO
-
- -mapped_watermark3.diff
-This has been replaced with the split out patches that build on this work:
-
- +vm-mapped.diff
-Turn the "swappiness" knob into one with well defined semantics. Rename it
-"mapped" to correspond directly with the percentage of mapped ram or
-"applications" as users think of it. Currently the swappiness algorithm can
-easily lead to swapping situations on simple file copies due to the distress
-algorithm which too easily overrides the swappiness value. Add a
-"hardmaplimit" tunable, on by default, which only allows the vm to override
-the "mapped" tunable when distress is at its greatest to prevent false
-out-of-memory situations.
-
- +vm-lots_watermark.diff
-The vm currently performs scanning when allocating ram once the watermarks
-are below the pages_low value and tries to restore them to the pages_high
-watermark. The disadvantage of this is that we are scanning most aggresssiv=
-ely
-at the same time we are allocating ram regardless of the stress the vm is
-under. Add a pages_lots watermark and allow the watermark to be relaxed
-according to the stress the vm is at the time (according to the priority
-value). Thus we have more in reserve next time we are allocating ram and end
-up scanning less aggresssively.
-
-
-Added:
- +sched-iso3.1.patch
-Here is a complete rewrite of the SCHED_ISO code. Having dropped SCHED_ISO =
-in=20
-the stable series in preference for RT RLIMITS it was clear that there is=20
-still indication for SCHED_ISO for the following reasons:
-It provides real-time performance without risking starvation/DoS
-It is much easier to set up than RT RLIMITS without any knowledge and you c=
-an=20
-benefit from it without knowing anything about it (unprivileged tasks tryin=
-g=20
-to start real time get demoted to SCHED_ISO)
-Userspace support for it is here and now
-
-This version of SCHED_ISO is actually much more robust than the one in=20
-previous -ck kernels which just had a lowish latency version of SCHED_NORMA=
-L.=20
-SCHED_ISO tasks now actually run like real time tasks at the equivalent=20
-priority as nice -20 tasks unless they use more than 70% of the cpu for a=20
-rolling 3 second time period. Then they're demoted to behave like SCHED_NOR=
-MAL=20
-tasks.
-
- +vm-background_scan.diff
-Add a background scanning timer to restore the watermarks to the pages_lots
-level and only call on it if kswapd has not been called upon for the last 5
-seconds. This allows us to balance all zones to the more generous pages_lots
-watermark at a time unrelated to page allocation thus leading to lighter
-levels of vm load when called upon under page allocation.
-
- +pdflush-tweaks.patch
-The speed we write out dirty data to disk can clash with the average time d=
-isk=20
-journals write out. This tweaks it to write out dirty data slightly more=20
-frequently and minimise prolonged write starvation.
-
- +hz-default_values.patch
-Hz is now configurable, so set some useful defaults as 250 is no good to=20
-either desktop or server. Set 1000 for most desktop architectures (or 100 i=
-n=20
-ck-server).
-
- +2613ck1-version.diff
-Version
-
-
-Rolled into mainline or above patches or removed:
- -cfq-2.6.12-mm1.patch
- -sched-fix_up_build.patch
- -cfq-ts-2.diff
- -cfq-ts-4.diff
- -s11.3_s11.4.diff
- -s11.4_s11.6.diff
- -patch-2.6.12.5.bz2
- -2612ck6-version.diff
-
-
-In 2.6.13-ck1+ only:
- +sched-staircase12_tweak.patch
-As mentioned above, set round robin intervals to 5ms (unsuitable on some=20
-hardware). Please try and if you have problems, email me with information.
-
- +vm-swap-prefetch.patch
-This patch stores a list of ram that is put to swap and if the memory=20
-subsystem is idle for a time it starts swapping the ram pages back in gentl=
-y=20
-in the reverse order they went out. The idea is that when you come back to=
-=20
-your pc after it has been idle for a while, if any applications have been=20
-swapped out they should have swapped back in quietly. It does not delete th=
-e=20
-page entries from the swap so that if there is any stress, these pages can=
-=20
-effectively be swapped back out for free without further disk access. The=20
-patch is still new so has had limited testing only. Please test and report=
-=20
-back. This depends on the previous 2 vm patches to patch cleanly.
-
-
-=46ull patchlist:
-sched-run_normal_with_rt_on_sibling.diff
-2.6.13_to_staircase12.diff
-schedrange.diff
-schedbatch2.9.diff
-sched-iso3.1.patch
-smp-nice-support7.diff
-1g_lowmem1_i386.diff
-defaultcfq.diff
-isobatch_ionice2.diff
-rt_ionice.diff
-pdflush-tweaks.patch
-hz-default_values.patch
-vm-mapped.diff
-vm-lots_watermark.diff
-vm-background_scan.diff
-2613ck1-version.diff
-vm-swap-prefetch.patch
-sched-staircase12_tweak.patch
-
-
-Cheers,
-Con Kolivas
-
---nextPart20464847.XKIZK5kTBu
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDErM+ZUg7+tp6mRURApyHAJ9iQ9xqGPVBXfnJn91mW9S4h/RWFgCcDojx
-eyrfma86kD3by2wAdEfnmpw=
-=heo3
------END PGP SIGNATURE-----
-
---nextPart20464847.XKIZK5kTBu--
+diff -ruN linux-2.6.13-original/arch/ppc/boot/simple/Makefile
+linux-2.6.13/arch/ppc/boot/simple/Makefile
+--- linux-2.6.13-original/arch/ppc/boot/simple/Makefile	2005-08-28
+22:44:35.000000000 -0700
++++ linux-2.6.13/arch/ppc/boot/simple/Makefile	2005-08-28
+22:51:37.000000000 -0700
+@@ -108,6 +108,10 @@
+          end-$(CONFIG_RADSTONE_PPC7D)	:= radstone_ppc7d
+    cacheflag-$(CONFIG_RADSTONE_PPC7D)	:= -include $(clear_L2_L3)
+ 
++     extra.o-$(CONFIG_EV64360)          := misc-ev64360.o
++         end-$(CONFIG_EV64360)          := ev64360
++   cacheflag-$(CONFIG_EV64360)          := -include $(clear_L2_L3)
++
+ # kconfig 'feature', only one of these will ever be 'y' at a time.
+ # The rest will be unset.
+ motorola := $(CONFIG_MCPN765)$(CONFIG_MVME5100)$(CONFIG_PRPMC750) \
+diff -ruN linux-2.6.13-original/arch/ppc/boot/simple/misc-ev64360.c
+linux-2.6.13/arch/ppc/boot/simple/misc-ev64360.c
+--- linux-2.6.13-original/arch/ppc/boot/simple/misc-ev64360.c	1969-12-31
+16:00:00.000000000 -0800
++++ linux-2.6.13/arch/ppc/boot/simple/misc-ev64360.c	2005-08-28
+22:51:37.000000000 -0700
+@@ -0,0 +1,44 @@
++/*
++ * arch/ppc/boot/simple/misc-ev64360.c
++ * Copyright (C) 2005 Lee Nicks <allinux@gmail.com>
++ *
++ * Based on arch/ppc/boot/simple/misc-katana.c from:
++ * Mark A. Greer <source@mvista.com>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++
++#include <linux/config.h>
++#include <linux/types.h>
++#include <asm/io.h>
++#include <asm/mv64x60_defs.h>
++#include <platforms/ev64360.h>
++
++extern u32 mv64x60_console_baud;
++extern u32 mv64x60_mpsc_clk_src;
++extern u32 mv64x60_mpsc_clk_freq;
++
++/* Not in the kernel so won't include kernel.h to get its 'min' definition */
++#ifndef min
++#define	min(a,b)	(((a) < (b)) ? (a) : (b))
++#endif
++
++void
++mv64x60_board_init(void __iomem *old_base, void __iomem *new_base)
++{
++	mv64x60_console_baud  = EV64360_DEFAULT_BAUD;
++	mv64x60_mpsc_clk_src  = EV64360_MPSC_CLK_SRC;
++	mv64x60_mpsc_clk_freq = EV64360_MPSC_CLK_FREQ;
++}
+diff -ruN linux-2.6.13-original/arch/ppc/boot/simple/mv64x60_tty.c
+linux-2.6.13/arch/ppc/boot/simple/mv64x60_tty.c
+--- linux-2.6.13-original/arch/ppc/boot/simple/mv64x60_tty.c	2005-08-28
+22:44:35.000000000 -0700
++++ linux-2.6.13/arch/ppc/boot/simple/mv64x60_tty.c	2005-08-28
+22:51:37.000000000 -0700
+@@ -22,9 +22,16 @@
+ #include <asm/mv64x60_defs.h>
+ #include <mpsc_defs.h>
+ 
++#ifdef CONFIG_EV64360
++#include <platforms/ev64360.h>
++u32	mv64x60_console_baud = EV64360_DEFAULT_BAUD;
++u32	mv64x60_mpsc_clk_src = EV64360_MPSC_CLK_SRC; /* TCLK */
++u32	mv64x60_mpsc_clk_freq = EV64360_MPSC_CLK_FREQ;
++#else
+ u32	mv64x60_console_baud = 9600;
+ u32	mv64x60_mpsc_clk_src = 8; /* TCLK */
+ u32	mv64x60_mpsc_clk_freq = 100000000;
++#endif
+ 
+ extern void udelay(long);
+ static void stop_dma(int chan);
+diff -ruN linux-2.6.13-original/arch/ppc/Kconfig linux-2.6.13/arch/ppc/Kconfig
+--- linux-2.6.13-original/arch/ppc/Kconfig	2005-08-28 22:44:40.000000000 -0700
++++ linux-2.6.13/arch/ppc/Kconfig	2005-08-28 22:51:37.000000000 -0700
+@@ -713,6 +713,11 @@
+ 	help
+ 	  This option enables support for the MPC 834x SYS evaluation board.
+ 
++config EV64360
++	bool "Marvell-EV64360BP"
++	help
++	  Select EV64360 if configuring a Marvell EV64360BP Evaluation
++	  platform.
+ endchoice
+ 
+ config PQ2ADS
+@@ -814,7 +819,7 @@
+ 
+ config MV64360		# Really MV64360 & MV64460
+ 	bool
+-	depends on CHESTNUT || KATANA || RADSTONE_PPC7D || HDPU
++	depends on CHESTNUT || KATANA || RADSTONE_PPC7D || HDPU || EV64360
+ 	default y
+ 
+ config MV64X60
+diff -ruN linux-2.6.13-original/arch/ppc/platforms/ev64360.c
+linux-2.6.13/arch/ppc/platforms/ev64360.c
+--- linux-2.6.13-original/arch/ppc/platforms/ev64360.c	1969-12-31
+16:00:00.000000000 -0800
++++ linux-2.6.13/arch/ppc/platforms/ev64360.c	2005-08-28
+22:51:37.000000000 -0700
+@@ -0,0 +1,510 @@
++/*
++ * arch/ppc/platforms/ev64360.c
++ *
++ * Board setup routines for the Marvell EV-64360-BP Evaluation Board.
++ *
++ * Author: Lee Nicks <allinux@gmail.com>
++ *
++ * Based on code done by Rabeeh Khoury - rabeeh@galileo.co.il
++ * Based on code done by - Mark A. Greer <mgreer@mvista.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2 of the License, or (at your
++ * option) any later version.
++ */
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/pci.h>
++#include <linux/kdev_t.h>
++#include <linux/console.h>
++#include <linux/initrd.h>
++#include <linux/root_dev.h>
++#include <linux/delay.h>
++#include <linux/seq_file.h>
++#include <linux/bootmem.h>
++#include <linux/mtd/physmap.h>
++#include <linux/mv643xx.h>
++#ifdef CONFIG_BOOTIMG
++#include <linux/bootimg.h>
++#endif
++#include <asm/page.h>
++#include <asm/time.h>
++#include <asm/smp.h>
++#include <asm/todc.h>
++#include <asm/bootinfo.h>
++#include <asm/ppcboot.h>
++#include <asm/mv64x60.h>
++#include <platforms/ev64360.h>
++
++#define BOARD_VENDOR    "Marvell"
++#define BOARD_MACHINE   "EV-64360-BP"
++
++static struct		mv64x60_handle bh;
++static void __iomem	*sram_base;
++
++static u32		ev64360_flash_size_0;
++static u32		ev64360_flash_size_1;
++
++static u32		ev64360_bus_frequency;
++
++unsigned char	__res[sizeof(bd_t)];
++
++static int __init
++ev64360_map_irq(struct pci_dev *dev, unsigned char idsel, unsigned char pin)
++{
++	return 0;
++}
++
++static void __init
++ev64360_setup_bridge(void)
++{
++	struct mv64x60_setup_info si;
++	int i;
++
++	memset(&si, 0, sizeof(si));
++
++	si.phys_reg_base = CONFIG_MV64X60_NEW_BASE;
++
++	#ifdef CONFIG_PCI
++	si.pci_1.enable_bus = 1;
++	si.pci_1.pci_io.cpu_base = EV64360_PCI1_IO_START_PROC_ADDR;
++	si.pci_1.pci_io.pci_base_hi = 0;
++	si.pci_1.pci_io.pci_base_lo = EV64360_PCI1_IO_START_PCI_ADDR;
++	si.pci_1.pci_io.size = EV64360_PCI1_IO_SIZE;
++	si.pci_1.pci_io.swap = MV64x60_CPU2PCI_SWAP_NONE;
++	si.pci_1.pci_mem[0].cpu_base = EV64360_PCI1_MEM_START_PROC_ADDR;
++	si.pci_1.pci_mem[0].pci_base_hi = EV64360_PCI1_MEM_START_PCI_HI_ADDR;
++	si.pci_1.pci_mem[0].pci_base_lo = EV64360_PCI1_MEM_START_PCI_LO_ADDR;
++	si.pci_1.pci_mem[0].size = EV64360_PCI1_MEM_SIZE;
++	si.pci_1.pci_mem[0].swap = MV64x60_CPU2PCI_SWAP_NONE;
++	si.pci_1.pci_cmd_bits = 0;
++	si.pci_1.latency_timer = 0x80;
++	#else
++	si.pci_0.enable_bus = 0;
++	si.pci_1.enable_bus = 0;
++	#endif
++
++	for (i = 0; i < MV64x60_CPU2MEM_WINDOWS; i++) {
++#if defined(CONFIG_NOT_COHERENT_CACHE)
++		si.cpu_prot_options[i] = 0;
++		si.enet_options[i] = MV64360_ENET2MEM_SNOOP_NONE;
++		si.mpsc_options[i] = MV64360_MPSC2MEM_SNOOP_NONE;
++		si.idma_options[i] = MV64360_IDMA2MEM_SNOOP_NONE;
++
++		si.pci_1.acc_cntl_options[i] =
++		    MV64360_PCI_ACC_CNTL_SNOOP_NONE |
++		    MV64360_PCI_ACC_CNTL_SWAP_NONE |
++		    MV64360_PCI_ACC_CNTL_MBURST_128_BYTES |
++		    MV64360_PCI_ACC_CNTL_RDSIZE_256_BYTES;
++#else
++		si.cpu_prot_options[i] = 0;
++		si.enet_options[i] = MV64360_ENET2MEM_SNOOP_NONE; /* errata */
++		si.mpsc_options[i] = MV64360_MPSC2MEM_SNOOP_NONE; /* errata */
++		si.idma_options[i] = MV64360_IDMA2MEM_SNOOP_NONE; /* errata */
++
++		si.pci_1.acc_cntl_options[i] =
++		    MV64360_PCI_ACC_CNTL_SNOOP_WB |
++		    MV64360_PCI_ACC_CNTL_SWAP_NONE |
++		    MV64360_PCI_ACC_CNTL_MBURST_32_BYTES |
++		    MV64360_PCI_ACC_CNTL_RDSIZE_32_BYTES;
++#endif
++	}
++
++	if (mv64x60_init(&bh, &si))
++		printk(KERN_WARNING "Bridge initialization failed.\n");
++
++	#ifdef CONFIG_PCI
++	pci_dram_offset = 0; /* sys mem at same addr on PCI & cpu bus */
++	ppc_md.pci_swizzle = common_swizzle;
++	ppc_md.pci_map_irq = ev64360_map_irq;
++	ppc_md.pci_exclude_device = mv64x60_pci_exclude_device;
++
++	mv64x60_set_bus(&bh, 1, 0);
++	bh.hose_b->first_busno = 0;
++	bh.hose_b->last_busno = 0xff;
++	#endif
++}
++
++/* Bridge & platform setup routines */
++void __init
++ev64360_intr_setup(void)
++{
++	/* MPP 8, 9, and 10 */
++	mv64x60_clr_bits(&bh, MV64x60_MPP_CNTL_1, 0xfff);
++
++	/*
++	 * Define GPP 8,9,and 10 interrupt polarity as active low
++	 * input signal and level triggered
++	 */
++	mv64x60_set_bits(&bh, MV64x60_GPP_LEVEL_CNTL, 0x700);
++	mv64x60_clr_bits(&bh, MV64x60_GPP_IO_CNTL, 0x700);
++
++	/* Config GPP intr ctlr to respond to level trigger */
++	mv64x60_set_bits(&bh, MV64x60_COMM_ARBITER_CNTL, (1<<10));
++
++	/* Erranum FEr PCI-#8 */
++	mv64x60_clr_bits(&bh, MV64x60_PCI0_CMD, (1<<5) | (1<<9));
++	mv64x60_clr_bits(&bh, MV64x60_PCI1_CMD, (1<<5) | (1<<9));
++
++	/*
++	 * Dismiss and then enable interrupt on GPP interrupt cause
++	 * for CPU #0
++	 */
++	mv64x60_write(&bh, MV64x60_GPP_INTR_CAUSE, ~0x700);
++	mv64x60_set_bits(&bh, MV64x60_GPP_INTR_MASK, 0x700);
++
++	/*
++	 * Dismiss and then enable interrupt on CPU #0 high cause reg
++	 * BIT25 summarizes GPP interrupts 8-15
++	 */
++	mv64x60_set_bits(&bh, MV64360_IC_CPU0_INTR_MASK_HI, (1<<25));
++}
++
++void __init
++ev64360_setup_peripherals(void)
++{
++	u32 base;
++
++	/* Set up window for boot CS */
++	mv64x60_set_32bit_window(&bh, MV64x60_CPU2BOOT_WIN,
++		 EV64360_BOOT_WINDOW_BASE, EV64360_BOOT_WINDOW_SIZE, 0);
++	bh.ci->enable_window_32bit(&bh, MV64x60_CPU2BOOT_WIN);
++
++	/* We only use the 32-bit flash */
++	mv64x60_get_32bit_window(&bh, MV64x60_CPU2BOOT_WIN, &base,
++		&ev64360_flash_size_0);
++	ev64360_flash_size_1 = 0;
++
++	mv64x60_set_32bit_window(&bh, MV64x60_CPU2DEV_1_WIN,
++		 EV64360_RTC_WINDOW_BASE, EV64360_RTC_WINDOW_SIZE, 0);
++	bh.ci->enable_window_32bit(&bh, MV64x60_CPU2DEV_1_WIN);
++
++	mv64x60_set_32bit_window(&bh, MV64x60_CPU2SRAM_WIN,
++		 EV64360_INTERNAL_SRAM_BASE, MV64360_SRAM_SIZE, 0);
++	bh.ci->enable_window_32bit(&bh, MV64x60_CPU2SRAM_WIN);
++	sram_base = ioremap(EV64360_INTERNAL_SRAM_BASE, MV64360_SRAM_SIZE);
++
++	/* Set up Enet->SRAM window */
++	mv64x60_set_32bit_window(&bh, MV64x60_ENET2MEM_4_WIN,
++		EV64360_INTERNAL_SRAM_BASE, MV64360_SRAM_SIZE, 0x2);
++	bh.ci->enable_window_32bit(&bh, MV64x60_ENET2MEM_4_WIN);
++
++	/* Give enet r/w access to memory region */
++	mv64x60_set_bits(&bh, MV64360_ENET2MEM_ACC_PROT_0, (0x3 << (4 << 1)));
++	mv64x60_set_bits(&bh, MV64360_ENET2MEM_ACC_PROT_1, (0x3 << (4 << 1)));
++	mv64x60_set_bits(&bh, MV64360_ENET2MEM_ACC_PROT_2, (0x3 << (4 << 1)));
++
++	mv64x60_clr_bits(&bh, MV64x60_PCI1_PCI_DECODE_CNTL, (1 << 3));
++	mv64x60_clr_bits(&bh, MV64x60_TIMR_CNTR_0_3_CNTL,
++			 ((1 << 0) | (1 << 8) | (1 << 16) | (1 << 24)));
++
++#if defined(CONFIG_NOT_COHERENT_CACHE)
++	mv64x60_write(&bh, MV64360_SRAM_CONFIG, 0x00160000);
++#else
++	mv64x60_write(&bh, MV64360_SRAM_CONFIG, 0x001600b2);
++#endif
++
++	/*
++	 * Setting the SRAM to 0. Note that this generates parity errors on
++	 * internal data path in SRAM since it's first time accessing it
++	 * while after reset it's not configured.
++	 */
++	memset(sram_base, 0, MV64360_SRAM_SIZE);
++
++	/* set up PCI interrupt controller */
++	ev64360_intr_setup();
++}
++
++static void __init
++ev64360_setup_arch(void)
++{
++	if (ppc_md.progress)
++		ppc_md.progress("ev64360_setup_arch: enter", 0);
++
++	set_tb(0, 0);
++
++#ifdef CONFIG_BLK_DEV_INITRD
++	if (initrd_start)
++		ROOT_DEV = Root_RAM0;
++	else
++#endif
++#ifdef   CONFIG_ROOT_NFS
++		ROOT_DEV = Root_NFS;
++#else
++		ROOT_DEV = Root_SDA2;
++#endif
++
++	/*
++	 * Set up the L2CR register.
++	 */
++	_set_L2CR(L2CR_L2E | L2CR_L2PE);
++
++	if (ppc_md.progress)
++		ppc_md.progress("ev64360_setup_arch: calling setup_bridge", 0);
++
++	ev64360_setup_bridge();
++	ev64360_setup_peripherals();
++	ev64360_bus_frequency = ev64360_bus_freq();
++
++	printk(KERN_INFO "%s %s port (C) 2005 Lee Nicks "
++		"(allinux@gmail.com)\n", BOARD_VENDOR, BOARD_MACHINE);
++	if (ppc_md.progress)
++		ppc_md.progress("ev64360_setup_arch: exit", 0);
++}
++
++/* Platform device data fixup routines. */
++#if defined(CONFIG_SERIAL_MPSC)
++static void __init
++ev64360_fixup_mpsc_pdata(struct platform_device *pdev)
++{
++	struct mpsc_pdata *pdata;
++
++	pdata = (struct mpsc_pdata *)pdev->dev.platform_data;
++
++	pdata->max_idle = 40;
++	pdata->default_baud = EV64360_DEFAULT_BAUD;
++	pdata->brg_clk_src = EV64360_MPSC_CLK_SRC;
++	/*
++	 * TCLK (not SysCLk) is routed to BRG, then to the MPSC.  On most parts,
++	 * TCLK == SysCLK but on 64460, they are separate pins.
++	 * SysCLK can go up to 200 MHz but TCLK can only go up to 133 MHz.
++	 */
++	pdata->brg_clk_freq = min(ev64360_bus_frequency, MV64x60_TCLK_FREQ_MAX);
++}
++#endif
++
++#if defined(CONFIG_MV643XX_ETH)
++static void __init
++ev64360_fixup_eth_pdata(struct platform_device *pdev)
++{
++	struct mv643xx_eth_platform_data *eth_pd;
++	static u16 phy_addr[] = {
++		EV64360_ETH0_PHY_ADDR,
++		EV64360_ETH1_PHY_ADDR,
++		EV64360_ETH2_PHY_ADDR,
++	};
++
++	eth_pd = pdev->dev.platform_data;
++	eth_pd->force_phy_addr = 1;
++	eth_pd->phy_addr = phy_addr[pdev->id];
++	eth_pd->tx_queue_size = EV64360_ETH_TX_QUEUE_SIZE;
++	eth_pd->rx_queue_size = EV64360_ETH_RX_QUEUE_SIZE;
++}
++#endif
++
++static int __init
++ev64360_platform_notify(struct device *dev)
++{
++	static struct {
++		char	*bus_id;
++		void	((*rtn)(struct platform_device *pdev));
++	} dev_map[] = {
++#if defined(CONFIG_SERIAL_MPSC)
++		{ MPSC_CTLR_NAME ".0", ev64360_fixup_mpsc_pdata },
++		{ MPSC_CTLR_NAME ".1", ev64360_fixup_mpsc_pdata },
++#endif
++#if defined(CONFIG_MV643XX_ETH)
++		{ MV643XX_ETH_NAME ".0", ev64360_fixup_eth_pdata },
++		{ MV643XX_ETH_NAME ".1", ev64360_fixup_eth_pdata },
++		{ MV643XX_ETH_NAME ".2", ev64360_fixup_eth_pdata },
++#endif
++	};
++	struct platform_device	*pdev;
++	int	i;
++
++	if (dev && dev->bus_id)
++		for (i=0; i<ARRAY_SIZE(dev_map); i++)
++			if (!strncmp(dev->bus_id, dev_map[i].bus_id,
++				BUS_ID_SIZE)) {
++
++				pdev = container_of(dev,
++					struct platform_device, dev);
++				dev_map[i].rtn(pdev);
++			}
++
++	return 0;
++}
++
++#ifdef CONFIG_MTD_PHYSMAP
++
++#ifndef MB
++#define MB	(1 << 20)
++#endif
++
++/*
++ * MTD Layout.
++ *
++ * FLASH Amount:	0xff000000 - 0xffffffff
++ * -------------	-----------------------
++ * Reserved:		0xff000000 - 0xff03ffff
++ * JFFS2 file system:	0xff040000 - 0xffefffff
++ * U-boot:		0xfff00000 - 0xffffffff
++ */
++static int __init
++ev64360_setup_mtd(void)
++{
++	u32	size;
++	int	ptbl_entries;
++	static struct mtd_partition	*ptbl;
++
++	size = ev64360_flash_size_0 + ev64360_flash_size_1;
++	if (!size)
++		return -ENOMEM;
++
++	ptbl_entries = 3;
++
++	if ((ptbl = kmalloc(ptbl_entries * sizeof(struct mtd_partition),
++		GFP_KERNEL)) == NULL) {
++
++		printk(KERN_WARNING "Can't alloc MTD partition table\n");
++		return -ENOMEM;
++	}
++	memset(ptbl, 0, ptbl_entries * sizeof(struct mtd_partition));
++
++	ptbl[0].name = "reserved";
++	ptbl[0].offset = 0;
++	ptbl[0].size = EV64360_MTD_RESERVED_SIZE;
++	ptbl[1].name = "jffs2";
++	ptbl[1].offset = EV64360_MTD_RESERVED_SIZE;
++	ptbl[1].size = EV64360_MTD_JFFS2_SIZE;
++	ptbl[2].name = "U-BOOT";
++	ptbl[2].offset = EV64360_MTD_RESERVED_SIZE + EV64360_MTD_JFFS2_SIZE;
++	ptbl[2].size = EV64360_MTD_UBOOT_SIZE;
++
++	physmap_map.size = size;
++	physmap_set_partitions(ptbl, ptbl_entries);
++	return 0;
++}
++
++arch_initcall(ev64360_setup_mtd);
++#endif
++
++static void
++ev64360_restart(char *cmd)
++{
++	ulong	i = 0xffffffff;
++	volatile unsigned char * rtc_base = ioremap(EV64360_RTC_WINDOW_BASE,0x4000);
++
++	/* issue hard reset */
++	rtc_base[0xf] = 0x80;
++	rtc_base[0xc] = 0x00;
++	rtc_base[0xd] = 0x01;
++	rtc_base[0xf] = 0x83;
++
++	while (i-- > 0) ;
++	panic("restart failed\n");
++}
++
++static void
++ev64360_halt(void)
++{
++	while (1) ;
++	/* NOTREACHED */
++}
++
++static void
++ev64360_power_off(void)
++{
++	ev64360_halt();
++	/* NOTREACHED */
++}
++
++static int
++ev64360_show_cpuinfo(struct seq_file *m)
++{
++	seq_printf(m, "vendor\t\t: " BOARD_VENDOR "\n");
++	seq_printf(m, "machine\t\t: " BOARD_MACHINE "\n");
++	seq_printf(m, "bus speed\t: %dMHz\n", ev64360_bus_frequency/1000/1000);
++
++	return 0;
++}
++
++static void __init
++ev64360_calibrate_decr(void)
++{
++	u32 freq;
++
++	freq = ev64360_bus_frequency / 4;
++
++	printk(KERN_INFO "time_init: decrementer frequency = %lu.%.6lu MHz\n",
++	       (long)freq / 1000000, (long)freq % 1000000);
++
++	tb_ticks_per_jiffy = freq / HZ;
++	tb_to_us = mulhwu_scale_factor(freq, 1000000);
++}
++
++unsigned long __init
++ev64360_find_end_of_memory(void)
++{
++	return mv64x60_get_mem_size(CONFIG_MV64X60_NEW_BASE,
++		MV64x60_TYPE_MV64360);
++}
++
++static inline void
++ev64360_set_bat(void)
++{
++	mb();
++	mtspr(SPRN_DBAT2U, 0xf0001ffe);
++	mtspr(SPRN_DBAT2L, 0xf000002a);
++	mb();
++}
++
++#if defined(CONFIG_SERIAL_TEXT_DEBUG) && defined(CONFIG_SERIAL_MPSC_CONSOLE)
++static void __init
++ev64360_map_io(void)
++{
++	io_block_mapping(CONFIG_MV64X60_NEW_BASE, \
++			 CONFIG_MV64X60_NEW_BASE, \
++			 0x00020000, _PAGE_IO);
++}
++#endif
++
++void __init
++platform_init(unsigned long r3, unsigned long r4, unsigned long r5,
++	      unsigned long r6, unsigned long r7)
++{
++	parse_bootinfo(find_bootinfo());
++
++	/* ASSUMPTION:  If both r3 (bd_t pointer) and r6 (cmdline pointer)
++	 * are non-zero, then we should use the board info from the bd_t
++	 * structure and the cmdline pointed to by r6 instead of the
++	 * information from birecs, if any.  Otherwise, use the information
++	 * from birecs as discovered by the preceeding call to
++	 * parse_bootinfo().  This rule should work with both PPCBoot, which
++	 * uses a bd_t board info structure, and the kernel boot wrapper,
++	 * which uses birecs.
++	 */
++	if (r3 && r6) {
++		/* copy board info structure */
++		memcpy( (void *)__res,(void *)(r3+KERNELBASE), sizeof(bd_t) );
++		/* copy command line */
++		*(char *)(r7+KERNELBASE) = 0;
++		strcpy(cmd_line, (char *)(r6+KERNELBASE));
++	}
++	#ifdef CONFIG_ISA
++	isa_mem_base = 0;
++	#endif
++
++	ppc_md.setup_arch = ev64360_setup_arch;
++	ppc_md.show_cpuinfo = ev64360_show_cpuinfo;
++	ppc_md.init_IRQ = mv64360_init_irq;
++	ppc_md.get_irq = mv64360_get_irq;
++	ppc_md.restart = ev64360_restart;
++	ppc_md.power_off = ev64360_power_off;
++	ppc_md.halt = ev64360_halt;
++	ppc_md.find_end_of_memory = ev64360_find_end_of_memory;
++	ppc_md.calibrate_decr = ev64360_calibrate_decr;
++
++#if defined(CONFIG_SERIAL_TEXT_DEBUG) && defined(CONFIG_SERIAL_MPSC_CONSOLE)
++	ppc_md.setup_io_mappings = ev64360_map_io;
++	ppc_md.progress = mv64x60_mpsc_progress;
++	mv64x60_progress_init(CONFIG_MV64X60_NEW_BASE);
++#endif
++
++#if defined(CONFIG_SERIAL_MPSC) || defined(CONFIG_MV643XX_ETH)
++	platform_notify = ev64360_platform_notify;
++#endif
++
++	ev64360_set_bat(); /* Need for ev64360_find_end_of_memory and progress */
++}
+diff -ruN linux-2.6.13-original/arch/ppc/platforms/ev64360.h
+linux-2.6.13/arch/ppc/platforms/ev64360.h
+--- linux-2.6.13-original/arch/ppc/platforms/ev64360.h	1969-12-31
+16:00:00.000000000 -0800
++++ linux-2.6.13/arch/ppc/platforms/ev64360.h	2005-08-28
+22:51:37.000000000 -0700
+@@ -0,0 +1,116 @@
++/*
++ * arch/ppc/platforms/ev64360.h
++ *
++ * Definitions for Marvell EV-64360-BP Evaluation Board.
++ *
++ * Author: Lee Nicks <allinux@gmail.com>
++ *
++ * Based on code done by Rabeeh Khoury - rabeeh@galileo.co.il
++ * Based on code done by Mark A. Greer <mgreer@mvista.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2 of the License, or (at your
++ * option) any later version.
++ */
++
++/*
++ * The MV64360 has 2 PCI buses each with 1 window from the CPU bus to
++ * PCI I/O space and 4 windows from the CPU bus to PCI MEM space.
++ * We'll only use one PCI MEM window on each PCI bus.
++ *
++ * This is the CPU physical memory map (windows must be at least 64
+KB and start
++ * on a boundary that is a multiple of the window size):
++ *
++ *    0x42000000-0x4203ffff      - Internal SRAM
++ *    0xf1000000-0xf100ffff      - MV64360 Registers (CONFIG_MV64X60_NEW_BASE)
++ *    0xfc800000-0xfcffffff      - RTC
++ *    0xff000000-0xffffffff      - Boot window, 16 MB flash
++ *    0xc0000000-0xc3ffffff      - PCI I/O (second hose)
++ *    0x80000000-0xbfffffff      - PCI MEM (second hose)
++ */
++
++#ifndef __PPC_PLATFORMS_EV64360_H
++#define __PPC_PLATFORMS_EV64360_H
++
++/* CPU Physical Memory Map setup. */
++#define EV64360_BOOT_WINDOW_BASE		0xff000000
++#define EV64360_BOOT_WINDOW_SIZE		0x01000000 /* 16 MB */
++#define EV64360_INTERNAL_SRAM_BASE		0x42000000
++#define EV64360_RTC_WINDOW_BASE			0xfc800000
++#define EV64360_RTC_WINDOW_SIZE			0x00800000 /* 8 MB */
++
++#define EV64360_PCI1_MEM_START_PROC_ADDR	0x80000000
++#define EV64360_PCI1_MEM_START_PCI_HI_ADDR	0x00000000
++#define EV64360_PCI1_MEM_START_PCI_LO_ADDR	0x80000000
++#define EV64360_PCI1_MEM_SIZE			0x40000000 /* 1 GB */
++#define EV64360_PCI1_IO_START_PROC_ADDR		0xc0000000
++#define EV64360_PCI1_IO_START_PCI_ADDR		0x00000000
++#define EV64360_PCI1_IO_SIZE			0x04000000 /* 64 MB */
++
++#define	EV64360_DEFAULT_BAUD			115200
++#define	EV64360_MPSC_CLK_SRC			8	  /* TCLK */
++#define EV64360_MPSC_CLK_FREQ			133333333
++
++#define	EV64360_MTD_RESERVED_SIZE		0x40000
++#define EV64360_MTD_JFFS2_SIZE			0xec0000
++#define EV64360_MTD_UBOOT_SIZE			0x100000
++
++#define	EV64360_ETH0_PHY_ADDR			8
++#define	EV64360_ETH1_PHY_ADDR			9
++#define	EV64360_ETH2_PHY_ADDR			10
++
++#define EV64360_ETH_TX_QUEUE_SIZE		800
++#define EV64360_ETH_RX_QUEUE_SIZE		400
++
++#define	EV64360_ETH_PORT_CONFIG_VALUE			\
++	ETH_UNICAST_NORMAL_MODE			|	\
++	ETH_DEFAULT_RX_QUEUE_0			|	\
++	ETH_DEFAULT_RX_ARP_QUEUE_0		|	\
++	ETH_RECEIVE_BC_IF_NOT_IP_OR_ARP		|	\
++	ETH_RECEIVE_BC_IF_IP			|	\
++	ETH_RECEIVE_BC_IF_ARP			|	\
++	ETH_CAPTURE_TCP_FRAMES_DIS		|	\
++	ETH_CAPTURE_UDP_FRAMES_DIS		|	\
++	ETH_DEFAULT_RX_TCP_QUEUE_0		|	\
++	ETH_DEFAULT_RX_UDP_QUEUE_0		|	\
++	ETH_DEFAULT_RX_BPDU_QUEUE_0
++
++#define	EV64360_ETH_PORT_CONFIG_EXTEND_VALUE		\
++	ETH_SPAN_BPDU_PACKETS_AS_NORMAL		|	\
++	ETH_PARTITION_DISABLE
++
++#define	GT_ETH_IPG_INT_RX(value)			\
++	((value & 0x3fff) << 8)
++
++#define	EV64360_ETH_PORT_SDMA_CONFIG_VALUE		\
++	ETH_RX_BURST_SIZE_4_64BIT		|	\
++	GT_ETH_IPG_INT_RX(0)			|	\
++	ETH_TX_BURST_SIZE_4_64BIT
++
++#define	EV64360_ETH_PORT_SERIAL_CONTROL_VALUE		\
++	ETH_FORCE_LINK_PASS			|	\
++	ETH_ENABLE_AUTO_NEG_FOR_DUPLX		|	\
++	ETH_DISABLE_AUTO_NEG_FOR_FLOW_CTRL	|	\
++	ETH_ADV_SYMMETRIC_FLOW_CTRL		|	\
++	ETH_FORCE_FC_MODE_NO_PAUSE_DIS_TX	|	\
++	ETH_FORCE_BP_MODE_NO_JAM		|	\
++	BIT9					|	\
++	ETH_DO_NOT_FORCE_LINK_FAIL		|	\
++	ETH_RETRANSMIT_16_ATTEMPTS		|	\
++	ETH_ENABLE_AUTO_NEG_SPEED_GMII		|	\
++	ETH_DTE_ADV_0				|	\
++	ETH_DISABLE_AUTO_NEG_BYPASS		|	\
++	ETH_AUTO_NEG_NO_CHANGE			|	\
++	ETH_MAX_RX_PACKET_9700BYTE		|	\
++	ETH_CLR_EXT_LOOPBACK			|	\
++	ETH_SET_FULL_DUPLEX_MODE		|	\
++	ETH_ENABLE_FLOW_CTRL_TX_RX_IN_FULL_DUPLEX
++
++static inline u32
++ev64360_bus_freq(void)
++{
++	return 133333333;
++}
++
++#endif	/* __PPC_PLATFORMS_EV64360_H */
+diff -ruN linux-2.6.13-original/arch/ppc/platforms/Makefile
+linux-2.6.13/arch/ppc/platforms/Makefile
+--- linux-2.6.13-original/arch/ppc/platforms/Makefile	2005-08-28
+22:44:36.000000000 -0700
++++ linux-2.6.13/arch/ppc/platforms/Makefile	2005-08-28 22:51:37.000000000 -0700
+@@ -46,6 +46,7 @@
+ obj-$(CONFIG_SBC82xx)		+= sbc82xx.o
+ obj-$(CONFIG_SPRUCE)		+= spruce.o
+ obj-$(CONFIG_LITE5200)		+= lite5200.o
++obj-$(CONFIG_EV64360)		+= ev64360.o
+ 
+ ifeq ($(CONFIG_SMP),y)
+ obj-$(CONFIG_PPC_PMAC)		+= pmac_smp.o

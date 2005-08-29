@@ -1,95 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVH2RZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbVH2Rag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbVH2RZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVH2RZX
+	id S1751151AbVH2Rag (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVH2Rag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:25:23 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:30842 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751148AbVH2RZW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:25:22 -0400
+	Mon, 29 Aug 2005 13:30:36 -0400
+Received: from xproxy.gmail.com ([66.249.82.193]:59858 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751151AbVH2Rag convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 13:30:36 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
-        b=hbNYE6pvoskZZfjmosF4MgJl6xez6JAWeB+2mLfcirulKY11ls/cEC7pTru2fHlgLESnw0DLaoEiLu0dceCRgKuut17FGhmlcO+fp3M+JKvHSrbW4Q8edG73pEW3cZ46XrGH6DvJMVidAMnnJmJuW297toxvXmWjuK+qyZDqMBk=
-Message-ID: <4313321A.9010508@gmail.com>
-Date: Mon, 29 Aug 2005 16:04:42 +0000
-From: Luca Falavigna <dktrkranz@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Real-Time Preemption, fixed kexec kernel relocation oops
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BDGNntMt567GVkotfphlJzUw1uFzs3t6aojybaLwRs9rJPETOYeSxyZ6QEbRMk0Bb0GXaE9knst4BBguUto6CsLYS8fyy4L3aNuf3TFWqOt9lCoOY6SGdqaHnVPJcEKCl/Z0T6rW7Jms2hZE+EFvlTfUocbp3GZ415z8ujxeAXc=
+Message-ID: <ec92bc305082910305844e3b5@mail.gmail.com>
+Date: Mon, 29 Aug 2005 23:00:35 +0530
+From: Anshuman Gholap <anshu.pg@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: re: ppp_mppe+pptp for 2.6.14?
+In-Reply-To: <ec92bc305082910272da17f87@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <431341F4.8010200@gentoo.org>
+	 <ec92bc305082910272da17f87@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch, built against kernel version 2.6.13-rc7 (and not against -RT tree
-patch, sorry), fixes a few local_irq_disable() calls which leads to an oops
-during kernel relocation in kexec subsystem. Currently, only i386 implementation
-of kexec is fixed.
+---------- Forwarded message ----------
+From: Anshuman Gholap <anshu.pg@gmail.com>
+Date: Aug 29, 2005 10:57 PM
+Subject: Re: ppp_mppe+pptp for 2.6.14?
+To: Daniel Drake <dsd@gentoo.org>
 
-Anyway, this patch does not fix a strange behaviour when using kexec with a -RT
-kernel. Here is dmesg output:
+I might die by excitement if this is implemented :D. 
 
-Uncompressing Linux... OK, booting the kernel.
-Unknown interrupt or fault at EIP 00000203 00000060 c011dfe3
-Linux version 2.6.13-rc7-rt1 (root@sauron) (gcc version 3.3.4 (Debian
-1:3.3.4-13)) #2 Fri Aug 26 16:55:12 UTC 2005
-[...]
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-[...]
+for years and years i am waiting for some inbuilt solution to this . 
 
-System is very slow and there are tons of "lost interrupt" messages.
+here is my saga on a forum 
+http://www.neowin.net/forum/index.php?showtopic=318733&view=findpost&p=585899290
+
+regards,
+anshuman gholap
+hosting server admin 
+india.
 
 
-
-Signed-off-by: Luca Falavigna <dktrkranz@gmail.com>
-
---- ./arch/i386/kernel/machine_kexec.c.orig	2005-08-28 22:03:52.000000000 +0000
-+++ ./arch/i386/kernel/machine_kexec.c	2005-08-28 22:05:28.000000000 +0000
-@@ -187,7 +187,7 @@ NORET_TYPE void machine_kexec(struct kim
- 	relocate_new_kernel_t rnk;
-
- 	/* Interrupts aren't acceptable while we reboot */
--	local_irq_disable();
-+	raw_local_irq_disable();
-
- 	/* Compute some offsets */
- 	reboot_code_buffer = page_to_pfn(image->control_code_page)
---- ./arch/i386/kernel/crash.c.orig	2005-08-28 22:04:08.000000000 +0000
-+++ ./arch/i386/kernel/crash.c	2005-08-28 22:04:55.000000000 +0000
-@@ -143,7 +143,7 @@ static int crash_nmi_callback(struct pt_
- 	 */
- 	if (cpu == crashing_cpu)
- 		return 1;
--	local_irq_disable();
-+	raw_local_irq_disable();
-
- 	if (!user_mode(regs)) {
- 		crash_setup_regs(&fixed_regs, regs);
-@@ -210,7 +210,7 @@ void machine_crash_shutdown(struct pt_re
- 	 * an SMP system.
- 	 */
- 	/* The kernel is broken so disable interrupts */
--	local_irq_disable();
-+	raw_local_irq_disable();
-
- 	/* Make a note of crashing cpu. Will be used in NMI callback.*/
- 	crashing_cpu = smp_processor_id();
-
-
-
-
-Regards,
--- 
-					Luca
-
-
+On 8/29/05, Daniel Drake  <dsd@gentoo.org> wrote:
+> Hi,
+> 
+> If there are no known issues it would be nice to push this for inclusion in 
+> 2.6.14. The relevant patches from -mm are named
+> ppp_mppe-add-ppp-mppe-encryption-module.patch and
+> ppp_mppe-add-ppp-mppe-encryption-module-update.patch
+> 
+> Judging by the feedback I get from Gentoo users, there is high demand for this :) 
+> 
+> Thanks,
+> Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+>  More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVH2WYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbVH2W0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbVH2WYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 18:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVH2WYd
+	id S1751366AbVH2W0X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 18:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbVH2WZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 18:24:33 -0400
-Received: from mirapoint2.brutele.be ([212.68.199.149]:8805 "EHLO
-	mirapoint2.brutele.be") by vger.kernel.org with ESMTP
-	id S1751360AbVH2WYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 18:24:33 -0400
-Date: Tue, 30 Aug 2005 00:24:17 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/net/s2io.h - lvalue fix
-Message-ID: <20050829222417.GA20292@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="5mCyUwZo2JvN/JJP"
-Content-Disposition: inline
-X-Operating-System: Linux debian 2.6.12-1-k7
-User-Agent: Mutt/1.5.10i
-X-Junkmail-Status: score=10/50, host=mirapoint2.brutele.be
-X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090201.43138839.0014-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
-	=?ISO-8859-1?Q?p=3D=C0=F5=08=08?=
+	Mon, 29 Aug 2005 18:25:54 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:59784 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1751366AbVH2WZH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 18:25:07 -0400
+Date: Tue, 30 Aug 2005 00:25:00 +0200
+Message-Id: <200508292225.j7TMP0dP019924@wscnet.wsc.cz>
+In-reply-to: <200508292220.j7TMKbNC019793@wscnet.wsc.cz>
+Subject: [PATCH 2/7] arch: pci_find_device remove (alpha/kernel/sys_sio.c)
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, rth@twiddle.net,
+       ink@jurassic.park.msu.ru
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Generated in 2.6.13-rc6-mm2 kernel version.
 
---5mCyUwZo2JvN/JJP
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 
-Hi all , 
+ sys_sio.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Sorry if I don't send this patch to the maintainer of s2io, but I don't
-know who is he.
-
-This patch is based on Kernel 2.6.13 release from the Linus tree.
-
-Is there a process to send patch to the mailing list ?
-
-Best regards, 
-
-Stephane
-
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-                <stephane.wirtel@gmail.com>
-
-
-
---5mCyUwZo2JvN/JJP
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: attachment; filename="patch_lvalue_s2io.diff"
-
-diff --git a/drivers/net/s2io.h b/drivers/net/s2io.h
---- a/drivers/net/s2io.h
-+++ b/drivers/net/s2io.h
-@@ -762,8 +762,8 @@ static inline u64 readq(void __iomem *ad
- {
- 	u64 ret = 0;
- 	ret = readl(addr + 4);
--	(u64) ret <<= 32;
--	(u64) ret |= readl(addr);
-+	ret <<= 32;
-+	ret |= readl(addr);
+diff --git a/arch/alpha/kernel/sys_sio.c b/arch/alpha/kernel/sys_sio.c
+--- a/arch/alpha/kernel/sys_sio.c
++++ b/arch/alpha/kernel/sys_sio.c
+@@ -105,7 +105,7 @@ sio_collect_irq_levels(void)
+ 	struct pci_dev *dev = NULL;
  
- 	return ret;
- }
-
---5mCyUwZo2JvN/JJP--
-
+ 	/* Iterate through the devices, collecting IRQ levels.  */
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	for_each_pci_dev(dev) {
+ 		if ((dev->class >> 16 == PCI_BASE_CLASS_BRIDGE) &&
+ 		    (dev->class >> 8 != PCI_CLASS_BRIDGE_PCMCIA))
+ 			continue;
+@@ -229,8 +229,8 @@ alphabook1_init_pci(void)
+ 	 */
+ 
+ 	dev = NULL;
+-	while ((dev = pci_find_device(PCI_VENDOR_ID_NCR, PCI_ANY_ID, dev))) {
+-                if (dev->device == PCI_DEVICE_ID_NCR_53C810
++	while ((dev = pci_get_device(PCI_VENDOR_ID_NCR, PCI_ANY_ID, dev))) {
++		if (dev->device == PCI_DEVICE_ID_NCR_53C810
+ 		    || dev->device == PCI_DEVICE_ID_NCR_53C815
+ 		    || dev->device == PCI_DEVICE_ID_NCR_53C820
+ 		    || dev->device == PCI_DEVICE_ID_NCR_53C825) {

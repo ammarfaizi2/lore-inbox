@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVH2UbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVH2UdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbVH2UbN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 16:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbVH2UbN
+	id S1751217AbVH2UdF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 16:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751612AbVH2UdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 16:31:13 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:51158 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751080AbVH2UbM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 16:31:12 -0400
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-From: John Rose <johnrose@austin.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linas Vepstas <linas@austin.ibm.com>, akpm@osdl.org,
-       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       lkml <linux-kernel@vger.kernel.org>,
-       External List <linuxppc64-dev@ozlabs.org>
-In-Reply-To: <17170.44500.848623.139474@cargo.ozlabs.ibm.com>
-References: <20050823231817.829359000@bilge>
-	 <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com>
-	 <1124898331.24668.33.camel@sinatra.austin.ibm.com>
-	 <20050824162959.GC25174@austin.ibm.com>
-	 <17165.3205.505386.187453@cargo.ozlabs.ibm.com>
-	 <20050825161325.GG25174@austin.ibm.com>
-	 <17170.44500.848623.139474@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Message-Id: <1125347185.19449.54.camel@sinatra.austin.ibm.com>
+	Mon, 29 Aug 2005 16:33:04 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:6822 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751270AbVH2UdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 16:33:02 -0400
+Date: Mon, 29 Aug 2005 11:03:57 -0700
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: [PATCH] acpi-cpufreq: Remove P-state read after a P-state write in normal path
+Message-ID: <20050829110357.A14724@unix-os.sc.intel.com>
+References: <20050826171052.B27226@unix-os.sc.intel.com> <20050828180941.GB28994@isilmar.linta.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 29 Aug 2005 15:26:25 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050828180941.GB28994@isilmar.linta.de>; from linux@dominikbrodowski.net on Sun, Aug 28, 2005 at 08:09:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul-
-
-> > 2) As a result, the code to call hot-unplug is a bit messy. In
-> >    particular, there's a bit of hoop-jumping when hotplug is built as
-> >    as a module (and said hoops were wrecked recently when I moved the
-> >    code around, out of the rpaphp directory).
+On Sun, Aug 28, 2005 at 08:09:41PM +0200, Dominik Brodowski wrote:
+> Hi,
 > 
-> One way to clean this up would be to make rpaphp the driver for the
-> EADS bridges (from the pci code's point of view).  Then it would
-> automatically get included in the error recovery process and could do
-> whatever it should.
+> On Fri, Aug 26, 2005 at 05:10:52PM -0700, Venkatesh Pallipadi wrote:
+> >  	/*
+> > -	 * Then we read the 'status_register' and compare the value with the
+> > -	 * target state's 'status' to make sure the transition was successful.
+> > -	 * Note that we'll poll for up to 1ms (100 cycles of 10us) before
+> > -	 * giving up.
+> > +	 * Assume the write went through when acpi_pstate_strict is not used.
+> > +	 * As read status_register is an expensive operation and there 
+> > +	 * are no specific error cases where an IO port write will fail.
+> >  	 */
+> 
+> Well, the IO port write itself might not fail, but the transition itself --
+> and we're reading the _status_ register here, not the control register where
+> we've written to. And 8.4.4.1 of ACPI-sepc 3.0 does specifically mention
+> that transitions _can_ fail, so I think we should handle this possibility.
 
-Not sure that I agree with this.  Not all PCI hotplug slots have EADS
-devices as parents.  This sort of topography dependency is something
-we're trying to break in rpaphp.  Rpaphp could set this up for devices
-that do have EADS parents, but then we've only covered a subset of
-EEH-capable devices.  
+Yes. ACPI spec says transitions can fail. But, it doesn't fail often in 
+practise. And even if it fails, I think, we should handle it without this 
+read os STATUS register. The speedstep-centrino driver, which does similar
+thing as acpi-cpufreq, does not do this status check after control MSR write.
+We can skip the read of STATUS in cpi-cpufreq in a similar way. No?
 
-Anyway, isn't the OS forbidden from performing most of the expected
-function of such a driver for EADS devices:
-	Enable the device
-	Access device configuration space
-	Discover resources (addresses and IRQ numbers) provided by the device
-	Allocate these resources
-	Communicate with the device
-	Disable the device
+I feel the overhead of doing the status read here is too high. As it uses SMM,
+the latency for read of STATUS is almost same as write into CONTROL. If we 
+think retaining the STATUS read is better, we should atleast double the 
+transition time reported in _PSS to compensate for this extra overhead.
 
-Thanks-
-John
+And reading the STATUS in a loop should go away. I don't see that it being 
+mentioned in ACPI spec. The 1mS loop seems totally redundant.
 
+Thanks,
+Venki

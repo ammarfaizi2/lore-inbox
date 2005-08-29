@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbVH2R4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbVH2RzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbVH2R4F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVH2R4E
+	id S1751187AbVH2RzO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbVH2RzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:56:04 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:4506 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751197AbVH2Rzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:55:47 -0400
-Date: Mon, 29 Aug 2005 19:55:42 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 6/10] s390: pfault interrupt race.
-Message-ID: <20050829175542.GF6796@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+	Mon, 29 Aug 2005 13:55:08 -0400
+Received: from RT-soft-1.Moscow.itn.ru ([80.240.96.90]:22953 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S1751187AbVH2RzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 13:55:06 -0400
+Message-ID: <43134BF8.1090706@dev.rtsoft.ru>
+Date: Mon, 29 Aug 2005 21:55:04 +0400
+From: Grigory Tolstolytkin <gtolstolytkin@dev.rtsoft.ru>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 8250 serial driver and PM
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 6/10] s390: pfault interrupt race.
+Hi,
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+I'm working on power management support for a particular ARM based board 
+and I've got a question:
+I want to add a board specific power management for standard uart driver 
+(serial8250). For this purpose there is a special hook defined in 
+uart_8250_port structure (drivers/serial/8250.c):
+...
+ >        /*
+ >        * We provide a per-port pm hook.
+ >         */
+ >        void                    (*pm)(struct uart_port *port,
+ >                                      unsigned int state, unsigned int 
+old);
+...
 
-There is a race in pfault_interrupt. That function gets called two times
-for each pfault notification. Once with a subcode of 0 to indicate that
-a real page is not available and once with a subcode of 0x80 to indicate
-that the page is present again. Since the two external interrupts can be
-delivered on two different cpus the order in which the two calls are made
-is unpredictable. It is possible that the subcode 0x80 interrupt is
-completed before the subcode 0x00 interrupt has done the wake_up() call.
-To avoid calling wake_up() on an already removed task structure proper
-task structure reference counting is needed. Increase the reference
-counter in the subcode 0x00 interrupt before setting pfault_wait to zero
-and return the reference after the wake_up call.
+When driver goes into suspend/resume, serial8250_pm() function is called 
+and it checks for the hook and executes it if it exists. But I didn't 
+find a proper way to assign my own function to this hook.
+How this hook is supposed to be changed? Is there a way to correctly 
+initialize it and how it should be done?
+Whether it's a good way to initialize it, for example, in 
+serial8250_isa_init_ports():
+...
+                up->mcr_mask = ~ALPHA_KLUDGE_MCR;
+                up->mcr_force = ALPHA_KLUDGE_MCR;
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+                up->port.ops = &serial8250_pops;
 
-diffstat:
- arch/s390/mm/fault.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+#ifdef CONFIG_ARCH_XXX
+                up->pm = pnx4008_uart_pm;
+#endif
+       }
+...
 
-diff -urpN linux-2.6/arch/s390/mm/fault.c linux-2.6-patched/arch/s390/mm/fault.c
---- linux-2.6/arch/s390/mm/fault.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6-patched/arch/s390/mm/fault.c	2005-08-29 19:18:09.000000000 +0200
-@@ -563,12 +563,14 @@ pfault_interrupt(struct pt_regs *regs, _
- 			 * interrupt. pfault_wait is valid. Set pfault_wait
- 			 * back to zero and wake up the process. This can
- 			 * safely be done because the task is still sleeping
--			 * and can't procude new pfaults. */
-+			 * and can't produce new pfaults. */
- 			tsk->thread.pfault_wait = 0;
- 			wake_up_process(tsk);
-+			put_task_struct(tsk);
- 		}
- 	} else {
- 		/* signal bit not set -> a real page is missing. */
-+		get_task_struct(tsk);
- 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
- 		if (xchg(&tsk->thread.pfault_wait, 1) != 0) {
- 			/* Completion interrupt was faster than the initial
-@@ -578,6 +580,7 @@ pfault_interrupt(struct pt_regs *regs, _
- 			 * mode and can't produce new pfaults. */
- 			tsk->thread.pfault_wait = 0;
- 			set_task_state(tsk, TASK_RUNNING);
-+			put_task_struct(tsk);
- 		} else
- 			set_tsk_need_resched(tsk);
- 	}
+Or it's a bad manner?
+
+Any help appreciated,
+
+Thanks,
+Grigory.
+

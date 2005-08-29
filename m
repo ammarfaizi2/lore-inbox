@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVH2Xui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVH2XzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbVH2Xui (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 19:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVH2Xui
+	id S932083AbVH2XzV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 19:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbVH2XzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 19:50:38 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:18122 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932079AbVH2Xuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 19:50:37 -0400
-Date: Mon, 29 Aug 2005 17:50:29 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: kernel panic
-In-reply-to: <4GLD8-5Wa-27@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43139F45.3020406@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <4GLD8-5Wa-27@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Mon, 29 Aug 2005 19:55:20 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:62392 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932083AbVH2XzU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 19:55:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=J5b03hXwJ5GIKYdJsA8Yl1LPs5dtlMZNpYWRDN3zWSQ5UKbDn78v2pL9mP313MdIOX5xCZ3Tf7Liv8zitPV0tPx/9wZLRJeKs4wlUT1Fd4qsWQ8VuFupOvCFWZOWvz6gIyKsYF8blUQz345zV6H9Tziqlklq/RQ3zxvE7kmlApU=
+Date: Tue, 30 Aug 2005 01:55:13 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: stephane.wirtel@belgacom.net, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.13 : __check_region is deprecated
+Message-Id: <20050830015513.62ee2c0c.diegocg@gmail.com>
+In-Reply-To: <9a8748490508291634416a18bc@mail.gmail.com>
+References: <20050829231417.GB2736@localhost.localdomain>
+	<20050830012813.7737f6f6.diegocg@gmail.com>
+	<9a8748490508291634416a18bc@mail.gmail.com>
+X-Mailer: Sylpheed version 2.1.1+svn (GTK+ 2.8.2; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-manomugdha biswas wrote:
-> Hi,
-> I am using the following makefile and the .c file to
-> generate a kernel module. I can load this module
-> without error and warning. But when I call ioctl()
-> from user application to run this module it gets
-> kernel panic!
+El Tue, 30 Aug 2005 01:34:25 +0200,
+Jesper Juhl <jesper.juhl@gmail.com> escribió:
 
-I think there's something wrong with the way you're using the wait queue 
-(they're not normally instantiated as local variables on the stack, for 
-one thing). It looks like you're just using it to create a delay, in 
-that case use schedule_timeout, msleep, etc.
+> I don't see why we should break a bunch of drivers by doing that.
+> Much better, in my oppinion, to fix the few remaining drivers still
+> using check_region and *then* kill it. Even unmaintained drivers may
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+I'd usually agree with you, but check_region has been deprecated for so many
+time; I was just wondering myself if people will bother to fix the remaining
+drivers without some "incentive" 

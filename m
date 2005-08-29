@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbVH2Rxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbVH2R4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbVH2Rxg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbVH2Rxg
+	id S1751232AbVH2R4d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbVH2R4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:53:36 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:42399 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751181AbVH2Rxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:53:35 -0400
-Date: Mon, 29 Aug 2005 19:53:29 +0200
+	Mon, 29 Aug 2005 13:56:32 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:19354 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751246AbVH2R4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 13:56:20 -0400
+Date: Mon, 29 Aug 2005 19:56:15 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 1/10] s390: machine check handler bugs.
-Message-ID: <20050829175329.GA6796@localhost.localdomain>
+To: akpm@osdl.org, edrossma@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 7/10] s390: crypto driver update.
+Message-ID: <20050829175615.GG6796@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,559 +21,727 @@ User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 1/10] s390: machine check handler bugs.
+[patch 7/10] s390: crypto driver update.
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Eric Rossman <edrossma@us.ibm.com>
 
-The new machine check handler still has a few bugs. 1) The system
-entry time has to be stored in the machine check handler, 2) the
-machine check return psw may not be stored at the usual place
-because it might overwrite the return psw of the interrupted
-context, 3) the return address for the call to s390_handle_mcck
-in the i/o interrupt handler is not correct, 4) the system
-call cleanup has to take the different save area of the
-machine check handler into account, 5) the machine check handler
-may not call UPDATE_VTIME before CREATE_STACK_FRAME, and 6) the
-io leave path needs a critical section cleanup to make sure that
-the TIF_MCCK_PENDING bit is really checked before switching back
-to user space.
+crypto device driver update:
+ - Suppress syslog messages for some return codes.
+ - Fix incorrect bounds checking in /proc interface.
+ - Remove hotplug calls.
+ - Remove linux version checks.
+ - Remove device workqueue on module unload.
 
+Signed-off-by: Eric Rossman <edrossma@us.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- arch/s390/kernel/entry.S   |  116 ++++++++++++++++++++++++++++++++++-----------
- arch/s390/kernel/entry64.S |  113 +++++++++++++++++++++++++++++++++----------
- drivers/s390/s390mach.c    |    2 
- include/asm-s390/lowcore.h |    8 ++-
- 4 files changed, 181 insertions(+), 58 deletions(-)
+ drivers/s390/crypto/z90common.h   |    3 
+ drivers/s390/crypto/z90hardware.c |  127 +++++++++----------
+ drivers/s390/crypto/z90main.c     |  246 ++++++--------------------------------
+ 3 files changed, 106 insertions(+), 270 deletions(-)
 
-diff -urpN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
---- linux-2.6/arch/s390/kernel/entry64.S	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry64.S	2005-08-29 19:18:05.000000000 +0200
-@@ -131,14 +131,14 @@ _TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_
- 	stg	%r12,__SF_BACKCHAIN(%r15)
-         .endm
+diff -urpN linux-2.6/drivers/s390/crypto/z90common.h linux-2.6-patched/drivers/s390/crypto/z90common.h
+--- linux-2.6/drivers/s390/crypto/z90common.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/z90common.h	2005-08-29 19:18:10.000000000 +0200
+@@ -27,7 +27,7 @@
+ #ifndef _Z90COMMON_H_
+ #define _Z90COMMON_H_
  
--	.macro	RESTORE_ALL sync
--	mvc	__LC_RETURN_PSW(16),SP_PSW(%r15) # move user PSW to lowcore
-+	.macro	RESTORE_ALL psworg,sync
-+	mvc	\psworg(16),SP_PSW(%r15) # move user PSW to lowcore
- 	.if !\sync
--	ni	__LC_RETURN_PSW+1,0xfd	# clear wait state bit
-+	ni	\psworg+1,0xfd		# clear wait state bit
- 	.endif
- 	lmg	%r0,%r15,SP_R0(%r15)	# load gprs 0-15 of user
- 	STORE_TIMER __LC_EXIT_TIMER
--	lpswe	__LC_RETURN_PSW		# back to caller
-+	lpswe	\psworg			# back to caller
- 	.endm
- 
- /*
-@@ -233,7 +233,7 @@ sysc_return:
- 	tm	__TI_flags+7(%r9),_TIF_WORK_SVC
- 	jnz	sysc_work         # there is work to do (signals etc.)
- sysc_leave:
--        RESTORE_ALL 1
-+        RESTORE_ALL __LC_RETURN_PSW,1
- 
- #
- # recheck if there is more work to do
-@@ -308,8 +308,6 @@ sysc_singlestep:
- 	jg	do_single_step		# branch to do_sigtrap
+-#define VERSION_Z90COMMON_H "$Revision: 1.16 $"
++#define VERSION_Z90COMMON_H "$Revision: 1.17 $"
  
  
--__critical_end:
+ #define RESPBUFFSIZE 256
+@@ -164,5 +164,4 @@ struct CPRBX {
+ #define UMIN(a,b) ((a) < (b) ? (a) : (b))
+ #define IS_EVEN(x) ((x) == (2 * ((x) / 2)))
+ 
 -
- #
- # call syscall_trace before and after system call
- # special linkage: %r12 contains the return address for trace_svc
-@@ -612,7 +610,8 @@ io_return:
- 	tm	__TI_flags+7(%r9),_TIF_WORK_INT
- 	jnz	io_work                # there is work to do (signals etc.)
- io_leave:
--        RESTORE_ALL 0
-+        RESTORE_ALL __LC_RETURN_PSW,0
-+io_done:
- 
- #ifdef CONFIG_PREEMPT
- io_preempt:
-@@ -711,6 +710,8 @@ ext_no_vtime:
- 	brasl   %r14,do_extint
- 	j	io_return
- 
-+__critical_end:
-+
- /*
-  * Machine check handler routines
-  */
-@@ -718,6 +719,7 @@ ext_no_vtime:
- mcck_int_handler:
- 	la	%r1,4095		# revalidate r1
- 	spt	__LC_CPU_TIMER_SAVE_AREA-4095(%r1)	# revalidate cpu timer
-+	mvc	__LC_ASYNC_ENTER_TIMER(8),__LC_CPU_TIMER_SAVE_AREA-4095(%r1)
-   	lmg     %r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r1)# revalidate gprs
- 	SAVE_ALL_BASE __LC_SAVE_AREA+64
- 	la	%r12,__LC_MCK_OLD_PSW
-@@ -730,17 +732,8 @@ mcck_int_handler:
- 	mvc	__LC_ASYNC_ENTER_TIMER(8),__LC_LAST_UPDATE_TIMER
- 	mvc	__LC_SYNC_ENTER_TIMER(8),__LC_LAST_UPDATE_TIMER
- 	mvc	__LC_EXIT_TIMER(8),__LC_LAST_UPDATE_TIMER
--0:	tm	__LC_MCCK_CODE+2,0x08	# mwp of old psw valid?
--	jno	mcck_no_vtime		# no -> no timer update
--	tm      __LC_MCK_OLD_PSW+1,0x01 # interrupting from user ?
--	jz	mcck_no_vtime
--	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
--	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
--	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
--mcck_no_vtime:
  #endif
--0:
--	tm	__LC_MCCK_CODE+2,0x09   # mwp + ia of old psw valid?
-+0:	tm	__LC_MCCK_CODE+2,0x09   # mwp + ia of old psw valid?
- 	jno	mcck_int_main		# no -> skip cleanup critical
- 	tm      __LC_MCK_OLD_PSW+1,0x01 # test problem state bit
- 	jnz	mcck_int_main		# from user -> load kernel stack
-@@ -756,6 +749,16 @@ mcck_int_main:
- 	jz	0f
- 	lg      %r15,__LC_PANIC_STACK   # load panic stack
- 0:	CREATE_STACK_FRAME __LC_MCK_OLD_PSW,__LC_SAVE_AREA+64
-+#ifdef CONFIG_VIRT_CPU_ACCOUNTING
-+	tm	__LC_MCCK_CODE+2,0x08	# mwp of old psw valid?
-+	jno	mcck_no_vtime		# no -> no timer update
-+	tm      __LC_MCK_OLD_PSW+1,0x01 # interrupting from user ?
-+	jz	mcck_no_vtime
-+	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
-+	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
-+	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
-+mcck_no_vtime:
-+#endif
- 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
- 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
- 	brasl	%r14,s390_do_machine_check
-@@ -771,7 +774,7 @@ mcck_int_main:
- 	jno	mcck_return
- 	brasl	%r14,s390_handle_mcck
- mcck_return:
--        RESTORE_ALL 0
-+        RESTORE_ALL __LC_RETURN_MCCK_PSW,0
+diff -urpN linux-2.6/drivers/s390/crypto/z90hardware.c linux-2.6-patched/drivers/s390/crypto/z90hardware.c
+--- linux-2.6/drivers/s390/crypto/z90hardware.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/z90hardware.c	2005-08-29 19:18:10.000000000 +0200
+@@ -32,7 +32,7 @@
+ #include "z90crypt.h"
+ #include "z90common.h"
  
- #ifdef CONFIG_SMP
- /*
-@@ -833,6 +836,10 @@ cleanup_table_sysc_leave:
- 	.quad	sysc_leave, sysc_work_loop
- cleanup_table_sysc_work_loop:
- 	.quad	sysc_work_loop, sysc_reschedule
-+cleanup_table_io_leave:
-+	.quad	io_leave, io_done
-+cleanup_table_io_work_loop:
-+	.quad	io_work_loop, io_mcck_pending
+-#define VERSION_Z90HARDWARE_C "$Revision: 1.33 $"
++#define VERSION_Z90HARDWARE_C "$Revision: 1.34 $"
  
- cleanup_critical:
- 	clc	8(8,%r12),BASED(cleanup_table_system_call)
-@@ -855,10 +862,26 @@ cleanup_critical:
- 	clc	8(8,%r12),BASED(cleanup_table_sysc_work_loop+8)
- 	jl	cleanup_sysc_return
- 0:
-+	clc	8(8,%r12),BASED(cleanup_table_io_leave)
-+	jl	0f
-+	clc	8(8,%r12),BASED(cleanup_table_io_leave+8)
-+	jl	cleanup_io_leave
-+0:
-+	clc	8(8,%r12),BASED(cleanup_table_io_work_loop)
-+	jl	0f
-+	clc	8(8,%r12),BASED(cleanup_table_io_work_loop+8)
-+	jl	cleanup_io_return
-+0:
- 	br	%r14
+ char z90hardware_version[] __initdata =
+ 	"z90hardware.o (" VERSION_Z90HARDWARE_C "/"
+@@ -283,48 +283,6 @@ struct type6_msg {
+ 	struct CPRB	 CPRB;
+ };
  
- cleanup_system_call:
- 	mvc	__LC_RETURN_PSW(16),0(%r12)
-+	cghi	%r12,__LC_MCK_OLD_PSW
-+	je	0f
-+	la	%r12,__LC_SAVE_AREA+32
-+	j	1f
-+0:	la	%r12,__LC_SAVE_AREA+64
-+1:
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	clc	__LC_RETURN_PSW+8(8),BASED(cleanup_system_call_insn+8)
- 	jh	0f
-@@ -868,11 +891,13 @@ cleanup_system_call:
- #endif
- 	clc	__LC_RETURN_PSW+8(8),BASED(cleanup_system_call_insn)
- 	jh	0f
--	mvc	__LC_SAVE_AREA(32),__LC_SAVE_AREA+32
--0:	stg	%r13,__LC_SAVE_AREA+40
-+	mvc	__LC_SAVE_AREA(32),0(%r12)
-+0:	stg	%r13,8(%r12)
-+	stg	%r12,__LC_SAVE_AREA+96	# argh
- 	SAVE_ALL __LC_SVC_OLD_PSW,__LC_SAVE_AREA,1
- 	CREATE_STACK_FRAME __LC_SVC_OLD_PSW,__LC_SAVE_AREA
--	stg	%r15,__LC_SAVE_AREA+56
-+	lg	%r12,__LC_SAVE_AREA+96	# argh
-+	stg	%r15,24(%r12)
- 	llgh	%r7,__LC_SVC_INT_CODE
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- cleanup_vtime:
-@@ -909,17 +934,21 @@ cleanup_sysc_return:
- 
- cleanup_sysc_leave:
- 	clc	8(8,%r12),BASED(cleanup_sysc_leave_insn)
--	je	0f
-+	je	2f
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	mvc	__LC_EXIT_TIMER(8),__LC_ASYNC_ENTER_TIMER
- 	clc	8(8,%r12),BASED(cleanup_sysc_leave_insn+8)
--	je	0f
-+	je	2f
- #endif
- 	mvc	__LC_RETURN_PSW(16),SP_PSW(%r15)
--	mvc	__LC_SAVE_AREA+32(32),SP_R12(%r15)
--	lmg	%r0,%r11,SP_R0(%r15)
-+	cghi	%r12,__LC_MCK_OLD_PSW
-+	jne	0f
-+	mvc	__LC_SAVE_AREA+64(32),SP_R12(%r15)
-+	j	1f
-+0:	mvc	__LC_SAVE_AREA+32(32),SP_R12(%r15)
-+1:	lmg	%r0,%r11,SP_R0(%r15)
- 	lg	%r15,SP_R15(%r15)
--0:	la	%r12,__LC_RETURN_PSW
-+2:	la	%r12,__LC_RETURN_PSW
- 	br	%r14
- cleanup_sysc_leave_insn:
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
-@@ -927,6 +956,36 @@ cleanup_sysc_leave_insn:
- #endif
- 	.quad	sysc_leave + 12
- 
-+cleanup_io_return:
-+	mvc	__LC_RETURN_PSW(8),0(%r12)
-+	mvc	__LC_RETURN_PSW+8(8),BASED(cleanup_table_io_work_loop)
-+	la	%r12,__LC_RETURN_PSW
-+	br	%r14
-+
-+cleanup_io_leave:
-+	clc	8(8,%r12),BASED(cleanup_io_leave_insn)
-+	je	2f
-+#ifdef CONFIG_VIRT_CPU_ACCOUNTING
-+	mvc	__LC_EXIT_TIMER(8),__LC_ASYNC_ENTER_TIMER
-+	clc	8(8,%r12),BASED(cleanup_io_leave_insn+8)
-+	je	2f
-+#endif
-+	mvc	__LC_RETURN_PSW(16),SP_PSW(%r15)
-+	cghi	%r12,__LC_MCK_OLD_PSW
-+	jne	0f
-+	mvc	__LC_SAVE_AREA+64(32),SP_R12(%r15)
-+	j	1f
-+0:	mvc	__LC_SAVE_AREA+32(32),SP_R12(%r15)
-+1:	lmg	%r0,%r11,SP_R0(%r15)
-+	lg	%r15,SP_R15(%r15)
-+2:	la	%r12,__LC_RETURN_PSW
-+	br	%r14
-+cleanup_io_leave_insn:
-+#ifdef CONFIG_VIRT_CPU_ACCOUNTING
-+	.quad	io_leave + 20
-+#endif
-+	.quad	io_leave + 16
-+
- /*
-  * Integer constants
-  */
-diff -urpN linux-2.6/arch/s390/kernel/entry.S linux-2.6-patched/arch/s390/kernel/entry.S
---- linux-2.6/arch/s390/kernel/entry.S	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry.S	2005-08-29 19:18:05.000000000 +0200
-@@ -138,14 +138,14 @@ STACK_SIZE  = 1 << STACK_SHIFT
- 	st	%r12,__SF_BACKCHAIN(%r15)	# clear back chain
- 	.endm
- 
--	.macro  RESTORE_ALL sync
--	mvc	__LC_RETURN_PSW(8),SP_PSW(%r15) # move user PSW to lowcore
-+	.macro  RESTORE_ALL psworg,sync
-+	mvc	\psworg(8),SP_PSW(%r15) # move user PSW to lowcore
- 	.if !\sync
--	ni	__LC_RETURN_PSW+1,0xfd	# clear wait state bit
-+	ni	\psworg+1,0xfd		# clear wait state bit
- 	.endif
- 	lm	%r0,%r15,SP_R0(%r15)	# load gprs 0-15 of user
- 	STORE_TIMER __LC_EXIT_TIMER
--	lpsw	__LC_RETURN_PSW		# back to caller
-+	lpsw	\psworg			# back to caller
- 	.endm
- 
- /*
-@@ -235,7 +235,7 @@ sysc_return:
- 	tm	__TI_flags+3(%r9),_TIF_WORK_SVC
- 	bnz	BASED(sysc_work)  # there is work to do (signals etc.)
- sysc_leave:
--        RESTORE_ALL 1
-+        RESTORE_ALL __LC_RETURN_PSW,1
- 
- #
- # recheck if there is more work to do
-@@ -312,8 +312,6 @@ sysc_singlestep:
- 	la	%r14,BASED(sysc_return)	# load adr. of system return
- 	br	%r1			# branch to do_single_step
- 
--__critical_end:
+-union request_msg {
+-	union  type4_msg t4msg;
+-	struct type6_msg t6msg;
+-};
 -
- #
- # call trace before and after sys_call
- #
-@@ -571,7 +569,8 @@ io_return:
- 	tm	__TI_flags+3(%r9),_TIF_WORK_INT
- 	bnz	BASED(io_work)         # there is work to do (signals etc.)
- io_leave:
--        RESTORE_ALL 0
-+        RESTORE_ALL __LC_RETURN_PSW,0
-+io_done:
+-struct request_msg_ext {
+-	int		  q_nr;
+-	unsigned char	  *psmid;
+-	union request_msg reqMsg;
+-};
+-
+-struct type82_hdr {
+-	unsigned char reserved1;
+-	unsigned char type;
+-	unsigned char reserved2[2];
+-	unsigned char reply_code;
+-	unsigned char reserved3[3];
+-};
+-
+-#define TYPE82_RSP_CODE 0x82
+-
+-#define REPLY_ERROR_MACHINE_FAILURE  0x10
+-#define REPLY_ERROR_PREEMPT_FAILURE  0x12
+-#define REPLY_ERROR_CHECKPT_FAILURE  0x14
+-#define REPLY_ERROR_MESSAGE_TYPE     0x20
+-#define REPLY_ERROR_INVALID_COMM_CD  0x21
+-#define REPLY_ERROR_INVALID_MSG_LEN  0x23
+-#define REPLY_ERROR_RESERVD_FIELD    0x24
+-#define REPLY_ERROR_FORMAT_FIELD     0x29
+-#define REPLY_ERROR_INVALID_COMMAND  0x30
+-#define REPLY_ERROR_MALFORMED_MSG    0x40
+-#define REPLY_ERROR_RESERVED_FIELDO  0x50
+-#define REPLY_ERROR_WORD_ALIGNMENT   0x60
+-#define REPLY_ERROR_MESSAGE_LENGTH   0x80
+-#define REPLY_ERROR_OPERAND_INVALID  0x82
+-#define REPLY_ERROR_OPERAND_SIZE     0x84
+-#define REPLY_ERROR_EVEN_MOD_IN_OPND 0x85
+-#define REPLY_ERROR_RESERVED_FIELD   0x88
+-#define REPLY_ERROR_TRANSPORT_FAIL   0x90
+-#define REPLY_ERROR_PACKET_TRUNCATED 0xA0
+-#define REPLY_ERROR_ZERO_BUFFER_LEN  0xB0
+-
+ struct type86_hdr {
+ 	unsigned char reserved1;
+ 	unsigned char type;
+@@ -338,7 +296,7 @@ struct type86_hdr {
+ #define TYPE86_FMT2	0x02
  
- #ifdef CONFIG_PREEMPT
- io_preempt:
-@@ -621,7 +620,7 @@ io_work_loop:
- #
- io_mcck_pending:
- 	l	%r1,BASED(.Ls390_handle_mcck)
--	l	%r14,BASED(io_work_loop)
-+	la	%r14,BASED(io_work_loop)
- 	br	%r1		       # TIF bit will be cleared by handler
+ struct type86_fmt2_msg {
+-	struct type86_hdr hdr;
++	struct type86_hdr header;
+ 	unsigned char	  reserved[4];
+ 	unsigned char	  apfs[4];
+ 	unsigned int	  count1;
+@@ -538,6 +496,8 @@ static struct function_and_rules_block s
+ 	{'M','R','P',' ',' ',' ',' ',' '}
+ };
  
- #
-@@ -674,6 +673,8 @@ ext_no_vtime:
- 	basr	%r14,%r1
- 	b	BASED(io_return)
- 
-+__critical_end:
++static unsigned char static_PKE_function_code[2] = {0x50, 0x4B};
 +
- /*
-  * Machine check handler routines
-  */
-@@ -681,6 +682,7 @@ ext_no_vtime:
-         .globl mcck_int_handler
- mcck_int_handler:
- 	spt	__LC_CPU_TIMER_SAVE_AREA	# revalidate cpu timer
-+	mvc	__LC_ASYNC_ENTER_TIMER(8),__LC_CPU_TIMER_SAVE_AREA
- 	lm	%r0,%r15,__LC_GPREGS_SAVE_AREA	# revalidate gprs
- 	SAVE_ALL_BASE __LC_SAVE_AREA+32
- 	la	%r12,__LC_MCK_OLD_PSW
-@@ -693,17 +695,8 @@ mcck_int_handler:
- 	mvc	__LC_ASYNC_ENTER_TIMER(8),__LC_LAST_UPDATE_TIMER
- 	mvc	__LC_SYNC_ENTER_TIMER(8),__LC_LAST_UPDATE_TIMER
- 	mvc	__LC_EXIT_TIMER(8),__LC_LAST_UPDATE_TIMER
--0:	tm	__LC_MCCK_CODE+2,0x08   # mwp of old psw valid?
--	bno	BASED(mcck_no_vtime)	# no -> skip cleanup critical
--	tm	__LC_MCK_OLD_PSW+1,0x01 # interrupting from user ?
--	bz	BASED(mcck_no_vtime)
--	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
--	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
--	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
--mcck_no_vtime:
- #endif
--0:
--	tm	__LC_MCCK_CODE+2,0x09   # mwp + ia of old psw valid?
-+0:	tm	__LC_MCCK_CODE+2,0x09   # mwp + ia of old psw valid?
- 	bno	BASED(mcck_int_main)	# no -> skip cleanup critical
- 	tm	__LC_MCK_OLD_PSW+1,0x01	# test problem state bit
- 	bnz	BASED(mcck_int_main)	# from user -> load async stack
-@@ -720,6 +713,16 @@ mcck_int_main:
- 	be	BASED(0f)
- 	l	%r15,__LC_PANIC_STACK	# load panic stack
- 0:	CREATE_STACK_FRAME __LC_MCK_OLD_PSW,__LC_SAVE_AREA+32
-+#ifdef CONFIG_VIRT_CPU_ACCOUNTING
-+	tm	__LC_MCCK_CODE+2,0x08   # mwp of old psw valid?
-+	bno	BASED(mcck_no_vtime)	# no -> skip cleanup critical
-+	tm	__LC_MCK_OLD_PSW+1,0x01 # interrupting from user ?
-+	bz	BASED(mcck_no_vtime)
-+	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
-+	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
-+	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
-+mcck_no_vtime:
-+#endif
- 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
- 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
- 	l       %r1,BASED(.Ls390_mcck)
-@@ -737,7 +740,7 @@ mcck_int_main:
- 	l	%r1,BASED(.Ls390_handle_mcck)
- 	basr	%r14,%r1		# call machine check handler
- mcck_return:
--        RESTORE_ALL 0
-+        RESTORE_ALL __LC_RETURN_MCCK_PSW,0
+ struct T6_keyBlock_hdrX {
+ 	unsigned short blen;
+ 	unsigned short ulen;
+@@ -688,9 +648,38 @@ static struct cca_public_sec static_cca_
+ #define RESPONSE_CPRB_SIZE  0x000006B8
+ #define RESPONSE_CPRBX_SIZE 0x00000724
  
- #ifdef CONFIG_SMP
- /*
-@@ -803,6 +806,10 @@ cleanup_table_sysc_leave:
- 	.long	sysc_leave + 0x80000000, sysc_work_loop + 0x80000000
- cleanup_table_sysc_work_loop:
- 	.long	sysc_work_loop + 0x80000000, sysc_reschedule + 0x80000000
-+cleanup_table_io_leave:
-+	.long	io_leave + 0x80000000, io_done + 0x80000000
-+cleanup_table_io_work_loop:
-+	.long	io_work_loop + 0x80000000, io_mcck_pending + 0x80000000
+-#define CALLER_HEADER 12
++struct error_hdr {
++	unsigned char reserved1;
++	unsigned char type;
++	unsigned char reserved2[2];
++	unsigned char reply_code;
++	unsigned char reserved3[3];
++};
  
- cleanup_critical:
- 	clc	4(4,%r12),BASED(cleanup_table_system_call)
-@@ -825,10 +832,26 @@ cleanup_critical:
- 	clc	4(4,%r12),BASED(cleanup_table_sysc_work_loop+4)
- 	bl	BASED(cleanup_sysc_return)
- 0:
-+	clc	4(4,%r12),BASED(cleanup_table_io_leave)
-+	bl	BASED(0f)
-+	clc	4(4,%r12),BASED(cleanup_table_io_leave+4)
-+	bl	BASED(cleanup_io_leave)
-+0:
-+	clc	4(4,%r12),BASED(cleanup_table_io_work_loop)
-+	bl	BASED(0f)
-+	clc	4(4,%r12),BASED(cleanup_table_io_work_loop+4)
-+	bl	BASED(cleanup_io_return)
-+0:
- 	br	%r14
- 
- cleanup_system_call:
- 	mvc	__LC_RETURN_PSW(8),0(%r12)
-+	c	%r12,BASED(.Lmck_old_psw)
-+	be	BASED(0f)
-+	la	%r12,__LC_SAVE_AREA+16
-+	b	BASED(1f)
-+0:	la	%r12,__LC_SAVE_AREA+32
-+1:
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	clc	__LC_RETURN_PSW+4(4),BASED(cleanup_system_call_insn+4)
- 	bh	BASED(0f)
-@@ -838,11 +861,13 @@ cleanup_system_call:
- #endif
- 	clc	__LC_RETURN_PSW+4(4),BASED(cleanup_system_call_insn)
- 	bh	BASED(0f)
--	mvc	__LC_SAVE_AREA(16),__LC_SAVE_AREA+16
--0:	st	%r13,__LC_SAVE_AREA+20
-+	mvc	__LC_SAVE_AREA(16),0(%r12)
-+0:	st	%r13,4(%r12)
-+	st	%r12,__LC_SAVE_AREA+48	# argh
- 	SAVE_ALL __LC_SVC_OLD_PSW,__LC_SAVE_AREA,1
- 	CREATE_STACK_FRAME __LC_SVC_OLD_PSW,__LC_SAVE_AREA
--	st	%r15,__LC_SAVE_AREA+28
-+	l	%r12,__LC_SAVE_AREA+48	# argh
-+	st	%r15,12(%r12)
- 	lh	%r7,0x8a
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- cleanup_vtime:
-@@ -879,17 +904,21 @@ cleanup_sysc_return:
- 
- cleanup_sysc_leave:
- 	clc	4(4,%r12),BASED(cleanup_sysc_leave_insn)
--	be	BASED(0f)
-+	be	BASED(2f)
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	mvc	__LC_EXIT_TIMER(8),__LC_ASYNC_ENTER_TIMER
- 	clc	4(4,%r12),BASED(cleanup_sysc_leave_insn+4)
--	be	BASED(0f)
-+	be	BASED(2f)
- #endif
- 	mvc	__LC_RETURN_PSW(8),SP_PSW(%r15)
--	mvc	__LC_SAVE_AREA+16(16),SP_R12(%r15)
--	lm	%r0,%r11,SP_R0(%r15)
-+	c	%r12,BASED(.Lmck_old_psw)
-+	bne	BASED(0f)
-+	mvc	__LC_SAVE_AREA+32(16),SP_R12(%r15)
-+	b	BASED(1f)
-+0:	mvc	__LC_SAVE_AREA+16(16),SP_R12(%r15)
-+1:	lm	%r0,%r11,SP_R0(%r15)
- 	l	%r15,SP_R15(%r15)
--0:	la	%r12,__LC_RETURN_PSW
-+2:	la	%r12,__LC_RETURN_PSW
- 	br	%r14
- cleanup_sysc_leave_insn:
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
-@@ -897,6 +926,36 @@ cleanup_sysc_leave_insn:
- #endif
- 	.long	sysc_leave + 10 + 0x80000000
- 
-+cleanup_io_return:
-+	mvc	__LC_RETURN_PSW(4),0(%r12)
-+	mvc	__LC_RETURN_PSW+4(4),BASED(cleanup_table_io_work_loop)
-+	la	%r12,__LC_RETURN_PSW
-+	br	%r14
+-static unsigned char static_PKE_function_code[2] = {0x50, 0x4B};
++#define TYPE82_RSP_CODE 0x82
 +
-+cleanup_io_leave:
-+	clc	4(4,%r12),BASED(cleanup_io_leave_insn)
-+	be	BASED(2f)
-+#ifdef CONFIG_VIRT_CPU_ACCOUNTING
-+	mvc	__LC_EXIT_TIMER(8),__LC_ASYNC_ENTER_TIMER
-+	clc	4(4,%r12),BASED(cleanup_io_leave_insn+4)
-+	be	BASED(2f)
-+#endif
-+	mvc	__LC_RETURN_PSW(8),SP_PSW(%r15)
-+	c	%r12,BASED(.Lmck_old_psw)
-+	bne	BASED(0f)
-+	mvc	__LC_SAVE_AREA+32(16),SP_R12(%r15)
-+	b	BASED(1f)
-+0:	mvc	__LC_SAVE_AREA+16(16),SP_R12(%r15)
-+1:	lm	%r0,%r11,SP_R0(%r15)
-+	l	%r15,SP_R15(%r15)
-+2:	la	%r12,__LC_RETURN_PSW
-+	br	%r14
-+cleanup_io_leave_insn:
-+#ifdef CONFIG_VIRT_CPU_ACCOUNTING
-+	.long	io_leave + 18 + 0x80000000
-+#endif
-+	.long	io_leave + 14 + 0x80000000
++#define REP82_ERROR_MACHINE_FAILURE  0x10
++#define REP82_ERROR_PREEMPT_FAILURE  0x12
++#define REP82_ERROR_CHECKPT_FAILURE  0x14
++#define REP82_ERROR_MESSAGE_TYPE     0x20
++#define REP82_ERROR_INVALID_COMM_CD  0x21
++#define REP82_ERROR_INVALID_MSG_LEN  0x23
++#define REP82_ERROR_RESERVD_FIELD    0x24
++#define REP82_ERROR_FORMAT_FIELD     0x29
++#define REP82_ERROR_INVALID_COMMAND  0x30
++#define REP82_ERROR_MALFORMED_MSG    0x40
++#define REP82_ERROR_RESERVED_FIELDO  0x50
++#define REP82_ERROR_WORD_ALIGNMENT   0x60
++#define REP82_ERROR_MESSAGE_LENGTH   0x80
++#define REP82_ERROR_OPERAND_INVALID  0x82
++#define REP82_ERROR_OPERAND_SIZE     0x84
++#define REP82_ERROR_EVEN_MOD_IN_OPND 0x85
++#define REP82_ERROR_RESERVED_FIELD   0x88
++#define REP82_ERROR_TRANSPORT_FAIL   0x90
++#define REP82_ERROR_PACKET_TRUNCATED 0xA0
++#define REP82_ERROR_ZERO_BUFFER_LEN  0xB0
 +
- /*
-  * Integer constants
-  */
-@@ -918,6 +977,7 @@ cleanup_sysc_leave_insn:
- .Ls390_mcck:   .long  s390_do_machine_check
- .Ls390_handle_mcck:
- 	       .long  s390_handle_mcck
-+.Lmck_old_psw: .long  __LC_MCK_OLD_PSW
- .Ldo_IRQ:      .long  do_IRQ
- .Ldo_extint:   .long  do_extint
- .Ldo_signal:   .long  do_signal
-diff -urpN linux-2.6/drivers/s390/s390mach.c linux-2.6-patched/drivers/s390/s390mach.c
---- linux-2.6/drivers/s390/s390mach.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/s390mach.c	2005-08-29 19:18:05.000000000 +0200
-@@ -240,7 +240,7 @@ s390_revalidate_registers(struct mci *mc
- 			 * Floating point control register can't be restored.
- 			 * Task will be terminated.
- 			 */
--			asm volatile ("lfpc 0(%0)" : : "a" (&zero));
-+			asm volatile ("lfpc 0(%0)" : : "a" (&zero), "m" (zero));
- 			kill_task = 1;
++#define CALLER_HEADER 12
  
+ static inline int
+ testq(int q_nr, int *q_depth, int *dev_type, struct ap_status_word *stat)
+@@ -1212,9 +1201,9 @@ send_to_AP(int dev_nr, int cdx, int msg_
+ 	struct ap_status_word stat_word;
+ 	enum devstat stat;
+ 	int ccode;
++	u32 *q_nr_p = (u32 *)msg_ext;
+ 
+-	((struct request_msg_ext *) msg_ext)->q_nr =
+-		(dev_nr << SKIP_BITL) + cdx;
++	*q_nr_p = (dev_nr << SKIP_BITL) + cdx;
+ 	PDEBUG("msg_len passed to sen: %d\n", msg_len);
+ 	PDEBUG("q number passed to sen: %02x%02x%02x%02x\n",
+ 	       msg_ext[0], msg_ext[1], msg_ext[2], msg_ext[3]);
+@@ -2104,7 +2093,7 @@ convert_response(unsigned char *response
+ 		 int *respbufflen_p, unsigned char *resp_buff)
+ {
+ 	struct ica_rsa_modexpo *icaMsg_p = (struct ica_rsa_modexpo *) buffer;
+-	struct type82_hdr *t82h_p = (struct type82_hdr *) response;
++	struct error_hdr *errh_p = (struct error_hdr *) response;
+ 	struct type84_hdr *t84h_p = (struct type84_hdr *) response;
+ 	struct type86_fmt2_msg *t86m_p =  (struct type86_fmt2_msg *) response;
+ 	int reply_code, service_rc, service_rs, src_l;
+@@ -2117,12 +2106,13 @@ convert_response(unsigned char *response
+ 	service_rc = 0;
+ 	service_rs = 0;
+ 	src_l = 0;
+-	switch (t82h_p->type) {
++	switch (errh_p->type) {
+ 	case TYPE82_RSP_CODE:
+-		reply_code = t82h_p->reply_code;
+-		src_p = (unsigned char *)t82h_p;
+-		PRINTK("Hardware error: Type 82 Message Header: "
++		reply_code = errh_p->reply_code;
++		src_p = (unsigned char *)errh_p;
++		PRINTK("Hardware error: Type %02X Message Header: "
+ 		       "%02x%02x%02x%02x%02x%02x%02x%02x\n",
++		       errh_p->type,
+ 		       src_p[0], src_p[1], src_p[2], src_p[3],
+ 		       src_p[4], src_p[5], src_p[6], src_p[7]);
+ 		break;
+@@ -2131,7 +2121,7 @@ convert_response(unsigned char *response
+ 		src_p = response + (int)t84h_p->len - src_l;
+ 		break;
+ 	case TYPE86_RSP_CODE:
+-		reply_code = t86m_p->hdr.reply_code;
++		reply_code = t86m_p->header.reply_code;
+ 		if (reply_code != 0)
+ 			break;
+ 		cprb_p = (struct CPRB *)
+@@ -2143,6 +2133,9 @@ convert_response(unsigned char *response
+ 				le2toI(cprb_p->ccp_rscode, &service_rs);
+ 				if ((service_rc == 8) && (service_rs == 66))
+ 					PDEBUG("Bad block format on PCICC\n");
++				else if ((service_rc == 8) && (service_rs == 65))
++					PDEBUG("Probably an even modulus on "
++					       "PCICC\n");
+ 				else if ((service_rc == 8) && (service_rs == 770)) {
+ 					PDEBUG("Invalid key length on PCICC\n");
+ 					unset_ext_bitlens();
+@@ -2155,7 +2148,7 @@ convert_response(unsigned char *response
+ 					return REC_USE_PCICA;
+ 				}
+ 				else
+-					PRINTK("service rc/rs: %d/%d\n",
++					PRINTK("service rc/rs (PCICC): %d/%d\n",
+ 					       service_rc, service_rs);
+ 				return REC_OPERAND_INV;
+ 			}
+@@ -2169,7 +2162,10 @@ convert_response(unsigned char *response
+ 			if (service_rc != 0) {
+ 				service_rs = (int) cprbx_p->ccp_rscode;
+ 				if ((service_rc == 8) && (service_rs == 66))
+-					PDEBUG("Bad block format on PCXICC\n");
++					PDEBUG("Bad block format on PCIXCC\n");
++				else if ((service_rc == 8) && (service_rs == 65))
++					PDEBUG("Probably an even modulus on "
++					       "PCIXCC\n");
+ 				else if ((service_rc == 8) && (service_rs == 770)) {
+ 					PDEBUG("Invalid key length on PCIXCC\n");
+ 					unset_ext_bitlens();
+@@ -2182,7 +2178,7 @@ convert_response(unsigned char *response
+ 					return REC_USE_PCICA;
+ 				}
+ 				else
+-					PRINTK("service rc/rs: %d/%d\n",
++					PRINTK("service rc/rs (PCIXCC): %d/%d\n",
+ 					       service_rc, service_rs);
+ 				return REC_OPERAND_INV;
+ 			}
+@@ -2195,20 +2191,25 @@ convert_response(unsigned char *response
  		}
-diff -urpN linux-2.6/include/asm-s390/lowcore.h linux-2.6-patched/include/asm-s390/lowcore.h
---- linux-2.6/include/asm-s390/lowcore.h	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/lowcore.h	2005-08-29 19:18:05.000000000 +0200
-@@ -68,6 +68,7 @@
- #define __LC_SYSTEM_TIMER		0x270
- #define __LC_LAST_UPDATE_CLOCK		0x278
- #define __LC_STEAL_CLOCK		0x280
-+#define __LC_RETURN_MCCK_PSW            0x288
- #define __LC_KERNEL_STACK               0xC40
- #define __LC_THREAD_INFO		0xC44
- #define __LC_ASYNC_STACK                0xC48
-@@ -90,6 +91,7 @@
- #define __LC_SYSTEM_TIMER		0x278
- #define __LC_LAST_UPDATE_CLOCK		0x280
- #define __LC_STEAL_CLOCK		0x288
-+#define __LC_RETURN_MCCK_PSW            0x290
- #define __LC_KERNEL_STACK               0xD40
- #define __LC_THREAD_INFO		0xD48
- #define __LC_ASYNC_STACK                0xD50
-@@ -196,7 +198,8 @@ struct _lowcore
- 	__u64        system_timer;             /* 0x270 */
- 	__u64        last_update_clock;        /* 0x278 */
- 	__u64        steal_clock;              /* 0x280 */
--	__u8         pad8[0xc00-0x288];        /* 0x288 */
-+        psw_t        return_mcck_psw;          /* 0x288 */
-+	__u8         pad8[0xc00-0x290];        /* 0x290 */
+ 		break;
+ 	default:
++		src_p = (unsigned char *)errh_p;
++		PRINTK("Unrecognized Message Header: "
++		       "%02x%02x%02x%02x%02x%02x%02x%02x\n",
++		       src_p[0], src_p[1], src_p[2], src_p[3],
++		       src_p[4], src_p[5], src_p[6], src_p[7]);
+ 		return REC_BAD_MESSAGE;
+ 	}
  
-         /* System info area */
- 	__u32        save_area[16];            /* 0xc00 */
-@@ -285,7 +288,8 @@ struct _lowcore
- 	__u64        system_timer;             /* 0x278 */
- 	__u64        last_update_clock;        /* 0x280 */
- 	__u64        steal_clock;              /* 0x288 */
--        __u8         pad8[0xc00-0x290];        /* 0x290 */
-+        psw_t        return_mcck_psw;          /* 0x290 */
-+        __u8         pad8[0xc00-0x2a0];        /* 0x2a0 */
-         /* System info area */
- 	__u64        save_area[16];            /* 0xc00 */
-         __u8         pad9[0xd40-0xc80];        /* 0xc80 */
+ 	if (reply_code)
+ 		switch (reply_code) {
+-		case REPLY_ERROR_OPERAND_INVALID:
++		case REP82_ERROR_OPERAND_INVALID:
+ 			return REC_OPERAND_INV;
+-		case REPLY_ERROR_OPERAND_SIZE:
++		case REP82_ERROR_OPERAND_SIZE:
+ 			return REC_OPERAND_SIZE;
+-		case REPLY_ERROR_EVEN_MOD_IN_OPND:
++		case REP82_ERROR_EVEN_MOD_IN_OPND:
+ 			return REC_EVEN_MOD;
+-		case REPLY_ERROR_MESSAGE_TYPE:
++		case REP82_ERROR_MESSAGE_TYPE:
+ 			return WRONG_DEVICE_TYPE;
+-		case REPLY_ERROR_TRANSPORT_FAIL:
++		case REP82_ERROR_TRANSPORT_FAIL:
+ 			PRINTKW("Transport failed (APFS = %02X%02X%02X%02X)\n",
+ 				t86m_p->apfs[0], t86m_p->apfs[1],
+ 				t86m_p->apfs[2], t86m_p->apfs[3]);
+@@ -2229,7 +2230,7 @@ convert_response(unsigned char *response
+ 	PDEBUG("Length returned = %d\n", src_l);
+ 	tgt_p = resp_buff + icaMsg_p->outputdatalength - src_l;
+ 	memcpy(tgt_p, src_p, src_l);
+-	if ((t82h_p->type == TYPE86_RSP_CODE) && (resp_buff < tgt_p)) {
++	if ((errh_p->type == TYPE86_RSP_CODE) && (resp_buff < tgt_p)) {
+ 		memset(resp_buff, 0, icaMsg_p->outputdatalength - src_l);
+ 		if (pad_msg(resp_buff, icaMsg_p->outputdatalength, src_l))
+ 			return REC_INVALID_PAD;
+diff -urpN linux-2.6/drivers/s390/crypto/z90main.c linux-2.6-patched/drivers/s390/crypto/z90main.c
+--- linux-2.6/drivers/s390/crypto/z90main.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/z90main.c	2005-08-29 19:18:10.000000000 +0200
+@@ -31,6 +31,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>   // for tasklets
+ #include <linux/ioctl32.h>
++#include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/kobject_uevent.h>
+@@ -39,19 +40,8 @@
+ #include <linux/version.h>
+ #include "z90crypt.h"
+ #include "z90common.h"
+-#ifndef Z90CRYPT_USE_HOTPLUG
+-#include <linux/miscdevice.h>
+-#endif
+-
+-#define VERSION_CODE(vers, rel, seq) (((vers)<<16) | ((rel)<<8) | (seq))
+-#if LINUX_VERSION_CODE < VERSION_CODE(2,4,0) /* version < 2.4 */
+-#  error "This kernel is too old: not supported"
+-#endif
+-#if LINUX_VERSION_CODE > VERSION_CODE(2,7,0) /* version > 2.6 */
+-#  error "This kernel is too recent: not supported by this file"
+-#endif
+ 
+-#define VERSION_Z90MAIN_C "$Revision: 1.57 $"
++#define VERSION_Z90MAIN_C "$Revision: 1.62 $"
+ 
+ static char z90main_version[] __initdata =
+ 	"z90main.o (" VERSION_Z90MAIN_C "/"
+@@ -63,21 +53,12 @@ extern char z90hardware_version[];
+  * Defaults that may be modified.
+  */
+ 
+-#ifndef Z90CRYPT_USE_HOTPLUG
+ /**
+  * You can specify a different minor at compile time.
+  */
+ #ifndef Z90CRYPT_MINOR
+ #define Z90CRYPT_MINOR	MISC_DYNAMIC_MINOR
+ #endif
+-#else
+-/**
+- * You can specify a different major at compile time.
+- */
+-#ifndef Z90CRYPT_MAJOR
+-#define Z90CRYPT_MAJOR	0
+-#endif
+-#endif
+ 
+ /**
+  * You can specify a different domain at compile time or on the insmod
+@@ -97,7 +78,7 @@ extern char z90hardware_version[];
+  * older than CLEANUPTIME seconds in the past.
+  */
+ #ifndef CLEANUPTIME
+-#define CLEANUPTIME 20
++#define CLEANUPTIME 15
+ #endif
+ 
+ /**
+@@ -298,6 +279,10 @@ struct z90crypt {
+  * it contains the request; at READ, the response. The function
+  * send_to_crypto_device converts the request to device-dependent
+  * form and use the caller's OPEN-allocated buffer for the response.
++ *
++ * For the contents of caller_dev_dep_req and caller_dev_dep_req_p
++ * because that points to it, see the discussion in z90hardware.c.
++ * Search for "extended request message block".
+  */
+ struct caller {
+ 	int		 caller_buf_l;		 // length of original request
+@@ -398,24 +383,9 @@ static int z90crypt_status_write(struct 
+ 				 unsigned long, void *);
+ 
+ /**
+- * Hotplug support
+- */
+-
+-#ifdef Z90CRYPT_USE_HOTPLUG
+-#define Z90CRYPT_HOTPLUG_ADD	 1
+-#define Z90CRYPT_HOTPLUG_REMOVE	 2
+-
+-static void z90crypt_hotplug_event(int, int, int);
+-#endif
+-
+-/**
+  * Storage allocated at initialization and used throughout the life of
+  * this insmod
+  */
+-#ifdef Z90CRYPT_USE_HOTPLUG
+-static int z90crypt_major = Z90CRYPT_MAJOR;
+-#endif
+-
+ static int domain = DOMAIN_INDEX;
+ static struct z90crypt z90crypt;
+ static int quiesce_z90crypt;
+@@ -444,14 +414,12 @@ static struct file_operations z90crypt_f
+ 	.release	= z90crypt_release
+ };
+ 
+-#ifndef Z90CRYPT_USE_HOTPLUG
+ static struct miscdevice z90crypt_misc_device = {
+ 	.minor	    = Z90CRYPT_MINOR,
+ 	.name	    = DEV_NAME,
+ 	.fops	    = &z90crypt_fops,
+ 	.devfs_name = DEV_NAME
+ };
+-#endif
+ 
+ /**
+  * Documentation values.
+@@ -603,7 +571,6 @@ z90crypt_init_module(void)
+ 		return -EINVAL;
+ 	}
+ 
+-#ifndef Z90CRYPT_USE_HOTPLUG
+ 	/* Register as misc device with given minor (or get a dynamic one). */
+ 	result = misc_register(&z90crypt_misc_device);
+ 	if (result < 0) {
+@@ -611,18 +578,6 @@ z90crypt_init_module(void)
+ 			z90crypt_misc_device.minor, result);
+ 		return result;
+ 	}
+-#else
+-	/* Register the major (or get a dynamic one). */
+-	result = register_chrdev(z90crypt_major, REG_NAME, &z90crypt_fops);
+-	if (result < 0) {
+-		PRINTKW("register_chrdev (major %d) failed with %d.\n",
+-			z90crypt_major, result);
+-		return result;
+-	}
+-
+-	if (z90crypt_major == 0)
+-		z90crypt_major = result;
+-#endif
+ 
+ 	PDEBUG("Registered " DEV_NAME " with result %d\n", result);
+ 
+@@ -645,11 +600,6 @@ z90crypt_init_module(void)
+ 	} else
+ 		PRINTK("No devices at startup\n");
+ 
+-#ifdef Z90CRYPT_USE_HOTPLUG
+-	/* generate hotplug event for device node generation */
+-	z90crypt_hotplug_event(z90crypt_major, 0, Z90CRYPT_HOTPLUG_ADD);
+-#endif
+-
+ 	/* Initialize globals. */
+ 	spin_lock_init(&queuespinlock);
+ 
+@@ -701,17 +651,10 @@ z90crypt_init_module(void)
+ 	return 0; // success
+ 
+ init_module_cleanup:
+-#ifndef Z90CRYPT_USE_HOTPLUG
+ 	if ((nresult = misc_deregister(&z90crypt_misc_device)))
+ 		PRINTK("misc_deregister failed with %d.\n", nresult);
+ 	else
+ 		PDEBUG("misc_deregister successful.\n");
+-#else
+-	if ((nresult = unregister_chrdev(z90crypt_major, REG_NAME)))
+-		PRINTK("unregister_chrdev failed with %d.\n", nresult);
+-	else
+-		PDEBUG("unregister_chrdev successful.\n");
+-#endif
+ 
+ 	return result; // failure
+ }
+@@ -728,19 +671,10 @@ z90crypt_cleanup_module(void)
+ 
+ 	remove_proc_entry("driver/z90crypt", 0);
+ 
+-#ifndef Z90CRYPT_USE_HOTPLUG
+ 	if ((nresult = misc_deregister(&z90crypt_misc_device)))
+ 		PRINTK("misc_deregister failed with %d.\n", nresult);
+ 	else
+ 		PDEBUG("misc_deregister successful.\n");
+-#else
+-	z90crypt_hotplug_event(z90crypt_major, 0, Z90CRYPT_HOTPLUG_REMOVE);
+-
+-	if ((nresult = unregister_chrdev(z90crypt_major, REG_NAME)))
+-		PRINTK("unregister_chrdev failed with %d.\n", nresult);
+-	else
+-		PDEBUG("unregister_chrdev successful.\n");
+-#endif
+ 
+ 	/* Remove the tasks */
+ 	tasklet_kill(&reader_tasklet);
+@@ -748,6 +682,9 @@ z90crypt_cleanup_module(void)
+ 	del_timer(&config_timer);
+ 	del_timer(&cleanup_timer);
+ 
++	if (z90_device_work)
++		destroy_workqueue(z90_device_work);
++
+ 	destroy_z90crypt();
+ 
+ 	PRINTKN("Unloaded.\n");
+@@ -766,8 +703,6 @@ z90crypt_cleanup_module(void)
+  *     z90crypt_status_write
+  *	 disable_card
+  *	 enable_card
+- *	 scan_char
+- *	 scan_string
+  *
+  * Helper functions:
+  *     z90crypt_rsa
+@@ -1057,9 +992,10 @@ remove_device(struct device *device_p)
+  * The MCL must be applied and the newer bitlengths enabled for these to work.
+  *
+  * Card Type    Old limit    New limit
++ * PCICA          ??-2048     same (the lower limit is less than 128 bit...)
+  * PCICC         512-1024     512-2048
+- * PCIXCC_MCL2   512-2048     no change (applying this MCL == card is MCL3+)
+- * PCIXCC_MCL3   512-2048     128-2048
++ * PCIXCC_MCL2   512-2048     ----- (applying any GA LIC will make an MCL3 card)
++ * PCIXCC_MCL3   -----        128-2048
+  * CEX2C         512-2048     128-2048
+  *
+  * ext_bitlens (extended bitlengths) is a global, since you should not apply an
+@@ -1104,7 +1040,7 @@ select_device_type(int *dev_type_p, int 
+ 	if (PCICA_avail || PCIXCC_MCL3_avail || CEX2C_avail) {
+ 		/**
+ 		 * bitlength is a factor, PCICA is the most capable, even with
+-		 * the new MCL.
++		 * the new MCL for PCIXCC.
+ 		 */
+ 		if ((bytelength < PCIXCC_MIN_MOD_SIZE) ||
+ 		    (!ext_bitlens && (bytelength < OLD_PCIXCC_MIN_MOD_SIZE))) {
+@@ -2144,73 +2080,15 @@ enable_card(int card_index)
+ 	z90crypt.hdware_info->type_mask[devp->dev_type].user_disabled_count--;
+ }
+ 
+-static inline int
+-scan_char(unsigned char *bf, unsigned int len,
+-	  unsigned int *offs, unsigned int *p_eof, unsigned char c)
+-{
+-	unsigned int i, found;
+-
+-	found = 0;
+-	for (i = 0; i < len; i++) {
+-		if (bf[i] == c) {
+-			found = 1;
+-			break;
+-		}
+-		if (bf[i] == '\0') {
+-			*p_eof = 1;
+-			break;
+-		}
+-		if (bf[i] == '\n') {
+-			break;
+-		}
+-	}
+-	*offs = i+1;
+-	return found;
+-}
+-
+-static inline int
+-scan_string(unsigned char *bf, unsigned int len,
+-	    unsigned int *offs, unsigned int *p_eof, unsigned char *s)
+-{
+-	unsigned int temp_len, temp_offs, found, eof;
+-
+-	temp_len = temp_offs = found = eof = 0;
+-	while (!eof && !found) {
+-		found = scan_char(bf+temp_len, len-temp_len,
+-				  &temp_offs, &eof, *s);
+-
+-		temp_len += temp_offs;
+-		if (eof) {
+-			found = 0;
+-			break;
+-		}
+-
+-		if (found) {
+-			if (len >= temp_offs+strlen(s)) {
+-				found = !strncmp(bf+temp_len-1, s, strlen(s));
+-				if (found) {
+-					*offs = temp_len+strlen(s)-1;
+-					break;
+-				}
+-			} else {
+-				found = 0;
+-				*p_eof = 1;
+-				break;
+-			}
+-		}
+-	}
+-	return found;
+-}
+-
+ static int
+ z90crypt_status_write(struct file *file, const char __user *buffer,
+ 		      unsigned long count, void *data)
+ {
+-	int i, j, len, offs, found, eof;
+-	unsigned char *lbuf;
++	int j, eol;
++	unsigned char *lbuf, *ptr;
+ 	unsigned int local_count;
+ 
+-#define LBUFSIZE 600
++#define LBUFSIZE 1200
+ 	lbuf = kmalloc(LBUFSIZE, GFP_KERNEL);
+ 	if (!lbuf) {
+ 		PRINTK("kmalloc failed!\n");
+@@ -2227,49 +2105,46 @@ z90crypt_status_write(struct file *file,
+ 		return -EFAULT;
+ 	}
+ 
+-	lbuf[local_count-1] = '\0';
++	lbuf[local_count] = '\0';
+ 
+-	len = 0;
+-	eof = 0;
+-	found = 0;
+-	while (!eof) {
+-		found = scan_string(lbuf+len, local_count-len, &offs, &eof,
+-				    "Online devices");
+-		len += offs;
+-		if (found == 1)
+-			break;
++	ptr = strstr(lbuf, "Online devices");
++	if (ptr == 0) {
++		PRINTK("Unable to parse data (missing \"Online devices\")\n");
++		kfree(lbuf);
++		return count;
+ 	}
+ 
+-	if (eof) {
++	ptr = strstr(ptr, "\n");
++	if (ptr == 0) {
++		PRINTK("Unable to parse data (missing newline after \"Online devices\")\n");
+ 		kfree(lbuf);
+ 		return count;
+ 	}
++	ptr++;
+ 
+-	if (found)
+-		found = scan_char(lbuf+len, local_count-len, &offs, &eof, '\n');
+-
+-	if (!found || eof) {
++	if (strstr(ptr, "Waiting work element counts") == NULL) {
++		PRINTK("Unable to parse data (missing \"Waiting work element counts\")\n");
+ 		kfree(lbuf);
+ 		return count;
+ 	}
+ 
+-	len += offs;
+ 	j = 0;
+-	for (i = 0; i < 80; i++) {
+-		switch (*(lbuf+len+i)) {
++	eol = 0;
++	while ((j < 64) && (*ptr != '\0')) {
++		switch (*ptr) {
+ 		case '\t':
+ 		case ' ':
+ 			break;
+ 		case '\n':
+ 		default:
+-			eof = 1;
++			eol = 1;
+ 			break;
+-		case '0':
+-		case '1':
+-		case '2':
+-		case '3':
+-		case '4':
+-		case '5':
++		case '0':	// no device
++		case '1':	// PCICA
++		case '2':	// PCICC
++		case '3':	// PCIXCC_MCL2
++		case '4':	// PCIXCC_MCL3
++		case '5':	// CEX2C
+ 			j++;
+ 			break;
+ 		case 'd':
+@@ -2283,8 +2158,9 @@ z90crypt_status_write(struct file *file,
+ 			j++;
+ 			break;
+ 		}
+-		if (eof)
++		if (eol)
+ 			break;
++		ptr++;
+ 	}
+ 
+ 	kfree(lbuf);
+@@ -3479,45 +3355,5 @@ probe_PCIXCC_type(struct device *devPtr)
+ 	return rv;
+ }
+ 
+-#ifdef Z90CRYPT_USE_HOTPLUG
+-static void
+-z90crypt_hotplug_event(int dev_major, int dev_minor, int action)
+-{
+-#ifdef CONFIG_HOTPLUG
+-	char *argv[3];
+-	char *envp[6];
+-	char  major[20];
+-	char  minor[20];
+-
+-	sprintf(major, "MAJOR=%d", dev_major);
+-	sprintf(minor, "MINOR=%d", dev_minor);
+-
+-	argv[0] = hotplug_path;
+-	argv[1] = "z90crypt";
+-	argv[2] = 0;
+-
+-	envp[0] = "HOME=/";
+-	envp[1] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
+-
+-	switch (action) {
+-	case Z90CRYPT_HOTPLUG_ADD:
+-		envp[2] = "ACTION=add";
+-		break;
+-	case Z90CRYPT_HOTPLUG_REMOVE:
+-		envp[2] = "ACTION=remove";
+-		break;
+-	default:
+-		BUG();
+-		break;
+-	}
+-	envp[3] = major;
+-	envp[4] = minor;
+-	envp[5] = 0;
+-
+-	call_usermodehelper(argv[0], argv, envp, 0);
+-#endif
+-}
+-#endif
+-
+ module_init(z90crypt_init_module);
+ module_exit(z90crypt_cleanup_module);

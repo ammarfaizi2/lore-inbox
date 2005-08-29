@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbVH2XEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbVH2XHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751327AbVH2XEo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 19:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVH2XEo
+	id S1751329AbVH2XHg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 19:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVH2XHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 19:04:44 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:20824 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751327AbVH2XEn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 19:04:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=r5k3nBD2tKg1CovPHhkdQFnkF5TZhp3H4D7GA2JsiYdY2b7fQZkn3GNhC82eq36yDv8lHyjiNHqqikCY46kDzJPUek+AGYLOK4ijl70XidMhpN4krhNTM6PNXhibTXJFiRFDvAB0PQec5vPBg95pjI44UYTH630s5ATt7/3fmdU=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] isdn_v110 warning fix
-Date: Tue, 30 Aug 2005 01:05:43 +0200
-User-Agent: KMail/1.8.2
-Cc: Thomas Pfeiffer <pfeiffer@pds.de>, isdn4linux@listserv.isdn4linux.de,
-       Karsten Keil <kkeil@suse.de>,
-       Kai Germaschewski <kai.germaschewski@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Aug 2005 19:07:36 -0400
+Received: from mirapoint3.brutele.be ([212.68.199.148]:24412 "EHLO
+	mirapoint3.brutele.be") by vger.kernel.org with ESMTP
+	id S1751329AbVH2XHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 19:07:36 -0400
+Date: Tue, 30 Aug 2005 01:07:25 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Stephane Wirtel <stephane.wirtel@belgacom.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/net/s2io.h - lvalue fix
+Message-ID: <20050829230725.GA2736@localhost.localdomain>
+References: <20050829222417.GA20292@localhost.localdomain> <9a874849050829154311bd433d@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200508300105.44247.jesper.juhl@gmail.com>
+In-Reply-To: <9a874849050829154311bd433d@mail.gmail.com>
+X-Operating-System: Linux debian 2.6.12-1-k7
+User-Agent: Mutt/1.5.10i
+X-Junkmail-Status: score=10/50, host=mirapoint3.brutele.be
+X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090203.43139256.0040-E-X30bRuIXLdwD7RNhuCmAIg==,  =?ISO-8859-1?Q?=20i?=
+	=?ISO-8859-1?Q?p=3D=C0=F5=08=08?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jesper, 
+> Hmm, neither do I. Looking in MAINTAINERS I don't see anybody, and
+> looking in the sources I find just a company name `Neterion'.
+> So, lacking an email address for a maintainer, sending your patch to
+> linux-kernel is the right thing to do (even if you had found a
+> maintainer, adding linux-kernel to Cc: would usually also be proper).
+> If you get no response at all from the list or maintainer, then Andrew
+> Morton is the head 2.6 maintainer.
+Ok, thanks for your response.
+> 
+> 
+> > This patch is based on Kernel 2.6.13 release from the Linus tree.
+> > 
+> > Is there a process to send patch to the mailing list ?
+> > 
+> 
+> Check out 
+>    - Documentation/SubmittingPatches
+>    - http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
+>    - http://linux.yyz.us/patch-format.html
+>    - http://www.tux.org/lkml/#s1-10
+>    - http://www.tux.org/lkml/#s1-15
+Thanks
 
-Warning fix :
- drivers/isdn/i4l/isdn_v110.c:523: warning: `ret' might be used uninitialized in this function
+Best Regards, 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+Stephane
 
- drivers/isdn/i4l/isdn_v110.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+-- 
+Stephane Wirtel <stephane.wirtel@belgacom.net>
+                <stephane.wirtel@gmail.com>
 
---- linux-2.6.13-orig/drivers/isdn/i4l/isdn_v110.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.13/drivers/isdn/i4l/isdn_v110.c	2005-08-30 00:59:34.000000000 +0200
-@@ -516,11 +516,11 @@
- }
- 
- int
--isdn_v110_stat_callback(int idx, isdn_ctrl * c)
-+isdn_v110_stat_callback(int idx, isdn_ctrl *c)
- {
- 	isdn_v110_stream *v = NULL;
- 	int i;
--	int ret;
-+	int ret = 0;
- 
- 	if (idx < 0)
- 		return 0;
+

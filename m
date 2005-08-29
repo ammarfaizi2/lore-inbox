@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVH2XeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbVH2Xe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbVH2XeY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 19:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbVH2XeY
+	id S932068AbVH2Xe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 19:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVH2Xe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 19:34:24 -0400
-Received: from mail.intersys.com ([198.133.74.1]:50440 "EHLO
-	mail.intersystems.com") by vger.kernel.org with ESMTP
-	id S932067AbVH2XeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 19:34:24 -0400
-Message-ID: <43139B62.7010502@intersystems.com>
-Date: Mon, 29 Aug 2005 19:33:54 -0400
-From: Ray Fucillo <fucillo@intersystems.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: process creation time increases linearly with shmem
-References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au> <Pine.LNX.4.63.0508251331040.25774@cuia.boston.redhat.com> <430E6FD4.9060102@yahoo.com.au> <Pine.LNX.4.58.0508252055370.3317@g5.osdl.org> <Pine.LNX.4.61.0508261220230.4697@goblin.wat.veritas.com> <Pine.LNX.4.58.0508261052330.3317@g5.osdl.org> <Pine.LNX.4.61.0508261917360.8477@goblin.wat.veritas.com> <Pine.LNX.4.63.0508261910080.8057@cuia.boston.redhat.com> <Pine.LNX.4.58.0508261621410.3317@g5.osdl.org> <43108136.1000102@yahoo.com.au> <Pine.LNX.4.61.0508280500450.3323@goblin.wat.veritas.com> <43115E67.1050305@yahoo.com.au>
-In-Reply-To: <43115E67.1050305@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Aug 2005 19:34:26 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:10395 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932068AbVH2XeZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 19:34:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jozaVgLRQ279Mt1VerXG/gC466N7XAxOycGUoTa5Kh8M+ytUaVI5KHVXMtgqfhxDdlBzWrmR8pS+KOOquf5P+88aqHScmvgoKQomprUhOvVaGyMQuF8zRCjTUT9JmCW3sf1wfBv0uUGchXxjpDhYR2RJ1DkCHSGrteuu//4Uw6E=
+Message-ID: <9a8748490508291634416a18bc@mail.gmail.com>
+Date: Tue, 30 Aug 2005 01:34:25 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Diego Calleja <diegocg@gmail.com>
+Subject: Re: Linux-2.6.13 : __check_region is deprecated
+Cc: Stephane Wirtel <stephane.wirtel@belgacom.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050830012813.7737f6f6.diegocg@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050829231417.GB2736@localhost.localdomain>
+	 <20050830012813.7737f6f6.diegocg@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> How does the following look? (I changed the comment a bit). Andrew, please
-> apply if nobody objects.
+On 8/30/05, Diego Calleja <diegocg@gmail.com> wrote:
+[snip]
+> 
+> /me wonders why check_region has not been killed, it has been
+> deprecated for years; killing it would force developers to fix it
+> and would help to identify unmaintained drivers...
 
-Nick, I applied this latest patch to a 2.6.12 kernel and found that it 
-does resolve the problem.  Prior to the patch on this machine, I was 
-seeing about 23ms spent in fork for ever 100MB of shared memory segment. 
-  After applying the patch, fork is taking about 1ms regardless of the 
-shared memory size.
+I don't see why we should break a bunch of drivers by doing that.
+Much better, in my oppinion, to fix the few remaining drivers still
+using check_region and *then* kill it. Even unmaintained drivers may
+still be useful to a lot of people, no point in just breaking them for
+the hell of it.
 
-Many thanks to everyone for your help on this.
-
-FWIW, an interesting side effect of this occurs when I run the database 
-with this patch internally on a Linux server that uses NIS.  Its an 
-unrelated problem and not a kernel problem.  Its due to the children 
-calling initgroups()...  apparently when you have many processes making 
-simultaneous initgroups() calls something starts imposing very long 
-waits in increments of 3 seconds, so some processes return from 
-initgroups() in a few ms and other processes complete in 3, 6, 9, up to 
-21 seconds (plus a few ms).  I'm not sure what the story is with that, 
-though its clearly not a kernel issue.  If someone happens to have the 
-answer or a suggestion, great, otherwise I'll persue that elsewhere as 
-necessary.  (I can reproduce this by simply adding a call to 
-initgroups() call in the child of the forktest program that I sent earlier)
-
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

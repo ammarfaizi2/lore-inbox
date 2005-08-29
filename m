@@ -1,55 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbVH2Rpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbVH2Rp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbVH2Rpv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVH2Rpv
+	id S1751174AbVH2Rp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:45:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbVH2Rp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:45:51 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:10274 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751177AbVH2Rpu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:45:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TgsjTam/6XBS4LKGbHC3Snv4B84Mw8KkKcw4/84jeK69mIPNMmIoepWgwjOUC5DvPO6qi7igdqF7fuzu/R+nGvITcd1omG0tQL2Vkiuo280PGo3xgNwcKxKs2QNHjaVpqC6iO5zwpW/NwCRTzKM8HqM6h7AdWiWoUml6vQyJeAw=
-Message-ID: <9a87484905082910455100911d@mail.gmail.com>
-Date: Mon, 29 Aug 2005 19:45:49 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: [PATCH] convert verify_area to access_ok in xtensa/kernel/signal.c
-Cc: Chris Zankel <chris@zankel.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0508291337570.4864@chaos.analogic.com>
+	Mon, 29 Aug 2005 13:45:29 -0400
+Received: from fed1rmmtao05.cox.net ([68.230.241.34]:20169 "EHLO
+	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S1751174AbVH2Rp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 13:45:28 -0400
+Date: Mon, 29 Aug 2005 10:45:25 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, amitkale@linsyssoft.com,
+       Bob Picco <bob.picco@hp.com>
+Subject: Re: [patch 08/16] Add support for X86_64 platforms to KGDB
+Message-ID: <20050829174525.GD3827@smtp.west.cox.net>
+References: <resend.7.2982005.trini@kernel.crashing.org> <1.2982005.trini@kernel.crashing.org> <resend.8.2982005.trini@kernel.crashing.org> <200508291913.48648.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200508291931.00764.jesper.juhl@gmail.com>
-	 <Pine.LNX.4.61.0508291337570.4864@chaos.analogic.com>
+In-Reply-To: <200508291913.48648.ak@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/29/05, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
+On Mon, Aug 29, 2005 at 07:13:47PM +0200, Andi Kleen wrote:
+> On Monday 29 August 2005 18:10, Tom Rini wrote:
 > 
-> On Mon, 29 Aug 2005, Jesper Juhl wrote:
+> > +void __init early_setup_per_cpu_area(void)
+> > +{
+> > +	static char cpu0[PERCPU_ENOUGH_ROOM]
+> > +		__attribute__ ((aligned (SMP_CACHE_BYTES)));
+> > +	char *ptr = cpu0;
+> > +
+> > +	cpu_pda[0].data_offset = ptr - __per_cpu_start;
+> > +	memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
+> > +}
 > 
+> What is that?  It looks totally bogus. Can you tell exactly where you
+> believe early per cpu data is needed?
+
+Bob did this part (forgot to CC him, oops).  But I believe it's needed
+for setting traps so much earlier.
+
+> > +
+> >  /*
+> >   * Great future plan:
+> >   * Declare PDA itself and support (irqstack,tss,pgd) as per cpu data.
+> > @@ -97,7 +107,9 @@ void __init setup_per_cpu_areas(void)
+> >  	for (i = 0; i < NR_CPUS; i++) {
+> >  		char *ptr;
 > >
-> > verify_area() is deprecated and has been for quite a while.
-[snip]
-> >
-> > This patch converts all uses of verify_area() in xtensa/kernel/signal.c to
-> > use access_ok() instead.
-> >
-> > Please apply.
-> >
+> > -		if (!NODE_DATA(cpu_to_node(i))) {
+> > +		if (cpu_pda[i].data_offset)
+> > +			continue;
 > 
-> Isn't access_ok() also gone, handled by the put/get/copy/to/from/user
-> stuff?
+> And that looks broken too.
+
+I believe that's to takecare of the case where something is covered in
+early_setup_cpu_areas().
+
+> In general I would also advise to mix any other changes outside kgdb* into the 
+> x86-64 kgdb patch. Either the patch should be merged into mainline in a 
+> separate patch or kgdb reworked to not need this.
+
+ok.
+
+> > +	if (notify_die(DIE_PAGE_FAULT, "no context", regs, error_code, 14,
+> > +				SIGSEGV) == NOTIFY_STOP)
+> > +		return;
+> > +
 > 
-No. access_ok() is still used extensively.
+> I can see the point of that. It's ok if you submit it as a separate patch.
+
+I can split that out into one that follows the KDB_VECTOR rename easily
+enough.
+
+> Regarding early trap init: I would have no problem to move all of traps_init
+> into setup_arch (and leave traps_init empty for generic code). I actually
+> don't know why it runs so late. But doing it half way is ugly.
+
+Should I make setup_per_cpu_area and trap_init empty and turn the real
+ones into early_foo?
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,87 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVH2RZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVH2RZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbVH2RZN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbVH2RZN
+	id S1751148AbVH2RZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVH2RZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:25:13 -0400
-Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:23735 "EHLO
-	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1751142AbVH2RZL convert rfc822-to-8bit (ORCPT
+	Mon, 29 Aug 2005 13:25:23 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:30842 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751148AbVH2RZW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:25:11 -0400
-X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 29 Aug 2005 13:25:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=hbNYE6pvoskZZfjmosF4MgJl6xez6JAWeB+2mLfcirulKY11ls/cEC7pTru2fHlgLESnw0DLaoEiLu0dceCRgKuut17FGhmlcO+fp3M+JKvHSrbW4Q8edG73pEW3cZ46XrGH6DvJMVidAMnnJmJuW297toxvXmWjuK+qyZDqMBk=
+Message-ID: <4313321A.9010508@gmail.com>
+Date: Mon, 29 Aug 2005 16:04:42 +0000
+From: Luca Falavigna <dktrkranz@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6: how do I this in sysfs?
-Date: Mon, 29 Aug 2005 12:24:18 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF10ABB0269@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6: how do I this in sysfs?
-Thread-index: AcWpqKJsA6BSfLnOQfWloN0quxGV2wDFbR2A
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Christoph Hellwig" <hch@infradead.org>
-Cc: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>, <mochel@osdl.org>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
-       "Luben Tuikov" <luben_tuikov@adaptec.com>
-X-OriginalArrivalTime: 29 Aug 2005 17:24:19.0269 (UTC) FILETIME=[7D1C2F50:01C5ACBE]
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Real-Time Preemption, fixed kexec kernel relocation oops
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch, built against kernel version 2.6.13-rc7 (and not against -RT tree
+patch, sorry), fixes a few local_irq_disable() calls which leads to an oops
+during kernel relocation in kexec subsystem. Currently, only i386 implementation
+of kexec is fixed.
 
-> This is after my minimal sas transport class, please also 
-> read the thread about it on linux-scsi
-> 
-In the referenced code for using sysfs, there only appear to be methods
-for reading attributes.  How about if we want to cause a command to
-get written out to the hardware?   Do we do something like this?
+Anyway, this patch does not fix a strange behaviour when using kexec with a -RT
+kernel. Here is dmesg output:
 
-        /* get a semaphore keep everyone else out while we're working,
-           and hope like hell that all the other processes are playing
-           nice and using the semaphore too, or else we're hosed. */
+Uncompressing Linux... OK, booting the kernel.
+Unknown interrupt or fault at EIP 00000203 00000060 c011dfe3
+Linux version 2.6.13-rc7-rt1 (root@sauron) (gcc version 3.3.4 (Debian
+1:3.3.4-13)) #2 Fri Aug 26 16:55:12 UTC 2005
+[...]
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+[...]
 
-        get_some_kind_of_semaphore();
+System is very slow and there are tons of "lost interrupt" messages.
 
-        fd = open("/sys/blah/blah/attribute1", O_RDWR);
-        write(fd, SOME_JUNK1, sizeof(SOME_JUNK1));
-        close(fd);
-        fd = open("/sys/blah/blah/attribute2", O_RDWR);
-        write(fd, SOME_JUNK2, sizeof(SOME_JUNK2));
-        close(fd);
-        fd = open("/sys/blah/blah/attribute3", O_RDWR);
-        write(fd, SOME_JUNK3, sizeof(SOME_JUNK3));
-        close(fd);
-        fd = open("/sys/blah/blah/attribute4", O_RDWR);
-        write(fd, SOME_JUNK4, sizeof(SOME_JUNK4));
-        close(fd);
-        fd = open("/sys/blah/blah/attribute5", O_RDWR);
-        write(fd, SOME_JUNK5, sizeof(SOME_JUNK5));
-        close(fd);
-        fd = open("/sys/blah/blah/attribute6", O_RDWR);
-        write(fd, SOME_JUNK6, sizeof(SOME_JUNK6));
-        close(fd);
-        fd = open("/sys/blah/blah/attribute7", O_RDWR);
-        write(fd, SOME_JUNK7, sizeof(SOME_JUNK7));
-        close(fd);
 
-        /* When the attribute write_doorbell is written to, by
-convention
-           of this particular device "/sys/blah/blah",  it acts as a
-           doorbell which causes all the values which were "latched" by
-           the above writes to be consolidated into one command and
-           written to the hardware.  */
 
-        fd = open("/sys/blah/blah/write_doorbell", O_RDWR);
-        write(fd, "ding dong", 9);
-        close(fd);
+Signed-off-by: Luca Falavigna <dktrkranz@gmail.com>
 
-        release_some_kind_of_semaphore();
+--- ./arch/i386/kernel/machine_kexec.c.orig	2005-08-28 22:03:52.000000000 +0000
++++ ./arch/i386/kernel/machine_kexec.c	2005-08-28 22:05:28.000000000 +0000
+@@ -187,7 +187,7 @@ NORET_TYPE void machine_kexec(struct kim
+ 	relocate_new_kernel_t rnk;
 
-I'm not suggesting that the above is a good idea.  I don't have a good
-idea about how to do this.
+ 	/* Interrupts aren't acceptable while we reboot */
+-	local_irq_disable();
++	raw_local_irq_disable();
+
+ 	/* Compute some offsets */
+ 	reboot_code_buffer = page_to_pfn(image->control_code_page)
+--- ./arch/i386/kernel/crash.c.orig	2005-08-28 22:04:08.000000000 +0000
++++ ./arch/i386/kernel/crash.c	2005-08-28 22:04:55.000000000 +0000
+@@ -143,7 +143,7 @@ static int crash_nmi_callback(struct pt_
+ 	 */
+ 	if (cpu == crashing_cpu)
+ 		return 1;
+-	local_irq_disable();
++	raw_local_irq_disable();
+
+ 	if (!user_mode(regs)) {
+ 		crash_setup_regs(&fixed_regs, regs);
+@@ -210,7 +210,7 @@ void machine_crash_shutdown(struct pt_re
+ 	 * an SMP system.
+ 	 */
+ 	/* The kernel is broken so disable interrupts */
+-	local_irq_disable();
++	raw_local_irq_disable();
+
+ 	/* Make a note of crashing cpu. Will be used in NMI callback.*/
+ 	crashing_cpu = smp_processor_id();
+
+
+
+
+Regards,
+-- 
+					Luca
+
+

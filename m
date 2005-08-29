@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbVH2F24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbVH2F5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbVH2F24 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 01:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVH2F24
+	id S1750977AbVH2F5q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 01:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbVH2F5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 01:28:56 -0400
-Received: from outmx003.isp.belgacom.be ([195.238.2.100]:9668 "EHLO
-	outmx003.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1750806AbVH2F2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 01:28:55 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB EHCI Problem with Low Speed Devices on kernel 2.6.11+
-Date: Mon, 29 Aug 2005 07:28:06 +0200
-User-Agent: KMail/1.8.1
-Cc: James Courtier-Dutton <James@superbug.demon.co.uk>,
-       Dominik Wezel <dio@qwasartech.com>
-References: <43106DEF.3040206@qwasartech.com> <431245E2.5010308@superbug.demon.co.uk>
-In-Reply-To: <431245E2.5010308@superbug.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Aug 2005 01:57:46 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3215 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750977AbVH2F5p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 01:57:45 -0400
+Date: Mon, 29 Aug 2005 07:57:49 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] blk queue io tracing support
+Message-ID: <20050829055745.GX4018@suse.de>
+References: <20050823123235.GG16461@suse.de> <20050824010346.GA1021@frodo> <20050824070809.GA27956@suse.de> <20050824171931.H4209301@wobbly.melbourne.sgi.com> <20050824072501.GA27992@suse.de> <20050824092838.GB28272@suse.de> <20050829045359.GA1784@frodo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508290728.07102.lkml@kcore.org>
+In-Reply-To: <20050829045359.GA1784@frodo>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 August 2005 01:16, James Courtier-Dutton wrote:
-> Dominik Wezel wrote:
-> > Problem
-> > =======
-> > When turning on the laptop and during POST and GrUB loading, all ports
-> > on the hub are enabled.  During the USB initialization phase, when the
-> > hub is detected, shortly all ports become disabled, then turn on again
-> > (uhci_hcd detects the lo-speed ports).  Upon initialization of ehci_hcd
-> > however, the ports are disconnected again (for good):
->
-> Use uhci_hcd or ehci_hcd, but never both at the same time.
-> ehci_hcd will work with all lo-speed ports, so uhci_hcd is then no needed.
+On Mon, Aug 29 2005, Nathan Scott wrote:
+> On Wed, Aug 24, 2005 at 11:28:39AM +0200, Jens Axboe wrote:
+> > ...
+> > Patch attached is against 2.6.13-rc6-mm2. Still a good idea to apply the
+> > relayfs read update from the previous mail [*] as well.
+> 
+> Hi Jens,
+> 
+> There's a minor config botch in there, I get this:
+> 
+> scripts/kconfig/conf -s arch/i386/Kconfig
+> drivers/block/Kconfig:466:warning: 'select' used by config symbol 'BLK_DEV_IO_TRACE' refer to undefined symbol 'RELAYFS'
+> 
+> The patch below seems to resolve it.
 
-This seems to be in contrast with what hotplug does automatically: it loads 
-both ehci_hcd and uhci_hcd here. If I don't load uhci_hcd, lo-speed devices 
-do not work.
-
-Jan
+Thanks, you are right, the name is indeed RELAYFS_FS.
 
 -- 
-A grammarian's life is always in tense.
+Jens Axboe
+

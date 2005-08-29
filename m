@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVH2LRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVH2LqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbVH2LRz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 07:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVH2LRz
+	id S1750863AbVH2LqG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 07:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVH2LqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 07:17:55 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:11165 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750837AbVH2LRy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 07:17:54 -0400
-Date: Mon, 29 Aug 2005 13:18:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com
-Subject: Re: 2.6.13-rt1
-Message-ID: <20050829111832.GA10734@elte.hu>
-References: <20050829084829.GA23176@elte.hu> <1125313744.5611.13.camel@localhost.localdomain>
+	Mon, 29 Aug 2005 07:46:05 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:23176 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750863AbVH2LqE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 07:46:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=GQv5LtCjxntz2adjxmkZAchbytl3RBpm4GZ3Xy0JrLfSAGgNcRv3pnjkr65Zc1ZLLH5Vh4bdJh0eCdWpbDXJ4XDunnWvlyzX/eHCk12wYJ5qa4xWu8RCRm4dkuk2gIwkRIaHo+6y23l842pgnluMdTAj0JTR+69qYNnaJt+oLBA=
+Message-ID: <7cd5d4b4050829044626df8b38@mail.gmail.com>
+Date: Mon, 29 Aug 2005 19:46:04 +0800
+From: jeff shia <tshxiayu@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Is cdrecord dependent on some kind of bus type?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1125313744.5611.13.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> Ingo,
-> 
-> I think you have a slight glitch in your patch.
-> 
-> -- Steve
-> 
-> $ patch -p1 -s < /work/realtime-patches/patch-2.6.13-rt1
-> The next patch would delete the file Makefile.rej,
-> which does not exist!  Assume -R? [n]
-> Apply anyway? [n]
+Is cdrecord dependent on some kind of bus type,such as pci or usb?
+And the older version such as cdrecord-1.2?
+can cdrecord-1.2 run on kernel-2.4.18?
 
-indeed. I fixed this up in the file without uploading a new release, so 
-new downloads shouldnt see this.
 
-	Ingo
+
+Thank you!
+
+Jeffshia

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVH2R5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbVH2R5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbVH2R5O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVH2R5N
+	id S1751251AbVH2R5u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVH2R5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:57:13 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:49120 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751247AbVH2R5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:57:11 -0400
-Date: Mon, 29 Aug 2005 19:57:06 +0200
+	Mon, 29 Aug 2005 13:57:50 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:13516 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751251AbVH2R5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 13:57:30 -0400
+Date: Mon, 29 Aug 2005 19:57:25 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 9/10] s390: spinlock corner case.
-Message-ID: <20050829175706.GI6796@localhost.localdomain>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch 10/10] s390: disconnected 3270 console.
+Message-ID: <20050829175725.GJ6796@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,42 +21,57 @@ User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 9/10] s390: spinlock corner case.
+[patch 10/10] s390: disconnected 3270 console.
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-On s390 the lock value used for spinlocks consists of the lower 32 bits
-of the PSW that holds the lock. If this address happens to be on a four
-gigabyte boundary the lock is left unlocked. This allows other cpus to
-grab the same lock and enter a lock protected code path concurrently.
-In theory this can happen if the vmalloc area for the code of a module
-crosses a 4 GB boundary.
+Fix reboot with a disconnected 3270 console.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- include/asm-s390/spinlock.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/char/raw3270.c |   16 +++++++++++-----
+ 1 files changed, 11 insertions(+), 5 deletions(-)
 
-diff -urpN linux-2.6/include/asm-s390/spinlock.h linux-2.6-patched/include/asm-s390/spinlock.h
---- linux-2.6/include/asm-s390/spinlock.h	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/spinlock.h	2005-08-29 19:18:12.000000000 +0200
-@@ -47,7 +47,7 @@ extern int _raw_spin_trylock_retry(spinl
+diff -urpN linux-2.6/drivers/s390/char/raw3270.c linux-2.6-patched/drivers/s390/char/raw3270.c
+--- linux-2.6/drivers/s390/char/raw3270.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/raw3270.c	2005-08-29 19:18:13.000000000 +0200
+@@ -632,12 +632,9 @@ __raw3270_size_device(struct raw3270 *rp
+ 	raw3270_init_request.ccw.cda = (__u32) __pa(raw3270_init_data);
  
- static inline void _raw_spin_lock(spinlock_t *lp)
- {
--	unsigned long pc = (unsigned long) __builtin_return_address(0);
-+	unsigned long pc = 1 | (unsigned long) __builtin_return_address(0);
+ 	rc = raw3270_start_init(rp, &raw3270_init_view, &raw3270_init_request);
+-	if (rc) {
++	if (rc)
+ 		/* Check error cases: -ERESTARTSYS, -EIO and -EOPNOTSUPP */
+-		if (rc == -EOPNOTSUPP && MACHINE_IS_VM)
+-			return __raw3270_size_device_vm(rp);
+ 		return rc;
+-	}
  
- 	if (unlikely(_raw_compare_and_swap(&lp->lock, 0, pc) != 0))
- 		_raw_spin_lock_wait(lp, pc);
-@@ -55,7 +55,7 @@ static inline void _raw_spin_lock(spinlo
- 
- static inline int _raw_spin_trylock(spinlock_t *lp)
- {
--	unsigned long pc = (unsigned long) __builtin_return_address(0);
-+	unsigned long pc = 1 | (unsigned long) __builtin_return_address(0);
- 
- 	if (likely(_raw_compare_and_swap(&lp->lock, 0, pc) == 0))
- 		return 1;
+ 	/* Wait for attention interrupt. */
+ #ifdef CONFIG_TN3270_CONSOLE
+@@ -695,7 +692,10 @@ raw3270_size_device(struct raw3270 *rp)
+ 	down(&raw3270_init_sem);
+ 	rp->view = &raw3270_init_view;
+ 	raw3270_init_view.dev = rp;
+-	rc = __raw3270_size_device(rp);
++	if (MACHINE_IS_VM)
++		rc = __raw3270_size_device_vm(rp);
++	else
++		rc = __raw3270_size_device(rp);
+ 	raw3270_init_view.dev = 0;
+ 	rp->view = 0;
+ 	up(&raw3270_init_sem);
+@@ -710,6 +710,12 @@ raw3270_size_device(struct raw3270 *rp)
+ 			rp->model = 4;
+ 		if (rp->rows == 27 && rp->cols == 132)
+ 			rp->model = 5;
++	} else {
++		/* Couldn't detect size. Use default model 2. */
++		rp->model = 2;
++		rp->rows = 24;
++		rp->cols = 80;
++		return 0;
+ 	}
+ 	return rc;
+ }

@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVH2Lna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbVH2MBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbVH2Lna (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 07:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbVH2Lna
+	id S1750808AbVH2MBH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 08:01:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVH2MBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 07:43:30 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:13496 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750828AbVH2Lna convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 07:43:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PlzYGGiE6URcFOOJsyMLrwlN+1C2pdoZF5GDpsSeZR23cqApHTrstIAdoDY7VV0KFbxiUaBzhn7MiIgCC/tI+h9RJUqh5FUkJ8+kTWrEKTRb1+I58sLU4xDKXluD+lXD18it+Eam/IKUG1T5Io9ipigF3Ht9Y+k8f+ojghZvcoo=
-Message-ID: <9a8748490508290443ab7cd62@mail.gmail.com>
-Date: Mon, 29 Aug 2005 13:43:29 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Pete Popov <ppopov@mvista.com>
-Subject: Re: [PATCH 2/3] exterminate strtok - drivers/video/au1100fb.c
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1124950581.14435.978.camel@localhost.localdomain>
+	Mon, 29 Aug 2005 08:01:07 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:47762 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1750808AbVH2MBG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 08:01:06 -0400
+Subject: Re: syscall: sys_promote
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: qiyong <qiyong@fc-cn.com>
+Cc: linux-kernel@vger.kernel.org, dhommel@gmail.com
+In-Reply-To: <4312870E.9000708@fc-cn.com>
+References: <20050826092537.GA3416@localhost.localdomain>
+	 <20050826110226.GA5184@localhost.localdomain>
+	 <1125069558.4958.83.camel@localhost.localdomain>
+	 <4312870E.9000708@fc-cn.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Aug 2005 13:29:27 +0100
+Message-Id: <1125318568.23946.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200508242108.32885.jesper.juhl@gmail.com>
-	 <1124950581.14435.978.camel@localhost.localdomain>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/25/05, Pete Popov <ppopov@mvista.com> wrote:
-> 
-> I see the patch, or an equivalent, has been applied already.
-> 
-Ohh, where? I don't see such a patch in 2.6.12-rc6-mm2 nor in 2.6.13.
+On Llu, 2005-08-29 at 11:54 +0800, qiyong wrote:
+> We can ignore it safely.  sys_promote is a different approach from 
+> selinux.  sys_promote is to let sysadmin manually manipulate a running 
+> process,
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+You can ignore the patch easily enough. Ignoring the locking doesn't
+work because functionality like fork process counting, exec, and setuid
+all make definite assumptions that are not safe to tamper without unless
+you fix the uid locking.
+
+Fixing it might be useful in some obscure cases anyway - POSIX threads
+might benefit from it too, providing the functionality of changing all
+thread uids at once isnt triggered for sensible threaded app behaviour.

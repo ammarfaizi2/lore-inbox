@@ -1,63 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbVH2PeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbVH2PmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbVH2PeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 11:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbVH2PeZ
+	id S1751205AbVH2PmT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 11:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbVH2PmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 11:34:25 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:6880 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750972AbVH2PeZ (ORCPT
+	Mon, 29 Aug 2005 11:42:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19129 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751070AbVH2PmS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 11:34:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:message-id:content-type:content-transfer-encoding;
-        b=ZPBr+pAdH2gGdxfnlCO8APMSbqwZckGhm1YPS+n8U/PAjPp4y9MarEnjdfln9BMoR3kJVSob5QlLX7luBdlP8P70vzy6l9gIw+uW3I+vdPjrIPGnP+3/+XVbw8OmcXrvYt3gMXiB5CiQqY0uCzcU9FDqNNRdJSUu7cq3OCVuDls=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] remove EXPORT_SYMBOL(strtok) from frv_ksyms.c
-Date: Mon, 29 Aug 2005 17:35:21 +0200
-User-Agent: KMail/1.8.2
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200508291735.21880.jesper.juhl@gmail.com>
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 29 Aug 2005 11:42:18 -0400
+Subject: util-linux: losetup -a
+From: Karel Zak <kzak@redhat.com>
+To: List linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Adrian Bunk <bunk@stusta.de>
+Content-Type: text/plain
+Date: Mon, 29 Aug 2005 17:44:56 +0200
+Message-Id: <1125330296.3391.34.camel@petra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-I hessitated a bit before sending this patch to you since it is untested.
-This is due to the fact that I don't have the hardware, nor a suitable 
-cross compiler to do so. I sent the patch to LKML a few days ago in the 
-hope that someone else could test/validate this change for me, but 
-unfortunately I got no replies. That left me with the option of just 
-forgetting about the patch or send it on to you.
-Although the patch has not been tested I have a hard time imagining that 
-it could be anything but correct since strtok() was removed from the kernel
-back in 2002.
+ Hi,
+
+attached losetup patch adds "-a" option that lists all used loop devices. 
+
+ # losetup -a
+ /dev/loop0: [0305]:455455 (/boot/initrd-2.6.12-1.1385_FC4.root.img)
+ /dev/loop1: [0305]:454285 (/boot/initrd-2.6.5-prep.img)
+ /dev/loop5: [0305]:454282 (/boot/initrd-2.6.9-prep.img)
 
 
+	Karel
 
-Remove export of strtok().
-strtok() has not been available in the kernel since 2002. 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- arch/frv/kernel/frv_ksyms.c |    1 -
- 1 files changed, 1 deletion(-)
-
---- linux-2.6.13-rc6-mm2-orig/arch/frv/kernel/frv_ksyms.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc6-mm2/arch/frv/kernel/frv_ksyms.c	2005-08-24 18:58:14.000000000 +0200
-@@ -71,7 +71,6 @@ EXPORT_SYMBOL(memset);
- EXPORT_SYMBOL(memcmp);
- EXPORT_SYMBOL(memscan);
- EXPORT_SYMBOL(memmove);
--EXPORT_SYMBOL(strtok);
+--- util-linux-2.13-pre2/mount/lomount.c.all	2005-08-29 16:59:06.000000000 +0200
++++ util-linux-2.13-pre2/mount/lomount.c	2005-08-29 17:17:49.000000000 +0200
+@@ -28,6 +28,8 @@
+ extern char *xstrdup (const char *s);	/* not: #include "sundries.h" */
+ extern void error (const char *fmt, ...);	/* idem */
  
- EXPORT_SYMBOL(get_wchan);
++#define SIZE(a) (sizeof(a)/sizeof(a[0]))
++
+ #ifdef LOOP_SET_FD
  
+ static int
+@@ -128,6 +130,42 @@
+ 	close (fd);
+ 	return 1;
+ }
++
++static int
++show_used_loop_devices (void) {
++	char dev[20];
++	char *loop_formats[] = { "/dev/loop%d", "/dev/loop/%d" };
++	int i, j, fd, permission = 0, somedev = 0;
++	struct stat statbuf;
++	struct loop_info loopinfo;
++
++	for (j = 0; j < SIZE(loop_formats); j++) {
++	    for(i = 0; i < 256; i++) {
++		sprintf(dev, loop_formats[j], i);
++		if (stat (dev, &statbuf) == 0 && S_ISBLK(statbuf.st_mode)) {
++			somedev++;
++			fd = open (dev, O_RDONLY);
++			if (fd >= 0) {
++				if(ioctl (fd, LOOP_GET_STATUS, &loopinfo) == 0)
++					show_loop(dev);
++				close (fd);
++				somedev++;
++			} else if (errno == EACCES)
++				permission++;
++			continue; /* continue trying as long as devices exist */
++		}
++		break;
++	    }
++	}
++
++	if (somedev==0 && permission) {
++		error(_("%s: no permission to look at /dev/loop#"), progname);
++		return 1;
++	}
++	return 0;
++}
++
++
+ #endif
+ 
+ int
+@@ -139,8 +177,6 @@
+ 		major(statbuf.st_rdev) == LOOPMAJOR);
+ }
+ 
+-#define SIZE(a) (sizeof(a)/sizeof(a[0]))
+-
+ char *
+ find_unused_loop_device (void) {
+ 	/* Just creating a device, say in /tmp, is probably a bad idea -
+@@ -403,12 +439,13 @@
+ 
+ static void
+ usage(void) {
+-	fprintf(stderr, _("usage:\n\
+-  %s loop_device                                       # give info\n\
+-  %s -d loop_device                                    # delete\n\
+-  %s -f                                                # find unused\n\
+-  %s [-e encryption] [-o offset] {-f|loop_device} file # setup\n"),
+-		progname, progname, progname, progname);
++	fprintf(stderr, _("usage:\n"
++  "  %1$s loop_device                                       # give info\n"
++  "  %1$s -d loop_device                                    # delete\n"
++  "  %1$s -f                                                # find unused\n"
++  "  %1$s -a                                                # list all used\n"
++  "  %1$s [-e encryption] [-o offset] {-f|loop_device} file # setup\n"),
++		progname);
+ 	exit(1);
+ }
+ 
+@@ -442,7 +479,7 @@
+ int
+ main(int argc, char **argv) {
+ 	char *p, *offset, *encryption, *passfd, *device, *file;
+-	int delete, find, c;
++	int delete, find, c, all;
+ 	int res = 0;
+ 	int ro = 0;
+ 	int pfd = -1;
+@@ -452,7 +489,7 @@
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
+ 
+-	delete = find = 0;
++	delete = find = all = 0;
+ 	off = 0;
+ 	offset = encryption = passfd = NULL;
+ 
+@@ -460,8 +497,11 @@
+ 	if ((p = strrchr(progname, '/')) != NULL)
+ 		progname = p+1;
+ 
+-	while ((c = getopt(argc, argv, "de:E:fo:p:v")) != -1) {
++	while ((c = getopt(argc, argv, "ade:E:fo:p:v")) != -1) {
+ 		switch (c) {
++		case 'a':
++			all = 1;
++			break;
+ 		case 'd':
+ 			delete = 1;
+ 			break;
+@@ -489,17 +529,22 @@
+ 	if (argc == 1) {
+ 		usage();
+ 	} else if (delete) {
+-		if (argc != optind+1 || encryption || offset || find)
++		if (argc != optind+1 || encryption || offset || find || all)
+ 			usage();
+ 	} else if (find) {
+-		if (argc < optind || argc > optind+1)
++		if (all || argc < optind || argc > optind+1)
++			usage();
++	} else if (all) {
++		if (argc > 2)
+ 			usage();
+ 	} else {
+ 		if (argc < optind+1 || argc > optind+2)
+ 			usage();
+ 	}
+ 
+-	if (find) {
++	if (all)
++		return show_used_loop_devices();
++	else if (find) {
+ 		device = find_unused_loop_device();
+ 		if (device == NULL)
+ 			return -1;
+
+

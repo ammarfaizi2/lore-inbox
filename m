@@ -1,62 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbVH2WnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbVH2WwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbVH2WnV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 18:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbVH2WnU
+	id S1751378AbVH2WwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 18:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVH2WwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 18:43:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:25750 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751397AbVH2WnU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 18:43:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Mnw8IZxc61lADylqd9qQW1SoFCfQ+ZtnkGU+opc3Pve075+UU7XrGizxtUbmpXJUmZOCLJC3hPN9wyL6px399VwtkcFWo4UeTjhMcqQQExMcmMjLsDvpjposDncnagrVfDrDDWMYBCL2MkwHa0rbXEvhjn4WHzXhyv3tGMF4YbM=
-Message-ID: <9a874849050829154311bd433d@mail.gmail.com>
-Date: Tue, 30 Aug 2005 00:43:19 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-Subject: Re: [PATCH] drivers/net/s2io.h - lvalue fix
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050829222417.GA20292@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 29 Aug 2005 18:52:08 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:16582 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S1751318AbVH2WwH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 18:52:07 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: [PATCH] IDE: move CONFIG_IDE_MAX_HWIFS into linux/ide.h (resend)
+User-Agent: KMail/1.8.1
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, rth@twiddle.net,
+       ink@jurassic.park.msu.ru, lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
+       linux-sh@m17n.org
+MIME-Version: 1.0
 Content-Disposition: inline
-References: <20050829222417.GA20292@localhost.localdomain>
+X-Length: 2862
+Date: Mon, 29 Aug 2005 16:51:50 -0600
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508291651.50831.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/30/05, Stephane Wirtel <stephane.wirtel@belgacom.net> wrote:
-> Hi all ,
-> 
-> Sorry if I don't send this patch to the maintainer of s2io, but I don't
-> know who is he.
-> 
-Hmm, neither do I. Looking in MAINTAINERS I don't see anybody, and
-looking in the sources I find just a company name `Neterion'.
-So, lacking an email address for a maintainer, sending your patch to
-linux-kernel is the right thing to do (even if you had found a
-maintainer, adding linux-kernel to Cc: would usually also be proper).
-If you get no response at all from the list or maintainer, then Andrew
-Morton is the head 2.6 maintainer.
+Ping...  any objection to this?
 
 
-> This patch is based on Kernel 2.6.13 release from the Linus tree.
-> 
-> Is there a process to send patch to the mailing list ?
-> 
+CONFIG_IDE_MAX_HWIFS is a generic thing, no need to have it duplicated
+by every arch that uses it.
 
-Check out 
-   - Documentation/SubmittingPatches
-   - http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
-   - http://linux.yyz.us/patch-format.html
-   - http://www.tux.org/lkml/#s1-10
-   - http://www.tux.org/lkml/#s1-15
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Index: work-ide/include/asm-alpha/ide.h
+===================================================================
+--- work-ide.orig/include/asm-alpha/ide.h	2005-08-24 09:36:41.000000000 -0600
++++ work-ide/include/asm-alpha/ide.h	2005-08-24 09:37:12.000000000 -0600
+@@ -15,10 +15,6 @@
+ 
+ #include <linux/config.h>
+ 
+-#ifndef MAX_HWIFS
+-#define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
+-#endif
+-
+ #define IDE_ARCH_OBSOLETE_DEFAULTS
+ 
+ static inline int ide_default_irq(unsigned long base)
+Index: work-ide/include/asm-sh/ide.h
+===================================================================
+--- work-ide.orig/include/asm-sh/ide.h	2005-08-24 09:36:41.000000000 -0600
++++ work-ide/include/asm-sh/ide.h	2005-08-24 09:37:12.000000000 -0600
+@@ -16,10 +16,6 @@
+ 
+ #include <linux/config.h>
+ 
+-#ifndef MAX_HWIFS
+-#define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
+-#endif
+-
+ #define ide_default_io_ctl(base)	(0)
+ 
+ #include <asm-generic/ide_iops.h>
+Index: work-ide/include/asm-sh64/ide.h
+===================================================================
+--- work-ide.orig/include/asm-sh64/ide.h	2005-08-24 09:36:41.000000000 -0600
++++ work-ide/include/asm-sh64/ide.h	2005-08-24 09:37:12.000000000 -0600
+@@ -17,10 +17,6 @@
+ 
+ #include <linux/config.h>
+ 
+-#ifndef MAX_HWIFS
+-#define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
+-#endif
+-
+ /* Without this, the initialisation of PCI IDE cards end up calling
+  * ide_init_hwif_ports, which won't work. */
+ #ifdef CONFIG_BLK_DEV_IDEPCI
+Index: work-ide/include/linux/ide.h
+===================================================================
+--- work-ide.orig/include/linux/ide.h	2005-08-24 09:37:03.000000000 -0600
++++ work-ide/include/linux/ide.h	2005-08-24 09:37:24.000000000 -0600
+@@ -266,6 +266,10 @@
+ 
+ #include <asm/ide.h>
+ 
++#ifndef MAX_HWIFS
++#define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
++#endif
++
+ /* needed on alpha, x86/x86_64, ia64, mips, ppc32 and sh */
+ #ifndef IDE_ARCH_OBSOLETE_DEFAULTS
+ # define ide_default_io_base(index)	(0)

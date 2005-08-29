@@ -1,301 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbVH2NDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbVH2NV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbVH2NDu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 09:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbVH2NDu
+	id S1750942AbVH2NV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 09:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbVH2NV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 09:03:50 -0400
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:59079 "HELO
-	briare1.heliogroup.fr") by vger.kernel.org with SMTP
-	id S1750917AbVH2NDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 09:03:48 -0400
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rt1
-Date: Mon, 29 Aug 2005 13:02:01 GMT
-Message-ID: <05CDG7D12@briare1.heliogroup.fr>
-X-Mailer: Pliant 94
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 29 Aug 2005 09:21:29 -0400
+Received: from mf2.realtek.com.tw ([220.128.56.22]:24326 "EHLO
+	mf2.realtek.com.tw") by vger.kernel.org with ESMTP id S1750940AbVH2NV3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 09:21:29 -0400
+Message-ID: <000501c5ac9c$864aeca0$106215ac@realtek.com.tw>
+From: "colin" <colin@realtek.com.tw>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: A problem about DIRECT IO on ext3
+Date: Mon, 29 Aug 2005 21:21:11 +0800
+MIME-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1506
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+X-MIMETrack: Itemize by SMTP Server on msx/Realtek(Release 6.5.3|September 14, 2004) at
+ 2005/08/29 =?Bog5?B?pFWkyCAwOToyMToxMQ==?=,
+	Serialize by Router on msx/Realtek(Release 6.5.3|September 14, 2004) at
+ 2005/08/29 =?Bog5?B?pFWkyCAwOToyMToxMg==?=,
+	Serialize complete at 2005/08/29 =?Bog5?B?pFWkyCAwOToyMToxMg==?=
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="big5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I gave this one a spin, and my laptop locked hard after something like one hour
-(everything frozen). As a result what I report is probably not very helpfull.
 
-It was the first time I was trying an RT kernel, and the stock kernel works ok
-on this laptop (except suspend, but one can do without it).
+Hi all,
+Sorry, ignore this mail.
+I found that I didn't align the block size when doing direct io...  :-(
 
-CONFIG_1GB:  y
-CONFIG_ACPI:  y
-CONFIG_ACPI_AC:  m
-CONFIG_ACPI_BATTERY:  m
-CONFIG_ACPI_BUTTON:  m
-CONFIG_ACPI_FAN:  m
-CONFIG_ACPI_PROCESSOR:  y
-CONFIG_ACPI_SLEEP:  y
-CONFIG_ACPI_THERMAL:  y
-CONFIG_ACPI_VIDEO:  m
-CONFIG_ACT200L_DONGLE:  m
-CONFIG_ACTISYS_DONGLE:  m
-CONFIG_APM_RTC_IS_GMT:  y
-CONFIG_ATALK:  m
-CONFIG_AUTOFS_FS:  m
-CONFIG_BINFMT_ELF:  y
-CONFIG_BINFMT_MISC:  y
-CONFIG_BLK_DEV_CMD640:  y
-CONFIG_BLK_DEV_FD:  m
-CONFIG_BLK_DEV_GENERIC:  y
-CONFIG_BLK_DEV_IDE:  y
-CONFIG_BLK_DEV_IDECD:  m
-CONFIG_BLK_DEV_IDECS:  m
-CONFIG_BLK_DEV_IDEDISK:  y
-CONFIG_BLK_DEV_IDEDMA:  y
-CONFIG_BLK_DEV_IDEDMA_PCI:  y
-CONFIG_BLK_DEV_IDEPCI:  y
-CONFIG_BLK_DEV_IDESCSI:  m
-CONFIG_BLK_DEV_LOOP:  m
-CONFIG_BLK_DEV_NBD:  m
-CONFIG_BLK_DEV_PIIX:  y
-CONFIG_BLK_DEV_RAM:  m
-CONFIG_BLK_DEV_RZ1000:  y
-CONFIG_BLK_DEV_SD:  m
-CONFIG_BLK_DEV_SR:  m
-CONFIG_BLK_DEV_TRIRON:  y
-CONFIG_BSD_PROCESS_ACCT:  y
-CONFIG_BT:  m
-CONFIG_BT_BNEP:  m
-CONFIG_BT_HCIBCM203X:  m
-CONFIG_BT_HCIBFUSB:  m
-CONFIG_BT_HCIBPA10X:  m
-CONFIG_BT_HCIUART:  m
-CONFIG_BT_HCIUSB:  m
-CONFIG_BT_HCIVHCI:  m
-CONFIG_BT_HIDP:  m
-CONFIG_BT_L2CAP:  m
-CONFIG_BT_RFCOMM:  m
-CONFIG_BT_RFCOMM_TTY:  y
-CONFIG_BT_SCO:  m
-CONFIG_CARDBUS:  y
-CONFIG_CHR_DEV_SG:  m
-CONFIG_CODA_FS:  m
-CONFIG_CPU_FREQ:  y
-CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE:  y
-CONFIG_CPU_FREQ_GOV_ONDEMAND:  m
-CONFIG_CPU_FREQ_GOV_PERFORMANCE:  m
-CONFIG_CPU_FREQ_GOV_POWERSAVE:  m
-CONFIG_CPU_FREQ_GOV_USERSPACE:  y
-CONFIG_CPU_FREQ_TABLE:  y
-CONFIG_DONGLE:  m
-CONFIG_DRM:  m
-CONFIG_DRM_I810:  m
-CONFIG_DRM_MGA:  m
-CONFIG_DRM_R128:  m
-CONFIG_DRM_RADEON:  m
-CONFIG_DRM_SIS:  m
-CONFIG_DUMMY_CONSOLE:  y
-CONFIG_ESI_DONGLE:  m
-CONFIG_EXPERIMENTAL:  y
-CONFIG_EXT2_FS:  y
-CONFIG_EXT3_FS:  y
-CONFIG_EXT3_FS_XATTR:  y
-CONFIG_FAT_FS:  m
-CONFIG_FB:  y
-CONFIG_FB_ATY:  m
-CONFIG_FB_ATY128:  m
-CONFIG_FB_I810:  m
-CONFIG_FB_INTEL:  m
-CONFIG_FB_MATROX:  m
-CONFIG_FB_MODE_HELPER:  y
-CONFIG_FB_NVIDIA:  m
-CONFIG_FB_RADEON:  m
-CONFIG_FB_RIVA:  m
-CONFIG_FB_RIVA_I2C:  y
-CONFIG_FB_VESA:  y
-CONFIG_FILTER:  y
-CONFIG_FRAMEBUFFER_CONSOLE:  y
-CONFIG_GIRBIL_DONGLE:  m
-CONFIG_HFSPLUS_FS:  m
-CONFIG_HFS_FS:  m
-CONFIG_HOTPLUG:  y
-CONFIG_HPET_TIMER:  y
-CONFIG_HPFS_FS:  m
-CONFIG_IDE:  y
-CONFIG_IDEDMA_AUTO:  y
-CONFIG_IDEDMA_ONLYDISK:  y
-CONFIG_IDEDMA_PCI_AUTO:  y
-CONFIG_IDEPCI_SHARE_IRQ:  y
-CONFIG_IDE_GENERIC:  y
-CONFIG_IEEE1394:  m
-CONFIG_IEEE1394_DV1394:  m
-CONFIG_IEEE1394_OHCI1394:  m
-CONFIG_IEEE1394_RAWIO:  m
-CONFIG_IEEE1394_VIDEO1394:  m
-CONFIG_INET:  y
-CONFIG_INOTIFY:  y
-CONFIG_INPUT:  y
-CONFIG_INPUT_KEYBDEV:  m
-CONFIG_INPUT_KEYBOARD:  y
-CONFIG_INPUT_MOUSE:  y
-CONFIG_INPUT_MOUSEDEV:  m
-CONFIG_IP_ALIAS:  y
-CONFIG_IP_ROUTE_VERBOSE:  y
-CONFIG_IRCOMM:  m
-CONFIG_IRDA:  m
-CONFIG_IRDA_CACHE_LAST_LSAP:  y
-CONFIG_IRDA_DEBUG:  y
-CONFIG_IRDA_FAST_RR:  y
-CONFIG_IRLAN:  m
-CONFIG_IRPORT_SIR:  m
-CONFIG_IRQBALANCE:  y
-CONFIG_IRTTY_SIR:  m
-CONFIG_ISA:  y
-CONFIG_ISO9660_FS:  m
-CONFIG_KCORE_ELF:  y
-CONFIG_KEYBOARD_ATKBD:  y
-CONFIG_LEGACY_PTYS:  y
-CONFIG_LITELINK_DONGLE:  m
-CONFIG_LOCKD:  m
-CONFIG_M386:  n
-CONFIG_M486:  n
-CONFIG_M586:  n
-CONFIG_M686:  n
-CONFIG_MA600_DONGLE:  m
-CONFIG_MAC_PARTITION:  y
-CONFIG_MCP2120_DONGLE:  m
-CONFIG_MODULES:  y
-CONFIG_MODULE_UNLOAD:  y
-CONFIG_MOUSE:  m
-CONFIG_MOUSE_PS2:  y
-CONFIG_MPENTIUMM:  y
-CONFIG_MSDOS_FS:  m
-CONFIG_MTRR:  y
-CONFIG_NET:  y
-CONFIG_NETDEVICES:  y
-CONFIG_NET_ETHERNET:  y
-CONFIG_NFSD:  m
-CONFIG_NFS_FS:  m
-CONFIG_NLS:  y
-CONFIG_NLS_CODEPAGE_437:  m
-CONFIG_NLS_CODEPAGE_850:  m
-CONFIG_NLS_ISO8859_1:  m
-CONFIG_NLS_UTF8:  m
-CONFIG_NOHIGHMEM:  y
-CONFIG_NTFS_FS:  m
-CONFIG_OLD_BELKIN_DONGLE:  m
-CONFIG_OOM_KILLER:  y
-CONFIG_PACKET:  y
-CONFIG_PARPORT:  m
-CONFIG_PARPORT_PC:  m
-CONFIG_PCCARD:  y
-CONFIG_PCI:  y
-CONFIG_PCI_BIOS:  y
-CONFIG_PCI_GOANY:  y
-CONFIG_PCI_OLD_PROC:  y
-CONFIG_PCI_QUIRKS:  y
-CONFIG_PCMCIA:  y
-CONFIG_PIIX_TUNING:  y
-CONFIG_PM:  y
-CONFIG_PPP:  m
-CONFIG_PPPOE:  m
-CONFIG_PPP_ASYNC:  m
-CONFIG_PPP_BSDCOMP:  m
-CONFIG_PPP_DEFLATE:  m
-CONFIG_PPP_FILTER:  y
-CONFIG_PPP_SYNC_TTY:  m
-CONFIG_PREEMPT:  n
-CONFIG_PREEMPT_BKL:  y
-CONFIG_PREEMPT_RT:  y
-CONFIG_PREEMPT_VOLUNTARY:  n
-CONFIG_PRINTER:  m
-CONFIG_PRINTER_READBACK:  y
-CONFIG_PROC_FS:  y
-CONFIG_PSMOUSE:  y
-CONFIG_QNX4FS_FS:  m
-CONFIG_REGPARM:  y
-CONFIG_RTC:  y
-CONFIG_SCSI:  m
-CONFIG_SCSI_MULTI_LUN:  y
-CONFIG_SCSI_PROC_FS:  y
-CONFIG_SERIAL:  m
-CONFIG_SERIAL_8250:  m
-CONFIG_SERIAL_8250_CS:  m
-CONFIG_SHAPER:  m
-CONFIG_SLIP:  m
-CONFIG_SMB_FS:  m
-CONFIG_SMC_IRCC_FIR:  m
-CONFIG_SND:  m
-CONFIG_SND_HDA_INTEL:  m
-CONFIG_SND_INTEL8X0:  m
-CONFIG_SND_INTEL8X0M:  m
-CONFIG_SND_MIXER_OSS:  m
-CONFIG_SND_PCM_OSS:  m
-CONFIG_SND_RTCTIMER:  m
-CONFIG_SND_SEQUENCER:  m
-CONFIG_SND_SEQUENCER_OSS:  y
-CONFIG_SND_SEQ_DUMMY:  m
-CONFIG_SND_USB_AUDIO:  m
-CONFIG_SOUND:  m
-CONFIG_SOUND_ICH:  m
-CONFIG_SUNRPC:  m
-CONFIG_SYSCTL:  y
-CONFIG_SYSVIPC:  y
-CONFIG_TEKRAM_DONGLE:  m
-CONFIG_TIGON3:  y
-CONFIG_UFS_FS:  m
-CONFIG_UMSDOS_FS:  m
-CONFIG_UNIX:  y
-CONFIG_USB:  m
-CONFIG_USB_ACM:  m
-CONFIG_USB_AUDIO:  m
-CONFIG_USB_CDCETHER:  m
-CONFIG_USB_DEVICEFS:  y
-CONFIG_USB_EHCI_HCD:  m
-CONFIG_USB_HID:  y
-CONFIG_USB_HIDINPUT:  y
-CONFIG_USB_KBD:  m
-CONFIG_USB_MOUSE:  m
-CONFIG_USB_OHCI:  m
-CONFIG_USB_OHCI_HCD:  m
-CONFIG_USB_PRINTER:  m
-CONFIG_USB_SERIAL:  m
-CONFIG_USB_SERIAL_FTDI_SIO:  m
-CONFIG_USB_SERIAL_GENERIC:  y
-CONFIG_USB_STORAGE:  m
-CONFIG_USB_UHCI:  m
-CONFIG_USB_UHCI_ALT:  m
-CONFIG_USB_UHCI_HCD:  m
-CONFIG_VFAT_FS:  m
-CONFIG_VGA_CONSOLE:  y
-CONFIG_VIDEO_SELECT:  y
-CONFIG_VT:  y
-CONFIG_VT_CONSOLE:  y
-CONFIG_X86_MCE:  y
-CONFIG_X86_SPEEDSTEP_CENTRINO:  y
-CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI:  y
-CONFIG_X86_UP_APIC:  y
-CONFIG_X86_UP_IOAPIC:  y
-CONFIG_YENTA:  y
-CONGIG_KMOD:  y
+Regards,
+Colin
 
-PCI devices:
-8086 	Intel Corporation 	3340 	82855PM 	0 		Host-Hub Interface Bridge
-8086 	Intel Corporation 	3341 	82855PM 	0 		AGP Bridge
-8086 	Intel Corporation 	24C2 	82801DB/DBL/DBM 	B 		USB UHCI Controller #1
-8086 	Intel Corporation 	24C4 	82801DB/DBL/DBM 	B 		USB UHCI Controller #2
-8086 	Intel Corporation 	24C7 	82801DB/DBL/DBM 	B 		USB UHCI Controller #3
-8086 	Intel Corporation 	24CD 	82801DB/DBL/DBM 	B 		USB EHCI Controller
-8086 	Intel Corporation 	2448 	82801BAM/CAM/DBM 	0 		Hub Interface to PCI Bridge
-8086 	Intel Corporation 	24CC 	82801DBM 	0 		LPC Interface Bridge
-8086 	Intel Corporation 	24CA 	82801DBM 	B 		IDE Controller (UltraATA/100)
-8086 	Intel Corporation 	24C5 	82801DB 	7 		AC97 Audio Controller
-8086 	Intel Corporation 	24C6 	82801DB/DBM 	B 		AC97 Modem Controller
-10DE 	NVIDIA Corporation 	0324 	NV31 	B 		nVidia GeForce FX Go 5200, 64MB
-14E4 	Broadcom Corporation 	165D 	BCM5705M 	B 		Broadcom NetXtreme Gigabit Ethernet
-104C 	Texas Instruments 	AC47 	7510/4510 	B 		Cardbus
-104C 	Texas Instruments 	AC4A 		B 		
-104C 	Texas Instruments 	802B 		B 		
-104C 	Texas Instruments 	8204 	4610, 4515, 4610FM 	0 		TI UltraMedia Firmware Loader Device
-8086 	Intel Corporation 	4220 	MPCI3B 	B 		Intel 2200 mPCI 3B - RoW
 
-No proprietary drivers in the system: I'm using XFree 4.3 driver for Nvidia.
+----- Original Message ----- 
+From: "colin" <colin@realtek.com.tw>
+To: <linux-kernel@vger.kernel.org>
+Sent: Monday, August 29, 2005 8:15 PM
+Subject: A problem about DIRECT IO on ext3
+
+
+>
+> Hi all,
+> I wrote a simple program to test direct io, and found that there are some
+> strange behaviors of it on "ext3".
+> My simple program is below. Assume that the executable file name is
+> "directio". If I do the following:
+>     1. cp directio aaa
+>     2. ./directio directio aaa
+>
+> The size of aaa is about the same with directio. This is wrong.
+> It should be 3 times the size of directio because there are 2 write
+> operations and one lseek to the file end.
+>
+> If the second file is not opened with "O_DIRECT", the result is correct.
+>
+> What's the problem of direct io? I found that if I remove the instruction
+of
+> lseek, the result is correct.
+> Is there any problem of lseek when doing direct io on ext3?
+> My platform is 2.6.11.
+>
+> Regards,
+> Colin
+>
+>
+>
+>
+>
+>
+>
+>
+> #define _GNU_SOURCE
+>
+> #include <stdio.h>
+> #include <fcntl.h>
+> #include <sys/stat.h>
+> #include <sys/types.h>
+> #include <stdlib.h>
+>
+>
+> int main(int argc, char **argv) {
+>
+> int fd1, fd2, count;
+> char *ptr1, *ptr2;
+>
+> if(argc == 3) {
+>   fd1 = open(argv[1], O_RDONLY | O_DIRECT, S_IRWXU);
+>   fd2 = open(argv[2], O_RDWR | O_CREAT | O_DIRECT);
+> } else {
+>   printf("Error syntax\n");
+>   exit(1);
+> }
+> printf("%d\n", lseek(fd2, 0, SEEK_END));
+>
+> ptr1 = malloc(4096 + 4096-1);
+> ptr2 = (void*)((int)ptr1 - (int)ptr1 % 4096 + 4096);
+>
+> do {
+>   count = read(fd1, ptr2, 4096);
+>   if(!count)
+>     break;
+>   write(fd2, ptr2, 4096);
+>   write(fd2, ptr2, 4096);
+> } while(count > 0);
+>
+> free(ptr1);
+> close(fd1);
+> close(fd2);
+> }
+>
+>
+>
+>
+>
+

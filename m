@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbVH2P5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbVH2QA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbVH2P5y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 11:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbVH2P5y
+	id S1751076AbVH2QA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 12:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbVH2QA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 11:57:54 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:14021 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751063AbVH2P5x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 11:57:53 -0400
-Date: Mon, 29 Aug 2005 10:57:50 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>, John Rose <johnrose@austin.ibm.com>,
-       akpm@osdl.org, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-Message-ID: <20050829155750.GB12618@austin.ibm.com>
-References: <20050823231817.829359000@bilge> <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com> <1124898331.24668.33.camel@sinatra.austin.ibm.com> <20050824162959.GC25174@austin.ibm.com> <17165.3205.505386.187453@cargo.ozlabs.ibm.com> <1124930943.5159.168.camel@gaston> <20050825162118.GH25174@austin.ibm.com> <1125006237.12539.23.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1125006237.12539.23.camel@gaston>
-User-Agent: Mutt/1.5.9i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Mon, 29 Aug 2005 12:00:28 -0400
+Received: from smtpout.mac.com ([17.250.248.83]:56261 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751076AbVH2QA2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 12:00:28 -0400
+In-Reply-To: <7cd5d4b4050829044626df8b38@mail.gmail.com>
+References: <7cd5d4b4050829044626df8b38@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <C65640A6-F8DE-45F9-B631-DFC2468A463B@mac.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Is cdrecord dependent on some kind of bus type?
+Date: Mon, 29 Aug 2005 12:00:26 -0400
+To: jeff shia <tshxiayu@gmail.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 26, 2005 at 07:43:57AM +1000, Benjamin Herrenschmidt was heard to remark:
-> On Thu, 2005-08-25 at 11:21 -0500, Linas Vepstas wrote:
-> > On Thu, Aug 25, 2005 at 10:49:03AM +1000, Benjamin Herrenschmidt was heard to remark:
-> > > 
-> > > Of course, we'll possibly end up with a different ethX or whatever, but
-> > 
-> > Yep, but that's not an issue, since all the various device-naming
-> > schemes are supposed to be fixing this. Its a distinct problem;
-> > it needs to be solved even across cold-boots. 
-> 
-> Ok, so what is the problem then ? Why do we have to wait at all ? Why
-> not just unplug/replug right away ?
+On Aug 29, 2005, at 07:46:04, jeff shia wrote:
+> Hello,
+>
+> Is cdrecord dependent on some kind of bus type,such as pci or usb?
+> And the older version such as cdrecord-1.2?
+> can cdrecord-1.2 run on kernel-2.4.18?
 
-Paranoia + old versions of udev. I beleive that older versions of udev
-(such as the ones currently shipping with Red Hat RHEL4 and SuSE SLES9)
-failed to serialize events properly.  I beleive that the newer versions
-do serialize, but have not verified/tested.
+Please ask these kinds of questions of the cdrecord mailing-list or the
+cdrecord author Jörg Schilling, instead of on this list (this is a
+kernel development list, as opposed to a linux-users list).  Also, you
+sent duplicate copies of your message only hours apart.  Please don't
+do this.  Yes, we did get your message, but nobody replied to it because
+it was off-topic and indicated a complete lack of RTFM and STFW.  Please
+go read the associated documentation before asking questions, and then
+ask them on the appropriate forum (if you still have questions).
 
---linas
+Here is a good document about asking good questions:
+http://www.catb.org/~esr/faqs/smart-questions.html
+
+Cheers,
+Kyle Moffett
+
+--
+Premature optimization is the root of all evil in programming
+   -- C.A.R. Hoare
+
+
 

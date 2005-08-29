@@ -1,912 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbVH2ARg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbVH2ARc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbVH2ARg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 20:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVH2ARg
+	id S1750976AbVH2ARc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 20:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbVH2ARc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 20:17:36 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:16541 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1750972AbVH2ARd (ORCPT
+	Sun, 28 Aug 2005 20:17:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1461 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750972AbVH2ARb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 20:17:33 -0400
-Date: Sun, 28 Aug 2005 20:17:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] change libata license from OSL+GPL to GPL
-Message-ID: <20050829001730.GA21619@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sun, 28 Aug 2005 20:17:31 -0400
+Date: Sun, 28 Aug 2005 17:17:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.13
+Message-ID: <Pine.LNX.4.58.0508281708040.3243@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch does the following:
+There it is. 
 
-- changes license of all code from OSL+GPL to plain ole GPL
-  - except for NVIDIA, who hasn't yet responded about sata_nv
-  - copyright holders were already contacted privately
+The most painful part of 2.6.13 is likely to be the fact that we made x86
+use the generic PCI bus setup code for assigning unassigned resources.  
+That uncovered rather a lot of nasty small details, but should also mean
+that a lot of laptops in particular should be able to discover PCI devices
+behind bridges that the BIOS hasn't set up.
 
-- adds info in each driver about where hardware/protocol docs may be
-  obtained
+We've hopefully fixed up all the problems that the longish -rc series
+showed, and it shouldn't be that painful, but if you have device problems,
+please make a report that at a minimum contains the unified diff of the
+output of "lspci -vvx" running on 2.6.12 vs 2.6.13. That might give us
+some clues.
 
-- where I have made major contributions, updated copyright dates
+The changes since -rc7 are pretty small, full shortlog and diffstat of
+that appended.
 
+As to the new world order: I'm actually going to be away for most of next
+week, but in general we should now try to do all major merges within the
+first two weeks of the release. After that, we go into calm-down mode, and 
+if you have work that didn't make the cut, you get to wait until 2.6.14. 
 
-diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
---- a/drivers/scsi/ahci.c
-+++ b/drivers/scsi/ahci.c
-@@ -1,26 +1,34 @@
- /*
-  *  ahci.c - AHCI SATA support
-  *
-- *  Copyright 2004 Red Hat, Inc.
-+ *  Maintained by:  Jeff Garzik <jgarzik@pobox.com>
-+ *    		    Please ALWAYS copy linux-ide@vger.kernel.org
-+ *		    on emails.
-  *
-- *  The contents of this file are subject to the Open
-- *  Software License version 1.1 that can be found at
-- *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-- *  by reference.
-+ *  Copyright 2004-2005 Red Hat, Inc.
-  *
-- *  Alternatively, the contents of this file may be used under the terms
-- *  of the GNU General Public License version 2 (the "GPL") as distributed
-- *  in the kernel source COPYING file, in which case the provisions of
-- *  the GPL are applicable instead of the above.  If you wish to allow
-- *  the use of your version of this file only under the terms of the
-- *  GPL and not to allow others to use your version of this file under
-- *  the OSL, indicate your decision by deleting the provisions above and
-- *  replace them with the notice and other provisions required by the GPL.
-- *  If you do not delete the provisions above, a recipient may use your
-- *  version of this file under either the OSL or the GPL.
-  *
-- * Version 1.0 of the AHCI specification:
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ * libata documentation is available via 'make {ps|pdf}docs',
-+ * as Documentation/DocBook/libata.*
-+ *
-+ * AHCI hardware documentation:
-  * http://www.intel.com/technology/serialata/pdf/rev1_0.pdf
-+ * http://www.intel.com/technology/serialata/pdf/rev1_1.pdf
-  *
-  */
- 
-diff --git a/drivers/scsi/ata_piix.c b/drivers/scsi/ata_piix.c
---- a/drivers/scsi/ata_piix.c
-+++ b/drivers/scsi/ata_piix.c
-@@ -1,24 +1,42 @@
- /*
--
--    ata_piix.c - Intel PATA/SATA controllers
--
--    Maintained by:  Jeff Garzik <jgarzik@pobox.com>
--    		    Please ALWAYS copy linux-ide@vger.kernel.org
--		    on emails.
--
--
--	Copyright 2003-2004 Red Hat Inc
--	Copyright 2003-2004 Jeff Garzik
--
--
--	Copyright header from piix.c:
--
--    Copyright (C) 1998-1999 Andrzej Krzysztofowicz, Author and Maintainer
--    Copyright (C) 1998-2000 Andre Hedrick <andre@linux-ide.org>
--    Copyright (C) 2003 Red Hat Inc <alan@redhat.com>
--
--    May be copied or modified under the terms of the GNU General Public License
--
-+ *    ata_piix.c - Intel PATA/SATA controllers
-+ *
-+ *    Maintained by:  Jeff Garzik <jgarzik@pobox.com>
-+ *    		    Please ALWAYS copy linux-ide@vger.kernel.org
-+ *		    on emails.
-+ *
-+ *
-+ *	Copyright 2003-2005 Red Hat Inc
-+ *	Copyright 2003-2005 Jeff Garzik
-+ *
-+ *
-+ *	Copyright header from piix.c:
-+ *
-+ *  Copyright (C) 1998-1999 Andrzej Krzysztofowicz, Author and Maintainer
-+ *  Copyright (C) 1998-2000 Andre Hedrick <andre@linux-ide.org>
-+ *  Copyright (C) 2003 Red Hat Inc <alan@redhat.com>
-+ *
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware documentation available at http://developer.intel.com/
-+ *
-  */
- 
- #include <linux/kernel.h>
-diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
---- a/drivers/scsi/libata-core.c
-+++ b/drivers/scsi/libata-core.c
-@@ -1,25 +1,35 @@
- /*
--   libata-core.c - helper library for ATA
--
--   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
--   Copyright 2003-2004 Jeff Garzik
--
--   The contents of this file are subject to the Open
--   Software License version 1.1 that can be found at
--   http://www.opensource.org/licenses/osl-1.1.txt and is included herein
--   by reference.
--
--   Alternatively, the contents of this file may be used under the terms
--   of the GNU General Public License version 2 (the "GPL") as distributed
--   in the kernel source COPYING file, in which case the provisions of
--   the GPL are applicable instead of the above.  If you wish to allow
--   the use of your version of this file only under the terms of the
--   GPL and not to allow others to use your version of this file under
--   the OSL, indicate your decision by deleting the provisions above and
--   replace them with the notice and other provisions required by the GPL.
--   If you do not delete the provisions above, a recipient may use your
--   version of this file under either the OSL or the GPL.
--
-+ *  libata-core.c - helper library for ATA
-+ *
-+ *  Maintained by:  Jeff Garzik <jgarzik@pobox.com>
-+ *    		    Please ALWAYS copy linux-ide@vger.kernel.org
-+ *		    on emails.
-+ *
-+ *  Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+ *  Copyright 2003-2004 Jeff Garzik
-+ *
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware documentation available from http://www.t13.org/ and
-+ *  http://www.sata-io.org/
-+ *
-  */
- 
- #include <linux/config.h>
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -1,25 +1,36 @@
- /*
--   libata-scsi.c - helper library for ATA
--
--   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
--   Copyright 2003-2004 Jeff Garzik
--
--   The contents of this file are subject to the Open
--   Software License version 1.1 that can be found at
--   http://www.opensource.org/licenses/osl-1.1.txt and is included herein
--   by reference.
--
--   Alternatively, the contents of this file may be used under the terms
--   of the GNU General Public License version 2 (the "GPL") as distributed
--   in the kernel source COPYING file, in which case the provisions of
--   the GPL are applicable instead of the above.  If you wish to allow
--   the use of your version of this file only under the terms of the
--   GPL and not to allow others to use your version of this file under
--   the OSL, indicate your decision by deleting the provisions above and
--   replace them with the notice and other provisions required by the GPL.
--   If you do not delete the provisions above, a recipient may use your
--   version of this file under either the OSL or the GPL.
--
-+ *  libata-scsi.c - helper library for ATA
-+ *
-+ *  Maintained by:  Jeff Garzik <jgarzik@pobox.com>
-+ *    		    Please ALWAYS copy linux-ide@vger.kernel.org
-+ *		    on emails.
-+ *
-+ *  Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+ *  Copyright 2003-2004 Jeff Garzik
-+ *
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware documentation available from
-+ *  - http://www.t10.org/
-+ *  - http://www.t13.org/
-+ *
-  */
- 
- #include <linux/kernel.h>
-diff --git a/drivers/scsi/libata.h b/drivers/scsi/libata.h
---- a/drivers/scsi/libata.h
-+++ b/drivers/scsi/libata.h
-@@ -1,25 +1,28 @@
- /*
--   libata.h - helper library for ATA
--
--   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
--   Copyright 2003-2004 Jeff Garzik
--
--   The contents of this file are subject to the Open
--   Software License version 1.1 that can be found at
--   http://www.opensource.org/licenses/osl-1.1.txt and is included herein
--   by reference.
--
--   Alternatively, the contents of this file may be used under the terms
--   of the GNU General Public License version 2 (the "GPL") as distributed
--   in the kernel source COPYING file, in which case the provisions of
--   the GPL are applicable instead of the above.  If you wish to allow
--   the use of your version of this file only under the terms of the
--   GPL and not to allow others to use your version of this file under
--   the OSL, indicate your decision by deleting the provisions above and
--   replace them with the notice and other provisions required by the GPL.
--   If you do not delete the provisions above, a recipient may use your
--   version of this file under either the OSL or the GPL.
--
-+ *  libata.h - helper library for ATA
-+ *
-+ *  Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+ *  Copyright 2003-2004 Jeff Garzik
-+ *
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-  */
- 
- #ifndef __LIBATA_H__
-diff --git a/drivers/scsi/sata_nv.c b/drivers/scsi/sata_nv.c
---- a/drivers/scsi/sata_nv.c
-+++ b/drivers/scsi/sata_nv.c
-@@ -20,6 +20,17 @@
-  *  If you do not delete the provisions above, a recipient may use your
-  *  version of this file under either the OSL or the GPL.
-  *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  No hardware documentation available outside of NVIDIA.
-+ *  This driver programs the NVIDIA SATA controller in a similar
-+ *  fashion as with other PCI IDE BMDMA controllers, with a few
-+ *  NV-specific details such as register offsets, SATA phy location,
-+ *  hotplug info, etc.
-+ *
-+ *
-  *  0.06
-  *     - Added generic SATA support by using a pci_device_id that filters on
-  *       the IDE storage class code.
-diff --git a/drivers/scsi/sata_promise.c b/drivers/scsi/sata_promise.c
---- a/drivers/scsi/sata_promise.c
-+++ b/drivers/scsi/sata_promise.c
-@@ -7,21 +7,26 @@
-  *
-  *  Copyright 2003-2004 Red Hat, Inc.
-  *
-- *  The contents of this file are subject to the Open
-- *  Software License version 1.1 that can be found at
-- *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-- *  by reference.
-  *
-- *  Alternatively, the contents of this file may be used under the terms
-- *  of the GNU General Public License version 2 (the "GPL") as distributed
-- *  in the kernel source COPYING file, in which case the provisions of
-- *  the GPL are applicable instead of the above.  If you wish to allow
-- *  the use of your version of this file only under the terms of the
-- *  GPL and not to allow others to use your version of this file under
-- *  the OSL, indicate your decision by deleting the provisions above and
-- *  replace them with the notice and other provisions required by the GPL.
-- *  If you do not delete the provisions above, a recipient may use your
-- *  version of this file under either the OSL or the GPL.
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware information only available under NDA.
-  *
-  */
- 
-diff --git a/drivers/scsi/sata_promise.h b/drivers/scsi/sata_promise.h
---- a/drivers/scsi/sata_promise.h
-+++ b/drivers/scsi/sata_promise.h
-@@ -3,21 +3,24 @@
-  *
-  *  Copyright 2003-2004 Red Hat, Inc.
-  *
-- *  The contents of this file are subject to the Open
-- *  Software License version 1.1 that can be found at
-- *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-- *  by reference.
-- *
-- *  Alternatively, the contents of this file may be used under the terms
-- *  of the GNU General Public License version 2 (the "GPL") as distributed
-- *  in the kernel source COPYING file, in which case the provisions of
-- *  the GPL are applicable instead of the above.  If you wish to allow
-- *  the use of your version of this file only under the terms of the
-- *  GPL and not to allow others to use your version of this file under
-- *  the OSL, indicate your decision by deleting the provisions above and
-- *  replace them with the notice and other provisions required by the GPL.
-- *  If you do not delete the provisions above, a recipient may use your
-- *  version of this file under either the OSL or the GPL.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-  *
-  */
- 
-diff --git a/drivers/scsi/sata_qstor.c b/drivers/scsi/sata_qstor.c
---- a/drivers/scsi/sata_qstor.c
-+++ b/drivers/scsi/sata_qstor.c
-@@ -6,21 +6,24 @@
-  *  Copyright 2005 Pacific Digital Corporation.
-  *  (OSL/GPL code release authorized by Jalil Fadavi).
-  *
-- *  The contents of this file are subject to the Open
-- *  Software License version 1.1 that can be found at
-- *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-- *  by reference.
-  *
-- *  Alternatively, the contents of this file may be used under the terms
-- *  of the GNU General Public License version 2 (the "GPL") as distributed
-- *  in the kernel source COPYING file, in which case the provisions of
-- *  the GPL are applicable instead of the above.  If you wish to allow
-- *  the use of your version of this file only under the terms of the
-- *  GPL and not to allow others to use your version of this file under
-- *  the OSL, indicate your decision by deleting the provisions above and
-- *  replace them with the notice and other provisions required by the GPL.
-- *  If you do not delete the provisions above, a recipient may use your
-- *  version of this file under either the OSL or the GPL.
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-  *
-  */
- 
-diff --git a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
---- a/drivers/scsi/sata_sil.c
-+++ b/drivers/scsi/sata_sil.c
-@@ -5,24 +5,27 @@
-  *  		    Please ALWAYS copy linux-ide@vger.kernel.org
-  *		    on emails.
-  *
-- *  Copyright 2003 Red Hat, Inc.
-+ *  Copyright 2003-2005 Red Hat, Inc.
-  *  Copyright 2003 Benjamin Herrenschmidt
-  *
-- *  The contents of this file are subject to the Open
-- *  Software License version 1.1 that can be found at
-- *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-- *  by reference.
-- *
-- *  Alternatively, the contents of this file may be used under the terms
-- *  of the GNU General Public License version 2 (the "GPL") as distributed
-- *  in the kernel source COPYING file, in which case the provisions of
-- *  the GPL are applicable instead of the above.  If you wish to allow
-- *  the use of your version of this file only under the terms of the
-- *  GPL and not to allow others to use your version of this file under
-- *  the OSL, indicate your decision by deleting the provisions above and
-- *  replace them with the notice and other provisions required by the GPL.
-- *  If you do not delete the provisions above, a recipient may use your
-- *  version of this file under either the OSL or the GPL.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-  *
-  */
- 
-diff --git a/drivers/scsi/sata_sis.c b/drivers/scsi/sata_sis.c
---- a/drivers/scsi/sata_sis.c
-+++ b/drivers/scsi/sata_sis.c
-@@ -7,21 +7,26 @@
-  *
-  *  Copyright 2004 Uwe Koziolek
-  *
-- *  The contents of this file are subject to the Open
-- *  Software License version 1.1 that can be found at
-- *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-- *  by reference.
-  *
-- *  Alternatively, the contents of this file may be used under the terms
-- *  of the GNU General Public License version 2 (the "GPL") as distributed
-- *  in the kernel source COPYING file, in which case the provisions of
-- *  the GPL are applicable instead of the above.  If you wish to allow
-- *  the use of your version of this file only under the terms of the
-- *  GPL and not to allow others to use your version of this file under
-- *  the OSL, indicate your decision by deleting the provisions above and
-- *  replace them with the notice and other provisions required by the GPL.
-- *  If you do not delete the provisions above, a recipient may use your
-- *  version of this file under either the OSL or the GPL.
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware documentation available under NDA.
-  *
-  */
- 
-diff --git a/drivers/scsi/sata_svw.c b/drivers/scsi/sata_svw.c
---- a/drivers/scsi/sata_svw.c
-+++ b/drivers/scsi/sata_svw.c
-@@ -13,21 +13,26 @@
-  *  This driver probably works with non-Apple versions of the
-  *  Broadcom chipset...
-  *
-- *  The contents of this file are subject to the Open
-- *  Software License version 1.1 that can be found at
-- *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-- *  by reference.
-  *
-- *  Alternatively, the contents of this file may be used under the terms
-- *  of the GNU General Public License version 2 (the "GPL") as distributed
-- *  in the kernel source COPYING file, in which case the provisions of
-- *  the GPL are applicable instead of the above.  If you wish to allow
-- *  the use of your version of this file only under the terms of the
-- *  GPL and not to allow others to use your version of this file under
-- *  the OSL, indicate your decision by deleting the provisions above and
-- *  replace them with the notice and other provisions required by the GPL.
-- *  If you do not delete the provisions above, a recipient may use your
-- *  version of this file under either the OSL or the GPL.
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware documentation available under NDA.
-  *
-  */
- 
-diff --git a/drivers/scsi/sata_sx4.c b/drivers/scsi/sata_sx4.c
---- a/drivers/scsi/sata_sx4.c
-+++ b/drivers/scsi/sata_sx4.c
-@@ -7,21 +7,26 @@
-  *
-  *  Copyright 2003-2004 Red Hat, Inc.
-  *
-- *  The contents of this file are subject to the Open
-- *  Software License version 1.1 that can be found at
-- *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-- *  by reference.
-  *
-- *  Alternatively, the contents of this file may be used under the terms
-- *  of the GNU General Public License version 2 (the "GPL") as distributed
-- *  in the kernel source COPYING file, in which case the provisions of
-- *  the GPL are applicable instead of the above.  If you wish to allow
-- *  the use of your version of this file only under the terms of the
-- *  GPL and not to allow others to use your version of this file under
-- *  the OSL, indicate your decision by deleting the provisions above and
-- *  replace them with the notice and other provisions required by the GPL.
-- *  If you do not delete the provisions above, a recipient may use your
-- *  version of this file under either the OSL or the GPL.
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware documentation available under NDA.
-  *
-  */
- 
-diff --git a/drivers/scsi/sata_uli.c b/drivers/scsi/sata_uli.c
---- a/drivers/scsi/sata_uli.c
-+++ b/drivers/scsi/sata_uli.c
-@@ -1,21 +1,26 @@
- /*
-  *  sata_uli.c - ULi Electronics SATA
-  *
-- *  The contents of this file are subject to the Open
-- *  Software License version 1.1 that can be found at
-- *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-- *  by reference.
-  *
-- *  Alternatively, the contents of this file may be used under the terms
-- *  of the GNU General Public License version 2 (the "GPL") as distributed
-- *  in the kernel source COPYING file, in which case the provisions of
-- *  the GPL are applicable instead of the above.  If you wish to allow
-- *  the use of your version of this file only under the terms of the
-- *  GPL and not to allow others to use your version of this file under
-- *  the OSL, indicate your decision by deleting the provisions above and
-- *  replace them with the notice and other provisions required by the GPL.
-- *  If you do not delete the provisions above, a recipient may use your
-- *  version of this file under either the OSL or the GPL.
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware documentation available under NDA.
-  *
-  */
- 
-diff --git a/drivers/scsi/sata_via.c b/drivers/scsi/sata_via.c
---- a/drivers/scsi/sata_via.c
-+++ b/drivers/scsi/sata_via.c
-@@ -1,34 +1,38 @@
- /*
--   sata_via.c - VIA Serial ATA controllers
--
--   Maintained by:  Jeff Garzik <jgarzik@pobox.com>
--   		   Please ALWAYS copy linux-ide@vger.kernel.org
-+ *  sata_via.c - VIA Serial ATA controllers
-+ *
-+ *  Maintained by:  Jeff Garzik <jgarzik@pobox.com>
-+ * 		   Please ALWAYS copy linux-ide@vger.kernel.org
-  		   on emails.
--
--   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
--   Copyright 2003-2004 Jeff Garzik
--
--   The contents of this file are subject to the Open
--   Software License version 1.1 that can be found at
--   http://www.opensource.org/licenses/osl-1.1.txt and is included herein
--   by reference.
--
--   Alternatively, the contents of this file may be used under the terms
--   of the GNU General Public License version 2 (the "GPL") as distributed
--   in the kernel source COPYING file, in which case the provisions of
--   the GPL are applicable instead of the above.  If you wish to allow
--   the use of your version of this file only under the terms of the
--   GPL and not to allow others to use your version of this file under
--   the OSL, indicate your decision by deleting the provisions above and
--   replace them with the notice and other provisions required by the GPL.
--   If you do not delete the provisions above, a recipient may use your
--   version of this file under either the OSL or the GPL.
--
--   ----------------------------------------------------------------------
--
--   To-do list:
--   * VT6421 PATA support
--
-+ *
-+ *  Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+ *  Copyright 2003-2004 Jeff Garzik
-+ *
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware documentation available under NDA.
-+ *
-+ *
-+ *  To-do list:
-+ *  - VT6421 PATA support
-+ *
-  */
- 
- #include <linux/kernel.h>
-diff --git a/drivers/scsi/sata_vsc.c b/drivers/scsi/sata_vsc.c
---- a/drivers/scsi/sata_vsc.c
-+++ b/drivers/scsi/sata_vsc.c
-@@ -9,9 +9,29 @@
-  *
-  *  Bits from Jeff Garzik, Copyright RedHat, Inc.
-  *
-- *  This file is subject to the terms and conditions of the GNU General Public
-- *  License.  See the file "COPYING" in the main directory of this archive
-- *  for more details.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Vitesse hardware documentation presumably available under NDA.
-+ *  Intel 31244 (same hardware interface) documentation presumably
-+ *  available from http://developer.intel.com/
-+ *
-  */
- 
- #include <linux/kernel.h>
-diff --git a/include/linux/ata.h b/include/linux/ata.h
---- a/include/linux/ata.h
-+++ b/include/linux/ata.h
-@@ -1,24 +1,29 @@
- 
- /*
--   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
--   Copyright 2003-2004 Jeff Garzik
--
--   The contents of this file are subject to the Open
--   Software License version 1.1 that can be found at
--   http://www.opensource.org/licenses/osl-1.1.txt and is included herein
--   by reference.
--
--   Alternatively, the contents of this file may be used under the terms
--   of the GNU General Public License version 2 (the "GPL") as distributed
--   in the kernel source COPYING file, in which case the provisions of
--   the GPL are applicable instead of the above.  If you wish to allow
--   the use of your version of this file only under the terms of the
--   GPL and not to allow others to use your version of this file under
--   the OSL, indicate your decision by deleting the provisions above and
--   replace them with the notice and other provisions required by the GPL.
--   If you do not delete the provisions above, a recipient may use your
--   version of this file under either the OSL or the GPL.
--
-+ *  Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+ *  Copyright 2003-2004 Jeff Garzik
-+ *
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-+ *  Hardware documentation available from http://www.t13.org/
-+ *
-  */
- 
- #ifndef __LINUX_ATA_H__
-diff --git a/include/linux/libata.h b/include/linux/libata.h
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -1,23 +1,26 @@
- /*
--   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
--   Copyright 2003-2004 Jeff Garzik
--
--   The contents of this file are subject to the Open
--   Software License version 1.1 that can be found at
--   http://www.opensource.org/licenses/osl-1.1.txt and is included herein
--   by reference.
--
--   Alternatively, the contents of this file may be used under the terms
--   of the GNU General Public License version 2 (the "GPL") as distributed
--   in the kernel source COPYING file, in which case the provisions of
--   the GPL are applicable instead of the above.  If you wish to allow
--   the use of your version of this file only under the terms of the
--   GPL and not to allow others to use your version of this file under
--   the OSL, indicate your decision by deleting the provisions above and
--   replace them with the notice and other provisions required by the GPL.
--   If you do not delete the provisions above, a recipient may use your
--   version of this file under either the OSL or the GPL.
--
-+ *  Copyright 2003-2005 Red Hat, Inc.  All rights reserved.
-+ *  Copyright 2003-2005 Jeff Garzik
-+ *
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ *
-+ *  libata documentation is available via 'make {ps|pdf}docs',
-+ *  as Documentation/DocBook/libata.*
-+ *
-  */
- 
- #ifndef __LINUX_LIBATA_H__
+The plan is that this should bring in the time between releases, so that 
+even stuff that misses the deadline won't have to wait _too_ long for the 
+next one.
+
+		Linus
+
+----
+Al Viro:
+  bogus iounmap() in emac
+  bogus function type in qdio
+  late spinlock initialization in ieee1394/ohci
+  mmaper_kern.c fixes [buffer overruns]
+
+Alexey Dobriyan:
+  drivers/hwmon/*: kfree() correct pointers
+  zfcp: fix compilation due to rports changes
+
+Andi Kleen:
+  x86_64: update defconfig - reenable fusion
+  x86_64: Tell VM about holes in nodes
+
+Andreas Herrmann:
+  zfcp: add rports to enable scsi_add_device to work again
+
+Andreas Schwab:
+  m68k: fix broken macros causing compile errors
+
+Anton Blanchard:
+  ppc64: Fix issue with gcc 4.0 compiled kernels
+
+Benjamin Herrenschmidt:
+  ppc64: Export machine_power_off for therm_pm72 module
+
+Deepak Saxena:
+  arm: fix IXP4xx flash resource range
+
+Eric W. Biederman:
+  acpi_shutdown: Only prepare for power off on power_off
+
+Heiko Carstens:
+  zfcp: bugfix and compile fixes
+
+James Bottomley:
+  Fix oops in sysfs_hash_and_remove_file()
+
+James Morris:
+  Fix capifs bug in initialization error path.
+
+Jan Blunck:
+  sg.c: fix a memory leak in devices seq_file implementation
+
+Jean Delvare:
+  hwmon: Off-by-one error in fscpos driver
+
+Jens Axboe:
+  cfq-iosched.c: minor fixes
+
+John McCutchan:
+  Document idr_get_new_above() semantics, update inotify
+
+Keith Owens:
+  Export pcibios_bus_to_resource
+
+Linus Torvalds:
+  Only pre-allocate 256 bytes of cardbio IO range
+  Ignore disabled ROM resources at setup
+  Merge HEAD from master.kernel.org:/.../davem/net-2.6.git 
+  Merge refs/heads/upstream-fixes from master.kernel.org:/.../jgarzik/netdev-2.6 
+  Linux v2.6.13
+
+Marcelo Tosatti:
+  ppc32 8xx: fix m8xx_ide_init() #ifdef
+
+Mark M. Hoffman:
+  I2C hwmon: kfree fixes
+
+Michael Chan:
+  [TG3]: Fix ethtool loopback test lockup
+
+NeilBrown:
+  md: create a MODULE_ALIAS for md corresponding to its block major number.
+  md: clear the 'recovery' flags when starting an md array.
+
+Paolo 'Blaisorblade' Giarrusso:
+  Fixup symlink function pointers for hppfs [for 2.6.13]
+  hppfs: fix symlink error path
+
+Patrick Boettcher:
+  fix for race problem in DVB USB drivers (dibusb)
+
+Patrick McHardy:
+  [FIB_TRIE]: Don't ignore negative results from fib_semantic_match
+
+Paul Jackson:
+  cpu_exclusive sched domains build fix
+  undo partial cpu_exclusive sched domain disabling
+  completely disable cpu_exclusive sched domain
+
+Paul Mackerras:
+  Remove race between con_open and con_close
+
+Ralf Baechle:
+  6pack Timer initialization
+  Fix 6pack setting of MAC address
+
+Roland Dreier:
+  IB: fix use-after-free in user verbs cleanup
+
+Steve French:
+  Fix oops in fs/locks.c on close of file with pending locks
+
+----
+ Makefile                                  |    2 +
+ arch/arm/mach-ixp4xx/coyote-setup.c       |    2 +
+ arch/arm/mach-ixp4xx/gtwx5715-setup.c     |    2 +
+ arch/arm/mach-ixp4xx/ixdp425-setup.c      |    2 +
+ arch/ia64/pci/pci.c                       |    1 +
+ arch/ppc/syslib/m8xx_setup.c              |    2 +
+ arch/ppc64/kernel/setup.c                 |    2 +
+ arch/sparc64/kernel/pci.c                 |    1 +
+ arch/um/drivers/mmapper_kern.c            |   41 ++++++-----------------------
+ arch/x86_64/defconfig                     |   21 +++++++++------
+ arch/x86_64/kernel/e820.c                 |   34 ++++++++++++++++++++++++
+ arch/x86_64/mm/init.c                     |   16 ++++++++---
+ arch/x86_64/mm/numa.c                     |    8 +++++-
+ drivers/acpi/sleep/poweroff.c             |    6 ++++
+ drivers/block/cfq-iosched.c               |   31 +++++++++++++++-------
+ drivers/char/vt.c                         |    2 +
+ drivers/hwmon/adm1026.c                   |    4 +--
+ drivers/hwmon/adm1031.c                   |    4 +--
+ drivers/hwmon/adm9240.c                   |    2 +
+ drivers/hwmon/fscpos.c                    |    2 +
+ drivers/hwmon/smsc47b397.c                |    2 +
+ drivers/hwmon/smsc47m1.c                  |    2 +
+ drivers/ieee1394/ohci1394.c               |    8 +++++-
+ drivers/infiniband/core/uverbs_main.c     |    3 +-
+ drivers/isdn/capi/capifs.c                |    4 ++-
+ drivers/md/md.c                           |    2 +
+ drivers/media/dvb/dvb-usb/dibusb-common.c |   19 ++++++++++---
+ drivers/media/dvb/dvb-usb/dvb-usb-dvb.c   |    5 ++--
+ drivers/net/hamradio/6pack.c              |    9 ++----
+ drivers/net/ibm_emac/ibm_emac_core.c      |    2 +
+ drivers/net/tg3.c                         |    6 +---
+ drivers/pci/setup-bus.c                   |    2 +
+ drivers/pci/setup-res.c                   |    4 ++-
+ drivers/s390/cio/qdio.c                   |    2 +
+ drivers/s390/scsi/zfcp_aux.c              |   28 ++++----------------
+ drivers/s390/scsi/zfcp_ccw.c              |   10 +++++++
+ drivers/s390/scsi/zfcp_def.h              |    2 +
+ drivers/s390/scsi/zfcp_erp.c              |   25 ++++++++++++++++--
+ drivers/s390/scsi/zfcp_ext.h              |    2 +
+ drivers/s390/scsi/zfcp_fsf.c              |    1 +
+ drivers/s390/scsi/zfcp_scsi.c             |   25 ++++++++++++++----
+ drivers/s390/scsi/zfcp_sysfs_port.c       |    2 -
+ drivers/scsi/sg.c                         |   13 ++++-----
+ fs/cifs/file.c                            |    2 +
+ fs/hppfs/hppfs_kern.c                     |   30 ++++++++-------------
+ fs/inotify.c                              |    2 +
+ fs/sysfs/inode.c                          |    4 +++
+ include/asm-m68k/page.h                   |    6 ++--
+ include/asm-ppc64/bug.h                   |    7 +++--
+ include/asm-x86_64/e820.h                 |    2 +
+ kernel/cpuset.c                           |   30 +++++++++------------
+ lib/idr.c                                 |    2 +
+ net/ipv4/fib_trie.c                       |   14 +++++-----
+ 53 files changed, 277 insertions(+), 185 deletions(-)

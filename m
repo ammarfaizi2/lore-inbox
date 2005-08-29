@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbVH2SJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbVH2SND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbVH2SJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 14:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVH2SJ7
+	id S1751261AbVH2SND (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 14:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbVH2SND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 14:09:59 -0400
-Received: from mail-fra.bigfish.com ([62.209.45.166]:53371 "EHLO
-	mail16-fra-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1751254AbVH2SJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 14:09:58 -0400
-X-BigFish: V
-Message-ID: <43134F6D.1080602@am.sony.com>
-Date: Mon, 29 Aug 2005 11:09:49 -0700
-From: Geoff Levand <geoffrey.levand@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Pekka Enberg <penberg@cs.helsinki.fi>, linuxppc64-dev@ozlabs.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/7] spufs: The SPU file system
-References: <200508260003.40865.arnd@arndb.de>	<84144f02050826011778e1142@mail.gmail.com> <200508281844.18187.arnd@arndb.de>
-In-Reply-To: <200508281844.18187.arnd@arndb.de>
-Content-Type: text/plain; charset=UTF-8
+	Mon, 29 Aug 2005 14:13:03 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:11664 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751261AbVH2SNB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 14:13:01 -0400
+Subject: Re: 2.6.13 new option timer frequency
+From: Lee Revell <rlrevell@joe-job.com>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200508291857.15746.nick@linicks.net>
+References: <200508291857.15746.nick@linicks.net>
+Content-Type: text/plain
+Date: Mon, 29 Aug 2005 14:12:56 -0400
+Message-Id: <1125339176.4598.51.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.8 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> On Freedag 26 August 2005 10:17, Pekka Enberg wrote:
+On Mon, 2005-08-29 at 18:57 +0100, Nick Warne wrote:
+> Hi all,
 > 
->>I am confused. The code is architecture specific and does device I/O. Why do
->>you want to put this in fs/ and not drivers/?
+> I built and installed 2.6.13 today, and oldconfig revealed the new option for 
+> timer frequency.
 > 
+> I searched the LKML on this, but all I found is the technical stuff - not 
+> really any layman solutions.
 > 
-> I never really thought of it as a device driver but rather an architecture
-> extension, so it started out in arch/ppc64/kernel. Since most of the code
-> is interacting with VFS, it is now in fs/spufs. I don't really care about
-> the location, but I among the possible places to put the code (with the
-> unified arch/powerpc tree), I'd suggest (best first)
+> Two n00b questions here:
 > 
-> 1) arch/powerpc/platforms/cell
-> 2) arch/powerpc/spe
-> 3) fs/spufs
-> 4) drivers/spe
-> 
-> 1) would be the place where I want to have the low-level code
-> (currently arch/ppc64/kernel/spu_base.c) anyway, so it makes
-> sense to have everything in there that I maintain.
-> 2) might work better if we at a later point have multiple platform
-> types in arch/powerpc that use SPEs, e.g if we want to keep 
-> Playstation code separate from generic Cell.
+> What does this do/what is it for?
 > 
 
-I think putting it in 'arch/powerpc/platforms/cell' is fine for now.  We'll 
-be better able to judge if we need to and how to split off platform specifics 
-when we have code for more cell platforms.
+Selects the frequency of the timer interrupt.  This controls the timing
+resolution of system calls.  So previously poll/select could be used
+with a 1ms timeout.  Now with the default settings it can only do 4ms. 
 
--Geoff
+> I selected default, 250Hz.  If this is now an option, what was it before?
+
+The previous value was 1000HZ.  And yes, changing the default from 1000
+to 250 breaks the expected "make oldconfig" behavior.  Lots of people
+are not happy about it, but were overruled by Linus.
+
+Lee
 

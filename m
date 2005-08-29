@@ -1,102 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVH2QKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbVH2QMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbVH2QKn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 12:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVH2QKX
+	id S1751287AbVH2QMi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 12:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVH2QMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 12:10:23 -0400
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:21892 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S1751280AbVH2QKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 12:10:19 -0400
-Subject: [patch 07/16] x86_64: Rename KDB_VECTOR to DEBUGGER_VECTOR
-Date: Mon, 29 Aug 2005 09:10:18 -0700
+	Mon, 29 Aug 2005 12:12:36 -0400
+Received: from fed1rmmtao07.cox.net ([68.230.241.32]:42677 "EHLO
+	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S1751287AbVH2QL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 12:11:59 -0400
+Subject: [patch 15/16] Allow KGDB to work well with loaded modules
+Date: Mon, 29 Aug 2005 09:11:58 -0700
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org, ak@suse.de,
-       kaos@sgi.com
+Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org
 From: Tom Rini <trini@kernel.crashing.org>
-Message-Id: <resend.7.2982005.trini@kernel.crashing.org>
-In-Reply-To: <resend.6.2982005.trini@kernel.crashing.org>
-References: <resend.6.2982005.trini@kernel.crashing.org> <1.2982005.trini@kernel.crashing.org>
+Message-Id: <resend.15.2982005.trini@kernel.crashing.org>
+In-Reply-To: <resend.14.2982005.trini@kernel.crashing.org>
+References: <resend.14.2982005.trini@kernel.crashing.org> <1.2982005.trini@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-CC: Andi Kleen <ak@suse.de>, Keith Owens <kaos@sgi.com>
-The existing hook from KDB in the IPI code is really just a hook for the
-NMI vector.  We rename the vector thusly and then it's up to the
-debugger to handle things from do_default_nmi().
+This allows for KGDB to better deal with autoloaded modules.  The way this
+works, requires a patch to GDB.  This patch can be found at
+ftp://source.mvista.com/pub/kgdb/gdb-6.3-kgdb-module-notification.patch
+
+The way this works is that the solib-search-path must contain the location of
+any module to be debugged, and then when a module is loaded GDB acts like a
+shared library has been loaded now, and can be used that way.
 
 ---
 
- linux-2.6.13-trini/arch/x86_64/kernel/i8259.c  |    3 +--
- linux-2.6.13-trini/arch/x86_64/kernel/smp.c    |    2 +-
- linux-2.6.13-trini/arch/x86_64/kernel/traps.c  |    2 +-
- linux-2.6.13-trini/include/asm-x86_64/hw_irq.h |    2 +-
- linux-2.6.13-trini/include/asm-x86_64/ipi.h    |    2 +-
- 5 files changed, 5 insertions(+), 6 deletions(-)
+ linux-2.6.13-trini/include/linux/module.h |   16 ++++++++
+ linux-2.6.13-trini/kernel/module.c        |   56 ++++++++++++++++++++++++++++++
+ 2 files changed, 72 insertions(+)
 
-diff -puN arch/x86_64/kernel/i8259.c~x86_64-rename_kdb_vector arch/x86_64/kernel/i8259.c
---- linux-2.6.13/arch/x86_64/kernel/i8259.c~x86_64-rename_kdb_vector	2005-08-10 10:54:58.000000000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/kernel/i8259.c	2005-08-10 10:54:58.000000000 -0700
-@@ -544,10 +544,9 @@ void __init init_IRQ(void)
- 		int vector = FIRST_EXTERNAL_VECTOR + i;
- 		if (i >= NR_IRQS)
- 			break;
--		if (vector != IA32_SYSCALL_VECTOR && vector != KDB_VECTOR) { 
-+		if (vector != IA32_SYSCALL_VECTOR && vector != NMI_VECTOR)
- 			set_intr_gate(vector, interrupt[i]);
+diff -puN include/linux/module.h~module include/linux/module.h
+--- linux-2.6.13/include/linux/module.h~module	2005-08-29 09:03:42.000000000 -0700
++++ linux-2.6.13-trini/include/linux/module.h	2005-08-29 09:03:42.000000000 -0700
+@@ -210,8 +210,17 @@ enum module_state
+ 	MODULE_STATE_LIVE,
+ 	MODULE_STATE_COMING,
+ 	MODULE_STATE_GOING,
++ 	MODULE_STATE_GONE,
+ };
+ 
++#ifdef CONFIG_KGDB
++#define MAX_SECTNAME 31
++struct mod_section {
++       void *address;
++       char name[MAX_SECTNAME + 1];
++};
++#endif
++
+ /* Similar stuff for section attributes. */
+ #define MODULE_SECT_NAME_LEN 32
+ struct module_sect_attr
+@@ -239,6 +248,13 @@ struct module
+ 	/* Unique handle for this module */
+ 	char name[MODULE_NAME_LEN];
+ 
++#ifdef CONFIG_KGDB
++	/* keep kgdb info at the begining so that gdb doesn't have a chance to
++	 * miss out any fields */
++	unsigned long num_sections;
++	struct mod_section *mod_sections;
++#endif
++
+ 	/* Sysfs stuff. */
+ 	struct module_kobject mkobj;
+ 	struct module_param_attrs *param_attrs;
+diff -puN kernel/module.c~module kernel/module.c
+--- linux-2.6.13/kernel/module.c~module	2005-08-29 09:03:42.000000000 -0700
++++ linux-2.6.13-trini/kernel/module.c	2005-08-29 09:03:42.000000000 -0700
+@@ -623,6 +623,12 @@ sys_delete_module(const char __user *nam
+ 	if (ret != 0)
+ 		goto out;
+ 
++	down(&notify_mutex);
++	notifier_call_chain(&module_notify_list, MODULE_STATE_GOING,
++        			mod);
++	up(&notify_mutex);
++
++
+ 	/* Never wait if forced. */
+ 	if (!forced && module_refcount(mod) != 0)
+ 		wait_for_zero_refcount(mod);
+@@ -635,6 +641,11 @@ sys_delete_module(const char __user *nam
  	}
--	}
+ 	free_module(mod);
  
- #ifdef CONFIG_SMP
- 	/*
-diff -puN arch/x86_64/kernel/smp.c~x86_64-rename_kdb_vector arch/x86_64/kernel/smp.c
---- linux-2.6.13/arch/x86_64/kernel/smp.c~x86_64-rename_kdb_vector	2005-08-10 10:54:58.000000000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/kernel/smp.c	2005-08-10 10:54:58.000000000 -0700
-@@ -252,7 +252,7 @@ void flush_tlb_all(void)
++	down(&notify_mutex);
++	notifier_call_chain(&module_notify_list, MODULE_STATE_GONE,
++			NULL);
++	up(&notify_mutex);
++
+  out:
+ 	up(&module_mutex);
+ 	return ret;
+@@ -1173,6 +1184,11 @@ static void free_module(struct module *m
+ 	/* Arch-specific cleanup. */
+ 	module_arch_cleanup(mod);
  
- void smp_kdb_stop(void)
- {
--	send_IPI_allbutself(KDB_VECTOR);
-+	send_IPI_allbutself(NMI_VECTOR);
++#ifdef CONFIG_KGDB
++	/* kgdb info */
++	vfree(mod->mod_sections);
++#endif
++
+ 	/* Module unload stuff */
+ 	module_unload_free(mod);
+ 
+@@ -1407,6 +1423,31 @@ static void setup_modinfo(struct module 
  }
- 
- /*
-diff -puN arch/x86_64/kernel/traps.c~x86_64-rename_kdb_vector arch/x86_64/kernel/traps.c
---- linux-2.6.13/arch/x86_64/kernel/traps.c~x86_64-rename_kdb_vector	2005-08-10 10:54:58.000000000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/kernel/traps.c	2005-08-10 10:54:58.000000000 -0700
-@@ -931,7 +931,7 @@ void __init trap_init(void)
- 	set_system_gate(IA32_SYSCALL_VECTOR, ia32_syscall);
  #endif
-        
--	set_intr_gate(KDB_VECTOR, call_debug);
-+	set_intr_gate(NMI_VECTOR, call_debug);
-        
- 	/*
- 	 * Should be a barrier for any external CPU state.
-diff -puN include/asm-x86_64/hw_irq.h~x86_64-rename_kdb_vector include/asm-x86_64/hw_irq.h
---- linux-2.6.13/include/asm-x86_64/hw_irq.h~x86_64-rename_kdb_vector	2005-08-10 10:54:58.000000000 -0700
-+++ linux-2.6.13-trini/include/asm-x86_64/hw_irq.h	2005-08-10 10:54:58.000000000 -0700
-@@ -54,7 +54,7 @@ struct hw_interrupt_type;
- #define RESCHEDULE_VECTOR	0xfc
- #define TASK_MIGRATION_VECTOR	0xfb
- #define CALL_FUNCTION_VECTOR	0xfa
--#define KDB_VECTOR	0xf9
-+#define NMI_VECTOR	0xf9
  
- #define THERMAL_APIC_VECTOR	0xf0
- 
-diff -puN include/asm-x86_64/ipi.h~x86_64-rename_kdb_vector include/asm-x86_64/ipi.h
---- linux-2.6.13/include/asm-x86_64/ipi.h~x86_64-rename_kdb_vector	2005-08-10 10:54:58.000000000 -0700
-+++ linux-2.6.13-trini/include/asm-x86_64/ipi.h	2005-08-10 10:54:58.000000000 -0700
-@@ -32,7 +32,7 @@
- static inline unsigned int __prepare_ICR (unsigned int shortcut, int vector, unsigned int dest)
++#ifdef CONFIG_KGDB
++int add_modsects (struct module *mod, Elf_Ehdr *hdr, Elf_Shdr *sechdrs, const
++                char *secstrings)
++{
++        int i;
++
++        mod->num_sections = hdr->e_shnum - 1;
++        mod->mod_sections = vmalloc((hdr->e_shnum - 1)*
++		sizeof (struct mod_section));
++
++        if (mod->mod_sections == NULL) {
++                return -ENOMEM;
++        }
++
++        for (i = 1; i < hdr->e_shnum; i++) {
++                mod->mod_sections[i - 1].address = (void *)sechdrs[i].sh_addr;
++                strncpy(mod->mod_sections[i - 1].name, secstrings +
++                                sechdrs[i].sh_name, MAX_SECTNAME);
++                mod->mod_sections[i - 1].name[MAX_SECTNAME] = '\0';
++	}
++
++	return 0;
++}
++#endif
++
+ #ifdef CONFIG_KALLSYMS
+ int is_exported(const char *name, const struct module *mod)
  {
- 	unsigned int icr =  APIC_DM_FIXED | shortcut | vector | dest;
--	if (vector == KDB_VECTOR)
-+	if (vector == NMI_VECTOR)
- 		icr = (icr & (~APIC_VECTOR_MASK)) | APIC_DM_NMI;
- 	return icr;
- }
+@@ -1775,6 +1816,12 @@ static struct module *load_module(void _
+ 
+ 	add_kallsyms(mod, sechdrs, symindex, strindex, secstrings);
+ 
++#ifdef CONFIG_KGDB
++        if ((err = add_modsects(mod, hdr, sechdrs, secstrings)) < 0) {
++                goto nomodsectinfo;
++        }
++#endif
++
+ 	err = module_finalize(hdr, sechdrs, mod);
+ 	if (err < 0)
+ 		goto cleanup;
+@@ -1822,6 +1869,11 @@ static struct module *load_module(void _
+  arch_cleanup:
+ 	module_arch_cleanup(mod);
+  cleanup:
++
++#ifdef CONFIG_KGDB
++nomodsectinfo:
++       vfree(mod->mod_sections);
++#endif
+ 	module_unload_free(mod);
+ 	module_free(mod, mod->module_init);
+  free_core:
+@@ -1909,6 +1961,10 @@ sys_init_module(void __user *umod,
+ 		/* Init routine failed: abort.  Try to protect us from
+                    buggy refcounters. */
+ 		mod->state = MODULE_STATE_GOING;
++		down(&notify_mutex);
++		notifier_call_chain(&module_notify_list, MODULE_STATE_GOING,
++				mod);
++		up(&notify_mutex);
+ 		synchronize_sched();
+ 		if (mod->unsafe)
+ 			printk(KERN_ERR "%s: module is now stuck!\n",
 _

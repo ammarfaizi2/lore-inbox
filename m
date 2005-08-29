@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVH2OWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVH2O0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbVH2OWq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 10:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVH2OWq
+	id S1750737AbVH2O0F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 10:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVH2O0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 10:22:46 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:7464 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1750708AbVH2OWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 10:22:46 -0400
+	Mon, 29 Aug 2005 10:26:05 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:40549 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750737AbVH2O0E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 10:26:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=msmKMlJTgkOQmhSHFpWKOb7L830RB+5uVfy5vyO3v+Mmr1iDxy/ggLyEWmwWhOcGO6BYBc8VbiU7huIL2tVolvqOJb2hP9oFHt1IEXZ4hn9tm8sIBQIhHxwErxneAi3VKQKYRIwn6+SLUUNWbFMQMvYsrv5kilr2WiJmlAcLDFE=
+Message-ID: <43131AE9.7010802@gmail.com>
+Date: Mon, 29 Aug 2005 22:25:45 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: ncunningham@cyclades.com
-Cc: Linus Torvalds <torvalds@osdl.org>,
+CC: Steven Rostedt <rostedt@goodmis.org>, Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.6.13
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.58.0508281708040.3243@g5.osdl.org>
-	<1125317978.6496.10.camel@localhost>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Mon, 29 Aug 2005 07:22:27 -0700
-In-Reply-To: <1125317978.6496.10.camel@localhost> (Nigel Cunningham's
- message of "Mon, 29 Aug 2005 22:19:38 +1000")
-Message-ID: <52oe7gomak.fsf@cisco.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 29 Aug 2005 14:22:29.0193 (UTC) FILETIME=[1632B390:01C5ACA5]
+References: <Pine.LNX.4.58.0508281708040.3243@g5.osdl.org>	 <1125313050.5611.11.camel@localhost.localdomain> <1125317850.6496.7.camel@localhost>
+In-Reply-To: <1125317850.6496.7.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Nigel" == Nigel Cunningham <ncunningham@cyclades.com> writes:
+Nigel Cunningham wrote:
+> Hi.
+> 
+> On Mon, 2005-08-29 at 20:57, Steven Rostedt wrote:
+>> On Sun, 2005-08-28 at 17:17 -0700, Linus Torvalds wrote:
+>>
+>>> Paul Mackerras:
+>>>   Remove race between con_open and con_close
+>> Hey, I'm the first to report this with the fix and Paul gets the credit?
+>> I guess I'll crawl back to my little world (RT) where they actually
+>> appreciate me. :-(
+> 
+> Did you report it or fix it? :>
+> 
 
-    Nigel> Hi.  I have a couple of reports of powering off being
-    Nigel> broken between 2.6.13-rc7 and 2.6.13 :( (One my computer
-    Nigel> and one a Suspend2 user). I'll happily test patches.
+Both, actually, with exactly the same patch.  In the long changelog, both 
+Steven and Paul are co-signees but only Paul's name appeared in the short 
+changelog.
 
-Well, there aren't many differences between 2.6.13-rc7 and 2.6.13.  If
-I had to guess, I would bet the commit below is what broke you.  I'm
-including a patch that reverts it at the end of this email
-
-BTW, I have no knowledge of this area -- I'm just basing this on pure
-changelog reading.  So if reverting this patch does fix your system, I
-have no idea what the correct fix is.
-
- - R.
-
-commit 8dbddf17824861f2298de093549e6493d9844835
-Author: Eric W. Biederman <ebiederm@xmission.com>
-Date:   Sat Aug 27 00:56:18 2005 -0600
-
-    [PATCH] acpi_shutdown: Only prepare for power off on power_off
-
-    When acpi_sleep_prepare was moved into a shutdown method we
-    started calling it for all shutdowns.
-
-    It appears this triggers some systems to power off on reboot.
-
-    Avoid this by only calling acpi_sleep_prepare if we are going to power
-    off the system.
-
-    Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-diff --git a/drivers/acpi/sleep/poweroff.c b/drivers/acpi/sleep/poweroff.c
---- a/drivers/acpi/sleep/poweroff.c
-+++ b/drivers/acpi/sleep/poweroff.c
-@@ -55,11 +55,7 @@ void acpi_power_off(void)
- 
- static int acpi_shutdown(struct sys_device *x)
- {
--	if (system_state == SYSTEM_POWER_OFF) {
--		/* Prepare if we are going to power off the system */
--		return acpi_sleep_prepare(ACPI_STATE_S5);
--	}
--	return 0;
-+	return acpi_sleep_prepare(ACPI_STATE_S5);
- }
- 
- static struct sysdev_class acpi_sysclass = {
+Tony

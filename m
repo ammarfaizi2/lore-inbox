@@ -1,92 +1,440 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbVH2QLH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbVH2QLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbVH2QLH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 12:11:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbVH2QKp
+	id S1751094AbVH2QLw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 12:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbVH2QLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 12:10:45 -0400
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:37871 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S1751092AbVH2QK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 12:10:29 -0400
-Subject: [patch 08/16] Add support for X86_64 platforms to KGDB
-Date: Mon, 29 Aug 2005 09:10:28 -0700
+	Mon, 29 Aug 2005 12:11:16 -0400
+Received: from fed1rmmtao04.cox.net ([68.230.241.35]:16521 "EHLO
+	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S1751278AbVH2QKn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 12:10:43 -0400
+Subject: [patch 09/16] Add support for SuperH platforms to KGDB
+Date: Mon, 29 Aug 2005 09:10:40 -0700
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org, ak@suse.de,
-       amitkale@linsyssoft.com
+Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp
 From: Tom Rini <trini@kernel.crashing.org>
-Message-Id: <resend.8.2982005.trini@kernel.crashing.org>
-In-Reply-To: <resend.7.2982005.trini@kernel.crashing.org>
-References: <resend.7.2982005.trini@kernel.crashing.org> <1.2982005.trini@kernel.crashing.org>
+Message-Id: <resend.9.2982005.trini@kernel.crashing.org>
+In-Reply-To: <resend.8.2982005.trini@kernel.crashing.org>
+References: <resend.8.2982005.trini@kernel.crashing.org> <1.2982005.trini@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This adds support for the x86_64 architecture.  In addition to what was noted
-in the core-lite patch about stuff outside of new files, we add -g0 to
-compiling of syscalls.o as otherwise we run into problems when debugging
-modules, and like i386 annotate switch_to().
+This adds basic support for KGDB on SuperH as well as adding some architecture
+specific notes to the DocBook file and converting the 7751 to use this.  I
+have tested all combinations of 8250 and SCI(F) ports being used as KGDB and
+console that I could (one of each usable to me).
 
----
-
- linux-2.6.13-trini/arch/x86_64/Kconfig.debug     |    3 
- linux-2.6.13-trini/arch/x86_64/kernel/Makefile   |    2 
- linux-2.6.13-trini/arch/x86_64/kernel/kgdb-jmp.S |   65 ++
- linux-2.6.13-trini/arch/x86_64/kernel/kgdb.c     |  460 +++++++++++++++++++
- linux-2.6.13-trini/arch/x86_64/kernel/setup.c    |    3 
- linux-2.6.13-trini/arch/x86_64/kernel/setup64.c  |   14 
- linux-2.6.13-trini/arch/x86_64/kernel/traps.c    |   24 
- linux-2.6.13-trini/arch/x86_64/mm/fault.c        |    4 
- linux-2.6.13-trini/include/asm-x86_64/kgdb.h     |   50 ++
- linux-2.6.13-trini/include/asm-x86_64/proto.h    |    2 
- linux-2.6.13-trini/include/asm-x86_64/system.h   |    6 
- linux-2.6.13-trini/lib/Kconfig.debug             |    2 
- 12 files changed, 617 insertions(+), 18 deletions(-)
-
-diff -puN arch/x86_64/Kconfig.debug~x86_64-lite arch/x86_64/Kconfig.debug
---- linux-2.6.13/arch/x86_64/Kconfig.debug~x86_64-lite	2005-08-10 16:27:31.000000000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/Kconfig.debug	2005-08-10 16:27:31.000000000 -0700
-@@ -51,7 +51,4 @@ config IOMMU_LEAK
-          Add a simple leak tracer to the IOMMU code. This is useful when you
- 	 are debugging a buggy device driver that leaks IOMMU mappings.
+Index: linux-2.6.13/arch/sh/boards/se/7751/setup.c
+===================================================================
+--- linux-2.6.13.orig/arch/sh/boards/se/7751/setup.c
++++ linux-2.6.13/arch/sh/boards/se/7751/setup.c
+@@ -18,10 +18,6 @@
+ #include <asm/io.h>
+ #include <asm/se7751/se7751.h>
  
--#config X86_REMOTE_DEBUG
--#       bool "kgdb debugging stub"
+-#ifdef CONFIG_SH_KGDB
+-#include <asm/kgdb.h>
+-#endif
+-
+ /*
+  * Configure the Super I/O chip
+  */
+@@ -83,12 +79,6 @@ const char *get_system_type(void)
+ 	return "7751 SolutionEngine";
+ }
+ 
+-#ifdef CONFIG_SH_KGDB
+-static int kgdb_uart_setup(void);
+-static struct kgdb_sermap kgdb_uart_sermap = 
+-{ "ttyS", 0, kgdb_uart_setup, NULL };
+-#endif
+- 
+ /*
+  * Initialize the board
+  */
+@@ -96,133 +86,4 @@ void __init platform_setup(void)
+ {
+ 	/* Call init_smsc() replacement to set up SuperIO. */
+ 	/* XXX: RTC setting comes here */
+-#ifdef CONFIG_SH_KGDB
+-	kgdb_register_sermap(&kgdb_uart_sermap);
+-#endif
+-}
+-
+-/*********************************************************************
+- * Currently a hack (e.g. does not interact well w/serial.c, lots of *
+- * hardcoded stuff) but may be useful if SCI/F needs debugging.      *
+- * Mostly copied from x86 code (see files asm-i386/kgdb_local.h and  *
+- * arch/i386/lib/kgdb_serial.c).                                     *
+- *********************************************************************/
+-
+-#ifdef CONFIG_SH_KGDB
+-#include <linux/types.h>
+-#include <linux/serial.h>
+-#include <linux/serialP.h>
+-#include <linux/serial_reg.h>
+-
+-#define COM1_PORT 0x3f8  /* Base I/O address */
+-#define COM1_IRQ  4      /* IRQ not used yet */
+-#define COM2_PORT 0x2f8  /* Base I/O address */
+-#define COM2_IRQ  3      /* IRQ not used yet */
+-
+-#define SB_CLOCK 1843200 /* Serial baud clock */
+-#define SB_BASE (SB_CLOCK/16)
+-#define SB_MCR UART_MCR_OUT2 | UART_MCR_DTR | UART_MCR_RTS
+-
+-struct uart_port {
+-	int base;
+-};
+-#define UART_NPORTS 2
+-struct uart_port uart_ports[] = {
+-	{ COM1_PORT },
+-	{ COM2_PORT },
+-};
+-struct uart_port *kgdb_uart_port;
+-
+-#define UART_IN(reg)	inb_p(kgdb_uart_port->base + reg)
+-#define UART_OUT(reg,v)	outb_p((v), kgdb_uart_port->base + reg)
+-
+-/* Basic read/write functions for the UART */
+-#define UART_LSR_RXCERR    (UART_LSR_BI | UART_LSR_FE | UART_LSR_PE)
+-static int kgdb_uart_getchar(void)
+-{
+-	int lsr;
+-	int c = -1;
+-
+-	while (c == -1) {
+-		lsr = UART_IN(UART_LSR);
+-		if (lsr & UART_LSR_DR) 
+-			c = UART_IN(UART_RX);
+-		if ((lsr & UART_LSR_RXCERR))
+-			c = -1;
+-	}
+-	return c;
+-}
+-
+-static void kgdb_uart_putchar(int c)
+-{
+-	while ((UART_IN(UART_LSR) & UART_LSR_THRE) == 0)
+-		;
+-	UART_OUT(UART_TX, c);
+-}
+-
+-/*
+- * Initialize UART to configured/requested values.
+- * (But we don't interrupts yet, or interact w/serial.c)
+- */
+-static int kgdb_uart_setup(void)
+-{
+-	int port;
+-	int lcr = 0;
+-	int bdiv = 0;
+-
+-	if (kgdb_portnum >= UART_NPORTS) {
+-		KGDB_PRINTK("uart port %d invalid.\n", kgdb_portnum);
+-		return -1;
+-	}
+-
+-	kgdb_uart_port = &uart_ports[kgdb_portnum];
+-
+-	/* Init sequence from gdb_hook_interrupt */
+-	UART_IN(UART_RX);
+-	UART_OUT(UART_IER, 0);
+-
+-	UART_IN(UART_RX);	/* Serial driver comments say */
+-	UART_IN(UART_IIR);	/* this clears interrupt regs */
+-	UART_IN(UART_MSR);
+-
+-	/* Figure basic LCR values */
+-	switch (kgdb_bits) {
+-	case '7':
+-		lcr |= UART_LCR_WLEN7;
+-		break;
+-	default: case '8': 
+-		lcr |= UART_LCR_WLEN8;
+-		break;
+-	}
+-	switch (kgdb_parity) {
+-	case 'O':
+-		lcr |= UART_LCR_PARITY;
+-		break;
+-	case 'E':
+-		lcr |= (UART_LCR_PARITY | UART_LCR_EPAR);
+-		break;
+-	default: break;
+-	}
+-
+-	/* Figure the baud rate divisor */
+-	bdiv = (SB_BASE/kgdb_baud);
+-	
+-	/* Set the baud rate and LCR values */
+-	UART_OUT(UART_LCR, (lcr | UART_LCR_DLAB));
+-	UART_OUT(UART_DLL, (bdiv & 0xff));
+-	UART_OUT(UART_DLM, ((bdiv >> 8) & 0xff));
+-	UART_OUT(UART_LCR, lcr);
+-
+-	/* Set the MCR */
+-	UART_OUT(UART_MCR, SB_MCR);
+-
+-	/* Turn off FIFOs for now */
+-	UART_OUT(UART_FCR, 0);
+-
+-	/* Setup complete: initialize function pointers */
+-	kgdb_getchar = kgdb_uart_getchar;
+-	kgdb_putchar = kgdb_uart_putchar;
+-
+-	return 0;
+ }
+-#endif /* CONFIG_SH_KGDB */
+Index: linux-2.6.13/arch/sh/Kconfig.debug
+===================================================================
+--- linux-2.6.13.orig/arch/sh/Kconfig.debug
++++ linux-2.6.13/arch/sh/Kconfig.debug
+@@ -29,96 +29,4 @@ config EARLY_PRINTK
+ 	  This option is only useful porting the kernel to a new machine,
+ 	  when the kernel may crash or hang before the serial console is
+ 	  initialised. If unsure, say N.
+-
+-config KGDB
+-	bool "Include KGDB kernel debugger"
+-	help
+-	  Include in-kernel hooks for kgdb, the Linux kernel source level
+-	  debugger.  See <http://kgdb.sourceforge.net/> for more information.
+-	  Unless you are intending to debug the kernel, say N here.
+-
+-menu "KGDB configuration options"
+-	depends on KGDB
+-
+-config MORE_COMPILE_OPTIONS
+-	bool "Add any additional compile options"
+-	help
+-	  If you want to add additional CFLAGS to the kernel build, enable this
+-	  option and then enter what you would like to add in the next question.
+-	  Note however that -g is already appended with the selection of KGDB.
+-
+-config COMPILE_OPTIONS
+-	string "Additional compile arguments"
+-	depends on MORE_COMPILE_OPTIONS
+-
+-config KGDB_NMI
+-	bool "Enter KGDB on NMI"
+-	default n
+-
+-config KGDB_THREAD
+-	bool "Include KGDB thread support"
+-	default y
+-
+-config SH_KGDB_CONSOLE
+-	bool "Console messages through GDB"
+-	default n
+-
+-config KGDB_SYSRQ
+-	bool "Allow SysRq 'G' to enter KGDB"
+-	default y
+-
+-config KGDB_KERNEL_ASSERTS
+-	bool "Include KGDB kernel assertions"
+-	default n
+-
+-comment "Serial port setup"
+-
+-config KGDB_DEFPORT
+-	int "Port number (ttySCn)"
+-	default "1"
+-
+-config KGDB_DEFBAUD
+-	int "Baud rate"
+-	default "115200"
+-
+-choice
+-	prompt "Parity"
+-	depends on KGDB
+-	default KGDB_DEFPARITY_N
+-
+-config KGDB_DEFPARITY_N
+-	bool "None"
+-
+-config KGDB_DEFPARITY_E
+-	bool "Even"
+-
+-config KGDB_DEFPARITY_O
+-	bool "Odd"
+-
+-endchoice
+-
+-choice
+-	prompt "Data bits"
+-	depends on KGDB
+-	default KGDB_DEFBITS_8
+-
+-config KGDB_DEFBITS_8
+-	bool "8"
+-
+-config KGDB_DEFBITS_7
+-	bool "7"
+-
+-endchoice
+-
+-endmenu
+-
+-config FRAME_POINTER
+-	bool "Compile the kernel with frame pointers"
+-	default y if KGDB
+-	help
+-	  If you say Y here the resulting kernel image will be slightly larger
+-	  and slower, but it will give very useful debugging information.
+-	  If you don't debug the kernel, you can say N, but we may not be able
+-	  to solve problems without frame pointers.
 -
  endmenu
-diff -puN /dev/null arch/x86_64/kernel/kgdb.c
---- /dev/null	2005-08-08 08:07:04.272443000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/kernel/kgdb.c	2005-08-12 08:28:29.000000000 -0700
-@@ -0,0 +1,460 @@
+Index: linux-2.6.13/arch/sh/kernel/cpu/sh3/ex.S
+===================================================================
+--- linux-2.6.13.orig/arch/sh/kernel/cpu/sh3/ex.S
++++ linux-2.6.13/arch/sh/kernel/cpu/sh3/ex.S
+@@ -43,7 +43,7 @@ ENTRY(exception_handling_table)
+ 	.long	exception_error	! reserved_instruction (filled by trap_init) /* 180 */
+ 	.long	exception_error	! illegal_slot_instruction (filled by trap_init) /*1A0*/
+ ENTRY(nmi_slot)
+-#if defined (CONFIG_KGDB_NMI)
++#if defined (CONFIG_KGDB)
+ 	.long	debug_enter	/* 1C0 */	! Allow trap to debugger
+ #else
+ 	.long	exception_none	/* 1C0 */	! Not implemented yet
+Index: linux-2.6.13/arch/sh/kernel/cpu/sh4/ex.S
+===================================================================
+--- linux-2.6.13.orig/arch/sh/kernel/cpu/sh4/ex.S
++++ linux-2.6.13/arch/sh/kernel/cpu/sh4/ex.S
+@@ -47,7 +47,7 @@ ENTRY(exception_handling_table)
+ 	.long	exception_error	! reserved_instruction (filled by trap_init) /* 180 */
+ 	.long	exception_error	! illegal_slot_instruction (filled by trap_init) /*1A0*/
+ ENTRY(nmi_slot)
+-#if defined (CONFIG_KGDB_NMI)
++#if defined (CONFIG_KGDB)
+ 	.long	debug_enter	/* 1C0 */	! Allow trap to debugger
+ #else
+ 	.long	exception_none	/* 1C0 */	! Not implemented yet
+Index: linux-2.6.13/arch/sh/kernel/entry.S
+===================================================================
+--- linux-2.6.13.orig/arch/sh/kernel/entry.S
++++ linux-2.6.13/arch/sh/kernel/entry.S
+@@ -92,7 +92,7 @@ INTEVT  = 0xff000028
+ MMU_TEA = 0xff00000c		! TLB Exception Address Register
+ #endif
+ 
+-#if defined(CONFIG_KGDB_NMI)
++#if defined(CONFIG_KGDB)
+ NMI_VEC = 0x1c0			! Must catch early for debounce
+ #endif
+ 
+@@ -244,31 +244,33 @@ call_dae:
+ 2:	.long   do_address_error
+ #endif /* CONFIG_MMU */
+ 
+-#if defined(CONFIG_SH_STANDARD_BIOS) || defined(CONFIG_SH_KGDB)
++#if defined(CONFIG_SH_STANDARD_BIOS) || defined(CONFIG_KGDB)
+ ! Handle kernel debug if either kgdb (SW) or gdb-stub (FW) is present.
+ ! If both are configured, handle the debug traps (breakpoints) in SW,
+ ! but still allow BIOS traps to FW.
+ 
+ 	.align	2
+ debug_kernel:
+-#if defined(CONFIG_SH_STANDARD_BIOS) && defined(CONFIG_SH_KGDB)
++#if defined(CONFIG_SH_STANDARD_BIOS) && defined(CONFIG_KGDB)
+ 	/* Force BIOS call to FW (debug_trap put TRA in r8) */
+ 	mov	r8,r0
+ 	shlr2	r0
+ 	cmp/eq	#0x3f,r0
+ 	bt	debug_kernel_fw
+-#endif /* CONFIG_SH_STANDARD_BIOS && CONFIG_SH_KGDB */
++#endif /* CONFIG_SH_STANDARD_BIOS && CONFIG_KGDB */
+ 
+-debug_enter:		
+-#if defined(CONFIG_SH_KGDB)
++	.align 2
++	.globl debug_enter
++debug_enter:
++#if defined(CONFIG_KGDB)
+ 	/* Jump to kgdb, pass stacked regs as arg */
+ debug_kernel_sw:
+ 	mov.l	3f, r0
+ 	jmp	@r0
+ 	 mov	r15, r4
+ 	.align	2
+-3:	.long	kgdb_handle_exception
+-#endif /* CONFIG_SH_KGDB */
++3:	.long	kgdb_exception_handler
++#endif /* CONFIG_KGDB */
+ 
+ #if defined(CONFIG_SH_STANDARD_BIOS)
+ 	/* Unwind the stack and jmp to the debug entry */
+@@ -310,12 +312,12 @@ debug_kernel_fw:
+ 2:	.long	gdb_vbr_vector
+ #endif /* CONFIG_SH_STANDARD_BIOS */
+ 
+-#endif /* CONFIG_SH_STANDARD_BIOS || CONFIG_SH_KGDB */
++#endif /* CONFIG_SH_STANDARD_BIOS || CONFIG_KGDB */
+ 
+ 
+ 	.align	2
+-debug_trap:	
+-#if defined(CONFIG_SH_STANDARD_BIOS) || defined(CONFIG_SH_KGDB)
++debug_trap:
++#if defined(CONFIG_SH_STANDARD_BIOS) || defined(CONFIG_KGDB)
+ 	mov	#OFF_SR, r0
+ 	mov.l	@(r0,r15), r0		! get status register
+ 	shll	r0
+@@ -659,7 +661,7 @@ skip_restore:
+ 6:	or	k0, k2			! Set the IMASK-bits
+ 	ldc	k2, ssr
+ 	!
+-#if defined(CONFIG_KGDB_NMI)
++#if defined(CONFIG_KGDB)
+ 	! Clear in_nmi
+ 	mov.l	4f, k0
+ 	mov	#0, k1
+@@ -711,7 +713,7 @@ tlb_miss:
+ interrupt:
+ 	mov.l	2f, k2
+ 	mov.l	3f, k3
+-#if defined(CONFIG_KGDB_NMI)
++#if defined(CONFIG_KGDB)
+ 	! Debounce (filter nested NMI)
+ 	mov.l	@k2, k0
+ 	mov.l	5f, k1
+@@ -726,7 +728,7 @@ interrupt:
+ 5:	.long	NMI_VEC
+ 6:	.long	in_nmi
+ 0:
+-#endif /* defined(CONFIG_KGDB_NMI) */
++#endif /* defined(CONFIG_KGDB) */
+ 	bra	handle_exception
+ 	 mov.l	@k2, k2
+ 
+Index: linux-2.6.13/arch/sh/kernel/kgdb.c
+===================================================================
+--- /dev/null
++++ linux-2.6.13/arch/sh/kernel/kgdb.c
+@@ -0,0 +1,363 @@
 +/*
++ * arch/sh/kernel/kgdb.c
 + *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; either version 2, or (at your option) any
-+ * later version.
++ * Contains SH-specific low-level support for KGDB.
 + *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
++ * Containes extracts from code by Glenn Engel, Jim Kingdon,
++ * David Grothe <dave@gcom.com>, Tigran Aivazian <tigran@sco.com>,
++ * Amit S. Kale <akale@veritas.com>,  William Gatliff <bgat@open-widgets.com>,
++ * Ben Lee, Steve Chamberlain and Benoit Miller <fulg@iname.com>,
++ * Henry Bell <henry.bell@st.com> and Jeremy Siegel <jsiegel@mvista.com>
 + *
-+ */
-+
-+/*
-+ * Copyright (C) 2004 Amit S. Kale <amitkale@linsyssoft.com>
-+ * Copyright (C) 2000-2001 VERITAS Software Corporation.
-+ * Copyright (C) 2002 Andi Kleen, SuSE Labs
-+ * Copyright (C) 2004 LinSysSoft Technologies Pvt. Ltd.
-+ */
-+/****************************************************************************
-+ *  Contributor:     Lake Stevens Instrument Division$
-+ *  Written by:      Glenn Engel $
-+ *  Updated by:	     Amit Kale<akale@veritas.com>
-+ *  Modified for 386 by Jim Kingdon, Cygnus Support.
-+ *  Origianl kgdb, compatibility with 2.1.xx kernel by
-+ *  David Grothe <dave@gcom.com>
-+ *  Integrated into 2.2.5 kernel by Tigran Aivazian <tigran@sco.com>
-+ *  X86_64 changes from Andi Kleen's patch merged by Jim Houston
++ * Maintainer: Tom Rini <trini@kernel.crashing.org>
++ *
++ * 2004 (c) MontaVista Software, Inc. This file is licensed under
++ * the terms of the GNU General Public License version 2. This program
++ * is licensed "as is" without any warranty of any kind, whether express
++ * or implied.
 + */
 +
 +#include <linux/string.h>
@@ -95,736 +443,2982 @@ diff -puN /dev/null arch/x86_64/kernel/kgdb.c
 +#include <linux/smp.h>
 +#include <linux/spinlock.h>
 +#include <linux/delay.h>
-+#include <asm/system.h>
-+#include <asm/ptrace.h>		/* for linux pt_regs struct */
-+#include <linux/kgdb.h>
++#include <linux/linkage.h>
 +#include <linux/init.h>
-+#include <asm/apicdef.h>
-+#include <asm/mach_apic.h>
-+#include <asm/kdebug.h>
-+#include <asm/debugreg.h>
++#include <linux/kgdb.h>
 +
-+/* Put the error code here just in case the user cares.  */
-+int gdb_x86_64errcode;
-+/* Likewise, the vector number here (since GDB only gets the signal
-+   number through the usual means, and that's not very specific).  */
-+int gdb_x86_64vector = -1;
++#include <asm/system.h>
++#include <asm/current.h>
++#include <asm/signal.h>
++#include <asm/pgtable.h>
++#include <asm/ptrace.h>
 +
++extern void per_cpu_trap_init(void);
 +extern atomic_t cpu_doing_single_step;
 +
-+void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *regs)
-+{
-+	gdb_regs[_RAX] = regs->rax;
-+	gdb_regs[_RBX] = regs->rbx;
-+	gdb_regs[_RCX] = regs->rcx;
-+	gdb_regs[_RDX] = regs->rdx;
-+	gdb_regs[_RSI] = regs->rsi;
-+	gdb_regs[_RDI] = regs->rdi;
-+	gdb_regs[_RBP] = regs->rbp;
-+	gdb_regs[_PS] = regs->eflags;
-+	gdb_regs[_PC] = regs->rip;
-+	gdb_regs[_R8] = regs->r8;
-+	gdb_regs[_R9] = regs->r9;
-+	gdb_regs[_R10] = regs->r10;
-+	gdb_regs[_R11] = regs->r11;
-+	gdb_regs[_R12] = regs->r12;
-+	gdb_regs[_R13] = regs->r13;
-+	gdb_regs[_R14] = regs->r14;
-+	gdb_regs[_R15] = regs->r15;
-+	gdb_regs[_RSP] = regs->rsp;
-+}
++/* Function pointers for linkage */
++static struct kgdb_regs trap_registers;
 +
-+extern void thread_return(void);
-+void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct task_struct *p)
-+{
-+	gdb_regs[_RAX] = 0;
-+	gdb_regs[_RBX] = 0;
-+	gdb_regs[_RCX] = 0;
-+	gdb_regs[_RDX] = 0;
-+	gdb_regs[_RSI] = 0;
-+	gdb_regs[_RDI] = 0;
-+	gdb_regs[_RBP] = *(unsigned long *)p->thread.rsp;
-+	gdb_regs[_PS] = *(unsigned long *)(p->thread.rsp + 8);
-+	gdb_regs[_PC] = (unsigned long)&thread_return;
-+	gdb_regs[_R8] = 0;
-+	gdb_regs[_R9] = 0;
-+	gdb_regs[_R10] = 0;
-+	gdb_regs[_R11] = 0;
-+	gdb_regs[_R12] = 0;
-+	gdb_regs[_R13] = 0;
-+	gdb_regs[_R14] = 0;
-+	gdb_regs[_R15] = 0;
-+	gdb_regs[_RSP] = p->thread.rsp;
-+}
++/* Globals. */
++char in_nmi;			/* Set during NMI to prevent reentry */
 +
-+void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *regs)
-+{
-+	regs->rax = gdb_regs[_RAX];
-+	regs->rbx = gdb_regs[_RBX];
-+	regs->rcx = gdb_regs[_RCX];
-+	regs->rdx = gdb_regs[_RDX];
-+	regs->rsi = gdb_regs[_RSI];
-+	regs->rdi = gdb_regs[_RDI];
-+	regs->rbp = gdb_regs[_RBP];
-+	regs->eflags = gdb_regs[_PS];
-+	regs->rip = gdb_regs[_PC];
-+	regs->r8 = gdb_regs[_R8];
-+	regs->r9 = gdb_regs[_R9];
-+	regs->r10 = gdb_regs[_R10];
-+	regs->r11 = gdb_regs[_R11];
-+	regs->r12 = gdb_regs[_R12];
-+	regs->r13 = gdb_regs[_R13];
-+	regs->r14 = gdb_regs[_R14];
-+	regs->r15 = gdb_regs[_R15];
-+#if 0				/* can't change these */
-+	regs->rsp = gdb_regs[_RSP];
-+	regs->ss = gdb_regs[_SS];
-+	regs->fs = gdb_regs[_FS];
-+	regs->gs = gdb_regs[_GS];
++/* TRA differs sh3/4 */
++#if defined(CONFIG_CPU_SH3)
++#define TRA 0xffffffd0
++#elif defined(CONFIG_CPU_SH4)
++#define TRA 0xff000020
 +#endif
 +
-+}				/* gdb_regs_to_regs */
++/* Macros for single step instruction identification */
++#define OPCODE_BT(op)         (((op) & 0xff00) == 0x8900)
++#define OPCODE_BF(op)         (((op) & 0xff00) == 0x8b00)
++#define OPCODE_BTF_DISP(op)   (((op) & 0x80) ? (((op) | 0xffffff80) << 1) : \
++			      (((op) & 0x7f ) << 1))
++#define OPCODE_BFS(op)        (((op) & 0xff00) == 0x8f00)
++#define OPCODE_BTS(op)        (((op) & 0xff00) == 0x8d00)
++#define OPCODE_BRA(op)        (((op) & 0xf000) == 0xa000)
++#define OPCODE_BRA_DISP(op)   (((op) & 0x800) ? (((op) | 0xfffff800) << 1) : \
++			      (((op) & 0x7ff) << 1))
++#define OPCODE_BRAF(op)       (((op) & 0xf0ff) == 0x0023)
++#define OPCODE_BRAF_REG(op)   (((op) & 0x0f00) >> 8)
++#define OPCODE_BSR(op)        (((op) & 0xf000) == 0xb000)
++#define OPCODE_BSR_DISP(op)   (((op) & 0x800) ? (((op) | 0xfffff800) << 1) : \
++			      (((op) & 0x7ff) << 1))
++#define OPCODE_BSRF(op)       (((op) & 0xf0ff) == 0x0003)
++#define OPCODE_BSRF_REG(op)   (((op) >> 8) & 0xf)
++#define OPCODE_JMP(op)        (((op) & 0xf0ff) == 0x402b)
++#define OPCODE_JMP_REG(op)    (((op) >> 8) & 0xf)
++#define OPCODE_JSR(op)        (((op) & 0xf0ff) == 0x400b)
++#define OPCODE_JSR_REG(op)    (((op) >> 8) & 0xf)
++#define OPCODE_RTS(op)        ((op) == 0xb)
++#define OPCODE_RTE(op)        ((op) == 0x2b)
 +
-+struct hw_breakpoint {
-+	unsigned enabled;
-+	unsigned type;
-+	unsigned len;
-+	unsigned long addr;
-+} breakinfo[4] = { {
-+enabled:0}, {
-+enabled:0}, {
-+enabled:0}, {
-+enabled:0}};
++#define SR_T_BIT_MASK           0x1
++#define STEP_OPCODE             0xc320
++#define BIOS_CALL_TRAP          0x3f
 +
-+void kgdb_correct_hw_break(void)
++/* Exception codes as per SH-4 core manual */
++#define ADDRESS_ERROR_LOAD_VEC   7
++#define ADDRESS_ERROR_STORE_VEC  8
++#define TRAP_VEC                 11
++#define INVALID_INSN_VEC         12
++#define INVALID_SLOT_VEC         13
++#define NMI_VEC                  14
++#define SERIAL_BREAK_VEC         58
++
++/* Misc static */
++static int stepped_address;
++static short stepped_opcode;
++
++/* Translate SH-3/4 exception numbers to unix-like signal values */
++static int compute_signal(const int excep_code)
 +{
-+	int breakno;
-+	int correctit;
-+	int breakbit;
-+	unsigned long dr7;
-+
-+	asm volatile ("movq %%db7, %0\n":"=r" (dr7):);
-+	do {
-+		unsigned long addr0, addr1, addr2, addr3;
-+		asm volatile ("movq %%db0, %0\n"
-+			      "movq %%db1, %1\n"
-+			      "movq %%db2, %2\n"
-+			      "movq %%db3, %3\n":"=r" (addr0), "=r"(addr1),
-+			      "=r"(addr2), "=r"(addr3):);
-+	} while (0);
-+	correctit = 0;
-+	for (breakno = 0; breakno < 3; breakno++) {
-+		breakbit = 2 << (breakno << 1);
-+		if (!(dr7 & breakbit) && breakinfo[breakno].enabled) {
-+			correctit = 1;
-+			dr7 |= breakbit;
-+			dr7 &= ~(0xf0000 << (breakno << 2));
-+			dr7 |= (((breakinfo[breakno].len << 2) |
-+				 breakinfo[breakno].type) << 16) <<
-+			    (breakno << 2);
-+			switch (breakno) {
-+			case 0:
-+				asm volatile ("movq %0, %%dr0\n"::"r"
-+					      (breakinfo[breakno].addr));
-+				break;
-+
-+			case 1:
-+				asm volatile ("movq %0, %%dr1\n"::"r"
-+					      (breakinfo[breakno].addr));
-+				break;
-+
-+			case 2:
-+				asm volatile ("movq %0, %%dr2\n"::"r"
-+					      (breakinfo[breakno].addr));
-+				break;
-+
-+			case 3:
-+				asm volatile ("movq %0, %%dr3\n"::"r"
-+					      (breakinfo[breakno].addr));
-+				break;
-+			}
-+		} else if ((dr7 & breakbit) && !breakinfo[breakno].enabled) {
-+			correctit = 1;
-+			dr7 &= ~breakbit;
-+			dr7 &= ~(0xf0000 << (breakno << 2));
-+		}
-+	}
-+	if (correctit) {
-+		asm volatile ("movq %0, %%db7\n"::"r" (dr7));
++	switch (excep_code) {
++	case INVALID_INSN_VEC:
++	case INVALID_SLOT_VEC:
++		return SIGILL;
++	case ADDRESS_ERROR_LOAD_VEC:
++	case ADDRESS_ERROR_STORE_VEC:
++		return SIGSEGV;
++	case SERIAL_BREAK_VEC:
++	case NMI_VEC:
++		return SIGINT;
++	default:
++		/* Act like it was a break/trap. */
++		return SIGTRAP;
 +	}
 +}
 +
-+int kgdb_remove_hw_break(unsigned long addr)
++/*
++ * Translate the registers of the system into the format that GDB wants.  Since
++ * we use a local structure to store things, instead of getting them out
++ * of pt_regs, we can just do a memcpy.
++ */
++void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *ign)
 +{
-+	int i, idx = -1;
-+	for (i = 0; i < 4; i++) {
-+		if (breakinfo[i].addr == addr && breakinfo[i].enabled) {
-+			idx = i;
-+			break;
-+		}
++	memcpy(gdb_regs, &trap_registers, sizeof(trap_registers));
++}
++
++/*
++ * On SH we save: r1 (prev->thread.sp) r2 (prev->thread.pc) r4 (prev) r5 (next)
++ * r6 (next->thread.sp) r7 (next->thread.pc)
++ */
++void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct task_struct *p)
++{
++	int count;
++
++	for (count = 0; count < 16; count++)
++		*(gdb_regs++) = 0;
++	*(gdb_regs++) = p->thread.pc;
++	*(gdb_regs++) = 0;
++	*(gdb_regs++) = 0;
++	*(gdb_regs++) = 0;
++	*(gdb_regs++) = 0;
++	*(gdb_regs++) = 0;
++	*(gdb_regs++) = 0;
++}
++
++/*
++ * Translate the registers values that GDB has given us back into the
++ * format of the system.  See the comment above about memcpy.
++ */
++void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *ign)
++{
++	memcpy(&trap_registers, gdb_regs, sizeof(trap_registers));
++}
++
++/* Calculate the new address for after a step */
++static short *get_step_address(void)
++{
++	short op = *(short *)trap_registers.pc;
++	long addr;
++
++	/* BT */
++	if (OPCODE_BT(op)) {
++		if (trap_registers.sr & SR_T_BIT_MASK)
++			addr = trap_registers.pc + 4 + OPCODE_BTF_DISP(op);
++		else
++			addr = trap_registers.pc + 2;
 +	}
-+	if (idx == -1)
-+		return -1;
 +
-+	breakinfo[idx].enabled = 0;
-+	return 0;
-+}
-+
-+int kgdb_set_hw_break(unsigned long addr)
-+{
-+	int i, idx = -1;
-+	for (i = 0; i < 4; i++) {
-+		if (!breakinfo[i].enabled) {
-+			idx = i;
-+			break;
-+		}
++	/* BTS */
++	else if (OPCODE_BTS(op)) {
++		if (trap_registers.sr & SR_T_BIT_MASK)
++			addr = trap_registers.pc + 4 + OPCODE_BTF_DISP(op);
++		else
++			addr = trap_registers.pc + 4;	/* Not in delay slot */
 +	}
-+	if (idx == -1)
-+		return -1;
 +
-+	breakinfo[idx].enabled = 1;
-+	breakinfo[idx].type = 1;
-+	breakinfo[idx].len = 1;
-+	breakinfo[idx].addr = addr;
-+	return 0;
-+}
-+
-+int remove_hw_break(unsigned breakno)
-+{
-+	if (!breakinfo[breakno].enabled) {
-+		return -1;
++	/* BF */
++	else if (OPCODE_BF(op)) {
++		if (!(trap_registers.sr & SR_T_BIT_MASK))
++			addr = trap_registers.pc + 4 + OPCODE_BTF_DISP(op);
++		else
++			addr = trap_registers.pc + 2;
 +	}
-+	breakinfo[breakno].enabled = 0;
-+	return 0;
-+}
 +
-+int set_hw_break(unsigned breakno, unsigned type, unsigned len, unsigned addr)
-+{
-+	if (breakinfo[breakno].enabled) {
-+		return -1;
++	/* BFS */
++	else if (OPCODE_BFS(op)) {
++		if (!(trap_registers.sr & SR_T_BIT_MASK))
++			addr = trap_registers.pc + 4 + OPCODE_BTF_DISP(op);
++		else
++			addr = trap_registers.pc + 4;	/* Not in delay slot */
 +	}
-+	breakinfo[breakno].enabled = 1;
-+	breakinfo[breakno].type = type;
-+	breakinfo[breakno].len = len;
-+	breakinfo[breakno].addr = addr;
-+	return 0;
++
++	/* BRA */
++	else if (OPCODE_BRA(op))
++		addr = trap_registers.pc + 4 + OPCODE_BRA_DISP(op);
++
++	/* BRAF */
++	else if (OPCODE_BRAF(op))
++		addr = trap_registers.pc + 4
++		    + trap_registers.regs[OPCODE_BRAF_REG(op)];
++
++	/* BSR */
++	else if (OPCODE_BSR(op))
++		addr = trap_registers.pc + 4 + OPCODE_BSR_DISP(op);
++
++	/* BSRF */
++	else if (OPCODE_BSRF(op))
++		addr = trap_registers.pc + 4
++		    + trap_registers.regs[OPCODE_BSRF_REG(op)];
++
++	/* JMP */
++	else if (OPCODE_JMP(op))
++		addr = trap_registers.regs[OPCODE_JMP_REG(op)];
++
++	/* JSR */
++	else if (OPCODE_JSR(op))
++		addr = trap_registers.regs[OPCODE_JSR_REG(op)];
++
++	/* RTS */
++	else if (OPCODE_RTS(op))
++		addr = trap_registers.pr;
++
++	/* RTE */
++	else if (OPCODE_RTE(op))
++		addr = trap_registers.regs[15];
++
++	/* Other */
++	else
++		addr = trap_registers.pc + 2;
++
++	kgdb_flush_icache_range(addr, addr + 2);
++	return (short *)addr;
 +}
 +
-+void kgdb_disable_hw_debug(struct pt_regs *regs)
-+{
-+	/* Disable hardware debugging while we are in kgdb */
-+	asm volatile ("movq %0,%%db7": /* no output */ :"r" (0UL));
-+}
-+
-+void kgdb_post_master_code(struct pt_regs *regs, int e_vector, int err_code)
-+{
-+	/* Master processor is completely in the debugger */
-+	gdb_x86_64vector = e_vector;
-+	gdb_x86_64errcode = err_code;
-+}
-+
-+void kgdb_roundup_cpus(unsigned long flags)
-+{
-+	send_IPI_allbutself(APIC_DM_NMI);
-+}
-+
++/* The command loop, read and act on requests */
 +int kgdb_arch_handle_exception(int e_vector, int signo, int err_code,
-+			       char *remcomInBuffer, char *remcomOutBuffer,
-+			       struct pt_regs *linux_regs)
++			       char *remcom_in_buffer, char *remcom_out_buffer,
++			       struct pt_regs *ign)
 +{
-+	unsigned long addr, length;
-+	unsigned long breakno, breaktype;
-+	char *ptr;
-+	int newPC;
-+	unsigned long dr6;
++	unsigned long addr;
++	char *ptr = &remcom_in_buffer[1];
 +
-+	switch (remcomInBuffer[0]) {
-+	case 'c':
-+	case 's':
-+		/* try to read optional parameter, pc unchanged if no parm */
-+		ptr = &remcomInBuffer[1];
++	/* Examine first char of buffer to see what we need to do */
++	switch (remcom_in_buffer[0]) {
++	case 'c':		/* Continue at address AA..AA (optional) */
++	case 's':		/* Step one instruction from AA..AA */
++		/* Try to read optional parameter, PC unchanged if none */
 +		if (kgdb_hex2long(&ptr, &addr))
-+			linux_regs->rip = addr;
-+		newPC = linux_regs->rip;
-+
-+		/* clear the trace bit */
-+		linux_regs->eflags &= ~TF_MASK;
++			trap_registers.pc = addr;
 +
 +		atomic_set(&cpu_doing_single_step, -1);
-+		/* set the trace bit if we're stepping */
-+		if (remcomInBuffer[0] == 's') {
-+			linux_regs->eflags |= TF_MASK;
-+			debugger_step = 1;
++		if (remcom_in_buffer[0] == 's') {
++			/* Replace the instruction immediately after the
++			 * current instruction (i.e. next in the expected
++			 * flow of control) with a trap instruction, so that
++			 * returning will cause only a single instruction to
++			 * be executed. Note that this model is slightly
++			 * broken for instructions with delay slots
++			 * (e.g. B[TF]S, BSR, BRA etc), where both the branch
++			 * and the instruction in the delay slot will be
++			 * executed.
++			 */
++			/* Determine where the target instruction will send
++			 * us to */
++			unsigned short *next_addr = get_step_address();
++			stepped_address = (int)next_addr;
++
++			/* Replace it */
++			stepped_opcode = *(short *)next_addr;
++			*next_addr = STEP_OPCODE;
++
++			/* Flush and return */
++			kgdb_flush_icache_range((long)next_addr,
++						(long)next_addr + 2);
 +			if (kgdb_contthread)
 +				atomic_set(&cpu_doing_single_step,
 +					   smp_processor_id());
-+
 +		}
-+
-+		asm volatile ("movq %%db6, %0\n":"=r" (dr6));
-+		if (!(dr6 & 0x4000)) {
-+			for (breakno = 0; breakno < 4; ++breakno) {
-+				if (dr6 & (1 << breakno)) {
-+					if (breakinfo[breakno].type == 0) {
-+						/* Set restore flag */
-+						linux_regs->eflags |=
-+						    X86_EFLAGS_RF;
-+						break;
-+					}
-+				}
-+			}
-+		}
-+		kgdb_correct_hw_break();
-+		asm volatile ("movq %0, %%db6\n"::"r" (0UL));
-+
-+		return (0);
-+
-+	case 'Y':
-+		ptr = &remcomInBuffer[1];
-+		kgdb_hex2long(&ptr, &breakno);
-+		ptr++;
-+		kgdb_hex2long(&ptr, &breaktype);
-+		ptr++;
-+		kgdb_hex2long(&ptr, &length);
-+		ptr++;
-+		kgdb_hex2long(&ptr, &addr);
-+		if (set_hw_break(breakno & 0x3, breaktype & 0x3,
-+				 length & 0x3, addr) == 0)
-+			strcpy(remcomOutBuffer, "OK");
-+		else
-+			strcpy(remcomOutBuffer, "ERROR");
-+		break;
-+
-+		/* Remove hardware breakpoint */
-+	case 'y':
-+		ptr = &remcomInBuffer[1];
-+		kgdb_hex2long(&ptr, &breakno);
-+		if (remove_hw_break(breakno & 0x3) == 0)
-+			strcpy(remcomOutBuffer, "OK");
-+		else
-+			strcpy(remcomOutBuffer, "ERROR");
-+		break;
-+
-+	}			/* switch */
++		return 0;
++	}
 +	return -1;
 +}
 +
-+static struct pt_regs *in_interrupt_stack(unsigned long rsp, int cpu)
++/*
++ * When an exception has occured, we are called.  We need to set things
++ * up so that we can call kgdb_handle_exception to handle requests from
++ * the remote GDB.
++ */
++void kgdb_exception_handler(struct pt_regs *regs)
 +{
-+	struct pt_regs *regs;
-+	unsigned long end = (unsigned long)cpu_pda[cpu].irqstackptr;
-+	if (rsp <= end && rsp >= end - IRQSTACKSIZE + 8) {
-+		regs = *(((struct pt_regs **)end) - 1);
-+		return regs;
++	int excep_code, vbr_val;
++	int count;
++
++	/* Copy kernel regs (from stack) */
++	for (count = 0; count < 16; count++)
++		trap_registers.regs[count] = regs->regs[count];
++	trap_registers.pc = regs->pc;
++	trap_registers.pr = regs->pr;
++	trap_registers.sr = regs->sr;
++	trap_registers.gbr = regs->gbr;
++	trap_registers.mach = regs->mach;
++	trap_registers.macl = regs->macl;
++
++	__asm__ __volatile__("stc vbr, %0":"=r"(vbr_val));
++	trap_registers.vbr = vbr_val;
++
++	/* Get the execption code. */
++	__asm__ __volatile__("stc r2_bank, %0":"=r"(excep_code));
++
++	excep_code >>= 5;
++
++	/* If we got an NMI, and KGDB is not yet initialized, call
++	 * breakpoint() to try and initialize everything for us. */
++	if (excep_code == NMI_VEC && !kgdb_initialized) {
++		breakpoint();
++		return;
 +	}
-+	return NULL;
++
++	/* TRAP_VEC exception indicates a software trap inserted in place of
++	 * code by GDB so back up PC by one instruction, as this instruction
++	 * will later be replaced by its original one.  Do NOT do this for
++	 * trap 0xff, since that indicates a compiled-in breakpoint which
++	 * will not be replaced (and we would retake the trap forever) */
++	if (excep_code == TRAP_VEC &&
++	    (*(volatile unsigned long *)TRA != (0xff << 2)))
++		trap_registers.pc -= 2;
++
++	/* If we have been single-stepping, put back the old instruction.
++	 * We use stepped_address in case we have stopped more than one
++	 * instruction away. */
++	if (stepped_opcode != 0) {
++		*(short *)stepped_address = stepped_opcode;
++		kgdb_flush_icache_range(stepped_address, stepped_address + 2);
++	}
++	stepped_opcode = 0;
++
++	/* Call the stub to do the processing.  Note that not everything we
++	 * need to send back and forth lives in pt_regs. */
++	kgdb_handle_exception(excep_code, compute_signal(excep_code), 0, regs);
++
++	/* Copy back the (maybe modified) registers */
++	for (count = 0; count < 16; count++)
++		regs->regs[count] = trap_registers.regs[count];
++	regs->pc = trap_registers.pc;
++	regs->pr = trap_registers.pr;
++	regs->sr = trap_registers.sr;
++	regs->gbr = trap_registers.gbr;
++	regs->mach = trap_registers.mach;
++	regs->macl = trap_registers.macl;
++
++	vbr_val = trap_registers.vbr;
++	__asm__ __volatile__("ldc %0, vbr": :"r"(vbr_val));
 +}
 +
-+static struct pt_regs *in_exception_stack(unsigned long rsp, int cpu)
++int __init kgdb_arch_init(void)
 +{
-+	int i;
-+	struct tss_struct *init_tss = &__get_cpu_var(init_tss);
-+	for (i = 0; i < N_EXCEPTION_STACKS; i++)
-+		if (rsp >= init_tss[cpu].ist[i] &&
-+		    rsp <= init_tss[cpu].ist[i] + EXCEPTION_STKSZ) {
-+			struct pt_regs *r =
-+			    (void *)init_tss[cpu].ist[i] + EXCEPTION_STKSZ;
-+			return r - 1;
-+		}
-+	return NULL;
-+}
++	per_cpu_trap_init();
 +
-+void kgdb_shadowinfo(struct pt_regs *regs, char *buffer, unsigned threadid)
-+{
-+	static char intr_desc[] = "Stack at interrupt entrypoint";
-+	static char exc_desc[] = "Stack at exception entrypoint";
-+	struct pt_regs *stregs;
-+	int cpu = hard_smp_processor_id();
-+
-+	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
-+		kgdb_mem2hex(intr_desc, buffer, strlen(intr_desc));
-+	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
-+		kgdb_mem2hex(exc_desc, buffer, strlen(exc_desc));
-+}
-+
-+struct task_struct *kgdb_get_shadow_thread(struct pt_regs *regs, int threadid)
-+{
-+	struct pt_regs *stregs;
-+	int cpu = hard_smp_processor_id();
-+
-+	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
-+		return current;
-+	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
-+		return current;
-+
-+	return NULL;
-+}
-+
-+struct pt_regs *kgdb_shadow_regs(struct pt_regs *regs, int threadid)
-+{
-+	struct pt_regs *stregs;
-+	int cpu = hard_smp_processor_id();
-+
-+	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
-+		return stregs;
-+	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
-+		return stregs;
-+
-+	return NULL;
-+}
-+
-+/* Register KGDB with the die_chain so that we hook into all of the right
-+ * spots. */
-+static int kgdb_notify(struct notifier_block *self, unsigned long cmd,
-+		       void *ptr)
-+{
-+	struct die_args *args = ptr;
-+	struct pt_regs *regs = args->regs;
-+
-+	if (cmd == DIE_PAGE_FAULT && strcmp(args->str, "no context") == 0 &&
-+	    atomic_read(&debugger_active) && kgdb_may_fault) {
-+		kgdb_fault_longjmp(kgdb_fault_jmp_regs);
-+		return NOTIFY_STOP;
-+	/* CPU roundup? */
-+	} else if (atomic_read(&debugger_active) && cmd == DIE_NMI_IPI) {
-+		kgdb_nmihook(smp_processor_id(), regs);
-+		return NOTIFY_STOP;
-+		/* See if KGDB is interested. */
-+	} else if (cmd == DIE_PAGE_FAULT || user_mode(regs) ||
-+		   cmd == DIE_NMI_IPI || (cmd == DIE_DEBUG &&
-+					  atomic_read(&debugger_active)))
-+		/* Userpace events, normal watchdog event, or spurious
-+		 * debug exception.  Ignore. */
-+		return NOTIFY_DONE;
-+
-+	kgdb_handle_exception(args->trapnr, args->signr, args->err, regs);
-+
-+	return NOTIFY_STOP;
-+}
-+
-+static struct notifier_block kgdb_notifier = {
-+	.notifier_call = kgdb_notify,
-+	.priority = 0x7fffffff,	/* we need to notified first */
-+};
-+
-+int kgdb_arch_init(void)
-+{
-+	notifier_chain_register(&die_chain, &kgdb_notifier);
 +	return 0;
 +}
 +
 +struct kgdb_arch arch_kgdb_ops = {
-+	.gdb_bpt_instr = {0xcc},
-+	.flags = KGDB_HW_BREAKPOINT,
-+	.shadowth = 1,
++#ifdef CONFIG_CPU_LITTLE_ENDIAN
++	.gdb_bpt_instr = {0xff, 0xc3},
++#else
++	.gdb_bpt_instr = {0xc3, 0xff},
++#endif
 +};
-diff -puN /dev/null arch/x86_64/kernel/kgdb-jmp.S
---- /dev/null	2005-08-08 08:07:04.272443000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/kernel/kgdb-jmp.S	2005-08-10 16:27:31.000000000 -0700
-@@ -0,0 +1,65 @@
-+/*
-+ * arch/x86_64/kernel/kgdb-jmp.S
-+ *
-+ * Save and restore system registers so that within a limited frame we
-+ * may have a fault and "jump back" to a known safe location.
-+ *
-+ * Author: Tom Rini <trini@kernel.crashing.org>
-+ *
-+ * Cribbed from glibc, which carries the following:
-+ * Copyright (C) 2001, 2003, 2004 Free Software Foundation, Inc.
-+ * Copyright (C) 2005 by MontaVista Software.
-+ *
-+ * This file is licensed under the terms of the GNU General Public License
-+ * version 2. This program as licensed "as is" without any warranty of
-+ * any kind, whether express or implied.
-+ */
-+
+Index: linux-2.6.13/arch/sh/kernel/kgdb_jmp.S
+===================================================================
+--- linux-2.6.13.orig/arch/sh/kernel/kgdb_jmp.S
++++ /dev/null
+@@ -1,33 +0,0 @@
+-#include <linux/linkage.h>
+-
+-ENTRY(setjmp)
+-	add	#(9*4), r4
+-	sts.l	pr, @-r4
+-	mov.l	r15, @-r4
+-	mov.l	r14, @-r4
+-	mov.l	r13, @-r4
+-	mov.l	r12, @-r4
+-	mov.l	r11, @-r4
+-	mov.l	r10, @-r4
+-	mov.l	r9, @-r4
+-	mov.l	r8, @-r4
+-	rts
+-	 mov	#0, r0
+-
+-ENTRY(longjmp)
+-	mov.l	@r4+, r8
+-	mov.l	@r4+, r9
+-	mov.l	@r4+, r10
+-	mov.l	@r4+, r11
+-	mov.l	@r4+, r12
+-	mov.l	@r4+, r13
+-	mov.l	@r4+, r14
+-	mov.l	@r4+, r15
+-	lds.l	@r4+, pr
+-	mov	r5, r0
+-	tst	r0, r0
+-	bf	1f
+-	mov	#1, r0	! in case val==0
+-1:	rts
+-	 nop
+-
+Index: linux-2.6.13/arch/sh/kernel/kgdb-jmp.S
+===================================================================
+--- /dev/null
++++ linux-2.6.13/arch/sh/kernel/kgdb-jmp.S
+@@ -0,0 +1,32 @@
 +#include <linux/linkage.h>
 +
-+#define JB_RBX		0
-+#define JB_RBP		1
-+#define JB_R12		2
-+#define JB_R13		3
-+#define JB_R14		4
-+#define JB_R15		5
-+#define JB_RSP		6
-+#define JB_PC		7
-+
-+	.code64
-+
-+/* This must be called prior to kgdb_fault_longjmp and
-+ * kgdb_fault_longjmp must not be called outside of the context of the
-+ * last call to kgdb_fault_setjmp.
-+ */
 +ENTRY(kgdb_fault_setjmp)
-+	/* Save registers. */
-+	movq %rbx, (JB_RBX*8)(%rdi)
-+	movq %rbp, (JB_RBP*8)(%rdi)
-+	movq %r12, (JB_R12*8)(%rdi)
-+	movq %r13, (JB_R13*8)(%rdi)
-+	movq %r14, (JB_R14*8)(%rdi)
-+	movq %r15, (JB_R15*8)(%rdi)
-+	leaq 8(%rsp), %rdx	/* Save SP as it will be after we return. */
-+	movq %rdx, (JB_RSP*8)(%rdi)
-+	movq (%rsp), %rax	/* Save PC we are returning to now. */
-+	movq %rax, (JB_PC*8)(%rdi)
-+	/* Set return value for setjmp. */
-+	mov $0,%eax
-+	movq (JB_PC*8)(%rdi),%rdx
-+	movq (JB_RSP*8)(%rdi),%rsp
-+	jmpq *%rdx
++	add	#(9*4), r4
++	sts.l	pr, @-r4
++	mov.l	r15, @-r4
++	mov.l	r14, @-r4
++	mov.l	r13, @-r4
++	mov.l	r12, @-r4
++	mov.l	r11, @-r4
++	mov.l	r10, @-r4
++	mov.l	r9, @-r4
++	mov.l	r8, @-r4
++	rts
++	 mov	#0, r0
 +
 +ENTRY(kgdb_fault_longjmp)
-+	/* Restore registers. */
-+	movq (JB_RBX*8)(%rdi),%rbx
-+	movq (JB_RBP*8)(%rdi),%rbp
-+	movq (JB_R12*8)(%rdi),%r12
-+	movq (JB_R13*8)(%rdi),%r13
-+	movq (JB_R14*8)(%rdi),%r14
-+	movq (JB_R15*8)(%rdi),%r15
-+	/* Set return value for setjmp. */
-+	movq (JB_PC*8)(%rdi),%rdx
-+	movq (JB_RSP*8)(%rdi),%rsp
-+	mov $1,%eax
-+	jmpq *%rdx
-diff -puN arch/x86_64/kernel/Makefile~x86_64-lite arch/x86_64/kernel/Makefile
---- linux-2.6.13/arch/x86_64/kernel/Makefile~x86_64-lite	2005-08-10 16:27:31.000000000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/kernel/Makefile	2005-08-10 16:27:31.000000000 -0700
-@@ -4,6 +4,7 @@
- 
- extra-y 	:= head.o head64.o init_task.o vmlinux.lds
- EXTRA_AFLAGS	:= -traditional
-+CFLAGS_vsyscall.o := -g0
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
- 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_x86_64.o \
- 		x8664_ksyms.o i387.o syscall.o vsyscall.o \
-@@ -29,6 +30,7 @@ obj-$(CONFIG_GART_IOMMU)	+= pci-gart.o a
- obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-dma.o
- obj-$(CONFIG_SWIOTLB)		+= swiotlb.o
- obj-$(CONFIG_KPROBES)		+= kprobes.o
++	mov.l	@r4+, r8
++	mov.l	@r4+, r9
++	mov.l	@r4+, r10
++	mov.l	@r4+, r11
++	mov.l	@r4+, r12
++	mov.l	@r4+, r13
++	mov.l	@r4+, r14
++	mov.l	@r4+, r15
++	lds.l	@r4+, pr
++	mov	r5, r0
++	tst	r0, r0
++	bf	1f
++	mov	#1, r0
++1:	rts
++	 nop
+Index: linux-2.6.13/arch/sh/kernel/kgdb_stub.c
+===================================================================
+--- linux-2.6.13.orig/arch/sh/kernel/kgdb_stub.c
++++ /dev/null
+@@ -1,1491 +0,0 @@
+-/*
+- * May be copied or modified under the terms of the GNU General Public
+- * License.  See linux/COPYING for more information.
+- *
+- * Containes extracts from code by Glenn Engel, Jim Kingdon,
+- * David Grothe <dave@gcom.com>, Tigran Aivazian <tigran@sco.com>,
+- * Amit S. Kale <akale@veritas.com>,  William Gatliff <bgat@open-widgets.com>,
+- * Ben Lee, Steve Chamberlain and Benoit Miller <fulg@iname.com>.
+- * 
+- * This version by Henry Bell <henry.bell@st.com>
+- * Minor modifications by Jeremy Siegel <jsiegel@mvista.com>
+- * 
+- * Contains low-level support for remote debug using GDB. 
+- *
+- * To enable debugger support, two things need to happen. A call to
+- * set_debug_traps() is necessary in order to allow any breakpoints
+- * or error conditions to be properly intercepted and reported to gdb.
+- * A breakpoint also needs to be generated to begin communication.  This
+- * is most easily accomplished by a call to breakpoint() which does
+- * a trapa if the initialisation phase has been successfully completed.
+- *
+- * In this case, set_debug_traps() is not used to "take over" exceptions;
+- * other kernel code is modified instead to enter the kgdb functions here
+- * when appropriate (see entry.S for breakpoint traps and NMI interrupts,
+- * see traps.c for kernel error exceptions).
+- *
+- * The following gdb commands are supported:
+- *
+- *    Command       Function                               Return value
+- *
+- *    g             return the value of the CPU registers  hex data or ENN
+- *    G             set the value of the CPU registers     OK or ENN
+- *
+- *    mAA..AA,LLLL  Read LLLL bytes at address AA..AA      hex data or ENN
+- *    MAA..AA,LLLL: Write LLLL bytes at address AA.AA      OK or ENN
+- *    XAA..AA,LLLL: Same, but data is binary (not hex)     OK or ENN
+- *
+- *    c             Resume at current address              SNN   ( signal NN)
+- *    cAA..AA       Continue at address AA..AA             SNN
+- *    CNN;          Resume at current address with signal  SNN
+- *    CNN;AA..AA    Resume at address AA..AA with signal   SNN
+- *
+- *    s             Step one instruction                   SNN
+- *    sAA..AA       Step one instruction from AA..AA       SNN
+- *    SNN;          Step one instruction with signal       SNN
+- *    SNNAA..AA     Step one instruction from AA..AA w/NN  SNN
+- *
+- *    k             kill (Detach GDB)
+- *
+- *    d             Toggle debug flag
+- *    D             Detach GDB 
+- *
+- *    Hct           Set thread t for operations,           OK or ENN
+- *                  c = 'c' (step, cont), c = 'g' (other
+- *                  operations)
+- *
+- *    qC            Query current thread ID                QCpid
+- *    qfThreadInfo  Get list of current threads (first)    m<id>
+- *    qsThreadInfo   "    "  "     "      "   (subsequent)
+- *    qOffsets      Get section offsets                  Text=x;Data=y;Bss=z
+- * 
+- *    TXX           Find if thread XX is alive             OK or ENN
+- *    ?             What was the last sigval ?             SNN   (signal NN)
+- *    O             Output to GDB console
+- *
+- * Remote communication protocol.
+- *
+- *    A debug packet whose contents are <data> is encapsulated for
+- *    transmission in the form:
+- *
+- *       $ <data> # CSUM1 CSUM2
+- *
+- *       <data> must be ASCII alphanumeric and cannot include characters
+- *       '$' or '#'.  If <data> starts with two characters followed by
+- *       ':', then the existing stubs interpret this as a sequence number.
+- *
+- *       CSUM1 and CSUM2 are ascii hex representation of an 8-bit 
+- *       checksum of <data>, the most significant nibble is sent first.
+- *       the hex digits 0-9,a-f are used.
+- *
+- *    Receiver responds with:
+- *
+- *       +       - if CSUM is correct and ready for next packet
+- *       -       - if CSUM is incorrect
+- *
+- * Responses can be run-length encoded to save space.  A '*' means that
+- * the next character is an ASCII encoding giving a repeat count which
+- * stands for that many repititions of the character preceding the '*'.
+- * The encoding is n+29, yielding a printable character where n >=3 
+- * (which is where RLE starts to win).  Don't use an n > 126. 
+- *
+- * So "0* " means the same as "0000".
+- */
+-
+-#include <linux/string.h>
+-#include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/smp.h>
+-#include <linux/spinlock.h>
+-#include <linux/delay.h>
+-#include <linux/linkage.h>
+-#include <linux/init.h>
+-
+-#include <asm/system.h>
+-#include <asm/current.h>
+-#include <asm/signal.h>
+-#include <asm/pgtable.h>
+-#include <asm/ptrace.h>
+-#include <asm/kgdb.h>
+-
+-#ifdef CONFIG_SH_KGDB_CONSOLE
+-#include <linux/console.h>
+-#endif
+-
+-/* Function pointers for linkage */
+-kgdb_debug_hook_t *kgdb_debug_hook;
+-kgdb_bus_error_hook_t *kgdb_bus_err_hook;
+-
+-int (*kgdb_getchar)(void);
+-void (*kgdb_putchar)(int);
+-
+-static void put_debug_char(int c)
+-{
+-	if (!kgdb_putchar)
+-		return;
+-	(*kgdb_putchar)(c);
+-}
+-static int get_debug_char(void)
+-{
+-	if (!kgdb_getchar)
+-		return -1;
+-	return (*kgdb_getchar)();
+-}
+-
+-/* Num chars in in/out bound buffers, register packets need NUMREGBYTES * 2 */
+-#define BUFMAX 1024
+-#define NUMREGBYTES (MAXREG*4)
+-#define OUTBUFMAX (NUMREGBYTES*2+512)
+-
+-enum regs {
+-	R0 = 0, R1,  R2,  R3,   R4,   R5,  R6, R7,
+-	R8, R9, R10, R11, R12,  R13,  R14, R15,
+-	PC, PR, GBR, VBR, MACH, MACL, SR,
+-	/*  */
+-	MAXREG
+-};
+-
+-static unsigned int registers[MAXREG];
+-struct kgdb_regs trap_registers;
+-
+-char kgdb_in_gdb_mode;
+-char in_nmi;			/* Set during NMI to prevent reentry */
+-int kgdb_nofault;		/* Boolean to ignore bus errs (i.e. in GDB) */
+-int kgdb_enabled = 1;		/* Default to enabled, cmdline can disable */
+-int kgdb_halt;
+-
+-/* Exposed for user access */
+-struct task_struct *kgdb_current;
+-unsigned int kgdb_g_imask;
+-int kgdb_trapa_val;
+-int kgdb_excode;
+-
+-/* Default values for SCI (can override via kernel args in setup.c) */
+-#ifndef CONFIG_KGDB_DEFPORT
+-#define CONFIG_KGDB_DEFPORT 1
+-#endif
+-
+-#ifndef CONFIG_KGDB_DEFBAUD
+-#define CONFIG_KGDB_DEFBAUD 115200
+-#endif
+-
+-#if defined(CONFIG_KGDB_DEFPARITY_E)
+-#define CONFIG_KGDB_DEFPARITY 'E'
+-#elif defined(CONFIG_KGDB_DEFPARITY_O)
+-#define CONFIG_KGDB_DEFPARITY 'O'
+-#else /* CONFIG_KGDB_DEFPARITY_N */
+-#define CONFIG_KGDB_DEFPARITY 'N'
+-#endif
+-
+-#ifdef CONFIG_KGDB_DEFBITS_7
+-#define CONFIG_KGDB_DEFBITS '7'
+-#else /* CONFIG_KGDB_DEFBITS_8 */
+-#define CONFIG_KGDB_DEFBITS '8'
+-#endif
+-
+-/* SCI/UART settings, used in kgdb_console_setup() */
+-int  kgdb_portnum = CONFIG_KGDB_DEFPORT;
+-int  kgdb_baud = CONFIG_KGDB_DEFBAUD;
+-char kgdb_parity = CONFIG_KGDB_DEFPARITY;
+-char kgdb_bits = CONFIG_KGDB_DEFBITS;
+-
+-/* Jump buffer for setjmp/longjmp */
+-static jmp_buf rem_com_env;
+-
+-/* TRA differs sh3/4 */
+-#if defined(CONFIG_CPU_SH3)
+-#define TRA 0xffffffd0
+-#elif defined(CONFIG_CPU_SH4)
+-#define TRA 0xff000020
+-#endif
+-
+-/* Macros for single step instruction identification */
+-#define OPCODE_BT(op)         (((op) & 0xff00) == 0x8900)
+-#define OPCODE_BF(op)         (((op) & 0xff00) == 0x8b00)
+-#define OPCODE_BTF_DISP(op)   (((op) & 0x80) ? (((op) | 0xffffff80) << 1) : \
+-			      (((op) & 0x7f ) << 1))
+-#define OPCODE_BFS(op)        (((op) & 0xff00) == 0x8f00)
+-#define OPCODE_BTS(op)        (((op) & 0xff00) == 0x8d00)
+-#define OPCODE_BRA(op)        (((op) & 0xf000) == 0xa000)
+-#define OPCODE_BRA_DISP(op)   (((op) & 0x800) ? (((op) | 0xfffff800) << 1) : \
+-			      (((op) & 0x7ff) << 1))
+-#define OPCODE_BRAF(op)       (((op) & 0xf0ff) == 0x0023)
+-#define OPCODE_BRAF_REG(op)   (((op) & 0x0f00) >> 8)
+-#define OPCODE_BSR(op)        (((op) & 0xf000) == 0xb000)
+-#define OPCODE_BSR_DISP(op)   (((op) & 0x800) ? (((op) | 0xfffff800) << 1) : \
+-			      (((op) & 0x7ff) << 1))
+-#define OPCODE_BSRF(op)       (((op) & 0xf0ff) == 0x0003)
+-#define OPCODE_BSRF_REG(op)   (((op) >> 8) & 0xf)
+-#define OPCODE_JMP(op)        (((op) & 0xf0ff) == 0x402b)
+-#define OPCODE_JMP_REG(op)    (((op) >> 8) & 0xf)
+-#define OPCODE_JSR(op)        (((op) & 0xf0ff) == 0x400b)
+-#define OPCODE_JSR_REG(op)    (((op) >> 8) & 0xf)
+-#define OPCODE_RTS(op)        ((op) == 0xb)
+-#define OPCODE_RTE(op)        ((op) == 0x2b)
+-
+-#define SR_T_BIT_MASK           0x1
+-#define STEP_OPCODE             0xc320
+-#define BIOS_CALL_TRAP          0x3f
+-
+-/* Exception codes as per SH-4 core manual */
+-#define ADDRESS_ERROR_LOAD_VEC   7
+-#define ADDRESS_ERROR_STORE_VEC  8
+-#define TRAP_VEC                 11
+-#define INVALID_INSN_VEC         12
+-#define INVALID_SLOT_VEC         13
+-#define NMI_VEC                  14
+-#define USER_BREAK_VEC           15
+-#define SERIAL_BREAK_VEC         58
+-
+-/* Misc static */
+-static int stepped_address;
+-static short stepped_opcode;
+-static const char hexchars[] = "0123456789abcdef";
+-static char in_buffer[BUFMAX];
+-static char out_buffer[OUTBUFMAX];
+-
+-static void kgdb_to_gdb(const char *s);
+-
+-#ifdef CONFIG_KGDB_THREAD
+-static struct task_struct *trapped_thread;
+-static struct task_struct *current_thread;
+-typedef unsigned char threadref[8];
+-#define BUF_THREAD_ID_SIZE 16
+-#endif
+-
+-/* Return addr as a real volatile address */
+-static inline unsigned int ctrl_inl(const unsigned long addr)
+-{
+-	return *(volatile unsigned long *) addr;
+-}
+-
+-/* Correctly set *addr using volatile */
+-static inline void ctrl_outl(const unsigned int b, unsigned long addr)
+-{
+-	*(volatile unsigned long *) addr = b;
+-}
+-
+-/* Get high hex bits */
+-static char highhex(const int x)
+-{
+-	return hexchars[(x >> 4) & 0xf];
+-}
+-
+-/* Get low hex bits */
+-static char lowhex(const int x)
+-{
+-	return hexchars[x & 0xf];
+-}
+-
+-/* Convert ch to hex */
+-static int hex(const char ch)
+-{
+-	if ((ch >= 'a') && (ch <= 'f'))
+-		return (ch - 'a' + 10);
+-	if ((ch >= '0') && (ch <= '9'))
+-		return (ch - '0');
+-	if ((ch >= 'A') && (ch <= 'F'))
+-		return (ch - 'A' + 10);
+-	return (-1);
+-}
+-
+-/* Convert the memory pointed to by mem into hex, placing result in buf.
+-   Returns a pointer to the last char put in buf (null) */
+-static char *mem_to_hex(const char *mem, char *buf, const int count)
+-{
+-	int i;
+-	int ch;
+-	unsigned short s_val;
+-	unsigned long l_val;
+-
+-	/* Check for 16 or 32 */
+-	if (count == 2 && ((long) mem & 1) == 0) {
+-		s_val = *(unsigned short *) mem;
+-		mem = (char *) &s_val;
+-	} else if (count == 4 && ((long) mem & 3) == 0) {
+-		l_val = *(unsigned long *) mem;
+-		mem = (char *) &l_val;
+-	}
+-	for (i = 0; i < count; i++) {
+-		ch = *mem++;
+-		*buf++ = highhex(ch);
+-		*buf++ = lowhex(ch);
+-	}
+-	*buf = 0;
+-	return (buf);
+-}
+-
+-/* Convert the hex array pointed to by buf into binary, to be placed in mem.
+-   Return a pointer to the character after the last byte written */
+-static char *hex_to_mem(const char *buf, char *mem, const int count)
+-{
+-	int i;
+-	unsigned char ch;
+-
+-	for (i = 0; i < count; i++) {
+-		ch = hex(*buf++) << 4;
+-		ch = ch + hex(*buf++);
+-		*mem++ = ch;
+-	}
+-	return (mem);
+-}
+-
+-/* While finding valid hex chars, convert to an integer, then return it */
+-static int hex_to_int(char **ptr, int *int_value)
+-{
+-	int num_chars = 0;
+-	int hex_value;
+-
+-	*int_value = 0;
+-
+-	while (**ptr) {
+-		hex_value = hex(**ptr);
+-		if (hex_value >= 0) {
+-			*int_value = (*int_value << 4) | hex_value;
+-			num_chars++;
+-		} else
+-			break;
+-		(*ptr)++;
+-	}
+-	return num_chars;
+-}
+-
+-/*  Copy the binary array pointed to by buf into mem.  Fix $, #,
+-    and 0x7d escaped with 0x7d.  Return a pointer to the character 
+-    after the last byte written. */
+-static char *ebin_to_mem(const char *buf, char *mem, int count)
+-{
+-	for (; count > 0; count--, buf++) {
+-		if (*buf == 0x7d)
+-			*mem++ = *(++buf) ^ 0x20;
+-		else
+-			*mem++ = *buf;
+-	}
+-	return mem;
+-}
+-
+-/* Pack a hex byte */
+-static char *pack_hex_byte(char *pkt, int byte)
+-{
+-	*pkt++ = hexchars[(byte >> 4) & 0xf];
+-	*pkt++ = hexchars[(byte & 0xf)];
+-	return pkt;
+-}
+-
+-#ifdef CONFIG_KGDB_THREAD
+-
+-/* Pack a thread ID */
+-static char *pack_threadid(char *pkt, threadref * id)
+-{
+-	char *limit;
+-	unsigned char *altid;
+-
+-	altid = (unsigned char *) id;
+-
+-	limit = pkt + BUF_THREAD_ID_SIZE;
+-	while (pkt < limit)
+-		pkt = pack_hex_byte(pkt, *altid++);
+-	return pkt;
+-}
+-
+-/* Convert an integer into our threadref */
+-static void int_to_threadref(threadref * id, const int value)
+-{
+-	unsigned char *scan = (unsigned char *) id;
+-	int i = 4;
+-
+-	while (i--)
+-		*scan++ = 0;
+-
+-	*scan++ = (value >> 24) & 0xff;
+-	*scan++ = (value >> 16) & 0xff;
+-	*scan++ = (value >> 8) & 0xff;
+-	*scan++ = (value & 0xff);
+-}
+-
+-/* Return a task structure ptr for a particular pid */
+-static struct task_struct *get_thread(int pid)
+-{
+-	struct task_struct *thread;
+-
+-	/* Use PID_MAX w/gdb for pid 0 */
+-	if (pid == PID_MAX) pid = 0;
+-
+-	/* First check via PID */
+-	thread = find_task_by_pid(pid);
+-
+-	if (thread)
+-		return thread;
+-
+-	/* Start at the start */
+-	thread = init_tasks[0];
+-
+-	/* Walk along the linked list of tasks */
+-	do {
+-		if (thread->pid == pid)
+-			return thread;
+-		thread = thread->next_task;
+-	} while (thread != init_tasks[0]);
+-
+-	return NULL;
+-}
+-
+-#endif /* CONFIG_KGDB_THREAD */
+-
+-/* Scan for the start char '$', read the packet and check the checksum */
+-static void get_packet(char *buffer, int buflen)
+-{
+-	unsigned char checksum;
+-	unsigned char xmitcsum;
+-	int i;
+-	int count;
+-	char ch;
+-
+-	do {
+-		/* Ignore everything until the start character */
+-		while ((ch = get_debug_char()) != '$');
+-
+-		checksum = 0;
+-		xmitcsum = -1;
+-		count = 0;
+-
+-		/* Now, read until a # or end of buffer is found */
+-		while (count < (buflen - 1)) {
+-			ch = get_debug_char();
+-
+-			if (ch == '#')
+-				break;
+-
+-			checksum = checksum + ch;
+-			buffer[count] = ch;
+-			count = count + 1;
+-		}
+-
+-		buffer[count] = 0;
+-
+-		/* Continue to read checksum following # */
+-		if (ch == '#') {
+-			xmitcsum = hex(get_debug_char()) << 4;
+-			xmitcsum += hex(get_debug_char());
+-
+-			/* Checksum */
+-			if (checksum != xmitcsum)
+-				put_debug_char('-');	/* Failed checksum */
+-			else {
+-				/* Ack successful transfer */
+-				put_debug_char('+');
+-
+-				/* If a sequence char is present, reply 
+-				   the sequence ID */
+-				if (buffer[2] == ':') {
+-					put_debug_char(buffer[0]);
+-					put_debug_char(buffer[1]);
+-
+-					/* Remove sequence chars from buffer */
+-					count = strlen(buffer);
+-					for (i = 3; i <= count; i++)
+-						buffer[i - 3] = buffer[i];
+-				}
+-			}
+-		}
+-	}
+-	while (checksum != xmitcsum);	/* Keep trying while we fail */
+-}
+-
+-/* Send the packet in the buffer with run-length encoding */
+-static void put_packet(char *buffer)
+-{
+-	int checksum;
+-	char *src;
+-	int runlen;
+-	int encode;
+-
+-	do {
+-		src = buffer;
+-		put_debug_char('$');
+-		checksum = 0;
+-
+-		/* Continue while we still have chars left */
+-		while (*src) {
+-			/* Check for runs up to 99 chars long */
+-			for (runlen = 1; runlen < 99; runlen++) {
+-				if (src[0] != src[runlen])
+-					break;
+-			}
+-
+-			if (runlen > 3) {
+-				/* Got a useful amount, send encoding */
+-				encode = runlen + ' ' - 4;
+-				put_debug_char(*src);   checksum += *src;
+-				put_debug_char('*');    checksum += '*';
+-				put_debug_char(encode); checksum += encode;
+-				src += runlen;
+-			} else {
+-				/* Otherwise just send the current char */
+-				put_debug_char(*src);   checksum += *src;
+-				src += 1;
+-			}
+-		}
+-
+-		/* '#' Separator, put high and low components of checksum */
+-		put_debug_char('#');
+-		put_debug_char(highhex(checksum));
+-		put_debug_char(lowhex(checksum));
+-	}
+-	while ((get_debug_char()) != '+');	/* While no ack */
+-}
+-
+-/* A bus error has occurred - perform a longjmp to return execution and
+-   allow handling of the error */
+-static void kgdb_handle_bus_error(void)
+-{
+-	longjmp(rem_com_env, 1);
+-}
+-
+-/* Translate SH-3/4 exception numbers to unix-like signal values */
+-static int compute_signal(const int excep_code)
+-{
+-	int sigval;
+-
+-	switch (excep_code) {
+-
+-	case INVALID_INSN_VEC:
+-	case INVALID_SLOT_VEC:
+-		sigval = SIGILL;
+-		break;
+-	case ADDRESS_ERROR_LOAD_VEC:
+-	case ADDRESS_ERROR_STORE_VEC:
+-		sigval = SIGSEGV;
+-		break;
+-
+-	case SERIAL_BREAK_VEC:
+-	case NMI_VEC:
+-		sigval = SIGINT;
+-		break;
+-
+-	case USER_BREAK_VEC:
+-	case TRAP_VEC:
+-		sigval = SIGTRAP;
+-		break;
+-
+-	default:
+-		sigval = SIGBUS;	/* "software generated" */
+-		break;
+-	}
+-
+-	return (sigval);
+-}
+-
+-/* Make a local copy of the registers passed into the handler (bletch) */
+-static void kgdb_regs_to_gdb_regs(const struct kgdb_regs *regs,
+-				  int *gdb_regs)
+-{
+-	gdb_regs[R0] = regs->regs[R0];
+-	gdb_regs[R1] = regs->regs[R1];
+-	gdb_regs[R2] = regs->regs[R2];
+-	gdb_regs[R3] = regs->regs[R3];
+-	gdb_regs[R4] = regs->regs[R4];
+-	gdb_regs[R5] = regs->regs[R5];
+-	gdb_regs[R6] = regs->regs[R6];
+-	gdb_regs[R7] = regs->regs[R7];
+-	gdb_regs[R8] = regs->regs[R8];
+-	gdb_regs[R9] = regs->regs[R9];
+-	gdb_regs[R10] = regs->regs[R10];
+-	gdb_regs[R11] = regs->regs[R11];
+-	gdb_regs[R12] = regs->regs[R12];
+-	gdb_regs[R13] = regs->regs[R13];
+-	gdb_regs[R14] = regs->regs[R14];
+-	gdb_regs[R15] = regs->regs[R15];
+-	gdb_regs[PC] = regs->pc;
+-	gdb_regs[PR] = regs->pr;
+-	gdb_regs[GBR] = regs->gbr;
+-	gdb_regs[MACH] = regs->mach;
+-	gdb_regs[MACL] = regs->macl;
+-	gdb_regs[SR] = regs->sr;
+-	gdb_regs[VBR] = regs->vbr;
+-}
+-
+-/* Copy local gdb registers back to kgdb regs, for later copy to kernel */
+-static void gdb_regs_to_kgdb_regs(const int *gdb_regs,
+-				  struct kgdb_regs *regs)
+-{
+-	regs->regs[R0] = gdb_regs[R0];
+-	regs->regs[R1] = gdb_regs[R1];
+-	regs->regs[R2] = gdb_regs[R2];
+-	regs->regs[R3] = gdb_regs[R3];
+-	regs->regs[R4] = gdb_regs[R4];
+-	regs->regs[R5] = gdb_regs[R5];
+-	regs->regs[R6] = gdb_regs[R6];
+-	regs->regs[R7] = gdb_regs[R7];
+-	regs->regs[R8] = gdb_regs[R8];
+-	regs->regs[R9] = gdb_regs[R9];
+-	regs->regs[R10] = gdb_regs[R10];
+-	regs->regs[R11] = gdb_regs[R11];
+-	regs->regs[R12] = gdb_regs[R12];
+-	regs->regs[R13] = gdb_regs[R13];
+-	regs->regs[R14] = gdb_regs[R14];
+-	regs->regs[R15] = gdb_regs[R15];
+-	regs->pc = gdb_regs[PC];
+-	regs->pr = gdb_regs[PR];
+-	regs->gbr = gdb_regs[GBR];
+-	regs->mach = gdb_regs[MACH];
+-	regs->macl = gdb_regs[MACL];
+-	regs->sr = gdb_regs[SR];
+-	regs->vbr = gdb_regs[VBR];
+-}
+-
+-#ifdef CONFIG_KGDB_THREAD
+-/* Make a local copy of registers from the specified thread */
+-asmlinkage void ret_from_fork(void);
+-static void thread_regs_to_gdb_regs(const struct task_struct *thread,
+-				    int *gdb_regs)
+-{
+-	int regno;
+-	int *tregs;
+-
+-	/* Initialize to zero */
+-	for (regno = 0; regno < MAXREG; regno++)
+-		gdb_regs[regno] = 0;
+-
+-	/* Just making sure... */
+-	if (thread == NULL)
+-		return;
+-
+-	/* A new fork has pt_regs on the stack from a fork() call */
+-	if (thread->thread.pc == (unsigned long)ret_from_fork) {
+-
+-		int vbr_val;
+-		struct pt_regs *kregs;
+-		kregs = (struct pt_regs*)thread->thread.sp;
+-
+-		gdb_regs[R0] = kregs->regs[R0];
+-		gdb_regs[R1] = kregs->regs[R1];
+-		gdb_regs[R2] = kregs->regs[R2];
+-		gdb_regs[R3] = kregs->regs[R3];
+-		gdb_regs[R4] = kregs->regs[R4];
+-		gdb_regs[R5] = kregs->regs[R5];
+-		gdb_regs[R6] = kregs->regs[R6];
+-		gdb_regs[R7] = kregs->regs[R7];
+-		gdb_regs[R8] = kregs->regs[R8];
+-		gdb_regs[R9] = kregs->regs[R9];
+-		gdb_regs[R10] = kregs->regs[R10];
+-		gdb_regs[R11] = kregs->regs[R11];
+-		gdb_regs[R12] = kregs->regs[R12];
+-		gdb_regs[R13] = kregs->regs[R13];
+-		gdb_regs[R14] = kregs->regs[R14];
+-		gdb_regs[R15] = kregs->regs[R15];
+-		gdb_regs[PC] = kregs->pc;
+-		gdb_regs[PR] = kregs->pr;
+-		gdb_regs[GBR] = kregs->gbr;
+-		gdb_regs[MACH] = kregs->mach;
+-		gdb_regs[MACL] = kregs->macl;
+-		gdb_regs[SR] = kregs->sr;
+-
+-		asm("stc vbr, %0":"=r"(vbr_val));
+-		gdb_regs[VBR] = vbr_val;
+-		return;
+-	}
+-
+-	/* Otherwise, we have only some registers from switch_to() */
+-	tregs = (int *)thread->thread.sp;
+-	gdb_regs[R15] = (int)tregs;
+-	gdb_regs[R14] = *tregs++;
+-	gdb_regs[R13] = *tregs++;
+-	gdb_regs[R12] = *tregs++;
+-	gdb_regs[R11] = *tregs++;
+-	gdb_regs[R10] = *tregs++;
+-	gdb_regs[R9] = *tregs++;
+-	gdb_regs[R8] = *tregs++;
+-	gdb_regs[PR] = *tregs++;
+-	gdb_regs[GBR] = *tregs++;
+-	gdb_regs[PC] = thread->thread.pc;
+-}
+-#endif /* CONFIG_KGDB_THREAD */
+-
+-/* Calculate the new address for after a step */
+-static short *get_step_address(void)
+-{
+-	short op = *(short *) trap_registers.pc;
+-	long addr;
+-
+-	/* BT */
+-	if (OPCODE_BT(op)) {
+-		if (trap_registers.sr & SR_T_BIT_MASK)
+-			addr = trap_registers.pc + 4 + OPCODE_BTF_DISP(op);
+-		else
+-			addr = trap_registers.pc + 2;
+-	}
+-
+-	/* BTS */
+-	else if (OPCODE_BTS(op)) {
+-		if (trap_registers.sr & SR_T_BIT_MASK)
+-			addr = trap_registers.pc + 4 + OPCODE_BTF_DISP(op);
+-		else
+-			addr = trap_registers.pc + 4;	/* Not in delay slot */
+-	}
+-
+-	/* BF */
+-	else if (OPCODE_BF(op)) {
+-		if (!(trap_registers.sr & SR_T_BIT_MASK))
+-			addr = trap_registers.pc + 4 + OPCODE_BTF_DISP(op);
+-		else
+-			addr = trap_registers.pc + 2;
+-	}
+-
+-	/* BFS */
+-	else if (OPCODE_BFS(op)) {
+-		if (!(trap_registers.sr & SR_T_BIT_MASK))
+-			addr = trap_registers.pc + 4 + OPCODE_BTF_DISP(op);
+-		else
+-			addr = trap_registers.pc + 4;	/* Not in delay slot */
+-	}
+-
+-	/* BRA */
+-	else if (OPCODE_BRA(op))
+-		addr = trap_registers.pc + 4 + OPCODE_BRA_DISP(op);
+-
+-	/* BRAF */
+-	else if (OPCODE_BRAF(op))
+-		addr = trap_registers.pc + 4
+-		    + trap_registers.regs[OPCODE_BRAF_REG(op)];
+-
+-	/* BSR */
+-	else if (OPCODE_BSR(op))
+-		addr = trap_registers.pc + 4 + OPCODE_BSR_DISP(op);
+-
+-	/* BSRF */
+-	else if (OPCODE_BSRF(op))
+-		addr = trap_registers.pc + 4
+-		    + trap_registers.regs[OPCODE_BSRF_REG(op)];
+-
+-	/* JMP */
+-	else if (OPCODE_JMP(op))
+-		addr = trap_registers.regs[OPCODE_JMP_REG(op)];
+-
+-	/* JSR */
+-	else if (OPCODE_JSR(op))
+-		addr = trap_registers.regs[OPCODE_JSR_REG(op)];
+-
+-	/* RTS */
+-	else if (OPCODE_RTS(op))
+-		addr = trap_registers.pr;
+-
+-	/* RTE */
+-	else if (OPCODE_RTE(op))
+-		addr = trap_registers.regs[15];
+-
+-	/* Other */
+-	else
+-		addr = trap_registers.pc + 2;
+-
+-	kgdb_flush_icache_range(addr, addr + 2);
+-	return (short *) addr;
+-}
+-
+-/* Set up a single-step.  Replace the instruction immediately after the 
+-   current instruction (i.e. next in the expected flow of control) with a
+-   trap instruction, so that returning will cause only a single instruction
+-   to be executed. Note that this model is slightly broken for instructions
+-   with delay slots (e.g. B[TF]S, BSR, BRA etc), where both the branch
+-   and the instruction in the delay slot will be executed. */
+-static void do_single_step(void)
+-{
+-	unsigned short *addr = 0;
+-
+-	/* Determine where the target instruction will send us to */
+-	addr = get_step_address();
+-	stepped_address = (int)addr;
+-
+-	/* Replace it */
+-	stepped_opcode = *(short *)addr;
+-	*addr = STEP_OPCODE;
+-
+-	/* Flush and return */
+-	kgdb_flush_icache_range((long) addr, (long) addr + 2);
+-	return;
+-}
+-
+-/* Undo a single step */
+-static void undo_single_step(void)
+-{
+-	/* If we have stepped, put back the old instruction */
+-	/* Use stepped_address in case we stopped elsewhere */
+-	if (stepped_opcode != 0) {
+-		*(short*)stepped_address = stepped_opcode;
+-		kgdb_flush_icache_range(stepped_address, stepped_address + 2);
+-	}
+-	stepped_opcode = 0;
+-}
+-
+-/* Send a signal message */
+-static void send_signal_msg(const int signum)
+-{
+-#ifndef CONFIG_KGDB_THREAD
+-	out_buffer[0] = 'S';
+-	out_buffer[1] = highhex(signum);
+-	out_buffer[2] = lowhex(signum);
+-	out_buffer[3] = 0;
+-	put_packet(out_buffer);
+-#else /* CONFIG_KGDB_THREAD */
+-	int threadid;
+-	threadref thref;
+-	char *out = out_buffer;
+-	const char *tstring = "thread";
+-
+-	*out++ = 'T';
+-	*out++ = highhex(signum);
+-	*out++ = lowhex(signum);
+-
+-	while (*tstring) {
+-		*out++ = *tstring++;
+-	}
+-	*out++ = ':';
+-
+-	threadid = trapped_thread->pid;
+-	if (threadid == 0) threadid = PID_MAX;
+-	int_to_threadref(&thref, threadid);
+-	pack_threadid(out, &thref);
+-	out += BUF_THREAD_ID_SIZE;
+-	*out++ = ';';
+-
+-	*out = 0;
+-	put_packet(out_buffer);
+-#endif /* CONFIG_KGDB_THREAD */
+-}
+-
+-/* Reply that all was well */
+-static void send_ok_msg(void)
+-{
+-	strcpy(out_buffer, "OK");
+-	put_packet(out_buffer);
+-}
+-
+-/* Reply that an error occurred */
+-static void send_err_msg(void)
+-{
+-	strcpy(out_buffer, "E01");
+-	put_packet(out_buffer);
+-}
+-
+-/* Empty message indicates unrecognised command */
+-static void send_empty_msg(void)
+-{
+-	put_packet("");
+-}
+-
+-/* Read memory due to 'm' message */
+-static void read_mem_msg(void)
+-{
+-	char *ptr;
+-	int addr;
+-	int length;
+-
+-	/* Jmp, disable bus error handler */
+-	if (setjmp(rem_com_env) == 0) {
+-
+-		kgdb_nofault = 1;
+-
+-		/* Walk through, have m<addr>,<length> */
+-		ptr = &in_buffer[1];
+-		if (hex_to_int(&ptr, &addr) && (*ptr++ == ','))
+-			if (hex_to_int(&ptr, &length)) {
+-				ptr = 0;
+-				if (length * 2 > OUTBUFMAX)
+-					length = OUTBUFMAX / 2;
+-				mem_to_hex((char *) addr, out_buffer, length);
+-			}
+-		if (ptr)
+-			send_err_msg();
+-		else
+-			put_packet(out_buffer);
+-	} else
+-		send_err_msg();
+-
+-	/* Restore bus error handler */
+-	kgdb_nofault = 0;
+-}
+-
+-/* Write memory due to 'M' or 'X' message */
+-static void write_mem_msg(int binary)
+-{
+-	char *ptr;
+-	int addr;
+-	int length;
+-
+-	if (setjmp(rem_com_env) == 0) {
+-
+-		kgdb_nofault = 1;
+-
+-		/* Walk through, have M<addr>,<length>:<data> */
+-		ptr = &in_buffer[1];
+-		if (hex_to_int(&ptr, &addr) && (*ptr++ == ','))
+-			if (hex_to_int(&ptr, &length) && (*ptr++ == ':')) {
+-				if (binary)
+-					ebin_to_mem(ptr, (char*)addr, length);
+-				else
+-					hex_to_mem(ptr, (char*)addr, length);
+-				kgdb_flush_icache_range(addr, addr + length);
+-				ptr = 0;
+-				send_ok_msg();
+-			}
+-		if (ptr)
+-			send_err_msg();
+-	} else
+-		send_err_msg();
+-
+-	/* Restore bus error handler */
+-	kgdb_nofault = 0;
+-}
+-
+-/* Continue message  */
+-static void continue_msg(void)
+-{
+-	/* Try to read optional parameter, PC unchanged if none */
+-	char *ptr = &in_buffer[1];
+-	int addr;
+-
+-	if (hex_to_int(&ptr, &addr))
+-		trap_registers.pc = addr;
+-}
+-
+-/* Continue message with signal */
+-static void continue_with_sig_msg(void)
+-{
+-	int signal;
+-	char *ptr = &in_buffer[1];
+-	int addr;
+-
+-	/* Report limitation */
+-	kgdb_to_gdb("Cannot force signal in kgdb, continuing anyway.\n");
+-
+-	/* Signal */
+-	hex_to_int(&ptr, &signal);
+-	if (*ptr == ';')
+-		ptr++;
+-
+-	/* Optional address */
+-	if (hex_to_int(&ptr, &addr))
+-		trap_registers.pc = addr;
+-}
+-
+-/* Step message */
+-static void step_msg(void)
+-{
+-	continue_msg();
+-	do_single_step();
+-}
+-
+-/* Step message with signal */
+-static void step_with_sig_msg(void)
+-{
+-	continue_with_sig_msg();
+-	do_single_step();
+-}
+-
+-/* Send register contents */
+-static void send_regs_msg(void)
+-{
+-#ifdef CONFIG_KGDB_THREAD
+-	if (!current_thread)
+-		kgdb_regs_to_gdb_regs(&trap_registers, registers);
+-	else
+-		thread_regs_to_gdb_regs(current_thread, registers);
+-#else
+-	kgdb_regs_to_gdb_regs(&trap_registers, registers);
+-#endif
+-
+-	mem_to_hex((char *) registers, out_buffer, NUMREGBYTES);
+-	put_packet(out_buffer);
+-}
+-
+-/* Set register contents - currently can't set other thread's registers */
+-static void set_regs_msg(void)
+-{
+-#ifdef CONFIG_KGDB_THREAD
+-	if (!current_thread) {
+-#endif
+-		kgdb_regs_to_gdb_regs(&trap_registers, registers);
+-		hex_to_mem(&in_buffer[1], (char *) registers, NUMREGBYTES);
+-		gdb_regs_to_kgdb_regs(registers, &trap_registers);
+-		send_ok_msg();
+-#ifdef CONFIG_KGDB_THREAD
+-	} else
+-		send_err_msg();
+-#endif
+-}
+-
+-
+-#ifdef CONFIG_KGDB_THREAD
+-
+-/* Set the status for a thread */
+-void set_thread_msg(void)
+-{
+-	int threadid;
+-	struct task_struct *thread = NULL;
+-	char *ptr;
+-
+-	switch (in_buffer[1]) {
+-
+-       	/* To select which thread for gG etc messages, i.e. supported */
+-	case 'g':
+-
+-		ptr = &in_buffer[2];
+-		hex_to_int(&ptr, &threadid);
+-		thread = get_thread(threadid);
+-
+-		/* If we haven't found it */
+-		if (!thread) {
+-			send_err_msg();
+-			break;
+-		}
+-
+-		/* Set current_thread (or not) */
+-		if (thread == trapped_thread)
+-			current_thread = NULL;
+-		else
+-			current_thread = thread;
+-		send_ok_msg();
+-		break;
+-
+-	/* To select which thread for cCsS messages, i.e. unsupported */
+-	case 'c':
+-		send_ok_msg();
+-		break;
+-
+-	default:
+-		send_empty_msg();
+-		break;
+-	}
+-}
+-
+-/* Is a thread alive? */
+-static void thread_status_msg(void)
+-{
+-	char *ptr;
+-	int threadid;
+-	struct task_struct *thread = NULL;
+-
+-	ptr = &in_buffer[1];
+-	hex_to_int(&ptr, &threadid);
+-	thread = get_thread(threadid);
+-	if (thread)
+-		send_ok_msg();
+-	else
+-		send_err_msg();
+-}
+-/* Send the current thread ID */
+-static void thread_id_msg(void)
+-{
+-	int threadid;
+-	threadref thref;
+-
+-	out_buffer[0] = 'Q';
+-	out_buffer[1] = 'C';
+-
+-	if (current_thread)
+-		threadid = current_thread->pid;
+-	else if (trapped_thread)
+-		threadid = trapped_thread->pid;
+-	else /* Impossible, but just in case! */
+-	{
+-		send_err_msg();
+-		return;
+-	}
+-
+-	/* Translate pid 0 to PID_MAX for gdb */
+-	if (threadid == 0) threadid = PID_MAX;
+-
+-	int_to_threadref(&thref, threadid);
+-	pack_threadid(out_buffer + 2, &thref);
+-	out_buffer[2 + BUF_THREAD_ID_SIZE] = '\0';
+-	put_packet(out_buffer);
+-}
+-
+-/* Send thread info */
+-static void thread_info_msg(void)
+-{
+-	struct task_struct *thread = NULL;
+-	int threadid;
+-	char *pos;
+-	threadref thref;
+-
+-	/* Start with 'm' */
+-	out_buffer[0] = 'm';
+-	pos = &out_buffer[1];
+-
+-	/* For all possible thread IDs - this will overrun if > 44 threads! */
+-	/* Start at 1 and include PID_MAX (since GDB won't use pid 0...) */
+-	for (threadid = 1; threadid <= PID_MAX; threadid++) {
+-
+-		read_lock(&tasklist_lock);
+-		thread = get_thread(threadid);
+-		read_unlock(&tasklist_lock);
+-
+-		/* If it's a valid thread */
+-		if (thread) {
+-			int_to_threadref(&thref, threadid);
+-			pack_threadid(pos, &thref);
+-			pos += BUF_THREAD_ID_SIZE;
+-			*pos++ = ',';
+-		}
+-	}
+-	*--pos = 0;		/* Lose final comma */
+-	put_packet(out_buffer);
+-
+-}
+-
+-/* Return printable info for gdb's 'info threads' command */
+-static void thread_extra_info_msg(void)
+-{
+-	int threadid;
+-	struct task_struct *thread = NULL;
+-	char buffer[20], *ptr;
+-	int i;
+-
+-	/* Extract thread ID */
+-	ptr = &in_buffer[17];
+-	hex_to_int(&ptr, &threadid);
+-	thread = get_thread(threadid);
+-
+-	/* If we don't recognise it, say so */
+-	if (thread == NULL)
+-		strcpy(buffer, "(unknown)");
+-	else
+-		strcpy(buffer, thread->comm);
+-
+-	/* Construct packet */
+-	for (i = 0, ptr = out_buffer; buffer[i]; i++)
+-		ptr = pack_hex_byte(ptr, buffer[i]);
+-
+-	if (thread->thread.pc == (unsigned long)ret_from_fork) {
+-		strcpy(buffer, "<new fork>");
+-		for (i = 0; buffer[i]; i++)
+-			ptr = pack_hex_byte(ptr, buffer[i]);
+-	}
+-
+-	*ptr = '\0';
+-	put_packet(out_buffer);
+-}
+-
+-/* Handle all qFooBarBaz messages - have to use an if statement as
+-   opposed to a switch because q messages can have > 1 char id. */
+-static void query_msg(void)
+-{
+-	const char *q_start = &in_buffer[1];
+-
+-	/* qC = return current thread ID */
+-	if (strncmp(q_start, "C", 1) == 0)
+-		thread_id_msg();
+-
+-	/* qfThreadInfo = query all threads (first) */
+-	else if (strncmp(q_start, "fThreadInfo", 11) == 0)
+-		thread_info_msg();
+-
+-	/* qsThreadInfo = query all threads (subsequent). We know we have sent
+-	   them all after the qfThreadInfo message, so there are no to send */
+-	else if (strncmp(q_start, "sThreadInfo", 11) == 0)
+-		put_packet("l");	/* el = last */
+-
+-	/* qThreadExtraInfo = supply printable information per thread */
+-	else if (strncmp(q_start, "ThreadExtraInfo", 15) == 0)
+-		thread_extra_info_msg();
+-
+-	/* Unsupported - empty message as per spec */
+-	else
+-		send_empty_msg();
+-}
+-#endif /* CONFIG_KGDB_THREAD */
+-
+-/*
+- * Bring up the ports..
+- */
+-static int kgdb_serial_setup(void)
+-{
+-	extern int kgdb_console_setup(struct console *co, char *options);
+-	struct console dummy;
+-
+-	kgdb_console_setup(&dummy, 0);
+-
+-	return 0;
+-}
+-
+-/* The command loop, read and act on requests */
+-static void kgdb_command_loop(const int excep_code, const int trapa_value)
+-{
+-	int sigval;
+-
+-	if (excep_code == NMI_VEC) {
+-#ifndef CONFIG_KGDB_NMI
+-		KGDB_PRINTK("Ignoring unexpected NMI?\n");
+-		return;
+-#else /* CONFIG_KGDB_NMI */
+-		if (!kgdb_enabled) {
+-			kgdb_enabled = 1;
+-			kgdb_init();
+-		}
+-#endif /* CONFIG_KGDB_NMI */
+-	}
+-
+-	/* Ignore if we're disabled */
+-	if (!kgdb_enabled)
+-		return;
+-
+-#ifdef CONFIG_KGDB_THREAD
+-	/* Until GDB specifies a thread */
+-	current_thread = NULL;
+-	trapped_thread = current;
+-#endif
+-
+-	/* Enter GDB mode (e.g. after detach) */
+-	if (!kgdb_in_gdb_mode) {
+-		/* Do serial setup, notify user, issue preemptive ack */
+-		kgdb_serial_setup();
+-		KGDB_PRINTK("Waiting for GDB (on %s%d at %d baud)\n",
+-			    (kgdb_porttype ? kgdb_porttype->name : ""),
+-			    kgdb_portnum, kgdb_baud);
+-		kgdb_in_gdb_mode = 1;
+-		put_debug_char('+');
+-	}
+-
+-	/* Reply to host that an exception has occurred */
+-	sigval = compute_signal(excep_code);
+-	send_signal_msg(sigval);
+-
+-	/* TRAP_VEC exception indicates a software trap inserted in place of
+-	   code by GDB so back up PC by one instruction, as this instruction
+-	   will later be replaced by its original one.  Do NOT do this for
+-	   trap 0xff, since that indicates a compiled-in breakpoint which
+-	   will not be replaced (and we would retake the trap forever) */
+-	if ((excep_code == TRAP_VEC) && (trapa_value != (0xff << 2))) {
+-		trap_registers.pc -= 2;
+-	}
+-
+-	/* Undo any stepping we may have done */
+-	undo_single_step();
+-
+-	while (1) {
+-
+-		out_buffer[0] = 0;
+-		get_packet(in_buffer, BUFMAX);
+-
+-		/* Examine first char of buffer to see what we need to do */
+-		switch (in_buffer[0]) {
+-
+-		case '?':	/* Send which signal we've received */
+-			send_signal_msg(sigval);
+-			break;
+-
+-		case 'g':	/* Return the values of the CPU registers */
+-			send_regs_msg();
+-			break;
+-
+-		case 'G':	/* Set the value of the CPU registers */
+-			set_regs_msg();
+-			break;
+-
+-		case 'm':	/* Read LLLL bytes address AA..AA */
+-			read_mem_msg();
+-			break;
+-
+-		case 'M':	/* Write LLLL bytes address AA..AA, ret OK */
+-			write_mem_msg(0);	/* 0 = data in hex */
+-			break;
+-
+-		case 'X':	/* Write LLLL bytes esc bin address AA..AA */
+-			if (kgdb_bits == '8')
+-				write_mem_msg(1); /* 1 = data in binary */
+-			else
+-				send_empty_msg();
+-			break;
+-
+-		case 'C':	/* Continue, signum included, we ignore it */
+-			continue_with_sig_msg();
+-			return;
+-
+-		case 'c':	/* Continue at address AA..AA (optional) */
+-			continue_msg();
+-			return;
+-
+-		case 'S':	/* Step, signum included, we ignore it */
+-			step_with_sig_msg();
+-			return;
+-
+-		case 's':	/* Step one instruction from AA..AA */
+-			step_msg();
+-			return;
+-
+-#ifdef CONFIG_KGDB_THREAD
+-
+-		case 'H':	/* Task related */
+-			set_thread_msg();
+-			break;
+-
+-		case 'T':	/* Query thread status */
+-			thread_status_msg();
+-			break;
+-
+-		case 'q':	/* Handle query - currently thread-related */
+-			query_msg();
+-			break;
+-#endif
+-
+-		case 'k':	/* 'Kill the program' with a kernel ? */
+-			break;
+-
+-		case 'D':	/* Detach from program, send reply OK */
+-			kgdb_in_gdb_mode = 0;
+-			send_ok_msg();
+-			get_debug_char();
+-			return;
+-
+-		default:
+-			send_empty_msg();
+-			break;
+-		}
+-	}
+-}
+-
+-/* There has been an exception, most likely a breakpoint. */
+-void kgdb_handle_exception(struct pt_regs *regs)
+-{
+-	int excep_code, vbr_val;
+-	int count;
+-	int trapa_value = ctrl_inl(TRA);
+-
+-	/* Copy kernel regs (from stack) */
+-	for (count = 0; count < 16; count++)
+-		trap_registers.regs[count] = regs->regs[count];
+-	trap_registers.pc = regs->pc;
+-	trap_registers.pr = regs->pr;
+-	trap_registers.sr = regs->sr;
+-	trap_registers.gbr = regs->gbr;
+-	trap_registers.mach = regs->mach;
+-	trap_registers.macl = regs->macl;
+-
+-	asm("stc vbr, %0":"=r"(vbr_val));
+-	trap_registers.vbr = vbr_val;
+-
+-	/* Get excode for command loop call, user access */
+-	asm("stc r2_bank, %0":"=r"(excep_code));
+-	kgdb_excode = excep_code;
+-
+-	/* Other interesting environment items for reference */
+-	asm("stc r6_bank, %0":"=r"(kgdb_g_imask));
+-	kgdb_current = current;
+-	kgdb_trapa_val = trapa_value;
+-
+-	/* Act on the exception */
+-	kgdb_command_loop(excep_code >> 5, trapa_value);
+-
+-	kgdb_current = NULL;
+-
+-	/* Copy back the (maybe modified) registers */
+-	for (count = 0; count < 16; count++)
+-		regs->regs[count] = trap_registers.regs[count];
+-	regs->pc = trap_registers.pc;
+-	regs->pr = trap_registers.pr;
+-	regs->sr = trap_registers.sr;
+-	regs->gbr = trap_registers.gbr;
+-	regs->mach = trap_registers.mach;
+-	regs->macl = trap_registers.macl;
+-
+-	vbr_val = trap_registers.vbr;
+-	asm("ldc %0, vbr": :"r"(vbr_val));
+-
+-	return;
+-}
+-
+-/* Trigger a breakpoint by function */
+-void breakpoint(void)
+-{
+-	if (!kgdb_enabled) {
+-		kgdb_enabled = 1;
+-		kgdb_init();
+-	}
+-	BREAKPOINT();
+-}
+-
+-/* Initialise the KGDB data structures and serial configuration */
+-int kgdb_init(void)
+-{
+-	if (!kgdb_enabled)
+-		return 1;
+-
+-	in_nmi = 0;
+-	kgdb_nofault = 0;
+-	stepped_opcode = 0;
+-	kgdb_in_gdb_mode = 0;
+-
+-	if (kgdb_serial_setup() != 0) {
+-		KGDB_PRINTK("serial setup error\n");
+-		return -1;
+-	}
+-
+-	/* Init ptr to exception handler */
+-	kgdb_debug_hook = kgdb_handle_exception;
+-	kgdb_bus_err_hook = kgdb_handle_bus_error;
+-
+-	/* Enter kgdb now if requested, or just report init done */
+-	if (kgdb_halt) {
+-		kgdb_in_gdb_mode = 1;
+-		put_debug_char('+');
+-		breakpoint();
+-	}
+-	else
+-	{
+-		KGDB_PRINTK("stub is initialized.\n");
+-	}
+-
+-	return 0;
+-}
+-
+-/* Make function available for "user messages"; console will use it too. */
+-
+-char gdbmsgbuf[BUFMAX];
+-#define MAXOUT ((BUFMAX-2)/2)
+-
+-static void kgdb_msg_write(const char *s, unsigned count)
+-{
+-	int i;
+-	int wcount;
+-	char *bufptr;
+-
+-	/* 'O'utput */
+-	gdbmsgbuf[0] = 'O';
+-
+-	/* Fill and send buffers... */
+-	while (count > 0) {
+-		bufptr = gdbmsgbuf + 1;
+-
+-		/* Calculate how many this time */
+-		wcount = (count > MAXOUT) ? MAXOUT : count;
+-		
+-		/* Pack in hex chars */
+-		for (i = 0; i < wcount; i++)
+-			bufptr = pack_hex_byte(bufptr, s[i]);
+-		*bufptr = '\0';
+-
+-		/* Move up */
+-		s += wcount;
+-		count -= wcount;
+-
+-		/* Write packet */
+-		put_packet(gdbmsgbuf);
+-	}
+-}
+-
+-static void kgdb_to_gdb(const char *s)
+-{
+-	kgdb_msg_write(s, strlen(s));
+-}
+-
+-#ifdef CONFIG_SH_KGDB_CONSOLE
+-void kgdb_console_write(struct console *co, const char *s, unsigned count)
+-{
+-	/* Bail if we're not talking to GDB */
+-	if (!kgdb_in_gdb_mode)
+-		return;
+-
+-	kgdb_msg_write(s, count);
+-}
+-#endif
+Index: linux-2.6.13/arch/sh/kernel/Makefile
+===================================================================
+--- linux-2.6.13.orig/arch/sh/kernel/Makefile
++++ linux-2.6.13/arch/sh/kernel/Makefile
+@@ -13,7 +13,7 @@ obj-y				+= cpu/
+ obj-$(CONFIG_SMP)		+= smp.o
+ obj-$(CONFIG_CF_ENABLER)	+= cf-enabler.o
+ obj-$(CONFIG_SH_STANDARD_BIOS)	+= sh_bios.o
+-obj-$(CONFIG_SH_KGDB)		+= kgdb_stub.o kgdb_jmp.o
 +obj-$(CONFIG_KGDB)		+= kgdb.o kgdb-jmp.o
- obj-$(CONFIG_X86_PM_TIMER)	+= pmtimer.o
- 
+ obj-$(CONFIG_SH_CPU_FREQ)	+= cpufreq.o
  obj-$(CONFIG_MODULES)		+= module.o
-diff -puN arch/x86_64/kernel/traps.c~x86_64-lite arch/x86_64/kernel/traps.c
---- linux-2.6.13/arch/x86_64/kernel/traps.c~x86_64-lite	2005-08-10 16:27:31.000000000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/kernel/traps.c	2005-08-10 16:27:31.000000000 -0700
-@@ -29,6 +29,7 @@
+ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+Index: linux-2.6.13/arch/sh/kernel/setup.c
+===================================================================
+--- linux-2.6.13.orig/arch/sh/kernel/setup.c
++++ linux-2.6.13/arch/sh/kernel/setup.c
+@@ -27,10 +27,6 @@
+ #include <asm/irq.h>
+ #include <asm/setup.h>
+ 
+-#ifdef CONFIG_SH_KGDB
+-#include <asm/kgdb.h>
+-static int kgdb_parse_options(char *options);
+-#endif
+ extern void * __rd_start, * __rd_end;
+ /*
+  * Machine setup..
+@@ -557,93 +553,3 @@ struct seq_operations cpuinfo_op = {
+ 	.show	= show_cpuinfo,
+ };
+ #endif /* CONFIG_PROC_FS */
+-
+-#ifdef CONFIG_SH_KGDB
+-/*
+- * Parse command-line kgdb options.  By default KGDB is enabled,
+- * entered on error (or other action) using default serial info.
+- * The command-line option can include a serial port specification
+- * and an action to override default or configured behavior.
+- */
+-struct kgdb_sermap kgdb_sci_sermap =
+-{ "ttySC", 5, kgdb_sci_setup, NULL };
+-
+-struct kgdb_sermap *kgdb_serlist = &kgdb_sci_sermap;
+-struct kgdb_sermap *kgdb_porttype = &kgdb_sci_sermap;
+-
+-void kgdb_register_sermap(struct kgdb_sermap *map)
+-{
+-	struct kgdb_sermap *last;
+-
+-	for (last = kgdb_serlist; last->next; last = last->next)
+-		;
+-	last->next = map;
+-	if (!map->namelen) {
+-		map->namelen = strlen(map->name);
+-	}
+-}
+-
+-static int __init kgdb_parse_options(char *options)
+-{
+-	char c;
+-	int baud;
+-
+-	/* Check for port spec (or use default) */
+-
+-	/* Determine port type and instance */
+-	if (!memcmp(options, "tty", 3)) {
+-		struct kgdb_sermap *map = kgdb_serlist;
+-
+-		while (map && memcmp(options, map->name, map->namelen))
+-			map = map->next;
+-
+-		if (!map) {
+-			KGDB_PRINTK("unknown port spec in %s\n", options);
+-			return -1;
+-		}
+-
+-		kgdb_porttype = map;
+-		kgdb_serial_setup = map->setup_fn;
+-		kgdb_portnum = options[map->namelen] - '0';
+-		options += map->namelen + 1;
+-
+-		options = (*options == ',') ? options+1 : options;
+-		
+-		/* Read optional parameters (baud/parity/bits) */
+-		baud = simple_strtoul(options, &options, 10);
+-		if (baud != 0) {
+-			kgdb_baud = baud;
+-
+-			c = toupper(*options);
+-			if (c == 'E' || c == 'O' || c == 'N') {
+-				kgdb_parity = c;
+-				options++;
+-			}
+-
+-			c = *options;
+-			if (c == '7' || c == '8') {
+-				kgdb_bits = c;
+-				options++;
+-			}
+-			options = (*options == ',') ? options+1 : options;
+-		}
+-	}
+-
+-	/* Check for action specification */
+-	if (!memcmp(options, "halt", 4)) {
+-		kgdb_halt = 1;
+-		options += 4;
+-	} else if (!memcmp(options, "disabled", 8)) {
+-		kgdb_enabled = 0;
+-		options += 8;
+-	}
+-
+-	if (*options) {
+-                KGDB_PRINTK("ignored unknown options: %s\n", options);
+-		return 0;
+-	}
+-	return 1;
+-}
+-__setup("kgdb=", kgdb_parse_options);
+-#endif /* CONFIG_SH_KGDB */
+-
+Index: linux-2.6.13/arch/sh/kernel/time.c
+===================================================================
+--- linux-2.6.13.orig/arch/sh/kernel/time.c
++++ linux-2.6.13/arch/sh/kernel/time.c
+@@ -34,9 +34,6 @@
+ #include <asm/rtc.h>
+ #include <asm/freq.h>
+ #include <asm/cpu/timer.h>
+-#ifdef CONFIG_SH_KGDB
+-#include <asm/kgdb.h>
+-#endif
+ 
+ #include <linux/timex.h>
+ #include <linux/irq.h>
+@@ -646,12 +643,4 @@ void __init time_init(void)
+ 	ctrl_outl(interval, TMU0_TCOR);
+ 	ctrl_outl(interval, TMU0_TCNT);
+ 	ctrl_outb(TMU_TSTR_INIT, TMU_TSTR);
+-
+-#if defined(CONFIG_SH_KGDB)
+-	/*
+-	 * Set up kgdb as requested. We do it here because the serial
+-	 * init uses the timer vars we just set up for figuring baud.
+-	 */
+-	kgdb_init();
+-#endif
+ }
+Index: linux-2.6.13/arch/sh/kernel/traps.c
+===================================================================
+--- linux-2.6.13.orig/arch/sh/kernel/traps.c
++++ linux-2.6.13/arch/sh/kernel/traps.c
+@@ -27,6 +27,7 @@
+ #include <linux/spinlock.h>
  #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/nmi.h>
+ #include <linux/kallsyms.h>
 +#include <linux/kgdb.h>
  
  #include <asm/system.h>
  #include <asm/uaccess.h>
-@@ -902,12 +903,21 @@ void do_call_debug(struct pt_regs *regs)
- 	notify_die(DIE_CALL, "debug call", regs, 0, 255, SIGINT); 
- }
+@@ -35,17 +36,8 @@
+ #include <asm/processor.h>
+ #include <asm/sections.h>
  
--void __init trap_init(void)
-+void __init early_trap_init(void)
- {
--	set_intr_gate(0,&divide_error);
- 	set_intr_gate_ist(1,&debug,DEBUG_STACK);
- 	set_intr_gate_ist(2,&nmi,NMI_STACK);
- 	set_system_gate(3,&int3);
-+	set_intr_gate(13,&general_protection);
-+	set_intr_gate(14,&page_fault);
-+	set_intr_gate(11,&segment_not_present);
-+	set_intr_gate(NMI_VECTOR, call_debug);
-+	cpu_init();
-+}
-+
-+void __init trap_init(void)
-+{
-+	set_intr_gate(0,&divide_error);
- 	set_system_gate(4,&overflow);	/* int4-5 can be called from all */
- 	set_system_gate(5,&bounds);
- 	set_intr_gate(6,&invalid_op);
-@@ -915,10 +925,7 @@ void __init trap_init(void)
- 	set_intr_gate_ist(8,&double_fault, DOUBLEFAULT_STACK);
- 	set_intr_gate(9,&coprocessor_segment_overrun);
- 	set_intr_gate(10,&invalid_TSS);
--	set_intr_gate(11,&segment_not_present);
- 	set_intr_gate_ist(12,&stack_segment,STACKFAULT_STACK);
--	set_intr_gate(13,&general_protection);
--	set_intr_gate(14,&page_fault);
- 	set_intr_gate(15,&spurious_interrupt_bug);
- 	set_intr_gate(16,&coprocessor_error);
- 	set_intr_gate(17,&alignment_check);
-@@ -930,13 +937,6 @@ void __init trap_init(void)
- #ifdef CONFIG_IA32_EMULATION
- 	set_system_gate(IA32_SYSCALL_VECTOR, ia32_syscall);
+-#ifdef CONFIG_SH_KGDB
+-#include <asm/kgdb.h>
+-#define CHK_REMOTE_DEBUG(regs)                                               \
+-{                                                                            \
+-  if ((kgdb_debug_hook != (kgdb_debug_hook_t *) NULL) && (!user_mode(regs))) \
+-  {                                                                          \
+-    (*kgdb_debug_hook)(regs);                                                \
+-  }                                                                          \
+-}
+-#else
+-#define CHK_REMOTE_DEBUG(regs)
++#ifndef CONFIG_KGDB
++#define kgdb_handle_exception(t, s, e, r)
  #endif
--       
--	set_intr_gate(NMI_VECTOR, call_debug);
--       
--	/*
--	 * Should be a barrier for any external CPU state.
--	 */
--	cpu_init();
+ 
+ #define DO_ERROR(trapnr, signr, str, name, tsk)				\
+@@ -66,7 +58,7 @@ asmlinkage void do_##name(unsigned long 
+ 	local_irq_enable();						\
+ 	tsk->thread.error_code = error_code;				\
+ 	tsk->thread.trap_no = trapnr;					\
+-        CHK_REMOTE_DEBUG(&regs);					\
++	kgdb_handle_exception(trapnr, signr, error_code, &regs);	\
+ 	force_sig(signr, tsk);						\
+ 	die_if_no_fixup(str,&regs,error_code);				\
+ }
+@@ -93,10 +85,12 @@ void die(const char * str, struct pt_reg
+ {
+ 	static int die_counter;
+ 
++#ifdef CONFIG_KGDB
++	kgdb_handle_exception(1, SIGTRAP, err, regs);
++#endif
+ 	console_verbose();
+ 	spin_lock_irq(&die_lock);
+ 	printk("%s: %04lx [#%d]\n", str, err & 0xffff, ++die_counter);
+-	CHK_REMOTE_DEBUG(regs);
+ 	show_regs(regs);
+ 	spin_unlock_irq(&die_lock);
+ 	do_exit(SIGSEGV);
+Index: linux-2.6.13/arch/sh/Makefile
+===================================================================
+--- linux-2.6.13.orig/arch/sh/Makefile
++++ linux-2.6.13/arch/sh/Makefile
+@@ -23,7 +23,6 @@ cflags-$(CONFIG_CPU_SH4)		+= -m4 \
+ 	$(call cc-option,-mno-implicit-fp,-m4-nofpu)
+ 
+ cflags-$(CONFIG_SH_DSP)			+= -Wa,-dsp
+-cflags-$(CONFIG_SH_KGDB)		+= -g
+ 
+ cflags-$(CONFIG_MORE_COMPILE_OPTIONS)	+= \
+ 	$(shell echo $(CONFIG_COMPILE_OPTIONS) | sed -e 's/"//g')
+Index: linux-2.6.13/arch/sh/mm/extable.c
+===================================================================
+--- linux-2.6.13.orig/arch/sh/mm/extable.c
++++ linux-2.6.13/arch/sh/mm/extable.c
+@@ -6,6 +6,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
++#include <linux/kgdb.h>
+ #include <asm/uaccess.h>
+ 
+ int fixup_exception(struct pt_regs *regs)
+@@ -17,6 +18,12 @@ int fixup_exception(struct pt_regs *regs
+ 		regs->pc = fixup->fixup;
+ 		return 1;
+ 	}
++#ifdef CONFIG_KGDB
++	if (atomic_read(&debugger_active) && kgdb_may_fault)
++		/* Restore our previous state. */
++		kgdb_fault_longjmp(kgdb_fault_jmp_regs);
++		/* Never reached. */
++#endif
+ 
+ 	return 0;
+ }
+Index: linux-2.6.13/arch/sh/mm/fault.c
+===================================================================
+--- linux-2.6.13.orig/arch/sh/mm/fault.c
++++ linux-2.6.13/arch/sh/mm/fault.c
+@@ -28,7 +28,6 @@
+ #include <asm/pgalloc.h>
+ #include <asm/mmu_context.h>
+ #include <asm/cacheflush.h>
+-#include <asm/kgdb.h>
+ 
+ extern void die(const char *,struct pt_regs *,long);
+ 
+@@ -45,11 +44,6 @@ asmlinkage void do_page_fault(struct pt_
+ 	struct vm_area_struct * vma;
+ 	unsigned long page;
+ 
+-#ifdef CONFIG_SH_KGDB
+-	if (kgdb_nofault && kgdb_bus_err_hook)
+-		kgdb_bus_err_hook();
+-#endif
+-
+ 	tsk = current;
+ 	mm = tsk->mm;
+ 
+@@ -153,6 +147,7 @@ no_context:
+ 	}
+ 	die("Oops", regs, writeaccess);
+ 	do_exit(SIGKILL);
++	dump_stack();
+ 
+ /*
+  * We ran out of memory, or some other thing happened to us that made
+@@ -199,11 +194,6 @@ asmlinkage int __do_page_fault(struct pt
+ 	pte_t *pte;
+ 	pte_t entry;
+ 
+-#ifdef CONFIG_SH_KGDB
+-	if (kgdb_nofault && kgdb_bus_err_hook)
+-		kgdb_bus_err_hook();
+-#endif
+-
+ #ifdef CONFIG_SH_STORE_QUEUES
+ 	addrmax = P4SEG_STORE_QUE + 0x04000000;
+ #endif
+Index: linux-2.6.13/arch/sh/mm/fault-nommu.c
+===================================================================
+--- linux-2.6.13.orig/arch/sh/mm/fault-nommu.c
++++ linux-2.6.13/arch/sh/mm/fault-nommu.c
+@@ -29,10 +29,6 @@
+ #include <asm/mmu_context.h>
+ #include <asm/cacheflush.h>
+ 
+-#if defined(CONFIG_SH_KGDB)
+-#include <asm/kgdb.h>
+-#endif
+-
+ extern void die(const char *,struct pt_regs *,long);
+ 
+ /*
+@@ -43,11 +39,6 @@ extern void die(const char *,struct pt_r
+ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long writeaccess,
+ 			      unsigned long address)
+ {
+-#if defined(CONFIG_SH_KGDB)
+-	if (kgdb_nofault && kgdb_bus_err_hook)
+-		kgdb_bus_err_hook();
+-#endif
+-
+ 	/*
+ 	 * Oops. The kernel tried to access some bad page. We'll have to
+ 	 * terminate things with extreme prejudice.
+@@ -69,11 +60,6 @@ asmlinkage void do_page_fault(struct pt_
+ asmlinkage int __do_page_fault(struct pt_regs *regs, unsigned long writeaccess,
+ 			       unsigned long address)
+ {
+-#if defined(CONFIG_SH_KGDB)
+-	if (kgdb_nofault && kgdb_bus_err_hook)
+-		kgdb_bus_err_hook();
+-#endif
+-
+ 	if (address >= TASK_SIZE)
+ 		return 1;
+ 
+Index: linux-2.6.13/Documentation/DocBook/kgdb.tmpl
+===================================================================
+--- linux-2.6.13.orig/Documentation/DocBook/kgdb.tmpl
++++ linux-2.6.13/Documentation/DocBook/kgdb.tmpl
+@@ -127,6 +127,10 @@
+     <constant>kgdbwait</constant> after this arguement.
+     </para>
+     <para>
++    To specify the values of the SH SCI(F) serial port at boot:
++    <constant>kgdbsci=0,115200</constant>.
++    </para>
++    <para>
+     To configure the <symbol>CONFIG_KGDB_ETH</symbol> driver, pass in
+     <constant>kgdboe=[src-port]@&lt;src-ip&gt;/[dev],[tgt-port]@&lt;tgt-ip&gt;/[tgt-macaddr]</constant>
+     where:
+@@ -168,6 +172,18 @@
+     application program.
+     </para>
+   </chapter>
++  <chapter id="ArchitectureNotes">
++    <title>Architecture specific notes</title>
++      <para>
++      SuperH: The NMI switch found on some boards can be used to trigger an
++      initial breakpoint.  Subsequent triggers do nothing.  If console
++      is enabled on the SCI(F) serial port, and that is the port being used
++      for KGDB, then you must trigger a breakpoint via sysrq, NMI, or
++      some other method prior to connecting, or echo a control-c to the
++      serial port.  Also, to use the SCI(F) port for KGDB, the
++      <symbol>CONFIG_SERIAL_SH_SCI</symbol> driver must be enabled.
++      </para>
++  </chapter>
+   <chapter id="CommonBackEndReq">
+     <title>The common backend (required)</title>
+       <para>
+Index: linux-2.6.13/drivers/serial/sh-sci.c
+===================================================================
+--- linux-2.6.13.orig/drivers/serial/sh-sci.c
++++ linux-2.6.13/drivers/serial/sh-sci.c
+@@ -42,6 +42,7 @@
+ #include <linux/delay.h>
+ #include <linux/console.h>
+ #include <linux/bitops.h>
++#include <linux/kgdb.h>
+ 
+ #ifdef CONFIG_CPU_FREQ
+ #include <linux/notifier.h>
+@@ -65,14 +66,34 @@
+ 
+ #include "sh-sci.h"
+ 
+-#ifdef CONFIG_SH_KGDB
+-#include <asm/kgdb.h>
++#ifdef CONFIG_KGDB_SH_SCI
++/* Speed of the UART. */
++#if defined(CONFIG_KGDB_9600BAUD)
++static int kgdbsci_baud = 9600;
++#elif defined(CONFIG_KGDB_19200BAUD)
++static int kgdbsci_baud = 19200;
++#elif defined(CONFIG_KGDB_38400BAUD)
++static int kgdbsci_baud = 38400;
++#elif defined(CONFIG_KGDB_57600BAUD)
++static int kgdbsci_baud = 57600;
++#else
++static int kgdbsci_baud = 115200;	/* Start with this if not given */
++#endif
+ 
+-static int kgdb_get_char(struct sci_port *port);
+-static void kgdb_put_char(struct sci_port *port, char c);
+-static void kgdb_handle_error(struct sci_port *port);
+-static struct sci_port *kgdb_sci_port;
+-#endif /* CONFIG_SH_KGDB */
++/* Index of the UART, matches ttySCX naming. */
++#if defined(CONFIG_KGDB_SERIAL_PORT_1)
++static int kgdbsci_ttySC = 1;
++#elif defined(CONFIG_KGDB_SERIAL_PORT_2)
++static int kgdbsci_ttySC = 2;
++#elif defined(CONFIG_KGDB_SERIAL_PORT_3)
++static int kgdbsci_ttySC = 3;
++#else
++static int kgdbsci_ttySC = 0;		/* Start with this if not given */
++#endif
++
++/* Make life easier on us. */
++#define KGDBPORT	sci_ports[kgdbsci_ttySC]
++#endif /* CONFIG_KGDB_SH_SCI */
+ 
+ #ifdef CONFIG_SERIAL_SH_SCI_CONSOLE
+ static struct sci_port *serial_console_port = 0;
+@@ -85,18 +106,15 @@ static void sci_start_rx(struct uart_por
+ static void sci_stop_rx(struct uart_port *port);
+ static int sci_request_irq(struct sci_port *port);
+ static void sci_free_irq(struct sci_port *port);
++static void sci_set_termios(struct uart_port *port, struct termios *termios,
++			    struct termios *old);
++static int kgdbsci_init(void);
+ 
+ static struct sci_port sci_ports[SCI_NPORTS];
+ static struct uart_driver sci_uart_driver;
+ 
+-#if defined(CONFIG_SH_STANDARD_BIOS) || defined(CONFIG_SH_KGDB)
+-
+-static void handle_error(struct uart_port *port)
+-{				/* Clear error flags */
+-	sci_out(port, SCxSR, SCxSR_ERROR_CLEAR(port));
+-}
+-
+-static int get_char(struct uart_port *port)
++#if defined(CONFIG_SH_STANDARD_BIOS) || defined(CONFIG_KGDB_SH_SCI)
++static int get_char_for_gdb(struct uart_port *port)
+ {
+ 	unsigned long flags;
+ 	unsigned short status;
+@@ -106,7 +124,8 @@ static int get_char(struct uart_port *po
+         do {
+ 		status = sci_in(port, SCxSR);
+ 		if (status & SCxSR_ERRORS(port)) {
+-			handle_error(port);
++			/* Clear error flags. */
++			sci_out(port, SCxSR, SCxSR_ERROR_CLEAR(port));
+ 			continue;
+ 		}
+ 	} while (!(status & SCxSR_RDxF(port)));
+@@ -117,21 +136,7 @@ static int get_char(struct uart_port *po
+ 
+ 	return c;
+ }
+-
+-/* Taken from sh-stub.c of GDB 4.18 */
+-static const char hexchars[] = "0123456789abcdef";
+-
+-static __inline__ char highhex(int  x)
+-{
+-	return hexchars[(x >> 4) & 0xf];
+-}
+-
+-static __inline__ char lowhex(int  x)
+-{
+-	return hexchars[x & 0xf];
+-}
+-
+-#endif /* CONFIG_SH_STANDARD_BIOS || CONFIG_SH_KGDB */
++#endif /* CONFIG_SH_STANDARD_BIOS || CONFIG_KGDB_SH_SCI */
+ 
+ /*
+  * Send the packet in buffer.  The host gets one chance to read it.
+@@ -163,21 +168,14 @@ static void put_string(struct sci_port *
+ 	const unsigned char *p = buffer;
+ 	int i;
+ 
+-#if defined(CONFIG_SH_STANDARD_BIOS) || defined(CONFIG_SH_KGDB)
++#ifdef CONFIG_SH_STANDARD_BIOS
+ 	int checksum;
+-	int usegdb=0;
++	const char hexchars[] = "0123456789abcdef";
+ 
+-#ifdef CONFIG_SH_STANDARD_BIOS
+     	/* This call only does a trap the first time it is
+ 	 * called, and so is safe to do here unconditionally
+ 	 */
+-	usegdb |= sh_bios_in_gdb_mode();
+-#endif
+-#ifdef CONFIG_SH_KGDB
+-	usegdb |= (kgdb_in_gdb_mode && (port == kgdb_sci_port));
+-#endif
+-
+-	if (usegdb) {
++	if (sh_bios_in_gdb_mode()) {
+ 	    /*  $<packet info>#<checksum>. */
+ 	    do {
+ 		unsigned char c;
+@@ -189,18 +187,18 @@ static void put_string(struct sci_port *
+ 			int h, l;
+ 
+ 			c = *p++;
+-			h = highhex(c);
+-			l = lowhex(c);
++			h = hexchars[c >> 4];
++			l = hexchars[c % 16];
+ 			put_char(port, h);
+ 			put_char(port, l);
+ 			checksum += h + l;
+ 		}
+ 		put_char(port, '#');
+-		put_char(port, highhex(checksum));
+-		put_char(port, lowhex(checksum));
++		put_char(port, hexchars[checksum >> 4]);
++		put_char(port, hexchars[checksum & 16]);
+ 	    } while  (get_char(port) != '+');
+ 	} else
+-#endif /* CONFIG_SH_STANDARD_BIOS || CONFIG_SH_KGDB */
++#endif /* CONFIG_SH_STANDARD_BIOS */
+ 	for (i=0; i<count; i++) {
+ 		if (*p == 10)
+ 			put_char(port, '\r');
+@@ -210,90 +208,163 @@ static void put_string(struct sci_port *
+ #endif /* CONFIG_SERIAL_SH_SCI_CONSOLE */
+ 
+ 
+-#ifdef CONFIG_SH_KGDB
+-
+-/* Is the SCI ready, ie is there a char waiting? */
+-static int kgdb_is_char_ready(struct sci_port *port)
++#ifdef CONFIG_KGDB_SH_SCI
++static int kgdbsci_read_char(void)
+ {
+-        unsigned short status = sci_in(port, SCxSR);
+-
+-        if (status & (SCxSR_ERRORS(port) | SCxSR_BRK(port)))
+-                kgdb_handle_error(port);
+-
+-        return (status & SCxSR_RDxF(port));
++	return get_char_for_gdb(&KGDBPORT.port);
  }
  
+-/* Write a char */
+-static void kgdb_put_char(struct sci_port *port, char c)
++/* Called from kgdbstub.c to put a character, just a wrapper */
++static void kgdbsci_write_char(int c)
+ {
+-        unsigned short status;
+-
+-        do
+-                status = sci_in(port, SCxSR);
+-        while (!(status & SCxSR_TDxE(port)));
++	unsigned short status;
  
-diff -puN include/asm-x86_64/hw_irq.h~x86_64-lite include/asm-x86_64/hw_irq.h
-diff -puN include/asm-x86_64/ipi.h~x86_64-lite include/asm-x86_64/ipi.h
-diff -puN /dev/null include/asm-x86_64/kgdb.h
---- /dev/null	2005-08-08 08:07:04.272443000 -0700
-+++ linux-2.6.13-trini/include/asm-x86_64/kgdb.h	2005-08-12 08:26:09.000000000 -0700
-@@ -0,0 +1,50 @@
-+#ifdef __KERNEL__
-+#ifndef _ASM_KGDB_H_
-+#define _ASM_KGDB_H_
+-        sci_out(port, SCxTDR, c);
+-        sci_in(port, SCxSR);    /* Dummy read */
+-        sci_out(port, SCxSR, SCxSR_TDxE_CLEAR(port));
++	do
++		status = sci_in(&KGDBPORT.port, SCxSR);
++	while (!(status & SCxSR_TDxE(&KGDBPORT.port)));
 +
-+/*
-+ * Copyright (C) 2001-2004 Amit S. Kale
++	sci_out(&KGDBPORT.port, SCxTDR, c);
++	sci_in(&KGDBPORT.port, SCxSR);	/* Dummy read */
++	sci_out(&KGDBPORT.port, SCxSR, SCxSR_TDxE_CLEAR(&KGDBPORT.port));
+ }
+ 
+-/* Get a char if there is one, else ret -1 */
+-static int kgdb_get_char(struct sci_port *port)
++#ifndef CONFIG_SERIAL_SH_SCI_CONSOLE
++/* If we don't have console, we never hookup IRQs.  But we need to
++ * hookup one so that we can interrupt the system.
 + */
++static irqreturn_t kgdbsci_rx_interrupt(int irq, void *ptr,
++		struct pt_regs *regs)
+ {
+-        int c;
+-
+-        if (kgdb_is_char_ready(port) == 0)
+-                c = -1;
+-        else {
+-                c = sci_in(port, SCxRDR);
+-                sci_in(port, SCxSR);    /* Dummy read */
+-                sci_out(port, SCxSR, SCxSR_RDxF_CLEAR(port));
+-        }
++	struct uart_port *port = ptr;
+ 
+-        return c;
+-}
++	if (!(sci_in(port, SCxSR) & SCxSR_RDxF(port)))
++		return IRQ_NONE;
+ 
+-/* Called from kgdbstub.c to get a character, i.e. is blocking */
+-static int kgdb_sci_getchar(void)
+-{
+-        volatile int c;
++	if (kgdb_io_ops.init != kgdbsci_init) {
++		/* Throw away the data if another I/O routine is active */
++		get_char_for_gdb(&KGDBPORT.port);
++	} else
++		/* We've got an interrupt, so go ahead and call breakpoint() */
++		breakpoint();
+ 
+-        /* Keep trying to read a character, this could be neater */
+-        while ((c = kgdb_get_char(kgdb_sci_port)) < 0);
++	sci_in(port, SCxSR); /* dummy read */
++	sci_out(port, SCxSR, SCxSR_RDxF_CLEAR(port));
+ 
+-        return c;
++	return IRQ_HANDLED;
+ }
+ 
+-/* Called from kgdbstub.c to put a character, just a wrapper */
+-static void kgdb_sci_putchar(int c)
++static irqreturn_t kgdbsci_mpxed_interrupt(int irq, void *ptr,
++		struct pt_regs *regs)
+ {
++        unsigned short ssr_status, scr_status;
++        struct uart_port *port = ptr;
++
++        ssr_status = sci_in(port,SCxSR);
++        scr_status = sci_in(port,SCSCR);
+ 
+-        kgdb_put_char(kgdb_sci_port, c);
++	/* Rx Interrupt */
++        if ((ssr_status&0x0002) && (scr_status&0x0040))
++		kgdbsci_rx_interrupt(irq, ptr, regs);
++
++	return IRQ_HANDLED;
+ }
+ 
+-/* Clear any errors on the SCI */
+-static void kgdb_handle_error(struct sci_port *port)
++static void __init kgdbsci_lateinit(void)
+ {
+-        sci_out(port, SCxSR, SCxSR_ERROR_CLEAR(port));  /* Clear error flags */
++	if (KGDBPORT.irqs[0] == KGDBPORT.irqs[1]) {
++		if (!KGDBPORT.irqs[0]) {
++			printk(KERN_ERR "kgdbsci: Cannot allocate irq.\n");
++			return;
++		}
++		if (request_irq(KGDBPORT.irqs[0], kgdbsci_mpxed_interrupt,
++					SA_INTERRUPT, "kgdbsci",
++					&KGDBPORT.port)) {
++			printk(KERN_ERR "kgdbsci: Cannot allocate irq.\n");
++			return;
++		}
++	} else {
++		if (KGDBPORT.irqs[1])
++			request_irq(KGDBPORT.irqs[1],
++					kgdbsci_rx_interrupt, SA_INTERRUPT,
++					"kgdbsci", &KGDBPORT.port);
++	}
+ }
++#endif
+ 
+-/* Breakpoint if there's a break sent on the serial port */
+-static void kgdb_break_interrupt(int irq, void *ptr, struct pt_regs *regs)
++/*
++ * We use the normal init routine to setup the port, so we can't be
++ * in here too early.
++ */
++static int kgdbsci_init(void)
+ {
+-        struct sci_port *port = ptr;
+-        unsigned short status = sci_in(port, SCxSR);
++	struct termios termios;
+ 
+-        if (status & SCxSR_BRK(port)) {
++	memset(&termios, 0, sizeof(struct termios));
+ 
+-                /* Break into the debugger if a break is detected */
+-                BREAKPOINT();
++	termios.c_cflag = CREAD | HUPCL | CLOCAL | CS8;
++	switch (kgdbsci_baud) {
++	case 9600:
++		termios.c_cflag |= B9600;
++		break;
++	case 19200:
++		termios.c_cflag |= B19200;
++		break;
++	case 38400:
++		termios.c_cflag |= B38400;
++		break;
++	case 57600:
++		termios.c_cflag |= B57600;
++		break;
++	case 115200:
++		termios.c_cflag |= B115200;
++		break;
++	}
++	sci_set_termios(&KGDBPORT.port, &termios, NULL);
+ 
+-                /* Clear */
+-                sci_out(port, SCxSR, SCxSR_BREAK_CLEAR(port));
+-        }
++	return 0;
+ }
+ 
+-#endif /* CONFIG_SH_KGDB */
++struct kgdb_io kgdb_io_ops = {
++	.read_char = kgdbsci_read_char,
++	.write_char = kgdbsci_write_char,
++	.init = kgdbsci_init,
++#ifndef CONFIG_SERIAL_SH_SCI_CONSOLE
++	.late_init = kgdbsci_lateinit,
++#else /* ! CONFIG_SERIAL_SH_SCI_CONSOLE */
++	.late_init = NULL,
++#endif /* ! CONFIG_SERIAL_SH_SCI_CONSOLE */
++	.pre_exception = NULL,
++	.post_exception = NULL
++};
 +
 +/*
-+ *  Note that this register image is in a different order than
-+ *  the register image that Linux produces at interrupt time.
++ * Syntax for this cmdline option is "kgdbsci=ttyno,baudrate".
++ */
++static int __init
++kgdbsci_opt(char *str)
++{
++	/* We might have anywhere from 1 to 3 ports. */
++	if (*str < '0' || *str > SCI_NPORTS + '0')
++		 goto errout;
++	kgdbsci_ttySC = *str - '0';
++	str++;
++	if (*str != ',')
++		 goto errout;
++	str++;
++	kgdbsci_baud = simple_strtoul(str, &str, 10);
++	if (kgdbsci_baud != 9600 && kgdbsci_baud != 19200 &&
++	    kgdbsci_baud != 38400 && kgdbsci_baud != 57600 &&
++	    kgdbsci_baud != 115200)
++		 goto errout;
++
++	return 0;
++
++errout:
++	printk(KERN_ERR "Invalid syntax for option kgdbsci=\n");
++	return 1;
++}
++__setup("kgdbsci", kgdbsci_opt);
++#endif /* CONFIG_KGDB_SH_SCI */
+ 
+ #if defined(__H8300S__)
+ enum { sci_disable, sci_enable };
+@@ -541,6 +612,16 @@ static inline void sci_receive_chars(str
+ 					continue;
+ 				}
+ 
++#ifdef CONFIG_KGDB_SH_SCI
++				/* We assume that a ^C on the port KGDB
++				 * is using means that KGDB wants to
++				 * interrupt the running system.
++				 */
++				if (port->line == KGDBPORT.port.line &&
++						c == 3)
++					breakpoint();
++#endif
++
+ 				/* Store data and status */
+ 				tty->flip.char_buf_ptr[i] = c;
+ 				if (status&SCxSR_FER(port)) {
+@@ -1552,6 +1633,7 @@ static int __init sci_console_init(void)
+ console_initcall(sci_console_init);
+ #endif /* CONFIG_SERIAL_SH_SCI_CONSOLE */
+ 
++#if 0
+ #ifdef CONFIG_SH_KGDB
+ /*
+  * FIXME: Most of this can go away.. at the moment, we rely on
+@@ -1597,30 +1679,9 @@ int __init kgdb_console_setup(struct con
+ 	return uart_set_options(port, co, baud, parity, bits, flow);
+ }
+ #endif /* CONFIG_SH_KGDB */
++#endif /* 0 */
+ 
+-#ifdef CONFIG_SH_KGDB_CONSOLE
+-static struct console kgdb_console = {
+-        .name		= "ttySC",
+-        .write		= kgdb_console_write,
+-        .setup		= kgdb_console_setup,
+-        .flags		= CON_PRINTBUFFER | CON_ENABLED,
+-        .index		= -1,
+-	.data		= &sci_uart_driver,
+-};
+-
+-/* Register the KGDB console so we get messages (d'oh!) */
+-static int __init kgdb_console_init(void)
+-{
+-	register_console(&kgdb_console);
+-	return 0;
+-}
+-
+-console_initcall(kgdb_console_init);
+-#endif /* CONFIG_SH_KGDB_CONSOLE */
+-
+-#if defined(CONFIG_SH_KGDB_CONSOLE)
+-#define SCI_CONSOLE	&kgdb_console
+-#elif defined(CONFIG_SERIAL_SH_SCI_CONSOLE)
++#ifdef CONFIG_SERIAL_SH_SCI_CONSOLE
+ #define SCI_CONSOLE	&serial_console
+ #else
+ #define SCI_CONSOLE 	0
+@@ -1689,4 +1750,3 @@ static void __exit sci_exit(void)
+ 
+ module_init(sci_init);
+ module_exit(sci_exit);
+-
+Index: linux-2.6.13/include/asm-sh/kgdb.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-sh/kgdb.h
++++ linux-2.6.13/include/asm-sh/kgdb.h
+@@ -2,94 +2,41 @@
+  * May be copied or modified under the terms of the GNU General Public
+  * License.  See linux/COPYING for more information.
+  *
+- * Based on original code by Glenn Engel, Jim Kingdon,
+- * David Grothe <dave@gcom.com>, Tigran Aivazian, <tigran@sco.com> and
+- * Amit S. Kale <akale@veritas.com>
+- * 
+- * Super-H port based on sh-stub.c (Ben Lee and Steve Chamberlain) by
+- * Henry Bell <henry.bell@st.com>
+- * 
+- * Header file for low-level support for remote debug using GDB. 
++ * Based on a file that was modified or based on files by: Glenn Engel,
++ * Jim Kingdon, David Grothe <dave@gcom.com>, Tigran Aivazian <tigran@sco.com>,
++ * Amit S. Kale <akale@veritas.com>, sh-stub.c from Ben Lee and
++ * Steve Chamberlain, Henry Bell <henry.bell@st.com>
 + *
-+ *  Linux's register image is defined by struct pt_regs in ptrace.h.
-+ *  Just why GDB uses a different order is a historical mystery.
-+ */
-+#define _RAX	0
-+#define _RDX	1
-+#define _RCX	2
-+#define _RBX	3
-+#define _RSI	4
-+#define _RDI	5
-+#define _RBP	6
-+#define _RSP	7
-+#define _R8	8
-+#define _R9	9
-+#define _R10	10
-+#define _R11	11
-+#define _R12	12
-+#define _R13	13
-+#define _R14	14
-+#define _R15	15
-+#define _PC	16
-+#define _PS	17
-+
-+/* Number of bytes of registers.  */
-+#define NUMREGBYTES		((_PS+1)*8)
-+#define NUMCRITREGBYTES		(8 * 8)		/* 8 registers. */
-+
++ * Maintainer: Tom Rini <trini@kernel.crashing.org>
+  *
+  */
+ 
+ #ifndef __KGDB_H
+ #define __KGDB_H
+ 
+-#include <asm/ptrace.h>
+-
+-struct console;
++#include <asm-generic/kgdb.h>
++/* Based on sh-gdb.c from gdb-6.1, Glenn
++     Engel at HP  Ben Lee and Steve Chamberlain */
++#define NUMREGBYTES	112	/* 92 */
++#define NUMCRITREGBYTES	(9 << 2)
++#define BUFMAX		400
+ 
+-/* Same as pt_regs but has vbr in place of syscall_nr */
 +#ifndef __ASSEMBLY__
-+/* BUFMAX defines the maximum number of characters in inbound/outbound
-+ * buffers at least NUMREGBYTES*2 are needed for register packets, and
-+ * a longer buffer is needed to list all threads. */
-+#define BUFMAX			1024
-+#define BREAKPOINT()		asm("   int $3");
-+#define BREAK_INSTR_SIZE	1
+ struct kgdb_regs {
+         unsigned long regs[16];
+         unsigned long pc;
+         unsigned long pr;
+-        unsigned long sr;
+         unsigned long gbr;
++        unsigned long vbr;
+         unsigned long mach;
+         unsigned long macl;
+-        unsigned long vbr;
+-};
+-
+-/* State info */
+-extern char kgdb_in_gdb_mode;
+-extern int kgdb_done_init;
+-extern int kgdb_enabled;
+-extern int kgdb_nofault;	/* Ignore bus errors (in gdb mem access) */
+-extern int kgdb_halt;		/* Execute initial breakpoint at startup */
+-extern char in_nmi;		/* Debounce flag to prevent NMI reentry*/
+-
+-/* SCI */
+-extern int kgdb_portnum;
+-extern int kgdb_baud;
+-extern char kgdb_parity;
+-extern char kgdb_bits;
+-extern int kgdb_console_setup(struct console *, char *);
+-
+-/* Init and interface stuff */
+-extern int kgdb_init(void);
+-extern int (*kgdb_serial_setup)(void);
+-extern int (*kgdb_getchar)(void);
+-extern void (*kgdb_putchar)(int);
+-
+-struct kgdb_sermap {
+-	char *name;
+-	int namelen;
+-	int (*setup_fn)(struct console *, char *);
+-	struct kgdb_sermap *next;
++        unsigned long sr;
+ };
+-extern void kgdb_register_sermap(struct kgdb_sermap *map);
+-extern struct kgdb_sermap *kgdb_porttype;
+ 
+-/* Trap functions */
+-typedef void (kgdb_debug_hook_t)(struct pt_regs *regs); 
+-typedef void (kgdb_bus_error_hook_t)(void);
+-extern kgdb_debug_hook_t  *kgdb_debug_hook;
+-extern kgdb_bus_error_hook_t *kgdb_bus_err_hook;
+-
+-extern void breakpoint(void);
+-
+-/* Console */
+-struct console;
+-void kgdb_console_write(struct console *co, const char *s, unsigned count);
+-void kgdb_console_init(void);
+-
+-/* Prototypes for jmp fns */
+-#define _JBLEN 9
+-typedef        int jmp_buf[_JBLEN];
+-extern void    longjmp(jmp_buf __jmpb, int __retval);
+-extern int     setjmp(jmp_buf __jmpb);
+-
+-/* Variadic macro to print our own message to the console */
+-#define KGDB_PRINTK(...) printk("KGDB: " __VA_ARGS__)
+-
+-/* Forced breakpoint */
+-#define BREAKPOINT() do {                                     \
+-  if (kgdb_enabled) {                                         \
+-    asm volatile("trapa   #0xff");                            \
+-  }                                                           \
+-} while (0)
++#define BREAKPOINT()		asm("trapa #0xff");
++#define BREAK_INSTR_SIZE	2
 +#define CHECK_EXCEPTION_STACK()	1
 +#define CACHE_FLUSH_IS_SAFE	1
-+#endif				/* !__ASSEMBLY__ */
-+#endif				/* _ASM_KGDB_H_ */
-+#endif				/* __KERNEL__ */
-diff -puN include/asm-x86_64/system.h~x86_64-lite include/asm-x86_64/system.h
---- linux-2.6.13/include/asm-x86_64/system.h~x86_64-lite	2005-08-10 16:27:31.000000000 -0700
-+++ linux-2.6.13-trini/include/asm-x86_64/system.h	2005-08-10 16:27:31.000000000 -0700
-@@ -27,7 +27,9 @@
- 	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
  
- #define switch_to(prev,next,last) \
--	asm volatile(SAVE_CONTEXT						    \
-+       asm volatile(".globl __switch_to_begin\n\t"				    \
-+		     "__switch_to_begin:\n\t"					  \
-+		     SAVE_CONTEXT						  \
- 		     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
- 		     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
- 		     "call __switch_to\n\t"					  \
-@@ -39,6 +41,8 @@
- 		     "movq %%rax,%%rdi\n\t" 					  \
- 		     "jc   ret_from_fork\n\t"					  \
- 		     RESTORE_CONTEXT						    \
-+		     ".globl __switch_to_end\n\t"				  \
-+		     "__switch_to_end:\n\t"					  \
- 		     : "=a" (last)					  	  \
- 		     : [next] "S" (next), [prev] "D" (prev),			  \
- 		       [threadrsp] "i" (offsetof(struct task_struct, thread.rsp)), \
-diff -puN lib/Kconfig.debug~x86_64-lite lib/Kconfig.debug
---- linux-2.6.13/lib/Kconfig.debug~x86_64-lite	2005-08-10 16:27:31.000000000 -0700
-+++ linux-2.6.13-trini/lib/Kconfig.debug	2005-08-12 08:27:47.000000000 -0700
-@@ -163,7 +163,7 @@ config FRAME_POINTER
+ /* KGDB should be able to flush all kernel text space */
+ #if defined(CONFIG_CPU_SH4)
+@@ -102,30 +49,5 @@ extern int     setjmp(jmp_buf __jmpb);
+ #else
+ #define kgdb_flush_icache_range(start, end)	do { } while (0)
+ #endif
+-
+-/* Kernel assert macros */
+-#ifdef CONFIG_KGDB_KERNEL_ASSERTS
+-
+-/* Predefined conditions */
+-#define KA_VALID_ERRNO(errno) ((errno) > 0 && (errno) <= EMEDIUMTYPE)
+-#define KA_VALID_PTR_ERR(ptr) KA_VALID_ERRNO(-PTR_ERR(ptr))
+-#define KA_VALID_KPTR(ptr)  (!(ptr) || \
+-              ((void *)(ptr) >= (void *)PAGE_OFFSET &&  \
+-               (void *)(ptr) < ERR_PTR(-EMEDIUMTYPE)))
+-#define KA_VALID_PTRORERR(errptr) \
+-               (KA_VALID_KPTR(errptr) || KA_VALID_PTR_ERR(errptr))
+-#define KA_HELD_GKL()  (current->lock_depth >= 0)
+-
+-/* The actual assert */
+-#define KGDB_ASSERT(condition, message) do {                   \
+-       if (!(condition) && (kgdb_enabled)) {                   \
+-               KGDB_PRINTK("Assertion failed at %s:%d: %s\n",  \
+-                                  __FILE__, __LINE__, message);\
+-               BREAKPOINT();                                   \
+-       }                                                       \
+-} while (0)
+-#else
+-#define KGDB_ASSERT(condition, message)
+-#endif
+-
++#endif				/* !__ASSEMBLY__ */
+ #endif
+Index: linux-2.6.13/include/asm-sh/system.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-sh/system.h
++++ linux-2.6.13/include/asm-sh/system.h
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <asm/types.h>
+ 
+ /*
+  *	switch_to() should switch tasks to task nr n, first
+@@ -252,6 +253,45 @@ static __inline__ unsigned long __xchg(u
+ 	return x;
+ }
+ 
++static inline unsigned long __cmpxchg_u32(volatile int * m, unsigned long old,
++	unsigned long new)
++{
++	__u32 retval;
++	unsigned long flags;
++
++	local_irq_save(flags);
++	retval = *m;
++	if (retval == old)
++		*m = new;
++	local_irq_restore(flags);       /* implies memory barrier  */
++	return retval;
++}
++
++/* This function doesn't exist, so you'll get a linker error
++ * if something tries to do an invalid cmpxchg(). */
++extern void __cmpxchg_called_with_bad_pointer(void);
++
++#define __HAVE_ARCH_CMPXCHG	1
++
++static inline unsigned long __cmpxchg(volatile void * ptr, unsigned long old,
++		unsigned long new, int size)
++{
++	switch (size) {
++	case 4:
++		return __cmpxchg_u32(ptr, old, new);
++	}
++	__cmpxchg_called_with_bad_pointer();
++	return old;
++}
++
++#define cmpxchg(ptr,o,n)						 \
++  ({									 \
++     __typeof__(*(ptr)) _o_ = (o);					 \
++     __typeof__(*(ptr)) _n_ = (n);					 \
++     (__typeof__(*(ptr))) __cmpxchg((ptr), (unsigned long)_o_,		 \
++				    (unsigned long)_n_, sizeof(*(ptr))); \
++  })
++
+ /* XXX
+  * disable hlt during certain critical i/o operations
+  */
+Index: linux-2.6.13/lib/Kconfig.debug
+===================================================================
+--- linux-2.6.13.orig/lib/Kconfig.debug
++++ linux-2.6.13/lib/Kconfig.debug
+@@ -151,7 +151,7 @@ config DEBUG_FS
+ 
+ config FRAME_POINTER
+ 	bool "Compile the kernel with frame pointers"
+-	depends on DEBUG_KERNEL && ((X86 && !X86_64) || CRIS || M68K || M68KNOMMU || FRV || UML)
++	depends on DEBUG_KERNEL && ((X86 && !X86_64) || CRIS || M68K || M68KNOMMU || FRV || UML || SUPERH)
+ 	default y if DEBUG_INFO && UML
+ 	help
+ 	  If you say Y here the resulting kernel image will be slightly larger
+@@ -162,13 +162,13 @@ config FRAME_POINTER
+ config WANT_EXTRA_DEBUG_INFORMATION
+ 	bool
+ 	select DEBUG_INFO
+-	select FRAME_POINTER if X86 && !X86_64
++	select FRAME_POINTER if (X86 && !X86_64) || SUPERH
+ 	default n
+ 
  config KGDB
  	bool "KGDB: kernel debugging with remote gdb"
  	select WANT_EXTRA_DEBUG_INFORMATION
--	depends on DEBUG_KERNEL && (X86 || MIPS32 || IA64 || ((!SMP || BROKEN) && PPC32))
-+	depends on DEBUG_KERNEL && (X86 || MIPS32 || IA64 || X86_64 || ((!SMP || BROKEN) && PPC32))
+-	depends on DEBUG_KERNEL && (X86 || MIPS32 || IA64 || X86_64 || ((!SMP || BROKEN) && PPC32))
++	depends on DEBUG_KERNEL && (X86 || MIPS32 || (SUPERH && !SUPERH64) || IA64 || X86_64 || ((!SMP || BROKEN) && PPC32))
  	help
  	  If you say Y here, it will be possible to remotely debug the
  	  kernel using gdb. It is strongly suggested that you enable
-diff -puN arch/x86_64/kernel/setup.c~x86_64-lite arch/x86_64/kernel/setup.c
---- linux-2.6.13/arch/x86_64/kernel/setup.c~x86_64-lite	2005-08-10 16:27:31.000000000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/kernel/setup.c	2005-08-10 16:27:31.000000000 -0700
-@@ -525,6 +525,9 @@ void __init setup_arch(char **cmdline_p)
- {
- 	unsigned long kernel_end;
+@@ -232,6 +232,12 @@ config KGDB_SIBYTE
+ 	bool "KGDB: On the Broadcom SWARM serial port"
+ 	depends on MIPS && SIBYTE_SB1xxx_SOC
  
-+	early_setup_per_cpu_area();
-+	early_trap_init();
++config KGDB_SH_SCI
++	bool "KGDB: On SH SCI(F) serial port"
++	depends on SUPERH && SERIAL_SH_SCI
++	help
++	  Uses the SCI(F) serial port found on the board.
 +
-  	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
-  	drive_info = DRIVE_INFO;
-  	screen_info = SCREEN_INFO;
-diff -puN arch/x86_64/kernel/setup64.c~x86_64-lite arch/x86_64/kernel/setup64.c
---- linux-2.6.13/arch/x86_64/kernel/setup64.c~x86_64-lite	2005-08-10 16:27:31.000000000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/kernel/setup64.c	2005-08-10 16:27:31.000000000 -0700
-@@ -77,6 +77,16 @@ static int __init nonx32_setup(char *str
- }
- __setup("noexec32=", nonx32_setup);
+ endchoice
  
-+void __init early_setup_per_cpu_area(void)
-+{
-+	static char cpu0[PERCPU_ENOUGH_ROOM]
-+		__attribute__ ((aligned (SMP_CACHE_BYTES)));
-+	char *ptr = cpu0;
-+
-+	cpu_pda[0].data_offset = ptr - __per_cpu_start;
-+	memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
-+}
-+
- /*
-  * Great future plan:
-  * Declare PDA itself and support (irqstack,tss,pgd) as per cpu data.
-@@ -97,7 +107,9 @@ void __init setup_per_cpu_areas(void)
- 	for (i = 0; i < NR_CPUS; i++) { 
- 		char *ptr;
+ config KGDB_8250
+@@ -255,7 +261,7 @@ config KGDB_SIMPLE_SERIAL
  
--		if (!NODE_DATA(cpu_to_node(i))) {
-+		if (cpu_pda[i].data_offset)
-+			continue;
-+		else if (!NODE_DATA(cpu_to_node(i))) {
- 			printk("cpu with no node %d, num_online_nodes %d\n",
- 			       i, num_online_nodes());
- 			ptr = alloc_bootmem(size);
-diff -puN include/asm-x86_64/proto.h~x86_64-lite include/asm-x86_64/proto.h
---- linux-2.6.13/include/asm-x86_64/proto.h~x86_64-lite	2005-08-10 16:27:31.000000000 -0700
-+++ linux-2.6.13-trini/include/asm-x86_64/proto.h	2005-08-10 16:27:31.000000000 -0700
-@@ -10,6 +10,8 @@ struct pt_regs;
+ choice
+     	prompt "Debug serial port BAUD"
+-	depends on KGDB_8250
++	depends on KGDB_8250 || KGDB_SH_SCI
+ 	default KGDB_115200BAUD
+ 	help
+ 	  gdb and the kernel stub need to agree on the baud rate to be
+@@ -280,7 +286,7 @@ endchoice
  
- extern void get_cpu_vendor(struct cpuinfo_x86*);
- extern void start_kernel(void);
-+extern void early_trap_init(void);
-+extern void early_setup_per_cpu_area(void);
- extern void pda_init(int); 
+ choice
+ 	prompt "Serial port for KGDB"
+-	depends on KGDB_SIMPLE_SERIAL
++	depends on KGDB_8250 || KGDB_SH_SCI
+ 	default KGDB_PORT_0
  
- extern void early_idt_handler(void);
-diff -puN arch/x86_64/mm/fault.c~x86_64-lite arch/x86_64/mm/fault.c
---- linux-2.6.13/arch/x86_64/mm/fault.c~x86_64-lite	2005-08-12 08:28:51.000000000 -0700
-+++ linux-2.6.13-trini/arch/x86_64/mm/fault.c	2005-08-12 08:30:00.000000000 -0700
-@@ -516,6 +516,10 @@ no_context:
- 	if (is_errata93(regs, address))
- 		return; 
- 
-+	if (notify_die(DIE_PAGE_FAULT, "no context", regs, error_code, 14,
-+				SIGSEGV) == NOTIFY_STOP)
-+		return;
-+
- /*
-  * Oops. The kernel tried to access some bad page. We'll have to
-  * terminate things with extreme prejudice.
-_
+ config KGDB_PORT_0

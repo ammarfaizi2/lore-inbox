@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVH2PI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbVH2PRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbVH2PI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 11:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVH2PI1
+	id S1750933AbVH2PRe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 11:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVH2PRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 11:08:27 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:7694 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751203AbVH2PI0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 11:08:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WGydD0yvrclwcb4mOiwQV/UNpCWmGxIYQIbu7JXHnGzeJDiRKOreIzaBV3J3PoG8mKCrLnaMhjh7QD4j/D/J/LuUty6t6UAw6Vl4EPsxxuxGgEkL4+LlhWe7AZustClWC9V6eix6giusc2GrOhSKFAryDZJ4En8VrAf1zxanKxk=
-Message-ID: <9a874849050829080823cf452f@mail.gmail.com>
-Date: Mon, 29 Aug 2005 17:08:25 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Pete Popov <ppopov@mvista.com>
-Subject: Re: [PATCH 2/3] exterminate strtok - drivers/video/au1100fb.c
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1125327974.6104.12.camel@localhost.localdomain>
+	Mon, 29 Aug 2005 11:17:34 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:52419 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750933AbVH2PRd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 11:17:33 -0400
+Date: Mon, 29 Aug 2005 17:18:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: 2.6.13-rt1
+Message-ID: <20050829151808.GF19666@elte.hu>
+References: <20050829084829.GA23176@elte.hu> <1125327876.22339.0.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200508242108.32885.jesper.juhl@gmail.com>
-	 <1124950581.14435.978.camel@localhost.localdomain>
-	 <9a8748490508290443ab7cd62@mail.gmail.com>
-	 <1125326968.6104.4.camel@localhost.localdomain>
-	 <9a8748490508290800bba68c1@mail.gmail.com>
-	 <1125327974.6104.12.camel@localhost.localdomain>
+In-Reply-To: <1125327876.22339.0.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/29/05, Pete Popov <ppopov@mvista.com> wrote:
-> > Then I must be blind, because I still see the old strtok() using code
-> > in there :
+
+* Daniel Walker <dwalker@mvista.com> wrote:
+
+> On Mon, 2005-08-29 at 10:48 +0200, Ingo Molnar wrote:
 > 
-> You must be looking at kernel.org. I'm talking about linux-mips.  Any
-
-Yes, I was looking at 2.6.13 from kernel.org. 
-
-> linux mips patches should go through linux-mips.org and Ralf eventually
-> gets them into kernel.org.
+> > 
+> >  - x86_64 boot fix (Daniel Walker)
 > 
-Ohh, ok.  No problem then :)
+> Ingo, Did this work for you?
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+nope, it's a UP box.
+
+	Ingo

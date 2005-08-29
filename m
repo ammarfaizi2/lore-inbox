@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVH2Ixl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbVH2Iyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbVH2Ixl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 04:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVH2Ixl
+	id S1750848AbVH2Iyr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 04:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbVH2Iyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 04:53:41 -0400
-Received: from ns.firmix.at ([62.141.48.66]:52944 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750778AbVH2Ixl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 04:53:41 -0400
-Subject: Re: syscall: sys_promote
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org,
-       dhommel@gmail.com
-In-Reply-To: <4312C45D.4050801@fc-cn.com>
-References: <20050826092537.GA3416@localhost.localdomain>
-	 <20050826124738.GD28640@harddisk-recovery.com> <4312873F.8060006@fc-cn.com>
-	 <1125302028.4882.10.camel@tara.firmix.at> <4312C45D.4050801@fc-cn.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Mon, 29 Aug 2005 10:53:28 +0200
-Message-Id: <1125305608.4882.28.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Aug 2005 04:54:47 -0400
+Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:34224 "EHLO
+	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id S1750848AbVH2Iyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 04:54:46 -0400
+Date: Mon, 29 Aug 2005 10:59:47 +0200 (CEST)
+From: Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] IBM HDAPS accelerometer driver.
+In-Reply-To: <20050829083552.GD28077@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0508291057400.27754@fachschaft.cup.uni-muenchen.de>
+References: <1125069494.18155.27.camel@betsy> <20050827124148.GE1109@openzaurus.ucw.cz>
+ <Pine.LNX.4.62.0508280453320.13233@artax.karlin.mff.cuni.cz>
+ <20050828080959.GB2039@elf.ucw.cz> <Pine.LNX.4.62.0508282109040.1489@artax.karlin.mff.cuni.cz>
+ <20050829083552.GD28077@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-29 at 16:16 +0800, Coywolf Qi Hunt wrote:
-> Bernd Petrovitsch wrote:
-[...]
-> >(almost) every tool may become a security problem.
-> >If you fear a bug in sudo, then write a minimal setuid wrapper for
-> >yourself which checks for the user it started and exec's a binary (with
-> >the full path name specified).
-> >And even then - dependent on other details of the setup - you have the
-> >gap of security problems (or misuse) because of holes in the security.
-> 
-> But if we make sure a tool doesn't introduce any new secrutiy problem, 
-> that's good enough.
 
-ACK. That's basically the idea behind "write 15 lines of C code and be
-absolutely sure that there is no problem in there".
 
-[...]
-> >What does the user do if the process terminates (for whatever reason)
-> >and must be restarted by the user (manually or auutomatically)?
-> 
-> If we worry that, we'd make a persistent OS instead.
-> 
-> >Basically I can see no need for "one time in history" actions. A daemon
-> >can terminate and must be restarted (it may even be a software bug that
-> >causes this and this doesn't change anything that the daemon's admin
-> >must restart it *now*). The machine may reboot for whatever reason .... 
-> 
-> The US space shuttle certainly can auto pilot, so it doesn't need a 
-> control panel.
-> And If anything fails, NASA  just launch another ship?
+On Mon, 29 Aug 2005, Pavel Machek wrote:
 
-I didn't realize that you are working on (one-time) Space Shuttle
-software.
-I assumed average servers, services and environment ....
+> Hi!
+> 
+> > >>I think he doesn't need to export it at all and he should write code to
+> > >>park and disable hard disk instead.
+> > >>(in userspace it's unsolvable --- i.e. you can't enable hard disk when
+> > >>detected stable condition if the daemon is swapped out on that hard disk)
+> > >
+> > >man mlockall() :-).
+> > 
+> > You also must not use any syscall that allocates even temporary memory in 
+> > kernel (select, poll, many others ...) or that waits on semaphore that 
+> > might be held while allocating memory (i.e. audit and rewrite ide ioctl 
+> > path).
+> 
+> Kernel module would have exactly same problem.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+It has control of its memory allocations.
+ 
+> > And you need extra flags to protect the daemon from being killed at 
+> > shutdown or blocked at suspend.
+> 
+> Why?
+
+Because the disk must be unlocked even if the laptop falls down while
+a suspension or shutdown are under way.
+And it should work until the heads are parked anyway.
+
+	Regards
+		Oliver
 

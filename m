@@ -1,67 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbVH2Rag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbVH2R37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbVH2Rag (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVH2Rag
+	id S1751150AbVH2R37 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbVH2R37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:30:36 -0400
-Received: from xproxy.gmail.com ([66.249.82.193]:59858 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751151AbVH2Rag convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:30:36 -0400
+	Mon, 29 Aug 2005 13:29:59 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:51429 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751150AbVH2R36 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 13:29:58 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BDGNntMt567GVkotfphlJzUw1uFzs3t6aojybaLwRs9rJPETOYeSxyZ6QEbRMk0Bb0GXaE9knst4BBguUto6CsLYS8fyy4L3aNuf3TFWqOt9lCoOY6SGdqaHnVPJcEKCl/Z0T6rW7Jms2hZE+EFvlTfUocbp3GZ415z8ujxeAXc=
-Message-ID: <ec92bc305082910305844e3b5@mail.gmail.com>
-Date: Mon, 29 Aug 2005 23:00:35 +0530
-From: Anshuman Gholap <anshu.pg@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: re: ppp_mppe+pptp for 2.6.14?
-In-Reply-To: <ec92bc305082910272da17f87@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=PrGZQpPeKnjRaFDs15+CcMf/0V0YyvIPh6dLNQOLcs255zaUMzvAh+/pF4z3JcbrujNIS66EOklquKoIqqaxfkEGMjH+HnFVD0a01XGJCXqr5HrGFBgirI2CmESoNQnIOZkzFDHA9DsVH+wInjpq65SoWep4CNQnpCux5JzBWIw=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Chris Zankel <chris@zankel.net>
+Subject: [PATCH] convert verify_area to access_ok in xtensa/kernel/signal.c
+Date: Mon, 29 Aug 2005 19:31:00 +0200
+User-Agent: KMail/1.8.2
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <431341F4.8010200@gentoo.org>
-	 <ec92bc305082910272da17f87@mail.gmail.com>
+Message-Id: <200508291931.00764.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------- Forwarded message ----------
-From: Anshuman Gholap <anshu.pg@gmail.com>
-Date: Aug 29, 2005 10:57 PM
-Subject: Re: ppp_mppe+pptp for 2.6.14?
-To: Daniel Drake <dsd@gentoo.org>
 
-I might die by excitement if this is implemented :D. 
-
-for years and years i am waiting for some inbuilt solution to this . 
-
-here is my saga on a forum 
-http://www.neowin.net/forum/index.php?showtopic=318733&view=findpost&p=585899290
-
-regards,
-anshuman gholap
-hosting server admin 
-india.
+verify_area() is deprecated and has been for quite a while.
+I thought I had cleaned up all users and was planning to submit the final
+patches to get rid of it completely, but when I did a final check I found 
+that xtensa has been added after my initial cleanup and it still uses 
+verify_area(), so we have to get that cleaned up before I can get on with 
+the final verify_area removal.
 
 
-On 8/29/05, Daniel Drake  <dsd@gentoo.org> wrote:
-> Hi,
-> 
-> If there are no known issues it would be nice to push this for inclusion in 
-> 2.6.14. The relevant patches from -mm are named
-> ppp_mppe-add-ppp-mppe-encryption-module.patch and
-> ppp_mppe-add-ppp-mppe-encryption-module-update.patch
-> 
-> Judging by the feedback I get from Gentoo users, there is high demand for this :) 
-> 
-> Thanks,
-> Daniel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
->  More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+This patch converts all uses of verify_area() in xtensa/kernel/signal.c to 
+use access_ok() instead.
+
+Please apply.
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+diff -upr -X ./linux-2.6.13/Documentation/dontdiff linux-2.6.13-orig/arch/xtensa/kernel/signal.c linux-2.6.13/arch/xtensa/kernel/signal.c
+--- linux-2.6.13-orig/arch/xtensa/kernel/signal.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/arch/xtensa/kernel/signal.c	2005-08-29 03:40:12.000000000 +0200
+@@ -104,7 +104,7 @@ sys_sigaction(int sig, const struct old_
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -116,7 +116,7 @@ sys_sigaction(int sig, const struct old_
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+@@ -236,7 +236,7 @@ restore_sigcontext(struct pt_regs *regs,
+ 	err |= __copy_from_user (regs->areg, sc->sc_areg, XCHAL_NUM_AREGS*4);
+ 	err |= __get_user(buf, &sc->sc_cpstate);
+ 	if (buf) {
+-		if (verify_area(VERIFY_READ, buf, sizeof(*buf)))
++		if (!access_ok(VERIFY_READ, buf, sizeof(*buf)))
+ 			goto badframe;
+ 		err |= restore_cpextra(buf);
+ 	}
+@@ -357,7 +357,7 @@ asmlinkage int sys_sigreturn(struct pt_r
+ 	if (regs->depc > 64)
+ 		panic ("Double exception sys_sigreturn\n");
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 
+ 	if (__get_user(set.sig[0], &frame->sc.oldmask)
+@@ -394,7 +394,7 @@ asmlinkage int sys_rt_sigreturn(struct p
+ 		return 0;
+ 	}
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))

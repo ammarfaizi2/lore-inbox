@@ -1,88 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVH2V0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbVH2Vsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbVH2V0H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 17:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVH2VYi
+	id S1751312AbVH2Vsw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 17:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbVH2Vsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 17:24:38 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:1864 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751318AbVH2VYG (ORCPT
+	Mon, 29 Aug 2005 17:48:52 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:51206 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751310AbVH2Vsv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 17:24:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=N5Ve1Ztn7sisvUXnSUHAd0QsDxLpSsxjsYPQW9sUnf7a+PaBEQoiqiashDqzUoRIVoABhy+XZBV1OU1YNBV57ngQK6rKeZW+y0Iov8jsjfWAbMCeq72EY6yVQogVNFopZciTijImoUa2vdSFnLBsyUKtaErvyqCVjBO1S/L6TNA=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2/3] remove verify_area() - remove or edit references to verify_area in Documentation/
-Date: Mon, 29 Aug 2005 23:25:07 +0200
-User-Agent: KMail/1.8.2
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Aug 2005 17:48:51 -0400
+Date: Mon, 29 Aug 2005 17:48:30 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [patch 2.6.13] x86_64: implement dma_sync_single_range_for_{cpu,device}
+Message-ID: <20050829214828.GA6314@tuxdriver.com>
+Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+	discuss@x86-64.org
+References: <20050829200916.GI3716@tuxdriver.com> <200508292254.53476.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508292325.07967.jesper.juhl@gmail.com>
+In-Reply-To: <200508292254.53476.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 29, 2005 at 10:54:53PM +0200, Andi Kleen wrote:
+> On Monday 29 August 2005 22:09, John W. Linville wrote:
+> > Implement dma_sync_single_range_for_{cpu,device}, based on curent
+> > implementations of dma_sync_single_for_{cpu,device}.
+> 
+> Hmm, who or what needs that? It doesn't seem to be documented
+> in Documentation/DMA* and I also don't remember seeing any 
+> discussion of it.
 
-Remove (or edit) remaining references to the now dead verify_area() function
-from files in Documentation/.
+In Documentation/DMA-API.txt it is still referred to as
+dma_sync_single_range.  I imagine the *_for_{cpu,device} stuff got added
+at about the same time as it did for dma_sync_single, dma_sync_sg,
+and the like.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+These calls are implemented for basically all the other arches.
+And, except for the noted *_for_{cpu,device} discrepancies, these are
+documented in Documentation/DMA-API.txt.  It definitely seems to be
+an unfortunate omission from include/asm-x86_64/dma-mapping.h.
 
- Documentation/cdrom/sonycd535              |    3 ++-
- Documentation/exception.txt                |    2 +-
- Documentation/feature-removal-schedule.txt |    8 --------
- 3 files changed, 3 insertions(+), 10 deletions(-)
+As for who needs it, well, I suppose I do.  I want to use that API
+in a patch I'm working-on.  No one will want to merge my patch if it
+will not compile on x86_64... :-(
 
-diff -upr -X ./linux-2.6.13/Documentation/dontdiff linux-2.6.13-orig/Documentation/feature-removal-schedule.txt linux-2.6.13/Documentation/feature-removal-schedule.txt
---- linux-2.6.13-orig/Documentation/feature-removal-schedule.txt	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.13/Documentation/feature-removal-schedule.txt	2005-08-29 03:37:36.000000000 +0200
-@@ -74,14 +74,6 @@ Who:	Paul E. McKenney <paulmck@us.ibm.co
- 
- ---------------------------
- 
--What:	remove verify_area()
--When:	July 2006
--Files:	Various uaccess.h headers.
--Why:	Deprecated and redundant. access_ok() should be used instead.
--Who:	Jesper Juhl <juhl-lkml@dif.dk>
--
-----------------------------
--
- What:	IEEE1394 Audio and Music Data Transmission Protocol driver,
- 	Connection Management Procedures driver
- When:	November 2005
-diff -upr -X ./linux-2.6.13/Documentation/dontdiff linux-2.6.13-orig/Documentation/cdrom/sonycd535 linux-2.6.13/Documentation/cdrom/sonycd535
---- linux-2.6.13-orig/Documentation/cdrom/sonycd535	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.13/Documentation/cdrom/sonycd535	2005-08-29 03:36:21.000000000 +0200
-@@ -68,7 +68,8 @@ it a better device citizen.  Further tha
- Porfiri Claudio <C.Porfiri@nisms.tei.ericsson.se> for patches
- to make the driver work with the older CDU-510/515 series, and
- Heiko Eissfeldt <heiko@colossus.escape.de> for pointing out that
--the verify_area() checks were ignoring the results of said checks.
-+the verify_area() checks were ignoring the results of said checks
-+(note: verify_area() has since been replaced by access_ok()).
- 
- (Acknowledgments from Ron Jeppesen in the 0.3 release:)
- Thanks to Corey Minyard who wrote the original CDU-31A driver on which
-diff -upr -X ./linux-2.6.13/Documentation/dontdiff linux-2.6.13-orig/Documentation/exception.txt linux-2.6.13/Documentation/exception.txt
---- linux-2.6.13-orig/Documentation/exception.txt	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.13/Documentation/exception.txt	2005-08-29 03:37:19.000000000 +0200
-@@ -7,7 +7,7 @@ To protect itself the kernel has to veri
- 
- In older versions of Linux this was done with the 
- int verify_area(int type, const void * addr, unsigned long size) 
--function.
-+function (which has since been replaced by access_ok()).
- 
- This function verified that the memory area starting at address 
- addr and of size size was accessible for the operation specified 
+> If it's commonly used it might better to add new swiotlb_* 
+> functions that only copy the requested range.
 
+Perhaps...but I think that sounds more like a discussion of _how_ to
+implement the API, rather than _whether_ it should be implemented.
+Using some new variant of the swiotlb_* API might be appropriate
+for the x86_64 implementation.  But, since this is a portable API,
+I don't think calling the (apparently Intel-specific) swiotlb_*
+functions would be an appropriate replacement.
 
+I'd be happy to have do the implementation differently (or to have
+someone else do so).  Do you have specific suggestions for how to
+do so?
 
+Thanks,
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

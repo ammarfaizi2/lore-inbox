@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVH2Iet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVH2Ie6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbVH2Iet (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 04:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVH2Iet
+	id S1750736AbVH2Ie6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 04:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVH2Ie6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 04:34:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:33716 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750714AbVH2Ies (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 04:34:48 -0400
-Subject: Re: Oops in 2.4.30-hf2
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ake <Ake.Sandgren@hpc2n.umu.se>
+	Mon, 29 Aug 2005 04:34:58 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:11172 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750736AbVH2Ie5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 04:34:57 -0400
+Date: Mon, 29 Aug 2005 10:35:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050829082900.GB11312@hpc2n.umu.se>
-References: <20050829082900.GB11312@hpc2n.umu.se>
-Content-Type: text/plain
-Date: Mon, 29 Aug 2005 10:34:36 +0200
-Message-Id: <1125304476.3339.3.camel@laptopd505.fenrus.org>
+Subject: Re: 2.6.13-rc7-rt4, fails to build
+Message-ID: <20050829083541.GA21756@elte.hu>
+References: <1125277360.2678.159.camel@cmn37.stanford.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125277360.2678.159.camel@cmn37.stanford.edu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-29 at 10:29 +0200, Ake wrote:
-> I got the following Oops.
-> Known problem? Fix?
-> The kernel is a plain 2.4.30-hf2
 
-> EIP:    0010:[<f890e708>]    Tainted: PF
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 
-no it's not
+> I'm getting a build error for 2.6.13-rc7-rt4 with PREEMPT_DESKTOP for 
+> i386:
 
-it has at least some chunk in it that doesn't come from kernel.org or
-hf2
+hm, cannot reproduce this build problem on my current tree - could you 
+try 2.6.13-rt1? (and please send the 2.6.13-rt1 .config if it still 
+occurs)
 
-
+	Ingo

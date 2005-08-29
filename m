@@ -1,38 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751527AbVH2UOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751548AbVH2UOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751527AbVH2UOA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 16:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbVH2UOA
+	id S1751548AbVH2UOD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 16:14:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbVH2UOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 16:14:00 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:13475 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751524AbVH2UOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 16:14:00 -0400
-Subject: Re: Oops in 2.6.13 (was Linux 2.6.13 )
-From: Lee Revell <rlrevell@joe-job.com>
-To: Masoud Sharbiani <masouds@masoud.ir>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <43135295.6050205@masoud.ir>
-References: <Pine.LNX.4.58.0508281708040.3243@g5.osdl.org>
-	 <43135295.6050205@masoud.ir>
-Content-Type: text/plain
-Date: Mon, 29 Aug 2005 16:13:57 -0400
-Message-Id: <1125346437.4598.69.camel@mindpipe>
+	Mon, 29 Aug 2005 16:14:02 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:37134 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1751548AbVH2UOB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 16:14:01 -0400
+Message-Id: <200508292006.j7TK6vke029916@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: [PATCH 2/9] UML - Build cleanup
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.8 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 29 Aug 2005 16:06:57 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-29 at 14:23 -0400, Masoud Sharbiani wrote:
-> Sadly, with 2.6.13 (as in with 2.6.13-rc7), it crashes on boot, on a 
-> dual P3 machine
-> It works just fine when compiled UP.
-> This bug did NOT exist on 2.6.13-rc6 version.
+>From Al Viro - Build cleanups
 
-Did you discover this bug with 2.6.13-rc7 before 2.6.13 was released?
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Lee
+Index: linux-2.6.13-rc6/arch/um/Makefile
+===================================================================
+--- linux-2.6.13-rc6.orig/arch/um/Makefile	2005-08-15 12:03:04.000000000 -0400
++++ linux-2.6.13-rc6/arch/um/Makefile	2005-08-15 13:16:39.000000000 -0400
+@@ -56,6 +56,7 @@
+ 
+ CFLAGS += $(CFLAGS-y) -D__arch_um__ -DSUBARCH=\"$(SUBARCH)\" \
+ 	$(ARCH_INCLUDE) $(MODE_INCLUDE) -Dvmap=kernel_vmap
++AFLAGS += $(ARCH_INCLUDE)
+ 
+ USER_CFLAGS := $(patsubst -I%,,$(CFLAGS))
+ USER_CFLAGS := $(patsubst -D__KERNEL__,,$(USER_CFLAGS)) $(ARCH_INCLUDE) \
+Index: linux-2.6.13-rc6/arch/um/sys-i386/Makefile
+===================================================================
+--- linux-2.6.13-rc6.orig/arch/um/sys-i386/Makefile	2005-08-15 12:02:57.000000000 -0400
++++ linux-2.6.13-rc6/arch/um/sys-i386/Makefile	2005-08-15 13:16:55.000000000 -0400
+@@ -22,8 +22,6 @@
+ # why ask why?
+ $(obj)/stub_segv.o : c_flags = $(STUB_CFLAGS)
+ 
+-$(obj)/stub.o : a_flags = $(STUB_CFLAGS)
+-
+ subdir- := util
+ 
+ include arch/um/scripts/Makefile.unmap
+Index: linux-2.6.13-rc6/arch/um/sys-x86_64/Makefile
+===================================================================
+--- linux-2.6.13-rc6.orig/arch/um/sys-x86_64/Makefile	2005-08-15 12:03:02.000000000 -0400
++++ linux-2.6.13-rc6/arch/um/sys-x86_64/Makefile	2005-08-15 13:17:21.000000000 -0400
+@@ -34,8 +34,6 @@
+ # why ask why?
+ $(obj)/stub_segv.o : c_flags = $(STUB_CFLAGS)
+ 
+-$(obj)/stub.o : a_flags = $(STUB_CFLAGS)
+-
+ subdir- := util
+ 
+ include arch/um/scripts/Makefile.unmap
 

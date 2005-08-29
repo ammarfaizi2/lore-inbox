@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVH2SOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVH2SP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbVH2SOM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 14:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbVH2SOL
+	id S1751265AbVH2SP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 14:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbVH2SP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 14:14:11 -0400
-Received: from cramus.icglink.com ([66.179.92.18]:43649 "EHLO mx03.icglink.com")
-	by vger.kernel.org with ESMTP id S1751265AbVH2SOK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 14:14:10 -0400
-Date: Mon, 29 Aug 2005 13:14:03 -0500
-From: Phil Dier <phil@icglink.com>
-To: linux-kernel@vger.kernel.org
-Cc: Scott Holdren <scott@icglink.com>, ziggy <ziggy@icglink.com>,
-       Jack Massari <jack@icglink.com>
-Subject: Slow I/O with megaraid and u160 scsi jbod
-Message-Id: <20050829131403.21138526.phil@icglink.com>
-Organization: ICGLink
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.4.4; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 29 Aug 2005 14:15:28 -0400
+Received: from dns.toxicfilms.tv ([150.254.220.184]:56778 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S1751265AbVH2SP1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 14:15:27 -0400
+Date: Mon, 29 Aug 2005 20:15:26 +0200
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Mailer: The Bat! (v3.0) UNREG / CD5BF9353B3B7091
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <823755312.20050829201526@dns.toxicfilms.tv>
+To: Nick Warne <nick@linicks.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13 new option timer frequency
+In-Reply-To: <200508291857.15746.nick@linicks.net>
+References: <200508291857.15746.nick@linicks.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I've had luck with this patch[1] (it at least eliminated the oopses
-I was getting), but now I'm having a different sort of problem with
-my setup[2] (the 2.6.13 release exhibits this behaviour as well). I
-have 2 u160 scsi jbods connected to this machine[3]. One is connected
-to an Adaptec card, and the other is connected to the Fusion MPT card
-(megaraid). All of the disks connected to the Adaptec card work fine,
-but when doing I/O on disks 2 and 3 on the megaraid card, it stalls
-considerably. When trying to sync a RAID1 device using the 4 148GB
-disks, the sync speed never goes above 2KB/s. When they finally get
-synched, IO stalls constantly. Watching with iostat confirms this. I've
-formatted the disks in question with a single JFS partition and they
-still exhibit this behaviour when used by themselves. I have verified
-that this behaviour is not present up until at least 2.6.12.3. Let me
-know what info I can collect that would be helpful.. Thanks.
+> Two n00b questions here:
+> What does this do/what is it for?
+I'm no guru, but its something like the resolution of the timer the kernel
+runs. More Hz give you shorter timeslices and lower latency. Lower give
+longer timeslices and higher latency.
+
+Anybody please correct me if I am wrong here.
+
+> I selected default, 250Hz.  If this is now an option, what was it before?
+AFAIK previously we've had here 1000Hz.
 
 
+Basically, for a server you'd want 100.
+For a desktop 250
+For a low-latency (eg. working on audio) you'd want 1000
 
-[1] http://www.ussg.iu.edu/hypermail/linux/kernel/0508.1/1952.html
-[2] http://www.icglink.com/debug-2.6.13-rc6.html
-[3] Diagram:
+Again, correct me if I am wrong.
 
-+---------+
-| Adaptec |
-+---------+
-     |
-+-------+-------+-------+-------+-------+
-| id: 0 | id: 1 | id: 2 | id: 3 | id: 4 |
-| 73GB  | 73GB  | 148GB | 148GB | 73GB  |
-+-------+-------+-------+-------+-------+
+Regards,
+Maciej
 
-+----------+
-| megaraid |
-+----------+
-     |
-+-------+-------+-------+-------+-------+
-| id: 0 | id: 1 | id: 2 | id: 3 | id: 4 |
-| 73GB  | 73GB  | 148GB | 148GB | 73GB  |
-+-------+-------+-------+-------+-------+
 
--- 
-
-Phil Dier (ICGLink.com -- 615 370-1530 x733)
-
-/* vim:set noai nocindent ts=8 sw=8: */

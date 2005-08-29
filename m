@@ -1,196 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVH2GnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVH2HEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbVH2GnS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 02:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVH2GnS
+	id S1750754AbVH2HEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 03:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbVH2HEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 02:43:18 -0400
-Received: from web8510.mail.in.yahoo.com ([202.43.219.172]:5055 "HELO
-	web8510.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S1750735AbVH2GnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 02:43:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=4yTC97tWkCmOt9K/ckpOfGN/qkZbLAYJzlDvic52nhICUwoozw/fojmQGaorru38gBWo9FheHwmTy0jH1PU5Ncdw70Ha1pYCsGs1w1dX2KbB9NioDM4H5oZ0D6XkzuPso5PJ44l+9KVrqP/JAa01TVj8B//LPyrLI9MPzt+EFHk=  ;
-Message-ID: <20050829064308.33986.qmail@web8510.mail.in.yahoo.com>
-Date: Mon, 29 Aug 2005 07:43:08 +0100 (BST)
-From: manomugdha biswas <manomugdhab@yahoo.co.in>
-Subject: kernel panic
+	Mon, 29 Aug 2005 03:04:15 -0400
+Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:63105 "EHLO
+	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750754AbVH2HEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 03:04:15 -0400
+From: Con Kolivas <kernel@kolivas.org>
 To: linux-kernel@vger.kernel.org
+Subject: 2.6.13-ck1
+Date: Mon, 29 Aug 2005 17:03:24 +1000
+User-Agent: KMail/1.8.2
+Cc: ck list <ck@vds.kolivas.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1824763413-1125297788=:32985"
-Content-Transfer-Encoding: 8bit
+X-Length: 4943
+Content-Type: multipart/signed;
+  boundary="nextPart20464847.XKIZK5kTBu";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200508291703.26529.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1824763413-1125297788=:32985
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
+--nextPart20464847.XKIZK5kTBu
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi,
-I am using the following makefile and the .c file to
-generate a kernel module. I can load this module
-without error and warning. But when I call ioctl()
-from user application to run this module it gets
-kernel panic!
-
-I am using redhat 9.0 and kernel 2.4.20-8.
-
-testmngmnt.c:
-=============
-This file has been attached with this mail.
-
-Makefile:
-=========
-# set the approriate value for additional cflags
-GCC_VER := $(strip $(shell gcc -dumpversion))
-XTRA_CFLAGS =
-ifeq ($(GCC_VER), 3.2.2)
-XTRA_CFLAGS = -DRH_9_0
-endif # GCC_VER
-ifeq ($(GCC_VER), 3.2.3)
-XTRA_CFLAGS = -DRH_9_0
-endif # GCC_VER
-                                                      
-                         
-CC  = gcc
-LD  = ld
-LDFLAG = -r
-LINUX_VERSION = linux-$(shell uname -r)
-                                                      
-                         
-CFLAGS  = -g  -Wall -DMODULE -O2 -D__KERNEL__
-$(XTRA_CFLAGS) -DLINK_ETHERNET \
-    -I/usr/src/$(LINUX_VERSION)/include -I${INCLUDE}
--D__DEBUG__
-                                                      
-                         
-dvr_objs = testmngmnt.o
-                                                      
-                         
-                                                      
-                         
-test.o: ${dvr_objs}
-  ld -X -r -o test.o ${dvr_objs} ; \
-                                                      
-                         
-testmngmnt.o:  testmngmnt.c
-  ${CC} ${CFLAGS} -c testmngmnt.c
-                                                      
-                         
-clean:
-  rm -f *.o *~ include/*~
-                                                      
-                         
-all: test.o
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck* patch is aimed at th=
+e=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
 
+Apply to 2.6.13
+http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1.bz2
+or development version:
+http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1+.bz2
 
-Kernel panic dump:
-==================
-Unable to handle kernel NULL pointer dereference at
-virtual address 00000005
- printing eip:
-c0118ffd
-*pde = 00000000
-Oops: 0002
-test soundcore ide-cd cdrom i830 agpgart parport_pc lp
-parport cisco_ipsec autofs 8139too mii keybdev
-mousedev hid input usb-uhci ehci-hcd usbcore ext3 jbd
-CPU:    0
-EIP:    0060:[<c0118ffd>]    Tainted: P
-EFLAGS: 00210086
- 
-EIP is at interruptible_sleep_on_timeout [kernel] 0x2d
-(2.4.20-8)
-eax: f4f31f78   ebx: 00200286   ecx: f4f31f50   edx:
-00000001
-esi: 00000002   edi: f5050300   ebp: f4f31f60   esp:
-f4f31f48
-ds: 0068   es: 0068   ss: 0068
-Process vnicClientMirro (pid: 4971,
-stackpage=f4f31000)
-Stack: 00000000 f4f30000 f5113980 f5113980 0000001d
-00000000 f4f31f90 f8fe60b8
-       f8fe615c 0000001d f5113fa4 f5113700 00000001
-f4f31f7c f4f31f7c 00000000
-       00000002 ffffffe7 00000003 c01566e9 bfffd880
-f5050300 00000000 bfffd880
-Call Trace:   [<f8fe60b8>] VNICClientStart [test] 0x58
-(0xf4f31f64))
-[<f8fe615c>] .rodata.str1.1 [test] 0x2c (0xf4f31f68))
-[<c01566e9>] sys_ioctl [kernel] 0xc9 (0xf4f31f94))
-[<c0109537>] system_call [kernel] 0x33 (0xf4f31fc0))
- 
- 
-Code: 89 4a 04 89 55 f0 89 45 f4 89 08 89 f0 e8 a1 cb
-00 00 89 c6
-
-Could you please give some light on this issue?
-
-Regards,
-Manomugdhab
-
-Manomugdha Biswas
+or server version:
+http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1-server=
+=2Ebz2
 
 
-		
-_______________________________________________________ 
-Too much spam in your inbox? Yahoo! Mail gives you the best spam protection for FREE! http://in.mail.yahoo.com
---0-1824763413-1125297788=:32985
-Content-Type: application/octet-stream; name="testmngmnt.c"
-Content-Transfer-Encoding: base64
-Content-Description: 3024876882-testmngmnt.c
-Content-Disposition: attachment; filename="testmngmnt.c"
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
 
-LyoKICAKICBDb3B5cmlnaHQgKGMpIEl4aWEgMjAwMy0yMDA1CiAgQWxsIHJp
-Z2h0cyByZXNlcnZlZC4KCiovCiNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4K
-I2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgojaW5jbHVkZSA8bGludXgva2Vy
-bmVsLmg+CiNpbmNsdWRlIDxsaW51eC9pbml0Lmg+CiNpbmNsdWRlIDxsaW51
-eC9zY2hlZC5oPgojaW5jbHVkZSA8bmV0L3RjcC5oPgojaW5jbHVkZSA8bGlu
-dXgvc2tidWZmLmg+CiNpbmNsdWRlIDxhc20vdWFjY2Vzcy5oPgojaW5jbHVk
-ZSA8bGludXgvbmV0ZGV2aWNlLmg+CgoKaW50ICAgICAgICAgICAgICAgICBz
-Q2xpZW50TWFqb3JOdW0gPSAwOwpzdGF0aWMgaW50IFZOSUNDbGllbnRJb2N0
-bChzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlsZSwKICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgdW5zaWduZWQgaW50IGNtZCwgdW5z
-aWduZWQgbG9uZyBhcmcpOwoKc3RhdGljIGludCBWTklDQ2xpZW50U3RhcnQo
-dW5zaWduZWQgbG9uZyBhcmcpOwoKc3RhdGljIHN0cnVjdCBmaWxlX29wZXJh
-dGlvbnMgVk5JQ0ZvcHMgPSB7CiAgICAgICAgb3duZXI6ICAgICAgICAgIFRI
-SVNfTU9EVUxFLAogICAgICAgIGlvY3RsOiAgICAgICAgICBWTklDQ2xpZW50
-SW9jdGwKfTsKCnN0YXRpYyBpbnQKVk5JQ0NsaWVudFN0YXJ0KHVuc2lnbmVk
-IGxvbmcgYXJnKQp7CiAgdW5zaWduZWQgaW50ICAgICAgICAgICAgICAgcmV0
-cnlDbnQgICA9IDMwOwogIERFQ0xBUkVfV0FJVF9RVUVVRV9IRUFEKHdxKTsK
-ICBpbml0X3dhaXRxdWV1ZV9oZWFkKCZ3cSk7CiAgICAgIAogIHByaW50aygi
-XG5yZXRyeSBjb3VudCAtLS0tLSA6ICVkXG4iLCByZXRyeUNudCk7CiAgd2hp
-bGUgKHJldHJ5Q250KSB7CiAgICAtLXJldHJ5Q250OwogIHByaW50aygiXG5y
-ZXRyeSBjb3VudCA6ICVkXG4iLCByZXRyeUNudCk7CgogICBpZiAoIXJldHJ5
-Q250KSB7CiAgICAgcmV0dXJuIC0xOyAKICAgfSAKCiAgIC8qIHdhaXQgZm9y
-IHNtYWxsICovCiAgIHByaW50aygiXG4rKysrYmVmb3JlIHNsZWVwKysrXG4i
-KTsKICAgaW50ZXJydXB0aWJsZV9zbGVlcF9vbl90aW1lb3V0KCZ3cSwgMik7
-IAogICBwcmludGsoIlxuKysrK2FmdGVyIHNsZWVwKysrXG4iKTsKICB9IC8q
-IGVuZCB3aGlsZSAocmV0cnlDbnQpKi8KICByZXR1cm4gMDsgLyogZm9yIHN1
-Y2Nlc3MgKi8KfSAvKiBlbmQgVk5JQ0NsaWVudFN0YXJ0KCkgKi8KCnN0YXRp
-YyBpbnQKVk5JQ0NsaWVudElvY3RsKHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0
-cnVjdCBmaWxlICpmaWxlLAogICAgICAgICAgICAgIHVuc2lnbmVkIGludCBj
-bWQsIHVuc2lnbmVkIGxvbmcgYXJnKQp7CiAgCiAgc3dpdGNoIChjbWQpIHsK
-ICAgIC8vY2FzZSBWTklDX0NMSUVOVF9TVEFSVDoKICAgIGNhc2UgMDoKICAg
-ICAgcmV0dXJuIFZOSUNDbGllbnRTdGFydChhcmcpOwogICAgICBicmVhazsK
-ICAgIGRlZmF1bHQgOgogICAgICByZXR1cm4gMCA7CiAgICAgIGJyZWFrOwog
-IH0gLyogRW5kIG9mIHN3aXRjaCAqLwoKICByZXR1cm4gMDsgLyogVk5JQ19J
-T0NUTF9TVUNDRVNTICovCn0KCmludCBfX2luaXQKVk5JQ0NsaWVudE1vZHVs
-ZUluaXQodm9pZCkKewogIC8qIHJlZ2lzdGVyIHRoZSBjaGFyYWN0ZXIgZGV2
-aWNlICovCiAgc0NsaWVudE1ham9yTnVtID0gcmVnaXN0ZXJfY2hyZGV2KDAs
-ICJWTklDQ2xpZW50IiwgJlZOSUNGb3BzKTsKICBpZiAoc0NsaWVudE1ham9y
-TnVtIDwgMCkgewogICAgcmV0dXJuIC1FSU87CiAgfQogIHJldHVybiAwOwp9
-Cgp2b2lkIApWTklDQ2xpZW50TW9kdWxlQ2xlYW5VcCh2b2lkKQp7CiAgLyog
-dW5SZWdpdGVyIHRoZSBjaGFyYWN0ZXIgZGV2aWNlKCk7ICovCiAgdW5yZWdp
-c3Rlcl9jaHJkZXYoc0NsaWVudE1ham9yTnVtLCAiVk5JQ0NsaWVudCIpOwp9
-Cgptb2R1bGVfaW5pdChWTklDQ2xpZW50TW9kdWxlSW5pdCk7Cm1vZHVsZV9l
-eGl0KFZOSUNDbGllbnRNb2R1bGVDbGVhblVwKTsKCiNpZmRlZiBNT0RVTEVf
-TElDRU5TRQogIE1PRFVMRV9MSUNFTlNFKCJHUEwiKTsgCiNlbmRpZiAvKiBN
-T0RVTEVfTElDRU5TRSAqLwo=
 
---0-1824763413-1125297788=:32985--
+Changes since 2.6.12-ck6:
+
+Changed:
+ -2.6.12_to_staircase11.3.diff
+ +2.6.13_to_staircase12.diff
+Minor cleanups. Restore 10ms round robin intervals. 5ms, while giving bette=
+r=20
+interactive feel, caused problems on dual core amd64 and 250Hz (for=20
+reasons that I have yet to track down). The ck1+ patch has 5ms RR intervals.
+
+ -smp-nice-support6.diff
+ -smpnice6-smpnice7.diff
+ +smp-nice-support7.diff
+Rollup
+
+ -batch_ionice.diff
+ +isobatch_ionice2.diff
+Update the link between i/o priorities and SCHED_ISO
+
+ -mapped_watermark3.diff
+This has been replaced with the split out patches that build on this work:
+
+ +vm-mapped.diff
+Turn the "swappiness" knob into one with well defined semantics. Rename it
+"mapped" to correspond directly with the percentage of mapped ram or
+"applications" as users think of it. Currently the swappiness algorithm can
+easily lead to swapping situations on simple file copies due to the distress
+algorithm which too easily overrides the swappiness value. Add a
+"hardmaplimit" tunable, on by default, which only allows the vm to override
+the "mapped" tunable when distress is at its greatest to prevent false
+out-of-memory situations.
+
+ +vm-lots_watermark.diff
+The vm currently performs scanning when allocating ram once the watermarks
+are below the pages_low value and tries to restore them to the pages_high
+watermark. The disadvantage of this is that we are scanning most aggresssiv=
+ely
+at the same time we are allocating ram regardless of the stress the vm is
+under. Add a pages_lots watermark and allow the watermark to be relaxed
+according to the stress the vm is at the time (according to the priority
+value). Thus we have more in reserve next time we are allocating ram and end
+up scanning less aggresssively.
+
+
+Added:
+ +sched-iso3.1.patch
+Here is a complete rewrite of the SCHED_ISO code. Having dropped SCHED_ISO =
+in=20
+the stable series in preference for RT RLIMITS it was clear that there is=20
+still indication for SCHED_ISO for the following reasons:
+It provides real-time performance without risking starvation/DoS
+It is much easier to set up than RT RLIMITS without any knowledge and you c=
+an=20
+benefit from it without knowing anything about it (unprivileged tasks tryin=
+g=20
+to start real time get demoted to SCHED_ISO)
+Userspace support for it is here and now
+
+This version of SCHED_ISO is actually much more robust than the one in=20
+previous -ck kernels which just had a lowish latency version of SCHED_NORMA=
+L.=20
+SCHED_ISO tasks now actually run like real time tasks at the equivalent=20
+priority as nice -20 tasks unless they use more than 70% of the cpu for a=20
+rolling 3 second time period. Then they're demoted to behave like SCHED_NOR=
+MAL=20
+tasks.
+
+ +vm-background_scan.diff
+Add a background scanning timer to restore the watermarks to the pages_lots
+level and only call on it if kswapd has not been called upon for the last 5
+seconds. This allows us to balance all zones to the more generous pages_lots
+watermark at a time unrelated to page allocation thus leading to lighter
+levels of vm load when called upon under page allocation.
+
+ +pdflush-tweaks.patch
+The speed we write out dirty data to disk can clash with the average time d=
+isk=20
+journals write out. This tweaks it to write out dirty data slightly more=20
+frequently and minimise prolonged write starvation.
+
+ +hz-default_values.patch
+Hz is now configurable, so set some useful defaults as 250 is no good to=20
+either desktop or server. Set 1000 for most desktop architectures (or 100 i=
+n=20
+ck-server).
+
+ +2613ck1-version.diff
+Version
+
+
+Rolled into mainline or above patches or removed:
+ -cfq-2.6.12-mm1.patch
+ -sched-fix_up_build.patch
+ -cfq-ts-2.diff
+ -cfq-ts-4.diff
+ -s11.3_s11.4.diff
+ -s11.4_s11.6.diff
+ -patch-2.6.12.5.bz2
+ -2612ck6-version.diff
+
+
+In 2.6.13-ck1+ only:
+ +sched-staircase12_tweak.patch
+As mentioned above, set round robin intervals to 5ms (unsuitable on some=20
+hardware). Please try and if you have problems, email me with information.
+
+ +vm-swap-prefetch.patch
+This patch stores a list of ram that is put to swap and if the memory=20
+subsystem is idle for a time it starts swapping the ram pages back in gentl=
+y=20
+in the reverse order they went out. The idea is that when you come back to=
+=20
+your pc after it has been idle for a while, if any applications have been=20
+swapped out they should have swapped back in quietly. It does not delete th=
+e=20
+page entries from the swap so that if there is any stress, these pages can=
+=20
+effectively be swapped back out for free without further disk access. The=20
+patch is still new so has had limited testing only. Please test and report=
+=20
+back. This depends on the previous 2 vm patches to patch cleanly.
+
+
+=46ull patchlist:
+sched-run_normal_with_rt_on_sibling.diff
+2.6.13_to_staircase12.diff
+schedrange.diff
+schedbatch2.9.diff
+sched-iso3.1.patch
+smp-nice-support7.diff
+1g_lowmem1_i386.diff
+defaultcfq.diff
+isobatch_ionice2.diff
+rt_ionice.diff
+pdflush-tweaks.patch
+hz-default_values.patch
+vm-mapped.diff
+vm-lots_watermark.diff
+vm-background_scan.diff
+2613ck1-version.diff
+vm-swap-prefetch.patch
+sched-staircase12_tweak.patch
+
+
+Cheers,
+Con Kolivas
+
+--nextPart20464847.XKIZK5kTBu
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDErM+ZUg7+tp6mRURApyHAJ9iQ9xqGPVBXfnJn91mW9S4h/RWFgCcDojx
+eyrfma86kD3by2wAdEfnmpw=
+=heo3
+-----END PGP SIGNATURE-----
+
+--nextPart20464847.XKIZK5kTBu--

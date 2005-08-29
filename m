@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbVH2R46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVH2R53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbVH2R46 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVH2R46
+	id S1751264AbVH2R53 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbVH2R53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:56:58 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:11169 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751246AbVH2R4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:56:54 -0400
-Date: Mon, 29 Aug 2005 19:56:49 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 8/10] s390: compat system calls.
-Message-ID: <20050829175649.GH6796@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 Aug 2005 13:57:29 -0400
+Received: from mail.linicks.net ([217.204.244.146]:46855 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1751251AbVH2R50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 13:57:26 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.13 new option timer frequency
+Date: Mon, 29 Aug 2005 18:57:15 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+Message-Id: <200508291857.15746.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 8/10] s390: compat system calls.
+Hi all,
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+I built and installed 2.6.13 today, and oldconfig revealed the new option for 
+timer frequency.
 
-Use TIF bit to tell if a process is running in 31 bit mode instead of
-checking the addressing mode bits of the PSW.
+I searched the LKML on this, but all I found is the technical stuff - not 
+really any layman solutions.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Two n00b questions here:
 
-diffstat:
- arch/s390/kernel/entry64.S |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+What does this do/what is it for?
 
-diff -urpN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
---- linux-2.6/arch/s390/kernel/entry64.S	2005-08-29 19:18:06.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry64.S	2005-08-29 19:18:11.000000000 +0200
-@@ -214,8 +214,8 @@ sysc_nr_ok:
- sysc_do_restart:
- 	larl    %r10,sys_call_table
- #ifdef CONFIG_S390_SUPPORT
--        tm      SP_PSW+3(%r15),0x01  # are we running in 31 bit mode ?
--        jo      sysc_noemu
-+	tm	__TI_flags+5(%r9),(_TIF_31BIT>>16)  # running in 31 bit mode ?
-+	jno	sysc_noemu
- 	larl    %r10,sys_call_table_emu  # use 31 bit emulation system calls
- sysc_noemu:
- #endif
+I selected default, 250Hz.  If this is now an option, what was it before?
+
+Thanks,
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

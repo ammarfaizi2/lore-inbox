@@ -1,70 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbVH2QOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVH2QMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbVH2QOe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 12:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVH2QO3
+	id S1751281AbVH2QMf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 12:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVH2QMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 12:14:29 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:2482 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751285AbVH2QLQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 12:11:16 -0400
-Date: Mon, 29 Aug 2005 11:09:15 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-Message-ID: <20050829160915.GD12618@austin.ibm.com>
-References: <20050823231817.829359000@bilge> <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com> <1124898331.24668.33.camel@sinatra.austin.ibm.com> <20050824162959.GC25174@austin.ibm.com> <17165.3205.505386.187453@cargo.ozlabs.ibm.com> <20050825161325.GG25174@austin.ibm.com> <17170.44500.848623.139474@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17170.44500.848623.139474@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.9i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Mon, 29 Aug 2005 12:12:34 -0400
+Received: from fed1rmmtao04.cox.net ([68.230.241.35]:41098 "EHLO
+	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S1751289AbVH2QMJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 12:12:09 -0400
+Subject: [patch 16/16] Add hardware breakpoint support for i386
+Date: Mon, 29 Aug 2005 09:12:08 -0700
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org
+From: Tom Rini <trini@kernel.crashing.org>
+Message-Id: <resend.16.2982005.trini@kernel.crashing.org>
+In-Reply-To: <resend.15.2982005.trini@kernel.crashing.org>
+References: <resend.15.2982005.trini@kernel.crashing.org> <1.2982005.trini@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 29, 2005 at 04:40:20PM +1000, Paul Mackerras was heard to remark:
-> Linas Vepstas writes:
-> 
-> > Actually, no.  There are three issues:
-> > 1) hotplug routines are called from within kernel. GregKH has stated on
-> >    multiple occasions that doing this is wrong/bad/evil. This includes
-> >    calling hot-unplug.
-> > 
-> > 2) As a result, the code to call hot-unplug is a bit messy. In
-> >    particular, there's a bit of hoop-jumping when hotplug is built as
-> >    as a module (and said hoops were wrecked recently when I moved the
-> >    code around, out of the rpaphp directory).
-> 
-> One way to clean this up would be to make rpaphp the driver for the
-> EADS bridges (from the pci code's point of view).  
 
-I guess I don't understand what that means. Are you suggesting moving 
-pSeries_pci.c into the rpaphp code directory?
+This adds hardware breakpoint support for i386.  This is not as well tested as
+software breakpoints, but in some minimal testing appears to be functional.
 
-> Then it would
-> automatically get included in the error recovery process and could do
-> whatever it should.
+---
 
-John Rose, the current maintainer of the rpaphp code, is pretty militant 
-about removing things from, not adding things to, the rpaphp code.
-Which is a good idea, as chunks of that code are spaghetti, and do need
-simplification and cleanup.
+ linux-2.6.13-trini/arch/i386/kernel/kgdb.c |   49 +++++++++++++++++++++++++
+ 1 files changed, 49 insertions(+)
 
-> > 3) Hot-unplug causes scripts to run in user-space. There is no way to 
-> >    know when these scripts are done, so its not clear if we've waited
-> >    long enough before calling hot-add (or if waiting is even necessary).
-> 
-> OK, so let's just add a new hotplug event called KOBJ_ERROR or
-> something, which tells userspace that an error has occurred which has
-> made the device inaccessible.  Greg, would that be OK?
-
-Why do we need such an event?
-
-I would prefer to deprecate the hot-plug based recovery scheme.  This
-is for many reasons, including the fact that some devices that can get
-pci errors are soldered onto the planar, and are not hot-pluggable.
-
---linas
+diff -puN arch/i386/kernel/kgdb.c~i386 arch/i386/kernel/kgdb.c
+--- linux-2.6.13/arch/i386/kernel/kgdb.c~i386	2005-08-10 10:53:22.000000000 -0700
++++ linux-2.6.13-trini/arch/i386/kernel/kgdb.c	2005-08-10 10:53:22.000000000 -0700
+@@ -184,6 +184,54 @@ void kgdb_correct_hw_break(void)
+ 		asm volatile ("movl %0, %%db7\n"::"r" (dr7));
+ }
+ 
++int kgdb_remove_hw_break(unsigned long addr)
++{
++	int i, idx = -1;
++	for (i = 0; i < 4; i++) {
++		if (breakinfo[i].addr == addr && breakinfo[i].enabled) {
++			idx = i;
++			break;
++		}
++	}
++	if (idx == -1)
++		return -1;
++
++	breakinfo[idx].enabled = 0;
++	return 0;
++}
++
++void kgdb_remove_all_hw_break(void)
++{
++	int i;
++
++	for (i = 0; i < 4; i++) {
++		if (breakinfo[i].enabled) {
++			/* Do what? */
++			;
++		}
++		memset(&breakinfo[i], 0, sizeof(struct hw_breakpoint));
++	}
++}
++
++int kgdb_set_hw_break(unsigned long addr)
++{
++	int i, idx = -1;
++	for (i = 0; i < 4; i++) {
++		if (!breakinfo[i].enabled) {
++			idx = i;
++			break;
++		}
++	}
++	if (idx == -1)
++		return -1;
++
++	breakinfo[idx].enabled = 1;
++	breakinfo[idx].type = 1;
++	breakinfo[idx].len = 1;
++	breakinfo[idx].addr = addr;
++	return 0;
++}
++
+ void kgdb_disable_hw_debug(struct pt_regs *regs)
+ {
+ 	/* Disable hardware debugging while we are in kgdb */
+@@ -298,4 +346,5 @@ int kgdb_arch_init(void)
+ 
+ struct kgdb_arch arch_kgdb_ops = {
+ 	.gdb_bpt_instr = {0xcc},
++	.flags = KGDB_HW_BREAKPOINT,
+ };
+_

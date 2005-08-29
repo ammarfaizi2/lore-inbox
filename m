@@ -1,180 +1,694 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbVH2PmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVH2PoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbVH2PmT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 11:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbVH2PmS
+	id S1750972AbVH2PoX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 11:44:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbVH2PoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 11:42:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19129 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751070AbVH2PmS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 11:42:18 -0400
-Subject: util-linux: losetup -a
-From: Karel Zak <kzak@redhat.com>
-To: List linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Adrian Bunk <bunk@stusta.de>
+	Mon, 29 Aug 2005 11:44:23 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:18116 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750972AbVH2PoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 11:44:22 -0400
+Subject: [PATCH] convert signal handling of NODEFER to act like other Unix
+	boxes.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0508290744460.3243@g5.osdl.org>
+References: <Pine.LNX.4.58.0508281708040.3243@g5.osdl.org>
+	 <1125313050.5611.11.camel@localhost.localdomain>
+	 <1125317850.6496.7.camel@localhost> <43131AE9.7010802@gmail.com>
+	 <Pine.LNX.4.58.0508290744460.3243@g5.osdl.org>
 Content-Type: text/plain
-Date: Mon, 29 Aug 2005 17:44:56 +0200
-Message-Id: <1125330296.3391.34.camel@petra>
+Organization: Kihon Technologies
+Date: Mon, 29 Aug 2005 11:44:09 -0400
+Message-Id: <1125330249.5611.45.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
- Hi,
+This is the patch I sent earlier, and you said to send it soon after
+2.6.13 is released. I just applied it on 2.6.13 and it it applies fine.
+Again, I only tested this on the i386 since that is the only computer I
+currently have.
 
-attached losetup patch adds "-a" option that lists all used loop devices. 
+If someone else would like to submit this patch too, and take full
+credit for it feel free.  Keeps the blame from me ;-)
 
- # losetup -a
- /dev/loop0: [0305]:455455 (/boot/initrd-2.6.12-1.1385_FC4.root.img)
- /dev/loop1: [0305]:454285 (/boot/initrd-2.6.5-prep.img)
- /dev/loop5: [0305]:454282 (/boot/initrd-2.6.9-prep.img)
+Description:
 
+It has been reported that the way Linux handles NODEFER for signals is
+not consistent with the way other Unix boxes handle it.  I've written a
+program to test the behavior of how this flag affects signals and had
+several reports from people who ran this on various Unix boxes,
+confirming that Linux seems to be unique on the way this is handled.
 
-	Karel
+The way NODEFER affects signals on other Unix boxes is as follows:
 
+1) If NODEFER is set, other signals in sa_mask are still blocked.
 
---- util-linux-2.13-pre2/mount/lomount.c.all	2005-08-29 16:59:06.000000000 +0200
-+++ util-linux-2.13-pre2/mount/lomount.c	2005-08-29 17:17:49.000000000 +0200
-@@ -28,6 +28,8 @@
- extern char *xstrdup (const char *s);	/* not: #include "sundries.h" */
- extern void error (const char *fmt, ...);	/* idem */
+2) If NODEFER is set and the signal is in sa_mask, then the signal is
+still blocked. (Note: this is the behavior of all tested but Linux _and_
+NetBSD 2.0 *).
+
+The way NODEFER affects signals on Linux:
+
+1) If NODEFER is set, other signals are _not_ blocked regardless of
+sa_mask (Even NetBSD doesn't do this).
+
+2) If NODEFER is set and the signal is in sa_mask, then the signal being
+handled is not blocked.
+
+The patch converts signal handling in all current Linux architectures to
+the way most Unix boxes work.
+
+Unix boxes that were tested:  DU4, AIX 5.2, Irix 6.5, NetBSD 2.0, SFU
+3.5 on WinXP, AIX 5.3, Mac OSX, and of course Linux 2.6.13-rcX.
+
+* NetBSD was the only other Unix to behave like Linux on point #2. The
+main concern was brought up by point #1 which even NetBSD isn't like
+Linux.  So with this patch, we leave NetBSD as the lonely one that
+behaves differently here with #2.
+
+diff -urp linux-2.6.13-rc6-git4.orig/arch/alpha/kernel/signal.c linux-2.6.13-rc6-git4/arch/alpha/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/alpha/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/alpha/kernel/signal.c	2005-08-12 21:49:55.000000000 -0400
+@@ -566,13 +566,12 @@ handle_signal(int sig, struct k_sigactio
+ 	if (ka->sa.sa_flags & SA_RESETHAND)
+ 		ka->sa.sa_handler = SIG_DFL;
  
-+#define SIZE(a) (sizeof(a)/sizeof(a[0]))
-+
- #ifdef LOOP_SET_FD
- 
- static int
-@@ -128,6 +130,42 @@
- 	close (fd);
- 	return 1;
- }
-+
-+static int
-+show_used_loop_devices (void) {
-+	char dev[20];
-+	char *loop_formats[] = { "/dev/loop%d", "/dev/loop/%d" };
-+	int i, j, fd, permission = 0, somedev = 0;
-+	struct stat statbuf;
-+	struct loop_info loopinfo;
-+
-+	for (j = 0; j < SIZE(loop_formats); j++) {
-+	    for(i = 0; i < 256; i++) {
-+		sprintf(dev, loop_formats[j], i);
-+		if (stat (dev, &statbuf) == 0 && S_ISBLK(statbuf.st_mode)) {
-+			somedev++;
-+			fd = open (dev, O_RDONLY);
-+			if (fd >= 0) {
-+				if(ioctl (fd, LOOP_GET_STATUS, &loopinfo) == 0)
-+					show_loop(dev);
-+				close (fd);
-+				somedev++;
-+			} else if (errno == EACCES)
-+				permission++;
-+			continue; /* continue trying as long as devices exist */
-+		}
-+		break;
-+	    }
-+	}
-+
-+	if (somedev==0 && permission) {
-+		error(_("%s: no permission to look at /dev/loop#"), progname);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+
- #endif
- 
- int
-@@ -139,8 +177,6 @@
- 		major(statbuf.st_rdev) == LOOPMAJOR);
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER)) 
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
  }
  
--#define SIZE(a) (sizeof(a)/sizeof(a[0]))
--
- char *
- find_unused_loop_device (void) {
- 	/* Just creating a device, say in /tmp, is probably a bad idea -
-@@ -403,12 +439,13 @@
+ static inline void
+diff -urp linux-2.6.13-rc6-git4.orig/arch/arm/kernel/signal.c linux-2.6.13-rc6-git4/arch/arm/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/arm/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/arm/kernel/signal.c	2005-08-12 21:50:46.000000000 -0400
+@@ -658,11 +658,12 @@ handle_signal(unsigned long sig, struct 
+ 	/*
+ 	 * Block the signal if we were unsuccessful.
+ 	 */
+-	if (ret != 0 || !(ka->sa.sa_flags & SA_NODEFER)) {
++	if (ret != 0) {
+ 		spin_lock_irq(&tsk->sighand->siglock);
+ 		sigorsets(&tsk->blocked, &tsk->blocked,
+ 			  &ka->sa.sa_mask);
+-		sigaddset(&tsk->blocked, sig);
++		if (!(ka->sa.sa_flags & SA_NODEFER))
++			sigaddset(&tsk->blocked, sig);
+ 		recalc_sigpending();
+ 		spin_unlock_irq(&tsk->sighand->siglock);
+ 	}
+diff -urp linux-2.6.13-rc6-git4.orig/arch/arm26/kernel/signal.c linux-2.6.13-rc6-git4/arch/arm26/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/arm26/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/arm26/kernel/signal.c	2005-08-12 22:08:56.000000000 -0400
+@@ -454,14 +454,13 @@ handle_signal(unsigned long sig, siginfo
+ 		if (ka->sa.sa_flags & SA_ONESHOT)
+ 			ka->sa.sa_handler = SIG_DFL;
  
- static void
- usage(void) {
--	fprintf(stderr, _("usage:\n\
--  %s loop_device                                       # give info\n\
--  %s -d loop_device                                    # delete\n\
--  %s -f                                                # find unused\n\
--  %s [-e encryption] [-o offset] {-f|loop_device} file # setup\n"),
--		progname, progname, progname, progname);
-+	fprintf(stderr, _("usage:\n"
-+  "  %1$s loop_device                                       # give info\n"
-+  "  %1$s -d loop_device                                    # delete\n"
-+  "  %1$s -f                                                # find unused\n"
-+  "  %1$s -a                                                # list all used\n"
-+  "  %1$s [-e encryption] [-o offset] {-f|loop_device} file # setup\n"),
-+		progname);
- 	exit(1);
- }
- 
-@@ -442,7 +479,7 @@
- int
- main(int argc, char **argv) {
- 	char *p, *offset, *encryption, *passfd, *device, *file;
--	int delete, find, c;
-+	int delete, find, c, all;
- 	int res = 0;
- 	int ro = 0;
- 	int pfd = -1;
-@@ -452,7 +489,7 @@
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
- 
--	delete = find = 0;
-+	delete = find = all = 0;
- 	off = 0;
- 	offset = encryption = passfd = NULL;
- 
-@@ -460,8 +497,11 @@
- 	if ((p = strrchr(progname, '/')) != NULL)
- 		progname = p+1;
- 
--	while ((c = getopt(argc, argv, "de:E:fo:p:v")) != -1) {
-+	while ((c = getopt(argc, argv, "ade:E:fo:p:v")) != -1) {
- 		switch (c) {
-+		case 'a':
-+			all = 1;
-+			break;
- 		case 'd':
- 			delete = 1;
- 			break;
-@@ -489,17 +529,22 @@
- 	if (argc == 1) {
- 		usage();
- 	} else if (delete) {
--		if (argc != optind+1 || encryption || offset || find)
-+		if (argc != optind+1 || encryption || offset || find || all)
- 			usage();
- 	} else if (find) {
--		if (argc < optind || argc > optind+1)
-+		if (all || argc < optind || argc > optind+1)
-+			usage();
-+	} else if (all) {
-+		if (argc > 2)
- 			usage();
- 	} else {
- 		if (argc < optind+1 || argc > optind+2)
- 			usage();
+-		if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-			spin_lock_irq(&tsk->sighand->siglock);
+-			sigorsets(&tsk->blocked, &tsk->blocked,
+-				  &ka->sa.sa_mask);
++		spin_lock_irq(&tsk->sighand->siglock);
++		sigorsets(&tsk->blocked, &tsk->blocked,
++			  &ka->sa.sa_mask);
++		if (!(ka->sa.sa_flags & SA_NODEFER))
+ 			sigaddset(&tsk->blocked, sig);
+-			recalc_sigpending();
+-			spin_unlock_irq(&tsk->sighand->siglock);
+-		}
++		recalc_sigpending();
++		spin_unlock_irq(&tsk->sighand->siglock);
+ 		return;
  	}
  
--	if (find) {
-+	if (all)
-+		return show_used_loop_devices();
-+	else if (find) {
- 		device = find_unused_loop_device();
- 		if (device == NULL)
- 			return -1;
+diff -urp linux-2.6.13-rc6-git4.orig/arch/cris/arch-v10/kernel/signal.c linux-2.6.13-rc6-git4/arch/cris/arch-v10/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/cris/arch-v10/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/cris/arch-v10/kernel/signal.c	2005-08-12 21:51:53.000000000 -0400
+@@ -517,13 +517,12 @@ handle_signal(int canrestart, unsigned l
+ 	if (ka->sa.sa_flags & SA_ONESHOT)
+ 		ka->sa.sa_handler = SIG_DFL;
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*
+diff -urp linux-2.6.13-rc6-git4.orig/arch/cris/arch-v32/kernel/signal.c linux-2.6.13-rc6-git4/arch/cris/arch-v32/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/cris/arch-v32/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/cris/arch-v32/kernel/signal.c	2005-08-12 21:53:01.000000000 -0400
+@@ -568,13 +568,12 @@ handle_signal(int canrestart, unsigned l
+ 	if (ka->sa.sa_flags & SA_ONESHOT)
+ 		ka->sa.sa_handler = SIG_DFL;
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*
+diff -urp linux-2.6.13-rc6-git4.orig/arch/frv/kernel/signal.c linux-2.6.13-rc6-git4/arch/frv/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/frv/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/frv/kernel/signal.c	2005-08-12 21:53:19.000000000 -0400
+@@ -506,13 +506,12 @@ static void handle_signal(unsigned long 
+ 	else
+ 		setup_frame(sig, ka, oldset, regs);
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked, &current->blocked, &ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked, &current->blocked, &ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked, sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ } /* end handle_signal() */
+ 
+ /*****************************************************************************/
+diff -urp linux-2.6.13-rc6-git4.orig/arch/h8300/kernel/signal.c linux-2.6.13-rc6-git4/arch/h8300/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/h8300/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/h8300/kernel/signal.c	2005-08-12 21:53:43.000000000 -0400
+@@ -488,13 +488,12 @@ handle_signal(unsigned long sig, siginfo
+ 	else
+ 		setup_frame(sig, ka, oldset, regs);
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*
+diff -urp linux-2.6.13-rc6-git4.orig/arch/i386/kernel/signal.c linux-2.6.13-rc6-git4/arch/i386/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/i386/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/i386/kernel/signal.c	2005-08-12 21:55:22.000000000 -0400
+@@ -577,10 +577,11 @@ handle_signal(unsigned long sig, siginfo
+ 	else
+ 		ret = setup_frame(sig, ka, oldset, regs);
+ 
+-	if (ret && !(ka->sa.sa_flags & SA_NODEFER)) {
++	if (ret) {
+ 		spin_lock_irq(&current->sighand->siglock);
+ 		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
+-		sigaddset(&current->blocked,sig);
++		if (!(ka->sa.sa_flags & SA_NODEFER))
++			sigaddset(&current->blocked,sig);
+ 		recalc_sigpending();
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 	}
+diff -urp linux-2.6.13-rc6-git4.orig/arch/ia64/kernel/signal.c linux-2.6.13-rc6-git4/arch/ia64/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/ia64/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/ia64/kernel/signal.c	2005-08-12 21:56:20.000000000 -0400
+@@ -467,15 +467,12 @@ handle_signal (unsigned long sig, struct
+ 		if (!setup_frame(sig, ka, info, oldset, scr))
+ 			return 0;
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		{
+-			sigorsets(&current->blocked, &current->blocked, &ka->sa.sa_mask);
+-			sigaddset(&current->blocked, sig);
+-			recalc_sigpending();
+-		}
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked, &current->blocked, &ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
++		sigaddset(&current->blocked, sig);
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ 	return 1;
+ }
+ 
+diff -urp linux-2.6.13-rc6-git4.orig/arch/m32r/kernel/signal.c linux-2.6.13-rc6-git4/arch/m32r/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/m32r/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/m32r/kernel/signal.c	2005-08-12 21:56:35.000000000 -0400
+@@ -341,13 +341,12 @@ handle_signal(unsigned long sig, struct 
+ 	/* Set up the stack frame */
+ 	setup_rt_frame(sig, ka, info, oldset, regs);
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*
+diff -urp linux-2.6.13-rc6-git4.orig/arch/m68knommu/kernel/signal.c linux-2.6.13-rc6-git4/arch/m68knommu/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/m68knommu/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/m68knommu/kernel/signal.c	2005-08-12 21:59:41.000000000 -0400
+@@ -732,13 +732,12 @@ handle_signal(int sig, struct k_sigactio
+ 	if (ka->sa.sa_flags & SA_ONESHOT)
+ 		ka->sa.sa_handler = SIG_DFL;
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*
+diff -urp linux-2.6.13-rc6-git4.orig/arch/mips/kernel/irixsig.c linux-2.6.13-rc6-git4/arch/mips/kernel/irixsig.c
+--- linux-2.6.13-rc6-git4.orig/arch/mips/kernel/irixsig.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/mips/kernel/irixsig.c	2005-08-12 22:00:09.000000000 -0400
+@@ -155,13 +155,12 @@ static inline void handle_signal(unsigne
+ 	else
+ 		setup_irix_frame(ka, regs, sig, oldset);
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ asmlinkage int do_irix_signal(sigset_t *oldset, struct pt_regs *regs)
+diff -urp linux-2.6.13-rc6-git4.orig/arch/mips/kernel/signal32.c linux-2.6.13-rc6-git4/arch/mips/kernel/signal32.c
+--- linux-2.6.13-rc6-git4.orig/arch/mips/kernel/signal32.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/mips/kernel/signal32.c	2005-08-12 22:00:40.000000000 -0400
+@@ -751,13 +751,12 @@ static inline void handle_signal(unsigne
+ 	else
+ 		setup_frame(ka, regs, sig, oldset);
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ int do_signal32(sigset_t *oldset, struct pt_regs *regs)
+diff -urp linux-2.6.13-rc6-git4.orig/arch/mips/kernel/signal.c linux-2.6.13-rc6-git4/arch/mips/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/mips/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/mips/kernel/signal.c	2005-08-12 22:00:23.000000000 -0400
+@@ -425,13 +425,12 @@ static inline void handle_signal(unsigne
+ 		setup_frame(ka, regs, sig, oldset);
+ #endif
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ extern int do_signal32(sigset_t *oldset, struct pt_regs *regs);
+diff -urp linux-2.6.13-rc6-git4.orig/arch/parisc/kernel/signal.c linux-2.6.13-rc6-git4/arch/parisc/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/parisc/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/parisc/kernel/signal.c	2005-08-12 22:01:00.000000000 -0400
+@@ -517,13 +517,12 @@ handle_signal(unsigned long sig, siginfo
+ 	if (!setup_rt_frame(sig, ka, info, oldset, regs, in_syscall))
+ 		return 0;
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ 	return 1;
+ }
+ 
+diff -urp linux-2.6.13-rc6-git4.orig/arch/ppc/kernel/signal.c linux-2.6.13-rc6-git4/arch/ppc/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/ppc/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/ppc/kernel/signal.c	2005-08-12 22:01:23.000000000 -0400
+@@ -759,13 +759,12 @@ int do_signal(sigset_t *oldset, struct p
+ 	else
+ 		handle_signal(signr, &ka, &info, oldset, regs, newsp);
+ 
+-	if (!(ka.sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka.sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka.sa.sa_mask);
++	if (!(ka.sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked, signr);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ 
+ 	return 1;
+ }
+diff -urp linux-2.6.13-rc6-git4.orig/arch/ppc64/kernel/signal32.c linux-2.6.13-rc6-git4/arch/ppc64/kernel/signal32.c
+--- linux-2.6.13-rc6-git4.orig/arch/ppc64/kernel/signal32.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/ppc64/kernel/signal32.c	2005-08-12 22:02:45.000000000 -0400
+@@ -976,11 +976,12 @@ int do_signal32(sigset_t *oldset, struct
+ 	else
+ 		ret = handle_signal32(signr, &ka, &info, oldset, regs, newsp);
+ 
+-	if (ret && !(ka.sa.sa_flags & SA_NODEFER)) {
++	if (ret) {
+ 		spin_lock_irq(&current->sighand->siglock);
+ 		sigorsets(&current->blocked, &current->blocked,
+ 			  &ka.sa.sa_mask);
+-		sigaddset(&current->blocked, signr);
++		if (!(ka.sa.sa_flags & SA_NODEFER))
++			sigaddset(&current->blocked, signr);
+ 		recalc_sigpending();
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 	}
+diff -urp linux-2.6.13-rc6-git4.orig/arch/ppc64/kernel/signal.c linux-2.6.13-rc6-git4/arch/ppc64/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/ppc64/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/ppc64/kernel/signal.c	2005-08-12 22:02:13.000000000 -0400
+@@ -481,10 +481,11 @@ static int handle_signal(unsigned long s
+ 	/* Set up Signal Frame */
+ 	ret = setup_rt_frame(sig, ka, info, oldset, regs);
+ 
+-	if (ret && !(ka->sa.sa_flags & SA_NODEFER)) {
++	if (ret) {
+ 		spin_lock_irq(&current->sighand->siglock);
+ 		sigorsets(&current->blocked, &current->blocked, &ka->sa.sa_mask);
+-		sigaddset(&current->blocked,sig);
++		if (!(ka->sa.sa_flags & SA_NODEFER))
++			sigaddset(&current->blocked,sig);
+ 		recalc_sigpending();
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 	}
+diff -urp linux-2.6.13-rc6-git4.orig/arch/s390/kernel/compat_signal.c linux-2.6.13-rc6-git4/arch/s390/kernel/compat_signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/s390/kernel/compat_signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/s390/kernel/compat_signal.c	2005-08-12 22:03:42.000000000 -0400
+@@ -637,12 +637,11 @@ handle_signal32(unsigned long sig, struc
+ 	else
+ 		setup_frame32(sig, ka, oldset, regs);
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+diff -urp linux-2.6.13-rc6-git4.orig/arch/s390/kernel/signal.c linux-2.6.13-rc6-git4/arch/s390/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/s390/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/s390/kernel/signal.c	2005-08-12 22:03:59.000000000 -0400
+@@ -429,13 +429,12 @@ handle_signal(unsigned long sig, struct 
+ 	else
+ 		setup_frame(sig, ka, oldset, regs);
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*
+diff -urp linux-2.6.13-rc6-git4.orig/arch/sh/kernel/signal.c linux-2.6.13-rc6-git4/arch/sh/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/sh/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/sh/kernel/signal.c	2005-08-12 22:04:10.000000000 -0400
+@@ -546,13 +546,12 @@ handle_signal(unsigned long sig, struct 
+ 	if (ka->sa.sa_flags & SA_ONESHOT)
+ 		ka->sa.sa_handler = SIG_DFL;
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*
+diff -urp linux-2.6.13-rc6-git4.orig/arch/sh64/kernel/signal.c linux-2.6.13-rc6-git4/arch/sh64/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/sh64/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/sh64/kernel/signal.c	2005-08-12 22:04:47.000000000 -0400
+@@ -664,13 +664,12 @@ handle_signal(unsigned long sig, siginfo
+ 	else
+ 		setup_frame(sig, ka, oldset, regs);
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*
+diff -urp linux-2.6.13-rc6-git4.orig/arch/sparc/kernel/signal.c linux-2.6.13-rc6-git4/arch/sparc/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/sparc/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/sparc/kernel/signal.c	2005-08-12 22:04:59.000000000 -0400
+@@ -1034,13 +1034,12 @@ handle_signal(unsigned long signr, struc
+ 		else
+ 			setup_frame(&ka->sa, regs, signr, oldset, info);
+ 	}
+-	if (!(ka->sa.sa_flags & SA_NOMASK)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NOMASK))
+ 		sigaddset(&current->blocked, signr);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ static inline void syscall_restart(unsigned long orig_i0, struct pt_regs *regs,
+diff -urp linux-2.6.13-rc6-git4.orig/arch/sparc64/kernel/signal32.c linux-2.6.13-rc6-git4/arch/sparc64/kernel/signal32.c
+--- linux-2.6.13-rc6-git4.orig/arch/sparc64/kernel/signal32.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/sparc64/kernel/signal32.c	2005-08-12 22:05:28.000000000 -0400
+@@ -1325,13 +1325,12 @@ static inline void handle_signal32(unsig
+ 		else
+ 			setup_frame32(&ka->sa, regs, signr, oldset, info);
+ 	}
+-	if (!(ka->sa.sa_flags & SA_NOMASK)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NOMASK))
+ 		sigaddset(&current->blocked,signr);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ static inline void syscall_restart32(unsigned long orig_i0, struct pt_regs *regs,
+diff -urp linux-2.6.13-rc6-git4.orig/arch/sparc64/kernel/signal.c linux-2.6.13-rc6-git4/arch/sparc64/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/sparc64/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/sparc64/kernel/signal.c	2005-08-12 22:05:10.000000000 -0400
+@@ -574,13 +574,12 @@ static inline void handle_signal(unsigne
+ {
+ 	setup_rt_frame(ka, regs, signr, oldset,
+ 		       (ka->sa.sa_flags & SA_SIGINFO) ? info : NULL);
+-	if (!(ka->sa.sa_flags & SA_NOMASK)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NOMASK))
+ 		sigaddset(&current->blocked,signr);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ static inline void syscall_restart(unsigned long orig_i0, struct pt_regs *regs,
+diff -urp linux-2.6.13-rc6-git4.orig/arch/um/kernel/signal_kern.c linux-2.6.13-rc6-git4/arch/um/kernel/signal_kern.c
+--- linux-2.6.13-rc6-git4.orig/arch/um/kernel/signal_kern.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/um/kernel/signal_kern.c	2005-08-12 22:06:31.000000000 -0400
+@@ -87,12 +87,12 @@ static int handle_signal(struct pt_regs 
+ 		recalc_sigpending();
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 		force_sigsegv(signr, current);
+-	}
+-	else if(!(ka->sa.sa_flags & SA_NODEFER)){
++	} else {
+ 		spin_lock_irq(&current->sighand->siglock);
+ 		sigorsets(&current->blocked, &current->blocked, 
+ 			  &ka->sa.sa_mask);
+-		sigaddset(&current->blocked, signr);
++		 if(!(ka->sa.sa_flags & SA_NODEFER))
++			sigaddset(&current->blocked, signr);
+ 		recalc_sigpending();
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 	}
+diff -urp linux-2.6.13-rc6-git4.orig/arch/v850/kernel/signal.c linux-2.6.13-rc6-git4/arch/v850/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/v850/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/v850/kernel/signal.c	2005-08-12 22:06:47.000000000 -0400
+@@ -462,13 +462,12 @@ handle_signal(unsigned long sig, siginfo
+ 	else
+ 		setup_frame(sig, ka, oldset, regs);
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*
+diff -urp linux-2.6.13-rc6-git4.orig/arch/x86_64/kernel/signal.c linux-2.6.13-rc6-git4/arch/x86_64/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/x86_64/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/x86_64/kernel/signal.c	2005-08-12 22:07:44.000000000 -0400
+@@ -394,10 +394,11 @@ handle_signal(unsigned long sig, siginfo
+ #endif
+ 	ret = setup_rt_frame(sig, ka, info, oldset, regs);
+ 
+-	if (ret && !(ka->sa.sa_flags & SA_NODEFER)) {
++	if (ret) {
+ 		spin_lock_irq(&current->sighand->siglock);
+ 		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
+-		sigaddset(&current->blocked,sig);
++		if (!(ka->sa.sa_flags & SA_NODEFER))
++			sigaddset(&current->blocked,sig);
+ 		recalc_sigpending();
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 	}
+diff -urp linux-2.6.13-rc6-git4.orig/arch/xtensa/kernel/signal.c linux-2.6.13-rc6-git4/arch/xtensa/kernel/signal.c
+--- linux-2.6.13-rc6-git4.orig/arch/xtensa/kernel/signal.c	2005-08-12 21:28:32.000000000 -0400
++++ linux-2.6.13-rc6-git4/arch/xtensa/kernel/signal.c	2005-08-12 22:08:02.000000000 -0400
+@@ -702,12 +702,11 @@ int do_signal(struct pt_regs *regs, sigs
+ 	if (ka.sa.sa_flags & SA_ONESHOT)
+ 		ka.sa.sa_handler = SIG_DFL;
+ 
+-	if (!(ka.sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked, &current->blocked, &ka.sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked, &current->blocked, &ka.sa.sa_mask);
++	if (!(ka.sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked, signr);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ 	return 1;
+ }
 
 

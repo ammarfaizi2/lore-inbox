@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVH2RGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbVH2RHC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbVH2RGG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVH2RGG
+	id S1750955AbVH2RHC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbVH2RHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:06:06 -0400
-Received: from verein.lst.de ([213.95.11.210]:21965 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1750806AbVH2RGE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:06:04 -0400
-Date: Mon, 29 Aug 2005 19:05:50 +0200
-From: "'Christoph Hellwig'" <hch@lst.de>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'Christoph Hellwig'" <hch@lst.de>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH scsi-misc 2/2] megaraid_sas: LSI Logic MegaRAID SAS RAID D river
-Message-ID: <20050829170550.GA21128@lst.de>
-References: <0E3FA95632D6D047BA649F95DAB60E57060CD100@exa-atlanta>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57060CD100@exa-atlanta>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Mon, 29 Aug 2005 13:07:01 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:59972 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750941AbVH2RHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 13:07:01 -0400
+Message-ID: <431341F4.8010200@gentoo.org>
+Date: Mon, 29 Aug 2005 18:12:20 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: akpm@osdl.org
+Cc: Matt_Domsch@dell.com, frank@google.com, linux-kernel@vger.kernel.org
+Subject: ppp_mppe+pptp for 2.6.14?
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks pretty good to me.  Small issues I've identified:
+Hi,
 
- - what do you need the hba_count attribute for?  This should be
-   implementable in userspace pretty easily by iterating of all
-   devices of the scsi_host class that are attached to the driver
- - the ->queuecommand cleanup patch I sent you a awhile ago doesn't
-   seem to be applied
- - there's quite a lot of slightly odd formating, it would be nice
-   if you could run the code through scripts/Lindent.
+If there are no known issues it would be nice to push this for inclusion in 
+2.6.14. The relevant patches from -mm are named 
+ppp_mppe-add-ppp-mppe-encryption-module.patch and 
+ppp_mppe-add-ppp-mppe-encryption-module-update.patch
 
-If you could sent out an unmangled patch (even as attachment or on
-LSI's ftp side) I'd like to take another, closer look.
+Judging by the feedback I get from Gentoo users, there is high demand for this :)
 
+Thanks,
+Daniel

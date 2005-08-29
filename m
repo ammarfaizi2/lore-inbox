@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbVH2Sts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbVH2S6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbVH2Sts (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 14:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVH2Sts
+	id S1751304AbVH2S6h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 14:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVH2S6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 14:49:48 -0400
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:43219 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S1751303AbVH2Str (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 14:49:47 -0400
-Date: Mon, 29 Aug 2005 11:49:45 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, amitkale@linsyssoft.com,
-       Bob Picco <bob.picco@hp.com>
-Subject: Re: [patch 08/16] Add support for X86_64 platforms to KGDB
-Message-ID: <20050829184945.GE3827@smtp.west.cox.net>
-References: <resend.7.2982005.trini@kernel.crashing.org> <200508291913.48648.ak@suse.de> <20050829174525.GD3827@smtp.west.cox.net> <200508292046.15888.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 Aug 2005 14:58:37 -0400
+Received: from mail.linicks.net ([217.204.244.146]:44551 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1751306AbVH2S6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 14:58:37 -0400
+From: Nick Warne <nick@linicks.net>
+To: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: 2.6.13 new option timer frequency
+Date: Mon, 29 Aug 2005 19:58:24 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <20050829184818.3305.qmail@lwn.net>
+In-Reply-To: <20050829184818.3305.qmail@lwn.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200508292046.15888.ak@suse.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200508291958.24125.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 29, 2005 at 08:46:15PM +0200, Andi Kleen wrote:
-> On Monday 29 August 2005 19:45, Tom Rini wrote:
-> 
+On Monday 29 August 2005 19:48, Jonathan Corbet wrote:
+> > I built and installed 2.6.13 today, and oldconfig revealed the new option
+> > for timer frequency.
 > >
-> > Bob did this part (forgot to CC him, oops).  But I believe it's needed
-> > for setting traps so much earlier.
-> 
-> Ok looking again I guess he needed it for the GDT access in cpu_init
-> 
-> > > > +	if (notify_die(DIE_PAGE_FAULT, "no context", regs, error_code, 14,
-> > > > +				SIGSEGV) == NOTIFY_STOP)
-> > > > +		return;
-> > > > +
-> > >
-> > > I can see the point of that. It's ok if you submit it as a separate
-> > > patch.
-> >
-> > I can split that out into one that follows the KDB_VECTOR rename easily
-> > enough.
-> 
-> That's fine. The rename is fine for me too btw.
-> 
-> >
-> > > Regarding early trap init: I would have no problem to move all of
-> > > traps_init into setup_arch (and leave traps_init empty for generic code).
-> > > I actually don't know why it runs so late. But doing it half way is ugly.
-> >
-> > Should I make setup_per_cpu_area and trap_init empty and turn the real
-> > ones into early_foo?
-> 
-> setup_per_cpu_area is still needed later because it needs to allocate for non 
-> BP and you cannot do that that early. 
+> > I searched the LKML on this, but all I found is the technical stuff - not
+> > really any layman solutions.
+>
+> I wrote a bit about the timer frequency option a few weeks ago:
+>
+> 	http://lwn.net/Articles/145973/
 
-OK.  So I'll send out a patch that makes trap_init() empty and use the
-early_setup_per_cpu_areas() Bob wrote as well.
+OK, thanks everybody for replies.
 
-Andrew: In sum, there will be 3 patches that replace the x86_64 main
-patch (2 split-out-stuff, 1 new kgdb patch).
+Jon, that is a near perfect article - I understand it all now.
 
+I haven't noticed anything different under 250HZ yet..., if anything machine 
+seems smoother.  Lower electricity bills will be handy as well ;-)
+
+Thanks,
+
+Nick
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

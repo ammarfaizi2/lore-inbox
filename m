@@ -1,114 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbVH2Kch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVH2K2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbVH2Kch (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 06:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVH2Kcg
+	id S1750816AbVH2K2i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 06:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVH2K2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 06:32:36 -0400
-Received: from smtp.gentoo.org ([134.68.220.30]:36252 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S1750819AbVH2Kcg (ORCPT
+	Mon, 29 Aug 2005 06:28:38 -0400
+Received: from gromit.tds.de ([193.28.97.130]:56255 "EHLO gromit.tds.de")
+	by vger.kernel.org with ESMTP id S1750816AbVH2K2i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 06:32:36 -0400
-Subject: Re: [PATCH] Watchdog device node name unification
-From: Henrik Brix Andersen <brix@gentoo.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0508131520520.3553@g5.osdl.org>
-References: <1123969015.13656.13.camel@sponge.fungus>
-	 <1123970037.13656.16.camel@sponge.fungus>
-	 <Pine.LNX.4.58.0508131520520.3553@g5.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rM1wxgq3vSDdtqlZrN/8"
-Organization: Gentoo Metadistribution
-Date: Mon, 29 Aug 2005 12:32:35 +0200
-Message-Id: <1125311556.20765.65.camel@sponge.fungus>
+	Mon, 29 Aug 2005 06:28:38 -0400
+Date: Mon, 29 Aug 2005 12:28:31 +0200
+From: Tim Weippert <weiti@security.tds.de>
+To: linux-kernel@vger.kernel.org
+Cc: Daniel Drake <dsd@gentoo.org>, linux-kernel@vger.kernel.org,
+       cpufreq@lists.linux.org.uk, davej@codemonkey.org.uk, akpm@osdl.org,
+       discuss@x86-64.org
+Subject: Re: Bad page state on AMD Opteron Dual System with kernel 2.6.13-rc6-git13
+Message-ID: <20050829102830.GA7604@pbkg4>
+Reply-To: Tim Weippert <weiti@security.tds.de>
+References: <20050826165342.GA11796@pbkg4> <43110363.7020808@gentoo.org> <20050829052454.GA8172@pbkg4>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050829052454.GA8172@pbkg4>
+Organization: TDS Informationstechnologie AG
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-rM1wxgq3vSDdtqlZrN/8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi, 
 
-On Sat, 2005-08-13 at 15:21 -0700, Linus Torvalds wrote:
-> Doesn't seem to be serious enough to be worth it at this late stage in th=
-e=20
-> 2.6.13 game. Can you re-send after I do a release?
+On Mon, Aug 29, 2005 at 07:24:54AM +0200, Tim Weippert wrote:
+> On Sun, Aug 28, 2005 at 01:20:51AM +0100, Daniel Drake wrote:
 
-Resending as requested:
+> > 
+> > Seems to be an identical problem as was filed here:
+> > 
+> > 	http://bugs.gentoo.org/show_bug.cgi?id=103497
+> > 
+> > This bug report seems to suggest that the ondemand scaling governor may be 
+> > at fault. Does your setup use this too?
+> > 
+> > (CC'ing some extra people to make sure problem is known)
+> > 
+> 
+> As this is an Server, i don't even use cpufreq on this machine. So it
+> think this isn't the same problem ...
 
-Here's a patch for unifying the watchdog device node name
-to /dev/watchdog as expected by most user-space applications.
+Update, with stable 2.6.13. I get nearly the same behavior. 
 
-Please CC: me on replies as I am not subscribed to LKML.
+One new oops:
 
+swap_free: Bad swap file entry c000007fffff802f
+swap_free: Bad swap file entry c800007fffff802f
+swap_free: Bad swap file entry d000007fffff802f
+swap_free: Bad swap file entry d800007fffff802f
+swap_free: Bad swap file entry e000007fffff802f
+swap_free: Bad swap file entry 4000000000000000
+----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at "mm/rmap.c":493
+invalid operand: 0000 [1] SMP 
+CPU 1 
+Modules linked in: autofs4 floppy i2c_amd756 i2c_core hw_random ohci_hcd
+tg3 tsdev evdev evbug psmouse genrtc unix
+Pid: 9014, comm: sh Not tainted 2.6.13
+RIP: 0010:[<ffffffff8016e9ab>] <ffffffff8016e9ab>{page_remove_rmap+43}
+RSP: 0018:ffff8100481c3da0  EFLAGS: 00010286
+RAX: 00000000ffffffff RBX: ffff81004a5fc420 RCX: ffff81000000d000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff8100011a69c8
+RBP: 0000000000484000 R08: 0000000000000001 R09: 000000000000000f
+R10: 0000000000000001 R11: 0000000000000000 R12: 00000000078bfbff
+R13: ffff810040e133e0 R14: ffff8100011a69c8 R15: 0000000000000000
+FS:  00000000457ff970(0000) GS:ffffffff8056f880(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002aaaaaabd000 CR3: 0000000048205000 CR4: 00000000000006e0
+Process sh (pid: 9014, threadinfo ffff8100481c2000, task
+ffff810048e7e270)
+Stack: ffffffff801663f4 0000000000497000 ffff81004937f010
+0000000000497000 
+       0000000000497000 0000000000496fff ffff8100497dd000
+0000000000497000 
+       ffffffff801666ab 0000000000000000 
+Call Trace:<ffffffff801663f4>{zap_pte_range+436}
+<ffffffff801666ab>{unmap_page_range+507}
+       <ffffffff80166815>{unmap_vmas+293}
+<ffffffff8016c4d2>{exit_mmap+162}
+       <ffffffff801318b1>{mmput+49} <ffffffff80136d3a>{do_exit+442}
+       <ffffffff801370c0>{sys_exit_group+0}
+<ffffffff8010db7a>{system_call+126}
+       
 
-Signed-off-by: Henrik Brix Andersen <brix@gentoo.org>
-
-
-diff -Nurp linux-2.6.13/drivers/char/watchdog/ixp2000_wdt.c linux-2.6.13-wa=
-tchdog/drivers/char/watchdog/ixp2000_wdt.c
---- linux-2.6.13/drivers/char/watchdog/ixp2000_wdt.c	2005-08-29 01:41:01.00=
-0000000 +0200
-+++ linux-2.6.13-watchdog/drivers/char/watchdog/ixp2000_wdt.c	2005-08-29 12=
-:28:31.000000000 +0200
-@@ -182,7 +182,7 @@ static struct file_operations ixp2000_wd
- static struct miscdevice ixp2000_wdt_miscdev =3D
- {
- 	.minor		=3D WATCHDOG_MINOR,
--	.name		=3D "IXP2000 Watchdog",
-+	.name		=3D "watchdog",
- 	.fops		=3D &ixp2000_wdt_fops,
- };
-=20
-diff -Nurp linux-2.6.13/drivers/char/watchdog/ixp4xx_wdt.c linux-2.6.13-wat=
-chdog/drivers/char/watchdog/ixp4xx_wdt.c
---- linux-2.6.13/drivers/char/watchdog/ixp4xx_wdt.c	2005-08-29 01:41:01.000=
-000000 +0200
-+++ linux-2.6.13-watchdog/drivers/char/watchdog/ixp4xx_wdt.c	2005-08-29 12:=
-28:31.000000000 +0200
-@@ -176,7 +176,7 @@ static struct file_operations ixp4xx_wdt
- static struct miscdevice ixp4xx_wdt_miscdev =3D
- {
- 	.minor		=3D WATCHDOG_MINOR,
--	.name		=3D "IXP4xx Watchdog",
-+	.name		=3D "watchdog",
- 	.fops		=3D &ixp4xx_wdt_fops,
- };
-=20
-diff -Nurp linux-2.6.13/drivers/char/watchdog/scx200_wdt.c linux-2.6.13-wat=
-chdog/drivers/char/watchdog/scx200_wdt.c
---- linux-2.6.13/drivers/char/watchdog/scx200_wdt.c	2005-08-29 01:41:01.000=
-000000 +0200
-+++ linux-2.6.13-watchdog/drivers/char/watchdog/scx200_wdt.c	2005-08-29 12:=
-28:31.000000000 +0200
-@@ -206,7 +206,7 @@ static struct file_operations scx200_wdt
-=20
- static struct miscdevice scx200_wdt_miscdev =3D {
- 	.minor =3D WATCHDOG_MINOR,
--	.name  =3D NAME,
-+	.name  =3D "watchdog",
- 	.fops  =3D &scx200_wdt_fops,
- };
-=20
+Code: 0f 0b a3 b4 5b 3f 80 ff ff ff ff c2 ed 01 66 66 66 90 66 66 
+RIP <ffffffff8016e9ab>{page_remove_rmap+43} RSP <ffff8100481c3da0>
+ <1>Fixing recursive fault but reboot is needed!
 
 
---=20
-Henrik Brix Andersen <brix@gentoo.org>
-Gentoo Metadistribution | Mobile computing herd
+With this i get an hanging [sh] process which can't be killed, only
+cleanable with reboot:
 
---=-rM1wxgq3vSDdtqlZrN/8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+www-data  7701  0.0  0.3 74448 6452 ?        S    11:56   0:00
+/usr/sbin/cactid 0 93
+www-data  7721  0.0  0.5 56296 10504 ?       S    11:56   0:00  \_
+/usr/bin/php /usr/share/cacti/site/script_server.php cactid 0
+www-data  9014  0.0  0.0     0    0 ?        D    11:56   0:00  \_ [sh]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBDEuRDv+Q4flTiePgRAhSoAJ0Ruj2uzTRtGsQalH6RgolmIFBDiQCffAcV
-7b22DZN+Ms4VSP5pPxHXwC8=
-=02HF
------END PGP SIGNATURE-----
+The machine is an cacti system with generally high load ... seems the
+kernel does only have problems on higher load.
 
---=-rM1wxgq3vSDdtqlZrN/8--
+HTH, 
 
+    weiti
+
+-- 
+
+Interpunktion und Orthographie dieser Email ist frei erfunden.
+Eine Übereinstimmung mit aktuellen oder ehemaligen Regeln
+wäre rein zufällig und ist nicht beabsichtigt.
+
+Tim Weippert <weiti@topf-sicret.org>
+http://www.topf-sicret.org/

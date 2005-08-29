@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVH2Vwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbVH2V75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbVH2Vwm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 17:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVH2Vwm
+	id S1751326AbVH2V75 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 17:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbVH2V75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 17:52:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21934 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751310AbVH2Vwl (ORCPT
+	Mon, 29 Aug 2005 17:59:57 -0400
+Received: from fmr14.intel.com ([192.55.52.68]:57781 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751326AbVH2V74 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 17:52:41 -0400
-Date: Mon, 29 Aug 2005 14:52:38 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Peter =?iso-8859-1?Q?M=FCnster?= <pmlists@free.fr>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: kernel freezes with 2.6.12.5 and 2.6.13
-Message-ID: <20050829215238.GF7762@shell0.pdx.osdl.net>
-References: <Pine.LNX.4.58.0508292050180.28621@gaston.free.fr> <20050829191754.GW7991@shell0.pdx.osdl.net> <Pine.LNX.4.58.0508292253590.32579@gaston.free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0508292253590.32579@gaston.free.fr>
-User-Agent: Mutt/1.5.6i
+	Mon, 29 Aug 2005 17:59:56 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: [PATCH] acpi: Handle cpu_index greater than 256 properly in processor_core.c
+Date: Mon, 29 Aug 2005 14:59:25 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB60059052BE@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] acpi: Handle cpu_index greater than 256 properly in processor_core.c
+Thread-Index: AcWrAiLe4OWj9RF8TOWopi501nX+jgB4hOLw
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Ingo Oeser" <ioe-lkml@rameria.de>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>
+X-OriginalArrivalTime: 29 Aug 2005 21:59:26.0148 (UTC) FILETIME=[EBFA0840:01C5ACE4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Peter Münster (pmlists@free.fr) wrote:
-> On Mon, 29 Aug 2005, Chris Wright wrote:
-> 
-> > * Peter Münster (pmlists@free.fr) wrote:
-> > > with 2.6.12.4 no problem. But with a newer version, I get a black screen
-> > > and no more network access, when trying to print (lpr some-file.ps).
-> > > Everything else seems to work ok.
-> > > Printer is a network-printer managed by cups.
-> > > I suppose, it's a smp-problem, so here is my /proc/cpuinfo:
-> > 
-> > Is this 100% reproducible?  Do you get any kernel oops messages on
-> > the console?  There are very few patches between 2.6.12.4 and 2.6.12.5,
-> > so if the problem is reproducible can you narrow to the specific patch?
-> 
-> Yes, it's 100% reproducible. But I do not get any message. Display is
-> shutting down, and no more access with ssh. Ctrl-Alt-Del does not work
-> neither. Nothing in /var/log/messages.
 
-Are you running X?  Can you reproduce running lpr from console command line?
+>-----Original Message-----
+>From: Ingo Oeser [mailto:ioe-lkml@rameria.de] 
+>Sent: Saturday, August 27, 2005 5:23 AM
+>To: Pallipadi, Venkatesh
+>Cc: linux-kernel; Andrew Morton; Brown, Len
+>Subject: Re: [PATCH] acpi: Handle cpu_index greater than 256 
+>properly in processor_core.c
+>
+>Hi Venkatesh,
+>
+>On Saturday 27 August 2005 02:07, Venkatesh Pallipadi wrote:
+>> Fix convert_acpiid_to_cpu function to handle cpu_index 
+>greater than 256. This 
+>> patch also prevents a warning in IA64 cross-compile of this file 
+>> (drivers/acpi/processor_core.c:517: warning: comparison is 
+>always false due 
+>> to limited range of data type).
+>
+>Why don't you just change the datatype to "unsigned int" and 
+>the return failure value to NR_CPUS?
+>
+>That reduces the code changes and leaves the code quite clear.
+>It should also reduce compiled code size by some bytes, but I'm not
+>sure about that one.
+>
 
-> Of course, I can try to narrow down to the specific patch, if you send me
-> the different patches. I only have the diff between 2.6.12.4 and 2.6.12.5
-> and I don't know how to extract the patches.
+Yes. It can be done. But to me, the current patch is more cleaner. 
+I don't think we should mix up the cpu_index and error return value. 
 
-They're here in git:
+Thanks,
+Venki
 
-http://kernel.org/git/?p=linux/kernel/git/chrisw/stable-queue.git;a=tree;h=5c84e7f0112b3961f7a346b4d0161048482b2b6b;hb=717a323d8a8523fc5972158c5cef8ba914f36671;f=2.6.12.5

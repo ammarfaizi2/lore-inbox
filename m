@@ -1,73 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVH2ROD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVH2RZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbVH2ROD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 13:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbVH2ROD
+	id S1751149AbVH2RZN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 13:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbVH2RZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 13:14:03 -0400
-Received: from ns.suse.de ([195.135.220.2]:38042 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751122AbVH2ROC (ORCPT
+	Mon, 29 Aug 2005 13:25:13 -0400
+Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:23735 "EHLO
+	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1751142AbVH2RZL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 13:14:02 -0400
-From: Andi Kleen <ak@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Subject: Re: [patch 08/16] Add support for X86_64 platforms to KGDB
-Date: Mon, 29 Aug 2005 19:13:47 +0200
-User-Agent: KMail/1.8
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, amitkale@linsyssoft.com
-References: <resend.7.2982005.trini@kernel.crashing.org> <1.2982005.trini@kernel.crashing.org> <resend.8.2982005.trini@kernel.crashing.org>
-In-Reply-To: <resend.8.2982005.trini@kernel.crashing.org>
+	Mon, 29 Aug 2005 13:25:11 -0400
+X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508291913.48648.ak@suse.de>
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6: how do I this in sysfs?
+Date: Mon, 29 Aug 2005 12:24:18 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF10ABB0269@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6: how do I this in sysfs?
+Thread-index: AcWpqKJsA6BSfLnOQfWloN0quxGV2wDFbR2A
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Christoph Hellwig" <hch@infradead.org>
+Cc: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <greg@kroah.com>, <mochel@osdl.org>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>,
+       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
+       "Luben Tuikov" <luben_tuikov@adaptec.com>
+X-OriginalArrivalTime: 29 Aug 2005 17:24:19.0269 (UTC) FILETIME=[7D1C2F50:01C5ACBE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 August 2005 18:10, Tom Rini wrote:
 
-> +void __init early_setup_per_cpu_area(void)
-> +{
-> +	static char cpu0[PERCPU_ENOUGH_ROOM]
-> +		__attribute__ ((aligned (SMP_CACHE_BYTES)));
-> +	char *ptr = cpu0;
-> +
-> +	cpu_pda[0].data_offset = ptr - __per_cpu_start;
-> +	memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
-> +}
+> This is after my minimal sas transport class, please also 
+> read the thread about it on linux-scsi
+> 
+In the referenced code for using sysfs, there only appear to be methods
+for reading attributes.  How about if we want to cause a command to
+get written out to the hardware?   Do we do something like this?
 
-What is that?  It looks totally bogus. Can you tell exactly where you
-believe early per cpu data is needed?
+        /* get a semaphore keep everyone else out while we're working,
+           and hope like hell that all the other processes are playing
+           nice and using the semaphore too, or else we're hosed. */
 
-> +
->  /*
->   * Great future plan:
->   * Declare PDA itself and support (irqstack,tss,pgd) as per cpu data.
-> @@ -97,7 +107,9 @@ void __init setup_per_cpu_areas(void)
->  	for (i = 0; i < NR_CPUS; i++) {
->  		char *ptr;
->
-> -		if (!NODE_DATA(cpu_to_node(i))) {
-> +		if (cpu_pda[i].data_offset)
-> +			continue;
+        get_some_kind_of_semaphore();
 
-And that looks broken too.
+        fd = open("/sys/blah/blah/attribute1", O_RDWR);
+        write(fd, SOME_JUNK1, sizeof(SOME_JUNK1));
+        close(fd);
+        fd = open("/sys/blah/blah/attribute2", O_RDWR);
+        write(fd, SOME_JUNK2, sizeof(SOME_JUNK2));
+        close(fd);
+        fd = open("/sys/blah/blah/attribute3", O_RDWR);
+        write(fd, SOME_JUNK3, sizeof(SOME_JUNK3));
+        close(fd);
+        fd = open("/sys/blah/blah/attribute4", O_RDWR);
+        write(fd, SOME_JUNK4, sizeof(SOME_JUNK4));
+        close(fd);
+        fd = open("/sys/blah/blah/attribute5", O_RDWR);
+        write(fd, SOME_JUNK5, sizeof(SOME_JUNK5));
+        close(fd);
+        fd = open("/sys/blah/blah/attribute6", O_RDWR);
+        write(fd, SOME_JUNK6, sizeof(SOME_JUNK6));
+        close(fd);
+        fd = open("/sys/blah/blah/attribute7", O_RDWR);
+        write(fd, SOME_JUNK7, sizeof(SOME_JUNK7));
+        close(fd);
 
-In general I would also advise to mix any other changes outside kgdb* into the 
-x86-64 kgdb patch. Either the patch should be merged into mainline in a 
-separate patch or kgdb reworked to not need this.
+        /* When the attribute write_doorbell is written to, by
+convention
+           of this particular device "/sys/blah/blah",  it acts as a
+           doorbell which causes all the values which were "latched" by
+           the above writes to be consolidated into one command and
+           written to the hardware.  */
 
-> +	if (notify_die(DIE_PAGE_FAULT, "no context", regs, error_code, 14,
-> +				SIGSEGV) == NOTIFY_STOP)
-> +		return;
-> +
+        fd = open("/sys/blah/blah/write_doorbell", O_RDWR);
+        write(fd, "ding dong", 9);
+        close(fd);
 
-I can see the point of that. It's ok if you submit it as a separate patch.
+        release_some_kind_of_semaphore();
 
-Regarding early trap init: I would have no problem to move all of traps_init
-into setup_arch (and leave traps_init empty for generic code). I actually
-don't know why it runs so late. But doing it half way is ugly.
-
--Andi
+I'm not suggesting that the above is a good idea.  I don't have a good
+idea about how to do this.

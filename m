@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbVH2JKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVH2KWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbVH2JKw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 05:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVH2JKv
+	id S1750793AbVH2KWa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 06:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVH2KWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 05:10:51 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11941 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750889AbVH2JKv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 05:10:51 -0400
-Date: Mon, 29 Aug 2005 11:10:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] IBM HDAPS accelerometer driver.
-Message-ID: <20050829091038.GA30073@elf.ucw.cz>
-References: <1125069494.18155.27.camel@betsy> <20050827124148.GE1109@openzaurus.ucw.cz> <Pine.LNX.4.62.0508280453320.13233@artax.karlin.mff.cuni.cz> <20050828080959.GB2039@elf.ucw.cz> <Pine.LNX.4.62.0508282109040.1489@artax.karlin.mff.cuni.cz> <20050829083552.GD28077@elf.ucw.cz> <Pine.LNX.4.58.0508291057400.27754@fachschaft.cup.uni-muenchen.de>
-Mime-Version: 1.0
+	Mon, 29 Aug 2005 06:22:30 -0400
+Received: from dns.toxicfilms.tv ([150.254.220.184]:13719 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S1750793AbVH2KW3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 06:22:29 -0400
+X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-QSS-TOXIC: 1.25st (Clear:RC:1(213.238.101.254):. Processed in 0.123803 secs Process 14992)
+Date: Mon, 29 Aug 2005 12:22:33 +0200
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <702517020.20050829122233@dns.toxicfilms.tv>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Sean Bruno <sean.bruno@dsl-only.net>
+Subject: Re: [OT] [KORG] BitTorrents?
+In-Reply-To: <1125288801.8534.61.camel@home-lap>
+References: <1125288801.8534.61.camel@home-lap>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0508291057400.27754@fachschaft.cup.uni-muenchen.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello Sean,
 
-> > > >>I think he doesn't need to export it at all and he should write code to
-> > > >>park and disable hard disk instead.
-> > > >>(in userspace it's unsolvable --- i.e. you can't enable hard disk when
-> > > >>detected stable condition if the daemon is swapped out on that hard disk)
-> > > >
-> > > >man mlockall() :-).
-> > > 
-> > > You also must not use any syscall that allocates even temporary memory in 
-> > > kernel (select, poll, many others ...) or that waits on semaphore that 
-> > > might be held while allocating memory (i.e. audit and rewrite ide ioctl 
-> > > path).
-> > 
-> > Kernel module would have exactly same problem.
-> 
-> It has control of its memory allocations.
+Monday, August 29, 2005, 6:13:21 AM, you wrote:
 
-It will have to be carefull with doing calls that allocate memory, and
-to avoid semaphores that may block it... 
+> Is there any reason for not putting the kernel(and it's updates) up on a
+> tracker on kernel.org?  I looked through the list and noted that there
+> has not been any discussion in regards to this topic.
+Maybe because HTTP and FTP is usually easier to get, the downloads are
+faster if you have a fast mirror and ibiblio.org is already posting
+the kernels on BitTorrent, eg. for 2.6 you have these:
+http://torrent.ibiblio.org/browse.php?docid=42
 
-> > > And you need extra flags to protect the daemon from being killed at 
-> > > shutdown or blocked at suspend.
-> > 
-> > Why?
-> 
-> Because the disk must be unlocked even if the laptop falls down while
-> a suspension or shutdown are under way.
-> And it should work until the heads are parked anyway.
+Also checkout other things they post, including video lectures:
+http://torrent.ibiblio.org
 
-It can't. It has to be user controllable at any point, or you will not
-be able to shutdown your notebook while on bumpy road.
+> I personally don't have enough up-stream bandwidth(384K) to support a
+> tracker, but I have enough to contribute to a torrent...
+No problem, ibiblio.org has :-)
 
-Anyone who wants to put it into kernel _please_ read that IBM
-paper. It is really complex, with some signal processing, and it goes
-wrong at times, so it needs UI so you can disable it.
+--
+Maciej
 
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+

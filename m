@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbVH2XZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbVH2X2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751414AbVH2XZW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 19:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbVH2XZW
+	id S932066AbVH2X2U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 19:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbVH2X2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 19:25:22 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:43029 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751414AbVH2XZW convert rfc822-to-8bit
+	Mon, 29 Aug 2005 19:28:20 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:22408 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751422AbVH2X2T convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 19:25:22 -0400
+	Mon, 29 Aug 2005 19:28:19 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AWhSsSQRS/V3+YfGmxS9iPjat+CHeLuzME8MQYpR4UUwU8+hYGuFri4AZN2gYB91g5pKTF3lnGuzKl7Dz8XUZ8dFRIoIzbGSxxPA+SqZTiW1v4wiqAqs9Bx2Ok7AwAmpoWmP9RhWcQIywtbIowQKjJ682+3GKu9hSo0KlgCeB0A=
-Message-ID: <9a8748490508291625321e4e3b@mail.gmail.com>
-Date: Tue, 30 Aug 2005 01:25:21 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=Lvt+o1Hiz4OYQBDRWqivV5wQwjmwv+YF20JxxW0hTFT/JZY5HoWOIpDLb61OnwWqW6/I4RDFcBvK77jUdFh+5YaIksE+1TN8Rrs3kQ2MTSVKcyWN6nejrACnCB662JXtEG8MutfpHS5wcm/KZs0vZpuszHiwmapZl4gPGPkJ+mA=
+Date: Tue, 30 Aug 2005 01:28:13 +0200
+From: Diego Calleja <diegocg@gmail.com>
 To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-Subject: Re: Linux-2.6.13 : __check_region is deprecated
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.13 : __check_region is deprecated
+Message-Id: <20050830012813.7737f6f6.diegocg@gmail.com>
 In-Reply-To: <20050829231417.GB2736@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
 References: <20050829231417.GB2736@localhost.localdomain>
+X-Mailer: Sylpheed version 2.1.1+svn (GTK+ 2.8.2; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/30/05, Stephane Wirtel <stephane.wirtel@belgacom.net> wrote:
-> Hi,
-> 
-> By compiling my kernel, I can see that the __check_region function (in
-> kernel/resource.c) is deprecated.
-> 
-[snip]
-> 
-> Is there a function to replace this deprecated function ?
-> 
-Yes, you just call request_region() and check its return value.
+El Tue, 30 Aug 2005 01:14:17 +0200,
+Stephane Wirtel <stephane.wirtel@belgacom.net> escribió:
 
+> Is there a function to replace this deprecated function ?
+
+request_region
 
 > Why is it deprecated ?
-> 
-In the past you first called check_region() followed by
-request_region() if the region was available. That is not safe as you
-could get interrupted between the two calls and something else might
-have already grabbed the region you thought was free by the time you
-get to calling request_region().  So, request_region() was rewritten
-to do the checking internally and let the caller know via its return
-value if
-acquiring the region failed or succeded. 
-So these days check_region should no longer be used. It's a historic
-relic. request_region() should be used directly instead. That's why it
-is deprecated.
+
+>From http://lists.osdl.org/pipermail/kernel-janitors/2004-January/000346.html:
+"The reason that check_region() is deprecated is that it is racy.
+It could report that a region is available and then another driver
+could immediately reserve that region, since check_region() doesn't
+have any reservation capability."
 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+/me wonders why check_region has not been killed, it has been
+deprecated for years; killing it would force developers to fix it
+and would help to identify unmaintained drivers...

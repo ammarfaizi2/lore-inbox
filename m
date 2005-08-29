@@ -1,80 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVH2D1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVH2Dhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVH2D1s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 23:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVH2D1s
+	id S1750789AbVH2Dhg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 23:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbVH2Dhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 23:27:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16600 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750734AbVH2D1r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 23:27:47 -0400
-Date: Sun, 28 Aug 2005 20:27:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jerome Pinot <ngc891@gmail.com>
-cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.13
-In-Reply-To: <88ee31b705082819341961949e@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0508282017250.3243@g5.osdl.org>
-References: <88ee31b705082819341961949e@mail.gmail.com>
+	Sun, 28 Aug 2005 23:37:36 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:56990 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750789AbVH2Dhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Aug 2005 23:37:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=vYvCzSnvZhFgI+kkeoMt/ZplvefTBgeFjnDNxiqmTFrxJ8QxrAdOcgKBhrZctdp7/HfV2rUdv7O58J+s/1Me2CZqjbInRYCsnpcCHT1zSvyZS02O+6tM4NvPiJxCoFehLC5FiqtyquU6Htzo0Vq5BP7iLFQ18GMjRm7QPD8l2q0=  ;
+Message-ID: <4312830C.8000308@yahoo.com.au>
+Date: Mon, 29 Aug 2005 13:37:48 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make radix tree gang lookup faster by using a bitmap
+ search
+References: <1125159996.5159.8.camel@mulgrave>	 <20050827105355.360bd26a.akpm@osdl.org> <1125276312.5048.22.camel@mulgrave>	 <20050828175233.61cada23.akpm@osdl.org> <1125278389.5048.30.camel@mulgrave>	 <20050828183531.0b4d6f2d.akpm@osdl.org> <1125285994.5048.40.camel@mulgrave>
+In-Reply-To: <1125285994.5048.40.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Bottomley wrote:
+> On Sun, 2005-08-28 at 18:35 -0700, Andrew Morton wrote:
 
-
-On Mon, 29 Aug 2005, Jerome Pinot wrote:
+>>It does make the tree higher and hence will incur some more cache missing
+>>when descending the tree.
 > 
-> Using git in the linus tree:
-> $ git-whatchanged v2.6.12..v2.6.13 --pretty=full
+> 
+> Actually, I don't think it does:  the common user is the page tree.
+> Obviously, I've changed nothing on 64 bits, so we only need to consider
+> what I've done on 32 bits.  A page size is almost universally 4k on 32
+> bit, so we need 20 bits to store the page tree index.  Regardless of
+> whether the index size is 5 or 6, that gives a radix tree depth of 4.
+> 
 
-It's really much nicer to just do
+s/common/only ?
 
-	git log --no-merges v2.6.12..v2.6.13
+But the page tree is indexed by file offset rather than virtual
+address, and we try to span the file's pagecache with the smallest
+possible tree. So it will tend to make the trees taller.
 
-which gives you a much more readable result.
+> 
+>>We changed the node size a few years back.  umm.... 
+>>http://www.ussg.iu.edu/hypermail/linux/kernel/0206.2/0141.html
+> 
+> 
+> Yes, but that was to reduce the index size from 7 to 6 for slab
+> allocation reasons.  I've just reduced it to 5 on 32 bit.
+> 
+> 
+>>It would be a little bit sad to be unable to make such tuning adjustments
+>>in the future.  Not a huge loss, but a loss.
+> 
+> 
+> Well .. OK .. If the benchmarks say I've slowed us down on 32 bits, I'll
+> put the variable sizing back in the tag array.
+> 
 
-git-whatchanged is useful if you also want to see the files that got
-changed (especially with the "-p" flag to see the whole diff), or if you
-want to limit it to a specific subsystem ("git-whatchanged drivers/usb"),
-but if you just want the log, use "git log".
+I'm curious: what do the benchmarks say about your gang lookup?
 
-That "--pretty=full" this gives you committer information (and you can do
-it for "git log" too), but most people probably don't care. In fact, you'd
-more often find yourself using "--pretty=short", which only shows the
-first line ("head-line" - the subject line of an email patch) of the
-commit message.
+Thanks,
+Nick
 
-Additionally, you can pipe the output of "git log" to "git-shortlog", and
-you'll get the shortlog format (ie head-line only, and sorted by author).  
+-- 
+SUSE Labs, Novell Inc.
 
-Sadly, some commits ended up missing out on the author field (hey, people
-were getting started with git), so you have two commits like this:
-
-	commit af25e94d4dcfb9608846242fabdd4e6014e5c9f0
-	Author:  <>
-	Commit: Tony Luck <tony.luck@intel.com>
-	
-	    [IA64] Make ia64 die() preempt safe
-	
-	    Signed-off-by: Keith Owens <kaos@sgi.com>
-	    Signed-off-by: Tony Luck <tony.luck@intel.com>
-
-	commit af2c80e926ad5335d00a8d507928aff4e8ff1877
-	Author: ? <?>
-	Commit: Thomas Gleixner <tglx@mtd.linutronix.de>
-	
-	    [MTD] ms02-nv: Fix 64bit operation
-	
-	    Replace KSEG1ADDR() with CKSEG1ADDR() as the former does not work for
-	    64-bit configurations anymore.
-	
-	    Signed-off-by: Maciej W. Rozycki <macro@infradead.org>
-	    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-
-where the author does show up thanks to the sign-off lines, but the git
-author information was left empty, so the git-shortlog thing has two 
-unattributed changes ;^p
-
-			Linus
+Send instant messages to your online friends http://au.messenger.yahoo.com 

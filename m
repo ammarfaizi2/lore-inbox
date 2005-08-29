@@ -1,84 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVH2Lrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVH2Lna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbVH2Lrd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 07:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVH2Lrd
+	id S1750828AbVH2Lna (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 07:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbVH2Lna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 07:47:33 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:35858 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751128AbVH2Lrc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 07:47:32 -0400
-MIME-Version: 1.0
+	Mon, 29 Aug 2005 07:43:30 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:13496 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750828AbVH2Lna convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 07:43:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PlzYGGiE6URcFOOJsyMLrwlN+1C2pdoZF5GDpsSeZR23cqApHTrstIAdoDY7VV0KFbxiUaBzhn7MiIgCC/tI+h9RJUqh5FUkJ8+kTWrEKTRb1+I58sLU4xDKXluD+lXD18it+Eam/IKUG1T5Io9ipigF3Ht9Y+k8f+ojghZvcoo=
+Message-ID: <9a8748490508290443ab7cd62@mail.gmail.com>
+Date: Mon, 29 Aug 2005 13:43:29 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Pete Popov <ppopov@mvista.com>
+Subject: Re: [PATCH 2/3] exterminate strtok - drivers/video/au1100fb.c
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1124950581.14435.978.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <6b5347dc050827085727df49c8@mail.gmail.com>
-References: <6b5347dc05082609206ff7a305@mail.gmail.com> <430F45F8.8020505@nortel.com> <6b5347dc050827085727df49c8@mail.gmail.com>
-X-OriginalArrivalTime: 29 Aug 2005 11:47:31.0247 (UTC) FILETIME=[7030BBF0:01C5AC8F]
-Content-class: urn:content-classes:message
-Subject: Re: when or where can the case occur in "linux kernel development " about "kernel preemption"?
-Date: Mon, 29 Aug 2005 07:46:34 -0400
-Message-ID: <Pine.LNX.4.61.0508290742540.27714@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: when or where can the case occur in "linux kernel development " about "kernel preemption"?
-Thread-Index: AcWsj3A6l0ZE2BA3TtCgb7Vn89TiSg==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Sat." <walking.to.remember@gmail.com>
-Cc: "Christopher Friesen" <cfriesen@nortel.com>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <200508242108.32885.jesper.juhl@gmail.com>
+	 <1124950581.14435.978.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 8/25/05, Pete Popov <ppopov@mvista.com> wrote:
+> 
+> I see the patch, or an equivalent, has been applied already.
+> 
+Ohh, where? I don't see such a patch in 2.6.12-rc6-mm2 nor in 2.6.13.
 
-On Sat, 27 Aug 2005, Sat. wrote:
-
-> 2005/8/27, Christopher Friesen <cfriesen@nortel.com>:
->> Sat. wrote:
->>> the case about kernel preemption as follow :
->>>
->>> the book said "when a process that has a higher priority than the
->>> currenty running process is awakened ".
->>>
->>> but I can think about when such case can occur , could you give me an example ?
->>
->> There may be others, but one common case is when a hardware interrupt
->> causes the higher priority process to become runnable.  Some examples of
->> this would be a network packet arriving, or the expiry of a hardware timer.
->>
->> Chris
->>
->
-> unfortunately, I cannot agree with you , normally ,when the kernel
-> runs in interrupt context , the schedule() should not be invoked
-> ------my views .
->
-> then,could anyone  give me a definite example about network like above
-> or anything else to eluminate  this , ok?
->
-> thanks !
->
-> --
-> Sat.
-
-Schedule is never executed from an interrupt, BUT, there may be
-kernel threads or even user tasks that are sleeping, waiting
-to be awakened when some preliminary interrupt processing has
-occurred. The interrupt code may execute one of the wake-up calls
-which will cause the target to be put into the run queue as soon
-as possible.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12.5 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

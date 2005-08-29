@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbVH2AyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbVH2Aw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbVH2AyK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Aug 2005 20:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbVH2AyK
+	id S1751049AbVH2Aw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Aug 2005 20:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbVH2Aw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Aug 2005 20:54:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9914 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751044AbVH2AyI (ORCPT
+	Sun, 28 Aug 2005 20:52:58 -0400
+Received: from gate.crashing.org ([63.228.1.57]:10439 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751044AbVH2Aw5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Aug 2005 20:54:08 -0400
-Date: Sun, 28 Aug 2005 17:52:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make radix tree gang lookup faster by using a bitmap
- search
-Message-Id: <20050828175233.61cada23.akpm@osdl.org>
-In-Reply-To: <1125276312.5048.22.camel@mulgrave>
-References: <1125159996.5159.8.camel@mulgrave>
-	<20050827105355.360bd26a.akpm@osdl.org>
-	<1125276312.5048.22.camel@mulgrave>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 28 Aug 2005 20:52:57 -0400
+Subject: Re: swsusp console change/userspace hang
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <20050829002652.GA23582@srcf.ucam.org>
+References: <20050829002652.GA23582@srcf.ucam.org>
+Content-Type: text/plain
+Date: Mon, 29 Aug 2005 10:50:31 +1000
+Message-Id: <1125276632.14185.74.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
->
-> On Sat, 2005-08-27 at 10:53 -0700, Andrew Morton wrote:
-> > a) fix radix_tree_gang_lookup() to use find_next_bit()
-> > 
-> > b) remove radix_tree_node.count
-> > 
-> > c) Add a new tag field which simply means "present"
-> > 
-> > d) remove radix_tree_gang_lookup() and __lookup() altogether
-> > 
-> > e) Implement radix_tree_gang_lookup() via radix_tree_gang_lookup_tag()
+On Mon, 2005-08-29 at 01:26 +0100, Matthew Garrett wrote:
+> Hi!
 > 
-> OK, here it is: the combined version which treats the present bits as a
-> private tag, combines __lookup and __lookup_tag and does a fast bitmap
-> search for both.
->
-> ...
->
-> +#if BITS_PER_LONG == 32
-> +#define RADIX_TREE_MAP_SHIFT	5
-> +#elif BITS_PER_LONG == 64
-> ...
->  struct radix_tree_node {
-> -	unsigned int	count;
->  	void		*slots[RADIX_TREE_MAP_SIZE];
-> -	unsigned long	tags[RADIX_TREE_TAGS][RADIX_TREE_TAG_LONGS];
-> +	unsigned long	tags[RADIX_TREE_TAGS];
->  };
+> I'm currently working on an entirely userspace bootsplash program. It 
+> works quite happily, except in the case of resuming from hibernation. 
+> The splash program is launched at the start of initramfs, and at the 
+> end of initramfs (after the disk modules have been loaded) we attempt to 
+> trigger resume from userspace.
+> 
+> The code registers a signal that's fired on VT change. If a console
+> change is requested when it's currently drawing, it disables drawing and
+> schedules an alarm to fire 0.1 seconds later in order to avoid switching
+> the console when part-way through a framebuffer operation.
+> 
+> The problem seems to be that swsusp tries to change the console and then 
+> immediately freezes userspace. For reasons I don't entirely understand, 
+> this freezes the machine. If I remove the pm_prepare_console call from 
+> pm_prepare_processes, resume functions correctly.
 
-I don't see why the above change was necessary?  Why not stick with the
-current more flexible sizing option?
+Hrm.. it uses pm_prepare_console(), which should wait for the console to
+become active... However, it calls vt_waitactive without dealing with
+-EINTR. You might be getting a signal or something, can you check what's
+going on inside pm_prepare_console ?
 
-Note that the RADIX_TREE_MAP_FULL trick can still be used.  It just has to
-be put inside a `for (idx = 0; idx < RADIX_TREE_TAG_LONGS; idx++)' loop,
-which will vanish if RADIX_TREE_TAG_LONGS==1.
+> For now I'll probably just work around this by removing the console 
+> change from our kernels (we can do that in userspace scripting instead), 
+> but this still seems to be a less than ideal situation - I'm guessing 
+> that the same would happen if we were displaying the splash on suspend. 
+> Any ideas what might be causing this, and how to rectify it?
 

@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbVH3QCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbVH3QDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbVH3QCW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 12:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVH3QCW
+	id S1751446AbVH3QDO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 12:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVH3QDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 12:02:22 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24994 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751447AbVH3QCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 12:02:21 -0400
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386, x86_64 Initial PAT implementation
-References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
-	<1125413136.8276.14.camel@localhost.localdomain>
-	<200508301650.23149.ak@suse.de>
-	<17172.31726.480750.90360@alkaid.it.uu.se>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 30 Aug 2005 10:01:40 -0600
-In-Reply-To: <17172.31726.480750.90360@alkaid.it.uu.se> (Mikael Pettersson's
- message of "Tue, 30 Aug 2005 17:31:58 +0200")
-Message-ID: <m1vf1npg63.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Aug 2005 12:03:14 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:10297 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751446AbVH3QDN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 12:03:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=fb4mZgfGGiX5XlFA2UjQw+FWWGb81izyeVQDux9hCiVX23i6KZGt+/NJGdC8c1Pl3ZD8LRMpfV9GVcxPNSh/c/97zZca8hKaBom2ZPKwW3Ivz78rmRaGiCnjb2xRoSL2zXEzmOJjn5fl8DqK1XP7jaYjB6WIDN+LjUw3FkCQYPo=
+Message-ID: <9e47339105083009037c24f6de@mail.gmail.com>
+Date: Tue, 30 Aug 2005 12:03:09 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>,
+       Xserver development <xorg@freedesktop.org>
+Subject: State of Linux graphics
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> writes:
+I've written an article that surveys the current State of Linux
+graphics and proposes a possible path forward. This is a long article
+containing a lot of detailed technical information as a guide to
+future developers. Skip over the detailed parts if they aren't
+relevant to your area of work.
 
-> Andi Kleen writes:
->  > On Tuesday 30 August 2005 16:45, Alan Cox wrote:
->  > > On Llu, 2005-08-29 at 18:20 -0600, Eric W. Biederman wrote:
->  > > > ways.  Currently this code only allows for an additional flavor
->  > > > of uncached access to physical memory addresses which should be hard
->  > > > to abuse, and should raise no additional aliasing problems.  No
->  > > > attempt has been made to fix theoretical aliasing problems.
->  > >
->  > > Even an uncached/cached alias causes random memory corruption or an MCE
->  > > on x86 systems. In fact it can occur even for an alias not in theory
->  > > touched by the CPU if it happens to prefetch into or speculate the
->  > > address.
->  > >
->  > > Also be sure to read the PII Xeon errata - early PAT has a bug or two.
->  > 
->  > 
->  > We can always force cpu_has_pat == 0 on these machines.
->  > I don't think it is worth it to add any more complicated workarounds 
->  > for old broken systems.
->
-> I don't have the spec updates in front of me, but I believe the PAT
-> bug existed well into the P4 line. The workaround is simply to make
-> the high 4 PAT entries identical to the low 4 entries. (But I confess
-> to not having a clue as to whether it's still useful then or not.)
+http://www.freedesktop.org/~jonsmirl/graphics.html
 
-It is still useful even if that is the case.  Unless we need something
-more than WC we don't have a need for anything else.  
+Topics include the current X server, framebuffer, Xgl, graphics
+drivers, multiuser support, using the GPU, and a new server design.
+Hopefully it will help you fill in the pieces and build an overall
+picture of the graphics landscape.
 
-If you could track down the reference you are thinking of I would
-appreciate it.  According to the errata I can find simply not using
-the high 4 entries is sufficient, to avoid the problem.
+The article has been reviewed but if it still contains technical
+errors please let me know. Opinions on the content are also
+appreciated.
 
-Eric
-
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

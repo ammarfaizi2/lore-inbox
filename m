@@ -1,43 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbVH3XLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVH3XMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbVH3XLX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 19:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVH3XLX
+	id S932282AbVH3XMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 19:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVH3XMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 19:11:23 -0400
-Received: from xenotime.net ([66.160.160.81]:41618 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932275AbVH3XLW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 19:11:22 -0400
-Date: Tue, 30 Aug 2005 16:11:17 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Chris Wright <chrisw@osdl.org>
-cc: Pritesh Shah <pritesh.myphotos@gmail.com>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: Re: GDT initialization and location question.
-In-Reply-To: <20050830230311.GW7762@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.50.0508301609460.19488-100000@shark.he.net>
-References: <6967c2bf0508301351584d6f10@mail.gmail.com>
- <20050830230311.GW7762@shell0.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Aug 2005 19:12:52 -0400
+Received: from agminet02.oracle.com ([141.146.126.229]:13245 "EHLO
+	agminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S932282AbVH3XMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 19:12:52 -0400
+Date: Tue, 30 Aug 2005 16:13:08 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Daniel Phillips <phillips@istop.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [RFC][PATCH 1 of 4] Configfs is really sysfs
+Message-ID: <20050830231307.GE22068@insight.us.oracle.com>
+Mail-Followup-To: Daniel Phillips <phillips@istop.com>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	Greg KH <greg@kroah.com>
+References: <200508310854.40482.phillips@istop.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ni93GHxFvA+th69W"
+Content-Disposition: inline
+In-Reply-To: <200508310854.40482.phillips@istop.com>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.10i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Aug 2005, Chris Wright wrote:
 
-> * Pritesh Shah (pritesh.myphotos@gmail.com) wrote:
-> > I was wondering as to where is the GDT initialized during the boot
-> > sequence? I will need the filename and the name of the routine that
-> > does this. Any help would be greatly appreciated.
->
-> Search for cpu_gdt_table (one is literal, the other is per_cpu).  You
-> should be able to work it out from there.
-> -
+--ni93GHxFvA+th69W
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I would have said search for /gdt/ in arch/i386/boot/setup.S .
-Maybe both are helpful.
+On Wed, Aug 31, 2005 at 08:54:39AM +1000, Daniel Phillips wrote:
+> But it would be stupid to forbid users from creating directories in sysfs=
+ or=20
+> to forbid kernel modules from directly tweaking a configfs namespace.  Wh=
+y=20
+> should the kernel not be able to add objects to a directory a user create=
+d? =20
+> It should be up to the module author to decide these things.
 
--- 
-~Randy
+	This is precisely why configfs is separate from sysfs.  If both
+user and kernel can create objects, the lifetime of the object and its
+filesystem representation is very complex.  Sysfs already has problems
+with people getting this wrong.  configfs does not.
+	The fact that sysfs and configfs have similar backing stores
+does not make them the same thing.
+
+Joel
+
+--=20
+
+"Against stupidity the Gods themselves contend in vain."
+	- Freidrich von Schiller
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org
+
+--ni93GHxFvA+th69W
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDFOgDiHQK5rbv+hERAtzUAJ4wMwhSw7AbvpPrnrZ96lFmJkFHIgCcDWlg
+3oaRr9xVr43+xEgxt8hIrRY=
+=OGG3
+-----END PGP SIGNATURE-----
+
+--ni93GHxFvA+th69W--

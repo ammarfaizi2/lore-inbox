@@ -1,156 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVH3UGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVH3US4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbVH3UGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 16:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVH3UGX
+	id S932432AbVH3US4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 16:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVH3US4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 16:06:23 -0400
-Received: from dwdmx4.dwd.de ([141.38.3.230]:8939 "EHLO dwdmx4.dwd.de")
-	by vger.kernel.org with ESMTP id S932427AbVH3UGW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 16:06:22 -0400
-Date: Tue, 30 Aug 2005 20:06:21 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@diagnostix.dwd.de
+	Tue, 30 Aug 2005 16:18:56 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:20648 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S932432AbVH3US4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 16:18:56 -0400
+From: David Lang <david.lang@digitalinsight.com>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where is the performance bottleneck?
-In-Reply-To: <20050829202529.GA32214@midnight.suse.cz>
-Message-ID: <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de>
-References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de>
- <20050829202529.GA32214@midnight.suse.cz>
+Cc: Harald Welte <laforge@gpl-violations.org>,
+       LKML <linux-kernel@vger.kernel.org>
+X-X-Sender: dlang@dlang.diginsite.com
+Date: Tue, 30 Aug 2005 13:17:47 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: APs from the Kernel Summit run Linux
+In-Reply-To: <20050830121810.GA11582@midnight.suse.cz>
+Message-ID: <Pine.LNX.4.62.0508301315170.12108@qynat.qvtvafvgr.pbz>
+References: <20050830085522.GA8820@midnight.suse.cz> <20050830101958.GJ4202@rama.de.gnumonks.org>
+ <20050830121810.GA11582@midnight.suse.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Aug 2005, Vojtech Pavlik wrote:
+I've been looking into the airlink devices (fry's house brand) and they 
+have a marvell based AP (the one that made /. a few weeks go, sells for 
+$17 on sale). when I contacted airlink about getting the source they 
+replaied that current versions only run in-house developed code, no eCos 
+or uCLinux code, even thought the Libertas AP-32 and -52 kits provide no 
+help in running anything else.
 
-> On Mon, Aug 29, 2005 at 06:20:56PM +0000, Holger Kiehl wrote:
->> Hello
+so far nobody has been able to uncompress the firmware to prove different.
+
+David Lang
+
+On Tue, 30 Aug 2005, Vojtech Pavlik wrote:
+
+> On Tue, Aug 30, 2005 at 12:19:59PM +0200, Harald Welte wrote:
+>
+>>> The D-Link DWL-G730AP devices from the Kernel Summit run Linux, And it's
+>>> likely a GPL violation, too, since sources are nowhere to be found.
 >>
->> I have a system with the following setup:
+>> *lol*. Interestingly they must have twiddled the IP stack since when I
+>> tried an "nmap" on the device, it didn't recognize it as a Linux TCP/IP
+>> stack.
+>
+>>> They're based on a Marvell Libertas AP-32 (ARM9) design, similar
+>>> to the ASUS WL-530g. A bootlog from the ASUS (which has telnet enabled
+>>> for some reason, and thus can be logged in) is at the end of the mail.
 >>
->>     Board is Tyan S4882 with AMD 8131 Chipset
->>     4 Opterons 848 (2.2GHz)
->>     8 GB DDR400 Ram (2GB for each CPU)
->>     1 onboard Symbios Logic 53c1030 dual channel U320 controller
->>     2 SATA disks put together as a SW Raid1 for system, swap and spares
->>     8 SCSI U320 (15000 rpm) disks where 4 disks (sdc, sdd, sde, sdf)
->>       are on one channel and the other four (sdg, sdh, sdi, sdj) on
->>       the other channel.
+>> So you grabbed that bootlog from the ASUS device, or from the D-Link?
+>
+> This is from the ASUS.
+>
+>> If it is from the ASUS, what makes you think that the D-Link runs the
+>> same OS?  It is quite often the case that one chipset design has
+>> multiple operating systems ported to it (you see systems with the same
+>> broadcom or Intersil chipset, one running Linux, the other VxWorks).
+>
+>> Please indicate how you came to the conclusion that the D-Link really
+>> runs Linux.
+>
+> The device's ESSID during boot is 'Marvell AP-32', and the Libertas
+> AP-32 and AP-52 design toolkits contain only ports of Linux and eCos to
+> the device, according to Marvell. Considering the device's routing
+> capabilities I'm believe it's running Linux, but I don't have a solid
+> proof yet, unfortunately. The eCos port is intended for the non-router
+> variety of the design.
+>
+> On the other hand, eCos seems to be GPL, too, although it's possible
+> that the owner dual-licenses it.
+>
+>>> A firmware image is available from D-Link
+>>> and it seems to be composed of compressed blocks padded by zeroes. I haven't
+>>> verified yet that it's indeed a compressed kernel, cramfs, etc, but it seems
+>>> quite likely.
 >>
->> The U320 SCSI controller has a 64 bit PCI-X bus for itself, there is
->> no other device on that bus. Unfortunatly I was unable to determine at
->> what speed it is running, here the output from lspci -vv:
+>> I'm downloading it right now, and I'll see whether I can find any Linux
+>> in there.
 >
->> How does one determine the PCI-X bus speed?
+> Good luck. I'll try to take a look, too.
 >
-> Usually only the card (in your case the Symbios SCSI controller) can
-> tell. If it does, it'll be most likely in 'dmesg'.
+>>> Anyone interested in dissecting it, and pushing D-Link/Marvell to release
+>>> the kernel sources?
+>>
+>> Sure, it's (unfortunately) not the first time I'm dealing with D-Link on
+>> their GPL [in]compliance :((
 >
-There is nothing in dmesg:
-
-    Fusion MPT base driver 3.01.20
-    Copyright (c) 1999-2004 LSI Logic Corporation
-    ACPI: PCI Interrupt 0000:02:04.0[A] -> GSI 24 (level, low) -> IRQ 217
-    mptbase: Initiating ioc0 bringup
-    ioc0: 53C1030: Capabilities={Initiator,Target}
-    ACPI: PCI Interrupt 0000:02:04.1[B] -> GSI 25 (level, low) -> IRQ 225
-    mptbase: Initiating ioc1 bringup
-    ioc1: 53C1030: Capabilities={Initiator,Target}
-    Fusion MPT SCSI Host driver 3.01.20
-
->> Anyway, I thought with this system I would get theoretically 640 MB/s using
->> both channels.
+> Rather unrelated, I'm trying to figure out what to do with Elo
+> Touchsystems, they used my HID driver as a base of their own binary-only
+> driver and don't answer to e-mail.
 >
-> You can never use the full theoretical bandwidth of the channel for
-> data. A lot of overhead remains for other signalling. Similarly for PCI.
+>>> I'd love to get more out of this cute device ...
+>>
+>> If the design really is identical enough to the ASUS device, then I
+>> suggest looking into
+>> http://dlsvr02.asus.com/pub/ASUS/wireless/WL-530g/GPL_1825.zip
 >
->> I tested several software raid setups to get the best possible write
->> speeds for this system. But testing shows that the absolute maximum I
->> can reach with software raid is only approx. 270 MB/s for writting.
->> Which is very disappointing.
+> I'll take a look, thanks!
 >
-> I'd expect somewhat better (in the 300-400 MB/s range), but this is not
-> too bad.
+> -- 
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
-> To find where the bottleneck is, I'd suggest trying without the
-> filesystem at all, and just filling a large part of the block device
-> using the 'dd' command.
->
-> Also, trying without the RAID, and just running 4 (and 8) concurrent
-> dd's to the separate drives could show whether it's the RAID that's
-> slowing things down.
->
-Ok, I did run the following dd command in different combinations:
 
-    dd if=/dev/zero of=/dev/sd?1 bs=4k count=5000000
-
-Here the results:
-
-    Each disk alone
-    /dev/sdc1 59.094636 MB/s
-    /dev/sdd1 58.686592 MB/s
-    /dev/sde1 55.282807 MB/s
-    /dev/sdf1 62.271240 MB/s
-    /dev/sdg1 60.872891 MB/s
-    /dev/sdh1 62.252781 MB/s
-    /dev/sdi1 59.145637 MB/s
-    /dev/sdj1 60.921119 MB/s
-
-    sdc + sdd in parallel (2 disks on same channel)
-    /dev/sdc1 42.512287 MB/s
-    /dev/sdd1 43.118483 MB/s
-
-    sdc + sdg in parallel (2 disks on different channels)
-    /dev/sdc1 42.938186 MB/s
-    /dev/sdg1 43.934779 MB/s
-
-    sdc + sdd + sde in parallel (3 disks on same channel)
-    /dev/sdc1 35.043501 MB/s
-    /dev/sdd1 35.686878 MB/s
-    /dev/sde1 34.580457 MB/s
-
-    Similar results for three disks (sdg + sdh + sdi) on the other channel
-    /dev/sdg1 36.381137 MB/s
-    /dev/sdh1 37.541758 MB/s
-    /dev/sdi1 35.834920 MB/s
-
-    sdc + sdd + sde + sdf in parallel (4 disks on same channel)
-    /dev/sdc1 31.432914 MB/s
-    /dev/sdd1 32.058752 MB/s
-    /dev/sde1 31.393455 MB/s
-    /dev/sdf1 33.208165 MB/s
-
-    And here for the four disks on the other channel
-    /dev/sdg1 31.873028 MB/s
-    /dev/sdh1 33.277193 MB/s
-    /dev/sdi1 31.910000 MB/s
-    /dev/sdj1 32.626744 MB/s
-
-    All 8 disks in parallel
-    /dev/sdc1 24.120545 MB/s
-    /dev/sdd1 24.419801 MB/s
-    /dev/sde1 24.296588 MB/s
-    /dev/sdf1 25.609548 MB/s
-    /dev/sdg1 24.572617 MB/s
-    /dev/sdh1 25.552590 MB/s
-    /dev/sdi1 24.575616 MB/s
-    /dev/sdj1 25.124165 MB/s
-
-So from these results, I may assume that md is not the cause of the problem.
-
-What comes as a big surprise is that I loose 25% performance with only
-two disks and each hanging on its own channel!
-
-Is this normal? I wonder if other people have the same problem with
-other controllers or the same.
-
-What can I do next to find out if this is a kernel, driver or hardware
-problem?
-
-Thanks,
-Holger
-
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

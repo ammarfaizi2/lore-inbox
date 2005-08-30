@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbVH3OEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVH3OGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbVH3OEN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 10:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbVH3OEN
+	id S932092AbVH3OGF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 10:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVH3OGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 10:04:13 -0400
-Received: from mail.charite.de ([160.45.207.131]:5000 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1751441AbVH3OEL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 10:04:11 -0400
-Date: Tue, 30 Aug 2005 16:03:53 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Second "CPU" of 1-core HyperThreading CPU not found in 2.6.13
-Message-ID: <20050830140353.GV5603@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200508292303.52735.chase.venters@clientec.com> <9a87484905083005064cf4e6d0@mail.gmail.com> <200508300900.36148.chase.venters@clientec.com>
+	Tue, 30 Aug 2005 10:06:05 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:28342 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S932092AbVH3OGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 10:06:04 -0400
+Date: Tue, 30 Aug 2005 07:06:03 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: George Anzinger <george@mvista.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [patch 1/3] x86_64: Add a notify_die() call to the "no context" part of do_page_fault()
+Message-ID: <20050830140603.GB3966@smtp.west.cox.net>
+References: <resend.1.2982005.trini@kernel.crashing.org> <43140BC5.1090804@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200508300900.36148.chase.venters@clientec.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <43140BC5.1090804@mvista.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chase Venters <chase.venters@clientec.com>:
-
-> > CONFIG_MPENTIUM4, CONFIG_SMP and CONFIG_SCHED_SMT enabled?
+On Tue, Aug 30, 2005 at 12:33:25AM -0700, George Anzinger wrote:
+> Tom Rini wrote:
+> >CC: Andi Kleen <ak@suse.de>
+> >This adds a call to notify_die() in the "no context" portion of
+> >do_page_fault() as someone on the chain might care and want to do a fixup.
+> >
+> >---
+> >
+> > linux-2.6.13-trini/arch/x86_64/mm/fault.c |    4 ++++
+> > 1 files changed, 4 insertions(+)
+> >
+> >diff -puN arch/x86_64/mm/fault.c~x86_64-no_context_hook 
+> >arch/x86_64/mm/fault.c
+> >--- linux-2.6.13/arch/x86_64/mm/fault.c~x86_64-no_context_hook 2005-08-29 
+> >11:09:13.000000000 -0700
+> >+++ linux-2.6.13-trini/arch/x86_64/mm/fault.c	2005-08-29 
+> >11:09:13.000000000 -0700
+> >@@ -514,6 +514,10 @@ no_context:
+> > 	if (is_errata93(regs, address))
+> > 		return; 
+> > 
+> >+	if (notify_die(DIE_PAGE_FAULT, "no context", regs, error_code, 14,
+> >+				SIGSEGV) == NOTIFY_STOP)
+> >+		return;
+> >+
+> > /*
+> >  * Oops. The kernel tried to access some bad page. We'll have to
+> >  * terminate things with extreme prejudice.
 > 
-> Yes in all three regards.
+> Please use a more descriptive text than "no context".  This bit of info 
+> SHOULD be available to the gdb/kgdb user and should indicate why kgdb 
+> was entered.  It thus should be something like "bad kernel address" or 
+> "illegal kernel address".
 
-Same here. Dual-Xeon 2.8Ghz, only 2 CPUs are being displayed.
+"no context" is the label we're in, in the code.  What it's actually
+used for is "hey, we (== kgdb) tried to read/write a very very bogus
+addr, time to longjmp".  If it's not true that kgdb is at fault then we
+drop to the debugger anyhow, and the user can see where they came from.
 
 -- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,72 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVH3Esj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVH3Euj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbVH3Esj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 00:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbVH3Esj
+	id S932133AbVH3Euj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 00:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVH3Euj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 00:48:39 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:13512 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S932129AbVH3Esi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 00:48:38 -0400
-Date: Mon, 29 Aug 2005 23:48:18 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
-       marcelo.tosatti@cyclades.com
-Subject: [PATCH] cpm_uart: use schedule_timeout instead of direct call to
- schedule
-Message-ID: <Pine.LNX.4.61.0508292347360.31749@nylon.am.freescale.net>
+	Tue, 30 Aug 2005 00:50:39 -0400
+Received: from NS6.Sony.CO.JP ([137.153.0.32]:40094 "EHLO ns6.sony.co.jp")
+	by vger.kernel.org with ESMTP id S932133AbVH3Eui (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 00:50:38 -0400
+Message-ID: <4313E578.8070100@sm.sony.co.jp>
+Date: Tue, 30 Aug 2005 13:50:00 +0900
+From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, hirofumi@mail.parknet.co.jp
+Subject: [PATCH][FAT] FAT dirent scan with hin take #2 
+References: <4313CBEF.9020505@sm.sony.co.jp>
+In-Reply-To: <4313CBEF.9020505@sm.sony.co.jp>
+Content-Type: multipart/mixed;
+ boundary="------------000405000805080203020405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-use schedule_timeout instead of direct call to schedule
+This is a multi-part message in MIME format.
+--------------000405000805080203020405
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
----
-commit 85e29936d8eab1c16120ab319cc50828f3863aba
-tree a6fbb48fc860c6f5dbef0d518a500b37576caf40
-parent b9ecc8e4b5db64f0b4ee36dbdd6758e4ce3c2025
-author Kumar K. Gala <kumar.gala@freescale.com> Mon, 29 Aug 2005 23:46:59 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Mon, 29 Aug 2005 23:46:59 -0500
+Here is a revised version of dirent scan patch,  mentioned at
+following E-mail.
 
- drivers/serial/cpm_uart/cpm_uart_core.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
+This patch addresses performance damages on "ls | xargs xxx" and
+reverse order scan which are reported to the previous patch.
 
-diff --git a/drivers/serial/cpm_uart/cpm_uart_core.c b/drivers/serial/cpm_uart/cpm_uart_core.c
---- a/drivers/serial/cpm_uart/cpm_uart_core.c
-+++ b/drivers/serial/cpm_uart/cpm_uart_core.c
-@@ -403,10 +403,8 @@ static int cpm_uart_startup(struct uart_
- 
- inline void cpm_uart_wait_until_send(struct uart_cpm_port *pinfo)
- {
--	unsigned long target_jiffies = jiffies + pinfo->wait_closing;
--
--	while (!time_after(jiffies, target_jiffies))
--   		schedule();
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(pinfo->wait_closing);
- }
- 
- /*
-@@ -425,9 +423,12 @@ static void cpm_uart_shutdown(struct uar
- 	/* If the port is not the console, disable Rx and Tx. */
- 	if (!(pinfo->flags & FLAG_CONSOLE)) {
- 		/* Wait for all the BDs marked sent */
--		while(!cpm_uart_tx_empty(port))
-+		while(!cpm_uart_tx_empty(port)) {
-+			set_current_state(TASK_UNINTERRUPTIBLE);
- 			schedule_timeout(2);
--		if(pinfo->wait_closing)
-+		}
-+
-+		if (pinfo->wait_closing)
- 			cpm_uart_wait_until_send(pinfo);
- 
- 		/* Stop uarts */
+With this patch, fat_search_long() and fat_scan() use hint value
+as start of scan. For each directory holds multiple hint value entries.
+The entry would be selected by hash value based on scan target name and
+PID. Hint value would be calculated based on the entry previously found
+entry, so that the hint can cover backward neighborhood.
+
+This patch is for 2.6.12, because I tested it at the last weekend...
+
+Machida, Hiroyuki wrote:
+> 
+> As I said in "[RFC] FAT dirent scan with hint"
+> 	<43024977.7020101@sm.sony.co.jp>, we realized that FAT/VFAT has
+> poor performance with scanning directory entries.
+> 
+> Per discussions with Ogawa-san, VFAT maintainer, I took profiling data
+> to seek better solution. Here are results attached.
+> 
+> In short, I would say we need to reduce following factors.
+> 	a) number of iterations inside fat_search_long()
+> 	b) number of callings to uni16_to_x8()
+> 	c) number of callings to fat__get_entry(), for short name scan.
+> 
+> In another E-mail, I'll send revised version patch which use hint
+> values to scan dirent. That patch would reduce number of iterations
+> inside fat_search_long() and fat_scan(). Those contributes reductions
+> above a)-c) factors.
+> 
+	:
+	snip
+	:
+-- 
+Hiroyuki Machida		machida@sm.sony.co.jp		
+SSW Dept. HENC, Sony Corp.
+
+--------------000405000805080203020405
+Content-Type: text/plain;
+ name="fat-dirscan-with-hint_2.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="fat-dirscan-with-hint_2.patch"
+
+VGhpcyBwYXRjaCBlbmFibGVzIHVzaW5nIGhpbnQgbmZvcm1hdGlvbiBvbiBzY2FubmluZyBk
+aXIuCkl0IHJlYWNoZXMgZXhjZWxlbnQgcGVyZm9ybWFuY2Ugd2l0aCAibHMgLWwiIGZvciBv
+dmVyIDEwMDAgZW50cmllcy4KCiogZmF0LWRpcnNjYW4td2l0aC1oaW50LnBhdGNoCiBmcy9m
+YXQvZGlyLmMgICAgICAgICAgICAgfCAgMTMzICsrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrLS0tCiBmcy9mYXQvaW5vZGUuYyAgICAgICAgICAgfCAgIDEz
+ICsrKysKIGluY2x1ZGUvbGludXgvbXNkb3NfZnMuaCB8ICAgIDIgCiAzIGZpbGVzIGNoYW5n
+ZWQsIDE0MCBpbnNlcnRpb25zKCspLCA4IGRlbGV0aW9ucygtKQoKU2lnbmVkLW9mZi1ieTog
+SGlyb3l1a2kgTWFjaGlkYSA8bWFjaGlkYUBzbS5zb255LmNvLmpwPiBmb3IgQ0VMRgoKKiBt
+b2RpZmllZCBmaWxlcwoKLS0tIG9sZC9pbmNsdWRlL2xpbnV4L21zZG9zX2ZzLmgJMjAwNS0w
+OC0yOSAwOTozODo1My4zMDg1ODc3ODcgKzA5MDAKKysrIG5ldy9pbmNsdWRlL2xpbnV4L21z
+ZG9zX2ZzLmgJMjAwNS0wOC0yOSAwOTozOTozMy44ODk1NTU2MDYgKzA5MDAKQEAgLTI1NSw2
+ICsyNTUsOCBAQCBzdHJ1Y3QgbXNkb3NfaW5vZGVfaW5mbyB7CiAJLyogZm9yIGF2b2lkaW5n
+IHRoZSByYWNlIGJldHdlZW4gZmF0X2ZyZWUoKSBhbmQgZmF0X2dldF9jbHVzdGVyKCkgKi8K
+IAl1bnNpZ25lZCBpbnQgY2FjaGVfdmFsaWRfaWQ7CiAKKwlzdHJ1Y3Qgc2VtYXBob3JlICpz
+Y2FuX2xvY2s7CS8qIGxvY2sgZm9yIGRpcnNjYW4gaGludHMgKi8KKwlsb2ZmX3QgKnNjYW5f
+aGludHM7CS8qIGRpcnNjYW4gaGludHMgKi8KIAlsb2ZmX3QgbW11X3ByaXZhdGU7CiAJaW50
+IGlfc3RhcnQ7CQkvKiBmaXJzdCBjbHVzdGVyIG9yIDAgKi8KIAlpbnQgaV9sb2dzdGFydDsJ
+CS8qIGxvZ2ljYWwgZmlyc3QgY2x1c3RlciAqLwotLS0gb2xkL2ZzL2ZhdC9kaXIuYwkyMDA1
+LTA4LTI5IDA5OjM4OjUzLjE1ODU4NDIxMCArMDkwMAorKysgbmV3L2ZzL2ZhdC9kaXIuYwky
+MDA1LTA4LTI5IDA5OjM5OjMzLjg4OTU1NTYwNiArMDkwMApAQCAtMjAxLDYgKzIwMSw5MSBA
+QCBmYXRfc2hvcnRuYW1lMnVuaShzdHJ1Y3QgbmxzX3RhYmxlICpubHMsCiAgKiBSZXR1cm4g
+dmFsdWVzOiBuZWdhdGl2ZSAtPiBlcnJvciwgMCAtPiBub3QgZm91bmQsIHBvc2l0aXZlIC0+
+IGZvdW5kLAogICogdmFsdWUgaXMgdGhlIHRvdGFsIGFtb3VudCBvZiBzbG90cywgaW5jbHVk
+aW5nIHRoZSBzaG9ydG5hbWUgZW50cnkuCiAgKi8KKworI2RlZmluZSBGQVRfU0NBTl9TSElG
+VAk0CQkJLyogMng4IHdheSBzY2FuIGhpbnRzICAqLworI2RlZmluZSBGQVRfU0NBTl9OV0FZ
+CSgxPDxGQVRfU0NBTl9TSElGVCkKKworCitERUNMQVJFX01VVEVYKGhpbnRfYWxsb2NfbG9j
+ayk7CisKK2lubGluZQorc3RhdGljIGludCBoaW50X2FsbG9jYXRlKHN0cnVjdCBpbm9kZSAq
+ZGlyKQoreworCXZvaWQgKmhpbnRzOworCWludCBlcnIgPSAwOworCisJaWYgKCFNU0RPU19J
+KGRpciktPnNjYW5faGludHMpIHsKKwkJaGludHMgPSBrbWFsbG9jKEZBVF9TQ0FOX05XQVkq
+c2l6ZW9mKGxvZmZfdCksR0ZQX0tFUk5FTCk7CisJCWlmIChoaW50cykgCisJCQltZW1zZXQo
+aGludHMsIDAsIEZBVF9TQ0FOX05XQVkqc2l6ZW9mKGxvZmZfdCkpOworCQllbHNlIAorCQkJ
+ZXJyID0gLUVOT01FTTsKKworCQlkb3duKCZNU0RPU19JKGRpciktPnNjYW5fbG9jayk7CisJ
+CWlmIChNU0RPU19JKGRpciktPnNjYW5faGludHMpIGVyciA9IC1FSU5WQUw7CisJCWlmICgh
+ZXJyKSBNU0RPU19JKGRpciktPnNjYW5faGludHMgPSBoaW50czsKKwkJdXAoJk1TRE9TX0ko
+ZGlyKS0+c2Nhbl9sb2NrKTsKKwkJaWYgKGVyciA9PSAtRUlOVkFMKSB7CisJCQlpZiAoaGlu
+dHMpIGtmcmVlKGhpbnRzKTsKKwkJCWVyciA9IDA7CisJCX0KKwl9CisJcmV0dXJuIGVycjsK
+K30KKworCitpbmxpbmUKK3N0YXRpYyB2b2lkIGhpbnRfcmVjb3JkKHN0cnVjdCBpbm9kZSAq
+ZGlyLCBzdHJ1Y3QgZmF0X3Nsb3RfaW5mbyAqc2luZm8sIAorCQkJICBpbnQgaGluZGV4KQor
+eworCWxvZmZfdCB1bmRlcl9zY2FuX29mZiwgbmVudDsKKworCW5lbnQgPSAoZGlyLT5pX3Np
+emUgPiBQQUdFX1NJWkUgPyBkaXItPmlfc2l6ZSA6IFBBR0VfU0laRSkKKwkJLyBzaXplb2Yo
+c3RydWN0IG1zZG9zX2Rpcl9lbnRyeSk7CisKKwkvKiBlZHVjYXRpb25hbCBndWVzczsgdHJ5
+IHRvIGNvdmVyIDEvNCBwcmV2aW91cyByYW5nZSAqLworCW5lbnQgPj49IChGQVRfU0NBTl9T
+SElGVCArIDIpOworCXVuZGVyX3NjYW5fb2ZmID0gbmVudCAqIHNpemVvZihzdHJ1Y3QgbXNk
+b3NfZGlyX2VudHJ5KTsKKworCWlmIChzaW5mby0+c2xvdF9vZmYgPiB1bmRlcl9zY2FuX29m
+ZikgCisJCU1TRE9TX0koZGlyKS0+c2Nhbl9oaW50c1toaW5kZXhdID0KKwkJCXNpbmZvLT5z
+bG90X29mZiAtIHVuZGVyX3NjYW5fb2ZmOyAgCisJZWxzZQorCQlNU0RPU19JKGRpciktPnNj
+YW5faGludHNbaGluZGV4XSA9IDA7ICAKK30KKworCitpbmxpbmUgCitzdGF0aWMgaW50IGhp
+bnRfaW5kZXhfYm9keShjb25zdCB1bnNpZ25lZCBjaGFyICpuYW1lLCBpbnQgbmFtZV9sZW4s
+IGludCBjaGVja19udWxsKQoreworCWludCBpOworCWludCB2YWwgPSAwOworCXVuc2lnbmVk
+IGNoYXIgKnAgPSAodW5zaWduZWQgY2hhciAqKSBuYW1lOworCWludCBpZCA9IGN1cnJlbnQt
+PnBpZDsKKwkKKwlmb3IgKGk9MDsgaTxuYW1lX2xlbjsgaSsrKSB7CisJCWlmIChjaGVja19u
+dWxsICYmICEqcCkgYnJlYWs7CisJCXZhbCA9ICgodmFsIDw8IDEpICYgMHhmZSkgfCAoKHZh
+bCYweDgwKT8xOjApOworCQl2YWwgXj0gKnA7CisJCXAgKys7CisJfQorCWlkID0gKChpZCA+
+PiA4KSAmIDB4ZikgXiAoaWQgJiAweGYpOworCXZhbCA9ICh2YWwgPDwgMSkgfCAoaWQgJiAx
+KTsKKwlyZXR1cm4gdmFsICYgKEZBVF9TQ0FOX05XQVktMSk7Cit9CisKK2lubGluZSAKK3N0
+YXRpYyBpbnQgbGZuX2hpbnRfaW5kZXgoY29uc3QgdW5zaWduZWQgY2hhciAqbmFtZSwgaW50
+IG5hbWVfbGVuKQoreworCXJldHVybiBoaW50X2luZGV4X2JvZHkobmFtZSwgbmFtZV9sZW4s
+IDApOworfQorCitpbmxpbmUgCitzdGF0aWMgaW50IGhpbnRfaW5kZXgoY29uc3QgdW5zaWdu
+ZWQgY2hhciAqbmFtZSkKK3sKKwlyZXR1cm4gaGludF9pbmRleF9ib2R5KG5hbWUsIE1TRE9T
+X05BTUUsIDEpOworfQorCiBpbnQgZmF0X3NlYXJjaF9sb25nKHN0cnVjdCBpbm9kZSAqaW5v
+ZGUsIGNvbnN0IHVuc2lnbmVkIGNoYXIgKm5hbWUsCiAJCSAgICBpbnQgbmFtZV9sZW4sIHN0
+cnVjdCBmYXRfc2xvdF9pbmZvICpzaW5mbykKIHsKQEAgLTIxOCwxMyArMzAzLDI2IEBAIGlu
+dCBmYXRfc2VhcmNoX2xvbmcoc3RydWN0IGlub2RlICppbm9kZSwKIAlpbnQgdXRmOCA9IHNi
+aS0+b3B0aW9ucy51dGY4OwogCWludCBhbnljYXNlID0gKHNiaS0+b3B0aW9ucy5uYW1lX2No
+ZWNrICE9ICdzJyk7CiAJdW5zaWduZWQgc2hvcnQgb3B0X3Nob3J0bmFtZSA9IHNiaS0+b3B0
+aW9ucy5zaG9ydG5hbWU7Ci0JbG9mZl90IGNwb3MgPSAwOwogCWludCBjaGwsIGksIGosIGxh
+c3RfdSwgZXJyOworCWxvZmZfdCBjcG9zLCBzdGFydF9vZmY7CisJaW50IHJlYWNoX2JvdHRv
+bSA9IDA7CisJaW50IGhpbmRleDsKKwlpbnQgcmV0OworCisJcmV0ID0gaGludF9hbGxvY2F0
+ZShpbm9kZSk7IAorCWlmIChyZXQgPCAwKSByZXR1cm4gcmV0OworCWhpbmRleCA9IGxmbl9o
+aW50X2luZGV4KG5hbWUsIG5hbWVfbGVuKTsKKwlzdGFydF9vZmYgPSBjcG9zID0gIE1TRE9T
+X0koaW5vZGUpLT5zY2FuX2hpbnRzW2hpbmRleF07CiAKIAllcnIgPSAtRU5PRU5UOwogCXdo
+aWxlKDEpIHsKLQkJaWYgKGZhdF9nZXRfZW50cnkoaW5vZGUsICZjcG9zLCAmYmgsICZkZSkg
+PT0gLTEpCi0JCQlnb3RvIEVPRGlyOworVG9wOgorCQlpZiAocmVhY2hfYm90dG9tICYmIGNw
+b3MgPj0gc3RhcnRfb2ZmKSBnb3RvIEVPRGlyOworCQlpZiAoZmF0X2dldF9lbnRyeShpbm9k
+ZSwgJmNwb3MsICZiaCwgJmRlKSA9PSAtMSkgeworCQkJaWYgKCFzdGFydF9vZmYpIGdvdG8g
+RU9EaXI7CisJCQlyZWFjaF9ib3R0b20gKys7IGNwb3MgPSAwOworCQkJY29udGludWU7CisJ
+CX0KIHBhcnNlX3JlY29yZDoKIAkJbnJfc2xvdHMgPSAwOwogCQlpZiAoZGUtPm5hbWVbMF0g
+PT0gREVMRVRFRF9GTEFHKQpAQCAtMjc0LDggKzM3MiwxMSBAQCBwYXJzZV9sb25nOgogCQkJ
+CWlmIChkcy0+aWQgJiAweDQwKSB7CiAJCQkJCXVuaWNvZGVbb2Zmc2V0ICsgMTNdID0gMDsK
+IAkJCQl9Ci0JCQkJaWYgKGZhdF9nZXRfZW50cnkoaW5vZGUsICZjcG9zLCAmYmgsICZkZSkg
+PCAwKQotCQkJCQlnb3RvIEVPRGlyOworCQkJCWlmIChmYXRfZ2V0X2VudHJ5KGlub2RlLCAm
+Y3BvcywgJmJoLCAmZGUpIDwwICkgeworCQkJCQlpZiAoIXN0YXJ0X29mZikgZ290byBFT0Rp
+cjsKKwkJCQkJcmVhY2hfYm90dG9tICsrOyBjcG9zID0gMDsKKwkJCQkJZ290byBUb3A7CisJ
+CQkJfQogCQkJCWlmIChzbG90ID09IDApCiAJCQkJCWJyZWFrOwogCQkJCWRzID0gKHN0cnVj
+dCBtc2Rvc19kaXJfc2xvdCAqKSBkZTsKQEAgLTM2Myw2ICs0NjQsNyBAQCBGb3VuZDoKIAlz
+aW5mby0+ZGUgPSBkZTsKIAlzaW5mby0+YmggPSBiaDsKIAlzaW5mby0+aV9wb3MgPSBmYXRf
+bWFrZV9pX3BvcyhzYiwgc2luZm8tPmJoLCBzaW5mby0+ZGUpOworCWhpbnRfcmVjb3JkKGlu
+b2RlLCBzaW5mbywgaGluZGV4KTsKIAllcnIgPSAwOwogRU9EaXI6CiAJaWYgKHVuaWNvZGUp
+CkBAIC04MzgsMTcgKzk0MCwzMiBAQCBpbnQgZmF0X3NjYW4oc3RydWN0IGlub2RlICpkaXIs
+IGNvbnN0IHVuCiAJICAgICBzdHJ1Y3QgZmF0X3Nsb3RfaW5mbyAqc2luZm8pCiB7CiAJc3Ry
+dWN0IHN1cGVyX2Jsb2NrICpzYiA9IGRpci0+aV9zYjsKKwlsb2ZmX3QJc3RhcnRfb2ZmOwor
+CWludAloaW5kZXg7CisJaW50CXJldDsKKwlpbnQgcmVhY2hfYm90dG9tID0gMDsKKworCXJl
+dCA9IGhpbnRfYWxsb2NhdGUoZGlyKTsgCisJaWYgKHJldCA8IDApIHJldHVybiByZXQ7CisJ
+aGluZGV4ID0gaGludF9pbmRleChuYW1lKTsKIAotCXNpbmZvLT5zbG90X29mZiA9IDA7CisJ
+c2luZm8tPnNsb3Rfb2ZmID0gc3RhcnRfb2ZmID0gTVNET1NfSShkaXIpLT5zY2FuX2hpbnRz
+W2hpbmRleF07CiAJc2luZm8tPmJoID0gTlVMTDsKLQl3aGlsZSAoZmF0X2dldF9zaG9ydF9l
+bnRyeShkaXIsICZzaW5mby0+c2xvdF9vZmYsICZzaW5mby0+YmgsCi0JCQkJICAgJnNpbmZv
+LT5kZSkgPj0gMCkgeworCXdoaWxlICgxKSB7CisJCWlmIChmYXRfZ2V0X3Nob3J0X2VudHJ5
+KGRpciwgJnNpbmZvLT5zbG90X29mZiwgCisJCQkJICAgICAgICAmc2luZm8tPmJoLCAmc2lu
+Zm8tPmRlKSA8MCApIHsgCisJCQlpZiAoIXN0YXJ0X29mZikgYnJlYWs7CisJCQlzaW5mby0+
+c2xvdF9vZmYgPSAwTEw7IHJlYWNoX2JvdHRvbSArKzsKKwkJCWNvbnRpbnVlOworCQl9CiAJ
+CWlmICghc3RybmNtcChzaW5mby0+ZGUtPm5hbWUsIG5hbWUsIE1TRE9TX05BTUUpKSB7CiAJ
+CQlzaW5mby0+c2xvdF9vZmYgLT0gc2l6ZW9mKCpzaW5mby0+ZGUpOwogCQkJc2luZm8tPm5y
+X3Nsb3RzID0gMTsKIAkJCXNpbmZvLT5pX3BvcyA9IGZhdF9tYWtlX2lfcG9zKHNiLCBzaW5m
+by0+YmgsIHNpbmZvLT5kZSk7CisJCQloaW50X3JlY29yZChkaXIsIHNpbmZvLCBoaW5kZXgp
+OwogCQkJcmV0dXJuIDA7CiAJCX0KKwkJaWYgKHJlYWNoX2JvdHRvbSAmJiAoc3RhcnRfb2Zm
+IDw9IHNpbmZvLT5zbG90X29mZikpIGJyZWFrOwogCX0KIAlyZXR1cm4gLUVOT0VOVDsKIH0K
+LS0tIG9sZC9mcy9mYXQvaW5vZGUuYwkyMDA1LTA4LTI5IDA5OjM4OjUzLjMwODU4Nzc4NyAr
+MDkwMAorKysgbmV3L2ZzL2ZhdC9pbm9kZS5jCTIwMDUtMDgtMjkgMDk6Mzk6MzMuODg5NTU1
+NjA2ICswOTAwCkBAIC0yNDIsNiArMjQyLDggQEAgc3RhdGljIGludCBmYXRfZmlsbF9pbm9k
+ZShzdHJ1Y3QgaW5vZGUgKgogCWlub2RlLT5pX3ZlcnNpb24rKzsKIAlpbm9kZS0+aV9nZW5l
+cmF0aW9uID0gZ2V0X3NlY29uZHMoKTsKIAorCWluaXRfTVVURVgoJihNU0RPU19JKGlub2Rl
+KS0+c2Nhbl9sb2NrKTsKKwlNU0RPU19JKGlub2RlKS0+c2Nhbl9oaW50cyA9IDA7CiAJaWYg
+KChkZS0+YXR0ciAmIEFUVFJfRElSKSAmJiAhSVNfRlJFRShkZS0+bmFtZSkpIHsKIAkJaW5v
+ZGUtPmlfZ2VuZXJhdGlvbiAmPSB+MTsKIAkJaW5vZGUtPmlfbW9kZSA9IE1TRE9TX01LTU9E
+RShkZS0+YXR0ciwKQEAgLTM0NSw2ICszNDcsMTUgQEAgc3RhdGljIHZvaWQgZmF0X2RlbGV0
+ZV9pbm9kZShzdHJ1Y3QgaW5vZAogc3RhdGljIHZvaWQgZmF0X2NsZWFyX2lub2RlKHN0cnVj
+dCBpbm9kZSAqaW5vZGUpCiB7CiAJc3RydWN0IG1zZG9zX3NiX2luZm8gKnNiaSA9IE1TRE9T
+X1NCKGlub2RlLT5pX3NiKTsKKwl2b2lkICpoaW50czsKKworCWRvd24oJihNU0RPU19JKGlu
+b2RlKS0+c2Nhbl9sb2NrKTsKKwloaW50cyA9ICh2b2lkICopKE1TRE9TX0koaW5vZGUpLT5z
+Y2FuX2hpbnRzKTsKKwlpZiAoaGludHMpIHsKKwkJTVNET1NfSShpbm9kZSktPnNjYW5faGlu
+dHMgPSAwOworCX0KKwl1cCgmKE1TRE9TX0koaW5vZGUpLT5zY2FuX2xvY2spOworCWlmICho
+aW50cykga2ZyZWUoaGludHMpOwogCiAJaWYgKGlzX2JhZF9pbm9kZShpbm9kZSkpCiAJCXJl
+dHVybjsKQEAgLTEwMTEsNiArMTAyMiw4IEBAIHN0YXRpYyBpbnQgZmF0X3JlYWRfcm9vdChz
+dHJ1Y3QgaW5vZGUgKmkKIAlzdHJ1Y3QgbXNkb3Nfc2JfaW5mbyAqc2JpID0gTVNET1NfU0Io
+c2IpOwogCWludCBlcnJvcjsKIAorCWluaXRfTVVURVgoJihNU0RPU19JKGlub2RlKS0+c2Nh
+bl9sb2NrKTsKKwlNU0RPU19JKGlub2RlKS0+c2Nhbl9oaW50cyA9IDA7CiAJTVNET1NfSShp
+bm9kZSktPmlfcG9zID0gMDsKIAlpbm9kZS0+aV91aWQgPSBzYmktPm9wdGlvbnMuZnNfdWlk
+OwogCWlub2RlLT5pX2dpZCA9IHNiaS0+b3B0aW9ucy5mc19naWQ7Cg==
+--------------000405000805080203020405--

@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVH3Wiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVH3WjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbVH3Wiu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 18:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVH3Wiu
+	id S932240AbVH3WjS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 18:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbVH3WjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 18:38:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:43787 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932178AbVH3Wiu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 18:38:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tbha+IYxiVBvGr0Ro4R4tTqbp16Hl0JYj80LapN97PUZ+iBul+LLSaY55eoAbkOcwNZGUYnebmjEzFqlbbkGNwVKYkt7KyYiwap9yF1YoG2nQrLfStQNh0Iwf5NRRl1JWCE2CKVYNW3MPTfOdX288IYUE4tYQFX1ya4tA0G955Y=
-Message-ID: <21d7e99705083015388794017@mail.gmail.com>
-Date: Wed, 31 Aug 2005 08:38:40 +1000
-From: Dave Airlie <airlied@gmail.com>
-To: David Reveman <davidr@novell.com>
-Subject: Re: State of Linux graphics
-Cc: Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
-       Discuss issues related to the xorg tree 
-	<xorg@lists.freedesktop.org>
-In-Reply-To: <1125422813.20488.43.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e47339105083009037c24f6de@mail.gmail.com>
-	 <1125422813.20488.43.camel@localhost>
+	Tue, 30 Aug 2005 18:39:18 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:59452 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S932240AbVH3WjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 18:39:17 -0400
+Message-ID: <4314DFED.8030608@novell.com>
+Date: Tue, 30 Aug 2005 15:38:37 -0700
+From: Crispin Cowan <crispin@novell.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: LSM root_plug module questions
+References: <20050830213112.GA28997@hardeman.nu> <20050830215518.GX7991@shell0.pdx.osdl.net>
+In-Reply-To: <20050830215518.GX7991@shell0.pdx.osdl.net>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> As the author of Xgl and glitz I'd like to comment on a few things.
-> 
-> >From the article:
-> 
-> > Xgl was designed as a near term transition solution. The Xgl model
-> > was to transparently replace the drawing system of the existing
-> > X server with a compatible one based on using OpenGL as a device
-> > driver. Xgl maintained all of the existing X APIs as primary APIs.
-> > No new X APIs were offered and none were deprecated.
-> ..
-> > But Xgl was a near term, transition design, by delaying demand for
-> > Xgl the EXA bandaid removes much of the need for it.
-> 
-> I've always designed Xgl to be a long term solution. I'd like if
-> whatever you or anyone else see as not long term with the design of Xgl
-> could be clarified.
+Chris Wright wrote:
+> * David Härdeman (david@2gen.com) wrote:
+>   
+>> 2) root_plug currently scans the usb device tree looking for the 
+>> appropriate device each time it's needed. In the interest of making the 
+>> result of the lookup cached, it is possible for a module to register so 
+>> that it is notified when a usb device is added/removed?
+>>     
+> I don't think that can be done in a race free manner.  Perhaps get the
+> device and check its state, but you'd have to ask usb folks.  ATM, it's
+> only checked during exec of root process.
+>   
+Why do you want to optimize root_plug's scan for the device? Are you
+planning on logging in thousands of times per second? If it was a big
+RADIUS or SSO server, that would make sense, but this is the "are you
+physically present at the console?" login security, so I submit that it
+happens at most a couple of times per minute, and from there it does not
+matter if it takes a second or two to scan the USB devices.
 
-I sent this comment to Jon before he published:
-"Xgl was never near term, maybe you thought it was but no-one else did, the
-sheer amount of work to get it to support all the extensions the current X
-server does would make it non-near term ..."
+OTOH, it looks from the above comments that the root_plug may be checked
+on *all* exec's of root processes. If that is the case, then you do have
+more of an optimization issue. However, I then submit that the correct
+optimization is to choke down the check so that it is only performed on
+root exec's that represent logins rather than all execs, instead of
+trying to make the check go faster.
 
-I believe he is the only person involved who considered it near term,
-without realising quite how much work was needed...
+Crispin
+-- 
+Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
+Director of Software Engineering, Novell  http://novell.com
 
-Dave.

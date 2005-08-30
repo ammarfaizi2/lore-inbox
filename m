@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbVH3WjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbVH3WlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbVH3WjT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 18:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVH3WjT
+	id S932256AbVH3WlL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 18:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbVH3WlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 18:39:19 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:60847 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932218AbVH3WjS (ORCPT
+	Tue, 30 Aug 2005 18:41:11 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:47581 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932256AbVH3WlK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 18:39:18 -0400
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-From: John Rose <johnrose@austin.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linas Vepstas <linas@austin.ibm.com>, akpm@osdl.org,
-       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       lkml <linux-kernel@vger.kernel.org>,
-       External List <linuxppc64-dev@ozlabs.org>
-In-Reply-To: <17171.58403.920889.62559@cargo.ozlabs.ibm.com>
-References: <20050823231817.829359000@bilge>
-	 <20050823232143.003048000@bilge> <20050823234747.GI18113@austin.ibm.com>
-	 <1124898331.24668.33.camel@sinatra.austin.ibm.com>
-	 <20050824162959.GC25174@austin.ibm.com>
-	 <17165.3205.505386.187453@cargo.ozlabs.ibm.com>
-	 <20050825161325.GG25174@austin.ibm.com>
-	 <17170.44500.848623.139474@cargo.ozlabs.ibm.com>
-	 <20050829160915.GD12618@austin.ibm.com>
-	 <17171.58403.920889.62559@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Message-Id: <1125441190.27140.13.camel@sinatra.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 30 Aug 2005 17:33:10 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Aug 2005 18:41:10 -0400
+Message-Id: <200508302241.j7UMf8ag018433@d01av03.pok.ibm.com>
+Subject: [PATCH 1/1] block: CFQ refcounting fix
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, brking@us.ibm.com
+From: brking@us.ibm.com
+Date: Tue, 30 Aug 2005 17:41:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul-
 
-> I'm suggesting that the rpaphp code has a struct pci_driver whose
-> id_table and probe function are such that it will claim the EADS
-> bridges.  (It would probably be best to match on vendor=IBM and
-> class=PCI-PCI bridge and let the probe function figure out which of
-> the bridges it gets asked about are actually EADS bridges.)
+I ran across a memory leak related to the cfq scheduler. The cfq
+init function increments the refcnt of the associated request_queue.
+This refcount gets decremented in cfq's exit function. Since blk_cleanup_queue
+only calls the elevator exit function when its refcnt goes to zero, the
+request_q never gets cleaned up. It didn't look like other io schedulers were
+incrementing this refcnt, so I removed the refcnt increment and it fixed the
+memory leak for me.
 
-Wouldn't this leave out hotplug-capable adapters who have direct PHB
-parents, since these parent PHBs don't have pci_devs?  Thoughts?
+To reproduce the problem, simply use cfq and use the scsi_host scan sysfs
+attribute to scan "- - -" repeatedly on a scsi host and watch the memory
+vanish.
 
-Thanks-
-John
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
 
+ linux-2.6-bjking1/drivers/block/cfq-iosched.c |    1 -
+ 1 files changed, 1 deletion(-)
+
+diff -puN drivers/block/cfq-iosched.c~cfq_refcnt_fix drivers/block/cfq-iosched.c
+--- linux-2.6/drivers/block/cfq-iosched.c~cfq_refcnt_fix	2005-08-30 17:26:55.000000000 -0500
++++ linux-2.6-bjking1/drivers/block/cfq-iosched.c	2005-08-30 17:26:55.000000000 -0500
+@@ -2318,7 +2318,6 @@ static int cfq_init_queue(request_queue_
+ 	e->elevator_data = cfqd;
+ 
+ 	cfqd->queue = q;
+-	atomic_inc(&q->refcnt);
+ 
+ 	cfqd->max_queued = q->nr_requests / 4;
+ 	q->nr_batching = cfq_queued;
+_

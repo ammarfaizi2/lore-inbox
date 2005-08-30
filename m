@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVH3Pcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbVH3PtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbVH3Pcv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 11:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbVH3Pcv
+	id S1751445AbVH3PtH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 11:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVH3PtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 11:32:51 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:11653 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S932176AbVH3Pcv (ORCPT
+	Tue, 30 Aug 2005 11:49:07 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:20056 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751445AbVH3PtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 11:32:51 -0400
+	Tue, 30 Aug 2005 11:49:06 -0400
+Message-ID: <43147FF1.60707@tls.msk.ru>
+Date: Tue, 30 Aug 2005 19:49:05 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: APs from the Kernel Summit run Linux
+References: <20050830093715.GA9781@midnight.suse.cz>
+In-Reply-To: <20050830093715.GA9781@midnight.suse.cz>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-ID: <17172.31726.480750.90360@alkaid.it.uu.se>
-Date: Tue, 30 Aug 2005 17:31:58 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386, x86_64 Initial PAT implementation
-In-Reply-To: <200508301650.23149.ak@suse.de>
-References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
-	<1125413136.8276.14.camel@localhost.localdomain>
-	<200508301650.23149.ak@suse.de>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > On Tuesday 30 August 2005 16:45, Alan Cox wrote:
- > > On Llu, 2005-08-29 at 18:20 -0600, Eric W. Biederman wrote:
- > > > ways.  Currently this code only allows for an additional flavor
- > > > of uncached access to physical memory addresses which should be hard
- > > > to abuse, and should raise no additional aliasing problems.  No
- > > > attempt has been made to fix theoretical aliasing problems.
- > >
- > > Even an uncached/cached alias causes random memory corruption or an MCE
- > > on x86 systems. In fact it can occur even for an alias not in theory
- > > touched by the CPU if it happens to prefetch into or speculate the
- > > address.
- > >
- > > Also be sure to read the PII Xeon errata - early PAT has a bug or two.
- > 
- > 
- > We can always force cpu_has_pat == 0 on these machines.
- > I don't think it is worth it to add any more complicated workarounds 
- > for old broken systems.
+Vojtech Pavlik wrote:
+> Hi!
+> 
+> The D-Link DWL-G730AP devices from the Kernel Summit run Linux, And it's
+> likely a GPL violation, too, since sources are nowhere to be found.
+> 
+> They're based on a Marvell Libertas AP-32 (ARM9) design, similar
+> to the ASUS WL-530g. A bootlog from the ASUS (which has telnet enabled
+> for some reason, and thus can be logged in) is at the end of the mail.
+> 
+> A firmware image is available from D-Link ([URL removed]) and it seems
+> to be composed of compressed blocks padded by zeroes. I haven't verified
+> yet that it's indeed a compressed kernel, cramfs, etc, but it seems
+> quite likely.
 
-I don't have the spec updates in front of me, but I believe the PAT
-bug existed well into the P4 line. The workaround is simply to make
-the high 4 PAT entries identical to the low 4 entries. (But I confess
-to not having a clue as to whether it's still useful then or not.)
+Why [URL removed] ? ;)
+
+There's an ongoing project to "bring some power" into other D-Link
+devices (from DSL series; one of them, DSL-G604T (which I own) has
+an access point too) at http://mcmcc.bat.ru/dlinkt/ .  This stuff is
+also based on the same design, it seems (but I know right to nothing
+about all this arm stuff - wasn't even able to compile a cross-gcc
+for it yet).  McMCC (the author of this whole work) figured out the
+layout of the firmware images and mtd devices, and got D-Link stuff
+(out of http://ftp.dlink.ru/pub/ADSL/GPL_source_code/ ) to build and
+run on those boards...
+
+BTW, DSL series has telnet by default (user root, password is the
+one set in the admin interface, default is 'admin').  And the whole
+webinterface looks very similar (but this DWL-G730AP device has some
+"advanced" controls for the wireless component which are absent in
+my DSL-G604T).
+
+/mjt

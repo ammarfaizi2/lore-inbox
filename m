@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbVH3Iv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVH3Ix3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbVH3Iv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 04:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVH3Iv5
+	id S1751276AbVH3Ix3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 04:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbVH3Ix3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 04:51:57 -0400
-Received: from nproxy.gmail.com ([64.233.182.200]:28610 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751279AbVH3Iv4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 04:51:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IvPEu5JkQBs4QiLMO9AgoHh1qN/3ARd/3z0PZjYboA8qOrT3S9CxOkStdqHY7AJ4zdW7FmN7gID0VAMWzP9MzldAoSDYp1Kcfglnkk0k+BrPUuF7X1JC6pMgg3O2mqUfbIIMJIwKIBLvajbzAtsM2GUn6K8elJRzwYrKLvrhQTA=
-Message-ID: <84144f020508300151721429bb@mail.gmail.com>
-Date: Tue, 30 Aug 2005 11:51:53 +0300
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
-Subject: Re: [PATCH][FAT] FAT dirent scan with hin take #2
-Cc: linux-kernel@vger.kernel.org, hirofumi@mail.parknet.co.jp
-In-Reply-To: <4313E578.8070100@sm.sony.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4313CBEF.9020505@sm.sony.co.jp> <4313E578.8070100@sm.sony.co.jp>
+	Tue, 30 Aug 2005 04:53:29 -0400
+Received: from newton.linux4geeks.de ([193.30.1.1]:62085 "EHLO
+	newton.linux4geeks.de") by vger.kernel.org with ESMTP
+	id S1751276AbVH3Ix2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 04:53:28 -0400
+Date: Tue, 30 Aug 2005 10:53:13 +0200 (CEST)
+From: Sven Ladegast <sven@linux4geeks.de>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: KLive: Linux Kernel Live Usage Monitor
+In-Reply-To: <20050830082901.GA25438@bitwizard.nl>
+Message-ID: <Pine.LNX.4.63.0508301044150.1984@cassini.linux4geeks.de>
+References: <20050830030959.GC8515@g5.random> <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
+ <20050830082901.GA25438@bitwizard.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 30 Aug 2005, Rogier Wolff wrote:
 
-Some coding style nitpicks.
+> It IS some "home phoning" and "spy software". However, when the
+> goal is to sign you up for more direct marketing, people tend to
+> object. When the goal is to keep track of running kernels, I'm
+> hopeful that people will recognise that this is different.
 
-On 8/30/05, Machida, Hiroyuki <machida@sm.sony.co.jp> wrote:
-> +inline
-> +static int hint_allocate(struct inode *dir)
-> +{
-> +       void *hints;
-> +       int err = 0;
-> +
-> +       if (!MSDOS_I(dir)->scan_hints) {
-> +               hints = kmalloc(FAT_SCAN_NWAY*sizeof(loff_t),GFP_KERNEL);
-> +               if (hints)
-> +                       memset(hints, 0, FAT_SCAN_NWAY*sizeof(loff_t));
-> +               else
-> +                       err = -ENOMEM;
+The problem is that people made bad experiences with home-phoning software 
+in the past. Changing their opinion about this issue isn't easy I think.
+I can almost see the headlines: Spy software found in recent Linux 
+kernels... :o)
 
-Please consider using kcalloc().
+Although home-phoning can be useful under certain circumstances it is the 
+wrong way to implement it in a kernel. IMHO a userspace tool is the better 
+solution: Everyone can decide if he/she wants to report what kernel 
+version is running on their systems.
 
-> +
-> +               down(&MSDOS_I(dir)->scan_lock);
-> +               if (MSDOS_I(dir)->scan_hints) err = -EINVAL;
+> A trick to use would be to send an UDP packet at boot (after 1 minute
+> or so), and then randomly say "once a month" (i.e. about 1/30 chance of
+> sending a packet on the first day) The number of these random packets
+> recieved is a measure of the number of CPU-months that the kernel
+> runs.
 
-Please put the statement after if clause to a separate line. The above
-makes code very hard to read.
+This could be a sloution but like you know UDP packets may or may not 
+arrive the destination address. So the packet loss with this method could 
+be very high, expecially if you send only one packet. Using a 
+TCP-connection for this is a lot more stable and the payload can be 
+encrypted too.
 
-> +               if (!err) MSDOS_I(dir)->scan_hints = hints;
-> +               up(&MSDOS_I(dir)->scan_lock);
-> +               if (err == -EINVAL) {
-> +                       if (hints) kfree(hints);
+Once again: I think this is a userspace task.
 
-kfree() can handle NULLs just fine so please drop the redundant check.
+Sven
 
-                               Pekka

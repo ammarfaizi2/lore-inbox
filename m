@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVH3PU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVH3P3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbVH3PU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 11:20:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVH3PU4
+	id S932168AbVH3P3F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 11:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVH3P3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 11:20:56 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54945 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932181AbVH3PUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 11:20:55 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] i386, x86_64 Initial PAT implementation
-References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
-	<1125413136.8276.14.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 30 Aug 2005 09:20:19 -0600
-In-Reply-To: <1125413136.8276.14.camel@localhost.localdomain> (Alan Cox's
- message of "Tue, 30 Aug 2005 15:45:36 +0100")
-Message-ID: <m14q97qwng.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 30 Aug 2005 11:29:05 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:59540 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S932168AbVH3P3E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 11:29:04 -0400
+Message-ID: <43147B3D.1030309@vc.cvut.cz>
+Date: Tue, 30 Aug 2005 17:29:01 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Jon Smirl <jonsmirl@gmail.com>, "David S. Miller" <davem@davemloft.net>,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org, greg@kroah.com,
+       helgehaf@aitel.hist.no
+Subject: Re: Ignore disabled ROM resources at setup
+References: <1125371996.11963.37.camel@gaston>  <Pine.LNX.4.58.0508292045590.3243@g5.osdl.org>  <Pine.LNX.4.58.0508292056530.3243@g5.osdl.org>  <20050829.212021.43291105.davem@davemloft.net>  <Pine.LNX.4.58.0508292125571.3243@g5.osdl.org> <9e473391050829215148807c49@mail.gmail.com> <Pine.LNX.4.58.0508292207330.3243@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0508292207330.3243@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Linus Torvalds wrote:
+> 
+> On Tue, 30 Aug 2005, Jon Smirl wrote:
+> 
+>>I was reading the status out of the PCI config space to account for
+>>our friend X which enables ROMs without informing the OS. With X
+>>around PCI config space can get out of sync with the kernel
+>>structures.
+> 
+> 
+> Well, yes, except that we use the in-kernel resource address for the
+> actual ioremap() _anyway_ in the routine that calls this, so if X has
+> remapped the ROM somewhere else, that wouldn't work in the first place.
+> 
+> I'm sure X plays games with this register (I suspect that's why the Matrox 
+> thing broke in the first place), but I don't think it should do so while 
+> the kernel uses it. 
 
-> On Llu, 2005-08-29 at 18:20 -0600, Eric W. Biederman wrote:
->> ways.  Currently this code only allows for an additional flavor
->> of uncached access to physical memory addresses which should be hard
->> to abuse, and should raise no additional aliasing problems.  No
->> attempt has been made to fix theoretical aliasing problems.
->
-> Even an uncached/cached alias causes random memory corruption or an MCE
-> on x86 systems. In fact it can occur even for an alias not in theory
-> touched by the CPU if it happens to prefetch into or speculate the
-> address.
+Matrox broke because some of their chips have ROM base bits 31-1 reserved
+(read as 0) when bit 0 is cleared.  So if you read valid ROM resource,
+clear enable bit, write it to the device, and later it read from device,
+enable it, and write back, you'll end up with ROM enabled at bus address
+zero.  Probably not what you want.
 
-Right.  To the best of my understanding problem aliases are either
-uncached/write-back or write-combine/write-back.  I don't think
-uncached/write-combine can cause problems.  My basic reason for
-believing this patch is safe is that sane usage will only convert
-areas of memory that are now uncached to write-combine.
-
-> Also be sure to read the PII Xeon errata - early PAT has a bug or two.
->
-> Definitely a much needed improvement to the kernel though.
-
-Thanks.  As best as I can tell by reading the errata, the only
-bugs are confined to (a) the upper for PAT entries are used and 
-(b) when mtrrs are disabled and caching is still enabled.  
-
-I don't make use of either case so my patch should avoid those
-errata.
-
-Eric
+And FYI, on my Tyan S2885 box 2.6.13 relocates all (as far as I can tell)
+ROMs because BIOS assigns them into 'MEM window' (non-prefetchable) while
+kernel reassigns then to the 'PREFETCH window'.  In the past code was
+even allocating ROM resources above 4GB (which is nonsense for ROM region,
+unfortunately pci_bus_alloc_resource does not seem to know about difference
+between 64bit and 32bit BARs, and it always uses -1 as max address, which
+is wrong on 64bit kernel), but it does not happen since I went from 4GB
+of memory back to 2GB...
+						Petr Vandrovec
 

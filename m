@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVH3Pz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVH3P5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbVH3Pz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 11:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbVH3Pz5
+	id S932187AbVH3P5k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 11:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVH3P5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 11:55:57 -0400
-Received: from nproxy.gmail.com ([64.233.182.207]:33863 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932186AbVH3Pz4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 11:55:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=SkjTkBw6f6PAwQpFR1aBTnnXnlQ1fWoY4B4xsxMu5RGLZl0dOL2IOzrlE9kt1uN+uSRWSwyDgUMl/RfJUN6M+thQc1pKMyaPDbLD6xsBgitrcMqeHB79xInRR9zUnZSosuqc4QXu/ZtbrIihzPzurGGqHkGg0kdqKjKzbug5Lyo=
-Message-ID: <599f06db0508300855653289f2@mail.gmail.com>
-Date: Tue, 30 Aug 2005 10:55:53 -0500
-From: Gorka guardiola <paurea@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Not able to see the symbols
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 30 Aug 2005 11:57:39 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:9399 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751446AbVH3P5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 11:57:39 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Tony Lindgren <tony@atomide.com>
+Subject: Re: Dynamic tick for 2.6.14 - what's the plan?
+Date: Tue, 30 Aug 2005 17:01:49 +0100
+User-Agent: KMail/1.8.90
+Cc: Con Kolivas <kernel@kolivas.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>, Thomas Renninger <trenn@suse.de>
+References: <1125354385.4598.79.camel@mindpipe> <200508301348.59357.kernel@kolivas.org> <20050830123132.GH6055@atomide.com>
+In-Reply-To: <20050830123132.GH6055@atomide.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200508301701.49228.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am programming a service in the kernel and want a module to be able to
-use it. This means the module (an external module) need to see the symbols of
-the variables (more specifically a lock and a list and some integers). 
-The problem is the when I compile
-the kernel the symbols are not exported. I run nm or look at the System.map and
-they are not there, so the module doesnt see them and says "symbol undefined"
-when trying to link. Suprisingly, for some reason, it doesnt complain
-about the lock.
+On Tuesday 30 August 2005 13:31, Tony Lindgren wrote:
+[snip]
+> >
+> > Same issue, it's waiting on dynticks before being reworked.
+>
+> Also one more minor issue; Dyntick can cause slow boots with dyntick
+> enabled from boot because the there's not much in the timer queue
+> until init.
+>
+> This probably does not show up much on x86 though because of the
+> short hardware timers.
 
-I tried including (in the kernel service, and even though it is not a
-module) module.h and using the EXPORT_SYMBOL macro to no avail.
+You could disable it until jiffies >= 0; this covers the boot criteria and 
+still allows for moderate savings post boot (though maybe on embedded systems 
+the delay is too long?).
 
+-- 
+Cheers,
+Alistair.
 
-I have also tried compiling the module two different ways (in the hope
-that it would see the symbols even if I dont)
-
-make -C /lib/modules/_kernelname_/build module SUBDIRS=$(pwd)
-
-and
-
-make -C /lib/modules/_kernelname_/build M=$(pwd)
-
-where _kernelname_ is the name of my kernel.
-
-Please, CC me on any answers, as I am not on the list.
-
-TIA,
-
-G.-
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

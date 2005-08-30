@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVH3WcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbVH3Wdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbVH3WcD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 18:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbVH3WcD
+	id S932143AbVH3Wdy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 18:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbVH3Wdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 18:32:03 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:31407 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751373AbVH3WcC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 18:32:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l6i0XR7FZvq1yIw2stINpwTHyE2dqzBLtXRg/00vMIf2HzcUQiqowqz0VJeyxgSZ+thaMaw+t3Q/JH3lKKu37g7gvO7m5Sbolu0WsMSjM/q6T7Q8ln1ua05/ZA5sXScMuMdBT1933wx5f9r9m6MANjmura+gRW0APqG4uuj0ulA=
-Message-ID: <9a87484905083015312bc7850@mail.gmail.com>
-Date: Wed, 31 Aug 2005 00:31:54 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Mark Gross <mgross@linux.intel.com>
-Subject: Re: Telecom Clock driver for MPCBL0010 ATCA compute blade.
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200508301519.35395.mgross@linux.intel.com>
+	Tue, 30 Aug 2005 18:33:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56228 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751373AbVH3Wdx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 18:33:53 -0400
+Date: Tue, 30 Aug 2005 15:29:08 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
+       Daniel Drake <dsd@gentoo.org>, Steve Kieu <haiquy@yahoo.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+Message-ID: <20050830152908.1dc24339@dxpl.pdx.osdl.net>
+In-Reply-To: <20050830214937.22956.qmail@web53604.mail.yahoo.com>
+References: <20050830140516.316e9695@dxpl.pdx.osdl.net>
+	<20050830214937.22956.qmail@web53604.mail.yahoo.com>
+X-Mailer: Sylpheed-Claws 1.9.13 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200508301159.34053.mgross@linux.intel.com>
-	 <200508301336.16112.mgross@linux.intel.com>
-	 <9a87484905083014197ecb835a@mail.gmail.com>
-	 <200508301519.35395.mgross@linux.intel.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/31/05, Mark Gross <mgross@linux.intel.com> wrote:
-> On Tuesday 30 August 2005 14:19, Jesper Juhl wrote:
-> > On 8/30/05, Mark Gross <mgross@linux.intel.com> wrote:
-> > > On Tuesday 30 August 2005 13:31, Mark Gross wrote:
-> > > > On Tuesday 30 August 2005 12:16, Marcelo Tosatti wrote:
-> > > > >
-> > > > > Mark,
-> > > > >
-> > > > > Please fix identation accordingly to CodingStyle and repost, it
-> > > > > looks quite ugly at the moment.
-> > > > >
-> > > > Sorry about that.
-> > > >
-> > >
-> > > My email client is f-ing with me.  See attached.
-> > >
-> >
-> > ok, a few small comments  :
-> >
-[snip]
-> Thank you for your input.  See attached.
-> 
-You're welcome.
-I see you fixed some of it, but I wonder why you didn't bother to fix
-the spelling errors in the comments while you were at it? :-)  -
-"Uppon", "interaces" ...
-No big deal though.
+On Wed, 31 Aug 2005 07:49:37 +1000 (EST)
+Steve Kieu <haiquy@yahoo.com> wrote:
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> 
+> --- Stephen Hemminger <shemminger@osdl.org> wrote:
+> 
+> > You have a version of the Marvell Yukon that was
+> > affected
+> > by a fix in 2.6.13.
+> > 	skge addr 0xfeaf8000 irq 19 chip Yukon-Lite rev 9
+> > 
+> > Both the skge and sk98lin driver were fixed to check
+> > for this.
+> > Without the fix, the chip will be in the wrong power
+> > mode.
+> > 
+> > The version of sk98lin driver from SysKonnect
+> > already had the
+> > fix, so if your distro used that one, it would have
+> > the reset
+> > the power mode as needed.
+> 
+> I am afraid not. The last time, I reproduced the
+> problem using the latest sk98lin driver from
+> SysKonnect  (run create patch and patch the kernel
+> 2.6.13). Problem still there. The file I got from
+> sysconnect is:
+> 
+> install-8_23.tar.bz2
+
+Just look for references to CHIP_REV_YU_LITE_A3 in the driver
+	sk98lin/skgeinit.c and sk98lin/skxmac2.c
+The comparison should always be:
+	pAC->GIni.GIChipRev >= CHIP_REV_YU_LITE_A3
+otherwise it will not correctly take chip out of powerdown (coma) mode.

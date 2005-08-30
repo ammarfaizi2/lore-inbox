@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbVH3Nrh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbVH3OBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbVH3Nrh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 09:47:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbVH3Nrh
+	id S1751436AbVH3OBG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 10:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbVH3OBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 09:47:37 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:40947 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750926AbVH3Nrg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 09:47:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aypye9fDtkfp09WWCFz0UNzzKdXmESIyVGF7pA/p4P7ej9KangjB9Tor9UahSaaIZjRTTmT2o3weUeAuesVDZcqsBAt7MTdryAmMXKkWxmaTyvNFzQ9D0CSpQ311HFgsdhG2FhDUvThu1Jjw89ZcNanoM/NhPxTz0l2y0Dc8v+w=
-Message-ID: <9a87484905083006474f58c7c2@mail.gmail.com>
-Date: Tue, 30 Aug 2005 15:47:32 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Karsten Keil <kkeil@suse.de>
-Subject: Re: [PATCH] isdn_v110 warning fix
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Thomas Pfeiffer <pfeiffer@pds.de>, isdn4linux@listserv.isdn4linux.de,
-       Kai Germaschewski <kai.germaschewski@gmx.de>
-In-Reply-To: <20050830105104.GA6918@pingi3.kke.suse.de>
+	Tue, 30 Aug 2005 10:01:05 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:48363 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751436AbVH3OBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 10:01:04 -0400
+Subject: Re: APs from the Kernel Summit run Linux
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Harald Welte <laforge@gpl-violations.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050830131256.GA12381@midnight.suse.cz>
+References: <20050830085522.GA8820@midnight.suse.cz>
+	 <20050830101958.GJ4202@rama.de.gnumonks.org>
+	 <20050830121810.GA11582@midnight.suse.cz>
+	 <20050830125648.GG4295@rama.de.gnumonks.org>
+	 <20050830131256.GA12381@midnight.suse.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 30 Aug 2005 15:30:06 +0100
+Message-Id: <1125412206.8276.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200508300105.44247.jesper.juhl@gmail.com>
-	 <20050830105104.GA6918@pingi3.kke.suse.de>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/30/05, Karsten Keil <kkeil@suse.de> wrote:
-> On Tue, Aug 30, 2005 at 01:05:43AM +0200, Jesper Juhl wrote:
-> >
+> > According to http://sources.redhat.com/ecos/, it is either still RedHat
+> > or already transferred to the FSF.  That doesn't sound like dual
+> > licensing, I don't think the FSF would do that...
 > 
-> This is OK. Even if the codepath is never executed in a way that ret might
-> be used uninitialized it does not harm to set ret = 0.
-> 
-> 
-> Warning fix :
->  drivers/isdn/i4l/isdn_v110.c:523: warning: `ret' might be used uninitialized in this function
-> 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> Signed-off-by: Karsten Keil <kkeil@suse.de>
-> 
+> That was my thinking, too.
 
-Thank you for your feedback and for signing off on the patch. I'll
-forward it to Andrew for inclusion in -mm.
+eCos at least historically had other licensing options too.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

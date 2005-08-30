@@ -1,67 +1,70 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbVH3AfL (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 29 Aug 2005 20:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbVH3AfL
+	id S932226AbVH3Q50 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 30 Aug 2005 12:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbVH3Q50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 20:35:11 -0400
-Received: from [66.18.69.76] ([66.18.69.76]:63466 "EHLO sentechsa.net")
-	by vger.kernel.org with ESMTP id S1751432AbVH3AfK (ORCPT
+	Tue, 30 Aug 2005 12:57:26 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:25815 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932226AbVH3Q5Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 20:35:10 -0400
-X-SpamCatcher-Score: 68 [XX]
-From: "mike williams" <isaachand@jmail.co.za>
-Subject: Your Help Is Needed!!!
-X-Mailer: CommuniGate Pro WebUser Interface v.4.3.5
-Date: Tue, 30 Aug 2005 02:34:57 +0200
-Message-ID: <web-4695011@cgp8.sentechsa.net>
-MIME-Version: 1.0
+	Tue, 30 Aug 2005 12:57:25 -0400
+Message-Id: <200508301657.j7UGvM8e008117@zeus1.kernel.org>
+From: "e-BookServices, India" <data@e-bookservices.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Document Migration and e-Book Development
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-To: unlisted-recipients:; (no To-header on input)
+Date: Tue, 30 Aug 2005 22:27:18 +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751432AbVH3AfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932226AbVH3Q50@vger.kernel.org>
 
-Dear Brethen,
+Hi,
 
-May the peace of God the father, the Son and the Holy
-Spirit be with you all.
+I apologize for intruding into your busy schedule. Please allow me to introduce ourselves to you.
 
-We are a non profit organisation resides in part of Africa.
-Our organisation's name is Isaac's Hand Foundation.
-We've decided to erased child abuse and some other things
-which make the youths to be idles.
+We are engaged in providing book-related services to international clientele (http://www.e-BookServices.com). Located in
+India, we cater to both organizations as well as individuals. 
 
-Our recent research made us to realised that many youths in
-Africa were initiated to be a frauders, they don't have any
-good intention or any room for the Lord in their hearts.
-When you asked them, they have some reasons which might be
-"Genuine" in their own eyes but in God's eyes there are no
-excuse.
+Our range of services include, but are not limited to:
+- Typesetting (QuarkXPress, InDesign, FrameMaker etc) 
+- Formatting of manuscripts (MS-Word, WordPerfect etc) 
+- Graphic Design and Pre-Press jobs (including logo/book cover design) 
+- Desktop Publishing (DTP) 
+- Keying-in, scanning and OCR (for re-prints, archives, web publishing etc) 
+- Translation (from and to all major languages) 
+- e-Books Creation (PDFs, MobiPocket etc) 
+- XML Conversion 
 
-This Foundation now decided to stand on it's feet believing
-that it will get a good support from International 
-countries to say no to Child Abuse and change the mind of
-youths for Christ.
+Many companies are now outsourcing their work to India. Not only do they achieve substantial cost savings, but the
+availability of a large number of professionally trained personnel also ensures a high quality of work. We can serve you
+efficiently and cost effectively, and deliver as per your customized needs. 
 
-We decided to have a National Seminars for youth and some
-other programmes that will make these youths to know that
-if they can study and work and trust God they can do good
-in the land by not stealing or do frauding all around.
-Brethen, we need your assistance, either in monetary terms
-or materials.
+We are one of the leading Indian organizations in our field, and serve many international organizations. For accomplishing
+jobs with us, a team of highly trained and dedicated professionals work at our state-of-the-art facilities located in New
+Delhi, India.
 
-Let's join hands to say no to child abuse in any form,
-prostitutions and stealing and frauding in any form.
-Remember that our Moses needed somebody to raise his hand
-so that victory can be sure.
+We understand the basic international business processes and ensure that all projects undertaken by us are completed within
+the stipulated time period with complete confidentiality, accuracy, and quality.
 
-We shall be glad to read from you if you want to assist us
-financially or materially contact us through this
-Email;isaachandfoundation@myway.com
-Telephone:+234-802-587-2911
+For your first project you do not need to pay us a deposit. You can make the entire payment after receiving satisfactory
+delivery of service. 
 
-Shalom
+If you are interested in cutting your current costs to at least half, increasing your profit margins without compromising
+on the quality and turn-around time, then please do get back to us. We will be glad to send you a most competitive business
+proposal. 
 
-Best Regards
-Rev.Mike Williams
+I shall be at the FRANKFURT BOOK FAIR (19th-23rd October, 2005) and would be most happy to meet you there and personally
+discuss your requirements. If so, I would be obliged if you can kindly grant me a prior appointment at the fair.
+
+Sincerely,
+ 
+Dhiraj Aggarwal
+Mobile: +(91) 98100 50809
+E-mail: info@e-BookServices.net , info@e-BookServices.com
+URL: http://www.e-BookServices.net , http://www.e-BookServices.com
+
+This email has been sent expecting the information to be of use and benefit to you. In case you do not wish to receive
+further emails from us, please send us an email with `REMOVE + your email address' in the subject line and we will remove
+your email address from our database. We apologize for the inconvenience caused to you.

@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbVH3MaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbVH3McI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbVH3MaD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 08:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVH3MaD
+	id S1751419AbVH3McI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 08:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbVH3McI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 08:30:03 -0400
-Received: from web53605.mail.yahoo.com ([206.190.37.38]:10662 "HELO
-	web53605.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751419AbVH3MaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 08:30:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=acX3IsF/Ila72uZ2FlOLmxFdGC21+ei/eXY9w2HCLTYIfLLDcFeGVD1owLZouSFmUuB3ZuybARV3kMtkG8pgsQxHI0w7vJ86iWSLm34/cUqRN7Jtpf0HXkWxlY7aE8v96aAy060+tvWyVlw5iwnuiuusxPccdL1qIrVkDPOyLeY=  ;
-Message-ID: <20050830122937.79855.qmail@web53605.mail.yahoo.com>
-Date: Tue, 30 Aug 2005 22:29:37 +1000 (EST)
-From: Steve Kieu <haiquy@yahoo.com>
-Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
-To: Daniel Drake <dsd@gentoo.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <431448F7.2020506@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 30 Aug 2005 08:32:08 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:40867 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751419AbVH3McH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 08:32:07 -0400
+X-ORBL: [67.117.73.34]
+Date: Tue, 30 Aug 2005 15:31:32 +0300
+From: Tony Lindgren <tony@atomide.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Christopher Friesen <cfriesen@nortel.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>, Thomas Renninger <trenn@suse.de>
+Subject: Re: Dynamic tick for 2.6.14 - what's the plan?
+Message-ID: <20050830123132.GH6055@atomide.com>
+References: <1125354385.4598.79.camel@mindpipe> <200508301005.07353.kernel@kolivas.org> <20050830025459.GA16467@thunk.org> <200508301348.59357.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508301348.59357.kernel@kolivas.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+* Con Kolivas <kernel@kolivas.org> [050830 06:47]:
+> On Tue, 30 Aug 2005 12:54 pm, Theodore Ts'o wrote:
+> > On Tue, Aug 30, 2005 at 10:05:06AM +1000, Con Kolivas wrote:
+> > > On Tue, 30 Aug 2005 08:42, Christopher Friesen wrote:
+> > > > Lee Revell wrote:
+> > > > > The controversy over the introduction of CONFIG_HZ demonstrated the
+> > > > > urgency of getting a dynamic tick solution merged before 2.6.14.
+> > > > >
+> > > > > Anyone care to give a status report?  Con, do you feel that the last
+> > > > > version you posted is ready to go in?
+> > > >
+> > > > Last time I got interested in this, the management of the event queues
+> > > > was still a fairly major performance hit.
+> > > >
+> > > > Has this overhead been brought down to reasonable levels?
+> > >
+> > > Srivatsa is still working on the smp-aware scalable version, so it's back
+> > > in the development phase.
+> >
+> > Has there been an updated version of Thomas's C-state bus-mastering
+> > measurement patch?
+> 
+> Same issue, it's waiting on dynticks before being reworked.
 
-I have "fixed" the problem in a very wierd way.Reading
-your post I thought maybe when removing the driver
-itself it set some bit incorrectly. Then I decided to
-do:
+Also one more minor issue; Dyntick can cause slow boots with dyntick
+enabled from boot because the there's not much in the timer queue
+until init.
 
-Boot with init=/bin/bash  so bypass all other things.
-modprobe skge
+This probably does not show up much on x86 though because of the
+short hardware timers.
 
-run ifconfig eth0 ip_num  up
-
-
-ping  a host
-
-then while pinging hit Ctrl+Alt+Del key to hot reboot
-the system.
-
-I still see the light at the hub lits. Now I boot to
-winXP and as I expected , it worked!
-
-No I boot 2.6.11 and it worked, so the problem resolve
-but I am tooooo scared to run 2613 now :-)
-
-Hope this information helps debuging the driver.
-
-Thanks.
-
-S.KIEU
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Tony

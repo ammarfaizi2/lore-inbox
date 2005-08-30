@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVH3CPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVH3Crm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbVH3CPc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 22:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVH3CPc
+	id S932096AbVH3Crm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 22:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVH3Crm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 22:15:32 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:65500 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751115AbVH3CPc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 22:15:32 -0400
-Date: Mon, 29 Aug 2005 19:15:16 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Trailing comments in broken-out series file break quilt
-Message-Id: <20050829191516.4e5d9e0b.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 29 Aug 2005 22:47:42 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:56549 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S932096AbVH3Crl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 22:47:41 -0400
+X-ORBL: [69.107.75.50]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:references:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:message-id;
+	b=Xk5bk3bxJLOKF13SkGej++Oaw89maia9YrW4M+lKMDkouD6qleGWuMMA7oCbDdEdH
+	KMZapjbfHgVUhl7hi8+1g==
+Date: Mon, 29 Aug 2005 19:47:37 -0700
+From: David Brownell <david-b@pacbell.net>
+To: lutchann@litech.org, linux-kernel@vger.kernel.org, basicmark@yahoo.com
+Subject: Re: [PATCH 0/5] improve i2c probing
+References: <20050820233348.40226.qmail@web30311.mail.mud.yahoo.com>
+In-Reply-To: <20050820233348.40226.qmail@web30311.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20050830024737.09FACBFE34@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apparently Andrews patch tools allow trailing comments on active lines
-in the series file, as in these lines culled from the series file for
-2.6.13-rc6-mm2:
+> Date: Sun, 21 Aug 2005 00:33:48 +0100 (BST)
+> From: Mark Underwood <basicmark@yahoo.com>
+>
+> ...
+> Interestingly (we for me at least ;-) I have been
+> working on an SPI subsystem that was/is a copy of the
+> I2C subsystem with changes as SPI doesn't have a
+> protocol like I2C. ...
+>
+> To me, what I have, like I2C, doesn't tie in very well
+> with the new driver model (although I'm not overly
+> familiar with it, I think I finally understand
+> platform devices :-).
 
-    e1000-numa-aware-allocation-of-descriptors-v2.patch # hold
-    nfs-nfs3-page-null-fill-in-a-short-read-situation.patch # wait
-    sched-implement-nice-support-across-physical-cpus-on-smp.patch # con
-    sched-change_prio_bias_only_if_queued.patch # con
-    sched-account_rt_tasks_in_prio_bias.patch # con
-    sched-smp-nice-bias-busy-queues-on-idle-rebalance.patch # con
-    sched-correct_smp_nice_bias.patch # con
-    md-fix-rh_dec-rh_inc-race-in-dm-raid1c.patch # wait
+Yes, it takes maybe a little while to sort out what the
+driver model does for you, especially if you're coming
+from whatever strange dimension the I2C model did.  :)
 
-However the quilt command passes these additional terms to the patch
-command as additional arguments, confusing the heck out of patch,
-and generating an error message that confused the heck out of me.
 
-Question - should I be asking Andrew not to comment this way, or
-should I be asking quilt to recognize a comment convention here?
+> I wonder how much work the new kernel subsystems can
+> do for us to cut down the size of i2c-core (and thus
+> also spi-core).
+> I guess there is no escaping the fact that I'm going
+> to gave to do some more homework and study the code.
+> Any thoughts or insights would be very welcome.
 
-If we choose the second alternative, then the following change to
-the file /usr/local/share/quilt/scripts/patchfns might to the trick:
+Well, I've just posted a sketch of how to use the driver
+model in a more traditional way for SPI.  That same
+approach could be taken with I2C if/when anyone gets
+motivated to make it happen ... except that, unlike SPI,
+I2C can actually use hardware probing in common usage.
+(It could kick in right after the pre-declared devices
+Get initialized.)
 
---- /tmp/q/patchfns.1	2005-08-29 19:11:24.000000000 -0700
-+++ /tmp/q/patchfns.2	2005-08-29 19:11:31.000000000 -0700
-@@ -108,8 +108,8 @@ patch_args()
- 	then
- 		/bin/gawk '
- 		$1 == "'"$patch"'" \
--			{ if (NF >= 2)
--				for (i=2; i <= NF; i++)
-+			{ if (NF >= 2 && $2 != "#")
-+				for (i=2; i <= NF && $i != "#"; i++)
- 					print $i
- 			  else
- 				print "-p1" ;
+- Dave
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,100 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVH3RI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVH3RJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbVH3RI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 13:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbVH3RI0
+	id S932212AbVH3RJz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 13:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVH3RJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 13:08:26 -0400
-Received: from mirapoint2.brutele.be ([212.68.199.149]:19513 "EHLO
-	mirapoint2.brutele.be") by vger.kernel.org with ESMTP
-	id S932227AbVH3RIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 13:08:24 -0400
-Date: Tue, 30 Aug 2005 19:08:20 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6.13 - 3/3 - Remove the deprecated function __check_region
-Message-ID: <20050830170820.GB11011@localhost.localdomain>
+	Tue, 30 Aug 2005 13:09:55 -0400
+Received: from hera.kernel.org ([209.128.68.125]:55195 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932212AbVH3RJy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 13:09:54 -0400
+Date: Tue, 30 Aug 2005 12:07:05 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Paul Mackerras <paulus@samba.org>, Dan Malek <dan@embeddededge.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-ppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org, Pantelis Antoniou <panto@intracom.gr>
+Subject: Re: [PATCH] MPC8xx PCMCIA driver
+Message-ID: <20050830150705.GA6140@dmt.cnet>
+References: <20050830024840.GA5381@dmt.cnet> <4313D4D6.7080108@pobox.com> <20050830035338.GA5755@dmt.cnet> <17171.57693.981385.165290@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="4SFOXa2GPu3tIq4H"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Linux debian 2.6.12-1-k7
-User-Agent: Mutt/1.5.10i
-X-Junkmail-Status: score=10/50, host=mirapoint2.brutele.be
-X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090201.43148FA8.0040-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
-	=?ISO-8859-1?Q?p=3D=80=D5?=
+In-Reply-To: <17171.57693.981385.165290@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+Hi Paul, Jeff,
 
+On Tue, Aug 30, 2005 at 02:32:29PM +1000, Paul Mackerras wrote:
+> Marcelo Tosatti writes:
+> 
+> > The memory map structure which contains device configuration/registers
+> > is _always_ directly mapped with pte's (the 8xx is a chip with builtin
+> > UART/network/etc functionality).
+> > 
+> > I don't think there is a need to use read/write acessors.
 
---4SFOXa2GPu3tIq4H
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Bullshit, yep :) 
 
-Hi all, 
- 
-Here is the first patch for kernel 2.6.13 from Linus tree.
+> Generally on PowerPC you need to use at least the eieio instruction to
+> prevent reordering of the loads and stores to the device.  It's
+> possible that 8xx is sufficiently in-order that you get away without
+> putting in barrier instructions (eieio or sync), but it's not good
+> practice to omit them.
 
+On 8xx, guarded mappings seem to ensure synchronous operation of
+load/store instructions.
 
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-                <stephane.wirtel@gmail.com>
+Since the internal memory map is guarded, eieio is redudant (ie thats
+why it gets away without explicit barriers now).
 
+>From MPC860UM.pdf: 5.2.5.2.1 eieio Behavior
 
+The purpose of eieio is to prevent loads and stores from executing
+speculatively when appropriate. This might be desirable for a FIFO,
+where performing a read or write changes the FIFO's data. This should
+not be done unless it is certain that the instruction will be completed
+and not cancelled. The same function as eieio can be accomplished by
+defining a memory space as having the guarded attribute in the MMU, in
+which case, the eieio instruction is redundant. However, eieio could be
+useful in the rare event that a region where speculative accesses are
+not allowed lies in the middle of a non-guarded page.
 
---4SFOXa2GPu3tIq4H
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: attachment; filename="patch_remove_check_region_in_pnp_resource.diff"
+There is nothing which prevents compiler reordering though, as Jeff
+notes.
 
-diff --git a/drivers/pnp/resource.c b/drivers/pnp/resource.c
---- a/drivers/pnp/resource.c
-+++ b/drivers/pnp/resource.c
-@@ -242,6 +242,7 @@ int pnp_check_port(struct pnp_dev * dev,
- 	int tmp;
- 	struct pnp_dev *tdev;
- 	unsigned long *port, *end, *tport, *tend;
-+	struct resource *res = 0;
- 	port = &dev->res.port_resource[idx].start;
- 	end = &dev->res.port_resource[idx].end;
- 
-@@ -252,8 +253,12 @@ int pnp_check_port(struct pnp_dev * dev,
- 	/* check if the resource is already in use, skip if the
- 	 * device is active because it itself may be in use */
- 	if(!dev->active) {
--		if (__check_region(&ioport_resource, *port, length(port,end)))
-+		res = __request_region(&ioport_resource, *port, length(port,end), "check-region");
-+		if (res) {
-+			release_resource (res);
-+			kfree (res);
- 			return 0;
-+		}
- 	}
- 
- 	/* check if the resource is reserved */
-@@ -298,6 +303,7 @@ int pnp_check_mem(struct pnp_dev * dev, 
- 	int tmp;
- 	struct pnp_dev *tdev;
- 	unsigned long *addr, *end, *taddr, *tend;
-+	struct resource *res = 0;
- 	addr = &dev->res.mem_resource[idx].start;
- 	end = &dev->res.mem_resource[idx].end;
- 
-@@ -308,8 +314,12 @@ int pnp_check_mem(struct pnp_dev * dev, 
- 	/* check if the resource is already in use, skip if the
- 	 * device is active because it itself may be in use */
- 	if(!dev->active) {
--		if (check_mem_region(*addr, length(addr,end)))
-+		res == __request_region(&iomem_resource, *addr, length(addr, end), "check-region");
-+		if (res) {
-+			release_resource (res);
-+			kfree (res);
- 			return 0;
-+		}
- 	}
- 
- 	/* check if the resource is reserved */
+> You can use accessors such as in_be32 and in_le32 in this situation,
+> when you have a kernel virtual address that is already mapped to the
+> device.
 
---4SFOXa2GPu3tIq4H--
+Do you think it would be worth to have lighterweight versions of
+in_be32/in_le32 functions (without eieio and isync) ? Would avoid the
+increase in code size and consequently cache footprint.
 
+The IMMAP is referenced directly _all over_ the 8xx core code, must be
+fixed.
+
+> There are multiple reasons:
+>
+> * Easier reviewing.  One cannot easily distinguish between writing to
+> normal kernel virtual memory and "magic" memory that produces magicaly
+> side effects such as initiating DMA of a net packet.
+> 
+> * Compiler safety.  As the code is written now, you have no guarantees
+> that the compiler won't combine two stores to the same location, etc.
+> Accessor macros are a convenient place to add compiler barriers or
+> 'volatile' notations that the MPC8xx code lacks.
+>
+> * Maintainable.  foo_read[bwl] or foo_read{8,16,32} are preferred
+> because that's the way other bus accessors look like -- yes even
+> embedded SoC buses benefit from these code patterns.  You want your
+> driver to look like other drivers as much as possible.
+>
+> * Convenience.  The accessors can be a zero overhead memory read/write
+> at a minimum.  But they can also be convenient places to use special
+> memory read/write instructions that specify uncached memop, compiler
+> barriers, memory barriers, etc.

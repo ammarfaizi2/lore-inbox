@@ -1,111 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbVH3Pu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVH3Pwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbVH3Pu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 11:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVH3Pu6
+	id S932184AbVH3Pwj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 11:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbVH3Pwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 11:50:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15522 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751446AbVH3Pu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 11:50:58 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: solving page table access attribute aliasing.
-References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
-	<200508300412.55027.ak@suse.de>
-	<m1br3gq71m.fsf_-_@ebiederm.dsl.xmission.com>
-	<200508301714.35017.ak@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 30 Aug 2005 09:50:25 -0600
-In-Reply-To: <200508301714.35017.ak@suse.de> (Andi Kleen's message of "Tue,
- 30 Aug 2005 17:14:34 +0200")
-Message-ID: <m1zmqzpgou.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Aug 2005 11:52:39 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:15383 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932184AbVH3Pwj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 11:52:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lQgyCKahxJFUVg88g4le918WnWWEfxlqnRaYu1BiMa6cQB2FcEYOY6akuPFc20TrYHAx7wUtvBycqQ7csG5I1lPxrVB/vFFB5OVlKAZebJWKUZm42dCZP4Ksw8fGt6tZidYfMQPB8HbrWAjvBzWQ0izzyE6xmeg1loJj2g6w43I=
+Message-ID: <87941b4c05083008523cddbb2a@mail.gmail.com>
+Date: Tue, 30 Aug 2005 09:52:36 -0600
+From: Greg Felix <greg.felix@gmail.com>
+To: Oliver Tennert <O.Tennert@science-computing.de>
+Subject: Re: IDE HPA
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200508300859.19701.tennert@science-computing.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <87941b4c05082913101e15ddda@mail.gmail.com>
+	 <200508300859.19701.tennert@science-computing.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+Kernel list,
 
-> On Tuesday 30 August 2005 08:21, Eric W. Biederman wrote:
->
->> Letting drivers/users decide is the interface we have now so
->> unless we wish to change the linux driver model we need to support
->> it.
->>
->> From this perspective I think the change should be quite simple.
->> We need a function:
->> verify_pfn_mapping(unsigned long pfn, unsigned long size, pgprot_t prot);
->> That performs the following checks, on every page:
->>
->>  - Is the page RAM with a struct page.  If so it must be mapped write
->>    back.  If we want anything else fail.
->>
->>  - If the pfn is not RAM and already mapped and do the caching
->>    attributes in pgprot_t match.  If we want anything else fail.
->>
->>  - If the pfn is not mapped, allow anything that is possible.
->
-> I think we need an object with reference count here. Otherwise
-> there is no way for two drivers to use the same region with the
-> same attribute in a safe way.
+A while ago there was some discussion on the list regarding the
+behavior of the kernel in regards to its unconditional disabling of
+host protected areas of hard drives.  I ran into a problem this causes
+with some RAID controllers.  I've been discussing the problem with
+both the ata-raid mailing list and Oliver.  I feel we should copy the
+kernel list because we don't think the current behavior is the
+desirable one.
 
-Agreed.  For the kernel mapping we can potentially imposes a 1
-ioremap rule.  Mappings to user space we very much need a reference
-count, or to keep track of all mappings.  Which is why I like simply
-using the existing vmas.  It makes establishing a new mapping
-slow but effective.
+Below is some discussion Oliver and I have had about it.
 
->> For the case where we are dealing with physical addresses without a
->> struct page we need a space efficient way to get this information.
->> For each user mapping we already have a vm_area_struct so it makes
->> sense to keep all of them on a linked list so we can walk through them
->> and find any user space mappings for a pfn.  For the kernel mapping
->
-> vma is space critical unfortunately. I don't think another list_head
-> there will be popular. Separate tree is better.
+> > Sorry for taking up your time. I saw your emails recently to the Linux
+> > kernel mailing list concerning IDE host protected areas.  You were
+> > asking why they are unconditionally disabled.  Did anyone ever give
+> > you a good response to your question?
+> >
+> 
+> Hi Greg,
+> 
+> Alan Cox answered, but he focussed entirely on the point that in his opinion,
+> the main reason for using HPAs is something like backward-compatibility of
+> the drive with old BIOSses that have problems with large disks.
+> 
+> But to be honest, I have never ever heard about that being a motivation to use
+> an HPA. And as far as I know, that was not the reason for introducing an HPA
+> anyway.
+> 
+> As far as I know, some HW vendors store some diagnostic tools in an HPA.
+> 
+> > I have found a bug where my BIOS is storing some RAID metadata near
+> > the end of a disk.  The problem i run into is that the end of the disk
+> > is 20MB off when Linux counts the HPA.
+> >
+> 
+> So you are sure that your RAID controller uses an HPA to store the metadata? I
+> am asking because some RAID controllers simply cut away a moderate region
+> from the end of the disks and present the OS with a smaller disk, which is
+> but a virtual one. In that case, no HPA is used. It is rather like the MD
+> driver works.
 
-We already have the list we just need an address space for I/O mappings,
-like we have swapper_space for the swap cache.  I need to do a close
-code review as a few things have changed since I was in there last but
-I don't anticipate problems.  Fundamentally it just make sense that
-we can add a logical backing store object, although there may be an
-odd interaction with drivers calling remap_pfn_range, I need
-to think about that one.
+My RAID controller isn't using an HPA to store metadata.  It's simply
+recognizing that there is an HPA and reading its 63 sector backwards
+offset starting at totalSectors-sizeOfHPA.
 
-> That is an unrelated feature? 
+> But of course, the Linux kernel simply shows whether an HPA is used or not.
 
-On x86 yes as we don't allow this.  On sparc64 you can't check for aliases
-if you don't grok huge pages.  So for the general case it may not be.
+Right.  I get the output at bootup time.  It reads that the HPA is
+20MB.  Which is exactly the size of how far off the metadata is in
+Linux (once the HPA is disabled).
 
->> Unless I am hugely mistake every architecture that can set caching
->> attributes on the page tables needs this.
->
-> Yes, some shared code might make sense.
->
->> I am going to sleep now and work on implementing this in the morning.
->
-> I can code something up too. The main thing I'm not sure about 
-> is what to do with existing MTRRs. The PATs will overrule them
-> normally, so it would be tempting to just ignore, but we could still 
-> effectively have an illegal alias if someone (SMM?) uses the mappings behind 
-> our back.
+> > Have you heard of any kernel parameters that disable the HPA disabling?
+> >
+> 
+> There is no runtime variable, the code is run unconditionally, unfortunately.
 
-SMM as I recall does use the page tables so we should be relatively
-safe there.  The painful case then would be using memory that the
-mttrs specify as write-back that we set to uncached in the page
-tables.
+I've found where the code is and it'd be a simple hack to fix it and
+recompile, but I'm concerned that other people will run into this at
+some point.  I think we or the people who make decisions ought to
+revisit the disabling of HPAs idea.
 
-> And interoperation with the X server that messes with mappings
-> and MTRRs in user space freely also needs some thought.
+> > Thanks for your time,
+> > Greg Felix
+> 
+> Not at all! Should we CC the mail the kernel mailing list?
 
-I believe the X server always requests the kernel to perform the action
-and does not actually perform it. 
+I think we should.  In fact, I will with this email.
 
-As long as the kernel keeps the page tables in sync X should not be
-able to cause us any problems.
-
-Eric
-
+> Best regards
+> 
+> Oliver

@@ -1,88 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbVH3UAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVH3T7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbVH3UAb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 16:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbVH3UAb
+	id S932182AbVH3T7i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 15:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbVH3T7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 16:00:31 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:62641 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S932433AbVH3UAa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 16:00:30 -0400
-Date: Tue, 30 Aug 2005 21:59:40 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: Andrew Morton <akpm@osdl.org>, "Antonino A. Daplas" <adaplas@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Jochen Hein <jochen@jochen.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH 1/1 2.6.13] framebuffer: bit_putcs()
- optimization for 8x* fonts
-In-Reply-To: <43149E5B.7040006@t-online.de>
-Message-ID: <Pine.LNX.4.62.0508302151520.9194@numbat.sonytel.be>
-References: <43148610.70406@t-online.de> <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be>
- <43149E5B.7040006@t-online.de>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-584334533-959120381-1125431980=:9194"
+	Tue, 30 Aug 2005 15:59:38 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:52937 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932182AbVH3T7h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 15:59:37 -0400
+Subject: [Fwd: [tpmdd-devel] [PATCH]
+	linux-2.6.13/drivers/char/tpm/tpm_atmel.c on ICH6]
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: tpmdd-devel@lists.sourceforge.net, pmhahn@titan.lahn.de, akpm@osdl.org
+Content-Type: text/plain
+Date: Tue, 30 Aug 2005 14:57:36 -0500
+Message-Id: <1125431856.8180.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This patch enables more new hardware.
 
----584334533-959120381-1125431980=:9194
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+ACKed-by: Kylene Hall <kjhall@us.ibm.com>
 
-On Tue, 30 Aug 2005, Knut Petersen wrote:
-> > Probably you can make it even faster by avoiding the multiplication, like
-> > 
-> >    unsigned int offset = 0;
-> >    for (i = 0; i < image.height; i++) {
-> > 	dst[offset] = src[i];
-> > 	offset += pitch;
-> >    }
-> 
-> More than two decades ago I learned to avoid mul and imul. Use shifts, add and
-> lea instead,
-> that was the credo those days. The name of the game was CP/M 80/86, a86, d86
-> and ddt ;-)
-> 
-> But let´s get serious again.
+-------- Forwarded Message --------
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+To: Kylene Hall <kjhall@us.ibm.com>
+Cc: tpmdd-devel@lists.sourceforge.net
+Subject: [tpmdd-devel] [PATCH] linux-2.6.13/drivers/char/tpm/tpm_atmel.c
+on ICH6
+Date: Tue, 30 Aug 2005 10:28:22 +0200
+Hello!
 
-On modern CPUs, a multiplication indeed takes 1 cycle, just like an addition.
-But on older CPUs (still supported by Linux), this is not true.
+While installing Debian on our new IBM X41 Tablet, I tried briefly to
+use the built-in Atmel TPM. The Athmel TPM is also located on the
+LPC-bus of the ICH6. To make it work I had to apply the following patch:
 
-> Your proposed change of the patch results in a 21 ms performance decrease on
-> my system.
-> Yes, I do know that this is hard to believe. I tested a similar variation
-> before, and the results
-> were even worse.
-> 
-> Avoiding mul is a good idea in assembly language today, but often it is better
-> to write a
-> multiplication  with the loop counter in C and not to introduce an extra
-> variable instead. The
-> compiler will optimize the code and it´s easier for gcc without that extra
-> variable.
+Signed-off-by: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
 
-But you are right. On actual inspection of the generated assembly code for a
-very simple test case, it turns out both (m68k-linux-)gcc 2.95.2 and 3.3.3 are
-smart enough to convert the multiplication to an addition...
+--- linux-2.6.13-rc7/drivers/char/tpm/tpm_atmel.c.orig	2005-08-26 15:21:21.000000000 +0200
++++ linux-2.6.13-rc7/drivers/char/tpm/tpm_atmel.c	2005-08-26 13:22:45.000000000 +0200
+@@ -206,6 +206,9 @@ static struct pci_device_id tpm_pci_tbl[
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_12)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_0)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_1)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_0)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8111_LPC)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_CSB6LPC)},
+ 	{0,}
 
-And interestingly, if I avoid the multiplication explicitly, gcc 2.95.2 still
-generates the same code, but 3.3.3 adds a few extra instructions to
-save/restore local vars. So this probably explains why it turned out to be
-slower for you. Ugh...
+BYtE
+Philipp
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
----584334533-959120381-1125431980=:9194--
